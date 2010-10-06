@@ -1,0 +1,12 @@
+; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
+name = Yet Another XML Import Module
+description = "Import XML Content to Drupal"
+package = Other
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "Yet Another XML Import Module"
+datestamp = "1282573770"
+

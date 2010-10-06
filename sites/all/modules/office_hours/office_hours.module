@@ -1,0 +1,494 @@
+<?php
+// $Id: office_hours.module,v 1.1.2.1.2.12 2009/11/08 08:35:20 ozeuss Exp $
+
+/**
+ * @file
+ * Creates a field and widget for inserting working or office hours per day
+ */
+
+/**
+ * Implementation of hook_theme().
+ */
+function office_hours_theme() {
+  return array(
+    'office_hours_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'office_hours.theme.inc',
+    ),
+    'office_hours' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'office_hours.theme.inc',
+    ),
+    'office_hours_multiple_values' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'office_hours.theme.inc',
+    ),
+    'office_hours_select' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'office_hours.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function office_hours_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'content_field_edit_form') {
+    if($form['#field']['type'] == 'office_hours') {
+      $description = t('14 hours blocks is the current default. see below for limiting it');
+      $description .= '<br/><strong>'. t('Warning! Changing this setting after data has been created could result in the loss of data!') .'</strong>';
+        $form['field']['multiple'] = array(
+          '#type' => 'select',
+          '#title' => t('Number of values'),
+          '#options' => drupal_map_assoc(array(14)),
+          '#default_value' => 14,
+          '#description' => $description,
+        );
+    }
+  }
+  if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    $type = content_types($form['#node']->type);
+    foreach ($type['fields'] as $field) {
+      if ($field['type'] == 'office_hours') {
+        $form[$field['field_name']]['#theme'] = 'office_hours_multiple_values';
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function office_hours_init () {
+    drupal_add_css(drupal_get_path('module', 'office_hours') .'/office_hours.css');
+    //drupal_add_js(drupal_get_path('module', 'office_hours') .'/office_hours.js','theme');
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function office_hours_content_is_empty($item, $field) {
+  if ( $item['starthours'] == '' || $item['endhours'] == '' || !isset($item['day']) )  {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_field_info().
+ *
+ * @return
+ *   An array keyed by field type name. Each element of the array is an associative
+ *   array with these keys and values:
+ *   - "label": The human-readable label for the field type.
+ */
+function office_hours_field_info() {
+  return array(
+    'office_hours' => array(
+      'label' => 'Office Hours',
+      'description' => t('Store office or opening hours in the database.'),
+      'callbacks'=> array (
+      'tables'=> CONTENT_CALLBACK_DEFAULT,
+      'arguments'=> CONTENT_CALLBACK_DEFAULT,
+      ),
+     ),
+  );
+}
+
+/**
+ * Implementation of hook_field_settings().
+ *
+ * Handle the parameters for a field.
+ */
+function office_hours_field_settings($op, $field) {
+  switch ($op) {
+    case 'form':
+    //$options = _office_hours_create_hours_arr($field, FALSE);
+      $form = array();
+      $form['hoursformat'] = array(
+        '#type' => 'select',
+        '#title' => t('Hours format'),
+        '#options' => array (t('24 hrs.'), t('12 hrs')),
+        '#default_value' => $field['hoursformat'] ? $field['hoursformat'] : 0,
+        '#required' => FALSE,
+        '#description' => t('Format of the clock. IMPORTANT NOTE: if you do not select "Multiple values", you can enter only one day.'),
+      );
+      $form['granularity'] = array(
+        '#type' => 'select',
+        '#title' => t('granularity of time'),
+        '#options' => array ( '60' => t('Hours'), '30' => t('Half hours'), '15' => t('Quarter hours') ),
+        '#default_value' => $field['granularity'] ? $field['granularity'] : 0,
+        '#required' => FALSE,
+        '#description' => t('Allow inserting quarter hours, half hours, or only hours of the day'),
+      );
+      $form['limitstart'] = array (
+        '#type' => 'office_hours_select',
+        '#title' => t('Limit widget start hours'),
+        '#default_value' => '',//$field['limitstart']? $field['limitstart'] : '', 
+        '#granularity' => $field['granularity'],
+        '#hoursformat' => $field['hoursformat'],
+        '#prefix' => '<div class="office-hours-block" style="display:inline">',
+      );
+       $form['limitend'] = array(
+        '#type' => 'office_hours_select',
+        '#title' => t('Limit widget end hours'),
+        '#default_hours' => '',//$field['limitend']? $field['limitend'] : '', 
+        '#granularity' => $field['granularity'],
+        '#hoursformat' => $field['hoursformat'],
+        '#suffix' => '</div>',
+      );
+      $form['valhrs'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Validate hours'),
+        '#required' => FALSE,
+        '#default_value' => isset($field['valhrs']) ? $field['valhrs'] : 0,
+        '#description' => t('Please note that this will work as long as the opening hours are not through midnight.'),
+      );
+       $form['addhrs'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Display the "Add more hours" link'),
+        '#required' => FALSE,
+        '#default_value' => isset($field['addhrs']) ? $field['addhrs'] : 1,
+        '#description' => t('Make it possible to use 2 hour block for each day instead of one'),
+      );
+      return $form;
+     
+  case 'validate':
+       /* if ( $field['limitend'] <= $field['limitstart'] && $field['limitend'] != 'none'  && $field['limitstart'] !='none') {
+            form_set_error('limitend','Limit ending hours are earlier than start hours');
+        }*/   
+     break;
+
+    case 'save':
+      return array('hoursformat', 'granularity', 'limitstart', 'limitend', 'valhrs','addhrs');
+
+    case 'database columns':
+      $columns = array(
+        'day' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
+        'starthours' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
+        'endhours' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
+
+      );
+      return $columns;
+    break;
+      
+      case 'views data':
+        $data = _office_hours_views_field_views_data($field);
+        $db_info = content_database_info($field);
+        $table_alias = content_views_tablename($field);
+        // Swap the filter handler.
+        $data[$table_alias][$field['field_name'] .'_day']['filter']['handler'] = 'office_hours_handler_filter_day';
+        $data[$table_alias][$field['field_name'] .'_starthours']['filter']['handler'] = 'office_hours_handler_filter_hours';
+        $data[$table_alias][$field['field_name'] .'_endhours']['filter']['handler'] = 'content_handler_handler_filter_hours';
+        return $data;
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_field().
+ * 
+ */
+ function office_hours_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    case 'validate':
+      foreach ($items as $delta => $item) {
+        if ($field['valhrs']) {
+         if (!empty($item['starthours']) && !empty($item['endhours']) ) {
+           $error_field = $field['field_name'] .']['. $delta .'][endhours';
+             if ($item['starthours'] > $item['endhours']) {
+                form_set_error($error_field, t('Closing hours are earlier than opening hours validator'));
+             }
+           }
+        }
+      }
+    break;
+    case 'presave':
+    break;
+    case 'insert':
+    case 'update':
+    $items = _office_hours_set_weight($items);
+    break;
+  }
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function office_hours_field_formatter_info() {
+  return array(
+    'default' => array(
+      'label' => 'default',
+      'field types' => array('office_hours'),
+      'multiple values' => CONTENT_HANDLE_MODULE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function office_hours_widget_info() {
+  return array(
+    'office_hours' => array(
+      'label' => t('Office Hours'),
+      'field types' => array('office_hours'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+        ),
+    ),
+  );
+}
+
+/**
+ * Implementation of FAPI hook_elements().
+ */
+function office_hours_elements() {
+  module_load_include('elements.inc', 'office_hours');
+  return _office_hours_elements();
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function office_hours_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+  return $element;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function office_hours_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'office_hours') . '/includes',
+  );
+}
+
+function _office_hours_arrange_day ($items) {
+  $first = variable_get('date_first_day',0); 
+    while ($first > 0) :
+      $shifted = array_shift($items);
+      $items[] = $shifted;
+      if (isset($items[13])) {
+        $shifted = array_shift($items);
+        $items[] = $shifted;
+      }
+      $first--;
+    endwhile;
+  return $items;
+}
+
+/**
+ * helper function to create hours array.
+ * items are saved in 24 hours string format (i.e '18:00').
+ *//* we're using date_api now
+ function _office_hours_create_hours_arr($field = array(), $limit = TRUE) { 
+  $ophours['none'] = t('None');
+  $start = ($field['limitstart'] != 'none') ? $field['limitstart']: 0;
+  $end = ($field['limitend'] != 'none') ?  $field['limitend'] : 2400 ;
+  $gran = ($field['granularity'] == 0) ? 60 : $field['granularity'];
+  for ($i = $start; $i <= $end; $i+=$gran  ) {
+    if (substr($i, -2) == 60) {
+      $i += 40;
+    }
+    $ophours[$i] = ($field['hoursformat']) ? _office_hours_mil_to_tf($i) :  _office_hours_convert_to_ampm($i);
+  }
+  return $ophours;
+}*/
+ 
+/**
+ * Helper function for conversion of clock format.
+ */
+function _office_hours_convert_to_ampm($hour) {
+  if (!strstr($hour, ":")) {
+    $hour = _office_hours_mil_to_tf($hour);
+  }
+  list($hr, $min) = explode(":", $hour);
+  if ($hr== '0') { // midnight
+    $hr = 12;
+    $ampm = ' AM';
+  }
+  elseif ($hr == 12) { // noon
+    $hr = 12;
+    $ampm = ' PM';
+  }
+  elseif ($hr > 12 && $hr < 24) { // a pm time
+    $hr = $hr - 12;
+    $ampm = ' PM';
+  }
+  else {
+    $ampm =' AM';
+  }
+  return $hr . ':' . $min . $ampm;
+}
+
+function _office_hours_tf_to_mil($hour) {
+  if (strstr($hour,':') == FALSE || is_null($hour)) {
+    return $hour;
+  }
+  list($hr, $min) = explode(":", $hour);
+  $hr = $hr * 60 + $min;
+  return $hr;
+}
+
+
+function _office_hours_mil_to_tf($time = '') {
+  $hour = (substr($time,0,-2)) ? substr($time,0,-2): '0';
+  $min = (substr($time,-2)) ? substr($time,-2): '00';
+  return $hour . ":" . $min;
+}
+
+function _office_hours_set_weight($items) {
+  $sorted = array();
+  foreach ($items as $key => $item) {
+    if (!is_null($item['day'])) {
+      $sortkey= (int) $item['day'];
+      if (count($items) == 14) {
+        $sortkey = $sortkey * 2;        
+      }
+      if (is_array($sorted[$sortkey])) {
+        $sorted[$sortkey+1] = $item;
+      }
+      else {
+        $sorted[$sortkey] = $item;
+      }
+    }
+  }
+  //now fill the empty spaces with null values
+  foreach (range(0,count($items)-1) as $value) {
+    if (!is_array($sorted[$value])) {
+      $sorted[$value] = array('day' => NULL, 'starthours' => NULL, 'endhours'=> NULL);
+    }
+  } 
+  return $sorted;
+}
+
+/**
+ * Adding all table field into $data in hook_views_data.
+ */
+function _office_hours_views_field_views_data($field) {
+  $field_types = _content_field_types();
+    $db_info = content_database_info($field);
+
+    // Field modules that do not store data in the database
+    // should not create views data tables.
+    if (empty($db_info['columns'])) {
+      return;
+    }
+
+    $table_alias = content_views_tablename($field);
+
+    $types = array();
+    foreach (content_types() as $type) {
+      if (isset($type['fields'][$field['field_name']])) {
+        $types[] = $type['name'];
+      }
+    }
+
+    $data = array();
+    $data['table']['group']  = t('Content');
+    $data['table']['join']['node'] = array(
+      'table' => $db_info['table'],
+      'left_field' => 'vid',
+      'field' => 'vid',
+    );
+
+    $columns = array();
+    $arguments = array();
+    $filters = array();
+    foreach ($db_info['columns'] as $column => $attributes) {
+      $columns[] = $attributes['column'];
+      $sorts[] = !empty($attributes['sortable']) ? TRUE : FALSE;
+
+      // Identify likely filters and arguments for each column based on field type.
+      switch ($attributes['type']) {
+        case 'int':
+        case 'mediumint':
+        case 'tinyint':
+        case 'bigint':
+        case 'serial':
+          $filters[] = 'content_handler_filter_numeric';
+          $arguments[] = 'content_handler_argument_numeric';
+          break;
+        case 'numeric':
+        case 'float':
+          $filters[] = class_exists('views_handler_filter_float') ? 'content_handler_filter_float' : 'content_handler_filter_numeric';
+          $arguments[] = 'content_handler_argument_numeric';
+          break;
+
+        case 'text':
+        case 'blob':
+          // TODO add markup handlers for these types
+        default:
+          $filters[] = 'content_handler_filter_string';
+          $arguments[] = 'content_handler_argument_string';
+          break;
+      }
+    }
+$i=0;
+    // Ensure all columns are retrieved,
+    $additional_fields = drupal_map_assoc($columns);
+    foreach($columns as $key => $column) {
+    list(,,$field_type) =explode('_',$column);
+    $data[$column] = array(
+      'group' => t('Content'),
+      'title' => t($field_types[$field['type']]['label']) . ': ' . t($field['widget']['label']) . ' (' . $field['field_name'].' '.$field_type . ')',
+      'help' =>  t($field_types[$field['type']]['label']) . ' - ' . t('Appears in: @types', array('@types' => implode(', ', $types))),
+      'field' => array(
+        'field' => $column,
+        'table' => $db_info['table'],
+        'handler' => 'content_handler_field_multiple',
+        'click sortable' => $sorts[$i],
+       // 'additional fields' => $additional_fields,
+        'content_field_name' => $field['field_name'],
+        'allow empty' => TRUE,
+        // Access control modules should implement content_views_access_callback().
+        'access callback' => 'content_views_access_callback',
+        'access arguments' => array($field),
+      ),
+      'argument' => array(
+        'field' => $column,
+        'table' => $db_info['table'],
+        'handler' => $arguments[$i],
+        'click sortable' => $sorts[$i], // TODO used in once place in node.views.inc, should we use it here?
+        'name field' => '', // TODO
+        //'additional fields' => $additional_fields,
+        'content_field_name' => $field['field_name'],
+        'empty field name' => t('<No value>'),
+        'allow empty' => TRUE,
+      ),
+      'filter' => array(
+        'field' => $column,
+        'title' => t($field['widget']['label']) . ': ' . $field_type ,
+        'table' => $db_info['table'],
+        'handler' => $filters[$i],
+        //'additional fields' => $additional_fields,
+        'content_field_name' => $field['field_name'],
+        'allow empty' => TRUE,
+      ),
+    );
+    $i++;
+    }
+    // TODO do we need different handling for sorts with Views 2,
+    // especially when relationships are involved?
+    if (!empty($sorts[$i])) {
+      $data[$column]['sort'] = array(
+        'field' => $column,
+        'table' => $db_info['table'],
+        'handler' => 'content_handler_sort',
+       // 'additional fields' => $additional_fields,
+        'content_field_name' => $field['field_name'],
+        'allow empty' => TRUE,
+      );
+    }
+    // TODO: provide automatic filters, sorts, and arguments for each column, not just the first?
+    return array($table_alias => $data);
+}
+

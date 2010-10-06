@@ -1,0 +1,2187 @@
+<?php
+// $Id: pollfield.module,v 1.2.4.11.2.68 2010/06/26 14:05:06 marioprkos Exp $
+
+/**
+* views api init
+*/
+function pollfield_views_api() {
+  return array('api' => 2.0,);
+}
+
+/**
+ * @file
+ * This module creates a CCK field that contains a simple poll.
+ */
+function pollfield_menu() {
+  $items = array();
+  $items['pollfield/add_choice'] = array(
+    'title' => 'Add choice',
+    'page callback' => 'pollfield_add_choice',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function pollfield_perm() {
+
+  //get table
+  $fields = content_fields();
+  foreach ($fields as $i => $key) {
+    if ($fields[$i]['module']=='pollfield') {
+      $permission[]='view pollfield results '. $i;
+			$permission[]='admin pollfield '. $i;
+    }
+  }
+
+  return $permission;
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function pollfield_init() {
+  $css_file = drupal_get_path('module', 'Pollfield') .'/pollfield.css';
+  // echo $css_file;
+
+  // add css
+  drupal_add_css($css_file, 'module');
+}
+
+/**
+ * Implementation of hook_help().
+ */
+function pollfield_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#pollfield':
+      $output = '<p>'. t('The Pollfield module adds a poll widget that enables you to create a CCK field designed to hold a simple poll. This poll is a simple multiple choice questionnaire which displays the cumulative results of the answers to the poll. ') .'</p>';
+      $output .= '<p>'. t('The field created this way can be added to any content type enabling users to have simple polls inside node types other than Poll. It is possible to add more than one Pollfield in the same content type, it means you can have more than one poll in one node. ') .'</p>';
+      $output .= '<p>'. t('Add the field to a content type of your choice. When creating new content of that content type Poll settings option will be available as one of the fieldsets. Create a question, then enter the responses and the starting vote counts. You can also choose the time period over which the vote will run.') .'</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function pollfield_theme() {
+  return array(
+    'pollfield' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'pollfield_formatter_default' => array(
+      'arguments' => array('element'),
+    ),
+    'pollfield_formatter_block_default' => array(
+      'arguments' => array('element'),
+    ),
+    'pollfield_formatter_results' => array(
+      'arguments' => array('element'),
+    ),
+    'pollfield_formatter_question' => array(
+      'arguments' => array('element'),
+    ),
+    'pollfield_formatter_runtime' => array(
+      'arguments' => array('element'),
+    ),
+    'pollfield_formatter_choices' => array(
+      'arguments' => array('element'),
+    ),
+    'user_vote' => array(
+      'arguments' => array('node', 'comment'),
+    ),
+		
+  );
+}
+
+/**
+ * What you see in the edit node
+ *
+ * @param unknown_type $element
+ * @return unknown
+ */
+function theme_pollfield($element) {
+ 
+ $element['#attributes']['class'] .= 'pollfield-form';
+ $fieldset = array(
+    '#type' => 'fieldset',
+    '#title' => "Pollfield ",//.$element['#title'],
+    '#collapsible' => isset($element['#collapsible']) ? $element['#collapsible'] : TRUE,
+    '#collapsed' =>  isset($element['#collapsed']) ? $element['#collapsed'] : TRUE,
+    '#attributes' => $element['#attributes'],
+    '#children' => $element['#children'],
+  );
+  
+  return theme('fieldset', $fieldset);
+
+}
+
+/**
+ * what you see in the node view
+ *
+ * @param unknown_type $element
+ * @return unknown
+ */
+function theme_pollfield_formatter_default($element) {
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  $field_name_delta=$element['#item']['#delta'];
+  //adding up the results
+  // kjh: default to showing form as FALSE and enable it when we have an
+  // at least one choice configured
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  //is user voted
+  $field_table=$node->type;$field_name=$field;
+  $is_vote = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+  $user_votes = pollfield_user_votes($node, $field_table, $field_name, $field_name_delta);
+  $is_results_allow=$poll_features['ResultsAllow'];
+	//*********    aggragate translation votes ****************
+	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
+	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+ 
+  while ($t_nodes = db_fetch_object($t_nodes_results)) {
+	 
+		if ($node->nid<>$t_nodes->nid){
+			$t_nodes_nid[]=$t_nodes->nid;
+			//find start value choices
+			//get table name
+			$fields = content_fields();
+			$db_info = content_database_info($fields[$field_name]);
+			$table_content = $db_info['table'];
+			$column_choice = $field_name ."_choice";
+			$column_question = $field_name ."_question";
+			$column = 'delta';
+			$is_delta_exist = db_column_exists($table_content, $column);
+			if ($is_delta_exist) {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+
+			}
+			else {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+			}		 
+			$choices_start=unserialize($choices_start_unser);
+			if (is_array($choices_start)){
+			  foreach($choices_start as $value){
+				  $count_translate_votes[]=$value['votes'];
+			  }
+			}
+		}		
+
+	}
+	
+	
+	//************* end of aggregate translated votes ********************
+
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+				$count_translate=0;
+			  foreach($t_nodes_nid as $tnode){
+					
+		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
+		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
+					$count_translate=$count_translate+$count_temp;				
+				}
+				$count=$count_node+$count_translate;
+        $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
+        $sum = $sum+$count+$choice['votes']+$count_translate_votes[$delta];//countig all votes
+      }
+    }
+  }
+	
+  //geting results
+  $i=0;
+  $poll_result='<div id="pollfield">';
+
+  while (!empty($choices_array[$i]) && $sum>0) {
+    $percent = floatval(($votes[$i]*100.0)/$sum);
+    $percent = round($percent, 1);
+    //$votes[$i]=$percent;
+    //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		
+    //check user voted
+    $is_this_user_vote = FALSE;
+    if (is_array($user_votes)) {
+      //get if user voted on this choice
+      foreach ($user_votes as $value) {
+        if ($value==$i) {
+          $is_this_user_vote = TRUE;
+        }
+      }
+    }
+    //marked chosen answer
+    if ($is_this_user_vote) {
+      $poll_result .= "<div class='pollfield-row pollfield-chosen'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'><div
+      class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+    }
+    else {
+      $poll_result .= "<div class='pollfield-row'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'>
+      <div class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+
+    }
+    $i++;
+  }
+  $poll_result .= "</div>";
+
+  
+  if ($show_form) {
+    
+    $form = pollfield_build_voting_form($element);
+    $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
+
+    if ($element['#item']['question']!="' '") {
+      $out .= '<div class="pollfield-title">'. check_plain($element['#item']['question']) .'</div>';
+    }
+
+    $out .= $form;
+    $permission='view pollfield results '. $field_name;
+    if (user_access($permission)) {
+      if ( $is_vote || $is_results_allow) {
+        $out .= $poll_result;
+      }
+    }
+    $out .= '</div>';
+    return $out;
+  }
+
+}
+/**
+ * what you see in the node view
+ *
+ * @param unknown_type $element
+ * @return unknown
+ */
+function theme_pollfield_formatter_block_default($element) {
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  $field_name_delta=$element['#item']['#delta'];
+  //adding up the results
+  // kjh: default to showing form as FALSE and enable it when we have an
+  // at least one choice configured
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  //is user voted
+  $field_table=$node->type;$field_name=$field;
+  $is_vote = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+  $user_votes = pollfield_user_votes($node, $field_table, $field_name, $field_name_delta);
+  $is_results_allow=$poll_features['ResultsAllow'];
+	//*********    aggragate translation votes ****************
+	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
+	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+ 
+  while ($t_nodes = db_fetch_object($t_nodes_results)) {
+	 
+		if ($node->nid<>$t_nodes->nid){
+			$t_nodes_nid[]=$t_nodes->nid;
+			//find start value choices
+			//get table name
+			$fields = content_fields();
+			$db_info = content_database_info($fields[$field_name]);
+			$table_content = $db_info['table'];
+			$column_choice = $field_name ."_choice";
+			$column_question = $field_name ."_question";
+			$column = 'delta';
+			$is_delta_exist = db_column_exists($table_content, $column);
+			if ($is_delta_exist) {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+
+			}
+			else {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+			}		 
+			$choices_start=unserialize($choices_start_unser);
+			if (is_array($choices_start)){
+			  foreach($choices_start as $value){
+				  $count_translate_votes[]=$value['votes'];
+			  }
+			}
+		}		
+
+	}
+	
+	
+	//************* end of aggregate translated votes ********************
+
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+				$count_translate=0;
+			  foreach($t_nodes_nid as $tnode){
+					
+		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
+		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
+					$count_translate=$count_translate+$count_temp;				
+				}
+				$count=$count_node+$count_translate;
+        $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
+        $sum = $sum+$count+$choice['votes']+$count_translate_votes[$delta];//countig all votes
+      }
+    }
+  }
+	
+  //geting results
+  $i=0;
+  $poll_result='<div id="pollfield">';
+
+  while (!empty($choices_array[$i]) && $sum>0) {
+    $percent = floatval(($votes[$i]*100.0)/$sum);
+    $percent = round($percent, 1);
+    //$votes[$i]=$percent;
+    //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		
+    //check user voted
+    $is_this_user_vote = FALSE;
+    if (is_array($user_votes)) {
+      //get if user voted on this choice
+      foreach ($user_votes as $value) {
+        if ($value==$i) {
+          $is_this_user_vote = TRUE;
+        }
+      }
+    }
+    //marked chosen answer
+    if ($is_this_user_vote) {
+      $poll_result .= "<div class='pollfield-row pollfield-chosen'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'><div
+      class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+    }
+    else {
+      $poll_result .= "<div class='pollfield-row'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'>
+      <div class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+
+    }
+    $i++;
+  }
+  $poll_result .= "</div>";
+
+  
+  if ($show_form) {
+    
+    $form = pollfield_build_voting_form($element);
+    $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
+
+    if ($element['#item']['question']!="' '") {
+      $out .= '<div class="pollfield-title">'. check_plain($element['#item']['question']) .'</div>';
+    }
+    else{
+      $node_title=db_result(db_query("SELECT title FROM {node} WHERE nid= %d",$node->nid));
+      $nid=$node->nid;
+      $node_link=l($node_title,"node/".$nid);
+      $out .= '<div class="pollfield-title">'. $node_link .'</div>';
+    }
+    
+    $out .= $form;
+    $permission='view pollfield results '. $field_name;
+    if (user_access($permission)) {
+      if ( $is_vote || $is_results_allow) {
+        $out .= $poll_result;
+      }
+    }
+    $out .= '</div>';
+    return $out;
+  }
+
+}
+function theme_pollfield_formatter_results($element) {
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  $field_name_delta=$element['#item']['#delta'];
+  //adding up the results
+  // kjh: default to showing form as FALSE and enable it when we have an
+  // at least one choice configured
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  //is user voted
+  $field_table=$node->type;$field_name=$field;
+  $is_vote = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+  $user_votes = pollfield_user_votes($node, $field_table, $field_name, $field_name_delta);
+  $is_results_allow=$poll_features['ResultsAllow'];
+	//*********    aggragate translation votes ****************
+	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
+	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+ 
+  while ($t_nodes = db_fetch_object($t_nodes_results)) {
+	 
+		if ($node->nid<>$t_nodes->nid){
+			$t_nodes_nid[]=$t_nodes->nid;
+			//find start value choices
+			//get table name
+			$fields = content_fields();
+			$db_info = content_database_info($fields[$field_name]);
+			$table_content = $db_info['table'];
+			$column_choice = $field_name ."_choice";
+			$column_question = $field_name ."_question";
+			$column = 'delta';
+			$is_delta_exist = db_column_exists($table_content, $column);
+			if ($is_delta_exist) {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+
+			}
+			else {
+				//get choices
+				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+			}		 
+			$choices_start=unserialize($choices_start_unser);
+			if (is_array($choices_start)){
+			  foreach($choices_start as $value){
+				  $count_translate_votes[]=$value['votes'];
+			  }
+			}
+		}		
+
+	}
+	
+	
+	//************* end of aggregate translated votes ********************
+
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+				$count_translate=0;
+			  foreach($t_nodes_nid as $tnode){
+					
+		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
+		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
+					$count_translate=$count_translate+$count_temp;				
+				}
+				$count=$count_node+$count_translate;
+        $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
+        $sum = $sum+$count+$choice['votes']+$count_translate_votes[$delta];//countig all votes
+      }
+    }
+  }
+	
+  //geting results
+  $i=0;
+  $poll_result='<div id="pollfield">';
+
+  while (!empty($choices_array[$i]) && $sum>0) {
+    $percent = floatval(($votes[$i]*100.0)/$sum);
+    $percent = round($percent, 1);
+    //$votes[$i]=$percent;
+    //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
+		
+    //check user voted
+    $is_this_user_vote = FALSE;
+    if (is_array($user_votes)) {
+      //get if user voted on this choice
+      foreach ($user_votes as $value) {
+        if ($value==$i) {
+          $is_this_user_vote = TRUE;
+        }
+      }
+    }
+    //marked chosen answer
+    if ($is_this_user_vote) {
+      $poll_result .= "<div class='pollfield-row pollfield-chosen'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'><div
+      class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+    }
+    else {
+      $poll_result .= "<div class='pollfield-row'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'>
+      <div class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
+      $percent_string ."</div></div>";
+
+    }
+    $i++;
+  }
+  $poll_result .= "</div>";
+
+  
+  if ($show_form) {
+    
+    $form = pollfield_build_voting_form($element);
+    $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
+
+    if ($element['#item']['question']!="' '") {
+      $out .= '<div class="pollfield-title">'. check_plain($element['#item']['question']) .'</div>';
+    }
+
+    $out .= $form;
+    $permission='view pollfield results '. $field_name;
+    if (user_access($permission)) {
+      if ( $is_vote || $is_results_allow) {
+        $out .= $poll_result;
+      }
+    }
+    $out .= '</div>';
+    return $out;
+  }
+
+}
+
+function theme_pollfield_formatter_choices($element) {
+
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  //adding up the results
+  // kjh: default to showing form as FALSE and enable it when we have an
+  // at least one choice configured
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+        $count = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+            AND field_table='%s' AND field_name='%s'", $node->nid, $delta, $type, $field));
+        $votes[]=$count+$choice['votes'];
+        $sum=$sum+$count+$choice['votes'];//countig all votes
+
+      }
+    }
+  }
+
+  //geting results
+  $i = 0;
+  $poll_result = " ";
+
+  while (!empty($choices_array[$i]) && $sum>0) {
+    $percent = floatval(($votes[$i]*100.0)/$sum);
+    $percent = round($percent, 1);
+    //$votes[$i]=$percent;
+    $percent_string = $percent ."% (". format_plural($votes[$i],'1 vote','@count votes') .")";
+    $poll_result .= "<div class='pollfield-row'>". check_plain($choices_array[$i]) ."</div>";
+    $i++;
+  }
+
+  if ($show_form) {
+    $out = '<div class="pollfield-responses">';
+    $out .= $poll_result;
+    $out .= '</div>';
+
+    return $out;
+  }
+
+
+}
+
+function theme_pollfield_formatter_question($element) {
+  // todo and other formattings
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  //adding up the results
+  // kjh: default to showing form as FALSE and enable it when we have an
+  // at least one choice configured
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+        $count = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+            AND field_table='%s' AND field_name='%s'", $node->nid, $delta, $type, $field));
+        $votes[]=$count+$choice['votes'];
+        $sum = $sum+$count+$choice['votes'];//countig all votes
+
+      }
+    }
+  }
+
+  //geting results
+
+  if ($show_form) {
+    $out = '<div class="pollfield-questions">';
+
+    if ($element['#item']['question']!="' '") {
+      $out .= '<div class="pollfield-row">'. check_plain($element['#item']['question']) .'</div>';
+    }
+    $out .= '</div>';
+
+    return $out;
+  }
+
+}
+
+function theme_pollfield_formatter_runtime($element) {
+    // todo and other formattings
+
+  global $user;
+  $items      = $element['#item'];
+  $node       = $element['#node'];
+  $type = $element['#type_name'];
+  $field = $element['#field_name'];
+  //adding up the results
+  $show_form = FALSE;
+  if (is_array($items['poll_features'])) {
+    $choices = $items['group'];
+    $poll_features = $items['poll_features'];
+  }
+  else{
+    $choices = unserialize($items['choice']);
+    $poll_features = unserialize($items['poll_features']);
+  }
+
+  $votes=array();$choices_array=array();
+  if (!empty($choices)) {
+    foreach ($choices as $delta => $choice) {
+      if (!empty($choice['choice'])) {
+        $show_form = TRUE;
+        $choices_array[] = check_plain($choice['choice']);
+        $count = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
+            AND field_table='%s' AND field_name='%s'", $node->nid, $delta, $type, $field));
+        $votes[]=$count+$choice['votes'];
+        $sum = $sum+$count+$choice['votes'];//countig all votes
+
+      }
+    }
+  }
+
+  //geting results
+
+  if ($show_form) {
+    if ($element['#item']['runtime']>0) {
+      $runtime = t('!duration duration of poll in seconds', array('!duration' => $element['#item']['runtime']));
+    }
+    else{
+      $runtime = t('Unlimited poll duration.');
+    }
+    $out = '<div class="pollfield-runtime">'. check_plain($runtime) .'</div>';
+    return $out;
+  }
+
+}
+
+
+//only user choice
+function theme_user_vote($node, $comment) {
+  // todo and other formattings
+  global $user;
+  $poll_output = "<div id='pollfield' class='pollfield_results'>";
+  foreach ($node as $key => $value) {
+    //get field name
+    if (strncmp($key, 'field_', 6)==0) {
+      //get table name
+      $fields = content_fields();
+      $db_info = content_database_info($fields[$key]);
+      $table_content = $db_info['table'];
+      $column_choice = $key ."_choice";
+      $column_question = $key ."_question";
+      $column = 'delta';
+      $is_delta_exist = db_column_exists($table_content, $column);
+      $poll_result = db_query("SELECT * FROM {%s} INNER JOIN `node` ON {%s}.nid = node.nid WHERE {%s}.nid = %d AND {%s}.vid = node.vid", 	
+															$table_content, $table_content, $table_content, $node->nid, $table_content);
+
+      while ($pollfield = db_fetch_object($poll_result)) {
+
+        if ($is_delta_exist) {
+          $field_name_delta=$pollfield->delta;
+        }
+        else {
+          $field_name_delta=0;
+        }
+        $choices = unserialize($pollfield->$column_choice);
+        //is user vote
+        $is_vote = 0;
+        $is_vote = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND field_name_delta=%d
+              AND field_table='%s' AND field_name='%s' AND uid=%d",
+              $node->nid, $field_name_delta, $node->type, $key, $comment->uid));
+
+        //get user vote
+				
+        $user_choice_result = db_query("SELECT delta FROM {pollfield_votes} WHERE nid = %d AND field_name_delta=%d
+              AND field_table='%s' AND field_name='%s' AND uid=%d",
+              $node->nid, $field_name_delta, $node->type, $key, $comment->uid);
+				while ($user_choice = db_fetch_object($user_choice_result)) {
+						
+	
+		      $user_choice_response=$choices[$user_choice->delta]['choice'];
+
+		      if ($is_vote>0) {
+		        if ($pollfield->$column_question=="' '") {
+		          $poll_output .= "<p>". $node->title .": ". check_plain($user_choice_response) ."</p>";
+		        }
+		        else{
+		          $poll_output .= "<p>". $pollfield->$column_question .": ". check_plain($user_choice_response) ."</p>";
+		        }
+		        $out = $poll_output;
+		      }//if
+				}//while
+      }
+    }
+  }
+  $out .= '</div>';
+  return $out;
+}
+
+function pollfield_voting_form($element) {
+  global $user;
+
+  $form = array();
+  $form_state = array();
+  $table = $element['#type_name'];
+  $field_name = $element['#field_name'];
+  $field_name_delta = $element['#item']['#delta'];
+  $items = $element['#item'];
+  $node = $element['#node'];
+  $hostname = $_SERVER['REMOTE_ADDR'];
+  if (is_array($element['#item']['poll_features'])) {
+    $poll_features=$element['#item']['poll_features'];
+  }
+  else{
+    $poll_features = unserialize($element['#item']['poll_features']);
+  }
+
+  $nid=$node->nid;
+
+  //get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+
+  if ($is_delta_exist) {
+    //get anonymous voting politics
+    $field_anon = $field_name .'_anonymous';
+    $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_anon, $table_content, $nid, $field_name_delta));
+
+  }
+  else {
+    //get anonymous voting politics
+    $field_anon = $field_name .'_anonymous';
+    $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_anon, $table_content, $nid));
+  }
+
+    //check if user has voted
+  $field_table = $table;
+  $voted = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+
+
+  if ($voted) {
+    if ($user->uid) {
+      if ($poll_features['CancelVote_Allow']) {//allow cancel vote
+        $cancel=1;
+        $form['field_name_delta'] = array('#type' => 'hidden', '#value' => $field_name_delta);
+        $form['field_name'] = array('#type' => 'hidden', '#value' => $field_name);
+        $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+        $form['vote'] = array('#type' => 'submit', '#value' => t('Cancel Vote'),'#submit'=>array('pollfield_voting_function_form_submit'));
+        $form['table'] = array('#type' => 'hidden', '#value' => $table);
+        $form['cancel'] = array('#type' => 'hidden', '#value' => $cancel);
+        $form['#type'] = 'form';
+       
+      }
+    }
+    else{
+      if ($anonymous=='anon_non')
+        return $output;
+      else {
+        if ($poll_features['CancelVote_Allow']) {//allow cancel vote
+          $cancel = 1;
+          $form['field_name_delta'] = array('#type' => 'hidden', '#value' => $field_name_delta);
+          $form['field_name'] = array('#type' => 'hidden', '#value' => $field_name);
+          $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+          $form['vote'] = array('#type' => 'submit', '#value' => t('Cancel Vote'),'#submit'=>array('pollfield_voting_function_form_submit'));
+          $form['table'] = array('#type' => 'hidden', '#value' => $table);
+          $form['cancel'] = array('#type' => 'hidden', '#value' => $cancel);
+          $form['#type'] = 'form';
+         
+        }
+      }
+    }
+  }
+  //if user not voted
+  else {
+    if ($user->uid==0) {
+      if ($anonymous=='anon_non')
+        return $output;
+    }
+
+    if ($items) {
+      $list = array();
+      $choices = unserialize($items['choice']);
+
+      if (!empty($choices)) {
+          foreach ($choices as $delta => $choice) {
+            if (!empty($choice['choice'])) {
+              $list[$delta] = check_plain($choice['choice']);
+            }
+          }
+
+          //choose form for specific type of poll
+          if ($poll_features['PollType']=='0') {//single choice
+            $form['choice'] = array('#type' => 'radios', '#title' => $question, '#default_value' => -1, '#options' => $list);
+          }
+          if ($poll_features['PollType']=='1') {//multi choice
+            $form['choice'] = array('#type' => 'checkboxes', '#title' => $question, '#options' => $list);
+          }
+
+      }
+
+    }
+
+    
+    $cancel = 0;
+    $form['field_name_delta'] = array('#type' => 'hidden', '#value' => $field_name_delta);
+    $form['field_name'] = array('#type' => 'hidden', '#value' => $field_name);
+    $form['nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+    $form['vote'] = array('#type' => 'submit', '#value' => t('Vote'),'#submit'=>array('pollfield_voting_function_form_submit'));
+    $form['table'] = array('#type' => 'hidden', '#value' => $table);
+    $form['cancel'] = array('#type' => 'hidden', '#value' => $cancel);
+    $form['#type'] = 'form';
+
+
+  }
+
+  //enable and disable vote form
+
+
+  $result = db_query("SELECT active FROM {pollfield} WHERE field_table='%s' AND field_name='%s' AND nid=%d AND field_name_delta=%d",
+      $table, $field_name, $node->nid, $field_name_delta);
+  while ($pollfield = db_fetch_object($result)) {
+    $is_active=$pollfield->active;
+  }
+  if ($is_active==1) {
+   
+		return $form;
+  }
+
+
+  return NULL;
+}
+/**
+*build form function
+*/
+function pollfield_build_voting_form($element){
+	
+	return drupal_get_form('pollfield_voting_function_form',$element);
+}
+/**
+*form function
+*/
+function pollfield_voting_function_form(&$form_sate,$element){
+	 
+   $form_1 = pollfield_voting_form($element);
+   return $form_1;
+}
+/**
+*submit function for voting form
+*/
+function pollfield_voting_function_form_submit(&$form_values,$element){
+ 
+	pollfield_vote();
+	
+}
+/**
+ * Implementation of hook_field_info().
+ *
+ * Here we indicate that the content module will use its default
+ * handling for the view of this field.
+ *
+ * Callbacks can be omitted if default handing is used.
+ * They're included here just so this module can be used
+ * as an example for custom modules that might do things
+ * differently.
+ */
+function pollfield_field_info() {
+  return array(
+    'pollfield' => array(
+      'label' => t('Pollfield'),
+      'description' => t('This is to store poll as a field and not as a node'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function pollfield_field_settings($op, $field) {
+  switch ($op) {
+    case 'database columns':
+      // It would be more efficient not to store the question and runtime in
+      // every field, but that makes the Views integration much more complex.
+      // This way also creates an separate table with complete poll result
+      // data for each individual pollfield, making it easier to do other
+      // integration with or manipulation of the data.
+      $columns['question'] = array('type' => 'text', 'default' => "' '", 'sortable' => TRUE, 'views' => TRUE);
+      $columns['active'] = array('type' => 'int', 'default' => 0, 'sortable' => TRUE, 'views' => TRUE);
+      $columns['runtime'] = array('type' => 'int', 'default' => 0, 'sortable' => TRUE, 'views' => TRUE);
+      $columns['choice'] = array('type' => 'text', 'default' => "' '", 'sortable' => TRUE, 'views' => TRUE);
+      $columns['votes'] = array('type' => 'int', 'default' => 0, 'sortable' => TRUE, 'views' => TRUE);
+      $columns['anonymous'] = array('type' => 'text', 'default' => "' '", 'sortable' => TRUE, 'views' => TRUE);
+      $columns['poll_features'] = array('type' => 'text', 'default' => "' '", 'sortable' => TRUE, 'viwes' => TRUE);
+      return $columns;
+  }
+}
+/**
+ * Implementation of hook_cron().
+ * Closes pollfields that have exceeded their allowed runtime.
+ */
+function pollfield_cron() {
+  $time = time();
+  $result = db_query('SELECT p.nid, p.field_name, p.field_table, p.field_name_delta FROM {pollfield} p INNER JOIN {node} n ON p.nid = n.nid WHERE (n.created + p.runtime) < '. $time .' AND p.active = 1 AND p.runtime <> 0');
+  while ($pollfield = db_fetch_object($result)) {
+    db_query("UPDATE {pollfield} SET active = 0 WHERE nid = %d AND field_table = '%s' AND field_name = '%s' AND field_name_delta=%d",
+      $pollfield->nid, $pollfield->field_table, $pollfield->field_name, $pollfield->field_name_delta);
+    // get where is table
+    // get table
+    $fields = content_fields();
+    $db_info = content_database_info($fields[$field_name]);
+    $table_content = $db_info['table'];
+    $column = 'delta';
+    $is_delta_exist = db_column_exists($table_content, $column);
+    if ($is_delta_exist) {
+      db_query("UPDATE {%s} set ". $pollfield->field_name ."_active = 0 WHERE nid = %d AND delta=%d", $table_content,
+        $pollfield->nid, $pollfield->field_name_delta);
+    }
+    else {
+      db_query("UPDATE {%s} set ". $pollfield->field_name ."_active = 0 WHERE nid = %d", $table_content,
+        $pollfield->nid);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function pollfield_user($op, &$edit, &$user) {
+  if ($op == 'delete') {
+    db_query('UPDATE {pollfield_votes} SET uid = 0 WHERE uid = %d', $user->uid);
+  }
+}
+
+/**
+ * Implementation of hook_field().
+ */
+function pollfield_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    case 'validate':
+    break;
+  case 'delete':
+    pollfield_delete($node);
+    break;
+  case 'validate':
+    break;
+  case 'update':
+    $field_table = $node->type;
+    $field_name = $field['field_name'];
+    $total_votes = 0;
+    foreach ($items as $key => $item) {
+      $choices = array();
+      db_query("DELETE  from {pollfield} WHERE nid=%d AND field_name='%s' AND field_table='%s' AND field_name_delta=%d",
+        $node->nid, $field_name, $field_table, $key);
+      db_query("INSERT INTO {pollfield} (nid, field_table, field_name, runtime, active, field_name_delta) VALUES (%d, '%s', '%s', %d, %d, %d)",
+        $node->nid, $field_table, $field_name, $item['runtime'], $item['active'], $key);
+      // handling publishing option
+      // it is publising
+      if (!isset($items['group'])) {
+        $coices = $items;
+      }
+      else {
+        $coices = $items['group'];
+      }
+
+      foreach ($coices as $delta => $group) {
+        $total_votes = $total_votes+$items[$key]['group'][$delta]['votes'];
+      }
+			//delete votes if it set in edit field
+      if ($item['delete_votes']==1){
+				db_query("DELETE FROM {pollfield_votes} WHERE nid = %d
+        AND field_table='%s' AND field_name='%s' AND field_name_delta=%d", $node->nid, $field_table, $field_name,$key);
+			}
+			
+      // get total votes
+      $total_votes = $total_votes+db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d
+        AND field_table='%s' AND field_name='%s'", $node->nid, $field_table, $field_name));
+
+      // serialize
+      // for publishing and not publishing
+      if (isset($items[$key]['group'])) {
+        $s = serialize($items[$key]['group']);
+        $poll_fetures = serialize($items[$key]['poll_features']);
+      }
+      else {
+        $s = $items[$key]['choice'];
+        $poll_fetures = $items[$key]['poll_features'];
+      }
+      $node->{$field['field_name']}[$key]['choice'] = $s;
+      $items[$key]['choice'] = $s;
+      $items[$key]['votes'] = $total_votes;
+      // adding poll features
+      $items[$key]['poll_features'] = $poll_fetures;
+      $item['nid_poll'] = $node->nid;
+    }
+    break;
+  // poll choices
+  case 'insert':
+    $field_table = $node->type;
+    $field_name = $field['field_name'];
+    $total_votes = 0;
+    foreach ($items as $key => $item) {
+      $choices = array();
+      db_query("DELETE  from {pollfield} WHERE nid=%d AND field_name='%s' AND field_table='%s' AND field_name_delta=%d",
+        $node->nid, $field_name, $field_table, $key);
+      db_query("INSERT INTO {pollfield} (nid, field_table, field_name, runtime, active, field_name_delta) VALUES (%d, '%s', '%s', %d, %d, %d)",
+        $node->nid, $field_table, $field_name, $item['runtime'], $item['active'], $key);
+      if (!empty($item['group'])) {
+        foreach ($item['group'] as $delta => $group) {
+          if (empty($group['choice'])) {
+            unset($items[$key]['group'][$delta]);
+          }
+          $total_votes = $total_votes+$items[$key]['group'][$delta]['votes'];
+        }
+      }
+      $s = serialize($items[$key]['group']);
+      $poll_fetures = serialize($items[$key]['poll_features']);
+      $node->{$field['field_name']}[$key]['choice'] = $s;
+      $items[$key]['choice'] = $s;
+      $items[$key]['votes'] = $total_votes;
+      // adding poll features
+      $items[$key]['poll_features'] = $poll_fetures;
+      $item['nid_poll'] = $node->nid;
+    }
+    break;
+  }// switch
+}
+
+/**
+ * Implementation of hook_delete().
+ */
+function pollfield_delete($node) {
+  db_query("DELETE  from {pollfield_votes} WHERE nid=%d", $node->nid);
+  db_query("DELETE  from {pollfield} WHERE nid=%d", $node->nid);
+  pollfield_clear($node);
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function pollfield_content_is_empty($item, $field) {
+  if (empty($item['question'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function pollfield_field_formatter_info() {
+  return array(
+    'default' => array(
+      'label' => 'Default',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'block_default' => array(
+      'label' => 'Default block',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    
+    'choices' => array(
+      'label' => 'All choices',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'results' => array(
+      'label' => 'All results',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'question' => array(
+      'label' => 'Question',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+    'runtime' => array(
+      'label' => 'Runtime',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_elements().
+ */
+function pollfield_elements() {
+  return array(
+    'pollfield' => array(
+      '#input' => TRUE,
+      '#process' => array('pollfield_pollfield_process'),
+    ),
+  );
+}
+
+/**
+ * Process an individual element.
+ *
+ * Build the form element. When creating a form using FAPI #process,
+ * note that $element['#value'] is already set.
+ *
+ * The $fields array is in $form['#field_info'][$element['#field_name']].
+ */
+function pollfield_pollfield_process($element, $edit, $form_state, $form) {
+  $field1 = $form['#field_info'][$element['#field_name']];
+  $delta = $element['#delta'];
+  $cols = $element['#columns'];
+  $type_name = $field1['type_name'];
+  $field_name = $field1['field_name'];
+  // geting number of blanks spot for questions
+  $result = db_result(db_query("SELECT widget_settings FROM {content_node_field_instance} WHERE field_name='%s' AND type_name='%s'",
+    $field_name, $type_name));
+  $settings = unserialize($result);
+  // $blank_fields = $field['widget']['blanks'];
+  $blank_fields = $settings['blanks']-1;
+
+	//access to edit pollfield
+  $permission = 'admin pollfield '. $field_name;
+  $access = false;
+  if (user_access($permission)) {
+		$access= true;
+  }
+  //*********************************
+	
+  $field = $cols[0];
+  $element[$field] = array(
+    '#type' => 'textfield',
+    '#title' => t('Question'),
+    '#rows' => 2,
+    '#default_value' => isset($element['#value'][$field]) ? $element['#value'][$field] : '',
+    '#description' => t('The question this poll will ask.'),
+  );
+
+  $_duration = array(0 => t('Unlimited')) + drupal_map_assoc(array(86400, 172800, 345600, 604800, 1209600, 2419200, 4838400, 9676800, 31536000), "format_interval");
+  $_active = array(0 => t('Closed'), 1 => t('Active'));
+
+  $field = $cols[1];
+  $element[$field] = array(
+    '#type' => 'radios',
+		'#access'=> $access,
+    '#title' => t('Status'),
+    '#default_value' => isset($element['#value'][$field]) ? $element['#value'][$field] : 1,
+    '#options' => $_active,
+    '#description' => t('When a pollfield is closed, visitors can no longer vote for it.')
+  );
+
+  $field = $cols[2];
+  $element[$field] = array(
+    '#type' => 'select',
+		'#access'=> $access,
+    '#title' => t('Duration'),
+    '#default_value' => isset($element['#value'][$field]) ? $element['#value'][$field] : 1,
+    '#options' => $_duration,
+    '#description' => t('After this period, the pollfield will be closed automatically.')
+  );
+
+  // anonymous voting
+  $element[$cols[5]] = array(
+    '#type' => 'select',
+		'#access'=> $access,
+    '#title' => t('Anonymous voting'),
+    '#default_value' => isset($element['#value']['anonymous']) ? $element['#value']['anonymous'] : 1,
+    '#options' => array(
+      'anon_non' => t('Not allowed'),
+      'anon_by_ip' => t('Allowed, filtered by user IP'),
+      'anon_by_cookie' => t('Allowed filtered by user cookie'),
+      'anon_all' => t('Allowed')
+    ),
+    '#description' => t('Allow or disallow anonymous users to vote on this poll. Filtering by user IP or cookie ensures only one vote is allowed per user IP.')
+  );
+
+  // poll_features - additional pollfield settings *******************************
+  // we can put this as many features as we want and it is all saved in one field poll_features
+  // if we are on edit node and get previous value
+  if (!is_array($element['#value'][$cols[6]])) {
+    $poll_features = unserialize($element['#value'][$cols[6]]);
+    $cancel_vote_allow = $poll_features['CancelVote_Allow'];
+    $result_allow = $poll_features['ResultsAllow'];
+    $poll_type = $poll_features['PollType'];
+   
+  }
+  // we are on default value mode and we use default mode value
+  else{
+    $cancel_vote_allow = $element['#value'][$cols[6]]['CancelVote_Allow'];
+    $result_allow = $element['#value'][$cols[6]]['ResultsAllow'];
+    $poll_type = $element['#value'][$cols[6]]['PollType'];// add poll type
+		
+  }
+
+  // allow or disallow cancel voting
+  $_cancelvote = array(0 => t('Disallow'), 1 => t('Allow'));
+  $element['poll_features']['CancelVote_Allow'] = array(
+    '#type' => 'radios',
+		'#access'=> $access,
+    '#title' => t('Cancel Vote'),
+    '#default_value' => isset($cancel_vote_allow) ? $cancel_vote_allow : 1,
+    '#options' => $_cancelvote,
+    '#description' => t('Allow or disallow "Cancel vote" button. "Cancel vote" button allows voters to cancel their vote and choose a different one if they want.'),
+  );
+
+  // allow or disallow user to see results before user voted
+  $_cancelvote = array(0 => t('Disallow'), 1 => t('Allow'));
+  $element['poll_features']['ResultsAllow'] = array(
+    '#type' => 'radios',
+		'#access'=> $access,
+    '#title' => t('Show results before voting'),
+    '#default_value' => isset($result_allow) ? $result_allow : 0,
+    '#options' => $_cancelvote,
+    '#description' => t('Allow or disallow users to see current poll results before voting on this poll. If set to disallow, anonymous users can never see the results. Permissions under pollfield module override this setting.'),
+  );
+  // add poll type
+  $_poll_type = array(0 => t('Single choice'), 1 => t('Multiple choice'));
+  $element['poll_features']['PollType'] = array(
+    '#type' => 'radios',
+    '#title' => t('Poll type'),
+    '#default_value' => isset($poll_type) ? $poll_type : 1,
+    '#options' => $_poll_type,
+    '#description' => t('In a Single choice poll only one of the responses can be voted for while in a Multiple choice poll it is possible to choose more than one at the same time. '),
+  );
+	//check if we are on default values
+	if (stripos($element['#id'],"default-value-widge")>0){
+		$is_default_values=TRUE;
+	}
+	else{
+		$is_default_values=FALSE;
+	}
+	$_delete_votes = array(0 => t('Not delete'), 1 => t('Delete'));
+  $element['delete_votes'] = array(
+    '#type' => 'radios',
+    '#title' => t('Delet votes'),
+    '#default_value' => 0,
+    '#options' => $_delete_votes,
+    '#description' => t('Delete votes that belongs to this poll. THIS ACTION CAN NOT BE UNDONE!'),
+  );
+
+
+  // ***********************************************************************************
+  $path="pollfield/add_choice/".$type_name."/".$field_name."/".$delta;
+  $name="pollfield_more_".$type_name."_".$field_name."_".$delta;
+  $wrapper="pollfield-choice-wrapper-".$type_name."-".$field_name."-".$delta;
+  //**********************************************************************
+
+	
+
+
+	$answers = unserialize($element['#value']['choice']);
+ 	$value_choice = $answers[$delta]['choice'];
+	if ($value_choice) {
+		//$max = max($blank_fields, intval(sizeof($answers)-1));
+		$max=intval(sizeof($answers)-1);
+		
+	}
+	else {//default 
+		if (isset($element['#value']['group'])) {
+		  // choices is not serialzed in default value settings
+		  $value_choice = $element['#value']['group'][$delta]['choice'];
+		  $value_vote = $element['#value']['group'][$delta]['votes'];
+			//$max = max($blank_fields, intval(sizeof($value_choice)-1));
+      $max=intval(sizeof($element['#value']['group'])-1);
+		}
+	}	
+	//not using ahah for default values
+	if ($is_default_values){
+		$max = max($blank_fields, intval(sizeof($value_choice)-1));
+	}
+	else{
+		$no_fields=FALSE;
+		if ($max==NULL){
+		  $max = 0;
+		  $no_fields=TRUE;
+		}
+	
+	}
+  
+  // Container for just the poll choices.
+  $element['group'] = array(
+    '#prefix' => '<div id="'.$wrapper.'">',
+    '#suffix' => '</div>',
+  );
+  
+	$nid=$form_state['values']['nid'];$max_number=0;
+ 
+  foreach (range(0, $max+$max_number) as $delta) {
+    
+    $value_choice = $answers[$delta]['choice'];
+    $value_vote = $answers[$delta]['votes'];
+    if ($value_choice) {
+    }
+    else {
+      if (isset($element['#value']['group'])) {
+        // choices is not serialzed in default value settings
+        $value_choice = $element['#value']['group'][$delta]['choice'];
+        $value_vote = $element['#value']['group'][$delta]['votes'];
+      }
+    }
+    
+    $first_empty=FALSE;
+    if ($delta==0 && $first_empty=strlen($value_choice)<1)
+       $first_empty=TRUE;
+    
+    if (strlen($value_choice)>1 || $no_fields || $is_default_values || $first_empty){
+		  $element['group'][$delta] = array(
+		    '#type' => 'fieldset',
+		    '#title' => t('Choice #%delta', array('%delta' => intval($number + 1))),
+		    '#tree' => TRUE,
+		  );
+		  $element['group'][$delta]['choice'] = array(
+		    '#title' => t('Response'),
+		    '#type' => 'textfield',
+		    '#default_value' => isset($value_choice) ? $value_choice : '',
+		    '#rows' => 2,
+		    '#weight' => floatval($field1['widget']['weight'] + ($delta / 10)),
+		  );
+		  $element['group'][$delta]['votes'] = array(
+		    '#title' => t('Starting votes count (optional)'),
+				'#access'=> $access,
+		    '#type' => 'textfield',
+		    '#default_value' => isset($value_vote) ? $value_vote : '',
+		    '#size' => 10,
+		    '#weight' => floatval($field1['widget']['weight'] + ($delta / 10) + .1),
+		  );
+		  $number++;
+    }
+  }
+	
+  //check if more choice button submit
+  if (strcmp($form_state['clicked_button']['#name'],$nid."-".$path)==0){
+    if (strlen($element['group'][$number-1]['choice'])>1){
+        $element['group'][$number] = array(
+				  '#type' => 'fieldset',
+				  '#title' => t('Choice #%delta', array('%delta' => intval($number + 1))),
+				  '#tree' => TRUE,
+				);
+				$element['group'][$number]['choice'] = array(
+				  '#title' => t('Response'),
+				  '#type' => 'textfield',
+				  '#default_value' => '',
+				  '#rows' => 2,
+				  '#weight' => floatval($field1['widget']['weight'] + ($delta / 10)),
+				);
+				$element['group'][$number]['votes'] = array(
+				  '#title' => t('Starting votes count (optional)'),
+					'#access'=> $access,
+				  '#type' => 'textfield',
+				  '#default_value' => '',
+				  '#size' => 10,
+				  '#weight' => floatval($field1['widget']['weight'] + ($delta / 10) + .1),
+				);
+				$number++;
+		}
+		else{
+				
+		}
+	}
+	if (!$is_default_values){
+		$element[$name] = array(
+		  '#type' => 'submit',
+		  '#value' => t('More choices'),
+		  '#description' => t("If the amount of boxes above isn't enough, click here to add more choices."),
+		  '#weight' => 1,
+		  '#name'=>$nid."-".$path,
+		  '#submit' => array('pollfield_more_choices_submit'), // If no javascript action.
+		  '#ahah' => array(
+		    'path' => $path,
+		    'wrapper' => $wrapper,
+		    'method' => 'replace',
+		    'effect' => 'fade',
+		  ),
+		);
+	}
+  unset($form_state['storage']);
+  return $element;
+}
+/**
+*
+*/
+function pollfield_delete_votes($form,&$form_state){
+	dpm($form);dpm($form_state);
+
+}
+
+/**
+*add more choices using ahah formu
+*/
+function pollfield_add_choice(){
+  
+  $splits_get=$nid_parse=preg_split('/\//',$_GET['q']);
+  $field_name=$splits_get[3];
+	$field_name_delta=$splits_get[4];
+	
+	include_once 'modules/node/node.pages.inc';
+  $form_state = array('storage' => NULL, 'submitted' => FALSE);
+  $form_build_id = $_POST['form_build_id'];
+  // Get the form from the cache.
+  $form = form_get_cache($form_build_id, $form_state);
+  $args = $form['#parameters'];
+	
+  
+  $form_id = array_shift($args);
+  // We will run some of the submit handlers so we need to disable redirecting.
+  $form['#redirect'] = FALSE;
+  // We need to process the form, prepare for that by setting a few internals
+  // variables.
+  $form['#post'] = $_POST;
+  $form['#programmed'] = FALSE;
+  $form_state['post'] = $_POST;
+  // Build, validate and if possible, submit the form.
+  drupal_process_form($form_id, $form, $form_state);
+  // This call recreates the form relying solely on the form_state that the
+  // drupal_process_form set up.
+  $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
+
+  // Render the new output.
+  $form_choices=$form[$field_name][$field_name_delta]['group'];
+	if (is_array($form_choices)){
+		$delta=0;
+		while (!empty($form_choices[$delta])){
+			$delta++;
+		}
+		$is_choice_set=strlen($form_choices[$delta-1]['choice']['#value'])>1;
+	}
+	
+
+  $_delta=$delta-1;
+  //genereting new ids and names
+  $name_choice=$form_choices[$_delta]['choice']['#name'];
+  $id_choice=$form_choices[$_delta]['choice']['#id'];
+	$name_votes=$form_choices[$_delta]['votes']['#name'];
+  $id_votes=$form_choices[$_delta]['votes']['#id'];
+  $name_choice=str_replace('['.$_delta.'][choice]','['.$delta.'][choice]',$name_choice);
+  $id_choice=str_replace($_delta.'-choice',$delta.'-choice',$id_choice);
+	$name_votes=str_replace('['.$_delta.'][votes]','['.$delta.'][votes]',$name_votes);
+  $id_votes=str_replace($_delta.'-votes',$delta.'-votes',$id_votes);
+  
+  if ($is_choice_set){
+  	$element = array(
+      '#type' => 'fieldset',
+      '#title' => t('Choice #%delta', array('%delta' => intval($delta+1))),
+      '#tree' => TRUE,
+    );
+    $element['choice'] = array(
+      '#title' => t('Response'),
+      '#type' => 'textfield',
+			'#name'=>$name_choice,
+			'#id'=>$id_choice,
+      '#default_value' => isset($value_choice) ? $value_choice : '',
+      '#rows' => 2,
+      '#weight' => floatval($field1['widget']['weight'] + ($delta / 10)),
+    );
+    $element['votes'] = array(
+      '#title' => t('Starting votes count (optional)'),
+			'#name'=>$name_votes,
+			'#id'=>$id_votes,
+			'#access'=> $access,
+      '#type' => 'textfield',
+      '#default_value' => isset($value_vote) ? $value_vote : '',
+      '#size' => 10,
+      '#weight' => floatval($field1['widget']['weight'] + ($delta / 10) + .1),
+    );
+  
+	
+  	$form_choices[$delta]=$element;
+  }
+ 
+  unset($form_choices['#prefix'], $form_choices['#suffix']); // Prevent duplicate wrappers.
+  $output = drupal_render($form_choices);
+  
+  drupal_json(array('status' => TRUE, 'data' => $output));
+  	
+}
+
+/*
+*add more choices without using ahah using
+*/
+function pollfield_more_choices_submit($form, &$form_state){
+  // Set the form to rebuild and run submit handlers.
+   node_form_submit_build_node($form, $form_state);
+	
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function pollfield_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : NULL,
+  );
+  return $element;
+}
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function pollfield_widget_info() {
+  return array(
+    'pollfield' => array(
+      'label' => 'Pollfield',
+      'field types' => array('pollfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget_settings().
+ */
+function pollfield_widget_settings($op, $widget) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+      $form['blanks'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Number of default "Response" fields'),
+        '#default_value' => isset($widget['blanks']) ? $widget['blanks'] : 3,
+        '#description' => t('This number of fields will always be displayed on defualt value page but fields left blank will not be displayed when viewing content. '),
+        '#element_validate' => array('_pollfield_widget_settings_blank_questions_validate'),
+      );
+      return $form;
+    case 'save':
+      return array('blanks');
+  }
+}
+
+/**
+ * Internal callback to validate number of max number of responses
+ */
+function _pollfield_widget_settings_blank_questions_validate($element, &$form_state) {
+  $value = $form_state['values']['blanks'];
+  if (!is_numeric($value) || intval($value) != $value || $value < 2) {
+    form_error($element, t('"Maximum number of possible "Response" fields" must be a positive integer and it should be greater than or equal to 2.'));
+  }
+}
+
+/**
+ * Cancel vote of multiple choice poll.
+ */
+function pollfield_cancel_multiple_choice($form_values, $cookie_db) {
+  // delete in same way as single choice
+  pollfield_cancel_single_choice($form_values, $cookie_db);
+  return 0;
+}
+
+/**
+ * Save vote of multiple choice poll.
+ */
+function pollfield_save_multiple_choice($form_values, $cookie_db) {
+  global $user;
+  $form_values = $_POST;
+  $nid = $form_values['nid'];
+  $field_name = $form_values['field_name'];
+  $field_name_delta = $form_values['field_name_delta'];
+  $field_table = $form_values['table'];
+  $cancel = $form_values['cancel'];
+  $node = node_load($nid);
+  $choice = $form_values['choice'];
+  $nid = $node->nid;
+  $uid = $user->uid;
+  $hostname = $_SERVER['REMOTE_ADDR'];
+  $voted = FALSE;
+
+  // get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+
+  if ($is_delta_exist) {
+    $existing_field = 1;
+    // get total votes
+    $field_votes = $field_name .'_votes';
+    $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_votes, $table_content, $nid, $field_name_delta));
+  }
+  else {
+    // get total votes
+    $field_votes = $field_name .'_votes';
+    $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid = %d", $field_votes, $table_content, $nid));
+  }
+  // ************************
+
+  // is user voted
+  $voted = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+  $number_of_coices = count($form_values['choice']);
+  if ($number_of_coices==0){
+		drupal_set_message(t('Choice is not selected. Select your answer and vote.'));
+		return 0;
+	}
+  if ($voted == 0) {
+    $uid = $user->uid;
+    foreach ($form_values['choice'] as $value) {
+      $choice = $value;
+      if ($user->uid>0) {
+        db_query("INSERT INTO {pollfield_votes} (nid, field_table, field_name, uid, delta, field_name_delta)
+        VALUES (%d, '%s', '%s' , %d, %d, %d)", $nid, $field_table, $field_name, $uid, $choice, $field_name_delta);
+        // increment total votes
+        if ($existing_field == 1) {
+          $total_votes++;
+          db_query('UPDATE {%s} SET %s = %d WHERE nid = %d AND delta=%d',
+              $table_content, $field_votes, $total_votes, $nid, $field_name_delta);
+        }
+        else {
+          $total_votes++;
+          db_query('UPDATE {%s} SET %s = %d WHERE nid = %d', $table_content, $field_votes, $total_votes, $nid);
+        }
+      }
+      else {
+        db_query("INSERT INTO {pollfield_votes} (nid, field_table, field_name, delta, hostname, field_name_delta, cookie)
+          VALUES (%d, '%s', '%s', %d, '%s', %d, '%s')",
+          $nid, $field_table, $field_name, $choice, $hostname, $field_name_delta, $cookie_db);
+      }
+    }
+    // Any time a vote is recorded, clear the CCK cache so the votes can be updated.
+    pollfield_clear($node);
+    drupal_set_message(t('Your vote was recorded.'));
+  }
+  else {
+    drupal_set_message(t('You already voted or your are not allowed to vote'), 'error');
+  }
+  return 0;
+}
+
+/**
+ * Save vote of single choice poll
+ */
+function pollfield_save_single_choice($form_values, $cookie_db) {
+  global $user;
+  $form_values = $_POST;
+  $nid = $form_values['nid'];
+  $field_name = $form_values['field_name'];
+  $field_name_delta = $form_values['field_name_delta'];
+  $field_table = $form_values['table'];
+  $cancel = $form_values['cancel'];
+  $node = node_load($nid);
+  $choice = $form_values['choice'];
+  $nid = $node->nid;
+  $uid = $user->uid;
+  $hostname = $_SERVER['REMOTE_ADDR'];
+  $voted = FALSE;
+
+  // get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+
+  if ($is_delta_exist) {
+    $existing_field = 1;
+    // get total votes
+    $field_votes = $field_name .'_votes';
+    $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_votes, $table_content, $nid, $field_name_delta));
+  }
+  else {
+    // get total votes
+    $field_votes = $field_name .'_votes';
+    $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_votes, $table_content, $nid));
+  }
+  // ************************
+
+  // is user voted
+  $voted = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
+	
+	if (!isset($choice)){
+		drupal_set_message(t('Choice is not selected. Select your answer and vote.'));
+		return 0;
+	}
+
+
+  if ($voted == 0) {
+    $uid = $user->uid;
+    if ($user->uid>0) {
+      db_query("INSERT INTO {pollfield_votes} (nid, field_table, field_name, uid, delta, field_name_delta)
+        VALUES (%d, '%s', '%s' , %d, %d, %d)", $nid, $field_table, $field_name, $uid, $choice, $field_name_delta);
+      // increment total votes
+      if ($existing_field == 1) {
+        $total_votes++;
+        db_query('UPDATE {%s} SET %s = %d WHERE nid = %d AND delta=%d',
+          $table_content, $field_votes, $total_votes, $nid, $field_name_delta);
+      }
+      else {
+        $total_votes++;
+        db_query('UPDATE {%s} SET %s = %d WHERE nid = %d', $table_content, $field_votes, $total_votes, $nid);
+      }
+    }
+    else {
+      db_query("INSERT INTO {pollfield_votes} (nid, field_table, field_name, delta, hostname, field_name_delta, cookie)
+        VALUES (%d, '%s', '%s', %d, '%s', %d, '%s')",
+        $nid, $field_table, $field_name, $choice, $hostname, $field_name_delta, $cookie_db);
+    }
+
+    // Any time a vote is recorded, clear the CCK cache so the votes can be updated.
+    pollfield_clear($node);
+    drupal_set_message(t('Your vote was recorded.'));
+  }
+  else {
+    drupal_set_message(t('You already voted or your are not allowed to vote'), 'error');
+  }
+  return 0;
+}
+
+/**
+ * Cancel vote of single choice poll
+ */
+function pollfield_cancel_single_choice($form_values, $cookie_db) {
+  global $user;
+  $nid = $form_values['nid'];
+  $field_name = $form_values['field_name'];
+  $field_name_delta = $form_values['field_name_delta'];
+  $field_table = $form_values['table'];
+  $cancel = $form_values['cancel'];
+  $node = node_load($nid);
+  $hostname = $_SERVER['REMOTE_ADDR'];
+
+  // get where is table
+  // get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+	$tnid = db_result(db_query("SELECT tnid FROM {node} WHERE nid=%d",$nid));
+	if ($tnid==0){//there is no translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE nid = %d",$nid);
+	}else{//there is translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+	}
+	while ($t_nodes = db_fetch_object($t_nodes_results)) {//check all translations
+		
+		if ($is_delta_exist) {
+		  $field_votes = $field_name .'_votes';
+		  $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_votes, $table_content, $t_nodes->nid, $field_name_delta));
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_anon, $table_content, $t_nodes->nid, $field_name_delta));
+		  // dencrement total votes
+		  $total_votes--;
+		  db_query('UPDATE {%s} SET %s = %d WHERE nid = %d AND delta=%d', $table_content, $field_votes, $total_votes, $t_nodes->nid, $field_name_delta);
+		}
+		else {
+		  $field_votes = $field_name .'_votes';
+		  $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_votes, $table_content, $t_nodes->nid));
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_anon, $table_content, $t_nodes->nid));
+		}
+		// dencrement total votes
+		$total_votes--;
+		db_query('UPDATE {%s} SET %s = %d WHERE nid = %d', $table_content, $field_votes, $total_votes, $t_nodes->nid);
+
+		// ************************
+
+		if ($user->uid) {
+		  db_query("DELETE from {pollfield_votes}
+		    WHERE nid = %d AND field_table='%s' AND field_name='%s'AND uid = %d AND field_name_delta=%d",
+		    $t_nodes->nid, $field_table, $field_name, $user->uid, $field_name_delta);// delta is number of choice
+		}
+		else {
+		  if ($anonymous == 'anon_by_ip') {
+		    db_query("DELETE from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s'AND hostname = '%s' AND field_name_delta=%d",
+		      $t_nodes->nid, $field_table, $field_name, $hostname, $field_name_delta);// delta is number of choice
+		  }
+		  if ($anonymous == 'anon_by_cookie') {
+		    db_query("DELETE from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s'AND cookie = '%s' AND field_name_delta=%d",
+		      $t_nodes->nid, $field_table, $field_name, $cookie_db, $field_name_delta);// delta is number of choice
+		  }
+		}
+	}
+  return 0;
+}
+
+/**
+ * Saving or canceling user poll vote.
+ */
+function pollfield_vote() {
+  global $user;
+  $form_values = $_POST;
+  $nid = $form_values['nid'];
+  $field_name = $form_values['field_name'];
+  $field_name_delta = $form_values['field_name_delta'];
+  $field_table = $form_values['table'];
+  $cancel = $form_values['cancel'];
+  $node = node_load($nid);
+  
+  // set add cookie**************************
+  $cookie = pollfield_cookie_id_generator();
+  if ($cookie != 0) {
+    $cookie_db = serialize($cookie);
+  }
+  else {
+    $cookie_db = $cookie;
+  }
+  // *******************************************
+
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+  // get poll features
+  if ($is_delta_exist) {
+    $existing_field = 1;
+    // get total votes
+    $field_votes = $field_name .'_poll_features';
+    $poll_features_db = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_votes, $table_content, $nid, $field_name_delta));
+  }
+  else {
+    // get total votes
+    $field_votes = $field_name .'_poll_features';
+    $poll_features_db = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_votes, $table_content, $nid));
+  }
+  // ************************
+
+  $poll_features = unserialize($poll_features_db);
+  // cancel vote
+  if ($node->nid && $cancel == 1) {
+    if ($poll_features['PollType'] == '0') {
+      pollfield_cancel_single_choice($form_values, $cookie_db);
+    }
+    if ($poll_features['PollType'] == '1') {
+      pollfield_cancel_multiple_choice($form_values, $cookie_db);
+    }
+  }
+
+  // vote
+  if ($node->nid && $cancel == 0) {
+    if ($poll_features['PollType'] == '0') {
+      pollfield_save_single_choice($form_values, $cookie_db);
+    }
+    if ($poll_features['PollType'] == '1') {
+      pollfield_save_multiple_choice($form_values, $cookie_db);
+    }
+  }
+
+  $query=$_GET['q'];
+  if (isset($_GET['page']))
+		$page='page='.$_GET['page'];
+	
+  drupal_goto($query,$page,'pollfield-'.$nid.'-'.$field_name_delta);
+  pollfield_clear($node);
+
+}
+
+
+/**
+ * Cookie generator for anonymous voting.
+ */
+function pollfield_cookie_id_generator() {
+  global $user;
+  $form_values = $_POST;
+  $nid = $form_values['nid'];
+  $field_name = $form_values['field_name'];
+  $field_name_delta = $form_values['field_name_delta'];
+  $field_table = $form_values['table'];
+
+  $node = node_load($nid);
+  $user_id_cookie = rand(0, 100000);
+  $user_id_cookie = $user_id_cookie+time();
+  $user_id_cookie = 'id'. $user_id_cookie;
+  // /cookie add***************************************
+  $cookie_name = $field_table .'_'. $field_name .'_'. $field_name_delta;
+  $cookie_value = $user_id_cookie;
+  $field = $node->$field_name;
+  $duration = $field[$field_name_delta]['runtime'];
+
+
+  $anonymous = $field[$field_name_delta]['anonymous'];
+
+  if ($anonymous != 'anon_by_cookie') {
+    return 0;
+  }
+
+  if (!isset($_COOKIE[$cookie_name])) {
+    if ($duratione == 0) {
+      $expire = time()+60*60*24*30;// if poll is unlimited set expire one month
+    }
+    else {
+      $expire = time()+$duration;
+    }
+    setcookie($cookie_name, $cookie_value, $expire, '/');
+    $cookie = array('cookie_name' => $cookie_name, 'cookie_value' => $cookie_value);
+  }
+  else {
+    $cookie = array('cookie_name' => $cookie_name, 'cookie_value' => $_COOKIE[$cookie_name]);
+  }
+  // /*************************************************
+
+  return $cookie;
+}
+
+/**
+ * Check is user voted.
+ */
+function pollfield_user_voted($node, $field_table, $field_name, $field_name_delta) {
+  global $user;
+
+  $nid = $node->nid;
+  $uid = $user->uid;
+  $hostname = $_SERVER['REMOTE_ADDR'];
+  $voted = FALSE;
+
+  // get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+	
+	$tnid = db_result(db_query("SELECT tnid FROM {node} WHERE nid=%d",$nid));
+	if ($tnid==0){//there is no translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE nid = %d",$nid);
+	}else{//there is translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+	}
+	while ($t_nodes = db_fetch_object($t_nodes_results)) {//check all translations
+		$t_nid=$t_nodes->nid;
+		if ($is_delta_exist) {
+		  $existing_field = 1;
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_anon, $table_content, $t_nid, $field_name_delta));
+		}
+		else {
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_anon, $table_content, $t_nid));
+		}
+
+		// check if user has voted
+		if ($user->uid) {
+		  $voted = db_result(db_query("SELECT count(*) from {pollfield_votes}
+		    WHERE nid = %d AND field_table='%s' AND field_name='%s'AND uid = %d AND field_name_delta=%d",
+		    $t_nid, $field_table, $field_name, $user->uid, $field_name_delta));// delta is number of choice
+		}
+		else {// user is anonymous
+		  if ($anonymous == 'anon_by_ip') {
+		    $voted = db_result(db_query("SELECT count(*) from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s' AND hostname = '%s' AND field_name_delta=%d",
+		      $t_nid, $field_table, $field_name, $hostname, $field_name_delta));// delta is number of choice
+		  }
+		  if ($anonymous == 'anon_non') {
+		    // $voted = 0;
+		  }
+		  if ($anonymous == 'anon_all') {
+		    // $voted = 1;
+		  }
+		  if ($anonymous == 'anon_by_cookie') {
+		    // add cookie
+		    $cookie_name = $field_table .'_'. $field_name .'_'. $field_name_delta;
+		    $cookie_collected_value = $_COOKIE[$cookie_name];
+
+		    $cookie_compare = array('cookie_name' => $cookie_name, 'cookie_value' => $cookie_collected_value);
+
+		    $cookie_compare_db = serialize($cookie_compare);
+
+		    $voted = db_result(db_query("SELECT count(*) from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s' AND cookie = '%s' AND field_name_delta=%d",
+		      $t_nid, $field_table, $field_name, $cookie_compare_db, $field_name_delta));
+		  }
+		}
+		$is_voted=$is_voted+$voted;
+	}
+
+
+ 
+  return $is_voted;
+}
+/**
+ * Get is user votes.
+ */
+function pollfield_user_votes($node, $field_table, $field_name, $field_name_delta) {
+  global $user;
+  
+  $nid = $node->nid;
+  $uid = $user->uid;
+  $hostname = $_SERVER['REMOTE_ADDR'];
+  $voted = FALSE;
+
+  // get table
+  $fields = content_fields();
+  $db_info = content_database_info($fields[$field_name]);
+  $table_content = $db_info['table'];
+  $column = 'delta';
+  $is_delta_exist = db_column_exists($table_content, $column);
+	$tnid = db_result(db_query("SELECT tnid FROM {node} WHERE nid=%d",$nid));
+	if ($tnid==0){//there is no translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE nid = %d",$nid);
+	}else{//there is translation
+	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+	}
+	
+	while ($t_nodes = db_fetch_object($t_nodes_results)) {//check all translations
+		$t_nid=$t_nodes->nid;
+		if ($is_delta_exist) {
+		  $existing_field = 1;
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_anon, $table_content,$t_nid, $field_name_delta));
+		}
+		else {
+		  // get anonymous voting politics
+		  $field_anon = $field_name .'_anonymous';
+		  $anonymous = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $field_anon, $table_content, $t_nid));
+		}
+
+		// get user votes
+		if ($user->uid) {
+		  $result = db_query("SELECT delta from {pollfield_votes}
+		    WHERE nid = %d AND field_table='%s' AND field_name='%s'AND uid = %d AND field_name_delta=%d",
+		    $t_nid, $field_table, $field_name, $user->uid, $field_name_delta);// delta is number of choice
+		  while ($db_votes = db_fetch_object($result)) {
+		    $votes[] = $db_votes->delta;
+		  }
+		}
+		// user is anonymous
+		else {
+		  if ($anonymous == 'anon_by_ip') {
+		    $result = db_query("SELECT delta from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s' AND hostname = '%s' AND field_name_delta=%d",
+		      $t_nid, $field_table, $field_name, $hostname, $field_name_delta);// delta is number of choice
+		    while ($db_votes = db_fetch_object($result)) {
+		      $votes[] = $db_votes->delta;
+		    }
+		  }
+		  if ($anonymous == 'anon_non') {
+		    // $voted = 0;
+		  }
+		  if ($anonymous == 'anon_all') {
+		    // $voted = 1;
+		  }
+		  if ($anonymous == 'anon_by_cookie') {
+		    // add cookie
+		    $cookie_name = $field_table .'_'. $field_name .'_'. $field_name_delta;
+		    $cookie_collected_value = $_COOKIE[$cookie_name];
+
+		    $cookie_compare = array('cookie_name' => $cookie_name, 'cookie_value' => $cookie_collected_value);
+
+		    $cookie_compare_db = serialize($cookie_compare);
+
+		    $result = db_query("SELECT delta from {pollfield_votes}
+		      WHERE nid = %d AND field_table='%s' AND field_name='%s' AND cookie = '%s' AND field_name_delta=%d",
+		      $t_nid, $field_table, $field_name, $cookie_compare_db, $field_name_delta);
+		    while ($db_votes = db_fetch_object($result)) {
+		      $votes[] = $db_votes->delta;
+		    }
+		  }
+		}
+	}
+  return $votes;
+}
+/**
+* clear cache function after vote is done
+*/
+function pollfield_clear($node) {
+  $cid = 'content:'. $node->nid .':'. $node->vid;
+  cache_clear_all($cid, db_table_exists('cache_content') ? 'cache_content' : 'cache', TRUE);
+  cache_clear_all();
+}
+
+/**
+* views query substition hook
+*/
+function pollfield_views_query_substitutions($view){
+
+	if (is_array($view->query->tables['node'])){
+	  if (array_key_exists('pollfield_votes',$view->query->tables['node'])){
+		   $replace['INNER JOIN {users} users ON node.uid = users.uid']="INNER JOIN {users} users ON pollfield_votes.uid = users.uid";
+	  }
+  }
+  return $replace;
+}
+
+
+
+

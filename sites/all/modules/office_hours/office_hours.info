@@ -1,0 +1,15 @@
+; $Id: office_hours.info,v 1.1.4.3 2009/08/29 08:38:21 mikl Exp $ 
+name = Office hours
+description = Defines an office hours field for CCK, allowing you to specify when a node (could be store, office, etc.) is open or closed.
+package = CCK
+dependencies[] = content
+dependencies[] = date_api
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-01-23
+version = "6.x-1.0"
+core = "6.x"
+project = "office_hours"
+datestamp = "1264276813"
+
