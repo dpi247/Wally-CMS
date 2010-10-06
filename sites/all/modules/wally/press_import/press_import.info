@@ -1,0 +1,15 @@
+; $Id: press_import.info,v 1.0 2010/08/23 14:39:00 rso Exp $
+name = Press Content Import
+description = "Import News Press Content to Drupal"
+dependencies[] = yaxim
+dependencies[] = location
+dependencies[] = taxonomy
+package = Wally Press
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "press_import"
+datestamp = "1282573770"
+

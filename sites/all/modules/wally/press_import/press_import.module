@@ -1,0 +1,283 @@
+﻿<?php
+// $Id: press_import.module,v 1.00 2010/09/28 15:50:00 rso (Rouslan Sorokine) Exp $
+
+/**
+ * @file
+ *   Import News Press Content to Drupal structure
+ */
+
+
+//=============
+//DRUPAL HOOKS.
+//=============
+
+/**
+ * Implementation of hook_help().
+ */
+function press_import_help($path, $arg) {
+  if ($path == 'admin/help#press_import') {
+    return t('Import News Press Content to Drupal structure.');
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function press_import_menu() {
+  $items = array();
+  $items['admin/settings/press_import'] = array(
+    'title' => 'Press Import Content Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('press_import_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'press_import.admin.inc',
+  );
+  
+  return $items;
+
+}
+
+
+/* =========== USER CALLBACK FUNCTIONS ============ */
+/**
+*
+* Translates taxonomy term name into term id number
+*
+*		Input:	- Term name(s) (e.g. 'web')
+*				- Vocabulary variable name id (e.g. press_import_taxonomy_channel)
+*				- Processed element (not used)
+*		Return:
+*				- Term id (e.g. 26 which corresponds to 'web'). If it didn't exist, it will be added to the vocabulary
+*
+*/
+function _press_import_taxonomy($term,$element,$vocabulary) {
+  if (!is_array($term))
+	$term=array(0 => $term);
+  $result=_yaxim_field_taxonomy($term,$vocabulary['parameter']);
+  $result=reset($result);
+  $tid=$result->tid;
+  return $tid;
+}
+
+/**
+*
+* Translates Tags taxonomy term name into term id number
+*
+*		Input:	- Term name(s) (e.g. 'web')
+*				- Vocabulary variable name id (press_import_taxonomy_tags)
+*				- Processed element (not used)
+*		Return:
+*				- Term id (e.g. 26 which corresponds to 'web'). If it didn't exist, it will be added to the vocabulary
+*
+*/
+function _press_import_taxonomy_tags($term,$element,$vocabulary) {
+  $vid=variable_get($vocabulary['parameter'], 0);
+  $use_root_taxonomy=($vid==0);	// TRUE if vocabulary not found.
+  $parent_name='';
+
+  if (!is_array($term))
+	$term=array(0 => $term);
+  if (isset($term['_num']))
+	unset($term['_num']);
+  
+  // Vocabulary should be created/updated as a new Vocabulary in the Taxonomy
+  if ($use_root_taxonomy) {
+	$vocabulary_name=$element['VocabularyName'];
+	$vocabulary_desc=$element['VocabularyDescription'];
+	
+	// check if the vocabulary exists already
+    $vocabularies=taxonomy_get_vocabularies();
+	foreach($vocabularies as $vocabulary) {
+	  if ($vocabulary->name==$vocabulary_name) {
+		$vocabulary_vid=$vocabulary->vid;
+		break;
+	  }
+	}
+	// vocabulary doesn't exist, create it
+	if (!isset($vocabulary_vid)) {
+		$vocabulary = array(
+		'name'  => $vocabulary_name,		//Human readable name of the vocabulary
+		'description'  => $vocabulary_desc,	//Human readable description of the vocabulary
+		'multiple' => 0,					//set 1 to allow multiple selection
+		'required' => 0,					//set 1 to make the terms mandatory to be selected
+		'hierarchy' => 0,					//set 1 to allow and create hierarchy of the terms within the vocabulary
+		'relations' => 0,					//set 1 to set and allow relation amongst multiple terms
+		'module' => 'press_import',			//provide the module name in which the vocabulary is defined and which is calling this function
+											//set the node types to which this vocabulary will be attached to:
+		'nodes' => array('wally_audioobjecttype' => 1,
+					  'wally_digitaldocumentobjecttype' => 1,
+					  'wally_photoobjecttype' => 1,
+					  'wall_pollobjecttype' => 1,
+					  'wally_textobjecttype' => 1,
+					  'wally_videoobjecttype' => 1
+				), 
+		'weight' => -9,						//set the weight to display the vocabulary in the list
+	  );
+	  $status=taxonomy_save_vocabulary($vocabulary);		// in D7 this functions becomes taxonomy_vocabulary_save()
+	}
+	// the vocabulary exists already, get it from the list
+	else
+	  $vocabulary=$vocabularies[$vocabulary_vid];
+  }
+  
+  // Vocabulary is a sub-vocabulary of the Tags Vocabulary
+  else {
+	$vocabulary_name='press_import_taxonomy_tags';
+	$vocabulary_vid=NULL; // get vid from the variable
+	$parent_name=$element['VocabularyName'];
+  }
+  
+  // Now we can add the term to the vocabulary
+  $result=_yaxim_field_taxonomy($term,$vocabulary_name,$parent_name,$vocabulary_vid);
+  $result=reset($result);
+  $tid=$result->tid;
+  return $tid;	// return term id
+}
+
+/**
+*
+* Translates Taxonomy location related to a Node into term id number
+*
+*		Input:	- Taxonomy + Node fields
+*				- Vocabulary variable name id (press_import_taxonomy_location): not used
+*				- Processed element
+*		Return:
+*				- Term id. If it didn't exist, it will be added to the vocabulary, and the related node will be created
+*
+*/
+function _press_import_taxonomy_location($term,$element,$vocabulary='press_import_taxonomy_location') {
+  $vid=variable_get($vocabulary, 0);
+  if ($vid==0)	// Locations vocabulary not defined
+	return FALSE;
+
+  if (!is_array($term))
+	$term=array(0 => $term);
+  if (isset($term['_num']))
+	unset($term['_num']);
+
+  // Add location term to the vocabulary
+  $result=_yaxim_field_taxonomy($term,$vocabulary,'',$vid);
+  $result=reset($result);
+  $tid=$result->tid;
+  
+  // Add location node if other fields are present
+  if (isset($element['Address']) || isset($element['LocationGeo'])) {
+  
+	// A node attached to this term will be created. We can ignore the returned nid
+	$result=_yaxim_process_structure(&$element,'','MarkerItem');
+
+  }
+  
+  return $tid;	// return term id
+}
+
+/**
+*
+* Translates datetime into CCK datetime field
+*
+*		Input:	- ISO Datetime (e.g. '2010-10-26T21:32:52')
+*				- Processed element (not used)
+*		Return:
+*				- CCK datetime field (array)
+*
+*/
+function _press_import_ccktime($date,$element=NULL) {
+  $result['value']=str_replace('T', ' ', $date);
+  $result['timezone']=variable_get('date_default_timezone_name', 'UTC');
+  $result['timezone_db']='UTC';
+  $result['date_type']='datetime';
+  return $result;
+}
+
+
+/**
+*
+* Translates Location structure to Drupal's CCK Location field
+*
+*		Input:	array:
+*					[AddressLine] => Array
+*                        (
+*                            [0] => (Stade Roland Garros)
+*                            [1] => 2, avenue Gordon Bennet
+*                            [_num] => 2
+*                        )
+*                    [City] => Paris
+*                    [Zip] => 75016
+*                    [Stat] => 
+*                    [Country] => France
+*				- Processed element (not used)
+*
+*		Return:
+*				a CCK Location item will be created first, and lid will be returned
+*				array:
+*					lid
+*					name
+*					street,	additional
+*					city, province, postal_code, country
+*					latitude, longitute
+*					source, is_primary
+*					province_name, country_name
+*/
+function _press_import_location($location,$element=NULL) {
+  $cck_location=array();
+  // copy fields
+  if (isset($location['AddressLine'][0]))
+	$cck_location['street']=$location['AddressLine'][0];
+  if (isset($location['AddressLine'][1]))
+	$cck_location['additional']=$location['AddressLine'][1];
+  if (isset($location['City']))
+	$cck_location['city']=$location['City'];
+  if (isset($location['Zip']))
+	$cck_location['postal_code']=$location['Zip'];
+  if (isset($location['Country'])) {
+	$cck_location['country_name']=$location['Country'];
+	// Calculate country code
+	$countries = location_get_iso3166_list();
+	$cck_location['country']=array_search($location['Country'],$countries);
+  }
+  if (isset($location['Stat'])) {
+	$cck_location['province_name']=$location['Stat'];
+	// Calculate province code
+	$cck_location['province']=location_province_code($cck_location['country'],$cck_location['province_name']);
+  }
+
+  // Create a cck location
+  global $test_level;
+  if ($test_level>1)							// Debug Level 2: don't create Location
+	$cck_location['lid']=rand(200,299);
+  else
+	$result=location_save($cck_location);		// lid or FALSE if $cck_location is empty
+  return $cck_location;
+}
+
+/**
+*
+* Translates crop structure into a serialized text AND creates a preset if it didn't exist
+*
+*		Input:	- Crop array
+*		Return:
+*				- string
+*
+*/
+function _press_import_crop($crop) {
+  $result=serialize($crop);
+  if (isset($crop['crop_type'])) {
+	$presetname=$crop['crop_type'];
+	$preset = imagecache_preset_by_name($presetname);
+	// Preset doesn't exist, create it by copying from the generic preset
+	if (!$preset) {
+	  $preset = imagecache_preset_by_name('wally_crop_generic');
+	  if ($preset) {
+		unset($preset['presetid']);	// so a new preset will be generated
+		$preset['presetname']=$presetname;
+		
+		//TODO: Set final width and final height of the preset
+		
+		$preset=imagecache_preset_save($preset);
+	  }
+	}
+  }
+  return $result;
+}
+

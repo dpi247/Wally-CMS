@@ -1,0 +1,161 @@
+<?php
+// $Id: press_import.admin.inc,v 1.0 2010/08/23 14:39:00 rso Exp $
+
+/**
+ * @file
+ *   Import Press Content to Drupal structure Administration
+ */
+
+/**
+ * Settings form.
+ */
+function press_import_admin($form_state) {
+  $path = drupal_get_path('module', 'press_import');
+  $form['press_import_product'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Product ID'),
+    '#description' => t('Describes this Drupal site. XML data received must match this ID in order to be published.'),
+    '#default_value' => variable_get('press_import_product', ''),
+    '#size' => 10,
+    '#maxlength' => 32,
+    '#required' => TRUE,
+  );
+  $form['press_import_version'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Product Version'),
+    '#description' => t('Corresponds to the Import Data structure definition version. XML data received must match this version in order to be published.'),
+    '#default_value' => variable_get('press_import_version', '1.0'),
+    '#size' => 10,
+    '#maxlength' => 32,
+    '#required' => TRUE,
+  );
+  $form['press_import_debug'] = array(
+    '#type' => 'radios',
+    '#title' => t('Debug Level'),
+    '#description' => t('When creating your own import definition file, if you set this value to <em>No data creation</em>, no nodes, files, or locations will be written to the database. If you set this value to <em>Verbose</em> or higher, check html source of the import result for debug info.'),
+    '#default_value' => variable_get('press_import_debug', 0),
+	'#options' => array(t('No debug'), t('Verbose'), t('No data creation')),
+    '#required' => TRUE,
+  );
+  $form['press_import_source'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import source directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data is received.'),
+    '#default_value' => variable_get('press_import_source', 'sites/default/files'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  $form['press_import_temp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import temporary directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
+    '#default_value' => variable_get('press_import_temp', file_directory_temp()),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  $form['press_import_definition'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import Data Structure Definition file'),
+    '#description' => t('XSD (schema) file name, with the path.'),
+    '#default_value' => variable_get('press_import_definition', $path.'/definitions/packages.xsd'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $form['press_import_correspondence'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Structures Translation Definition file'),
+    '#description' => t('XML file name, with the path.'),
+    '#default_value' => variable_get('press_import_correspondence', $path.'/definitions/press_import.defs.xml'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );  
+  $node_types=node_get_types();	// D7: node_type_get_types();
+  foreach($node_types as $key => $node_type)
+	$node_type_list[$key]=$node_type->name;
+  $form['press_import_channelitem'] = array(
+    '#type' => 'select',
+    '#title' => t('Channel Item node type'),
+    '#description' => t('The content type of a Channel Item.'),
+    '#default_value' => variable_get('press_import_channelitem', 'wally_channelitem'),
+    '#options' => $node_type_list,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $vocabularies=taxonomy_get_vocabularies();
+  foreach($vocabularies as $key => $vocabulary) {
+    if (array_key_exists(variable_get('press_import_channelitem', 'wally_channelitem'),$vocabulary->nodes))
+	  $vocab_list[$key]=$vocabulary->name;
+  }
+  $form['press_import_taxonomy_channel'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Channels"'),
+    '#description' => t('Choose the vocabulary corresponding to the Product Channels.'),
+    '#default_value' => variable_get('press_import_taxonomy_channel', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );
+  $form['press_import_locationitem'] = array(
+    '#type' => 'select',
+    '#title' => t('Location Item node type'),
+    '#description' => t('The content type of a Location Item.'),
+    '#default_value' => variable_get('press_import_locationitem', 'wally_locationitem'),
+    '#options' => $node_type_list,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $vocab_list=array();
+  foreach($vocabularies as $key => $vocabulary) {
+    if (array_key_exists(variable_get('press_import_locationitem', 'wally_locationitem'),$vocabulary->nodes))
+	  $vocab_list[$key]=$vocabulary->name;
+  }
+  $form['press_import_taxonomy_location'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Locations"'),
+    '#description' => t('Choose the vocabulary corresponding to Locations.'),
+    '#default_value' => variable_get('press_import_taxonomy_location', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );
+  $vocab_list=array(0 => t('-ROOT-'));
+  foreach($vocabularies as $key => $vocabulary) {
+	  $vocab_list[$key]=$vocabulary->name;
+  }
+  $form['press_import_taxonomy_tags'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Tags"'),
+    '#description' => t('Choose the vocabulary corresponding to Tags. If none is chosen, new vocabularies will be creates as new taxonomies. Otherwise new vocabularies will be set as sub-items of Tags.'),
+    '#default_value' => variable_get('press_import_taxonomy_tags', 0),
+    '#options' => $vocab_list,
+    '#required' => FALSE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Validate function for the settings form.
+ */
+function press_import_admin_validate($form, &$form_state) {
+  
+  $path = $form_state['values']['press_import_source'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('press_import_source', t('The path provided is not an existing writable directory.'));
+  }
+  
+  $file = $form_state['values']['press_import_definition'];
+  $file_readable=is_readable($file);
+  if (!$file_readable) {
+    form_set_error('press_import_definition', t('The filename provided is not an existing readable file.'));
+  }
+
+  $file = $form_state['values']['press_import_correspondence'];
+  $file_readable=is_readable($file);
+  if (!$file_readable) {
+    form_set_error('press_import_correspondence', t('The filename provided is not an existing readable file.'));
+  }
+}
+

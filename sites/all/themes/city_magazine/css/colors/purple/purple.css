@@ -1,0 +1,17 @@
+/*--------------------------------------------------------------*/
+/* Copyright Theme.
+ * Unauthorised use of this css file or any part of this css file is strictly prohibited/
+/-------------------------------------------------------------- */
+
+
+/*--------------------------------------------------------------*/
+/* Colors
+/-------------------------------------------------------------- */
+/* Default link styles - separate a:visited for a different visited link style */
+a, a:link, a:visited {
+  color:#850094;
+}
+/* Hover/active link styles. Don't forget :focus for accessibility */
+a:hover, a:focus, a:active {
+  color:#850094;
+}

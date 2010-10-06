@@ -1,0 +1,12 @@
+; $Id: press_test.info,v 1.0 2010/09/28 12:22:00 rso Exp $
+name = Press Content Tests
+description = "Press Content Tests for Developer"
+package = Wally Press
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "press_test"
+datestamp = "1282573770"
+

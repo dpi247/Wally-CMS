@@ -1,0 +1,60 @@
+﻿<?php
+// $Id: press_test.module,v 1.00 2010/09/28 12:23:00 rso (Rouslan Sorokine) Exp $
+
+/**
+ * @file
+ *   Press Content Tests for Developer
+ *
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function press_test_menu() {
+  $items = array();
+
+  // run any test RSO+test
+  $items['press_import/test'] = array(
+	'title' => 'Run Import Press Test',
+	'description' => 'Run test',
+	'page callback' => '_press_test_test0',
+	'access arguments' => array('access administration pages'),
+	'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+
+}
+
+/**
+ * Implementation of hook_press_import().
+ */
+function press_test_press_import($op='',$data='') {
+if ($op=='finish') {
+//echo '<pre>'.__FUNCTION__."():\n";
+//echo '$op='; print_r($op); echo "\n";
+//echo '$data='; print_r($data); echo "\n";
+//die();
+}
+}
+
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//RSO+tests
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+function _press_test_test0() {
+echo '<pre>'.__FUNCTION__."():\n";
+$presets=imagecache_presets();
+$preset=imagecache_preset_by_name('wally_crop_generic');
+$output=theme('imagecache','wally_crop_generic','sites/default/files/article%20Russia.jpg','Titre','Alt',NULL,TRUE,999);
+//echo '$preset='; print_r($preset); echo "\n";
+echo '$output='; print_r($output); echo "\n";
+
+$nid=1234567;
+echo 'nid='.$nid."\n";
+
+$nid=chunk_split(str_pad(substr($nid,0,strlen($nid)-3),9,'0',STR_PAD_LEFT),3,'/');
+echo 'nid='.$nid."\n";
+
+die();
+}
