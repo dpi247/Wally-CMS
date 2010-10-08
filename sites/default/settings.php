@@ -89,9 +89,9 @@
  *   $db_url = 'mysqli://username:password@localhost/databasename';
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
-$db_url = 'mysql://root:clochette@localhost/drupal_wally';
-$db_prefix = '';
 
+$db_url = 'mysql://wally-dev:WaVhfryR@localhost/wally-dev';
+$db_prefix = '';
 
 /**
  * Access control for update.php script
