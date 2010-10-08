@@ -20,7 +20,7 @@
 			<field type="field time" name="LastUpdateDate" content_type="changed" />
 			<field type="field ccktime" name="EmbargoDate" list="true" content_type="field_embargo_date" />
 			<field type="field comment" name="CommentsAllowed" content_type="comment" />
-			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_external_ref" />
+			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_externalreference" />
 			<field type="def"   name="Destinations" def="Destinations" content_type="field_destination" />
 		</fields>
 	</definition>
@@ -39,7 +39,7 @@
 		<title>Generic Object</title>
 		<fields>
 			<field type="field" name="Title" content_type="title" />
-			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_external_ref" />
+			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_externalreference" />
 			<field type="def"   name="Locations" def="LocationList" content_type="field_location" />
 		</fields>
 	</definition>
@@ -94,7 +94,7 @@
 		<fields>
 			<field type="field" name="Title" content_type="title" />
 			<field type="field" name="Summary" content_type="body" />
-			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_external_ref" />
+			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_externalreference" />
 		</fields>
 	</definition>
 

@@ -145,6 +145,8 @@ function _yaxim_process_import()
 		// Translate XML into a structured array
 		$xml_doc->fromString($xml_source);
 		$import = $xml_doc->toArray();
+		
+		//var_dump($import);
 
 		// Import packages from the array
 		$result = _yaxim_process_structure(&$import);
@@ -208,13 +210,14 @@ function _yaxim_process_structure(&$element,$parent_type='',$def=NULL) {
 	$def=$def[0];
   }
   $def_name=$def;							// e.g. 'Package'
-
   // check if the element has a variant, e.g. 'ArticlePackageType' is based off 'Package'
   if (isset($element['_attributes']['xsd:type'])) {
-	$def_name = $element['_attributes']['xsd:type'];
+	echo '<pre>'.print_r($element,1).'</pre>';
+    $def_name = $element['_attributes']['xsd:type'];
 	if ($test_level>0)
 		echo "<!-- Processing variant $def_name -->\n";
   }
+  //TODO: REMOVE FROM YAXIM=> xsi is a CCI concept
   elseif (isset($element['_attributes']['xsi:type'])) {
 	$def_name = $element['_attributes']['xsi:type'];
 	if ($test_level>0)
