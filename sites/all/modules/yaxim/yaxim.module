@@ -403,7 +403,8 @@ function _yaxim_process_structure(&$element,$parent_type='',$def=NULL) {
 		}
 		
 	  }
-	if (is_array($result))
+	if(isset($result))  
+      if (is_array($result))
 	  $result_fields=array_merge($result_fields,$result);
 	elseif ($field != '_attributes' && isset($def_fields[$field]) && $def_fields[$field]['single'] != 'true') {
 	  $result_fields=array_merge($result_fields,array(0 => $result));
