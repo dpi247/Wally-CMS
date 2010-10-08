@@ -90,7 +90,6 @@
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
 
-//$db_url = 'mysql://root:clochette@localhost/drupal_wally';
 $db_url = 'mysql://wally-dev:WaVhfryR@localhost/wally-dev';
 $db_prefix = '';
 
