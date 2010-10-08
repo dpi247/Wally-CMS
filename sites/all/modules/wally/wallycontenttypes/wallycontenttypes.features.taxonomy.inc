@@ -16,8 +16,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'tags' => '1',
       'module' => 'features_authors',
       'weight' => '0',
-      'type' => NULL,
-      'nodes' => array(),
+      'nodes' => array(
+        'wally_persontype' => 'wally_persontype',
+      ),
     ),
     'destination_path' => array(
       'name' => 'Destination Path',
@@ -58,8 +59,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'tags' => '1',
       'module' => 'features_entities',
       'weight' => '0',
-      'type' => NULL,
-      'nodes' => array(),
+      'nodes' => array(
+        'wally_entitytype' => 'wally_entitytype',
+      ),
     ),
     'keywords' => array(
       'name' => 'Free tags',
@@ -86,8 +88,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'tags' => '1',
       'module' => 'features_locations',
       'weight' => '0',
-      'type' => NULL,
-      'nodes' => array(),
+      'nodes' => array(
+        'wally_locationtype' => 'wally_locationtype',
+      ),
     ),
     'persons' => array(
       'name' => 'Persons',
@@ -100,8 +103,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'tags' => '1',
       'module' => 'features_persons',
       'weight' => '0',
-      'type' => NULL,
-      'nodes' => array(),
+      'nodes' => array(
+        'wally_persontype' => 'wally_persontype',
+      ),
     ),
     'rating' => array(
       'name' => 'Rating',
