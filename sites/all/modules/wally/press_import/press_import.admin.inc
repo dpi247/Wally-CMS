@@ -42,14 +42,14 @@ function press_import_admin($form_state) {
     '#type' => 'select',
     '#title' => t('Location Item node type'),
     '#description' => t('The content type of a Location Item.'),
-    '#default_value' => variable_get('press_import_locationitem', 'wally_locationitem'),
+    '#default_value' => variable_get('press_import_locationitem', 'wally_locationtype'),
     '#options' => $node_type_list,
     '#maxlength' => 512,
     '#required' => TRUE,
   );
   $vocab_list=array();
   foreach($vocabularies as $key => $vocabulary) {
-    if (array_key_exists(variable_get('press_import_locationitem', 'wally_locationitem'),$vocabulary->nodes))
+    if (array_key_exists(variable_get('press_import_locationitem', 'wally_locationtype'),$vocabulary->nodes))
 	  $vocab_list[$key]=$vocabulary->name;
   }
   $form['press_import_taxonomy_location'] = array(
