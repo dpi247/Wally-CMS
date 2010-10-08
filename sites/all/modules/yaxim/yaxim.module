@@ -35,7 +35,7 @@ function yaxim_help($path, $arg) {
 function yaxim_menu() {
   $items = array();
   $items['admin/settings/yaxim'] = array(
-    'title' => 'XML Import Content Settings',
+    'title' => 'Yaxim Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('yaxim_admin'),
     'access arguments' => array('access administration pages'),
