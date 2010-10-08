@@ -212,7 +212,6 @@ function _yaxim_process_structure(&$element,$parent_type='',$def=NULL) {
   $def_name=$def;							// e.g. 'Package'
   // check if the element has a variant, e.g. 'ArticlePackageType' is based off 'Package'
   if (isset($element['_attributes']['xsd:type'])) {
-	echo '<pre>'.print_r($element,1).'</pre>';
     $def_name = $element['_attributes']['xsd:type'];
 	if ($test_level>0)
 		echo "<!-- Processing variant $def_name -->\n";
