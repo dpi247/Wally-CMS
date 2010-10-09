@@ -52,6 +52,8 @@
 		<fields>
 			<field type="field" name="TextBody" content_type="field_textbody" callback="_press_import_textbody" />
 			<field type="field" name="Copyright" content_type="field_copyright" />
+			<field type="field" name="TextBarette" content_type="field_texarette" />
+			
 			<field type="field" name="DocumentType" list="true" array="value" content_type="field_wally_document_type" />
 		</fields>
 	</definition>

@@ -71,15 +71,16 @@ function _press_import_taxonomy($term,$element,$vocabulary) {
 *				- Term id (e.g. 26 which corresponds to 'web'). If it didn't exist, it will be added to the vocabulary
 *
 */
-function _press_import_taxonomy_tags($term,$element,$vocabulary) {
+function _press_import_taxonomy_tags($terms,$element,$vocabulary) {
+  print_r($terms);
   $vid=variable_get($vocabulary['parameter'], 0);
   $use_root_taxonomy=($vid==0);	// TRUE if vocabulary not found.
   $parent_name='';
 
-  if (!is_array($term))
-	$term=array(0 => $term);
-  if (isset($term['_num']))
-	unset($term['_num']);
+  if (!is_array($terms))
+	$terms=array(0 => $terms);
+  if (isset($terms['_num']))
+	unset($terms['_num']);
   
   // Vocabulary should be created/updated as a new Vocabulary in the Taxonomy
   if ($use_root_taxonomy) {
@@ -128,11 +129,23 @@ function _press_import_taxonomy_tags($term,$element,$vocabulary) {
 	$parent_name=$element['VocabularyName'];
   }
   
-  // Now we can add the term to the vocabulary
-  $result=_yaxim_field_taxonomy($term,$vocabulary_name,$parent_name,$vocabulary_vid);
+  // Now we can add the terms to the vocabulary
+  $result=_yaxim_field_taxonomy($terms,$vocabulary_name,$parent_name,$vocabulary_vid);
+  
+  return $result;
   $result=reset($result);
   $tid=$result->tid;
   return $tid;	// return term id
+  
+  
+  //Added by DDU test.
+  echo '<pre>'.print_r($result,1).'</pre>';
+  
+  $tags=array();
+  $i=0;
+  foreach($result as $term){
+    $tags[$i]['value']=$term->tid;
+  }  
 }
 
 /**
@@ -184,10 +197,9 @@ function _press_import_taxonomy_location($term,$element,$vocabulary='press_impor
 */
 
 function _press_import_textbody($textbody,$element=NULL){
-echo '<pre>'.print_r( $element,1).'</pre>';
-echo 'tttttttttttttttttttttttttttttttt';
-echo '<pre>'.print_r( $textbody,1).'</pre>';
-return $textbody;
+  $body=array();
+  $body[0]['value']=$textbody['CDATA'];
+return $body;
 }
 function _press_import_ccktime($date,$element=NULL) {
   $result['value']=str_replace('T', ' ', $date);
