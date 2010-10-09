@@ -318,6 +318,8 @@ function _yaxim_process_structure(&$element,$parent_type='',$def=NULL) {
 			$value=$value['_content'];
 		}
 		
+		//TODO: Rebuild this cvrappy logic with callBack!!!
+		
 		// If there is an Internal callback on the field and no User callback, use it
 		if (!$field_call && substr($field_type,0,5)=='field' && substr($field_type,5,1)!='s') {
 		  if (substr($field_type,5) != '') {

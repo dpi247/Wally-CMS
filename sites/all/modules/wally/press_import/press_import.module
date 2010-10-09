@@ -182,6 +182,13 @@ function _press_import_taxonomy_location($term,$element,$vocabulary='press_impor
 *				- CCK datetime field (array)
 *
 */
+
+function _press_import_textbody($textbody,$element=NULL){
+echo '<pre>'.print_r( $element,1).'</pre>';
+echo 'tttttttttttttttttttttttttttttttt';
+echo '<pre>'.print_r( $textbody,1).'</pre>';
+return $textbody;
+}
 function _press_import_ccktime($date,$element=NULL) {
   $result['value']=str_replace('T', ' ', $date);
   $result['timezone']=variable_get('date_default_timezone_name', 'UTC');
