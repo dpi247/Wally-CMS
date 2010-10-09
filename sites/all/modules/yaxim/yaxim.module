@@ -263,6 +263,7 @@ function _yaxim_process_structure(&$element,$parent_type='',$def=NULL) {
   if ($def_type=='fields') {
 	$def_fields=$def['fields'];
 	foreach ($def_fields as $def_field_name => $def_field) {
+	  
 	  $key=$def_field['content_type'];
 	  $subdef=$def_field['def'];
 	  $subelement=array($def_field_name => $element[$def_field_name]);
