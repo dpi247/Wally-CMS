@@ -199,9 +199,8 @@ function wimprt_process_object($dom,&$log,$type=NULL){
   
   $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
-  echo "wimprt_process_object_$type";
   if(function_exists("wimprt_process_object_$type")){
-    call_usr_func("wimprt_process_object_$type",&$node,$dom,&$log);
+    call_user_func("wimprt_process_object_$type",&$node,$dom,&$log);
   }
   
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
@@ -259,60 +258,31 @@ function wimprt_process_list(&$node,$dom_node_list,$type,&$log){
 
 //***************************
 
-
-
-function wimprt_process_package_default(&$node,$dom,&$log){
+function wimprt_process_object_default(&$node,$dom,&$log){
   //Beware of namespace colision
+  
   foreach($dom->childNodes as $element){
     
     $name=strtolower($element->nodeName);
     if(function_exists("wimprt_set_field_$name")){
-      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
+      call_user_func("wimprt_set_field_$name",$node,$element,$log);
     }
-    
-
+   
   }
   
 }
-
-
-function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
-  //Process atributes
-  //..
+function wimprt_process_package_default(&$node,$dom,&$log){
+  //Beware of namespace colision
   
-  $node->type='wally_articlepackage';
-  $node->uid=1;
-  $node->created_at= strtotime($dom_element->getAttributeNode("CreationDate")->value);
-  $node->language= $dom_element->getAttributeNode("Language")->value;
-  $node->created= $dom_element->getAttributeNode("PackageID")->value;
-  $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
-  $node->created_at= $dom_element->getAttributeNode("LastUpdateDate")->value;
-  $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
+  foreach($dom->childNodes as $element){
+    
+    $name=strtolower($element->nodeName);
+    echo "$name <br/>";
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",$node,$element,$log);
+    }
+   }
   
-  imprt_set_field_mainstory($node,$dom_element->getElementsByTagName("MainStory")->item(0),$log);
-  wimprt_process_package_default($node,$dom_element,$log);
 }
 
-//***************************
-function wimprt_set_field_locations(&$node,$dom,&$log){
-  
-  $result=wimprt_process_list(&$node,$dom,'type',$log);
-  dsm('REsult:');
-  dsm($result);
-  $name= $dom->nodeName;
-  $node->{$name}[0]['value']=$dom->nodeValue;
-}
-
-
-
-function imprt_set_field_mainstory(&$node,$dom,&$log){
-  $object=wimprt_process_object($dom,$log,'TextObject');
-  $node->MainStory['nid'][0]=$object->nid;
-}
-
-function imprt_process_object_textobject(&$node,$dom,&$log){
-  echo 'rrr';
-  //  $object=wimprt_process_object($dom,$log,'TextObject');
-//  $node->MainStory['nid'][0]=$object->nid;
-}
 
