@@ -13,7 +13,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
   
   //Map XML element
-  wimprt_process_package_default($node,$dom_element,$log)
+  wimprt_process_package_default($node,$dom_element,$log);
 }
 
 //***************************
@@ -64,7 +64,7 @@ function wimprt_set_field_locationname(&$node,$dom,&$log){
 }
 
 
-function wimprt_set_field_destinations(&$node,$dom,$log){
+function wimprt_set_field_destinations(&$node,$dom,$log) {
 
 	$result = array(); 
 	$voc=variable_get('wallymport_destinationpath',null);
