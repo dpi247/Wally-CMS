@@ -46,6 +46,21 @@ function wallymport_page_admin_form($form_state) {
 	'#options' => array(t('No debug'), t('Verbose'), t('No data creation')),
     '#required' => TRUE,
   );
+
+  $vocab_list=array();
+  $vocabularies=taxonomy_get_vocabularies();
+  foreach($vocabularies as $key => $vocabulary) {
+	  $vocab_list[$key]=$vocabulary->name;
+  }
+  $form['wallymport_destinationpath'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Destination Path"'),
+    '#description' => t('Choose the vocabulary corresponding to the destination path. Import module will use this vocabulary to match the DestinationPath element.'),
+    '#default_value' => variable_get('wallymport_destinationpath', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
+
   return system_settings_form($form);
 }
 
