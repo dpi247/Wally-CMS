@@ -264,13 +264,30 @@ function wimprt_process_package_default(&$node,$dom,$log){
 }
 
 
-function wimprt_process_package_articlepackagetype(&$node,$dom,$log){
+function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
   //Process atributes
   //..
+  $node->uid=1;
+  $node->created_at= $dom->getAttribute("CreationDate");
+  $node->language= $dom->getAttribute("Language");
+  $node->created_at= $dom->getAttribute("PackageID");
+  $node->created_at= $dom->getAttribute("PublicationDate");
+  $node->created_at= $dom->getAttribute("LastUpdateDate");
+  $node->created_at= $dom->getAttribute("EmbargoDate");
+  $node->created_at= $dom->getAttribute("");
+  $node->created_at= $dom->getAttribute("");
+  $node->created_at= $dom->getAttribute("");
   wimprt_process_package_default($node,$dom);
 }
 
 //***************************
+function wimprt_set_field_locations(&$node,$dom,$log){
+  echo 'aAAAAAAAAAAAAAAaaaaaaaaaaaaaaA';
+  $name= $dom->nodeName;
+  $node->{$name}[0]['value']=$dom->nodeValue;
+}
+
+
 
 function wimprt_set_field_default(&$node,$dom,$log){
   $name= $dom->nodeName;
