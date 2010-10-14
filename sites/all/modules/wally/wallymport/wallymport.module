@@ -277,6 +277,23 @@ function wimprt_process_package_default(&$node,$dom,$log){
   
 }
 
+function wimprt_process_object_default(&$node,$dom,$log){
+  //Beware of namespace colision
+  
+  foreach($dom->childNodes as $element){
+    
+    $name=strtolower($element->nodeName);
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",$node,$element,$log);
+    }
+    else{
+      wimprt_set_field_default($node,$element,$log);
+    }
+
+  }
+  
+}
+
 
 function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
   //Process atributes
@@ -289,6 +306,8 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
   $node->created_at= $dom_element->getAttributeNode("PublicationDate");
   $node->created_at= $dom_element->getAttributeNode("LastUpdateDate");
   $node->created_at= $dom_element->getAttributeNode("EmbargoDate");
+  
+  imprt_set_field_mainstory($node,$dom_element->getElementsByTagName("MainStory")->item(0),$log);
   wimprt_process_package_default($node,$dom_element,$log);
 }
 
@@ -307,7 +326,7 @@ function wimprt_set_field_default(&$node,$dom,$log){
 
 
 function imprt_set_field_mainstory(&$node,$dom,$log){
-  $object=wimport_process_object($node,$dom,$log,'TextObject');
+  $object=wimprt_process_object($node,$dom,$log,'TextObject');
   $node->MainStory['nid'][0]=$object->nid;
 }
 
