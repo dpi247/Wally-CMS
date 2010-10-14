@@ -32,17 +32,24 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->type='wally_textobject';
   $node->uid=1;
   $node->created= $dom_element->getAttributeNode("DocumentType")->value;
-  $node->created_at= $dom_element->getAttributeNode("ObjectID")->value;
-  $node->created_at= $dom_element->getAttributeNode("ObjectDescription")->value;
-  $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
-  $node->created_at= $dom_element->getAttributeNode("LastUpdateDate")->value;
+  $node->object_id= $dom_element->getAttributeNode("ObjectID")->value;
+  $node->object_description= $dom_element->getAttributeNode("ObjectDescription")->value;
+  $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
+  $node->last_upadte_date= $dom_element->getAttributeNode("LastUpdateDate")->value;
   //Map Element 
   // wimprt_process_object_default will call wimprt_process_object_locations,...
   wimprt_process_object_default($node,$dom_element,$log);
 }
 
 function wimprt_process_type_location(&$node,$dom,&$log){
+  //Map XML Attributes 
+  if($dom->hasAttribute("LocationID"))
+  $node->created= $dom->getAttributeNode("LocationID")->value;
   
+  
+  //Map Element 
+  wimprt_process_type_default($node,$dom,$log);
+
 }
 
 function wimprt_set_field_locations(&$node,$dom,&$log){
@@ -51,6 +58,9 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
   $name= $dom->nodeName;
   $node->{$name}[0]['value']=$dom->nodeValue;
 }
-function wimprt_set_field_location(&$node,$dom,&$log){
-echo 'rrrrrrr';
+
+function wimprt_set_field_locationname(&$node,$dom,&$log){
+  $node->location_name=$dom;
+  
 }
+
