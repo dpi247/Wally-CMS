@@ -33,10 +33,7 @@
 			<InternalReference>DrupalNID2</InternalReference>
 			<ExternalReference>ExternalObjectID1</ExternalReference>
 			<Locations>
-				<Location LocationID="Paris">
-									<LocationName>Roland Garros</LocationName>
-				
-				</Location>
+				<Location LocationID="Paris"/>
 				<Location LocationID="Le stade de Roland Garros">
 					<LocationName>Roland Garros</LocationName>
 					<Address>
@@ -93,10 +90,7 @@
 					<InternalReference>InternalID</InternalReference>
 					<ExternalReference>ExternalID</ExternalReference>
 					<Locations>
-						<Location LocationID="Le stade de Roland Garros">
-											<LocationName>Roland Garros</LocationName>
-						
-						</Location>
+						<Location LocationID="Le stade de Roland Garros" />
 					</Locations>
 					<Taxonomy>
 						<Vocabulary VocabularyName="Sports" VocabularyDescription="Sports">
@@ -197,12 +191,8 @@
 			<InternalReference>DrupalNID4</InternalReference>
 			<ExternalReference>ExternalObjectID4</ExternalReference>
 			<Locations>
-				<Location LocationID="Paris">
-					<LocationName>Roland Garros</LocationName>
-				</Location>
-				<Location LocationID="Le stade de Roland Garros">
-					<LocationName>Roland Garros</LocationName>
-				</Location>
+				<Location LocationID="Paris" />
+				<Location LocationID="Le stade de Roland Garros" />
 			</Locations>
 			<Taxonomy>
 				<Vocabulary VocabularyName="Sports History" VocabularyDescription="Places and dates related to Sports">
