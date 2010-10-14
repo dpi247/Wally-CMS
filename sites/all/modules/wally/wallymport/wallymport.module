@@ -115,7 +115,7 @@ function wimprt_process_packages($dom,&$log){
 
   module_invoke_all('wimprt_process_packages',$node,$dom,$log,'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
-    $node=new stdClass();
+    $node=new stdClass;
     wimprt_process_package(&$node,$package_element,&$log);
   }
   module_invoke_all('wimprt_process_packages',$node,$dom,$log,'after_process');
