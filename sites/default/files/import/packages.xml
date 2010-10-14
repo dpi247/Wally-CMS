@@ -8,10 +8,10 @@
 		<ExternalReference>ExternalPackageID1</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="mainstory">
+			<Destination  DestinationRank="2" DocumentLayout="mainstory">
 				<DestinationPath>/sport/tennis/</DestinationPath>
 			</Destination>
-			<Destination DestinationID="2" DestinationRank="1" DocumentLayout="story">
+			<Destination  DestinationRank="1" DocumentLayout="story">
 				<DestinationPath>/sport/tennis/wta</DestinationPath>
 			</Destination>
 		</Destinations>
@@ -24,7 +24,7 @@
 		<Channels>
 			<Channel Name="web"></Channel>
 		</Channels>
-		<CommentsAllowed>true</CommentsAllowed>
+		<CommentsAllowed>Read-Write</CommentsAllowed>
 		<FreeAccess>true</FreeAccess>
 		<AutoPublish>true</AutoPublish>
 	
@@ -33,7 +33,10 @@
 			<InternalReference>DrupalNID2</InternalReference>
 			<ExternalReference>ExternalObjectID1</ExternalReference>
 			<Locations>
-				<Location LocationID="Paris" />
+				<Location LocationID="Paris">
+									<LocationName>Roland Garros</LocationName>
+				
+				</Location>
 				<Location LocationID="Le stade de Roland Garros">
 					<LocationName>Roland Garros</LocationName>
 					<Address>
@@ -90,7 +93,10 @@
 					<InternalReference>InternalID</InternalReference>
 					<ExternalReference>ExternalID</ExternalReference>
 					<Locations>
-						<Location LocationID="Le stade de Roland Garros" />
+						<Location LocationID="Le stade de Roland Garros">
+											<LocationName>Roland Garros</LocationName>
+						
+						</Location>
 					</Locations>
 					<Taxonomy>
 						<Vocabulary VocabularyName="Sports" VocabularyDescription="Sports">
@@ -112,20 +118,20 @@
 					<Title>Other stories</Title>
 					<Summary>Les autres articles au sujet du théatre.</Summary>
 					<Links>
-						<Link LinkType="read more" >
+						<Link  >
 							<ExternalReference>LinkRef.1</ExternalReference>
 							<Title>Si vous aimez à la fois rire et video gallery</Title>
 							<URI>externalRef:B821011036Z.1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Link to original article</Title>
 							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
 							<URI>externalRef:B821010944Z.1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link>
 							<ExternalReference>LinkRef.2</ExternalReference>
 							<Title>Si vous aimez à la fois rire et poll</Title>
 							<URI>externalRef:B821011138Z.1</URI>
@@ -137,19 +143,19 @@
 					<Title>Other websites</Title>
 					<Summary>Les autres site qui en parle.</Summary>
 					<Links>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Si vous aimez à la fois rire et video gallery</Title>
 							<URI>externalRef:B821011036Z.1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Link to original article</Title>
 							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
 							<URI>externalRef:B821010944Z.1</URI>
 						</Link>
-						<Link LinkType="read more" >
+						<Link  >
 							<Title>Si vous aimez à la fois rire et poll</Title>
 							<URI>externalRef:B821011138Z.1</URI>
 						</Link>
@@ -166,10 +172,10 @@
 		<ExternalReference>ExternalPackageID2</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="story">
+			<Destination  DestinationRank="2" DocumentLayout="story">
 				<DestinationPath>/sport/tennis/</DestinationPath>
 			</Destination>
-			<Destination DestinationID="2" DestinationRank="1" DocumentLayout="story">
+			<Destination  DestinationRank="1" DocumentLayout="story">
 				<DestinationPath>/sport/tennis/wta</DestinationPath>
 			</Destination>
 		</Destinations>
@@ -182,7 +188,7 @@
 		<Channels>
 			<Channel Name="web"></Channel>
 		</Channels>
-		<CommentsAllowed>true</CommentsAllowed>
+		<CommentsAllowed>Read-Write</CommentsAllowed>
 		<FreeAccess>true</FreeAccess>
 		<AutoPublish>true</AutoPublish>
 
@@ -191,8 +197,12 @@
 			<InternalReference>DrupalNID4</InternalReference>
 			<ExternalReference>ExternalObjectID4</ExternalReference>
 			<Locations>
-				<Location LocationID="Paris" />
-				<Location LocationID="Le stade de Roland Garros" />
+				<Location LocationID="Paris">
+					<LocationName>Roland Garros</LocationName>
+				</Location>
+				<Location LocationID="Le stade de Roland Garros">
+					<LocationName>Roland Garros</LocationName>
+				</Location>
 			</Locations>
 			<Taxonomy>
 				<Vocabulary VocabularyName="Sports History" VocabularyDescription="Places and dates related to Sports">
@@ -227,7 +237,7 @@
 		<ExternalReference>ExternalPackageID5</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="story">
+			<Destination  DestinationRank="2" DocumentLayout="story">
 				<DestinationPath>/sport/tennis/</DestinationPath>
 			</Destination>
 		</Destinations>
@@ -240,7 +250,7 @@
 		<Channels>
 			<Channel Name="web"></Channel>
 		</Channels>
-		<CommentsAllowed>false</CommentsAllowed>
+		<CommentsAllowed>Disabled</CommentsAllowed>
 		<FreeAccess>true</FreeAccess>
 		<AutoPublish>true</AutoPublish>
 		
