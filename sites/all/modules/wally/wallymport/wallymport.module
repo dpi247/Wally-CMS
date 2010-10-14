@@ -219,6 +219,29 @@ function wimprt_process_type(&$node,$dom,$log,$type=NULL){
 }
 
 
+function wimprt_process_list(&$node,$dom_node_list,$type,$log){
+  
+  $array_of_nodes=array();
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_node_list,$type,$log,'before_process');
+  
+  foreach($dom_node_list->childsName as $dom_child){
+    $element_name=$dom_child->nodeName;
+    if(function_exists("wimprt_process_$type.'_'.$element_name")){
+     $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_'.$element_name",$node,$dom,$log);
+    }
+    else{
+     $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_default",$node,$dom,$log);
+    }
+    
+  }
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom,$type,$log,'after_process');
+  
+  //@todo: call node_save()
+  //node_save($node);
+  return $arra_of_nodes;
+}
+
+
 
 //***************************
 
