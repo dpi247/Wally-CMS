@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Packages xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
+
+	<Package xsd:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+		<PackageTitle>Justine versus Kim</PackageTitle>
+		<PackageDescription>Story and Gallery Photo Package</PackageDescription>
+		<InternalReference>DrupalNID1</InternalReference>
+		<ExternalReference>ExternalPackageID1</ExternalReference>
+		<ProductID>VDN</ProductID>
+		<Destinations>
+			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="mainstory">
+				<DestinationPath>/sport/tennis/</DestinationPath>
+			</Destination>
+			<Destination DestinationID="2" DestinationRank="1" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/wta</DestinationPath>
+			</Destination>
+		</Destinations>
+		<Editions>
+			<Edition EditionID="all">false</Edition>
+			<Edition EditionID="Lille">true</Edition>
+			<Edition EditionID="Douai">true</Edition>
+			<Edition EditionID="Dunkerque">false</Edition>
+		</Editions>
+		<Channels>
+			<Channel Name="web"></Channel>
+		</Channels>
+		<CommentsAllowed>true</CommentsAllowed>
+		<FreeAccess>true</FreeAccess>
+		<AutoPublish>true</AutoPublish>
+	
+		<MainStory ObjectID="TextObjectID" DocumentType="article" ObjectDescription="Roland Garros with Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
+			<Title>Justine versus Kim</Title>
+			<InternalReference>DrupalNID2</InternalReference>
+			<ExternalReference>ExternalObjectID1</ExternalReference>
+			<Locations>
+				<Location LocationID="Paris" />
+				<Location LocationID="Le stade de Roland Garros">
+					<LocationName>Roland Garros</LocationName>
+					<Address>
+						<AddressLine>(Stade Roland Garros)</AddressLine>
+						<AddressLine>2, avenue Gordon Bennet</AddressLine>
+						<City>Paris</City>
+						<Zip>75016</Zip>
+						<State></State>
+						<Country>France</Country>
+					</Address>
+					<LocationGeo>-50.123456,12.123456</LocationGeo>
+				</Location>
+			</Locations>
+			<Taxonomy>
+				<Vocabulary VocabularyName="Brand" VocabularyDescription="Brands and company names">
+					<Term>Perrier</Term>
+					<Term>Donnay</Term>
+				</Vocabulary>
+				<Vocabulary VocabularyName="FreeTag">
+					<Term>court</Term>
+					<Term>world record</Term>
+				</Vocabulary>
+			</Taxonomy>
+			<Persons>
+				<Person PersonID="Rambo" />
+				<Person PersonID="JHenin" >
+					<PersonLastName>Henin</PersonLastName>
+					<PersonFirstName>Justine</PersonFirstName>
+					<PersonNickName>Juju</PersonNickName>
+					<PersonSex>female</PersonSex>
+					<PersonWebSite>http://www.justinehenin.be</PersonWebSite>
+				</Person>
+			</Persons>
+			<Copyright>By Belga</Copyright>
+			<TextBarette>Roland Garros</TextBarette>
+			<TextForeTitle>Match Exhibition</TextForeTitle>
+			<TextTitle>Justine Henin passe du 13e au 12e rang</TextTitle>
+			<TextSubTitle>Classement WTA</TextSubTitle>
+			<TextChapo>Justine Henin a profité du recul de Flavia Pennetta pour grappiller une place et se retrouver au 12e rang du classement WTA. Flipkens, elle, gagne deux places et pointe au 64e rang.</TextChapo>
+			<TextBody>
+			
+					<p>Justine Henin est passée du 13e au 12e rang du classement mondial des joueuses de tennis, publié lundi par la WTA. Elle profite de la perte de points de l’Italienne Flavia Pennetta, qui n’a pu conserver son titre ce week-end à Palerme, et qui recule de la 12e à la 13e position. C’est le seul changement à noter dans le top-20.  </p><p> L’Américaine Serena Williams reste numéro un mondiale devant la Serbe Jelena Jankovic et sa soeur Venus. Kim Clijsters est 7e, Yanina Wickmayer 17e. Kirsten Flipkens, la 4e Belge du top-100, progresse du 66e au 64e rang.  </p>
+					<p>Kaia Kanepi, qui est devenue à Palerme la 1e Estonienne victorieuse d’un tournoi WTA, gagne deux places et pointe au 38e rang. La Hongroise Agnes Szavay, qui a remporté son 2e tournoi d’affilée dimanche à Prague, bondit de la 49e à la 38e position.  </p>
+			
+			</TextBody>
+			<ExtractMedium>Justine Henin est passée du 13e au 12e rang du classement mondial des joueuses de tennis, publié lundi par la WTA.</ExtractMedium>
+			<ExtractShort>Justine au 12e rang du classement WTA.</ExtractShort>
+		</MainStory>
+
+		<EmbeddedContent>
+			<EmbeddedObjects>
+				<Object xsd:type="PhotoObjectType" ObjectID="PhotoObjectID" ObjectDescription="Photo of Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
+					<Title>Justine Henin joue</Title>
+					<InternalReference>InternalID</InternalReference>
+					<ExternalReference>ExternalID</ExternalReference>
+					<Locations>
+						<Location LocationID="Le stade de Roland Garros" />
+					</Locations>
+					<Taxonomy>
+						<Vocabulary VocabularyName="Sports" VocabularyDescription="Sports">
+							<Term>Tennis</Term>
+						</Vocabulary>
+					</Taxonomy>
+					<Persons>
+						<Person PersonID="JHenin" />
+					</Persons>
+					<Summary>Justine Henin joue contre Flavia Pennetta.</Summary>
+					<FileURI>ObjectID:123456</FileURI>
+					<FileSize>177</FileSize>
+					<Rating>G</Rating>
+				</Object>
+			</EmbeddedObjects>
+			<LinksLists>
+				<LinksList>
+					<ExternalReference>LinkLIstRef.1</ExternalReference>
+					<Title>Other stories</Title>
+					<Summary>Les autres articles au sujet du théatre.</Summary>
+					<Links>
+						<Link LinkType="read more" >
+							<ExternalReference>LinkRef.1</ExternalReference>
+							<Title>Si vous aimez à la fois rire et video gallery</Title>
+							<URI>externalRef:B821011036Z.1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<Title>Link to original article</Title>
+							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
+							<URI>externalRef:B821010944Z.1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<ExternalReference>LinkRef.2</ExternalReference>
+							<Title>Si vous aimez à la fois rire et poll</Title>
+							<URI>externalRef:B821011138Z.1</URI>
+						</Link>
+					</Links>
+				</LinksList>
+				<LinksList>
+					<ExternalReference>LinkLIstRef.2</ExternalReference>
+					<Title>Other websites</Title>
+					<Summary>Les autres site qui en parle.</Summary>
+					<Links>
+						<Link LinkType="read more" >
+							<Title>Si vous aimez à la fois rire et video gallery</Title>
+							<URI>externalRef:B821011036Z.1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<Title>Link to original article</Title>
+							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
+							<URI>externalRef:B821010944Z.1</URI>
+						</Link>
+						<Link LinkType="read more" >
+							<Title>Si vous aimez à la fois rire et poll</Title>
+							<URI>externalRef:B821011138Z.1</URI>
+						</Link>
+					</Links>
+				</LinksList>
+			</LinksLists>
+		</EmbeddedContent>
+	</Package>
+
+	<Package xsd:type="ArticlePackageType" PackageID="2" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+		<PackageTitle>Justine versus Kim</PackageTitle>
+		<PackageDescription>Secondary Story</PackageDescription>
+		<InternalReference>DrupalNID3</InternalReference>
+		<ExternalReference>ExternalPackageID2</ExternalReference>
+		<ProductID>VDN</ProductID>
+		<Destinations>
+			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/</DestinationPath>
+			</Destination>
+			<Destination DestinationID="2" DestinationRank="1" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/wta</DestinationPath>
+			</Destination>
+		</Destinations>
+		<Editions>
+			<Edition EditionID="all">false</Edition>
+			<Edition EditionID="Lille">true</Edition>
+			<Edition EditionID="Douai">true</Edition>
+			<Edition EditionID="Dunkerque">false</Edition>
+		</Editions>
+		<Channels>
+			<Channel Name="web"></Channel>
+		</Channels>
+		<CommentsAllowed>true</CommentsAllowed>
+		<FreeAccess>true</FreeAccess>
+		<AutoPublish>true</AutoPublish>
+
+		<MainStory ObjectID="TextObjectID" DocumentType="article" ObjectDescription="History of Roland Garros" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
+			<Title>Histoire de Roland Garros</Title>
+			<InternalReference>DrupalNID4</InternalReference>
+			<ExternalReference>ExternalObjectID4</ExternalReference>
+			<Locations>
+				<Location LocationID="Paris" />
+				<Location LocationID="Le stade de Roland Garros" />
+			</Locations>
+			<Taxonomy>
+				<Vocabulary VocabularyName="Sports History" VocabularyDescription="Places and dates related to Sports">
+					<Term>French Open</Term>
+					<Term>Stade Français</Term>
+				</Vocabulary>
+			</Taxonomy>
+			<Persons>
+				<Person PersonID="Monica Seles" />
+				<Person PersonID="Steffi Graf" />
+			</Persons>
+			<Copyright>By BBC Sport</Copyright>
+			<TextBarette>Roland Garros</TextBarette>
+			<TextForeTitle>Match Exhibition</TextForeTitle>
+			<TextTitle>History of Roland Garros</TextTitle>
+			<TextSubTitle>Classement WTA</TextSubTitle>
+			<TextChapo>After more than a century of tennis in France, Roland Garros has become one of the most cosmopolitan of the Grand Slams. But, as BBC Sport Online's Gabrielle Lewis discovers, the French Open has had few chances to celebrate home success.</TextChapo>
+			<TextBody>
+			
+					<p>Over the last 110 years, the French Open has become one of the most romantic international tennis championships in the world.</p>
+					<p>The sport itself was imported from England at the end of the 19th century and rapidly grew in popularity, with a one-day national championship established in 1891.</p>
+			
+			</TextBody>
+		</MainStory>
+
+	</Package>
+
+	<Package xsd:type="PollPackageType" PackageID="3" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+		<PackageTitle>Tennis Poll</PackageTitle>
+		<PackageDescription>Poll embedded into Main Story</PackageDescription>
+		<InternalReference>interne</InternalReference>
+		<ExternalReference>ExternalPackageID5</ExternalReference>
+		<ProductID>VDN</ProductID>
+		<Destinations>
+			<Destination DestinationID="1" DestinationRank="2" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/</DestinationPath>
+			</Destination>
+		</Destinations>
+		<Editions>
+			<Edition EditionID="all">false</Edition>
+			<Edition EditionID="Lille">true</Edition>
+			<Edition EditionID="Douai">true</Edition>
+			<Edition EditionID="Dunkerque">false</Edition>
+		</Editions>
+		<Channels>
+			<Channel Name="web"></Channel>
+		</Channels>
+		<CommentsAllowed>false</CommentsAllowed>
+		<FreeAccess>true</FreeAccess>
+		<AutoPublish>true</AutoPublish>
+		
+		<Poll ObjectID="PollObjectID" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52">
+			<Title>Sexiest female tennis player of all time</Title>
+			<ExternalReference>ExternalObjectID3</ExternalReference>
+			<DateOpen>2010-10-26T21:00:00</DateOpen>
+			<DateClose>2010-10-26T21:00:00</DateClose>
+			<PollQuestions>
+				<PollQuestion Choice="checkbox">
+					<Question>Choose the sexiest female tennis players of all time</Question>
+					<Answers>
+						<Answer>Anna Kournikova</Answer>
+						<Answer>Maria Sharapova</Answer>
+						<Answer>Gabriella Sabatini</Answer>
+						<Answer>Steffi Graf</Answer>
+					</Answers>
+				</PollQuestion>
+				<PollQuestion Choice="radioButton">
+					<Question >What is your age</Question>
+					<Answers>
+						<Answer>0-15</Answer>
+						<Answer>16-25</Answer>
+						<Answer>26-45</Answer>
+						<Answer>46+</Answer>
+					</Answers>
+				</PollQuestion>
+			</PollQuestions>
+		</Poll>
+
+	</Package>
+
+
+</Packages>
