@@ -85,7 +85,6 @@
 		<xsd:extension base="PackageType"> 
 			<xsd:sequence>
 				<xsd:element name="Poll" type="PollObjectType" maxOccurs="unbounded"/>
-				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="unbounded" type="EmbeddedContentType" />
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>

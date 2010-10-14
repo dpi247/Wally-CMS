@@ -8,8 +8,6 @@
 	<definition type="list" name="Packages" def="Package">
 		<title>Packages</title>
 	</definition>
-
-	
 	<!-- Packages -->
 	<definition type="node" name="Package" dbkey="ExternalReference" content_type="wally_packagetype">
 		<title>Generic Package</title>
@@ -21,7 +19,7 @@
 			<field type="field ccktime" name="EmbargoDate" list="true" content_type="field_wally_embargo_date" />
 			<field type="field comment" name="CommentsAllowed" content_type="comment" />
 			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_externalreference" />
-			<field type="def"   name="Channels" def="Channels" content_type="field_wally_channel" />
+			<field type="def"   name="Channels" def="Channels" content_type="field_channels" />
 			<field type="def"   name="Destinations" def="Destinations" content_type="field_wally_destination" />
 		</fields>
 	</definition>
@@ -42,7 +40,7 @@
 			<field type="field" name="Title" content_type="title" />
 			<field type="field" name="ExternalReference" list="true" array="value" content_type="field_externalreference" />
 			<field type="def"   name="Markers" def="MarkersList" content_type="field_wally_marker" />
-			<field type="def"   name="Locations" def="LocationsList" content_type="field_wally_location" />
+			<field type="def"   name="Locations" def="LocationsList" content_type="field_locations" />
 			<field type="def"   name="Taxonomy" def="TagsTaxonomy" content_type="field_wally_taxonomy" />
 		</fields>
 	</definition>

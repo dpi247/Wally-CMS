@@ -72,11 +72,11 @@ function _press_import_taxonomy($term,$element,$vocabulary) {
 *
 */
 function _press_import_taxonomy_tags($terms,$element,$vocabulary) {
-  print_r($terms);
   $vid=variable_get($vocabulary['parameter'], 0);
   $use_root_taxonomy=($vid==0);	// TRUE if vocabulary not found.
   $parent_name='';
-
+  dsm($terms);
+  
   if (!is_array($terms))
 	$terms=array(0 => $terms);
   if (isset($terms['_num']))
@@ -132,20 +132,25 @@ function _press_import_taxonomy_tags($terms,$element,$vocabulary) {
   // Now we can add the terms to the vocabulary
   $result=_yaxim_field_taxonomy($terms,$vocabulary_name,$parent_name,$vocabulary_vid);
   
-  return $result;
   $result=reset($result);
   $tid=$result->tid;
   return $tid;	// return term id
   
   
-  //Added by DDU test.
-  echo '<pre>'.print_r($result,1).'</pre>';
   
   $tags=array();
   $i=0;
   foreach($result as $term){
-    $tags[$i]['value']=$term->tid;
-  }  
+    $tags[]=$term->tid;
+    $i++;
+  }    
+  return $tags;
+  
+  $result=reset($result);
+  $tid=$result->tid;
+  return $tid;	// return term id
+  
+  
 }
 
 /**

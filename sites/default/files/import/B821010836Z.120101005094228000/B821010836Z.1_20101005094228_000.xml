@@ -33,7 +33,7 @@
         <FreeAccess>true</FreeAccess>
         <AutoPublish>true</AutoPublish>
         <MainStory DocumentType="article" LastUpdateDate="2010-10-05T09:41:55+02:00" CreationDate="2010-08-17T16:40:50+02:00" PublicationDate="2010-10-05T09:42:28" ObjectDescription="onlinearticle.xml" ObjectID="GUU15R10J8.5">
-			<Title>Titre de mon noeud de main story</Title>
+			      <Title>Titre de mon noeud de main story</Title>
             <ExternalReference>GUU15R10J8.5</ExternalReference>
             <Taxonomy>
                 <Vocabulary VocabularyName="keywords">
