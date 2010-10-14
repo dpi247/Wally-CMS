@@ -13,6 +13,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
   
   //Map XML element
+  //@todo: should be replaced by wimprt_process_package_default(&$node,$dom_element,&$log);
   wimprt_set_field_mainstory($node,$dom_element->getElementsByTagName("MainStory")->item(0),$log);
 }
 
@@ -35,16 +36,21 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->created_at= $dom_element->getAttributeNode("ObjectDescription")->value;
   $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
   $node->created_at= $dom_element->getAttributeNode("LastUpdateDate")->value;
-  
   //Map Element 
   // wimprt_process_object_default will call wimprt_process_object_locations,...
-  wimprt_process_object_default(&$node,$dom_element,&$log);
+  wimprt_process_object_default($node,$dom_element,$log);
 }
 
+function wimprt_process_type_location(&$node,$dom,&$log){
+  
+}
 
 function wimprt_set_field_locations(&$node,$dom,&$log){
   
-  $result=wimprt_process_list(&$node,$dom,'type',$log);
+  $result=wimprt_process_list($node,$dom,'type',$log);
   $name= $dom->nodeName;
   $node->{$name}[0]['value']=$dom->nodeValue;
+}
+function wimprt_set_field_location(&$node,$dom,&$log){
+echo 'rrrrrrr';
 }
