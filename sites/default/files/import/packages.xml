@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Packages xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
 
-	<Package xsd:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+	<Package xsi:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
 		<PackageTitle>Justine versus Kim</PackageTitle>
 		<PackageDescription>Story and Gallery Photo Package</PackageDescription>
 		<InternalReference>DrupalNID1</InternalReference>
@@ -85,7 +85,7 @@
 
 		<EmbeddedContent>
 			<EmbeddedObjects>
-				<Object xsd:type="PhotoObjectType" ObjectID="PhotoObjectID" ObjectDescription="Photo of Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
+				<Object xsi:type="PhotoObjectType" ObjectID="PhotoObjectID" ObjectDescription="Photo of Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
 					<Title>Justine Henin joue</Title>
 					<InternalReference>InternalID</InternalReference>
 					<ExternalReference>ExternalID</ExternalReference>
@@ -159,7 +159,7 @@
 		</EmbeddedContent>
 	</Package>
 
-	<Package xsd:type="ArticlePackageType" PackageID="2" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+	<Package xsi:type="ArticlePackageType" PackageID="2" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
 		<PackageTitle>Justine versus Kim</PackageTitle>
 		<PackageDescription>Secondary Story</PackageDescription>
 		<InternalReference>DrupalNID3</InternalReference>
@@ -220,7 +220,7 @@
 
 	</Package>
 
-	<Package xsd:type="PollPackageType" PackageID="3" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
+	<Package xsi:type="PollPackageType" PackageID="3" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
 		<PackageTitle>Tennis Poll</PackageTitle>
 		<PackageDescription>Poll embedded into Main Story</PackageDescription>
 		<InternalReference>interne</InternalReference>
