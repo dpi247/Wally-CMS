@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Packages xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
+<Packages xmlns="http://rossel.audaxis.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
 
 	<Package xsi:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
 		<PackageTitle>Justine versus Kim</PackageTitle>
