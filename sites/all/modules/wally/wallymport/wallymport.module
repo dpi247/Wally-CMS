@@ -147,7 +147,7 @@ function wimprt_process_packages($node,$dom,&$log){
 function wimprt_process_package(&$node,$dom,&$log){
 
   if(variable_get('wallymport_debug',0) or true)
-  $log[]='process package: '.$dom->nodeName;
+    $log['log'][]='process package: '.$dom->nodeName;
 
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
@@ -162,6 +162,10 @@ function wimprt_process_package(&$node,$dom,&$log){
 
   //@todo: call node_save()
   //node_save($node);
+  dsm(__function__);
+  dsm($node);
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
+    
   return $node;
 }
 
@@ -188,7 +192,7 @@ function wimprt_process_package(&$node,$dom,&$log){
  */
 function wimprt_process_object($dom,&$log,$type=NULL){
   if(variable_get('wallymport_debug',0) or true)
-  $log[]='process object: '.$dom->nodeName;
+    $log['log'][]='process object: '.$dom->nodeName;
 
 
   $node=new stdClass;
@@ -203,35 +207,38 @@ function wimprt_process_object($dom,&$log,$type=NULL){
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
-  return $node;
+  dsm(__function__);
+  dsm($node);
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
+    return $node;
 }
 
 
 function wimprt_process_type($dom,&$log,$type=NULL){
-  echo "quisi";
   if(variable_get('wallymport_debug',0) or true)
-  $log[]='process type: '.$dom->nodeName;
+    $log['log'][]='process type: '.$dom->nodeName;
 
-
+  $node=new stdClass;  
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
-  if($type==NULL){
-    $type=strtolower($dom->getAttributeNode('type'));
-  }
+  $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
-  if(function_exists("wimprt_process_object_$type")){
-    call_usr_func("wimprt_process_type_$type",&$node,$dom,&$log);
+  if(function_exists("wimprt_process_type_$type")){
+    call_user_func("wimprt_process_type_$type",&$node,$dom,&$log);
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
-  node_save($node);
+  //node_save($node);
+  dsm(__function__);
+  dsm($node);
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
   return $node;
 }
 
 
 function wimprt_process_list(&$node,$dom_element,$type,&$log){
   if(variable_get('wallymport_debug',0) or true){
-    $log[]='process list: '.$dom_element->nodeName;
+    $log['log'][]='process list: '.$dom_element->nodeName;
   }
    
 
@@ -241,7 +248,7 @@ function wimprt_process_list(&$node,$dom_element,$type,&$log){
   foreach($dom_element->childNodes as $dom_child){
     $element_name=$dom_child->nodeName;
     if(function_exists("wimprt_process_".$type)){
-      $array_of_nodes[]= call_user_func("wimprt_process_".$type,$dom_child,&$log,$type);
+      $array_of_nodes[]= call_user_func("wimprt_process_".$type,$dom_child,&$log,$dom_child->nodeName);
     }
 
   }
@@ -249,12 +256,28 @@ function wimprt_process_list(&$node,$dom_element,$type,&$log){
 
   //@todo: call node_save()
   //node_save($node);
-  return $array_of_nodes;
+  
+  $log['node']=array($array_of_nodes=>$log['node']);
+  return ;
 }
 
 
 
 //***************************
+
+
+function wimprt_process_package_default(&$node,$dom,&$log){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+
+    $name=strtolower($element->nodeName);
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
+    }
+  }
+
+}
+
 
 function wimprt_process_object_default(&$node,$dom,&$log){
   //Beware of namespace colision
@@ -269,11 +292,12 @@ function wimprt_process_object_default(&$node,$dom,&$log){
   }
 
 }
-function wimprt_process_package_default(&$node,$dom,&$log){
+function wimprt_process_type_default(&$node,$dom,&$log){
   //Beware of namespace colision
   foreach($dom->childNodes as $element){
 
     $name=strtolower($element->nodeName);
+    dsm($name);
     if(function_exists("wimprt_set_field_$name")){
       call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
     }
