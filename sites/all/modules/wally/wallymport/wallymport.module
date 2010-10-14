@@ -219,13 +219,14 @@ function wimprt_process_type(&$node,$dom,$log,$type=NULL){
   if($type==NULL){
     $type=strtolower($dom->getAttribute('type'));
   }
-  wimprt_process_object_default($node,$dom,$log);
-
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$type")){
-    call_usr_func("wimprt_process_object_$type",$node,$dom,$log);
+    call_usr_func("wimprt_process_type_$type",$node,$dom,$log);
   }
-  module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
+  else{
+    wimprt_process_type_default($node,$dom,$log);
+  }
+  module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
   return $node;
@@ -239,10 +240,13 @@ function wimprt_process_list(&$node,$dom_node_list,$type,$log){
   
   foreach($dom_node_list as $dom_child){
     $element_name=$dom_child->nodeName;
+    dsm('rrr');
     if(function_exists("wimprt_process_$type.'_'.$element_name")){
+      dsm('rrr');
      $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_'.$element_name",$node,$dom,$log);
     }
     else{
+      dsm('rrr');  
      $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_default",$node,$dom,$log);
     }
     
@@ -315,7 +319,8 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
 function wimprt_set_field_locations(&$node,$dom,$log){
   
   $result=wimprt_process_list(&$node,$dom,'type',$log);
-  dsm('REsult:');dsm($result);
+  dsm('REsult:');
+  dsm($result);
   $name= $dom->nodeName;
   $node->{$name}[0]['value']=$dom->nodeValue;
 }
