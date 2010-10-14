@@ -91,8 +91,10 @@ function wallymport_page_process_file($path_to_file){
   $node=new StdClass();
 
   $log=array();
-  $return=wimprt_process_packages($dom,$log);
+  $return=wimprt_process_packages($node,$dom,$log);
 
+  dsm($node);
+  
   //@todo: theming function
   return '<pre>'.print_r($return,1).'</pre>';
 
@@ -111,12 +113,12 @@ function wallymport_page_process_file($path_to_file){
  * @return
  *   the log object
  */
-function wimprt_process_packages($dom,&$log){
+function wimprt_process_packages($node,$dom,&$log){
 
   module_invoke_all('wimprt_process_packages',$dom,$log,'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
     $node=new stdClass;
-    wimprt_process_package(&$node,$package_element,$log);
+    wimprt_process_package(&$node,$package_element,&$log);
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
   
@@ -146,15 +148,17 @@ function wimprt_process_packages($dom,&$log){
  */
 function wimprt_process_package(&$node,$dom,&$log){
   
-  module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
   
   if(variable_get('wallymport_debug',0) or true)
     $log[]='process package: '.$dom->nodeName;
   
+  
+  module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
+  
   $type=strtolower($dom->getAttributeNode('xsi:type')->value);
    // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
   if(function_exists("wimprt_process_package_".$type)){
-    call_user_func("wimprt_process_package_".$type,$node,$dom,$log);
+    call_user_func("wimprt_process_package_".$type,&$node,$dom,&$log);
   }
   else{
     wimprt_process_package_default($node,$dom,$log);
@@ -163,7 +167,6 @@ function wimprt_process_package(&$node,$dom,&$log){
   
   //@todo: call node_save()
   //node_save($node);
-  dsm($node);
   return $node;
 }
 
@@ -188,11 +191,13 @@ function wimprt_process_package(&$node,$dom,&$log){
  * @return
  *   the node object that has been build
  */
-function wimprt_process_object(&$node,$dom,$log,$type=NULL){
+function wimprt_process_object($dom,&$log,$type=NULL){
+  echo'efef';
   if(variable_get('wallymport_debug',0) or true)
     $log[]='process object: '.$dom->nodeName;
   
   
+  $node=new stdClass;
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
   if($type==NULL){
     $type=strtolower($dom->getAttribute('type'));
@@ -210,7 +215,7 @@ function wimprt_process_object(&$node,$dom,$log,$type=NULL){
 }
 
 
-function wimprt_process_type(&$node,$dom,$log,$type=NULL){
+function wimprt_process_type(&$node,$dom,&$log,$type=NULL){
     if(variable_get('wallymport_debug',0) or true)
     $log[]='process type: '.$dom->nodeName;
   
@@ -228,25 +233,26 @@ function wimprt_process_type(&$node,$dom,$log,$type=NULL){
   }
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
-  //node_save($node);
+  node_save($node);
   return $node;
 }
 
 
-function wimprt_process_list(&$node,$dom_node_list,$type,$log){
+function wimprt_process_list(&$node,$dom_node_list,$type,&$log){
+   if(variable_get('wallymport_debug',0) or true)
+    $log[]='process list: '.$dom->nodeName;
+  
+  
   
   $array_of_nodes=array();
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_node_list,$type,$log,'before_process');
   
   foreach($dom_node_list as $dom_child){
     $element_name=$dom_child->nodeName;
-    dsm('rrr');
     if(function_exists("wimprt_process_$type.'_'.$element_name")){
-      dsm('rrr');
      $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_'.$element_name",$node,$dom,$log);
     }
     else{
-      dsm('rrr');  
      $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_default",$node,$dom,$log);
     }
     
@@ -264,7 +270,7 @@ function wimprt_process_list(&$node,$dom_node_list,$type,$log){
 
 
 
-function wimprt_process_package_default(&$node,$dom,$log){
+function wimprt_process_package_default(&$node,$dom,&$log){
   //Beware of namespace colision
   
   foreach($dom->childNodes as $element){
@@ -281,7 +287,7 @@ function wimprt_process_package_default(&$node,$dom,$log){
   
 }
 
-function wimprt_process_object_default(&$node,$dom,$log){
+function wimprt_process_object_default(&$node,$dom,&$log){
   //Beware of namespace colision
   
   foreach($dom->childNodes as $element){
@@ -299,14 +305,15 @@ function wimprt_process_object_default(&$node,$dom,$log){
 }
 
 
-function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
+function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   //Process atributes
   //..
   
+  $node->type='wally_articlepackage';
   $node->uid=1;
-  $node->created_at= $dom_element->getAttributeNode("CreationDate")->value;
+  $node->created_at= strtotime($dom_element->getAttributeNode("CreationDate")->value);
   $node->language= $dom_element->getAttributeNode("Language")->value;
-  $node->created_at= $dom_element->getAttributeNode("PackageID")->value;
+  $node->created= $dom_element->getAttributeNode("PackageID")->value;
   $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
   $node->created_at= $dom_element->getAttributeNode("LastUpdateDate")->value;
   $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
@@ -316,7 +323,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
 }
 
 //***************************
-function wimprt_set_field_locations(&$node,$dom,$log){
+function wimprt_set_field_locations(&$node,$dom,&$log){
   
   $result=wimprt_process_list(&$node,$dom,'type',$log);
   dsm('REsult:');
@@ -327,14 +334,14 @@ function wimprt_set_field_locations(&$node,$dom,$log){
 
 
 
-function wimprt_set_field_default(&$node,$dom,$log){
+function wimprt_set_field_default(&$node,$dom,&$log){
   $name= $dom->nodeName;
   $node->{$name}[0]['value']=$dom->nodeValue;
 }
 
 
-function imprt_set_field_mainstory(&$node,$dom,$log){
-  $object=wimprt_process_object($node,$dom,$log,'TextObject');
+function imprt_set_field_mainstory(&$node,$dom,&$log){
+  $object=wimprt_process_object($dom,$log,'TextObject');
   $node->MainStory['nid'][0]=$object->nid;
 }
 
