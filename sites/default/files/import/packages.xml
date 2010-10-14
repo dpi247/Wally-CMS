@@ -166,11 +166,11 @@
 		<ExternalReference>ExternalPackageID2</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination  DestinationRank="2" DocumentLayout="story">
-				<DestinationPath>/sport/tennis/</DestinationPath>
+			<Destination DestinationRank="2" DocumentLayout="mainstory">
+				<DestinationPath>/sports/dance/western</DestinationPath>
 			</Destination>
 			<Destination  DestinationRank="1" DocumentLayout="story">
-				<DestinationPath>/sport/tennis/wta</DestinationPath>
+				<DestinationPath>/sports/tennis</DestinationPath>
 			</Destination>
 		</Destinations>
 		<Editions>
@@ -227,8 +227,11 @@
 		<ExternalReference>ExternalPackageID5</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination  DestinationRank="2" DocumentLayout="story">
-				<DestinationPath>/sport/tennis/</DestinationPath>
+			<Destination DestinationRank="2" DocumentLayout="mainstory">
+				<DestinationPath>/sports/dance/</DestinationPath>
+			</Destination>
+			<Destination  DestinationRank="1" DocumentLayout="story">
+				<DestinationPath>/sports/tennis/wta</DestinationPath>
 			</Destination>
 		</Destinations>
 		<Editions>

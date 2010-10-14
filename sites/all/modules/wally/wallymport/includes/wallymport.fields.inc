@@ -19,8 +19,6 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
 //***************************
 
 
-
-
 function wimprt_set_field_mainstory(&$node,$dom,&$log){
   $object=wimprt_process_object($dom,$log,'TextObject');
   $node->MainStory['nid'][0]=$object->nid;
@@ -63,27 +61,69 @@ function wimprt_set_field_locationname(&$node,$dom,&$log){
   
 }
 
+/*
+		<Editions>
+			<Edition EditionID="all">false</Edition>
+			<Edition EditionID="Lille">true</Edition>
+			<Edition EditionID="Douai">true</Edition>
+			<Edition EditionID="Dunkerque">false</Edition>
+		</Editions>
+*/
+
+function wimprt_set_field_editions(&$node,$dom,$log) {
+	$result = array(); 
+
+	$i=0;
+	foreach($dom->getElementsByTagName('Edition') as $edition) {
+
+		$result[$i]["EditionID"]=$edition->getAttributeNode("EditionID")->value;
+		$result[$i]["Value"]=$edition->nodeValue;
+		$i++;
+	}
+
+	// If no Edition at all > Default if ALL > TRUE
+		if (count($result)) {
+			$node->field_editions =array(0=>serialize($result)); 
+		} else {
+			$result[0]["EditionID"]="ALL";
+			$result[0]["Value"]=true;
+			$node->field_editions =array(0=>serialize($result)); 
+			drupal_set_message('No edition found. Default set to ALL-TRUE.','error');
+			return '';
+		}
+}
+
+
 
 function wimprt_set_field_destinations(&$node,$dom,$log) {
-
 	$result = array(); 
 	$voc=variable_get('wallymport_destinationpath',null);
 	if ($voc) {
+		$i=0;
 		foreach($dom->getElementsByTagName('Destination') as $destination) {
 			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
 			$terms = _taxonomy_get_term_by_path($path, $voc);
 			if ($terms) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
-				$result[]["tid"]=$term[0]->tid;
-				$result[]["path"]=$path;
-				$result[]["rank"]=$destination->getAttributeNode("DestinationRank")->value;
-				$result[]["rank"]=$destination->getAttributeNode("DocumentLayout")->value;
+				$result[$i]["DestinationPathTid"]=$term[0]->tid;
+				$result[$i]["DestinationPath"]=$path;
+				$result[$i]["DestinationRank"]=$destination->getAttributeNode("DestinationRank")->value;
+				$result[$i]["DocumentLayout"]=$destination->getAttributeNode("DocumentLayout")->value;
 			} else {
 				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$voc.'). Destination rejected.','error');	
 			}
+		$i++;
 		}
-		return serialize($result); 
+
+		// If no destinations at all > Package can't be created.
+		if (count($result)) {
+			$node->field_destinations=array(0=>serialize($result)); 
+		} else {
+			// TODO: FATAL ERROR - PACKAGE
+			drupal_set_message('No destination AT ALL for current package.','error');
+			return '';
+		}
 	} else {
 		drupal_set_message('Destination Path vocabulary not set. See settings.','error');
 		return '';
