@@ -257,7 +257,7 @@ function wimprt_process_list(&$node,$dom_element,$type,&$log){
   //@todo: call node_save()
   //node_save($node);
   
-  $log['node']=array($array_of_nodes=>$log['node']);
+  $log['node']=array('current'=>$array_of_nodes);
   return ;
 }
 
