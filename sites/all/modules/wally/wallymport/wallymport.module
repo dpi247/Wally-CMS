@@ -21,6 +21,8 @@ function wallymport_menu() {
 	'page callback' => 'wallymport_page_process_folder',
 	'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
+    'file' => 'includes/wallymport.fields.inc',
+  
   );
   $items['wallymport/process/%'] = array(
 	'title' => 'Run XML Import Process',
@@ -29,6 +31,8 @@ function wallymport_menu() {
 	'page arguments' => array(2),
   	'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
+    'file' => 'includes/wallymport.fields.inc',
+  
   );
 
 
