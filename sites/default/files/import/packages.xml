@@ -16,7 +16,6 @@
 			</Destination>
 		</Destinations>
 		<Editions>
-			<Edition EditionID="all">false</Edition>
 			<Edition EditionID="Lille">true</Edition>
 			<Edition EditionID="Douai">true</Edition>
 			<Edition EditionID="Dunkerque">false</Edition>
@@ -174,9 +173,8 @@
 			</Destination>
 		</Destinations>
 		<Editions>
-			<Edition EditionID="all">false</Edition>
 			<Edition EditionID="Lille">true</Edition>
-			<Edition EditionID="Douai">true</Edition>
+			<Edition EditionID="Douai">false</Edition>
 			<Edition EditionID="Dunkerque">false</Edition>
 		</Editions>
 		<Channels>

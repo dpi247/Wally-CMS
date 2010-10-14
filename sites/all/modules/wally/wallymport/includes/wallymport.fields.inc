@@ -71,34 +71,57 @@ function wimprt_set_field_locationname(&$node,$dom,&$log){
 */
 
 function wimprt_set_field_editions(&$node,$dom,$log) {
-	$result = array(); 
+	$result = array();
+	$valid = (bool) false;
+	$terms = array(); 
+	$vid=variable_get('wallymport_edition',null);
+	if ($vid) {
 
-	$i=0;
-	foreach($dom->getElementsByTagName('Edition') as $edition) {
-
-		$result[$i]["EditionID"]=$edition->getAttributeNode("EditionID")->value;
-		$result[$i]["Value"]=$edition->nodeValue;
-		$i++;
-	}
-
-	// If no Edition at all > Default if ALL > TRUE
-		if (count($result)) {
-			$node->field_editions =array(0=>serialize($result)); 
-		} else {
-			$result[0]["EditionID"]="ALL";
-			$result[0]["Value"]=true;
-			$node->field_editions =array(0=>serialize($result)); 
-			drupal_set_message('No edition found. Default set to ALL-TRUE.','error');
-			return '';
+		// Read all terms from vocabulary and set if to False (default);
+		$terms = taxonomy_get_tree($vid);
+		foreach ($terms as $term) {
+			$result[$term->name][Publish]=false;
+			$result[$term->name][EditionTid]=$term->tid;
+			$result[$term->name][EditionID]=$term->name;
 		}
-}
 
+		// Get edition from DOM & update array.
+		foreach($dom->getElementsByTagName('Edition') as $edition) {
+			$editionID = $edition->getAttributeNode("EditionID")->value;
+			$value = toboolean($edition->nodeValue);
+			if (strtolower($editionID)=="all") {
+				foreach ($terms as $term) $result[$term->name][Publish]=$value;
+				$valid = $value;
+				drupal_set_message('Editions ALL found. All edition set to '.$value.'. Editions iteration terminated.','error');
+				break;
+			} else {
+				if (array_key_exists($editionID, $result)) {
+					$valid = ($valid || $value);
+					$result[$editionID][Publish]=$value;
+				} else {
+					drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
+				}
+			}
+		}
+
+		if ($valid) { 
+				$node->field_editions=array(0=>serialize($result));
+		} else {
+			drupal_set_message('ALL Edition set to false. Package should be rejected','error');
+			// TODO: FATAL ERROR - PACKAGE
+		}
+		
+	} else {
+		drupal_set_message('Edition vocabulary not set. See settings.','error');
+		return '';
+	}
+}
 
 
 function wimprt_set_field_destinations(&$node,$dom,$log) {
 	$result = array(); 
-	$voc=variable_get('wallymport_destinationpath',null);
-	if ($voc) {
+	$vid=variable_get('wallymport_destinationpath',null);
+	if ($vid) {
 		$i=0;
 		foreach($dom->getElementsByTagName('Destination') as $destination) {
 			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
@@ -111,7 +134,7 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 				$result[$i]["DestinationRank"]=$destination->getAttributeNode("DestinationRank")->value;
 				$result[$i]["DocumentLayout"]=$destination->getAttributeNode("DocumentLayout")->value;
 			} else {
-				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$voc.'). Destination rejected.','error');	
+				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','error');	
 			}
 		$i++;
 		}
@@ -169,3 +192,24 @@ function _taxonomy_get_term_by_path($path, $voc=null) {
 	return $result;
 }
 
+
+/**
+ * A true boolean conversion function.
+ * 
+ * @param $path
+ *   The taxonomy term path to match ( /term1/term2/term3 ). 
+ * @param $voc
+ *   The taxonomy vocabulary used for filtering on a single vocabulary.
+ *
+ * @return
+ *   an array of term object
+ */
+function toboolean($v,$def=null) {
+	if ($v===false) return false;
+	if ($v===true) return true;
+	if ($v=="true") return true;
+	if ($v=="false") return false;
+	if ($v==0) return false;
+	if ($v==1) return true;
+	return $def;
+}
