@@ -116,7 +116,7 @@ function wimprt_process_packages($dom,&$log){
   module_invoke_all('wimprt_process_packages',$dom,$log,'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
     $node=new stdClass;
-    wimprt_process_package(&$node,$package_element,&$log);
+    wimprt_process_package(&$node,$package_element,$log);
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
   
@@ -146,14 +146,15 @@ function wimprt_process_packages($dom,&$log){
  */
 function wimprt_process_package(&$node,$dom,&$log){
   
- var_dump($dom->getAttributeNode('xsd:type')->value);
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
-  $dom->getAttributeNS('xsi','type');
-  $type=strtolower($dom->getAttributeNode('type'));
-  echo $type;
-  // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
-  if(function_exists("wimprt_process_package_$type")){
-    call_usr_func("wimprt_process_package_$type",$node,$dom,$log);
+  
+  if(variable_get('wallymport_debug',0) or true)
+    $log[]='process package: '.$dom->nodeName;
+  
+  $type=strtolower($dom->getAttributeNode('xsi:type')->value);
+   // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+  if(function_exists("wimprt_process_package_".$type)){
+    call_user_func("wimprt_process_package_".$type,$node,$dom,$log);
   }
   else{
     wimprt_process_package_default($node,$dom,$log);
@@ -162,6 +163,7 @@ function wimprt_process_package(&$node,$dom,&$log){
   
   //@todo: call node_save()
   //node_save($node);
+  dsm($node);
   return $node;
 }
 
@@ -187,6 +189,10 @@ function wimprt_process_package(&$node,$dom,&$log){
  *   the node object that has been build
  */
 function wimprt_process_object(&$node,$dom,$log,$type=NULL){
+  if(variable_get('wallymport_debug',0) or true)
+    $log[]='process object: '.$dom->nodeName;
+  
+  
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
   if($type==NULL){
     $type=strtolower($dom->getAttribute('type'));
@@ -205,6 +211,10 @@ function wimprt_process_object(&$node,$dom,$log,$type=NULL){
 
 
 function wimprt_process_type(&$node,$dom,$log,$type=NULL){
+    if(variable_get('wallymport_debug',0) or true)
+    $log[]='process type: '.$dom->nodeName;
+  
+  
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
   if($type==NULL){
     $type=strtolower($dom->getAttribute('type'));
@@ -273,21 +283,17 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
   //..
   
   $node->uid=1;
-  $node->created_at= $dom->getAttribute("CreationDate");
-  $node->language= $dom->getAttribute("Language");
-  $node->created_at= $dom->getAttribute("PackageID");
-  $node->created_at= $dom->getAttribute("PublicationDate");
-  $node->created_at= $dom->getAttribute("LastUpdateDate");
-  $node->created_at= $dom->getAttribute("EmbargoDate");
-  $node->created_at= $dom->getAttribute("");
-  $node->created_at= $dom->getAttribute("");
-  $node->created_at= $dom->getAttribute("");
-  wimprt_process_package_default($node,$dom);
+  $node->created_at= $dom_element->getAttributeNode("CreationDate");
+  $node->language= $dom_element->getAttributeNode("Language");
+  $node->created_at= $dom_element->getAttributeNode("PackageID");
+  $node->created_at= $dom_element->getAttributeNode("PublicationDate");
+  $node->created_at= $dom_element->getAttributeNode("LastUpdateDate");
+  $node->created_at= $dom_element->getAttributeNode("EmbargoDate");
+  wimprt_process_package_default($node,$dom_element,$log);
 }
 
 //***************************
 function wimprt_set_field_locations(&$node,$dom,$log){
-  echo 'aAAAAAAAAAAAAAAaaaaaaaaaaaaaaA';
   $name= $dom->nodeName;
   $node->{$name}[0]['value']=$dom->nodeValue;
 }
