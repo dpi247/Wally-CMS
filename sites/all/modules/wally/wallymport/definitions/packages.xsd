@@ -85,6 +85,7 @@
 		<xsd:extension base="PackageType"> 
 			<xsd:sequence>
 				<xsd:element name="Poll" type="PollObjectType" maxOccurs="unbounded"/>
+				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="unbounded" type="EmbeddedContentType" />
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -399,7 +400,7 @@
 
  <xsd:complexType name="LocationItem">
 	<xsd:sequence>
-		<xsd:element name="LocationName" type="xsd:string" />
+		<xsd:element name="LocationName" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		<xsd:element name="Address" type="AddressType" minOccurs="0" maxOccurs="1" />
 		<xsd:element name="LocationGeo" minOccurs="0" maxOccurs="1">
 			<xsd:simpleType>
