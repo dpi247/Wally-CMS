@@ -13,8 +13,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
   
   //Map XML element
-  //@todo: should be replaced by wimprt_process_package_default(&$node,$dom_element,&$log);
-  wimprt_set_field_mainstory($node,$dom_element->getElementsByTagName("MainStory")->item(0),$log);
+  wimprt_process_package_default($node,$dom_element,$log)
 }
 
 //***************************
