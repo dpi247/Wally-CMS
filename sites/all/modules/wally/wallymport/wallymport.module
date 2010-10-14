@@ -300,12 +300,12 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,$log){
   //..
   
   $node->uid=1;
-  $node->created_at= $dom_element->getAttributeNode("CreationDate");
-  $node->language= $dom_element->getAttributeNode("Language");
-  $node->created_at= $dom_element->getAttributeNode("PackageID");
-  $node->created_at= $dom_element->getAttributeNode("PublicationDate");
-  $node->created_at= $dom_element->getAttributeNode("LastUpdateDate");
-  $node->created_at= $dom_element->getAttributeNode("EmbargoDate");
+  $node->created_at= $dom_element->getAttributeNode("CreationDate")->value;
+  $node->language= $dom_element->getAttributeNode("Language")->value;
+  $node->created_at= $dom_element->getAttributeNode("PackageID")->value;
+  $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
+  $node->created_at= $dom_element->getAttributeNode("LastUpdateDate")->value;
+  $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
   
   imprt_set_field_mainstory($node,$dom_element->getElementsByTagName("MainStory")->item(0),$log);
   wimprt_process_package_default($node,$dom_element,$log);
