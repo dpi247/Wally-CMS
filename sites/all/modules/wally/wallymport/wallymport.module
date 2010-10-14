@@ -1,0 +1,184 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallymport_menu() {
+  $items = array();
+  $items['admin/settings/wallymport'] = array(
+    'title' => 'Wally Import Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallymport.admin.inc',
+
+  );
+
+  // run import
+  $items['wallymport/process'] = array(
+	'title' => 'Run XML Import Process',
+	'description' => 'Run data import',
+	'page callback' => 'wallymport_page_process_folder',
+	'access arguments' => array('access administration pages'),
+	'type' => MENU_CALLBACK,
+  );
+  // run import
+  $items['wallymport/process/%'] = array(
+	'title' => 'Run XML Import Process',
+	'description' => 'Run data import',
+	'page callback' => 'wallymport_page_process_file',
+	'page arguments' => array(2),
+  	'access arguments' => array('access administration pages'),
+	'type' => MENU_CALLBACK,
+  );
+
+
+  return $items;
+}
+function wallymport_page_process_folder(){
+  return 'rrr';
+
+
+}
+
+
+
+function wallymport_page_process_file($path_to_file){
+  // echo $path_to_file;
+
+  if(!$path_to_file){
+    drupal_set_message("error",'You must to provide a path to the XML');
+    return 'd';
+  }
+  $xsd_file= variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
+
+  $xml_file = variable_get('wallymport_source','')."/".$path_to_file;
+  $handle = fopen($xml_file, "r");
+  $contents = fread($handle, filesize($xml_file));
+  fclose($handle);
+  $dom = new DomDocument();
+  $dom->LoadXML($contents);
+  var_dump($dom);
+  if (!$dom->schemaValidate($xsd_file)){
+    drupal_set_message('The XML file isn\'t validate by the XSD file',"error");
+  }
+
+  $node=new StdClass();
+
+  $log=array();
+  $return=wimprt_process_packages($node,$dom,$log);
+
+  return '<pre>'.print_r($return,1).'</pre>';
+
+}
+
+
+
+
+function wimprt_process_packages(&$node,$dom,&$log){
+
+  module_invoke_all('wimprt_process_packages',$node,$dom,$log,'before_process');
+  foreach($dom->getElementsByTagName('Package') as $package_element){
+    wimprt_process_package(&$node,$package_element,&$log);
+    
+  }
+  module_invoke_all('wimprt_process_packages',$node,$dom,$log,'after_process');
+  return $dom;
+}
+
+function wimprt_process_package(&$node,$dom,&$log){
+  
+  module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
+  $type=strtolower($dom->getAttribute('type'));
+  echo $type;
+  // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+  if(function_exists("wimprt_process_package_$type")){
+    call_usr_func("wimprt_process_package_$type",$node,$dom,$log);
+  }
+  else{
+    wimprt_process_package_default($node,$dom,$log);
+  }
+  module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
+  dsm($node);
+  //node_save($node);
+  return $node;
+}
+
+
+function wimprt_process_object(&$node,$dom,$log,$type=NULL){
+  module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
+  if($type==NULL){
+    $type=strtolower($dom->getAttribute('type'));
+  }
+  wimprt_process_object_default($node,$dom,$log);
+
+  //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
+  if(function_exists("wimprt_process_object_$type")){
+    call_usr_func("wimprt_process_object_$type",$node,$dom,$log);
+  }
+  module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
+  node_save($node);
+  return $node;
+}
+
+
+function wimprt_process_type(&$node,$dom,$log,$type=NULL){
+  module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
+  if($type==NULL){
+    $type=strtolower($dom->getAttribute('type'));
+  }
+  wimprt_process_object_default($node,$dom,$log);
+
+  //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
+  if(function_exists("wimprt_process_object_$type")){
+    call_usr_func("wimprt_process_object_$type",$node,$dom,$log);
+  }
+  module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
+  node_save($node);
+  return $node;
+}
+
+
+
+//***************************
+
+
+
+function wimprt_process_package_default(&$node,$dom,$log){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+    
+    $name=strtolower($element->nodeName);
+    echo $name.'<br/>';
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",$node,$element,$log);
+    }
+    else{
+      wimprt_set_field_default($node,$element,$log);
+    }
+
+  }
+  
+}
+
+
+function wimprt_process_package_articlepackagetype(&$node,$dom,$log){
+  //Process atributes
+  //..
+  wimprt_process_package_default($node,$dom);
+}
+
+//***************************
+
+function wimprt_set_field_default(&$node,$dom,$log){
+  $name= $dom->nodeName;
+  $node->{$name}[0]['value']=$dom->nodeValue;
+}
+
+
+function imprt_set_field_mainstory(&$node,$dom,$log){
+  $object=wimport_process_object($node,$dom,$log,'TextObject');
+  $node->MainStory['nid'][0]=$object->nid;
+}
+
