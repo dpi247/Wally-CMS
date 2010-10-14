@@ -64,3 +64,69 @@ function wimprt_set_field_locationname(&$node,$dom,&$log){
   
 }
 
+
+function wimprt_set_field_destinations(&$node,$dom,$log){
+
+	$result = array(); 
+	$voc=variable_get('wallymport_destinationpath',null);
+	if ($voc) {
+		foreach($dom->getElementsByTagName('Destination') as $destination) {
+			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
+			$terms = _taxonomy_get_term_by_path($path, $voc);
+			if ($terms) {
+				// As we check the taxonomy full path and specify a vocabulary
+				// we can only have one result.
+				$result[]["tid"]=$term[0]->tid;
+				$result[]["path"]=$path;
+				$result[]["rank"]=$destination->getAttributeNode("DestinationRank")->value;
+				$result[]["rank"]=$destination->getAttributeNode("DocumentLayout")->value;
+			} else {
+				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$voc.'). Destination rejected.','error');	
+			}
+		}
+		return serialize($result); 
+	} else {
+		drupal_set_message('Destination Path vocabulary not set. See settings.','error');
+		return '';
+	}
+}
+
+
+
+/**
+ * Taxonomy get term by path
+ * 
+ * Search for taxonomy terms for a specific path 
+ *
+ * @param $path
+ *   The taxonomy term path to match ( /term1/term2/term3 ). 
+ * @param $voc
+ *   The taxonomy vocabulary used for filtering on a single vocabulary.
+ *
+ * @return
+ *   an array of term object
+ */
+function _taxonomy_get_term_by_path($path, $voc=null) {
+
+	$t = explode("/", trim($path,"/"));
+	$t = $t[count($t)-1];
+
+	if ($voc) {
+		$db_result = db_query("SELECT t.tid, t.* FROM {term_data} t WHERE LOWER(t.name) = LOWER('%s') AND t.vid = %s", trim($t), $voc);
+	} else {
+		$db_result = db_query("SELECT t.tid, t.* FROM {term_data} t WHERE LOWER(t.name) = LOWER('%s')", trim($t));
+	}
+
+	$result = array();
+
+	// Reverse building of path for founded terms.
+	while ($term = db_fetch_object($db_result)) {
+		$ppath = "";
+		$parents = taxonomy_get_parents_all($term->tid);
+		foreach ($parents as $parent) $ppath = strtolower($parent->name)."/".$ppath;
+		if (trim($ppath,"/")==strtolower(trim($path,"/"))) $result[] = $term;
+	}
+	
+	return $result;
+}
+
