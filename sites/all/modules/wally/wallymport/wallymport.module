@@ -22,7 +22,7 @@ function wallymport_menu() {
 	'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
     'file' => 'includes/wallymport.fields.inc',
-  
+
   );
   $items['wallymport/process/%'] = array(
 	'title' => 'Run XML Import Process',
@@ -32,7 +32,7 @@ function wallymport_menu() {
   	'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
     'file' => 'includes/wallymport.fields.inc',
-  
+
   );
 
 
@@ -41,8 +41,8 @@ function wallymport_menu() {
 
 
 /**
- * Page CallBack: Process the import folder folder 
- * 
+ * Page CallBack: Process the import folder folder
+ *
  * Page Callback of the processing of the import folder and call for each element the wallymport_page_process_file.
  * *
  * @return
@@ -57,8 +57,8 @@ function wallymport_page_process_folder(){
 
 
 /**
- * Page CallBack: Process a zip file or the folder containg the xml file 
- * 
+ * Page CallBack: Process a zip file or the folder containg the xml file
+ *
  * Page Callback of the processing of a single pacakges.
  * The function load the XML file, validate it with the xsd defined in the module's settings
  *  and call the recursive process "wimprt_process_packages"
@@ -93,8 +93,6 @@ function wallymport_page_process_file($path_to_file){
   $log=array();
   $return=wimprt_process_packages($node,$dom,$log);
 
-  dsm($node);
-  
   //@todo: theming function
   return '<pre>'.print_r($return,1).'</pre>';
 
@@ -102,14 +100,14 @@ function wallymport_page_process_file($path_to_file){
 
 /**
  * Process the packages element of a DomDocument object
- * 
- * Initiate the node object Call an apropriate function to process the childs of the packages element (package) 
+ *
+ * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
  *
  * @param $dom
- *   The DomDocument who is being proceed 
+ *   The DomDocument who is being proceed
  * @param $log
  *   The log object build recursively in different operation. this could track error in the process and build nodes
- *   
+ *
  * @return
  *   the log object
  */
@@ -121,48 +119,47 @@ function wimprt_process_packages($node,$dom,&$log){
     wimprt_process_package($node,$package_element,$log);
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
-  
+
   return $log;
 }
 
 
 /**
  * Process the package element
- * 
- * Call an apropriate function to process the childs of the package element 
+ *
+ * Call an apropriate function to process the childs of the package element
  * depending the attribute type of the child element.
- * 
+ *
  * The naming convention to build a node from a specific package type is: wimprt_process_package_TYPE
- * 
+ *
  * if no specific fntion found the default fallback function is called: wimprt_process_package.
  *
  * @param $node
- *   The Node that's being build 
+ *   The Node that's being build
  * @param $dom
  *   The DomDocument who is being proceed (A DomElement)
  * @param $log
  *   The log object build recursively in different operation. this could track error in the process and build nodes
- *   
+ *
  * @return
  *   the node object that has been build
  */
 function wimprt_process_package(&$node,$dom,&$log){
-  
-  $node->titi="eee";
+
   if(variable_get('wallymport_debug',0) or true)
-    $log[]='process package: '.$dom->nodeName;
-  
-  
+  $log[]='process package: '.$dom->nodeName;
+
+
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
-  
+
   $type=strtolower($dom->getAttributeNode('xsi:type')->value);
-   // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+  // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
   if(function_exists("wimprt_process_package_".$type)){
     call_user_func("wimprt_process_package_".$type,&$node,$dom,&$log);
   }
-  
+
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
-  
+
   //@todo: call node_save()
   //node_save($node);
   return $node;
@@ -171,38 +168,38 @@ function wimprt_process_package(&$node,$dom,&$log){
 
 /**
  * Process an object element
- * 
- * Call an apropriate function to process an object element 
+ *
+ * Call an apropriate function to process an object element
  * depending the attribute type of the child element.
- * 
+ *
  * The naming convention to build a node from a specific package type is: wimprt_process_object_TYPE
- * 
+ *
  * if no specific fntion found the default fallback function is called: wimprt_process_package.
  *
  * @param $node
- *   The Node that's being build 
+ *   The Node that's being build
  * @param $dom
  *   The DomDocument who is being proceed (A DomElement)
  * @param $log
  *   The log object build recursively in different operation. this could track error in the process and build nodes
- *   
+ *
  * @return
  *   the node object that has been build
  */
 function wimprt_process_object($dom,&$log,$type=NULL){
   if(variable_get('wallymport_debug',0) or true)
-    $log[]='process object: '.$dom->nodeName;
-  
-  
+  $log[]='process object: '.$dom->nodeName;
+
+
   $node=new stdClass;
-  module_invoke_all('wimprt_process_object',&$node,$dom,&$log,'before_process');
-  
+  module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
+
   $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$type")){
     call_user_func("wimprt_process_object_$type",&$node,$dom,&$log);
   }
-  
+
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
@@ -210,20 +207,21 @@ function wimprt_process_object($dom,&$log,$type=NULL){
 }
 
 
-function wimprt_process_type(&$node,$dom,&$log,$type=NULL){
-    if(variable_get('wallymport_debug',0) or true)
-    $log[]='process type: '.$dom->nodeName;
-  
-  
+function wimprt_process_type($dom,&$log,$type=NULL){
+  echo "quisi";
+  if(variable_get('wallymport_debug',0) or true)
+  $log[]='process type: '.$dom->nodeName;
+
+
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
   if($type==NULL){
-    $type=strtolower($dom->getAttribute('type'));
+    $type=strtolower($dom->getAttributeNode('type'));
   }
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$type")){
     call_usr_func("wimprt_process_type_$type",&$node,$dom,&$log);
   }
-  
+
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   node_save($node);
@@ -231,24 +229,24 @@ function wimprt_process_type(&$node,$dom,&$log,$type=NULL){
 }
 
 
-function wimprt_process_list(&$node,$dom_node_list,$type,&$log){
-   if(variable_get('wallymport_debug',0) or true)
-    $log[]='process list: '.$dom->nodeName;
-  
-  
-  
-  $array_of_nodes=array();
-  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_node_list,$type,$log,'before_process');
-  
-  foreach($dom_node_list as $dom_child){
-    $element_name=$dom_child->nodeName;
-    if(function_exists("wimprt_process_$type.'_'.$element_name")){
-     $array_of_nodes[]= call_usr_func("wimprt_process_$type.'_'.$element_name",&$node,$dom,&$log);
-    }
-    
+function wimprt_process_list(&$node,$dom_element,$type,&$log){
+  if(variable_get('wallymport_debug',0) or true){
+    $log[]='process list: '.$dom_element->nodeName;
   }
-  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_node_list,$type,$log,'after_process');
-  
+   
+
+  $array_of_nodes=array();
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$type,$log,'before_process');
+
+  foreach($dom_element->childNodes as $dom_child){
+    $element_name=$dom_child->nodeName;
+    if(function_exists("wimprt_process_".$type)){
+      $array_of_nodes[]= call_user_func("wimprt_process_".$type,$dom_child,&$log,$type);
+    }
+
+  }
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$type,$log,'after_process');
+
   //@todo: call node_save()
   //node_save($node);
   return $array_of_nodes;
@@ -260,29 +258,27 @@ function wimprt_process_list(&$node,$dom_node_list,$type,&$log){
 
 function wimprt_process_object_default(&$node,$dom,&$log){
   //Beware of namespace colision
-  
+
   foreach($dom->childNodes as $element){
-    
+
     $name=strtolower($element->nodeName);
     if(function_exists("wimprt_set_field_$name")){
-      call_user_func("wimprt_set_field_$name",$node,$element,$log);
+      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
     }
-   
+     
   }
-  
+
 }
 function wimprt_process_package_default(&$node,$dom,&$log){
   //Beware of namespace colision
-  
   foreach($dom->childNodes as $element){
-    
+
     $name=strtolower($element->nodeName);
-    echo "$name <br/>";
     if(function_exists("wimprt_set_field_$name")){
-      call_user_func("wimprt_set_field_$name",$node,$element,$log);
+      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
     }
-   }
-  
+  }
+
 }
 
 
