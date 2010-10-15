@@ -22,7 +22,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
 //***************************
 
 function wimprt_set_field_summary(&$node,$dom,&$log){
-  $text=$dom;
+  $text=$dom->nodeValue;
   $node->field_summary= _wimprthelp_html_text($text);
 }
 
