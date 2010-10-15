@@ -47,14 +47,33 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   // wimprt_process_object_default will call wimprt_process_object_locations,...
 }
 
+
+function wimprt_create_or_load_type_location($dom,$log){
+	// Get the LocationID attribnute to load node.
+	$lid = $dom->getAttributeNode("LocationID")->value;
+	
+	echo "<hr>SEARCH FOR > LID:".$lid;
+
+	if ($location = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$lid),"wally_locationtype")) {
+	   echo "Bazinga";
+	   var_dump($location);
+	} else {
+		echo "Mierda!";
+	}
+}
+
 function wimprt_process_type_location(&$node,$dom,&$log){
-  //Map XML Attributes 
+  
+  echo "passe par: ".__FUNCTION__." <br>"; 
+  var_dump($dom);
+  echo "<hr>"; 
+  
   if($dom->hasAttribute("LocationID"))
-  $node->created= $dom->getAttributeNode("LocationID")->value;
+  $node->created = $dom->getAttributeNode("LocationID")->value;
   
   
   //Map Element 
-  wimprt_process_type_default($node,$dom,$log);
+  //wimprt_process_type_default($node,$dom,$log);
 
 }
 
@@ -62,16 +81,16 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
   
   $result=wimprt_process_list($node,$dom,'type',$log);
 
+  echo "passe par: ".__FUNCTION__." <br>"; 
+  var_dump($result);
+  echo "<hr>"; 
+  
+
 //  $name= $dom->nodeName;
 //  $node->{$name}[0]['value']=$dom->nodeValue;
 
-
 }
 
-function wimprt_set_field_locationname(&$node,$dom,&$log){
-  $node->location_name=$dom;
-  
-}
 
 function wimprt_set_field_editions(&$node,$dom,$log) {
 
@@ -165,8 +184,5 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 		return '';
 	}
 }
-
-
-
 
 

@@ -33,7 +33,7 @@
 			<InternalReference>DrupalNID2</InternalReference>
 			<ExternalReference>ExternalObjectID1</ExternalReference>
 			<Locations>
-				<Location LocationID="Paris"/>
+				<Location LocationID="external ref"/>
 				<Location LocationID="Le stade de Roland Garros">
 					<LocationName>Roland Garros</LocationName>
 					<Address>
