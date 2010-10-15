@@ -297,7 +297,7 @@ function wallycontenttypes_content_default_fields() {
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'EmbargoDateTime',
-      'weight' => '3',
+      'weight' => '4',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -593,7 +593,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Free Access',
-      'weight' => '5',
+      'weight' => '6',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
@@ -1119,7 +1119,7 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Package Authors',
-      'weight' => '2',
+      'weight' => '3',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -1295,6 +1295,74 @@ Free',
       'description' => 'Product ID. This should be unique per wally drupal instance. ',
       'type' => 'text_textfield',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_publicationdate
+  $fields['wally_articlepackage-field_publicationdate'] = array(
+    'field_name' => 'field_publicationdate',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'date',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'date',
+    'active' => '1',
+    'granularity' => array(
+      'year' => 'year',
+      'month' => 'month',
+      'day' => 'day',
+      'hour' => 'hour',
+      'minute' => 'minute',
+    ),
+    'timezone_db' => 'UTC',
+    'tz_handling' => 'site',
+    'todate' => '',
+    'repeat' => 0,
+    'repeat_collapsed' => '',
+    'default_format' => 'medium',
+    'widget' => array(
+      'default_value' => 'now',
+      'default_value_code' => '',
+      'default_value2' => 'same',
+      'default_value_code2' => '',
+      'input_format' => 'Y-m-d H:i:s',
+      'input_format_custom' => '',
+      'increment' => 1,
+      'text_parts' => array(),
+      'year_range' => '-3:+3',
+      'label_position' => 'above',
+      'label' => 'Publication Date',
+      'weight' => '12',
+      'description' => '',
+      'type' => 'date_text',
+      'module' => 'date',
     ),
   );
 
@@ -1478,7 +1546,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'UnpublishDate',
-      'weight' => '4',
+      'weight' => '5',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -15050,6 +15118,7 @@ Free',
   t('Poll Dates');
   t('Poll Summary');
   t('ProductID');
+  t('Publication Date');
   t('Rating');
   t('Services');
   t('Text Barette ');

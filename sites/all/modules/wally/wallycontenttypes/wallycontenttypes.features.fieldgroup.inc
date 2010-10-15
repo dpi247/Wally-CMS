@@ -139,46 +139,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
   );
 
-  // Exported group: group_exx
-  $groups['wally_articlepackage-group_exx'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_articlepackage',
-    'group_name' => 'group_exx',
-    'label' => 'exx',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset',
-        'description' => '',
-      ),
-      'display' => array(
-        'description' => '',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '14',
-    'fields' => array(),
-  );
-
   // Exported group: group_identification
   $groups['wally_articlepackage-group_identification'] = array(
     'group_type' => 'standard',
@@ -2131,7 +2091,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
   t('Text Identification');
   t('Video');
   t('Video Identification');
-  t('exx');
   t('group_LinksList Identification');
 
   return $groups;
