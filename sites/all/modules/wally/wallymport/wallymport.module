@@ -200,8 +200,9 @@ function wimprt_process_object($dom,&$log,$type=NULL){
    if(function_exists("wimprt_create_or_load_object_$type")){
     $node=call_user_func("wimprt_create_or_load_object_$type",$dom,&$log);
   }
-  else
+  else{
    $node=new stdClass;
+  }
   
     
     $node=new stdClass;
