@@ -45,3 +45,16 @@ function _wimprthelp_date_to_timestamp($date) {
 function _wimprthelp_html_text($text){
   return $text;
 }
+
+/**
+ * return plain text from potential html text
+ *
+ * @param $text
+ *   - An non filtred html content
+ *
+ * @return
+ *   An plain text
+ */
+function _wimprthelp_plain_text($text){
+  return check_plain($text);
+}

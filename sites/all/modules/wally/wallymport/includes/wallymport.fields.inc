@@ -5,30 +5,45 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   //Map XML Attributes 
   $node->type='wally_articlepackage';
   $node->uid=1;
+  
+  if($dom_element->hasAttribute("UnPublicationDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublicationDate")->value);
+  
   $node->language= $dom_element->getAttributeNode("Language")->value;
-  $node->created= $dom_element->getAttributeNode("PackageID")->value;
-  $node->created_at= $dom_element->getAttributeNode("PublicationDate")->value;
-  $node->created_at= $dom_element->getAttributeNode("EmbargoDate")->value;
-  
-  
   $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
   $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
- 
-  $node->field_embargodatetime=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
 
 //***************************
 
-function wimprt_set_field_summary(&$node,$dom,&$log){
+function wimprt_set_field_packagedescription(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+}
+function wimprt_set_field_packagetitle(&$node,$dom,&$log){
   $text=$dom->nodeValue;
-  $node->field_summary= _wimprthelp_html_text($text);
+  $node->title= _wimprthelp_plain_text($text);
+}
+function wimprt_set_field_externalreference(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_externalreference[0]['value']= _wimprthelp_plain_text($value);
 }
 
 function wimprt_set_field_mainstory(&$node,$dom,&$log){
   $object=wimprt_process_object($dom,$log,'TextObject');
-  $node->MainStory['nid'][0]=$object->nid;
+  $node->field_mainstory[0]['nid']=$object->nid;
+}
+
+function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
+$result=wimprt_process_list($dom,'type',$log);
+}
+function wimprt_set_field_productid(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_productid[0]['value']=$value;
 }
 
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
@@ -83,7 +98,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 		$log['log'][]='process Locations: '.$dom_element->nodeName;
 	  }
   
-  $result=wimprt_process_list($node,$dom,'type',$log);
+  $result=wimprt_process_list($dom,'type',$log);
 
 //  echo "passe par: ".__FUNCTION__." <br>"; 
 //  var_dump($result);
