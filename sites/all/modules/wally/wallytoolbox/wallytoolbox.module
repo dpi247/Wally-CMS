@@ -55,7 +55,7 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 		if (trim($ppath,"/")==strtolower(trim($path,"/"))) $result[] = $term;
 	}
 	
-	return $result;
+	return ($result ? $result : null);
 }
 
 /**
@@ -75,16 +75,13 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
 
 	$nodes = array();
-
 	foreach ($param as $key => $value) {
-	
 		$sql="
 			SELECT node.nid AS nid
 			 FROM {node} node 
 			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
 			 WHERE (node_data_".$key.".".$key."_value = '%s')
 			";
-			
 		// Fetch all node from CCK field table.
 		if ($result = db_query($sql, $value)) {
 			while ($item = db_fetch_object($result)) {
@@ -100,10 +97,13 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
 			}
 		}
 	}
-	
 
-	if (count($nodes)) { 
-		return $nodes;
+	
+	$result = array(); 
+	foreach($nodes as $node) $result[]=$node;
+
+	if (count($result)) { 
+		return $result;
 	} else {
 		return null;
 	}

@@ -34,7 +34,7 @@
 			<ExternalReference>ExternalObjectID1</ExternalReference>
 			<Locations>
 				<Location LocationID="Paris"/>
-				<Location LocationID="Le stade de Roland Garros">
+				<Location LocationID="Location Title Charleroi">
 					<LocationName>Roland Garros</LocationName>
 					<Address>
 						<AddressLine>(Stade Roland Garros)</AddressLine>
