@@ -98,6 +98,7 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
 }
 
 function wimprt_create_or_load_type_location($dom,$log){
+	
 	// Get the LocationID attribnute to load node.
 	$lid = $dom->getAttributeNode("LocationID")->value;
 	if ($location = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$lid),"wally_locationtype")) {
@@ -115,13 +116,17 @@ function wimprt_create_or_load_type_location($dom,$log){
 	return $result; 
 }
 
-
-
 function wimprt_process_type_location(&$node,$dom,&$log){
- 
-	dsm ("BEFORE : ".__FUNCTION__); 
-	dsm ($node);
 
+	if (!($vid=variable_get('wallymport_location',null))) {
+		// TO DO FATAL :: No location taxonomy vocabulary
+		drupal_set_message('Location Taxonomy Vocabulary  not Found. See admin.','error');
+		return null;
+	}
+
+	dsm ("BEFORE: ".__FUNCTION__); 
+	dsm ($node);
+	
 	// Node type
 	$node->type = "wally_locationtype";
 
@@ -133,20 +138,26 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
 
 	// Taxonomy TID (from vocaulary Locations).
-	if ($tid = wallytoolbox_taxonomy_get_term_by_path($dom->getAttributeNode("LocationID")->value, 1)) {
-		$node->field_locationtaxonomy = array("value" => $tid);
+	$term = $dom->getAttributeNode("LocationID")->value;
+	if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
+		// Taxonomy term exist - fetch the tid.
+		$taxonomy = $taxonomy[0]; 
+		$tid = $taxonomy->tid;
 	} else {
-		dsm("WE NEEED TO CREATE IT"); 
+		// New taxonomy term. Create & get the tid.
+		$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+		$taxonomy = taxonomy_get_term($tid);
 	};
-	
+	// Set the taxonomy field.
+	$node->field_locationtaxonomy = array( array("value" => $tid) );
+	// Set drupal node->taxonomy. 
+	$node->taxonomy = array($tid => $taxonomy); 
+
 
 	 
 	dsm ("AFTER: ".__FUNCTION__); 
 	dsm ($node);
   
-    
-  //Map Element 
-  //wimprt_process_type_default($node,$dom,$log);
 
 }
 

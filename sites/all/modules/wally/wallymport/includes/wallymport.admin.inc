@@ -73,6 +73,14 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
 
+  $form['wallymport_location'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "location"'),
+    '#description' => t('Choose the vocabulary corresponding to the taxonomy "location". Import module will use this vocabulary to match the "location" element.'),
+    '#default_value' => variable_get('wallymport_location', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
 
  $form['wallymport_defaultuser'] = array(
     '#type' => 'textfield',
