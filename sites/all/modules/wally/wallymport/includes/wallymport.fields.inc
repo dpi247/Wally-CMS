@@ -123,9 +123,6 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		drupal_set_message('Location Taxonomy Vocabulary  not Found. See admin.','error');
 		return null;
 	}
-
-	dsm ("BEFORE: ".__FUNCTION__); 
-	dsm ($node);
 	
 	// Node type
 	$node->type = "wally_locationtype";
@@ -154,9 +151,12 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	$node->taxonomy = array($tid => $taxonomy); 
 
 
-	 
-	dsm ("AFTER: ".__FUNCTION__); 
-	dsm ($node);
+
+
+	// to be continue .......
+
+
+	
   
 
 }
