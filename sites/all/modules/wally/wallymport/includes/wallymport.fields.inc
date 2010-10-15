@@ -41,14 +41,31 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 $embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
 $result=wimprt_process_list($embedobjects,$log,'object');
-
+//@todo: process result
 $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
 $result=wimprt_process_list($linklists,$log,'object');
+//@todo: process result
+
 }
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
-//dsm('object');
+  $node->type='wally_photoobject';
+  DSM('DIM');
+  wimprt_process_object_default($node,$dom,$log);
+  
 }
+function wimprt_set_field_title(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->title= _wimprthelp_plain_text($value);
+}
+function wimprt_set_field_summary(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+}
+
+
+
+
 function  wimprt_process_object_linkslist(&$node,$dom,&$log){
 //dsm('linkList');
   
