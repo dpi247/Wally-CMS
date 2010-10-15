@@ -119,6 +119,7 @@ function wimprt_process_packages($node,$dom,&$log){
   foreach($dom->getElementsByTagName('Package') as $package_element){
     $node=new stdClass;
     wimprt_process_package($node,$package_element,$log);
+    $log[]=$log;
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
 
@@ -130,9 +131,9 @@ function wimprt_process_packages($node,$dom,&$log){
  * Process the package element
  *
  * Call an apropriate function to process the childs of the package element
- * depending the attribute type of the child element.
+ * depending the attribute callback of the child element.
  *
- * The naming convention to build a node from a specific package type is: wimprt_process_package_TYPE
+ * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
  *
  * if no specific function found nothing is done.
  *
@@ -179,11 +180,11 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
  * Process an object element
  *
  * Call an apropriate function to process an object element
- * depending the attribute type of the child element.
+ * depending the attribute callback of the child element.
  *
- * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_TYPE
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_CALLCACK
  * 
- * The naming convention to build a node from a specific package type is: wimprt_process_object_TYPE
+ * The naming convention to build a node from a specific package callback is: wimprt_process_object_CALLCACK
  *
  * if no specific function found nothing is done.
  *
@@ -216,7 +217,7 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
   //@todo: call node_save()
   //node_save($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
-    return $node;
+  return $node;
 }
 
 /**
@@ -225,9 +226,9 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
  * Call an apropriate function to process an object element
  * depending the attribute type of the child element.
  *
- * The naming convention to load or create the node before his build is: wimprt_create_or_load_type_TYPE
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_type_CALLCACK
  * 
- * The naming convention to build a node from a specific package type is: wimprt_process_type_TYPE
+ * The naming convention to build a node from a specific callback is: wimprt_process_type_CALLCACK
  *
  * @param $dom
  *   The DomDocument who is being proceed (A DomElement)
@@ -269,7 +270,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
  * Call an apropriate function to process an object element
  * depending the attribute type of the child element.
  *
- * The naming convention to build a node from a specific package type is: wimprt_process_type_TYPE
+ * The naming convention to build a node from a specific package type is: wimprt_process_type_CALLCACK
  *
  *
  * @param $dom
@@ -305,7 +306,6 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
 
   //@todo: call node_save()
   //node_save($node);
-  
   $log['node']=array('current'=>$array_of_nodes);
   return ;
 }
@@ -409,7 +409,19 @@ function wimprt_set_callback($dom,$callback=NULL){
   return strtolower($callback);
 }
 
-
+/**
+ * determine if the node from the processed element should be create or update based on the dom.
+ *
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $callback
+ *   The callback of the process function to allow specific call of wimprt_create_or_load_object_CALLBACK
+ *   
+ * @return
+ *   a node object
+ *   
+ */
 function wimprt_create_or_load($dom, $callback,$log){
 if(function_exists("wimprt_create_or_load_object_$callback")){
     $node=call_user_func("wimprt_create_or_load_object_$callback",$dom,&$log);
