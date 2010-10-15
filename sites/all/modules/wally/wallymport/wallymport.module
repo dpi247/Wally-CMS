@@ -151,7 +151,9 @@ function wimprt_process_packages($node,$dom,&$log){
  */
 function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
+  $node=wimprt_create_or_load($dom, $callback,$log);
   
+  //@todo: place in walymporlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process package: '.$dom->nodeName;
 
@@ -197,16 +199,12 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
  */
 function wimprt_process_object($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-    
+  $node=wimprt_create_or_load($dom, $callback,$log);
+
+  //@todo: place in walymporlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
 
-  if(function_exists("wimprt_create_or_load_object_$callback")){
-    $node=call_user_func("wimprt_create_or_load_object_$callback",$dom,&$log);
-  }
-  else{
-   $node=new stdClass;
-  }
   
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
@@ -243,16 +241,12 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
  */
 function wimprt_process_type($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-    
+  $node=wimprt_create_or_load($dom, $callback,$log);
+
+  //@todo: place in walymporlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
     
-  if(function_exists("wimprt_create_or_load_type_$callback")){
-    $node=call_user_func("wimprt_create_or_load_type_$callback",$dom,&$log);
-  }
-  else{
-   $node=new stdClass;
-  }
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
   $callback=strtolower($callback);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
@@ -290,7 +284,8 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
  */
 function wimprt_process_list($dom_element,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-  
+
+  //@todo: place in walymporlog module  
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
   }
@@ -414,4 +409,14 @@ function wimprt_set_callback($dom,$callback=NULL){
   return strtolower($callback);
 }
 
+
+function wimprt_create_or_load($dom, $callback,$log){
+if(function_exists("wimprt_create_or_load_object_$callback")){
+    $node=call_user_func("wimprt_create_or_load_object_$callback",$dom,&$log);
+  }
+  else{
+   $node=new stdClass;
+  }
+  return $node;
+}
 
