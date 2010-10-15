@@ -39,7 +39,8 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
-$result=wimprt_process_list($dom,'type',$log);
+
+//$result=wimprt_process_list($dom,'type',$log);
 }
 function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;

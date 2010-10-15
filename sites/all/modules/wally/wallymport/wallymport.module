@@ -167,8 +167,6 @@ function wimprt_process_package(&$node,$dom,&$log){
 
   //@todo: call node_save()
   //node_save($node);
-  dsm(__function__);
-  dsm($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
     
   return $node;
@@ -222,8 +220,6 @@ function wimprt_process_object($dom,&$log,$type=NULL){
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
-  dsm(__function__);
-  dsm($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
     return $node;
 }
@@ -268,8 +264,6 @@ function wimprt_process_type($dom,&$log,$type=NULL){
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
-  dsm(__function__);
-  dsm($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
   return $node;
 }
@@ -384,7 +378,6 @@ function wimprt_process_type_default(&$node,$dom,&$log){
   foreach($dom->childNodes as $element){
 
     $name=strtolower($element->nodeName);
-    dsm($name);
     if(function_exists("wimprt_set_field_$name")){
       call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
     }
