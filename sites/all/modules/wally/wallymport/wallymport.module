@@ -153,7 +153,7 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom, $callback,$log);
   
-  //@todo: place in walymporlog module
+  //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process package: '.$dom->nodeName;
 
@@ -201,7 +201,7 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom, $callback,$log);
 
-  //@todo: place in walymporlog module
+  //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
 
@@ -243,7 +243,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom, $callback,$log);
 
-  //@todo: place in walymporlog module
+  //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
     
@@ -285,7 +285,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
 function wimprt_process_list($dom_element,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
 
-  //@todo: place in walymporlog module  
+  //@todo: place in walymportlog module  
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
   }

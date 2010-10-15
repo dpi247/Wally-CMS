@@ -123,7 +123,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 		$log['log'][]='process Locations: '.$dom_element->nodeName;
 	  }
   
-	$result=wimprt_process_list($node,$dom,'type',$log);
+	$result=wimprt_process_list($dom,$log,'type');
 
 
 //  $name= $dom->nodeName;
