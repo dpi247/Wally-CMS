@@ -134,7 +134,7 @@ function wimprt_process_packages($node,$dom,&$log){
  *
  * The naming convention to build a node from a specific package type is: wimprt_process_package_TYPE
  *
- * if no specific fntion found the default fallback function is called: wimprt_process_package.
+ * if no specific function found nothing is done.
  *
  * @param $node
  *   The Node that's being build
@@ -145,6 +145,9 @@ function wimprt_process_packages($node,$dom,&$log){
  *
  * @return
  *   the node object that has been build
+ *   
+ * @ingroup wallymport_process
+ *   
  */
 function wimprt_process_package(&$node,$dom,&$log){
 
@@ -178,12 +181,12 @@ function wimprt_process_package(&$node,$dom,&$log){
  * Call an apropriate function to process an object element
  * depending the attribute type of the child element.
  *
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_TYPE
+ * 
  * The naming convention to build a node from a specific package type is: wimprt_process_object_TYPE
  *
- * if no specific fntion found the default fallback function is called: wimprt_process_package.
+ * if no specific function found nothing is done.
  *
- * @param $node
- *   The Node that's being build
  * @param $dom
  *   The DomDocument who is being proceed (A DomElement)
  * @param $log
@@ -191,6 +194,8 @@ function wimprt_process_package(&$node,$dom,&$log){
  *
  * @return
  *   the node object that has been build
+ *   
+ * @ingroup wallymport_process
  */
 function wimprt_process_object($dom,&$log,$type=NULL){
   if(variable_get('wallymport_debug',0) or true)
@@ -223,7 +228,26 @@ function wimprt_process_object($dom,&$log,$type=NULL){
     return $node;
 }
 
-
+/**
+ * Process a type element
+ *
+ * Call an apropriate function to process an object element
+ * depending the attribute type of the child element.
+ *
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_type_TYPE
+ * 
+ * The naming convention to build a node from a specific package type is: wimprt_process_type_TYPE
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ *   
+ * @ingroup wallymport_process
+ */
 function wimprt_process_type($dom,&$log,$type=NULL){
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
@@ -251,7 +275,27 @@ function wimprt_process_type($dom,&$log,$type=NULL){
 }
 
 
-function wimprt_process_list(&$node,$dom_element,$type,&$log){
+
+/**
+ * Process a type list of element
+ *
+ * Call an apropriate function to process an object element
+ * depending the attribute type of the child element.
+ *
+ * The naming convention to build a node from a specific package type is: wimprt_process_type_TYPE
+ *
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ *   
+ * @ingroup wallymport_process
+ */
+function wimprt_process_list($dom_element,$type,&$log){
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
   }
@@ -277,8 +321,36 @@ function wimprt_process_list(&$node,$dom_element,$type,&$log){
 }
 
 
+/**
+ * @defgroup wallymport_process Wallymport Process Function
+ * @{
+ * Functions that are part of the processing of the XML Data.
+ */
+
+// Everything in here is automatically added to the group.
+
+/**
+ * @} End of "defgroup mymodule_validation".
+ */
+
+
+/**
+ * @defgroup wallymport_process_default Wallymport Default Process Function
+ * @{
+ * Functions that can be called by specific function as default behavior to process child element.
+ */
+
+// Everything in here is automatically added to the group.
+
+/**
+ * @} End of "defgroup mymodule_validation".
+ */
+
 
 //***************************
+
+
+
 
 
 function wimprt_process_package_default(&$node,$dom,&$log){
