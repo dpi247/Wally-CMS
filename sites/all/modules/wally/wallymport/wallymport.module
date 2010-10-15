@@ -283,7 +283,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
  * @ingroup wallymport_process
  */
 function wimprt_process_list($dom_element,&$log,$callback=NULL){
-  $callback=wimprt_set_callback($dom,$callback);
+  $callback=wimprt_set_callback($dom_element,$callback);
 
   //@todo: place in walymportlog module  
   if(variable_get('wallymport_debug',0) or true){
