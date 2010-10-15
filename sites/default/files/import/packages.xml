@@ -16,6 +16,7 @@
 			</Destination>
 		</Destinations>
 		<Editions>
+			<Edition EditionID="all">false</Edition>
 			<Edition EditionID="Lille">true</Edition>
 			<Edition EditionID="Douai">true</Edition>
 			<Edition EditionID="Dunkerque">false</Edition>
@@ -165,16 +166,17 @@
 		<ExternalReference>ExternalPackageID2</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination DestinationRank="2" DocumentLayout="mainstory">
-				<DestinationPath>/sports/dance/western</DestinationPath>
+			<Destination  DestinationRank="2" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/</DestinationPath>
 			</Destination>
 			<Destination  DestinationRank="1" DocumentLayout="story">
-				<DestinationPath>/sports/tennis</DestinationPath>
+				<DestinationPath>/sport/tennis/wta</DestinationPath>
 			</Destination>
 		</Destinations>
 		<Editions>
+			<Edition EditionID="all">false</Edition>
 			<Edition EditionID="Lille">true</Edition>
-			<Edition EditionID="Douai">false</Edition>
+			<Edition EditionID="Douai">true</Edition>
 			<Edition EditionID="Dunkerque">false</Edition>
 		</Editions>
 		<Channels>
@@ -225,11 +227,8 @@
 		<ExternalReference>ExternalPackageID5</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
-			<Destination DestinationRank="2" DocumentLayout="mainstory">
-				<DestinationPath>/sports/dance/</DestinationPath>
-			</Destination>
-			<Destination  DestinationRank="1" DocumentLayout="story">
-				<DestinationPath>/sports/tennis/wta</DestinationPath>
+			<Destination  DestinationRank="2" DocumentLayout="story">
+				<DestinationPath>/sport/tennis/</DestinationPath>
 			</Destination>
 		</Destinations>
 		<Editions>
