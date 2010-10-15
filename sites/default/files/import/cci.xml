@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Packages xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+	xsd:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
+    <Package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ArticlePackageType" Version="1.0" Language="fr" EmbargoDate="2010-08-17T00:00:00.000+02:00" LastUpdateDate="2010-10-05T09:41:55+02:00" CreationDate="2010-08-17T16:40:50+02:00" PublicationDate="2010-10-05T09:42:28" PackageID="B821010836Z.1">
+        <PackageTitle>Si vous aimez à la fois rire et Article</PackageTitle>
+        <ExternalReference>B821010836Z.1</ExternalReference>
+        <ProductID>sudpresse.be</ProductID>
+        <Destinations>
+            <Destination DocumentLayout="mainstory" DestinationRank="Top">
+                <DestinationPath>/CULTURE/Scènes</DestinationPath>
+            </Destination>
+        </Destinations>
+        <Editions>
+            <Edition EditionID="Mouscron">true</Edition>
+            <Edition EditionID="Tournai">true</Edition>
+            <Edition EditionID="Mons">true</Edition>
+            <Edition EditionID="Centre">true</Edition>
+            <Edition EditionID="Charleroi">false</Edition>
+            <Edition EditionID="Sambre/Meuse">false</Edition>
+            <Edition EditionID="Namur">false</Edition>
+            <Edition EditionID="Huy-Waremme">false</Edition>
+            <Edition EditionID="Liege">false</Edition>
+            <Edition EditionID="Basse-Meuse">false</Edition>
+            <Edition EditionID="Verviers">false</Edition>
+            <Edition EditionID="Luxembourg">false</Edition>
+        </Editions>
+        <Channels>
+            <Channel Name="web"/>
+            <Channel Name="facebook">Si vous aimez à la fois rire et réfléchir et si vous aimez le théâtre et l’humour intelligent ...</Channel>
+            <Channel Name="twitter">Si vous aimez à la fois rire et réfléchir et si vous aimez le théâtre et l’humour intelligent ...</Channel>
+        </Channels>
+        <CommentsAllowed>Read-Write</CommentsAllowed>
+        <FreeAccess>true</FreeAccess>
+        <AutoPublish>true</AutoPublish>
+        <MainStory xsi:type="TextObjectType" DocumentType="article" LastUpdateDate="2010-10-05T09:41:55+02:00" CreationDate="2010-08-17T16:40:50+02:00" PublicationDate="2010-10-05T09:42:28" ObjectDescription="onlinearticle.xml" ObjectID="GUU15R10J8.5">
+			<Title>Ceci et le titre de mon article</Title>
+            <ExternalReference>GUU15R10J8.5</ExternalReference>
+            <Taxonomy>
+                <Vocabulary VocabularyName="keywords">
+                    <Term>Monty Python</Term>
+                    <Term> humor</Term>
+                    <Term> Centre culturel d’Herlaimont</Term>
+                </Vocabulary>
+            </Taxonomy>
+            <Copyright> N.C. Mardi 29 juin 2010</Copyright>
+            <TextBarette>Chapelle-lez-herlaimont théâtre</TextBarette>
+            <TextTitle>BIENTÔT, TOUT VA SE COMPLIQUER</TextTitle>
+            <TextBody xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance">
+                <p>Si vous aimez à la fois rire et réfléchir et si vous aimez le théâtre et l’humour intelligent, notez donc sur votre agenda les dates des 1 et 2 octobre prochain. C’est en effet durant ces deux soirées qu’une équipe forte d’une quarantaine de comédiens jouera la pièce à sketches “ Tout se complique ”, imaginée et mise en scène par l’extravagant Jean-Charles Van Antwerpen, l’animateur bien connu du Centre culturel d’Herlaimont.</p>
+                <p>Ce spectacle, joué par des comédiens confirmés et par des néophytes, tous chapellois, vous emmènera, grâce à des textes de Karl Valentin, d’Alphonse Allais, de Guy Bedos ou encore des Monty Python, vous perdre dans les méandres de la communication où l’absurde et la mauvaise foi ne sont jamais bien loin.</p>
+                <p>Vous aurez le plaisir d’applaudir, entre autres, des élus, des employés, des ouvriers, des enseignants, des indépendants, des demandeurs d’emploi, etc. Le tout dans un large éventail d’idéologies et d’origines. Véritable outil de cohésion sociale, ce projet d’envergure a ouvertement pour but de rassembler, sur une même scène, des gens de tous niveaux sociaux et de toutes compétences pour créer un spectacle donné par tous et pour tous</p>
+                <p>Artistique et social</p>
+                <p>Jean-Charles Van Antwerpen, l’homme par qui tout est arrivé, est loin d’être un inconnu dans le paysage culturel de la région. Attaché au centre culturel d’Herlaimont depuis une dizaine d’années (on lui doit déjà le fameux projet qui commémorait le soixantième anniversaire de la libération des camps), ce grand défenseur du théâtre-action a fait ses armes dans toute la province de Hainaut. Et, avant cela, en Suisse où, déjà, il développait des projets joignant les aspects artistiques et sociaux.</p>
+                <p>Assurément un agréable moment à passer lors de ces deux soirées qui, en raison du nombre élevé de comédiens, ne connaîtront pas de prolongations. Autant savoir! Plus d’infos? Formez le 064/43.12.57.</p>
+                <p>J.-Charles Van Antwerpen. J.P.</p>
+            </TextBody>
+        </MainStory>
+        <EmbeddedContent>
+            <EmbeddedObjects>
+                <MultiMediaObject xsi:type="MultiMediaObjectType" MimeType="audio/wav" LastUpdateDate="2010-08-17T17:07:19+02:00" CreationDate="2010-08-17T16:57:58+02:00" PublicationDate="2010-10-05T09:42:28" ObjectDescription="monty_message.wav" ObjectID="GTU15R10GL.1">
+                    <Title>monty_message.wav</Title>
+                    <ExternalReference>GTU15R10GL.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed:B821010836Z.1_20101005094228_000+GTU15R10GL.1-0.wav</FileURI>
+                    <FileSize>68237</FileSize>
+                </MultiMediaObject>
+                <PhotoObject xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-17T17:07:19+02:00" CreationDate="2010-08-17T16:53:25+02:00" PublicationDate="2010-10-05T09:42:28" ObjectDescription="" ObjectID="GTU15R10G6.1">
+                    <Title>Jean-Charles Van Antwerpen.jpg</Title>
+                    <ExternalReference>GTU15R10G6.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed:B821010836Z.1_20101005094228_000+GTU15R10G6.1-0.jpg</FileURI>
+                    <FileSize>7682</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Jean-Charles Van Antwerpen va tout compliquer pour votre plus grand bonheur</Caption>
+                </PhotoObject>
+
+                <MultiMediaObject xsi:type="MultiMediaObjectType" MimeType="audio/wav" LastUpdateDate="2010-08-17T17:07:19+02:00" CreationDate="2010-08-17T16:57:58+02:00" PublicationDate="2010-10-05T09:42:28" ObjectDescription="monty_message.wav" ObjectID="GTU15R10GL.1">
+                    <Title>monty_message.wav</Title>
+                    <ExternalReference>GTU15R10GL.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed:B821010836Z.1_20101005094228_000+GTU15R10GL.1-0.wav</FileURI>
+                    <FileSize>68237</FileSize>
+                </MultiMediaObject>
+            </EmbeddedObjects>
+            <LinksLists>
+                <LinksList>
+                    <ExternalReference>1234</ExternalReference>
+                    <Title>Read More</Title>
+                    <Links>
+                        <Link>
+                            <Title>Si vous aimez à la fois rire et video galleri</Title>
+                            <URI>externalRef:B821011036Z.1</URI>
+                        </Link>
+                        <Link>
+                            <Title>Link to original article</Title>
+                            <URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
+                        </Link>
+                        <Link>
+                            <Title>Si vous aimez à la fois rire et Photo Gallery</Title>
+                            <URI>externalRef:B821010944Z.1</URI>
+                        </Link>
+                        <Link>
+                            <Title>Si vous aimez à la fois rire et poll</Title>
+                            <URI>externalRef:B821011138Z.1</URI>
+                        </Link>
+                    </Links>
+                </LinksList>
+            </LinksLists>
+        </EmbeddedContent>
+    </Package>
+</Packages>
