@@ -50,7 +50,11 @@ $result=wimprt_process_list($linklists,$log,'object');
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   $node->type='wally_photoobject';
-  DSM('DIM');
+  
+  
+  $value=$dom->nodeValue;
+  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+  
   wimprt_process_object_default($node,$dom,$log);
   
 }
