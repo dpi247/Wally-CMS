@@ -29,6 +29,7 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+  
    $form['wallymport_temp'] = array(
     '#type' => 'textfield',
     '#title' => t('Import temporary directory path'),
@@ -38,6 +39,7 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
+  
   $form['wallymport_debug'] = array(
     '#type' => 'radios',
     '#title' => t('Import debug level'),
@@ -71,6 +73,17 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
 
+
+ $form['wallymport_defaultuser'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Drupal user used for imports.'),
+    '#description' => t('This user will be used as author for creating content.'),
+    '#default_value' => variable_get('wallymport_defaultuser', 1),
+    '#size' => 3,
+    '#maxlength' => 8,
+    '#required' => TRUE,
+  );
+  
   return system_settings_form($form);
 }
 
