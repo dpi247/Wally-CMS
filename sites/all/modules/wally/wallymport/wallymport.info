@@ -3,6 +3,8 @@ name = YWally Import
 description = "Import XML Content to Drupal for Wally Object"
 package = Wally
 core = 6.x
+dependencies[] = wallytoolbox
+
 
 ; Information added by drupal.org packaging script on 2010-08-23
 version = "6.x-1.0"
