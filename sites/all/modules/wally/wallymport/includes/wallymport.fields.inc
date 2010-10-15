@@ -55,18 +55,18 @@ function wimprt_create_or_load_type_location($dom,$log){
 	echo "<hr>SEARCH FOR > LID:".$lid;
 
 	if ($location = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$lid),"wally_locationtype")) {
-	   echo "Bazinga";
-	   var_dump($location);
+	 //  echo "Bazinga";
+	 //  var_dump($location);
 	} else {
-		echo "Mierda!";
+	//	echo "Mierda!";
 	}
 }
 
 function wimprt_process_type_location(&$node,$dom,&$log){
   
-  echo "passe par: ".__FUNCTION__." <br>"; 
-  var_dump($dom);
-  echo "<hr>"; 
+//  echo "passe par: ".__FUNCTION__." <br>"; 
+//  var_dump($dom);
+//  echo "<hr>"; 
   
   if($dom->hasAttribute("LocationID"))
   $node->created = $dom->getAttributeNode("LocationID")->value;
@@ -78,12 +78,16 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 }
 
 function wimprt_set_field_locations(&$node,$dom,&$log){
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Locations: '.$dom_element->nodeName;
+	  }
   
   $result=wimprt_process_list($node,$dom,'type',$log);
 
-  echo "passe par: ".__FUNCTION__." <br>"; 
-  var_dump($result);
-  echo "<hr>"; 
+//  echo "passe par: ".__FUNCTION__." <br>"; 
+//  var_dump($result);
+//  echo "<hr>"; 
   
 
 //  $name= $dom->nodeName;
