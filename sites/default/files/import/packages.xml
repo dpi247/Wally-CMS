@@ -85,7 +85,7 @@
 
 		<EmbeddedContent>
 			<EmbeddedObjects>
-				<Object xsi:type="PhotoObjectType" ObjectID="PhotoObjectID" ObjectDescription="Photo of Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
+				<PhotoObject xsi:type="PhotoObjectType" ObjectID="PhotoObjectID" ObjectDescription="Photo of Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >
 					<Title>Justine Henin joue</Title>
 					<InternalReference>InternalID</InternalReference>
 					<ExternalReference>ExternalID</ExternalReference>
@@ -104,7 +104,7 @@
 					<FileURI>ObjectID:123456</FileURI>
 					<FileSize>177</FileSize>
 					<Rating>G</Rating>
-				</Object>
+				</PhotoObject>
 			</EmbeddedObjects>
 			<LinksLists>
 				<LinksList>
