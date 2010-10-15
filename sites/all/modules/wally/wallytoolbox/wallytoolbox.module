@@ -2,13 +2,13 @@
 /**
  * A true boolean conversion function.
  * 
- * @param $path
- *   The taxonomy term path to match ( /term1/term2/term3 ). 
- * @param $voc
- *   The taxonomy vocabulary used for filtering on a single vocabulary.
+ * @param $v
+ *   The value to be converted
+ * @param $del
+ *   default value return if conversion fail.
  *
  * @return
- *   an array of term object
+ *   boolean "true"/"false"
  */
 function wallytoolbox_toboolean($v,$def=null) {
 	if ($v===false) return false;
