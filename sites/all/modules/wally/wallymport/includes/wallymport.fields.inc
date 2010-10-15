@@ -52,8 +52,11 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 function wimprt_set_field_locations(&$node,$dom,&$log){
   
   $result=wimprt_process_list($node,$dom,'type',$log);
-  $name= $dom->nodeName;
-  $node->{$name}[0]['value']=$dom->nodeValue;
+
+//  $name= $dom->nodeName;
+//  $node->{$name}[0]['value']=$dom->nodeValue;
+
+
 }
 
 function wimprt_set_field_locationname(&$node,$dom,&$log){
@@ -61,16 +64,12 @@ function wimprt_set_field_locationname(&$node,$dom,&$log){
   
 }
 
-/*
-		<Editions>
-			<Edition EditionID="all">false</Edition>
-			<Edition EditionID="Lille">true</Edition>
-			<Edition EditionID="Douai">true</Edition>
-			<Edition EditionID="Dunkerque">false</Edition>
-		</Editions>
-*/
-
 function wimprt_set_field_editions(&$node,$dom,$log) {
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Editions: '.$dom_element->nodeName;
+	  }
+
 	$result = array();
 	$valid = (bool) false;
 	$terms = array(); 
@@ -88,7 +87,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		// Get edition from DOM & update array.
 		foreach($dom->getElementsByTagName('Edition') as $edition) {
 			$editionID = $edition->getAttributeNode("EditionID")->value;
-			$value = toboolean($edition->nodeValue);
+			$value = wallytoolbox_toboolean($edition->nodeValue);
 			if (strtolower($editionID)=="all") {
 				foreach ($terms as $term) $result[$term->name][Publish]=$value;
 				$valid = $value;
@@ -119,13 +118,18 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 
 
 function wimprt_set_field_destinations(&$node,$dom,$log) {
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Destinations: '.$dom_element->nodeName;
+	  }
+
 	$result = array(); 
 	$vid=variable_get('wallymport_destinationpath',null);
 	if ($vid) {
 		$i=0;
 		foreach($dom->getElementsByTagName('Destination') as $destination) {
 			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
-			$terms = _taxonomy_get_term_by_path($path, $voc);
+			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $voc);
 			if ($terms) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
