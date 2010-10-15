@@ -32,3 +32,16 @@ function _wimprthelp_date_to_timestamp($date) {
   $result=strtotime($date);
   return $result;
 }
+
+/**
+ * return filtred html text from html text
+ *
+ * @param $text
+ *   - An non filtred html content
+ *
+ * @return
+ *   An filtred html content
+ */
+function _wimprthelp_html_text($text){
+  return $text;
+}
