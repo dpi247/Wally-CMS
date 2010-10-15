@@ -115,7 +115,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 function wimprt_set_field_editions(&$node,$dom,$log) {
 
 	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Editions: '.$dom_element->nodeName;
+		$log['log'][]='process Editions: '.$dom->nodeName;
 	  }
 
 	$result = array();
@@ -168,7 +168,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 function wimprt_set_field_destinations(&$node,$dom,$log) {
 
 	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Destinations: '.$dom_element->nodeName;
+		$log['log'][]='process Destinations: '.$dom->nodeName;
 	  }
 
 	$result = array(); 
