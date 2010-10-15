@@ -39,9 +39,22 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
+$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
+$result=wimprt_process_list($embedobjects,'object',$log);
 
-//$result=wimprt_process_list($dom,'type',$log);
+$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
+$result=wimprt_process_list($linklists,'object',$log);
 }
+
+function wimprt_process_object_object(&$node,$dom,&$log){
+dsm('object');
+}
+function  wimprt_process_object_linkslist(&$node,$dom,&$log){
+dsm('linkList');
+  
+}
+
+
 function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_productid[0]['value']=$value;
@@ -54,7 +67,7 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->object_description= $dom_element->getAttributeNode("ObjectDescription")->value;
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
   
-    wimprt_process_object_default($node,$dom_element,$log);
+  wimprt_process_object_default($node,$dom_element,$log);
   
   $node->type='wally_textobject';
   $node->uid=1;
@@ -79,14 +92,8 @@ function wimprt_create_or_load_type_location($dom,$log){
 }
 
 function wimprt_process_type_location(&$node,$dom,&$log){
-  
-//  echo "passe par: ".__FUNCTION__." <br>"; 
-//  var_dump($dom);
-//  echo "<hr>"; 
-  
   if($dom->hasAttribute("LocationID"))
   $node->created = $dom->getAttributeNode("LocationID")->value;
-  
   
   //Map Element 
   //wimprt_process_type_default($node,$dom,$log);
@@ -100,12 +107,6 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 	  }
   
   $result=wimprt_process_list($dom,'type',$log);
-
-//  echo "passe par: ".__FUNCTION__." <br>"; 
-//  var_dump($result);
-//  echo "<hr>"; 
-  
-
 //  $name= $dom->nodeName;
 //  $node->{$name}[0]['value']=$dom->nodeValue;
 
