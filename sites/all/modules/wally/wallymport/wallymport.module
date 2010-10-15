@@ -197,7 +197,14 @@ function wimprt_process_object($dom,&$log,$type=NULL){
     $log['log'][]='process object: '.$dom->nodeName;
 
 
-  $node=new stdClass;
+   if(function_exists("wimprt_create_or_load_object_$type")){
+    $node=call_user_func("wimprt_create_or_load_object_$type",$dom,&$log);
+  }
+  else
+   $node=new stdClass;
+  
+    
+    $node=new stdClass;
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
 
   $type=strtolower($type);
@@ -220,7 +227,12 @@ function wimprt_process_type($dom,&$log,$type=NULL){
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
 
-  $node=new stdClass;  
+    
+  if(function_exists("wimprt_create_or_load_type_$type")){
+    $node=call_user_func("wimprt_create_or_load_type_$type",$dom,&$log);
+  }
+  else
+   $node=new stdClass;
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
   $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
