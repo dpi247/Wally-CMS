@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Implementation of hook_init().
+ */
+function wallymportlog_init(){
+  
+  static $log=array();
+  
+
+}
+
+
+/**
+ * Implementation of wimprt_process_packagess().
+ */
+function wallymportlog_wimprt_process_packagess($node,$dom,&$log){
+  echo'rrrrr';
+}
