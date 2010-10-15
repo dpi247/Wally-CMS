@@ -63,10 +63,8 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
  * 
  * Load node(s) where cckfield match a value. 
  *
- * @param $field_name
- *   The CCK field name (use to match the cck table). 
- * @param $field_value
- *   The value used for matching.
+ * @param $param
+ *   Array of cck_field=>value ( Operation OR )  
  * @param $node_type
  *   Id specified, return only content type
  * @return
@@ -97,7 +95,6 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
 			}
 		}
 	}
-
 	
 	$result = array(); 
 	foreach($nodes as $node) $result[]=$node;
@@ -110,3 +107,28 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
 
 }
 	
+/**
+ * Add Taxonomy Term into Vocabulary 
+ * 
+ * Add a taxonomy term into a vocabulary without 
+ * need to store a node
+ *
+ * @param $name
+ *   That's the taxonomy term name. 
+ * @param $vid
+ *   The Taxonomy Vocabulary to store the term. 
+ * @param $description
+ *   Description of the term to be stored.
+ * @return
+ *   Taxonomy TID of the created term. 
+ */
+function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0) {
+  $form_values = array();
+  $form_values['name'] = $name;
+  $form_values['description'] = $description;
+  $form_values['vid'] = $vid;
+  $form_values['weight'] = $weight;
+  taxonomy_save_term($form_values);
+  return $form_values['tid'];
+}
+
