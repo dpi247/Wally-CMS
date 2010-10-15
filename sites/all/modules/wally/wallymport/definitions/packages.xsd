@@ -254,13 +254,7 @@
  <xsd:complexType name="ObjectsType">
 	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
 		<xsd:choice>
-			<xsd:element name="PhotoObject" type="PhotoObjectType" />
-			<xsd:element name="VideoObject" type="VideoObjectType" />
-			<xsd:element name="AudioObject" type="AudioObjectType" />
-			<xsd:element name="TextObject" type="TextObjectType" />
-			<xsd:element name="PollObject" type="PollObjectType" />
-			<xsd:element name="PollObject" type="LinksObjectType" />
-			<xsd:element name="MultiMediaObject" type="MultiMediaObjectType" />
+			<xsd:element name="Object" type="ObjectType" />
 			<xsd:element name="Link" type="LinkItem" />
 		</xsd:choice>
 	</xsd:sequence>
