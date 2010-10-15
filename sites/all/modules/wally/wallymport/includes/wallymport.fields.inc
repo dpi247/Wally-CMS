@@ -30,10 +30,6 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
   $object=wimprt_process_object($dom,$log,'TextObject');
   $node->MainStory['nid'][0]=$object->nid;
 }
-function wimprt_set_field_mainstory(&$node,$dom,&$log){
-  $object=wimprt_process_object($dom,$log,'TextObject');
-  $node->MainStory['nid'][0]=$object->nid;
-}
 
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   //Map XML Attributes 
