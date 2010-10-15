@@ -423,8 +423,8 @@ function wimprt_set_callback($dom,$callback=NULL){
  *   
  */
 function wimprt_create_or_load($dom,$component, $callback,$log){
-if(function_exists("wimprt_create_or_load_$component_$callback")){
-    $node=call_user_func("wimprt_create_or_load_$component_$callback",$dom,&$log);
+if(function_exists("wimprt_create_or_load_".$component."_".$callback)){
+    $node=call_user_func("wimprt_create_or_load_".$component."_".$callback,$dom,&$log);
   }
   else{
    $node=new stdClass;
