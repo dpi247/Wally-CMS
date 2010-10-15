@@ -47,10 +47,10 @@ $result=wimprt_process_list($linklists,$log,'object');
 }
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
-dsm('object');
+//dsm('object');
 }
 function  wimprt_process_object_linkslist(&$node,$dom,&$log){
-dsm('linkList');
+//dsm('linkList');
   
 }
 
@@ -95,21 +95,33 @@ function wimprt_create_or_load_type_location($dom,$log){
 }
 
 
+
 function wimprt_process_type_location(&$node,$dom,&$log){
  
-// dsm ("BEFORE : ".__FUNCTION__); 
-// dsm ($node);
- 
+	dsm ("BEFORE : ".__FUNCTION__); 
+	dsm ($node);
 
- $node->type = "wally_locationtype";
+	// Node type
+	$node->type = "wally_locationtype";
 
- $uid=variable_get('wallymport_defaultuser',1);
- $node->uid = $uid;
+	// Node UID 
+	$uid=variable_get('wallymport_defaultuser',1);
+	$node->uid = $uid;
 
+	// Node Title 
+	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
 
- 
-// dsm ("AFTER: ".__FUNCTION__); 
-// dsm ($node);
+	// Taxonomy TID (from vocaulary Locations).
+	if ($tid = wallytoolbox_taxonomy_get_term_by_path($dom->getAttributeNode("LocationID")->value, 1)) {
+		$node->field_locationtaxonomy = array("value" => $tid);
+	} else {
+		dsm("WE NEEED TO CREATE IT"); 
+	};
+	
+
+	 
+	dsm ("AFTER: ".__FUNCTION__); 
+	dsm ($node);
   
     
   //Map Element 
@@ -120,17 +132,16 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 function wimprt_set_field_locations(&$node,$dom,&$log){
 
 	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Locations: '.$dom_element->nodeName;
+		$log['log'][]='process Locations: '.$dom->nodeName;
 	  }
   
+  
 	$result=wimprt_process_list($dom,$log,'type');
-
 
 //  $name= $dom->nodeName;
 //  $node->{$name}[0]['value']=$dom->nodeValue;
 
 }
-
 
 
 function wimprt_set_field_editions(&$node,$dom,$log) {
@@ -148,9 +159,9 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		// Read all terms from vocabulary and set if to False (default);
 		$terms = taxonomy_get_tree($vid);
 		foreach ($terms as $term) {
-			$result[$term->name][Publish]=false;
-			$result[$term->name][EditionTid]=$term->tid;
-			$result[$term->name][EditionID]=$term->name;
+			$result[$term->name]["Publish"]=false;
+			$result[$term->name]["EditionTid"]=$term->tid;
+			$result[$term->name]["EditionID"]=$term->name;
 		}
 
 		// Get edition from DOM & update array.
@@ -158,7 +169,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 			$editionID = $edition->getAttributeNode("EditionID")->value;
 			$value = wallytoolbox_toboolean($edition->nodeValue);
 			if (strtolower($editionID)=="all") {
-				foreach ($terms as $term) $result[$term->name][Publish]=$value;
+				foreach ($terms as $term) $result[$term->name]["Publish"]=$value;
 				$valid = $value;
 				drupal_set_message('Editions ALL found. All edition set to '.$value.'. Editions iteration terminated.','error');
 				break;
@@ -191,18 +202,18 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 	if(variable_get('wallymport_debug',0) or true){
 		$log['log'][]='process Destinations: '.$dom->nodeName;
 	  }
-
+	$term = array();
 	$result = array(); 
 	$vid=variable_get('wallymport_destinationpath',null);
 	if ($vid) {
 		$i=0;
 		foreach($dom->getElementsByTagName('Destination') as $destination) {
 			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
-			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $voc);
+			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
 			if ($terms) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
-				$result[$i]["DestinationPathTid"]=$term[0]->tid;
+				$result[$i]["DestinationPathTid"]=$terms[0]->tid;
 				$result[$i]["DestinationPath"]=$path;
 				$result[$i]["DestinationRank"]=$destination->getAttributeNode("DestinationRank")->value;
 				$result[$i]["DocumentLayout"]=$destination->getAttributeNode("DocumentLayout")->value;
