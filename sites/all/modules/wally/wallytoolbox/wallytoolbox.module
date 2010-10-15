@@ -57,3 +57,56 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 	
 	return $result;
 }
+
+/**
+ * Get node by cckfield
+ * 
+ * Load node(s) where cckfield match a value. 
+ *
+ * @param $field_name
+ *   The CCK field name (use to match the cck table). 
+ * @param $field_value
+ *   The value used for matching.
+ * @param $node_type
+ *   Id specified, return only content type
+ * @return
+ *   an array of term object
+ */
+function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
+
+	$nodes = array();
+
+	foreach ($param as $key => $value) {
+	
+		$sql="
+			SELECT node.nid AS nid
+			 FROM {node} node 
+			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
+			 WHERE (node_data_".$key.".".$key."_value = '%s')
+			";
+			
+		// Fetch all node from CCK field table.
+		if ($result = db_query($sql, $value)) {
+			while ($item = db_fetch_object($result)) {
+				if ($node = node_load($item->nid)) {
+					if ($node_type) {
+						if ($node->type == $node_type) {
+							$nodes[$node->nid] = $node;
+						}
+					} else {
+						$nodes[$node->nid] = $node;
+					}
+				} 
+			}
+		}
+	}
+	
+
+	if (count($nodes)) { 
+		return $nodes;
+	} else {
+		return null;
+	}
+
+}
+	
