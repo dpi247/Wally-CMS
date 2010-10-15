@@ -40,13 +40,13 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 $embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
-$result=wimprt_process_list($embedobjects,'object',$log);
+$result=wimprt_process_list($embedobjects,$log,'object');
 
 $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-$result=wimprt_process_list($linklists,'object',$log);
+$result=wimprt_process_list($linklists,$log,'object');
 }
 
-function wimprt_process_object_object(&$node,$dom,&$log){
+function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
 dsm('object');
 }
 function  wimprt_process_object_linkslist(&$node,$dom,&$log){
@@ -106,7 +106,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 		$log['log'][]='process Locations: '.$dom_element->nodeName;
 	  }
   
-  $result=wimprt_process_list($dom,'type',$log);
+  $result=wimprt_process_list($dom,$log,'type');
 //  $name= $dom->nodeName;
 //  $node->{$name}[0]['value']=$dom->nodeValue;
 

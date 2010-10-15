@@ -149,15 +149,15 @@ function wimprt_process_packages($node,$dom,&$log){
  * @ingroup wallymport_process
  *   
  */
-function wimprt_process_package(&$node,$dom,&$log){
-
+function wimprt_process_package(&$node,$dom,&$log,$type){
+  $type=wimprt_set_callback($dom,$type);
+  
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process package: '.$dom->nodeName;
 
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
 
-  $type=strtolower($dom->getAttributeNode('xsi:type')->value);
   // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
   if(function_exists("wimprt_process_package_".$type)){
     call_user_func("wimprt_process_package_".$type,&$node,$dom,&$log);
@@ -196,10 +196,13 @@ function wimprt_process_package(&$node,$dom,&$log){
  * @ingroup wallymport_process
  */
 function wimprt_process_object($dom,&$log,$type=NULL){
+  $type=wimprt_set_callback($dom,$type);
+    
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
 
-
+    
+dsm("wimprt_create_or_load_object_$type");
    if(function_exists("wimprt_create_or_load_object_$type")){
     $node=call_user_func("wimprt_create_or_load_object_$type",$dom,&$log);
   }
@@ -245,15 +248,17 @@ function wimprt_process_object($dom,&$log,$type=NULL){
  * @ingroup wallymport_process
  */
 function wimprt_process_type($dom,&$log,$type=NULL){
+  $type=wimprt_set_callback($dom,$type);
+    
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
-
     
   if(function_exists("wimprt_create_or_load_type_$type")){
     $node=call_user_func("wimprt_create_or_load_type_$type",$dom,&$log);
   }
-  else
+  else{
    $node=new stdClass;
+  }
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
   $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
@@ -289,7 +294,9 @@ function wimprt_process_type($dom,&$log,$type=NULL){
  *   
  * @ingroup wallymport_process
  */
-function wimprt_process_list($dom_element,$type,&$log){
+function wimprt_process_list($dom_element,&$log,$type=NULL){
+  $type=wimprt_set_callback($dom,$type);
+  
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
   }
@@ -383,6 +390,33 @@ function wimprt_process_type_default(&$node,$dom,&$log){
     }
   }
 
+}
+
+/**
+ * determine the callback function
+ *
+ * If a callback is passed dont change else try to determine the next callback:
+ * first try the xsi:type
+ * second try the tag name in xsi:type doesn't exist
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $callback
+ *   The callback passing as argument to the caller function
+ *   
+ * @return
+ *   the next callback
+ *   
+ */
+function wimprt_set_callback($dom,$callback=NULL){
+  if($callback==NULL){
+    if($dom->hasAttribute('xsi:type'))
+      $callback=$dom->getAttributeNode('xsi:type')->value;
+    else
+      $callback=$dom->nodeName;
+  }
+  
+  return strtolower($callback);
 }
 
 
