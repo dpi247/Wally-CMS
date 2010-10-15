@@ -149,8 +149,8 @@ function wimprt_process_packages($node,$dom,&$log){
  * @ingroup wallymport_process
  *   
  */
-function wimprt_process_package(&$node,$dom,&$log,$type){
-  $type=wimprt_set_callback($dom,$type);
+function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
+  $callback=wimprt_set_callback($dom,$callback);
   
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process package: '.$dom->nodeName;
@@ -159,8 +159,8 @@ function wimprt_process_package(&$node,$dom,&$log,$type){
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
 
   // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
-  if(function_exists("wimprt_process_package_".$type)){
-    call_user_func("wimprt_process_package_".$type,&$node,$dom,&$log);
+  if(function_exists("wimprt_process_package_".$callback)){
+    call_user_func("wimprt_process_package_".$callback,&$node,$dom,&$log);
   }
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
@@ -195,29 +195,23 @@ function wimprt_process_package(&$node,$dom,&$log,$type){
  *   
  * @ingroup wallymport_process
  */
-function wimprt_process_object($dom,&$log,$type=NULL){
-  $type=wimprt_set_callback($dom,$type);
+function wimprt_process_object($dom,&$log,$callback=NULL){
+  $callback=wimprt_set_callback($dom,$callback);
     
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
 
-    
-dsm("wimprt_create_or_load_object_$type");
-   if(function_exists("wimprt_create_or_load_object_$type")){
-    $node=call_user_func("wimprt_create_or_load_object_$type",$dom,&$log);
+  if(function_exists("wimprt_create_or_load_object_$callback")){
+    $node=call_user_func("wimprt_create_or_load_object_$callback",$dom,&$log);
   }
   else{
    $node=new stdClass;
   }
   
-    
-    $node=new stdClass;
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
-
-  $type=strtolower($type);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
-  if(function_exists("wimprt_process_object_$type")){
-    call_user_func("wimprt_process_object_$type",&$node,$dom,&$log);
+  if(function_exists("wimprt_process_object_$callback")){
+    call_user_func("wimprt_process_object_$callback",&$node,$dom,&$log);
   }
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
@@ -247,23 +241,23 @@ dsm("wimprt_create_or_load_object_$type");
  *   
  * @ingroup wallymport_process
  */
-function wimprt_process_type($dom,&$log,$type=NULL){
-  $type=wimprt_set_callback($dom,$type);
+function wimprt_process_type($dom,&$log,$callback=NULL){
+  $callback=wimprt_set_callback($dom,$callback);
     
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
     
-  if(function_exists("wimprt_create_or_load_type_$type")){
-    $node=call_user_func("wimprt_create_or_load_type_$type",$dom,&$log);
+  if(function_exists("wimprt_create_or_load_type_$callback")){
+    $node=call_user_func("wimprt_create_or_load_type_$callback",$dom,&$log);
   }
   else{
    $node=new stdClass;
   }
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
-  $type=strtolower($type);
+  $callback=strtolower($callback);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
-  if(function_exists("wimprt_process_type_$type")){
-    call_user_func("wimprt_process_type_$type",&$node,$dom,&$log);
+  if(function_exists("wimprt_process_type_$callback")){
+    call_user_func("wimprt_process_type_$callback",&$node,$dom,&$log);
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
@@ -294,8 +288,8 @@ function wimprt_process_type($dom,&$log,$type=NULL){
  *   
  * @ingroup wallymport_process
  */
-function wimprt_process_list($dom_element,&$log,$type=NULL){
-  $type=wimprt_set_callback($dom,$type);
+function wimprt_process_list($dom_element,&$log,$callback=NULL){
+  $callback=wimprt_set_callback($dom,$callback);
   
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
@@ -303,16 +297,16 @@ function wimprt_process_list($dom_element,&$log,$type=NULL){
    
 
   $array_of_nodes=array();
-  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$type,$log,'before_process');
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'before_process');
 
   foreach($dom_element->childNodes as $dom_child){
     $element_name=$dom_child->nodeName;
-    if(function_exists("wimprt_process_".$type)){
-      $array_of_nodes[]= call_user_func("wimprt_process_".$type,$dom_child,&$log,$dom_child->nodeName);
+    if(function_exists("wimprt_process_".$callback)){
+      $array_of_nodes[]= call_user_func("wimprt_process_".$callback,$dom_child,&$log);
     }
 
   }
-  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$type,$log,'after_process');
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
   //@todo: call node_save()
   //node_save($node);
@@ -409,13 +403,14 @@ function wimprt_process_type_default(&$node,$dom,&$log){
  *   
  */
 function wimprt_set_callback($dom,$callback=NULL){
-  if($callback==NULL){
-    if($dom->hasAttribute('xsi:type'))
-      $callback=$dom->getAttributeNode('xsi:type')->value;
-    else
-      $callback=$dom->nodeName;
+  if(get_class($dom)=='DOMElement'){
+    if($callback==NULL){
+      if($dom->hasAttribute('xsi:type'))
+        $callback=$dom->getAttributeNode('xsi:type')->value;
+      else
+        $callback=$dom->nodeName;
+    }
   }
-  
   return strtolower($callback);
 }
 
