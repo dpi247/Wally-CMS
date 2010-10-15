@@ -152,7 +152,7 @@ function wimprt_process_packages($node,$dom,&$log){
  */
 function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-  $node=wimprt_create_or_load($dom, $callback,$log);
+  $node=wimprt_create_or_load($dom,'package', $callback,$log);
   
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
@@ -200,7 +200,7 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
  */
 function wimprt_process_object($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-  $node=wimprt_create_or_load($dom, $callback,$log);
+  $node=wimprt_create_or_load($dom,'object', $callback,$log);
 
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
@@ -242,7 +242,7 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
  */
 function wimprt_process_type($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
-  $node=wimprt_create_or_load($dom, $callback,$log);
+  $node=wimprt_create_or_load($dom,'type', $callback,$log);
 
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
@@ -422,9 +422,9 @@ function wimprt_set_callback($dom,$callback=NULL){
  *   a node object
  *   
  */
-function wimprt_create_or_load($dom, $callback,$log){
-if(function_exists("wimprt_create_or_load_object_$callback")){
-    $node=call_user_func("wimprt_create_or_load_object_$callback",$dom,&$log);
+function wimprt_create_or_load($dom,$component, $callback,$log){
+if(function_exists("wimprt_create_or_load_$component_$callback")){
+    $node=call_user_func("wimprt_create_or_load_$component_$callback",$dom,&$log);
   }
   else{
    $node=new stdClass;

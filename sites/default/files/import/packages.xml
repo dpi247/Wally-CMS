@@ -101,10 +101,10 @@
 						<Person PersonID="JHenin" />
 					</Persons>
 					<Summary>Justine Henin joue contre Flavia Pennetta.</Summary>
-					<FileURI>ObjectID:123456</FileURI>
-					<FileSize>177</FileSize>
-					<Rating>G</Rating>
-				</Object>
+                    <FileURI>embed://B821010836Z.1_20101005094228_000+GTU15R10G6.1-0.jpg</FileURI>
+                    <FileSize>7682</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">Jean-Charles Van Antwerpen va tout compliquer pour votre plus grand bonheur</Caption>
+          		</Object>
 			</EmbeddedObjects>
 			<LinksLists>
 				<LinksList>
