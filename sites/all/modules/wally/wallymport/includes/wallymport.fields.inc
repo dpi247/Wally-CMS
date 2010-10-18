@@ -256,7 +256,11 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 	foreach($results as $result) {
 		if (isset($result->field_locationtaxonomy)) {
 			if ($result->field_locationtaxonomy[0]) {
-				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]); 
+				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]);
+				$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
+				
+				
+				
 			}
 		}
 	} 
@@ -373,10 +377,22 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 	if ($classifiedtagtaxonomy_vid && $freetagtaxonomy_vid) {
 		$vocabularies = $dom->getElementsByTagName("Vocabulary");
 		if ($vocabularies->length) {
+			
+			$node->field_tags = array(); 
+			$node->field_free_tags = array(); 
+			
 			foreach($vocabularies as $vocabulary) {
 				wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result);
-				$node->field_tags = $result["field_tags"]; 
-				$node->field_free_tags = $result["field_free_tags"]; 
+
+				foreach($result["field_tags"] as $term) {
+					$node->field_tags[] = $term->tid;
+					$node->taxonomy[] = $term; 
+				}
+
+				foreach($result["field_free_tags"] as $term) {
+					$node->field_free_tags[] = $term->tid;
+					$node->taxonomy[] = $term; 
+				}
 			}
 		} else {
 			drupal_set_message('No taxonomy terms of free tagging found.','error');
@@ -395,7 +411,9 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	$freetagtaxonomy_keyword = variable_get('wallymport_freetagtaxonomyword', 'FreeTag');
 
 	$vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
-	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+	if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
+		$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+	}
 
 	// If no vocabulary "name" found, assume free tag vocabulary.
 	if (!$vocabulary_name) $vocabulary_name = $freetagtaxonomy_keyword;
@@ -412,14 +430,14 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	$terms = $vocabulary->getElementsByTagName("Term");
 	if ($terms->length) {
 		foreach($terms as $term) {
-			$path = $vocabulary_name."/".$term->nodeValue; 
+			$path = trim($vocabulary_name,"/")."/".trim($term->nodeValue,"/"); 
 			if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
 				// Cool, we got a term in the classified taxonomy
-				$result["field_tags"][]= $t[0]->tid;
+				$result[$result_set][] = $t[0];
 			} else {
 				$tid = null; 
 				$recursive_path = "";
-				foreach( explode("/",$path) as $t)
+				foreach( explode("/",trim($path,"/")) as $t)
 				{
 					$recursive_path = $recursive_path."/".$t;
 					$t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
@@ -433,8 +451,11 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 							$tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
 						}
 					}
+					// The node is only assigned to all the terms from PATH.
+					$result[$result_set][] = taxonomy_get_term($tid);
 				}
-			$result[$result_set][]= $tid;
+				// The node is only assigned to the last term from PATH.
+				// $result[$result_set][] = taxonomy_get_term($tid);
 			}
 		}
 	} else {
