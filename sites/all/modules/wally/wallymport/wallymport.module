@@ -290,7 +290,6 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process list: '.$dom_element->nodeName;
   }
-   
 
   $array_of_nodes=array();
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'before_process');
@@ -304,10 +303,14 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   }
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
+
+  $result = array( array("nid"=>120), array("nid"=>122) ); 
   //@todo: call node_save()
   //node_save($node);
   $log['node']=array('current'=>$array_of_nodes);
-  return ;
+
+
+  return $result;
 }
 
 

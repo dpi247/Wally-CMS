@@ -50,31 +50,25 @@ $result=wimprt_process_list($linklists,$log,'object');
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   $node->type='wally_photoobject';
-  
-  
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
-  
   wimprt_process_object_default($node,$dom,$log);
-  
 }
+
 function wimprt_set_field_title(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->title= _wimprthelp_plain_text($value);
 }
+
 function wimprt_set_field_summary(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
 }
 
-
-
-
 function  wimprt_process_object_linkslist(&$node,$dom,&$log){
 //dsm('linkList');
   
 }
-
 
 function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;
@@ -124,17 +118,17 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		return null;
 	}
 	
-	// Node type
+// Node type
 	$node->type = "wally_locationtype";
 
-	// Node UID 
+// Node UID 
 	$uid=variable_get('wallymport_defaultuser',1);
 	$node->uid = $uid;
 
-	// Node Title 
+// Node Title 
 	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
 
-	// Taxonomy TID (from vocaulary Locations).
+// Taxonomy TID (from vocaulary Locations).
 	$term = $dom->getAttributeNode("LocationID")->value;
 	if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
 		// Taxonomy term exist - fetch the tid.
@@ -150,29 +144,112 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	// Set drupal node->taxonomy. 
 	$node->taxonomy = array($tid => $taxonomy); 
 
+// field_objectdescription 
+	$node->field_objectdescription = array(0=>_wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value));
 
+// field_address
+	$addresses = $dom->getElementsByTagName("Address");
+	if ($addresses->length) {
+		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value));
+	}
 
+// location lat/long - In this case will re-write field_adress values.
+	$locationgeo = $dom->getElementsByTagName("LocationGeo");
+	if ($locationgeo->length) {
 
-	// to be continue .......
+		$locationgeo = explode(",", $locationgeo->item(0)->nodeValue);
+		$lat = $locationgeo[0]; 
+		$lon = $locationgeo[1]; 
+		if (isset($locationgeo[2])) $zoom = $locationgeo[2]; 
+		$address_cpt = 0;
+		if ($node->field_address) {
+			foreach ($node->field_address as $address) {
+				$address->latitude = $lat;
+				$address->longitude = $lon;
+				$address->locpick["user_latitude"] = $lat;
+				$address->locpick["user_longitude"] = $lon;
+				$node->field_address[$address_cpt] = $address;
+				$address_cpt++;  
+			}
+		}
+	}
 
+// CCK location specific field
+	if (isset($node->field_address)) {
+		$node->location = $node->field_address[0];
+		$node->locations = $node->field_address;
+	}
 
+// Send back the node
+	return($node);
+}
+
+function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
+
+	$address_line = array(); 
+	$adress_item = array();
+	$array_node = array(); 
 	
-  
+	foreach ($addresses as $address) {
+		$address_line_cpt = 0; 
+		$address_lines = $address->getElementsByTagName("AddressLine");
+		if ($address_lines->length) {
+			foreach($address_lines as $address_line) {
+				switch ($address_line_cpt) {
+					case 0:
+						$adress_item["street"] = $address_line->nodeValue;
+						break; 
+					case 1:
+						$adress_item["additional"] = $address_line->nodeValue;
+						break;
+					default:
+						drupal_set_message('More than 2 adress lines into xml. Ignoring: "'.$address_line->nodeValue.'".','error');
+				}
+			$address_line_cpt++;
+			}
+		}
+		
+		if ($address->getElementsByTagName("City")->length) {
+			$adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
+			$adress_item["name"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
+		}
+		
+		if ($location_name) {
+			$adress_item["name"] = $location_name;
+		} else {
+			$adress_item["name"] = $adress_item["city"];
+		}
 
+		if ($address->getElementsByTagName("Zip")->length) {
+			$adress_item["postal_code"] = $address->getElementsByTagName("Zip")->item(0)->nodeValue;
+		}
+
+		if ($address->getElementsByTagName("State")->length) {
+			$adress_item["province_name"] = $address->getElementsByTagName("State")->item(0)->nodeValue;
+		}
+
+		if ($address->getElementsByTagName("Country")->length) {
+			$adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
+		}
+		
+		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
+	}
+		
+	return $array_node;
 }
 
 function wimprt_set_field_locations(&$node,$dom,&$log){
 
+	$node->field_locations = array(); 
+
 	if(variable_get('wallymport_debug',0) or true){
 		$log['log'][]='process Locations: '.$dom->nodeName;
 	  }
-  
-  
-	$result=wimprt_process_list($dom,$log,'type');
 
-//  $name= $dom->nodeName;
-//  $node->{$name}[0]['value']=$dom->nodeValue;
-
+	$results=wimprt_process_list($dom,$log,'type');
+	foreach($results as $result) {
+		$node->field_locations[] = array("value"=>$result["nid"]); 
+	} 
 }
 
 
@@ -270,3 +347,15 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 }
 
 
+
+
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+
+function var_dom($d) {
+	var_dump($d->ownerDocument->saveXML($d));				
+} 
