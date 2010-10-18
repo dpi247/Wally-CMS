@@ -32,17 +32,18 @@
 			<Locations>
 				<Location LocationID="Paris"/>
 				<Location LocationID="Location Title Charleroi">
-					<LocationName>Roland Garros</LocationName>
+					<LocationName>LOCATIONNAME Charleroi</LocationName>
 					<Address>
-						<AddressLine>(Stade Roland Garros)</AddressLine>
-						<AddressLine>2, avenue Gordon Bennet</AddressLine>
-						<City>Paris</City>
-						<Zip>75016</Zip>
+						<AddressLine>AddressLine1 Charleroi</AddressLine>
+						<AddressLine>AddressLine2 Charleroi</AddressLine>
+						<City>Charlroi</City>
+						<Zip>6000</Zip>
 						<State></State>
-						<Country>France</Country>
+						<Country>Belgium</Country>
 					</Address>
-					<LocationGeo>-50.123456,12.123456</LocationGeo>
+					<LocationGeo>-50.000,50.000</LocationGeo>
 				</Location>
+
 			</Locations>
 			<Taxonomy>
 				<Vocabulary VocabularyName="Brand" VocabularyDescription="Brands and company names">

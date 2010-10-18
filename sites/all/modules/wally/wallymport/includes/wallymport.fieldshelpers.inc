@@ -1,5 +1,86 @@
 <?php
 
+/*
+ * 
+ * 
+ * 
+ */
+function _wimprthelp_array_to_ccklocation($location) {
+
+	$node = new stdClass;
+
+	// Get all country list from location module
+	$countries = location_get_iso3166_list();
+
+	if ($location["name"]) {
+		$node->name = $location["name"];
+	} else {
+		// TO DO FATAL :: No location NAME - crital
+		drupal_set_message('No location NAME found.','error');
+		return null; 
+	}
+		
+	// Street lines
+	if (isset($location["street"])) $node->street = $location["street"];
+	if (isset($location["additional"])) $node->additionnal = $location["additional"];
+
+	// City
+	$node->city = $location["city"];
+
+	// Province 
+	if (isset($location['province_name'])) {
+		if ($node->province=location_province_code($location['country_name'],$location['province_name'])) {
+			$node->province_name = $location['province_name'];
+		} else {
+			drupal_set_message('Country PROVINCE not found for '.$location['country_name'].'/'.$location['province_name'].'.','error');
+		}
+	}
+
+	// Postal Code
+	$node->postal_code = $location["postal_code"];
+	
+	// Country 
+	if (isset($location['country'])) {
+		if (array_key_exists($location['country'],$countries)) {
+			$node->country = $location['country'];
+			$node->country_name = $countries[$location['country']];
+		} else {
+			drupal_set_message('Country ISO CODE not found for '.$location['country'].'.','error');
+		}
+	} else {
+		if (isset($location['country_name'])) {
+			if ($node->country=array_search($location['country_name'],$countries)) {
+				$node->country_name = $location['country_name'];
+			} else {
+				drupal_set_message('Country ISO not found for '.$location['country_name'].'.','error');
+			}
+		}
+	}
+
+	// Long-Lattitude
+	if (isset($location["latitude"]) && isset($location["longitude"])) {
+		if (is_numeric($location["latitude"]) && is_numeric($location["longitude"])) {
+			$node->latitude = $location["latitude"];
+			$node->longitude = $location["longitude"];
+			$node->locpick["user_latitude"] = $location["latitude"];
+			$node->locpick["user_longitude"] = $location["longitude"];
+		} else {
+			$node->latitude = null;
+			$node->longitude = null;
+			$node->locpick["user_latitude"] = null;
+			$node->locpick["user_longitude"] = null;
+			drupal_set_message('longitude & Lattitude not set or non numeric.','error');
+		}
+	}
+
+	$node->source = 1;
+	$node->is_primary = 0;
+
+	return $node; 
+		
+}
+
+
 /**
  * Translates datetime into CCK datetime field
  *
