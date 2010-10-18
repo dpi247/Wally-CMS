@@ -43,7 +43,6 @@
 					</Address>
 					<LocationGeo>-50.000,50.000</LocationGeo>
 				</Location>
-
 			</Locations>
 			<Taxonomy>
 				<Vocabulary VocabularyName="Brand" VocabularyDescription="Brands and company names">
