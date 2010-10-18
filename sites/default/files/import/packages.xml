@@ -29,6 +29,7 @@
 			<Title>Justine versus Kim</Title>
 			<InternalReference>DrupalNID2</InternalReference>
 			<ExternalReference>ExternalObjectID1</ExternalReference>
+
 			<Locations>
 				<Location LocationID="Paris"/>
 				<Location LocationID="Location Title Charleroi">
@@ -44,16 +45,24 @@
 					<LocationGeo>-50.000,50.000</LocationGeo>
 				</Location>
 			</Locations>
+
+
 			<Taxonomy>
-				<Vocabulary VocabularyName="Brand" VocabularyDescription="Brands and company names">
-					<Term>Perrier</Term>
+				<Vocabulary VocabularyName="Sports/Belgium/Football" VocabularyDescription="Football in belgium">
+					<Term>Charleroi</Term>
 					<Term>Donnay</Term>
+				</Vocabulary>
+				<Vocabulary VocabularyName="Automotive Brands" VocabularyDescription="Brands of Automotivecompany names">
+					<Term>Audi</Term>
+					<Term>Nissan</Term>
 				</Vocabulary>
 				<Vocabulary VocabularyName="FreeTag">
 					<Term>court</Term>
 					<Term>world record</Term>
 				</Vocabulary>
 			</Taxonomy>
+
+
 			<Persons>
 				<Person PersonID="Rambo" />
 				<Person PersonID="JHenin" >

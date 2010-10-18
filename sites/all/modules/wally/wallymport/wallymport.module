@@ -304,15 +304,16 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   }
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
-
   //@todo: call node_save()
   //node_save($node);
   $log['node']=array('current'=>$array_of_nodes);
 
-	// DLA testing prupose 
+	// DLA TEST :: testing purpose 
 	//
 	foreach ($array_of_nodes as $nodeitem) {
-		$nodeitem->nid=rand(1000,2000);
+		if (!empty($nodeitem)) {
+			$nodeitem->nid=rand(1000,2000);
+		}
 	}
 
   return $array_of_nodes;
