@@ -35,7 +35,12 @@ function wimprt_set_field_externalreference(&$node,$dom,&$log){
 
 function wimprt_set_field_mainstory(&$node,$dom,&$log){
   $object=wimprt_process_object($dom,$log,'TextObject');
+
   $node->field_mainstory[0]['nid']=$object->nid;
+
+  dsm('main story');
+  dsm($object); 
+  
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
@@ -45,7 +50,6 @@ $result=wimprt_process_list($embedobjects,$log,'object');
 $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
 $result=wimprt_process_list($linklists,$log,'object');
 //@todo: process result
-
 }
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
@@ -91,7 +95,7 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   // wimprt_process_object_default will call wimprt_process_object_locations,...
 }
 
-function wimprt_create_or_load_type_location($dom,$log){
+function wimprt_create_or_load_type_location($dom,$log){	
 	
 	// Get the LocationID attribnute to load node.
 	$lid = $dom->getAttributeNode("LocationID")->value;
@@ -248,7 +252,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 
 	$results=wimprt_process_list($dom,$log,'type');
 	foreach($results as $result) {
-		$node->field_locations[] = array("value"=>$result["nid"]); 
+		$node->field_locations[] = array("value"=>$result->nid); 
 	} 
 }
 

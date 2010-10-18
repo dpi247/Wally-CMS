@@ -1,6 +1,5 @@
 <?php
 
-
 module_load_include('inc', 'wallymport', 'includes/wallymport.fields');
 module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
 
@@ -216,6 +215,8 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
   //@todo: call node_save()
   //node_save($node);
+ 
+ 
   $log['node']=array('current'=>$node,'next'=>$log['node']);
   return $node;
 }
@@ -304,13 +305,17 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
 
-  $result = array( array("nid"=>120), array("nid"=>122) ); 
   //@todo: call node_save()
   //node_save($node);
   $log['node']=array('current'=>$array_of_nodes);
 
+	// DLA testing prupose 
+	//
+	foreach ($array_of_nodes as $nodeitem) {
+		$nodeitem->nid=rand(1000,2000);
+	}
 
-  return $result;
+  return $array_of_nodes;
 }
 
 
