@@ -251,11 +251,16 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 	  }
 
 	$results=wimprt_process_list($dom,$log,'type');
+
+	// Get Location Taxonomy for all nodes.
 	foreach($results as $result) {
-		$node->field_locations[] = array("value"=>$result->nid); 
+		if (isset($result->field_locationtaxonomy)) {
+			if ($result->field_locationtaxonomy[0]) {
+				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]); 
+			}
+		}
 	} 
 }
-
 
 function wimprt_set_field_editions(&$node,$dom,$log) {
 
@@ -351,15 +356,88 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 }
 
 
+/* si un terme est détecté dans les dictionnaires de TAGINGs classifié, il est
+ * pris en compte si non, il est placé dans le free tagging
+ */
+function wimprt_set_field_taxonomy(&$node,$dom,$log) {
+
+	$result = array("field_tags"=>array(), "field_free_tags"=>array());
+	
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Taxonomy: '.$dom->nodeName;
+	  }
+
+	$freetagtaxonomy_vid=variable_get('wallymport_freetagtaxonomy',null);
+	$classifiedtagtaxonomy_vid=variable_get('wallymport_classifiedtagtaxonomy',null);
+	
+	if ($classifiedtagtaxonomy_vid && $freetagtaxonomy_vid) {
+		$vocabularies = $dom->getElementsByTagName("Vocabulary");
+		if ($vocabularies->length) {
+			foreach($vocabularies as $vocabulary) {
+				wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result);
+				$node->field_tags = $result["field_tags"]; 
+				$node->field_free_tags = $result["field_free_tags"]; 
+			}
+		} else {
+			drupal_set_message('No taxonomy terms of free tagging found.','error');
+		}
+	} else {
+		drupal_set_message('Free tagg / classified tags taxonomy vocabularies not set. See settings.','error');
+		return null;
+	}
+}
 
 
-/* ****************************************************************** */
-/* ****************************************************************** */
-/* ****************************************************************** */
-/* ****************************************************************** */
-/* ****************************************************************** */
-/* ****************************************************************** */
+function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
-function var_dom($d) {
-	var_dump($d->ownerDocument->saveXML($d));				
-} 
+	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
+	$classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',null);
+	$freetagtaxonomy_keyword = variable_get('wallymport_freetagtaxonomyword', 'FreeTag');
+
+	$vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
+	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+
+	// If no vocabulary "name" found, assume free tag vocabulary.
+	if (!$vocabulary_name) $vocabulary_name = $freetagtaxonomy_keyword;
+
+	$vid = 0; 
+	if ($vocabulary_name==$freetagtaxonomy_keyword) {
+		$vid = $freetagtaxonomy_vid;
+		$result_set = "field_free_tags";
+	} else {
+		$vid = $classifiedtagtaxonomy_vid;
+		$result_set = "field_tags";
+	} 
+
+	$terms = $vocabulary->getElementsByTagName("Term");
+	if ($terms->length) {
+		foreach($terms as $term) {
+			$path = $vocabulary_name."/".$term->nodeValue; 
+			if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
+				// Cool, we got a term in the classified taxonomy
+				$result["field_tags"][]= $t[0]->tid;
+			} else {
+				$tid = null; 
+				$recursive_path = "";
+				foreach( explode("/",$path) as $t)
+				{
+					$recursive_path = $recursive_path."/".$t;
+					$t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
+					
+					if ($t_parent) {
+						$tid = $t_parent[0]->tid;
+					} else {
+						if ($tid) {
+							$tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
+						} else {
+							$tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
+						}
+					}
+				}
+			$result[$result_set][]= $tid;
+			}
+		}
+	} else {
+		drupal_set_message('No term found in vocabulary: '.$vocabulary_name.'.','error');
+	}
+}

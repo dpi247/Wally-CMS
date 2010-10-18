@@ -82,6 +82,37 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
 
+  $form['wallymport_freetagtaxonomy'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Free Tags"'),
+    '#description' => t('Choose the vocabulary corresponding to the free tagging taxonomy.'),
+    '#default_value' => variable_get('wallymport_freetagtaxonomy', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
+
+ $form['wallymport_freetagtaxonomyword'] = array(
+    '#type' => 'textfield',
+    '#title' => t('??????? --- Keywords for Freetags in XML.'),
+    '#description' => t('This is the keyword used for determine if it\'s a free tag vocabulary.'),
+    '#default_value' => variable_get('wallymport_freetagtaxonomyword', 'FreeTag'),
+    '#size' => 12,
+    '#maxlength' => 128,
+    '#required' => TRUE,
+  );
+
+  $form['wallymport_classifiedtagtaxonomy'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Classified terms"'),
+    '#description' => t('Choose the vocabulary corresponding to the classified taxonomy root.'),
+    '#default_value' => variable_get('wallymport_classifiedtagtaxonomy', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
+
+
+
+
  $form['wallymport_defaultuser'] = array(
     '#type' => 'textfield',
     '#title' => t('Drupal user used for imports.'),

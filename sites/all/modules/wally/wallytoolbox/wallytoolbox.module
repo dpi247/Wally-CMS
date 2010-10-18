@@ -122,12 +122,13 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
  * @return
  *   Taxonomy TID of the created term. 
  */
-function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0) {
+function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0, $parent = null) {
   $form_values = array();
   $form_values['name'] = $name;
   $form_values['description'] = $description;
   $form_values['vid'] = $vid;
   $form_values['weight'] = $weight;
+  if ($parent) $form_values['parent'] = $parent;
   taxonomy_save_term($form_values);
   return $form_values['tid'];
 }
