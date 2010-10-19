@@ -1,6 +1,6 @@
 <?php
 
-/**    
+/**
  * Implementation of hook_fieldgroup_default_groups().
  */
 function wallycontenttypes_fieldgroup_default_groups() {
@@ -898,6 +898,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_link_item',
       '1' => 'field_summary',
+      '2' => 'field_internal_link',
     ),
   );
 

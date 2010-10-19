@@ -1,6 +1,6 @@
 <?php
 
-/**    
+/**
  * Implementation of hook_content_default_fields().
  */
 function wallycontenttypes_content_default_fields() {
@@ -6613,6 +6613,78 @@ Free',
     ),
   );
 
+  // Exported field: field_internal_link
+  $fields['wally_linktype-field_internal_link'] = array(
+    'field_name' => 'field_internal_link',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'wally_articlepackage' => 'wally_articlepackage',
+      'wally_gallerypackage' => 'wally_gallerypackage',
+      'wally_pollpackage' => 'wally_pollpackage',
+      'wally_linktype' => 0,
+      'wally_audioobject' => 0,
+      'wally_digitalobject' => 0,
+      'wally_entitytype' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
+      'wally_photoobject' => 0,
+      'wally_pollobject' => 0,
+      'wally_textobject' => 0,
+      'wally_videoobject' => 0,
+      'wally_linkslistobject' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_internal_link][0][nid][nid',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Internal Link',
+      'weight' => '40',
+      'description' => '',
+      'type' => 'nodereference_autocomplete',
+      'module' => 'nodereference',
+    ),
+  );
+
   // Exported field: field_link_item
   $fields['wally_linktype-field_link_item'] = array(
     'field_name' => 'field_link_item',
@@ -6645,7 +6717,7 @@ Free',
     ),
     'widget_active' => '1',
     'type' => 'link',
-    'required' => '1',
+    'required' => '0',
     'multiple' => '0',
     'module' => 'link',
     'active' => '1',
@@ -15079,6 +15151,7 @@ Free',
   t('Free Access');
   t('Free Tags');
   t('Gallery Summary');
+  t('Internal Link');
   t('Keywords (categorized)');
   t('Link');
   t('Link Item');
