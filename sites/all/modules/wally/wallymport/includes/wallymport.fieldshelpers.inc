@@ -99,27 +99,6 @@ function _wimprthelp_date_to_ccktime($date) {
   return $result;
 }
 
-function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
-	
-	$result = COMMENT_NODE_DISABLED;
-
-	switch ($dom->nodeValue) {
-		case "Disabled":
-			$result = COMMENT_NODE_DISABLED; 
-			break;
-		case "Read Only":
-			$result = COMMENT_NODE_READ_ONLY; 
-			break;
-		case "Read-Write":
-			$result = COMMENT_NODE_READ_WRITE; 
-			break;
-		default:
-			$result = COMMENT_NODE_DISABLED; 
-			break;
-	}
-	$node->comment = $result;
-	return $result;
-}
 /**
  * Translates datetime into timestamp
  *
@@ -185,6 +164,10 @@ function _wimprthelp_create_file_from_uri($file_uri){
   
   return $file_uri;
 }
+
+
+
+
 
 
 function _wimprthelp_create_file($filepath){
