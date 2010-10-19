@@ -1,6 +1,6 @@
 <?php
 
-/**
+/**   
  * Implementation of hook_taxonomy_default_vocabularies().
  */
 function wallycontenttypes_taxonomy_default_vocabularies() {

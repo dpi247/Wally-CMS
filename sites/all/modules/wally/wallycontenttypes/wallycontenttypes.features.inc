@@ -1,6 +1,6 @@
 <?php
 
-/**
+/**    
  * Implementation of hook_node_info().
  */
 function wallycontenttypes_node_info() {

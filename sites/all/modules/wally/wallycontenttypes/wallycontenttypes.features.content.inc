@@ -1,6 +1,6 @@
 <?php
 
-/**
+/**    
  * Implementation of hook_content_default_fields().
  */
 function wallycontenttypes_content_default_fields() {
@@ -6309,9 +6309,9 @@ Free',
     ),
   );
 
-  // Exported field: field_links
-  $fields['wally_linkslistobject-field_links'] = array(
-    'field_name' => 'field_links',
+  // Exported field: field_links_list
+  $fields['wally_linkslistobject-field_links_list'] = array(
+    'field_name' => 'field_links_list',
     'type_name' => 'wally_linkslistobject',
     'display_settings' => array(
       'label' => array(
@@ -6340,38 +6340,44 @@ Free',
       ),
     ),
     'widget_active' => '1',
-    'type' => 'link',
+    'type' => 'nodereference',
     'required' => '1',
     'multiple' => '1',
-    'module' => 'link',
+    'module' => 'nodereference',
     'active' => '1',
-    'attributes' => array(
-      'target' => 'user',
-      'rel' => '',
-      'class' => '',
-      'title' => '',
+    'referenceable_types' => array(
+      'wally_linktype' => 'wally_linktype',
+      'wally_articlepackage' => 0,
+      'wally_audioobject' => 0,
+      'wally_digitalobject' => 0,
+      'wally_entitytype' => 0,
+      'wally_gallerypackage' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
+      'wally_photoobject' => 0,
+      'wally_pollobject' => 0,
+      'wally_pollpackage' => 0,
+      'wally_textobject' => 0,
+      'wally_videoobject' => 0,
+      'wally_linkslistobject' => 0,
     ),
-    'display' => array(
-      'url_cutoff' => '80',
-    ),
-    'url' => 0,
-    'title' => 'optional',
-    'title_value' => '',
-    'enable_tokens' => '',
-    'validate_url' => 1,
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
     'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => '60',
       'default_value' => array(
         '0' => array(
-          'title' => '',
-          'url' => '',
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_links_list][0][nid][nid',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Links',
+      'label' => 'Links List',
       'weight' => '-3',
       'description' => '',
-      'type' => 'link',
-      'module' => 'link',
+      'type' => 'nodereference_autocomplete',
+      'module' => 'nodereference',
     ),
   );
 
@@ -6543,6 +6549,307 @@ Free',
       'default_value_php' => NULL,
       'label' => 'Links List Summary',
       'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_externalreference
+  $fields['wally_linktype-field_externalreference'] = array(
+    'field_name' => 'field_externalreference',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_externalreference][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ExternalReference',
+      'weight' => '35',
+      'description' => 'External Reference for the package/obect. Could be the Editorial Software reference ID or D.A.M. reference ID. This reference will be used for Update; Delete operations.',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_link_item
+  $fields['wally_linktype-field_link_item'] = array(
+    'field_name' => 'field_link_item',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'link',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'link',
+    'active' => '1',
+    'attributes' => array(
+      'target' => 'user',
+      'rel' => 'nofollow',
+      'class' => '',
+      'title' => '',
+    ),
+    'display' => array(
+      'url_cutoff' => '80',
+    ),
+    'url' => 0,
+    'title' => 'optional',
+    'title_value' => '',
+    'enable_tokens' => '',
+    'validate_url' => 1,
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'title' => '',
+          'url' => '',
+          'attributes' => array(
+            'target' => '_blank',
+          ),
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Link Item',
+      'weight' => '38',
+      'description' => '',
+      'type' => 'link',
+      'module' => 'link',
+    ),
+  );
+
+  // Exported field: field_objectdescription
+  $fields['wally_linktype-field_objectdescription'] = array(
+    'field_name' => 'field_objectdescription',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '3',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_objectdescription][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ObjectDescription ',
+      'weight' => '37',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_objectid
+  $fields['wally_linktype-field_objectid'] = array(
+    'field_name' => 'field_objectid',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_objectid][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ObjectID ',
+      'weight' => '36',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_summary
+  $fields['wally_linktype-field_summary'] = array(
+    'field_name' => 'field_summary',
+    'type_name' => 'wally_linktype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '3',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_summary][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Link Summary',
+      'weight' => '39',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -14774,7 +15081,9 @@ Free',
   t('Gallery Summary');
   t('Keywords (categorized)');
   t('Link');
-  t('Links');
+  t('Link Item');
+  t('Link Summary');
+  t('Links List');
   t('Links List Summary');
   t('Location Description ');
   t('Location Taxonomy');
