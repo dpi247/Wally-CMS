@@ -171,7 +171,12 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
 
   //@todo: call node_save()
-  //node_save($node);
+  dsm('Package');
+  dsm($callback);
+  dsm($node);
+  
+  if(!empty($node))
+    node_save($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
     
   return $node;
@@ -217,7 +222,13 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
   //@todo: call node_save()
-  //node_save($node);
+  dsm($callback);
+  echo $callback;
+  echo '<pre>'.print_r($node,1).'</pre>';
+ // dsm($node);
+  
+  if(!empty($node))
+    node_save($node);
  
  
   $log['node']=array('current'=>$node,'next'=>$log['node']);
@@ -247,7 +258,6 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
 function wimprt_process_type($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom,'type', $callback,$log);
- dsm($callback);
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;
@@ -261,7 +271,11 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
   //@todo: call node_save()
-  //node_save($node);
+  dsm('Type');
+  dsm($callback);
+  
+  if(!empty($node))
+    node_save($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
   return $node;
 }
@@ -309,19 +323,7 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   }
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
-  //@todo: call node_save()
-  //node_save($node);
   $log['node']=array('current'=>$array_of_nodes);
-
-  /*
-	// DLA TEST :: testing purpose 
-	//
-	foreach ($array_of_nodes as $nodeitem) {
-		if (!empty($nodeitem)) {
-			$nodeitem->nid=rand(1000,2000);
-		}
-	}
-*/
   return $array_of_nodes;
 }
 
