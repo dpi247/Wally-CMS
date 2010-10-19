@@ -53,10 +53,15 @@ $result=wimprt_process_list($linklists,$log,'object');
 }
 
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
+  static $procced_file_path;
   $node->type='wally_photoobject';
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  
+  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
   wimprt_process_object_default($node,$dom,$log);
+
 }
 
 function wimprt_set_field_title(&$node,$dom,&$log){

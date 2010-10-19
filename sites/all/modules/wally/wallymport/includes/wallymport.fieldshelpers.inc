@@ -139,3 +139,48 @@ function _wimprthelp_html_text($text){
 function _wimprthelp_plain_text($text){
   return check_plain($text);
 }
+
+
+/**
+ * return acreated  drupal file object from uri
+ *
+ * @param $file_uri
+ *   - A uri to the filet
+ *
+ * @return
+ *   A Drupal File Object
+ */
+function _wimprthelp_create_file_from_uri($file_uri){
+  global $proceed_file_path;
+  global $base_path;
+  
+  $uri=parse_url($file_uri);
+  dsm('erer');
+  dsm($uri);
+  switch($uri['scheme']){
+    case'embed':
+      $file_path=variable_get('file_directory_path','sites/default/files/').$uri['host'];
+      
+      _wimprthelp_create_file($file_path);
+    break;
+  }
+  
+  
+  return $file_uri;
+}
+
+
+function _wimprthelp_create_file($filepath){
+  global $user;
+  $file = new stdClass();
+  $file->filename = basename($filepath);
+  $file->filepath = $filepath;
+  $file->filemime = file_get_mimetype($filepath);
+  $file->filesize = filesize($filepath);
+
+  $file->uid = $user->uid;
+  $file->status = FILE_STATUS_PERMANENT;
+  $file->timestamp = time();
+  drupal_write_record('files', $file);
+  return  field_file_load($filepath);
+}
