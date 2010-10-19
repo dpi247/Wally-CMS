@@ -63,7 +63,7 @@
 			</Taxonomy>
 
 			<Persons>
-				<Person PersonID="Rambo" />
+				<Person PersonID="RefExterne" />
 				<Person PersonID="JHenin" >
 					<PersonLastName>Henin</PersonLastName>
 					<PersonFirstName>Justine</PersonFirstName>

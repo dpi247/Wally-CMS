@@ -188,15 +188,15 @@ function _wimprthelp_create_file_from_uri($file_uri){
 
 
 function _wimprthelp_create_file($filepath){
-  global $user;
   //dsm($filepath);  
+  $uid=variable_get('wallymport_defaultuser',1);
+ 
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;
   $file->filemime = file_get_mimetype($filepath);
   $file->filesize = filesize($filepath);
-
-  $file->uid = $user->uid;
+  $file->uid = $uid;
   $file->status = FILE_STATUS_PERMANENT;
   $file->timestamp = time();
   drupal_write_record('files', $file);
