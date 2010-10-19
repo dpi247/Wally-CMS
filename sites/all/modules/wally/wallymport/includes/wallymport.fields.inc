@@ -206,10 +206,7 @@ function wimprt_create_or_load_type_location($dom,$log){
 	} else {
 		drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
 		$result = new StdClass();
-		$result->field_externalreference=array("value"=>$lid);
 	}
-		$result->type='wally_locationtype';
-	
 	return $result; 
 }
 
@@ -221,6 +218,14 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		return null;
 	}
 
+// UID
+	$node->uid=variable_get('wallymport_defaultuser',1);
+
+// External Reference
+	$node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value)); 
+
+// Note Type
+	$node->type='wally_locationtype';
 
 // Node Title 
 	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
@@ -242,7 +247,7 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	$node->taxonomy = array($tid => $taxonomy); 
 
 // field_objectdescription 
-	$node->field_objectdescription = array(0=>_wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value));
+	$node->field_objectdescription = array(array("value"=>_wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value)));
 
 // field_address
 	$addresses = $dom->getElementsByTagName("Address");
@@ -273,10 +278,10 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 
 // CCK location specific field
 	if (isset($node->field_address)) {
-	//	$node->location =(array) $node->field_address[0];
-	//	$node->locations = $node->field_address;
+		$node->location =(array) $node->field_address[0];
+		$node->locations = $node->field_address;
 	}
-	echo '<pre>'.print_r($node,1).'</pre>';;
+
 // Send back the node
 	return($node);
 }
@@ -695,8 +700,7 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		$site["title"]=$t->item(0)->nodeValue; 
 		$node->field_personwebsite = array($site);
 	}
-
-
+	
 
 // Send back the node
 	return($node);
@@ -721,7 +725,6 @@ function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 			$result = COMMENT_NODE_DISABLED; 
 			break;
 	}
-	
 	
 	$node->comment = $result;
 	return $result;
