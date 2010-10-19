@@ -101,6 +101,18 @@
 					<ExternalReference>ExternalID</ExternalReference>
 					<Locations>
 						<Location LocationID="Le stade de Roland Garros" />
+						<Location LocationID="Location Title Charleroi">
+					<LocationName>LOCATIONNAME Charleroi</LocationName>
+					<Address>
+						<AddressLine>AddressLine1 Charleroi</AddressLine>
+						<AddressLine>AddressLine2 Charleroi</AddressLine>
+						<City>Charlroi</City>
+						<Zip>6000</Zip>
+						<State></State>
+						<Country>Belgium</Country>
+					</Address>
+					<LocationGeo>-50.000,50.000</LocationGeo>
+				</Location>
 					</Locations>
 					<Taxonomy>
 						<Vocabulary VocabularyName="Sports" VocabularyDescription="Sports">

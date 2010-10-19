@@ -297,11 +297,13 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
 
   $array_of_nodes=array();
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'before_process');
-
+  
   foreach($dom_element->childNodes as $dom_child){
     $element_name=$dom_child->nodeName;
-    if(function_exists("wimprt_process_".$callback)){
-      $array_of_nodes[]= call_user_func("wimprt_process_".$callback,$dom_child,&$log);
+    if($element_name!='#text'){
+      if(function_exists("wimprt_process_".$callback)){
+        $array_of_nodes[]= call_user_func("wimprt_process_".$callback,$dom_child,&$log);
+      }
     }
 
   }
@@ -311,6 +313,7 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
   //node_save($node);
   $log['node']=array('current'=>$array_of_nodes);
 
+  /*
 	// DLA TEST :: testing purpose 
 	//
 	foreach ($array_of_nodes as $nodeitem) {
@@ -318,7 +321,7 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
 			$nodeitem->nid=rand(1000,2000);
 		}
 	}
-
+*/
   return $array_of_nodes;
 }
 
