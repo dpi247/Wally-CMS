@@ -428,6 +428,14 @@
 	</xsd:sequence>
 	<xsd:attribute name="VocabularyName" type="xsd:string" use="required" />
 	<xsd:attribute name="VocabularyDescription" type="xsd:string" />
+	<xsd:attribute name="VocabularyType" use="optional">
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:NMTOKEN">
+				<xsd:enumeration value="free"/>
+				<xsd:enumeration value="categorized"/>
+            </xsd:restriction>
+		</xsd:simpleType>
+	</xsd:attribute>
  </xsd:complexType>
  <!-- /TAXONOMY -->
 
