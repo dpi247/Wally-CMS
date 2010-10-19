@@ -31,12 +31,12 @@
 
 			<Locations>
 				<Location LocationID="Paris"/>
-				<Location LocationID="Location Title Charleroi">
-					<LocationName>LOCATIONNAME Charleroi</LocationName>
+				<Location LocationID="MA LOCATION">
+					<LocationName>MA LOCATION.</LocationName>
 					<Address>
 						<AddressLine>AddressLine1 Charleroi</AddressLine>
 						<AddressLine>AddressLine2 Charleroi</AddressLine>
-						<City>Charlroi</City>
+						<City>Charleroi</City>
 						<Zip>6000</Zip>
 						<State></State>
 						<Country>Belgium</Country>
@@ -63,14 +63,17 @@
 			</Taxonomy>
 
 			<Persons>
-				<Person PersonID="RefExterne" />
-				<Person PersonID="JHenin" >
+				<Person PersonID="Rambo" />
+				<Person PersonID="Justine Henin" >
+					<PersonName>Justine-Henin</PersonName>
 					<PersonLastName>Henin</PersonLastName>
 					<PersonFirstName>Justine</PersonFirstName>
 					<PersonNickName>Juju</PersonNickName>
 					<PersonBirthDate>2010-10-26</PersonBirthDate> 
 					<PersonSex>female</PersonSex>
+					<PersonEmail>juju@henin.be</PersonEmail>
 					<PersonWebSite>http://www.justinehenin.be</PersonWebSite>
+					<PersonPhoneNumber>+32477555555</PersonPhoneNumber>
 				</Person>
 			</Persons>
 
