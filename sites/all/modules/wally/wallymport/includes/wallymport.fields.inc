@@ -38,6 +38,9 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 
   $node->field_mainstory[0]['nid']=$object->nid;
 
+  dsm("MAIN STORY"); 
+  dsm($object); 
+
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
@@ -265,9 +268,6 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 			if ($result->field_locationtaxonomy[0]) {
 				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]);
 				$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
-				
-				
-				
 			}
 		}
 	} 
@@ -392,13 +392,17 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 				wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result);
 
 				foreach($result["field_tags"] as $term) {
-					$node->field_tags[] = $term->tid;
-					$node->taxonomy[] = $term; 
+					if (!in_array($term->tid, $node->field_tags)) {
+						$node->field_tags[] = $term->tid;
+						$node->taxonomy[] = $term; 
+					}
 				}
 
 				foreach($result["field_free_tags"] as $term) {
-					$node->field_free_tags[] = $term->tid;
-					$node->taxonomy[] = $term; 
+					if (!in_array($term->tid, $node->field_free_tags)) {
+						$node->field_free_tags[] = $term->tid;
+						$node->taxonomy[] = $term; 
+					}
 				}
 			}
 		} else {
@@ -415,18 +419,22 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
 	$classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',null);
-	$freetagtaxonomy_keyword = variable_get('wallymport_freetagtaxonomyword', 'FreeTag');
+//	$freetagtaxonomy_keyword = variable_get('wallymport_freetagtaxonomyword', 'FreeTag');
+	$taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', true));
 
 	$vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
 	if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
 		$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
 	}
 
-	// If no vocabulary "name" found, assume free tag vocabulary.
-	if (!$vocabulary_name) $vocabulary_name = $freetagtaxonomy_keyword;
+	if (isset($vocabulary->getAttributeNode("VocabularyType")->value)) {
+		$VocabularyType = $vocabulary->getAttributeNode("VocabularyType")->value;
+	} else {
+		$VocabularyType = "free";
+	}
 
 	$vid = 0; 
-	if ($vocabulary_name==$freetagtaxonomy_keyword) {
+	if ($VocabularyType == "free") {
 		$vid = $freetagtaxonomy_vid;
 		$result_set = "field_free_tags";
 	} else {
@@ -439,8 +447,18 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 		foreach($terms as $term) {
 			$path = trim($vocabulary_name,"/")."/".trim($term->nodeValue,"/"); 
 			if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
-				// Cool, we got a term in the classified taxonomy
-				$result[$result_set][] = $t[0];
+				// Cool, we got a term for the correct VID.
+				if ($taxonomy_recursive) {
+					$recursive_path = "";
+					foreach( explode("/",trim($path,"/")) as $t)
+					{
+						$recursive_path = $recursive_path."/".$t;
+						$t = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
+						$result[$result_set][] = $t[0];
+					}
+				} else {
+					$result[$result_set][] = $t[0];
+				}
 			} else {
 				$tid = null; 
 				$recursive_path = "";
@@ -458,11 +476,12 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 							$tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
 						}
 					}
-					// The node is only assigned to all the terms from PATH.
-					$result[$result_set][] = taxonomy_get_term($tid);
+					// The node is  assigned to all the terms from PATH.
+					dsm ("ADD > $recursive_path :".$recursive_path);
+					if ($taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
 				}
 				// The node is only assigned to the last term from PATH.
-				// $result[$result_set][] = taxonomy_get_term($tid);
+				if (!$taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
 			}
 		}
 	} else {
