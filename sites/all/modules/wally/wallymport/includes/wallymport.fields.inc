@@ -65,7 +65,7 @@ $node->uid=1;
   
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_textobject')){
-    $node=$node_temp;
+    $node=$node_temp[0];
   }
   return $node;
 }
@@ -78,7 +78,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
 
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
-    $node=$node_temp;
+    $node=$node_temp[0];
   }
   return $node;
 }
@@ -145,10 +145,10 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linkslistobject';
   $node->uid=1;
-
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
-    $node=$node_temp;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
+    dsm($node_temp);
+    $node=$node_temp[0];
   }
   return $node;
 }
@@ -696,7 +696,6 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		$node->field_personwebsite = array($site);
 	}
 
-	dsm($node); 
 
 
 // Send back the node
@@ -723,8 +722,6 @@ function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 			break;
 	}
 	
-	dsm("commentaires ---".$comment."-------"); 
-	dsm($result); 
 	
 	$node->comment = $result;
 	return $result;

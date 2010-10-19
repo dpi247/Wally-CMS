@@ -170,11 +170,6 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
 
-  //@todo: call node_save()
-  dsm('Package');
-  dsm($callback);
-  dsm($node);
-  
   if(!empty($node))
     node_save($node);
   $log['node']=array('current'=>$node,'next'=>$log['node']);
@@ -221,11 +216,6 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
-  //@todo: call node_save()
-  dsm($callback);
-  echo $callback;
-  echo '<pre>'.print_r($node,1).'</pre>';
- // dsm($node);
   
   if(!empty($node))
     node_save($node);
@@ -270,9 +260,6 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
-  //@todo: call node_save()
-  dsm('Type');
-  dsm($callback);
   
   if(!empty($node))
     node_save($node);
