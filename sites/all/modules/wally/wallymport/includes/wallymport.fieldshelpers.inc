@@ -76,7 +76,7 @@ function _wimprthelp_array_to_ccklocation($location) {
 	$node->source = 1;
 	$node->is_primary = 0;
 
-	return $node; 
+	return (array) $node; 
 		
 }
 
@@ -99,7 +99,27 @@ function _wimprthelp_date_to_ccktime($date) {
   return $result;
 }
 
+function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
+	
+	$result = COMMENT_NODE_DISABLED;
 
+	switch ($dom->nodeValue) {
+		case "Disabled":
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+		case "Read Only":
+			$result = COMMENT_NODE_READ_ONLY; 
+			break;
+		case "Read-Write":
+			$result = COMMENT_NODE_READ_WRITE; 
+			break;
+		default:
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+	}
+	$node->comment = $result;
+	return $result;
+}
 /**
  * Translates datetime into timestamp
  *
