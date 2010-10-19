@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Packages xmlns="http://rossel.audaxis.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
-
 	<Package xsi:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
 		<PackageTitle>Justine versus Kim</PackageTitle>
 		<PackageDescription>Story and Gallery Photo Package</PackageDescription>
 		<InternalReference>DrupalNID1</InternalReference>
-		<ExternalReference>ExternalPackageID1</ExternalReference>
+		<ExternalReference>B821011036Z.1</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>
 			<Destination DestinationRank="2" DocumentLayout="mainstory">
@@ -134,22 +133,14 @@
 					<Links>
 						<Link  >
 							<ExternalReference>LinkRef.1</ExternalReference>
-							<Title>Si vous aimez à la fois rire et video gallery</Title>
-							<URI>externalRef:B821011036Z.1</URI>
+							<Title>Justine Contre Kim</Title>
+							<URI>externalRef://B821011036Z.1</URI>
 						</Link>
 						<Link  >
-							<Title>Link to original article</Title>
+							<Title>Archive de sudpresse</Title>
 							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
 						</Link>
-						<Link  >
-							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
-							<URI>externalRef:B821010944Z.1</URI>
-						</Link>
-						<Link>
-							<ExternalReference>LinkRef.2</ExternalReference>
-							<Title>Si vous aimez à la fois rire et poll</Title>
-							<URI>externalRef:B821011138Z.1</URI>
-						</Link>
+						
 					</Links>
 				</LinksList>
 				<LinksList>
@@ -159,7 +150,7 @@
 					<Links>
 						<Link  >
 							<Title>Si vous aimez à la fois rire et video gallery</Title>
-							<URI>externalRef:B821011036Z.1</URI>
+							<URI>externalRef://B821011036Z.1</URI>
 						</Link>
 						<Link  >
 							<Title>Link to original article</Title>
@@ -167,11 +158,11 @@
 						</Link>
 						<Link  >
 							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
-							<URI>externalRef:B821010944Z.1</URI>
+							<URI>externalRef://B821010944Z.1</URI>
 						</Link>
 						<Link  >
 							<Title>Si vous aimez à la fois rire et poll</Title>
-							<URI>externalRef:B821011138Z.1</URI>
+							<URI>externalRef://B821011138Z.1</URI>
 						</Link>
 					</Links>
 				</LinksList>
