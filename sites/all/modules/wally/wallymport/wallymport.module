@@ -72,6 +72,9 @@ function wallymport_page_process_folder(){
  */
 
 function wallymport_page_process_file($path_to_file){
+  global $proceed_file_path;
+  $proceed_file_path=$path_to_file;
+  
   if(!$path_to_file){
     drupal_set_message("error",'You must to provide a path to the XML');
     return '';
