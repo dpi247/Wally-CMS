@@ -48,12 +48,13 @@
 
 
 			<Taxonomy>
-				<Vocabulary VocabularyName="Sports" VocabularyDescription="Football in belgium">
+			
+				<Vocabulary VocabularyName="Sports" VocabularyDescription="Football in belgium" VocabularyType="categorized">
 					<Term>Belgium/Football/Charleroi</Term>
 					<Term>Belgium/Football/Charleroi2</Term>
 				</Vocabulary>
 				
-				<Vocabulary VocabularyName="Automotive Brands" VocabularyDescription="Brands of Automotivecompany names">
+				<Vocabulary VocabularyName="Automotive Brands" VocabularyDescription="Brands of Automotivecompany names" VocabularyType="categorized">
 					<Term>Audi</Term>
 					<Term>Nissan</Term>
 				</Vocabulary>
@@ -62,6 +63,7 @@
 					<Term>FreeTag1</Term>
 					<Term>FreeTag2</Term>
 				</Vocabulary>
+
 			</Taxonomy>
 
 
