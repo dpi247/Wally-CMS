@@ -155,13 +155,10 @@ function _wimprthelp_create_file_from_uri($file_uri){
   global $base_path;
   
   $uri=parse_url($file_uri);
-  dsm('erer');
-  dsm($uri);
   switch($uri['scheme']){
     case'embed':
-      $file_path=variable_get('file_directory_path','sites/default/files/').$uri['host'];
-      
-      _wimprthelp_create_file($file_path);
+      $file_path= variable_get('wallymport_source', 'sites/default/files/import').'/'.$uri['host'];
+      return _wimprthelp_create_file($file_path);
     break;
   }
   
@@ -172,6 +169,7 @@ function _wimprthelp_create_file_from_uri($file_uri){
 
 function _wimprthelp_create_file($filepath){
   global $user;
+  //dsm($filepath);  
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;
