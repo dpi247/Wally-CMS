@@ -1,6 +1,6 @@
 <?php
 
-/**
+/**    
  * Implementation of hook_fieldgroup_default_groups().
  */
 function wallycontenttypes_fieldgroup_default_groups() {
@@ -807,9 +807,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-4',
+    'weight' => '-2',
     'fields' => array(
       '0' => 'field_summary',
+      '1' => 'field_links_list',
     ),
   );
 
@@ -849,7 +850,94 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-2',
+    'weight' => '-1',
+    'fields' => array(
+      '0' => 'field_externalreference',
+      '1' => 'field_objectid',
+      '2' => 'field_objectdescription',
+    ),
+  );
+
+  // Exported group: group_link
+  $groups['wally_linktype-group_link'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_linktype',
+    'group_name' => 'group_link',
+    'label' => 'Link',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
+        'description' => '',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '-4',
+    'fields' => array(
+      '0' => 'field_link_item',
+      '1' => 'field_summary',
+    ),
+  );
+
+  // Exported group: group_linkidentification
+  $groups['wally_linktype-group_linkidentification'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_linktype',
+    'group_name' => 'group_linkidentification',
+    'label' => 'Link Identification',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
+        'description' => '',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '-3',
     'fields' => array(
       '0' => 'field_externalreference',
       '1' => 'field_objectid',
@@ -1987,6 +2075,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
   t('Digital Object Identification ');
   t('Extracts');
   t('Identity');
+  t('Link');
+  t('Link Identification');
   t('Links List');
   t('Location Indentification');
   t('Package Identification');
