@@ -366,10 +366,6 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 	}
 }
 
-
-/* si un terme est détecté dans les dictionnaires de TAGINGs classifié, il est
- * pris en compte si non, il est placé dans le free tagging
- */
 function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 
 	$result = array("field_tags"=>array(), "field_free_tags"=>array());
