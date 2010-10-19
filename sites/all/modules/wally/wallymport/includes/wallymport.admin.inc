@@ -110,15 +110,14 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
 
- $form['wallymport_taxonomy_recusive'] = array(
-    '#type' => 'textfield',
+  $form['wallymport_taxonomy_recusive'] = array(
+    '#type' => 'select',
     '#title' => t('Is the Taxonomies recusive?'),
     '#description' => t('If TRUE, node will be associated with all the term in taxonomy PATH /term1/term2/term3. Else only to the last term (term3).'),
     '#default_value' => variable_get('wallymport_taxonomy_recusive', TRUE),
-    '#size' => 10,
-    '#maxlength' => 10,
+    '#options' => array("true"=>"true", "false"=>"false"),
     '#required' => TRUE,
-  );
+  );  
 
 
  $form['wallymport_defaultuser'] = array(

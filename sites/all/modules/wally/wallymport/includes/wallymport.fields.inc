@@ -608,7 +608,7 @@ function wimprt_create_or_load_type_person($dom,$log){
 	  $result->type="wally_persontype";
 	
 
-	return $result; 
+	return $result;
 }
 
 function wimprt_process_type_person(&$node,$dom,&$log){
@@ -696,7 +696,36 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		$node->field_personwebsite = array($site);
 	}
 
+	dsm($node); 
+
+
 // Send back the node
 	return($node);
 
+}
+
+function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
+	
+	$result = COMMENT_NODE_DISABLED;
+
+	switch ($dom->nodeValue) {
+		case "Disabled":
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+		case "Read Only":
+			$result = COMMENT_NODE_READ_ONLY; 
+			break;
+		case "Read-Write":
+			$result = COMMENT_NODE_READ_WRITE; 
+			break;
+		default:
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+	}
+	
+	dsm("commentaires ---".$comment."-------"); 
+	dsm($result); 
+	
+	$node->comment = $result;
+	return $result;
 }
