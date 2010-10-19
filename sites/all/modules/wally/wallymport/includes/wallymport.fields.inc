@@ -100,7 +100,7 @@ function wimprt_process_type_link(&$node,$dom,&$log){
 	    $ext_ref=$uri['host'];
 		if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref))) {
     		if (count($link)==1) {
-    			 $node->field_internal_link[0] = $link[0]->nid;
+    			 $node->field_internal_link[0]['nid'] = $link[0]->nid;
         	}
 		}
 	}
