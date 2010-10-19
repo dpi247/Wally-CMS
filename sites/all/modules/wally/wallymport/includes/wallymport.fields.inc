@@ -46,22 +46,22 @@ function wimprt_set_field_externalreference(&$node,$dom,&$log){
 }
 
 function wimprt_set_field_mainstory(&$node,$dom,&$log){
-  $object=wimprt_process_object($dom,$log,'TextObject');
-  $node->field_mainstory[0]['nid']=$object->nid;
+	$object=wimprt_process_object($dom,$log,'TextObject');
+	$node->field_mainstory[0]['nid']=$object->nid;
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
-$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
-$result=wimprt_process_list($embedobjects,$log,'object');
-$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-$result=wimprt_process_list($linklists,$log,'object');
+	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
+	$result=wimprt_process_list($embedobjects,$log,'object');
+	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
+	$result=wimprt_process_list($linklists,$log,'object');
 }
   
 
 function wimprt_create_or_load_object_textobject($dom,&$log){
   $node=new stdClass;
-$node->type='wally_textobject';
-$node->uid=1;
+  $node->type='wally_textobject';
+  $node->uid=1;
   
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_textobject')){
@@ -99,7 +99,7 @@ $result=wimprt_process_list($dom,$log,'type');
 
 function wimprt_create_or_load_type_link($dom,$log){	
 	
-	// Get the LocationID attribnute to load node.
+	// Get the Link attribnute to load node.
 	$uri = $dom->getElementsByTagName("URI")->item(0)->nodeValue;
 	$uri=parse_url($uri);
     
@@ -147,7 +147,6 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node->uid=1;
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
-    dsm($node_temp);
     $node=$node_temp[0];
   }
   return $node;
@@ -182,7 +181,6 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
   
   wimprt_process_object_default($node,$dom_element,$log);
-  
   
   //Map Element 
   // wimprt_process_object_default will call wimprt_process_object_locations,...
@@ -336,6 +334,8 @@ function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=nul
 		
 		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
 	}
+
+	
 		
 	return $array_node;
 }
@@ -608,11 +608,8 @@ function wimprt_create_or_load_type_person($dom,$log){
 	} else {
 		drupal_set_message('Person not Found for PersonID: '.$lid.', assuming new person.','error');
 		$result = new StdClass();
-		$result->field_externalreference=array("value"=>$lid);
 	}
-	  $result->type="wally_persontype";
 	
-
 	return $result;
 }
 
@@ -624,15 +621,24 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		return null;
 	}
 	
+
 // Node type
 	$node->type = "wally_persontype";
+
+// External Reference
+	$node->field_externalreference = array(array("value"=>$dom->getAttributeNode("PersonID")->value)); 
 
 // Node UID 
 	$uid=variable_get('wallymport_defaultuser',1);
 	$node->uid = $uid;
 
 // Node Title 
-	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("PersonID")->value);
+	$t = $dom->getElementsByTagName("PersonName");
+	if ($t->length) {
+		$node->title = _wimprthelp_plain_text($t->item(0)->nodeValue);
+	} else {
+		$node->title = _wimprthelp_plain_text($dom->getAttributeNode("PersonID")->value);
+	}
 
 // Taxonomy TID (from vocaulary Locations).
 	$term = $dom->getAttributeNode("PersonID")->value;
@@ -653,43 +659,43 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 // Last Name
 	$t = $dom->getElementsByTagName("PersonLastName");
 	if ($t->length) {
-		$node->field_personlastname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_personlastname = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // First Name
 	$t = $dom->getElementsByTagName("PersonFirstName");
 	if ($t->length) {
-		$node->field_field_personfirstname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_personfirstname = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // First Name
 	$t = $dom->getElementsByTagName("PersonNickName");
 	if ($t->length) {
-		$node->field_personnickname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_personnickname = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // Birth Date
 	$t = $dom->getElementsByTagName("PersonBirthDate");
 	if ($t->length) {
-		$node->field_personbirthdate = array(_wimprthelp_date_to_ccktime(_wimprthelp_date_to_timestamp($t->item(0)->nodeValue)));
+		$node->field_personbirthdate = array(_wimprthelp_date_to_ccktime($t->item(0)->nodeValue));
 	}
 
 // Sex
 	$t = $dom->getElementsByTagName("PersonSex");
 	if ($t->length) {
-		$node->field_personsex = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_personsex = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // Email
 	$t = $dom->getElementsByTagName("PersonEmail");
 	if ($t->length) {
-		$node->field_personemail = array("email"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_personemail = array(array("email"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // Phone number
 	$t = $dom->getElementsByTagName("PersonPhoneNumber");
 	if ($t->length) {
-		$node->field_phonenumber = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+		$node->field_phonenumber = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
 // Website
@@ -697,7 +703,8 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 	if ($t->length) {
 		$site = array(); 
 		$site["url"]=$t->item(0)->nodeValue; 
-		$site["title"]=$t->item(0)->nodeValue; 
+		$site["title"]=$t->item(0)->nodeValue;
+		$site["attributes"] = Array();
 		$node->field_personwebsite = array($site);
 	}
 	
