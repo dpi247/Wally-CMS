@@ -38,19 +38,19 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 
   $node->field_mainstory[0]['nid']=$object->nid;
 
-  dsm("MAIN STORY"); 
-  dsm($object); 
+//  dsm("MAIN STORY"); 
+//  dsm($object); 
 
 }
 
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 $embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
 $result=wimprt_process_list($embedobjects,$log,'object');
-dsm($result);
+//dsm($result);
 //@todo: process result
 $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
 $result=wimprt_process_list($linklists,$log,'object');
-dsm($result);
+//dsm($result);
 //@todo: process result
 }
 
@@ -477,7 +477,6 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 						}
 					}
 					// The node is  assigned to all the terms from PATH.
-					dsm ("ADD > $recursive_path :".$recursive_path);
 					if ($taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
 				}
 				// The node is only assigned to the last term from PATH.
