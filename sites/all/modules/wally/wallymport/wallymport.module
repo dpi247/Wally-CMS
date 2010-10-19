@@ -247,7 +247,7 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
 function wimprt_process_type($dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom,'type', $callback,$log);
-
+ dsm($callback);
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process type: '.$dom->nodeName;

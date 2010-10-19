@@ -50,7 +50,6 @@ $result=wimprt_process_list($embedobjects,$log,'object');
 //@todo: process result
 $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
 $result=wimprt_process_list($linklists,$log,'object');
-//dsm($result);
 //@todo: process result
 }
 
@@ -65,6 +64,55 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   wimprt_process_object_default($node,$dom,$log);
 
 }
+function wimprt_set_field_links(&$node,$dom,&$log){
+$result=wimprt_process_list($dom,$log,'type');
+dsm($result);
+}
+
+
+function wimprt_create_or_load_type_link($dom,$log){	
+	
+	// Get the LocationID attribnute to load node.
+	$uri = $dom->getElementsByTagName("URI")->item(0)->nodeValue;
+	$uri=parse_url($uri);
+    
+    $result = new StdClass();
+	if($uri['scheme']=="externalRef"){
+	    $ext_ref=$uri['host'];
+		if ($llink = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linktype")) {
+    		if (count($llink)==1) {
+    			$result = $link[0];
+        	}
+		}
+	}
+	return $result; 
+}
+
+function wimprt_process_type_link(&$node,$dom,&$log){
+  $node->type='wally_linktype';
+  wimprt_process_type_default($node,$dom,$log);
+  
+ 
+  $uri=$dom->getElementsByTagName('URI')->item(0);
+  $uri_value=$uri->nodeValue;
+  $uri=parse_url($uri->nodeValue);
+  if($uri['scheme']=="externalRef"){
+	    $ext_ref=$uri['host'];
+		if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref))) {
+    		if (count($link)==1) {
+    			 $node->field_internal_link[0] = $link[0]->nid;
+        	}
+		}
+	}
+	else{
+	 $node->field_link_item[0]['title']=$node->title;
+	 $node->field_link_item[0]['url']=$uri_value;
+     $node->field_link_item[0]['attributes']=array('target'=>'_blank');
+	  
+	}
+  
+  }
+
 
 function wimprt_process_object_linkslist(&$node,$dom,&$log){
   $node->type='wally_linkslistobject';
