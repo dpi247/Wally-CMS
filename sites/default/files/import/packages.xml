@@ -69,10 +69,12 @@
 					<PersonLastName>Henin</PersonLastName>
 					<PersonFirstName>Justine</PersonFirstName>
 					<PersonNickName>Juju</PersonNickName>
+					<PersonBirthDate>2010-10-26</PersonBirthDate> 
 					<PersonSex>female</PersonSex>
 					<PersonWebSite>http://www.justinehenin.be</PersonWebSite>
 				</Person>
 			</Persons>
+
 			<Copyright>By Belga</Copyright>
 			<TextBarette>Roland Garros</TextBarette>
 			<TextForeTitle>Match Exhibition</TextForeTitle>

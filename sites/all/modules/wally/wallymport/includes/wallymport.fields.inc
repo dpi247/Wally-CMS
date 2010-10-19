@@ -120,6 +120,7 @@ function wimprt_create_or_load_type_location($dom,$log){
 	} else {
 		drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
 		$result = new StdClass();
+		$result->field_externalreference=array("value"=>$lid);
 	}
 	return $result; 
 }
@@ -266,7 +267,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 	foreach($results as $result) {
 		if (isset($result->field_locationtaxonomy)) {
 			if ($result->field_locationtaxonomy[0]) {
-				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]);
+				$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
 				$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
 			}
 		}
@@ -324,7 +325,6 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		return '';
 	}
 }
-
 
 function wimprt_set_field_destinations(&$node,$dom,$log) {
 
@@ -410,7 +410,6 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 	}
 }
 
-
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
@@ -482,4 +481,137 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	} else {
 		drupal_set_message('No term found in vocabulary: '.$vocabulary_name.'.','error');
 	}
+}
+
+
+function wimprt_set_field_persons(&$node,$dom,&$log){
+
+	$node->field_persons = array(); 
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Persons: '.$dom->nodeName;
+	  }
+
+	$results=wimprt_process_list($dom,$log,'type');
+
+	// Get Location Taxonomy for all nodes.
+	foreach($results as $result) {
+		if (isset($result->field_persontaxonomy)) {
+			if ($result->field_persontaxonomy[0]) {
+				$node->field_persons[] = array("value"=>$result->field_persontaxonomy[0]["value"]);
+				$node->taxonomy[] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);  
+			}
+		}
+	} 
+}
+
+function wimprt_create_or_load_type_person($dom,$log){	
+	
+	// Get the LocationID attribnute to load node.
+	$lid = $dom->getAttributeNode("PersonID")->value;
+	if ($person = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$lid),"wally_persontype")) {
+		if (count($person)==1) {
+			$result = $person[0];
+		} else {
+			// TO DO FATAL :: found 2 (or more) node reference with same externalref !
+			drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
+			$result = null;
+		}
+	} else {
+		drupal_set_message('Person not Found for PersonID: '.$lid.', assuming new person.','error');
+		$result = new StdClass();
+		$result->field_externalreference=array("value"=>$lid);
+	}
+
+	return $result; 
+}
+
+function wimprt_process_type_person(&$node,$dom,&$log){
+
+	if (!($vid=variable_get('wallymport_person',null))) {
+		// TO DO FATAL :: No location taxonomy vocabulary
+		drupal_set_message('Person Taxonomy Vocabulary  not Found. See admin.','error');
+		return null;
+	}
+	
+// Node type
+	$node->type = "wally_persontype";
+
+// Node UID 
+	$uid=variable_get('wallymport_defaultuser',1);
+	$node->uid = $uid;
+
+// Node Title 
+	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("PersonID")->value);
+
+// Taxonomy TID (from vocaulary Locations).
+	$term = $dom->getAttributeNode("PersonID")->value;
+	if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
+		// Taxonomy term exist - fetch the tid.
+		$taxonomy = $taxonomy[0]; 
+		$tid = $taxonomy->tid;
+	} else {
+		// New taxonomy term. Create & get the tid.
+		$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+		$taxonomy = taxonomy_get_term($tid);
+	};
+	// Set the taxonomy field.
+	$node->field_persontaxonomy = array( array("value" => $tid) );
+	// Set drupal node->taxonomy. 
+	$node->taxonomy = array($tid => $taxonomy); 
+
+// Last Name
+	$t = $dom->getElementsByTagName("PersonLastName");
+	if ($t->length) {
+		$node->field_personlastname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// First Name
+	$t = $dom->getElementsByTagName("PersonFirstName");
+	if ($t->length) {
+		$node->field_field_personfirstname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// First Name
+	$t = $dom->getElementsByTagName("PersonNickName");
+	if ($t->length) {
+		$node->field_personnickname = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// Birth Date
+	$t = $dom->getElementsByTagName("PersonBirthDate");
+	if ($t->length) {
+		$node->field_personbirthdate = array(_wimprthelp_date_to_ccktime(_wimprthelp_date_to_timestamp($t->item(0)->nodeValue)));
+	}
+
+// Sex
+	$t = $dom->getElementsByTagName("PersonSex");
+	if ($t->length) {
+		$node->field_personsex = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// Email
+	$t = $dom->getElementsByTagName("PersonEmail");
+	if ($t->length) {
+		$node->field_personemail = array("email"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// Phone number
+	$t = $dom->getElementsByTagName("PersonPhoneNumber");
+	if ($t->length) {
+		$node->field_phonenumber = array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue));
+	}
+
+// Website
+	$t = $dom->getElementsByTagName("PersonWebSite");
+	if ($t->length) {
+		$site = array(); 
+		$site["url"]=$t->item(0)->nodeValue; 
+		$site["title"]=$t->item(0)->nodeValue; 
+		$node->field_personwebsite = array($site);
+	}
+
+// Send back the node
+	return($node);
+
 }
