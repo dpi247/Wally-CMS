@@ -165,8 +165,14 @@ function _wimprthelp_create_file_from_uri($file_uri){
   return $file_uri;
 }
 
+
+
+
+
+
 function _wimprthelp_create_file($filepath){
   $uid=variable_get('wallymport_defaultuser',1);
+ 
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;
