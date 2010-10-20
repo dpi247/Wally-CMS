@@ -217,7 +217,6 @@ function location_cck_widget_info() {
 function location_cck_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   if ($field['widget']['type'] == 'location') {
     $settings = $field['location_settings'];
-dsm($field);
     // Load location data for existing locations.
     if (isset($items[$delta]['lid']) && $items[$delta]['lid']) {
       // Are we in a node preview?
