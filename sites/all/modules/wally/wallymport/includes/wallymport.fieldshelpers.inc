@@ -9,18 +9,18 @@ function _wimprthelp_array_to_ccklocation($location) {
 
 	dsm("passe par ".__FUNCTION__." pour ".$location["name"]);
 
-	$node = new stdClass;
+	$node = array();
 
 	// Get all country list from location module
 	$countries = location_get_iso3166_list();
 
 	// Is it an existant location - get the LID?
 	if (isset($location["lid"])) {
-		$node->lid = $location["lid"];
+		$node['lid'] = $location["lid"];
 	} 
 
 	if ($location["name"]) {
-		$node->name = $location["name"];
+		$node['name'] = $location["name"];
 	} else {
 		// TO DO FATAL :: No location NAME - crital
 		drupal_set_message('No location NAME found.','error');
@@ -28,65 +28,62 @@ function _wimprthelp_array_to_ccklocation($location) {
 	}
 		
 	// Street lines
-	if (isset($location["street"])) $node->street = $location["street"];
-	if (isset($location["additional"])) $node->additional = $location["additional"];
+	if (isset($location["street"])) $node['street'] = $location["street"];
+	if (isset($location["additional"])) $node['additional'] = $location["additional"];
 
 	// City
-	$node->city = $location["city"];
+	$node['city'] = $location["city"];
 
 	// Province 
 	if (isset($location['province_name'])) {
-		if ($node->province=location_province_code($location['country_name'],$location['province_name'])) {
-			$node->province_name = $location['province_name'];
+		if ($node['province']=location_province_code($location['country_name'],$location['province_name'])) {
+			$node['province_name'] = $location['province_name'];
 		} else {
-			$node->province = "xx";
-			$node->province_name = "";
 			drupal_set_message('Country PROVINCE not found for '.$location['country_name'].'/'.$location['province_name'].'.','error');
 		}
 	}
 
 	// Postal Code
-	$node->postal_code = $location["postal_code"];
+	$node['postal_code'] = $location["postal_code"];
 	
 	// Country 
 	if (isset($location['country'])) {
 		if (array_key_exists($location['country'],$countries)) {
-			$node->country = $location['country'];
-			$node->country_name = $countries[$location['country']];
+			$node['country'] = $location['country'];
+			$node['country_name'] = $countries[$location['country']];
 		} else {
-			$node->country = "xx";
-			$node->country_name = "";
 			drupal_set_message('Country ISO CODE not found for '.$location['country'].'.','error');
 		}
 	} else {
 		if (isset($location['country_name'])) {
-			if ($node->country=array_search($location['country_name'],$countries)) {
-				$node->country_name = $location['country_name'];
+			if ($node['country']=array_search($location['country_name'],$countries)) {
+				$node['country_name'] = $location['country_name'];
 			} else {
-				$node->country = "xx";
-				$node->country_name = "";
 				drupal_set_message('Country ISO not found for '.$location['country_name'].'.','error');
 			}
 		}
 	}
-	location_standardize_country_code($node->country); 
-
+	location_standardize_country_code($node['country']); 
+    
 	// Long-Lattitude
 	if (isset($location["latitude"]) && isset($location["longitude"])) {
 		if (is_numeric($location["latitude"]) && is_numeric($location["longitude"])) {
-			$node->latitude = $location["latitude"];
-			$node->longitude = $location["longitude"];
-			$node->locpick["user_latitude"] = $location["latitude"];
-			$node->locpick["user_longitude"] = $location["longitude"];
+			$node['latitude'] = $location["latitude"];
+			$node['longitude'] = $location["longitude"];
+			$node['locpick']["user_latitude"] = $location["latitude"];
+			$node['locpick']["user_longitude"] = $location["longitude"];
 		} else {
 			drupal_set_message('longitude & Lattitude not numeric.','error');
 		}
 	} else {
 		drupal_set_message('longitude & Lattitude not set.','error');
-	}
+	}   
+	
+	$settings = variable_get('location_settings_node_wally_locationtype', array());
+    $node['location_settings'] = $settings;
 
-	$node->source = 1;
-	$node->is_primary = 0;
+	$node['source'] = 0;
+	$node['is_primary'] = 0;
 
 	dsm("NODE >>>>  generated: ".__FUNCTION__); 
 	dsm((array) $node); 

@@ -34,12 +34,43 @@
 				<Location LocationID="DIMI-XML">
 					<LocationName>DIMI-XML</LocationName>
 					<Address>
-						<AddressLine>AddressLigne 666 Charleroi</AddressLine>
+						<AddressLine>AddressLigne 888 Charleroi</AddressLine>
 						<AddressLine>AddressLine2 666 Charleroi</AddressLine>
 						<City>Charleroi la grande</City>
 						<Zip>6000</Zip>
 						<State></State>
 						<Country>Belgium</Country>
+					</Address>
+				</Location>
+				<Location LocationID="COCO-XML">
+					<LocationName>COCO-XML</LocationName>
+					<Address>
+						<AddressLine>Rue de la coco XXXXXXXXXXX</AddressLine>
+						<AddressLine>Perlimpimpin</AddressLine>
+						<City>Braine</City>
+						<Zip>6000</Zip>
+						<State></State>
+						<Country>France</Country>
+					</Address>
+				</Location><Location LocationID="BIBI-XML">
+					<LocationName>BIBI-XML</LocationName>
+					<Address>
+						<AddressLine>Rue de la bibi-xml</AddressLine>
+						<AddressLine>Perlimpimpin</AddressLine>
+						<City>Braine</City>
+						<Zip>6000</Zip>
+						<State></State>
+						<Country>France</Country>
+					</Address>
+				</Location>
+				<Location LocationID="TOTO-XML">
+					<LocationName>TOTO-XML</LocationName>
+					<Address>
+						<AddressLine>Rue de toto</AddressLine>
+						<City>Braine</City>
+						<Zip>6000</Zip>
+						<State></State>
+						<Country>France</Country>
 					</Address>
 				</Location>
 			</Locations>

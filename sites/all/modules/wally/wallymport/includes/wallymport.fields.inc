@@ -284,14 +284,14 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	}
 */
 
-
+/*
 // CCK location specific field
 	if (isset($node->field_address)) {
 		$node->location =(array) $node->field_address[0];
 		$node->locations = $node->field_address;
 	}
 
-
+*/
 	dsm(__FUNCTION__." after ".$dom->getAttributeNode("LocationID")->value); 
 	dsm($node); 
 
@@ -300,21 +300,25 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	return($node);
 }
 
-function wimprt_address_dom_to_ccklocation($addresses, &$log, $l, $location_name=null) {
+function wimprt_address_dom_to_ccklocation($addresses, &$log, $locations, $location_name=null) {
 
 	$address_line = array(); 
 	$array_node = array(); 
 	$l_cpt = 0;
 	
 	foreach ($addresses as $address) {
-		
-		if (isset($l[$l_cpt]["lid"])) {
-			$adress_item = $l[$l_cpt];
+		//@todo: wrong assumption: order between dom and cck_location
+		if (isset($locations[$l_cpt]["lid"])) {
+			$adress_item = $locations[$l_cpt];
 			dsm("on a une ancienne location");
 			dsm($adress_item);
 		} else {
-			$adress_item = array();
 		}
+		
+		unset($adress_item['lid']);
+					$adress_item = array();
+		
+		
 		
 		$address_line_cpt = 0; 
 		$address_lines = $address->getElementsByTagName("AddressLine");
@@ -322,6 +326,7 @@ function wimprt_address_dom_to_ccklocation($addresses, &$log, $l, $location_name
 			foreach($address_lines as $address_line) {
 				switch ($address_line_cpt) {
 					case 0:
+		
 						$adress_item["street"] = $address_line->nodeValue;
 						break; 
 					case 1:
@@ -336,7 +341,6 @@ function wimprt_address_dom_to_ccklocation($addresses, &$log, $l, $location_name
 		
 		if ($address->getElementsByTagName("City")->length) {
 			$adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
-			$adress_item["name"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
 		}
 		
 		if ($location_name) {
