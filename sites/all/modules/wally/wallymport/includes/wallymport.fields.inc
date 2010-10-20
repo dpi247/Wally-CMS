@@ -1,14 +1,16 @@
 <?php 
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log){
-  
   $node=new stdClass;
   $node->type='wally_articlepackage';
-  $node->uid=1;
 
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_articlepackage")){
     $node=$node_temp[0];
   }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
   return $node;
 }
 
@@ -26,11 +28,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
-  
-  
 }
-
-//***************************
 
 function wimprt_set_field_packagedescription(&$node,$dom,&$log){
   $value=$dom->nodeValue;
@@ -61,12 +59,15 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 function wimprt_create_or_load_object_textobject($dom,&$log){
   $node=new stdClass;
   $node->type='wally_textobject';
-  $node->uid=1;
   
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_textobject')){
     $node=$node_temp[0];
   }
+  
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+  
   return $node;
 }
   
@@ -74,14 +75,18 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
 function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_photoobject';
-  $node->uid=1;
 
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
     $node=$node_temp[0];
   }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
   return $node;
 }
+
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
   $value=$dom->nodeValue;
@@ -92,11 +97,10 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   wimprt_process_object_default($node,$dom,$log);
 
 }
+
 function wimprt_set_field_links(&$node,$dom,&$log){
-$result=wimprt_process_list($dom,$log,'type');
+  $result=wimprt_process_list($dom,$log,'type');
 }
-
-
 
 function wimprt_process_type_link(&$node,$dom,&$log){
   $node->type='wally_linktype';
@@ -127,21 +131,29 @@ function wimprt_process_type_link(&$node,$dom,&$log){
 function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linkslistobject';
-  $node->uid=1;
+
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
     $node=$node_temp[0];
   }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
   return $node;
 }
 function wimprt_create_or_load_type_link($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linktype';
-  $node->uid=1;
+
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
     $node=$node_temp[0];
   }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
   return $node;
 }
 function wimprt_process_object_linkslist(&$node,$dom,&$log){
@@ -159,8 +171,6 @@ function wimprt_set_field_summary(&$node,$dom,&$log){
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
 }
 
-
-
 function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_productid[0]['value']=$value;
@@ -174,15 +184,9 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
   
   wimprt_process_object_default($node,$dom_element,$log);
-  
-  //Map Element 
-  // wimprt_process_object_default will call wimprt_process_object_locations,...
 }
 
 function wimprt_create_or_load_type_location($dom,$log){	
-	// Node UID 
-	$uid=variable_get('wallymport_defaultuser',1);
-	$result->uid = $uid;
 	
 	// Get the LocationID attribnute to load node.
 	$lid = $dom->getAttributeNode("LocationID")->value;
@@ -198,7 +202,9 @@ function wimprt_create_or_load_type_location($dom,$log){
 		drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
 		$result = new StdClass();
 	}
-	
+
+	$uid=variable_get('wallymport_defaultuser',1);
+	$result->uid = $uid;
 	
 	return $result; 
 }

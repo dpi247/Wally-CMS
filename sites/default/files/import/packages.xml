@@ -148,6 +148,10 @@
 						<Vocabulary VocabularyName="Sports" VocabularyDescription="Sports" VocabularyType="categorized" >
 							<Term>Tennis</Term>
 						</Vocabulary>
+						<Vocabulary VocabularyName="FreeTag">
+							<Term>beau mec</Term>
+							<Term>belle photo</Term>
+						</Vocabulary>
 					</Taxonomy>
 					<Persons>
 						<Person PersonID="JHenin" />
