@@ -97,23 +97,6 @@ $result=wimprt_process_list($dom,$log,'type');
 }
 
 
-function wimprt_create_or_load_type_link($dom,$log){	
-	
-	// Get the Link attribnute to load node.
-	$uri = $dom->getElementsByTagName("URI")->item(0)->nodeValue;
-	$uri=parse_url($uri);
-    
-    $result = new StdClass();
-	if($uri['scheme']=="externalRef"){
-	    $ext_ref=$uri['host'];
-		if ($llink = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linktype")) {
-    		if (count($llink)==1) {
-    			$result = $link[0];
-        	}
-		}
-	}
-	return $result; 
-}
 
 function wimprt_process_type_link(&$node,$dom,&$log){
   $node->type='wally_linktype';
@@ -147,6 +130,16 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node->uid=1;
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
+    $node=$node_temp[0];
+  }
+  return $node;
+}
+function wimprt_create_or_load_type_link($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_linktype';
+  $node->uid=1;
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
     $node=$node_temp[0];
   }
   return $node;
