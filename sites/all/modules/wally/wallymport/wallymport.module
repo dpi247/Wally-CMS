@@ -260,10 +260,15 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
-    
+   
   if(!empty($node))
     node_save($node);
+
+dsm("--------------NOEUD JUSTE AVANT LE SAVE");
+dsm($node);
+
   $log['node']=array('current'=>$node,'next'=>$log['node']);
+  
   return $node;
 }
 

@@ -1,2 +1,3 @@
 System de fichier pour les files (00/00/10)
 Import des Croppings
+vérifier le ProductID avant l'import. Doit etre placé dans une ADMIN. 
