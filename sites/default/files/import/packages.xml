@@ -6,7 +6,7 @@
 		<InternalReference>DrupalNID1</InternalReference>
 		<ExternalReference>B821011036Z.1</ExternalReference>
 		<ProductID>VDN</ProductID>
-		<Destinations>
+		<Destinations>    
 			<Destination DestinationRank="2" DocumentLayout="mainstory">
 				<DestinationPath>/sports/dance/</DestinationPath>
 			</Destination>
@@ -31,17 +31,16 @@
 
 			<Locations>
 				<Location LocationID="Paris"/>
-				<Location LocationID="MA LOCATION">
-					<LocationName>MA LOCATION.</LocationName>
+				<Location LocationID="DIMI-XML">
+					<LocationName>DIMI-XML</LocationName>
 					<Address>
-						<AddressLine>AddressLine1 Charleroi</AddressLine>
-						<AddressLine>AddressLine2 Charleroi</AddressLine>
-						<City>Charleroi</City>
+						<AddressLine>AddressLigne 666 Charleroi</AddressLine>
+						<AddressLine>AddressLine2 666 Charleroi</AddressLine>
+						<City>Charleroi la grande</City>
 						<Zip>6000</Zip>
 						<State></State>
 						<Country>Belgium</Country>
 					</Address>
-					<LocationGeo>-50.000,50.000</LocationGeo>
 				</Location>
 			</Locations>
 

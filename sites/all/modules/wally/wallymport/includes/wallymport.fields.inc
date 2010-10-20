@@ -198,6 +198,8 @@ function wimprt_create_or_load_type_location($dom,$log){
 		drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
 		$result = new StdClass();
 	}
+	
+	
 	return $result; 
 }
 
@@ -209,6 +211,9 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		return null;
 	}
 
+	dsm(__FUNCTION__." for ".$dom->getAttributeNode("LocationID")->value); 
+	dsm($node); 
+
 // UID
 	$node->uid=variable_get('wallymport_defaultuser',1);
 
@@ -219,7 +224,12 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	$node->type='wally_locationtype';
 
 // Node Title 
-	$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
+	$t = $dom->getElementsByTagName("LocationName");
+	if ($t->length) {
+		$node->title = _wimprthelp_plain_text($t->item(0)->nodeValue);
+	} else {
+		$node->title = _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value);
+	}
 
 // Taxonomy TID (from vocaulary Locations).
 	$term = $dom->getAttributeNode("LocationID")->value;
@@ -243,10 +253,13 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 // field_address
 	$addresses = $dom->getElementsByTagName("Address");
 	if ($addresses->length) {
-		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value));
+		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, $node->field_address, $node->title);
 	}
 
+
+
 // location lat/long - In this case will re-write field_adress values.
+/*
 	$locationgeo = $dom->getElementsByTagName("LocationGeo");
 	if ($locationgeo->length) {
 
@@ -255,6 +268,9 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		$lon = $locationgeo[1]; 
 		if (isset($locationgeo[2])) $zoom = $locationgeo[2]; 
 		$address_cpt = 0;
+		
+		// BAD >>> ARRAY et en plus peut etre multiple ? 
+		
 		if ($node->field_address) {
 			foreach ($node->field_address as $address) {
 				$address->latitude = $lat;
@@ -266,6 +282,8 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 			}
 		}
 	}
+*/
+
 
 // CCK location specific field
 	if (isset($node->field_address)) {
@@ -273,17 +291,31 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		$node->locations = $node->field_address;
 	}
 
+
+	dsm(__FUNCTION__." after ".$dom->getAttributeNode("LocationID")->value); 
+	dsm($node); 
+
+
 // Send back the node
 	return($node);
 }
 
-function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
+function wimprt_address_dom_to_ccklocation($addresses, &$log, $l, $location_name=null) {
 
 	$address_line = array(); 
-	$adress_item = array();
 	$array_node = array(); 
+	$l_cpt = 0;
 	
 	foreach ($addresses as $address) {
+		
+		if (isset($l[$l_cpt]["lid"])) {
+			$adress_item = $l[$l_cpt];
+			dsm("on a une ancienne location");
+			dsm($adress_item);
+		} else {
+			$adress_item = array();
+		}
+		
 		$address_line_cpt = 0; 
 		$address_lines = $address->getElementsByTagName("AddressLine");
 		if ($address_lines->length) {
@@ -324,11 +356,15 @@ function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=nul
 		if ($address->getElementsByTagName("Country")->length) {
 			$adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
 		}
+
+
+		dsm("ARRAY generated: ".__FUNCTION__); 
+		dsm($adress_item); 
 		
 		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
+				
 	}
 
-	
 		
 	return $array_node;
 }
