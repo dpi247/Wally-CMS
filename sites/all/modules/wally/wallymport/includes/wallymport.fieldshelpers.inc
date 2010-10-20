@@ -6,9 +6,6 @@
  * 
  */
 function _wimprthelp_array_to_ccklocation($location) {
-
-	dsm("passe par ".__FUNCTION__." pour ".$location["name"]);
-
 	$node = array();
 
 	// Get all country list from location module
@@ -84,9 +81,6 @@ function _wimprthelp_array_to_ccklocation($location) {
 
 	$node['source'] = 0;
 	$node['is_primary'] = 0;
-
-	dsm("NODE >>>>  generated: ".__FUNCTION__); 
-	dsm((array) $node); 
 
 	return (array) $node; 
 		
