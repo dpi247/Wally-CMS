@@ -1,3 +1,6 @@
 System de fichier pour les files (00/00/10)
 Import des Croppings
-vérifier le ProductID avant l'import. Doit etre placé dans une ADMIN. 
+vérifier le ProductID avant l'import. Doit etre placé dans une ADMIN.
+Locations (placer les coord GPS) voir commentaire dans le code
+Toutes les taxonomies des pacakges doivent etre prise de leur objet principal > hook > node SAVE des objects
+ 

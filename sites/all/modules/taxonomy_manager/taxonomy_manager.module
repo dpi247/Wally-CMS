@@ -734,7 +734,7 @@ function _taxonomy_manager_tree_term_get_class($current_index, $tree, $expand) {
     $class = 'last'; 
   }
   
-  return $class;
+  if (isset($class)) return $class;
 }
 
 /**

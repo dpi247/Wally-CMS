@@ -211,9 +211,6 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 		return null;
 	}
 
-	dsm(__FUNCTION__." for ".$dom->getAttributeNode("LocationID")->value); 
-	dsm($node); 
-
 // UID
 	$node->uid=variable_get('wallymport_defaultuser',1);
 
@@ -253,7 +250,7 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 // field_address
 	$addresses = $dom->getElementsByTagName("Address");
 	if ($addresses->length) {
-		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, $node->field_address, $node->title);
+		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, $node->title);
 	}
 
 
@@ -284,41 +281,19 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	}
 */
 
-/*
-// CCK location specific field
-	if (isset($node->field_address)) {
-		$node->location =(array) $node->field_address[0];
-		$node->locations = $node->field_address;
-	}
-
-*/
-	dsm(__FUNCTION__." after ".$dom->getAttributeNode("LocationID")->value); 
-	dsm($node); 
-
 
 // Send back the node
 	return($node);
 }
 
-function wimprt_address_dom_to_ccklocation($addresses, &$log, $locations, $location_name=null) {
+function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
 
 	$address_line = array(); 
 	$array_node = array(); 
-	$l_cpt = 0;
 	
 	foreach ($addresses as $address) {
-		//@todo: wrong assumption: order between dom and cck_location
-		if (isset($locations[$l_cpt]["lid"])) {
-			$adress_item = $locations[$l_cpt];
-			dsm("on a une ancienne location");
-			dsm($adress_item);
-		} else {
-		}
 		
-		unset($adress_item['lid']);
-					$adress_item = array();
-		
-		
+		$adress_item = array();
 		
 		$address_line_cpt = 0; 
 		$address_lines = $address->getElementsByTagName("AddressLine");
@@ -362,14 +337,10 @@ function wimprt_address_dom_to_ccklocation($addresses, &$log, $locations, $locat
 		}
 
 
-		dsm("ARRAY generated: ".__FUNCTION__); 
-		dsm($adress_item); 
-		
 		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
 				
 	}
 
-		
 	return $array_node;
 }
 
@@ -434,7 +405,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		}
 
 		if ($valid) { 
-				$node->field_editions=array(0=>serialize($result));
+				$node->field_editions=array(array("value"=>serialize($result)));
 		} else {
 			drupal_set_message('ALL Edition set to false. Package should be rejected','error');
 			// TODO: FATAL ERROR - PACKAGE
@@ -471,10 +442,10 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 			}
 		$i++;
 		}
-
+	
 		// If no destinations at all > Package can't be created.
 		if (count($result)) {
-			$node->field_destinations=array(0=>serialize($result)); 
+			$node->field_destinations=array(array('value'=>serialize($result))); 
 		} else {
 			// TODO: FATAL ERROR - PACKAGE
 			drupal_set_message('No destination AT ALL for current package.','error');
@@ -508,16 +479,19 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 				wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result);
 
 				foreach($result["field_tags"] as $term) {
-					if (!in_array($term->tid, $node->field_tags)) {
-						$node->field_tags[] = $term->tid;
+					if (!in_array(array("value"=>$term->tid), $node->field_tags)) {
+						$node->field_tags[] = array("value"=>$term->tid);
 						$node->taxonomy[] = $term; 
 					}
 				}
 
 				foreach($result["field_free_tags"] as $term) {
-					if (!in_array($term->tid, $node->field_free_tags)) {
-						$node->field_free_tags[] = $term->tid;
+					if (!in_array(array("value"=>$term->tid), $node->field_free_tags)) {
+						$node->field_free_tags[] = array("value"=>$term->tid);
 						$node->taxonomy[] = $term; 
+
+			
+
 					}
 				}
 			}
@@ -534,7 +508,6 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
 	$classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',null);
-//	$freetagtaxonomy_keyword = variable_get('wallymport_freetagtaxonomyword', 'FreeTag');
 	$taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', true));
 
 	$vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
@@ -654,7 +627,6 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		return null;
 	}
 	
-
 // Node type
 	$node->type = "wally_persontype";
 

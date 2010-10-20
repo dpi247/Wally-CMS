@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Packages xmlns="http://rossel.audaxis.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
 	<Package xsi:type="ArticlePackageType" PackageID="1" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" EmbargoDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" Language="fr" Version="1.0">
-		<PackageTitle>Justine versus Kim</PackageTitle>
+		<PackageTitle>PACKAGE - Justine versus Kim</PackageTitle>
 		<PackageDescription>Story and Gallery Photo Package</PackageDescription>
 		<InternalReference>DrupalNID1</InternalReference>
 		<ExternalReference>B821011036Z.1</ExternalReference>
 		<ProductID>VDN</ProductID>
 		<Destinations>    
 			<Destination DestinationRank="2" DocumentLayout="mainstory">
-				<DestinationPath>/sports/dance/</DestinationPath>
+				<DestinationPath>/Sports/Dance/</DestinationPath>
 			</Destination>
 			<Destination  DestinationRank="1" DocumentLayout="story">
-				<DestinationPath>/sports/tennis</DestinationPath>
+				<DestinationPath>/Sports/Tennis</DestinationPath>
 			</Destination>
 		</Destinations>
 		<Editions>
@@ -43,11 +43,11 @@
 					</Address>
 				</Location>
 				<Location LocationID="COCO-XML">
-					<LocationName>COCO-XML</LocationName>
+					<LocationName>COCO-XML 2</LocationName>
 					<Address>
-						<AddressLine>Rue de la coco XXXXXXXXXXX</AddressLine>
-						<AddressLine>Perlimpimpin</AddressLine>
-						<City>Braine</City>
+						<AddressLine>2222 coco XXXXXXXXXXX</AddressLine>
+						<AddressLine>222222222</AddressLine>
+						<City>Braine 222</City>
 						<Zip>6000</Zip>
 						<State></State>
 						<Country>France</Country>
@@ -78,7 +78,7 @@
 			<Taxonomy>
 				<Vocabulary VocabularyName="Sports" VocabularyDescription="Football in belgium" VocabularyType="categorized">
 					<Term>Belgium/Football/Charleroi</Term>
-					<Term>Belgium/Football/Charleroi2</Term>
+					<Term>Belgium/Football/Charleroi/Jeunesse</Term>
 				</Vocabulary>
 				
 				<Vocabulary VocabularyName="Automotive Brands" VocabularyDescription="Brands of Automotive Company" VocabularyType="categorized">
@@ -87,8 +87,8 @@
 				</Vocabulary>
 				
 				<Vocabulary VocabularyName="FreeTag">
-					<Term>FreeTag1</Term>
-					<Term>FreeTag2</Term>
+					<Term>greve</Term>
+					<Term>sncf</Term>
 				</Vocabulary>
 			</Taxonomy>
 
