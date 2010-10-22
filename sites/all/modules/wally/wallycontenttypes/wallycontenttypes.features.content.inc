@@ -297,7 +297,7 @@ function wallycontenttypes_content_default_fields() {
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'EmbargoDateTime',
-      'weight' => '4',
+      'weight' => '3',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -597,6 +597,78 @@ Free',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
+    ),
+  );
+
+  // Exported field: field_linkedobjects
+  $fields['wally_articlepackage-field_linkedobjects'] = array(
+    'field_name' => 'field_linkedobjects',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'wally_linkslistobject' => 'wally_linkslistobject',
+      'wally_linktype' => 0,
+      'wally_articlepackage' => 0,
+      'wally_audioobject' => 0,
+      'wally_digitalobject' => 0,
+      'wally_entitytype' => 0,
+      'wally_gallerypackage' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
+      'wally_photoobject' => 0,
+      'wally_pollobject' => 0,
+      'wally_pollpackage' => 0,
+      'wally_textobject' => 0,
+      'wally_videoobject' => 0,
+    ),
+    'advanced_view' => '--',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_linkedobjects][0][nid][nid',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Linked Objects',
+      'weight' => '12',
+      'description' => '',
+      'type' => 'nodereference_autocomplete',
+      'module' => 'nodereference',
     ),
   );
 
@@ -1119,7 +1191,7 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Package Authors',
-      'weight' => '3',
+      'weight' => '2',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -1359,7 +1431,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'Publication Date',
-      'weight' => '12',
+      'weight' => '5',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -1546,7 +1618,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'UnpublishDate',
-      'weight' => '5',
+      'weight' => '4',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -14903,6 +14975,7 @@ Free',
   t('Link');
   t('Link Item');
   t('Link Summary');
+  t('Linked Objects');
   t('Links List');
   t('Links List Summary');
   t('Location Description ');
