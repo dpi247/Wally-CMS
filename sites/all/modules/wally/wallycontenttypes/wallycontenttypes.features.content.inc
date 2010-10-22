@@ -4155,10 +4155,128 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Entity',
-      'weight' => '-3',
+      'weight' => '-2',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
+    ),
+  );
+
+  // Exported field: field_externalreference
+  $fields['wally_entitytype-field_externalreference'] = array(
+    'field_name' => 'field_externalreference',
+    'type_name' => 'wally_entitytype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_externalreference][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ExternalReference',
+      'weight' => '-3',
+      'description' => 'External Reference for the package/obect. Could be the Editorial Software reference ID or D.A.M. reference ID. This reference will be used for Update; Delete operations.',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_locations
+  $fields['wally_entitytype-field_locations'] = array(
+    'field_name' => 'field_locations',
+    'type_name' => 'wally_entitytype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '1',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'new_terms' => 'insert',
+      'extra_parent' => '0',
+      'maxlength' => '255',
+      'active_tags' => NULL,
+      'default_value' => array(
+        '0' => array(
+          'value' => '1',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Locations',
+      'weight' => 0,
+      'description' => 'Locations that comes from the story itself. If the package is about a conférence in brussel about the european turkish adhesion, this field shoud contain Ankara or Turkey, not brussel  (this terms is a marker).',
+      'type' => 'content_taxonomy_autocomplete',
+      'module' => 'content_taxonomy_autocomplete',
     ),
   );
 
@@ -4217,381 +4335,10 @@ Free',
       'default_image' => NULL,
       'use_default_image' => 0,
       'label' => 'Main_picture',
-      'weight' => 0,
+      'weight' => '1',
       'description' => '',
       'type' => 'imagefield_widget',
       'module' => 'imagefield',
-    ),
-  );
-
-  // Exported field: field_markers
-  $fields['wally_entitytype-field_markers'] = array(
-    'field_name' => 'field_markers',
-    'type_name' => 'wally_entitytype',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'location',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'location_cck',
-    'active' => '1',
-    'location_settings' => array(
-      'form' => array(
-        'fields' => array(
-          'name' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '2',
-          ),
-          'street' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '4',
-          ),
-          'additional' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '6',
-          ),
-          'city' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '8',
-          ),
-          'province' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '10',
-          ),
-          'postal_code' => array(
-            'collect' => '1',
-            'default' => '',
-            'weight' => '12',
-          ),
-          'country' => array(
-            'collect' => '1',
-            'default' => 'be',
-            'weight' => '14',
-          ),
-          'locpick' => array(
-            'collect' => '1',
-            'weight' => '20',
-          ),
-        ),
-      ),
-      'display' => array(
-        'hide' => array(
-          'name' => 0,
-          'street' => 0,
-          'additional' => 0,
-          'city' => 0,
-          'province' => 0,
-          'postal_code' => 0,
-          'country' => 0,
-          'locpick' => 0,
-          'province_name' => 0,
-          'country_name' => 0,
-          'map_link' => 0,
-          'coords' => 0,
-        ),
-      ),
-    ),
-    'gmap_macro' => '[gmap ]',
-    'gmap_marker' => 'drupal',
-    'widget' => array(
-      'default_value' => array(
-        '0' => array(
-          'name' => '',
-          'street' => '',
-          'additional' => '',
-          'city' => '',
-          'province' => '',
-          'postal_code' => '',
-          'country' => 'be',
-          'locpick' => array(
-            'user_latitude' => '',
-            'user_longitude' => '',
-          ),
-          'cck_preview_in_progress' => TRUE,
-          'location_settings' => array(
-            'form' => array(
-              'fields' => array(
-                'name' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '2',
-                ),
-                'street' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '4',
-                ),
-                'additional' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '6',
-                ),
-                'city' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '8',
-                ),
-                'province' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '10',
-                ),
-                'postal_code' => array(
-                  'default' => '',
-                  'collect' => '1',
-                  'weight' => '12',
-                ),
-                'country' => array(
-                  'default' => 'be',
-                  'collect' => '1',
-                  'weight' => '14',
-                ),
-                'locpick' => array(
-                  'default' => array(
-                    'user_latitude' => '',
-                    'user_longitude' => '',
-                  ),
-                  'collect' => '1',
-                  'weight' => '20',
-                  'nodiff' => TRUE,
-                ),
-                'cck_preview_in_progress' => array(
-                  'default' => TRUE,
-                ),
-                'location_settings' => array(
-                  'default' => array(
-                    'form' => array(
-                      'fields' => array(
-                        'name' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '2',
-                        ),
-                        'street' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '4',
-                        ),
-                        'additional' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '6',
-                        ),
-                        'city' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '8',
-                        ),
-                        'province' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '10',
-                        ),
-                        'postal_code' => array(
-                          'default' => '',
-                          'collect' => '1',
-                          'weight' => '12',
-                        ),
-                        'country' => array(
-                          'default' => 'be',
-                          'collect' => '1',
-                          'weight' => '14',
-                        ),
-                        'locpick' => array(
-                          'default' => array(
-                            'user_latitude' => '',
-                            'user_longitude' => '',
-                          ),
-                          'collect' => '1',
-                          'weight' => '20',
-                          'nodiff' => TRUE,
-                        ),
-                        'cck_preview_in_progress' => array(
-                          'default' => TRUE,
-                        ),
-                        'location_settings' => array(
-                          'default' => array(
-                            'form' => array(
-                              'fields' => array(
-                                'lid' => array(
-                                  'default' => FALSE,
-                                ),
-                                'name' => array(
-                                  'default' => '',
-                                  'collect' => 1,
-                                  'weight' => 2,
-                                ),
-                                'street' => array(
-                                  'default' => '',
-                                  'collect' => 1,
-                                  'weight' => 4,
-                                ),
-                                'additional' => array(
-                                  'default' => '',
-                                  'collect' => 1,
-                                  'weight' => 6,
-                                ),
-                                'city' => array(
-                                  'default' => '',
-                                  'collect' => 0,
-                                  'weight' => 8,
-                                ),
-                                'province' => array(
-                                  'default' => '',
-                                  'collect' => 0,
-                                  'weight' => 10,
-                                ),
-                                'postal_code' => array(
-                                  'default' => '',
-                                  'collect' => 0,
-                                  'weight' => 12,
-                                ),
-                                'country' => array(
-                                  'default' => 'be',
-                                  'collect' => 1,
-                                  'weight' => 14,
-                                ),
-                                'locpick' => array(
-                                  'default' => FALSE,
-                                  'collect' => 1,
-                                  'weight' => 20,
-                                  'nodiff' => TRUE,
-                                ),
-                                'latitude' => array(
-                                  'default' => 0,
-                                ),
-                                'longitude' => array(
-                                  'default' => 0,
-                                ),
-                                'source' => array(
-                                  'default' => 0,
-                                ),
-                                'is_primary' => array(
-                                  'default' => 0,
-                                ),
-                                'delete_location' => array(
-                                  'default' => FALSE,
-                                  'nodiff' => TRUE,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        'lid' => array(
-                          'default' => FALSE,
-                        ),
-                        'latitude' => array(
-                          'default' => 0,
-                        ),
-                        'longitude' => array(
-                          'default' => 0,
-                        ),
-                        'source' => array(
-                          'default' => 0,
-                        ),
-                        'is_primary' => array(
-                          'default' => 0,
-                        ),
-                        'delete_location' => array(
-                          'default' => FALSE,
-                          'nodiff' => TRUE,
-                        ),
-                      ),
-                    ),
-                    'display' => array(
-                      'hide' => array(
-                        'name' => 0,
-                        'street' => 0,
-                        'additional' => 0,
-                        'city' => 0,
-                        'province' => 0,
-                        'postal_code' => 0,
-                        'country' => 0,
-                        'locpick' => 0,
-                        'province_name' => 0,
-                        'country_name' => 0,
-                        'map_link' => 0,
-                        'coords' => 0,
-                      ),
-                    ),
-                  ),
-                ),
-                'lid' => array(
-                  'default' => FALSE,
-                ),
-                'latitude' => array(
-                  'default' => 0,
-                ),
-                'longitude' => array(
-                  'default' => 0,
-                ),
-                'source' => array(
-                  'default' => 0,
-                ),
-                'is_primary' => array(
-                  'default' => 0,
-                ),
-                'delete_location' => array(
-                  'default' => FALSE,
-                  'nodiff' => TRUE,
-                ),
-              ),
-            ),
-            'display' => array(
-              'hide' => array(
-                'name' => 0,
-                'street' => 0,
-                'additional' => 0,
-                'city' => 0,
-                'province' => 0,
-                'postal_code' => 0,
-                'country' => 0,
-                'locpick' => 0,
-                'province_name' => 0,
-                'country_name' => 0,
-                'map_link' => 0,
-                'coords' => 0,
-              ),
-            ),
-          ),
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Markers',
-      'weight' => '-1',
-      'description' => 'Main story location(s).',
-      'type' => 'location',
-      'module' => 'location_cck',
     ),
   );
 
@@ -4647,64 +4394,6 @@ Free',
       'default_value_php' => NULL,
       'label' => 'Entity Description ',
       'weight' => '-4',
-      'description' => '',
-      'type' => 'text_textarea',
-      'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_services
-  $fields['wally_entitytype-field_services'] = array(
-    'field_name' => 'field_services',
-    'type_name' => 'wally_entitytype',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '0',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => '3',
-      'size' => 60,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_services][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Services',
-      'weight' => '-2',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',

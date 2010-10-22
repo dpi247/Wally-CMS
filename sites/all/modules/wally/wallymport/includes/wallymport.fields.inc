@@ -753,8 +753,6 @@ function wimprt_process_type_entity(&$node,$dom,&$log){
 			}
 		} 
 
-//		wimprt_set_field_locations(&$node,$t,&$log);
-
 	}
 
 // Send back the node
