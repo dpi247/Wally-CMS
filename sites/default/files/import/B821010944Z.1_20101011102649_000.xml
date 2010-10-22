@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Packages xmlns="http://rossel.audaxis.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rossel.audaxis.com http://site-client.audaxis.com/sites/all/modules/press_import/definitions/packages.xsd">
+    <Package xsi:type="GalleryPackageType" Version="1.0" Language="fr" LastUpdateDate="2010-08-17T17:37:05+02:00" CreationDate="2010-08-17T16:55:55+02:00" PublicationDate="2010-10-11T10:26:48" PackageID="B821010944Z.1">
+        <PackageTitle>Si vous aimez à la fois rire et Photo Gallery</PackageTitle>
+        <ExternalReference>B821010944Z.1</ExternalReference>
+        <ProductID>sudpresse.be</ProductID>
+        <Destinations>
+            <Destination DocumentLayout="main" DestinationRank="">
+                <DestinationPath>/CULTURE</DestinationPath>
+            </Destination>
+        </Destinations>
+        <Editions>
+            <Edition EditionID="Mouscron">false</Edition>
+            <Edition EditionID="Tournai">false</Edition>
+            <Edition EditionID="Mons">false</Edition>
+            <Edition EditionID="Centre">false</Edition>
+            <Edition EditionID="Charleroi">false</Edition>
+            <Edition EditionID="Sambre/Meuse">false</Edition>
+            <Edition EditionID="Namur">false</Edition>
+            <Edition EditionID="Huy-Waremme">false</Edition>
+            <Edition EditionID="Liege">false</Edition>
+            <Edition EditionID="Basse-Meuse">false</Edition>
+            <Edition EditionID="Verviers">false</Edition>
+            <Edition EditionID="Luxembourg">false</Edition>
+        </Editions>
+        <Channels>
+            <Channel Name="web"/>
+            <Channel Name="facebook">Monty Python fun</Channel>
+        </Channels>
+        <CommentsAllowed>Read Only</CommentsAllowed>
+        <FreeAccess>true</FreeAccess>
+        <AutoPublish>true</AutoPublish>
+        <GallerySummary xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">This is a photo gallery</GallerySummary>
+        <MainObject xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-17T17:37:05+02:00" CreationDate="2010-08-17T16:55:55+02:00" PublicationDate="2010-10-11T10:26:48" ObjectDescription="" ObjectID="GTU15R10GG.1">
+            <Title>06-07-monty-python_s-life-of-brian.jpg</Title>
+            <ExternalReference>GTU15R10GG.1</ExternalReference>
+            <Taxonomy/>
+            <Copyright></Copyright>
+            <FileURI>embed://B821010944Z.1_20101011102649_000+GTU15R10GG.1-0.jpg</FileURI>
+            <FileSize>52208</FileSize>
+            <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"></Caption>
+        </MainObject>
+        <EmbeddedContent>
+            <EmbeddedObjects>
+                <Object xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-20T13:07:50+02:00" CreationDate="2010-08-17T16:55:54+02:00" PublicationDate="2010-10-11T10:26:48" ObjectDescription="" ObjectID="GTU15R10GE.1">
+                    <Title>monty-python-silly-walks-5001144.jpg</Title>
+                    <ExternalReference>GTU15R10GE.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed:B821010944Z.1_20101011102649_000+GTU15R10GE.1-0.jpg</FileURI>
+                    <FileSize>45802</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"></Caption>
+                </Object>
+                <Object xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-20T13:07:50+02:00" CreationDate="2010-08-17T16:55:54+02:00" PublicationDate="2010-10-11T10:26:48" ObjectDescription="" ObjectID="GTU15R10GC.1">
+                    <Title>monty-python.jpg</Title>
+                    <ExternalReference>GTU15R10GC.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed://B821010944Z.1_20101011102649_000+GTU15R10GC.1-0.jpg</FileURI>
+                    <FileSize>22496</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"></Caption>
+                </Object>
+                <Object xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-20T13:07:50+02:00" CreationDate="2010-08-17T16:55:52+02:00" PublicationDate="2010-10-11T10:26:48" ObjectDescription="" ObjectID="GTU15R10G8.1">
+                    <Title>monty_foot.jpg</Title>
+                    <ExternalReference>GTU15R10G8.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed://B821010944Z.1_20101011102649_000+GTU15R10G8.1-0.jpg</FileURI>
+                    <FileSize>24694</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"></Caption>
+                </Object>
+                <Object xsi:type="PhotoObjectType" MimeType="image/pjpeg" LastUpdateDate="2010-08-20T13:07:50+02:00" CreationDate="2010-08-17T16:55:53+02:00" PublicationDate="2010-10-11T10:26:48" ObjectDescription="" ObjectID="GTU15R10GA.1">
+                    <Title>montypython.jpg</Title>
+                    <ExternalReference>GTU15R10GA.1</ExternalReference>
+                    <Taxonomy/>
+                    <Copyright></Copyright>
+                    <FileURI>embed://B821010944Z.1_20101011102649_000+GTU15R10GA.1-0.jpg</FileURI>
+                    <FileSize>36854</FileSize>
+                    <Caption xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string"></Caption>
+                </Object>
+            </EmbeddedObjects>
+        </EmbeddedContent>
+    </Package>
+</Packages>
