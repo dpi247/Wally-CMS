@@ -80,6 +80,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
 			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
 			 WHERE (node_data_".$key.".".$key."_value = '%s')
 			";
+
 		// Fetch all node from CCK field table.
 		if ($result = db_query($sql, $value)) {
 			while ($item = db_fetch_object($result)) {

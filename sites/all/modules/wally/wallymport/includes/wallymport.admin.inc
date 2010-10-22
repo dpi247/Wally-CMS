@@ -91,6 +91,14 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
 
+  $form['wallymport_entity'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Entities"'),
+    '#description' => t('Choose the vocabulary corresponding to the taxonomy "entities". Import module will use this vocabulary to match the "entity" element.'),
+    '#default_value' => variable_get('wallymport_entity', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
 
   $form['wallymport_freetagtaxonomy'] = array(
     '#type' => 'select',

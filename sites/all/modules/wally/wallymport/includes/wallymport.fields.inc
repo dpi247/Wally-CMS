@@ -310,7 +310,6 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	}
 
 
-
 // location lat/long - In this case will re-write field_adress values.
 /*
 	$locationgeo = $dom->getElementsByTagName("LocationGeo");
@@ -339,6 +338,7 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 
 
 // Send back the node
+
 	return($node);
 }
 
@@ -419,6 +419,8 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 			}
 		}
 	} 
+
+    return $results; 
 }
 
 function wimprt_set_field_editions(&$node,$dom,$log) {
@@ -631,6 +633,138 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 		drupal_set_message('No term found in vocabulary: '.$vocabulary_name.'.','error');
 	}
 }
+function wimprt_set_field_entities(&$node,$dom,&$log){
+
+	$node->field_entities = array(); 
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Entities: '.$dom->nodeName;
+	  }
+
+	$results=wimprt_process_list($dom,$log,'type');
+
+	// Get Location Taxonomy for all nodes.
+	foreach($results as $result) {
+		if (isset($result->field_persontaxonomy)) {
+			if ($result->field_persontaxonomy[0]) {
+				$node->field_entities[] = array("value"=>$result->field_entity[0]["value"]);
+				$node->taxonomy[] = taxonomy_get_term($result->field_entity[0]["value"]);  
+			}
+		}
+	} 
+}
+
+function wimprt_create_or_load_type_entity($dom,$log){	
+	
+	// Get the EntityID attribute to load node if exist.
+	
+	$lid = $dom->getAttributeNode("EntityID")->value;
+	if ($entity = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$lid),"wally_entitytype")) {
+		if (count($entity)==1) {
+			$result = $entity[0];
+		} else {
+			// TO DO FATAL :: found 2 (or more) node reference with same externalref !
+			drupal_set_message('Found 2 or more node reference for EntityID: '.$lid.'.','error');
+			$result = null;
+		}
+	} else {
+		drupal_set_message('Entity not Found for EntityID: '.$lid.', assuming new entity.','error');
+		$result = new StdClass();
+	}
+	
+	return $result;
+}
+
+
+function wimprt_process_type_entity(&$node,$dom,&$log){
+
+	if (!($vid=variable_get('wallymport_entity',null))) {
+		// TO DO FATAL :: No location taxonomy vocabulary
+		drupal_set_message('Entity Taxonomy Vocabulary  not Found. See admin.','error');
+		return null;
+	}
+
+// Node type
+	$node->type = "wally_entitytype";
+
+// External Reference
+	$node->field_externalreference = array(array("value"=>$dom->getAttributeNode("EntityID")->value)); 
+			   
+// Node UID 
+	$uid=variable_get('wallymport_defaultuser',1);
+	$node->uid = $uid;
+
+// Node Title 
+	$t = $dom->getElementsByTagName("EntityTitle");
+	if ($t->length) {
+		$node->title = _wimprthelp_plain_text($t->item(0)->nodeValue);
+	} else {
+		$node->title = _wimprthelp_plain_text($dom->getAttributeNode("EntityID")->value);
+	}
+
+// Taxonomy TID (from vocaulary Locations).
+	$term = $dom->getAttributeNode("EntityID")->value;
+	if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
+		// Taxonomy term exist - fetch the tid.
+		$taxonomy = $taxonomy[0]; 
+		$tid = $taxonomy->tid;
+	} else {
+		// New taxonomy term. Create & get the tid.
+		$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+		$taxonomy = taxonomy_get_term($tid);
+	};
+	// Set the taxonomy field.
+	$node->field_entity = array( array("value" => $tid) );
+	// Set drupal node->taxonomy. 
+	$node->taxonomy = array($tid => $taxonomy); 
+
+// Description
+	$t = $dom->getElementsByTagName("EntityDescription");
+	if ($t->length) {
+		$node->field_objectdescription = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
+	}
+
+// Services
+	$t = $dom->getElementsByTagName("EntityServices");
+	if ($t->length) {
+		$node->field_services = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
+	}
+
+
+// Locations
+	$t = $dom->getElementsByTagName("Locations");
+	if ($t->length) {
+	
+		$node->field_locations = array(); 
+
+		if(variable_get('wallymport_debug',0) or true){
+			$log['log'][]='process Locations: '.$t->nodeName;
+		  }
+
+		$results=wimprt_process_list($t->item(0),$log,'type');
+
+		// Get Location Taxonomy for all nodes.
+		foreach($results as $result) {
+			if (isset($result->field_locationtaxonomy)) {
+				if ($result->field_locationtaxonomy[0]) {
+					$node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
+					$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
+				}
+			}
+		} 
+
+//		wimprt_set_field_locations(&$node,$t,&$log);
+
+	}
+
+// Send back the node
+	return($node);
+
+}
+
+
+
+
 
 
 function wimprt_set_field_persons(&$node,$dom,&$log){
