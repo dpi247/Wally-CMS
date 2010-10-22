@@ -48,7 +48,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_packageauthors',
       '2' => 'field_embargodatetime',
       '3' => 'field_unpublishdate',
-      '4' => 'field_freeaccess',
+      '4' => 'field_publicationdate',
+      '5' => 'field_freeaccess',
     ),
   );
 
@@ -92,6 +93,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_mainstory',
       '1' => 'field_embededobjects',
+      '2' => 'field_linkedobjects',
     ),
   );
 
