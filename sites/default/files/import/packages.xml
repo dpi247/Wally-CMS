@@ -93,6 +93,39 @@
 				</Vocabulary>
 			</Taxonomy>
 
+			<Entities>
+					<Entity EntityID="Microsoft" />
+					<Entity EntityID="Audaxis SA">
+						<EntityTitle>Audaxis</EntityTitle>
+						<EntityDescription>Bienvenue chez Audaxis</EntityDescription>
+						<EntityServices>array() of services</EntityServices>
+						<Locations>
+							<Location LocationID="Audaxis Belgique">
+								<LocationName>Audaxis Belgique</LocationName>
+								<Address>
+									<AddressLine>Avenue de l'artisanat, 2</AddressLine>
+									<AddressLine></AddressLine>
+									<City>Braine-l'Alleud</City>
+									<Zip>B-1420</Zip>
+									<State></State>
+									<Country>Belgium</Country>
+								</Address>
+							</Location>
+							<Location LocationID="Audaxis France">
+								<LocationName>Audaxis France</LocationName>
+								<Address>
+									<AddressLine>Rue du Sec Arembault, 14</AddressLine>
+									<AddressLine>BP 201</AddressLine>
+									<City>Lille cedex</City>
+									<Zip>59002</Zip>
+									<State></State>
+									<Country>France</Country>
+								</Address>
+							</Location>
+						</Locations>
+					</Entity>
+			</Entities>
+
 			<Persons>
 				<Person PersonID="Rambo" />
 				<Person PersonID="Justine Henin" >
