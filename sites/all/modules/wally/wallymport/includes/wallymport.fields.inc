@@ -185,6 +185,21 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   
   wimprt_process_object_default($node,$dom_element,$log);
 }
+function wimprt_set_field_textbarette(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_textarette[0]['value']=$value;
+}
+
+function wimprt_set_field_textforetitle(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_textforetitle[0]['value']=$value;
+}
+
+function wimprt_set_field_texttitle(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->title=$value;
+}
+
 
 function wimprt_create_or_load_type_location($dom,$log){	
 	
