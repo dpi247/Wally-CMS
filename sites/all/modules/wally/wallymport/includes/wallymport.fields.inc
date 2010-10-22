@@ -184,6 +184,15 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
   
   wimprt_process_object_default($node,$dom_element,$log);
+  
+  //Excpetion for TextObject
+  $value=$dom_element->getElementsByTagName("TextTitle")->item(0)->value;
+  $node->title=$value;
+  
+  //Excpetion for TextObject
+  $value=$dom_element->getElementsByTagName("Title")->item(0)->value;
+  $node->field_objecttitle[0]['value']=$value;
+
 }
 function wimprt_set_field_textbarette(&$node,$dom,&$log){
   $value=$dom->nodeValue;
@@ -200,6 +209,32 @@ function wimprt_set_field_texttitle(&$node,$dom,&$log){
   $node->title=$value;
 }
 
+function wimprt_set_field_subtitle(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_textsubtitle[0]['value']=$value;
+}
+
+function wimprt_set_field_textchapo(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_textchapo[0]['value']=$value;
+}
+
+function wimprt_set_field_textbody(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_textbody[0]['value']=$value;
+}
+
+function wimprt_set_field_extractmedium(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_extractmedium[0]['value']=$value;
+}
+function wimprt_set_field_extractshort(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_extractshort[0]['value']=$value;
+}function wimprt_set_field_copyright(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_copyright[0]['value']=$value;
+}
 
 function wimprt_create_or_load_type_location($dom,$log){	
 	
