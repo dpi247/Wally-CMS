@@ -208,6 +208,8 @@
 							<URI>externalRef://B821011036Z.1</URI>
 						</Link>
 						<Link  >
+							<ExternalReference>LinkRef.2</ExternalReference>
+						
 							<Title>Archive de sudpresse</Title>
 							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
 						</Link>
@@ -220,18 +222,26 @@
 					<Summary>Les autres site qui en parle.</Summary>
 					<Links>
 						<Link  >
+													<ExternalReference>LinkRef.3</ExternalReference>
+						
 							<Title>Si vous aimez à la fois rire et video gallery</Title>
 							<URI>externalRef://B821011036Z.1</URI>
 						</Link>
 						<Link  >
+													<ExternalReference>LinkRef.4</ExternalReference>
+						
 							<Title>Link to original article</Title>
 							<URI>http://archives.sudpresse.be/chapelle-lez-herlaimont-theatre-bient%F4t-tout-va-se_t-20100629-H2JTAN.html?queryand=monty+python&amp;firstHit=0&amp;by=10&amp;begYear=2010&amp;begMonth=08&amp;begDay=16&amp;endYear=2010&amp;endMonth=08&amp;endDay=17&amp;sort=datedesc&amp;when=-1&amp;pos=0&amp;all=190&amp;nav=1</URI>
 						</Link>
 						<Link  >
+													<ExternalReference>LinkRef.5</ExternalReference>
+						
 							<Title>Si vous aimez à la fois rire et Photo Gallery</Title>
 							<URI>externalRef://B821010944Z.1</URI>
 						</Link>
 						<Link  >
+													<ExternalReference>LinkRef.6</ExternalReference>
+						
 							<Title>Si vous aimez à la fois rire et poll</Title>
 							<URI>externalRef://B821011138Z.1</URI>
 						</Link>
