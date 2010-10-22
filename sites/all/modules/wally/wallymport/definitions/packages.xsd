@@ -109,7 +109,7 @@
 		<xsd:element name="Markers" minOccurs="0" maxOccurs="1" type="LocationsType" />
 		<xsd:element name="Locations" minOccurs="0" maxOccurs="1" type="LocationsType" />
 		<xsd:element name="Taxonomy" minOccurs="0" maxOccurs="1" type="TaxonomyType" />
-		<xsd:element name="Entities" minOccurs="0" maxOccurs="1" type="KeywordsType" />
+		<xsd:element name="Entities" minOccurs="0" maxOccurs="1" type="EntitiesType" />
 		<xsd:element name="Persons" minOccurs="0" maxOccurs="1" type="PersonsType" />
 		<xsd:element name="Authors" minOccurs="0" maxOccurs="1" type="PersonsType" />
 		<xsd:element name="Copyright" minOccurs="0" maxOccurs="1" type="xsd:string" />
@@ -363,6 +363,26 @@
 	</xsd:sequence>
  </xsd:complexType>
  <!-- /ADDRESS -->
+
+ <!-- ENTITIES -->
+ <xsd:complexType name="EntitiesType">
+	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
+		<xsd:element name="Entity" minOccurs="0" maxOccurs="1" type="EntityType" />
+ 	</xsd:sequence>
+ </xsd:complexType>
+ <!-- /ENTITIES -->
+
+ <!-- ENTITY -->
+ <xsd:complexType name="EntityType">
+	<xsd:sequence>
+		<xsd:element name="EntityTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="EntityDescription" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="EntityServices" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="Locations" minOccurs="0" maxOccurs="1" type="LocationsType" />
+	</xsd:sequence>
+	<xsd:attribute name="EntityID" type="xsd:string" />
+ </xsd:complexType>
+ <!-- /ENTITY -->
 
  <!-- PERSONS -->
  <xsd:complexType name="PersonsType">
