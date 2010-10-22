@@ -1880,7 +1880,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_externalreference',
       '1' => 'field_objectid',
-      '2' => 'field_objectdescription',
+      '2' => 'field_objecttitle',
+      '3' => 'field_objectdescription',
     ),
   );
 

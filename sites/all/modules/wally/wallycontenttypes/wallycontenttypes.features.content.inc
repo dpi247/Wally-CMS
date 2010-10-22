@@ -13256,7 +13256,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'ObjectDescription ',
-      'weight' => '52',
+      'weight' => '53',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -13315,6 +13315,64 @@ Free',
       'default_value_php' => NULL,
       'label' => 'ObjectID ',
       'weight' => '51',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_objecttitle
+  $fields['wally_textobject-field_objecttitle'] = array(
+    'field_name' => 'field_objecttitle',
+    'type_name' => 'wally_textobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '200',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_objecttitle][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Object title',
+      'weight' => '52',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -15168,6 +15226,7 @@ Free',
   t('Markers');
   t('Object File');
   t('Object Summary');
+  t('Object title');
   t('ObjectDescription ');
   t('ObjectID ');
   t('Package Authors');
