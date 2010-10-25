@@ -160,25 +160,20 @@ function _wimprthelp_create_file_from_uri($file_uri){
   global $base_path;
   
   $uri=parse_url($file_uri);
+
   switch($uri['scheme']){
     case'embed':
       $file_path= variable_get('wallymport_source', 'sites/default/files/import').'/'.$uri['host'];
       return _wimprthelp_create_file($file_path);
     break;
   }
-  
-  
+
   return $file_uri;
 }
 
 
-
-
-
-
 function _wimprthelp_create_file($filepath){
   $uid=variable_get('wallymport_defaultuser',1);
- 
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;
@@ -188,7 +183,7 @@ function _wimprthelp_create_file($filepath){
   $file->status = FILE_STATUS_PERMANENT;
   $file->timestamp = time();
   drupal_write_record('files', $file);
-  return  field_file_load($filepath);
+  return field_file_load($filepath);
 }
 
 

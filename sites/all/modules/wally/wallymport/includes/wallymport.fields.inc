@@ -90,12 +90,14 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 	foreach($results as $result){
 	  $node->field_embededobjects[]['nid']=$result->nid;
 	}
+	
 	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-	$result=wimprt_process_list($linklists,$log,'object');
-   /* foreach($results as $result){
-	  $node->field_[]['nid']=$result->nid;
+	$results=wimprt_process_list($linklists,$log,'object');
+	foreach($results as $result){
+	  $node->field_linkedobjects[]['nid']=$result->nid;
 	}
-	*/
+
+
 }
   
 
@@ -113,7 +115,7 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
   
   return $node;
 }
-  
+
 
 function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   $node=new stdClass;
@@ -138,13 +140,19 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   $node->object_id= $dom->getAttributeNode("ObjectID")->value;
   $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
   $node->publication_date= $dom->getAttributeNode("PublicationDate")->value;
-  
-  
+
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   
   $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
+  $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
   wimprt_process_object_default($node,$dom,$log);
+
+  if ($dom->getElementsByTagName("Caption")->length) {
+    $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
+  }
+  
+  return $node;
 
 }
 
@@ -172,7 +180,6 @@ function wimprt_process_type_link(&$node,$dom,&$log){
 	 $node->field_link_item[0]['title']=$node->title;
 	 $node->field_link_item[0]['url']=$uri_value;
      $node->field_link_item[0]['attributes']=array('target'=>'_blank');
-	  
 	}
   
   }
@@ -228,22 +235,25 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
 
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   //Map XML Attributes 
-  $node->created= $dom_element->getAttributeNode("DocumentType")->value;
-  $node->object_id= $dom_element->getAttributeNode("ObjectID")->value;
+
+  $node->object_id = $dom_element->getAttributeNode("ObjectID")->value;
   $node->object_description= $dom_element->getAttributeNode("ObjectDescription")->value;
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
-  
+  $node->field_documenttype = array(array("value"=>$dom_element->getAttributeNode("DocumentType")->value));
+    
   wimprt_process_object_default($node,$dom_element,$log);
   
-  //Excpetion for TextObject
-  $value=$dom_element->getElementsByTagName("TextTitle")->item(0)->value;
-  $node->title=$value;
+  //Exception for TextObject
+  if ($dom_element->getElementsByTagName("TextTitle")->length) {
+    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+  }
   
-  //Excpetion for TextObject
-  $value=$dom_element->getElementsByTagName("Title")->item(0)->value;
-  $node->field_objecttitle[0]['value']=$value;
+  if ($dom_element->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value"=>$dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+  } 
 
 }
+
 function wimprt_set_field_textbarette(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textarette[0]['value']=$value;
