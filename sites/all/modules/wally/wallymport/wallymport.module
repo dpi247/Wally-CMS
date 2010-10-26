@@ -18,6 +18,7 @@ function wallymport_menu() {
 
   );
 
+/*
  $items['wallymport/process/%'] = array(
 	'title' => 'Run XML Import Process',
 	'description' => 'Run data import',
@@ -26,7 +27,7 @@ function wallymport_menu() {
   	'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
   );
-
+*/
 
   $items['wallymport/process_folder'] = array(
 	'title' => 'Run XML Import Process for a forlder',
