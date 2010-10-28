@@ -71,6 +71,10 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
+  
+  
+  if (empty($item['tid']) && empty($item['taaget']) & empty($item['layout'])& empty($item['rank'])) {
+    return TRUE;  
   return FALSE;
 }
 

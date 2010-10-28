@@ -57,11 +57,6 @@ function cckdestinations_views_content_field_data($field) {
   
   
   
-  dsm($db_info);
-  dsm($data);
-  dsm($field);
-    
-  
   // Build out additional views data for the cckdestinations "target" field.
   $data[$table_alias][$field['field_name'] .'_target'] = array(
     'group' => t('Destinations'),
