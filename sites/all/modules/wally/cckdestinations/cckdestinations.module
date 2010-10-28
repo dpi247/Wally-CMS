@@ -1,0 +1,401 @@
+<?php
+
+
+function cckdestinations_install() {
+  content_notify('install', 'destinationsfield');
+}
+
+function cckdestinations_uninstall() {
+  content_notify('uninstall', 'destinationsfield');
+}
+
+function cckdestinations_enable() {
+  content_notify('enable', 'destinationsfield');
+}
+
+function cckdestinations_disable() {
+  content_notify('disable', 'destinationsfield');
+}
+
+
+/**
+ * Implementation of hook_field_info().
+ */
+function cckdestinations_field_info() {
+  return array(
+    'destinationsfield' => array(
+      'label' => t('Destinations'),
+      'description' => t('Destinations for wally instances (triple )'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function cckdestinations_field_settings( $op, $field ) {
+  switch( $op ) {
+    case 'database columns':
+      $columns['tid'] = array('type' => 'int', 'length' => 10, 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
+      $columns['target'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
+      $columns['layout'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
+      $columns['rank'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
+      return $columns;
+     break;
+     case 'views data':
+       module_load_include('inc', 'cckdestinations', 'views/cckdestinations.views');
+     return cckdestinations_views_content_field_data($field);
+     break;
+  }
+}
+/**
+ * Implementation of CCK hook_field().
+ */
+function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
+  switch ($op) {
+    case 'validate':
+      /*
+      if (is_array($items)) {
+        foreach ($items as $delta => $item) {
+          if ($item['target'] != '' && !valid_email_address(trim($item['email']))) {
+            form_set_error($field['field_name'],t('"%mail" is not a valid email address',array('%mail' => $item['email'])));
+          }
+        }
+     }
+     */
+      
+     break;
+
+    case 'sanitize':
+      foreach ($items as $delta => $item) {
+        foreach ( $item as $col => $dat ) {
+          $items[$delta]['safe_' . $col ] = check_plain($item[ $col ]);
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function cckdestinations_content_is_empty($item, $field) {
+/*
+  if (empty($item['displayed_name'])) {
+    return TRUE;
+  }
+  */
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function cckdestinations_widget_info() {
+  return array(
+    'cckdestinations_widget' => array(
+      'label' => t('Destination Select  fields'),
+      'field types' => array('destinationsfield'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of Form API's hook_elements().
+ *
+ * Returns a skeleton Form API array that defines callbacks
+ * for the widget form.
+ */
+function cckdestinations_elements() {
+  $elements = array( 'cckdestinations_widget' =>
+    array(
+      '#input' => TRUE,
+      '#process' => array( 'cckdestinations_cckdestinations_widget_process' ),
+    ),
+  );
+
+  return $elements;
+}
+
+
+
+/**
+ * Process callback for widget
+ *
+ * Returns a Forms API array that defines the widget's editing form.
+ */
+function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
+
+  $defaults = $element['#value'];
+  $field = content_fields($element['#field_name'], $element['#type_name']);
+
+  $element['tid'] = array(
+    '#title' => t( 'Taxonomy Term' ),
+    '#type' => 'textfield',
+    '#default_value' => $defaults['tid'],
+    '#weight' => 2,
+  );
+  
+   
+  $vocabulary_id=variable_get('wallymport_destinationpath', 0);
+   
+  $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE,'Unset');
+  $element['tid']['#required']=False;
+  $element['target'] = array(
+    '#title' => t( 'Target' ),
+    '#type' => 'select',
+    '#default_value' => $defaults['target'],
+    '#options'=>array(''=>'',"A"=>"Target A","B"=>"Target B","C"=>"Target C",),
+    '#required'=>FALSE,
+    '#weight' => 3,
+  );
+
+  $element['layout'] = array(
+    '#title' => t( 'Layout' ),
+    '#type' => 'select',
+    '#default_value' => $defaults['layout'],
+    '#options'=>array(''=>'',"A"=>"Layout A","B"=>"Layout B","C"=>"Layout C",),
+    '#required'=>FALSE,
+    '#weight' => 4,
+  );
+
+  $element['rank'] = array(
+    '#title' => t( 'Rank' ),
+    '#type' => 'select',
+    '#default_value' => $defaults['rank'],
+    '#options'=>array(''=>'',1=>"Rank 1",2=>"Rank 2",3=>"Rank 3",4=>"Rank 4",5=>"Rank 5",),
+    '#required'=>FALSE,
+    '#weight' => 5,
+  );
+
+  return $element;
+}
+function cckdestinations_widget_validate(&$element, &$form_state) {
+  //@todo: validate link between tid, target and display
+  ;
+}
+/**
+ * FAPI theme for an individual text elements.
+ */
+function theme_cckdestinations_widget($element) {
+  return $element['#children'];
+}
+
+/**
+ * Implementation of hook_widget().
+ */  
+function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+  return $element;
+}
+
+
+/**
+ * Implementation of CCK's hook_field_formatter_info().
+ *
+ * Returns information about available field formatters.
+ */
+function cckdestinations_field_formatter_info() {
+  return array(
+    'default' => array(
+       'label' => t( 'Default Formater' ),
+       'field types' => array( 'destinationsfield' ),
+    ),
+    'tid' => array(
+       'label' => t( 'Term Only Formater' ),
+       'field types' => array( 'destinationsfield' ),
+    ),
+    'target' => array(
+       'label' => t( 'Target Only Formater' ),
+       'field types' => array( 'destinationsfield' ),
+    ),
+    'layout' => array(
+       'label' => t( 'Layout Only Formater' ),
+       'field types' => array( 'destinationsfield' ),
+    ),
+    'rank' => array(
+       'label' => t( 'Rank Only Formater' ),
+       'field types' => array( 'destinationsfield' ),
+    ),
+    
+  );
+}
+
+function cckdestinations_theme() {
+  return array(
+    'cckdestinations_widget' => array(
+       'arguments' => array('element' => NULL),
+    ),
+
+    'cckdestinations_formatter_default' => array(
+       'arguments' => array('element' => NULL),
+    ),
+    'cckdestinations_formatter_tid' => array(
+       'arguments' => array('element' => NULL),
+    ),
+        'cckdestinations_formatter_target' => array(
+       'arguments' => array('element' => NULL),
+    ),
+        'cckdestinations_formatter_layout' => array(
+       'arguments' => array('element' => NULL),
+    ),
+        'cckdestinations_formatter_rank' => array(
+       'arguments' => array('element' => NULL),
+    ),
+);
+}
+
+function theme_cckdestinations_formatter_default($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('tid', 'target', 'layout', 'rank');
+  $ret = '<div class="staff_info">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
+      '">' . $stuff['safe_email' ] . "</a>";
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+
+function theme_cckdestinations_formatter_tid($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('tid', 'target', 'layout', 'rank');
+  $ret = '<div class="staff_info">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
+      '">' . $stuff['safe_email' ] . "</a>";
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+
+function theme_cckdestinations_formatter_target($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('tid', 'target', 'layout', 'rank');
+  $ret = '<div class="staff_info">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
+      '">' . $stuff['safe_email' ] . "</a>";
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+
+function theme_cckdestinations_formatter_layout($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('tid', 'target', 'layout', 'rank');
+  $ret = '<div class="staff_info">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
+      '">' . $stuff['safe_email' ] . "</a>";
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+
+function theme_cckdestinations_formatter_rank($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $stuff = $element['#item'];
+
+  $flds = array('tid', 'target', 'layout', 'rank');
+  $ret = '<div class="staff_info">';
+  $sep = '';
+  foreach($flds as $fld) {
+    if(!empty($stuff['safe_' . $fld ])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+
+  if(!empty($stuff['safe_email' ])) {
+    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .'">' . $stuff['safe_email' ] . "</a>";
+  }
+
+  $ret .= '</div>';
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function cckdestinations_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'cckdestinations') .'/views',
+  );
+}
