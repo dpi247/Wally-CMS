@@ -1,0 +1,7 @@
+; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
+name = CCK destinations
+description = "Provide destinations for Wally instances"
+package = Wally
+core = 6.x
+dependencies[] = content
+
