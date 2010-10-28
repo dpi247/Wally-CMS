@@ -54,15 +54,6 @@ function cckdestinations_field_settings( $op, $field ) {
 function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
   switch ($op) {
     case 'validate':
-      /*
-      if (is_array($items)) {
-        foreach ($items as $delta => $item) {
-          if ($item['target'] != '' && !valid_email_address(trim($item['email']))) {
-            form_set_error($field['field_name'],t('"%mail" is not a valid email address',array('%mail' => $item['email'])));
-          }
-        }
-     }
-     */
       
      break;
 
@@ -80,11 +71,6 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-/*
-  if (empty($item['displayed_name'])) {
-    return TRUE;
-  }
-  */
   return FALSE;
 }
 
@@ -260,8 +246,8 @@ function theme_cckdestinations_formatter_default($element = NULL) {
   $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
-  $ret = '<div class="staff_info">';
   $sep = '';
+  $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
@@ -269,11 +255,7 @@ function theme_cckdestinations_formatter_default($element = NULL) {
     }
   }
 
-  if(!empty($stuff['safe_email' ])) {
-    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
-      '">' . $stuff['safe_email' ] . "</a>";
-  }
-
+  
   $ret .= '</div>';
 
   return $ret;
@@ -288,8 +270,8 @@ function theme_cckdestinations_formatter_tid($element = NULL) {
   $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
-  $ret = '<div class="staff_info">';
   $sep = '';
+  $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
@@ -297,11 +279,7 @@ function theme_cckdestinations_formatter_tid($element = NULL) {
     }
   }
 
-  if(!empty($stuff['safe_email' ])) {
-    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
-      '">' . $stuff['safe_email' ] . "</a>";
-  }
-
+  
   $ret .= '</div>';
 
   return $ret;
@@ -316,8 +294,8 @@ function theme_cckdestinations_formatter_target($element = NULL) {
   $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
-  $ret = '<div class="staff_info">';
   $sep = '';
+  $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
@@ -325,11 +303,7 @@ function theme_cckdestinations_formatter_target($element = NULL) {
     }
   }
 
-  if(!empty($stuff['safe_email' ])) {
-    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
-      '">' . $stuff['safe_email' ] . "</a>";
-  }
-
+  
   $ret .= '</div>';
 
   return $ret;
@@ -344,8 +318,8 @@ function theme_cckdestinations_formatter_layout($element = NULL) {
   $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
-  $ret = '<div class="staff_info">';
   $sep = '';
+  $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
@@ -353,11 +327,7 @@ function theme_cckdestinations_formatter_layout($element = NULL) {
     }
   }
 
-  if(!empty($stuff['safe_email' ])) {
-    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .
-      '">' . $stuff['safe_email' ] . "</a>";
-  }
-
+  
   $ret .= '</div>';
 
   return $ret;
