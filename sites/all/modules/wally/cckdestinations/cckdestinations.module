@@ -342,8 +342,8 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
   $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
-  $ret = '<div class="staff_info">';
   $sep = '';
+  $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
@@ -351,10 +351,7 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
     }
   }
 
-  if(!empty($stuff['safe_email' ])) {
-    $ret .= $sep . '<a class="staff_email" href="mailto:' . $stuff['safe_email' ] .'">' . $stuff['safe_email' ] . "</a>";
-  }
-
+  
   $ret .= '</div>';
 
   return $ret;
