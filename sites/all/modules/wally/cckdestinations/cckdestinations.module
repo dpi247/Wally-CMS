@@ -143,6 +143,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#options'=>array(''=>'',"A"=>"Target A","B"=>"Target B","C"=>"Target C",),
     '#required'=>FALSE,
     '#weight' => 3,
+    //'#post_render'=>array('post_render_test'),
   );
 
   $element['layout'] = array(
@@ -165,6 +166,13 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   return $element;
 }
+
+function post_render_test($content, $element) {
+	
+//	var_dump($content);
+//	return $content; 
+}
+
 function cckdestinations_widget_validate(&$element, &$form_state) {
   //@todo: validate link between tid, target and display
   ;
