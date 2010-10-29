@@ -49,7 +49,11 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );
 
-  
+  $vocab_list=array();
+  $vocabularies=taxonomy_get_vocabularies();
+  foreach($vocabularies as $key => $vocabulary) {
+	  $vocab_list[$key]=$vocabulary->name;
+  }
 
   $form['wallymport_destinationpath'] = array(
     '#type' => 'select',
