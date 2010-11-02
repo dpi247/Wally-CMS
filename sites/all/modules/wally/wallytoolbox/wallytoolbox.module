@@ -134,3 +134,87 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
   return $form_values['tid'];
 }
 
+
+/**
+ * Due to a limitation of number of nodes returned in 
+ * orignal taxonomy function. 
+ *
+ * @param $tid
+ *   An array of term IDs to match. 
+ * @param $operator
+ *   How many levels deep to traverse the taxonomy tree. Can be a nonnegative integer or "all". 
+ * @param $depth
+ *   Description of the term to be stored.
+ * @param $pager 
+ *   Whether the nodes are to be used with a pager (the case on most Drupal pages) or not (in an XML feed, for example).
+ * @param $type
+ *   Filter to NodeType (one) 
+ * @param $order
+ *   Order close for TID
+ * 
+ * @return
+ *   Array of NID. 
+ */
+  
+function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC') {
+
+  $r = array();
+  
+  if (count($tids) > 0) {
+    // For each term ID, generate an array of descendant term IDs to the right depth.
+    $descendant_tids = array();
+    if ($depth === 'all') {
+      $depth = NULL;
+    }
+    
+    foreach ($tids as $index => $tid) {
+      $term = taxonomy_get_term($tid);
+      $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+      $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
+    }
+
+    if ($operator == 'or') {
+      $args = call_user_func_array('array_merge', $descendant_tids);
+      $placeholders = db_placeholders($args, 'int');
+      $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+    }
+    else {
+      $joins = '';
+      $wheres = '';
+      $args = array();
+      foreach ($descendant_tids as $index => $tids) {
+        $joins .= ' INNER JOIN {term_node} tn' . $index . ' ON n.vid = tn' . $index . '.vid';
+        $wheres .= ' AND tn' . $index . '.tid IN (' . db_placeholders($tids, 'int') . ')';
+        $args = array_merge($args, $tids);
+      }
+      $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created  FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+    }
+
+	if ($type) {
+		$sql = $sql . ' AND n.type = "'.$type.'"';
+		$sql_count = $sql_count . ' AND n.type = "'.$type.'"';
+	}
+
+	// add Order Clause
+	$sql = $sql . ' ORDER BY ' . $order; 
+	
+    $sql = db_rewrite_sql($sql);
+	$sql_count = db_rewrite_sql($sql_count);
+
+    if ($pager) {
+      $results = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
+    }
+    else {
+      $results = db_query($sql, $args);
+    }
+
+    while ($result = db_fetch_object($results)) {
+		$r[] = $result->nid;
+    }
+    
+  }
+  return $r;
+}
+
