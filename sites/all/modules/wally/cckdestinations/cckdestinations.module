@@ -134,49 +134,112 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
    
-  $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE,'Unset');
+  $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE);
   $element['tid']['#required']=False;
+  $element['tid']['#attributes'] = array('class' => 'tid');
+ 
+ 
   $element['target'] = array(
     '#title' => t( 'Target' ),
     '#type' => 'select',
     '#default_value' => $defaults['target'],
-    '#options'=>array(''=>'',"A"=>"Target A","B"=>"Target B","C"=>"Target C",),
+    '#options'=>array(''=>'',"FLEUR"=>"ART-FLEURS","ANIMAUX"=>"ART-ANIMAUX","AMEUBLEMENT"=>"A&D-AMEUBLEMENT","AUTOMOBILE"=>"A&D-AUTOMOBILE","GADGET"=>"A&D-GADGET",),
+    '#classes'=>array(''=>'',"FLEUR"=>"429","ANIMAUX"=>"429","AMEUBLEMENT"=>"453","AUTOMOBILE"=>"453","GADGET"=>"453", ),
     '#required'=>FALSE,
     '#weight' => 3,
-    //'#post_render'=>array('post_render_test'),
-  );
+ 	'#theme' => 'cckdestinations_cascading_select',
+ 	'#attributes' => array('class' => 'target'),
+ );
 
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
     '#type' => 'select',
     '#default_value' => $defaults['layout'],
-    '#options'=>array(''=>'',"A"=>"Layout A","B"=>"Layout B","C"=>"Layout C",),
+    '#options'=>array(''=>'',"ROSE"=>"ART-FLEURS-ROSE","TULIPE"=>"ART-FLEURS-TULIPE","CHEVAL"=>"ART-ANIMAUX-CHEVAL","LAPIN"=>"ART-ANIMAUX-LAPIN","CHIEN"=>"ART-ANIMAUX-CHIEN","CHAISE"=>"A&D-AMEUBLEMENT-CHAISE", "TABLE"=>"A&D-AMEUBLEMENT-TABLE", "AUDI"=>"A&D-AMEUBLEMENT-AUTO-AUDI", "VW"=>"A&D-AMEUBLEMENT-AUTO-VW", "PHONE"=>"A&D-GADGET-PHONE", "APN"=>"A&D-GADGET-APN",),
+    '#classes'=>array(''=>'',"ROSE"=>"FLEUR","TULIPE"=>"FLEUR","CHEVAL"=>"ANIMAUX","LAPIN"=>"ANIMAUX","CHIEN"=>"ANIMAUX","CHAISE"=>"AMEUBLEMENT", "TABLE"=>"AMEUBLEMENT", "AUDI"=>"AUTOMOBILE", "VW"=>"AUTOMOBILE", "PHONE"=>"GADGET", "APN"=>"GADGET",),
     '#required'=>FALSE,
     '#weight' => 4,
-  );
+ 	'#theme' => 'cckdestinations_cascading_select',
+ 	'#attributes' => array('class' => 'layout'),
+ );
 
   $element['rank'] = array(
     '#title' => t( 'Rank' ),
     '#type' => 'select',
     '#default_value' => $defaults['rank'],
     '#options'=>array(''=>'',1=>"Rank 1",2=>"Rank 2",3=>"Rank 3",4=>"Rank 4",5=>"Rank 5",),
+    '#classes'=>array(''=>'',1=>"Class R1",2=>"Class R2",3=>"Class R3",4=>"Class R4",5=>"Class R5",),
     '#required'=>FALSE,
     '#weight' => 5,
+	'#theme' => 'cckdestinations_cascading_select',
   );
 
   return $element;
 }
 
-function post_render_test($content, $element) {
-	
-//	var_dump($content);
-//	return $content; 
+
+function theme_cckdestinations_cascading_select($element) {
+
+  $select = '';
+  $size = $element['#size'] ? ' size="'. $element['#size'] .'"' : '';
+  _form_set_class($element, array('form-select'));
+  $multiple = $element['#multiple'];
+  return theme('form_element', $element, '<select name="'. $element['#name'] .''. ($multiple ? '[]' : '') .'"'. ($multiple ? ' multiple="multiple" ' : '') . drupal_attributes($element['#attributes']) .' id="'. $element['#id'] .'" '. $size .'>'. cckdestinations_cascading_select_options($element) .'</select>');
 }
+
+
+function cckdestinations_cascading_select_options($element, $choices = NULL) {
+	  
+  if (!isset($choices)) {
+    $choices = $element['#options'];
+    $classes = $element['#classes'];
+
+	// Add additional Jquery scripts. 
+    $module_path = drupal_get_path('module', 'cckdestinations') .'/';
+    drupal_add_js($module_path .'js/cckdestinations.js');
+  }
+
+  // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
+  // isset() fails in this situation.
+  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
+  $value_is_array = is_array($element['#value']);
+  $options = '';
+
+  foreach ($choices as $key => $choice) {
+
+	if ($classes[$key]) {
+		$class = 'class="sub_'.$classes[$key].'" ';
+	}
+	
+    if (is_array($choice)) {
+      $options .= '<optgroup label="'. $key .'">';
+      $options .= form_select_options($element, $choice);
+      $options .= '</optgroup>';
+    }
+    elseif (is_object($choice)) {
+      $options .= form_select_options($element, $choice->option);
+    }
+    else {
+      $key = (string)$key;
+      if ($value_valid && (!$value_is_array && (string)$element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
+        $selected = ' selected="selected"';
+      }
+      else {
+        $selected = '';
+      }
+      $options .= '<option '.$class.'value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>';
+    }
+  }
+  return $options;
+}
+
+
 
 function cckdestinations_widget_validate(&$element, &$form_state) {
   //@todo: validate link between tid, target and display
   ;
 }
+
 /**
  * FAPI theme for an individual text elements.
  */
@@ -248,6 +311,9 @@ function cckdestinations_theme() {
         'cckdestinations_formatter_rank' => array(
        'arguments' => array('element' => NULL),
     ),
+        'cckdestinations_cascading_select' => array(
+       'arguments' => array('element' => NULL),
+    ),    
 );
 }
 
@@ -363,10 +429,8 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
       $sep = "<br />\n";
     }
   }
-
   
   $ret .= '</div>';
-
   return $ret;
 }
 
