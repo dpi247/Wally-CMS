@@ -1,0 +1,43 @@
+<?php
+
+function wallogic_schema() {
+	$schema['wallogic_block'] = array (
+		// Table description.
+		'fields'=> array (	
+			'id'=>array ('type'=>'serial', 'length'=>10, 'not null'=>TRUE,),
+			'name' =>array( 'type'=>'int','length' => 10,'not null' => TRUE),
+			'view_vid' =>array( 'type'=>'varchar','length' => 64,'not null' => TRUE,'default' => 'personne'),
+			'view_id' =>array( 'type'=>'varchar','length' => 64,'not null' => TRUE,'default' => 'personne'),
+			'comment' =>array ('type'=>'varchar', 'length'=>512, 'not null'=>TRUE,'default' => '0',),
+			'is_active'=>array ('type'=>'int', 'length'=>1, 'not null'=>TRUE,'default' => 0,),
+	
+		),
+		// Index declarations.
+	'primary key' => array('id'),
+	);
+	return $schema;
+}
+
+function wallogic_install() {
+  // Create tables.
+  drupal_install_schema('wallogic');
+}
+
+function wallogic_uninstall() {
+  drupal_uninstall_schema('wallogic');
+	
+}
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function wallogic_enable() {
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function wallogic_disable() {
+}
+

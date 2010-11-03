@@ -75,7 +75,7 @@ function cckdestinations_content_is_empty($item, $field) {
   
   if (empty($item['tid']) && empty($item['taaget']) & empty($item['layout'])& empty($item['rank'])) {
     return TRUE;
-  }  
+  }    
   return FALSE;
 }
 
