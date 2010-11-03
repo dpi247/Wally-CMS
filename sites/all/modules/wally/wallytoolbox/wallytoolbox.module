@@ -1,5 +1,13 @@
 <?php
 /**
+ * @defgroup wallytoolbox Wally ToolBox functions
+ * @{
+ * In this module we define functions that could be used in any of 
+ * the wally modules. These function aren't linked to a specific context
+ * and could be use anywhere. 
+ */
+
+/**
  * A true boolean conversion function.
  * 
  * @param $v
@@ -8,9 +16,9 @@
  *   default value return if conversion fail.
  *
  * @return
- *   boolean "true"/"false"
+ *   boolean "true" or "false"
  */
-function wallytoolbox_toboolean($v,$def=null) {
+function wallytoolbox_toboolean($v,$def=null){
 	if ($v===false) return false;
 	if ($v===true) return true;
 	if ($v=="true") return true;
@@ -20,21 +28,19 @@ function wallytoolbox_toboolean($v,$def=null) {
 	return $def;
 }
 
-
 /**
- * Taxonomy get term by path
- * 
- * Search for taxonomy terms for a specific path 
+ * Search for taxonomy terms for a specific "path". 
  *
  * @param $path
  *   The taxonomy term path to match ( /term1/term2/term3 ). 
  * @param $voc
  *   The taxonomy vocabulary used for filtering on a single vocabulary.
+ *   If not set, will seach into all vocabularies.
  *
  * @return
- *   an array of term object
+ *   an array of taxonomy term object
  */
-function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
+function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null){
 
 	$t = explode("/", trim($path,"/"));
 	$t = $t[count($t)-1];
@@ -54,65 +60,12 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 		foreach ($parents as $parent) $ppath = strtolower($parent->name)."/".$ppath;
 		if (trim($ppath,"/")==strtolower(trim($path,"/"))) $result[] = $term;
 	}
-	
 	return ($result ? $result : null);
 }
 
 /**
- * Get node by cckfield
- * 
- * Load node(s) where cckfield match a value. 
- *
- * @param $param
- *   Array of cck_field=>value ( Operation OR )  
- * @param $node_type
- *   Id specified, return only content type
- * @return
- *   an array of term object
- */
-function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
-
-	$nodes = array();
-	foreach ($param as $key => $value) {
-		$sql="
-			SELECT node.nid AS nid
-			 FROM {node} node 
-			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
-			 WHERE (node_data_".$key.".".$key."_value = '%s')
-			";
-
-		// Fetch all node from CCK field table.
-		if ($result = db_query($sql, $value)) {
-			while ($item = db_fetch_object($result)) {
-				if ($node = node_load($item->nid)) {
-					if ($node_type) {
-						if ($node->type == $node_type) {
-							$nodes[$node->nid] = $node;
-						}
-					} else {
-						$nodes[$node->nid] = $node;
-					}
-				} 
-			}
-		}
-	}
-	
-	$result = array(); 
-	foreach($nodes as $node) $result[]=$node;
-
-	if (count($result)) { 
-		return $result;
-	} else {
-		return null;
-	}
-
-}
-	
-/**
- * Add Taxonomy Term into Vocabulary 
- * 
  * Add a taxonomy term into a vocabulary without 
- * need to store a node
+ * need to store a node.
  *
  * @param $name
  *   That's the taxonomy term name. 
@@ -120,10 +73,15 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null) {
  *   The Taxonomy Vocabulary to store the term. 
  * @param $description
  *   Description of the term to be stored.
+ * @param $weight
+ *   Weight of the term into vocabulary (default 0).
+ * @param $parent
+ *   Parent term if needed (default null).
+ * 
  * @return
  *   Taxonomy TID of the created term. 
  */
-function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0, $parent = null) {
+function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0, $parent = null){
   $form_values = array();
   $form_values['name'] = $name;
   $form_values['description'] = $description;
@@ -136,27 +94,25 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
 
 
 /**
- * Due to a limitation of number of nodes returned in 
- * orignal taxonomy function. 
- *
+ * Get all nodes associated with a array of taxonomy term.  
+ *  
  * @param $tid
  *   An array of term IDs to match. 
  * @param $operator
- *   How many levels deep to traverse the taxonomy tree. Can be a nonnegative integer or "all". 
+ *   Could be 'or' or 'and' (default 'or') 
  * @param $depth
- *   Description of the term to be stored.
+ *   How many levels deep to traverse the taxonomy tree. Can be a nonnegative integer or "all". 
  * @param $pager 
  *   Whether the nodes are to be used with a pager (the case on most Drupal pages) or not (in an XML feed, for example).
  * @param $type
- *   Filter to NodeType (one) 
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
  * @param $order
- *   Order close for TID
+ *   Order close for TID (SSL format). See @link http://api.drupal.org/api/drupal/includes--database.inc/ Data Base abstraction layer @endlink for table aliases.
  * 
  * @return
- *   Array of NID. 
+ *   Array of Node ID. 
  */
-  
-function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC') {
+function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC'){
 
   $r = array();
   
@@ -218,3 +174,58 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
   return $r;
 }
 
+
+/**
+ * Get all nodes where  cckfield match a value. 
+ *
+ * @param $param
+ *   An associative array containing:
+ *   - key: An existing cck_field name with the prfix "field_" 
+ *   - value: The value to match specified cck_field
+ * @param $node_type
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
+ * 
+ * @return
+ *   An array of nodes
+ */
+function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
+
+	$nodes = array();
+	foreach ($param as $key => $value) {
+		$sql="
+			SELECT node.nid AS nid
+			 FROM {node} node 
+			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
+			 WHERE (node_data_".$key.".".$key."_value = '%s')
+			";
+
+		// Fetch all node from CCK field table.
+		if ($result = db_query($sql, $value)) {
+			while ($item = db_fetch_object($result)) {
+				if ($node = node_load($item->nid)) {
+					if ($node_type) {
+						if ($node->type == $node_type) {
+							$nodes[$node->nid] = $node;
+						}
+					} else {
+						$nodes[$node->nid] = $node;
+					}
+				} 
+			}
+		}
+	}
+	
+	$result = array(); 
+	foreach($nodes as $node) $result[]=$node;
+
+	if (count($result)) { 
+		return $result;
+	} else {
+		return null;
+	}
+}
+	
+
+/**
+ * @} End of "defgroup wallytoolbox".
+ */

@@ -1,4 +1,25 @@
 <?php 
+/**
+ * @defgroup wallymport.field Wally fields specifics Callback functions
+ * @{
+ * This file contain all fields specific functions of wally xml.   
+ * These functions will be called by the wimprt_process_package(), 
+ * wimprt_process_object() or wimprt_process_type() functions.
+ */
+
+/**
+ * Create or load a article package depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_articlepackage';
@@ -13,6 +34,21 @@ function wimprt_create_or_load_package_articlepackagetype($dom,&$log){
 
   return $node;
 }
+
+
+/**
+ * Create or load a gallery package depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_gallerypackage';
@@ -100,7 +136,19 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 
 }
   
-
+/**
+ * Create or load a text object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_object_textobject($dom,&$log){
   $node=new stdClass;
   $node->type='wally_textobject';
@@ -117,6 +165,19 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
 }
 
 
+/**
+ * Create or load a photo object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_photoobject';
@@ -185,6 +246,19 @@ function wimprt_process_type_link(&$node,$dom,&$log){
   }
 
 
+/**
+ * Create or load a links list object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linkslistobject';
@@ -199,6 +273,21 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
 
   return $node;
 }
+
+
+/**
+ * Create or load a link type depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_type_link($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linktype';
@@ -213,6 +302,7 @@ function wimprt_create_or_load_type_link($dom,&$log){
 
   return $node;
 }
+
 function wimprt_process_object_linkslist(&$node,$dom,&$log){
   wimprt_process_object_default($node,$dom,$log);
   
@@ -232,6 +322,7 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_productid[0]['value']=$value;
 }
+
 
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   //Map XML Attributes 
@@ -296,6 +387,19 @@ function wimprt_set_field_extractshort(&$node,$dom,&$log){
   $node->field_copyright[0]['value']=$value;
 }
 
+/**
+ * Create or load a location type depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_type_location($dom,$log){	
 	
 	// Get the LocationID attribnute to load node.
@@ -309,7 +413,7 @@ function wimprt_create_or_load_type_location($dom,$log){
 			$result = null;
 		}
 	} else {
-		drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
+		//drupal_set_message('LocationID not Found for LocationID: '.$lid.', assuming new location.','error');
 		$result = new StdClass();
 	}
 
@@ -396,11 +500,10 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	}
 */
 
-
 // Send back the node
-
 	return($node);
 }
+
 
 function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
 
@@ -622,6 +725,7 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 	}
 }
 
+
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
@@ -693,6 +797,7 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 		drupal_set_message('No term found in vocabulary: '.$vocabulary_name.'.','error');
 	}
 }
+
 function wimprt_set_field_entities(&$node,$dom,&$log){
 
 	$node->field_entities = array(); 
@@ -714,6 +819,19 @@ function wimprt_set_field_entities(&$node,$dom,&$log){
 	} 
 }
 
+/**
+ * Create or load a entity type depending of EntityID.
+ * 
+ * If no node match the EntityID, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_type_entity($dom,$log){	
 	
 	// Get the EntityID attribute to load node if exist.
@@ -846,6 +964,19 @@ function wimprt_set_field_persons(&$node,$dom,&$log){
 	} 
 }
 
+/**
+ * Create or load a person type depending of PersonID.
+ * 
+ * If no node match the PersonID, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
 function wimprt_create_or_load_type_person($dom,$log){	
 	
 	// Get the LocationID attribnute to load node.
@@ -989,3 +1120,7 @@ function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 	$node->comment = $result;
 	return $result;
 }
+
+/**
+ * @} End of "defgroup wallymport.field".
+ */
