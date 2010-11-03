@@ -32,28 +32,18 @@ function wallogic_theme(){
   
 }
 function wallogic_block($op = 'list', $delta = 0, $edit = array()) {
- /*
+ 
    if ($op == 'list') {
-    $blocks[0] = array('info' => t('Mymodule block #1 shows ...'),
-      'weight' => 0, 'status' => 1, 'region' => 'left');
-      // BLOCK_CACHE_PER_ROLE will be assumed for block 0.
-
-    $blocks[1] = array('info' => t('Mymodule block #2 describes ...'),
-      'cache' => BLOCK_CACHE_PER_ROLE | BLOCK_CACHE_PER_PAGE);
+     foreach(wallogic_get_redac_block_list() as $block){
+      $blocks[]=array(
+        'info'=>t($block->name),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+     }
+   
+      
 
     return $blocks;
-  }
-  else if ($op == 'configure' && $delta == 0) {
-    $form['items'] = array(
-      '#type' => 'select',
-      '#title' => t('Number of items'),
-      '#default_value' => variable_get('mymodule_block_items', 0),
-      '#options' => array('1', '2', '3'),
-    );
-    return $form;
-  }
-  else if ($op == 'save' && $delta == 0) {
-    variable_set('mymodule_block_items', $edit['items']);
   }
   else if ($op == 'view') {
     switch($delta) {
@@ -70,7 +60,7 @@ function wallogic_block($op = 'list', $delta = 0, $edit = array()) {
     }
     return $block;
   }
-  */
+  
 }
 
 
@@ -96,4 +86,18 @@ function wallogic_get_redac_view_options(){
     $options[$view->vid.'+'.$view->id]=$view->name.'-'.$view->display_title.' ('.$view->id.')';
   }
   return $options;
+}
+
+
+function wallogic_get_redac_block_list(){
+
+  $query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
+  $results=db_query($query);
+  
+  $blocks=array();
+  while($result=db_fetch_object($results)){
+    $blocks[]=$result;
+  }
+  
+  return  $blocks;
 }

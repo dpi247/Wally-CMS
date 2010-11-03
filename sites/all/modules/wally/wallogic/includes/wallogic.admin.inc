@@ -1,7 +1,7 @@
 <?php
 function wallogic_page_admin_list_block(){
 
-  $query="Select * from {wallogic_block}";
+  $query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
   $results=db_query($query);
   
   $blocks=array();
@@ -64,7 +64,7 @@ function wallogic_admin_list_block_validate($form, &$form_state){
 }
 function wallogic_admin_list_block_form_submit($form, &$form_state){
   $values=$form_state['values']['block'];
-  $view=split('+',$values['view']);
+  $view=split('\+',$values['view']);
   unset($values['view']);
   $values['view_vid']=$view[0];
   $values['view_id']=$view[1];
@@ -72,6 +72,13 @@ function wallogic_admin_list_block_form_submit($form, &$form_state){
 }
 
 function theme_wallogic_block_list($blocks){
+  dsm($blocks);
+  $headers=array(t("Block's name"),t("View"),t("Comment"),t("Actions"));
+  $rows=array();
+  foreach($blocks as $block){
+    $rows[]=array($block->name,$block->view_name.' '.$block->display_title.' ('.$block->view_id.')',$block->comment);
+  }
+  return theme_table($headers,$rows);
 
   
 }
