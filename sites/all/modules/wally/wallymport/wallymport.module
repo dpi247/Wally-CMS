@@ -8,7 +8,7 @@ module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
  */
 function wallymport_menu() {
   $items = array();
-  $items['admin/settings/wallymport'] = array(
+  $items[WALLY_ADMIN_PATH.'/wallymport/settings'] = array(
     'title' => 'Wally Import Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallymport_page_admin_form'),
@@ -29,7 +29,7 @@ function wallymport_menu() {
   );
 */
 
-  $items['wallymport/process_folder'] = array(
+  $items[WALLY_ADMIN_PATH.'/wallymport/process_folder'] = array(
 	'title' => 'Run XML Import Process for a forlder',
 	'description' => 'Run data import',
 	'page callback' => 'wallymport_page_process_folder',

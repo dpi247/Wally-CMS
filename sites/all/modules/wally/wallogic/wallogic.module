@@ -1,0 +1,99 @@
+<?php
+
+function wallogic_menu(){
+  
+  $items = array();
+
+  $items[WALLY_ADMIN_PATH.'/wallogic/settings'] = array(
+    'title' => 'List blocks',
+    'description' => 'Listing of blocks.',
+    'page callback' => 'wallogic_page_admin_list_block',
+    'access arguments' => array('manage wallogic blocks'),
+    'file'=>'includes/wallogic.admin.inc',
+  );
+  
+  return $items;
+  
+}
+
+function wallogic_perm(){
+  return array('manage wallogic blocks');
+}
+
+function wallogic_theme(){
+  return array(
+    'wallogic_block_list'=>array(
+      'arguments'=>array('blocks'=>array()),
+    ),
+    'wallogic_block_form'=>array(
+      'arguments'=>array('form'=>array()),
+    ),
+  );
+  
+}
+function wallogic_block($op = 'list', $delta = 0, $edit = array()) {
+ /*
+   if ($op == 'list') {
+    $blocks[0] = array('info' => t('Mymodule block #1 shows ...'),
+      'weight' => 0, 'status' => 1, 'region' => 'left');
+      // BLOCK_CACHE_PER_ROLE will be assumed for block 0.
+
+    $blocks[1] = array('info' => t('Mymodule block #2 describes ...'),
+      'cache' => BLOCK_CACHE_PER_ROLE | BLOCK_CACHE_PER_PAGE);
+
+    return $blocks;
+  }
+  else if ($op == 'configure' && $delta == 0) {
+    $form['items'] = array(
+      '#type' => 'select',
+      '#title' => t('Number of items'),
+      '#default_value' => variable_get('mymodule_block_items', 0),
+      '#options' => array('1', '2', '3'),
+    );
+    return $form;
+  }
+  else if ($op == 'save' && $delta == 0) {
+    variable_set('mymodule_block_items', $edit['items']);
+  }
+  else if ($op == 'view') {
+    switch($delta) {
+      case 0:
+        // Your module will need to define this function to render the block.
+        $block = array('subject' => t('Title of block #1'),
+          'content' => mymodule_display_block_1());
+        break;
+      case 1:
+        // Your module will need to define this function to render the block.
+        $block = array('subject' => t('Title of block #2'),
+          'content' => mymodule_display_block_2());
+        break;
+    }
+    return $block;
+  }
+  */
+}
+
+
+
+
+//_________________________________________________________
+function wallogic_get_redac_view_array(){
+  $display_plugin='block';
+  $query="SELECT vv.name, vv.vid, vd.display_plugin,vd.id, vd.display_title  FROM {views_display}  AS vd LEFT JOIN {views_view} AS  vv ON vv.vid=vd.vid WHERE display_plugin='%s'"; 
+  $results=db_query($query,$display_plugin);
+  
+  $array=array();
+  while($result=db_fetch_object($results)){
+  $array[]=$result;
+  }
+  return $array;
+}
+
+function wallogic_get_redac_view_options(){
+  $options=array();
+  $views=wallogic_get_redac_view_array() ;
+  foreach($views as $view){
+    $options[$view->vid.'+'.$view->id]=$view->name.'-'.$view->display_title.' ('.$view->id.')';
+  }
+  return $options;
+}

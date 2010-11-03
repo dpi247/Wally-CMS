@@ -1,0 +1,16 @@
+; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
+name = Wallogic
+description = "Logic of the page structuration for redactional content. Provide bloc and panels content Types"
+package = Wally
+core = 6.x
+dependencies[] = panels
+dependencies[] = ctools
+dependencies[] = views
+
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "Wally"
+datestamp = "1282573770"
+

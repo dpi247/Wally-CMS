@@ -1,0 +1,17 @@
+<?php
+define('WALLY_ADMIN_PATH', 'admin/wally');
+
+
+function wallydefault_menu(){
+ $items[WALLY_ADMIN_PATH] = array(
+    'title' => 'Wally',
+    'description' => 'Wally administration links.',
+    'position' => 'right',
+    'weight' => 5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer wally'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  return $items; 
+}
