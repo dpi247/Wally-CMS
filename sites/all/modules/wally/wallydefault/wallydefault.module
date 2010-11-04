@@ -1,7 +1,15 @@
 <?php
+/**
+ * @defgroup wallydefault Wally Default Core Functions
+ * @{
+ * In this module we define core functions of wally.  
+ */
+
 define('WALLY_ADMIN_PATH', 'admin/wally');
 
-
+/**
+ * Implementation of hook_menu().
+ */
 function wallydefault_menu(){
  $items[WALLY_ADMIN_PATH] = array(
     'title' => 'Wally',
@@ -15,3 +23,130 @@ function wallydefault_menu(){
   );
   return $items; 
 }
+
+
+/** 
+ * Load related nodes into package object via nodepi - "op view". 
+ * 
+ * When a Wally specific node is loaded, this hook will load all the extra 
+ * nodes from all the node reference fields.
+ * 
+ * Specific wally fields supported:
+ *  
+ * - NID (node reference) specific link ( NODE -> NODE ).
+ *   - field_mainstory: Load the Mainstory text node. Load extra "types" into mainstory node.
+ *   - field_linkedobjects: Load all the linked objects (any type).
+ *   - field_embededobjects: Load all the embeded objects (any type).
+ * 
+ * - TID (Taxonomy field) specific link ( NODE -> TAXONOMY -> NODE ). 
+ *   - field_authors: Load the Persons content type for authors.
+ *   - field_locations: Load the Location content type for locations.
+ *   - field_entities: Load the entity content type for entities.
+ *   - field_persons: Load the Persons content type for persons.
+ *
+ * @param: &$node
+ *   The node that will be inspected for node/taxonomy reference
+ * @param: $op
+ *   Nodeapi operation
+ * @param: $a3
+ *   3rd argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
+ * @param: $a4
+ *   4th argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
+ * 
+ * @return Nothing but modify the $node
+ */
+function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+
+ switch ($op) {
+    case 'view':
+		_wallydefault_field_NID($node, $op);
+		_wallydefault_field_TID($node, $op);
+		break;
+	}
+}
+
+/**
+ * Process Node Reference fields.
+ */
+function _wallydefault_field_NID(&$node, $op) {
+	foreach ($node as $field=>$value) {
+			switch($field) {
+				case "field_mainstory":
+					$node->field_mainstory_nodes = wallydefault_field_nodeload($field, $value);
+					_wallydefault_field_TID(&$node->field_mainstory_nodes[0]);
+					break;
+				case "field_linkedobjects":
+					$node->field_linkedobjects_nodes = wallydefault_field_nodeload($field, $value);
+					break;
+				case "field_embededobjects":
+					$node->field_embededobjects_nodes = wallydefault_field_nodeload($field, $value);
+					break;
+			}
+	}
+	return $node;
+}
+
+/**
+ * Process Content Taxonomy fields.
+ */
+function _wallydefault_field_TID(&$node) {
+	foreach ($node as $field=>$value) {
+		switch($field) {
+			case "field_authors":
+				$node->field_authors_nodes = wallydefault_field_tidload($field, $value, "wally_persontype");
+				break;
+			case "field_locations":	
+				$node->field_locations_nodes = wallydefault_field_tidload($field, $value, "wally_locationtype");
+				break;
+			case "field_entities":	
+				$node->field_entities_nodes = wallydefault_field_tidload($field, $value, "wally_entitytype");
+				break;
+			case "field_persons":
+				$node->field_persons_nodes = wallydefault_field_tidload($field, $value, "wally_persontype");
+				break;
+		}
+	}
+	return $node;
+}
+
+
+/**
+ * Process all taxonomy reference and return an array of node
+ */
+function wallydefault_field_tidload($field, $values, $type) {
+
+	$r = array();
+	$tids = array();  
+	foreach ($values as $value=>$tid2load) {
+		if ($tid2load["value"]) {
+			$tids[] = $tid2load["value"]; 
+		}
+	}
+	$results = wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type);
+	foreach ($results as $value=>$node2load) {
+		if (!($r[$value] = node_load($node2load))) { 
+			unset($r[$value]); 
+		}
+	}
+	return $r; 
+}
+
+
+/**
+ * Process all node reference fields and return array of node
+ */
+function wallydefault_field_nodeload($field, $values=null) {
+	$r = array(); 
+	foreach ($values as $value=>$node2load) {
+		if (!($r[$value] = node_load($node2load["nid"]))) { 
+			unset($r[$value]); 
+		}
+	} 
+	return $r; 
+}
+
+
+
+/**
+ * @} End of "defgroup wallydefault".
+ */
