@@ -1,27 +1,42 @@
 <?php
+/**
+ * @defgroup cckdestination Wally CCK Destination Functions
+ * @{
+ * In this module we define a new CCK field for destinatins (4 cascading select).  
+ */
 
-
-function cckdestinations_install() {
+/**
+ * Implementation of hook_install().
+ */
+function cckdestinations_install(){
   content_notify('install', 'destinationsfield');
 }
 
-function cckdestinations_uninstall() {
+/**
+ * Implementation of hook_uninstall().
+ */
+function cckdestinations_uninstall(){
   content_notify('uninstall', 'destinationsfield');
 }
 
-function cckdestinations_enable() {
+/**
+ * Implementation of hook_enable().
+ */
+function cckdestinations_enable(){
   content_notify('enable', 'destinationsfield');
 }
 
-function cckdestinations_disable() {
+/**
+ * Implementation of hook_desable().
+ */
+function cckdestinations_disable(){
   content_notify('disable', 'destinationsfield');
 }
-
 
 /**
  * Implementation of hook_field_info().
  */
-function cckdestinations_field_info() {
+function cckdestinations_field_info(){
   return array(
     'destinationsfield' => array(
       'label' => t('Destinations'),
@@ -31,9 +46,23 @@ function cckdestinations_field_info() {
 }
 
 /**
- * Implementation of hook_field_settings().
+ * Implementation of hook_field_settings() for cck_destination
+ * 
+ * Create an form element to be used on the field settings form. Field
+ * settings will be same for all shared instances of the same field. 
+ * Also define how data will be stored into database
+ * 
+ * @param: $op
+ *   - "database columns": Declare the columns that content.module should create
+ *     and manage on behalf of the field. If the field module wishes to handle
+ *     its own database storage, this should be omitted.
+ *   - "views data": 
+ * @param: $field
+ *   The field on which the operation is to be performed.
+ * 
+ * @return Nothing
  */
-function cckdestinations_field_settings( $op, $field ) {
+function cckdestinations_field_settings( $op, $field ){
   switch( $op ) {
     case 'database columns':
       $columns['tid'] = array('type' => 'int', 'length' => 10, 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
@@ -41,22 +70,21 @@ function cckdestinations_field_settings( $op, $field ) {
       $columns['layout'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
       $columns['rank'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
       return $columns;
-     break;
-     case 'views data':
-       module_load_include('inc', 'cckdestinations', 'views/cckdestinations.views');
-     return cckdestinations_views_content_field_data($field);
-     break;
+      break;
+    case 'views data':
+      module_load_include('inc', 'cckdestinations', 'views/cckdestinations.views');
+	  return cckdestinations_views_content_field_data($field);
+	  break;
   }
 }
+
 /**
  * Implementation of CCK hook_field().
  */
 function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
   switch ($op) {
     case 'validate':
-      
-     break;
-
+      break;
     case 'sanitize':
       foreach ($items as $delta => $item) {
         foreach ( $item as $col => $dat ) {
@@ -71,8 +99,6 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  
-  
   if (empty($item['tid']) && empty($item['taaget']) & empty($item['layout'])& empty($item['rank'])) {
     return TRUE;
   }    
@@ -98,8 +124,7 @@ function cckdestinations_widget_info() {
 /**
  * Implementation of Form API's hook_elements().
  *
- * Returns a skeleton Form API array that defines callbacks
- * for the widget form.
+ * @Returns A skeleton Form API array that defines callbacks for the widget form.
  */
 function cckdestinations_elements() {
   $elements = array( 'cckdestinations_widget' =>
@@ -108,16 +133,13 @@ function cckdestinations_elements() {
       '#process' => array( 'cckdestinations_cckdestinations_widget_process' ),
     ),
   );
-
   return $elements;
 }
-
-
 
 /**
  * Process callback for widget
  *
- * Returns a Forms API array that defines the widget's editing form.
+ * @return A Forms API array that defines the widget's editing form.
  */
 function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
 
@@ -130,15 +152,17 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#default_value' => $defaults['tid'],
     '#weight' => 2,
   );
-  
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
    
   $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE);
   $element['tid']['#required']=False;
+  // add a new #attribute to the element.
   $element['tid']['#attributes'] = array('class' => 'tid');
- 
- 
+
+/**
+ * @todo Get the real values from database. 
+ */
   $element['target'] = array(
     '#title' => t( 'Target' ),
     '#type' => 'select',
@@ -147,10 +171,10 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#classes'=>array(''=>'',"FLEUR"=>"429","ANIMAUX"=>"429","AMEUBLEMENT"=>"453","AUTOMOBILE"=>"453","GADGET"=>"453", ),
     '#required'=>FALSE,
     '#weight' => 3,
+     // specify theming callback & add a new #attribute to the element.
  	'#theme' => 'cckdestinations_cascading_select',
  	'#attributes' => array('class' => 'target'),
  );
-
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
     '#type' => 'select',
@@ -159,10 +183,10 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#classes'=>array(''=>'',"ROSE"=>"FLEUR","TULIPE"=>"FLEUR","CHEVAL"=>"ANIMAUX","LAPIN"=>"ANIMAUX","CHIEN"=>"ANIMAUX","CHAISE"=>"AMEUBLEMENT", "TABLE"=>"AMEUBLEMENT", "AUDI"=>"AUTOMOBILE", "VW"=>"AUTOMOBILE", "PHONE"=>"GADGET", "APN"=>"GADGET",),
     '#required'=>FALSE,
     '#weight' => 4,
+     // specify theming callback & add a new #attribute to the element.
  	'#theme' => 'cckdestinations_cascading_select',
  	'#attributes' => array('class' => 'layout'),
  );
-
   $element['rank'] = array(
     '#title' => t( 'Rank' ),
     '#type' => 'select',
@@ -171,15 +195,18 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#classes'=>array(''=>'',1=>"Class R1",2=>"Class R2",3=>"Class R3",4=>"Class R4",5=>"Class R5",),
     '#required'=>FALSE,
     '#weight' => 5,
-	'#theme' => 'cckdestinations_cascading_select',
   );
-
   return $element;
 }
 
-
+/**
+ * Implementation of hook_theme() for cascading select.
+ * 
+ * Call to cckdestinations_cascading_select_options() for theming "option". 
+ *
+ * @return HTML select form element. 
+ */
 function theme_cckdestinations_cascading_select($element) {
-
   $select = '';
   $size = $element['#size'] ? ' size="'. $element['#size'] .'"' : '';
   _form_set_class($element, array('form-select'));
@@ -187,7 +214,14 @@ function theme_cckdestinations_cascading_select($element) {
   return theme('form_element', $element, '<select name="'. $element['#name'] .''. ($multiple ? '[]' : '') .'"'. ($multiple ? ' multiple="multiple" ' : '') . drupal_attributes($element['#attributes']) .' id="'. $element['#id'] .'" '. $size .'>'. cckdestinations_cascading_select_options($element) .'</select>');
 }
 
-
+/**
+ * Specific theming function for Options on Cascading Selects.
+ * 
+ * Purpose is to add a html class attribute: sub_xxxx so, jquery can
+ * act on these specials options (hide or show). 
+ *
+ * @return HTML options form elements. 
+ */
 function cckdestinations_cascading_select_options($element, $choices = NULL) {
 	  
   if (!isset($choices)) {
@@ -262,7 +296,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
 /**
  * Implementation of CCK's hook_field_formatter_info().
  *
- * Returns information about available field formatters.
+ * @return Information about available field formatters.
  */
 function cckdestinations_field_formatter_info() {
   return array(
@@ -333,8 +367,6 @@ function theme_cckdestinations_formatter_default($element = NULL) {
       $sep = "<br />\n";
     }
   }
-
-  
   $ret .= '</div>';
 
   return $ret;
