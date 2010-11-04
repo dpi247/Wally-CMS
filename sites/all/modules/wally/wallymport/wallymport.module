@@ -21,14 +21,13 @@ function wallymport_menu() {
     'access arguments' => array('access administration pages'),
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallymport.admin.inc',
-
   );
 
-  $items[WALLY_ADMIN_PATH.'/wallymport/process_folder'] = array(
+  $items['wallymport/process_folder'] = array(
 	'title' => 'Run XML Import Process for a forlder',
 	'description' => 'Run data import',
 	'page callback' => 'wallymport_page_process_folder',
-  	'access arguments' => array('access administration pages'),
+  'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
   );
   return $items;
@@ -121,8 +120,7 @@ function wallymport_page_process_folder($path_to_folder=null){
  * @return
  *   nothing
  */
-
-function wallymport_page_process_file($path_to_file) {
+function wallymport_page_process_file($path_to_file){
   global $proceed_file_path;
 
 

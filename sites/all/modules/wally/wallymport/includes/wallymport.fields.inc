@@ -35,7 +35,6 @@ function wimprt_create_or_load_package_articlepackagetype($dom,&$log){
   return $node;
 }
 
-
 /**
  * Create or load a gallery package depending of external reference.
  * 
@@ -64,10 +63,25 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   return $node;
 }
 
+/**
+ * Process article package from DOM.
+ * 
+ * MAP fields of the article package content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   
-   //Map XML Attributes 
-  
+  //Map XML Attributes 
   if($dom_element->hasAttribute("UnPublicationDate"))
     $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublicationDate")->value);
   
@@ -83,7 +97,22 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   wimprt_process_package_default($node,$dom_element,$log);
 }
 
-
+/**
+ * Process gallery package from DOM.
+ * 
+ * MAP fields of the gallery package content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
@@ -102,24 +131,102 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   wimprt_process_package_default($node,$dom_element,$log);
 }
 
+/**
+ * Process field Package Description from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_packagedescription(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
 }
+
+/**
+ * Process field Package Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_packagetitle(&$node,$dom,&$log){
   $text=$dom->nodeValue;
   $node->title= _wimprthelp_plain_text($text);
 }
+
+/**
+ * Process field External Reference from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_externalreference(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_externalreference[0]['value']= _wimprthelp_plain_text($value);
 }
 
+/**
+ * Process field Main Story from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_mainstory(&$node,$dom,&$log){
+  // Process the object & getting NID
 	$object=wimprt_process_object($dom,$log,'TextObject');
 	$node->field_mainstory[0]['nid']=$object->nid;
 }
 
+/**
+ * Process field Package Description from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
 	$results=wimprt_process_list($embedobjects,$log,'object');
@@ -132,8 +239,6 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 	foreach($results as $result){
 	  $node->field_linkedobjects[]['nid']=$result->nid;
 	}
-
-
 }
   
 /**
@@ -164,7 +269,6 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
   return $node;
 }
 
-
 /**
  * Create or load a photo object depending of external reference.
  * 
@@ -193,6 +297,22 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   return $node;
 }
 
+/**
+ * Process photo object from DOM.
+ * 
+ * MAP fields of the photo object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
   $value=$dom->nodeValue;
@@ -217,10 +337,41 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
 
 }
 
+/**
+ * Process field LInks from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_links(&$node,$dom,&$log){
   $result=wimprt_process_list($dom,$log,'type');
 }
 
+/**
+ * Process article package from DOM.
+ * 
+ * MAP fields of the article package content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_type_link(&$node,$dom,&$log){
   $node->type='wally_linktype';
   wimprt_process_type_default($node,$dom,$log);
@@ -242,8 +393,7 @@ function wimprt_process_type_link(&$node,$dom,&$log){
 	 $node->field_link_item[0]['url']=$uri_value;
      $node->field_link_item[0]['attributes']=array('target'=>'_blank');
 	}
-  
-  }
+}
 
 
 /**
@@ -274,7 +424,6 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   return $node;
 }
 
-
 /**
  * Create or load a link type depending of external reference.
  * 
@@ -303,30 +452,105 @@ function wimprt_create_or_load_type_link($dom,&$log){
   return $node;
 }
 
+/**
+ * Process Linklist object from DOM.
+ * 
+ * MAP fields of the links list object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_object_linkslist(&$node,$dom,&$log){
   wimprt_process_object_default($node,$dom,$log);
-  
 }
 
+
+/**
+ * Process field Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_title(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->title= _wimprthelp_plain_text($value);
 }
 
+/**
+ * Process field Summary from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_summary(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
 }
 
+/**
+ * Process field ProductID from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_productid(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_productid[0]['value']=$value;
 }
 
-
+/**
+ * Process Text object from DOM.
+ * 
+ * MAP fields of the text object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   //Map XML Attributes 
-
   $node->object_id = $dom_element->getAttributeNode("ObjectID")->value;
   $node->object_description= $dom_element->getAttributeNode("ObjectDescription")->value;
   $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
@@ -342,47 +566,184 @@ function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   if ($dom_element->getElementsByTagName("Title")->length) {
     $node->field_objecttitle = array(array("value"=>$dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
   } 
-
 }
 
+/**
+ * Process field Text Barette from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_textbarette(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textarette[0]['value']=$value;
 }
 
+/**
+ * Process field Text Foretitle from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_textforetitle(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textforetitle[0]['value']=$value;
 }
 
+/**
+ * Process field Text Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_texttitle(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->title=$value;
 }
 
+/**
+ * Process field Sub-Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_subtitle(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textsubtitle[0]['value']=$value;
 }
 
+/**
+ * Process field Text Chapo from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_textchapo(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textchapo[0]['value']=$value;
 }
 
+/**
+ * Process field Text Body from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_textbody(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_textbody[0]['value']=$value;
 }
 
+/**
+ * Process field Text Extract Medium from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_extractmedium(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_extractmedium[0]['value']=$value;
 }
+
+/**
+ * Process field Text Extract Short from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_extractshort(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_extractshort[0]['value']=$value;
-}function wimprt_set_field_copyright(&$node,$dom,&$log){
+}
+
+/**
+ * Process field Copyright from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_copyright(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_copyright[0]['value']=$value;
 }
@@ -423,6 +784,22 @@ function wimprt_create_or_load_type_location($dom,$log){
 	return $result; 
 }
 
+/**
+ * Process Location Type from DOM.
+ * 
+ * MAP fields of the location type content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_type_location(&$node,$dom,&$log){
 
 	if (!($vid=variable_get('wallymport_location',null))) {
@@ -470,9 +847,8 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 // field_address
 	$addresses = $dom->getElementsByTagName("Address");
 	if ($addresses->length) {
-		$node->field_address = wimprt_address_dom_to_ccklocation($addresses,$log, $node->title);
+		$node->field_address = _wimprt_address_dom_to_ccklocation($addresses,$log, $node->title);
 	}
-
 
 // location lat/long - In this case will re-write field_adress values.
 /*
@@ -505,64 +881,21 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 }
 
 
-function wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
-
-	$address_line = array(); 
-	$array_node = array(); 
-	
-	foreach ($addresses as $address) {
-		
-		$adress_item = array();
-		
-		$address_line_cpt = 0; 
-		$address_lines = $address->getElementsByTagName("AddressLine");
-		if ($address_lines->length) {
-			foreach($address_lines as $address_line) {
-				switch ($address_line_cpt) {
-					case 0:
-		
-						$adress_item["street"] = $address_line->nodeValue;
-						break; 
-					case 1:
-						$adress_item["additional"] = $address_line->nodeValue;
-						break;
-					default:
-						drupal_set_message('More than 2 adress lines into xml. Ignoring: "'.$address_line->nodeValue.'".','error');
-				}
-			$address_line_cpt++;
-			}
-		}
-		
-		if ($address->getElementsByTagName("City")->length) {
-			$adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
-		}
-		
-		if ($location_name) {
-			$adress_item["name"] = $location_name;
-		} else {
-			$adress_item["name"] = $adress_item["city"];
-		}
-
-		if ($address->getElementsByTagName("Zip")->length) {
-			$adress_item["postal_code"] = $address->getElementsByTagName("Zip")->item(0)->nodeValue;
-		}
-
-		if ($address->getElementsByTagName("State")->length) {
-			$adress_item["province_name"] = $address->getElementsByTagName("State")->item(0)->nodeValue;
-		}
-
-		if ($address->getElementsByTagName("Country")->length) {
-			$adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
-		}
-
-
-		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
-				
-	}
-
-	return $array_node;
-}
-
+/**
+ * Process field Locations Medium from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_locations(&$node,$dom,&$log){
 
 	$node->field_locations = array(); 
@@ -586,6 +919,21 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
     return $results; 
 }
 
+/**
+ * Process field Editions from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_editions(&$node,$dom,$log) {
 
 	if(variable_get('wallymport_debug',0) or true){
@@ -638,6 +986,22 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 	}
 }
 
+
+/**
+ * Process field Destinations from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_destinations(&$node,$dom,$log) {
 
 	if(variable_get('wallymport_debug',0) or true){
@@ -678,6 +1042,21 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 	}
 }
 
+/**
+ * Process field Taxonomy from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 
 	$result = array("field_tags"=>array(), "field_free_tags"=>array());
@@ -710,22 +1089,36 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 					if (!in_array(array("value"=>$term->tid), $node->field_free_tags)) {
 						$node->field_free_tags[] = array("value"=>$term->tid);
 						$node->taxonomy[] = $term; 
-
-			
-
 					}
 				}
 			}
 		} else {
-			drupal_set_message('No taxonomy terms of free tagging found.','error');
+			drupal_set_message('WARNING: No vocabulary tag found in taxonomy element. Skipping taxonomy process.','notice');
 		}
 	} else {
-		drupal_set_message('Free tagg / classified tags taxonomy vocabularies not set. See settings.','error');
+		drupal_set_message('Free tagg / classified tags taxonomy vocabularies not set. See wally/settings.','error');
 		return null;
 	}
 }
 
-
+/**
+ * Search or Create Terms & Vocabularies
+ * 
+ * Search and return array taxonomy terms for a given vocabularies. 
+ * If DOM attribute Vocabulary Name is given, we search into 
+ * Classified taxonomy. If no, asuming it's a free tag.
+ *
+ * If taxonomy term exist, element is return else, a new term
+ * is added to taxonomy vocabulary.
+ *  
+ * @param $vocabulary
+ *   Node currently processed.
+ * @param &$result
+ *   An array of Taxonomy Term
+ *
+ * @return
+ *   Nothing but modify $result
+ */
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
@@ -755,8 +1148,8 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	$terms = $vocabulary->getElementsByTagName("Term");
 	if ($terms->length) {
 		foreach($terms as $term) {
-			$path = trim($vocabulary_name,"/")."/".trim($term->nodeValue,"/"); 
-			if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
+			$path = trim(trim($vocabulary_name),"/")."/".trim(trim($term->nodeValue),"/");
+      if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
 				// Cool, we got a term for the correct VID.
 				if ($taxonomy_recursive) {
 					$recursive_path = "";
@@ -786,10 +1179,10 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 							$tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
 						}
 					}
-					// The node is  assigned to all the terms from PATH.
+					// The node will be assigned to all the terms from PATH.
 					if ($taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
 				}
-				// The node is only assigned to the last term from PATH.
+				// The node will only assigned to the last term from PATH.
 				if (!$taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
 			}
 		}
@@ -798,6 +1191,21 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	}
 }
 
+/**
+ * Process field Entities from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_entities(&$node,$dom,&$log){
 
 	$node->field_entities = array(); 
@@ -853,7 +1261,22 @@ function wimprt_create_or_load_type_entity($dom,$log){
 	return $result;
 }
 
-
+/**
+ * Process Entity type from DOM.
+ * 
+ * MAP fields of the entity content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_type_entity(&$node,$dom,&$log){
 
 	if (!($vid=variable_get('wallymport_entity',null))) {
@@ -908,7 +1331,6 @@ function wimprt_process_type_entity(&$node,$dom,&$log){
 		$node->field_services = array(array("value"=>_wimprthelp_plain_text($t->item(0)->nodeValue)));
 	}
 
-
 // Locations
 	$t = $dom->getElementsByTagName("Locations");
 	if ($t->length) {
@@ -938,11 +1360,21 @@ function wimprt_process_type_entity(&$node,$dom,&$log){
 
 }
 
-
-
-
-
-
+/**
+ * Process field Persons from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_persons(&$node,$dom,&$log){
 
 	$node->field_persons = array(); 
@@ -998,6 +1430,22 @@ function wimprt_create_or_load_type_person($dom,$log){
 	return $result;
 }
 
+/**
+ * Process Person type from DOM.
+ * 
+ * MAP fields of the Person content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_process_type_person(&$node,$dom,&$log){
 
 	if (!($vid=variable_get('wallymport_person',null))) {
@@ -1092,12 +1540,26 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 		$node->field_personwebsite = array($site);
 	}
 	
-
 // Send back the node
 	return($node);
 
 }
 
+/**
+ * Process field Comments Allowed from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 	
 	$result = COMMENT_NODE_DISABLED;
@@ -1116,10 +1578,80 @@ function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 			$result = COMMENT_NODE_DISABLED; 
 			break;
 	}
-	
 	$node->comment = $result;
 	return $result;
 }
+
+
+/**
+ * Convert a adress DOM element to a CCK_location form element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $addresses
+ *   The DomDocument who is being proceed (A Adresses DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ * @param $location_name
+ *   The Name given to the cck_location element. If ommitted, city name will be used. 
+ *
+ * @return
+ *   Array of cck_location element.
+ */
+function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
+
+	$address_line = array(); 
+	$array_node = array(); 
+	
+	foreach ($addresses as $address) {
+		
+		$adress_item = array();
+		
+		$address_line_cpt = 0; 
+		$address_lines = $address->getElementsByTagName("AddressLine");
+		if ($address_lines->length) {
+			foreach($address_lines as $address_line) {
+				switch ($address_line_cpt) {
+					case 0:
+		
+						$adress_item["street"] = $address_line->nodeValue;
+						break; 
+					case 1:
+						$adress_item["additional"] = $address_line->nodeValue;
+						break;
+					default:
+						drupal_set_message('More than 2 adress lines into xml. Ignoring: "'.$address_line->nodeValue.'".','error');
+				}
+			$address_line_cpt++;
+			}
+		}
+		
+		if ($address->getElementsByTagName("City")->length) {
+			$adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
+		}
+		
+		if ($location_name) {
+			$adress_item["name"] = $location_name;
+		} else {
+			$adress_item["name"] = $adress_item["city"];
+		}
+
+		if ($address->getElementsByTagName("Zip")->length) {
+			$adress_item["postal_code"] = $address->getElementsByTagName("Zip")->item(0)->nodeValue;
+		}
+
+		if ($address->getElementsByTagName("State")->length) {
+			$adress_item["province_name"] = $address->getElementsByTagName("State")->item(0)->nodeValue;
+		}
+
+		if ($address->getElementsByTagName("Country")->length) {
+			$adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
+		}
+		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
+	}
+	return $array_node;
+}
+
 
 /**
  * @} End of "defgroup wallymport.field".

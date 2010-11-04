@@ -267,11 +267,15 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   return $options;
 }
 
-
-
+/**
+ * Validate callback for widget
+ *
+ * @return Nothing
+ */
 function cckdestinations_widget_validate(&$element, &$form_state) {
-  //@todo: validate link between tid, target and display
-  ;
+/**
+ * @todo validate link between tid, target and display. 
+ */
 }
 
 /**
@@ -291,7 +295,6 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
   );
   return $element;
 }
-
 
 /**
  * Implementation of CCK's hook_field_formatter_info().
@@ -324,6 +327,11 @@ function cckdestinations_field_formatter_info() {
   );
 }
 
+/**
+ * Implementation of hook_theme().
+ *
+ * @return Array of theme callback
+ */
 function cckdestinations_theme() {
   return array(
     'cckdestinations_widget' => array(
@@ -351,6 +359,11 @@ function cckdestinations_theme() {
 );
 }
 
+/**
+ * Implementation of CCK's hook_field_formatter_default().
+ *
+ * @return HTML for destination form element
+ */
 function theme_cckdestinations_formatter_default($element = NULL) {
   if(empty($element['#item'])) {
     return '';
@@ -368,11 +381,15 @@ function theme_cckdestinations_formatter_default($element = NULL) {
     }
   }
   $ret .= '</div>';
-
   return $ret;
 }
 
 
+/**
+ * Implementation of CCK's hook_field_formatter().
+ *
+ * @return HTML for destination form element
+ */
 function theme_cckdestinations_formatter_tid($element = NULL) {
   if(empty($element['#item'])) {
     return '';
@@ -389,20 +406,19 @@ function theme_cckdestinations_formatter_tid($element = NULL) {
       $sep = "<br />\n";
     }
   }
-
-  
   $ret .= '</div>';
-
   return $ret;
 }
 
-
+/**
+ * Implementation of CCK's hook_field_formatter for target element.  
+ */
 function theme_cckdestinations_formatter_target($element = NULL) {
   if(empty($element['#item'])) {
     return '';
   }
 
-  $stuff = $element['#item'];
+	$stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
   $sep = '';
@@ -413,14 +429,14 @@ function theme_cckdestinations_formatter_target($element = NULL) {
       $sep = "<br />\n";
     }
   }
-
-  
   $ret .= '</div>';
-
   return $ret;
 }
 
 
+/**
+ * Implementation of CCK's hook_field_formatter for layout element.  
+ */
 function theme_cckdestinations_formatter_layout($element = NULL) {
   if(empty($element['#item'])) {
     return '';
@@ -437,14 +453,13 @@ function theme_cckdestinations_formatter_layout($element = NULL) {
       $sep = "<br />\n";
     }
   }
-
-  
   $ret .= '</div>';
-
   return $ret;
 }
 
-
+/**
+ * Implementation of CCK's hook_field_formatter for rank element.  
+ */
 function theme_cckdestinations_formatter_rank($element = NULL) {
   if(empty($element['#item'])) {
     return '';
@@ -461,7 +476,6 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
       $sep = "<br />\n";
     }
   }
-  
   $ret .= '</div>';
   return $ret;
 }
@@ -475,4 +489,3 @@ function cckdestinations_views_api() {
     'path' => drupal_get_path('module', 'cckdestinations') .'/views',
   );
 }
-
