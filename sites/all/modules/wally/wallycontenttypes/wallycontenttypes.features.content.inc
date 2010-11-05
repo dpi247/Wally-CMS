@@ -1557,6 +1557,60 @@ Free',
     ),
   );
 
+  // Exported field: field_testdes
+  $fields['wally_articlepackage-field_testdes'] = array(
+    'field_name' => 'field_testdes',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'destinationsfield',
+    'required' => '1',
+    'multiple' => '1',
+    'module' => 'cckdestinations',
+    'active' => '1',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'tid' => '',
+          'target' => '',
+          'layout' => '',
+          'rank' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'test dest',
+      'weight' => '13',
+      'description' => '',
+      'type' => 'cckdestinations_widget',
+      'module' => 'cckdestinations',
+    ),
+  );
+
   // Exported field: field_unpublishdate
   $fields['wally_articlepackage-field_unpublishdate'] = array(
     'field_name' => 'field_unpublishdate',
@@ -5108,13 +5162,17 @@ Free',
       'wally_audioobject' => 'wally_audioobject',
       'wally_digitalobject' => 'wally_digitalobject',
       'wally_photoobject' => 'wally_photoobject',
-      'wally_pollobject' => 'wally_pollobject',
-      'wally_textobject' => 'wally_textobject',
       'wally_videoobject' => 'wally_videoobject',
+      'wally_linktype' => 0,
       'wally_articlepackage' => 0,
       'wally_entitytype' => 0,
       'wally_gallerypackage' => 0,
       'wally_locationtype' => 0,
+      'wally_persontype' => 0,
+      'wally_pollobject' => 0,
+      'wally_pollpackage' => 0,
+      'wally_textobject' => 0,
+      'wally_linkslistobject' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -11021,16 +11079,19 @@ Free',
     'active' => '1',
     'referenceable_types' => array(
       'wally_pollobject' => 'wally_pollobject',
+      'wally_linktype' => 0,
       'wally_articlepackage' => 0,
       'wally_audioobject' => 0,
       'wally_digitalobject' => 0,
       'wally_entitytype' => 0,
       'wally_gallerypackage' => 0,
       'wally_locationtype' => 0,
+      'wally_persontype' => 0,
       'wally_photoobject' => 0,
       'wally_pollpackage' => 0,
       'wally_textobject' => 0,
       'wally_videoobject' => 0,
+      'wally_linkslistobject' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -15025,6 +15086,7 @@ Free',
   t('Video 3rd Party');
   t('Video File');
   t('Video Summary');
+  t('test dest');
 
   return $fields;
 }
