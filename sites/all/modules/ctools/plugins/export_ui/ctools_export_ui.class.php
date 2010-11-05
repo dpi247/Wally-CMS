@@ -67,13 +67,7 @@ class ctools_export_ui {
    * probably call parent::hook_menu($items) and then modify as needed.
    */
   function hook_menu(&$items) {
-    // During upgrades, the schema can be empty as this is called prior to
-    // actual update functions being run. Ensure that we can cope with this
-    // situation.
-    if (empty($this->plugin['schema'])) {
-      return;
-    }
-
+    
     $prefix = ctools_export_ui_plugin_base_path($this->plugin);
 
     if (isset($this->plugin['menu']['items']) && is_array($this->plugin['menu']['items'])) {
@@ -1089,6 +1083,7 @@ class ctools_export_ui {
    * overridden.
    */
   function edit_form_submit(&$form, &$form_state) {
+    dsm($form);
     if (!empty($this->plugin['form']['submit'])) {
       // Pass $form by reference.
       $this->plugin['form']['submit']($form, $form_state);

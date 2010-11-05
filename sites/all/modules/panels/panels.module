@@ -1185,7 +1185,6 @@ function panels_ajax_router() {
   if (count($args) < 3) {
     return MENU_NOT_FOUND;
   }
-
   ctools_include('display-edit', 'panels');
   ctools_include('plugins', 'panels');
   ctools_include('ajax');

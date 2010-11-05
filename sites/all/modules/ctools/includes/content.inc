@@ -30,7 +30,6 @@ function ctools_ctools_plugin_content_types() {
  */
 function ctools_content_process(&$plugin, $info) {
   $function_base = $plugin['module'] . '_' . $plugin['name'] . '_content_type_';
-
   if (empty($plugin['render callback']) && function_exists($function_base . 'render')) {
     $plugin['render callback'] = $function_base . 'render';
   }
