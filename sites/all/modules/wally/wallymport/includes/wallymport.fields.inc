@@ -98,7 +98,6 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   wimprt_process_package_default($node,$dom_element,$log);
 }
 
-
 /**
  * Process gallery package from DOM.
  * 
@@ -132,7 +131,6 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
-
 
 /**
  * Process field Package Description from DOM element.
@@ -254,6 +252,7 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
   $node->field_linkedobjects = array(); 
 	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
   $linklist=$dom->getElementsByTagName('LinksList')->item(0);
+  if($dom->getElementsByTagName('LinksList')->item(0)){
   if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
     foreach(wimprt_process_list($linklists,$log,'object') as $result){
       if (!array_key_exists($result->nid, $links)) {
@@ -264,6 +263,7 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
   } else {
     drupal_set_message('WARNING: No LinksList found in LinksLists element. Skipping LinksLists process.','notice');
   }
+}
 }
 
 /**
