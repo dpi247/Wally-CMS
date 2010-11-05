@@ -74,7 +74,7 @@ function wallycontenttypes_node_info() {
     'wally_linktype' => array(
       'name' => t('Wally_LinkType'),
       'module' => 'features',
-      'description' => '',
+      'description' => t('Wally Link type - Link object (internal / external ref)'),
       'has_title' => '1',
       'title_label' => t('Title'),
       'has_body' => '0',
