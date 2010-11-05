@@ -62,7 +62,18 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 		_wallydefault_field_NID($node, $op);
 		_wallydefault_field_TID($node, $op);
 		break;
-	}
+	case 'insert' :
+		if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
+      _wallydefault_addtaxonomywheninserted($node,'insert');
+		break;
+	case 'update' :
+    if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
+      _wallydefault_addtaxonomywheninserted($node,'update');
+		elseif($node->type=='wally_textobject' || $node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject' || $node->type=='wally_pollobject')
+			_wallydefault_addtaxonomywhenupdated($node);
+    
+		break;
+		}
 }
 
 /**
@@ -144,8 +155,88 @@ function wallydefault_field_nodeload($field, $values=null) {
 	} 
 	return $r; 
 }
+/**
+ * Add taxonomy term from textobject to articlepackage when textobject is updated
+*  packagenode is the node who reference the current node (It can be ArticlePackage, GalleryPackage or PollPackage
+* 
+* @param $node
+*   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+*
+* @return
+*   Nothing
+*/
+function _wallydefault_addtaxonomywhenupdated($node){
+	
+			$rows=_wallydefault_getpackagesid($node);
+			foreach($rows as $row){
+				$packagenode=node_load($row['nid']);
+				$packagenode->taxonomy=$node->taxonomy;
+				$packagenode->field_markers=$node->field_markers;
+				$packagenode->field_locations=$node->field_locations;
+				$packagenode->field_entities=$node->field_entities;
+				$packagenode->field_persons=$node->field_persons;
+				$packagenode->field_tags=$node->field_tags;
+				$packagenode->field_free_tags=$node->field_free_tags;	
+				node_save($packagenode);	
+			}
+	}
+/**
+ * Add taxonomy term of textobject to articlepackage when articlepackage is inserted or updated
+ * 
+ *  objectnode is the node who is referenced by the current node (It can be TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject or PollObject)
+ * @param $node
+ *   Node currently processed(ArticlePackage, GalleryPackage or PollPackage)
+ *
+ * @return
+ *   Nothing
+*/
+ function _wallydefault_addtaxonomywheninserted(&$node,$state){
+			
+			//$objectnode=node_load(_wallydefault_getobjectid($node));
+      $objectnode=node_load($node->field_mainstory[0]['nid']);
+			$node->taxonomy=$objectnode->taxonomy;
+			$node->field_markers=$objectnode->field_markers;
+			$node->field_locations=$objectnode->field_locations;
+			$node->field_entities=$objectnode->field_entities;
+			$node->field_persons=$objectnode->field_persons;
+			$node->field_tags=$objectnode->field_tags;
+			$node->field_free_tags=$objectnode->field_free_tags;
+      if($state=='insert')
+        node_save($node);
+      
+	 }
 
-
+   
+/**
+ * Get nid from packages who reference the current node
+ * 
+* @param $node
+*   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+*
+* @return
+*   Array() of array() of nid
+*/
+function _wallydefault_getpackagesid($node){
+  if($node->type=='wally_textobject'){
+	$res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+	while ($row = db_fetch_array($res)) {
+	  $rows[] = $row;
+	}
+  }
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+	$res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
+	while ($row = db_fetch_array($res)) {
+	  $rows[] = $row;
+	}
+  }
+  elseif($node->type=='wally_pollobject'){
+	$res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+	while ($row = db_fetch_array($res)) {
+	  $rows[] = $row;
+	}
+  }
+  return $rows;
+}
 
 /**
  * @} End of "defgroup wallydefault".
