@@ -216,6 +216,12 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
  * Process field Package Description from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
+ * All linked & embeded obkect will be unlinked before creating the new list. 
+ * So if package was already linked to an object and this object no more
+ * part of the list in XML, the link for this object will be removed.
+ * 
+ * Orphan object (that aren't linked to any packages) should be
+ * deleted by an external process. 
  * 
  * @param $node
  *   Node currently processed.
@@ -228,6 +234,10 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
+ 
+  // Embeded objects
+  $results = array(); 
+  $node->field_embededobjects = array(); 
 	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
 	$results=wimprt_process_list($embedobjects,$log,'object');
 	foreach($results as $result){
@@ -496,6 +506,29 @@ function wimprt_set_field_title(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->title= _wimprthelp_plain_text($value);
 }
+
+/**
+ * Process field Free Access from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * Anything else then a booelan true value will 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_freeaccess(&$node,$dom,&$log){
+  (wallytoolbox_toboolean($dom->nodeValue)) ? 
+    $node->field_freeaccess[0]['value'] = "Free" : 
+    $node->field_freeaccess[0]['value'] = null; 
+}
+
 
 /**
  * Process field Summary from DOM element.
