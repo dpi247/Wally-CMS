@@ -24,7 +24,9 @@ function wallydefault_menu(){
   return $items; 
 }
 
-
+/**
+ * Implementation of hook_nodeapi().
+ */
 function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
  switch ($op) {
@@ -53,6 +55,7 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 		break;
 		}
 }
+
 /** 
  * Load related nodes into package object via nodepi - "op view". 
  * 
@@ -87,8 +90,9 @@ function _wallydefault_packagepopulate($node,$op){
   _wallydefault_field_NID($node, $op);
   _wallydefault_field_TID($node, $op);
   }
+
 /**
- * Process Node Reference fields.
+ * Process Node Reference fields in for populate node.
  */
 function _wallydefault_field_NID(&$node, $op) {
 	foreach ($node as $field=>$value) {
@@ -109,7 +113,7 @@ function _wallydefault_field_NID(&$node, $op) {
 }
 
 /**
- * Process Content Taxonomy fields.
+ * Process Content Taxonomy fields for populate node.
  */
 function _wallydefault_field_TID(&$node) {
 	foreach ($node as $field=>$value) {
@@ -130,7 +134,6 @@ function _wallydefault_field_TID(&$node) {
 	}
 	return $node;
 }
-
 
 /**
  * Process all taxonomy reference and return an array of node
@@ -166,8 +169,9 @@ function wallydefault_field_nodeload($field, $values=null) {
 	} 
 	return $r; 
 }
+
 /**
- * Add taxonomy term from textobject to articlepackage when textobject is updated
+* Add taxonomy term from textobject to articlepackage when textobject is updated
 *  packagenode is the node who reference the current node (It can be ArticlePackage, GalleryPackage or PollPackage
 * 
 * @param $node
@@ -178,7 +182,7 @@ function wallydefault_field_nodeload($field, $values=null) {
 */
 function _wallydefault_addtaxonomywhenupdated($node){
 	
-			$rows=_wallydefault_getpackagesid($node);
+			$rows =_wallydefault_getpackagesid($node);
 			foreach($rows as $row){
 				$packagenode=node_load($row['nid']);
 				$packagenode->taxonomy=$node->taxonomy;
@@ -191,10 +195,12 @@ function _wallydefault_addtaxonomywhenupdated($node){
 				node_save($packagenode);	
 			}
 	}
+
 /**
  * Add taxonomy term of textobject to articlepackage when articlepackage is inserted or updated
  * 
  *  objectnode is the node who is referenced by the current node (It can be TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject or PollObject)
+ * 
  * @param $node
  *   Node currently processed(ArticlePackage, GalleryPackage or PollPackage)
  *
@@ -203,45 +209,44 @@ function _wallydefault_addtaxonomywhenupdated($node){
 */
  function _wallydefault_addtaxonomywheninserted(&$node){
 			
-      $objectnode=node_load($node->field_mainstory[0]['nid']);
-			$node->taxonomy=$objectnode->taxonomy;
-			$node->field_markers=$objectnode->field_markers;
-			$node->field_locations=$objectnode->field_locations;
-			$node->field_entities=$objectnode->field_entities;
-			$node->field_persons=$objectnode->field_persons;
-			$node->field_tags=$objectnode->field_tags;
-			$node->field_free_tags=$objectnode->field_free_tags;
-      
+      if ($objectnode=node_load($node->field_mainstory[0]['nid'])) {
+        $node->taxonomy=$objectnode->taxonomy;
+        $node->field_markers=$objectnode->field_markers;
+        $node->field_locations=$objectnode->field_locations;
+        $node->field_entities=$objectnode->field_entities;
+        $node->field_persons=$objectnode->field_persons;
+        $node->field_tags=$objectnode->field_tags;
+        $node->field_free_tags=$objectnode->field_free_tags;
+      }
 	 }
-
    
 /**
  * Get nid from packages who reference the current node
  * 
-* @param $node
-*   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
-*
-* @return
-*   Array() of array() of nid
-*/
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
 function _wallydefault_getpackagesid($node){
   if($node->type=='wally_textobject'){
-	$res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
-	while ($row = db_fetch_array($res)) {
-	  $rows[] = $row;
-	}
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      $rows[] = $row;
+    }
   }
   elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
-	$res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
-	while ($row = db_fetch_array($res)) {
-	  $rows[] = $row;
-	}
+    $res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      $rows[] = $row;
+    }
   }
   elseif($node->type=='wally_pollobject'){
-	$res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
-	while ($row = db_fetch_array($res)) {
-	  $rows[] = $row;
-	}
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      $rows[] = $row; 
+    }
   }
   return $rows;
 }
