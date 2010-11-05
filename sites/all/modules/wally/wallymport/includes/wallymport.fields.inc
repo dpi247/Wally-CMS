@@ -82,13 +82,14 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
 function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
-  if($dom_element->hasAttribute("UnPublicationDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublicationDate")->value);
-  
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+  if($dom_element->hasAttribute("PublicationDate"))
+    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   $node->language= $dom_element->getAttributeNode("Language")->value;
   $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("UnPublicationDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublicationDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -96,6 +97,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
+
 
 /**
  * Process gallery package from DOM.
@@ -117,19 +119,20 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
   
-  if($dom_element->hasAttribute("UnPublicationDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublicationDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
   
   $node->language= $dom_element->getAttributeNode("Language")->value;
   $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("UnPublicationDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublicationDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
+
 
 /**
  * Process field Package Description from DOM element.
@@ -239,21 +242,30 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
   $results = array(); 
   $node->field_embededobjects = array(); 
 	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
-	$results=wimprt_process_list($embedobjects,$log,'object');
-	foreach($results as $result){
-	  $node->field_embededobjects[]['nid']=$result->nid;
-	}
- 
-  $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-  $linklist=$dom->getElementsByTagName('LinksList')->item(0);
-  if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
-    $results=wimprt_process_list($linklists,$log,'object');
-    foreach($results as $result){
-      $node->field_linkedobjects[]['nid']=$result->nid;
+	foreach(wimprt_process_list($embedobjects,$log,'object') as $result){
+    if (!array_key_exists($result->nid, $results)) {
+      $results[$result->nid]=$result->nid;
+      $node->field_embededobjects[]['nid']=$result->nid;
     }
   }
+
+  // Linkslists objects
+  $links = array(); 
+  $node->field_linkedobjects = array(); 
+	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
+  $linklist=$dom->getElementsByTagName('LinksList')->item(0);
+  if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
+    foreach(wimprt_process_list($linklists,$log,'object') as $result){
+      if (!array_key_exists($result->nid, $links)) {
+        $links[$result->nid]=$result->nid;
+        $node->field_linkedobjects[]['nid']=$result->nid;
+      }
+    }
+  } else {
+    drupal_set_message('WARNING: No LinksList found in LinksLists element. Skipping LinksLists process.','notice');
+  }
 }
-  
+
 /**
  * Create or load a text object depending of external reference.
  * 
@@ -423,7 +435,6 @@ function wimprt_process_type_link(&$node,$dom,&$log){
  *   A node object
  */
 function wimprt_create_or_load_object_linkslist($dom,&$log){
-  
   $node=new stdClass;
   $node->type='wally_linkslistobject';
 
