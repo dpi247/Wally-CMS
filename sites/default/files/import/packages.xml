@@ -22,7 +22,7 @@
 			<Channel Name="web"></Channel>
 		</Channels>
 		<CommentsAllowed>Read-Write</CommentsAllowed>
-		<FreeAccess>true</FreeAccess>
+		<FreeAccess>false</FreeAccess>
 		<AutoPublish>true</AutoPublish>
 	
 		<MainStory ObjectID="TextObjectID" DocumentType="article" ObjectDescription="Roland Garros with Justine Henin" PublicationDate="2010-10-26T21:32:52" CreationDate="2010-10-26T21:32:52" LastUpdateDate="2010-10-26T21:32:52" >

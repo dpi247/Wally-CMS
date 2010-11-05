@@ -1,3 +1,52 @@
 <?php
    
 include_once('wallycontenttypes.features.inc');
+
+
+function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
+  if (isset($form['type']) && isset($form['#node'])) {
+    switch ($form_id) {
+      case "wally_articlepackage_node_form":
+      case "wally_gallerypackage_node_form" :
+      case "wally_pollpackage_node_form":
+        _wallycontenttypes_disable_taxonomy($form, $form_state, $form_id);
+      break;
+    }
+  }
+}
+
+function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id) {
+  $form["title"]["#disabled"] = true;
+  $form['#after_build'][] = '_mysnippet_after_build';
+
+  dsm($form);
+
+}
+
+function _mysnippet_after_build(&$form, &$form_state) {
+  
+  dsm($form['field_locations']); 
+  
+  _mysnippet_fix_disabled($form['field_locations']);
+  return $form;
+}
+
+/**
+* Recursively set the disabled attribute of a CCK field
+* and all its dependent FAPI elements.
+*/
+function _mysnippet_fix_disabled(&$elements) {
+  
+  dsm($elements);
+  
+  foreach (element_children($elements) as $key) {
+    if (isset($elements[$key]) && $elements[$key]) {
+      _mysnippet_fix_disabled($elements[$key]);
+    }
+  }
+
+  if (!isset($elements['#attributes'])) {
+    $elements['#attributes'] = array();
+  }
+  $elements['#attributes']['disabled'] = 'disabled';
+}
