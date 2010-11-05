@@ -233,12 +233,15 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 	foreach($results as $result){
 	  $node->field_embededobjects[]['nid']=$result->nid;
 	}
-	
-	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-	$results=wimprt_process_list($linklists,$log,'object');
-	foreach($results as $result){
-	  $node->field_linkedobjects[]['nid']=$result->nid;
-	}
+ 
+  $linklists=$dom->getElementsByTagName('LinksLists')->item(0);
+  $linklist=$dom->getElementsByTagName('LinksList')->item(0);
+  if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
+    $results=wimprt_process_list($linklists,$log,'object');
+    foreach($results as $result){
+      $node->field_linkedobjects[]['nid']=$result->nid;
+    }
+  }
 }
   
 /**
@@ -410,6 +413,7 @@ function wimprt_process_type_link(&$node,$dom,&$log){
  *   A node object
  */
 function wimprt_create_or_load_object_linkslist($dom,&$log){
+  
   $node=new stdClass;
   $node->type='wally_linkslistobject';
 
