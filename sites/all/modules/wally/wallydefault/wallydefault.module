@@ -25,6 +25,34 @@ function wallydefault_menu(){
 }
 
 
+function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+
+ switch ($op) {
+    case 'view':
+      _wallydefault_packagepopulate($node,$op);
+		break;
+	case 'presave' :
+		if($node->type=='wally_articlepackage' || 
+       $node->type=='wally_gallerypackage' || 
+       $node->type=='wally_pollpackage')
+        _wallydefault_addtaxonomywheninserted($node);
+		break;
+	case 'update' :
+    if($node->type=='wally_articlepackage' || 
+       $node->type=='wally_gallerypackage' ||
+       $node->type=='wally_pollpackage')
+        _wallydefault_addtaxonomywheninserted($node);
+		elseif($node->type=='wally_textobject' ||
+           $node->type=='wally_audioobject' ||
+           $node->type=='wally_digitalobject' || 
+           $node->type=='wally_photoobject' || 
+           $node->type=='wally_videoobject' ||
+           $node->type=='wally_pollobject')
+			       _wallydefault_addtaxonomywhenupdated($node);
+    
+		break;
+		}
+}
 /** 
  * Load related nodes into package object via nodepi - "op view". 
  * 
@@ -55,27 +83,10 @@ function wallydefault_menu(){
  * 
  * @return Nothing but modify the $node
  */
-function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
-
- switch ($op) {
-    case 'view':
-		_wallydefault_field_NID($node, $op);
-		_wallydefault_field_TID($node, $op);
-		break;
-	case 'presave' :
-		if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
-      _wallydefault_addtaxonomywheninserted($node);
-		break;
-	case 'update' :
-    if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
-      _wallydefault_addtaxonomywheninserted($node);
-		elseif($node->type=='wally_textobject' || $node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject' || $node->type=='wally_pollobject')
-			_wallydefault_addtaxonomywhenupdated($node);
-    
-		break;
-		}
-}
-
+function _wallydefault_packagepopulate($node,$op){
+  _wallydefault_field_NID($node, $op);
+  _wallydefault_field_TID($node, $op);
+  }
 /**
  * Process Node Reference fields.
  */
