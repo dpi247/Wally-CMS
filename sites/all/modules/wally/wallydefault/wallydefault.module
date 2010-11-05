@@ -62,13 +62,13 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 		_wallydefault_field_NID($node, $op);
 		_wallydefault_field_TID($node, $op);
 		break;
-	case 'insert' :
+	case 'presave' :
 		if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
-      _wallydefault_addtaxonomywheninserted($node,'insert');
+      _wallydefault_addtaxonomywheninserted($node);
 		break;
 	case 'update' :
     if($node->type=='wally_articlepackage' || $node->type=='wally_gallerypackage' || $node->type=='wally_pollpackage')
-      _wallydefault_addtaxonomywheninserted($node,'update');
+      _wallydefault_addtaxonomywheninserted($node);
 		elseif($node->type=='wally_textobject' || $node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject' || $node->type=='wally_pollobject')
 			_wallydefault_addtaxonomywhenupdated($node);
     
@@ -190,9 +190,8 @@ function _wallydefault_addtaxonomywhenupdated($node){
  * @return
  *   Nothing
 */
- function _wallydefault_addtaxonomywheninserted(&$node,$state){
+ function _wallydefault_addtaxonomywheninserted(&$node){
 			
-			//$objectnode=node_load(_wallydefault_getobjectid($node));
       $objectnode=node_load($node->field_mainstory[0]['nid']);
 			$node->taxonomy=$objectnode->taxonomy;
 			$node->field_markers=$objectnode->field_markers;
@@ -201,8 +200,6 @@ function _wallydefault_addtaxonomywhenupdated($node){
 			$node->field_persons=$objectnode->field_persons;
 			$node->field_tags=$objectnode->field_tags;
 			$node->field_free_tags=$objectnode->field_free_tags;
-      if($state=='insert')
-        node_save($node);
       
 	 }
 
