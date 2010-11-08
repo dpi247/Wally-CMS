@@ -158,12 +158,18 @@ function _wimprthelp_plain_text($text){
 function _wimprthelp_create_file_from_uri($file_uri){
   global $proceed_file_path;
   global $base_path;
+  global $proceed_folder_path;
+ 
   
   $uri=parse_url($file_uri);
+ 
 
   switch($uri['scheme']){
     case'embed':
-      $file_path= variable_get('wallymport_source', 'sites/default/files/import').'/'.$uri['host'];
+     // $file_path= variable_get('wallymport_source', $proceed_folder_path).'/'.$uri['path'];//$uri['host'] //
+  
+     $file_path=$proceed_folder_path.'/'.$uri['path'];//chemin vers le tmp/
+     
       return _wimprthelp_create_file($file_path);
     break;
   }
@@ -173,6 +179,7 @@ function _wimprthelp_create_file_from_uri($file_uri){
 
 
 function _wimprthelp_create_file($filepath){
+  
   $uid=variable_get('wallymport_defaultuser',1);
   $file = new stdClass();
   $file->filename = basename($filepath);
