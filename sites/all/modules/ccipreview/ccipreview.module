@@ -1,5 +1,5 @@
 <?PHP
-// $Id$
+/-/ $Id$
 
 /**
  * Implementation of hook_xmlrpc().
