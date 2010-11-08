@@ -590,9 +590,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
-      '2' => 'field_embargodatetime',
-      '3' => 'field_unpublishdate',
-      '4' => 'field_freeaccess',
+      '2' => 'field_publicationdate',
+      '3' => 'field_embargodatetime',
+      '4' => 'field_unpublishdate',
+      '5' => 'field_freeaccess',
     ),
   );
 
@@ -1479,9 +1480,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
-      '2' => 'field_embargodatetime',
-      '3' => 'field_unpublishdate',
-      '4' => 'field_freeaccess',
+      '2' => 'field_publicationdate',
+      '3' => 'field_embargodatetime',
+      '4' => 'field_unpublishdate',
+      '5' => 'field_freeaccess',
     ),
   );
 
