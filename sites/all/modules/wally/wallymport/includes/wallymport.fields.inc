@@ -64,6 +64,34 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
 }
 
 /**
+ * Create or load a poll package depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_pollpackage';
+
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_pollpackage")){
+    $node=$node_temp[0];
+  }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
+  return $node;
+}
+
+/**
  * Process article package from DOM.
  * 
  * MAP fields of the article package content type
@@ -82,17 +110,17 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
 function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("PublicationDate"))
     $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  $node->language= $dom_element->getAttributeNode("Language")->value;
   $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublishDate")->value);
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if($dom_element->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+  $node->language= $dom_element->getAttributeNode("Language")->value;
   
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
@@ -118,16 +146,52 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
   
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-  
-  $node->language= $dom_element->getAttributeNode("Language")->value;
+   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if($dom_element->hasAttribute("PublicationDate"))
+    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("UnPublishDate")->value);
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if($dom_element->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+  $node->language= $dom_element->getAttributeNode("Language")->value;
+  //Map XML element
+  wimprt_process_package_default($node,$dom_element,$log);
+}
+/**
+ * Process article package from DOM.
+ * 
+ * MAP fields of the article package content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_package_pollpackagetype(&$node,$dom_element,&$log){
+  
+  //Map XML Attributes 
+  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if($dom_element->hasAttribute("PublicationDate"))
+    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+  if($dom_element->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+  if($dom_element->hasAttribute("EmbargoDate"))
+    $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+  if($dom_element->hasAttribute("UnPublishDate"))
+    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+  $node->language= $dom_element->getAttributeNode("Language")->value;
+  
+  
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
@@ -213,6 +277,25 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 	$node->field_mainstory[0]['nid']=$object->nid;
 }
 /**
+ * Process field Poll Questions from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_pollquestions(&$node,$dom,&$log){
+  
+
+  }
+/**
  * Process field Main Object from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
@@ -242,6 +325,27 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
       $node->field_mainobject[0]['nid']=$object->nid; 
     }
   }
+  
+/**
+ * Process field Poll from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_poll(&$node,$dom,&$log){
+  // Process the object & getting NID
+	$object=wimprt_process_object($dom,$log,'pollobjecttype');
+	$node->field_poll[0]['nid']=$object->nid;
+}
 /**
  * Process field Package Description from DOM element.
  * 
@@ -324,6 +428,81 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
 }
 
 /**
+ * Create or load a poll object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_pollobject';
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_pollobject')){
+    $node=$node_temp[0];
+  }
+  
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+  
+  return $node;
+}
+
+ 
+ /**
+ * Process photo object from DOM.
+ * 
+ * MAP fields of the photo object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
+  
+  static $proceed_file_path;
+  $value=$dom->nodeValue;
+  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
+  if($dom->hasAttribute("ObjectDescription"))
+    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
+  if($dom->hasAttribute("Position"))
+    $node->object_description= $dom->getAttributeNode("Position")->value;
+  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
+  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
+  if($dom->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
+  
+  
+ //process field_polldate
+  $date1=null;
+  $date2=null;
+  if ($dom->getElementsByTagName("DateOpen")->length) 
+    $date1=$dom->getElementsByTagName("DateOpen")->item(0)->nodeValue;
+  if($dom->getElementsByTagName("DateClose")->length) 
+    $date2=$dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
+  $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1,$date2);
+  //end process field_polldate
+  wimprt_process_object_default($node,$dom,$log);
+ 
+  
+  return $node;
+
+}
+
+/**
  * Create or load a photo object depending of external reference.
  * 
  * If no node match the external reference, a new node is created.
@@ -373,8 +552,9 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   
   $node->created= $dom->getAttributeNode("CreationDate")->value;
   $node->object_id= $dom->getAttributeNode("ObjectID")->value;
-  $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
-  $node->publication_date= $dom->getAttributeNode("PublicationDate")->value;
+  if($dom->hasAttribute("ObjectDescription"))
+    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
+  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
 
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;

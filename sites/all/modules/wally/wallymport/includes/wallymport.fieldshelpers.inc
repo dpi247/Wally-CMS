@@ -104,7 +104,24 @@ function _wimprthelp_date_to_ccktime($date) {
   $result['date_type']='datetime';
   return $result;
 }
-
+/**
+ * Translates datetimes into CCK datetimes field for polldates (
+ *
+ * @param $date
+ *   - ISO Datetime (e.g. '2010-10-26T21:32:52')
+ *
+ * @return
+ *   CCK polldate field (array)
+ */
+function _wimprthelp_polldate_to_ccktime($date1,$date2) {
+  //@todo: handle timezone
+  $result['value']=str_replace('T', ' ', $date1);
+  $result['value2']=str_replace('T', ' ', $date2);
+  $result['timezone']=variable_get('date_default_timezone_name', 'UTC');
+  $result['timezone_db']='UTC';
+  $result['date_type']='datetime';
+  return $result;
+}
 /**
  * Translates datetime into timestamp
  *
