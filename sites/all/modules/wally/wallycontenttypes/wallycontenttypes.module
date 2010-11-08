@@ -2,7 +2,15 @@
    
 include_once('wallycontenttypes.features.inc');
 
+/**
+ * @defgroup wallycontenttypes Wally Wally Content Types & Taxonomy definition
+ * @{
+ * In this module we define all wally specific content types & taxonomies
+ */
 
+/**
+ *  Implémentation du Hook_form_alter(); 
+ */
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
   if (isset($form['type']) && isset($form['#node'])) {
     switch ($form_id) {
@@ -15,38 +23,128 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
   }
 }
 
-function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id) {
-  $form["title"]["#disabled"] = true;
-  $form['#after_build'][] = '_mysnippet_after_build';
-
-  dsm($form);
-
+/**
+ * In case of package editing, all taxonomy/entities/persons/locations/...
+ * are taken from the main object. So we disabled the edition for these
+ * fields.
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we add
+ * an after_build callback function to the form. So all cck fields are
+ * completly build.    
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id){
+  $form['#after_build'][] = '_disable_taxonomy_after_build';
 }
 
-function _mysnippet_after_build(&$form, &$form_state) {
-  
-  dsm($form['field_locations']); 
-  
-  _mysnippet_fix_disabled($form['field_locations']);
-  return $form;
+/**
+ * Call back function used by after_build attribute to 
+ * disabled all "taxonomy" from a package content types. 
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we had to put 
+ * a disabled attribute to all sub-element of the cck field. 
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset. So we have to 
+ * seach recursivly for fields.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _disable_taxonomy_after_build(&$form, &$form_state) {
+
+ $fields = array(   "field_locations",
+                    "field_markers",
+                    "field_entities",
+                    "field_persons",
+                    "field_tags",
+                    "field_free_tags"
+                 );
+
+  foreach ($fields as $field) {
+    
+    // CCK field on the 1st level of $form
+    if (isset($form[$field])) {
+      _mysnippet_fix_disabled($form[$field]);
+    } else {
+      // Because we're in afterbuild function, fields could be already
+      // relocated into cck fieldsets > $form['fiedset']['cckfield'] 
+      foreach (element_children($form) as $k) {
+          if (isset($form[$k][$field])) {
+            _mysnippet_fix_disabled($form[$k][$field]);
+          }
+      }
+    } 
+  }
+  return($form);
 }
 
 /**
 * Recursively set the disabled attribute of a CCK field
-* and all its dependent FAPI elements.
+* and all its dependent FAPI elements. For a content_taxonomy_tree
+* cck field, we must disbaled all the childrens: checkboxes or radios.
+* 
+* @param $element
+*   The form element to procedd.
+* 
+* @return
+*   Nothing
 */
 function _mysnippet_fix_disabled(&$elements) {
-  
-  dsm($elements);
-  
-  foreach (element_children($elements) as $key) {
-    if (isset($elements[$key]) && $elements[$key]) {
-      _mysnippet_fix_disabled($elements[$key]);
+  if ($elements["#type"]!="content_taxonomy_tree") {
+    foreach (element_children($elements) as $key) {
+      if (isset($elements[$key]) && $elements[$key]) {
+        _mysnippet_fix_disabled($elements[$key]);
+      }
+    }
+    if (!isset($elements['#attributes'])) {
+      $elements['#attributes'] = array();
+    }
+    $elements['#attributes']['disabled'] = 'disabled';
+  } else {
+    foreach (element_children($elements['value']['#elements']) as $key) {
+      _mysnippet_disabled_taxonomy_tree($elements['value']['#elements'][$key]);
+    }
+ }
+}
+
+/**
+ * Recursvly search for each children element of a  content_taxonomy_tree
+ * field. To disable all childrens. 
+ * 
+ * @param $element 
+ *   Form element to proceed. Must be a content_taxonomy_tree element.
+ *
+ * @return
+ *   Nothing
+ */
+function _mysnippet_disabled_taxonomy_tree(&$elements) {
+  foreach (element_children($elements) as $k) {
+    $elements[$k]['#attributes']['disabled'] = 'disabled';
+    if ($k=='children') {
+      foreach (element_children($elements[$k]) as $key) {
+        _mysnippet_disabled_taxonomy_tree($elements[$k][$key]);
+      }
     }
   }
+ }
 
-  if (!isset($elements['#attributes'])) {
-    $elements['#attributes'] = array();
-  }
-  $elements['#attributes']['disabled'] = 'disabled';
-}
+/**
+ * @} End of "defgroup wallycontenttypes".
+ */

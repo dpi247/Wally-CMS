@@ -168,8 +168,8 @@ function content_multiple_value_form(&$form, &$form_state, $field, $items) {
 		//
         // make the count different for no item
         // (filled with an empty item by content_set_empty) and 1 item with data
-
        $hook_is_empty = $field['module'] .'_content_is_empty';
+       
        if (count($items) == 1 && $hook_is_empty($items[0], $field)) {
          $minimum_item_count = 0;
        }
@@ -181,7 +181,7 @@ function content_multiple_value_form(&$form, &$form_state, $field, $items) {
                             ? $form_state['item_count'][$field_name]
 
 		// PATCH DLA - EXXODUS - AUDAXIS
-		//
+    //
 		//                  : count($items);
                             : $minimum_item_count;
 
