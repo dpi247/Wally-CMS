@@ -619,6 +619,7 @@ function taxonomy_manager_tree_build_form(&$index, $tree, &$form, $root_form, $p
         $value = in_array($tree[$newindex]->tid, $terms_to_expand) ? 1 : 0;
       }
     }
+    
     $form[$term->tid]['checkbox'] = array(
       '#type' => ($multiple) ? 'checkbox' : 'radio', 
       '#title' => $term->name, 
@@ -626,6 +627,7 @@ function taxonomy_manager_tree_build_form(&$index, $tree, &$form, $root_form, $p
       '#return_value' => $term->tid,
       '#theme' => ($multiple) ? 'taxonomy_manager_tree_checkbox' : 'taxonomy_manager_tree_radio',
     );
+    
     if (!empty($root_form['#link_callback'])) {
       $link_callback = $root_form['#link_callback'];
       if (function_exists($link_callback)) {
@@ -1072,14 +1074,20 @@ function theme_taxonomy_manager_tree_elements($element) {
  * themes a checkbox, where a label can optional contain a link
  */
 function theme_taxonomy_manager_tree_checkbox($element) {
+  
+  // DLA
+
+ // dsm($element);
+  
   _form_set_class($element, array('form-checkbox'));
+
   $checkbox = '<input ';
   $checkbox .= 'type="checkbox" ';
   $checkbox .= 'name="'. $element['#name'] .'" ';
   $checkbox .= 'id="'. $element['#id'] .'" ' ;
   $checkbox .= 'value="'. $element['#return_value'] .'" ';
   $checkbox .= $element['#value'] ? ' checked="checked" ' : ' ';
-  $checkbox .= drupal_attributes($element['#attributes']) .' />';
+  $checkbox .= drupal_attributes($element['#attributes']) .'  />';
   
   $title = $element['#title'];
   if ($element['#link']) {
