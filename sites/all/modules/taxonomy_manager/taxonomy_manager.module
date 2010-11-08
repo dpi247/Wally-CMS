@@ -1074,11 +1074,7 @@ function theme_taxonomy_manager_tree_elements($element) {
  * themes a checkbox, where a label can optional contain a link
  */
 function theme_taxonomy_manager_tree_checkbox($element) {
-  
-  // DLA
-
- // dsm($element);
-  
+    
   _form_set_class($element, array('form-checkbox'));
 
   $checkbox = '<input ';
