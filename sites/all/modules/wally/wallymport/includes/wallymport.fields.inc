@@ -212,7 +212,36 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 	$object=wimprt_process_object($dom,$log,'TextObject');
 	$node->field_mainstory[0]['nid']=$object->nid;
 }
-
+/**
+ * Process field Main Object from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_mainobject(&$node,$dom,&$log){
+  if($dom->hasAttribute('xsi:type')){
+    $object=new stdClass;
+    if(strtolower($dom->getAttributeNode('xsi:type')->value)=='photoobjecttype')
+        $object=wimprt_process_object($dom,$log,'PhotoObjectType');
+    elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='audioobjecttype')
+        $object=wimprt_process_object($dom,$log,'audioobjecttype');
+    elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='digitalobjecttype')
+        $object=wimprt_process_object($dom,$log,'digitalobjecttype');
+    elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='videoobjecttype')
+        $object=wimprt_process_object($dom,$log,'videoobjecttype');
+    if($object->nid)
+      $node->field_mainobject[0]['nid']=$object->nid; 
+    }
+  }
 /**
  * Process field Package Description from DOM element.
  * 
@@ -353,7 +382,6 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
   $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
   wimprt_process_object_default($node,$dom,$log);
-
   if ($dom->getElementsByTagName("Caption")->length) {
     $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
   }
