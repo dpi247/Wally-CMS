@@ -1,0 +1,5 @@
+name = Wally Ctools
+description = Wally Ctools Integration.
+core = 6.x
+package = Wally
+dependencies[] = ctools
