@@ -292,9 +292,36 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_pollquestions(&$node,$dom,&$log){
+  $i=0;
   
+  var_dump($dom->nodeValue);
+  
+  foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
+    $node->field_poll[$i]['active']=1;
+    $feature=array();
+    $choice=1;
+    if($pollquestion->getAttributeNode("Choice")->value==="radioButton")
+      $choice=0;
+    $feature['CancelVote_Allow']=1;
+    $feature['ResultsAllow']=0;
+    $feature['PollType']=$choice;
+    $node->field_poll[$i]['poll_features']=serialize($feature);
+    foreach($pollquestion->getElementsByTagName("Question") as $question)
+      $node->field_poll[$i]['question']=$pollquestion->nodeValue;
+      $j=0;
+    foreach($pollquestion->getElementsByTagName("Answer") as $answer){
+      $answers[$j]['choice']=$answer->nodeValue;
+      $answers[$j]['votes']=null;
+      $j+=1;
+      }
+      if($j>0){
+        $node->field_poll[$i]['choice']=serialize($answers);
+      }
+    $i+=1;
+    }
 
   }
+
 /**
  * Process field Main Object from DOM element.
  * 
@@ -345,6 +372,8 @@ function wimprt_set_field_poll(&$node,$dom,&$log){
   // Process the object & getting NID
 	$object=wimprt_process_object($dom,$log,'pollobjecttype');
 	$node->field_poll[0]['nid']=$object->nid;
+  
+  
 }
 /**
  * Process field Package Description from DOM element.
