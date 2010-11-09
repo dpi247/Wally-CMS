@@ -1239,7 +1239,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 			} else {
 				if (array_key_exists($editionID, $result)) {
 					$valid = ($valid || $value);
-					$result[$editionID][Publish]=$value;
+					$result[$editionID]['Publish']=$value;
 				} else {
 					drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
 				}
