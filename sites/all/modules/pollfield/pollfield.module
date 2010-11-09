@@ -1492,6 +1492,11 @@ function pollfield_delete_votes($form,&$form_state){
 *add more choices using ahah formu
 */
 function pollfield_add_choice(){
+
+
+  drupal_json(array('status' => "bisous", 'data' => $_POST));
+  die(); 
+
   
   $splits_get=$nid_parse=preg_split('/\//',$_GET['q']);
   $field_name=$splits_get[3];
@@ -1503,7 +1508,11 @@ function pollfield_add_choice(){
   // Get the form from the cache.
   $form = form_get_cache($form_build_id, $form_state);
   $args = $form['#parameters'];
-	
+
+
+
+
+
   
   $form_id = array_shift($args);
   // We will run some of the submit handlers so we need to disable redirecting.
@@ -1521,6 +1530,7 @@ function pollfield_add_choice(){
 
   // Render the new output.
   $form_choices=$form[$field_name][$field_name_delta]['group'];
+    
 	if (is_array($form_choices)){
 		$delta=0;
 		while (!empty($form_choices[$delta])){
@@ -1531,6 +1541,8 @@ function pollfield_add_choice(){
 	
 
   $_delta=$delta-1;
+  
+  
   //genereting new ids and names
   $name_choice=$form_choices[$_delta]['choice']['#name'];
   $id_choice=$form_choices[$_delta]['choice']['#id'];
