@@ -208,8 +208,22 @@ function _wallydefault_addtaxonomywhenupdated($node){
  *   Nothing
 */
  function _wallydefault_addtaxonomywheninserted(&$node){
-			
-      if ($objectnode=node_load($node->field_mainstory[0]['nid'])) {
+			$ok=false; 
+      switch ($node->type){
+        case 'wally_articlepackage':
+          $objectnode=node_load($node->field_mainstory[0]['nid']);
+          $ok=true;
+          break;
+        case 'wally_gallerypackage':
+          $objectnode=node_load($node->field_mainobject[0]['nid']);
+          $ok=true;
+          break;
+        case 'wally_pollpackage':
+          $objectnode=node_load($node->field_mainpoll[0]['nid']);
+          $ok=true;
+          break;
+          }
+        if($ok){
         $node->taxonomy=$objectnode->taxonomy;
         $node->field_markers=$objectnode->field_markers;
         $node->field_locations=$objectnode->field_locations;
