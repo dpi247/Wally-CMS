@@ -293,15 +293,15 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
  */
 function wimprt_set_field_pollquestions(&$node,$dom,&$log){
   $i=0;
-  
-  var_dump($dom->nodeValue);
-  
+    
   foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
     $node->field_poll[$i]['active']=1;
     $feature=array();
     $choice=1;
+    if($pollquestion->hasAttribute("Choice")){
     if($pollquestion->getAttributeNode("Choice")->value==="radioButton")
       $choice=0;
+    }
     $feature['CancelVote_Allow']=1;
     $feature['ResultsAllow']=0;
     $feature['PollType']=$choice;
@@ -503,17 +503,9 @@ function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
 function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
   
   static $proceed_file_path;
-  $value=$dom->nodeValue;
-  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
-  if($dom->hasAttribute("ObjectDescription"))
-    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
-  if($dom->hasAttribute("Position"))
-    $node->object_description= $dom->getAttributeNode("Position")->value;
-  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
-  if($dom->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
-  
+  //put common attribute
+  wimprt_objecttype_preprocess($node,$dom);
+
   
  //process field_polldate
   $date1=null;
@@ -579,11 +571,8 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
   $value=$dom->nodeValue;
   
-  $node->created= $dom->getAttributeNode("CreationDate")->value;
-  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
-  if($dom->hasAttribute("ObjectDescription"))
-    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
-  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom);
 
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
@@ -836,10 +825,8 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
  */
 function wimprt_process_object_textobject (&$node,$dom_element,&$log){
   //Map XML Attributes 
-  $node->object_id = $dom_element->getAttributeNode("ObjectID")->value;
-  $node->object_description= $dom_element->getAttributeNode("ObjectDescription")->value;
-  $node->publication_date= $dom_element->getAttributeNode("PublicationDate")->value;
-  $node->field_documenttype = array(array("value"=>$dom_element->getAttributeNode("DocumentType")->value));
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom_element);
     
   wimprt_process_object_default($node,$dom_element,$log);
   
@@ -1936,7 +1923,17 @@ function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=nu
 	}
 	return $array_node;
 }
-
+function wimprt_objecttype_preprocess(&$node,$dom){
+  
+  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
+  if($dom->hasAttribute("ObjectDescription"))
+    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
+  if($dom->hasAttribute("Position"))
+    $node->object_description= $dom->getAttributeNode("Position")->value;
+  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
+  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
+  if($dom->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);}
 
 /**
  * @} End of "defgroup wallymport.field".
