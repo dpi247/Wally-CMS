@@ -371,7 +371,7 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
 function wimprt_set_field_poll(&$node,$dom,&$log){
   // Process the object & getting NID
 	$object=wimprt_process_object($dom,$log,'pollobjecttype');
-	$node->field_poll[0]['nid']=$object->nid;
+	$node->field_mainpoll[0]['nid']=$object->nid;
   
   
 }
@@ -506,8 +506,9 @@ function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
   //put common attribute
   wimprt_objecttype_preprocess($node,$dom);
 
-  
- //process field_polldate
+  wimprt_process_object_default($node,$dom,$log);
+   
+ ///Exception for TextObject
   $date1=null;
   $date2=null;
   if ($dom->getElementsByTagName("DateOpen")->length) 
@@ -515,8 +516,8 @@ function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
   if($dom->getElementsByTagName("DateClose")->length) 
     $date2=$dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
   $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1,$date2);
-  //end process field_polldate
-  wimprt_process_object_default($node,$dom,$log);
+
+ 
  
   
   return $node;
@@ -1923,6 +1924,19 @@ function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=nu
 	}
 	return $array_node;
 }
+/**
+ * Process common attributes of objects from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ *
+ * @return
+ *   Nothing
+ */
 function wimprt_objecttype_preprocess(&$node,$dom){
   
   $node->object_id= $dom->getAttributeNode("ObjectID")->value;
