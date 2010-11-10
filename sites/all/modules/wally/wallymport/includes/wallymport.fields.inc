@@ -485,9 +485,9 @@ function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
 
  
  /**
- * Process photo object from DOM.
+ * Process poll object from DOM.
  * 
- * MAP fields of the photo object content type
+ * MAP fields of the poll object content type
  * from the DOM (XML) element & attributes. 
  * 
  * @param $node
@@ -589,6 +589,137 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
 
 }
 
+/**
+ * Create or load a audio object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_object_audioobjecttype($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_audioobject';
+
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_audioobject")){
+    $node=$node_temp[0];
+  }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
+  return $node;
+}
+
+/**
+ * Process audio object from DOM.
+ * 
+ * MAP fields of the audio object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_object_audioobjecttype(&$node,$dom,&$log){
+  static $procced_file_path;
+  $value=$dom->nodeValue;
+  
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom);
+
+  
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $thumbnail=$dom->getElementsByTagName('Thumbnail')->item(0)->nodeValue;
+  
+  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
+  $node->field_audiofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+ 
+  wimprt_process_object_default($node,$dom,$log);
+  
+  
+  return $node;
+
+}
+
+/**
+ * Create or load a video object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_videoobject';
+
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_videoobject")){
+    $node=$node_temp[0];
+  }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
+  return $node;
+}
+
+/**
+ * Process video object from DOM.
+ * 
+ * MAP fields of the video object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
+  static $procced_file_path;
+  $value=$dom->nodeValue;
+  
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom);
+
+
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $thumbnail=$dom->getElementsByTagName('Thumbnail')->item(0)->nodeValue;
+  
+  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
+  $node->field_videofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+ 
+  $node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  $node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  wimprt_process_object_default($node,$dom,$log);
+  //$node->field_video3rdparty[0]['embed']=$dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  //$node->field_video3rdparty[0]['title']=$dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  return $node;
+
+}
 /**
  * Process field LInks from DOM element.
  * 
@@ -786,6 +917,28 @@ function wimprt_set_field_freeaccess(&$node,$dom,&$log){
 function wimprt_set_field_summary(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+}
+
+/**
+ * Process field Rating from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_rating(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $vid=variable_get('wallymport_rating',null);
+  $item=wallytoolbox_taxonomy_get_term_by_path($value,$vid);
+  $node->field_rating[0]['value']= $item[0]->tid;
 }
 
 /**
