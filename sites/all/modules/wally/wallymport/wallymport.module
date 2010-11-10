@@ -44,7 +44,7 @@ function wallymport_menu() {
  * @return Nothing
  */
 function wallymport_page_process_folder($path_to_folder=null){
-  
+  global $proceed_folder_path;
   $returns = array(); 
    
   $temp=file_directory_temp();
@@ -72,6 +72,7 @@ function wallymport_page_process_folder($path_to_folder=null){
 	if ($res === TRUE) { 
 
 	  $temp_subdir=$temp.'/'.$file->name;
+    $proceed_folder_path=$temp_subdir;
 	  if (!is_dir($temp_subdir)) $res=mkdir($temp_subdir,0775);
 	  if (is_dir($temp_subdir)) { 
 		$zip->extractTo($temp_subdir);
@@ -122,6 +123,7 @@ function wallymport_page_process_folder($path_to_folder=null){
  */
 function wallymport_page_process_file($path_to_file){
   global $proceed_file_path;
+
 
 
   $proceed_file_path=$path_to_file;
