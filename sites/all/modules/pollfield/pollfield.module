@@ -1493,11 +1493,6 @@ function pollfield_delete_votes($form,&$form_state){
 */
 function pollfield_add_choice(){
 
-
-  drupal_json(array('status' => "bisous", 'data' => $_POST));
-  die(); 
-
-  
   $splits_get=$nid_parse=preg_split('/\//',$_GET['q']);
   $field_name=$splits_get[3];
 	$field_name_delta=$splits_get[4];
@@ -1509,11 +1504,6 @@ function pollfield_add_choice(){
   $form = form_get_cache($form_build_id, $form_state);
   $args = $form['#parameters'];
 
-
-
-
-
-  
   $form_id = array_shift($args);
   // We will run some of the submit handlers so we need to disable redirecting.
   $form['#redirect'] = FALSE;
@@ -1527,10 +1517,11 @@ function pollfield_add_choice(){
   // This call recreates the form relying solely on the form_state that the
   // drupal_process_form set up.
   $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
-
+  
   // Render the new output.
+//  $form_choices=$form["group_poll"][$field_name][$field_name_delta]['group'];
   $form_choices=$form[$field_name][$field_name_delta]['group'];
-    
+        
 	if (is_array($form_choices)){
 		$delta=0;
 		while (!empty($form_choices[$delta])){
