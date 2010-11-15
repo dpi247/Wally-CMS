@@ -411,7 +411,7 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 
   // Linkslists objects
   $links = array(); 
-  $node->field_linkedobjects = array(); 
+  $node->field_linkedobjects = array();
 	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
   $linklist=$dom->getElementsByTagName('LinksList')->item(0);
   if($dom->getElementsByTagName('LinksList')->item(0)){
@@ -642,9 +642,7 @@ function wimprt_process_object_audioobjecttype(&$node,$dom,&$log){
 
   
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  $thumbnail=$dom->getElementsByTagName('Thumbnail')->item(0)->nodeValue;
-  
-  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
+
   $node->field_audiofile[0]=_wimprthelp_create_file_from_uri($file_uri);
  
   wimprt_process_object_default($node,$dom,$log);
@@ -707,9 +705,6 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
 
 
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  $thumbnail=$dom->getElementsByTagName('Thumbnail')->item(0)->nodeValue;
-  
-  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
   $node->field_videofile[0]=_wimprthelp_create_file_from_uri($file_uri);
  
   $node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
@@ -720,6 +715,26 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
   return $node;
 
 }
+/**
+ * Process field Thumbnail from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_thumbnail(&$node,$dom,&$log){
+  $thumbnail=$dom->nodeValue;
+   $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
+}
+
 /**
  * Process field LInks from DOM element.
  * 
@@ -736,7 +751,7 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_links(&$node,$dom,&$log){
-  $result=wimprt_process_list($dom,$log,'type');
+  //$result=wimprt_process_list($dom,$log,'type');
 }
 
 /**
@@ -756,15 +771,15 @@ function wimprt_set_field_links(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_process_type_link(&$node,$dom,&$log){
-  $node->type='wally_linktype';
+  //$node->type='wally_linktype';
   wimprt_process_type_default($node,$dom,$log);
   
- 
+
   $uri=$dom->getElementsByTagName('URI')->item(0);
   $uri_value=$uri->nodeValue;
   $uri=parse_url($uri->nodeValue);
   if($uri['scheme']=="externalRef"){
-	    $ext_ref=$uri['host'];
+	    $ext_ref=$uri['path'];
 		if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref))) {
     		if (count($link)==1) {
     			 $node->field_internal_link[0]['nid'] = $link[0]->nid;
@@ -800,7 +815,7 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
     $node=$node_temp[0];
   }
-
+  
   $uid=variable_get('wallymport_defaultuser',1);
   $node->uid=$uid;
 
@@ -823,7 +838,7 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
 function wimprt_create_or_load_type_link($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linktype';
-
+  //je pense qu'il faut enlever ca car les liens n'ont pas de tag ExternalReference
   $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
     $node=$node_temp[0];
@@ -853,6 +868,12 @@ function wimprt_create_or_load_type_link($dom,&$log){
  */
 function wimprt_process_object_linkslist(&$node,$dom,&$log){
   wimprt_process_object_default($node,$dom,$log);
+  
+  $links=$dom->getElementsByTagName("Links")->item(0);
+  foreach(wimprt_process_list($links,$log,'type') as $result){
+    $node->field_links_list[]['nid']=$result->nid;
+   }
+   
 }
 
 
