@@ -18,14 +18,14 @@
  * @return
  *   boolean "true" or "false"
  */
-function wallytoolbox_toboolean($v,$def=null){
-	if ($v===false) return false;
-	if ($v===true) return true;
-	if ($v=="true") return true;
-	if ($v=="false") return false;
-	if ($v==0) return false;
-	if ($v==1) return true;
-	return $def;
+function wallytoolbox_toboolean($v, $def=NULL) {
+  if ($v===FALSE) return FALSE;
+  if ($v===TRUE) return TRUE;
+  if ($v=="true") return TRUE;
+  if ($v=="false") return FALSE;
+  if ($v==0) return FALSE;
+  if ($v==1) return TRUE;
+  return $def;
 }
 
 /**
@@ -40,7 +40,7 @@ function wallytoolbox_toboolean($v,$def=null){
  * @return
  *   an array of taxonomy term object
  */
-function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null){
+function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 
 	$t = explode("/", trim($path,"/"));
 	$t = $t[count($t)-1];

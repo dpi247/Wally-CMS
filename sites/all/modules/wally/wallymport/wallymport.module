@@ -30,9 +30,9 @@ function wallymport_menu() {
   'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
   );
+
   return $items;
 }
-
 
 /**
  * Process all zip files from the import folder. 
