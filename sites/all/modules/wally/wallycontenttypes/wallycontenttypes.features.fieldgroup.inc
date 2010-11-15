@@ -1298,7 +1298,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-2',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
@@ -1341,12 +1341,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-4',
-    'fields' => array(
-      '0' => 'field_summary',
-      '1' => 'field_poll',
-      '2' => 'field_polldate',
-    ),
+    'weight' => '-1',
+    'fields' => array(),
   );
 
   // Exported group: group_pollidentification
@@ -1385,7 +1381,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
+    'weight' => '2',
     'fields' => array(
       '0' => 'field_externalreference',
       '1' => 'field_objectid',
@@ -1429,7 +1425,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-3',
+    'weight' => '0',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
