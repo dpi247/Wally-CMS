@@ -1408,7 +1408,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 			if (strtolower($editionID)=="all") {
 				foreach ($terms as $term) $result[$term->name]["Publish"]=$value;
 				$valid = $value;
-				drupal_set_message('Editions ALL found. All edition set to '.$value.'. Editions iteration terminated.','error');
+				drupal_set_message('Editions ALL found. All edition set to '.$value.'. Editions iteration terminated.','notice');
 				break;
 			} else {
 				if (array_key_exists($editionID, $result)) {
