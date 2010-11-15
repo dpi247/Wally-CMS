@@ -350,12 +350,16 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
       case 'link_to_view':
       case 'inherit_panels_path':
       case 'pane_title':
-      case 'redacblock_layout':  
       case 'pane_description':
       case 'pane_category':
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
-        break;
+      break;
+      case 'redacblock_layout':  
+        $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
+        wallyctools_save_layout($form_state);
+      break;
     }
+    dsm($form_state);
   }
 
   /**
@@ -426,3 +430,21 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
 
 }
 
+
+
+function wallyctools_save_layout($form_state){
+foreach($form_state['values']['redacblock_layout']  as $layout_id){
+  if($layout_id){
+    $row->view_vid=$form_state['view']->vid;
+    $row->view_id=$form_state['display_id'];
+    $row->layout_id=$layout_id;
+ 
+    if(false){
+    //Update
+    }
+    else{
+    drupal_write_record('wallyctools_views_layout',$row);
+    }
+  }
+}
+}
