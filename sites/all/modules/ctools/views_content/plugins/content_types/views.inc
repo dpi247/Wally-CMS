@@ -265,7 +265,7 @@ function views_content_views_select_display_submit(&$form, &$form_state) {
 function views_content_views_content_type_edit_form(&$form, &$form_state) {
   $conf = $form_state['conf'];
   $view = _views_content_views_update_conf($conf, $form_state['subtype_name']);
-
+  
   if (empty($view) || !is_object($view)) {
     $form['markup'] = array('#value' => t('Broken/missing/deleted view.'));
     return;
@@ -289,7 +289,8 @@ function views_content_views_content_type_edit_form(&$form, &$form_state) {
   if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
   }
-
+  dsm($form);
+  
   $form['link_to_view'] = array(
     '#type' => 'checkbox',
     '#default_value' => $conf['link_to_view'],
@@ -400,6 +401,7 @@ function views_content_views_content_type_edit_form(&$form, &$form_state) {
  */
 function views_content_views_content_type_edit_form_submit(&$form, &$form_state) {
   // Copy everything from our defaults.
+  
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }

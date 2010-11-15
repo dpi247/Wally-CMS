@@ -60,6 +60,8 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
     'title' => l(t('Redactional Block'), 'admin/build/wallyctools/add'),
     'description' => t('Custom content panes are basic HTML you enter that can be reused in all of your panels.'),
   );
+  
+  
 
    // Load all mini panels and their displays.
   ctools_include('export');
@@ -100,7 +102,17 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
 
 
 
-
+/**
+ * Implementation of hook_views_api().
+ *
+ * This one is used as the base to reduce errors when updating.
+ */
+function wallyctools_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
+  );
+}
 //-----------------------------------------------
 
 

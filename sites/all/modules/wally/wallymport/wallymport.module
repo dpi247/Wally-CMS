@@ -43,22 +43,28 @@ function wallymport_menu() {
  * 
  * @return Nothing
  */
-function wallymport_page_process_folder($path_to_folder=null){
+function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALSE){
   global $proceed_folder_path;
   $returns = array(); 
    
   $temp=file_directory_temp();
   $format='zip';   // input file extension
 
-  if ($path_to_folder) {
-	$xml_file = variable_get('wallymport_source','')."/".$path_to_folder;
-  } else { 
-	$xml_file = variable_get('wallymport_source','');
+  if($absolute_path){
+  $xml_file=$path_to_folder;
   }
-
+  else{
+    if ($path_to_folder) {
+  	$xml_file = variable_get('wallymport_source','')."/".$path_to_folder;
+    } else { 
+  	$xml_file = variable_get('wallymport_source','');
+    }
+  }
   $files = drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0);	// get list of all *.zip files
+  dsm($xml_file);
+  dsm($files);
   if (count($files)==0) {
-	    drupal_set_message("error",'No input files found');
+	    drupal_set_message('No input files found','error');
 	    return null;
   }
   ksort($files);
@@ -72,8 +78,7 @@ function wallymport_page_process_folder($path_to_folder=null){
 	if ($res === TRUE) { 
 
 	  $temp_subdir=$temp.'/'.$file->name;
-    $proceed_folder_path=$temp_subdir;
-	  if (!is_dir($temp_subdir)) $res=mkdir($temp_subdir,0775);
+	  file_check_directory($temp_subdir,1);
 	  if (is_dir($temp_subdir)) { 
 		$zip->extractTo($temp_subdir);
 		// Search for XMLs
@@ -82,7 +87,7 @@ function wallymport_page_process_folder($path_to_folder=null){
   	      drupal_set_message("error",'No XML file found in the import: '.$file->basename);
 		}
 		elseif (count($import_files)>1) {
-  	      drupal_set_message("error",'There is more than one XML file found in the import: '.$file->basename);
+  	      drupal_set_message('There is more than one XML file found in the import: '.$file->basename,'error');
 		}
 		else {
 		  // Yeah .. ready to ROCK & ROLL
