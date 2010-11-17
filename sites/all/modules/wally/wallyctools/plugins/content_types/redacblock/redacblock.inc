@@ -234,6 +234,7 @@ function _wallyctools_views_conf(&$conf, $subtype) {
 function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $contexts) {
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   dsm($conf);
+  
   if (!is_array($contexts)) {
     $contexts = array($contexts);
   }
@@ -242,7 +243,57 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
   $view_id=$conf['content']->view_id;
 
   $view = views_get_view($view_name);
+  
+
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  
+  $redacblock_name=$conf['content']->name;
+  $options=array(
+  'field_testdes_target' => array(
+    'operator' => '=',
+    'value' => $redacblock_name,
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'case' => 1,
+    'id' => 'field_testdes_target',
+    'table' => 'node_data_field_testdes',
+    'field' => 'field_testdes_target',
+    'relationship' => 'none',
+    ),
+  );
+  $handler->override_option('filters',$options);
+//  $view->set_item($view_name, 'filter', $name, $item);
+  $view->is_cacheable = FALSE;
+  
+  
   $view->set_display($view_id);
+  
+  /*
+  
+  $handler->override_option('filters', array(
+    'des_target' => array(
+      'operator' => '=',
+      'value' => 'primary_list',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'relationship' => 'none',
+    ),
+    )
+  );
+  
+  */
+    
   
   if (empty($view) || !is_object($view) || empty($view->display_handler)) {
     return;
@@ -291,6 +342,8 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
 
   $view->set_arguments($args);
 
+  
+  
   if ($conf['url']) {
     $view->override_path = $conf['url'];
   }
@@ -341,7 +394,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
       $view->display_handler->set_option('offset', $conf['offset']);
     }
   }
-
   $stored_feeds = drupal_add_feed();
   $block->content = $view->preview();
   $block->title = $view->get_title();
@@ -374,7 +426,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
 
   $view = views_get_view($view_name);
   $view->set_display($view_id);
-  
   $form_state['settings'] = $conf;
 
 

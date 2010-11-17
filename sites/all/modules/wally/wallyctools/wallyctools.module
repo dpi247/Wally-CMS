@@ -155,7 +155,7 @@ function wallyctools_content_get_subtypes($type) {
 }
 
 function wallyctools_get_redac_view_array(){
-  $display_plugin='block';
+  $display_plugin='redacblokc';
   $query="SELECT vv.name, vv.vid, vd.display_plugin,vd.id, vd.display_title  FROM {views_display}  AS vd LEFT JOIN {views_view} AS  vv ON vv.vid=vd.vid WHERE display_plugin='%s'"; 
   $results=db_query($query,$display_plugin);
   
