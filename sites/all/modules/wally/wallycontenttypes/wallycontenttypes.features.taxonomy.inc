@@ -44,12 +44,15 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'relations' => '1',
       'hierarchy' => '0',
       'multiple' => '0',
-      'required' => '0',
+      'required' => '1',
       'tags' => '0',
       'module' => 'features_documenttype',
       'weight' => '0',
-      'type' => NULL,
-      'nodes' => array(),
+      'nodes' => array(
+        'wally_pollpackage' => 'wally_pollpackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_articlepackage' => 'wally_articlepackage',
+      ),
     ),
     'editions' => array(
       'name' => 'Editions',

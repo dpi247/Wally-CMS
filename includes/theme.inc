@@ -262,8 +262,11 @@ function drupal_rebuild_theme_registry() {
 function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
   $result = array();
   $function = $name .'_theme';
+  
   if (function_exists($function)) {
     $result = $function($cache, $type, $theme, $path);
+
+//    var_dump($result);
 
     foreach ($result as $hook => $info) {
       $result[$hook]['type'] = $type;
@@ -748,6 +751,7 @@ function drupal_discover_template($paths, $suggestions, $extension = '.tpl.php')
   // Loop through all paths and suggestions in FIFO order.
   $suggestions = array_reverse($suggestions);
   $paths = array_reverse($paths);
+  
   foreach ($suggestions as $suggestion) {
     if (!empty($suggestion)) {
       $suggestion = str_replace(array("/", "\\", "\0"), '', $suggestion);
