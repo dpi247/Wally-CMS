@@ -1,0 +1,14 @@
+; $Id: garland.info,v 1.5 2007/07/01 23:27:32 goba Exp $
+name = Wally
+description = Tableless, recolorable, multi-column, fluid width wally theme.
+version = VERSION
+core = 6.x
+engine = phptemplate
+stylesheets[all][] = css/style.css
+stylesheets[print][] = css/print.css
+
+; Information added by drupal.org packaging script on 2010-08-11
+version = "6.19"
+project = "drupal"
+datestamp = "1281559292"
+
