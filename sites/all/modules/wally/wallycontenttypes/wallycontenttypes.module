@@ -16,13 +16,20 @@ include_once('wallycontenttypes.features.inc');
  */
 function wallycontenttypes_theme(&$var) {
  return array(
+
     'wallyct_authorslist' => array(
-    'arguments' => array("node" => NULL),
+    'arguments' => array("authors" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_authorslist',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
- 
- 
+    
+    'wallyct_mainstory' => array(
+    'arguments' => array("mainstory" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_mainstory',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    
   ); 
 }
 
