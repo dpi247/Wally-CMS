@@ -32,13 +32,13 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
  switch ($op) {
     case 'view':
       _wallydefault_packagepopulate($node,$op);
-		break;
+      break;
 	case 'presave' :
 		if($node->type=='wally_articlepackage' || 
        $node->type=='wally_gallerypackage' || 
        $node->type=='wally_pollpackage')
         _wallydefault_addtaxonomywheninserted($node);
-		break;
+      break;
 	case 'update' :
     if($node->type=='wally_articlepackage' || 
        $node->type=='wally_gallerypackage' ||
@@ -51,8 +51,7 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
            $node->type=='wally_videoobject' ||
            $node->type=='wally_pollobject')
 			       _wallydefault_addtaxonomywhenupdated($node);
-    
-		break;
+            break;
 		}
 }
 
@@ -116,7 +115,7 @@ function _wallydefault_field_NID(&$node, $op) {
  * Process Content Taxonomy fields for populate node.
  */
 function _wallydefault_field_TID(&$node) {
-	foreach ($node as $field=>$value) {
+  	foreach ($node as $field=>$value) {
 		switch($field) {
 			case "field_authors":
 				$node->field_authors_nodes = wallydefault_field_tidload($field, $value, "wally_persontype");
@@ -147,9 +146,11 @@ function wallydefault_field_tidload($field, $values, $type) {
 			$tids[] = $tid2load["value"]; 
 		}
 	}
-	$results = wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type);
+
+  $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
+
 	foreach ($results as $value=>$node2load) {
-		if (!($r[$value] = node_load($node2load))) { 
+		if (!($r[$value] = node_load($node2load))) {
 			unset($r[$value]); 
 		}
 	}

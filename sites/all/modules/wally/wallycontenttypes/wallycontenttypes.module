@@ -3,14 +3,42 @@
 include_once('wallycontenttypes.features.inc');
 
 /**
- * @defgroup wallycontenttypes Wally Wally Content Types & Taxonomy definition
+ * @defgroup WallyCTtheming Wally Content Types theming functions
  * @{
-   * 
- * In this module we define all wally specific content types & taxonomies
- * Also include all invocation for specific theme hook & theming preprocess
- * functions.
+ * 
+ * In this module we define all wally specific theming functions.
  * 
  */
+
+
+/**
+ *  Implémentation du Hook_theme(); 
+ */
+function wallycontenttypes_theme(&$var) {
+ return array(
+    'wallyct_authorslist' => array(
+    'arguments' => array("node" => NULL),
+    'template' => 'templates/wallyct_authorslist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+ 
+ 
+  ); 
+}
+
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * this preprocess function could be set by any hook_theme.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions(&$variables, $hook) {
+    $suggestion = get_package_suggestions($variables, $hook); 
+    if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
 
 /**
  *  Implémentation du hook_preprocess_page(); 
@@ -81,6 +109,14 @@ function get_wallypackage_layout($node) {
  * node_{node_type}_{package_layout}.tpl.php
  * node_{node_type}.tpl.php < node.tpl.php
  *
+ * Wally specific suggestions are (other hooks - types):  
+ * 
+ * {type}-{node_type}.tpl.php
+ * {type}_{destinations_terms_underscore_separated}.tpl.php
+ * {type}_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ * {type}_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ * {type}_{node_type}_{package_layout}.tpl.php
+ * {type}_{node_type}.tpl.php < node.tpl.php
  * 
  * @param $variables
  *   Templating variables
@@ -104,7 +140,9 @@ function get_package_suggestions(&$variables, $type="page") {
   $destinations = array(456,443);
 //
 // 
-    $suggestion[] = $type . '_' . strtolower($variables['node']->type);
+ 
+    (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
+ 
     if ($package_layout) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
 
     if (count($destinations)) {
@@ -113,25 +151,31 @@ function get_package_suggestions(&$variables, $type="page") {
       $count = count($tax_children);
       for ($i = $count-1; $i >= 0; $i--) {
         ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
+        if ($type) $suggestion[] = $type . '_' . $path;
+        if (isset($variables['node']->type)) $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
         if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
-        $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
-        $suggestion[] = $type . '_' . $path;
       }
     }  
   return $suggestion;  
 }
 
 /**
- *  Implémentation du Hook_theme(); 
+ * @} End of "defgroup wallycontenttypes".
  */
-function wallycontenttypes_theme() {
- return array(
-    'wallyct_linkslists' => array(
-    'arguments' => array("node" => NULL),
-    'template' => 'templates/wallyct_linkslists',
-    ),
-  ); 
-}
+
+
+
+
+/**
+ * @defgroup wallycontenttypes Wally Wally Content Types & Taxonomy definition
+ * @{
+   * 
+ * In this module we define all wally specific content types & taxonomies
+ * Also include all invocation for specific theme hook & theming preprocess
+ * functions.
+ * 
+ */
+
 
 /**
  *  Implémentation du Hook_form_alter(); 
