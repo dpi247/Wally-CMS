@@ -117,6 +117,7 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
   $r = array();
   
   if (count($tids) > 0) {
+        
     // For each term ID, generate an array of descendant term IDs to the right depth.
     $descendant_tids = array();
     if ($depth === 'all') {
@@ -156,7 +157,7 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
 	// add Order Clause
 	$sql = $sql . ' ORDER BY ' . $order; 
 	
-    $sql = db_rewrite_sql($sql);
+  $sql = db_rewrite_sql($sql);
 	$sql_count = db_rewrite_sql($sql_count);
 
     if ($pager) {
