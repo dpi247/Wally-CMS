@@ -189,3 +189,14 @@ function wallyctools_get_redac_block_list(){
   
   return  $blocks;
 }
+
+
+function wallyctools_form_alter(&$form, &$form_state, $form_id){
+  if($form_id=='views_ui_edit_view_form'){
+    $form['buttons']['save']["#submit"]=array_merge(array('wallyctools_save_views_layout'),$form['buttons']['save']["#submit"]);    
+  }
+}
+
+function wallyctools_save_views_layout($form,$form_state){
+  //Do what I need
+}

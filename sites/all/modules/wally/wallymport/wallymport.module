@@ -14,7 +14,7 @@ module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
  */
 function wallymport_menu() {
   $items = array();
-  $items[WALLY_ADMIN_PATH.'/wallymport/settings'] = array(
+  $items['admin/wally/wallymport/settings'] = array(
     'title' => 'Wally Import Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallymport_page_admin_form'),
