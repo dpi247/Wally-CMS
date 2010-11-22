@@ -1,5 +1,5 @@
 ; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
-name = YWally Import
+name = Wally Import
 description = "Import XML Content to Drupal for Wally Object"
 package = Wally
 core = 6.x

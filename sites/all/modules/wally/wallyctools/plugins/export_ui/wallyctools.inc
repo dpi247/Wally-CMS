@@ -8,14 +8,14 @@ $plugin = array(
   'menu' => array(
     //important ! this menu item should be the same as the one define in the path of the module file no space allowed
     'menu item' => 'wallyctools',
-    'menu title' => 'WallyCtools redactional block content panes',
-    'menu description' => 'Add, edit or delete custom content panes.',
+    'menu title' => 'WallyCtools redactional block',
+    'menu description' => 'Add, edit or delete custom redac blocks.',
   ),
 
-  'title singular' => t('content pane'),
-  'title singular proper' => t('Content pane'),
-  'title plural' => t('content panes'),
-  'title plural proper' => t('Content panes'),
+  'title singular' => t('redacblock'),
+  'title singular proper' => t('Redac Block'),
+  'title plural' => t('redacblocks'),
+  'title plural proper' => t('Redac Blocks'),
 
   'handler' => array(
     'class' => 'wallyctools_ui',

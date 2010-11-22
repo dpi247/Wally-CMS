@@ -170,7 +170,6 @@ function wallyctools_get_redac_view_options(){
   $options=array();
   $views=wallyctools_get_redac_view_array() ;
   foreach($views as $view){
-    dsm($view);
     $options[$view->name.'+'.$view->id]=$view->name.'-'.$view->display_title.' ('.$view->id.')';
   }
   return $options;
