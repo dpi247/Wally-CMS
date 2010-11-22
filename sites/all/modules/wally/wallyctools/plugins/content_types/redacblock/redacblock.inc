@@ -93,6 +93,13 @@ function _wallyctools_default_content_type() {
 }
 
 /**
+ * Returns the administrative title for a type.
+ */
+function wallyctools_redacblock_content_type_admin_title($subtype, $conf) {
+  return $subtype;
+}
+
+/**
  * Return an info array for a specific redacblock content type.
  */
 function _wallyctools_redacblock_content_type($content) {
@@ -121,6 +128,9 @@ function _wallyctools_redacblock_content_type($content) {
 function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
   
   
+  dsm($conf);
+          dsm('rrr');
+  
   if ($subtype['name'] != 'redacblock') {
     $settings = $subtype['content']->settings;
     $settings['redacblock_type'] = 'fixed';
@@ -128,13 +138,15 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
     
   }
   else {
+    
+    
     // This means they created it as redacblock content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
     // still stored as though we are local, but are pointing off to
     // non-local.
     if (!empty($conf['name'])) {
       ctools_include('export');
-      $content = ctools_export_crud_load('wallyctools', $conf['name']);
+      $content = ctools_export_crud_load('wallyctools', $settings['name']);
       if ($content) {
         $settings = $content->settings;
         $settings['redacblock_type'] = 'fixed';
@@ -233,7 +245,6 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $contexts) {
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
-  dsm($conf);
   
   if (!is_array($contexts)) {
     $contexts = array($contexts);
@@ -399,7 +410,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
   $block->title = $view->get_title();
 
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
-    dsm('rfrf');
     return;
   }
 
