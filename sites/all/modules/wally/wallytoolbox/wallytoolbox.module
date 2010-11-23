@@ -23,14 +23,14 @@ function wallytoolbox_menu() {
   return $items;
 }
 
-function location_geocode_gmap($location){
+function location_geocode_gmap(&$location){
 
   $gmap_key = "ABQIAAAAweN-ZGG2RLncOe9EyCiA_xQAqp5XyDpdjG0s3klJJcH1IJrGIBQTd-nhbx8AsnQ2JNcqSlrQ5iq9nA"; 
   
   $location_geocode_gmap_url="http://maps.google.com/maps/geo?q="
                              .implode("%20", explode(" ", $location['street'])).'+'
-                             .implode("%20", explode(" ", $location['city'])).='+'
-                             .explode(" ", $location['country']))
+                             .implode("%20", explode(" ", $location['city'])).'+'
+                             .$location['country']
                              ."&output=csv&key=".$gmap_key;
                              
   $content=explode(",", file_get_contents("$location_geocode_gmap_url"));
@@ -46,7 +46,7 @@ function wallytoolbox_geocoding() {
   $location['city'] = "ham-sur-heure";
   $location['country'] = "belgique";
 
-  $loc = location_geocode_gmap($location, $country)
+  $loc = location_geocode_gmap($location);
   dsm($loc); 
 
   return "hello"; 
