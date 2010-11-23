@@ -8,6 +8,53 @@
  */
 
 /**
+ * Implementation of hook_menu().
+ */
+function wallytoolbox_menu() {
+  $items = array();
+
+  $items['wallytoolbox/geoencode'] = array(
+	'title' => 'Wally Toolbox geocoding',
+	'page callback' => 'wallytoolbox_geocoding',
+  'access arguments' => array('access administration pages'),
+	'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function location_geocode_gmap($location){
+
+  $gmap_key = "ABQIAAAAweN-ZGG2RLncOe9EyCiA_xQAqp5XyDpdjG0s3klJJcH1IJrGIBQTd-nhbx8AsnQ2JNcqSlrQ5iq9nA"; 
+  
+  $location_geocode_gmap_url="http://maps.google.com/maps/geo?q="
+                             .implode("%20", explode(" ", $location['street'])).'+'
+                             .implode("%20", explode(" ", $location['city'])).='+'
+                             .explode(" ", $location['country']))
+                             ."&output=csv&key=".$gmap_key;
+                             
+  $content=explode(",", file_get_contents("$location_geocode_gmap_url"));
+
+  return array("lat"=>$content[2], "lon"=>$content[3]);
+}
+
+
+function wallytoolbox_geocoding() {
+
+  $location = array(); 
+  $location['street'] = "rue de la praie";
+  $location['city'] = "ham-sur-heure";
+  $location['country'] = "belgique";
+
+  $loc = location_geocode_gmap($location, $country)
+  dsm($loc); 
+
+  return "hello"; 
+
+}
+
+
+/**
  * A true boolean conversion function.
  * 
  * @param $v
