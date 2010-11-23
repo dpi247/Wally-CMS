@@ -29,18 +29,11 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_locations_map' => array(
-    'arguments' => array("locations" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_locations_map',
+    'wallyct_photoobject_slideshow' => array(
+    'arguments' => array("nodes" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_photoobject_slideshow',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
-    'wallyct_locationlist_map' => array(
-    'arguments' => array("locations" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_locationlist_map',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-
 
     'wallyct_mainstory' => array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),

@@ -35,11 +35,16 @@ if (!function_exists('wally_tpl_mainstory')) {
 
     // copyright
     $copyright = "<span class='copyright'>".$story->field_copyright[0]["value"]."</span>";
-      
+
+    // Photo Gallery Slide Show
+    $photo_gallery = theme("wallyct_photoobject_slideshow",$node->field_embededobjects_nodes, $node);
+
 
     $maincol .= "<fieldset id='maincol' style='width:95%'>"; 
     $maincol .= $foretitle; 
     $maincol .= $title; 
+    
+    $maincol .= $photo_gallery;
     $maincol .= $subtitle; 
     $maincol .= $body; 
     $maincol .= "</fieldset>";
