@@ -33,13 +33,7 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'view':
       _wallydefault_packagepopulate($node,$op);
       break;
-	case 'presave' :
-/*		if($node->type == 'wally_articlepackage' || 
-       $node->type == 'wally_gallerypackage' || 
-       $node->type == 'wally_pollpackage')
-        _wallydefault_addtaxonomywheninserted($node); */
-      break;
-	case 'update' :
+  case 'update' :
     if($node->type == 'wally_articlepackage' || 
        $node->type == 'wally_gallerypackage' ||
        $node->type == 'wally_pollpackage')
@@ -52,7 +46,7 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
             $node->type == 'wally_pollobject')
 			       _wallydefault_addtaxonomywhenupdated($node);
             break;
-		}
+ 	}
 }
 
 /** 
@@ -185,6 +179,7 @@ function wallydefault_field_nodeload($field, $values=null) {
 *   Nothing
 */
 function _wallydefault_addtaxonomywhenupdated($node){
+ 
 			$rows =_wallydefault_getpackagesid($node);
 			foreach($rows as $row){
 				$packagenode=node_load($row['nid']);
@@ -225,6 +220,9 @@ function _wallydefault_addtaxonomywhenupdated($node){
       // no_taxonomy_update field to TRUE
       // so we dont want to update taxonomies from
       // the main object node. 
+      
+      dsm($node); 
+      
       if (!$node->no_taxonomy_update) { 
 
         switch ($node->type){
