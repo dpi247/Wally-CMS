@@ -367,7 +367,6 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
       break;
       case 'redacblock_layout':  
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
-        wallyctools_save_layout($form_state);
       break;
     }
     dsm($form_state);
@@ -441,31 +440,3 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
 
 }
 
-
-
-function wallyctools_save_layout($form_state){
-  
-  //@todo: Handle the deletion of a view.
-foreach($form_state['values']['redacblock_layout']  as $layout_id){
-  if($layout_id){
-    $row->view_vid=$form_state['view']->vid;
-    $row->view_id=$form_state['display_id'];
-    $row->layout_id=$layout_id;
- 
-    $sql="Select id FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
-    $result=db_query($sql,$row->view_id,$row->view_vid,$row->layout_id);
-    if(count($result)){
-      if(count($result)>1){
-      drupal_set_message('Too many layout mapping in wallyctools','error');
-      }
-      else{
-      drupal_write_record('wallyctools_views_layout',$row,$result[0]);
-      }
-    //Update
-    }
-    else{
-    drupal_write_record('wallyctools_views_layout',$row);
-    }
-  }
-}
-}

@@ -130,7 +130,6 @@ function wallyctools_content_get_subtypes($type) {
   if (empty($plugin) || empty($plugin['name'])) {
     return;
   }
-
   
   if (isset($plugin['content types'])) {
     $function = $plugin['content types'];
@@ -150,12 +149,11 @@ function wallyctools_content_get_subtypes($type) {
     ctools_content_prepare_subtype($subtypes[$id], $plugin);
   }
 
-
   return $subtypes;
 }
 
 function wallyctools_get_redac_view_array(){
-  $display_plugin='redacblokc';
+  $display_plugin='redacblock';
   $query="SELECT vv.name, vv.vid, vd.display_plugin,vd.id, vd.display_title  FROM {views_display}  AS vd LEFT JOIN {views_view} AS  vv ON vv.vid=vd.vid WHERE display_plugin='%s'"; 
   $results=db_query($query,$display_plugin);
   
@@ -177,8 +175,18 @@ function wallyctools_get_redac_view_options(){
 
 
 function wallyctools_get_redac_block_list(){
+  
+$query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
+  $results=db_query($query);
+  
+  $blocks=array();
+  while($result=db_fetch_object($results)){
+    $blocks[]=$result;
+  }
+  
 
-  $query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
+
+$query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
   $results=db_query($query);
   
   $blocks=array();
@@ -196,6 +204,119 @@ function wallyctools_form_alter(&$form, &$form_state, $form_id){
   }
 }
 
+
+
 function wallyctools_save_views_layout($form,$form_state){
   //Do what I need
+  $view=$form_state['view'];
+  foreach($view->display as $display){
+
+    if($display->display_plugin=='redacblock'){
+      
+      
+      //@todo: Handle the deletion of a view.
+      foreach($display->display_options['redacblock_layout']  as $layout_id=>$layout_value){
+        $row=new stdClass;
+        $row->view_vid=$view_vid=$view->name;
+        $row->view_id=$view_id=$display->id;
+        $row->layout_id=$layout_id;
+       
+        //if checked
+        if($layout_value!=FALSE){
+          $sql="Select id FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
+          $result=db_result(db_query($sql,$view_id,$view_vid,$layout_id));
+
+          
+          if($result>0){
+              $row->id=$result;
+              drupal_write_record('wallyctools_views_layout',$row,'id');
+          }
+          else{
+            drupal_write_record('wallyctools_views_layout',$row);
+          }
+        }
+
+        
+        //remove reference if exist
+        else{
+          $sql="DELETE  FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
+          $result=db_query($sql,$view_id,$view_vid,$layout_id);
+          
+        }
+      }
+    }
+  }
+}
+
+
+
+function wallyctools_get_hierarchies(){
+  
+  //@todo remove hard coding of the vid
+  $terms=taxonomy_get_tree(2);
+  $depth=0;
+  
+  $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+  
+  $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
+  
+  foreach($tid_did_mapping as $tid=>$did_infos){
+          $tid_did_mapping[$tid]['redacblocks']=array();  
+        
+    foreach($array_of_redacblock_panes as $pane){
+      if($did_infos['did']==$pane->did){
+        
+        
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]=array_merge($tid_did_mapping[$tid]['redacblocks'][$pane->name],array('title'=>$pane->admin_title,'name'=>$pane->name));
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
+      }
+    }
+  }
+  return $tid_did_mapping;
+  
+}
+  
+function wallyctools_get_term_handler_mapping($terms,$depth){
+
+  $availlable_handlers=array();
+  
+  foreach($terms as $term){
+    $handler= wallyctools_get_active_handler($term->tid,$depth);
+    $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->did,'title'=>$handler->conf['title'],'term_name'=>$term->name);
+  }
+  return $tid_did_mapping;
+  
+}
+function wallyctools_get_active_handler($term_tid,$depth){
+  $task=page_manager_get_task('term_view');
+  ctools_include('context');
+  ctools_include('context-task-handler');
+  
+  $contexts=ctools_context_handler_get_task_contexts($task,'',array($term_tid,$depth));
+  
+  $handlers= page_manager_load_sorted_handlers($task,NULL,TRUE);
+  
+  foreach($handlers as $handler){
+    //add my contexts
+    $contexts= ctools_context_handler_get_handler_contexts($contexts, $handler);
+    
+    //Test if a handler match the context (ie: the term)
+    if(ctools_context_handler_select($handler, $contexts)){
+      return $handler;
+    }
+  }
+  //No Handlers match
+  return NULL;
+    
+}
+
+function wallyctools_get_redacblock_panes(){
+ $array_of_panes=array();
+  $sql="Select pp.did, pp.subtype, wct.view_name,wct.name,wct.admin_title, wct.view_id, wctvl.layout_id FROM {panels_pane} AS pp LEFT JOIN {wallyctools} as wct ON wct.name=pp.subtype LEFT JOIN {wallyctools_views_layout} as wctvl ON wct.view_name=wctvl.view_vid AND wct.view_id=wctvl.view_id WHERE type='%s'";
+  $results=(db_query($sql,"redacblock"));
+  
+  while($result=db_fetch_object($results)){
+    $array_of_panes[]=$result;
+  }
+    return $array_of_panes;
 }
