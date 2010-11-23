@@ -11,7 +11,7 @@
 function wallyctools_views_plugins() {
   return array(
     'display' => array(
-      'redacblokc' => array(
+      'redacblock' => array(
         'title' => t('Redac block'),
         'help' => t('TODO....'),
         'handler' => 'wallyctools_plugin_display_panel_pane',

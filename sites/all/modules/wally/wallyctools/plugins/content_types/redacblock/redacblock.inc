@@ -127,10 +127,6 @@ function _wallyctools_redacblock_content_type($content) {
  */
 function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
   
-  
-  dsm($conf);
-          dsm('rrr');
-  
   if ($subtype['name'] != 'redacblock') {
     $settings = $subtype['content']->settings;
     $settings['redacblock_type'] = 'fixed';
