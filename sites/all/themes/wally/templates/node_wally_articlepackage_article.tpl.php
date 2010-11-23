@@ -1,6 +1,7 @@
 <?php
 /**
  *
+ * 
  */
 ?> 
 <div id="main-content">
@@ -14,9 +15,5 @@
   ?>
   </div>
   <div id="main-content-left">
-
   </div>
 </div>
-
-
-

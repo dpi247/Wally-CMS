@@ -17,12 +17,31 @@ include_once('wallycontenttypes.features.inc');
 function wallycontenttypes_theme(&$var) {
  return array(
 
-    'wallyct_authorslist' => array(
-    'arguments' => array("authors" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_authorslist',
+    'wallyct_personslist' => array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_personslist',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-    
+
+    'wallyct_personslist_detail' => array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_personslist_detail',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_locations_map' => array(
+    'arguments' => array("locations" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_locations_map',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_locationlist_map' => array(
+    'arguments' => array("locations" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_locationlist_map',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+
     'wallyct_mainstory' => array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_mainstory',
