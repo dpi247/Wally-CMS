@@ -207,20 +207,17 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#options']=array();
   $result['layout']['#classes']=array();
  
-  $hierarchies=wallyctools_get_hierarchies();
+  $hierarchies= wallyctools_get_hierarchies();
   dsm($hierarchies);
 
   foreach($hierarchies as $tid=>$hierarchie){
-    dsm($hierarchie);
-    dsm($tid);
     foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
-      dsm($redacblock);
-      $result['target']['#options']+=array($redacblock_id=>$redacblock['title']);
-      $result['target']['#classes']+=array($tid.'_'.$redacblock_id=>$tid);
+      $result['target']['#options'][]=array($redacblock_id=>$redacblock['title']);
+      $result['target']['#classes'][]=array($redacblock_id=>$tid);
      
       foreach($redacblock['layouts'] as $layout_id=>$value){
-        $result['layout']['#options']+=array($layout_id=>$layout_id);
-        $result['layout']['#classes']+=array($layout_id=> $tid.'_'.$redacblock_id);
+        $result['layout']['#options'][]=array($layout_id=>$layout_id);
+        $result['layout']['#classes'][]=array($layout_id=> $redacblock_id);
      
       }
    }
