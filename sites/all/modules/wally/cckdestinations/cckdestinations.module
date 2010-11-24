@@ -154,7 +154,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   );
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
-   
+  $options_and_classe=cckdestinations_get_classes_and_options();
   $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE);
   $element['tid']['#required']=False;
   // add a new #attribute to the element.
@@ -167,8 +167,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#title' => t( 'Target' ),
     '#type' => 'select',
     '#default_value' => $defaults['target'],
-    '#options'=>array(''=>'',"primary_list"=>"Primary list","secondary_list"=>"2nd List","AMEUBLEMENT"=>"A&D-AMEUBLEMENT","AUTOMOBILE"=>"A&D-AUTOMOBILE","GADGET"=>"A&D-GADGET",),
-    '#classes'=>array(''=>'',"primary_list"=>"19","secondary_list"=>"19","AMEUBLEMENT"=>"453","AUTOMOBILE"=>"453","GADGET"=>"453", ),
+    '#options'=>$options_and_classe['target']['#options'],
+    '#classes'=>$options_and_classe['target']['#classes'],
     '#required'=>FALSE,
     '#weight' => 3,
      // specify theming callback & add a new #attribute to the element.
@@ -179,8 +179,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#title' => t( 'Layout' ),
     '#type' => 'select',
     '#default_value' => $defaults['layout'],
-    '#options'=>array(''=>'',"layout_system_name1"=>"LaYoout 1","layout_system_name2"=>"LaYouT 2","layout_system_name3"=>"Layout 3","LAPIN"=>"ART-ANIMAUX-LAPIN","CHIEN"=>"ART-ANIMAUX-CHIEN","CHAISE"=>"A&D-AMEUBLEMENT-CHAISE", "TABLE"=>"A&D-AMEUBLEMENT-TABLE", "AUDI"=>"A&D-AMEUBLEMENT-AUTO-AUDI", "VW"=>"A&D-AMEUBLEMENT-AUTO-VW", "PHONE"=>"A&D-GADGET-PHONE", "APN"=>"A&D-GADGET-APN",),
-    '#classes'=>array(''=>'',"layout_system_name1"=>"primary_list","layout_system_name2"=>"primary_list","layout_system_name3"=>"secondary_list","LAPIN"=>"ANIMAUX","CHIEN"=>"ANIMAUX","CHAISE"=>"AMEUBLEMENT", "TABLE"=>"AMEUBLEMENT", "AUDI"=>"AUTOMOBILE", "VW"=>"AUTOMOBILE", "PHONE"=>"GADGET", "APN"=>"GADGET",),
+    '#options'=>$options_and_classe['layout']['#options'],
+    '#classes'=>$options_and_classe['layout']['#classes'],
     '#required'=>FALSE,
     '#weight' => 4,
      // specify theming callback & add a new #attribute to the element.
@@ -198,6 +198,14 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   );
   return $element;
 }
+
+
+/**
+ * Helper function to provide #options and #class to cckDestinations fields
+ * 
+ * 
+ * @return an array with  "target" and "layout" key both are array with #options and #classes keys to put in the form definition
+ */
 
 function cckdestinations_get_classes_and_options(){
  
