@@ -251,8 +251,7 @@ function wallyctools_save_views_layout($form,$form_state){
 
 function wallyctools_get_hierarchies(){
   
-  //@todo remove hard coding of the vid
-  $terms=taxonomy_get_tree(2);
+  $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
   $depth=0;
   
   $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
