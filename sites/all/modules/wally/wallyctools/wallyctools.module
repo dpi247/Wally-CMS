@@ -303,6 +303,14 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
   return $tid_did_mapping;
   
 }
+/**
+ * Helper function that give the variant associated with all terms passed as argument  .
+ * @param: $terms
+ *   an array of terms object
+ * @param: $depth
+ *   depth to take into account default = 0
+ * @return an array where term are key and the handler of the variant for this term
+ */
 function wallyctools_get_active_handler($term_tid,$depth){
   $task=page_manager_get_task('term_view');
   ctools_include('context');
