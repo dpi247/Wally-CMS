@@ -249,7 +249,12 @@ function wallyctools_save_views_layout($form,$form_state){
 }
 
 
-
+/**
+ * Helper Provide informations
+ * 
+ * 
+ * @return an array variable with  
+ */
 function wallyctools_get_hierarchies(){
   
   //@todo remove hard coding of the vid
