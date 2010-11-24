@@ -256,6 +256,7 @@ function wallyctools_save_views_layout($form,$form_state){
  * 
  * @return an array where term are key and the hierarchical structure of the redactional content.
  */ 
+
 function wallyctools_get_hierarchies(){
   
   //@todo remove hard coding of the vid
