@@ -4,3 +4,4 @@ core = 6.x
 package = Wally
 dependencies[] = ctools
 dependencies[] = page_manager
+dependencies[] = views_content
