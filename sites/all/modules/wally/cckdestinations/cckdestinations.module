@@ -204,7 +204,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  * Helper function to provide #options and #class to cckDestinations fields
  * 
  * 
- * @return an array with  "target" and "layout" key both are array with #options and #classes keys to put in the form definition
+ * @return an array with  "target" and "layout" key both are array with #options 
+ * and #classes keys to put in the form definition
  */
 
 function cckdestinations_get_classes_and_options(){
@@ -216,7 +217,6 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes']=array();
  
   $hierarchies= wallyctools_get_hierarchies();
-  dsm($hierarchies);
 
   foreach($hierarchies as $tid=>$hierarchie){
     foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
@@ -230,7 +230,6 @@ function cckdestinations_get_classes_and_options(){
       }
    }
  }
- dsm($result);
  return $result;
 }
 
