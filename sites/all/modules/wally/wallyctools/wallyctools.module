@@ -286,7 +286,10 @@ function wallyctools_get_hierarchies(){
 
 /**
  * Helper function that give the variant associated with all terms passed as argument  .
- * 
+ * @param: $terms
+ *   an array of terms object
+ * @param: $depth
+ *   depth to take into account default = 0
  * @return an array where term are key and the handler of the variant for this term
  */
 function wallyctools_get_term_handler_mapping($terms,$depth){
