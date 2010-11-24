@@ -369,7 +369,6 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         $this->set_option($form_state['section'], $form_state['values'][$form_state['section']]);
       break;
     }
-    dsm($form_state);
   }
 
   /**
