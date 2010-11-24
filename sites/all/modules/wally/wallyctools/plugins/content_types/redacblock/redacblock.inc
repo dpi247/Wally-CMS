@@ -253,7 +253,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
   
 
   $handler = $view->new_display('default', 'Defaults', 'default');
-  
+  dsm($handler);
   $redacblock_name=$conf['content']->name;
   $options=array(
   'field_testdes_target' => array(
