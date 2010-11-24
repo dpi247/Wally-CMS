@@ -250,10 +250,11 @@ function wallyctools_save_views_layout($form,$form_state){
 
 
 /**
- * Helper Provide informations
+ * Helper function that provide informations about mappings between destinations terms,
+ * variant that handle that term and the redacblock available on that variant and the layout associated with the views binded to the redacblock.
+ * This function return the strucutre of the redactional content
  * 
- * 
- * @return an array variable with  
+ * @return an array where term are key and the hierarchical structure of the redactional content.
  */
 function wallyctools_get_hierarchies(){
   
@@ -280,7 +281,13 @@ function wallyctools_get_hierarchies(){
   return $tid_did_mapping;
   
 }
-  
+
+
+/**
+ * Helper function that give the variant associated with all terms passed as argument.
+ * 
+ * @return an array where term are key and the handler of the variant for this term
+ */
 function wallyctools_get_term_handler_mapping($terms,$depth){
 
   $availlable_handlers=array();
