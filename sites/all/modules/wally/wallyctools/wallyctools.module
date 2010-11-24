@@ -284,7 +284,7 @@ function wallyctools_get_hierarchies(){
 
 
 /**
- * Helper function that give the variant associated with all terms passed as argument.
+ * Helper function that give the variant associated with all terms passed as argument .
  * 
  * @return an array where term are key and the handler of the variant for this term
  */
