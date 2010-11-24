@@ -216,7 +216,7 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#options']=array();
   $result['layout']['#classes']=array();
  
-  $hierarchies= wallyctools_get_hierarchies();
+  $hierarchies= wallyctools_get_hierarchies() ;
 
   foreach($hierarchies as $tid=>$hierarchie){
     foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
