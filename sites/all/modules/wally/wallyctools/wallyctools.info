@@ -3,3 +3,4 @@ description = Wally Ctools Integration.
 core = 6.x
 package = Wally
 dependencies[] = ctools
+dependencies[] = page_manager
