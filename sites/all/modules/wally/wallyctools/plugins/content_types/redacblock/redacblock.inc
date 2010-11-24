@@ -253,7 +253,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
   
 
   $handler = $view->new_display('default', 'Defaults', 'default');
-  dsm($handler);
   $redacblock_name=$conf['content']->name;
   $options=array(
   'field_testdes_target' => array(
@@ -486,7 +485,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
   }
-  dsm($form);
   
     
     
