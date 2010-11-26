@@ -33,6 +33,7 @@ $plugin = array(
 
  
   ),
+  
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
 
@@ -48,6 +49,7 @@ $plugin = array(
  */
 function wallyctools_redacblock_content_type_content_type($subtype_id) {
   if ($subtype_id == 'redacblock') {
+    
     return _wallyctools_default_content_type();
   }
   else {
@@ -62,7 +64,8 @@ function wallyctools_redacblock_content_type_content_type($subtype_id) {
 /**
  * Return all redacblock content types available.
  */
-function wallyctools_redacblock_content_type_content_types() {
+function wallyctools_redacblock_content_type_content_types($plugin) {
+  dsm($plugin);
   ctools_include('export');
   $types = array();
   $types['redacblock'] = _wallyctools_default_content_type();
@@ -76,20 +79,28 @@ function wallyctools_redacblock_content_type_content_types() {
 /**
  * Settings for the default redacblock content type.
  *
- * The default is the one that allows the user to actually create a type.
+ * The default is the one that allows the user to actually create a new reusable type.
  */
 function _wallyctools_default_content_type() {
-  $info = array(
+  $plugin = array(
     'name' => 'redacblock',
     'title' => t('New redacblock content'),
     'top level' => TRUE,
     'category' => t('redacblock'),
-    'description' => t('Create a completely redacblock piece of HTML content.'),
+    'description' => t('Create a completely new redacblock'),
     'edit form' => 'ctools_redacblock_content_type_edit_form',
     'all contexts' => TRUE,
+    'add form' => array(
+      'redacblock_new_redacblock_form' => t('Create RedacBlock'),
+      'wallyctools_redacblock_content_type_edit_form' => array(
+        'default' => TRUE, // put wrapper here, not on the previous form.
+        'title' => t('Override settings of the redacblock'),
+      ),
+    ),
+ 
   );
 
-  return $info;
+  return $plugin;
 }
 
 /**
@@ -126,7 +137,8 @@ function _wallyctools_redacblock_content_type($content) {
  * is local or shared redacblock content.
  */
 function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
-  
+  dsm($conf);
+  dsm($subtype);
   if ($subtype['name'] != 'redacblock') {
     $settings = $subtype['content']->settings;
     $settings['redacblock_type'] = 'fixed';
@@ -159,6 +171,7 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
           'substitute' => TRUE,
           'redacblock_type' => 'fixed',
           'content' => $content,
+        
         );
       }
     }
@@ -428,7 +441,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $view_name=$conf['content']->view_name;
   $view_id=$conf['content']->view_id;
-
+  
   $view = views_get_view($view_name);
   $view->set_display($view_id);
   $form_state['settings'] = $conf;
@@ -757,4 +770,50 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
     }
   
   
+}
+
+
+function redacblock_new_redacblock_form($form,$form_state){
+
+  //ctools_include('export_ui');
+  ctools_include('wallyctools', 'wallyctools','plugins');
+  
+  $redacblock_export=new wallyctools_ui();
+  $redacblock_export->edit_form(&$form, &$form_state);
+
+  
+   $form['category'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Category'),
+      '#description' => t('What category this content should appear in. If left blank the category will be "Miscellaneous".'),
+    );
+
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+    );
+    $form['block']['view'] = array(
+        '#type' => 'select',
+        '#options'=> wallyctools_get_redac_view_options(),
+       '#title' => t('view associated with the block'),
+        '#required'=>true,
+      );
+     
+   
+    $form['substitute'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use context keywords'),
+      '#description' => t('If checked, context keywords will be substituted in this content.'),
+    );
+  
+return $form;
+
+}
+
+
+function redacblock_new_redacblock_form_submit($form,$form_state){
+/*
+$redacblock_export=new wallyctools_ui();
+$redacblock_export->edit_form_submit(&$form, &$form_state);
+*/
 }
