@@ -9,9 +9,11 @@ if (!function_exists('wally_tpl_persons_li')) {
 
     $content = "";
     foreach ($persons as $person) {
-      $content .= "<li>"; 
+      $content .= "<li class='".$person->field_personsex[0]["value"]."' >"; 
         if (isset($person->field_persontaxonomy)) {
-          $content .= "<a href='/taxonomy/term/".$person->field_persontaxonomy[0]['value']."'>".$person->title."</a>";
+          $t = taxonomy_get_term($person->field_persontaxonomy[0]['value']);
+          $taxo_path = taxonomy_term_path($t);
+          $content .= "<a href='".$taxo_path."'>".$person->title."</a>";
         } else {
           $content .= $person->title;
         }
