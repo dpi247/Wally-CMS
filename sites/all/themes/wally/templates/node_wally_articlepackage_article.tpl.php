@@ -3,6 +3,7 @@
  *
  * 
  */
+
 ?> 
 <div id="main-content">
 <?php print date('l jS \of F Y h:i:s A', $node->changed); ?> - <?php print theme("wallyct_authorslist",$node->field_authors_nodes, $node); ?>
@@ -15,5 +16,6 @@
   ?>
   </div>
   <div id="main-content-left">
+
   </div>
 </div>

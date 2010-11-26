@@ -35,6 +35,19 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
+    'wallyct_taxotermlist' => array(
+    'arguments' => array("tids" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_taxotermlist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_taxotermlist_tree' => array(
+    'arguments' => array("tids" => NULL, "node" => NULL),
+    'template' => 'templates/wallyct_taxotermlist_tree',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+
     'wallyct_mainstory' => array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_mainstory',

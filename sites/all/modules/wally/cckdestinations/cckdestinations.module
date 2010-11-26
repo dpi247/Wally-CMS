@@ -145,24 +145,35 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
-
-  $element['tid'] = array(
-    '#title' => t( 'Taxonomy Term' ),
-    '#type' => 'textfield',
-    '#default_value' => $defaults['tid'],
-    '#weight' => 2,
-  );
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
   $options_and_classe=cckdestinations_get_classes_and_options();
-  $element['tid']=_taxonomy_term_select(t('Taxonomy "Destination Path"'), $name, $defaults['tid'], $vocabulary_id, '', FALSE);
-  $element['tid']['#required']=False;
-  // add a new #attribute to the element.
-  $element['tid']['#attributes'] = array('class' => 'tid');
+
+  $terms = taxonomy_get_tree($vocabulary_id); 
+  $options = array(); 
+  foreach ($terms as $term) {
+    $options[][$term->tid] = $term->name; 
+  }
+
+  $element['tid'] = array(
+    '#title' => t( 'Destination Path' ),
+    '#type' => 'select',
+    '#default_value' => $defaults['tid'],
+    
+    '#options'=>$options,
+    
+    '#required'=>FALSE,
+    '#weight' => 1,
+     // specify theming callback & add a new #attribute to the element.
+    '#theme' => 'cckdestinations_cascading_select',
+    '#attributes' => array('class' => 'tid'),
+ );
+
 
 /**
  * @todo Get the real values from database. 
  */
+
   $element['target'] = array(
     '#title' => t( 'Target' ),
     '#type' => 'select',
@@ -172,8 +183,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'=>FALSE,
     '#weight' => 3,
      // specify theming callback & add a new #attribute to the element.
- 	'#theme' => 'cckdestinations_cascading_select',
- 	'#attributes' => array('class' => 'target'),
+    '#theme' => 'cckdestinations_cascading_select',
+    '#attributes' => array('class' => 'target'),
  );
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
@@ -184,8 +195,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'=>FALSE,
     '#weight' => 4,
      // specify theming callback & add a new #attribute to the element.
- 	'#theme' => 'cckdestinations_cascading_select',
- 	'#attributes' => array('class' => 'layout'),
+  '#theme' => 'cckdestinations_cascading_select',
+  '#attributes' => array('class' => 'layout'),
  );
   $element['rank'] = array(
     '#title' => t( 'Rank' ),
@@ -258,6 +269,7 @@ function theme_cckdestinations_cascading_select($element) {
  */
 function cckdestinations_cascading_select_options($element, $choices = NULL) {
 	  
+    
   if (!isset($choices)) {
     $choices = $element['#options'];
     $classes = $element['#classes'];
@@ -273,19 +285,24 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   $value_is_array = is_array($element['#value']);
   $options = '';
 
-  foreach ($choices as $key => $choice) {
+//  foreach ($choices as $key => $choice) {
+  foreach ($choices as $k => $c) {
+    
+    $key = array_keys($c);
+    $key = $key[0];
+    $choice = $c[$key];
 
-	if ($classes[$key]) {
-		$class = 'class="sub_'.$classes[$key].'" ';
-	}
-	
+    if ($classes[$k]) {
+      $class = 'class="sub_'.$classes[$k][$key].'_'.$k.'" ';
+    }
+  
     if (is_array($choice)) {
-      $options .= '<optgroup label="'. $key .'">';
-      $options .= form_select_options($element, $choice);
-      $options .= '</optgroup>';
+//      $options .= '<optgroup label="'. $key .'">';
+//      $options .= form_select_options($element, $choice);
+//      $options .= '</optgroup>';
     }
     elseif (is_object($choice)) {
-      $options .= form_select_options($element, $choice->option);
+//      $options .= form_select_options($element, $choice->option);
     }
     else {
       $key = (string)$key;
@@ -295,9 +312,17 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
       else {
         $selected = '';
       }
-      $options .= '<option '.$class.'value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>';
+      
+      
+      $option = '<option '.$class.'title="'.check_plain($key)."_".$k.'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
+
+      dsm($option); 
+
+      $options .= $option;
     }
   }
+  
+  
   return $options;
 }
 

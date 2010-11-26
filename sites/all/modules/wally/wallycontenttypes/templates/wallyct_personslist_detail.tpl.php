@@ -13,18 +13,21 @@ if (!function_exists('wally_tpl_persons_detail')) {
 
         $i = 0;
 
+        $t = taxonomy_get_term($person->field_persontaxonomy[0]['value']);
+        $taxo_path = taxonomy_term_path($t);
+
         if (isset($person->field_persontaxonomy)) {
-          $t = "<a href='/taxonomy/term/".$person->field_persontaxonomy[0]['value']."'>".$person->title."</a>";
+          $title = "<a href='".$taxo_path."'>".$person->title."</a>";
         } else {
-          $t = $person->title;
+          $title = $person->title;
         }
 
         $content .= "<table>";
-        $content .= "<thead><tr><th colspan='3'>".$t."</th></tr></thead>";
+        $content .= "<thead><tr><th colspan='3'>".$title."</th></tr></thead>";
         $content .= "<tbody>";
 
         if (isset($person->field_main_picture)) {
-            $content .= "<tr class='".(($i++%2) ? "even" : "odd")."'><td><img src='/".$person->field_main_picture[0]["filepath"]."' width='50' align='left'></td><td>".$person->field_personfirstname[0]["value"]."</td><td>".$person->field_personlastname[0]["value"]."</td></tr>";
+            $content .= "<tr class='".(($i++%2) ? "even" : "odd")."'><td><img src='/".$person->field_main_picture[0]["filepath"]."' width='50' align=tle'left'></td><td>".$person->field_personfirstname[0]["value"]."</td><td>".$person->field_personlastname[0]["value"]."</td></tr>";
         } else {
             $content .= "<tr class='".(($i++%2) ? "even" : "odd")."'><td><img src='/".path_to_theme()."/images/default_person_pic.jpg' width='50' align='left'></td><td>".$person->field_personfirstname[0]["value"]."</td><td>".$person->field_personlastname[0]["value"]."</td></tr>";
         }
