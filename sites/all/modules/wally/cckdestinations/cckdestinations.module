@@ -228,7 +228,6 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes']=array();
  
   $hierarchies= wallyctools_get_hierarchies() ;
-
   foreach($hierarchies as $tid=>$hierarchie){
     foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
       $result['target']['#options'][]=array($redacblock_id=>$redacblock['title']);
@@ -284,10 +283,10 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
   $value_is_array = is_array($element['#value']);
   $options = '';
-
+dsm($element);
 //  foreach ($choices as $key => $choice) {
   foreach ($choices as $k => $c) {
-    
+   
     $key = array_keys($c);
     $key = $key[0];
     $choice = $c[$key];
@@ -316,8 +315,8 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
       
       $option = '<option '.$class.'title="'.check_plain($key)."_".$k.'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
 
-      dsm($option); 
-
+      
+    dsm($option);
       $options .= $option;
     }
   }

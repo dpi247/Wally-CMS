@@ -65,7 +65,6 @@ function wallyctools_redacblock_content_type_content_type($subtype_id) {
  * Return all redacblock content types available.
  */
 function wallyctools_redacblock_content_type_content_types($plugin) {
-  dsm($plugin);
   ctools_include('export');
   $types = array();
   $types['redacblock'] = _wallyctools_default_content_type();

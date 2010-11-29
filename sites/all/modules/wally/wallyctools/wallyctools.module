@@ -196,7 +196,10 @@ $query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_
   
   return  $blocks;
 }
-
+function wallyctools_form_alter(&$form, &$form_state, $form_id){
+  if($form_id=='views_ui_edit_view_form'){
+  }
+}
 
 function wallyctools_save_views_layout($form,$form_state){
   //Do what I need
@@ -218,7 +221,6 @@ function wallyctools_save_views_layout($form,$form_state){
           $sql="Select id FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
           $result=db_result(db_query($sql,$view_id,$view_vid,$layout_id));
 
-          
           if($result>0){
               $row->id=$result;
               drupal_write_record('wallyctools_views_layout',$row,'id');
@@ -263,7 +265,6 @@ function wallyctools_get_hierarchies(){
         
     foreach($array_of_redacblock_panes as $pane){
       if($did_infos['did']==$pane->did){
-        
         
         $tid_did_mapping[$tid]['redacblocks'][$pane->name]=array_merge($tid_did_mapping[$tid]['redacblocks'][$pane->name],array('title'=>$pane->admin_title,'name'=>$pane->name));
         $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
