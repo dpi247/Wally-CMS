@@ -62,64 +62,6 @@ function wallycontenttypes_content_default_fields() {
     ),
   );
 
-  // Exported field: field_channels
-  $fields['wally_articlepackage-field_channels'] = array(
-    'field_name' => 'field_channels',
-    'type_name' => 'wally_articlepackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '1',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => '3',
-      'size' => 60,
-      'default_value' => array(
-        '0' => array(
-          'value' => 'O:1:"a":1:{s:5:"value";s:3:"web";}',
-          '_error_element' => 'default_value_widget][field_channels][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Channels',
-      'weight' => '1',
-      'description' => '',
-      'type' => 'text_textarea',
-      'module' => 'text',
-    ),
-  );
-
   // Exported field: field_destinations
   $fields['wally_articlepackage-field_destinations'] = array(
     'field_name' => 'field_destinations',
@@ -1256,64 +1198,6 @@ Free',
     ),
   );
 
-  // Exported field: field_packagelayout
-  $fields['wally_articlepackage-field_packagelayout'] = array(
-    'field_name' => 'field_packagelayout',
-    'type_name' => 'wally_articlepackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '0',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 0,
-    'vid' => '8',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'group_parent' => '0',
-      'show_depth' => 1,
-      'default_value' => array(
-        '0' => array(
-          'value' => '486',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Package Layout',
-      'weight' => '13',
-      'description' => '',
-      'type' => 'content_taxonomy_select',
-      'module' => 'content_taxonomy_options',
-    ),
-  );
-
   // Exported field: field_persons
   $fields['wally_articlepackage-field_persons'] = array(
     'field_name' => 'field_persons',
@@ -1612,6 +1496,60 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
+    ),
+  );
+
+  // Exported field: field_testdes
+  $fields['wally_articlepackage-field_testdes'] = array(
+    'field_name' => 'field_testdes',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'destinationsfield',
+    'required' => '1',
+    'multiple' => '1',
+    'module' => 'cckdestinations',
+    'active' => '1',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'tid' => '',
+          'target' => '',
+          'layout' => '',
+          'rank' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'test dest',
+      'weight' => '2',
+      'description' => '',
+      'type' => 'cckdestinations_widget',
+      'module' => 'cckdestinations',
     ),
   );
 
@@ -2940,6 +2878,7 @@ Free',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -2950,7 +2889,6 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '11',
       'description' => '',
@@ -4154,6 +4092,7 @@ Free',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -4164,7 +4103,6 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '6',
       'description' => '',
@@ -4832,7 +4770,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'EmbededObjects',
-      'weight' => '67',
+      'weight' => '68',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -5828,64 +5766,6 @@ Free',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_packagelayout
-  $fields['wally_gallerypackage-field_packagelayout'] = array(
-    'field_name' => 'field_packagelayout',
-    'type_name' => 'wally_gallerypackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '0',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 0,
-    'vid' => '8',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'group_parent' => '0',
-      'show_depth' => 1,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Package Layout',
-      'weight' => '68',
-      'description' => '',
-      'type' => 'content_taxonomy_select',
-      'module' => 'content_taxonomy_options',
     ),
   );
 
@@ -9200,6 +9080,7 @@ character',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -9210,7 +9091,6 @@ character',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '13',
       'description' => '',
@@ -10323,7 +10203,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Poll',
-      'weight' => '-4',
+      'weight' => '61',
       'description' => '',
       'type' => 'pollfield',
       'module' => 'pollfield',
@@ -10391,7 +10271,7 @@ character',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'Poll Dates',
-      'weight' => '-2',
+      'weight' => '62',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -10449,7 +10329,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Poll Summary',
-      'weight' => '-3',
+      'weight' => '60',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -10498,6 +10378,7 @@ character',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -10508,7 +10389,6 @@ character',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '41',
       'description' => '',
@@ -10686,64 +10566,6 @@ character',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_documenttype
-  $fields['wally_pollpackage-field_documenttype'] = array(
-    'field_name' => 'field_documenttype',
-    'type_name' => 'wally_pollpackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '1',
-    'multiple' => '0',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 0,
-    'vid' => '8',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'group_parent' => '0',
-      'show_depth' => 1,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'DocumentType',
-      'weight' => '17',
-      'description' => '',
-      'type' => 'content_taxonomy_select',
-      'module' => 'content_taxonomy_options',
     ),
   );
 
@@ -13555,6 +13377,7 @@ Free',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -13565,7 +13388,6 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '60',
       'description' => '',
@@ -15066,6 +14888,7 @@ Free',
     'parent_php_code' => '',
     'depth' => '',
     'widget' => array(
+      'expand_all' => 0,
       'new_terms' => 'insert',
       'extra_parent' => '6',
       'maxlength' => '255',
@@ -15076,7 +14899,6 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'expand_all' => 0,
       'label' => 'Keywords (categorized)',
       'weight' => '44',
       'description' => '',
@@ -15310,7 +15132,6 @@ Free',
   t('ObjectID ');
   t('Package Authors');
   t('Package Description ');
-  t('Package Layout');
   t('Package Summary');
   t('PackageID');
   t('PersonBirthDate');
@@ -15343,6 +15164,7 @@ Free',
   t('Video 3rd Party');
   t('Video File');
   t('Video Summary');
+  t('test dest');
 
   return $fields;
 }
