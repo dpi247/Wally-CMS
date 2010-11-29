@@ -198,6 +198,7 @@ $query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_
 }
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
   if($form_id=='views_ui_edit_view_form'){
+    wallyctools_save_views_layout($form,$form_state)
   }
 }
 
