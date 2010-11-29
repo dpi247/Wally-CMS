@@ -266,12 +266,14 @@ function wallyctools_get_hierarchies(){
         
     foreach($array_of_redacblock_panes as $pane){
       if($did_infos['did']==$pane->did){
-        
-        $tid_did_mapping[$tid]['redacblocks'][$pane->name]=array_merge($tid_did_mapping[$tid]['redacblocks'][$pane->name],array('title'=>$pane->admin_title,'name'=>$pane->name));
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
+//        $tid_did_mapping[$tid]['redacblocks'][$pane->name]=array_merge($tid_did_mapping[$tid]['redacblocks'][$pane->name], array('title'=>$pane->admin_title,'name'=>$pane->name));
         $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
       }
     }
   }
+  
   return $tid_did_mapping;
   
 }
