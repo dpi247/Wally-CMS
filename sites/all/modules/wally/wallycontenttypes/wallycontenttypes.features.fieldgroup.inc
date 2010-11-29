@@ -94,7 +94,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '0' => 'field_mainstory',
       '1' => 'field_embededobjects',
       '2' => 'field_linkedobjects',
-      '3' => 'field_packagelayout',
     ),
   );
 
@@ -138,7 +137,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_editions',
       '1' => 'field_destinations',
-      '2' => 'field_channels',
+      '2' => 'field_testdes',
     ),
   );
 
@@ -638,7 +637,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_mainobject',
       '1' => 'field_embededobjects',
-      '2' => 'field_packagelayout',
     ),
   );
 
