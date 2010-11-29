@@ -149,18 +149,12 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
   $options_and_classe=cckdestinations_get_classes_and_options();
 
-  $terms = taxonomy_get_tree($vocabulary_id); 
-  $options = array(); 
-  foreach ($terms as $term) {
-    $options[][$term->tid] = $term->name; 
-  }
-
   $element['tid'] = array(
     '#title' => t( 'Destination Path' ),
     '#type' => 'select',
     '#default_value' => $defaults['tid'],
-    
-    '#options'=>$options,
+    '#name' => 'tid',
+    '#options'=>$options_and_classe['tid']['#options'],
     
     '#required'=>FALSE,
     '#weight' => 1,
@@ -176,6 +170,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   $element['target'] = array(
     '#title' => t( 'Target' ),
+    '#name' => 'target',
     '#type' => 'select',
     '#default_value' => $defaults['target'],
     '#options'=>$options_and_classe['target']['#options'],
@@ -188,6 +183,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  );
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
+    '#name' => 'layout',
     '#type' => 'select',
     '#default_value' => $defaults['layout'],
     '#options'=>$options_and_classe['layout']['#options'],
@@ -221,25 +217,28 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  
 function cckdestinations_get_classes_and_options(){
  
+  $result['tid']['#options']=array();
   $result['target']['#options']=array();
   $result['target']['#classes']=array();
- 
   $result['layout']['#options']=array();
   $result['layout']['#classes']=array();
  
-  $hierarchies= wallyctools_get_hierarchies() ;
+  $hierarchies= wallyctools_get_hierarchies();
+ 
+  $dla = array(); 
   foreach($hierarchies as $tid=>$hierarchie){
+    // Target
     foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
-      $result['target']['#options'][]=array($redacblock_id=>$redacblock['title']);
-      $result['target']['#classes'][]=array($redacblock_id=>$tid);
-     
-      foreach($redacblock['layouts'] as $layout_id=>$value){
-        $result['layout']['#options'][]=array($layout_id=>$layout_id);
-        $result['layout']['#classes'][]=array($layout_id=> $redacblock_id);
-     
+      // Layout
+      foreach($redacblock['layouts'] as $layout_id=>$name){
+        $result['tid']['#options'][$tid] = array($tid=>$hierarchie['term_name']);
+        $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id=>$redacblock['title']);
+        $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id=>$tid);
+        $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id=>$name['name']);
+        $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id=>$tid.$redacblock_id);
       }
-   }
- }
+    }
+  }
  return $result;
 }
 
@@ -267,41 +266,39 @@ function theme_cckdestinations_cascading_select($element) {
  * @return HTML options form elements. 
  */
 function cckdestinations_cascading_select_options($element, $choices = NULL) {
-	  
-    
-  if (!isset($choices)) {
+	    
     $choices = $element['#options'];
     $classes = $element['#classes'];
 
-	// Add additional Jquery scripts. 
     $module_path = drupal_get_path('module', 'cckdestinations') .'/';
     drupal_add_js($module_path .'js/cckdestinations.js');
-  }
+
 
   // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
   // isset() fails in this situation.
-  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
-  $value_is_array = is_array($element['#value']);
-  $options = '';
-dsm($element);
+//  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
+//  $value_is_array = is_array($element['#value']);
+//  $options = '';
+   
 //  foreach ($choices as $key => $choice) {
   foreach ($choices as $k => $c) {
-   
+
+    
     $key = array_keys($c);
     $key = $key[0];
     $choice = $c[$key];
 
     if ($classes[$k]) {
-      $class = 'class="sub_'.$classes[$k][$key].'_'.$k.'" ';
+      $class = 'class="sub_'.$classes[$k][$key].'" ';
     }
   
     if (is_array($choice)) {
-//      $options .= '<optgroup label="'. $key .'">';
-//      $options .= form_select_options($element, $choice);
-//      $options .= '</optgroup>';
+      $options .= '<optgroup label="'. $key .'">';
+      $options .= form_select_options($element, $choice);
+      $options .= '</optgroup>';
     }
     elseif (is_object($choice)) {
-//      $options .= form_select_options($element, $choice->option);
+      $options .= form_select_options($element, $choice->option);
     }
     else {
       $key = (string)$key;
@@ -311,17 +308,10 @@ dsm($element);
       else {
         $selected = '';
       }
-      
-      
-      $option = '<option '.$class.'title="'.check_plain($key)."_".$k.'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
-
-      
-    dsm($option);
+      $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
       $options .= $option;
     }
   }
-  
-  
   return $options;
 }
 
