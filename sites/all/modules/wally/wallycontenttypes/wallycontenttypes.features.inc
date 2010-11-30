@@ -1,6 +1,106 @@
 <?php
 
 /**
+ * Implementation of hook_content_taxonomy_mapping().
+ */
+function wallycontenttypes_content_taxonomy_mapping() {
+  return array(
+    'field_authors-authors' => array(
+      'field_name' => 'field_authors',
+      'vocabulary' => 'authors',
+    ),
+    'field_authors-keywords' => array(
+      'field_name' => 'field_authors',
+      'vocabulary' => 'keywords',
+    ),
+    'field_documenttype-documenttype' => array(
+      'field_name' => 'field_documenttype',
+      'vocabulary' => 'documenttype',
+    ),
+    'field_documenttype-persons' => array(
+      'field_name' => 'field_documenttype',
+      'vocabulary' => 'persons',
+    ),
+    'field_entities-editions' => array(
+      'field_name' => 'field_entities',
+      'vocabulary' => 'editions',
+    ),
+    'field_entities-entities' => array(
+      'field_name' => 'field_entities',
+      'vocabulary' => 'entities',
+    ),
+    'field_entity-editions' => array(
+      'field_name' => 'field_entity',
+      'vocabulary' => 'editions',
+    ),
+    'field_entity-entities' => array(
+      'field_name' => 'field_entity',
+      'vocabulary' => 'entities',
+    ),
+    'field_free_tags-documenttype' => array(
+      'field_name' => 'field_free_tags',
+      'vocabulary' => 'documenttype',
+    ),
+    'field_free_tags-keywords' => array(
+      'field_name' => 'field_free_tags',
+      'vocabulary' => 'keywords',
+    ),
+    'field_locations-authors' => array(
+      'field_name' => 'field_locations',
+      'vocabulary' => 'authors',
+    ),
+    'field_locations-locations' => array(
+      'field_name' => 'field_locations',
+      'vocabulary' => 'locations',
+    ),
+    'field_locationtaxonomy-authors' => array(
+      'field_name' => 'field_locationtaxonomy',
+      'vocabulary' => 'authors',
+    ),
+    'field_locationtaxonomy-locations' => array(
+      'field_name' => 'field_locationtaxonomy',
+      'vocabulary' => 'locations',
+    ),
+    'field_packageauthors-authors' => array(
+      'field_name' => 'field_packageauthors',
+      'vocabulary' => 'authors',
+    ),
+    'field_packageauthors-keywords' => array(
+      'field_name' => 'field_packageauthors',
+      'vocabulary' => 'keywords',
+    ),
+    'field_persons-entities' => array(
+      'field_name' => 'field_persons',
+      'vocabulary' => 'entities',
+    ),
+    'field_persons-persons' => array(
+      'field_name' => 'field_persons',
+      'vocabulary' => 'persons',
+    ),
+    'field_persontaxonomy-entities' => array(
+      'field_name' => 'field_persontaxonomy',
+      'vocabulary' => 'entities',
+    ),
+    'field_persontaxonomy-persons' => array(
+      'field_name' => 'field_persontaxonomy',
+      'vocabulary' => 'persons',
+    ),
+    'field_rating-rating' => array(
+      'field_name' => 'field_rating',
+      'vocabulary' => 'rating',
+    ),
+    'field_tags-destination_path' => array(
+      'field_name' => 'field_tags',
+      'vocabulary' => 'destination_path',
+    ),
+    'field_tags-tags' => array(
+      'field_name' => 'field_tags',
+      'vocabulary' => 'tags',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_node_info().
  */
 function wallycontenttypes_node_info() {
