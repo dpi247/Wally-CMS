@@ -137,7 +137,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_editions',
       '1' => 'field_destinations',
-      '2' => 'field_testdes',
+      '2' => 'field_channels',
     ),
   );
 

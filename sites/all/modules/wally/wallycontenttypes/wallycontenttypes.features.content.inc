@@ -62,6 +62,64 @@ function wallycontenttypes_content_default_fields() {
     ),
   );
 
+  // Exported field: field_channels
+  $fields['wally_articlepackage-field_channels'] = array(
+    'field_name' => 'field_channels',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '3',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => 'O:1:"a":1:{s:5:"value";s:3:"web";}',
+          '_error_element' => 'default_value_widget][field_channels][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Channels',
+      'weight' => '1',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_destinations
   $fields['wally_articlepackage-field_destinations'] = array(
     'field_name' => 'field_destinations',
@@ -1546,7 +1604,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'test dest',
-      'weight' => '2',
+      'weight' => '13',
       'description' => '',
       'type' => 'cckdestinations_widget',
       'module' => 'cckdestinations',
@@ -10203,7 +10261,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Poll',
-      'weight' => '61',
+      'weight' => '-4',
       'description' => '',
       'type' => 'pollfield',
       'module' => 'pollfield',
@@ -10271,7 +10329,7 @@ character',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'Poll Dates',
-      'weight' => '62',
+      'weight' => '-2',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -10329,7 +10387,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Poll Summary',
-      'weight' => '60',
+      'weight' => '-3',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -15016,6 +15074,7 @@ Free',
       'thumbnail_height' => '90',
       'thumbnail_default_path' => '',
       'thumbnail_link_title' => 'See video',
+      'meta_fields' => NULL,
       'providers' => array(),
       'default_value' => array(
         '0' => array(
