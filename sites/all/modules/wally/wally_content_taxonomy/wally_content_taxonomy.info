@@ -1,0 +1,12 @@
+; $Id$
+name = Wally Content Taxonomy
+package = Wally
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "Wally"
+datestamp = "1282573770"
+
