@@ -1,6 +1,13 @@
 <?php
-  $path = base_path() . path_to_theme();
-
+  $path = base_path().path_to_theme();
+ 
+  if (isset($node)) {
+    $html_head = theme("soirmag_header", $node);
+    $leaderboard = theme("soirmag_adds", $node, 'leaderboard.jpg');
+  } else {
+    $html_head = theme("soirmag_header", NULL);
+    $leaderboard = theme("soirmag_adds", NULL, 'leaderboard.jpg');
+  }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php print $language->language ?>" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
@@ -27,7 +34,6 @@
 
 		<link rel="alternate" title="titre de la section" href="#" type="application/rss+xml" />
 
-
 		<!--[if lte IE 6]>
 			<script type="text/javascript" src="scripts/supersleight.js"></script>
 		<![endif]-->
@@ -42,34 +48,8 @@
 		<!--[if (IE) & (!IE 6) & (!IE 7)]><div id="IE"><![endif]-->
 		<!--[if !IE]>--><div id="NOTIE"><!--<![endif]-->
 
-		<div id="header" class="clearfix">
-
-			<div class="container_12 clearfix">
-				<div id="jfl-tools" class="grid_6 prefix_6">
-					<ul>
-						<li><a href="#colonne-article">Aller au contenu</a> &middot;</li>
-						<li><a class="fluidify" href="#">mise en page fluide</a></li>
-					</ul>
-					<a class="slide" href="#jfl-tools">outils</a>
-				</div>
-				
-				<a id="logo" href="javascript:void(0)">
-					<img src="<?php print $path; ?>/mediastore/elements/logo.png" width="257" height="69" alt="Soirmag.be" />
-					<span>Rage Of Lunacy edition</span>
-				</a>
-				<div class="adimage">
-					<a href="javascript:void(0)"><img src="<?php print $path; ?>/mediastore/temp/ad_03.gif" width="214" height="60" alt="publicite" /></a>
-				</div>
-				<div class="adimage">
-					<a href="javascript:void(0)"><img src="<?php print $path; ?>/mediastore/temp/ad_02.gif" width="214" height="60" alt="publicite" /></a>
-				</div>
-				<div class="adimage">
-					<a href="javascript:void(0)"><img src="<?php print $path; ?>/mediastore/temp/ad_01.gif" width="214" height="60" alt="publicite" /></a>
-				</div>
-
-			</div>
-		</div>
-
+    <?php print $html_head; ?>
+        
 		<div id="menu">
 			<div class="container_12 clearfix">
 				<ul class="clearfix">
@@ -156,9 +136,10 @@
 		<div id="global" class="container_12 clearfix">
 
 			<div id="leaderboard" class="grid_10">
-				<img src="<?php print $path; ?>/mediastore/temp/leaderboard.jpg" width="728" height="90" alt="leaderboard" />
-			</div>
-
+        <?php print $leaderboard; ?>
+        <?php if ($messages): print $messages; endif; ?>
+        <?php if ($help): print $help; endif; ?>
+      </div>
 
 			<div id="rss" class="grid_2">
 				<a class="abo" href="javascript:void(0)">Abonnez-vous</a>
@@ -504,6 +485,17 @@
 		</div>
 
 		</div>
+
+    <div id="fb-root"></div>
+    <script src="http://connect.facebook.net/en_US/all.js"></script>
+    <script>
+      FB.init({
+        appId  : '163708680330578',
+        status : true, // check login status
+        cookie : true, // enable cookies to allow the server to access the session
+        xfbml  : true  // parse XFBML
+      });
+    </script>
 	</body>
 
 </html>

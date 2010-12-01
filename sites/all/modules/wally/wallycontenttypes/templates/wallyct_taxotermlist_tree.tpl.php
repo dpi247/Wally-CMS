@@ -79,7 +79,7 @@ if (!function_exists('plot_tree')) {
       }
       $content .= "<li class='".$included."'>";
       
-      $content .= "<a class='".$included."' href='".$taxo_path."'>".$v['#value']->name."</a>";
+      $content .= "<a class='".$included."' href='".base_path().$taxo_path."'>".$v['#value']->name."</a>";
 
       if (isset($v['#children'])) {
         $content .= plot_tree($v['#children'], $tids); 
