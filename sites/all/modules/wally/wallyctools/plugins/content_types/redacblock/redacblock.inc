@@ -136,8 +136,6 @@ function _wallyctools_redacblock_content_type($content) {
  * is local or shared redacblock content.
  */
 function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
-  dsm($conf);
-  dsm($subtype);
   if ($subtype['name'] != 'redacblock') {
     $settings = $subtype['content']->settings;
     $settings['redacblock_type'] = 'fixed';
@@ -328,12 +326,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
     $args = str_replace("%$id", $arg, $args);
   }
 
-  foreach ($panel_args as $id => $arg) {
-    if (is_string($arg)) {
-      $args = str_replace("@$id", $arg, $args);
+  if (isset($panel_args)) {
+    foreach ($panel_args as $id => $arg) {
+      if (is_string($arg)) {
+        $args = str_replace("@$id", $arg, $args);
+      }
     }
   }
-
   $args = preg_replace(',/?(%\d|@\d),', '', $args);
   $args = $args ? explode('/', $args) : array();
 
