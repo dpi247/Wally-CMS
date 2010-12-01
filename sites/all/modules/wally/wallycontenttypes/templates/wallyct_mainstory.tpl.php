@@ -66,6 +66,9 @@ if (!function_exists('wally_tpl_mainstory')) {
  
   }
 }
+
+dsm($mainstory);
+
 ?>
 
 <div id="mainstory">
