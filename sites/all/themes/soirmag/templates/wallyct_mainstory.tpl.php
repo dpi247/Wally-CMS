@@ -1,8 +1,13 @@
 <?php
 
+    // FB comment should be exported to a module, with a ADMIN FORM to get the API ID.
+    // this module will also implément a theming function to display comment 
+    // form (additionnal options - Width / number of posts / ... 
+    // 
+    
     $path = base_path().path_to_theme();
 
-    $nid = $mainstory->nid;
+    $nid = $mainstory->nid; 
     $textarette = $mainstory->field_textarette[0]["value"];
     $foretitle = $textarette." ".$mainstory->field_textforetitle[0]["value"];
     $title = $mainstory->title;
@@ -34,6 +39,7 @@
 						<?php print $body ?>
 
             <fb:comments xid="<?php print $nid; ?>" numposts="10" width="440"></fb:comments>
+            
 						<div class="share clearfix">
             <?php print $share; ?>
 						</div>

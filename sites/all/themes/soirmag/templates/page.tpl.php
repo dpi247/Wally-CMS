@@ -8,6 +8,9 @@
     $html_head = theme("soirmag_header", NULL);
     $leaderboard = theme("soirmag_adds", NULL, 'leaderboard.jpg');
   }
+
+  $html_menu = theme("soirmag_main_menu", 'primary-links');
+   
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php print $language->language ?>" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
@@ -37,7 +40,7 @@
 		<!--[if lte IE 6]>
 			<script type="text/javascript" src="scripts/supersleight.js"></script>
 		<![endif]-->
-
+ 
     <?php print $scripts ?>
 
   </head>
@@ -49,78 +52,10 @@
 		<!--[if !IE]>--><div id="NOTIE"><!--<![endif]-->
 
     <?php print $html_head; ?>
-        
+
 		<div id="menu">
 			<div class="container_12 clearfix">
-				<ul class="clearfix">
-					<li class="item-01"><a href="javascript:void(0)">Actu soirmag</a></li>
-					<li class="item-02 selected"><a href="javascript:void(0)">Actu stars</a></li>
-					<li class="item-03"><a href="javascript:void(0)">Actu Royal</a></li>
-					<li class="item-04"><a href="javascript:void(0)">TV News</a>
-						<div class="ss-menu">
-							<div>
-								<ul>
-									<li><a href="javascript:void(0)">Actu&nbsp;TV</a></li>
-									<li><a href="javascript:void(0)">Star&nbsp;Academy&nbsp;9</a></li>
-									<li><a href="javascript:void(0)">Nouvelle&nbsp;Star</a></li>
-									<li><a href="javascript:void(0)">Secret&nbsp;Story&nbsp;3</a></li>
-								</ul>
-							</div>
-						</div>
-					</li>
-					<li class="item-05"><a href="javascript:void(0)">Médias</a>
-						<div class="ss-menu">
-							<div>
-								<ul>
-									<li><a href="javascript:void(0)">Galeries&nbsp;photos</a></li>
-									<li><a href="javascript:void(0)">Galeries&nbsp;vidéos</a></li>
-									<li><a href="javascript:void(0)">Photos&nbsp;Babes</a></li>
-									<li><a href="javascript:void(0)">Photos&nbsp;People</a></li>
-								</ul>
-							</div>
-						</div>
-					</li>
-					<li class="item-06"><a href="javascript:void(0)">Jeux</a>
-						<div class="ss-menu">
-							<div>
-								<ul>
-									<li><a href="javascript:void(0)">Concours</a></li>
-									<li><a href="javascript:void(0)">Sudoku</a></li>
-									<li><a href="javascript:void(0)">Jeux&nbsp;Flash</a></li>
-								</ul>
-							</div>
-						</div>
-					</li>
-					<li class="item-07"><a href="javascript:void(0)">Services</a>
-						<div class="ss-menu">
-							<div>
-								<ul>
-									<li><a href="javascript:void(0)">Abonnement</a></li>
-									<li><a href="javascript:void(0)">Programmes&nbsp;TV</a></li>
-									<li><a href="javascript:void(0)">Horoscope</a></li>
-									<li><a href="javascript:void(0)">Rencontres</a></li>
-									<li><a href="javascript:void(0)">Contacts</a></li>
-								</ul>
-							</div>
-						</div>					
-					</li>
-					<li class="item-08"><a href="javascript:void(0)">Liens</a>
-						<div class="ss-menu">
-							<div>
-								<ul>
-									<li><a href="javascript:void(0)">Le Soir</a></li>
-									<li><a href="javascript:void(0)">Victoire&nbsp;Mag</a></li>
-									<li><a href="javascript:void(0)">Les&nbsp;oeuvres&nbsp;du&nbsp;Soir</a></li>
-									<li><a href="javascript:void(0)">Références</a></li>
-									<li><a href="javascript:void(0)">Vlan</a></li>
-									<li><a href="javascript:void(0)">Carchannel</a></li>
-									<li><a href="javascript:void(0)">TickenetNet</a></li>
-								</ul>
-							</div>
-						</div>						
-					</li>
-				</ul>
-				
+        <?php print $html_menu; ?>
 				<div id="a-la-recherche">
 					<form name="search" id="search" action="javascript:void(0)" method="post">
 						<label for="search-text">Rechercher :</label>
@@ -128,10 +63,8 @@
 						<input type="submit" name="search-submit" id="search-submit" value="OK" />
 					</form>
 				</div>
-				
-			</div>
-		</div>
-
+      </div>
+    </div>
 
 		<div id="global" class="container_12 clearfix">
 
