@@ -1,0 +1,1112 @@
+/* Resume
+------------------------------
+    1. Skeleton
+    	1.1 block definition
+    	1.2 sections colors
+    2. Header
+    	2.1 Logo
+    	2.2 Ads
+    	2.3 Layout tools
+    3. Navigation
+	    3.1 Second level navigation
+    	3.2 Search
+    4. Top extras
+    	4.1 Leaderboard
+    	4.2 Signup means
+    5. Main column
+    	5.1 Main events box
+    	5.2 Actustar news box
+    	5.3 tv news box
+    6. Right column
+    	6.1 Last photos / Last photos
+    	6.2 most vote
+    	6.3 auto promo
+    	6.4 Agenda Box
+    	6.5 Moi jeux box / Carchannel Box
+    	6.6 Box Ticketnet
+    	6.7 Box Birthday
+    7. Footer
+    	7.1 Return top
+    	7.2 Search
+
+*/
+
+/* Couleurs
+------------------------------
+	# texte courant : #2a2a2a
+	# red soirmag : #BE0612
+	# actu soirmag : #88947B
+	# actu tvnews : #4C3F3F
+	# actu royal : #C3BD91
+	# actu star : #2A2727
+	# bleu canard : #5CCCCC
+*/
+
+/* em formula
+------------------------------
+	1em = 16px (police par defaut) {ou 1em = taille de la police parente}
+	alors 1px = 1 ÷ 16 = 0.0625em
+	donc Xpx = X * 0.0625em 
+*/
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 1. Skeleton <<<-----------*/
+/* ----------------------------------------------------------*/
+
+body {
+	background-color: #E2D6CA;
+	background-image: url(../mediastore/elements/stripe_01.png);
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+	background-position: 0 127px;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 1.1 block definition <<<-----------*/
+
+#global {
+	background: #EAE7DA;
+	padding: 20px 10px 0 10px;
+	position: relative;
+}
+#header {
+	padding-bottom: 10px;
+	z-index: 200;
+	position: relative;
+}
+#header .container_12 {
+	padding-top: 20px;
+	position: relative;
+}
+#header, #footer {
+	width: 100%;
+	background: #BE0612;
+}
+#menu {
+	width: 100%;
+	background: #0A0500;
+	z-index: 200;
+	position: relative;
+}
+#event {
+	height: 250px;
+	margin-bottom: 20px;
+	background: white;
+}
+.imu, .fb, .twitter {
+	height: 250px;
+	margin-bottom: 20px;
+	background: white;
+}
+#rss {
+	height: 90px;
+	margin-bottom: 20px;
+	background: white;
+}
+#fil-info {
+	margin-bottom: 20px;
+	height: 300px;
+	background: white;
+}
+#leaderboard {
+	margin-bottom: 20px;
+}
+.dev #leaderboard {
+	background: white;
+	height: 90px;
+}
+#bloc-news-actu-stars {
+	background: white;
+	height: 570px;
+	margin-bottom: 20px;
+}
+#bloc-news-divers {
+	background: white;
+	height: 570px;
+	margin-bottom: 20px;
+}
+#bloc-news-soirmag {
+	background: white;
+	height: 570px;
+	margin-bottom: 20px;
+}
+#royal, .evenementiel, #rdv {
+	background: white;
+	margin-bottom: 20px;
+	height: 200px;
+}
+#patchwork {
+	background: white;
+	margin-bottom: 20px;
+	height: 800px;
+}
+#star-news, #tvnews, #actu-soirmag, #filinfo {
+	height: 250px;
+	background: white;
+	margin-botttom: 20px;
+}
+#end-wrap {
+	float: left;
+	clear: left;
+	margin-bottom: 20px;
+}
+.bloc-photo {
+	background: white;
+	height: 100px;
+}
+.auto-promo {
+	margin-bottom: 20px;
+}
+#cinema {
+	background: white;
+	margin-bottom: 20px;
+}
+#IE6 #cinema {
+	margin-left:0;
+}
+.dev #cinema {
+	height: 220px;
+}
+#cette-semaine, #sondage {
+	background: white;
+	height: 250px;
+	margin-bottom: 20px;
+}
+#bloc-mini-soirmag {
+	background: white;
+	height: 100px;
+	margin-bottom: 20px;
+}
+.bloc-photo {
+	margin-bottom: 20px;
+}
+.actu-gd {
+	background: white;
+	height: 100px;
+	margin-bottom: 20px;
+}
+.galerie-thumbs, .galerie-videos {
+	height: 250px;
+}
+.galerie-thumbs, .half-imu, .galerie-videos, .partenaire {
+	background: white;
+	margin-bottom: 20px;	
+}
+.dev .partenaire {
+	height: 200px;
+}
+.dev .auto-promo {
+	background: white;
+	height: 60px;
+}
+.half-imu {
+	height: 125px;
+}
+#vlan {
+	height: auto;
+}
+.bloc-actu {
+	background: white;
+	height: 130px;
+	margin-bottom: 20px;
+}
+.bloc-actu-royal {
+	background: white;
+	height: 100px;
+	margin-bottom: 20px;
+}
+.bloc-starmag {
+	background: white;
+	margin-bottom: 20px;
+	height: 100px;
+}
+.bloc-tv-news {
+	background: white;
+	height: 100px;
+	margin-bottom: 20px;	
+}
+.all-actu {
+	background: white;
+	height: 800px;
+	margin-bottom: 20px;
+}
+#top-video, #top-photo {
+	background: white;
+	height: 250px;
+	margin-bottom: 20px;		
+}
+#profil-rdv, #bio-star {
+	background: white;
+	margin-bottom: 20px;	
+}
+#tag-cloud {
+	background: white;
+	margin-bottom: 20px;
+}
+#programme-tv {
+	background: white;
+	height: 200px;
+	margin-bottom: 20px;
+}
+#vlan {
+	background: white;
+	margin-bottom: 20px;
+	height: 200px;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 1.2 sections colors <<<-----------*/
+
+.actu-soirmag {background-color: #88947B;}
+.actu-tv-news {background-color: #4C3F3F;}
+.actu-royal {background-color: #C3BD91;}
+.actu-star {background-color: #2A2727;}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 2. Header <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.1 Logo <<<-----------*/
+
+#header h1, #header #logo {
+	position: relative;
+	float: left;
+	top: -10px;
+}
+#header h1 span, #header #logo span {
+	position: absolute;
+	top: 47px;
+	left: 43px;
+	color: white;
+	font-style: italic;
+	font-family: Georgia, serif;
+	white-space: nowrap;
+}
+#header #logo:focus {background: transparent;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.2 Ads <<<-----------*/
+
+.adimage {
+	float: right;
+	margin-right: 10px;
+}
+#IE6 .adimage {
+	display: inline;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.3 Layout tools <<<-----------*/
+
+#jfl-tools {
+	background: black;
+	color: white;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+#jfl-tools ul {
+	list-style: none none;
+	text-align: center;
+	margin: 0;
+}
+#jfl-tools ul li {
+	display: inline;
+	margin: 0;
+	padding: 0;
+}
+#jfl-tools ul li a {color: white;}
+#jfl-tools .slide {
+	background: black;
+	bottom: -17px;
+	color: white;
+	display: block;
+	padding: 0 10px;
+	position: absolute;
+	right: 154px;
+	text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 3. Navigation <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#menu ul {
+	float: left;
+	list-style: none none;
+	margin-bottom: 0;
+	padding-left: 10px;
+}
+#menu ul li {
+	display: block;
+	float: left;
+	line-height: 2em;
+	padding: 0;
+	margin: 0;
+	position: relative;
+}
+#menu ul li a {
+	display: block;
+	float: left;
+	color: white;
+	font-family: 'Trebuchet MS', arial, sans-serif;
+	font-weight: 900;
+	padding: 2px 10px;
+	text-transform: uppercase;
+}
+#menu ul li.selected a {
+	background: #EAE7DA;
+	color: black;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 3.1 Second level navigation <<<-----------*/
+
+#menu ul li ul {
+	background: black;
+	float: left;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	display: block;
+		/* a little bit tricky i know... */
+		border-radius: 0 0 10px 10px;
+		-moz-border-radius: 0 0 10px 10px;
+		-webkit-border-radius: 0 0 10px 10px;
+}
+#menu ul li ul li {
+	display: block;
+	width: 100%;
+	border-bottom: 1px solid #666;
+}
+#menu ul li ul li.noborder {border: none;}
+#menu ul li ul li a {
+	display: block;
+	float: none;
+	color: white;
+	font-family: 'Trebuchet MS', arial, sans-serif;
+	font-weight: 400;
+	padding: 0 10px;
+	text-transform: none;
+}
+#menu ul li ul li a:hover {
+	text-decoration: none;
+	background: transparent url(../mediastore/elements/square.gif) no-repeat center left;
+}
+.ss-menu {
+	position: absolute;
+	left: -50%;
+	top: 28px;
+	padding-left: 10px;
+	background: transparent url(../mediastore/elements/round-hg.gif) no-repeat top left;
+}
+#IE6 .ss-menu, #IE7 .ss-menu {
+	top: 29px;
+}
+#IE6 .ss-menu {
+	width: 1%;
+}
+
+.ss-menu div {
+	float: left;
+	padding-right: 10px;
+	background: transparent url(../mediastore/elements/round-hd.gif) no-repeat top right;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 3.2 Search <<<-----------*/
+
+#a-la-recherche {
+	float: right;
+	padding: 2px 10px 0 0;
+}
+#a-la-recherche label {display: none;}
+#a-la-recherche form input {border: 0;}
+#a-la-recherche form input#search-submit {
+	border: 0;
+	background: white;
+	color: black;
+	font-weight: 900;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 3px 5px;
+}
+#a-la-recherche form input#search-submit:hover {
+	background: #5CCCCC;
+	color: black;
+}
+#a-la-recherche form input#search-text {
+	background: white url(../mediastore/elements/magnify.gif) no-repeat 5px 50%;
+	font-style: italic;
+	padding: 3px 10px 3px 20px;
+	width: 140px;
+		/* mais euh... */
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+}
+#a-la-recherche form input#search-text:focus {outline-color: black;}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 4. Top extras <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 4.1 Leaderboard <<<-----------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 4.2 Signup means <<<-----------*/
+
+a.abo {
+	background: #E9E9E9;
+	border-top: 1px solid white;
+	border-left: 1px solid white;
+	border-right: 1px solid #BABABA;
+	border-bottom: 1px solid #BABABA;
+	display: block;
+	color: black;
+	margin: 0 auto;
+	font-weight: 900;
+	text-transform: uppercase;
+	text-align: center;
+}
+a.abo:hover {
+	background: #F0F0F0;
+	border-top: 1px solid #BABABA;
+	border-left: 1px solid #BABABA;
+	border-right: 1px solid white;
+	border-bottom: 1px solid white;
+}
+
+#rss ul {
+	padding-top: 20px;
+	list-style: none none;
+}
+#rss ul li {
+	display: block;
+	float: left;
+	margin: 0;
+	padding:  0 0 0 11px;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 5. Main column <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 5.1 Main events box <<<-----------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 5.2 Tag cloud <<<-----------*/
+
+#tag-cloud ul {
+	padding-top: 10px;
+	text-align: center;
+}
+#tag-cloud ul li {
+	background: none;
+	display: inline;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+}
+#tag-cloud ul li a:link, #tag-cloud ul li a:visited, #tag-cloud ul li a:active, #tag-cloud ul li a:hover {text-decoration: none;}
+#tag-cloud ul li a:active, #tag-cloud ul li a:hover {color: #BE0612 !important;}
+
+#tag-cloud ul li.level-1 {font-size: xx-small;}
+#tag-cloud ul li.level-2 {font-size: x-small;}
+#tag-cloud ul li.level-3 {font-size: small;}
+#tag-cloud ul li.level-4 {font-size: medium;}
+#tag-cloud ul li.level-5 {font-size: large;}
+#tag-cloud ul li.level-6 {font-size: x-large;}
+#tag-cloud ul li.level-7 {font-size: xx-large;}
+
+#tag-cloud ul li.level-1 a {color: #999;}
+#tag-cloud ul li.level-2 a {color: #888;}
+#tag-cloud ul li.level-3 a {color: #777;;}
+#tag-cloud ul li.level-4 a {color: #666;}
+#tag-cloud ul li.level-5 a {color: #555;}
+#tag-cloud ul li.level-6 a {color: #444;;}
+#tag-cloud ul li.level-7 a {color: #333;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 5.3 Cinema box <<<-----------*/
+	 
+#cinema a {
+	display: block;
+	margin: 10px auto;
+	position: relative;
+	width: 120px;
+}
+#cinema a span {
+	background: transparent url(../mediastore/elements/cinema-frame.png) no-repeat 0 0;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 120px;
+	height: 190px;
+}
+#cinema a:hover span {background: transparent url(../mediastore/elements/cinema-frame-on.png) no-repeat 0 0;}
+#cinema a:hover {text-decoration: none;}
+#cinema h3 {
+	font-size: 1em;
+	text-align: center;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 6. Right column <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.1 Last photos / Last photos <<<-----------*/
+
+#last-babe, #last-video {
+	background: white url(../mediastore/elements/deg-last.gif) repeat-x 0 0;
+	color: #696969;
+	height: 80px;
+	margin-bottom: 20px;
+}
+.last .img {
+	float: left;
+	padding: 10px 0 0 10px;
+}
+.last .content-desc {
+	float: left;
+	padding: 15px 0 0 10px;
+}
+.last .content-desc a {
+	color: black;
+	font-weight: 900;
+}
+.last .content-desc p {font-size: .9em;}
+.last .img a {
+	display: block;
+	width: 100px;
+	position: relative;
+}
+.last .img a span.overlay {
+	background: transparent url(../mediastore/elements/babe-frame.png) no-repeat 0 0;
+	display: block;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 60px;
+	width: 100px;
+}
+.last .img a:hover span.overlay {
+	background: transparent url(../mediastore/elements/babe-frame-on.png) no-repeat 0 0;
+}
+.last .img a:hover {text-decoration: none;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.2 Most vote <<<-----------*/
+
+#bloc-top-5 {
+	background: white;
+	margin-bottom: 20px;
+}
+.dev #bloc-top-5 {
+	height: 300px;
+}
+#bloc-top-5 ol {
+	color: #5CCCCC;
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-size: 2em;
+	line-height: .7em;
+	font-style: italic;
+	padding-top: 10px;
+	padding-left: 35px;
+}
+#bloc-top-5 ol li {
+	border-bottom: 1px dashed #5CCCCC;
+	margin: 0 20px 0 0;
+}
+#bloc-top-5 ol li:hover {
+	background: #5CCCCC;
+	cursor: pointer;
+}
+#bloc-top-5 ol li span {
+	display: block;
+	font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	font-size: .5em;
+	padding-top: .5em;
+	padding-left: 10px;
+	padding-bottom: .5em;
+}
+#bloc-top-5 ol li span a {color: black;}
+#bloc-top-5 ol li span a:hover {text-decoration: none;}
+#bloc-top-5 ol li:hover span a {color: white;}
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.3 Auto promo <<<-----------*/
+
+.auto-promo ul {
+	list-style: none none;
+	padding: 0;
+	margin: 0;
+}
+.auto-promo ul li {
+	margin: 0 0 20px 0;
+}
+.auto-promo ul li:last-child {
+	margin: 0;
+}
+.auto-promo ul li a {
+	background: #362C26;
+	color: white;
+	display: block;
+	font-size: 1.2em;
+	padding-left: 10px;
+}
+.auto-promo ul li a:hover {
+	background: #B29C72;
+	color: black;
+	padding-left: 30px;
+}
+.auto-promo ul li a:hover {
+	text-decoration: none;
+}
+.auto-promo ul li a span {
+	display: block;
+	padding: 10px 10px 10px 50px;
+}
+#promo-meteo a span {background: transparent url(../mediastore/elements/icons/meteo.png) no-repeat center left;}
+#promo-horoscope a span {background: transparent url(../mediastore/elements/icons/horoscope.png) no-repeat center left;}
+#promo-jeux a span {background: transparent url(../mediastore/elements/icons/jeux.png) no-repeat center left;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.4 Agenda box <<<-----------*/
+
+#agenda ul {
+	list-style: none none;
+	float: left;
+	padding: 0 10px 10px 10px;
+	margin: 0;
+}
+#agenda ul li {
+	width: 260px;
+	padding-right: 20px;
+	float: left;
+	margin:  10px 0 0 0;
+}
+#agenda ul li:hover, #agenda ul li.sfHover {
+	background: #f3f3f3 url(../mediastore/elements/going.png) no-repeat 95% 50%;
+	cursor: pointer;
+}
+#agenda ul li img {
+	float: left;
+	margin-right: 10px;
+}
+#IE6 #agenda ul li img {display: inline;}
+
+#agenda ul li .lieu {color: #666;}
+#agenda ul li a {line-height: 1;}
+#agenda ul li a:hover {text-decoration: none;}
+a.more {
+	display: block;
+	margin-right: 10px;
+	text-align: right;
+}
+a.more {
+	clear: right;
+	color: #BE0612;
+	float: right;
+	font-size: .8em;
+	font-weight: 900;
+	background: #f3f3f3 url(../mediastore/elements/plus.gif) no-repeat 3px 50%;
+	border: 1px outset #2a2a2a;
+	padding-left: 16px;
+	padding-right: 5px;
+	margin-top: 5px;
+	text-transform: uppercase;
+		/* nanana */
+		-moz-border-radius: 3px;
+		-webkit-border-radius: 3px;
+		border-radius: 3px;
+}
+a.more:hover {
+	color: black;
+	border: 1px outset black;
+	text-decoration: none;
+}
+a.more:focus {outline: 0;}
+
+.hide {display: none !important;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.5 Moi jeux box / Carchannel Box <<<-----------*/
+
+#moi-jeux ol, #carchannel ol {
+	float: left;
+	overflow: hidden;
+	padding-top: 10px;
+	width: 100%;
+}
+
+#moi-jeux .thumb-img, #carchannel .thumb-img {
+	float: left;
+	margin-left: 10px;
+	margin-top: 10px;
+}
+#IE6 #moi-jeux .thumb-img, #IE6 #carchannel .thumb-img {display: inline;}
+#moi-jeux .thumb-img a:hover, #carchannel .thumb-img a:hover {text-decoration: none;}
+#moi-jeux .thumb-img a, #carchannel .thumb-img a {
+	display: block;
+	position: relative;
+	width: 135px;
+}
+#moi-jeux .thumb-img a span, #carchannel .thumb-img a span {
+	background: transparent url(../mediastore/elements/thumb-frame.png) no-repeat 0 0;
+	height: 85px;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 135px;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.6 Box Ticketnet <<<-----------*/
+
+#ticketnet {
+	background: #f3f3f3;
+	border-bottom: 2px solid #d8d8d8;
+	margin-bottom: 20px;
+}
+#ticketnet h2 {
+	background: white;
+	border-bottom: 2px solid #154E79;
+	color: #154E79;
+	font-family: arial, Helvetica, FreeSans, sans-serif;
+	font-weight: 400;
+	font-size: 1.5em;
+	letter-spacing: -0.05em;
+	padding-left: 10px;
+	text-align: left;
+	text-transform: none;
+}
+#ticketnet span.logo-cat {float: right}
+
+#ticketnet ul {
+	clear: both;
+	list-style: none none;
+	margin: 0;
+	padding: 5px 5px 0 5px;
+}
+#ticketnet ul li {
+	clear: left;
+	display: block;
+	float: left;
+	font-size: .85em;
+	line-height: 1.2em;
+	margin: 0;
+	padding: 5px;
+	width: 280px;
+}
+#ticketnet ul li:hover {
+	background: #f0f0f0 url(../mediastore/elements/going.png) no-repeat 95% 50%;
+	cursor: pointer;
+}
+#ticketnet ul li img {
+	float: left;
+	padding-right: 5px;
+}
+#ticketnet ul li span {color: #666;}
+#ticketnet ul li p {
+	text-align: justify;
+}
+#ticketnet ul li h3 {
+	color: #511F1F;
+	font-family: arial, Helvetica, FreeSans, sans-serif;
+	font-weight: 900;
+	font-size: 1.3em;
+	margin: 0 0 5px 0;
+	padding-top: 10px;
+}
+#ticketnet .more {
+	margin-bottom: 10px;
+}
+#ticketnet .cat-event {
+    background: #f0f0f0;
+	clear: both;
+	font-size: .85em;
+	margin: 0 10px 10px 10px;
+	overflow: hidden;
+	text-align: center;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.7 Box Birthday <<<-----------*/
+
+#starnews {
+	background: white;
+	border-bottom: 2px solid #d8d8d8;
+	margin-bottom: 20px;
+}
+#starnews ul {
+	list-style: none none;
+	margin: 0;
+	overflow: hidden;
+	padding: 10px 5px;
+}
+#starnews ul li {
+	clear: left;
+	float: left;
+	width: 96%;
+	font-size: .9em;
+	margin: 0;
+	padding: 5px;
+}
+#starnews ul li:hover {
+	background: #f3f3f3 url(../mediastore/elements/going.png) no-repeat 95% 50%;
+	cursor: pointer;
+}
+#starnews ul li img {
+	float: left;
+	padding-right: 5px;
+}
+#starnews ul li h3 {
+	font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', FreeSans, Verdana, Arial, Verdana, sans-serif;
+	font-size: 1.3em;
+	margin: 0;
+}
+#starnews ul li p {
+	color: #666;
+	margin: 0;
+}
+#starnews ul li p.cake {
+	color: black;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.8 Box wimbledon results <<<-----------*/
+
+div.default-block h3 {
+	background: #154E78;
+	color: #FFFFFF;
+	font-size: 1.5em;
+	font-weight: normal;
+	letter-spacing: -0.05em;
+	padding: 0.2em 0.5em;
+	text-align:  left;
+}
+
+
+#colonne-droite .chelem {
+	background: #F5E9FD;
+	float: left;
+	font-family: Arial, FreeSans, sans-serif;
+	margin-bottom: 10px;
+	width: 100%;
+}
+#colonne-droite  .chelem h3 {
+	background: #578932;
+	font-family: Arial, FreeSans, sans-serif;
+	margin: 0;
+}
+#colonne-droite  .chelem .extra-link {
+	background: #396F35;
+	clear: both;
+	font-size: .75em;
+	margin: 0;
+	padding-right: 3px;
+	text-align: right;
+}
+#colonne-droite  .chelem .extra-link a {
+	background: transparent url(../mediastore/elements/tennis/extra.gif) no-repeat center left;
+	color: white;
+	padding-left: 6px;
+}
+
+.chelem .the-tabs {
+	color: yellow;
+	float: left;
+	list-style: none none;
+	margin: 0 0 10px 0;
+	padding-left: 10px;
+	text-align: center;
+	text-transform: uppercase;
+	width: 100%;
+}
+.chelem .the-tabs li {
+	background: #578932 url(../mediastore/elements/tennis/bg-the-tab.gif) repeat-x bottom left;
+	display: block;
+	float: left;
+	font-size: .7em;
+	margin: 0 10px 0 0;
+		/* opacity */
+		opacity: .6;
+		filter: alpha(opacity=60);
+}
+.chelem .the-tabs li.the-current {
+		/* opacity */
+		opacity: 1;
+		filter: alpha(opacity=100);	
+}
+.chelem .the-tabs li a {
+	color: yellow;
+	padding: 3px 10px;
+}
+.chelem img {display: block;}
+.chelem .content-of-tab {
+	clear: both;
+	display: none;
+	margin: 10px 10px 5px 10px;
+}
+.chelem .content-of-tab.the-current {
+	display: block;
+}
+.chelem .content-of-tab ul {list-style: none none; margin: 0;}
+.chelem .content-of-tab ul li {margin: 0; padding: 0;}
+.chelem .content-of-tab table {
+	margin-bottom: 5px;
+	width: 100%;
+}
+.chelem .content-of-tab table caption, .chelem .content-of-tab table thead {display: none;}
+.chelem .content-of-tab table tr td {
+	font-family: monospace;
+	font-size: 1.3em;
+	padding: 3px;
+}
+.chelem .content-of-tab .even {background: #E9D8FC;}
+.chelem .content-of-tab tr.border {border-bottom: 1px solid #ccc;}
+.chelem .content-of-tab .the-player {
+	font-family: Arial, FreeSans, sans-serif;
+	font-size: .9em;
+	text-transform: uppercase;
+	width: 150px;
+}
+.chelem .content-of-tab .the-winner {color: red;}
+
+.chelem a.next-match, .chelem a.prev-match {
+  display: block;
+  float: right;
+  margin-bottom: 5px;
+  width: 36px;
+  height: 15px;
+  overflow: hidden;
+}
+.chelem a.next-match:focus, .chelem a.prev-match:focus {outline: 0;}
+.chelem a.next-match span, .chelem a.prev-match span {display: none;}
+
+.chelem a.next-match {
+	background: transparent url(../mediastore/elements/tennis/btn-next.gif) no-repeat bottom right;
+	margin-right: 10px;
+}
+.chelem a.next-match:hover, .chelem a.next-match:focus {
+	background: transparent url(../mediastore/elements/tennis/btn-next.gif) no-repeat top right;
+}
+.chelem a.prev-match {
+	background: transparent url(../mediastore/elements/tennis/btn-prev.gif) no-repeat bottom right;
+}
+.chelem a.prev-match:hover, .chelem a.prev-match:focus {
+	background: transparent url(../mediastore/elements/tennis/btn-prev.gif) no-repeat top right;
+}
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 6.8 Box wimbledon program <<<-----------*/
+
+#chelem-prog .one-prog {
+	float: left;
+	margin-bottom: 5px;
+	width: 100%;
+}
+#chelem-prog .one-prog abbr {border: 0;}
+#chelem-prog .one-prog p {
+	margin: 0;
+	padding: 2px 5px;
+}
+#chelem-prog .one-prog p em {
+	font-family: Georgia, serif;
+}
+#chelem-prog .one-prog p em abbr {
+	color: #666;
+	letter-spacing: 0;
+	text-transform: lowercase;
+}
+#chelem-prog .one-prog span {
+	color: #2a2a2a;
+	display: block;
+	height: 40px;
+	line-height: 40px;
+	font-family: Georgia, serif;
+	font-style: italic;
+	font-size: 1.5em;
+	font-weight: 900;
+	float: right;
+	text-align: center;
+	padding: 0 10px;
+}
+#chelem-prog .one-prog .intitule {
+	color: black;
+	font-weight: 900;
+}
+#chelem-prog .one-prog .court {
+	color: #666;
+	text-align: right;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 7. Footer <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#footer {
+	color: white;
+	padding: 10px 0;
+	position: relative;
+}
+#footer p.copyright {text-align: center;}
+#footer a {color: white;}
+#footer span.strong {
+	background: transparent url(../mediastore/elements/footer-stick.gif) no-repeat top right;
+	color: white;
+	display: block;
+	font-family: Georgia, serif;
+	padding: 5px 15px 20px 15px;
+	text-transform: uppercase;
+	text-align: right;
+}
+#footer ul {
+	float: right;
+	margin: 0;
+	list-style-image: url(../mediastore/elements/square.gif);
+}
+
+#footer .grid_3 {padding-bottom: 10px;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 7.1 Return top <<<-----------*/
+ 
+.return-top {
+	height: 20px;
+	position: absolute;
+	top: -20px;
+	text-align: center;
+}
+.return-top a {
+	background: #BE0612;
+	display: block;
+	font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+	letter-spacing: .1em;
+	height: 20px;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 7.2 Search <<<-----------*/
+
+form#search-bis {padding: 10px 0 0 8px;}
+form#search-bis label {font-weight: 900;}
+form#search-bis input {
+	border: 0;
+	padding: 3px 10px;
+		/* css3 features */
+		-moz-border-radius: 5px;
+		-o-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+}
+form#search-bis #searchtext {width: 142px;}
+form#search-bis input#searchsubmit {
+	border: 0;
+	background: black;
+	color: white;
+	font-weight: 900;
+	padding: 3px 5px;
+		/* css3 features */
+		-moz-border-radius: 5px;
+		-o-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+}
+form#search-bis input#searchsubmit:hover {
+	background: #5CCCCC;
+	color: black;
+}
