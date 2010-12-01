@@ -1063,6 +1063,14 @@ tr.dblog-page-not-found td.active, tr.dblog-access-denied td.active {
 }
 
 /**
+ * DLA
+ */
+ul li.included {
+  font-weight: bold;
+}
+
+
+/**
  * Status report colors.
  */
 table.system-status-report tr.error, table.system-status-report tr.error th {

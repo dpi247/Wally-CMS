@@ -1,0 +1,400 @@
+/* Resume
+------------------------------
+    1. structure
+    2. article
+    	2.1 breadcrumb
+    	2.2 linked articles
+    	2.3 share list
+    	2.4 contact form
+    	2.5 list images
+    3. Wall
+    	3.1 Photos wall
+    	3.2 Videos wall
+    4. Article section list
+    	4.1 vote / recommend
+*/
+
+/* Colors
+------------------------------
+	# texte courant : #2a2a2a
+	# red soirmag : #BE0612
+	# actu soirmag : #88947B
+	# actu tvnews : #4C3F3F
+	# actu royal : #C3BD91
+	# actu star : #2A2727
+	# bleu canard : #5CCCCC
+*/
+
+/* em formula
+------------------------------
+	1em = 16px (police par défaut) {ou 1em = taille de la police parente}
+	alors 1px = 1 ÷ 16 = 0.0625em
+	donc Xpx = X * 0.0625em 
+*/
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 1. Structure <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+#article, #related-article, #article-section, #persons, #free-tags, #classified-tags, .mur {
+	background: white;
+	margin-bottom: 20px;
+}
+#article {
+	/* a little bit tricky i know */
+	-moz-box-shadow: 2px 2px 2px #888;
+	-webkit-box-shadow: 2px 2px 2px #888;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 2. Article <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#article .inner {padding: 10px;}
+#article h1 {
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-weight: 400;
+	text-align: left;
+	color: black;
+	line-height: 1.1em;
+	margin-bottom: 0;
+}
+#article big {
+	display: block;
+	font-style: italic;
+	line-height: 1.2em;
+	margin-bottom: 1.1em;
+	text-align: justify;
+}
+#article small {
+	color: #9797A0;
+	display: block;
+	margin-bottom: 1.1em;
+	text-transform: uppercase;
+}
+#article p {
+	color: #333;
+	text-align: justify;
+}
+#article blockquote {
+	border-top: thick solid #E0D9B8;
+	border-bottom: thick solid #E0D9B8;
+	margin-bottom: 1.1em;
+	padding: 10px 0;
+	text-align: center;
+}
+#article blockquote p {margin-bottom: 0;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.1 Breadcrumb <<<-----------*/
+
+.fil-ariane {
+	padding: .2em 0;
+	font-size: .75em;
+	border-bottom: 1px dotted #ccc;
+	margin: 0 10px;
+}
+.fil-ariane p {
+	float: left;
+	margin: 0;
+}
+.feed {float: right;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.2 Linked articles <<<-----------*/
+
+#related-article ul, #persons ul, #free-tags ul, #classified-tags ul {
+	list-style: none none;
+	margin: 0;
+}
+#related-article ul li,
+#persons ul li, 
+#free-tags ul li, 
+#classified-tags ul li
+ {
+	font-size: .9em;
+	margin: 0;
+	line-height: 1.1em;
+	padding: 5px;
+	border-bottom: 1px dotted #ccc;
+}
+#related-article ul li:last-child,
+#persons ul li:last-child, 
+#free-tags ul li:last-child, 
+#classified-tags ul li:last-child
+{border: none;}
+
+#related-article ul li:hover, 
+#persons ul li:hover, 
+#free-tags ul li:hover, 
+#classified-tags ul li:hover
+{
+	background: #EAE7DA;
+	cursor: pointer;
+}
+
+#related-article ul li a:hover,
+#persons ul li a:hover, 
+#free-tags ul li a:hover, 
+#classified-tags ul li a:hover
+ {text-decoration: none;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.3 Share list <<<-----------*/
+
+.share {
+	border-top: 1px dotted #ccc;
+	color: black;
+	font-size: 0.75em;
+	padding: .5em 0;
+}
+.share p, .share ul li {
+	display: inline;
+	margin: 0;
+}
+.share ul li {padding-left: .5em;}
+.share p {float: left;}
+.share ul {
+	float: left;
+	margin: 0 .5em 0 0;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.4 Contact form <<<-----------*/
+
+.contact-form legend {display: none;}
+.contact-form ul {list-style: none none;}
+.contact-form fieldset {margin: 0;}
+.contact-form ul li {
+	float: left;
+	margin: 0;
+	padding-bottom: 10px;
+	width: 100%;
+}
+.contact-form label {
+	display: block;
+	float: left;
+	padding-right: 3px;
+	width: 150px;
+	text-align: right;
+}
+.contact-form input[type=text] {
+	border: none;
+	background: #5CCCCC;
+	color: white;
+	font-weight: 900;
+	padding: 2px;
+}
+.contact-form #submit_friends {
+	display: block;
+	margin: 0 auto;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.5 List images <<<-----------*/
+
+#galeria {
+    background: #f0f0f0;
+    border: 1px solid #bababa;
+    border-bottom: 1px solid #d8d8d8;
+    border-right: 1px solid #d8d8d8;
+    margin: 0 0 1.1em 0;
+}
+#galeria ul {
+	list-style: none none;
+	height: 210px;
+	margin: 0 0 10px 0;
+	position: relative;
+	left: 10px;
+	top: 10px;
+	width: 418px;
+}
+#galeria ul li {
+	margin: 0
+}
+#galeria ul li img {
+    border:         1px solid #d2d2d2;
+    border-bottom:  1px solid #ffffff;
+    border-right:   1px solid #ffffff;
+}
+#galeria .galeria-tools {
+    margin: 10px;
+    padding: 5px;
+    background: #e9e9e9;
+    border: 1px solid white;
+    border-bottom: 1px solid #bababa;
+    border-right: 1px solid #bababa;
+}
+#galeria .galeria-tools .count-item {
+	display: block;
+	float: left;
+	padding-left: 10px;
+	line-height: 1.7em;
+}
+#galeria .galeria-tools a {
+	cursor: pointer;
+    background-color: #f0f0f0;
+	border: 1px solid #E9E9E9;
+	display: block;
+	line-height: 1;
+	padding: 2px;
+}
+#galeria .galeria-tools a:hover {
+    background-color: #f0f0f0;
+    border: 1px solid #bababa;
+    border-bottom: 1px solid #d8d8d8;
+    border-right: 1px solid #d8d8d8;
+}
+#galeria .galeria-tools #btn-galeria-prev {float: left;}
+#galeria .galeria-tools #btn-galeria-next {float: right;}
+
+#galeria .galeria-legend {
+    color: #767676;
+    font-size: .9em;
+	line-height: 1.3em;
+	padding: 0 10px 10px 10px;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 3. Wall <<<-----------*/
+/* ----------------------------------------------------------*/
+
+
+	  /* -------------------------------------------------------------------------------------------------->>> 3.1 Photos Wall <<<-----------*/
+
+.mur ul {
+	padding: 10px 0 0 0;
+	float: left;
+	width: 100%;
+	list-style: none none;
+	margin: 0;
+}
+.mur ul li {
+	padding-left: 10px;
+	padding-bottom: 10px;
+	margin: 0;
+	display: block;
+	float: left;
+	font-size: .85em;
+}
+.mur ul li a {
+	display: block;
+	width: 55px;
+	position: relative;
+}
+.mur ul li a span.overlay {
+	background: transparent url(../mediastore/elements/picture-frame.png) no-repeat 0 0;
+	display: block;
+	overflow: hidden;	
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 60px;
+	width: 55px;
+}
+.mur ul li a:hover {text-decoration: none;}
+.mur ul li a:hover span.overlay {background: transparent url(../mediastore/elements/picture-frame-on.png) no-repeat 0 0;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 3.2 Videos Wall <<<-----------*/
+
+#mur-videos ul li a span.overlay {
+	background: transparent url(../mediastore/elements/video-frame.png) no-repeat 0 0;
+	display: block;
+	overflow: hidden;	
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 60px;
+	width: 55px;
+}
+#mur-videos ul li a:hover span.overlay {
+	background: transparent url(../mediastore/elements/video-frame-on.png) no-repeat 0 0;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 4. Article section list <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#article-section span.title-section {
+	display: block;
+	float: left;
+	background: #EAE7DA;
+	font-weight: 900;
+	font-size: 1.5em;
+	font-family: 'Trebuchet MS', arial, sans-serif;
+	padding: 0 10px 5px 0;
+}
+#article-section ul {
+	list-style: none none;
+	margin: 0;
+	padding: 10px;
+	float: left;
+}
+#IE6 #article-section ul, #IE7 #article-section ul {width: 440px;}
+#article-section ul li {
+	margin: 0 0 10px 0;
+	padding: 10px 0;
+	position: relative;
+	float: left;
+	width: 100%;
+}
+#article-section ul li h2 {
+	margin: 0;
+	padding: 0 35px 0 10px;
+}
+#article-section ul li small {
+	border-bottom: 1px dotted #ccc;
+	clear: both;
+	color: #666;
+	display: block;
+	padding: 0 10px;
+	margin-bottom: 10px;
+}
+#article-section ul li p {
+	text-align: justify;
+	padding-right: 10px;
+}
+#article-section ul li a.pos:hover {text-decoration: none;}
+#article-section ul li a.pos {
+	display: block;
+	float: left;
+	width: 140px;
+	margin: 0 10px;
+	position: relative;
+}
+#article-section ul li a.pos span.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 140px;
+	height: 93px;
+	background: transparent url(../mediastore/elements/thumb-frame-gd.png) no-repeat 0 0;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 4.1 vote / recommend <<<-----------*/
+
+#article-section ul li .vote {
+	background: #eee;
+	padding: 1px;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+		/* a little bit tricky i know */
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+	width: 38px;
+}
+#article-section ul li .vote span.nb-vote {
+	color: #666;
+	display: block;
+	font-weight: 900;
+	text-align: center;
+}
+#article-section ul li .vote span a {
+	background: #5CCCCC;
+	color: white;
+	display: block;
+	text-align: center;
+		/* a little bit tricky i know */
+		-moz-border-radius: 0 0 5px 5px;
+		-webkit-border-radius: 0 0 5px 5px;
+		border-radius: 0 0 5px 5px;
+	width: 38px;
+}
