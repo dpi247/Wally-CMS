@@ -13,7 +13,7 @@ if (!function_exists('wally_tpl_persons_li')) {
         if (isset($person->field_persontaxonomy)) {
           $t = taxonomy_get_term($person->field_persontaxonomy[0]['value']);
           $taxo_path = taxonomy_term_path($t);
-          $content .= "<a href='".$taxo_path."'>".$person->title."</a>";
+          $content .= "<a href='".base_path().$taxo_path."'>".$person->title."</a>";
         } else {
           $content .= $person->title;
         }
