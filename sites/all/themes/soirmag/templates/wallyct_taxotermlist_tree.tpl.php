@@ -107,6 +107,12 @@ if (!function_exists('wally_tpl_taxonomyterm_li_tree')) {
     return $content; 
   }
 }
+if ($options['override_title']) {
+    $title = t($options['override_title_text']);
+  } else {
+    $title = t($options['taxonomyfield']);
+  }
 
-print wally_tpl_taxonomyterm_li_tree($tids);
-
+?>
+<h2><? print $title; ?></h2>
+<?php print wally_tpl_taxonomyterm_li_tree($tids); ?>
