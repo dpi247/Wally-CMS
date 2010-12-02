@@ -17,7 +17,7 @@ function soirmag_tree_output($tree, $firstpass=1) {
       // if extra class set, add to the menu item.
       $extra_class = isset($data['link']['localized_options']['extra class']) ? $data['link']['localized_options']['extra class'] : NULL;
       // Get correct link for item.
-      $link = soirmag_item_link($data['link']);
+      $link = soirmag_menu_item_link($data['link']);
       // is there any sub-menu? 
       if ($data['below']) {
         $sub_menu = "<div class='ss-menu'><div>".soirmag_tree_output($data['below'], $firstpass++)."</div></div>";
@@ -42,9 +42,9 @@ if (!function_exists('soirmag_item_link')) {
  * High-performance implementation of theme_menu_item_link().
  *
  * This saves us a theme() call and does only the absolute minimum to get
- * the admin menu links rendered.
+ * the menu "links" rendered.
  */
-function soirmag_item_link($link) {
+function soirmag_menu_item_link($link) {
     // Omit alias lookups.
     $link['localized_options']['alias'] = TRUE;
     return '<a href="'. check_url(url($link['href'], $link['localized_options'])) .'">'. (!empty($link['localized_options']['html']) ? $link['title'] : check_plain($link['title'])) .'</a>';
@@ -81,7 +81,6 @@ function theme_soirmag_item($link, $has_children, $menu = '', $in_active_trail =
     return '<li'. (!empty($class) ? ' class="'. $class .'"' : '') .'>'. $link . $menu .'</li>';
   }
 }
-
 
 $main_menu = soirmag_tree_output(menu_tree_all_data('primary-links'));
 
