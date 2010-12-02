@@ -38,12 +38,6 @@ if (!function_exists('wally_tpl_mainstory')) {
 
     // Photo Gallery Slide Show
     $photo_gallery = "<div id='main_obj_photo_slide'>".theme("wallyct_photoobject_slideshow",$node->field_embededobjects_nodes, $node)."</div>";
-
-    // Free Tags
-    $free_tags = "<fieldset id='mainstoryfreetag' style='width:40%;float:right;'><h3>Tags</h3>".theme("wallyct_taxotermlist",$story->field_free_tags, $node)."</fieldset>";
-
-    // Classifed Tags
-    $classified_tags = "<fieldset id='mainstoryclassifiedtag' style='width:40%;float:left;'><h3>Classified Tags</h3>".theme("wallyct_taxotermlist_tree",$story->field_tags, $node)."</fieldset>";
   
     $maincol .= "<fieldset id='maincol' style='width:95%'>"; 
     $maincol .= $foretitle; 
@@ -52,13 +46,9 @@ if (!function_exists('wally_tpl_mainstory')) {
     $maincol .= $photo_gallery;
     $maincol .= $subtitle; 
     $maincol .= $body; 
-    $maincol .= $free_tags; 
-    $maincol .= $classified_tags; 
     
     $maincol .= "</fieldset>";
 
-    $leftcol .= $persons; 
-//    $leftcol .= $free_tags;
     $leftcol .= $authors; 
 
     $content = "<div style='width:70%;float:left'>".$maincol."</div><div style='width:30%;float:right'>".$leftcol."</div>";

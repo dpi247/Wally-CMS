@@ -32,9 +32,11 @@ $display = array();
 if (isset($user)) $display[] = "name:".$user->name;
 if (isset($user)) $display[] = "email:".$user->mail;
 if (isset($node)) $display[] = "Node title:".$node->title;
-if (isset($node)) $display[] = "Fil ariane:".theme("soirmag_fil_ariane", $node->field_embededobjects_nodes, $node);
-if (isset($node)) $display[] = "free tags:".theme("wallyct_taxotermlist",$node->field_free_tags, $node);
-if (isset($node)) $display[] = "categorized tags: :".theme("wallyct_taxotermlist",$node->field_tags, $node);
+
+if (isset($node->field_embededobjects_nodes)) $display[] = "Fil ariane:".theme("soirmag_fil_ariane", $node->field_embededobjects_nodes, $node);
+if (isset($node->field_free_tags)) $display[] = "free tags:".theme("wallyct_taxotermlist",$node->field_free_tags, $node);
+if (isset($node->field_tags)) $display[] = "categorized tags: :".theme("wallyct_taxotermlist",$node->field_tags, $node);
+
 ?>
 
 <script type="text/javascript">

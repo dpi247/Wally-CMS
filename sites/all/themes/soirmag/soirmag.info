@@ -17,6 +17,8 @@ scripts[] = scripts/comportement_base.js
 scripts[] = scripts/cycle.js
 scripts[] = scripts/comportement_article.js
 
+plugins[panels][layouts] = plugins/layouts
+
 ; Information added by drupal.org packaging script on 2010-08-11
 version = "6.19"
 project = "drupal"

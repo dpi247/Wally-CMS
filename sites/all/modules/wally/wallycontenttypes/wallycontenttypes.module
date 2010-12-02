@@ -35,18 +35,23 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
+    'wallyct_rss' => array(
+    'arguments' => array("feed" => NULL, "options" => NULL),
+    'template' => 'templates/wallyct_rss',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
     'wallyct_taxotermlist' => array(
-    'arguments' => array("tids" => NULL, "node" => NULL),
+    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
     'template' => 'templates/wallyct_taxotermlist',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
     'wallyct_taxotermlist_tree' => array(
-    'arguments' => array("tids" => NULL, "node" => NULL),
+    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
     'template' => 'templates/wallyct_taxotermlist_tree',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
 
     'wallyct_mainstory' => array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),
@@ -57,6 +62,37 @@ function wallycontenttypes_theme(&$var) {
     
   ); 
 }
+
+
+/*
+ * Implementation of hook_ctools_plugin_directory().
+ * 
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types. In this case the subdirectories of
+ * ctools_plugin_example/panels are used.
+ */
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+/*
+ * Implement hook_ctools_plugin_api().
+ 
+  If you do this, CTools will pick up default panels pages in
+ * <modulename>.pages_default.inc
+ */
+function wallycontenttypes_ctools_plugin_api($module, $api) {
+  // @todo -- this example should explain how to put it in a different file.
+  if ($module == 'panels_mini' && $api == 'panels_default') {
+    return array('version' => 1);
+  }
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
+}
+
+
 
 /**
  * Insert additional template suggestions to wally specific theme functions.
