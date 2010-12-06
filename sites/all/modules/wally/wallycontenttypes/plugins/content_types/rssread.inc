@@ -49,7 +49,6 @@ function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) 
     '#process'          => array('ctools_dependent_process'),
     '#title'            => 'Theming Function Name',
   );
-  dsm($form);
 
   return $form;  
 }
