@@ -41,6 +41,13 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
+    'wallyct_tofacebook' => array(
+    'arguments' => array("node" => NULL, "options" => NULL),
+    'template' => 'templates/wallyct_tofacebook',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+
     'wallyct_taxotermlist' => array(
     'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
     'template' => 'templates/wallyct_taxotermlist',

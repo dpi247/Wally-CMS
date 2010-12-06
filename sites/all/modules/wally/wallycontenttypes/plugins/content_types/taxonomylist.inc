@@ -52,10 +52,7 @@ function wallycontenttypes_taxonomylist_content_type_edit_form_submit(&$form, &$
 function wallycontenttypes_taxonomylist_content_type_render($subtype, $conf, $panel_args, $context) {
    
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
-
   $block = new stdClass();
-  $block->module = 'wallycontenttypes';
-  $block->delta  = $node->nid;
   
   if (empty($node)) {
     $block->title = "Error.";
