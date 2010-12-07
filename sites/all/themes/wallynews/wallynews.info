@@ -1,0 +1,18 @@
+name = Wally
+description = Tableless, multi-column wally theme.
+version = VERSION
+core = 6.x
+engine = phptemplate
+stylesheets[all][] = css/all_style.css
+stylesheets[all][] = css/home_style.css
+
+scripts[] = scripts/gotop.js
+scripts[] = scripts/contentslider.js
+scripts[] = scripts/carousel.js">
+scripts[] = scripts/tipsy.js
+scripts[] = scripts/Bebas_Neue_400.js
+scripts[] = scripts/jquery_002.js
+scripts[] = scripts/collapsible.js
+scripts[] = scripts/custom.js
+
+plugins[panels][layouts] = plugins/layouts
