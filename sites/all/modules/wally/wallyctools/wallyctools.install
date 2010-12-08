@@ -14,11 +14,12 @@ function wallyctools_schema_1() {
   $schema['wallyctools'] = array(
     'description' => 'Contains exportable customized content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'redacblock',
       'bulk export' => TRUE,
-      'primary key' => 'cid',
+      'primary key' => 'name',
       'api' => array(
-        'owner' => 'ctools',
+      //Reffer to _ctools_plugin_api 
+        'owner' => 'wallyctools',
         'api' => 'ctools_content',
         'minimum_version' => 1,
         'current_version' => 1,
