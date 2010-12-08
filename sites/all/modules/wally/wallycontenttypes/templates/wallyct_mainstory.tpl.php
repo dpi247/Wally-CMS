@@ -35,6 +35,7 @@
 
     // social network icon
     $social = theme("wallyct_tofacebook", $node);
+
 ?>
 <h3><?php print $foretitle; ?></h3>             
 <h2><a title="" rel="bookmark" href=""><?php print $title; ?></a></h2>             
