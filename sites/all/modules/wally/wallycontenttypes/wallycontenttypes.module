@@ -16,18 +16,21 @@ include_once('wallycontenttypes.features.inc');
 function wallycontenttypes_theme(&$var) {
  return array(
 
+/*
     'wallyct_personslist' => array(
     'arguments' => array("persons" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_personslist',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+*/
 
+/*
     'wallyct_personslist_detail' => array(
     'arguments' => array("persons" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_personslist_detail',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
+*/
     'wallyct_photoobject_slider' => array(
     'arguments' => array("nodes" => NULL, "node" => NULL),
     'template' => 'templates/wallyct_photoobject_slider',

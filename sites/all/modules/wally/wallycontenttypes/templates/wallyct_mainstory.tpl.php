@@ -1,8 +1,6 @@
 <?
 /**
  * Wally default template for rendering Packages Autors List 
- * 
- *
  */
      
     // Barette

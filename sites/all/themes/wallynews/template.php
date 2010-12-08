@@ -1,12 +1,15 @@
 <?php
+
 /**
- * Returns the rendered local tasks. The default implementation renders
- * them as tabs. Overridden to split the secondary tasks.
- *
- * @ingroup themeable
+ * Override or insert PHPTemplate variables into the templates.
  */
-function wallynews_menu_local_tasks() {
+function wallynews_preprocess_page(&$vars) {
+  $vars['sf_primarymenu'] = theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links');
+  $vars['sf_secondarymenu'] = theme("wallyct_mainmenu", 'secondary-links', 'menu-secondary-links');
+  $vars['scripts'] = drupal_get_js();
+  $vars['styles'] = drupal_get_css();
 }
+
 
 /**
  * Generates IE CSS links for LTR and RTL languages.
