@@ -19,7 +19,7 @@ table{border-collapse:collapse;border-spacing:0}
 .clear{clear:both;display:block;overflow:hidden;visibility:hidden;width:0;height:0}
 
 /**************** Body *********************/
-body {background: url(../mediastore/bg.png) top repeat-x fixed; font:12px Arial, Helvetica, sans-serif;}
+body {background: url(../images/bg.png) top repeat-x fixed; font:12px Arial, Helvetica, sans-serif;}
 a:link, a:visited {text-decoration:none;}
 h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:20px; border-bottom:1px dotted #dadada;}
 .cufon-loading h2.search {visibility: hidden !important; }
@@ -49,16 +49,16 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 #ticker-swipe SPAN{margin-left:1px;background-color:#FFF6CF;border-bottom:1px solid #1F527B;height:12px;width:7px;display:block}
 #ticker-controls{list-style-type:none;float:right;padding:7px 10px 0 0}
 #ticker-controls LI{margin-left:5px;float:left;cursor:pointer;height:16px;width:16px;display:block;padding:0}
-#ticker-controls LI#play-pause{background-image:url(../mediastore/controls.png);background-position:32px 16px}
+#ticker-controls LI#play-pause{background-image:url(../images/controls.png);background-position:32px 16px}
 #ticker-controls LI#play-pause.over{background-position:32px 32px}
 #ticker-controls LI#play-pause.down{background-position:32px 0}
-#ticker-controls LI#play-pause.paused{background-image:url(../mediastore/controls.png);background-position:48px 16px}
+#ticker-controls LI#play-pause.paused{background-image:url(../images/controls.png);background-position:48px 16px}
 #ticker-controls LI#play-pause.paused.over{background-position:48px 32px}
 #ticker-controls LI#play-pause.paused.down{background-position:48px 0}
-#ticker-controls LI#prev{background-image:url(../mediastore/controls.png);background-position:0 16px}
+#ticker-controls LI#prev{background-image:url(../images/controls.png);background-position:0 16px}
 #ticker-controls LI#prev.over{background-position:0 32px}
 #ticker-controls LI#prev.down{background-position:0 0}
-#ticker-controls LI#next{background-image:url(../mediastore/controls.png);background-position:16px 16px}
+#ticker-controls LI#next{background-image:url(../images/controls.png);background-position:16px 16px}
 #ticker-controls LI#next.over{background-position:16px 32px}
 #ticker-controls LI#next.down{background-position:16px 0}
 .js-hidden{display:none}
@@ -68,24 +68,24 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .access .menu ul{list-style:none;margin:0;}
 .access .menu li{float:left;position:relative; font-weight:bold;}
 .access a{display:block;text-decoration:none;font-size:14px; text-transform:uppercase; padding:0 15px;line-height:34px; }
-.access .menu li.current_page_item a {background:url(../mediastore/menu_hover.png) repeat-x;}
+.access .menu li.current_page_item a {background:url(../images/menu_hover.png) repeat-x;}
 .access ul ul{display:none;position:absolute;top:34px;left:0;float:left;-webkit-box-shadow:0px 3px 3px rgba(0,0,0,0.2);-moz-box-shadow:0px 3px 3px rgba(0,0,0,0.2);box-shadow:0px 3px 3px rgba(0,0,0,0.2);z-index:99999;}
 .access ul ul ul{left:100%;top:0;}
 .access ul ul a{height:auto;line-height:1em;padding:10px;width:160px; font-size:11px;}
-.access li:hover > a{background:url(../mediastore/menu_hover.png) repeat-x;}
-.access ul ul li:hover > a{background:url(../mediastore/menu_hover.png) repeat-x;}
+.access li:hover > a{background:url(../images/menu_hover.png) repeat-x;}
+.access ul ul li:hover > a{background:url(../images/menu_hover.png) repeat-x;}
 
 /*********************Navigation Menu 2**********************/
 .access2{margin:auto;width:960px;display:block;float:left;}
 .access2 .menu2 ul{list-style:none;margin:0;}
 .access2 .menu2 ul li{float:left;position:relative;}
-.access2 a{display:block;text-decoration:none;font-size:11px; font-weight:bold; padding:0 15px;line-height:34px;background:url(../mediastore/divider.png) right no-repeat; text-shadow:1px 1px #000;}
+.access2 a{display:block;text-decoration:none;font-size:11px; font-weight:bold; padding:0 15px;line-height:34px;background:url(../images/divider.png) right no-repeat; text-shadow:1px 1px #000;}
 .access2 ul ul{display:none;position:absolute;top:34px;left:0;float:left;-webkit-box-shadow:0px 3px 3px rgba(0,0,0,0.2);-moz-box-shadow:0px 3px 3px rgba(0,0,0,0.2);box-shadow:0px 3px 3px rgba(0,0,0,0.2);z-index:99999;	}
 .access2 ul ul ul{left:100%;top:0;}
 .access2 ul ul a{height:auto;line-height:1em;padding:10px;width:160px; color:#FFF;}
-.access2 li:hover > a{background:url(../mediastore/menu_hover.png) repeat-x;}
+.access2 li:hover > a{background:url(../images/menu_hover.png) repeat-x;}
 .access2 .menu2 ul ul li a {background-image:none;}
-.access2 ul ul li:hover > a{background:url(../mediastore/menu_hover.png) repeat-x;}
+.access2 ul ul li:hover > a{background:url(../images/menu_hover.png) repeat-x;}
 
 /**************** Layout *********************/
 .outerwrap {background-color:#fff; width:978px; margin:auto; padding:10px 0 10px 0; border:1px solid #BFBFBF; border-top:none;}
@@ -95,12 +95,12 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 
 /**************** Box Blocks *********************/
 .smallfeed {width:12px; height:12px; position:absolute; top:10px; right:10px;}
-.box {border:1px solid #DFDFDF;padding:10px; margin-bottom:10px; position:relative; background:#FFF url(../mediastore/grad.png) top repeat-x;}
+.box {border:1px solid #DFDFDF;padding:10px; margin-bottom:10px; position:relative; background:#FFF url(../images/grad.png) top repeat-x;}
 .box h3 {line-height:18px;}
 .box h2 {border-bottom:1px solid #DFDFDF; font-size:22px; margin-bottom:10px; padding-bottom:5px;}
 .cufon-loading .box h2 {visibility: hidden !important; }
-.box li{ line-height:22px; list-style:url(../mediastore/4.gif); text-transform:capitalize;margin-left:20px;}
-.box li:hover { list-style:url(../mediastore/2.gif); }
+.box li{ line-height:22px; list-style:url(../images/4.gif); text-transform:capitalize;margin-left:20px;}
+.box li:hover { list-style:url(../images/2.gif); }
 .box li a:hover {text-decoration:underline;}
 .smallpost1 { color:#666; font-size:11px; padding-bottom:11px;}
 .smallpost1 h3 {font-size:14px; margin-bottom:5px;}
@@ -113,9 +113,9 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .editorpicks h3 a:hover {text-decoration:underline;}
 
 /**************** Sidebar *********************/
-.sidebar li {border:1px solid #DFDFDF;padding:10px 10px 0 10px; margin-bottom:10px; position:relative; background:#FFF url(../mediastore/grad.png) top repeat-x;}
-.sidebar li ul li {border:0;padding:0;margin:0 0 0 20px; list-style:url(../mediastore/4.gif); background:none;}
-.sidebar li ul li:hover {list-style:url(../mediastore/2.gif);}
+.sidebar li {border:1px solid #DFDFDF;padding:10px 10px 0 10px; margin-bottom:10px; position:relative; background:#FFF url(../images/grad.png) top repeat-x;}
+.sidebar li ul li {border:0;padding:0;margin:0 0 0 20px; list-style:url(../images/4.gif); background:none;}
+.sidebar li ul li:hover {list-style:url(../images/2.gif);}
 .sidebar li ul li a:hover {text-decoration:underline;}
 .sidebar h2 {border-bottom:1px solid #DFDFDF; font-size:22px; margin-bottom:10px; padding-bottom:5px;}
 .cufon-loading .sidebar h2 {visibility: hidden !important; }
@@ -148,7 +148,7 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .tabs {padding-top:20px; border-top:5px solid #333;}
 
 /**************** Footer Carousel *********************/
-.largebox {margin:5px 6px 6px 6px; clear:both;  background:#FFF url(../mediastore/grad.png) top repeat-x; padding:10px;border:1px solid #DFDFDF;}
+.largebox {margin:5px 6px 6px 6px; clear:both;  background:#FFF url(../images/grad.png) top repeat-x; padding:10px;border:1px solid #DFDFDF;}
 .largebox h2 {border-bottom:1px solid #DFDFDF; font-size:22px; margin-bottom:10px; padding-bottom:5px;}
 .cufon-loading .largebox h2 {visibility: hidden !important; }
 #carousel .item { width:160px; height:180px; background:#FFF; overflow:hidden; float:left; margin:0 10px; display:inline; }
@@ -156,35 +156,36 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .imageslides{ z-index:3 !important;}
 .textual {padding:0px 10px 10px 10px; color:#666; font-size:11px;}
 .textual h3 {font-size:14px;margin:10px 0 5px 0;}
-.pc-next,.pc-prev,.pc-next:hover,.pc-prev:hover { float:right; cursor:pointer; background:url(../mediastore/arrow_carousel.png) no-repeat left top; width:16px; height:14px; display:inline-block; text-indent:-5555em; border:0 !important; margin:5px 5px 0; overflow:hidden; }
+.pc-next,.pc-prev,.pc-next:hover,.pc-prev:hover { float:right; cursor:pointer; background:url(../images/arrow_carousel.png) no-repeat left top; width:16px; height:14px; display:inline-block; text-indent:-5555em; border:0 !important; margin:5px 5px 0; overflow:hidden; }
 .pc-next { background-position:right 0; }
 .pc-prev { background-position:0 0; }
 .pc-next:hover { background-position:right -19px; }
 .pc-prev:hover { background-position:0 -19px; }
 
 /**************** Footer *********************/
-.footer {padding:10px 15px 10px 15px; font-weight:bold; background:url(../mediastore/grad.png) repeat-x; margin:0 15px 0 15px;border:1px solid #DFDFDF;}
+.footer {padding:10px 15px 10px 15px; font-weight:bold; background:url(../images/grad.png) repeat-x; margin:0 15px 0 15px;border:1px solid #DFDFDF;}
 .cufon-loading .footer {visibility: hidden !important; }
 .copyright {font-size:11px; color: #666; float:left;}
 .designby  {font-size:11px; color:#666; float:right;}
-.topper { background:url(../mediastore/topper.png) no-repeat; width:64px; height:64px; padding:20px;}
+.topper { background:url(../images/topper.png) no-repeat; width:64px; height:64px; padding:20px;}
 
 /**************** Single Post (single.php) *********************/
 .col_large {width:600px;float:left;margin:6px 6px 0 6px;}
-.singlebox {border:1px solid #DFDFDF;padding:20px; margin-bottom:10px; position:relative; background:#FFF url(../mediastore/grad.png) top repeat-x;}
+.singlebox {border:1px solid #DFDFDF;padding:20px; margin-bottom:10px; position:relative; background:#FFF url(../images/grad.png) top repeat-x;}
 .post h2 a {color:#000; font-size:30px;}
 .cufon-loading .post h2 {visibility: hidden !important; }
-.date {color: #999; padding:15px 0 15px 15px; background:url(../mediastore/2.gif) left no-repeat; font-size:11px;}
+.date {color: #999; padding:15px 0 15px 15px; background:url(../images/2.gif) left no-repeat; font-size:11px;}
 .date a {border-bottom:1px dotted #999;font-weight:bold;}
 .date span {color:#999;}
 .content p, ul, ol {margin-bottom:20px; line-height:22px; color:#555; font-size:12px;}
 .content ol {margin-left:30px;}
 .content ul {margin-left:20px;}
 .content a { font-weight:bold; text-decoration:underline;}
-.content blockquote { margin:0 0 0 30px; padding:10px 10px 5px 40px;background:url(../mediastore/quote.png) left top no-repeat}
-.content blockquote p { background:url(../mediastore/q_C.png) right bottom no-repeat; color:#333; font-weight:bold;}
-.content ul li { background:url(../mediastore/document_small_list.png) 0 3px no-repeat; padding-left:30px; font-weight:bold;}
+.content blockquote { margin:0 0 0 30px; padding:10px 10px 5px 40px;background:url(../images/quote.png) left top no-repeat}
+.content blockquote p { background:url(../images/q_C.png) right bottom no-repeat; color:#333; font-weight:bold;}
+.content ul li {  list-style: none; background:url(../images/document_small_list.png) 0 3px no-repeat; padding-left:30px; font-weight:bold;}
 .content ol li {list-style:decimal; font-weight:bold;}
+.content ul li:hover { list-style: none; }
 .content h1{font-size:25px; padding-bottom:10px; color:#333;}
 .cufon-loading .content h1 {visibility: hidden !important; }
 .content h2{font-size:23px; padding-bottom:10px;color:#333;}
@@ -198,16 +199,16 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .content h6{font-size:15px; padding-bottom:10px;color:#333;}
 .cufon-loading .content h6 {visibility: hidden !important; }
 .tags {line-height:32px; margin-bottom:20px; font-size:11px;text-transform:capitalize;}
-.tags a {background-color:#666; padding:2px 6px 2px 25px; color:#666;background:url(../mediastore/tag.png) left no-repeat;font-weight:bold;}
+.tags a {background-color:#666; padding:2px 6px 2px 25px; color:#666;background:url(../images/tag.png) left no-repeat;font-weight:bold;}
 .box-toggle-show:link, .box-toggle-show:visited { display:block; font-size:16px; font-weight:bold; padding:5px 10px 5px 10px; background-color:#900; width:110px; color:#FFF; text-shadow:1px 1px #000;}
 .box-toggle-hide:link, .box-toggle-hide:visited { display:block; font-size:16px; font-weight:bold; padding:5px 10px 5px 10px; background-color: #999; width:110px; color:#FFF; text-shadow:1px 1px #000; margin-bottom:10px;}
 
 /*********************Comments**********************/
 .comments-box {zoom: 1;margin: 20px 0 0 0;}
 .comments-box img {vertical-align: middle;}
-.comments-box h3 {color: #333;font-size:24px;letter-spacing: 0;margin: 0;padding: 5px 0 5px 44px;width:96%;background:url(../mediastore/comment.png) no-repeat left;}
+.comments-box h3 {color: #333;font-size:24px;letter-spacing: 0;margin: 0;padding: 5px 0 5px 44px;width:96%;background:url(../images/comment.png) no-repeat left;}
 .cufon-loading .comments-box h3 {visibility: hidden !important; }
-#respond h3 {background:url(../mediastore/comment_add.png) no-repeat left;}
+#respond h3 {background:url(../images/comment_add.png) no-repeat left;}
 #respond {margin: 20px 0 0 0;padding: 5px;-moz-border-radius-topleft: 5px;-moz-border-radius-topright: 5px;-moz-border-radius-bottomleft: 5px;-moz-border-radius-bottomright: 5px;-khtml-border-radius: 5px;-webkit-border-top-left-radius: 5px;-webkit-border-top-right-radius: 5px;-webkit-border-bottom-left-radius: 5px;-webkit-border-bottom-right-radius: 5px;}
 #respond p {color: #777;line-height: 1.4em;margin: 10px 0 0 0;}
 .cancel-comment-reply {padding: 5px 0 0 0;}
@@ -262,7 +263,7 @@ ol.commentlist li ul.children li {margin: 10px 0 0 0;border: 1px solid #ccc;}
 .content img.alignright {padding:4px; border:1px solid #ccc; margin:0 0px 5px 15px;}
 
 /*********************Tooltips**********************/
-.tipsy { padding: 5px; font-size: 10px; background-repeat: no-repeat;  background-image: url(../mediastore/tipsy.gif); }
+.tipsy { padding: 5px; font-size: 10px; background-repeat: no-repeat;  background-image: url(../images/tipsy.gif); }
 .tipsy-inner { padding: 5px 8px 4px 8px; background-color: black; color: white; max-width: 200px; text-align: center; }
 .tipsy-inner { -moz-border-radius:3px; -webkit-border-radius:3px; }
 .tipsy-north { background-position: top center; }

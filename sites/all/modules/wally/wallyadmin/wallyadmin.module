@@ -9,6 +9,8 @@
 function wallyadmin_init() {  
 }
 
+
+
 /**
  * Implementation of hook_form_alter().
  */
@@ -16,6 +18,7 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
 
   // Make mods to every node form
   if ($form['#id'] == 'node-form') {
+        
     $form['menu']['#collapsed'] = TRUE;
     $form['path']['#collapsed'] = TRUE;
     
