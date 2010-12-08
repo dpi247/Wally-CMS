@@ -36,7 +36,7 @@ function wallycontenttypes_theme(&$var) {
 
     'wallyct_mainmenu' => array(
     'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
-    'template' => 'templates/wallyct_mainmenu2',
+    'template' => 'templates/wallyct_mainmenu',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
