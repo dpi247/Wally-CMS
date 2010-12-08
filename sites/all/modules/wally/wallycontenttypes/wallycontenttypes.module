@@ -10,7 +10,6 @@ include_once('wallycontenttypes.features.inc');
  * 
  */
 
-
 /**
  *  Implémentation du Hook_theme(); 
  */
@@ -29,18 +28,17 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_photoobject_slideshow' => array(
+    'wallyct_photoobject_slider' => array(
     'arguments' => array("nodes" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_photoobject_slideshow',
+    'template' => 'templates/wallyct_photoobject_slider',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
     'wallyct_mainmenu' => array(
     'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
-    'template' => 'templates/wallyct_mainmenu',
-   // 'preprocess functions' => array('wally_get_tpl_suggestions'),
+    'template' => 'templates/wallyct_mainmenu2',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
 
     'wallyct_rss' => array(
     'arguments' => array("feed" => NULL, "options" => NULL),
@@ -53,8 +51,6 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'templates/wallyct_tofacebook',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
-
 
     'wallyct_taxotermlist' => array(
     'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
@@ -73,9 +69,38 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'templates/wallyct_mainstory',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
     
   ); 
+}
+
+/*
+ * Implementation of the hook module _install();
+ */
+function wallycontenttypes_install() {
+
+    // see: wallyct_photoobject_slider
+    if (!imagecache_preset_by_name('slider_preset')) {
+      $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
+      $imagecacheaction = new stdClass ();
+      $imagecacheaction->presetid = $imagecachepreset['presetid'];
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale_and_crop';
+      $imagecacheaction->data = array('width' => '270', 'height' => '200' );
+      drupal_write_record('imagecache_action', $imagecacheaction); 
+    }
+
+}
+
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function wallycontenttypes_uninstall() {
+
+    // see: wallyct_photoobject_slider
+    if (!imagecache_preset_by_name('slider_preset')) {
+      imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
+    }
+
 }
 
 
@@ -91,10 +116,10 @@ function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
     return "plugins/$plugin";
   }
 }
+
 /*
  * Implement hook_ctools_plugin_api().
- 
-  If you do this, CTools will pick up default panels pages in
+ * If you do this, CTools will pick up default panels pages in
  * <modulename>.pages_default.inc
  */
 function wallycontenttypes_ctools_plugin_api($module, $api) {

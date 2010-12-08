@@ -92,6 +92,8 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
   }
 
   $block->title = 'RSS reader.';
+  
+  
   $block->content = theme("wallyct_rss",$feed, $conf); 
 
   return $block;
