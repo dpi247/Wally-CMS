@@ -1,5 +1,6 @@
 <?php
-    if (!function_exists('wallyct_mainmenu_tree_output')) {
+
+if (!function_exists('wallyct_mainmenu_tree_output')) {
 /**
  * Returns a rendered menu tree.
  *
@@ -14,11 +15,13 @@ function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firs
     drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/superfish/superfish.css', 'theme');
     drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/hoverIntent.js', 'theme');
     drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/superfish.js','theme');
+
     drupal_add_js("
         $(document).ready(function() {
           jQuery('ul.sf-menu').superfish();
         });
     ", 'inline');
+
          
     $output = '';
 
@@ -40,7 +43,7 @@ function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firs
     if ($firstpass==1) {
       return $output ? "\n<ul class='sf-menu' id='".$menuid."'>". $output ."</ul>\n" : "";
     } else {
-      return $output ? "\n<ul class=''>". $output ."</ul>\n" : "";
+      return $output ? "\n<ul>". $output ."</ul>\n" : "";
     }
   }
 }

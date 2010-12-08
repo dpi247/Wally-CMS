@@ -47,7 +47,8 @@
     <div class="access">
       <div class="menu">
         <?php if (isset($primary_links)) : ?>
-          <? print theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links'); ?>
+          <?php print $sf_primarymenu; ?> 
+          <? // print theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links'); ?>
         <?php endif; ?>
       </div>
     </div>
@@ -58,7 +59,8 @@
     <div class="access2">
       <div class="menu2">
         <?php if (isset($secondary_links)) : ?>
-          <?  print theme("wallyct_mainmenu", 'secondary_links'); ?>
+          <?php print $sf_secondarymenu;  ?> 
+          <? // print theme("wallyct_mainmenu", 'secondary_links', 'menu-secondary-links'); ?>
         <?php endif; ?>
       </div>
     </div>
