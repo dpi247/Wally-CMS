@@ -144,6 +144,7 @@ function cckdestinations_elements() {
 function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
 
   $defaults = $element['#value'];
+  dsm($defaults);
   $field = content_fields($element['#field_name'], $element['#type_name']);
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
@@ -153,7 +154,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#title' => t( 'Destination Path' ),
     '#type' => 'select',
     '#default_value' => $defaults['tid'],
-    '#name' => 'tid',
+ //   '#name' => 'tid',
     '#options'=>$options_and_classe['tid']['#options'],
     
     '#required'=>FALSE,
@@ -170,7 +171,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   $element['target'] = array(
     '#title' => t( 'Target' ),
-    '#name' => 'target',
+  //  '#name' => 'target',
     '#type' => 'select',
     '#default_value' => $defaults['target'],
     '#options'=>$options_and_classe['target']['#options'],
@@ -183,7 +184,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  );
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
-    '#name' => 'layout',
+ //   '#name' => 'layout',
     '#type' => 'select',
     '#default_value' => $defaults['layout'],
     '#options'=>$options_and_classe['layout']['#options'],
