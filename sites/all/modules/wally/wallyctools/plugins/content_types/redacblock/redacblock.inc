@@ -140,10 +140,10 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
     $settings = $subtype['content']->settings;
     $settings['redacblock_type'] = 'fixed';
     $settings['content'] = $subtype['content'];
+    $settings=array_merge($settings,$conf);
     
   }
   else {
-    
     
     // This means they created it as redacblock content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
@@ -249,9 +249,9 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * Output function for the 'redacblock' content type. Outputs a redacblock
  * based on the module and delta supplied in the configuration.
  */
-function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $contexts) {
-  $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
-  
+function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
+  $conf =wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
+  $redacblock_name=$conf['content']->name;
   if (!is_array($contexts)) {
     $contexts = array($contexts);
   }
@@ -261,9 +261,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
 
   $view = views_get_view($view_name);
   
-
-  $handler = $view->new_display('default', 'Defaults', 'default');
-  $redacblock_name=$conf['content']->name;
+  $view->set_display($view_id);
   $options=array(
   'field_testdes_target' => array(
     'operator' => '=',
@@ -281,13 +279,52 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
     'relationship' => 'none',
     ),
   );
-  $handler->override_option('filters',$options);
-//  $view->set_item($view_name, 'filter', $name, $item);
-  $view->is_cacheable = FALSE;
+  
+  $options=array(
+    'operator' => '=',
+    'value' => $redacblock_name,
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'case' => 1,
+    'id' => 'field_testdes_target',
+    'table' => 'node_data_field_testdes',
+    'field' => 'field_testdes_target',
+    'relationship' => 'none',
+    );
+  
+    $options=array(
+    'operator' => '=',
+    'value' => $redacblock_name,
+    'group' => '0',
+    'exposed' => FALSE,
+    'expose' => array(
+      'operator' => FALSE,
+      'label' => '',
+    ),
+    'relationship' => 'none',
+    );
+  
+  //$view->display_handler->get_handlers('argument')
+  //
+  
+    $view->add_item($view_id, 'filter', 'node_data_field_testdes', 'field_testdes_target', $options);
+    $view->is_cacheable = FALSE;
+    //init handler should be placed after add_item !!!
+    $view->init_handlers();
+  
+    
+    // $view->display[$view_id]->handler->handlers['filter']['t']=$options;
+ // dsm($view->display[$view_id]->handler);//->override_option('filters',$options);
+   //dsm( $view->display_handler->get_handlers('filters')); 
+  //$view->set_item($view_name, 'filter', $name, $item);
   
   
-  $view->set_display($view_id);
-  
+ $block->delta  = $view_name .'-'.  $view_id;
+ 
   /*
   
   $handler->override_option('filters', array(
@@ -321,18 +358,18 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $args, $con
 
   $arguments = explode('/', $_GET['q']);
   $args = $conf['args'];
-
   foreach ($arguments as $id => $arg) {
     $args = str_replace("%$id", $arg, $args);
   }
 
-  if (isset($panel_args)) {
+ // if (isset($panel_args)) {
     foreach ($panel_args as $id => $arg) {
       if (is_string($arg)) {
         $args = str_replace("@$id", $arg, $args);
       }
+      
     }
-  }
+  //}
   $args = preg_replace(',/?(%\d|@\d),', '', $args);
   $args = $args ? explode('/', $args) : array();
 
@@ -474,13 +511,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
 
     $header = array(t('Keyword'), t('Value'));
     $form['contexts']['context'] = array('#value' => theme('table', $header, $rows));
-    
-
-    
-    
-
-    
-      // @todo
+  
+  // @todo
   // If using the older format, just a context is listed. We should go through
   // and check for that and forcibly set them to the right converter so that
   // it doesn't get changed to some whacky default. Oooor just let it get changed
@@ -496,13 +528,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
   }
-  
-    
-    
-    
-    
-    
-    
     
  $form['pager_settings'] = array(
     '#type' => 'fieldset',
@@ -608,12 +633,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
 
 
     $form_state['title'] = t('Configure view @view (@display)', array('@view' => $view->name, '@display' => $view->display[$conf['display']]->display_title));
-
-
-    
-    
-  
-
 
   // Make the other form items dependent upon it.
   ctools_include('dependent');
@@ -726,8 +745,11 @@ function wallyctools_redacblock_content_type_edit_form_validate(&$form, &$form_s
  */
 function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_state) {
   //DEFAULT SAVE OVERRIDABLE VARIABLES:
-  
-  
+  dsm($form_state);
+  foreach (array_keys($form_state['plugin']['defaults']) as $key) {
+    $form_state['conf'][$key] = $form_state['values'][$key];
+  }
+      $form_state['conf']['context'] = $form_state['values']['context'];
   
   //CASE 1: Adding an existing redac block.
   if ($form_state['settings']['redacblock_type'] == 'fixed') {

@@ -13,6 +13,32 @@
  * styles directly to any panel display.
  */
 
+
+
+
+
+
+/**
+ * A theme preprocess function to automatically allow view-based node
+ * templates if called from a view.
+ *
+ * The 'modules/node.views.inc' file is a better place for this, but
+ * we haven't got a chance to load that file before Drupal builds the
+ * node portion of the theme registry.
+ */
+function wallyctools_preprocess_node(&$vars) {
+  // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
+  //if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
+   // $vars['view'] = &$vars['node']->view;
+    $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
+   // if(!empty($vars['node']->view->current_display)) {
+   //   $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->view_node_layout;
+   // }
+ // }
+}
+
+
+
 /**
  * Implementation of hook_perm()
  */
@@ -21,6 +47,20 @@ function wallyctools_perm() {
     'administer wallyctools',
   );
 }
+
+
+
+
+
+
+function wallyctools_ctools_plugin_api($owner, $api) {
+  if ($owner == 'wallyctools' && $api == 'ctools_content') {
+    return array('version' => 1);
+  }
+}
+
+
+
 
 /**
  * Implementation of hook_ctools_plugin_directory() to let the system know
@@ -115,6 +155,16 @@ function wallyctools_views_api() {
 }
 //-----------------------------------------------
 
+
+function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$layout){
+  foreach($node->field_testdes as $destination_item){
+    if($destination_item['tid']==$destination and $destination_item['target']==$target){
+      return $destination_item['layout'];
+    }
+  }
+  return NULL;
+}
+//-----------
 
 function wallyctools_content_get_subtypes($type) {
   
@@ -343,3 +393,13 @@ function wallyctools_get_redacblock_panes(){
   }
     return $array_of_panes;
 }
+
+
+function wallyctools_theme() {
+  $path = drupal_get_path('module', 'wallyctools');
+  require_once "./$path/theme/theme.inc";
+  return array(
+    
+  );
+}
+
