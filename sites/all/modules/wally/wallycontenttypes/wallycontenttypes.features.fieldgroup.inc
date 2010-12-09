@@ -42,7 +42,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'label' => 'above',
       ),
     ),
-    'weight' => '0',
+    'weight' => '3',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
@@ -89,7 +89,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'label' => 'above',
       ),
     ),
-    'weight' => '1',
+    'weight' => '4',
     'fields' => array(
       '0' => 'field_mainstory',
       '1' => 'field_embededobjects',
@@ -133,10 +133,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'label' => 'above',
       ),
     ),
-    'weight' => '-2',
+    'weight' => '-1',
     'fields' => array(
-      '0' => 'field_editions',
-      '1' => 'field_destinations',
+      '0' => 'field_testdes',
+      '1' => 'field_editions',
       '2' => 'field_channels',
     ),
   );
@@ -177,7 +177,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'label' => 'above',
       ),
     ),
-    'weight' => '-3',
+    'weight' => '-2',
     'fields' => array(
       '0' => 'field_packageid',
       '1' => 'field_externalreference',
@@ -222,7 +222,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'label' => 'above',
       ),
     ),
-    'weight' => '-1',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
@@ -679,7 +679,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'weight' => '0',
     'fields' => array(
       '0' => 'field_editions',
-      '1' => 'field_destinations',
     ),
   );
 
@@ -1565,8 +1564,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
     'weight' => '-2',
     'fields' => array(
-      '0' => 'field_editions',
-      '1' => 'field_destinations',
+      '0' => 'field_testdes',
+      '1' => 'field_editions',
       '2' => 'field_channels',
     ),
   );

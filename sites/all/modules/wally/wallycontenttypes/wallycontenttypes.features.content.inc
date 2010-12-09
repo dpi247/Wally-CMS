@@ -113,65 +113,7 @@ function wallycontenttypes_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Channels',
-      'weight' => '1',
-      'description' => '',
-      'type' => 'text_textarea',
-      'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_destinations
-  $fields['wally_articlepackage-field_destinations'] = array(
-    'field_name' => 'field_destinations',
-    'type_name' => 'wally_articlepackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '1',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => '5',
-      'size' => 60,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_destinations][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Destinations',
-      'weight' => 0,
+      'weight' => '2',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -229,7 +171,7 @@ function wallycontenttypes_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Editions',
-      'weight' => '-1',
+      'weight' => '1',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -1603,8 +1545,8 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'test dest',
-      'weight' => '13',
+      'label' => 'Destinations',
+      'weight' => 0,
       'description' => '',
       'type' => 'cckdestinations_widget',
       'module' => 'cckdestinations',
@@ -4582,64 +4524,6 @@ Free',
     ),
   );
 
-  // Exported field: field_destinations
-  $fields['wally_gallerypackage-field_destinations'] = array(
-    'field_name' => 'field_destinations',
-    'type_name' => 'wally_gallerypackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '1',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => '5',
-      'size' => 60,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_destinations][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Destinations',
-      'weight' => '52',
-      'description' => '',
-      'type' => 'text_textarea',
-      'module' => 'text',
-    ),
-  );
-
   // Exported field: field_editions
   $fields['wally_gallerypackage-field_editions'] = array(
     'field_name' => 'field_editions',
@@ -6067,6 +5951,60 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
+    ),
+  );
+
+  // Exported field: field_testdes
+  $fields['wally_gallerypackage-field_testdes'] = array(
+    'field_name' => 'field_testdes',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'destinationsfield',
+    'required' => '1',
+    'multiple' => '1',
+    'module' => 'cckdestinations',
+    'active' => '1',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'tid' => '23',
+          'target' => 'primary',
+          'layout' => 'layout_system_name2',
+          'rank' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Destinations',
+      'weight' => '70',
+      'description' => '',
+      'type' => 'cckdestinations_widget',
+      'module' => 'cckdestinations',
     ),
   );
 
@@ -10562,65 +10500,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Channels',
-      'weight' => '8',
-      'description' => '',
-      'type' => 'text_textarea',
-      'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_destinations
-  $fields['wally_pollpackage-field_destinations'] = array(
-    'field_name' => 'field_destinations',
-    'type_name' => 'wally_pollpackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '1',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => '5',
-      'size' => 60,
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_destinations][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Destinations',
-      'weight' => '7',
+      'weight' => '34',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -10678,7 +10558,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Editions',
-      'weight' => '6',
+      'weight' => '33',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -12112,6 +11992,60 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
+    ),
+  );
+
+  // Exported field: field_testdes
+  $fields['wally_pollpackage-field_testdes'] = array(
+    'field_name' => 'field_testdes',
+    'type_name' => 'wally_pollpackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'destinationsfield',
+    'required' => '1',
+    'multiple' => '1',
+    'module' => 'cckdestinations',
+    'active' => '1',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'tid' => '23',
+          'target' => 'primary',
+          'layout' => 'layout_system_name2',
+          'rank' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Destinations',
+      'weight' => '32',
+      'description' => '',
+      'type' => 'cckdestinations_widget',
+      'module' => 'cckdestinations',
     ),
   );
 
@@ -15074,7 +15008,6 @@ Free',
       'thumbnail_height' => '90',
       'thumbnail_default_path' => '',
       'thumbnail_link_title' => 'See video',
-      'meta_fields' => NULL,
       'providers' => array(),
       'default_value' => array(
         '0' => array(
@@ -15083,6 +15016,7 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
+      'meta_fields' => NULL,
       'label' => 'Video 3rd Party',
       'weight' => '11',
       'description' => '',
@@ -15223,7 +15157,6 @@ Free',
   t('Video 3rd Party');
   t('Video File');
   t('Video Summary');
-  t('test dest');
 
   return $fields;
 }
