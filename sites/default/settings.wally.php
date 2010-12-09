@@ -90,7 +90,7 @@
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
 
-$db_url = 'mysql://wally-dev:WaVhfryR@localhost/wally-dev';
+$db_url = 'mysql://username:password@localhost/databasename';
 $db_prefix = '';
 
 /**
