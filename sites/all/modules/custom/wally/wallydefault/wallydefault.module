@@ -33,6 +33,8 @@ function wallydefault_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'view':
       wallydefault_packagepopulate($node,$op);
       break;
+      
+      //@todo: move to wallycontenttypes
   case 'update' :
     if($node->type == 'wally_articlepackage' || 
        $node->type == 'wally_gallerypackage' ||
