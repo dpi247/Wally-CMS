@@ -1,4 +1,7 @@
 <?php
+define('WALLY_ADMIN_PATH', 'admin/wally');
+
+
 /**
  * @file wallyadmin.module
  */
@@ -88,12 +91,23 @@ function wallyadmin_menu_alter(&$items) {
 }
 
 
+
+
 /**
  * Implementation of hook_menu().
  */
 function wallyadmin_menu() {
   $items = array();
-  
+   $items[WALLY_ADMIN_PATH] = array(
+    'title' => 'Wally',
+    'description' => 'Wally administration links.',
+    'position' => 'right',
+    'weight' => 5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer wally'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
   $items['admin/content/clearcache'] = array(
     'title' => t('Clear cache'),
     'page callback' => 'wallyadmin_clear_cache',

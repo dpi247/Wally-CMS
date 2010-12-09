@@ -5,24 +5,6 @@
  * In this module we define core functions of wally.  
  */
 
-define('WALLY_ADMIN_PATH', 'admin/wally');
-
-/**
- * Implementation of hook_menu().
- */
-function wallydefault_menu(){
- $items[WALLY_ADMIN_PATH] = array(
-    'title' => 'Wally',
-    'description' => 'Wally administration links.',
-    'position' => 'right',
-    'weight' => 5,
-    'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('administer wally'),
-    'file' => 'system.admin.inc',
-    'file path' => drupal_get_path('module', 'system'),
-  );
-  return $items; 
-}
 
 /**
  * Implementation of hook_nodeapi().
@@ -223,7 +205,6 @@ function _wallydefault_addtaxonomywhenupdated($node){
       // so we dont want to update taxonomies from
       // the main object node. 
       
-      dsm($node); 
       
       if (!$node->no_taxonomy_update) { 
 
