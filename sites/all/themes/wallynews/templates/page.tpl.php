@@ -46,6 +46,8 @@
 
     <div class="access">
       <div class="menu">
+                <? print theme("wallyct_coucou"); ?>
+      
         <?php if (isset($primary_links)) : ?>
           <?php print $sf_primarymenu; ?> 
           <? // print theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links'); ?>
