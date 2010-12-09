@@ -155,6 +155,7 @@ function wallycontenttypes_ctools_plugin_api($module, $api) {
 function wally_get_tpl_suggestions(&$variables, $hook) {
     $suggestion = get_package_suggestions($variables, $hook); 
     if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+    dsm($variables['template_files']); 
 }
 
 /**
@@ -252,7 +253,11 @@ function get_package_suggestions(&$variables, $type="page") {
   $path = ""; 
   $package_layout = (isset($variables['node'])) ? get_wallypackage_layout($variables['node']) : NULL ; 
 
+// TODO: get from the node information from the node.
+//
   $destinations = array($variables['node']->field_testdes[0]['tid']);
+//
+// 
  
     (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
  
@@ -268,7 +273,9 @@ function get_package_suggestions(&$variables, $type="page") {
         if (isset($variables['node']->type)) $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
         if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
       }
-    }  
+    }
+    
+  dsm($suggestion); 
   return $suggestion;  
 }
 

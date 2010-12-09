@@ -1,6 +1,62 @@
 <?php
 
 /**
+ * Implementation of hook_content_taxonomy_mapping().
+ */
+function wallycontenttypes_content_taxonomy_mapping() {
+  return array(
+    'field_authors-authors' => array(
+      'field_name' => 'field_authors',
+      'vocabulary' => 'authors',
+    ),
+    'field_documenttype-documenttype' => array(
+      'field_name' => 'field_documenttype',
+      'vocabulary' => 'documenttype',
+    ),
+    'field_entities-entities' => array(
+      'field_name' => 'field_entities',
+      'vocabulary' => 'entities',
+    ),
+    'field_entity-entities' => array(
+      'field_name' => 'field_entity',
+      'vocabulary' => 'entities',
+    ),
+    'field_free_tags-keywords' => array(
+      'field_name' => 'field_free_tags',
+      'vocabulary' => 'keywords',
+    ),
+    'field_locations-locations' => array(
+      'field_name' => 'field_locations',
+      'vocabulary' => 'locations',
+    ),
+    'field_locationtaxonomy-locations' => array(
+      'field_name' => 'field_locationtaxonomy',
+      'vocabulary' => 'locations',
+    ),
+    'field_packageauthors-authors' => array(
+      'field_name' => 'field_packageauthors',
+      'vocabulary' => 'authors',
+    ),
+    'field_persons-persons' => array(
+      'field_name' => 'field_persons',
+      'vocabulary' => 'persons',
+    ),
+    'field_persontaxonomy-persons' => array(
+      'field_name' => 'field_persontaxonomy',
+      'vocabulary' => 'persons',
+    ),
+    'field_rating-rating' => array(
+      'field_name' => 'field_rating',
+      'vocabulary' => 'rating',
+    ),
+    'field_tags-tags' => array(
+      'field_name' => 'field_tags',
+      'vocabulary' => 'tags',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_node_info().
  */
 function wallycontenttypes_node_info() {
