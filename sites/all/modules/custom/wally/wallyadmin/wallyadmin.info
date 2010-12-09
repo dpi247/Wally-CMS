@@ -10,3 +10,4 @@ core = "6.x"
 project = "Wally"
 datestamp = "1282573770"
 
+dependencies[] = admin

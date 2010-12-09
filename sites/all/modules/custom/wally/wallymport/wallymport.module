@@ -27,7 +27,7 @@ function wallymport_menu() {
 	'title' => 'Run XML Import Process for a forlder',
 	'description' => 'Run data import',
 	'page callback' => 'wallymport_page_process_folder',
-  'access arguments' => array('access administration pages'),
+    'access arguments' => array('access administration pages'),
 	'type' => MENU_CALLBACK,
   );
 
