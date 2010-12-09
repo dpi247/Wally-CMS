@@ -28,13 +28,13 @@
  */
 function wallyctools_preprocess_node(&$vars) {
   // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
-  //if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
-   // $vars['view'] = &$vars['node']->view;
+  if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
+    $vars['view'] = &$vars['node']->view;
     $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
-   // if(!empty($vars['node']->view->current_display)) {
-   //   $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->view_node_layout;
-   // }
- // }
+    if(!empty($vars['node']->view->current_display)) {
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->view_node_layout;
+    }
+  }
 }
 
 
