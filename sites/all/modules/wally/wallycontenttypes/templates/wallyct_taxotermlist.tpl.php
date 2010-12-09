@@ -13,7 +13,7 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
       $taxo_path = taxonomy_term_path($t);
 
       $content .= "<li>"; 
-      $content .= "<a href='".base_path().$taxo_path."'>"; 
+      $content .= "<a href='".$taxo_path."'>"; 
       $content .= $t->name;
       $content .= "</a>"; 
       $content .= "</li>"; 

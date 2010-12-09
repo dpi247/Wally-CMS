@@ -156,7 +156,7 @@ function wallyctools_views_api() {
 //-----------------------------------------------
 
 
-function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$layout){
+function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
   foreach($node->field_testdes as $destination_item){
     if($destination_item['tid']==$destination and $destination_item['target']==$target){
       return $destination_item['layout'];

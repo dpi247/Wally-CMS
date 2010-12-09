@@ -42,6 +42,12 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'templates/wallyct_mainmenu',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_coucou' => array(
+    'template' => 'templates/wallyct_coucou',
+   // 'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
 
     'wallyct_rss' => array(
     'arguments' => array("feed" => NULL, "options" => NULL),
