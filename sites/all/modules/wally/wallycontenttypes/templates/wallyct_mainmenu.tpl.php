@@ -1,5 +1,7 @@
 <?php
-
+zef
+  drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/superfish/superfish.css', 'theme', 'header', FALSE, TRUE, FALSE);
+    drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/hoverIntent.js', 'theme', 'header', FALSE, TRUE, FALSE);
 if (!function_exists('wallyct_mainmenu_tree_output')) {
 /**
  * Returns a rendered menu tree.
