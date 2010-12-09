@@ -252,11 +252,7 @@ function get_package_suggestions(&$variables, $type="page") {
   $path = ""; 
   $package_layout = (isset($variables['node'])) ? get_wallypackage_layout($variables['node']) : NULL ; 
 
-// TODO: get from the node information from the node.
-//
   $destinations = array($variables['node']->field_testdes[0]['tid']);
-//
-// 
  
     (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
  

@@ -39,7 +39,7 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
-    
+  
   $form['wallymport_debug'] = array(
     '#type' => 'radios',
     '#title' => t('Import debug level'),

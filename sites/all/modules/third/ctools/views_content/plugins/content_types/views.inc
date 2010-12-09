@@ -289,7 +289,6 @@ function views_content_views_content_type_edit_form(&$form, &$form_state) {
   if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
   }
-  dsm($form);
   
   $form['link_to_view'] = array(
     '#type' => 'checkbox',
