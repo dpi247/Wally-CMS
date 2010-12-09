@@ -42,9 +42,8 @@ function template_preprocess_views_view(&$vars) {
   global $base_path;
 
   $view = $vars['view'];
-
   $vars['rows']       = !empty($view->result) || !empty($view->style_plugin->definition['even empty']) ? $view->style_plugin->render($view->result) : '';
-
+  
   $vars['css_name']   = views_css_safe($view->name);
   $vars['name']       = $view->name;
   $vars['display_id'] = $view->current_display;
@@ -416,7 +415,6 @@ function template_preprocess_views_view_grid(&$vars) {
   $columns  = $options['columns'];
 
   $rows = array();
-
   if ($options['alignment'] == 'horizontal') {
     $row = array();
     $row_count = 0;
@@ -467,6 +465,7 @@ function template_preprocess_views_view_grid(&$vars) {
     }
   }
   $vars['rows'] = $rows;
+  
 }
 
 /**
@@ -474,8 +473,10 @@ function template_preprocess_views_view_grid(&$vars) {
  */
 function template_preprocess_views_view_unformatted(&$vars) {
   $view     = $vars['view'];
+  
   $rows     = $vars['rows'];
-
+  
+  
   $vars['classes'] = array();
   // Set up striping values.
   foreach ($rows as $id => $row) {
