@@ -161,13 +161,15 @@ function content_multiple_value_form(&$form, &$form_state, $field, $items) {
     case 0:
       $max = 0;
       break;
+
     case 1:
       $filled_items = content_set_empty($field, $items);
 
 		// PATCH DLA - EXXODUS - AUDAXIS
 		//
-        // make the count different for no item
-        // (filled with an empty item by content_set_empty) and 1 item with data
+        // make the count different for no item.
+        // (filled with an empty item by content_set_empty)
+        // and 1 item with data
        $hook_is_empty = $field['module'] .'_content_is_empty';
        
        if (count($items) == 1 && $hook_is_empty($items[0], $field)) {
