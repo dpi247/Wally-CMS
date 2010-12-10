@@ -92,10 +92,26 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
     if (strlen($pane_title) > 16) {
       $pane_title = substr($pane_title, 0, 16) . '...';
     }
+    
+    
+    
+    $layout_value=t('Choose from availables layouts');
+    $layout_value_setted="";
+    foreach($this->get_option('redacblock_layout') as $key=> $value){
+     if($value){
+       $layout_value_setted.=" ".$key;
+    
+     }
+    }
+    if( $layout_value_setted!=''){
+      $layout_value= $layout_value_setted;
+    }
 
      $options['redacblock_layout'] = array(
       'category' => 'panel_pane',
       'title' => t('Layout'),
+       'value' => $layout_value,
+     
     );
     
     
