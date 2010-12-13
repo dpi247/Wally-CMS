@@ -34,7 +34,7 @@ function wallycontenttypes_persons_content_type_render($subtype, $conf, $panel_a
   }
   else {
     // Load associated Wally_peron nodes.  
-    $node->field_persons_nodes = wallydefault_field_tidload("field_persons", $node->field_persons, "wally_persontype");
+    $node->field_persons_nodes = wallycontenttypes_field_tidload("field_persons", $node->field_persons, "wally_persontype");
 
     $block->title = "Person List.";
     $block->content = theme("wallyct_personslist_detail",$node->field_persons_nodes, $node);
