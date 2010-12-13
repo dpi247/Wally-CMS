@@ -3,113 +3,114 @@
 include_once('wallycontenttypes.features.inc');
 
 /**
- * @defgroup WallyCTtheming Wally Content Types theming functions
+ * @defgroup wallycontenttypes Wally main module.
  * @{
- * 
- * In this module we define all wally specific theming functions.
- * 
+   * 
+ * In this module we define all wally specific content types & taxonomies
+ * Also include all invocation for specific theme hook & theming preprocess
+ * functions. 
  */
 
 /**
  *  Implémentation du Hook_theme(); 
  */
 function wallycontenttypes_theme(&$var) {
+
+  $path = drupal_get_path('module', 'wallycontenttypes');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+
  return array(
 
-/*
-    'wallyct_personslist' => array(
-    'arguments' => array("persons" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_personslist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-*/
-
-/*
-    'wallyct_personslist_detail' => array(
-    'arguments' => array("persons" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_personslist_detail',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-*/
-    'wallyct_photoobject_slider' => array(
+    'wallyct_photoobject_slider' => $base + array(
     'arguments' => array("nodes" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_photoobject_slider',
+    'template' => 'wallyct_photoobject_slider',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_mainmenu' => array(
+    'wallyct_mainmenu' => $base + array(
     'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
-    'template' => 'templates/wallyct_mainmenu',
+    'template' => 'wallyct_mainmenu',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
-    'wallyct_coucou' => array(
-    'template' => 'templates/wallyct_coucou',
-   // 'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-    
-
-    'wallyct_rss' => array(
+    'wallyct_rss' => $base + array(
     'arguments' => array("feed" => NULL, "options" => NULL),
-    'template' => 'templates/wallyct_rss',
+    'template' => 'wallyct_rss',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_tofacebook' => array(
+    'wallyct_tofacebook' => $base + array(
     'arguments' => array("node" => NULL, "options" => NULL),
-    'template' => 'templates/wallyct_tofacebook',
+    'template' => 'wallyct_tofacebook',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_taxotermlist' => array(
+    'wallyct_taxotermlist' => $base + array(
     'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'templates/wallyct_taxotermlist',
+    'template' => 'wallyct_taxotermlist',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_taxotermlist_tree' => array(
+    'wallyct_taxotermlist_tree' => $base + array(
     'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'templates/wallyct_taxotermlist_tree',
+    'template' => 'wallyct_taxotermlist_tree',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
-    'wallyct_mainstory' => array(
+    'wallyct_mainstory' => $base + array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),
-    'template' => 'templates/wallyct_mainstory',
+    'template' => 'wallyct_mainstory',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+
+/*
+    'wallyct_personslist' => $base + array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'wallyct_personslist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+*/
+
+/*
+    'wallyct_personslist_detail' => $base + array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'wallyct_personslist_detail',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+*/
     
   ); 
 }
 
-/*
- * Implementation of the hook module _install();
+
+/**
+ * Implementation of hook_nodeapi().
  */
-function wallycontenttypes_install() {
+function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
-    // see: wallyct_photoobject_slider
-    if (!imagecache_preset_by_name('slider_preset')) {
-      $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
-      $imagecacheaction = new stdClass ();
-      $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale_and_crop';
-      $imagecacheaction->data = array('width' => '270', 'height' => '200' );
-      drupal_write_record('imagecache_action', $imagecacheaction); 
-    }
-
-}
-
-/*
- * Implementation of the hook module _uninstall();
- */
-function wallycontenttypes_uninstall() {
-
-    // see: wallyct_photoobject_slider
-    if (!imagecache_preset_by_name('slider_preset')) {
-      imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
-    }
-
+ switch ($op) {
+    case 'view':
+      wallydefault_packagepopulate($node,$op);
+      break;
+      
+      //@todo: move to wallycontenttypes
+  case 'update' :
+    if($node->type == 'wally_articlepackage' || 
+       $node->type == 'wally_gallerypackage' ||
+       $node->type == 'wally_pollpackage')
+        _wallydefault_addtaxonomywheninserted($node);
+		elseif( $node->type == 'wally_textobject' ||
+            $node->type == 'wally_audioobject' ||
+            $node->type == 'wally_digitalobject' || 
+            $node->type == 'wally_photoobject' || 
+            $node->type == 'wally_videoobject' ||
+            $node->type == 'wally_pollobject')
+			       _wallydefault_addtaxonomywhenupdated($node);
+            break;
+ 	}
 }
 
 
@@ -128,11 +129,12 @@ function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
 
 /*
  * Implement hook_ctools_plugin_api().
+ * 
  * If you do this, CTools will pick up default panels pages in
  * <modulename>.pages_default.inc
  */
 function wallycontenttypes_ctools_plugin_api($module, $api) {
-  // @todo -- this example should explain how to put it in a different file.
+  // @todo this example should explain how to put it in a different file.
   if ($module == 'panels_mini' && $api == 'panels_default') {
     return array('version' => 1);
   }
@@ -140,8 +142,6 @@ function wallycontenttypes_ctools_plugin_api($module, $api) {
     return array('version' => 1);
   }
 }
-
-
 
 /**
  * Insert additional template suggestions to wally specific theme functions.
@@ -170,7 +170,6 @@ function wallycontenttypes_preprocess_page(&$variables) {
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 } 
 
-
 /**
  *  Implémentation du hook_preprocess_node(); 
  */
@@ -183,7 +182,6 @@ function wallycontenttypes_preprocess_node(&$variables) {
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 } 
-
 
 /**
  * Extract page layout information from the node. 
@@ -205,96 +203,6 @@ function get_wallypackage_layout($node) {
 }
 
 /**
- * Build all the page/node suggestions template for a node of type "package"
- * of any content type with Destinations information.   
- *
- * Wally specific suggestions are (for pages):  
- * 
- * page_{destinations_terms_underscore_separated}.tpl.php
- * page_{destinations_terms_underscore_separated}_{node_type}.tpl.php
- * page_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
- * page_{node_type}_{package_layout}.tpl.php
- * page_{node_type}.tpl.php
- * page.tpl.php
- * 
- * Wally specific suggestions are (for nodes):  
- * 
- * node-{node_type}.tpl.php
- * node_{destinations_terms_underscore_separated}.tpl.php
- * node_{destinations_terms_underscore_separated}_{node_type}.tpl.php
- * node_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
- * node_{node_type}_{package_layout}.tpl.php
- * node_{node_type}.tpl.php < node.tpl.php
- *
- * Wally specific suggestions are (other hooks - types):  
- * 
- * {type}-{node_type}.tpl.php
- * {type}_{destinations_terms_underscore_separated}.tpl.php
- * {type}_{destinations_terms_underscore_separated}_{node_type}.tpl.php
- * {type}_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
- * {type}_{node_type}_{package_layout}.tpl.php
- * {type}_{node_type}.tpl.php < node.tpl.php
- * 
- * @param $variables
- *   Templating variables
- * 
- * @param $type
- *   Prefix added to suggestions (default = page). Could be "page" or "node".
- * 
- * @return 
- *   Array of suggestion pages templates.
- */
-function get_package_suggestions(&$variables, $type="page") {
-
-  $suggestion = array(); 
-  $tax_children = array(); 
-  $vid=variable_get('wallymport_destinationpath',null);
-  $path = ""; 
-  $package_layout = (isset($variables['node'])) ? get_wallypackage_layout($variables['node']) : NULL ; 
-
-// TODO: get from the node information from the node.
-//
-  $destinations = array($variables['node']->field_testdes[0]['tid']);
-//
-// 
- 
-    (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
- 
-    if ($package_layout) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
-
-    if (count($destinations)) {
-      $destination = $destinations[0];
-      $tax_children = taxonomy_get_parents_all($destination, $vid);
-      $count = count($tax_children);
-      for ($i = $count-1; $i >= 0; $i--) {
-        ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
-        if ($type) $suggestion[] = $type . '_' . $path;
-        if (isset($variables['node']->type)) $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
-        if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
-      }
-    }
-  return $suggestion;  
-}
-
-/**
- * @} End of "defgroup wallycontenttypes".
- */
-
-
-
-
-/**
- * @defgroup wallycontenttypes Wally Wally Content Types & Taxonomy definition
- * @{
-   * 
- * In this module we define all wally specific content types & taxonomies
- * Also include all invocation for specific theme hook & theming preprocess
- * functions.
- * 
- */
-
-
-/**
  *  Implémentation du Hook_form_alter(); 
  */
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
@@ -310,6 +218,8 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
 }
 
 /**
+ * Disable all taxonomy fields on package editing.
+ * 
  * In case of package editing, all taxonomy/entities/persons/locations/...
  * are taken from the main object. So we disabled the edition for these
  * fields.
@@ -334,6 +244,8 @@ function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id){
 }
 
 /**
+ * call back to disable all taxonomy fields on package editing
+ * 
  * Call back function used by after_build attribute to 
  * disabled all "taxonomy" from a package content types. 
  * 
