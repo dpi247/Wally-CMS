@@ -40,14 +40,14 @@
  * @return 
  *   Array of suggestion pages templates.
  */
-function get_package_suggestions(&$variables, $type="page") {
+function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
 
   $destinations = array();
   $suggestion = array(); 
   $tax_children = array(); 
   $vid=variable_get('wallymport_destinationpath',null);
   $path = ""; 
-  $package_layout = (isset($variables['node'])) ? get_wallypackage_layout($variables['node']) : NULL ; 
+  $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
 
   // For a node, destination is taken on the 1st destination. 
   if (isset($variables['node']->field_testdes[0]['tid'])) {
@@ -70,5 +70,24 @@ function get_package_suggestions(&$variables, $type="page") {
     }
   }
   return $suggestion;  
+}
+
+/**
+ * Extract page layout information from the node. 
+ *
+ * @param $node
+ *   The node currently processed
+ *
+ * @return 
+ *   The Package layout as a string or NULL.
+ */
+function wallycontenttypes_getpackagelayout($node) {
+  if (isset($node->field_packagelayout)) {
+    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
+    $package_layout = strtolower(trim($package_layout->name));
+  } else {
+    $package_layout = NULL;
+  }
+  return $package_layout; 
 }
 

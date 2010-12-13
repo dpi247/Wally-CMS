@@ -85,6 +85,19 @@ function wallycontenttypes_theme(&$var) {
   ); 
 }
 
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * this preprocess function could be set by any hook_theme.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions(&$variables, $hook) {
+    $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
+    if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
 
 /**
  * Implementation of hook_nodeapi().
@@ -93,7 +106,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
  switch ($op) {
     case 'view':
-      wallydefault_packagepopulate($node,$op);
+      wallycontenttypes_packagepopulate($node,$op);
       break;
       
       //@todo: move to wallycontenttypes
@@ -101,18 +114,256 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     if($node->type == 'wally_articlepackage' || 
        $node->type == 'wally_gallerypackage' ||
        $node->type == 'wally_pollpackage')
-        _wallydefault_addtaxonomywheninserted($node);
+        _wallycontenttypes_addtaxonomywheninserted($node);
 		elseif( $node->type == 'wally_textobject' ||
             $node->type == 'wally_audioobject' ||
             $node->type == 'wally_digitalobject' || 
             $node->type == 'wally_photoobject' || 
             $node->type == 'wally_videoobject' ||
             $node->type == 'wally_pollobject')
-			       _wallydefault_addtaxonomywhenupdated($node);
+			       _wallycontenttypes_addtaxonomywhenupdated($node);
             break;
  	}
 }
 
+
+/** 
+ * Load related nodes into package object via nodepi - "op view". 
+ * 
+ * When a Wally specific node is loaded, this hook will load all the extra 
+ * nodes from all the node reference fields.
+ * 
+ * Specific wally fields supported:
+ *  
+ * - NID (node reference) specific link ( NODE -> NODE ).
+ *   - field_mainstory: Load the Mainstory text node. Load extra "types" into mainstory node.
+ *   - field_linkedobjects: Load all the linked objects (any type).
+ *   - field_embededobjects: Load all the embeded objects (any type).
+ * 
+ * - TID (Taxonomy field) specific link ( NODE -> TAXONOMY -> NODE ). 
+ *   - field_authors: Load the Persons content type for authors.
+ *   - field_locations: Load the Location content type for locations.
+ *   - field_entities: Load the entity content type for entities.
+ *   - field_persons: Load the Persons content type for persons.
+ *
+ * @param: &$node
+ *   The node that will be inspected for node/taxonomy reference
+ * @param: $op
+ *   Nodeapi operation
+ * @param: $a3
+ *   3rd argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
+ * @param: $a4
+ *   4th argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
+ * 
+ * @return Nothing but modify the $node
+ */
+function wallycontenttypes_packagepopulate($node,$op){
+  wallycontenttypes_fieldNID($node, $op);
+  wallycontenttypes_fieldTID($node, $op);
+  }
+
+/**
+ * Process Node Reference fields in for populate node.
+ */
+function wallycontenttypes_fieldNID(&$node, $op) {
+	foreach ($node as $field=>$value) {
+			switch($field) {
+				case "field_mainstory":
+					$node->field_mainstory_nodes = wallycontenttypes_fieldnodeload($field, $value);
+					wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0]);
+					break;
+				case "field_linkedobjects":
+					$node->field_linkedobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
+					break;
+				case "field_embededobjects":
+					$node->field_embededobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
+					break;
+			}
+	}
+	return $node;
+}
+
+/**
+ * Process Content Taxonomy fields for populate node.
+ */
+function wallycontenttypes_fieldTID(&$node) {
+  	foreach ($node as $field=>$value) {
+		switch($field) {
+			case "field_authors":
+				$node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+				break;
+			case "field_locations":	
+				$node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
+				break;
+			case "field_entities":	
+				$node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
+				break;
+			case "field_persons":
+				$node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+				break;
+		}
+	}
+	return $node;
+}
+
+/**
+ * Process all taxonomy reference and return an array of node
+ */
+function wallycontenttypes_fieldTIDload($field, $values, $type) {
+
+	$r = array();
+	$tids = array();  
+	foreach ($values as $value=>$tid2load) {
+		if ($tid2load["value"]) {
+			$tids[] = $tid2load["value"]; 
+		}
+	}
+
+  $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
+
+	foreach ($results as $value=>$node2load) {
+		if (!($r[$value] = node_load($node2load))) {
+			unset($r[$value]); 
+		}
+	}
+	return $r; 
+}
+
+
+/**
+ * Process all node reference fields and return array of node
+ */
+function wallycontenttypes_fieldnodeload($field, $values=null) {
+	$r = array(); 
+	foreach ($values as $value=>$node2load) {
+		if (!($r[$value] = node_load($node2load["nid"]))) { 
+			unset($r[$value]); 
+		}
+	} 
+	return $r; 
+}
+
+
+/**
+* Add taxonomy term from textobject to articlepackage when textobject is updated
+* 
+* Packagenode is the node who reference the current node (It can be ArticlePackage, GalleryPackage or PollPackage
+* Because we dont want the package node to update its taxonomies fwhen we saved it from
+* here, we set a speciel field: "no_taxonomy_update" to TRUE, see _wallycontenttypes_addtaxonomywheninserted(); 
+* 
+* @param $node
+*   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+* 
+* @see _wallycontenttypes_addtaxonomywheninserted()
+* 
+* @return
+*   Nothing
+*/
+function _wallycontenttypes_addtaxonomywhenupdated($node){
+ 
+			$rows =_wallycontenttypes_getpackagesid($node);
+			foreach($rows as $row){
+				$packagenode=node_load($row['nid']);
+        // Because we dont want node-save api to update
+        // taxonomies from main object. We set this
+        // field to true. 
+        $packagenode->no_taxonomy_update = TRUE; 
+				$packagenode->taxonomy = $node->taxonomy;
+				$packagenode->field_markers = $node->field_markers;
+				$packagenode->field_locations = $node->field_locations;
+				$packagenode->field_entities = $node->field_entities;
+				$packagenode->field_persons = $node->field_persons;
+				$packagenode->field_tags = $node->field_tags;
+				$packagenode->field_free_tags = $node->field_free_tags;	
+				$r = node_save($packagenode);
+			}
+	}
+
+/**
+ * Add taxonomy term of textobject to articlepackage when articlepackage is inserted or updated
+ * 
+ * objectnode is the node who is referenced by the current node
+ * (It can be TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject or PollObject)
+ * 
+ * Notice: When a mainobject is updated (we also save package node) we set the
+ * "no_taxonomy_update field" to TRUE, so we dont want to update taxonomies from
+ * the main object node. See _wallycontenttypes_addtaxonomywhenupdated();
+ * 
+ * @param $node
+ *   Node currently processed(ArticlePackage, GalleryPackage or PollPackage)
+ *
+ * @see _wallycontenttypes_addtaxonomywhenupdated
+ * 
+ * @return
+ *   Nothing
+*/
+ function _wallycontenttypes_addtaxonomywheninserted(&$node){
+
+      // When a mainobject is updated we set the
+      // no_taxonomy_update field to TRUE
+      // so we dont want to update taxonomies from
+      // the main object node. 
+      
+      
+      if (!$node->no_taxonomy_update) { 
+
+        switch ($node->type){
+          case 'wally_articlepackage':
+            $objectnode=node_load($node->field_mainstory[0]['nid']);
+            break;
+          case 'wally_gallerypackage':
+            $objectnode=node_load($node->field_mainobject[0]['nid']);
+            break;
+          case 'wally_pollpackage':
+            $objectnode=node_load($node->field_mainpoll[0]['nid']);
+            break;
+            }
+
+        if($objectnode){
+          $node->taxonomy=$objectnode->taxonomy;
+          $node->field_markers=$objectnode->field_markers;
+          $node->field_locations=$objectnode->field_locations;
+          $node->field_entities=$objectnode->field_entities;
+          $node->field_persons=$objectnode->field_persons;
+          $node->field_tags=$objectnode->field_tags;
+          $node->field_free_tags=$objectnode->field_free_tags;
+        }
+      }
+	 }
+   
+/**
+ * Get nid from packages who reference the current node
+ * 
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
+function _wallycontenttypes_getpackagesid($node){
+
+  $rows = array(); 
+  
+  if($node->type=='wally_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  return $rows;
+}
 
 /*
  * Implementation of hook_ctools_plugin_directory().
@@ -143,19 +394,6 @@ function wallycontenttypes_ctools_plugin_api($module, $api) {
   }
 }
 
-/**
- * Insert additional template suggestions to wally specific theme functions.
- * this preprocess function could be set by any hook_theme.
- *
- * @param $vars
- *   An array of variables to pass to the theme template.
- * @param $hook
- *   The name of the template being rendered.
- */
-function wally_get_tpl_suggestions(&$variables, $hook) {
-    $suggestion = get_package_suggestions($variables, $hook); 
-    if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
-}
 
 /**
  *  Implémentation du hook_preprocess_page(); 
@@ -183,24 +421,6 @@ function wallycontenttypes_preprocess_node(&$variables) {
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 } 
 
-/**
- * Extract page layout information from the node. 
- *
- * @param $node
- *   The node currently processed
- *
- * @return 
- *   The Package layout as a string or NULL.
- */
-function get_wallypackage_layout($node) {
-  if (isset($node->field_packagelayout)) {
-    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
-    $package_layout = strtolower(trim($package_layout->name));
-  } else {
-    $package_layout = NULL;
-  }
-  return $package_layout; 
-}
 
 /**
  *  Implémentation du Hook_form_alter(); 
@@ -211,7 +431,7 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
       case "wally_articlepackage_node_form":
       case "wally_gallerypackage_node_form" :
       case "wally_pollpackage_node_form":
-        _wallycontenttypes_disable_taxonomy($form, $form_state, $form_id);
+        _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
       break;
     }
   }
@@ -239,8 +459,8 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
  * @return
  *   Nothing
  */
-function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id){
-  $form['#after_build'][] = '_disable_taxonomy_after_build';
+function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
+  $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
 }
 
 /**
@@ -265,7 +485,7 @@ function _wallycontenttypes_disable_taxonomy(&$form, $form_state, $form_id){
  * @return
  *   Nothing
  */
-function _disable_taxonomy_after_build(&$form, &$form_state) {
+function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
 
  $fields = array(   "field_locations",
                     "field_markers",
@@ -279,13 +499,13 @@ function _disable_taxonomy_after_build(&$form, &$form_state) {
     
     // CCK field on the 1st level of $form
     if (isset($form[$field])) {
-      _mysnippet_fix_disabled($form[$field]);
+      _wallycontenttypes_mysnippetfixdisabled($form[$field]);
     } else {
       // Because we're in afterbuild function, fields could be already
       // relocated into cck fieldsets > $form['fiedset']['cckfield'] 
       foreach (element_children($form) as $k) {
           if (isset($form[$k][$field])) {
-            _mysnippet_fix_disabled($form[$k][$field]);
+            _wallycontenttypes_mysnippetfixdisabled($form[$k][$field]);
           }
       }
     } 
@@ -304,11 +524,11 @@ function _disable_taxonomy_after_build(&$form, &$form_state) {
 * @return
 *   Nothing
 */
-function _mysnippet_fix_disabled(&$elements) {
+function _wallycontenttypes_mysnippetfixdisabled(&$elements) {
   if ($elements["#type"]!="content_taxonomy_tree") {
     foreach (element_children($elements) as $key) {
       if (isset($elements[$key]) && $elements[$key]) {
-        _mysnippet_fix_disabled($elements[$key]);
+        _wallycontenttypes_mysnippetfixdisabled($elements[$key]);
       }
     }
     if (!isset($elements['#attributes'])) {
@@ -317,7 +537,7 @@ function _mysnippet_fix_disabled(&$elements) {
     $elements['#attributes']['disabled'] = 'disabled';
   } else {
     foreach (element_children($elements['value']['#elements']) as $key) {
-      _mysnippet_disabled_taxonomy_tree($elements['value']['#elements'][$key]);
+      _wallycontenttypes_mysnippetdisabledtaxonomytree($elements['value']['#elements'][$key]);
     }
  }
 }
@@ -332,12 +552,12 @@ function _mysnippet_fix_disabled(&$elements) {
  * @return
  *   Nothing
  */
-function _mysnippet_disabled_taxonomy_tree(&$elements) {
+function _wallycontenttypes_mysnippetdisabledtaxonomytree(&$elements) {
   foreach (element_children($elements) as $k) {
     $elements[$k]['#attributes']['disabled'] = 'disabled';
     if ($k=='children') {
       foreach (element_children($elements[$k]) as $key) {
-        _mysnippet_disabled_taxonomy_tree($elements[$k][$key]);
+        _wallycontenttypes_mysnippetdisabledtaxonomytree($elements[$k][$key]);
       }
     }
   }
