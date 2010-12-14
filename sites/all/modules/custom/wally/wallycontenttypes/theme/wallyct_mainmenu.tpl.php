@@ -12,6 +12,7 @@ if (!function_exists('wallyct_mainmenu_tree_output')) {
  */
 function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firstpass=1) {
 
+
     drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/superfish/superfish.css', 'theme');
     drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/hoverIntent.js', 'theme');
     drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/superfish.js','theme');
@@ -26,18 +27,23 @@ function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firs
     $output = '';
 
     foreach ($tree as $data) {
-      // if extra class set, add to the menu item.
-      $extra_class = isset($data['link']['localized_options']['extra class']) ? $data['link']['localized_options']['extra class'] : NULL;
-      // Get correct link for item.
-      $link = wallyct_mainmenu_menu_item_link($data['link']);
-      // is there any sub-menu? 
-      if ($data['below']) {
-        $sub_menu = wallyct_mainmenu_tree_output($data['below'], "", $firstpass+1);
-        $output .= theme_wallyct_mainmenu_item($link, $data['link']['has_children'], $sub_menu, $data['link']['in_active_trail'], $extra_class);
+
+      // hidden entry?
+      if (!$data['link']['hidden']) {
+       // if extra class set, add to the menu item.
+        $extra_class = isset($data['link']['localized_options']['extra class']) ? $data['link']['localized_options']['extra class'] : NULL;
+        // Get correct link for item.
+        $link = wallyct_mainmenu_menu_item_link($data['link']);
+        // is there any sub-menu? 
+        if ($data['below']) {
+          $sub_menu = wallyct_mainmenu_tree_output($data['below'], "", $firstpass+1);
+          $output .= theme_wallyct_mainmenu_item($link, $data['link']['has_children'], $sub_menu, $data['link']['in_active_trail'], $extra_class);
+        }
+        else {
+          $output .= theme_wallyct_mainmenu_item($link, $data['link']['has_children'], '', $data['link']['in_active_trail'], $extra_class);
+        }
       }
-      else {
-        $output .= theme_wallyct_mainmenu_item($link, $data['link']['has_children'], '', $data['link']['in_active_trail'], $extra_class);
-      }
+ 
     }
     
     if ($firstpass==1) {
