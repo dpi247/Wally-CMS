@@ -431,10 +431,10 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
     //fetch the data from the DB
     $result = db_query('SELECT *
                         FROM {node} n
-                        LEFT JOIN {content_field_destination} dest ON dest.nid=n.nid
-                        WHERE dest.field_destination_tid=%d
-                        AND dest.field_destination_target="%s"
-                        ORDER BY dest.field_destination_time_rank ASC',$destination_tid,$target);
+                        LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+                        WHERE dest.field_destinations_tid=%d
+                        AND dest.field_destinations_target="%s"
+                        ORDER BY dest.field_destinations_time_rank ASC',$destination_tid,$target);
 
    // $form['rows']=array('#tree'=>true);
     $form=array("#tree"=>true);
@@ -444,7 +444,7 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
       $data = array(
         $row->nid,
         $row->title,
-        $row->field_destination_time_rank
+        $row->field_destinations_time_rank
       );
       //add our static "row" data into a form value
       $form['rows'][$row->nid]['data']=array(
@@ -456,7 +456,7 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
       //NOTE how we add the id into the element key
       $form['rows'][$row->nid]['weight']=array(
         '#type'=>'textfield',
-        '#default_value'=>$row->field_destination_time_rank,
+        '#default_value'=>$row->field_destinations_time_rank,
         //add a specific class in here - we need this later
         '#attributes' => array('class'=>'weight'),
         '#delta'=>10
@@ -490,7 +490,7 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
   
   foreach($form_state['values']['rows'] as $key=>$data){
     //we are only interested in weight elements
-      db_query("UPDATE {content_field_destination} SET field_destination_time_rank=%d WHERE nid=%d and field_destination_tid=%d and field_destination_target='%s'",$data['weight'],$key,$form_state['values']['destination_tid'],$form_state['values']['target']);
+      db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'",$data['weight'],$key,$form_state['values']['destination_tid'],$form_state['values']['target']);
     
   }
   //optionally set the redirect value in form_submit ...

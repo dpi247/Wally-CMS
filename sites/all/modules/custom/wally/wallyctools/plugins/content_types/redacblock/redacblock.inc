@@ -290,9 +290,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       'label' => '',
     ),
     'case' => 1,
-    'id' => 'field_destination_target',
-    'table' => 'node_data_field_destination',
-    'field' => 'field_destination_target',
+    'id' => 'field_destinations_target',
+    'table' => 'node_data_field_destinations',
+    'field' => 'field_destinations_target',
     'relationship' => 'none',
     );
   
@@ -311,7 +311,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   //$view->display_handler->get_handlers('argument')
   //
   
-    $view->add_item($view_id, 'filter', 'node_data_field_destination', 'field_destination_target', $options);
+    $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
     $view->is_cacheable = FALSE;
     //init handler should be placed after add_item !!!
     $view->init_handlers();
