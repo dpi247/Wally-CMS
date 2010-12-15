@@ -290,9 +290,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       'label' => '',
     ),
     'case' => 1,
-    'id' => 'field_testdes_target',
-    'table' => 'node_data_field_testdes',
-    'field' => 'field_testdes_target',
+    'id' => 'field_destination_target',
+    'table' => 'node_data_field_destination',
+    'field' => 'field_destination_target',
     'relationship' => 'none',
     );
   
@@ -311,11 +311,10 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   //$view->display_handler->get_handlers('argument')
   //
   
-    $view->add_item($view_id, 'filter', 'node_data_field_testdes', 'field_testdes_target', $options);
+    $view->add_item($view_id, 'filter', 'node_data_field_destination', 'field_destination_target', $options);
     $view->is_cacheable = FALSE;
     //init handler should be placed after add_item !!!
     $view->init_handlers();
-  
     
     // $view->display[$view_id]->handler->handlers['filter']['t']=$options;
  // dsm($view->display[$view_id]->handler);//->override_option('filters',$options);
@@ -393,7 +392,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-
+dsm($args);
   $view->set_arguments($args);
 
   
@@ -448,6 +447,10 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       $view->display_handler->set_option('offset', $conf['offset']);
     }
   }
+  
+  dsm($view->display_handler);
+  
+  
   $stored_feeds = drupal_add_feed();
   $block->content = $view->preview();
   $block->title = $view->get_title();

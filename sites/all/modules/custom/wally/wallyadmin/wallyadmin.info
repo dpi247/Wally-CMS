@@ -11,3 +11,4 @@ project = "Wally"
 datestamp = "1282573770"
 
 dependencies[] = admin
+dependencies[] = wallytoolbox

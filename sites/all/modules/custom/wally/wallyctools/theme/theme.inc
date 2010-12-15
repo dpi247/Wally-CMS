@@ -23,6 +23,33 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
   
 }
 
+function wallyctools_views_admin_links_alter(&$vars,$view){
+  dsm($vars);
+  dsm($view->display_handler->handlers['filter']);
+  $handlers=$view->display_handler->handlers;
+foreach($handlers['argument'] as $key=>$value){
+    if($key=='field_destination_tid'){
+      $destination_tid=$value->value[0];
+      break;
+    }
+  }
+foreach($handlers['filter'] as $key=>$value){
+    if($key=='field_destination_target'){
+      dsm($value);
+      $target=$value->value;
+      break;
+    }
+  }
+  $vars['admin_links_raw'] = array(
+        'title' => t('Reorder'),
+        'alt' => t("Reorder the view"),
+        'href' => "wallyctools/reorder/$destination_tid/$target",
+        'fragment' => 'views-tab-' . $view->current_display,
+        'query' => drupal_get_destination(),
+      );
+}
+
+  
 
 
 /**
@@ -71,3 +98,35 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
     $vars['comments'] = comment_render($node);
   }
 }
+
+
+function theme_wallyctools_form_reorderdestinationview_form($form){
+    //loop through each "row" in the table array
+    foreach($form['rows'] as $id => $row){
+      //we are only interested in numeric keys
+      if (intval($id)){ 
+        $this_row = $row['data']['#value'];
+
+        //Add the weight field to the row
+        $this_row[] = drupal_render($form['rows'][$id]['weight']);
+  
+        //Add the row to the array of rows
+        $table_rows[] = array('data'=>$this_row, 'class'=>'draggable');
+      }
+    }
+   
+    //Make sure the header count matches the column count
+    $header=array(
+      "","title   ","time rank    " ,"Order"
+    );
+
+    $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
+    $output .= drupal_render($form);
+
+    // Call add_tabledrag to add and setup the JS for us
+    // The key thing here is the first param - the table ID
+    // and the 4th param, the class of the form item which holds the weight
+    drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,FALSE);     
+
+    return $output;
+  }

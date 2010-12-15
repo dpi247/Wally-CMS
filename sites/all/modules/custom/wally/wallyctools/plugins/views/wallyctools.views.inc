@@ -16,7 +16,7 @@ function wallyctools_views_plugins() {
   return array(
     'display' => array(
       'redacblock' => array(
-        'title' => t('Redac block'),
+        'title' => t('Destination block'),
         'help' => t('TODO....'),
         'handler' => 'wallyctools_plugin_display_panel_pane',
         'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
@@ -49,7 +49,7 @@ function wallyctools_views_plugins() {
     */
   'row' => array( //declare the unformatted row plugin
       'redacblock_row' => array(
-        'title' => t('Redacblock Row'),
+        'title' => t('Destination block Row'),
         'help' => t('(Displays the node according to the layout of his destination.'),
         'path' =>  drupal_get_path('module', 'wallyctools') . '/plugins/views',
         'handler' => 'wallyctools_views_plugin_row_redacblock',

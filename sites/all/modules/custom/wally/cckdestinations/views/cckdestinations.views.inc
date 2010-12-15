@@ -26,6 +26,9 @@ function cckdestinations_views_handlers() {
       'cckdestinations_views_handler_argument_rank' => array(
         'parent' => 'views_handler_argument',
       ),
+      'cckdestinations_views_handler_argument_time_rank' => array(
+        'parent' => 'views_handler_argument',
+      ),
       
       'cckdestinations_views_handler_filter_tid' => array(
         'parent' => 'views_handler_filter_term_node_tid',
@@ -37,6 +40,9 @@ function cckdestinations_views_handlers() {
         'parent' => 'views_handler_filter_string',
       ),
       'cckdestinations_views_handler_filter_rank' => array(
+        'parent' => 'views_handler_filter_string',
+      ),
+       'cckdestinations_views_handler_filter_time_rank' => array(
         'parent' => 'views_handler_filter_string',
       ),
       ),
@@ -88,6 +94,10 @@ function cckdestinations_views_content_field_data($field) {
       'allow_empty' => TRUE,
     ),
   );
+  
+  
+  
+  
   // Build out additional views data for the cckdestinations "tid" field.
   $data[$table_alias][$field['field_name'] .'_tid'] = array(
     'group' => t('Destinations'),
@@ -150,7 +160,37 @@ function cckdestinations_views_content_field_data($field) {
       'allow_empty' => TRUE,
     ),
   );
-  
+     // Build out additional views data for the cckdestinations "rank" field.
+  $data[$table_alias][$field['field_name'] .'_time_rank'] = array(
+    'group' => t('Destinations'),
+    'title' => t('@label time_rank', array('@label' => t($field_types[$field['type']]['label']))) .': '. t($field['widget']['label']) .' ('. $field['field_name'] .')',
+    'help' =>  $data[$table_alias][$field['field_name'] .'_tid']['help'],
+      'argument' => array(
+      'field' => $db_info['columns']['time_rank']['column'],
+      'tablename' => $db_info['table'],
+      'handler' => 'cckdestinations_views_handler_argument_time_rank',
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
+    ),
+    'filter' => array(
+      'field' => $db_info['columns']['time_rank']['column'],
+      'title' => t('@label time_rank', array('@label' => t($field_types[$field['type']]['label']))) .': '. t($field['widget']['label']),
+      'tablename' => $db_info['table'],
+      'handler' => 'cckdestinations_views_handler_filter_time_rank',
+      'additional fields' => array(),
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
+    ),
+    'sort' => array(
+      'field' => $db_info['columns']['time_rank']['column'],
+      'tablename' => $db_info['table'],
+      'handler' => 'content_handler_sort',
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
+    ),
+  );
      // Build out additional views data for the cckdestinations "layout" field.
   $data[$table_alias][$field['field_name'] .'_layout'] = array(
     'group' => t('Destinations'),

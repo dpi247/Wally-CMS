@@ -68,7 +68,8 @@ function cckdestinations_field_settings( $op, $field ){
       $columns['tid'] = array('type' => 'int', 'length' => 10, 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
       $columns['target'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
       $columns['layout'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
-      $columns['rank'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
+      $columns['rank'] = array('type' => 'int', 'size' => 'normal', 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
+      $columns['time_rank'] = array('type' => 'int', 'size' => 'normal', 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
       return $columns;
       break;
     case 'views data':
@@ -92,6 +93,15 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
         }
       }
       break;
+    case 'presave':
+    dsm($node);
+    dsm($items);
+  foreach ($items as $delta => $item) {
+          $items[$delta]['time_rank'] = ($item[ 'time_rank' ]!=NULL)?check_plain($item[ 'time_rank' ]):strtotime($node->field_publicationdate[0]['value']);
+      }
+          dsm($items);
+      
+    break;
   }
 }
 
@@ -99,7 +109,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  if (empty($item['tid']) && empty($item['taaget']) & empty($item['layout'])& empty($item['rank'])) {
+  if (empty($item['tid']) && empty($item['target']) & empty($item['layout'])& empty($item['rank'])) {
     return TRUE;
   }    
   return FALSE;
@@ -200,6 +210,13 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#default_value' => $defaults['rank'],
     '#options'=>array(''=>'',1=>"Rank 1",2=>"Rank 2",3=>"Rank 3",4=>"Rank 4",5=>"Rank 5",),
     '#classes'=>array(''=>'',1=>"Class R1",2=>"Class R2",3=>"Class R3",4=>"Class R4",5=>"Class R5",),
+    '#required'=>FALSE,
+    '#weight' => 5,
+  );
+   $element['time_rank'] = array(
+    '#title' => t( 'Rank' ),
+    '#type' => 'value',
+    '#value' => $defaults['time_rank'],
     '#required'=>FALSE,
     '#weight' => 5,
   );

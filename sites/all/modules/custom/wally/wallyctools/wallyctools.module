@@ -14,6 +14,17 @@
  */
 
 
+function wallyctools_menu(){
+
+  return array(
+    'wallyctools/reorder/%/%'=>array(
+      'page callback'=>'wallyctools_page_reorderdestinationview',
+      'page arguments'=>array(2,3),
+      'access arguments'=>'reorder destination views',
+    ),
+  );
+
+}
 
 
 
@@ -45,6 +56,7 @@ function wallyctools_preprocess_node(&$vars) {
 function wallyctools_perm() {
   return array(
     'administer wallyctools',
+    'reorder destination views'
   );
 }
 
@@ -397,9 +409,89 @@ function wallyctools_get_redacblock_panes(){
 
 function wallyctools_theme() {
   $path = drupal_get_path('module', 'wallyctools');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
   require_once "./$path/theme/theme.inc";
   return array(
+    'wallyctools_form_reorderdestinationview_form'=>$base+array(
+      'arguments'=>array('form'=>array()),
+    ),
     
   );
 }
 
+
+function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=NULL){
+  return drupal_get_form('wallyctools_form_reorderdestinationview_form',$destination_tid,$target);
+}
+function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
+    //fetch the data from the DB
+    $result = db_query('SELECT *
+                        FROM {node} n
+                        LEFT JOIN {content_field_destination} dest ON dest.nid=n.nid
+                        WHERE dest.field_destination_tid=%d
+                        AND dest.field_destination_target="%s"
+                        ORDER BY dest.field_destination_time_rank ASC',$destination_tid,$target);
+
+   // $form['rows']=array('#tree'=>true);
+    $form=array("#tree"=>true);
+    $i=0;
+    while ($row = db_fetch_object($result)){
+      //create a partial table row containing the data from the table
+      $data = array(
+        $row->nid,
+        $row->title,
+        $row->field_destination_time_rank
+      );
+      //add our static "row" data into a form value
+      $form['rows'][$row->nid]['data']=array(
+                                   '#type' => 'value',
+                                   '#value' => $data
+                                 );
+
+      //now create the weight form element. 
+      //NOTE how we add the id into the element key
+      $form['rows'][$row->nid]['weight']=array(
+        '#type'=>'textfield',
+        '#default_value'=>$row->field_destination_time_rank,
+        //add a specific class in here - we need this later
+        '#attributes' => array('class'=>'weight'),
+        '#delta'=>10
+      );
+      
+      $i++;
+    }   
+    $form['destination_tid']=array(
+      '#type'=>'value',
+      '#value'=>$destination_tid,
+    );
+     $form['target']=array(
+      '#type'=>'value',
+      '#value'=>$target,
+    );
+    
+    //Don't forget the submit button
+    $form['submit']=array(
+      '#type'=>'submit',
+      '#value'=>t('Save changes'),
+    );
+
+  return $form;
+  
+
+}
+
+function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state) {
+  dsm($form_state['values']); 
+  dsm($form['rows']);
+  
+  foreach($form_state['values']['rows'] as $key=>$data){
+    //we are only interested in weight elements
+      db_query("UPDATE {content_field_destination} SET field_destination_time_rank=%d WHERE nid=%d and field_destination_tid=%d and field_destination_target='%s'",$data['weight'],$key,$form_state['values']['destination_tid'],$form_state['values']['target']);
+    
+  }
+  //optionally set the redirect value in form_submit ...
+}
