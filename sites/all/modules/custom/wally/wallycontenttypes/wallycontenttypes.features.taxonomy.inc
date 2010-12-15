@@ -17,10 +17,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_authors',
       'weight' => '0',
       'nodes' => array(
+        'wally_persontype' => 'wally_persontype',
+        'wally_pollpackage' => 'wally_pollpackage',
         'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_articlepackage' => 'wally_articlepackage',
-        'wally_pollpackage' => 'wally_pollpackage',
-        'wally_persontype' => 'wally_persontype',
       ),
     ),
     'destination_path' => array(
@@ -28,7 +28,7 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'description' => '',
       'help' => '',
       'relations' => '1',
-      'hierarchy' => '1',
+      'hierarchy' => '0',
       'multiple' => '0',
       'required' => '1',
       'tags' => '0',
@@ -49,9 +49,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_documenttype',
       'weight' => '0',
       'nodes' => array(
+        'wally_pollpackage' => 'wally_pollpackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'editions' => array(
@@ -80,10 +80,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_entities',
       'weight' => '0',
       'nodes' => array(
+        'wally_pollpackage' => 'wally_pollpackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_entitytype' => 'wally_entitytype',
         'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'keywords' => array(
@@ -98,9 +98,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_keywords',
       'weight' => '0',
       'nodes' => array(
+        'wally_pollpackage' => 'wally_pollpackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'locations' => array(
@@ -115,10 +115,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_locations',
       'weight' => '0',
       'nodes' => array(
-        'wally_articlepackage' => 'wally_articlepackage',
         'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_locationtype' => 'wally_locationtype',
         'wally_pollpackage' => 'wally_pollpackage',
+        'wally_locationtype' => 'wally_locationtype',
+        'wally_articlepackage' => 'wally_articlepackage',
       ),
     ),
     'persons' => array(
