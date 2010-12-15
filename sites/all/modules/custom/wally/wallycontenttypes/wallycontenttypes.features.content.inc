@@ -55,7 +55,7 @@ function wallycontenttypes_content_default_fields() {
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Authors',
-      'weight' => '1',
+      'weight' => '17',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -286,7 +286,7 @@ function wallycontenttypes_content_default_fields() {
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'EmbargoDateTime',
-      'weight' => '3',
+      'weight' => '19',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -355,7 +355,7 @@ function wallycontenttypes_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'EmbededObjects',
-      'weight' => '11',
+      'weight' => '18',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -582,7 +582,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Free Access',
-      'weight' => '6',
+      'weight' => '22',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
@@ -654,7 +654,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Linked Objects',
-      'weight' => '12',
+      'weight' => '19',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -785,7 +785,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Main Story',
-      'weight' => '10',
+      'weight' => '17',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -1180,7 +1180,7 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Package Authors',
-      'weight' => '2',
+      'weight' => '18',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -1242,6 +1242,56 @@ Free',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_packagelayout
+  $fields['wally_articlepackage-field_packagelayout'] = array(
+    'field_name' => 'field_packagelayout',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 0,
+    'vid' => '3',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Package Layout',
+      'weight' => '20',
+      'description' => 'Layout of rendred package. Will be used for templating.',
+      'type' => 'content_taxonomy_select',
+      'module' => 'content_taxonomy_options',
     ),
   );
 
@@ -1420,7 +1470,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'Publication Date',
-      'weight' => '5',
+      'weight' => '21',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -1607,7 +1657,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'UnpublishDate',
-      'weight' => '4',
+      'weight' => '20',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -4926,7 +4976,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'EmbededObjects',
-      'weight' => '68',
+      'weight' => '67',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -5922,6 +5972,56 @@ Free',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_packagelayout
+  $fields['wally_gallerypackage-field_packagelayout'] = array(
+    'field_name' => 'field_packagelayout',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 0,
+    'vid' => '3',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Package Layout',
+      'weight' => '68',
+      'description' => 'Layout of rendred package. Will be used for templating.',
+      'type' => 'content_taxonomy_select',
+      'module' => 'content_taxonomy_options',
     ),
   );
 
@@ -12025,6 +12125,56 @@ Free',
     ),
   );
 
+  // Exported field: field_packagelayout
+  $fields['wally_pollpackage-field_packagelayout'] = array(
+    'field_name' => 'field_packagelayout',
+    'type_name' => 'wally_pollpackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 0,
+    'vid' => '3',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Package Layout',
+      'weight' => '10',
+      'description' => 'Layout of rendred package. Will be used for templating.',
+      'type' => 'content_taxonomy_select',
+      'module' => 'content_taxonomy_options',
+    ),
+  );
+
   // Exported field: field_persons
   $fields['wally_pollpackage-field_persons'] = array(
     'field_name' => 'field_persons',
@@ -15336,6 +15486,7 @@ Free',
   t('ObjectID ');
   t('Package Authors');
   t('Package Description ');
+  t('Package Layout');
   t('PackageID');
   t('PersonBirthDate');
   t('PersonEmail');
