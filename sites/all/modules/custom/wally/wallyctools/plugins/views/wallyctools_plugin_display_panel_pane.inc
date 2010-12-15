@@ -81,7 +81,7 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
     
     
     $categories['panel_pane'] = array(
-      'title' => t('Redac block settings'),
+      'title' => t('Destination block settings'),
     );
 
     $pane_title = $this->get_option('pane_title');

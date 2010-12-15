@@ -3,3 +3,4 @@ name = Wally Content Taxonomy
 package = Wally
 core = 6.x
 dependencies[] = features
+dependencies[] = wallytoolbox
