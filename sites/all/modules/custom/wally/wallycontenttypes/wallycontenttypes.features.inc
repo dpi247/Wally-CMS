@@ -37,6 +37,10 @@ function wallycontenttypes_content_taxonomy_mapping() {
       'field_name' => 'field_packageauthors',
       'vocabulary' => 'authors',
     ),
+    'field_packagelayout-documenttype' => array(
+      'field_name' => 'field_packagelayout',
+      'vocabulary' => 'documenttype',
+    ),
     'field_persons-persons' => array(
       'field_name' => 'field_persons',
       'vocabulary' => 'persons',
