@@ -117,7 +117,7 @@ function theme_wallyctools_form_reorderdestinationview_form($form){
    
     //Make sure the header count matches the column count
     $header=array(
-      "","title   ","time rank    " ,"Order"
+      "nid            ","title   ","time rank    " 
     );
 
     $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
