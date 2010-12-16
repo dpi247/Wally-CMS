@@ -154,19 +154,17 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
    
   $vocabulary_id=variable_get('wallymport_destinationpath', 0);
   $options_and_classe=cckdestinations_get_classes_and_options();
-  dsm(rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr);
-  dsm($options_and_classe);
+
   $element['tid'] = array(
     '#title' => t( 'Destination Path' ),
     '#type' => 'select',
     '#default_value' => $defaults['tid'],
- //   '#name' => 'tid',
     '#options'=>$options_and_classe['tid']['#options'],
     
     '#required'=>FALSE,
     '#weight' => 1,
      // specify theming callback & add a new #attribute to the element.
-    //'#theme' => 'cckdestinations_cascading_select',
+    '#theme' => 'cckdestinations_cascading_select',
     '#attributes' => array('class' => 'tid'),
  );
 
@@ -177,7 +175,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   $element['target'] = array(
     '#title' => t( 'Target' ),
-  //  '#name' => 'target',
     '#type' => 'select',
     '#default_value' => $defaults['target'],
     '#options'=>$options_and_classe['target']['#options'],
@@ -185,12 +182,11 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'=>FALSE,
     '#weight' => 3,
      // specify theming callback & add a new #attribute to the element.
-   // '#theme' => 'cckdestinations_cascading_select',
+    '#theme' => 'cckdestinations_cascading_select',
     '#attributes' => array('class' => 'target'),
  );
   $element['layout'] = array(
     '#title' => t( 'Layout' ),
- //   '#name' => 'layout',
     '#type' => 'select',
     '#default_value' => $defaults['layout'],
     '#options'=>$options_and_classe['layout']['#options'],
@@ -198,7 +194,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'=>FALSE,
     '#weight' => 4,
      // specify theming callback & add a new #attribute to the element.
-  //'#theme' => 'cckdestinations_cascading_select',
+  '#theme' => 'cckdestinations_cascading_select',
   '#attributes' => array('class' => 'layout'),
  );
   $element['rank'] = array(
@@ -389,7 +385,7 @@ function cckdestinations_cron(){
 }
 
 function cckdestinations_api_decrement_rank(){
-      db_query("UPDATE {content_field_destinations} SET field_destinations_rank=field_destinations_rank-1 WHERE field_destinations_rank>1");
+      db_query("UPDATE {content_field_destination} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
 }
 
 /**

@@ -35,6 +35,7 @@ function wallyctools_menu(){
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_node(&$vars) {
+    
   // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
  // if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
     $vars['view'] = &$vars['node']->view;
@@ -234,7 +235,6 @@ function wallyctools_get_redac_view_options(){
 
 
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
-  dsm($form_id);
   if($form_id=='views_ui_edit_view_form'){
     wallyctools_save_views_layout($form,$form_state);
   }
@@ -296,9 +296,6 @@ function wallyctools_get_hierarchies(){
   $depth=0;
   
   $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
-  
-  dsm(tid_did_mapping);
-  dsm($tid_did_mapping);
   $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
   
   foreach($tid_did_mapping as $tid=>$did_infos){
@@ -333,8 +330,6 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
   
   foreach($terms as $term){
     $handler= wallyctools_get_active_handler($term->tid,$depth);
-    dsm(handler);
-    dsm($handler);
     $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->did,'title'=>$handler->conf['title'],'term_name'=>$term->name);
   }
   return $tid_did_mapping;
@@ -492,9 +487,6 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
     $order_by_weight[$weight]=$new_time_rank[$data['nid']];
     db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'",$new_time_rank[$data['nid']],$data['nid'],$form_state['values']['destination_tid'],$form_state['values']['target']);
   }
-  dsm($new_time_rank);
-  
   //
-  
   //optionally set the redirect value in form_submit ...
 }

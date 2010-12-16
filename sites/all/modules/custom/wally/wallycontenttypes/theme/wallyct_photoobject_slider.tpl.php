@@ -1,10 +1,11 @@
 <?php
 
     $image_base = base_path() . drupal_get_path('module', 'wallycontenttypes') . '/images/slider/';
+    $nid = $node->nid; 
 
     $js = "
           $(document).ready(function() {
-            $('.slides').slides({
+            $('.slides-".$nid."').slides({
               preload: true,
               play: 5000,
               pause: 2500,
@@ -16,6 +17,7 @@
     drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/slider/slider.css');
     drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/slider/slides.min.jquery.js');
     drupal_add_js($js, 'inline');
+
 
     $result = "";
     $nbr = 1;
@@ -33,7 +35,7 @@
 
 ?>
 <div id="slide-bloc">
-			<div class="slides">
+			<div class="slides slides-<?php print $nid; ?>">
 				<div class="slides_container">
           <?php print $result; ?>
 				</div>
