@@ -1,4 +1,4 @@
-<?php
+<?php      
 // $Id: wallyctools.module,v 1.1.2.2 2010/07/23 21:47:20 merlinofchaos Exp $
 
 /**
@@ -12,10 +12,11 @@
  * scripting language. Panels utilizes this to allow administrators to add
  * styles directly to any panel display.
  */
-
-
+ 
+/*
+ * Implementation du hook menu
+ */ 
 function wallyctools_menu(){
-
   return array(
     'wallyctools/reorder/%/%'=>array(
       'page callback'=>'wallyctools_page_reorderdestinationview',
@@ -23,11 +24,7 @@ function wallyctools_menu(){
       'access arguments'=>'reorder destination views',
     ),
   );
-
 }
-
-
-
 
 /**
  * A theme preprocess function to automatically allow view-based node
@@ -39,13 +36,13 @@ function wallyctools_menu(){
  */
 function wallyctools_preprocess_node(&$vars) {
   // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
-  if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
+ // if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
     $vars['view'] = &$vars['node']->view;
     $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
-    if(!empty($vars['node']->view->current_display)) {
+   // if(!empty($vars['node']->view->current_display)) {
       $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->view_node_layout;
-    }
-  }
+    //}
+ // }
 }
 
 
