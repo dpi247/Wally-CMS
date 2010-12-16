@@ -1,10 +1,5 @@
 <?php
 
-
-
-
-
-
 /**
  * Theme preprocess function for views-view-json.tpl.php
  *
@@ -12,20 +7,15 @@
  */
 function template_preprocess_wallyctools_style_redacblock(&$vars) {
   //  $vars['rows']       = !empty($view->result) || !empty($view->style_plugin->definition['even empty']) ? $view->style_plugin->render($view->result) : '';
-  
-  
+
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
   $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
   $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
-  
-  
 }
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
-  dsm($vars);
-  dsm($view->display_handler->handlers['filter']);
   $handlers=$view->display_handler->handlers;
 foreach($handlers['argument'] as $key=>$value){
     if($key=='field_destinations_tid'){
@@ -35,7 +25,6 @@ foreach($handlers['argument'] as $key=>$value){
   }
 foreach($handlers['filter'] as $key=>$value){
     if($key=='field_destinations_target'){
-      dsm($value);
       $target=$value->value;
       break;
     }
