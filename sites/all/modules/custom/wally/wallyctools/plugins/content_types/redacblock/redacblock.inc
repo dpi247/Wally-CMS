@@ -392,7 +392,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-dsm($args);
   $view->set_arguments($args);
 
   
@@ -448,7 +447,6 @@ dsm($args);
     }
   }
   
-  dsm($view->display_handler);
   
   
   $stored_feeds = drupal_add_feed();
@@ -748,7 +746,6 @@ function wallyctools_redacblock_content_type_edit_form_validate(&$form, &$form_s
  */
 function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_state) {
   //DEFAULT SAVE OVERRIDABLE VARIABLES:
-  dsm($form_state);
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
