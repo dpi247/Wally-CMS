@@ -415,7 +415,7 @@ function wallycontenttypes_preprocess_node(&$variables) {
   $suggestion = array(); 
 
   // For all Nodes types with a destination field.
-  if (isset($variables['node']->field_testdes[0])) {
+  if (isset($variables['node']->field_destinations[0])) {
     $suggestion = get_package_suggestions(&$variables, 'node'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);

@@ -50,8 +50,8 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
   $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
 
   // For a node, destination is taken on the 1st destination. 
-  if (isset($variables['node']->field_testdes[0]['tid'])) {
-    $destinations = array($variables['node']->field_testdes[0]['tid']);
+  if (isset($variables['node']->field_destinations[0]['tid'])) {
+    $destinations = array($variables['node']->field_destinations[0]['tid']);
   }
  
   (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
@@ -90,4 +90,3 @@ function wallycontenttypes_getpackagelayout($node) {
   }
   return $package_layout; 
 }
-
