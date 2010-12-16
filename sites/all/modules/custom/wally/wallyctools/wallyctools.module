@@ -169,7 +169,7 @@ function wallyctools_views_api() {
 
 
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
-  foreach($node->field_destination as $destination_item){
+  foreach($node->field_destinationss as $destination_item){
     if($destination_item['tid']==$destination and $destination_item['target']==$target){
       return $destination_item['layout'];
     }
@@ -407,12 +407,12 @@ function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=N
 }
 function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
     //fetch the data from the DB
-    $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destination_time_rank,n.title
+    $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destinationss_time_rank,n.title
                         FROM {node} n
-                        LEFT JOIN {content_field_destination} dest ON dest.nid=n.nid
-                        WHERE dest.field_destination_tid=%d
-                        AND dest.field_destination_target="%s"
-                        ORDER BY dest.field_destination_time_rank ASC',$destination_tid,$target);
+                        LEFT JOIN {content_field_destinationss} dest ON dest.nid=n.nid
+                        WHERE dest.field_destinationss_tid=%d
+                        AND dest.field_destinationss_target="%s"
+                        ORDER BY dest.field_destinationss_time_rank ASC',$destination_tid,$target);
 
    // $form['rows']=array('#tree'=>true);
     $form=array("#tree"=>true);
@@ -422,7 +422,7 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
       $data = array(
         $row->nid,
         $row->title,
-        $row->field_destination_time_rank,
+        $row->field_destinationss_time_rank,
         $j
               );
               //add our static "row" data into a form value
@@ -443,7 +443,7 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
 
       $form['rows'][$row->nid]['time_rank']=array(
         '#type'=>'value',
-        '#value'=>$row->field_destination_time_rank,
+        '#value'=>$row->field_destinationss_time_rank,
       );
       
       $form['rows'][$row->nid]['original_weight']=array(
@@ -489,7 +489,7 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
     dsm($data);  
     $new_time_rank[$data['nid']]=max($data['time_rank'],$order_by_weight[$weight+1]['time_rank']+1);
     $order_by_weight[$weight]=$new_time_rank[$data['nid']];
-    db_query("UPDATE {content_field_destination} SET field_destination_time_rank=%d WHERE nid=%d and field_destination_tid=%d and field_destination_target='%s'",$new_time_rank[$data['nid']],$data['nid'],$form_state['values']['destination_tid'],$form_state['values']['target']);
+    db_query("UPDATE {content_field_destinationss} SET field_destinationss_time_rank=%d WHERE nid=%d and field_destinationss_tid=%d and field_destinationss_target='%s'",$new_time_rank[$data['nid']],$data['nid'],$form_state['values']['destination_tid'],$form_state['values']['target']);
   }
   dsm($new_time_rank);
   
