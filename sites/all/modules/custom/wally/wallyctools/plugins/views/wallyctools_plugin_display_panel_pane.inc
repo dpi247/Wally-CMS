@@ -220,7 +220,7 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         $form['redacblock_layout'] = array(
           '#type' => 'checkboxes',
           '#default_value' => $this->get_option('redacblock_layout'),
-          '#options'=>array('layout_system_name1'=>'Layout Name1','layout_system_name2'=>'Layout Name2','layout_system_name3'=>'Layout Name3',),
+          '#options'=>array('small'=>'Small','medium'=>'Medium','large'=>'Large',),
           '#description' => t('This is the title that will appear for this view pane in the add content dialog. If left blank, the view name will be used.'),
         );
       break;
