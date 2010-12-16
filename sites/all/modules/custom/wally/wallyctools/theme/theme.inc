@@ -17,8 +17,8 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
-  $vars['destination']=$view->display_handler->handlers['argument']['field_testdes_tid']->value[0]  ;
-  $vars['target']=$view->display_handler->handlers['filter']['field_testdes_target']->value;
+  $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
+  $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
   
   
 }
@@ -28,13 +28,13 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
   dsm($view->display_handler->handlers['filter']);
   $handlers=$view->display_handler->handlers;
 foreach($handlers['argument'] as $key=>$value){
-    if($key=='field_destination_tid'){
+    if($key=='field_destinations_tid'){
       $destination_tid=$value->value[0];
       break;
     }
   }
 foreach($handlers['filter'] as $key=>$value){
-    if($key=='field_destination_target'){
+    if($key=='field_destinations_target'){
       dsm($value);
       $target=$value->value;
       break;

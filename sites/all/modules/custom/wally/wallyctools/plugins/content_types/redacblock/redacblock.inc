@@ -263,7 +263,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   
   $view->set_display($view_id);
   $options=array(
-  'field_destination_target' => array(
+  'field_destinations_target' => array(
     'operator' => '=',
     'value' => $redacblock_name,
     'group' => '0',
@@ -273,9 +273,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       'label' => '',
     ),
     'case' => 1,
-    'id' => 'field_destination_target',
-    'table' => 'node_data_field_destination',
-    'field' => 'field_destination_target',
+    'id' => 'field_destinations_target',
+    'table' => 'node_data_field_destinations',
+    'field' => 'field_destinations_target',
     'relationship' => 'none',
     ),
   );
@@ -290,9 +290,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       'label' => '',
     ),
     'case' => 1,
-    'id' => 'field_destination_target',
-    'table' => 'node_data_field_destination',
-    'field' => 'field_destination_target',
+    'id' => 'field_destinations_target',
+    'table' => 'node_data_field_destinations',
+    'field' => 'field_destinations_target',
     'relationship' => 'none',
     );
   
@@ -311,7 +311,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   //$view->display_handler->get_handlers('argument')
   //
   
-    $view->add_item($view_id, 'filter', 'node_data_field_destination', 'field_destination_target', $options);
+    $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
     $view->is_cacheable = FALSE;
     //init handler should be placed after add_item !!!
     $view->init_handlers();
@@ -795,8 +795,8 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
 
 function redacblock_new_redacblock_form($form,$form_state){
 
-  //ctools_include('export_ui');
-  ctools_include('wallyctools', 'wallyctools','plugins');
+  ctools_include('ctools_export_ui','ctools','plugins/export_ui');
+  //ctools_include('wallyctools.ui.class', 'wallyctools','plugins/export_ui');
   
   $redacblock_export=new wallyctools_ui();
   $redacblock_export->edit_form(&$form, &$form_state);
@@ -812,6 +812,7 @@ function redacblock_new_redacblock_form($form,$form_state){
       '#type' => 'textfield',
       '#title' => t('Title'),
     );
+    /*
     $form['block']['view'] = array(
         '#type' => 'select',
         '#options'=> wallyctools_get_redac_view_options(),
@@ -825,6 +826,7 @@ function redacblock_new_redacblock_form($form,$form_state){
       '#title' => t('Use context keywords'),
       '#description' => t('If checked, context keywords will be substituted in this content.'),
     );
+    
   
 return $form;
 
