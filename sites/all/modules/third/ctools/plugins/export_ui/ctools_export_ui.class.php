@@ -1083,7 +1083,6 @@ class ctools_export_ui {
    * overridden.
    */
   function edit_form_submit(&$form, &$form_state) {
-    dsm($form);
     if (!empty($this->plugin['form']['submit'])) {
       // Pass $form by reference.
       $this->plugin['form']['submit']($form, $form_state);
