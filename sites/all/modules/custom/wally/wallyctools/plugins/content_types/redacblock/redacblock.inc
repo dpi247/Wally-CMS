@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Custom content type.
@@ -30,8 +29,6 @@ $plugin = array(
       'args' => '',
       'url' => '',
       'context'=>array(),
-
- 
   ),
   
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
@@ -98,7 +95,6 @@ function _wallyctools_default_content_type() {
     ),
  
   );
-
   return $plugin;
 }
 
@@ -123,7 +119,6 @@ function _wallyctools_redacblock_content_type($content) {
     // Store this here to make it easy to access.
     'content' => $content,
   );
-
   return $info;
 }
 
@@ -141,10 +136,8 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
     $settings['redacblock_type'] = 'fixed';
     $settings['content'] = $subtype['content'];
     $settings=array_merge($settings,$conf);
-    
   }
   else {
-    
     // This means they created it as redacblock content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
     // still stored as though we are local, but are pointing off to
@@ -241,7 +234,6 @@ function _wallyctools_views_conf(&$conf, $subtype) {
       $conf['offset'] = $view->display_handler->get_option('offset');
     }
   }
-
   return $view;
 }
 
