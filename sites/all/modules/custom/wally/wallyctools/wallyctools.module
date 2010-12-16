@@ -169,7 +169,7 @@ function wallyctools_views_api() {
 
 
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
-  foreach($node->field_testdes as $destination_item){
+  foreach($node->field_destinations as $destination_item){
     if($destination_item['tid']==$destination and $destination_item['target']==$target){
       return $destination_item['layout'];
     }
@@ -236,28 +236,6 @@ function wallyctools_get_redac_view_options(){
 }
 
 
-function wallyctools_get_redac_block_list(){
-  
-$query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
-  $results=db_query($query);
-  
-  $blocks=array();
-  while($result=db_fetch_object($results)){
-    $blocks[]=$result;
-  }
-  
-
-
-$query="Select wb.name,wb.view_id,wb.view_id,wb.view_vid,wb.comment, vd.display_title, vv.name as view_name from {wallogic_block} wb LEFT JOIN {views_view} vv ON vv.vid=wb.view_vid LEFT JOIN {views_display} AS vd ON vd.id=wb.view_id";
-  $results=db_query($query);
-  
-  $blocks=array();
-  while($result=db_fetch_object($results)){
-    $blocks[]=$result;
-  }
-  
-  return  $blocks;
-}
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
   if($form_id=='views_ui_edit_view_form'){
     wallyctools_save_views_layout($form,$form_state);

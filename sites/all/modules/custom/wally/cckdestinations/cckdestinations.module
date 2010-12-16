@@ -392,6 +392,14 @@ function cckdestinations_field_formatter_info() {
   );
 }
 
+function cckdestinations_cron(){
+  cckdestinations_api_decrement_rank();
+}
+
+function cckdestinations_api_decrement_rank(){
+      db_query("UPDATE {content_field_destinations} SET field_destinations_rank=field_destinations_rank-1 WHERE field_destinations_rank>1");
+}
+
 /**
  * Implementation of hook_theme().
  *
