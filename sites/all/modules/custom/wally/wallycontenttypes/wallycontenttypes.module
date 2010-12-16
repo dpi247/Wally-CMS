@@ -394,7 +394,6 @@ function wallycontenttypes_ctools_plugin_api($module, $api) {
   }
 }
 
-
 /**
  *  Implémentation du hook_preprocess_page(); 
  */
@@ -402,8 +401,8 @@ function wallycontenttypes_preprocess_page(&$variables) {
   $suggestion = array(); 
 
   // For all Nodes types with a destination field.
-  if (isset($variables['node']->field_destinations)) {
-    $suggestion = get_package_suggestions(&$variables, 'page'); 
+  if (isset($variables['node']->field_destinations) && false) {
+    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'page'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 } 
@@ -416,11 +415,10 @@ function wallycontenttypes_preprocess_node(&$variables) {
 
   // For all Nodes types with a destination field.
   if (isset($variables['node']->field_destinations[0])) {
-    $suggestion = get_package_suggestions(&$variables, 'node'); 
+    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'node'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
-} 
-
+}
 
 /**
  *  Implémentation du Hook_form_alter(); 
