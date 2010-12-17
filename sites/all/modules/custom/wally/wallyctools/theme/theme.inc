@@ -45,7 +45,6 @@ foreach($handlers['filter'] as $key=>$value){
 * Theme preprocess function for views-view-row-unformatted.tpl.php
 */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
-  dsm('hello dimitri');
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
