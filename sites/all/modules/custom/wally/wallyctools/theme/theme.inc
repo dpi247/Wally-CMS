@@ -49,8 +49,6 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
   
-  
-  
   $options = $vars['options'];
 
   // Make sure the variables are defined.
