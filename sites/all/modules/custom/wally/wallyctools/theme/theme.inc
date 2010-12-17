@@ -45,7 +45,7 @@ foreach($handlers['filter'] as $key=>$value){
 * Theme preprocess function for views-view-row-unformatted.tpl.php
 */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
-  
+  dsm('hello dimitri');
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
@@ -66,8 +66,8 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
   $node = node_load($nid);
 
-  $vars['destination']=$view->display_handler->handlers['argument']['field_testdes_tid']->value[0]  ;
-  $vars['target']=$view->display_handler->handlers['filter']['field_testdes_target']->value;
+  $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
+  $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
   $vars['layout']=wallyctools_api_getlayoutfromdestinationandtarget($node,$vars['destination'],$vars['target']);
   
   if (empty($node)) {
