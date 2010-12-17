@@ -35,18 +35,26 @@ function wallyctools_menu(){
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_node(&$vars) {
-    dsm( &$vars['node']);
+  $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination); 
+  $taxonomy_term_name = strtolower($taxonomy_term->name); 
+   
   // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
- // if (!empty($vars['node']->view_node_layout) && !empty($vars['node']->view->name)) {
+  if (!empty($vars['node']->node_view_layout) && !empty($vars['node']->view->name)) {
     $vars['view'] = &$vars['node']->view;
+
+    $vars['template_files'][] = 'node-view-' . $vars['node']->node_view_layout;
+    $vars['template_files'][] = 'node-view-' . $taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+
     $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
-   // if(!empty($vars['node']->view->current_display)) {
-      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->view_node_layout;
-    //}
- // }
+    $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+
+    if(!empty($vars['node']->view->current_display)) {
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->node_view_layout;
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+    }
+    
+  }
 }
-
-
 
 /**
  * Implementation of hook_perm()
