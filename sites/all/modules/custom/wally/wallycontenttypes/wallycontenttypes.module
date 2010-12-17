@@ -65,6 +65,12 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_mainstory',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_teaser' => $base + array(
+    'arguments' => array("text" => NULL, "length" => 200, "node" => NULL),
+    'template' => 'wallyct_teaser',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
 /*
     'wallyct_personslist' => $base + array(
