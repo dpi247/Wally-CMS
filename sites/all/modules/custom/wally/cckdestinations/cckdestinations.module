@@ -79,6 +79,7 @@ function cckdestinations_field_settings( $op, $field ){
   }
 }
 
+
 /**
  * Implementation of CCK hook_field().
  */
@@ -105,7 +106,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  if (empty($item['tid']) && empty($item['target']) & empty($item['layout'])& empty($item['rank'])) {
+  if (empty($item['tid'])) {
     return TRUE;
   }    
   return FALSE;
@@ -159,7 +160,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#title' => t( 'Destination Path' ),
     '#type' => 'select',
     '#default_value' => $defaults['tid'],
-    '#options'=>$options_and_classe['tid']['#options'],
+    '#options'=>array(''=>'Not Set')+$options_and_classe['tid']['#options'],
     
     '#required'=>FALSE,
     '#weight' => 1,
