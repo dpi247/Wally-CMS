@@ -38,7 +38,7 @@
     $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 
     // Linsks lists Blocks
-    $linklists = theme("wallyct_linkedobjects", $node->field_linkedobjects, $node ); 
+    $linklists = theme("wallyct_linkedobjects", $node->field_linkedobjects_nodes, $node ); 
 
     dsm("node->linkedobjects"); 
     dsm($node->linkedobjects); 
