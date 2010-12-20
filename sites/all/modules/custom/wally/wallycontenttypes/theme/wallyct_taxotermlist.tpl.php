@@ -32,6 +32,8 @@ if ($options['override_title']) {
     $title = t($options['taxonomyfield']);
   }
   
-print "aaa<h2>".$title."</h2>bbbb";
 $list = wally_tpl_taxonomyterm_li($tids);
-if ($list) print $list;
+if ($list) {
+  print "<h2>".$title."</h2>";
+  print $list;
+}
