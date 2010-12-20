@@ -55,10 +55,5 @@
 <?php print $social; ?>
 
 </div>
-
-<div class="tags">
-  <a rel="tag" href="http://bignews.blogohblog.net/tag/gaming/">Gaming</a> 
-  <a rel="tag" href="http://bignews.blogohblog.net/tag/tech/">Tech</a>
-</div>         
 <div class="clear"></div>
 
