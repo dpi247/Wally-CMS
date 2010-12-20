@@ -1,5 +1,4 @@
 <?php
-	$title = $node->title;
 	$node_path = drupal_get_path_alias("/node/".$node->nid);
 	$mainstory = $node->field_mainstory_nodes[0];
 	$story_path = drupal_get_path_alias("/node/".$mainstory->nid);
@@ -8,17 +7,12 @@
 		$tempDest['taxID'] = $destination['tid'];
 		$tempDest['tax'] = taxonomy_get_term($destination['tid']);
 		$tempDest['dest'] = $tempDest['tax']->description;
-		$tempDest['path'] = drupal_get_path_alias("/taxonomy/".$destination['tid']);
+		$tempDest['path'] = drupal_get_path_alias("/taxonomy/term/".$destination['tid']);
 		$mainDest[] = $tempDest;
 	}
 ?>
-<h1>
-	<a href="<?php print $node_path; ?>">
-		<?php print $title; ?>
-	</a>
-</h1>
 <h2>
-	<a href="<?php print $story_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
+	<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 		<?php print $mainstory->title; ?>
 	</a>
 </h2>             
