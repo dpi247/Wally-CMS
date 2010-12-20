@@ -26,7 +26,7 @@
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
-    <h2><?php print $linkedobject->title; ?></h2>
+    <h3><?php print $linkedobject->title; ?></h3>
     <ul>
       <?php
         foreach ($linkedobject->field_links_list_nodes as $link) {
