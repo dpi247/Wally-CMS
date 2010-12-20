@@ -5,10 +5,6 @@
 	// Links list
   if (!function_exists('linkURI')) {
     function linkURI($URL = '') {
-
-    dsm("URL");
-    dsm($URL);
-
       $parsedURL = array();
       $parsedURL = parse_url($URL);
       switch ($parsedURL['scheme']) {
@@ -31,6 +27,46 @@
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
+zaezaeazeaz<br/>
     <h2><?php print $linkedobject->title; ?></h2>
     <ul>
       <?php
