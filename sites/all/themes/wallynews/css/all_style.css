@@ -64,7 +64,7 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .js-hidden{display:none}
 
 /*********************Navigation Menu 1**********************/
-.access{margin:auto;width:960px;display:block;float:left;}
+.access{margin:auto;width:960px;display:block;float:left;background:#000;}
 .access .menu ul{list-style:none;margin:0;}
 .access .menu li{float:left;position:relative; font-weight:bold;}
 .access a{display:block;text-decoration:none;font-size:14px; text-transform:uppercase; padding:0 15px;line-height:34px; }
