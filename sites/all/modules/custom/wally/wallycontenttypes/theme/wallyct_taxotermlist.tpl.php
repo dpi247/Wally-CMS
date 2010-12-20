@@ -8,17 +8,14 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
     $content = "";
     foreach ($tids as $tid) {
       $term = taxonomy_get_term($tid["value"]);
-      
-      dsm("term");
-      dsm($term);
-      dsm("term");
-      
-      $taxo_path = taxonomy_term_path($term);
-      $content .= "<li>"; 
-      $content .= "<a href='".base_path().$taxo_path."'>"; 
-      $content .= $term->name;
-      $content .= "</a>"; 
-      $content .= "</li>"; 
+      if ($term) {
+        $taxo_path = taxonomy_term_path($term);
+        $content .= "<li>"; 
+        $content .= "<a href='".base_path().$taxo_path."'>"; 
+        $content .= $term->name;
+        $content .= "</a>"; 
+        $content .= "</li>"; 
+      }
     }
     if ($content!="") {
       $content = "<ul>".$content."</ul>";
