@@ -13,7 +13,7 @@ function makeSublist(parent,child,isSubselectOptional,childVal)
 			$('#'+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
 			if(isSubselectOptional) $('#'+child).prepend("<option value=''> -- Select -- </option>");
 			$('#'+child).trigger("change");
-                        $('#'+child).focus();
+      $('#'+child).focus();
 		}
 	);
 }
