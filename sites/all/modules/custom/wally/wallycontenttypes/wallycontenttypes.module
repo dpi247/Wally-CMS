@@ -72,6 +72,11 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
         
+    'wallyct_destinationlist' => $base + array(
+    'arguments' => array("destinations" => NULL, "separator" => NULL, "prefix" => NULL, "suffix" => NULL),
+    'template' => 'wallyct_destinationlist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
 
 /*

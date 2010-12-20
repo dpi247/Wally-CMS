@@ -33,13 +33,16 @@
 
     // social network icon
     $social = theme("wallyct_tofacebook", $node);
+    
+    // Destinations lists
+    $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 
 ?>
 <h3><?php print $foretitle; ?></h3>             
 <h2><a title="" rel="bookmark" href=""><?php print $title; ?></a></h2>             
 <h3><?php print $subtitle; ?></h3>             
              
-<div class="date">Published on ### ## #####<span> // <a rel="category tag" title="View all posts in Featured" href="http://bignews.blogohblog.net/category/featured/">Featured</a>, <a rel="category tag" title="View all posts in Technology" href="http://bignews.blogohblog.net/category/technology/">Technology</a></span></div>        
+<div class="date">Published on ### ## #####<span> // <?php print $destination_term; ?>
 
 <div class="content">
    

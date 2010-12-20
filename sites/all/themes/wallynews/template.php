@@ -10,7 +10,6 @@ function wallynews_preprocess_page(&$vars) {
   $vars['styles'] = drupal_get_css();
 }
 
-
 /**
  * Generates IE CSS links for LTR and RTL languages.
  */
