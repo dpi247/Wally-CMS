@@ -4,6 +4,10 @@
 
 	// Links list
   if (!function_exists('linkURI')) {
+    
+    dsm("URL");
+    dsm($URL);
+     
     function linkURI($URL = '') {
       $parsedURL = array();
       $parsedURL = parse_url($URL);
