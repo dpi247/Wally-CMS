@@ -32,7 +32,7 @@ function wallycontenttypes_install() {
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
       $imagecacheaction->module = 'imagecache';
       $imagecacheaction->action = 'imagecache_scale_and_crop';
-      $imagecacheaction->data = array('width' => '200', 'height' => '200' );
+      $imagecacheaction->data = array('width' => '270', 'height' => '200' );
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
 }
