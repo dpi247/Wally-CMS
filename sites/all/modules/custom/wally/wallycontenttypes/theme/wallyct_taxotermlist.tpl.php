@@ -8,7 +8,6 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
     $content = "";
     foreach ($tids as $tid) {
 
-  
       $t = taxonomy_get_term($tid["value"]);
       $taxo_path = taxonomy_term_path($t);
 
@@ -18,8 +17,12 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
       $content .= "</a>"; 
       $content .= "</li>"; 
     }
-    $content = "<ul>".$content."</ul>";
-    return $content; 
+    if ($content!="") {
+      $content = "<ul>".$content."</ul>";
+      return $content; 
+    } else {
+      return NULL; 
+    }
   }
 }
 
