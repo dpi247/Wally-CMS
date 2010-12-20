@@ -37,6 +37,8 @@
     // Destinations lists
     $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 
+    // Linsks lists Blocks
+    $linklists = theme("wallyct_linkedobjects", $node->linkedobjects, $node ); 
 ?>
 <h3><?php print $foretitle; ?></h3>             
 <h2><a title="" rel="bookmark" href=""><?php print $title; ?></a></h2>             
@@ -47,11 +49,10 @@
 <div class="content">
    
 <?php  print $photo_gallery; ?>
-
 <?php print $body; ?>
-                        
-<!-- <?php print $social; ?> -->
-
+<?php print $social; ?>
 </div>
 <div class="clear"></div>
 
+
+<div class="clear"></div>
