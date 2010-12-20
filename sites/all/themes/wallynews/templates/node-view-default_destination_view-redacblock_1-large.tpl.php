@@ -33,6 +33,7 @@
     print $main_image;
     print "</a>";
   }
+?>
 <?php
 		if (isset($mainstory->field_textchapo[0]['value'])) {
 			print $mainstory->field_textchapo[0]['value'];
