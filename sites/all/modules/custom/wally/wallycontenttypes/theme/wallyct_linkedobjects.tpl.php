@@ -24,10 +24,16 @@ qdjhfjdhkfjhdlfhsdfjlkhsdqlfjhsdqlkjfhqsjfhqsljkfhqsjklfhqsdlkfhqsdlkjfhdsqlkfqs
     }
   }
 
+  
+
 ?>
 <?php
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
+
+dsm("linkedobject");
+dsm($linkedobject);
+
 ?>
 zaezaeazeaz<br/>
 zaezaeazeaz<br/>
