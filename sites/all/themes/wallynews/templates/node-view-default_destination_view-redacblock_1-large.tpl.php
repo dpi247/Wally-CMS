@@ -27,7 +27,7 @@
 	Publié le <?php print date('d M Y', $mainstory->created) ?>
 	<span> // <?php print $destination_term; ?></span>
 </div> 
-<div class="archivecontent">
+<div class="archivecontent" style="min-height: 200px;">
 <?php if ($main_image) { 
     print "<a href='".$node_path."' rel='main story title' title='".$mainstory->title."'>";
     print $main_image;
