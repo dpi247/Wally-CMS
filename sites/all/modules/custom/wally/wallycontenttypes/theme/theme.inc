@@ -90,3 +90,4 @@ function wallycontenttypes_getpackagelayout($node) {
   }
   return $package_layout; 
 }
+

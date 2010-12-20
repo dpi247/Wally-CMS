@@ -17,21 +17,23 @@
             <h1><a href="<?php print check_url($front_page); ?>">Wally News</a></h1>
             <h2>Publishing getting better!</h2>
             <div class="bannertop">
+                <!--
                 <a href="#">
-                  <img src="#" alt="#" border="0">
-                </a>       
+                  <img src="#" alt="#" border="0" >
+                </a>   
+                -->    
             </div>
                     
             <div class="toplinks">
               <!-- <a href="#">Login</a> | <a href="#"> Contact</a> -->
             </div>
             
-            <div class="todaydate"><!-- ### today date ### --></div>
+            <div class="todaydate"><?php print $today = date("F j, Y") ?></div>
 
             <div class="topsearch">
                 <form action="#" method="get">
                 <input value="Search..." name="s" id="ls" class="searchfield" onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" type="text">
-                <input src="mediastore/search.png" value="submit" style="vertical-align: middle;" type="image">
+                <input src="<?php print $theme_path ?>/mediastore/search.png" value="submit" style="vertical-align: middle;" type="image">
                 </form>
             </div>
             <!--topsearch -->
@@ -78,7 +80,7 @@
     </div><!--container-->
 
     <div class="footer">
-      <div class="copyright">Copyright © #### <a href="#">Wally News</a></div>
+      <div class="copyright">Copyright © 2010 - <a href="#">Wally News</a></div>
       <div class="designby">Powered by <a href="http://www.drupal.org/">Drupal</a> | Wally News Theme by <a href="#" title="#">Exxodus</a></div>
       <div class="clear"></div>
     </div>

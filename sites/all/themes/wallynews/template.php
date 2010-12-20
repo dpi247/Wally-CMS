@@ -7,6 +7,7 @@ function wallynews_preprocess_page(&$vars) {
   $vars['sf_secondarymenu'] = theme("wallyct_mainmenu", 'secondary-links', 'menu-secondary-links');
   $vars['scripts'] = drupal_get_js();
   $vars['styles'] = drupal_get_css();
+  $vars['theme_path'] = base_path() .'/'. path_to_theme();
 }
 
 /**
