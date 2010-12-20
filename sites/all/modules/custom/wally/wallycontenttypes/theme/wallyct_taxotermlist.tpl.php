@@ -7,13 +7,15 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
   function wally_tpl_taxonomyterm_li($tids) {
     $content = "";
     foreach ($tids as $tid) {
-
-      $t = taxonomy_get_term($tid["value"]);
-      $taxo_path = taxonomy_term_path($t);
-
+      $term = taxonomy_get_term($tid["value"]);
+      
+      dsm("term");
+      dsm($term);
+      
+      $taxo_path = taxonomy_term_path($term);
       $content .= "<li>"; 
       $content .= "<a href='".base_path().$taxo_path."'>"; 
-      $content .= $t->name;
+      $content .= $term->name;
       $content .= "</a>"; 
       $content .= "</li>"; 
     }
