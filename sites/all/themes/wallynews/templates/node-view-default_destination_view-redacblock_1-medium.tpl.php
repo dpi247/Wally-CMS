@@ -19,7 +19,7 @@
 		}
 	}
 ?>
-<h2>
+<h2  style="">
 	<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 		<?php print $mainstory->title; ?>
 	</a>
