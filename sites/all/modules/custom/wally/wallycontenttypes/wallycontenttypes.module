@@ -71,6 +71,8 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_teaser',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+        
+
 
 /*
     'wallyct_personslist' => $base + array(
@@ -179,7 +181,11 @@ function wallycontenttypes_fieldNID(&$node, $op) {
 					wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0]);
 					break;
 				case "field_linkedobjects":
-					$node->field_linkedobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
+					$results = wallycontenttypes_fieldnodeload($field, $value);
+          foreach ($results as &$result) {
+            $result->field_links_list_nodes = wallycontenttypes_fieldnodeload("field_links_list_nodes", $result->field_links_list);
+          }
+          $node->field_linkedobjects_nodes = $results;
 					break;
 				case "field_embededobjects":
 					$node->field_embededobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
@@ -216,7 +222,6 @@ function wallycontenttypes_fieldTID(&$node) {
  * Process all taxonomy reference and return an array of node
  */
 function wallycontenttypes_fieldTIDload($field, $values, $type) {
-
 	$r = array();
 	$tids = array();  
 	foreach ($values as $value=>$tid2load) {
@@ -224,9 +229,7 @@ function wallycontenttypes_fieldTIDload($field, $values, $type) {
 			$tids[] = $tid2load["value"]; 
 		}
 	}
-
   $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
-
 	foreach ($results as $value=>$node2load) {
 		if (!($r[$value] = node_load($node2load))) {
 			unset($r[$value]); 
