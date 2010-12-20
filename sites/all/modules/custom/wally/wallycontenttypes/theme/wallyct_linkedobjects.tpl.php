@@ -24,6 +24,10 @@
 
 ?>
 <?php
+
+  dsm("tpl:::linkedobjects");
+  dsm($linkedobjects);
+  
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
