@@ -24,7 +24,8 @@
 
 ?>
 <?php
-  foreach ($linkedobjects as $linkedobject) {
+  if (count($linkedobjects)) {
+    foreach ($linkedobjects as $linkedobject) {
 ?>
   <div id="linkslist-bloc" class="box">
     <h2><?php print $linkedobject->title; ?></h2>
@@ -43,5 +44,6 @@
     </ul>
   </div>
 <?php
+    }
   }
 ?>
