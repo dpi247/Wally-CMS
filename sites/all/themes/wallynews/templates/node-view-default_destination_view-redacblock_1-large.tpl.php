@@ -11,7 +11,7 @@ dsm($node);
 	$teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
   
 	foreach ($node->field_embededobjects_nodes as $n) {
-		if ($n->type == "wally_photoobject") {dsm($n);
+		if ($n->type == "wally_photoobject") {
 			//$file_path = "/".$n->field_photofile[0]["filepath"];        
 			$file_img = theme('imagecache', 'theme_large_article_preset', $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], array('class'=>'postimage2'));
 			break;
