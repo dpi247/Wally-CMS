@@ -23,4 +23,11 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
   }
 }
 
+if ($options['override_title']) {
+    $title = t($options['override_title_text']);
+  } else {
+    $title = t($options['taxonomyfield']);
+  }
+
+print "<h2>".$title."</h2>";
 print wally_tpl_taxonomyterm_li($tids);
