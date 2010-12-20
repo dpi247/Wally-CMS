@@ -4,11 +4,11 @@
 
 	// Links list
   if (!function_exists('linkURI')) {
-    
+    function linkURI($URL = '') {
+
     dsm("URL");
     dsm($URL);
-     
-    function linkURI($URL = '') {
+
       $parsedURL = array();
       $parsedURL = parse_url($URL);
       switch ($parsedURL['scheme']) {
@@ -34,12 +34,10 @@
     <h2><?php print $linkedobject->title; ?></h2>
     <ul>
       <?php
-        dsm("linkedobject->field_links_list_nodes"); 
-        dsm($linkedobject->field_links_list_nodes); 
         foreach ($linkedobject->field_links_list_nodes as $link) {
       ?>
         <li>
-          <a href=<?php print linkURI($link->field_link_item[0]['url']); ?>>
+          <a href="<?php print linkURI($link->field_link_item[0]['url']); ?>" >
             <?php print $link->field_link_item[0]['title']; ?>
           </a>
         </li>

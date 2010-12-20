@@ -39,10 +39,7 @@
 
     // Linsks lists Blocks
     $linklists = theme("wallyct_linkedobjects", $node->field_linkedobjects_nodes, $node ); 
-
-    dsm("node->linkedobjects"); 
-    dsm($node->linkedobjects); 
-
+  
 ?>
 <h3><?php print $foretitle; ?></h3>             
 <h2><a title="" rel="bookmark" href=""><?php print $title; ?></a></h2>             
