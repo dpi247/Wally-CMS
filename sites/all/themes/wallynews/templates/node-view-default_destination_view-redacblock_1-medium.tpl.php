@@ -8,7 +8,7 @@
 		$tempDest['taxID'] = $destination['tid'];
 		$tempDest['tax'] = taxonomy_get_term($destination['tid']);
 		$tempDest['dest'] = $tempDest['tax']->description;
-		$tempDest['path'] = drupal_get_path_alias("/taxonomy/".$destination['tid']);
+		$tempDest['path'] = drupal_get_path_alias("/taxonomy/term/".$destination['tid']);
 		$mainDest[] = $tempDest;
 	}
 	$main_image = $node->fields_embededobjects_nodes[0];
