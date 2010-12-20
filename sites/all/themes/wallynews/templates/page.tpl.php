@@ -3,8 +3,6 @@
 <head>
   <?php print $head ?>
   
-  <?php  var_dump($base_url); ?>
-   
   <title><?php print $head_title ?></title>
   <?php print $styles ?>
   <?php print $scripts ?>
