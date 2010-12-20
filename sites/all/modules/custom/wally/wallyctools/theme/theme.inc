@@ -32,7 +32,7 @@ foreach($handlers['filter'] as $key=>$value){
   $vars['admin_links_raw'] = array(
         'title' => t('Reorder'),
         'alt' => t("Reorder the view"),
-        'href' => "wallyctools/reorder/$destination_tid/$target",
+        'href' => "admin/wallyctools/reorder/$destination_tid/$target",
         'fragment' => 'views-tab-' . $view->current_display,
         'query' => drupal_get_destination(),
       );
@@ -103,16 +103,16 @@ function theme_wallyctools_form_reorderdestinationview_form($form){
    
     //Make sure the header count matches the column count
     $header=array(
-      "nid            ","title   ","time rank    " 
+     "title" ,'order'
     );
-
+    drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,TRUE);     
+    
     $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
     $output .= drupal_render($form);
 
     // Call add_tabledrag to add and setup the JS for us
     // The key thing here is the first param - the table ID
     // and the 4th param, the class of the form item which holds the weight
-    drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,FALSE);     
 
     return $output;
   }
