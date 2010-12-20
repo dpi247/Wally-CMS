@@ -23,10 +23,10 @@
             </div>
                     
             <div class="toplinks">
-              <a href="#">Login</a> | <a href="#"> Contact</a>
+              <!-- <a href="#">Login</a> | <a href="#"> Contact</a> -->
             </div>
             
-            <div class="todaydate">### today date ###</div>
+            <div class="todaydate"><!-- ### today date ### --></div>
 
             <div class="topsearch">
                 <form action="#" method="get">
