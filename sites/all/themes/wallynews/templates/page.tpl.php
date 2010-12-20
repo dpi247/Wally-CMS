@@ -14,10 +14,12 @@
 <div class="outerwrap">
   <div class="wrapper">
     <div class="header">
-            <h1><a href="<?php print $base_url; ?>">Wally News</a></h1>
-
-            <h2>### MISSION ###</h2>
-            
+            <h1><a href="<?php print check_url($front_page); ?>">Wally News</a></h1>
+            <?php
+              if ($site_slogan) {
+                print "<h2>".check_plain($site_slogan)."</h2>";
+              }
+            ?>
             <div class="bannertop">
                 <a href="#">
                   <img src="#" alt="#" border="0">

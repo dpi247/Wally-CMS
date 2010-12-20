@@ -1,7 +1,4 @@
 <?php
-
-GLOBAL $base_url; 
-
 /**
  * Override or insert PHPTemplate variables into the templates.
  */
