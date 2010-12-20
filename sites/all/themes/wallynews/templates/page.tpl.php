@@ -3,6 +3,8 @@
 <head>
   <?php print $head ?>
   
+  <?php  var_dump($base_url); ?>
+   
   <title><?php print $head_title ?></title>
   <?php print $styles ?>
   <?php print $scripts ?>
@@ -14,7 +16,7 @@
 <div class="outerwrap">
   <div class="wrapper">
     <div class="header">
-            <h1><a href="\">Wally News</a></h1>
+            <h1><a href="<?php print $base_url; ?>">Wally News</a></h1>
 
             <h2>### MISSION ###</h2>
             
