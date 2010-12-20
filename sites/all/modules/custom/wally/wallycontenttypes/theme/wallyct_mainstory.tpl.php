@@ -52,9 +52,9 @@
 <?php  print $photo_gallery; ?>
 <?php print $body; ?>
 </div>
+<div class="clear">
+<?php print $linklists; ?>
 <div class="clear"></div>
 <?php print $social; ?>
 <div class="clear"></div>
-<?php print $linklists; ?>
-<div class="clear">
 </div>
