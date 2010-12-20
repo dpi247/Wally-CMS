@@ -21,6 +21,7 @@
 
     $result = "";
     $nbr = 1;
+    
     foreach ($nodes as $n) {
       if ($n->type == "wally_photoobject") {
         //$file_path = "/".$n->field_photofile[0]["filepath"];        

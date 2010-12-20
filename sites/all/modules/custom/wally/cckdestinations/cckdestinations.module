@@ -316,6 +316,7 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
         }
         $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
         $options .= $option;
+        
       }
   }
   return $options;

@@ -70,15 +70,6 @@
 
     <div class="clear"></div>        
     
-    <div id="ticker-wrapper" class="has-js">
-      <ul id="js-news" class="js-hidden">      
-        <li class="news-item"><span style="color: rgb(153, 153, 153); font-size: 11px;">10:30 pm » </span><a href="http://bignews.blogohblog.net/2010/11/global-crisis-overshadows-obamas-economic-message/" rel="bookmark" title="Permanent Link to Global crisis hides Obama’s message">Global crisis hides Obama’s message</a></li>                   
-        <li class="news-item"><span style="color: rgb(153, 153, 153); font-size: 11px;">10:26 pm » </span><a href="http://bignews.blogohblog.net/2010/11/us-briefs-allies-about-next-wikileaks-release/" rel="bookmark" title="Permanent Link to US briefs allies about next WikiLeaks release">US briefs allies about next WikiLeaks release</a></li>                   
-        <li class="news-item"><span style="color: rgb(153, 153, 153); font-size: 11px;">10:24 pm » </span><a href="http://bignews.blogohblog.net/2010/11/brazil-braces-for-more-violence/" rel="bookmark" title="Permanent Link to Brazil Braces for more violence">Brazil Braces for more violence</a></li>                   
-        <li class="news-item"><span style="color: rgb(153, 153, 153); font-size: 11px;">10:21 pm » </span><a href="http://bignews.blogohblog.net/2010/11/will-iraq-finally-get-its-weapons-of-mass-destruction/" rel="bookmark" title="Permanent Link to Will Iraq get Weapons of Mass Destruction?">Will Iraq get Weapons of Mass Destruction?</a></li>                   
-        <li class="news-item"><span style="color: rgb(153, 153, 153); font-size: 11px;">9:53 pm » </span><a href="http://bignews.blogohblog.net/2010/11/north-korea-accuses-south-of-using-human-shields/" rel="bookmark" title="Permanent Link to North Korea accuses South Korea">North Korea accuses South Korea</a></li>                   
-    </ul>
-    <div id="ticker"><div id="ticker-title"><span style="display: inline;">Today : </span></div><p style="display: block; left: 69px;" id="ticker-content"><span style="color: rgb(153, 153, 153); font-size: 11px;">10:30 pm » </span><a href="http://bignews.blogohblog.net/2010/11/global-crisis-overshadows-obamas-economic-message/" rel="bookmark" title="Permanent Link to Global crisis hides Obama’s message">Global crisis hides Obama’s message</a></p><div style="left: 69px; margin-left: 275px; display: none;" id="ticker-swipe"><span style="display: block;"><!-- --></span></div></div><ul id="ticker-controls"><li id="play-pause" class="controls"></li><li id="prev" class="controls"></li><li id="next" class="controls"></li></ul></div>
 
     <?php if ($messages): print $messages; endif; ?>
     <?php if ($help): print $help; endif; ?>
