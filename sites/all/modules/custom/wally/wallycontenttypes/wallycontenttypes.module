@@ -103,19 +103,7 @@ function wallycontenttypes_theme(&$var) {
   ); 
 }
 
-/**
- * Insert additional template suggestions to wally specific theme functions.
- * this preprocess function could be set by any hook_theme.
- *
- * @param $vars
- *   An array of variables to pass to the theme template.
- * @param $hook
- *   The name of the template being rendered.
- */
-function wally_get_tpl_suggestions(&$variables, $hook) {
-    $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
-    if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
-}
+
 
 /**
  * Implementation of hook_nodeapi().
