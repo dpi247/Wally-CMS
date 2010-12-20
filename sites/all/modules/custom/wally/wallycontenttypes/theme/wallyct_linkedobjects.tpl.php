@@ -26,6 +26,7 @@
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
+    <span style="display:block;">
     <h3><?php print $linkedobject->title; ?></h3>
     <ul>
       <?php
@@ -40,6 +41,7 @@
         }
       ?>
     </ul>
+    </span>
 <?php
     }
   }
