@@ -50,9 +50,9 @@
    
 <?php  print $photo_gallery; ?>
 <?php print $body; ?>
-<?php print $social; ?>
 </div>
 <div class="clear"></div>
-
-
+<?php print $social; ?>
 <div class="clear"></div>
+<?php $linklists; ?><div class="clear">
+</div>
