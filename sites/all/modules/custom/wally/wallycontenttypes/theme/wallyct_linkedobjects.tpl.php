@@ -24,17 +24,14 @@
 
 ?>
 <?php
-
-  dsm("tpl:::linkedobjects");
-  dsm($linkedobjects);
-  
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
-  <div id="linkslist-bloc" class="box">
     <h2><?php print $linkedobject->title; ?></h2>
     <ul>
       <?php
+        dsm("linkedobject->field_links_list_nodes"); 
+        dsm($linkedobject->field_links_list_nodes); 
         foreach ($linkedobject->field_links_list_nodes as $link) {
       ?>
         <li>
@@ -46,7 +43,6 @@
         }
       ?>
     </ul>
-  </div>
 <?php
     }
   }
