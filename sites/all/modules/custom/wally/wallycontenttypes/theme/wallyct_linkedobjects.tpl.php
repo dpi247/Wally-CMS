@@ -1,5 +1,3 @@
-qdjhfjdhkfjhdlfhsdfjlkhsdqlfjhsdqlkjfhqsjfhqsljkfhqsjklfhqsdlkfhqsdlkjfhdsqlkfqsd
-<hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>
 <?php
 
   drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/linkslist/linkslist.css');
@@ -23,58 +21,11 @@ qdjhfjdhkfjhdlfhsdfjlkhsdqlfjhsdqlkjfhqsjfhqsljkfhqsjklfhqsdlkfhqsdlkjfhdsqlkfqs
       return '';
     }
   }
-
-  
-
 ?>
 <?php
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
-
-dsm("linkedobject");
-dsm($linkedobject);
-
 ?>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
-zaezaeazeaz<br/>
     <h2><?php print $linkedobject->title; ?></h2>
     <ul>
       <?php

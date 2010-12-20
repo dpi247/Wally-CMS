@@ -55,5 +55,6 @@
 <div class="clear"></div>
 <?php print $social; ?>
 <div class="clear"></div>
-<?php print $linklists; ?><div class="clear">
+<?php print $linklists; ?>
+<div class="clear">
 </div>
