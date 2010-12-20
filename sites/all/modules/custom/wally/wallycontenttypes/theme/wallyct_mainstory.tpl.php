@@ -42,17 +42,15 @@
 <h2><a title="" rel="bookmark" href=""><?php print $title; ?></a></h2>             
 <h3><?php print $subtitle; ?></h3>             
              
-<div class="date">Published on ### ## #####<span> // <?php print $destination_term; ?>
+<div class="date">Publié le <?php print date('d M Y', $mainstory->created) ?>  // <?php print $destination_term; ?></div>
 
 <div class="content">
    
 <?php  print $photo_gallery; ?>
 
-<!-- <p><a href="http://bignews.blogohblog.net/wp-content/uploads/2010/11/First_Xbox_buyer.jpg"><img width="300" height="200" alt="" src="http://bignews.blogohblog.net/wp-content/uploads/2010/11/First_Xbox_buyer-300x200.jpg" title="First_Xbox_buyer" class="alignleft size-medium wp-image-75"></a>  -->
-
 <?php print $body; ?>
                         
-<?php print $social; ?>
+<!-- <?php print $social; ?> -->
 
 </div>
 <div class="clear"></div>
