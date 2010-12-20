@@ -6,6 +6,6 @@
   <?php if (!empty($block->subject)): ?>
     <h2><?php print $block->subject ?></h2>
   <?php endif;?>
-  <div class="content">a<?php print $block->content ?>b</div>
+  <div class="content"><?php print $block->content ?></div>
   </div>
 <?php endif;?>

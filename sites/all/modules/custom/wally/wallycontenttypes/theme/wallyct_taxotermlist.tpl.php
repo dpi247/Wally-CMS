@@ -33,7 +33,7 @@ if ($options['override_title']) {
   }
   
 $list = wally_tpl_taxonomyterm_li($tids);
-if ($list) {
-  print "aa<h2>".$title."</h2>zz";
+if (!empty($list)) {
+  print "<h2>".$title."</h2>";
   print $list;
 }
