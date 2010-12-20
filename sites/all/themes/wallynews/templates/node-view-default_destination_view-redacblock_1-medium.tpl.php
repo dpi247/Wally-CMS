@@ -7,13 +7,13 @@ dsm($node);
 	$maindestination = $node->field_destinations[0];
 	$dest_path = drupal_get_path_alias("/taxonomy/".$maindestination['tid']);
 	$main_image = $node->fields_embededobjects_nodes[0];
-	$teaser_length = 1000;
+	$teaser_length = 300;
 	$teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
   
 	foreach ($node->field_embededobjects_nodes as $n) {
 		if ($n->type == "wally_photoobject") {dsm($n);
 			//$file_path = "/".$n->field_photofile[0]["filepath"];        
-			$file_img = theme('imagecache', 'theme_large_article_preset', $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], array('class'=>'postimage2'));
+			$file_img = theme('imagecache', 'theme_medium_article_preset', $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], array('class'=>'postimage2'));
 			break;
 		}
 	}
