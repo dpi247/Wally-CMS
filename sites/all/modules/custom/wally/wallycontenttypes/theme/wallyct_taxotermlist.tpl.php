@@ -11,6 +11,7 @@ if (!function_exists('wally_tpl_taxonomyterm_li')) {
       
       dsm("term");
       dsm($term);
+      dsm("term");
       
       $taxo_path = taxonomy_term_path($term);
       $content .= "<li>"; 
