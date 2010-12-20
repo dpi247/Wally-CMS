@@ -78,6 +78,11 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
+    'wallyct_linkedobjects' => $base + array(
+    'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+    'template' => 'wallyct_linkedobjects',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
 /*
     'wallyct_personslist' => $base + array(
