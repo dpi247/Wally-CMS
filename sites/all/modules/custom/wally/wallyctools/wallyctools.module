@@ -18,10 +18,10 @@
  */ 
 function wallyctools_menu(){
   return array(
-    'wallyctools/reorder/%/%'=>array(
-      'page callback'=>'wallyctools_page_reorderdestinationview',
-      'page arguments'=>array(2,3),
-      'access arguments'=>'reorder destination views',
+    'admin/wallyctools/reorder/%/%'=>array(
+    'page callback'=>'wallyctools_page_reorderdestinationview',
+    'page arguments'=>array(3,4),
+    'access arguments'=>'reorder destination views',
     ),
   );
 }
@@ -425,11 +425,8 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
     while ($row = db_fetch_object($result)){
       //create a partial table row containing the data from the table
       $data = array(
-        $row->nid,
         $row->title,
-        $row->field_destinations_time_rank,
-        $j
-              );
+      );
               //add our static "row" data into a form value
       $form['rows'][$row->nid]['data']=array(
                                    '#type' => 'value',
