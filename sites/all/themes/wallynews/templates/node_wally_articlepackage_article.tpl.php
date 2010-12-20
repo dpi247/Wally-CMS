@@ -2,7 +2,6 @@
 /**
  * Wally default template for rendering Packages Autors List 
  */
- dsm($node);
 	$mainstory = $node->field_mainstory_nodes[0];
 
     // Foretitle
