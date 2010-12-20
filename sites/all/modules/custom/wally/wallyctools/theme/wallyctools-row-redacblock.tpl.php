@@ -20,10 +20,6 @@
 
 
 
-<?php print $destination; ?>
-
-<?php print $target; ?>
-
 <?php print $node; ?>
 <?php if ($comments): ?>
   <?php print $comments; ?>
