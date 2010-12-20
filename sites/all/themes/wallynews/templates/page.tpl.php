@@ -15,13 +15,7 @@
   <div class="wrapper">
     <div class="header">
             <h1><a href="<?php print check_url($front_page); ?>">Wally News</a></h1>
-            zzzz
-            <?php
-              if ($site_slogan) {
-                print "<h2>gggg".check_plain($site_slogan)."fff</h2>";
-              }
-            ?>
-            aaaaa
+            <h2>Publishing getting better!</h2>
             <div class="bannertop">
                 <a href="#">
                   <img src="#" alt="#" border="0">
