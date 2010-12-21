@@ -486,9 +486,10 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
     $order_by_weight[$data['weight']]=$data;
   }
   krsort($order_by_weight);
+  
   $new_time_rank=array();
   foreach($order_by_weight as $weight=>$data){
-    $new_time_rank[$data['nid']]=max($data['time_rank'],$order_by_weight[$weight+1]['time_rank']+1);
+    $new_time_rank[$data['nid']]=max($data['time_rank'],$order_by_weight[$weight-1]['time_rank']+1);
     $order_by_weight[$weight]=$new_time_rank[$data['nid']];
     db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'",$new_time_rank[$data['nid']],$data['nid'],$form_state['values']['destination_tid'],$form_state['values']['target']);
   }
