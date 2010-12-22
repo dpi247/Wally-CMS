@@ -1,5 +1,5 @@
 <?php
-// $Id: api.module,v 1.88.2.159 2010/10/29 01:55:31 drumm Exp $
+// $Id: api.module,v 1.88.2.160 2010/11/22 02:17:37 drumm Exp $
 
 /**
  * @file
@@ -1752,7 +1752,7 @@ function api_page_class($branch, $class) {
     $implements = theme('item_list', $implements);
   }
 
-  $objects = api_render_listing(api_query_list(db_query("SELECT ad.branch_id, ad.title, ad.object_name, ad.summary, ad.object_type, ad.file_name, ao.overrides_did FROM {api_members} am INNER JOIN {api_documentation} ad ON ad.did = am.did LEFT JOIN {api_overrides} ao ON ao.did = am.did WHERE am.class_did = %d ORDER BY title", $class->did)));
+  $objects = api_render_listing(api_query_list(db_query("SELECT ad.branch_id, ad.title, ad.object_name, ad.summary, ad.object_type, ad.file_name, ao.overrides_did, ad.did FROM {api_members} am INNER JOIN {api_documentation} ad ON ad.did = am.did LEFT JOIN {api_overrides} ao ON ao.did = am.did WHERE am.class_did = %d ORDER BY title", $class->did)));
   $output = theme('api_class_page', $branch, $class, $documentation, $implements, $hierarchy, $objects, $code, $related_topics, $see);
   $output .= _api_add_comments($class);
 
@@ -1803,7 +1803,7 @@ function api_page_file($branch, $file) {
   $see = api_link_documentation($file->see, $branch, NULL, TRUE);
   $related_topics = api_related_topics($file->did, $branch);
 
-  $objects = api_render_listing(api_query_list(db_query("SELECT branch_id, title, object_name, summary, object_type, file_name FROM {api_documentation} WHERE file_name = '%s' AND branch_id = %d AND object_type IN ('constant', 'global', 'function', 'interface', 'class') AND class_did = 0 ORDER BY title", $file->object_name, $file->branch_id)));
+  $objects = api_render_listing(api_query_list(db_query("SELECT branch_id, title, object_name, summary, object_type, file_name, did FROM {api_documentation} WHERE file_name = '%s' AND branch_id = %d AND object_type IN ('constant', 'global', 'function', 'interface', 'class') AND class_did = 0 ORDER BY title", $file->object_name, $file->branch_id)));
 
   $output = theme('api_file_page', $file, $documentation, $objects, $see, $related_topics);
   $output .= _api_add_comments($file);
@@ -1864,7 +1864,7 @@ function api_page_group($branch, $group) {
   $documentation = api_link_documentation($group->documentation, $branch);
   $see = api_link_documentation($group->see, $branch, NULL, TRUE);
 
-  $objects = api_render_listing(api_query_list(db_query("SELECT d.branch_id, d.object_name, d.title, d.summary, d.file_name, d.object_type FROM {api_reference_storage} r INNER JOIN {api_documentation} d ON r.from_did = d.did WHERE r.to_did = %d ORDER BY d.object_name", $group->did)));
+  $objects = api_render_listing(api_query_list(db_query("SELECT d.branch_id, d.object_name, d.title, d.summary, d.file_name, d.object_type, d.did FROM {api_reference_storage} r INNER JOIN {api_documentation} d ON r.from_did = d.did WHERE r.to_did = %d ORDER BY d.object_name", $group->did)));
 
   $output = theme('api_group_page', $branch, $group, $documentation, $objects, $see);
   $output .= _api_add_comments($group);
@@ -2229,7 +2229,7 @@ function api_link_link($name, $branch, $prepend = '', $append = '', $class_did =
 function api_query_list($result) {
   $items = array();
   while ($object = db_fetch_object($result)) {
-    $items[$object->object_type][$object->object_name] = $object;
+    $items[$object->object_type][$object->did] = $object;
   }
   return $items;
 }
