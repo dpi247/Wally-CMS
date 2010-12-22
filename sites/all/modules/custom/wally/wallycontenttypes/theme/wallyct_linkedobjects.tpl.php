@@ -26,7 +26,7 @@
   if (count($linkedobjects)) {
     foreach ($linkedobjects as $linkedobject) {
 ?>
-    <span style="display:block;">
+    <span class="linklistblock">
     <h3><?php print $linkedobject->title; ?></h3>
     <ul>
       <?php
