@@ -524,12 +524,11 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
 function wallycontenttypes_editcrop($nid) {
   $node = node_load($nid);
   $imgcropings = array();
-  $imgcropings = json_decode($node->field_croping[0]['value']);
+  $imgcropings = json_decode($node->field_croping[0]['value'], true);
   $explimgcrops = array();
   $defaultvalues = array();
   if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
     foreach ($imgcropings as $presetname => $imgcroping) {
-      $tempexplcrop = array();
       $tempexplcrop = $imgcroping;
       $tempexplcrop[0] = $tempexplcrop[0] + 0;
       $tempexplcrop[1] = $tempexplcrop[1] + 0;
@@ -840,6 +839,11 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       foreach ($preset['actions'] as $action) {
         if ($action['action']=='wallycontenttypes_customcrop') {
           $datas = $action['data'];
+          if (!$action['data']['presetid'] || empty($action['data']['presetid'])) {
+            $tempaction = $action;
+            $tempaction['data']['presetid'] = $preset['presetid'];
+            imagecache_action_save($tempaction);
+          }
         }
       }
       if (!empty($datas)) {
@@ -901,6 +905,8 @@ function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   foreach ($usablecrops as $presetname => $usablecrop) {
     if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
       $crops[$presetname] = explode(',',$_POST[$presetname.'_serialCoord']);
+      $preset = imagecache_preset_by_name($presetname);
+      $crops[$presetname]['presetid'] = $preset['presetid'];
       $redirect = true;
       $i++;
     }
