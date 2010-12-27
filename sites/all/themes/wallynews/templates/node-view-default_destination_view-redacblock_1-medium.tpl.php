@@ -12,7 +12,7 @@
 	$teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
   
 	foreach ($node->field_embededobjects_nodes as $n) {
-		if ($n->type == "wally_photoobject") {
+		if ($n->type == "wally_photoobject") {dsm($node);
 			$file_path = $node->field_embededobjects_nodes[0]->field_photofile[0]['filepath'];
       $explfilepath = explode('/', $file_path);
 			$file_img = theme('imagecache', 'Main_object_second_crop', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
