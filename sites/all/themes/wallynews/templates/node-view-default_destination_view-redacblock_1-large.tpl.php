@@ -11,7 +11,13 @@
   $main_image = null;
 	foreach ($node->field_embededobjects_nodes as $embededobject) {
 		if ($embededobject->type == "wally_photoobject") {
-			$file_path = $node->field_embededobjects_nodes[0]->field_photofile[0]['filepath'];
+			$file_path = '';
+      foreach ($node->field_embededobjects_nodes as $embededobjects_node) {
+        if ($embededobjects_node->type == 'wally_photoobject') {
+          $file_path = $embededobjects_node->field_photofile[0]['filepath'];
+          break;
+        }
+      }
       $explfilepath = explode('/', $file_path);
 			$main_image = theme('imagecache', 'Main_object_first_crop', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
       break;
