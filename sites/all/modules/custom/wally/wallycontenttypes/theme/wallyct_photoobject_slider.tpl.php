@@ -24,8 +24,10 @@
     
     foreach ($nodes as $n) {
       if ($n->type == "wally_photoobject") {
-        //$file_path = "/".$n->field_photofile[0]["filepath"];        
-        $file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"], 'Slide '.$nbr);  
+        //$file_path = "/".$n->field_photofile[0]["filepath"];
+        $file_path = $n->field_photofile[0]["filepath"]; 
+        $explfilepath = explode('/', $file_path);        
+        $file_img = theme('imagecache', 'slider_preset', $explfilepath[sizeof($explfilepath)], 'Slide '.$nbr);  
  				$result .= "<a href='#' title='Title'>";
         $result .= $file_img; 
         //$result .= "<img src='".$file_path."' width='300' height='200' alt='Slide ".$nbr."'>";

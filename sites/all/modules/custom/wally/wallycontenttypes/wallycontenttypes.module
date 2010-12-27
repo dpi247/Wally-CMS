@@ -543,14 +543,19 @@ function wallycontenttypes_editcrop($nid) {
   $defaultvalues = $usablecropsanddefaults[0];
   $usablecrops = $usablecropsanddefaults[1];
 
-  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
-  
-  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
-  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
-  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
-  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+  if (!empty($usablecrops)) {
+    _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
+    
+    $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
+    drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
+    drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
+    drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
 
-  return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
+    return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
+  } else {
+    drupal_set_message('There\'s no preset using the custom crop action.',"error");
+    drupal_goto(drupal_get_path_alias("node/".$node->nid."/edit/"));
+  }
 }
 
 /**
@@ -739,6 +744,13 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       for(i in ac) {
         jQuery("#"+i).click(anim_handler(ac[i], ratio[i], i));
       }
+      
+      for(i in ac) {
+        api.setSelect(ac[i]);
+        api.setOptions({ aspectRatio: ratio[i] });
+        currentAc = i;
+        break;
+      }
     });
 
     function showCoordsAndSave(c) {
@@ -759,8 +771,8 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
 /**
  * Return the HTML code needed by wallycontenttypes_editcrop.
  * 
- * @param $filename
- *   The filename of the photo.
+ * @param $filepath
+ *   The filepath of the photo.
  * @param $defaultvalues
  *   The original or default values of the cropings
  * 
@@ -838,7 +850,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
         $tempusablecrop = array();
         if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
           foreach ($explimgcrops as $presetname => $explimgcrop) {
-            if ($presetname == $preset['presetname']) {
+            if ($presetname == $preset['presetname'] && ($explimgcrops[$presetname][4]==$temppresetcrop[4])) {
               $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
               $tempusablecrop = $explimgcrop;
               $tempusablecrop[2] += $tempusablecrop[0];
@@ -890,6 +902,8 @@ function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   if ($redirect) {
     $node->field_croping[0]['value'] = drupal_to_js($crops);
     node_save($node);
+    $imagepath = $node->field_photofile[0]['filepath'];
+    imagecache_image_flush($imagepath);
     drupal_goto(drupal_get_path_alias("node/".$node->nid."/edit/"));
   }
   
