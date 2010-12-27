@@ -35,8 +35,7 @@ function wallycontenttypes_partage_content_type_render($subtype, $conf, $panel_a
     $block->content = t('wallycontenttype: A context is required.<br/> Please specify a node context in the settings of this pane');
   }
   else {
-
-    $block->title = "Paratager vers facebook et autres";
+    $block->title = "Partager vers facebook et autres";
     $block->content = theme("wallyct_tofacebook",$node, $conf); 
   }
   return $block;
