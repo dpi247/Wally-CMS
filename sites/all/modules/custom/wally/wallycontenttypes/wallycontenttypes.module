@@ -535,6 +535,8 @@ function wallycontenttypes_editcrop($nid) {
       $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
       $explimgcrops[$presetname] = $tempexplcrop;
     }
+  } else {
+    drupal_set_message('No croping values saved or bad JSON encoding.',"error");
   }
 
   $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops);
@@ -548,47 +550,7 @@ function wallycontenttypes_editcrop($nid) {
   drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
   drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
 
-  return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filename'], $defaultvalues);
-}
-
-/**
- * Show the custom cropped image.
- *
- * @param $nid 
- *   Node ID.
- * @param $presetname
- *   Name of the preset.
- * 
- * @return
- *   Custom cropped version of the image.
- */
-function wallycontenttypes_showcustomcrop($presetname, $nid) {
-  $node = node_load($nid);
-  $cropings = json_decode($node->field_croping[0]['value']);
-  $preset = imagecache_preset_by_name($presetname);
-  $cropdatas = array();
-  if (isset($cropings->$preset['presetname'])) {
-    $cropdatas[$preset['presetname']] = $cropings->$preset['presetname'];
-  } else {
-    $cropdatas[$preset['presetname']] = $preset['actions'][0]['data'];
-  }
-  
-  $action_cc[0] = array(
-						'presetid' => $preset['presetid'],
-            'module' => 'imagecache',
-						'action' => 'imagecache_crop',
-            'data' => array('width'=>'50','height'=>'10','xoffset'=>'75','yoffset'=>'0'),
-					);
-  $filepath_cc = file_directory_path().'/files/'.$node->field_photofile[0]['filename'];
-  $src = $filepath_cc;
-  $dst = imagecache_create_path($preset['presetname'].'_customcropbis', $node->field_photofile[0]['filename']);
-  file_delete($dst);
-  
-  if (imagecache_build_derivative($action_cc, $src, $dst)) {
-    return '<p>coucou</p>';
-  } else {
-    return '<p>pas coucou</p>';
-  }
+  return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
 }
 
 /**
@@ -805,9 +767,9 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
  * @return
  *   The HTML code.
  */
-function _wallycontenttypes_htmlcodeforthecroping($filename, $defaultvalues) {
+function _wallycontenttypes_htmlcodeforthecroping($filepath, $defaultvalues) {
   $return = '
-    <img src="'.base_path().file_directory_path().'/files/'.$filename.'" id="cropbox" />
+    <img src="'.base_path().$filepath.'" id="cropbox" />
     
     <form action="" method="post">
   ';
@@ -815,12 +777,12 @@ function _wallycontenttypes_htmlcodeforthecroping($filename, $defaultvalues) {
   foreach ($defaultvalues as $presetname => $defaultvalue) {
     $return .= '
       <input type="hidden" id="'.$presetname.'_serialCoord" name="'.$presetname.'_serialCoord" value="'.implode($defaultvalue,',').'"/>
-      <button id="'.$presetname.'">'.$presetname.'</button>
+      <button id="'.$presetname.'" class="form-submit">'.$presetname.'</button>
     ';
   }
   
   $return .= '
-      <button type="submit">Submit</button>
+      <button type="submit" class="form-submit">Submit</button>
   
     </form>
   ';
@@ -858,35 +820,44 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
   $usablecrops = array();
   $presets = imagecache_presets();
   foreach ($presets as $preset) {
-    $datas = array();
-    $datas = $preset['actions'][0]['data'];
-    if (isset($datas['width']) && isset($datas['height'])) {
-      $temppresetcrop = array();
-      $temppresetcrop[0] = 0;
-      $temppresetcrop[1] = 0;
-      $temppresetcrop[2] = $datas['width'] + 0;
-      $temppresetcrop[3] = $datas['height'] + 0;
-      $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
-
-      $tempusablecrop = array();
-      if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
-        foreach ($explimgcrops as $presetname => $explimgcrop) {
-          if ($presetname == $preset['presetname']) {
-            $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
-            $tempusablecrop = $explimgcrop;
-            $tempusablecrop[2] += $tempusablecrop[0];
-            $tempusablecrop[3] += $tempusablecrop[1];
-            break;
-          }
+    if ($preset['actions']) {
+      $datas = array();
+      foreach ($preset['actions'] as $action) {
+        if ($action['action']=='wallycontenttypes_customcrop') {
+          $datas = $action['data'];
         }
       }
-      if (empty($tempusablecrop)) {
-        $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop);
-        $tempusablecrop = $temppresetcrop;
-        $tempusablecrop[2] += $tempusablecrop[0];
-        $tempusablecrop[3] += $tempusablecrop[1];
+      if (!empty($datas)) {
+        $temppresetcrop = array();
+        $temppresetcrop[0] = 0;
+        $temppresetcrop[1] = 0;
+        $temppresetcrop[2] = $datas['width'] + 0;
+        $temppresetcrop[3] = $datas['height'] + 0;
+        $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
+
+        $tempusablecrop = array();
+        if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
+          foreach ($explimgcrops as $presetname => $explimgcrop) {
+            if ($presetname == $preset['presetname']) {
+              $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
+              $tempusablecrop = $explimgcrop;
+              $tempusablecrop[2] += $tempusablecrop[0];
+              $tempusablecrop[3] += $tempusablecrop[1];
+              break;
+            }
+          }
+        }
+        if (empty($tempusablecrop)) {
+          $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop);
+          $tempusablecrop = $temppresetcrop;
+          $tempusablecrop[2] += $tempusablecrop[0];
+          $tempusablecrop[3] += $tempusablecrop[1];
+          drupal_set_message('No croping info found for the custom crop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
+        }
+        $usablecrops[$preset['presetname']] = $tempusablecrop;
+      } else {
+        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the custom crop action.',"error");
       }
-      $usablecrops[$preset['presetname']] = $tempusablecrop;
     }
   }
   
