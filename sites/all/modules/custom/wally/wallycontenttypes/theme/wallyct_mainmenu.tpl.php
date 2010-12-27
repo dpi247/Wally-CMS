@@ -12,17 +12,17 @@ if (!function_exists('wallyct_mainmenu_tree_output')) {
  */
 function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firstpass=1) {
 
+    if ($firstpass==1) {
+      drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/superfish/superfish.css', 'theme');
+      drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/hoverIntent.js', 'theme');
+      drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/superfish.js','theme');
 
-    drupal_add_css(drupal_get_path('module', 'wallycontenttypes') . '/css/superfish/superfish.css', 'theme');
-    drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/hoverIntent.js', 'theme');
-    drupal_add_js(drupal_get_path('module', 'wallycontenttypes') . '/scripts/superfish/superfish.js','theme');
-
-    drupal_add_js("
-        $(document).ready(function() {
-          jQuery('ul.sf-menu').superfish();
-        });
-    ", 'inline');
-
+      drupal_add_js("
+          $(document).ready(function() {
+            jQuery('ul#".$menuid."').superfish();
+          });
+      ", 'inline');
+    }
          
     $output = '';
 
