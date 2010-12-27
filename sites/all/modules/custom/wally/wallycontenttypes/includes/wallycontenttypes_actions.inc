@@ -76,12 +76,14 @@ function theme_wallycontenttypes_customcrop($element) {
  *   The croped image.
  */ 
 function wallycontenttypes_customcrop_image(&$image, $data) {
+  //$node=imagecache_actions_node_from_filepath($image->source);
+  
   $fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
   $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value);
-
+watchdog('ODM', print_r($image, TRUE).' +++++++++++++ '.print_r($fid, TRUE).' +++++++++++++ '.print_r($cropings, TRUE).' ++++++++++++++ '.print_r($preset, TRUE), array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
   if (isset($imgcropings->$presetname)) {
     $crop = array();
     $crop = $imgcropings->$presetname;
