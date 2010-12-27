@@ -869,13 +869,15 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
 
       $tempusablecrop = array();
-      foreach ($explimgcrops as $presetname => $explimgcrop) {
-        if ($presetname == $preset['presetname']) {
-          $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
-          $tempusablecrop = $explimgcrop;
-          $tempusablecrop[2] += $tempusablecrop[0];
-          $tempusablecrop[3] += $tempusablecrop[1];
-          break;
+      if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
+        foreach ($explimgcrops as $presetname => $explimgcrop) {
+          if ($presetname == $preset['presetname']) {
+            $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
+            $tempusablecrop = $explimgcrop;
+            $tempusablecrop[2] += $tempusablecrop[0];
+            $tempusablecrop[3] += $tempusablecrop[1];
+            break;
+          }
         }
       }
       if (empty($tempusablecrop)) {
