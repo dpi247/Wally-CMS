@@ -13,8 +13,9 @@
   
 	foreach ($node->field_embededobjects_nodes as $n) {
 		if ($n->type == "wally_photoobject") {
-			//$file_path = "/".$n->field_photofile[0]["filepath"];        
-			$file_img = theme('imagecache', 'theme_medium_article_preset', $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], $n->field_photofile[0]["filename"], array('class'=>'postimage2'));
+			$file_path = $node->field_embededobjects_nodes[0]->field_photofile[0]['filepath'];
+      $explfilepath = explode('/', $file_path);
+			$file_img = theme('imagecache', 'Main_object_second_crop', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
 			break;
 		}
 	}
