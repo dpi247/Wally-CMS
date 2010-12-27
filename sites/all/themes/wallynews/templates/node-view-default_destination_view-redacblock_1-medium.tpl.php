@@ -21,7 +21,7 @@
         }
       }
       $explfilepath = explode('/', $file_path);
-			$file_img = theme('imagecache', 'Main_object_second_crop', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
+			$file_img = theme('imagecache', 'theme_medium_article_preset', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
 			break;
 		}
 	}
