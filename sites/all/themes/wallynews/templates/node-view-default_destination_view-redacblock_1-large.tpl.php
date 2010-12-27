@@ -19,7 +19,7 @@
         }
       }
       $explfilepath = explode('/', $file_path);
-			$main_image = theme('imagecache', 'Main_object_first_crop', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
+			$main_image = theme('imagecache', 'theme_large_article_preset', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2'));
       break;
 		}
 	}
