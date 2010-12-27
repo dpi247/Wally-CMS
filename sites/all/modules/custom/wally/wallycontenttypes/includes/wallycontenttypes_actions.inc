@@ -81,7 +81,7 @@ function wallycontenttypes_customcrop_image(&$image, $data) {
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value);
-  watchdog('ODM', print_r($image->source,TRUE), array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+
   if (isset($imgcropings->$presetname)) {
     $crop = array();
     $crop = $imgcropings->$presetname;
