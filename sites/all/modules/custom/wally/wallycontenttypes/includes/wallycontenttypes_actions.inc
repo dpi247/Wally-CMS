@@ -82,16 +82,18 @@ function wallycontenttypes_customcrop_image(&$image, $data) {
   $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
-  $imgcropings = json_decode($cropings->field_croping_value);
-
-  if (isset($imgcropings->$presetname)) {
+  $imgcropings = json_decode($cropings->field_croping_value, true);
+  watchdog('ODM', print_r($image, TRUE).' +++++++++++++ '.print_r($data, TRUE).' +++++++++++++ '.print_r($fid, TRUE).' +++++++++++++ '.print_r($cropings, TRUE).' ++++++++++++++ '.print_r($preset, TRUE), array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+  
+  if (isset($imgcropings[$presetname])) {
     $crop = array();
-    $crop = $imgcropings->$presetname;
+    $crop = $imgcropings[$presetname];
     $data['xoffset'] = $crop[0];
     $data['yoffset'] = $crop[1];
     $data['width'] = $crop[2];
     $data['height'] = $crop[3];
   }
+  watchdog('ODM', print_r($data, TRUE), array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
   if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
       watchdog('wallycontenttypes_actions', 'wallycontenttypes_customcrop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;
