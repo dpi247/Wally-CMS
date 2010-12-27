@@ -524,15 +524,17 @@ function wallycontenttypes_editcrop($nid) {
   $imgcropings = json_decode($node->field_croping[0]['value']);
   $explimgcrops = array();
   $defaultvalues = array();
-  foreach ($imgcropings as $presetname => $imgcroping) {
-    $tempexplcrop = array();
-    $tempexplcrop = $imgcroping;
-    $tempexplcrop[0] = $tempexplcrop[0] + 0;
-    $tempexplcrop[1] = $tempexplcrop[1] + 0;
-    $tempexplcrop[2] = $tempexplcrop[2] + 0;
-    $tempexplcrop[3] = $tempexplcrop[3] + 0;
-    $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
-    $explimgcrops[$presetname] = $tempexplcrop;
+  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
+    foreach ($imgcropings as $presetname => $imgcroping) {
+      $tempexplcrop = array();
+      $tempexplcrop = $imgcroping;
+      $tempexplcrop[0] = $tempexplcrop[0] + 0;
+      $tempexplcrop[1] = $tempexplcrop[1] + 0;
+      $tempexplcrop[2] = $tempexplcrop[2] + 0;
+      $tempexplcrop[3] = $tempexplcrop[3] + 0;
+      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
+      $explimgcrops[$presetname] = $tempexplcrop;
+    }
   }
 
   $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops);
