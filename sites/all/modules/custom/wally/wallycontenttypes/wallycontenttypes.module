@@ -515,6 +515,9 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
  * @see http://deepliquid.com/blog/archives/category/jcrop
  *  Jcrop homepage.
  * 
+ * @todo
+ *  Allow LEFT, RIGHT or CENTER value for the xoffset and yoffset fields.
+ * 
  * @return
  *  HTML code of the image and the form containing the new values.
  */
@@ -536,7 +539,7 @@ function wallycontenttypes_editcrop($nid) {
       $explimgcrops[$presetname] = $tempexplcrop;
     }
   } else {
-    drupal_set_message('No croping values saved or bad JSON encoding.',"error");
+    drupal_set_message('No croping values saved or bad JSON encoding.',"notice");
   }
 
   $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops);
@@ -832,7 +835,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
   $usablecrops = array();
   $presets = imagecache_presets();
   foreach ($presets as $preset) {
-    if ($preset['actions']) {
+    if ($preset['actions'] && !empty($preset['actions'])) {
       $datas = array();
       foreach ($preset['actions'] as $action) {
         if ($action['action']=='wallycontenttypes_customcrop') {
@@ -850,11 +853,15 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
         $tempusablecrop = array();
         if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
           foreach ($explimgcrops as $presetname => $explimgcrop) {
-            if ($presetname == $preset['presetname'] && ($explimgcrops[$presetname][4]==$temppresetcrop[4])) {
-              $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
-              $tempusablecrop = $explimgcrop;
-              $tempusablecrop[2] += $tempusablecrop[0];
-              $tempusablecrop[3] += $tempusablecrop[1];
+            if ($presetname == $preset['presetname']) {
+              if (abs($explimgcrops[$presetname][4]-$temppresetcrop[4])/$temppresetcrop[4] < 0.1) {
+                $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
+                $tempusablecrop = $explimgcrop;
+                $tempusablecrop[2] += $tempusablecrop[0];
+                $tempusablecrop[3] += $tempusablecrop[1];
+              } else {
+                drupal_set_message('The width/height ratio of the preset "'.$presetname.'" as changed, default values loaded.',"notice");
+              }
               break;
             }
           }
@@ -864,11 +871,11 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
           $tempusablecrop = $temppresetcrop;
           $tempusablecrop[2] += $tempusablecrop[0];
           $tempusablecrop[3] += $tempusablecrop[1];
-          drupal_set_message('No croping info found for the custom crop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
+          drupal_set_message('No croping info found for the custom crop action of the "'.$preset['presetname'].'" preset, default values loaded.',"error");
         }
         $usablecrops[$preset['presetname']] = $tempusablecrop;
       } else {
-        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the custom crop action.',"error");
+        drupal_set_message('The preset "'.$preset['presetname'].'" doesn\'t use the custom crop action.',"error");
       }
     }
   }
