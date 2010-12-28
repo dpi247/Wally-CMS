@@ -17,14 +17,14 @@ function wally_profile_details() {
 
 /**
  * Return an array of developpement modules.
+ * 
+ *@todo: doing something interesting with this
  */
 function wally_devel_modules() {
   $dev = array(
     // Developpement & testing modules 
     'api', 'devel', 'grammar_parser', 'devel_themer', 
-     
   ); 
-
   return $dev;
 }
 
@@ -32,7 +32,6 @@ function wally_devel_modules() {
  * Implementation of hook_profile_modules().
  */
 function wally_profile_modules() {
-
 
   // Core Required & Optional modules.
   $core_modules = array(
@@ -131,14 +130,10 @@ function wally_feature_modules() {
  *   task list.
  */
 function wally_profile_task_list() {
-
   global $conf;
-
   $conf['site_name'] = 'Wally';
   $conf['site_footer'] = 'wally by <a href="http://www.audaxis.com">Audaxis</a> - Sponsorized by <a href="http://www.rossel.be">Rossel</a>';
-  
   $tasks['wally-configure-batch'] = st('Configure Wally');
-    
   return $tasks;
 }
 
@@ -168,7 +163,7 @@ function wally_profile_tasks(&$task, $url) {
 
     $files = module_rebuild_cache();
 
-    // Building "Batch" operations list.
+      // Building "Batch" operations list.
     
       // We initialize each feature individually rather then all together
       // in the end, to avoid php execution timeout.
@@ -205,34 +200,11 @@ function wally_profile_tasks(&$task, $url) {
 } 
 
 /**
- * Translation import process is finished, move on to the next step
- */
-function _wally_import_translations_finished($success, $results) {
-  _openpublish_log(t('Translations have been imported.'));
-  /**
-   * Necessary as the wally_theme's status gets reset to 0
-   * by a part of the automated batch translation in l10n_update
-   */
-  install_default_theme('wally_theme');
-  variable_set('install_task', 'profile-finished');
-}
-
-/**
  * Import process is finished, move on to the next step
  */
 function _wally_configure_finished($success, $results) {
   _wally_log(t('Yeah! Wally has been installed.'));
-  if (_wally_language_selected()) {
-    // Other language, different part of the process
-
-    // @todo: 
-    //variable_set('install_task', 'wally-translation-import');
-    variable_set('install_task', 'profile-finished'); // Remove this if wally "translation" supported
-  }
-  else {
-    // English (default) installation
-    variable_set('install_task', 'profile-finished');
-  }
+  variable_set('install_task', 'profile-finished');
 }
 
 /**
@@ -493,6 +465,11 @@ function _wally_cleanup() {
   ctools_flush_caches(); 
   cache_clear_all('*', 'cache', TRUE);  
   cache_clear_all('*', 'cache_content', TRUE);
+
+  $msg = st('Clenup');
+  _wally_log($msg);
+  $context['message'] = $msg;
+
 }
 
 /**
