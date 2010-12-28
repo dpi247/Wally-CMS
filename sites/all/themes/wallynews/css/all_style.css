@@ -183,7 +183,9 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .content a { font-weight:bold; text-decoration:underline;}
 .content blockquote { margin:0 0 0 30px; padding:10px 10px 5px 40px;background:url(../images/quote.png) left top no-repeat}
 .content blockquote p { background:url(../images/q_C.png) right bottom no-repeat; color:#333; font-weight:bold;}
-.content ul li {  list-style: none; background:url(../images/document_small_list.png) 0 3px no-repeat; padding-left:30px; font-weight:bold;}
+.content ul li {  list-style: none; background:url(../images/document_small_list.png) 0 3px no-repeat; padding-left:18px; font-weight:bold;}
+.content ul li span.link-description { display: block; font-weight:normal;}
+
 .content ol li {list-style:decimal; font-weight:bold;}
 .content ul li:hover { list-style: none; }
 .content h1{font-size:25px; padding-bottom:10px; color:#333;}
@@ -191,7 +193,7 @@ h2.search {font-size:20px; padding:10px 10px 10px 0; color:#900; margin-bottom:2
 .content h2{font-size:23px; padding-bottom:10px;color:#333;}
 .cufon-loading .content h2 {visibility: hidden !important; }
 .content h3{font-size:21px; padding-bottom:10px;color:#333;}
-.cufon-loading .content h3 {visibility: hidden !important; }
+.content span.linklistblock h3{font-size:18px; padding-bottom:7px;padding-top:10px;color:#333;}
 .content h4{font-size:19px; padding-bottom:10px;color:#333;}
 .cufon-loading .content h4 {visibility: hidden !important; }
 .content h5{font-size:17px; padding-bottom:10px;color:#333;}
@@ -253,7 +255,7 @@ ol.commentlist li ul.children li {margin: 10px 0 0 0;border: 1px solid #ccc;}
 .archivecontent {color:#666; line-height:24px; border-bottom:1px dotted #dadada; padding-bottom:30px; margin-bottom:30px;}
 
 /*********************Social Bar**********************/
-.socialicons {position:absolute; right:25px; bottom:25px;}
+.socialicons {position:absolute; right:25px; bottom:2px;}
 .socialicons a { padding-right:5px;	filter:alpha(opacity=50);	-moz-opacity:0.5;	-khtml-opacity: 0.5; opacity: 0.5;}
 .socialicons a:hover {	filter:alpha(opacity=100);	-moz-opacity:1;	-khtml-opacity: 1;	opacity: 1;}
 

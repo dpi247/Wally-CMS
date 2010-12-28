@@ -21,19 +21,18 @@
 	foreach ($destinations as $destination) {
 		$tempDest['taxID'] = $destination['tid'];
 		$tempDest['tax'] = taxonomy_get_term($destination['tid']);
-		$tempDest['dest'] = $tempDest['tax']->description;
+		$tempDest['dest'] = $tempDest['tax']->name;
 		$tempDest['path'] = drupal_get_path_alias("/taxonomy/term/".$destination['tid']);
-		$mainDest[] = $tempDest;
+		$mainDest[$destination['tid']] = $tempDest;
 	}
   
   $count=1; 
   $html = ($prefix) ? $prefix : "";
   foreach($mainDest as $dest) {
     if ($count>1) $html .= $separator;  
-		$html .= "<a href='".$dest['path']."' title='".$dest['taxID']."' rel='main destination'>".$dest['dest']."</a> ";
+		$html .= "<a href='".$dest['path']."' title='".$dest['taxID']."' rel='main destinations'>".$dest['dest']."</a> ";
     $count++;
   }
   $html .= ($suffix) ? $suffix : "";
-  
   print  $html;
 ?>

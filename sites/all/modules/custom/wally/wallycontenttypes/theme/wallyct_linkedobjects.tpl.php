@@ -24,18 +24,27 @@
 ?>
 <?php
   if (count($linkedobjects)) {
-    foreach ($linkedobjects as $linkedobject) {
+    foreach ($linkedobjects as $linkedobject) {    
 ?>
     <span class="linklistblock">
-    <h3><?php print $linkedobject->title; ?></h3>
+    <h3 class="linklist"><?php print $linkedobject->title; ?></h3>
     <ul>
       <?php
         foreach ($linkedobject->field_links_list_nodes as $link) {
-      ?>
+
+//          $attributes_html = ""; 
+//          foreach ($link->field_link_item[0]['attribute'] as $attribute->$value) {
+//            $attribute_html .= $attribute."= '".$value."' "; 
+//          }
+        ?>
+        
         <li>
-          <a href="<?php print linkURI($link->field_link_item[0]['url']); ?>" >
+          <a class="link" <?php print $attribute_html; ?>$href="<?php print linkURI($link->field_link_item[0]['url']); ?>" >
             <?php print $link->field_link_item[0]['title']; ?>
           </a>
+        <?php if ($link->field_summary[0]['value']) {
+            print "<span class='link-description'>".$link->field_summary[0]['value']."</span>";
+          } ?>
         </li>
       <?php
         }

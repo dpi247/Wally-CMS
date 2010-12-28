@@ -451,7 +451,6 @@ function _imagecache_cache($presetname, $path) {
  */
 function _imagecache_apply_action($action, $image) {
   $actions = imagecache_action_definitions();
-
   if ($definition = imagecache_action_definition($action['action'])) {
     $function = $action['action'] .'_image';
     if (function_exists($function)) {
