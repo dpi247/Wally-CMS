@@ -311,8 +311,7 @@ function _wally_initialize_settings(&$context){
   // Login Destination ( Administrator / Editor / Author )
   // @todo: move it to a module/feature 
   variable_set('ld_condition_type', 'pages');
-  variable_set('ld_condition_snippet', 'user
-user/login');
+  variable_set('ld_condition_snippet', 'user user/login');
   variable_set('ld_url_type', 'snippet');
   variable_set('ld_destination', 0);
   // PHP code snipset for destination (yeah ... pretty nice, no?)  
@@ -379,7 +378,10 @@ function _wally_placeholder_content(&$context) {
   $node->body = 'Tell herre everything about your privacy policies ...';
   node_save($node);	
 
+  var_dump($node); 
+
   menu_rebuild();
+  
   $msg = st('Installed Content');
   _wally_log($msg);
   $context['message'] = $msg;
@@ -389,12 +391,19 @@ function _wally_placeholder_content(&$context) {
  * Load & Updates views
  */
 function _wally_set_views() {
+
   views_include_default_views();
   
   //most popular (statistics) view is disabled by default, enable it
   $view = views_get_view('popular');
   $view->disabled = FALSE;
+  
+  var_dump("VIEWS"); 
+  var_dump($view); 
+  
   $view->save();
+
+
 
   $msg = st('Installed Views');
   _wally_log($msg);
