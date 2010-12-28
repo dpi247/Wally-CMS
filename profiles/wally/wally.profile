@@ -57,8 +57,8 @@ function wally_profile_modules() {
 
   // Third party requiered modules
   $third = array(
-    // Administration
-    'admin', 'login_destination',
+    // Administration & Installation module
+    'admin', 'login_destination', 'install_profile_api'
 
     // CCK (content)
     'content_taxonomy', 'content_taxonomy_autocomplete', 
