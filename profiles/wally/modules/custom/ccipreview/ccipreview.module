@@ -1,0 +1,52 @@
+<?PHP
+// $Id$
+
+/**
+ * Implementation of hook_xmlrpc().
+ * Map external names of XML-RPC methods to PHP callback functions.
+ */
+function ccipreview_xmlrpc() {
+   $methods['ccipreview.hello'] = 'xmls_ccipreview_hello';
+   $methods['ccipreview.test'] = 'xmls_ccipreview_test';
+   return $methods;
+}
+/**
+ * Greet a user.
+ */
+function xmls_ccipreview_hello($name) {
+   if (!$name) {
+      return xmlrpc_error(1, t('I cannot greet you by name if you do not provide one.'));
+   }
+   return t('Hello, @name!', array('@name' => $name));
+}
+
+function xmls_ccipreview_test($array) {
+   $fileHandle = fopen("/Users/jgh/tmp/ccipreview.txt", "w+");
+   foreach ($array as $key => $value) {
+      fwrite($fileHandle, "$key:\t$value\n");
+      #fwrite($fileHandle, "Write $key to a new zip file\n");
+      $zipFileHandler = fopen("/Users/jgh/tmp/test.zip", "w+");
+      #fwrite($zipFileHandler, "HEJ MED DIG\n");
+      #$value = "VGhpcyBpcyBhbiBlbmNvZGVkIHN0cmluZw==";
+      $str = base64_decode($value);
+      #fwrite($zipFileHandler, "str: $str\n");
+      #fwrite($zipFileHandler, base64_decode($value));
+      fwrite($zipFileHandler, $value);
+      #fwrite($zipFileHandler, "\n");
+      fclose($zipFileHandler);
+
+   }
+   $str = "VGhpcyBpcyBhbiBlbmNvZGVkIHN0cmluZw==";
+   fwrite($fileHandle, base64_decode($str));
+   fwrite($fileHandler, "\n");
+   fclose($fileHandle);
+   return array(
+      'test1' => 'array test1',
+      'test2' => 'array test2',
+      'test3' => 'array test3',
+      'test4' => 'array test4',
+      'test5' => 'array test5',
+      'test6' => 'array test6',
+   );
+}
+

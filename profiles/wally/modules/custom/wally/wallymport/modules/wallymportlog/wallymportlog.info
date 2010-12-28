@@ -1,0 +1,15 @@
+; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
+name = Wallymport Log
+description = "log the processing of wallymport module"
+package = Wally
+core = 6.x
+dependencies[] = wallymport
+dependencies[] = wallytoolbox
+
+
+; Information added by drupal.org packaging script on 2010-08-23
+version = "6.x-1.0"
+core = "6.x"
+project = "Wally"
+datestamp = "1282573770"
+

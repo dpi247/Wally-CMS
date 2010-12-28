@@ -1,0 +1,141 @@
+<?php
+define('WALLY_ADMIN_PATH', 'admin/wally');
+
+
+/**
+ * @file wallyadmin.module
+ */
+
+/**
+ * Implementation of hook_init().
+ */
+function wallyadmin_init() {  
+}
+
+
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function wallyadmin_form_alter(&$form, $form_state, $form_id) {
+
+  // Make mods to every node form
+  if ($form['#id'] == 'node-form') {
+        
+    $form['menu']['#collapsed'] = TRUE;
+    $form['path']['#collapsed'] = TRUE;
+    
+    if (isset($form['flag'])) {
+      $form['flag']['#collapsed'] = TRUE;      
+    }
+    
+    // Hide the split summary button
+    if (!empty($form['body_field'])) {
+      $form['body_field']['teaser_js']['#type'] = 'hidden';
+      $form['body_field']['teaser_include']['#type'] = 'hidden';
+    }    
+  }
+}
+
+/**
+ * Implementation of hook_node_form_sidebar().
+ *
+ * This is an integration with the Slate theme of the Admin module.
+ */
+function wallyadmin_node_form_sidebar($form, $node) {
+  return array(
+    'group_identification',
+    'path', 
+    'options', 
+    'menu', 
+    'author', 
+    'revision_information', 
+    'comment_settings', 
+    'flag',
+    'scheduler_settings',
+  );
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ *
+ * Expose a few more items to the Admin Toolbar
+ */
+function wallyadmin_menu_alter(&$items) {
+
+  // Hide the default node edit
+  $items['admin/content/node']['options']['admin'] = FALSE;
+  
+  // Enable the Content Management Filter
+  $items['admin/content/filter']['title'] = 'Find Content';
+  $items['admin/content/filter']['options']['admin'] = TRUE;
+  
+  // Enable Reports
+  $items['admin/reports']['options']['admin'] = TRUE;
+  $items['admin/reports/updates']['options']['admin'] = TRUE;
+  $items['admin/reports/status']['options']['admin'] = TRUE;
+  
+  
+  //Enable some often-used pathes, on the quick bar, for convenience:
+  $items['admin/content/taxonomy']['options']['admin'] = TRUE;    
+  $items['admin/content/clearcache']['options']['admin'] = TRUE;   
+   
+  $items['admin/build/context']['options']['admin'] = TRUE;    
+  $items['admin/build/modules']['options']['admin'] = TRUE;    
+  $items['admin/build/features']['options']['admin'] = TRUE; 
+  $items['admin/build/panels']['options']['admin'] = TRUE;          
+    
+    //-- And if we have context, I guess we don't need blocks UI :)
+  $items['admin/user/roles']['options']['admin'] = TRUE;    
+
+}
+
+
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallyadmin_menu() {
+  $items = array();
+   $items[WALLY_ADMIN_PATH] = array(
+    'title' => 'Wally',
+    'description' => 'Wally administration links.',
+    'position' => 'right',
+    'weight' => 5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer wally'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/content/clearcache'] = array(
+    'title' => t('Clear cache'),
+    'page callback' => 'wallyadmin_clear_cache',
+    'description' => t('Clear the CSS cache and all database cache tables which store page, node, theme and variable caches.'),
+    'access arguments' => array('clear all drupal cache'),
+    'menu_name' => 'Clear Cache',
+  );
+
+  return $items;
+}
+
+/**
+* Implementation of hook_theme().
+*/
+/*function openpublish_administration_theme() {
+  return array(    
+    'admin_content_menu_page' => array(
+      'template' => 'admin-content-menu-page',      
+    ),
+  );
+}
+*/
+
+/**
+* Ability to flush all caches even if devel module is not installed (i.e. in production).
+*/
+function wallyadmin_clear_cache() {
+  drupal_flush_all_caches();
+  drupal_set_message('Cache cleared.');
+  drupal_goto($_SERVER['HTTP_REFERER']);
+}

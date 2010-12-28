@@ -1,0 +1,500 @@
+<?php      
+// $Id: wallyctools.module,v 1.1.2.2 2010/07/23 21:47:20 merlinofchaos Exp $
+
+/**
+ * @file
+ * wallyctools module
+ *
+ * This module allows styles to be created and managed on behalf of modules
+ * that implement styles.
+ *
+ * The wallyctools tool allows recolorable styles to be created via a miniature
+ * scripting language. Panels utilizes this to allow administrators to add
+ * styles directly to any panel display.
+ */
+ 
+/*
+ * Implementation du hook menu
+ */ 
+function wallyctools_menu(){
+  return array(
+    'admin/wallyctools/reorder/%/%'=>array(
+    'page callback'=>'wallyctools_page_reorderdestinationview',
+    'page arguments'=>array(3,4),
+    'access arguments'=>'reorder destination views',
+    ),
+  );
+}
+
+/**
+ * A theme preprocess function to automatically allow view-based node
+ * templates if called from a view.
+ *
+ * The 'modules/node.views.inc' file is a better place for this, but
+ * we haven't got a chance to load that file before Drupal builds the
+ * node portion of the theme registry.
+ */
+function wallyctools_preprocess_node(&$vars) {
+
+  if (isset($vars['node']->node_view_destination)) {
+    $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination); 
+    $taxonomy_term_name = strtolower($taxonomy_term->name); 
+     
+    // The 'view' attribute of the node is added in template_preprocess_views_view_row_node()
+    if (!empty($vars['node']->node_view_layout) && !empty($vars['node']->view->name)) {
+      $vars['view'] = &$vars['node']->view;
+
+      $vars['template_files'][] = 'node-view-' . $vars['node']->node_view_layout;
+      $vars['template_files'][] = 'node-view-' . $taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+
+      if(!empty($vars['node']->view->current_display)) {
+        $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$vars['node']->node_view_layout;
+        $vars['template_files'][] = 'node-view-' . $vars['node']->view->name . '-' . $vars['node']->view->current_display.'-'.$taxonomy_term_name.'-'.$vars['node']->node_view_layout;
+      }
+    }
+  } 
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyctools_perm() {
+  return array(
+    'administer wallyctools',
+    'reorder destination views'
+  );
+}
+
+
+
+
+
+
+function wallyctools_ctools_plugin_api($owner, $api) {
+  if ($owner == 'wallyctools' && $api == 'ctools_content') {
+    return array('version' => 1);
+  }
+}
+
+
+
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallyctools_ctools_plugin_directory($module, $plugin) {
+  // Most of this module is implemented as an export ui plugin, and the
+  // rest is in ctools/includes/wallyctools.inc
+  if ($module == 'ctools' && $plugin == 'export_ui') {
+    return 'plugins/' . $plugin;
+  }
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Create callback for creating a new CTools custom content type.
+ *
+ * This ensures we get proper defaults from the plugin for its settings.
+ */
+function wallyctools_content_type_new($set_defaults) {
+  $item = ctools_export_new_object('wallyctools', $set_defaults);
+  ctools_include('content');
+  $plugin = ctools_get_content_type('redacblock');
+  $item->settings = ctools_content_get_defaults($plugin, array());
+  return $item;
+}
+
+/**
+ * Implementation of hook_panels_dashboard_blocks().
+ *
+ * Adds page information to the Panels dashboard.
+ */
+function wallyctools_panels_dashboard_blocks(&$vars) {
+  $vars['links']['wallyctools'] = array(
+    'title' => l(t('Redactional Block'), 'admin/build/wallyctools/add'),
+    'description' => t('Custom content panes are basic HTML you enter that can be reused in all of your panels.'),
+  );
+  
+  
+
+   // Load all mini panels and their displays.
+  ctools_include('export');
+  $items = ctools_export_crud_load_all('wallyctools');
+  $count = 0;
+  $rows = array();
+
+  foreach ($items as $item) {
+    $rows[] = array(
+      check_plain($item->admin_title),
+      array(
+        'data' => l(t('Edit'), "admin/build/wallyctools/list/$item->name/edit"),
+        'class' => 'links',
+      ),
+    );
+
+    // Only show 10.
+    if (++$count >= 10) {
+      break;
+    }
+  }
+
+  if ($rows) {
+    $content = theme('table', array(), $rows, array('class' => 'panels-manage'));
+  }
+  else {
+    $content = '<p>' . t('There are no redactional Blocks.') . '</p>';
+  }
+
+  $vars['blocks']['wallyctools'] = array(
+    'title' => t('Manage Redactional Block'),
+    'link' => l(t('Go to list'), 'admin/build/wallyctools'),
+    'content' => $content,
+    'class' => 'dashboard-content',
+    'section' => 'right',
+  );
+}
+
+
+
+/**
+ * Implementation of hook_views_api().
+ *
+ * This one is used as the base to reduce errors when updating.
+ */
+function wallyctools_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
+  );
+}
+//-----------------------------------------------
+
+
+function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
+  foreach($node->field_destinations as $destination_item){
+    if($destination_item['tid']==$destination and $destination_item['target']==$target){
+      return $destination_item['layout'];
+    }
+  }
+  return NULL;
+}
+//-----------
+
+function wallyctools_content_get_subtypes($type) {
+  
+  $subtypes = array();
+
+  if (is_array($type)) {
+    $plugin = $type;
+  }
+  else {
+    $plugin = ctools_get_content_type($type);
+  }
+
+  if (empty($plugin) || empty($plugin['name'])) {
+    return;
+  }
+  
+  if (isset($plugin['content types'])) {
+    $function = $plugin['content types'];
+    if (is_array($function)) {
+      $subtypes = $function;
+    }
+    else if (function_exists($function)) {
+      // Cast to array to prevent errors from non-array returns.
+      $subtypes = (array) $function($plugin);
+    }
+  }
+
+  // Walk through the subtypes and ensure minimal settings are
+  // retained.
+  foreach ($subtypes as $id => $subtype) {
+    // Use exact name since this is a modify by reference.
+    ctools_content_prepare_subtype($subtypes[$id], $plugin);
+  }
+
+  return $subtypes;
+}
+
+function wallyctools_get_redac_view_array(){
+  $display_plugin='redacblock';
+  $query="SELECT vv.name, vv.vid, vd.display_plugin,vd.id, vd.display_title  FROM {views_display}  AS vd LEFT JOIN {views_view} AS  vv ON vv.vid=vd.vid WHERE display_plugin='%s'"; 
+  $results=db_query($query,$display_plugin);
+  
+  $array=array();
+  while($result=db_fetch_object($results)){
+  $array[]=$result;
+  }
+  return $array;
+}
+
+function wallyctools_get_redac_view_options(){
+  $options=array();
+  $views=wallyctools_get_redac_view_array() ;
+  foreach($views as $view){
+    $options[$view->name.'+'.$view->id]=$view->name.'-'.$view->display_title.' ('.$view->id.')';
+  }
+  return $options;
+}
+
+
+function wallyctools_form_alter(&$form, &$form_state, $form_id){
+  if($form_id=='views_ui_edit_view_form'){
+    wallyctools_save_views_layout($form,$form_state);
+  }
+}
+
+function wallyctools_save_views_layout($form,$form_state){
+  //Do what I need
+  $view=$form_state['view'];
+  foreach($view->display as $display){
+
+    if($display->display_plugin=='redacblock'){
+      
+      
+      //@todo: Handle the deletion of a view.
+      foreach($display->display_options['redacblock_layout']  as $layout_id=>$layout_value){
+        $row=new stdClass;
+        $row->view_vid=$view_vid=$view->name;
+        $row->view_id=$view_id=$display->id;
+        $row->layout_id=$layout_id;
+       
+        //if checked
+        if($layout_value!=FALSE){
+          $sql="Select id FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
+          $result=db_result(db_query($sql,$view_id,$view_vid,$layout_id));
+
+          if($result>0){
+              $row->id=$result;
+              drupal_write_record('wallyctools_views_layout',$row,'id');
+          }
+          else{
+            drupal_write_record('wallyctools_views_layout',$row);
+          }
+        }
+
+        
+        //remove reference if exist
+        else{
+          $sql="DELETE  FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
+          $result=db_query($sql,$view_id,$view_vid,$layout_id);
+          
+        }
+      }
+    }
+  }
+}
+
+
+/**
+ * Helper function that provide informations about mappings between destinations terms,
+ * variant that handle that term and the redacblock available on that variant and the layout associated with the views binded to the redacblock.
+ * This function return the strucutre of the redactional content
+ * 
+ * @return an array where term are key and the hierarchical structure of the redactional content.
+ */ 
+
+function wallyctools_get_hierarchies(){
+  
+  $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
+  $depth=0;
+  
+  $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+  $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
+  
+  foreach($tid_did_mapping as $tid=>$did_infos){
+          $tid_did_mapping[$tid]['redacblocks']=array();  
+        
+    foreach($array_of_redacblock_panes as $pane){
+      if($did_infos['did']==$pane->did){
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
+//        $tid_did_mapping[$tid]['redacblocks'][$pane->name]=array_merge($tid_did_mapping[$tid]['redacblocks'][$pane->name], array('title'=>$pane->admin_title,'name'=>$pane->name));
+        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
+      }
+    }
+  }
+  
+  return $tid_did_mapping;
+  
+}
+
+
+/**
+ * Helper function that give the variant associated with all terms passed as argument  .
+ * @param: $terms
+ *   an array of terms object
+ * @param: $depth
+ *   depth to take into account default = 0
+ * @return an array where term are key and the handler of the variant for this term
+ */
+function wallyctools_get_term_handler_mapping($terms,$depth){
+
+  $availlable_handlers=array();
+  
+  foreach($terms as $term){
+    $handler= wallyctools_get_active_handler($term->tid,$depth);
+    $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->did,'title'=>$handler->conf['title'],'term_name'=>$term->name);
+  }
+  return $tid_did_mapping;
+  
+}
+/**
+ * Helper function that give the active handler for a given tid  .
+ * @param: $term_tid
+ *   an array of terms object
+ * @param: $depth
+ *   depth to take into account default = 0
+ * @return the active handler
+ */
+function wallyctools_get_active_handler($term_tid,$depth){
+  $task=page_manager_get_task('term_view');
+  ctools_include('context');
+  ctools_include('context-task-handler');
+  
+  $contexts=ctools_context_handler_get_task_contexts($task,'',array($term_tid,$depth));
+  
+  $handlers= page_manager_load_sorted_handlers($task,NULL,TRUE);
+  
+  foreach($handlers as $handler){
+    //add my contexts
+    $contexts= ctools_context_handler_get_handler_contexts($contexts, $handler);
+    
+    //Test if a handler match the context (ie: the term)
+    if(ctools_context_handler_select($handler, $contexts)){
+      return $handler;
+    }
+  }
+  //No Handlers match
+  return NULL;
+    
+}
+/**
+ * Helper function that give the redackblock content pane used on CTools page  .
+ *
+ * @return an array of all redacblocks
+ */
+function wallyctools_get_redacblock_panes(){
+ $array_of_panes=array();
+  $sql="Select pp.did, pp.subtype, wct.view_name,wct.name,wct.admin_title, wct.view_id, wctvl.layout_id FROM {panels_pane} AS pp LEFT JOIN {wallyctools} as wct ON wct.name=pp.subtype LEFT JOIN {wallyctools_views_layout} as wctvl ON wct.view_name=wctvl.view_vid AND wct.view_id=wctvl.view_id WHERE type='%s'";
+  $results=(db_query($sql,"redacblock"));
+  
+  while($result=db_fetch_object($results)){
+    $array_of_panes[]=$result;
+  }
+    return $array_of_panes;
+}
+
+
+function wallyctools_theme() {
+  $path = drupal_get_path('module', 'wallyctools');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
+  require_once "./$path/theme/theme.inc";
+  return array(
+    'wallyctools_form_reorderdestinationview_form'=>$base+array(
+      'arguments'=>array('form'=>array()),
+    ),
+    
+  );
+}
+
+
+function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=NULL){
+  return drupal_get_form('wallyctools_form_reorderdestinationview_form',$destination_tid,$target);
+}
+function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
+    //fetch the data from the DB
+    $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
+                        FROM {node} n
+                        LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+                        WHERE dest.field_destinations_tid=%d
+                        AND dest.field_destinations_target="%s"
+                        ORDER BY dest.field_destinations_time_rank ASC',$destination_tid,$target);
+
+   // $form['rows']=array('#tree'=>true);
+    $form=array("#tree"=>true);
+    $j=0;
+    while ($row = db_fetch_object($result)){
+      //create a partial table row containing the data from the table
+      $data = array(
+        $row->title,
+      );
+              //add our static "row" data into a form value
+      $form['rows'][$row->nid]['data']=array(
+                                   '#type' => 'value',
+                                   '#value' => $data
+                                 );
+
+      //now create the weight form element. 
+      //NOTE how we add the id into the element key
+      $form['rows'][$row->nid]['weight']=array(
+        '#type'=>'weight',
+        '#default_value'=>$j,
+        //add a specific class in here - we need this later
+        '#attributes' => array('class'=>'weight'),
+        '#delta'=>10
+      );
+
+      $form['rows'][$row->nid]['time_rank']=array(
+        '#type'=>'value',
+        '#value'=>$row->field_destinations_time_rank,
+      );
+      
+      $form['rows'][$row->nid]['original_weight']=array(
+        '#type'=>'value',
+        '#value'=>$j,
+      );
+      $form['rows'][$row->nid]['nid']=array(
+        '#type'=>'value',
+        '#value'=>$row->nid  ,
+      );
+      
+      $j++;
+    }   
+    $form['destination_tid']=array(
+      '#type'=>'value',
+      '#value'=>$destination_tid,
+    );
+     $form['target']=array(
+      '#type'=>'value',
+      '#value'=>$target,
+    );
+    
+    //Don't forget the submit button
+    $form['submit']=array(
+      '#type'=>'submit',
+      '#value'=>t('Save changes'),
+    );
+
+  return $form;
+  
+
+}
+
+function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state) {
+  
+  $order_by_weight=array();
+  foreach($form_state['values']['rows'] as $key=>$data){
+    $order_by_weight[$data['weight']]=$data;
+  }
+  krsort($order_by_weight);
+  
+  $new_time_rank=array();
+  foreach($order_by_weight as $weight=>$data){
+    $new_time_rank[$data['nid']]=max($data['time_rank'],$order_by_weight[$weight-1]['time_rank']+1);
+    $order_by_weight[$weight]=$new_time_rank[$data['nid']];
+    db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'",$new_time_rank[$data['nid']],$data['nid'],$form_state['values']['destination_tid'],$form_state['values']['target']);
+  }
+  //
+  //optionally set the redirect value in form_submit ...
+}
