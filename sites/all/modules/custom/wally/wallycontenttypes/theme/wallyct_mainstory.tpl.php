@@ -4,10 +4,10 @@
  */
      
     // Barette
-    $textarette = "<span class='barette'>".$mainstory->field_textarette[0]["value"]."</span>";
+    $textbarette = "<span class='barette'>".$mainstory->field_textbarette[0]["value"]."</span>";
     
     // Foretitle
-    $foretitle = $textarette." ".$mainstory->field_textforetitle[0]["value"];
+    $foretitle = $textbarette." ".$mainstory->field_textforetitle[0]["value"];
 
     // Title
     $title = $mainstory->title;
@@ -48,13 +48,11 @@
 <div class="date">Publié le <?php print date('d M Y', $mainstory->created) ?>  // <?php print $destination_term; ?></div>
 
 <div class="content">
-   
-<?php  print $photo_gallery; ?>
-<?php print $body; ?>
+  <?php  print $photo_gallery; ?>
+  <?php print $body; ?>
 </div>
-<div class="clear"></div>
+<div class="clear" />
 <?php print $social; ?>
-<div class="clear"></div>
+<div class="clear" />
 <?php print $linklists; ?>
-<div class="clear">
-</div>
+<div class="clear" />
