@@ -53,7 +53,7 @@ function wally_profile_modules() {
  
     // Location 
     'location', 'location_cck', 
-  )
+  );
 
   // Third party requiered modules
   $third = array(
@@ -105,8 +105,6 @@ function wally_profile_modules() {
     'wallyctools', 'wallytoolbox', 'wallymport',  
     
   ); 
-
-
 
   return array_merge($core_modules,$third,$mod,$custom);
 } 
