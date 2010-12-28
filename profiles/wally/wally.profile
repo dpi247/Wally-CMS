@@ -21,7 +21,8 @@ function wally_profile_details() {
 function wally_devel_modules() {
   $dev = array(
     // Developpement & testing modules 
-    'api', 'devel', 'grammar_parser', 
+    'api', 'devel', 'grammar_parser', 'devel_themer', 
+     
   ); 
 
   return $dev;
@@ -73,6 +74,9 @@ function wally_profile_modules() {
     // Date/Time
     'date_api', 'date', 'date_timezone',
   
+    // Features
+    'Features',
+
   ); 
 
 
