@@ -151,7 +151,7 @@ function wally_profile_tasks(&$task, $url) {
 
   if($task == 'profile') {
     // Starting process of Wally Installation Profile
-    drupal_set_title(t('OpenPublish Installation'));
+    drupal_set_title(t('Wally Installation'));
     _wally_log(t('Starting Wally Installation'));
     _wally_base_settings();
     $task = "wally-configure";
@@ -299,7 +299,7 @@ function _wally_set_permissions(&$context){
   install_profile_field_add($profile_job_title);
 
   $msg = st('Configured Users & Permissions');
-  _openpublish_log($msg);
+  _wally_log($msg);
   $context['message'] = $msg;
 }
 
@@ -378,8 +378,6 @@ function _wally_placeholder_content(&$context) {
   $node->body = 'Tell herre everything about your privacy policies ...';
   node_save($node);	
 
-  var_dump($node); 
-
   menu_rebuild();
   
   $msg = st('Installed Content');
@@ -397,13 +395,7 @@ function _wally_set_views() {
   //most popular (statistics) view is disabled by default, enable it
   $view = views_get_view('popular');
   $view->disabled = FALSE;
-  
-  var_dump("VIEWS"); 
-  var_dump($view); 
-  
   $view->save();
-
-
 
   $msg = st('Installed Views');
   _wally_log($msg);
@@ -429,7 +421,7 @@ function _wally_install_menus(&$context) {
   // @todo: Settings about taxonomy menu
   
   $msg = st('Installed Menus');
-  _openpublish_log($msg);
+  _wally_log($msg);
   $context['message'] = $msg;
 } 
 
