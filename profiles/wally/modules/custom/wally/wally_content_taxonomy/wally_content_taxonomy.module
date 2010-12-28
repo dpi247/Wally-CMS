@@ -1,0 +1,131 @@
+<?php 
+
+/**
+ * @file
+ * wally_content_taxonomy module
+ *
+ * This module completes the features module to support correctly CCK
+ * content taxonomy fields.
+ */
+
+/**
+ * Implementation of hook_features_api().
+ */
+function wally_content_taxonomy_features_api() {
+  return array(
+    'content_taxonomy_mapping' => array(
+      'name' => t('Content Taxonomy Mapping'),
+      'feature_source' => FALSE,
+      'default_hook' => 'content_taxonomy_mapping',
+    )
+  );
+}
+
+/**
+ * Implementation of hook_features_export_render().
+ */
+function content_taxonomy_mapping_features_export_render($module, $data) {
+  $mappings = array();
+  foreach ($data as $key) {
+    $instance = explode('-', $key);
+    $field_name = $instance[0];
+    $vocabulary_name = $instance[1];
+    $mappings[$key] = array(
+      'field_name' => $field_name,
+      'vocabulary' => $vocabulary_name,
+    );
+  }
+  return array('content_taxonomy_mapping' => '  return ' .features_var_export($mappings, '  ') . ';');
+}
+
+/**
+ * Implementation of hook_features_export().
+ */
+function content_taxonomy_mapping_features_export($data, &$export, $module_name) {
+  // correct content taxonomy handling is provided by wall_content_taxonomy
+  $export['dependencies']['wally_content_taxnomy'] = 'wally_content_taxonomy';
+  
+  $map = features_get_default_map('content_taxonomy_mapping', NULL);
+  foreach ($data as $instance) {
+    // If this field is already provided by another module remove the field.
+    if (isset($map[$instance]) && $map[$instance] != $module_name) {
+      if (isset($export['features']['content_taxonomy_mapping'][$instance])) {
+        unset($export['features']['content_taxonomy_mapping'][$instance]);
+      }
+    }
+    else {
+      $export['features']['content_taxonomy_mapping'][$instance] = $instance;
+    }
+  }
+}
+
+/**
+ * Implementation of hookt_features_pipe_content_alter().
+ */
+function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $export, $module_name) {
+  $content_taxonomy_mapping = array();
+  module_load_include('inc', 'features', 'includes/features.taxonomy');
+  $vocabs = _taxonomy_features_get_vocabularies();
+  $map = array();
+  foreach($vocabs as $machine => $vocab) {
+    $map[$vocab->vid] = $machine;
+  }
+
+  foreach($data as $identifier) {
+    $split = explode('-', $identifier);
+    $type_name = $split[0];
+    $field_name = $split[1];
+    $field = content_fields($field_name, $type_name);
+    if ($field && strpos($field['module'], 'content_taxonomy') === 0 && $field['vid'] && $map[$field['vid']]) {
+      $id = $field_name . '-' . $map[$field['vid']];
+      $more['content_taxonomy_mapping'][$id] = $id;
+      $more['taxonomy'][$map[$field['vid']]] = $map[$field['vid']];
+    }
+  }
+}
+
+/**
+ * Generates a map linking the name of a content taxonomy field with
+ * the linked vocabulary machine name
+ * 
+ * @return array
+ *   The array with the field-name being the key and the value being the
+ *   machine vocabulary name.
+ */
+function wally_content_taxonomy_get_fields_to_vid() {
+  $field_to_vid = array();
+  foreach(features_get_default('content_taxonomy_mapping') as $map) {
+    $field_to_vid[$map['field_name']] = db_result(db_query("SELECT vid from {vocabulary} where module like 'features_%s'", $map['vocabulary']));
+    if (empty($field_to_vid[$map['field_name']])) {
+      // If component is rebuildable, rebuild it.
+      $taxonomy_maps = features_get_component_map('taxonomy');
+      if ($taxonomy_maps[$map['vocabulary']]) {
+        $states = features_get_component_states(array($taxonomy_maps[$map['vocabulary']]));
+        if ($states[$taxonomy_maps[$map['vocabulary']]]['taxonomy'] == FEATURES_REBUILDABLE) {
+          features_rebuild(array($taxonomy_maps[$map['vocabulary']] => array('taxonomy')));
+        }
+      }
+      $field_to_vid[$map['field_name']] = db_result(db_query("SELECT vid from {vocabulary} where module like 'features_%s'", $map['vocabulary']));
+    }
+  }
+  return $field_to_vid;
+}
+
+/**
+ * Implementation of hookt_features_pipe_content_alter().
+ */
+function wally_content_taxonomy_content_default_fields_alter(&$fields) {
+  $mapping = NULL;
+  foreach($fields as $key => $field) {
+    if (strpos($field['module'], 'content_taxonomy') === 0) {
+      // we essiently only want this logic static for this each alter call
+      // to avoid any caching issues?
+      if (!isset($mapping)) {
+        $mapping = wally_content_taxonomy_get_fields_to_vid();
+      }
+      if ($mapping[$field['field_name']]) {
+        $fields[$key]['vid'] = $mapping[$field['field_name']];
+      }
+    }
+  }
+}
