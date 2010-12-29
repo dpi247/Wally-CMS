@@ -13,6 +13,19 @@
 <body>
 <div class="outerwrap">
   <div class="wrapper">
+
+      <div class="access2">
+      <div class="menu2">
+        <?php if (isset($secondary_links)) : ?>
+          <?php print $sf_secondarymenu;  ?> 
+          <? // print theme("wallyct_mainmenu", 'secondary_links', 'menu-secondary-links'); ?>
+        <?php endif; ?>
+      </div>
+    </div>
+    <!-- end of access2 -->
+    <div class="clear"></div>        
+
+  
     <div class="header">
             <h1><a href="<?php print check_url($front_page); ?>">Wally News</a></h1>
             <h2>Publishing getting better!</h2>
@@ -46,8 +59,6 @@
 
     <div class="access">
       <div class="menu">
-                <? print theme("wallyct_coucou"); ?>
-      
         <?php if (isset($primary_links)) : ?>
           <?php print $sf_primarymenu; ?> 
           <? // print theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links'); ?>
@@ -57,19 +68,6 @@
     <!-- end of access -->
 
     <div class="clear"></div>
-
-    <div class="access2">
-      <div class="menu2">
-        <?php if (isset($secondary_links)) : ?>
-          <?php print $sf_secondarymenu;  ?> 
-          <? // print theme("wallyct_mainmenu", 'secondary_links', 'menu-secondary-links'); ?>
-        <?php endif; ?>
-      </div>
-    </div>
-    <!-- end of access2 -->
-
-    <div class="clear"></div>        
-    
 
     <?php if ($messages): print $messages; endif; ?>
     <?php if ($help): print $help; endif; ?>
