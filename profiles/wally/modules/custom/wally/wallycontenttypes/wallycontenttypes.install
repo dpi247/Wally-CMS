@@ -4,7 +4,18 @@
  * Implementation of the hook module _install();
  */
 function wallycontenttypes_install() {
+  _wallycontenttypes_install_presets(); 
+}
 
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function wallycontenttypes_uninstall() {
+ _wallycontenttypes_uninstall_presets();
+}
+
+
+function _wallycontenttypes_install_presets() {
     // @see wallyct_photoobject_slider.tpl.php
     if (!imagecache_preset_by_name('slider_preset')) {
       $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
@@ -37,13 +48,20 @@ function wallycontenttypes_install() {
     }
 }
 
-/*
- * Implementation of the hook module _uninstall();
- */
-function wallycontenttypes_uninstall() {
+function _wallycontenttypes_uninstall_presets() {
 
+    // Deleting ImageCache presets
     // @see wallyct_photoobject_slider
     if (!imagecache_preset_by_name('slider_preset')) {
       imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
     }
+
+    if (!imagecache_preset_by_name('theme_large_article_preset')) {
+      imagecache_preset_delete(imagecache_preset_by_name('theme_large_article_preset'));
+    }
+
+    if (!imagecache_preset_by_name('theme_medium_article_preset')) {
+      imagecache_preset_delete(imagecache_preset_by_name('theme_medium_article_preset'));
+    }
 }
+
