@@ -110,12 +110,15 @@ function wally_profile_modules() {
 
 /**
  * Features module and Wally specific features
+ * 
+ * Creating content types, taxonomies, 
+ * default views, default pages, etc.
  */
 function wally_feature_modules() {
   $features = array(
     'integrationstarter',
     'wallycontenttypes', 
-//    'wallyfundamentals', 
+    'wallyfundamentals', 
   );
   return $features;
 }
