@@ -734,8 +734,8 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
   $form['admin_account']['account']['mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
-  
-  $form['wally'] ≃ array (
+
+  $form['wally'] ≃ array(
     '#type' => 'fieldset',
     '#title' => t('Wally settings'),
     '#weight' => 0, // be sure we're at the end
