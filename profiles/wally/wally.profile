@@ -319,7 +319,12 @@ function _wally_initialize_settings(&$context){
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
-  _taxonomy_menu_rebuild($vid);
+  // Settings about Taxonomy menu
+  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('840', '1', '2')"); 
+  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('841', '2', '2')"); 
+  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('842', '3', '2')"); 
+  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('843', '4', '2')"); 
+  
 
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
