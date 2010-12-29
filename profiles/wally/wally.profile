@@ -312,7 +312,11 @@ function _wally_set_permissions(&$context){
 function _wally_initialize_settings(&$context){
        
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
-  $vid = install_taxonomy_get_vid("destination_path");     
+  $vid = install_taxonomy_get_vid("destination_path");
+  
+  var_dump("vid");
+  var_dump($vid);
+        
   if ($vid) {
     foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
@@ -321,12 +325,19 @@ function _wally_initialize_settings(&$context){
 
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("documenttype");     
+
+  var_dump("vid");
+  var_dump($vid);
+
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
+      var_dump("term"); 
+      var_dump($term); 
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
-        
+  
+  die();       
   menu_rebuild();
         
   $msg = st('Setup general configuration');
@@ -381,6 +392,7 @@ function _wally_destinationtaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
+  return $terms; 
 }
 
 
@@ -407,6 +419,8 @@ function _wally_documenttypetaxonomy_terms($vid) {
     'weight' => 2,
     'vid' => $vid,
   );
+
+  return $terms; 
 }
 
 
