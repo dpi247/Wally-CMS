@@ -175,11 +175,13 @@ function wally_profile_tasks(&$task, $url) {
         $batch['operations'][] = array('features_flush_caches', array()); 
       }    
 
+
       $batch['operations'][] = array('_wally_set_permissions', array());      
       $batch['operations'][] = array('_wally_initialize_settings', array());      
       $batch['operations'][] = array('_wally_placeholder_content', array());      
       $batch['operations'][] = array('_wally_set_views', array());      
-      $batch['operations'][] = array('_wally_install_menus', array());      
+      $batch['operations'][] = array('_wally_install_menus', array());
+      $batch['operations'][] = array('_taxonomy_menu_insert_link_items_process', array(NULL, "Primary Links"));
       $batch['operations'][] = array('_wally_setup_blocks', array()); 
       $batch['operations'][] = array('_wally_cleanup', array());
           
