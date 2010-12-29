@@ -247,6 +247,7 @@ function _wally_base_settings() {
   variable_set('comment_page', COMMENT_NODE_DISABLED);
 
   // Theme installation & settings.  
+  _wally_system_theme_data();
   install_default_theme('wallynews');
   install_admin_theme('rubik');	
   variable_set('node_admin_theme', TRUE);    
@@ -313,11 +314,6 @@ function _wally_initialize_settings(&$context){
        
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Destination Path");
-  
-
-//  var_dump("vid");
-//  var_dump($vid);
-        
   if ($vid) {
     foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
@@ -327,18 +323,12 @@ function _wally_initialize_settings(&$context){
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
 
-//  var_dump("vid");
-//  var_dump($vid);
-
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
-//      var_dump("term"); 
- //     var_dump($term); 
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
-  
-//  die();       
+
   menu_rebuild();
         
   $msg = st('Setup general configuration');
@@ -401,7 +391,7 @@ function _wally_documenttypetaxonomy_terms($vid) {
 
   $terms = array();
 
-  //tid-1
+  //tid-5
   $terms[] = array(
     'name' => 'Article',
     'description' => 'Article',
@@ -411,7 +401,7 @@ function _wally_documenttypetaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  //tid-2
+  //tid-6
   $terms[] = array(
     'name' => 'Blog Post',
     'description' => 'Blog Post',
@@ -580,11 +570,17 @@ function _wally_cleanup() {
 
 /**
  * Set Wally as the default install profile
+ * 
+ * @TODO: This might be impolite/too aggressive. We should at least check that
+ * other install profiles are not present to ensure we don't collide with a
+ * similar form alter in their profile.
  */
 function system_form_install_select_profile_form_alter(&$form, $form_state) {
   foreach($form['profile'] as $key => $element) {
     $form['profile'][$key]['#value'] = 'wally';
   }
+  // Make wally appear as the first choice.
+  $form['profile']['wally']['#weight'] = -40;
 }
 
 /**
@@ -601,4 +597,93 @@ function _wally_log($msg) {
 function _wally_language_selected() {
   global $install_locale;
   return !empty($install_locale) && ($install_locale != 'en');
+}
+
+
+/**
+ * Reimplementation of system_theme_data(). The core function's static cache
+ * is populated during install prior to active install profile awareness.
+ * This workaround makes enabling themes in profiles/[profile]/themes possible.
+ * 
+ * Gently copy/pasted from OpenAtrium installation profile.
+ * @see: http://openatrium.com/ 
+ */
+function _wally_system_theme_data() {
+  global $profile;
+  $profile = 'wally';
+
+
+  $themes = drupal_system_listing('\.info$', 'themes');
+  $engines = drupal_system_listing('\.engine$', 'themes/engines');
+
+  $defaults = system_theme_default();
+
+  $sub_themes = array();
+  foreach ($themes as $key => $theme) {
+    $themes[$key]->info = drupal_parse_info_file($theme->filename) + $defaults;
+
+    if (!empty($themes[$key]->info['base theme'])) {
+      $sub_themes[] = $key;
+    }
+
+    $engine = $themes[$key]->info['engine'];
+    if (isset($engines[$engine])) {
+      $themes[$key]->owner = $engines[$engine]->filename;
+      $themes[$key]->prefix = $engines[$engine]->name;
+      $themes[$key]->template = TRUE;
+    }
+
+    // Give the stylesheets proper path information.
+    $pathed_stylesheets = array();
+    foreach ($themes[$key]->info['stylesheets'] as $media => $stylesheets) {
+      foreach ($stylesheets as $stylesheet) {
+        $pathed_stylesheets[$media][$stylesheet] = dirname($themes[$key]->filename) .'/'. $stylesheet;
+      }
+    }
+    $themes[$key]->info['stylesheets'] = $pathed_stylesheets;
+
+    // Give the scripts proper path information.
+    $scripts = array();
+    foreach ($themes[$key]->info['scripts'] as $script) {
+      $scripts[$script] = dirname($themes[$key]->filename) .'/'. $script;
+    }
+    $themes[$key]->info['scripts'] = $scripts;
+
+    // Give the screenshot proper path information.
+    if (!empty($themes[$key]->info['screenshot'])) {
+      $themes[$key]->info['screenshot'] = dirname($themes[$key]->filename) .'/'. $themes[$key]->info['screenshot'];
+    }
+  }
+
+  foreach ($sub_themes as $key) {
+    $themes[$key]->base_themes = system_find_base_themes($themes, $key);
+    // Don't proceed if there was a problem with the root base theme.
+    if (!current($themes[$key]->base_themes)) {
+      continue;
+    }
+    $base_key = key($themes[$key]->base_themes);
+    foreach (array_keys($themes[$key]->base_themes) as $base_theme) {
+      $themes[$base_theme]->sub_themes[$key] = $themes[$key]->info['name'];
+    }
+    // Copy the 'owner' and 'engine' over if the top level theme uses a
+    // theme engine.
+    if (isset($themes[$base_key]->owner)) {
+      if (isset($themes[$base_key]->info['engine'])) {
+        $themes[$key]->info['engine'] = $themes[$base_key]->info['engine'];
+        $themes[$key]->owner = $themes[$base_key]->owner;
+        $themes[$key]->prefix = $themes[$base_key]->prefix;
+      }
+      else {
+        $themes[$key]->prefix = $key;
+      }
+    }
+  }
+
+  // Extract current files from database.
+  system_get_files_database($themes, 'theme');
+  db_query("DELETE FROM {system} WHERE type = 'theme'");
+  foreach ($themes as $theme) {
+    $theme->owner = !isset($theme->owner) ? '' : $theme->owner;
+    db_query("INSERT INTO {system} (name, owner, info, type, filename, status, throttle, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, %d)", $theme->name, $theme->owner, serialize($theme->info), 'theme', $theme->filename, isset($theme->status) ? $theme->status : 0, 0, 0);
+  }
 }
