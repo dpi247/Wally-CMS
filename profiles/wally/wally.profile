@@ -319,6 +319,7 @@ function _wally_initialize_settings(&$context){
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
+  _taxonomy_menu_rebuild($vid);
 
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
