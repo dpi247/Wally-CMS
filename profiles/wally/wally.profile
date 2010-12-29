@@ -341,7 +341,7 @@ function _wally_destinationtaxonomy_terms($vid) {
 
   $terms = array();
 
-  /tid-1
+  //tid-1
   $terms[] = array(
     'name' => 'News',
     'description' => 'All about news',
@@ -351,7 +351,7 @@ function _wally_destinationtaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  /tid-2
+  //tid-2
   $terms[] = array(
     'name' => 'Sports',
     'description' => 'All about sports',
@@ -361,7 +361,7 @@ function _wally_destinationtaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  /tid-3
+  //tid-3
   $terms[] = array(
     'name' => 'Economy',
     'description' => 'All about economy',
@@ -371,7 +371,7 @@ function _wally_destinationtaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  /tid-4
+  //tid-4
   $terms[] = array(
     'name' => 'Politics',
     'description' => 'All about politic',
@@ -388,7 +388,7 @@ function _wally_documenttypetaxonomy_terms($vid) {
 
   $terms = array();
 
-  /tid-1
+  //tid-1
   $terms[] = array(
     'name' => 'Article',
     'description' => 'Article',
@@ -398,7 +398,7 @@ function _wally_documenttypetaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  /tid-2
+  //tid-2
   $terms[] = array(
     'name' => 'Blog Post',
     'description' => 'Blog Post',
