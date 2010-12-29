@@ -537,7 +537,7 @@ function _wally_install_menus(&$context) {
  * Reset "Taxonomy Menu" items (normaly empty)
  * and ADD terms from "Destination Path" (Voc 2) to it.
  */ 
-_wally_setup_taxonomymenu($vid, $menu_name) {
+function _wally_setup_taxonomymenu($vid, $menu_name) {
 
   _taxonomy_menu_delete_all($vid);
 
