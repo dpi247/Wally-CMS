@@ -312,10 +312,11 @@ function _wally_set_permissions(&$context){
 function _wally_initialize_settings(&$context){
        
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
-  $vid = install_taxonomy_get_vid("destination_path");
+  $vid = install_taxonomy_get_vid("Destination Path");
   
-  var_dump("vid");
-  var_dump($vid);
+
+//  var_dump("vid");
+//  var_dump($vid);
         
   if ($vid) {
     foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
@@ -324,20 +325,20 @@ function _wally_initialize_settings(&$context){
   }
 
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
-  $vid = install_taxonomy_get_vid("documenttype");     
+  $vid = install_taxonomy_get_vid("Document Type");     
 
-  var_dump("vid");
-  var_dump($vid);
+//  var_dump("vid");
+//  var_dump($vid);
 
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
-      var_dump("term"); 
-      var_dump($term); 
+//      var_dump("term"); 
+ //     var_dump($term); 
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
   
-  die();       
+//  die();       
   menu_rebuild();
         
   $msg = st('Setup general configuration');
