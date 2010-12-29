@@ -310,31 +310,105 @@ function _wally_set_permissions(&$context){
  * Set misc settings
  */
 function _wally_initialize_settings(&$context){
- 
-  // Login Destination ( Administrator / Editor / Author )
-  // @todo: move it to a module/feature 
-  variable_set('ld_condition_type', 'pages');
-  variable_set('ld_condition_snippet', 'user user/login');
-  variable_set('ld_url_type', 'snippet');
-  variable_set('ld_destination', 0);
-  // PHP code snipset for destination (yeah ... pretty nice, no?)  
-  variable_set('ld_url_destination', '
-global $user;
-if ($user->uid == 1 || in_array("administrator", $user->roles)) {
-  return "admin";
-}
-else if (in_array("editor", $user->roles) || in_array("web editor", $user->roles))  {
-  return "admin/content/node/filter";
-}
-else if (in_array("author", $user->roles)) {
-  return "node/add";
-}
-return "user";');
-      
+       
+  // Destination taxonomy (vocabulary created by wallycontenttype feature).
+  $vid = install_taxonomy_get_vid("destination_path");     
+  if ($vid) {
+    foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
+      install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
+    }
+  }
+
+  // Destination taxonomy (vocabulary created by wallycontenttype feature).
+  $vid = install_taxonomy_get_vid("documenttype");     
+  if ($vid) {
+    foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
+      install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
+    }
+  }
+        
+  menu_rebuild();
+        
   $msg = st('Setup general configuration');
   _wally_log($msg);
   $context['message'] = $msg;
 }
+
+/**
+ * Return an array of terms for default destinations taxonomy.
+ */
+function _wally_destinationtaxonomy_terms($vid) {
+
+  $terms = array();
+
+  /tid-1
+  $terms[] = array(
+    'name' => 'News',
+    'description' => 'All about news',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+
+  /tid-2
+  $terms[] = array(
+    'name' => 'Sports',
+    'description' => 'All about sports',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 2,
+    'vid' => $vid,
+  );
+
+  /tid-3
+  $terms[] = array(
+    'name' => 'Economy',
+    'description' => 'All about economy',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 3,
+    'vid' => $vid,
+  );
+
+  /tid-4
+  $terms[] = array(
+    'name' => 'Politics',
+    'description' => 'All about politic',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 4,
+    'vid' => $vid,
+  );
+
+}
+
+
+function _wally_documenttypetaxonomy_terms($vid) {
+
+  $terms = array();
+
+  /tid-1
+  $terms[] = array(
+    'name' => 'Article',
+    'description' => 'Article',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+
+  /tid-2
+  $terms[] = array(
+    'name' => 'Blog Post',
+    'description' => 'Blog Post',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 2,
+    'vid' => $vid,
+  );
+}
+
 
 /**
  * Create some content of type "page" as placeholders for content
@@ -421,7 +495,20 @@ function _wally_install_menus(&$context) {
   install_menu_create_menu_item('node/2', 'Terms of use', '', 'secondary-links', 0, 2);
   install_menu_create_menu_item('node/3', 'Privacy', '', 'secondary-links', 0, 3);
 
-  // @todo: Settings about taxonomy menu
+  // Settings about taxonomy menu
+  variable_set('taxonomy_menu_expanded_2', 0);
+  variable_set('taxonomy_menu_voc_name_2', "");
+  variable_set('taxonomy_menu_display_descendants_2', O);
+  variable_set('taxonomy_menu_blank_title_2', 0);
+  variable_set('taxonomy_menu_end_all_2', 0);
+  variable_set('taxonomy_menu_rebuild_2', 0);
+  variable_set('taxonomy_menu_vocab_menu_2', "primary-links");
+  variable_set('taxonomy_menu_vocab_parent_2', "0");
+  variable_set('taxonomy_menu_path_2', "taxonomy_menu_path_default");
+  variable_set('taxonomy_menu_sync_2', 1);
+  variable_set('taxonomy_menu_display_num_2', 0);
+  variable_set('taxonomy_menu_hide_empty_terms_2', 0);
+  variable_set('taxonomy_menu_voc_item_2', 0);
   
   $msg = st('Installed Menus');
   _wally_log($msg);

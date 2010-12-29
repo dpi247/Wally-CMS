@@ -6,7 +6,7 @@
 function wallyfundamentals_default_page_manager_handlers() {
   $export = array();
   $handler = new stdClass;
-  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+  $handler->disabled = TRUE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'node_view_panel_context';
   $handler->task = 'node_view';
@@ -89,7 +89,7 @@ function wallyfundamentals_default_page_manager_handlers() {
 
   $export['node_view_panel_context'] = $handler;
   $handler = new stdClass;
-  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+  $handler->disabled = TRUE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'term_view_panel_context';
   $handler->task = 'term_view';
