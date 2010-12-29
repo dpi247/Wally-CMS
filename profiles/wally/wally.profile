@@ -246,7 +246,7 @@ function _wally_base_settings() {
   variable_set('comment_page', COMMENT_NODE_DISABLED);
 
   // Theme installation & settings.  
-  _wally_system_theme_data();
+  _wally_system_theme_data(); // @todo: move wallynews theme to profile folder
   install_default_theme('wallynews');
   install_admin_theme('rubik');	
   variable_set('node_admin_theme', TRUE);    
@@ -511,7 +511,6 @@ function _wally_install_menus(&$context) {
       break; 
     }
   }
-  
   variable_set('taxonomy_menu_expanded_'.$vid, 0);
   variable_set('taxonomy_menu_voc_name_'.$vid, "");
   variable_set('taxonomy_menu_display_descendants_'.$vid, O);
@@ -525,7 +524,6 @@ function _wally_install_menus(&$context) {
   variable_set('taxonomy_menu_display_num_'.$vid, 0);
   variable_set('taxonomy_menu_hide_empty_terms_'.$vid, 0);
   variable_set('taxonomy_menu_voc_item_'.$vid, 0);
-  
   _wally_setup_taxonomymenu($vid, $menu_name);
   
   $msg = st('Installed Menus');
@@ -738,7 +736,7 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   $form['wally'] = array(
     '#type' => 'fieldset',
     '#title' => t('Wally settings'),
-    '#weight' => 0, // be sure we're at the end
+    '#weight' => 99, // be sure we're at the end
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
   );
