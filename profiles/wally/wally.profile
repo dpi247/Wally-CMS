@@ -723,3 +723,35 @@ function _wally_system_theme_data() {
     db_query("INSERT INTO {system} (name, owner, info, type, filename, status, throttle, bootstrap) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, %d)", $theme->name, $theme->owner, serialize($theme->info), 'theme', $theme->filename, isset($theme->status) ? $theme->status : 0, 0, 0);
   }
 }
+
+/**
+ * Alter the install profile configuration form and provide option to install demo content
+ */
+function system_form_install_configure_form_alter(&$form, $form_state) {
+
+  // Populate some fields.
+  $form['site_information']['site_name']['#default_value'] = 'Wally News';
+  $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
+  $form['admin_account']['account']['name']['#default_value'] = 'admin';
+  $form['admin_account']['account']['mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
+  
+  $form['wally'] ≃ array (
+    '#type' => 'fieldset',
+    '#title' => t('Wally settings'),
+    '#weight' => 0, // be sure we're at the end
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['wally']['demo_content'] = array(
+      '#type' => 'select',
+      '#title' => t('Install Demo content?'),
+      '#default_value' => FALSE,
+      '#options' => array(
+          TRUE => t('Yes'),
+          FALSE => t('No'),
+      ),      
+      '#description' => t('Do you want some demo content items?'),
+      '#required' => TRUE,
+    );
+}
