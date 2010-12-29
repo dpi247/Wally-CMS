@@ -181,7 +181,7 @@ function wally_profile_tasks(&$task, $url) {
       $batch['operations'][] = array('_wally_placeholder_content', array());      
       $batch['operations'][] = array('_wally_set_views', array());      
       $batch['operations'][] = array('_wally_install_menus', array());
-      $batch['operations'][] = array('_taxonomy_menu_insert_link_items_process', array(NULL, "Primary Links"));
+
       $batch['operations'][] = array('_wally_setup_blocks', array()); 
       $batch['operations'][] = array('_wally_cleanup', array());
           
@@ -320,15 +320,8 @@ function _wally_initialize_settings(&$context){
     foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
-  }
-
-  // Settings about Taxonomy menu
-//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('840', '1', '2')"); 
-//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('841', '2', '2')"); 
-//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('842', '3', '2')"); 
-//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('843', '4', '2')"); 
+  }  
   
-
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
 
@@ -510,19 +503,38 @@ function _wally_install_menus(&$context) {
   install_menu_create_menu_item('node/3', 'Privacy', '', 'secondary-links', 0, 3);
 
   // Settings about taxonomy menu
+  $menu_name = "primary-links";
   variable_set('taxonomy_menu_expanded_2', 0);
   variable_set('taxonomy_menu_voc_name_2', "");
   variable_set('taxonomy_menu_display_descendants_2', O);
   variable_set('taxonomy_menu_blank_title_2', 0);
   variable_set('taxonomy_menu_end_all_2', 0);
   variable_set('taxonomy_menu_rebuild_2', 0);
-  variable_set('taxonomy_menu_vocab_menu_2', "primary-links");
+  variable_set('taxonomy_menu_vocab_menu_2', $menu_name);
   variable_set('taxonomy_menu_vocab_parent_2', "0");
   variable_set('taxonomy_menu_path_2', "taxonomy_menu_path_default");
   variable_set('taxonomy_menu_sync_2', 1);
   variable_set('taxonomy_menu_display_num_2', 0);
   variable_set('taxonomy_menu_hide_empty_terms_2', 0);
   variable_set('taxonomy_menu_voc_item_2', 0);
+  
+  // Reset "Taxonomy Menu" items (normaly empty)
+  // and ADD terms from "Destination Path" (Voc 2) to it. 
+  _taxonomy_menu_delete_all(2);
+  $args = array(
+    'vid' => 2,
+    'menu_name' => $menu_name,
+  );
+  $mlid = taxonomy_menu_handler('insert', $args);
+  $terms = taxonomy_get_tree(2);
+  foreach ($terms as $term) {
+    $args = array(
+      'term' => $term,
+      'menu_name' => $menu_name,
+    );
+    $mlid = taxonomy_menu_handler('insert', $args);
+  }
+
   
   $msg = st('Installed Menus');
   _wally_log($msg);
