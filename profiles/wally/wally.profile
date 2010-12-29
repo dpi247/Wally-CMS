@@ -115,7 +115,7 @@ function wally_feature_modules() {
   $features = array(
     'integrationstarter',
     'wallycontenttypes', 
-    'wallyfundamentals', 
+//    'wallyfundamentals', 
   );
   return $features;
 }
