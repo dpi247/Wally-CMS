@@ -319,11 +319,12 @@ function _wally_initialize_settings(&$context){
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
+
   // Settings about Taxonomy menu
-  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('840', '1', '2')"); 
-  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('841', '2', '2')"); 
-  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('842', '3', '2')"); 
-  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('843', '4', '2')"); 
+//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('840', '1', '2')"); 
+//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('841', '2', '2')"); 
+//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('842', '3', '2')"); 
+//  db_query("INSERT INTO {taxonomy_menu} ('mlid', 'tid', 'vid') VALUES ('843', '4', '2')"); 
   
 
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
@@ -617,7 +618,6 @@ function _wally_language_selected() {
 function _wally_system_theme_data() {
   global $profile;
   $profile = 'wally';
-
 
   $themes = drupal_system_listing('\.info$', 'themes');
   $engines = drupal_system_listing('\.engine$', 'themes/engines');
