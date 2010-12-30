@@ -166,15 +166,19 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * Implementation of hook_nodeapi().
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+
+dsm("wallycontenttypes_nodeapi");
+dsm($op);
+
  switch ($op) {
+
+	// I don't know why but Node Page didn't pass thrus node_view
+	// @todo: Check WHY and put back callback function to "view".
 
 //    case 'view':
 //      wallycontenttypes_packagepopulate($node,$op);
 //      break;
-
-	// I don't know why but Node Page didn't pass thrus node_view
-	// @todo: Check WHY and put back callback function to "view".
-    case 'load':
+	  case 'load':
 	    if($node->type == 'wally_articlepackage' || 
 	       $node->type == 'wally_gallerypackage' ||
 	       $node->type == 'wally_pollpackage')
@@ -230,7 +234,6 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
  * @return Nothing but modify the $node
  */
 function wallycontenttypes_packagepopulate($node,$op){
-	dsm("wallycontenttypes_packagepopulate"); 
   wallycontenttypes_fieldNID($node, $op);
   wallycontenttypes_fieldTID($node, $op);
   }
