@@ -818,7 +818,7 @@ function _wallycontenttypes_getdefaultvaluesforthecroping($crop) {
  */
 function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
   $usablecrops = array();
-  $presets = imagecache_presets();
+  $presets = imagecache_presets();dsm($presets);
   foreach ($presets as $preset) {
     if ($preset['actions']) {
       $datas = array();
