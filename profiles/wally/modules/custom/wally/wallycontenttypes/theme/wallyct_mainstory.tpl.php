@@ -68,7 +68,7 @@
 <div class="date">Publié le <?php print date('d M Y', $mainstory->created) ?>  // <?php print $destination_term; ?></div>
 
 <div class="content">
-  <?php  print $photo_gallery; ?>
+  <?php print $photo_gallery; ?>
   <?php print $body; ?>
   <?php print $linklists; ?>
 </div>
