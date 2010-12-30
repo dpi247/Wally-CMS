@@ -138,9 +138,9 @@ function wallycontenttypes_theme(&$var) {
  */
 function wallycontenttypes_imagecache_actions() {
   $actions = array(
-    'wallycontenttypes_customcrop' => array(
-      'name' => 'Custom crop',
-      'description' => 'Perform a custom crop action.',
+    'wallycontenttypes_wallycrop' => array(
+      'name' => 'Wally crop',
+      'description' => 'Perform a wallycrop action.',
       'file' => 'includes/wallycontenttypes_actions.inc',
     ),
   );
@@ -823,7 +823,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
     if ($preset['actions']) {
       $datas = array();
       foreach ($preset['actions'] as $action) {
-        if ($action['action']=='wallycontenttypes_customcrop') {
+        if ($action['action']=='wallycontenttypes_wallycrop') {
           $datas = $action['data'];
         }
       }
@@ -852,11 +852,11 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
           $tempusablecrop = $temppresetcrop;
           $tempusablecrop[2] += $tempusablecrop[0];
           $tempusablecrop[3] += $tempusablecrop[1];
-          drupal_set_message('No croping info found for the custom crop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
+          drupal_set_message('No croping info found for the wallycrop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
         }
         $usablecrops[$preset['presetname']] = $tempusablecrop;
       } else {
-        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the custom crop action.',"error");
+        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"error");
       }
     }
   }

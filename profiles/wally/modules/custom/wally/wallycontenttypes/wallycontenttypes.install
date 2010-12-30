@@ -21,8 +21,8 @@ function _wallycontenttypes_install_presets() {
       $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
       $imagecacheaction = new stdClass ();
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale_and_crop';
+      $imagecacheaction->module = 'wallycontenttypes';
+      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => '270', 'height' => '200' );
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
@@ -31,8 +31,8 @@ function _wallycontenttypes_install_presets() {
       $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
       $imagecacheaction = new stdClass ();
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale_and_crop';
+      $imagecacheaction->module = 'wallycontenttypes';
+      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => '90', 'height' => '90' );
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
@@ -41,8 +41,8 @@ function _wallycontenttypes_install_presets() {
       $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_large_article_preset'));
       $imagecacheaction = new stdClass ();
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale_and_crop';
+      $imagecacheaction->module = 'wallycontenttypes';
+      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => '270', 'height' => '200' );
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
