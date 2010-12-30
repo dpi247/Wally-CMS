@@ -23,7 +23,7 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
       $imagecacheaction->module = 'wallycontenttypes';
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => '270', 'height' => '200', 'presetid' => $imagecachepreset['presetid']);
+      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
     
@@ -33,7 +33,7 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
       $imagecacheaction->module = 'wallycontenttypes';
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => '90', 'height' => '90', 'presetid' => $imagecachepreset['presetid']);
+      $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
     
@@ -43,7 +43,7 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->presetid = $imagecachepreset['presetid'];
       $imagecacheaction->module = 'wallycontenttypes';
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => '270', 'height' => '200', 'presetid' => $imagecachepreset['presetid']);
+      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
       drupal_write_record('imagecache_action', $imagecacheaction); 
     }
 }
