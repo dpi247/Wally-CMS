@@ -27,7 +27,7 @@ function _wallycontenttypes_install_presets() {
       drupal_write_record('imagecache_action', $imagecacheaction);
       $imagecacheaction->module = 'imagecache';
       $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200);
+      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
       drupal_write_record('imagecache_action', $imagecacheaction);
     }
     
@@ -41,7 +41,7 @@ function _wallycontenttypes_install_presets() {
       drupal_write_record('imagecache_action', $imagecacheaction); 
       $imagecacheaction->module = 'imagecache';
       $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 90, 'height' => 90);
+      $imagecacheaction->data = array('width' => 90, 'height' => 90, 'upscale' => true);
       drupal_write_record('imagecache_action', $imagecacheaction);
     }
     
@@ -55,7 +55,7 @@ function _wallycontenttypes_install_presets() {
       drupal_write_record('imagecache_action', $imagecacheaction); 
       $imagecacheaction->module = 'imagecache';
       $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200);
+      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
       drupal_write_record('imagecache_action', $imagecacheaction);
     }
 }
