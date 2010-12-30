@@ -1,16 +1,16 @@
 <?php
  
 /**
- * Form allowing to change default values of the customcrop action from
+ * Form allowing to change default values of the wallycrop action from
  * any preset in imagecache.
  * 
  * @param $data
- *   The actual values of the customcrop.
+ *   The actual values of the wallycrop.
  * 
  * @return
  *   The form.
  */  
-function wallycontenttypes_customcrop_form($data = array()) {
+function wallycontenttypes_wallycrop_form($data = array()) {
   $data += array(
     'width' => '',
     'height' => '',
@@ -45,14 +45,14 @@ function wallycontenttypes_customcrop_form($data = array()) {
 }
 
 /**
- * Theme of the customcrop form.
+ * Theme of the wallycrop form.
  * 
  * @param $element
  * 
  * @return
  *   The theme.
  */ 
-function theme_wallycontenttypes_customcrop($element) {
+function theme_wallycontenttypes_wallycrop($element) {
   $data = $element['#value'];
   return t('width: @width, height: @height, xoffset: @xoffset, yoffset: @yoffset', array(
     '@width' => $data['width'],
@@ -75,7 +75,7 @@ function theme_wallycontenttypes_customcrop($element) {
  * @return
  *   The croped image.
  */ 
-function wallycontenttypes_customcrop_image(&$image, $data) {
+function wallycontenttypes_wallycrop_image(&$image, $data) {
   $fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
   $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
   $preset = imagecache_preset($data['presetid']);
@@ -91,7 +91,7 @@ function wallycontenttypes_customcrop_image(&$image, $data) {
     $data['height'] = $crop[3];
   }
   if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
-      watchdog('wallycontenttypes_actions', 'wallycontenttypes_customcrop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+      watchdog('wallycontenttypes_actions', 'wallycontenttypes_wallycrop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;
   }
   return TRUE;
