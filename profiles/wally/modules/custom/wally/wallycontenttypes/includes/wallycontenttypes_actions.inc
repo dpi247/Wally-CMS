@@ -73,7 +73,7 @@ function theme_wallycontenttypes_wallycrop($element) {
  *   The datas (width, height, xoffset and yoffset) of the crop.
  * 
  * @return
- *   The croped image.
+ *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_wallycrop_image(&$image, $data) {
   $fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
@@ -81,7 +81,7 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value);
-watchdog('ODM', print_r($data,TRUE), array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+
   if (isset($imgcropings->$presetname)) {
     $crop = array();
     $crop = $imgcropings->$presetname;
