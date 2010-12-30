@@ -18,7 +18,7 @@ function wally_profile_details() {
 /**
  * Return an array of developpement modules.
  * 
- *@todo: doing something interesting with this
+ *@TODO: doing something interesting with this
  */
 function wally_devel_modules() {
   $dev = array(
@@ -80,6 +80,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
+    'media_vimeo', 'media_youtube',
 
     // Others
     'job_queue', 
@@ -145,7 +146,7 @@ function wally_profile_task_list() {
  */
 function wally_profile_tasks(&$task, $url) {
 
-// @todo: Use "locale" for installation translation.
+// @TODO: Use "locale" for installation translation.
 // global $install_locale;
   
   $output = "";
@@ -246,7 +247,7 @@ function _wally_base_settings() {
   variable_set('comment_page', COMMENT_NODE_DISABLED);
 
   // Theme installation & settings.  
-  _wally_system_theme_data(); // @todo: move wallynews theme to profile folder
+  //_wally_system_theme_data(); // @TODO: move wallynews theme to profile folder
   install_default_theme('wallynews');
   install_admin_theme('rubik');	
   variable_set('node_admin_theme', TRUE);    
@@ -268,6 +269,29 @@ function _wally_base_settings() {
   $offset = variable_get('date_default_timezone', '');
   $tzname = timezone_name_from_abbr("", $offset, 0);
   variable_set('date_default_timezone_name', $tzname);
+  
+  // Wally Import Settings
+  $vid = install_taxonomy_get_vid("Destination Path");     
+  variable_set('wallymport_destinationpath',strval($vid));
+  $vid = install_taxonomy_get_vid("Editions");     
+  variable_set('wallymport_edition',strval($vid));
+  $vid = install_taxonomy_get_vid("Locations");     
+  variable_set('wallymport_location',strval($vid));
+  $vid = install_taxonomy_get_vid("Persons");     
+  variable_set('wallymport_person',strval($vid));
+  $vid = install_taxonomy_get_vid("Entities");     
+  variable_set('wallymport_entity',strval($vid));
+  $vid = install_taxonomy_get_vid("Free tags");     
+  variable_set('wallymport_freetagtaxonomy',strval($vid));
+  $vid = install_taxonomy_get_vid("Keywords (categorized)");     
+  variable_set('wallymport_classifiedtagtaxonomy',strval($vid));
+
+  variable_set('wallymport_taxonomy_recusive',"true");
+  variable_set('wallymport_defaultuser',"1");
+  variable_set('wallymport_source',"sites/default/files/import");
+  variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
+  variable_set('wallymport_temp',"/tmp");
+  variable_set('wallymport_debug',"0");
   
   _wally_log(st('Configured basic settings'));
 }
@@ -321,13 +345,20 @@ function _wally_initialize_settings(&$context){
   
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
-
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
 
+  // Rating taxonomy (vocabulary created by wallycontenttype feature).
+  $vid = install_taxonomy_get_vid("Rating");     
+  if ($vid) {
+    foreach (_wally_ratingtaxonomy_terms($vid) as $term) {
+      install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
+    }
+  }
+  
   menu_rebuild();
         
   $msg = st('Setup general configuration');
@@ -412,6 +443,64 @@ function _wally_documenttypetaxonomy_terms($vid) {
 
   return $terms; 
 }
+
+function _wally_ratingtaxonomy_terms($vid) {
+
+  $terms = array();
+
+  //tid-7
+  $terms[] = array(
+    'name' => 'G',
+    'description' => 'General Audiences - All ages admitted',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+   
+  //tid-8
+  $terms[] = array(
+    'name' => 'PG',
+    'description' => 'Parental Guidance Suggested - Some material may not be suitable for children',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+
+  //tid-9
+  $terms[] = array(
+    'name' => 'PG-13',
+    'description' => 'Parents Strongly Cautioned - Some material may be not be appropriate for children under 13',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+  
+  //tid-10
+  $terms[] = array(
+    'name' => 'R',
+    'description' => 'Restricted - Under 17 requires accompanying parent or adult guardian',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+
+  //tid-11
+  $terms[] = array(
+    'name' => 'NC-17',
+    'description' => 'No One 17 and under admitted',
+    'parent' => array(),
+    'relations' => array(),
+    'weight' => 1,
+    'vid' => $vid,
+  );
+  
+  return $terms; 
+}
+
 
 
 /**
