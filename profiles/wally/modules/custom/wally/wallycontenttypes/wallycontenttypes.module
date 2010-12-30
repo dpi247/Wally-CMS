@@ -172,12 +172,12 @@ dsm($op);
 
  switch ($op) {
 
+     case 'view':
+      wallycontenttypes_packagepopulate($node,$op);
+      break;
+
 	// I don't know why but Node Page didn't pass thrus node_view
 	// @todo: Check WHY and put back callback function to "view".
-
-//    case 'view':
-//      wallycontenttypes_packagepopulate($node,$op);
-//      break;
 	  case 'load':
 	    if($node->type == 'wally_articlepackage' || 
 	       $node->type == 'wally_gallerypackage' ||
