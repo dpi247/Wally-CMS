@@ -24,7 +24,11 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->module = 'wallycontenttypes';
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
-      drupal_write_record('imagecache_action', $imagecacheaction); 
+      drupal_write_record('imagecache_action', $imagecacheaction);
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale' 
+      $imagecacheaction->data = array('width' => 270, 'height' => 200);
+      drupal_write_record('imagecache_action', $imagecacheaction);
     }
     
     if (!imagecache_preset_by_name('theme_medium_article_preset')) {
@@ -35,6 +39,10 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
       drupal_write_record('imagecache_action', $imagecacheaction); 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale' 
+      $imagecacheaction->data = array('width' => 90, 'height' => 90);
+      drupal_write_record('imagecache_action', $imagecacheaction);
     }
     
     if (!imagecache_preset_by_name('theme_large_article_preset')) {
@@ -45,6 +53,10 @@ function _wallycontenttypes_install_presets() {
       $imagecacheaction->action = 'wallycontenttypes_wallycrop';
       $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
       drupal_write_record('imagecache_action', $imagecacheaction); 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale' 
+      $imagecacheaction->data = array('width' => 270, 'height' => 200);
+      drupal_write_record('imagecache_action', $imagecacheaction);
     }
 }
 
