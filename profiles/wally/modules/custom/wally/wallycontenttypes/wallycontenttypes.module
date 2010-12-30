@@ -829,8 +829,8 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       }
       if (!empty($datas)) {
         $temppresetcrop = array();
-        $temppresetcrop[0] = 0;
-        $temppresetcrop[1] = 0;
+        $temppresetcrop[0] = $datas['xoffset'] + 0;
+        $temppresetcrop[1] = $datas['yoffset'] + 0;
         $temppresetcrop[2] = $datas['width'] + 0;
         $temppresetcrop[3] = $datas['height'] + 0;
         $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
@@ -838,7 +838,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
         $tempusablecrop = array();
         if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
           foreach ($explimgcrops as $presetname => $explimgcrop) {
-            if ($presetname == $preset['presetname']) {
+            if ($presetname == $preset['presetname'] && abs($temppresetcrop[4]-$explimgcrop[4])/$temppresetcrop[4]<0.1) {
               $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
               $tempusablecrop = $explimgcrop;
               $tempusablecrop[2] += $tempusablecrop[0];
