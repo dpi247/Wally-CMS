@@ -233,9 +233,9 @@ dsm($op);
  * 
  * @return Nothing but modify the $node
  */
-function wallycontenttypes_packagepopulate($node,$op){
-  wallycontenttypes_fieldNID($node, $op);
-  wallycontenttypes_fieldTID($node, $op);
+function wallycontenttypes_packagepopulate(&$node,$op){
+  wallycontenttypes_fieldNID(&$node, $op);
+  wallycontenttypes_fieldTID(&$node, $op);
   }
 
 /**
