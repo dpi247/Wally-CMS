@@ -180,7 +180,7 @@ dsm($trace);
 
 	// I don't know why but Node Page didn't pass thrus node_view
 	// @todo: Check WHY and put back callback function to "view".
-	  case 'load':
+	  case 'alter':
 	    if($node->type == 'wally_articlepackage' || 
 	       $node->type == 'wally_gallerypackage' ||
 	       $node->type == 'wally_pollpackage')
