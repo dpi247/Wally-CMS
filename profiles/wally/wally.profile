@@ -41,7 +41,7 @@ function wally_profile_modules() {
     // Optional core modules.
     'comment', 'help', 'locale', 'menu', 'statistics', 
     'search', 'taxonomy', 'translation', 'upload',
-    'update',  
+    'update', 'dblog',  
   );
   
   // Modified modules
