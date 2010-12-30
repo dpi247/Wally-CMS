@@ -275,7 +275,7 @@ ol.commentlist li ul.children li {margin: 10px 0 0 0;border: 1px solid #ccc;}
 
 /**************** Gallery *********************/
 .gallery {text-align:center;}
-.gallery img {padding:2px; height:100px; width:100px;}
+.gallery img {padding:2px; width:100px;}
 .gallery a:hover {background-color:#ffffff;}
 .attachment {text-align:center;}
 .attachment img { padding:2px; border:1px solid #999999;}
