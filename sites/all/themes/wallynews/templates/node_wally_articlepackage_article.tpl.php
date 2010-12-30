@@ -4,9 +4,12 @@
  */
 
   $mainstory = $node->field_mainstory_nodes[0];
-
   dsm($node); 
-?>
+
+  echo("------".$node->title); 
+  ?>
+  
+  
 <div class="content">
 //// trying to get my node ....<br/>
 <?php
