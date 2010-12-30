@@ -269,30 +269,7 @@ function _wally_base_settings() {
   $offset = variable_get('date_default_timezone', '');
   $tzname = timezone_name_from_abbr("", $offset, 0);
   variable_set('date_default_timezone_name', $tzname);
-  
-  // Wally Import Settings
-  $vid = install_taxonomy_get_vid("Destination Path");     
-  variable_set('wallymport_destinationpath',strval($vid));
-  $vid = install_taxonomy_get_vid("Editions");     
-  variable_set('wallymport_edition',strval($vid));
-  $vid = install_taxonomy_get_vid("Locations");     
-  variable_set('wallymport_location',strval($vid));
-  $vid = install_taxonomy_get_vid("Persons");     
-  variable_set('wallymport_person',strval($vid));
-  $vid = install_taxonomy_get_vid("Entities");     
-  variable_set('wallymport_entity',strval($vid));
-  $vid = install_taxonomy_get_vid("Free tags");     
-  variable_set('wallymport_freetagtaxonomy',strval($vid));
-  $vid = install_taxonomy_get_vid("Keywords (categorized)");     
-  variable_set('wallymport_classifiedtagtaxonomy',strval($vid));
-
-  variable_set('wallymport_taxonomy_recusive',"true");
-  variable_set('wallymport_defaultuser',"1");
-  variable_set('wallymport_source',"sites/default/files/import");
-  variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
-  variable_set('wallymport_temp',"/tmp");
-  variable_set('wallymport_debug',"0");
-  
+ 
   _wally_log(st('Configured basic settings'));
 }
 
@@ -360,7 +337,33 @@ function _wally_initialize_settings(&$context){
   }
   
   menu_rebuild();
-        
+
+   // Wally Import Settings
+   // Doing here because we need features to be
+   // activated before
+  $vid = install_taxonomy_get_vid("Destination Path");     
+  variable_set('wallymport_destinationpath',strval($vid));
+  $vid = install_taxonomy_get_vid("Editions");     
+  variable_set('wallymport_edition',strval($vid));
+  $vid = install_taxonomy_get_vid("Locations");     
+  variable_set('wallymport_location',strval($vid));
+  $vid = install_taxonomy_get_vid("Persons");     
+  variable_set('wallymport_person',strval($vid));
+  $vid = install_taxonomy_get_vid("Entities");     
+  variable_set('wallymport_entity',strval($vid));
+  $vid = install_taxonomy_get_vid("Free tags");     
+  variable_set('wallymport_freetagtaxonomy',strval($vid));
+  $vid = install_taxonomy_get_vid("Keywords (categorized)");     
+  variable_set('wallymport_classifiedtagtaxonomy',strval($vid));
+
+  variable_set('wallymport_taxonomy_recusive',"true");
+  variable_set('wallymport_defaultuser',"1");
+  variable_set('wallymport_source',"sites/default/files/import");
+  variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
+  variable_set('wallymport_temp',"/tmp");
+  variable_set('wallymport_debug',"0");
+  
+  
   $msg = st('Setup general configuration');
   _wally_log($msg);
   $context['message'] = $msg;
@@ -644,6 +647,29 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
   }
 }
 
+
+
+  $page->disabled = FALSE;
+
+/**
+ * Create custom blocks and set region and pages.
+ */
+function _wally_setup_blocks(&$context) {  
+
+  cache_clear_all();
+  // Ensures that $theme_key gets set for new block creation
+  $theme_key = 'wallynews';
+
+  install_disable_block('user', '0', 'wallynews');
+  install_disable_block('user', '1', 'wallynews');
+  install_disable_block('system', '0', 'wallynews');
+  
+  $msg = st('Configured Blocks');
+  _wally_log($msg);
+  $context['message'] = $msg;
+}
+  
+  
 /**
  * Create custom blocks and set region and pages.
  */
@@ -712,7 +738,7 @@ function system_form_install_select_profile_form_alter(&$form, $form_state) {
  */
 function _wally_log($msg) {
   error_log($msg);
-  drupal_set_message($msg);
+  drupal_set_message($msg,"wally profile");
 }
 
 /**
@@ -825,7 +851,7 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   $form['wally'] = array(
     '#type' => 'fieldset',
     '#title' => t('Wally settings'),
-    '#weight' => 99, // be sure we're at the end
+    '#weight' => 10, // be sure we're at the end
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
   );
