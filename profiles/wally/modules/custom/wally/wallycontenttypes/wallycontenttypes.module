@@ -878,7 +878,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
 function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   $redirect = false;
   $i=0;
-  $crops = array();
+  $crops = array();dsm($node);
   foreach ($usablecrops as $presetname => $usablecrop) {
     if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
       $crops[$presetname] = explode(',',$_POST[$presetname.'_serialCoord']);
