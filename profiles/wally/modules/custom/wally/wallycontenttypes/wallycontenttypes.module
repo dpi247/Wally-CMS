@@ -878,10 +878,11 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
 function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   $redirect = false;
   $i=0;
-  $crops = array();dsm($node);
+  $crops = array();
   foreach ($usablecrops as $presetname => $usablecrop) {
     if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
       $crops[$presetname] = explode(',',$_POST[$presetname.'_serialCoord']);
+      imagecache_image_flush($node->field_photofile[0]['filepath']);
       $redirect = true;
       $i++;
     }
