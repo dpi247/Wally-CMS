@@ -18,6 +18,10 @@
  *   data including the contexts and all of the other panes being displayed.
  */
 ?>
+ezaazeaze<br>
+ezaazeaze<br>
+ezaazeaze<br>
+ezaazeaze<br>
 <?php
   if ($classes && $id) {
     print "<div class='".$classes."' ".$id.">";
@@ -29,3 +33,6 @@
     print "</div>";
   }
 ?>
+bbbbbbb<br>
+bbbbbbb<br>
+bbbbbbb<br>
