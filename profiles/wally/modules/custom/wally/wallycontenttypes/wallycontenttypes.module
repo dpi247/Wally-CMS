@@ -167,10 +167,9 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
-
-$trace=debug_backtrace();
-dsm($op);
-dsm($trace);
+// dsm($op);
+//$trace=debug_backtrace();
+// dsm($trace);
 
  switch ($op) {
 
@@ -178,7 +177,7 @@ dsm($trace);
       wallycontenttypes_packagepopulate($node,$op);
       break;
 
-	// I don't know why but Node Page didn't pass thrus node_view
+	// I don't know why but Node Page didn't pass thrus node view op
 	// @todo: Check WHY and put back callback function to "view".
 	  case 'alter':
 	    if($node->type == 'wally_articlepackage' || 
@@ -187,7 +186,6 @@ dsm($trace);
 	 	     wallycontenttypes_packagepopulate($node,$op);
 	    break;
       
-      //@todo: move to wallycontenttypes
   case 'update' :
     if($node->type == 'wally_articlepackage' || 
        $node->type == 'wally_gallerypackage' ||
@@ -203,7 +201,6 @@ dsm($trace);
             break;
  	}
 }
-
 
 /** 
  * Load related nodes into package object via nodepi - "op view". 
