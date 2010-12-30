@@ -18,21 +18,14 @@
  *   data including the contexts and all of the other panes being displayed.
  */
 ?>
-ezaazeaze<br>
-ezaazeaze<br>
-ezaazeaze<br>
-ezaazeaze<br>
 <?php
   if ($classes && $id) {
-    print "<div class='".$classes."' ".$id."><br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa";
+    print "<div class='".$classes."' ".$id.">";
     print $content;
-    print "<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb</div>";
+    print "</div>";
   } else {
-    print "<div class='box'><br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa";
+    print "<div class='box'>";
     print $content;
-    print "<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb</div>";
+    print "</div>";
   }
 ?>
-bbbbbbb<br>
-bbbbbbb<br>
-bbbbbbb<br>
