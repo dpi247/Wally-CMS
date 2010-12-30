@@ -24,13 +24,13 @@ ezaazeaze<br>
 ezaazeaze<br>
 <?php
   if ($classes && $id) {
-    print "<div class='".$classes."' ".$id.">";
+    print "<div class='".$classes."' ".$id."><br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa";
     print $content;
-    print "</div>";
+    print "<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb<br>bbbbbbbbbbbbbb</div>";
   } else {
-    print "<div class='box'>";
+    print "<div class='box'><br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa<br>aaaaaaaaaaaaaaaaaa";
     print $content;
-    print "</div>";
+    print "<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb<br>bbbbbbbb</div>";
   }
 ?>
 bbbbbbb<br>
