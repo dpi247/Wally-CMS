@@ -1,5 +1,11 @@
 <?
+/*
+ * Template for rendering a articlepackage-article node type.
+ */
+
   $mainstory = $node->field_mainstory_nodes[0];
+
+  dsm($mainstory); 
 ?>
 <div class="content">
 //// trying to get my node ....<br/>
