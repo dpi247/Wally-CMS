@@ -757,8 +757,9 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
     $(document).ready(function() {
       var api = $.Jcrop("#cropbox",{
         onSelect: showCoordsAndSave,
-        bgColor:     "black",
-        bgOpacity:   .4,
+        bgColor: "black",
+        bgOpacity: .4,
+        boxWidth: 800,
       });
 
       var i;
@@ -773,6 +774,7 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       // Returns event handler for animation callback
       function anim_handler(ac, ratio, i) {
         return function(e) {
+      	  $("#crop-current-name").html(i); 
           api.setSelect(ac);
           api.setOptions({ aspectRatio: ratio });
           currentAc = i;
@@ -802,9 +804,10 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       }
     });
 
+    
     function showCoordsAndSave(c) {
       if (currentAc) {
-        var serialCoord = [c.x,c.y,c.w,c.h];
+      	var serialCoord = [c.x,c.y,c.w,c.h];
         $("#"+currentAc+"_serialCoord").val(serialCoord);
         ac[currentAc][0] = c.x;
         ac[currentAc][1] = c.y;
@@ -812,6 +815,7 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
         ac[currentAc][3] = c.y2;
       }
     };
+        
   ';
   
   return $return;
@@ -830,21 +834,25 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
  */
 function _wallycontenttypes_htmlcodeforthecroping($filepath, $defaultvalues) {
   $return = '
-    <img src="'.base_path().$filepath.'" id="cropbox" />
-    
     <form action="" method="post">
+    <label for="edit-crop">
+    	Move and resize crops : <span id="crop-current-name">'.t("Choose a preset to edit.").'</span>
+    </label>
+    <div id="cropimage"><img src="'.base_path().$filepath.'" id="cropbox" /></div>
   ';
 
+  $return .= '<div class="bouttons">';
+  
   foreach ($defaultvalues as $presetname => $defaultvalue) {
     $return .= '
       <input type="hidden" id="'.$presetname.'_serialCoord" name="'.$presetname.'_serialCoord" value="'.implode($defaultvalue,',').'"/>
-      <button id="'.$presetname.'" class="form-submit">'.$presetname.'</button>
+      <input type="button" id="'.$presetname.'" class="form-submit" value="'.$presetname.'">
     ';
   }
   
   $return .= '
-      <button type="submit" class="form-submit">Submit</button>
-  
+	  <input type="submit" class="form-submit" value="'.t("save").'" id="edit-submit" name="op">
+	  </div>  
     </form>
   ';
   
