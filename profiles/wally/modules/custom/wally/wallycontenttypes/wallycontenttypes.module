@@ -630,7 +630,6 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
   $form['group_photo']['field_croping']['#access'] = FALSE;
-  var_dump($form);
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
