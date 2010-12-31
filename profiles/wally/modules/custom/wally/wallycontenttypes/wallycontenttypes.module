@@ -527,7 +527,7 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
  * @return
  *  HTML code of the image and the form containing the new values.
  */
-function _wallycontenttypes_addcroplink($nid) {
+function wallycontenttypes_editcrop($nid) {
   $node = node_load($nid);
   $imgcropings = array();
   $imgcropings = json_decode($node->field_croping[0]['value']);
