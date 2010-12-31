@@ -3,12 +3,19 @@ description = Tableless, multi-column wally theme.
 version = VERSION
 core = 6.x
 engine = phptemplate
+
 stylesheets[all][] = css/all_style.css
 stylesheets[all][] = css/home_style.css
+stylesheets[all][] = css/steph/rotator.css
+stylesheets[all][] = css/steph/test-prettyPhoto.css
+stylesheets[all][] = css/steph/style_gallery.css
 
 scripts[] = scripts/gotop.js
+scripts[] = scripts/steph/rotator.js
+scripts[] = scripts/steph/test-jquery.prettyPhoto.js
+
 ;scripts[] = scripts/contentslider.js
-;scripts[] = scripts/carousel.js">
+;scripts[] = scripts/carousel.js>
 ;scripts[] = scripts/tipsy.js
 ;scripts[] = scripts/Bebas_Neue_400.js
 ;scripts[] = scripts/jquery_002.js
