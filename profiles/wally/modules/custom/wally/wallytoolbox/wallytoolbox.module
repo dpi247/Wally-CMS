@@ -227,6 +227,16 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 		return null;
 	}
 }
+
+/**
+ * 
+ * 
+ */
+function wallytoolbox_rss_item_to_array($dom_channel_gen_infos, $dom_item) {
+  $array_item = array();
+  
+  return $array_item;
+}
 	
 
 /**

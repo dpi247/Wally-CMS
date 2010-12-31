@@ -1,0 +1,9 @@
+<?php
+
+function wallymport_enable() {
+	cache_clear_all('imagecache_actions', 'cache');
+}
+
+function wallymport_disable() {
+	cache_clear_all('imagecache_actions', 'cache');
+}

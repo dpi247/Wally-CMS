@@ -30,6 +30,16 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['wallymport_productID'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Product ID'),
+    '#description' => t('Product ID.'),
+    '#default_value' => variable_get('wallymport_productID', $_SERVER['HTTP_HOST']),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
    $form['wallymport_temp'] = array(
     '#type' => 'textfield',
     '#title' => t('Import temporary directory path'),

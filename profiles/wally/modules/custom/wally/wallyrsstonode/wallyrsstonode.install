@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallyrsstonode_schema() {
+  $schema['rsstonode_feeds'] = array(
+    'description' => 'The table containing the RSS feeds informations for the wallyrsstonode module.', 
+      'fields' => array(
+        'rss_key' => array(
+          'description' => 'The primary identifier.', 
+          'type' => 'serial',
+          'unsigned' => TRUE, 
+          'not null' => TRUE,
+        ), 
+        'vid' => array(
+          'description' => 'Version identifier.', 
+          'type' => 'int', 
+          'unsigned' => TRUE, 
+          'not null' => TRUE, 
+          'default' => 0,
+        ), 
+        'name' => array(
+          'description' => 'Name.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ),
+        'uri' => array(
+          'description' => 'URI.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ),
+        'signature' => array(
+          'description' => 'HTML signature.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ), 
+        'last_build' => array(
+          'description' => 'Last time the feed was updated.', 
+          'type' => 'int', 
+          'unsigned' => TRUE,
+          'not null' => TRUE, 
+          'default' => 0,
+        ), 
+        'delta_t' => array(
+          'description' => 'Time (minutes) between updates.', 
+          'type' => 'int', 
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+          'default' => 10,
+        ), 
+        'destination' => array(
+          'description' => 'The full destination (path/target/layout/rank).', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ),
+        'channel_img' => array(
+          'description' => 'The channel image, used as default image.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ),
+        'package_layout' => array(
+          'description' => 'Package layout.', 
+          'type' => 'int', 
+          'unsigned' => TRUE,
+          'not null' => TRUE, 
+          'default' => 0,
+        ), 
+      ), 
+      'primary key' => array('rss_key'),
+  );
+
+  return $schema;
+}
+
+/*
+ * Implementation of the hook module _install();
+ */
+function wallyrsstonode_install() {
+  if (!db_table_exists('rsstonode_feeds')) {
+    drupal_install_schema('wallyrsstonode');
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallyrsstonode_uninstall() {
+  drupal_uninstall_schema('wallyrsstonode');
+}

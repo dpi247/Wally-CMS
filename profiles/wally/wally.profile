@@ -102,7 +102,7 @@ function wally_profile_modules() {
   $custom = array(
 
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
-    'wallyctools', 'wallytoolbox', 'wallymport',  
+    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',  
     
   ); 
 
