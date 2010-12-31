@@ -861,11 +861,11 @@ function _wallycontenttypes_htmlcodeforthecroping($filepath, $defaultvalues) {
  *   The default values for this croping.
  */
 function _wallycontenttypes_getdefaultvaluesforthecroping($crop) {
-  $return = array();
+  $cropdefault = array();
   for ($i=0; $i<4; $i++) {
-    $return[$i] = $crop[$i];
+    $cropdefault[$i] = $crop[$i];
   }
-  return $return;
+  return $cropdefault;
 }
 
 /**
