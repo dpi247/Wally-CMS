@@ -184,11 +184,12 @@ function _wimprthelp_create_file_from_uri($file_uri){
   switch($uri['scheme']){
     case'embed':
      // $file_path= variable_get('wallymport_source', $proceed_folder_path).'/'.$uri['path'];//$uri['host'] //
-  
-     $file_path=$proceed_folder_path.'/'.$uri['path'];//chemin vers le tmp/
-     
+      $file_path=$proceed_folder_path.'/'.$uri['path'];//chemin vers le tmp/
       return _wimprthelp_create_file($file_path);
-    break;
+      break;
+    case 'http':
+      dsm(drupal_http_request($file_uri));
+      break;
   }
 
   return $file_uri;
