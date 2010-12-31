@@ -500,15 +500,12 @@ function wallycontenttypes_preprocess_node(&$variables) {
  *  Implémentation du Hook_form_alter(); 
  */
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
+     
   if (isset($form['type']) && isset($form['#node'])) {
     switch ($form_id) {
       case "wally_photoobject_node_form":
-        $form['field_croping']['#access'][] = false;
-        $form['new']['edit_croping']=array(
-            "#type"=>'markup',
-            "#value"=>'<a href="/admin/content/editcrop/'.$form['nid']['#value'].'" target="">croping</a>',
-          );
-      break;
+        _wallycontenttypes_addcroppinglink($form, $form_state, $form_id);
+       break;
       case "wally_articlepackage_node_form":
       case "wally_gallerypackage_node_form" :
       case "wally_pollpackage_node_form":
@@ -530,7 +527,7 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
  * @return
  *  HTML code of the image and the form containing the new values.
  */
-function wallycontenttypes_editcrop($nid) {
+function _wallycontenttypes_addcroplink($nid) {
   $node = node_load($nid);
   $imgcropings = array();
   $imgcropings = json_decode($node->field_croping[0]['value']);
@@ -548,7 +545,7 @@ function wallycontenttypes_editcrop($nid) {
       $explimgcrops[$presetname] = $tempexplcrop;
     }
   } else {
-    drupal_set_message('No croping values saved or bad JSON encoding.',"error");
+    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
   }
 
   $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops);
@@ -563,6 +560,26 @@ function wallycontenttypes_editcrop($nid) {
   drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
 
   return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
+}
+
+/**
+ * Add a Edit Crop link to form.
+ * 
+ * In case of Photo Object editing, we need to show a "edit crop"
+ * link. 
+ * 
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id){
+  $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
 }
 
 /**
@@ -589,6 +606,39 @@ function wallycontenttypes_editcrop($nid) {
  */
 function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
   $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
+}
+
+/**
+ * call back to add edit crop link on Photo Object editing
+ * 
+ * Call back function used by after_build attribute to 
+ * add an edit crop link into form.
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ *   
+ * @TODO: Need more intelligence, should be enabled when
+ *   a file is uploaded.
+ */
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
+  $form['group_photo']['field_croping']['#access'] = FALSE;
+   
+  if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
+    $form['group_photo']['edit_croping']=array(
+      '#weight' => 28,
+  	"#type"=>'markup',
+  	"#value"=>'<a href="/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit Croping Informations").'</a>',
+    );
+  }
+  return($form);
 }
 
 /**
