@@ -670,24 +670,6 @@ function _wally_setup_blocks(&$context) {
 }
   
   
-/**
- * Create custom blocks and set region and pages.
- */
-function _wally_setup_blocks(&$context) {  
-
-  cache_clear_all();
-  // Ensures that $theme_key gets set for new block creation
-  $theme_key = 'wallynews';
-
-  install_disable_block('user', '0', 'wallynews');
-  install_disable_block('user', '1', 'wallynews');
-  install_disable_block('system', '0', 'wallynews');
-  
-  $msg = st('Configured Blocks');
-  _wally_log($msg);
-  $context['message'] = $msg;
-}
-
 
 /**
  * Cleanup after the install
