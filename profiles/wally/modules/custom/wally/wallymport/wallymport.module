@@ -139,7 +139,6 @@ function wallymport_page_process_file($path_to_file){
   $xsd_file= variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
 //  $xml_file = variable_get('wallymport_source','')."/".$path_to_file;
   $xml_file = $path_to_file;
-
   $handle = fopen($xml_file, "r");
   $contents = fread($handle, filesize($xml_file));
   fclose($handle);
