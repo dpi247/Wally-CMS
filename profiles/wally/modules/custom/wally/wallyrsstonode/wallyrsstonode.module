@@ -177,9 +177,9 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
     $sql_last_build = $feed_infos['last_build'];
     $feed_name = check_plain($feed_infos['name']);
     $channel_last_build = date('D, d M Y H:i:s O', _wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
-    $channel_last_build = strtotime($channel_last_build);//gmmktime($channel_last_build->format('H'),$channel_last_build->format('i'),$channel_last_build->format('s'),$channel_last_build->format('n'),$channel_last_build->format('j'),$channel_last_build->format('Y'));
+    $channel_last_build = date('Y-m-d',$channel_last_build);//gmmktime($channel_last_build->format('H'),$channel_last_build->format('i'),$channel_last_build->format('s'),$channel_last_build->format('n'),$channel_last_build->format('j'),$channel_last_build->format('Y'));
     
-    if ($channel_last_build > $sql_last_build) {
+    if ($channel_last_build) {// > $sql_last_build) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $feed_infos);
 
