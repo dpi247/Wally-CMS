@@ -130,21 +130,17 @@ function _wallyrsstonode_callallfeeds() {
       
       $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
       $valid_dom->save($tempFile);
-      $tempDom = new DOMDocument();
-      $tempDom->load($tempFile);
+      $temp_return = wallymport_page_process_file($tempFile);
       exec('rm '.$tempFile);
       
-      if (!$tempDom->schemaValidate($xsd_file)){
-        drupal_set_message('The RSS feed '.check_plain($feed_infos['name']).' isn\'t validate by the XSD file', "error");
-        $return[] = 'The RSS feed '.check_plain($feed_infos['name']).' isn\'t validate by the XSD file';
-      } else {
+      if ($temp_return) {
         $object = array();
         $object = $feed_infos;
         $object['last_build'] = $channel_last_build;
         drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
-        $node = new StdClass();
-        $return[] = wimprt_process_packages($node,$tempDom,$log);
       }
+      
+      $return[] = $temp_return;
     }
   }
   
@@ -152,10 +148,21 @@ function _wallyrsstonode_callallfeeds() {
 }
 
 /**
+ * Build a dom document based on an array. The array is given by the
+ * rss_item_to_array function of wallytoolbox.
+ * 
+ * @param $feed_xml
+ *   The entire feed obtain by drupal_http_request.
+ * @param $feed_infos
+ *   The informations relative to this feed as stocked in de DB.
+ * 
+ * @return
+ *   The dom document and the new build date of this feed.
+ * 
  * @todo
  *   Replace default values by real values in the valid_dom
  * @todo
- *   Divide this function in two parts, xml->array and then array->xml
+ *   Save the image field into the db if a default image exists.
  */
 function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {  
   $dom = new DomDocument();
@@ -172,126 +179,80 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
     $channel_last_build = DateTime::createFromFormat('D, d M Y H:i:s O', _wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
     $channel_last_build = gmmktime($channel_last_build->format('H'),$channel_last_build->format('i'),$channel_last_build->format('s'),$channel_last_build->format('n'),$channel_last_build->format('j'),$channel_last_build->format('Y'));
     
-    if ($channel_last_build > $sql_last_build) {
+    if ($channel_last_build > 0) { //$sql_last_build) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
+        $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $feed_infos);
+
         $package = $packages->appendChild($valid_dom->createElement('Package'));
         $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'ArticlePackageType');
-        $package->setAttribute('PackageID', _wallyrsstonode_checkifelementexists($item, 'guid', 'none', 'link', $feed_name));
-        $channel_pubDate = DateTime::createFromFormat('D, d M Y H:i:s O', _wallyrsstonode_checkifelementexists($item, 'pubDate'));
-        $pubDate = $channel_pubDate->format('Y-m-d').'T'.$channel_pubDate->format('H:i:sP');
-        $package->setAttribute('PublicationDate', $pubDate);
-        $package->setAttribute('CreationDate', date('Y-m-d').'T'.date('H:i:sP'));
-        $package->appendChild($valid_dom->createElement('PackageTitle', _wallyrsstonode_checkifelementexists($item, 'title')));
-        $package->appendChild($valid_dom->createElement('ExternalReference', _wallyrsstonode_checkifelementexists($item, 'guid', 'none', 'link', $feed_name)));
-        $package->appendChild($valid_dom->createElement('ProductID',variable_get('wallymport_productID', $_SERVER['HTTP_HOST'])));
+        $package->setAttribute('PackageID', $array_valid_dom['Package']['PackageID']);
+        $package->setAttribute('PublicationDate', $array_valid_dom['Package']['PublicationDate']);
+        $package->setAttribute('CreationDate', $array_valid_dom['Package']['CreationDate']);
+        $package->setAttribute('EmbargoDate', $array_valid_dom['Package']['EmbargoDate']);
+        $package->setAttribute('Language', $array_valid_dom['Package']['Language']);
+        $package->appendChild($valid_dom->createElement('PackageTitle', $array_valid_dom['Package']['PackageTitle']['value']));
+        $package->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['ExternalReference']['value']));
+        $package->appendChild($valid_dom->createElement('ProductID', $array_valid_dom['Package']['ProductID']['value']));
         $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
         $editions = $package->appendChild($valid_dom->createElement('Editions'));
         $chans = $package->appendChild($valid_dom->createElement('Channels'));
-        $package->appendChild($valid_dom->createElement('Summary', ''));
-        $package->appendChild($valid_dom->createElement('ExternalURI', _wallyrsstonode_checkifelementexists($item, 'link')));
+        $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
+        $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
+        $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
         $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
         
         $destination = $destinations->appendChild($valid_dom->createElement('Destination'));
-        $destination->appendChild($valid_dom->createElement('DestinationPath', ''));
-        $destination->setAttribute('DestinationRank', '');
-        $destination->setAttribute('Position', '');
-        $destination->setAttribute('DocumentLayout', '');
+        $destination->appendChild($valid_dom->createElement('DestinationPath', $array_valid_dom['Package']['Destinations']['Destination']['DestinationPath']['value']));
+        $destination->setAttribute('DestinationRank', $array_valid_dom['Package']['Destinations']['Destination']['DestinationRank']);
+        $destination->setAttribute('Position', $array_valid_dom['Package']['Destinations']['Destination']['Position']);
+        $destination->setAttribute('DocumentLayout', $array_valid_dom['Package']['Destinations']['Destination']['DocumentLayout']);
         
-        $edition = $editions->appendChild($valid_dom->createElement('Edition', 'true'));
+        $edition = $editions->appendChild($valid_dom->createElement('Edition', $array_valid_dom['Package']['Editions']['Edition']['value']));
+        $edition->setAttribute('EditionID', $array_valid_dom['Package']['Editions']['Edition']['EditionID']);
         
         $chan = $chans->appendChild($valid_dom->createElement('Channel'));
-        $chan->setAttribute('Name', '');
+        $chan->setAttribute('Name', $array_valid_dom['Package']['Channels']['Channel']['Name']);
         
         $mainStory->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
-        $mainStory->setAttribute('ObjectID', _wallyrsstonode_checkifelementexists($item, 'title'));
-        $mainStory->setAttribute('PublicationDate', $pubDate);
-        $mainStory->setAttribute('CreationDate', date('Y-m-d').'T'.date('H:i:sP'));
-        $mainStory->appendChild($valid_dom->createElement('Title', _wallyrsstonode_checkifelementexists($item, 'title')));
-        $mainStory->appendChild($valid_dom->createElement('ExternalReference', _wallyrsstonode_checkifelementexists($item, 'guid', 'none', 'link', $feed_name)));
+        $mainStory->setAttribute('ObjectID', $array_valid_dom['Package']['MainStory']['ObjectID']);
+        $mainStory->setAttribute('PublicationDate', $array_valid_dom['Package']['MainStory']['PublicationDate']);
+        $mainStory->setAttribute('CreationDate', $array_valid_dom['Package']['MainStory']['CreationDate']);
+        $mainStory->appendChild($valid_dom->createElement('Title', $array_valid_dom['Package']['MainStory']['Title']['value']));
+        $mainStory->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['MainStory']['ExternalReference']['value']));
         $taxonomy = $mainStory->appendChild($valid_dom->createElement('Taxonomy'));
         $vocabulary = $taxonomy->appendChild($valid_dom->createElement('Vocabulary'));
-        $vocabulary->setAttribute('VocabularyName', 'RSS feeds');
-        $vocabulary->setAttribute('VocabularyType', 'free');
-        $categories = $item->getElementsByTagName('category');
-        if ($categories->item(0)) {
-          foreach ($categories as $category) {
-            $vocabulary->appendChild($valid_dom->createElement('Term', $feed_name.'/'.$category->firstChild->wholeText));
-          }
+        $vocabulary->setAttribute('VocabularyName', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyName']);
+        $vocabulary->setAttribute('VocabularyType', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyType']);
+        foreach ($array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'] as $term) {
+            $vocabulary->appendChild($valid_dom->createElement('Term', $term));
         }
-        $mainStory->appendChild($valid_dom->createElement('Copyright', _wallyrsstonode_checkifelementexists($item, 'author')));
-        $mainStory->appendChild($valid_dom->createElement('TextTitle', _wallyrsstonode_checkifelementexists($item, 'title')));
-        $mainStory->appendChild($valid_dom->createElement('TextBody', _wallyrsstonode_checkifelementexists($item, 'description')));
+        $mainStory->appendChild($valid_dom->createElement('Copyright', $array_valid_dom['Package']['MainStory']['Copyright']['value']));
+        $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
+        $mainStory->appendChild($valid_dom->createElement('TextBody', $array_valid_dom['Package']['MainStory']['TextBody']['value']));
 
-        $enclosure = $item->getElementsByTagName('enclosure');
-        if ($enclosure->item(0) && $enclosure->item(0)->getAttribute('type') && strstr($enclosure->item(0)->getAttribute('type'), 'image')) {
+        if (isset($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'])) {
           $embeddedContent = $package->appendChild($valid_dom->createElement('EmbeddedContent'));
           $embeddedObjects = $embeddedContent->appendChild($valid_dom->createElement('EmbeddedObjects'));
-          $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
-          $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
-          $object->setAttribute('ObjectID', _wallyrsstonode_checkifelementexists($item, 'title'));
-          $object->setAttribute('PublicationDate', $pubDate);
-          $object->setAttribute('CreationDate', date('Y-m-d').'T'.date('H:i:sP'));
-          $object->setAttribute('MimeType', $enclosure->item(0)->getAttribute('type'));
-          $object->appendChild($valid_dom->createElement('Title', $enclosure->item(0)->getAttribute('url')));
-          $object->appendChild($valid_dom->createElement('ExternalReference', _wallyrsstonode_checkifelementexists($item, 'guid', 'none', 'link', $feed_name)));
-          $object->appendChild($valid_dom->createElement('FileURI', $enclosure->item(0)->getAttribute('url')));
-          $object->appendChild($valid_dom->createElement('FileSize', $enclosure->item(0)->getAttribute('length')));
-        }
-        
-        $media_contents = $item->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content');
-        if ($media_contents->item(0)) {
-          $firstobject = TRUE;
-          foreach ($media_contents as $media_content) {
-            if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
-              if ($firstobject) {
-                $embeddedContent = $package->appendChild($valid_dom->createElement('EmbeddedContent'));
-                $embeddedObjects = $embeddedContent->appendChild($valid_dom->createElement('EmbeddedObjects'));
-                $firstobject = FALSE;
-              }
-              $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
-              $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
-              $object->setAttribute('ObjectID', _wallyrsstonode_checkifelementexists($item, 'title'));
-              $object->setAttribute('PublicationDate', $pubDate);
-              $object->setAttribute('CreationDate', date('Y-m-d').'T'.date('H:i:sP'));
-              $object->setAttribute('MimeType', $media_content->getAttribute('type'));
-              $object->appendChild($valid_dom->createElement('Title', _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'title')));
-              $object->appendChild($valid_dom->createElement('ExternalReference', _wallyrsstonode_checkifelementexists($item, 'guid', 'none', 'link', $feed_name)));
-              $object->appendChild($valid_dom->createElement('Copyright', _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'copyright')));
-              $object->appendChild($valid_dom->createElement('Summary', _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'description')));
-              $object->appendChild($valid_dom->createElement('FileURI', check_plain($media_content->getAttribute('url'))));
-              $object_filesize = $media_content->getAttribute('fileSize');
-              if (!$object_filesize) $object_filesize = 0;
-              $object->appendChild($valid_dom->createElement('FileSize', $object_filesize));
-              $keywords = _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'keywords');
-              if ($keywords != '') {
-                $keywords = explode(',',$keywords);
-                foreach ($keywords as $keyword) {
-                  $vocabulary->appendChild($valid_dom->createElement('Term', $feed_name.'/'.$keyword));
-                }
-              }
-              $media_categories = _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'category');
-              if ($media_categories != '') {
-                $media_categories = explode('/',$media_categories);
-                foreach ($media_categories as $media_category) {
-                  $vocabulary->appendChild($valid_dom->createElement('Term', $feed_name.'/'.$media_category));
-                }
-              }
-              $media_thumbnails = $media_content->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail');
-              if ($media_thumbnails->item(0)) {
-                $media_thumbnail = $media_thumbnails->item(0);
-                $thumbnail = $object->appendChild($valid_dom->createElement('Thumbnail'));
-                $thumbnail->setAttribute('URI', $media_thumbnail->getAttribute('url'));
-                $thumbnail_w = $media_content->getAttribute('width');
-                if ($thumbnail_w) $thumbnail->setAttribute('W', $thumbnail_w);
-                $thumbnail_h = $media_content->getAttribute('height');
-                if ($thumbnail_h) $thumbnail->setAttribute('H', $media_thumbnail->getAttribute('height'));
-              }
-              $media_rating = _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channels->item(0), 'http://search.yahoo.com/mrss/', 'rating');
-              $acceptable_rating = array('G', 'PG', 'PG-13', 'R', 'NC-17');
-              if (in_array(strtoupper($media_rating), $acceptable_rating)) {
-                $object->appendChild($valid_dom->createElement('Rating', strtoupper($media_rating)));
-              }
+          foreach($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $item_object) {
+            $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
+            $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
+            $object->setAttribute('ObjectID', $item_object['ObjectID']);
+            $object->setAttribute('PublicationDate', $item_object['PublicationDate']);
+            $object->setAttribute('CreationDate', $item_object['CreationDate']);
+            if (isset($item_object['MimeType'])) $object->setAttribute('MimeType', $item_object['MimeType']);
+            $object->appendChild($valid_dom->createElement('Title', $item_object['Title']['value']));
+            $object->appendChild($valid_dom->createElement('ExternalReference', $item_object['ExternalReference']['value']));
+            if (isset($item_object['Copyright']['value'])) $object->appendChild($valid_dom->createElement('Copyright', $item_object['Copyrighty']['value']));
+            if (isset($item_object['Summary']['value'])) $object->appendChild($valid_dom->createElement('Summary', $item_object['Summary']['value']));
+            $object->appendChild($valid_dom->createElement('FileURI', $item_object['FileURI']['value']));
+            $object->appendChild($valid_dom->createElement('FileSize', $item_object['FileSize']['value']));
+            if (isset($item_object['ThumbNail'])) {
+              $thumbnail = $object->appendChild($valid_dom->createElement('Thumbnail'));
+              $thumbnail->setAttribute('URI', $item_object['ThumbNail']['URI']);
+              if (isset($item_object['ThumbNail']['W'])) $thumbnail->setAttribute('W', $item_object['ThumbNail']['W']);
+              if (isset($item_object['ThumbNail']['H'])) $thumbnail->setAttribute('H', $item_object['ThumbNail']['H']);
             }
+            if (isset($item_object['Rating'])) $object->appendChild($valid_dom->createElement('Rating', $item_object['Rating']['value']));
           }
         }
       }
@@ -306,38 +267,20 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
   return $return;
 }
 
-function _wallyrsstonode_checkifelementexists($dom_item, $name, $namespace = 'none', $second_choice = '', $feed_name = '') {
-  if ($namespace != 'none') {
-    $return = $dom_item->getElementsByTagNameNS($namespace, $name)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $name)->item(0)->firstChild->wholeText : '';
-    if ($second_choice != '') {
-      if ($return == '') {
-        $return = $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0)->firstChild->wholeText : '';
-      } else {
-        $return = $feed_name.':::'.$return;
-      }
-    }
-  } else {
-    $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
-    if ($second_choice != '') {
-      if ($return == '') {
-        $return = $dom_item->getElementsByTagName($second_choice)->item(0) ? $dom_item->getElementsByTagName($second_choice)->item(0)->firstChild->wholeText : '';
-      } else {
-        $return = $feed_name.':::'.$return;
-      }
-    }
-  }
+/**
+ * Search an item for a desired element.
+ * 
+ * @param $dom_item
+ *   The item in which the search is performed.
+ * @param $name
+ *   The name of the searched element.
+ * 
+ * @return
+ *   The element value or ''.
+ */
+function _wallyrsstonode_checkifelementexists($dom_item, $name) {
+  $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
   return check_plain($return);
-}
-
-function _wallyrsstonode_checkifmediaelementexists($media_content, $item, $channel, $namespace, $name) {
-  $return = _wallyrsstonode_checkifelementexists($media_content, $name, $namespace);
-  if ($return == '') {
-    $return = _wallyrsstonode_checkifelementexists($item, $name, $namespace);
-    if ($return == '') {
-      $return = _wallyrsstonode_checkifelementexists($channel, $name, $namespace);
-    }
-  }
-  return $return;
 }
 
 /**
