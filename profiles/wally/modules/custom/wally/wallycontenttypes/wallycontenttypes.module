@@ -113,6 +113,11 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_linkedobjects',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_editcrop' => $base + array(
+    'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
+    'template' => 'wallyct_editcrop',
+    'preprocess functions' => array('wally_get_tpl_suggestion')),
 
 /*
     'wallyct_personslist' => $base + array(
@@ -558,8 +563,10 @@ function wallycontenttypes_editcrop($nid) {
   drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
   drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
   drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
-
-  return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
+ 
+  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
+  
+  //return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
 }
 
 /**
