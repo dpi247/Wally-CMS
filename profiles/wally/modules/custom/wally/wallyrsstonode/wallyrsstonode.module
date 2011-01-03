@@ -242,7 +242,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
             if (isset($item_object['MimeType'])) $object->setAttribute('MimeType', $item_object['MimeType']);
             $object->appendChild($valid_dom->createElement('Title', $item_object['Title']['value']));
             $object->appendChild($valid_dom->createElement('ExternalReference', $item_object['ExternalReference']['value']));
-            if (isset($item_object['Copyright']['value'])) $object->appendChild($valid_dom->createElement('Copyright', $item_object['Copyrighty']['value']));
+            if (isset($item_object['Copyright']['value'])) $object->appendChild($valid_dom->createElement('Copyright', $item_object['Copyright']['value']));
             if (isset($item_object['Summary']['value'])) $object->appendChild($valid_dom->createElement('Summary', $item_object['Summary']['value']));
             $object->appendChild($valid_dom->createElement('FileURI', $item_object['FileURI']['value']));
             $object->appendChild($valid_dom->createElement('FileSize', $item_object['FileSize']['value']));
