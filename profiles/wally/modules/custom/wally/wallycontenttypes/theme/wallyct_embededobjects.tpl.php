@@ -10,10 +10,11 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/steph/rotator.js');
 			$("a[rel^='prettyPhoto']").prettyPhoto();
 		});
 	</script>
+	<?php 
 
+	?>
 <?php  if (count($embededobjects)): ?>
   <span class="embedobjectsblock">
-  <h3>Embeded Videos</h3>
     <div class="photos">
     <ul>
  
