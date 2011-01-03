@@ -566,7 +566,6 @@ function wallycontenttypes_editcrop($nid) {
  
   return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
   
-  //return _wallycontenttypes_htmlcodeforthecroping($node->field_photofile[0]['filepath'], $defaultvalues);
 }
 
 /**
@@ -818,6 +817,11 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       for(i in ac) {
         jQuery("#"+i).click(anim_handler(ac[i], ratio[i], i));
       }
+      
+      // Select the first preset
+      ';
+      
+  $return .= '$("#'.array_shift(array_keys($usablecrops)).'").trigger("click");
     });
 
     
@@ -832,48 +836,6 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       }
     };
         
-  ';
-  
-  return $return;
-}
-
-/**
- * Return the HTML code needed by wallycontenttypes_editcrop.
- * 
- * @param $filename
- *   The filename of the photo.
- * @param $defaultvalues
- *   The original or default values of the cropings
- * 
- * @return
- *   The HTML code.
- */
-function _wallycontenttypes_htmlcodeforthecroping($filepath, $defaultvalues) {
-  $return = '
-    <div class="crop_wrap">
-    <form class="crops" action="" method="post">
-    <label for="edit-crop">
-    	Move and resize crops : <span id="crop-current-name">'.t("Choose a preset to edit.").'</span>
-    </label>
-    <div id="cropimage"><img src="'.base_path().$filepath.'" id="cropbox" /></div>
-  ';
-
-  $return .= '<div class="crops">';
-  
-  foreach ($defaultvalues as $presetname => $defaultvalue) {
-    $return .= '
-      <input type="hidden" id="'.$presetname.'_serialCoord" name="'.$presetname.'_serialCoord" value="'.implode($defaultvalue,',').'"/>
-      <input type="button" id="'.$presetname.'" class="form-submit" value="'.t($presetname).'">
-    ';
-  }
-  
-  $return .='</div><div class="crop_submit buttons">';
-  
-  $return .= '
-	  <input type="submit" class="form-submit" value="'.t("save").'" id="edit-submit" name="op">
-	  </div>  
-    </form>
-    </div>
   ';
   
   return $return;
