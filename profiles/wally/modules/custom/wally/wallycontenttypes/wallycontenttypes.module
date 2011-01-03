@@ -629,12 +629,14 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  *   a file is uploaded.
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
+  global $base_url;
+
   $form['group_photo']['field_croping']['#access'] = FALSE;
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
   	"#type"=>'markup',
-  	"#value"=>'<a href="/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit Croping Informations").'</a>',
+  	"#value"=>'<a href="'.$base_url.'/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
     );
   }
   return($form);
@@ -777,7 +779,14 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       	  $("#crop-current-name").html(i); 
           api.setSelect(ac);
           api.setOptions({ aspectRatio: ratio });
+          // Change class of selected button
+          if (currentAc) {
+          	$("#"+currentAc).removeClass("crop_selected");
+          }
+          $("#"+i).addClass("crop_selected");	
           currentAc = i;
+          
+          
           return nothing(e);
         };
       };
@@ -834,26 +843,30 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
  */
 function _wallycontenttypes_htmlcodeforthecroping($filepath, $defaultvalues) {
   $return = '
-    <form action="" method="post">
+    <div class="crop_wrap">
+    <form class="crops" action="" method="post">
     <label for="edit-crop">
     	Move and resize crops : <span id="crop-current-name">'.t("Choose a preset to edit.").'</span>
     </label>
     <div id="cropimage"><img src="'.base_path().$filepath.'" id="cropbox" /></div>
   ';
 
-  $return .= '<div class="bouttons">';
+  $return .= '<div class="crops">';
   
   foreach ($defaultvalues as $presetname => $defaultvalue) {
     $return .= '
       <input type="hidden" id="'.$presetname.'_serialCoord" name="'.$presetname.'_serialCoord" value="'.implode($defaultvalue,',').'"/>
-      <input type="button" id="'.$presetname.'" class="form-submit" value="'.$presetname.'">
+      <input type="button" id="'.$presetname.'" class="form-submit" value="'.t($presetname).'">
     ';
   }
+  
+  $return .='</div><div class="crop_submit buttons">';
   
   $return .= '
 	  <input type="submit" class="form-submit" value="'.t("save").'" id="edit-submit" name="op">
 	  </div>  
     </form>
+    </div>
   ';
   
   return $return;
