@@ -13,15 +13,13 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/steph/rotator.js');
 
 <?php  if (count($embededobjects)): ?>
   <span class="embedobjectsblock">
-  <h3>Embeded Videos</h3>
     <div class="photos">
     <ul>
  
   <?php foreach ($embededobjects as $embededobject) :?>  
 
         
-      <li>
-        
+      <li>        
         <?php if($embededobject->type=="wally_videoobject"):?>
         <?php //dsm($embededobject->field_photofile[0]);?>
           <a title="<?php print $embededobject->title?>" rel="prettyPhoto[pp_gal]" href="<?php print $embededobject->field_video3rdparty[0]['embed']; ?>"> 
