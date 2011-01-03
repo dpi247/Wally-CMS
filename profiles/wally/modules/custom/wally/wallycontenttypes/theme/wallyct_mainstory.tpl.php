@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Wally default template for rendering Packages Autors List 
  */
