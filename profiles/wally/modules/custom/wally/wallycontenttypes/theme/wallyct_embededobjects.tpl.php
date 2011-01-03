@@ -13,7 +13,7 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/steph/rotator.js');
 
 <?php  if (count($embededobjects)): ?>
   <span class="embedobjectsblock">
- 
+  <h3>Embeded Videos</h3>
     <div class="photos">
     <ul>
  
@@ -28,12 +28,13 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/steph/rotator.js');
              <?php print  theme('imagecache','slider_preset',$embededobject->field_video3rdparty[0]['data']['thumbnail']['url']);?>
           </a>
         <?php endif;?>
+        <!-- 
         <?php if($embededobject->type=="wally_photoobject"):?>
          <a title="<?php print $embededobject->title?>" rel="prettyPhoto[pp_gal]" href="/<?php print $embededobject->field_photofile[0]['filepath']; ?>"> 
              <?php print  theme('imagecache','slider_preset',$embededobject->field_photofile[0]['filepath'])?>
           </a>
        <?php endif;?>
-        
+         -->
    
       </li>
   <?php endforeach;?>
