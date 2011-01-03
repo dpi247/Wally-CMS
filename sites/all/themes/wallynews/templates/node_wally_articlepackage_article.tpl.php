@@ -13,7 +13,6 @@
   }
 ?>
 <?php
-ssssssssssssssssssssss
 //echo '<pre>'.print_r($node,1)."</pre>"; 
  print theme("wallyct_embededobjects", $node->field_embededobjects_nodes, $node);
 ?>
