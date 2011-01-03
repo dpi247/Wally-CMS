@@ -136,7 +136,7 @@ function wally_feature_modules() {
 function wally_profile_task_list() {
   global $conf;
   $conf['site_name'] = 'Wally';
-  $conf['site_footer'] = 'wally by <a href="http://www.audaxis.com">Audaxis</a> - Sponsorized by <a href="http://www.rossel.be">Rossel</a>';
+  $conf['site_footer'] = 'Wally by <a href="http://www.audaxis.com">Audaxis</a> - Sponsorized by <a href="http://www.rossel.be">Rossel</a>';
   $tasks['wally-configure-batch'] = st('Configure Wally');
   return $tasks;
 }
