@@ -1465,10 +1465,11 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 			if ($terms) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
-				$result[$i]["DestinationPathTid"]=$terms[0]->tid;
-				$result[$i]["DestinationPath"]=$path;
-				$result[$i]["DestinationRank"]=$destination->getAttributeNode("DestinationRank")->value;
-				$result[$i]["DocumentLayout"]=$destination->getAttributeNode("DocumentLayout")->value;
+				$result[$i]['tid']=$terms[0]->tid;
+				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
+				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
+				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
+        $result[$i]['time_rank']=0;
 			} else {
 				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','error');	
 			}
@@ -1477,7 +1478,7 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 	
 		// If no destinations at all > Package can't be created.
 		if (count($result)) {
-			$node->field_destinations=array(array('value'=>serialize($result))); 
+			$node->field_destinations=$result;
 		} else {
 			// TODO: FATAL ERROR - PACKAGE
 			drupal_set_message('No destination AT ALL for current package.','error');

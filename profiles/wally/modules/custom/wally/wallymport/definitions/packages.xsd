@@ -38,6 +38,8 @@
 		<xsd:element name="Authors" minOccurs="0" maxOccurs="1" type="PersonsType" />
 		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
 		<xsd:element name="PackageLayout" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="Summary" type="xsd:anyType" />
+    <xsd:element name="ExternalURI" type="xsd:anyURI" />
 		<!-- /COMMON ELEMS -->
 	</xsd:sequence>
 	<!-- COMMON ATTRIBUTES -->
@@ -80,7 +82,6 @@
 	<xsd:complexContent>
 		<xsd:extension base="PackageType"> 
 			<xsd:sequence>
-				<xsd:element name="GallerySummary" type="xsd:anyType" />
 				<xsd:element name="MainObject" minOccurs="1" maxOccurs="1"  type="MultiMediaObjectType" />
 				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="1" type="EmbeddedContentType" />
 			</xsd:sequence>
@@ -134,7 +135,6 @@
 			<xsd:sequence>
 				<xsd:element name="Summary" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
-				<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="FileURI" type="xsd:anyURI" />
 				<xsd:element name="FileSize" type="xsd:decimal" />
 				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
@@ -238,16 +238,6 @@
  </xsd:complexType>
  <!-- /POLL OBJECT -->
  
- <!-- LINK OBJECT -->
- <xsd:complexType name="LinksObjectType">
-	<xsd:sequence>
-		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="ExternalReference" type="xsd:string" />
-		<xsd:element name="Links" type="LinksType" />
-	</xsd:sequence>
- </xsd:complexType>
- <!-- /LINK OBJECT -->
-
  <!-- EMBEDDED OBJECT -->
  <xsd:complexType name="EmbeddedContentType">
 	<xsd:sequence>
@@ -476,7 +466,7 @@
  <!-- CROPS -->
  <xsd:complexType name="CropsType">
 	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
-		<xsd:element name="Crop" minOccurs="0" maxOccurs="1" type="CropType" />
+		<xsd:element name="Crop" minOccurs="0" type="CropType" />
  	</xsd:sequence>
  </xsd:complexType>
  <xsd:complexType name="CropType">
@@ -487,14 +477,6 @@
 	<xsd:attribute name="H" type="xsd:decimal" />
  </xsd:complexType>
  <!-- /CROPS -->
-
- <!-- KEYWORDS -->
- <xsd:complexType name="KeywordsType">
-	<xsd:sequence minOccurs="0" maxOccurs="unbounded">
-		<xsd:element name="Term" minOccurs="0" maxOccurs="1" type="xsd:string" />
- 	</xsd:sequence>
- </xsd:complexType>
- <!-- /KEYWORDS -->
 
  <!-- POLL QUESTION -->
  <xsd:complexType name="PollQuestionsType">
