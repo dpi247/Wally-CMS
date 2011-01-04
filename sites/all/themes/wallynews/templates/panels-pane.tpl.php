@@ -19,14 +19,18 @@
  */
 ?>
 <?php
+    
   if ($classes && $id) {
     print "<div class='".$classes."' ".$id.">";
+    if($pane->type=="views")
+      print  "<h2>$title</h2>";
     
     print $content;
     print "</div>";
   } else {
     print "<div class='box'>";
-        print  "<h2>$title</h2>";
+    if($pane->type=="views")
+      print  "<h2>$title</h2>";
     
     print $content;
     print "</div>";
