@@ -21,7 +21,6 @@
 <?php
   if ($classes && $id) {
     print "<div class='".$classes."' ".$id.">";
-    print  "<h2>$title</h2>";
     
     print $content;
     print "</div>";
