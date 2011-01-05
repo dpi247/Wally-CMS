@@ -164,7 +164,8 @@ function _wimprthelp_plain_text($text){
 
 
 /**
- * return acreated  drupal file object from uri
+ * Return acreated drupal file object from uri. The images supported
+ * formats are jpg (or jpeg), png and gif. 
  *
  * @param $file_uri
  *   - A uri to the filet
@@ -177,9 +178,7 @@ function _wimprthelp_create_file_from_uri($file_uri){
   global $base_path;
   global $proceed_folder_path;
  
-  
-  $uri=parse_url($file_uri);
- 
+  $uri = parse_url($file_uri);
 
   switch($uri['scheme']){
     case'embed':
@@ -188,16 +187,21 @@ function _wimprthelp_create_file_from_uri($file_uri){
       return _wimprthelp_create_file($file_path);
       break;
     case 'http':
-      dsm(drupal_http_request($file_uri));
+      $expl_path = explode('/', $uri['path']);
+      $file_name = $expl_path[count($expl_path)-1];
+      if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
+        $file_temp_path = file_directory_path().'/'.$file_name;
+        exec('wget -t 45 -O '.$file_temp_path.' '.$file_uri);
+        $return = _wimprthelp_create_file($file_temp_path);
+        return $return;
+      }
       break;
   }
 
   return $file_uri;
 }
 
-
 function _wimprthelp_create_file($filepath){
-  
   $uid=variable_get('wallymport_defaultuser',1);
   $file = new stdClass();
   $file->filename = basename($filepath);
