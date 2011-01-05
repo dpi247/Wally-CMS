@@ -11,7 +11,7 @@
  */
 function wallyrsstonode_menu() {
   $items = array();
-  $items['admin/wally/wallyrsstonode'] = array(
+  $items['admin/wally/wallyrsstonode/adminfeeds'] = array(
     'title' => 'Wally RSS to node Feeds',
     'page callback' => 'wallyrsstonode_page_admin',
     'page arguments' => array('wallyrsstonode_page_admin'),
@@ -31,22 +31,11 @@ function wallyrsstonode_menu() {
   return $items;
 }
 
-/*
-function wallyrsstonode_form_alter(&$form, $form_state, $form_id) {
-  $form['#after_build'][] = 'wallyrsstonode_after_build';
-}
-
-function wallyrsstonode_after_build($form, &$form_state) {
-  dsm($form);
-  return $form;
-}
-*/
-
 /**
  * Executes the RSS to node cron run when called.
  * 
  * @return
- *   Returns TRUE if ran successfully.
+ *   Returns FALSE in case of error, redirect if successful.
  */
 function wallyrsstonode_cron_run() {
   // Try to allocate enough time to run all the hook_cronrsstonode implementations.
@@ -55,8 +44,7 @@ function wallyrsstonode_cron_run() {
   }
 
   // Fetch the cron semaphore
-  //$semaphore = variable_get('cronrsstonode_semaphore', FALSE);
-  $semaphore=null;
+  $semaphore = variable_get('cronrsstonode_semaphore', FALSE);
 
   if ($semaphore) {
     if (time() - $semaphore > 3600) {
@@ -92,7 +80,7 @@ function wallyrsstonode_cron_run() {
     variable_del('cronrsstonode_semaphore');
 
     // Redirect to admin page if success
-    drupal_goto('admin/wally/wallyrsstonode/');
+    drupal_goto('admin/wally/');
   }
 }
 
@@ -127,20 +115,22 @@ function _wallyrsstonode_callallfeeds() {
       $valid_dom_and_channel_last_build = _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos);
       $valid_dom = $valid_dom_and_channel_last_build[0];
       $channel_last_build = $valid_dom_and_channel_last_build[1];
-      
-      $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
-      $valid_dom->save($tempFile);
-      $temp_return = wallymport_page_process_file($tempFile);
-      exec('rm '.$tempFile);
-      
-      if ($temp_return) {
-        $object = array();
-        $object = $feed_infos;
-        $object['last_build'] = $channel_last_build;
-        drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
+
+      if ($channel_last_build > 0) { //$feed_infos['last_build']) {
+        $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
+        $valid_dom->save($tempFile);
+        $temp_return = wallymport_page_process_file($tempFile);
+        exec('rm '.$tempFile);
+
+        if ($temp_return) {
+          $object = array();
+          $object = $feed_infos;
+          $object['last_build'] = $channel_last_build;
+          drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
+        }
+        
+        $return[] = '';//$temp_return;
       }
-      
-      $return[] = $temp_return;
     }
   }
   
@@ -176,10 +166,9 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
     $feed_destination = explode('/', $feed_infos['destination']);
     $sql_last_build = $feed_infos['last_build'];
     $feed_name = check_plain($feed_infos['name']);
-    $channel_last_build = 'ok';//date('D, d M Y H:i:s O', _wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
-    //$channel_last_build = date('Y-m-d',$channel_last_build);//gmmktime($channel_last_build->format('H'),$channel_last_build->format('i'),$channel_last_build->format('s'),$channel_last_build->format('n'),$channel_last_build->format('j'),$channel_last_build->format('Y'));
+    $channel_last_build = strtotime(_wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
     
-    if ($channel_last_build) {// > $sql_last_build) {
+    if ($channel_last_build > 0) { //$sql_last_build) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $feed_infos);
 
@@ -228,7 +217,8 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
         }
         $mainStory->appendChild($valid_dom->createElement('Copyright', $array_valid_dom['Package']['MainStory']['Copyright']['value']));
         $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
-        $mainStory->appendChild($valid_dom->createElement('TextBody', $array_valid_dom['Package']['MainStory']['TextBody']['value']));
+        $format_number = db_result(db_query("SELECT `format` FROM `filter_formats` WHERE `name` = '%s'", $feed_infos['body_html']));
+        $mainStory->appendChild($valid_dom->createElement('TextBody', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number)));
 
         if (isset($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'])) {
           $embeddedContent = $package->appendChild($valid_dom->createElement('EmbeddedContent'));
