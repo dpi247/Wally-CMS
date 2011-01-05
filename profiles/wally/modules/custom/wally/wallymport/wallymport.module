@@ -61,8 +61,6 @@ function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALS
     }
   }
   $files = drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0);	// get list of all *.zip files
-  dsm($xml_file);
-  dsm($files);
   if (count($files)==0) {
 	    drupal_set_message('No input files found','error');
 	    return null;
@@ -173,7 +171,7 @@ function wimprt_process_packages($node,$dom,&$log){
   foreach($dom->getElementsByTagName('Package') as $package_element){
     $node=new stdClass;
     wimprt_process_package($node,$package_element,$log);
-    $log[]=$log;
+    //$log[]=$log;
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
 
@@ -200,7 +198,7 @@ function wimprt_process_packages($node,$dom,&$log){
 function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom,'package', $callback,$log);
-  
+
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process package: '.$dom->nodeName;
@@ -228,9 +226,9 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
  * Call an apropriate function to process an object element
  * depending the attribute callback of the child element.
  *
- * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_CALLCACK
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_CALLBACK
  * 
- * The naming convention to build a node from a specific package callback is: wimprt_process_object_CALLCACK
+ * The naming convention to build a node from a specific package callback is: wimprt_process_object_CALLBACK
  *
  * if no specific function found nothing is done.
  *
@@ -252,7 +250,6 @@ function wimprt_process_object($dom,&$log,$callback=NULL){
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
 
-  
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$callback")){

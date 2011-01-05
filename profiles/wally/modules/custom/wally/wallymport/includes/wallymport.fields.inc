@@ -348,6 +348,7 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
         $object=wimprt_process_object($dom,$log,'digitalobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='videoobjecttype')
         $object=wimprt_process_object($dom,$log,'videoobjecttype');
+        
     if($object->nid)
       $node->field_mainobject[0]['nid']=$object->nid; 
     }
@@ -567,6 +568,9 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
  *
  * @return
  *   Nothing
+ * 
+ * @todo
+ *   Check variable name line 575, procced or proceed?
  */
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
@@ -575,18 +579,23 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom);
 
-  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+  if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
+    $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   
-  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
-  $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
+    $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
+
+  if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
+    $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+    
   wimprt_process_object_default($node,$dom,$log);
+
   if ($dom->getElementsByTagName("Caption")->length) {
     $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
   }
-  
-  return $node;
 
+  return $node;
 }
 
 /**
