@@ -257,8 +257,8 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
   $array_item = wallytoolbox_rss_item_to_array_init_array();
 
   $array_item['Package']['PackageID'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
-  //$channel_pubDate = date('D, d M Y H:i:s O', _wallytoolbox_checkifelementexists($item, 'pubDate'));
-  $pubDate = date('Y-m-d').'T'.date('H:i:sP');//$channel_pubDate->format('Y-m-d').'T'.$channel_pubDate->format('H:i:sP');
+  $channel_pubDate = strtotime(_wallytoolbox_checkifelementexists($item, 'pubDate'));
+  $pubDate = date('Y-m-d', $channel_pubDate).'T'.date('H:i:sP', $channel_pubDate);
   $array_item['Package']['PublicationDate'] = $pubDate;
   $array_item['Package']['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
@@ -276,7 +276,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
   $categories = $item->getElementsByTagName('category');
   if ($categories->item(0)) {
     foreach ($categories as $category) {
-      $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.$category->firstChild->wholeText;
+      $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $category->firstChild->wholeText);
     }
   }
   $array_item['Package']['MainStory']['Copyright']['value'] = _wallytoolbox_checkifelementexists($item, 'author');
@@ -292,7 +292,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
     $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
     $tempobject['PublicationDate'] = $pubDate;
     $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
-    $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
+    $tempobject['Title']['value'] = check_plain($enclosure->item(0)->getAttribute('url'));
     $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
     $tempobject['FileURI']['value'] = $enclosure->item(0)->getAttribute('url');
     $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
@@ -301,11 +301,15 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
 
   $media_contents = $item->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content');
   if ($media_contents->item(0)) {
-    $array_item['Package']['EmbeddedContent'] = array();
-    $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
-    $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+    $first_media = TRUE;
     foreach ($media_contents as $media_content) {
       if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
+        if ($first_media) {
+          $array_item['Package']['EmbeddedContent'] = array();
+          $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
+          $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+          $first_media = FALSE;
+        }
         $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
         $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
         $tempobject['PublicationDate'] = $pubDate;
@@ -322,14 +326,14 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
         if ($keywords != '') {
           $keywords = explode(',',$keywords);
           foreach ($keywords as $keyword) {
-            $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.$keyword;
+            $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $keyword);
           }
         }
         $media_categories = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'category');
         if ($media_categories != '') {
           $media_categories = explode('/',$media_categories);
           foreach ($media_categories as $media_category) {
-            $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.$media_category;
+            $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
           }
         }
         $media_thumbnails = $media_content->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail');
@@ -393,7 +397,7 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
       }
     }
   }
-  return check_plain($return);
+  return $return;
 }
 
 /**
