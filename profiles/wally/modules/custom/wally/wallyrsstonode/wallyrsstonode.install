@@ -75,7 +75,14 @@ function wallyrsstonode_schema() {
           'unsigned' => TRUE,
           'not null' => TRUE, 
           'default' => 0,
-        ), 
+        ),
+        'body_html' => array(
+          'description' => 'Use of HTML for the text body or not.', 
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => TRUE,
+          'default' => '0',
+        ),
       ), 
       'primary key' => array('rss_key'),
   );
