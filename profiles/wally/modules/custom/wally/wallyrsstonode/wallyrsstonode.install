@@ -63,11 +63,11 @@ function wallyrsstonode_schema() {
           'default' => '',
         ),
         'channel_img' => array(
-          'description' => 'The channel image, used as default image.', 
-          'type' => 'varchar', 
-          'length' => 512, 
+          'description' => 'Use of default image.', 
+          'type' => 'int', 
+          'size' => 'tiny',
           'not null' => TRUE, 
-          'default' => '',
+          'default' => 0,
         ),
         'package_layout' => array(
           'description' => 'Package layout.', 
