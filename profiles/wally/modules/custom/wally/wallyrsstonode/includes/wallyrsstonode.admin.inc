@@ -120,6 +120,13 @@ function wallyrsstonode_page_admin_form($form_state, $default_form_values) {
     '#weight' => 2,
   );
   
+  $form['wallyrsstonode_channelimg'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use the default RSS feed image as package image if no other image found.'),
+    '#default_value' => $default_form_values['channel_img'],
+    '#weight' => 2.1,
+  );
+  
   $all_vocabularies = taxonomy_get_vocabularies();
   foreach ($all_vocabularies as $vocabulary) {
     if ($vocabulary->name=='Document Type') {
@@ -172,6 +179,7 @@ function wallyrsstonode_page_admin_form_submit($form, &$form_state) {
   $object['destination'] = $form['wallyrsstonode_destinations']['field_destinations'][0]['tid']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['target']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['layout']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['rank']['#value'];
   $object['delta_t'] = $form['wallyrsstonode_deltat']['#value'];
   $object['signature'] = $form['wallyrsstonode_signature']['#value'];
+  $object['channel_img'] = $form['wallyrsstonode_channelimg']['#value'];
   $object['package_layout'] = $form['wallyrsstonode_pack_layout']['#value'];
   $object['body_html'] = $form['wallyrsstonode_bodyhtml']['#options'][$form['wallyrsstonode_bodyhtml']['#value']];
   if (isset($form['wallyrsstonode_rsskey']['#value'])) {
@@ -224,7 +232,7 @@ function _wallyrsstonode_buildtableforadminpage() {
     $temp_row['uri'] = check_plain($db_result['uri']);
     $temp_row['signature'] = check_plain($db_result['signature']);
     $temp_row['delta_t'] = check_plain($db_result['delta_t']);
-    $temp_row['channel_img'] = $db_result['channel_img']!='' ? 'yes' : 'no';
+    $temp_row['channel_img'] = $db_result['channel_img']==1 ? 'yes' : 'no';
     $temp_row['destination'] = check_plain($db_result['destination']);
     $temp_row['package_layout'] = check_plain($db_result['package_layout']);
     $temp_row['body_html'] = check_plain($db_result['body_html']);
@@ -250,6 +258,7 @@ function _wallyrsstonode_getdefaultvalues($feed_infos = array()) {
     $default_form_values['name'] = '';
     $default_form_values['uri'] = '';
     $default_form_values['signature'] = '';
+    $default_form_values['channel_img'] = 0;
     $default_form_values['delta_t'] = 5;
     $default_form_values['destination'] = '0///0';
     $default_form_values['package_layout'] = '';

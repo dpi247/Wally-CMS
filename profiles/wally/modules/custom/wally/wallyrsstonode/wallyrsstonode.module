@@ -116,7 +116,7 @@ function _wallyrsstonode_callallfeeds() {
       $valid_dom = $valid_dom_and_channel_last_build[0];
       $channel_last_build = $valid_dom_and_channel_last_build[1];
 
-      if ($channel_last_build > 0) { //$feed_infos['last_build']) {
+      if ($channel_last_build > $feed_infos['last_build']) {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
@@ -129,7 +129,7 @@ function _wallyrsstonode_callallfeeds() {
           drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
         }
         
-        $return[] = '';//$temp_return;
+        $return[] = $temp_return;
       }
     }
   }
@@ -157,18 +157,19 @@ function _wallyrsstonode_callallfeeds() {
 function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {  
   $dom = new DomDocument();
   $dom->LoadXML($feed_xml->data);
-  $valid_dom = new DomDocument('1.0', 'UTF-8');
-  $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
-  $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
-  
   $channels = $dom->getElementsByTagName('channel');
+  
   if ($channels->item(0)) {
     $feed_destination = explode('/', $feed_infos['destination']);
     $sql_last_build = $feed_infos['last_build'];
     $feed_name = check_plain($feed_infos['name']);
     $channel_last_build = strtotime(_wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
     
-    if ($channel_last_build > 0) { //$sql_last_build) {
+    if ($channel_last_build > $sql_last_build) {
+      $valid_dom = new DomDocument('1.0', 'UTF-8');
+      $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
+      $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
+      
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $feed_infos);
 
@@ -243,12 +244,18 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
               if (isset($item_object['ThumbNail']['H'])) $thumbnail->setAttribute('H', $item_object['ThumbNail']['H']);
             }
             if (isset($item_object['Rating'])) $object->appendChild($valid_dom->createElement('Rating', $item_object['Rating']['value']));
+            if (isset($item_object['LinkTitle'])) $object->appendChild($valid_dom->createElement('LinkTitle', $item_object['LinkTitle']['value']));
+            if (isset($item_object['LinkURI'])) $object->appendChild($valid_dom->createElement('LinkURI', $item_object['LinkURI']['value']));
           }
         }
       }
     } else {
       drupal_set_message('The feed '.check_plain($feed_infos['name']).' wasn\'t rebuild since last run.', "notice");
+      $valid_dom = 'no rebuild';
     }
+  } else {
+    drupal_set_message('No channel in the '.check_plain($feed_infos['name']).' feed.', "notice");
+    $valid_dom = 'no channel';
   }
   
   $return = array();
