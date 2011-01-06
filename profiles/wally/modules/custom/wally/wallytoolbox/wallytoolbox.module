@@ -468,7 +468,7 @@ function wallytoolbox_rss_item_to_array_init_array() {
   $array_item['Package']['Destinations']['Destination']['DocumentLayout'] = '';
   $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = '';
   $array_item['Package']['Editions'] = array();
-  $array_item['Package']['Editions']['Edition']['EditionID'] = '';
+  $array_item['Package']['Editions']['Edition']['EditionID'] = 'all';
   $array_item['Package']['Editions']['Edition']['value'] = 'true';
   $array_item['Package']['Channels'] = array();
   $array_item['Package']['Channels']['Channel']['Name'] = '';
