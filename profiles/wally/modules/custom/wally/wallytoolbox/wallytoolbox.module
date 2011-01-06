@@ -251,7 +251,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
+function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('name'=>'', 'destination'=>'0///')) {
   $feed_name = $feed_infos['name'];
   $feed_destination = explode('/',$feed_infos['destination']);
   $array_item = wallytoolbox_rss_item_to_array_init_array();
@@ -266,7 +266,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos) {
   $array_item['Package']['Destinations']['Destination']['DestinationRank'] = $feed_destination[3];
   $array_item['Package']['Destinations']['Destination']['Position'] = $feed_destination[1];
   $array_item['Package']['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
-  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = taxonomy_get_term($feed_destination[0])->name;
+  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = taxonomy_get_term($feed_destination[0]) ? taxonomy_get_term($feed_destination[0])->name : '';
   $array_item['Package']['ExternalURI']['value'] = _wallytoolbox_checkifelementexists($item, 'link');
   $array_item['Package']['MainStory']['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['MainStory']['PublicationDate'] = $pubDate;
