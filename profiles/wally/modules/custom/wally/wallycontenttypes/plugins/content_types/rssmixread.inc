@@ -4,6 +4,9 @@
  * describes the content type.
  */
  
+/**
+ * Definition of the RSS mix reader ctools.
+ */
 function wallycontenttypes_rssmixread_ctools_content_types() {  
   return array(
     'single' => TRUE,
@@ -16,6 +19,9 @@ function wallycontenttypes_rssmixread_ctools_content_types() {
   );
 }
 
+/**
+ * Building the configuration form of a RSS mix reader.
+ */
 function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_state) {    
   $conf = $form_state['conf'];
   $default_form_values = _wallyconttentypes_rssmixread_getdefaultformvalues($conf);
@@ -102,6 +108,9 @@ function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_stat
   return $form;  
 }
 
+/**
+ * Validation for the configuration form of a RSS mix reader.
+ */
 function wallycontenttypes_rssmixread_content_type_edit_form_validate(&$form, &$form_state) {
   $uri_strings = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($form['uris']['#value'])));
   foreach ($uri_strings as $uri_string) {
@@ -138,6 +147,9 @@ function wallycontenttypes_rssmixread_content_type_edit_form_validate(&$form, &$
   }
 }
 
+/**
+ * Submitting the configuration form of a RSS mix reader.
+ */
 function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$form_state) {
   cache_clear_all($cid = $form['cid']['#value'], $table = 'cache');
   $form_state['conf']['uris'] = $form['uris']['#value'];
@@ -152,6 +164,9 @@ function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$fo
   $form_state['conf']['cid'] = $form['cid']['#value'];
 }
 
+/**
+ * Rendering of the RSS mix reader ctools.
+ */
 function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $panel_args, $context) {
   $feed = array();
   $block = new stdClass();
@@ -194,6 +209,16 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
   return $block;
 }
 
+/**
+ * Return the default values of the configuration form, allow the user
+ * to update settings without having to reenter all values.
+ * 
+ * @param $conf
+ *   The configuration informations.
+ * 
+ * @return
+ *   The default values.
+ */
 function _wallyconttentypes_rssmixread_getdefaultformvalues($conf) {
   $default_form_values = array();
   if (!empty($conf)) {
@@ -242,6 +267,19 @@ function _wallycontenttypes_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
   return $feed_array;
 }
 
+/**
+ * Select the most recent feed of every RSS feed list that matches the
+ * schema.
+ * 
+ * @param $schema_elem
+ *   The schema containing the IDs of the allowed RSS feed lists.
+ * @param $feed_array
+ *   Array of all the RSS feed lists.
+ * 
+ * @return
+ *   The array containing the selected feeds and their respective RSS
+ *  feed list ID.
+ */
 function _wallycontenttypes_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array) {
   $available_items = array();
   $schema_elems = explode('-', $schema_elem);
@@ -254,6 +292,16 @@ function _wallycontenttypes_rssmixread_getavailableitemsfromschema($schema_elem,
   return $available_items;
 }
 
+/**
+ * Select the most recent feed (based on the publication date) in the
+ * given array.
+ * 
+ * @param $available_items
+ *   The array containing the available feeds.
+ * 
+ * @return
+ *   The ID of the RSS feed list containing the most recent feed.
+ */
 function _wallycontenttypes_rssmixread_getmostrecentfromavailables($available_items) {
   $most_recent = array( 'Package' => array('PublicationDate' => '1970-01-01T00:00:00+00:00'));
   
