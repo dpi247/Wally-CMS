@@ -251,7 +251,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('name'=>'', 'destination'=>'0///')) {
+function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('name'=>'', 'destination'=>'0///', 'channel_img'=>0)) {
   $feed_name = $feed_infos['name'];
   $feed_destination = explode('/',$feed_infos['destination']);
   $array_item = wallytoolbox_rss_item_to_array_init_array();
@@ -354,6 +354,23 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('na
         $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
       }
     }
+  }
+  
+  $channel_img = $channel->getElementsByTagName('image');
+  if ($feed_infos['channel_img'] && !isset($array_item['Package']['EmbeddedContent']) && $channel_img->item(0)) {
+    $array_item['Package']['EmbeddedContent'] = array();
+    $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
+    $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+    $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
+    $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
+    $tempobject['PublicationDate'] = $pubDate;
+    $tempobject['MimeType'] = 'image';
+    $tempobject['Title']['value'] = $channel_img->item(0)->getAttribute('title');
+    $tempobject['ExternalReference']['value'] = $channel_img->item(0)->getAttribute('url');
+    $tempobject['FileURI']['value'] = $channel_img->item(0)->getAttribute('url');
+    $tempobject['LinkTitle']['value'] = $channel_img->item(0)->getAttribute('title');
+    $tempobject['LinkURI']['value'] = $channel_img->item(0)->getAttribute('link');
+    $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
   }
 
   return $array_item;
