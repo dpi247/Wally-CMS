@@ -205,7 +205,7 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rssmix",$feed, $conf); 
+  $block->content = theme("wallyct_rss",$feed, $conf); 
   return $block;
 }
 
@@ -225,8 +225,8 @@ function _wallyconttentypes_rssmixread_getdefaultformvalues($conf) {
     $default_form_values = $conf;
   } else {
     $default_form_values['uris'] = '';
-    $default_form_values['maxitem_global'] = 0;
-    $default_form_values['maxitem_byfeed'] = 0;
+    $default_form_values['maxitem_global'] = 10;
+    $default_form_values['maxitem_byfeed'] = 10;
     $default_form_values['delta_t'] = 20;
     $default_form_values['own_schema'] = '';
     $default_form_values['mix_schema'] = '1,2,3';
@@ -250,11 +250,11 @@ function _wallyconttentypes_rssmixread_getdefaultformvalues($conf) {
  *   The array.
  */
 function _wallycontenttypes_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
+  $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
   if ($feed_xml) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
-    $feed_array = array();
     $channels = $dom->getElementsByTagName('channel');
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
