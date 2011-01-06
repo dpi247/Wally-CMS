@@ -59,12 +59,6 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_rss',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-    
-    'wallyct_rssmix' => $base + array(
-    'arguments' => array("feed" => NULL, "options" => NULL),
-    'template' => 'wallyct_rssmix',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
 
     'wallyct_tofacebook' => $base + array(
     'arguments' => array("node" => NULL, "options" => NULL),
