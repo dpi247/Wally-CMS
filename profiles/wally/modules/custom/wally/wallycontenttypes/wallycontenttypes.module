@@ -59,6 +59,12 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_rss',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_rssmix' => $base + array(
+    'arguments' => array("feed" => NULL, "options" => NULL),
+    'template' => 'wallyct_rssmix',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
     'wallyct_tofacebook' => $base + array(
     'arguments' => array("node" => NULL, "options" => NULL),
@@ -505,17 +511,16 @@ function wallycontenttypes_preprocess_node(&$variables) {
  *  Implémentation du Hook_form_alter(); 
  */
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
-     
   if (isset($form['type']) && isset($form['#node'])) {
     switch ($form_id) {
       case "wally_photoobject_node_form":
         _wallycontenttypes_addcroppinglink($form, $form_state, $form_id);
-       break;
+        break;
       case "wally_articlepackage_node_form":
       case "wally_gallerypackage_node_form" :
       case "wally_pollpackage_node_form":
         _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
-      break;
+        break;
     }
   }
 }
