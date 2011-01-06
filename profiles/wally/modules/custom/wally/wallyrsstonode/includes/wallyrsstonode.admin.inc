@@ -6,19 +6,15 @@
  *   Import Press Content to Drupal structure Administration
  */
  
-/**
- * Implementation of hook_form_alter()
- */
+/*
 function wallyrsstonode_form_alter(&$form, $form_state, $form_id) {
   $form['#after_build'][] = 'wallyrsstonode_after_build';
 }
 
-/**
- * Implementation of hook_after_build()
- */
 function wallyrsstonode_after_build($form, &$form_state) {
   return $form;
 }
+*/
  
 function wallyrsstonode_page_admin($action = '', $op = '', $rss_key = 0) {
   $default_form_values = _wallyrsstonode_getdefaultvalues();
