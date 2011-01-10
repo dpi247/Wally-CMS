@@ -29,12 +29,14 @@ function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) 
   $form['uri'] = array (
     '#type'             => 'textfield',
     '#title'            => t('URL of the RSS FEED'),
+    '#default_value'    => $default_form_values['uri'],
     '#required'         => TRUE,
   );
 
   $form['maxitem'] = array (
     '#type'             => 'textfield',
     '#title'            => t('Max Item to fetch'),
+    '#default_value'    => $default_form_values['maxitem'],
     '#required'         => TRUE,
   );
   
@@ -47,14 +49,14 @@ function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) 
 
   $form['override_theme'] = array (
     '#type'             => 'checkbox',
-    '#default_value'    => '',
+    '#default_value'    => $default_form_values['override_theme'],
     '#id'               =>  'override-theme-checkbox',
     '#title'            => 'Override Theming Function',
   );
 
   $form['override_theme_text'] = array (
     '#type'             => 'textfield',
-    '#default_value'    => '',
+    '#default_value'    => $default_form_values['override_theme_text'],
     '#id'               => 'override-theme-textfield',
     '#dependency'       => array('override-theme-checkbox'=>array('1')),
     '#dependency_type'  => 'disable',
@@ -85,7 +87,15 @@ function wallycontenttypes_rssread_content_type_edit_form_validate(&$form, &$for
   }
 
   if (!is_numeric($form['maxitem']['#value'])) {
-    form_set_error('maxitem_global', t('The total max item isn\'t a numeric value'));
+    form_set_error('maxitem', t('The max item isn\'t a numeric value'));
+  } elseif ($form['maxitem']['#value'] <= 0) {
+    form_set_error('maxitem', t('The max item value must be greater than 0'));
+  }
+  
+  if (!is_numeric($form['delta_t']['#value'])) {
+    form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
+  } elseif ($form['delta_t']['#value'] < 0) {
+    form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
   }
 }
 
@@ -128,7 +138,7 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rss",$feed, $conf); 
+  $block->content = theme("wallyct_rss", $feed, $conf); 
   return $block;
 }
 
@@ -179,7 +189,7 @@ function _wallycontenttypes_rssread_createarrayfromuri($rss_uri, $maxitem) {
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $feed_array[] = wallytoolbox_rss_item_to_array($channels->item(0), $item);
-        if (sizeof($feed_array) == $maxitem) break;
+        if (sizeof($feed_array) >= $maxitem) break;
       }
     }
   }

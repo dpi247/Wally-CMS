@@ -39,7 +39,8 @@
 		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
 		<xsd:element name="PackageLayout" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="Summary" type="xsd:anyType" />
-    <xsd:element name="ExternalURI" type="xsd:anyURI" />
+    <xsd:element name="ExternalURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
+    <xsd:element name="PackageCopyright" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<!-- /COMMON ELEMS -->
 	</xsd:sequence>
 	<!-- COMMON ATTRIBUTES -->

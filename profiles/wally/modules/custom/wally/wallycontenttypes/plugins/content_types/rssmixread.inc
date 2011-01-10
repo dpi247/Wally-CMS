@@ -57,7 +57,7 @@ function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_stat
   );
   
   $mix_schemas = array(
-    '1,2,3'             => 'Alternate',
+    'alt'               => 'Alternate',
     'any'               => 'Most Recent'
   );
   
@@ -122,14 +122,20 @@ function wallycontenttypes_rssmixread_content_type_edit_form_validate(&$form, &$
 
   if (!is_numeric($form['maxitem_global']['#value'])) {
     form_set_error('maxitem_global', t('The total max item isn\'t a numeric value'));
+  } elseif ($form['maxitem_global']['#value'] <= 0) {
+    form_set_error('maxitem_global', t('The total max item value must be greater than 0'));
   }
   
   if (!is_numeric($form['maxitem_byfeed']['#value'])) {
     form_set_error('maxitem_byfeed', t('The max item by feed isn\'t a numeric value'));
+  } elseif ($form['maxitem_byfeed']['#value'] <= 0) {
+    form_set_error('maxitem_byfeed', t('The max item by feed value must be greater than 0'));
   }
   
   if (!is_numeric($form['delta_t']['#value'])) {
     form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
+  } elseif ($form['delta_t']['#value'] < 0) {
+    form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
   }
   
   if ($form['own_schema']['#value'] && !empty($form['own_schema']['#value'])) {
@@ -156,8 +162,8 @@ function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$fo
   $form_state['conf']['maxitem_global'] = $form['maxitem_global']['#value'];
   $form_state['conf']['maxitem_byfeed'] = $form['maxitem_byfeed']['#value'];
   $form_state['conf']['delta_t'] = $form['delta_t']['#value'];
-  $form_state['conf']['own_schema'] = $form['own_schema']['#value'];
   $form_state['conf']['mix_schema'] = $form['mix_schema']['#value'];
+  $form_state['conf']['own_schema'] = $form['own_schema']['#value'];
   $form_state['conf']['override_theme'] = $form['override_theme']['#value'];
   $form_state['conf']['override_theme_text'] = $form['override_theme_text']['#value'];
   $form_state['conf']['last_build'] = $form['last_build']['#value'];
@@ -180,7 +186,12 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
     if (isset($conf['own_schema']) && !empty($conf['own_schema'])) {
       $mix_schema = explode(',', $conf['own_schema']);
     } else {
-      $mix_schema = explode(',', $conf['mix_schema']);
+      if ($conf['mix_schema'] == 'alt') {
+        $mix_schema = array();
+        for ($i=0; $i<sizeof($rss_uris); $i++) $mix_schema[] = $i+1;
+      } else {
+        $mix_schema = explode(',', $conf['mix_schema']);
+      }
     }
     $override_theme_text = $conf['override_theme_text'];
     $maxitem_global = $conf['maxitem_global'];
@@ -190,7 +201,7 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
       $feed_array[] = _wallycontenttypes_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed);
     }
     
-    for ($i=0; $i<10; $i++) {
+    for ($i=0; $i<$maxitem_global; $i++) {
       $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
       $available_items = _wallycontenttypes_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
       $most_recent_index = _wallycontenttypes_rssmixread_getmostrecentfromavailables($available_items);
@@ -229,7 +240,7 @@ function _wallyconttentypes_rssmixread_getdefaultformvalues($conf) {
     $default_form_values['maxitem_byfeed'] = 10;
     $default_form_values['delta_t'] = 20;
     $default_form_values['own_schema'] = '';
-    $default_form_values['mix_schema'] = '1,2,3';
+    $default_form_values['mix_schema'] = 'alt';
     $default_form_values['override_theme'] = 0;
     $default_form_values['override_theme_text'] = '';
     $default_form_values['cid'] = 'rssmix_'.time();
@@ -259,7 +270,7 @@ function _wallycontenttypes_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $feed_array[] = wallytoolbox_rss_item_to_array($channels->item(0), $item);
-        if (sizeof($feed_array) == $maxitem) break;
+        if (sizeof($feed_array) >= $maxitem) break;
       }
     }
   }

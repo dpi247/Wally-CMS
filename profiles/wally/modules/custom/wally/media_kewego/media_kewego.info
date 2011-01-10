@@ -1,0 +1,9 @@
+; $Id: media_kewego.info,v 1.0 2011/01/07 ODM $
+
+name = Media: Kewego
+description = Provides Kewego support to the Embedded Media Field module.
+package = "Media"
+core = 6.x
+dependencies[] = emfield
+dependencies[] = emvideo
+

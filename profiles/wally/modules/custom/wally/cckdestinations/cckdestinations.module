@@ -149,7 +149,6 @@ function cckdestinations_elements() {
  * @return A Forms API array that defines the widget's editing form.
  */
 function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
-
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
    
@@ -235,7 +234,7 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes']=array();
  
   $hierarchies= wallyctools_get_hierarchies();
- 
+
   $dla = array(); 
   foreach($hierarchies as $tid=>$hierarchie){
     // Target
