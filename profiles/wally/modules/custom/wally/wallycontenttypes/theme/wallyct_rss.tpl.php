@@ -1,10 +1,10 @@
 <?php
 
-if (!function_exists('rssmix_feed')) {
-  function rssmix_feed($feed) {
+if (!function_exists('rss_feed')) {
+  function rss_feed($feed) {
     $content = "";
     foreach ($feed as $k=>$item) {
-      $content .= "<li><a href='".$item['Package']['ExternalURI']['value']."'>".$item['Package']['MainStory']['Title']['value']."</a></li>";
+      $content .= "<li><a href='".$item['Package']['ExternalURI']['value']."'>".check_plain($item['Package']['MainStory']['Title']['value'])."</a></li>";
     }
     return $content; 
   }
@@ -13,11 +13,11 @@ if (!function_exists('rssmix_feed')) {
 if ($options['override_title']) {
   $title = t($options['override_title_text']);
 } else {
-  $title = t($options['taxonomyfield']);
+  $title = t('RSS reader');
 }
 ?>
 
-<h2><? print $title; ?></h2>
+<h2><? print check_plain($title); ?></h2>
 <ul>
-<?php print rssmix_feed($feed); ?>
+<?php print rss_feed($feed); ?>
 </ul>

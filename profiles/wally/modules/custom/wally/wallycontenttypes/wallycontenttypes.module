@@ -39,7 +39,7 @@ function wallycontenttypes_theme(&$var) {
     'file' => 'theme.inc',
     'path' => "$path/theme",
   );
-
+  
  return array(
 
     'wallyct_photoobject_slider' => $base + array(

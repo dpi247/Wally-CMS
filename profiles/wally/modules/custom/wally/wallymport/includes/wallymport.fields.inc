@@ -1666,15 +1666,70 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->field_packagelayout = array();
 
-	if(variable_get('wallymport_debug',0) or true){
+	if(variable_get('wallymport_debug',0) or true) {
 		$log['log'][]='process PackageLayout: '.$dom->nodeName;
-	  }
+  }
 
 	if (is_numeric($value)) {
     $node->field_packagelayout[] = $value;
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
     $node->field_packagelayout[] = $tax_term[0]->tid;
   }
+}
+
+/**
+ * Process field ExternalURI from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_externaluri(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_externaluri = array();
+
+	if(variable_get('wallymport_debug',0) or true) {
+		$log['log'][]='process ExternalURI: '.$dom->nodeName;
+  }
+
+	$uri_response = drupal_http_request($value);
+  if ($uri_response->status_message == 'OK') {
+    $node->field_externaluri[] = $value;
+  }
+}
+
+/**
+ * Process field PackageCopyright from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_packagecopyright(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_packagecopyright = array();
+
+	if(variable_get('wallymport_debug',0) or true) {
+		$log['log'][]='process PackageCopyright: '.$dom->nodeName;
+  }
+
+	$node->field_packagecopyright[] = $value;
 }
 
 /**
