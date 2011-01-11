@@ -1,0 +1,3 @@
+<?php
+
+include_once('wally_fil_info.features.inc');
