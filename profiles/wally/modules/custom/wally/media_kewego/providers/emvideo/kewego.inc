@@ -23,13 +23,9 @@
 function emvideo_kewego_info() {
   $features = array(
     array(t('Autoplay'), t('Yes'), ''),
-    array(t('Show related videos'), t('Yes'), t('This is embedded in the video itself when enabled; currently not available with other providers. Set the feature above.')),
     array(t('Thumbnails'), t('Yes'), t('')),
     array(t('Duration'), t('Yes'), ''),
-    array(t('Status'), t('Yes'), t('Stores video status (available and unavailable).')),
-    array(t('Custom player colors'), t('Yes'), t("You may customize the player's skin by choosing your own colors, and/or border in that setting field set.")),
     array(t('Full screen mode'), t('Yes'), t('You may customize the player to enable or disable full screen playback. Full screen mode is enabled by default.')),
-    array(t('Use JW FLV Media Player'), t('Yes'), t("You may opt to use the !flvplayer to play YouTube videos if it's installed on your server.", array('!flvplayer' => l(t('JW FLV Media Player'), 'http://www.longtailvideo.com/players/jw-flv-player/')))),
   );
   return array(
     'module' => 'media_kewego',
@@ -121,12 +117,17 @@ function emvideo_kewego_extract($video_id = '') {
  */
 function emvideo_kewego_video($video_id, $width, $height, $field, $item, $node, $autoplay, $options = array()) {
   $options['video_id'] = isset($options['video_id']) ? $options['video_id'] : $video_id;
-  $options['width'] = isset($options['width']) ? $options['width'] : $width;
-  $options['height'] = isset($options['height']) ? $options['height'] : $height;
+  $options['video_id'] = explode('.', $options['video_id']);
+  $options['video_id'] = $options['video_id'][0];
+  $options['width'] = isset($options['width']) ? $options['width'] : media_kewego_variable_get('width') ? media_kewego_variable_get('width') : $width;
+  $options['height'] = isset($options['height']) ? $options['height'] : media_kewego_variable_get('height') ? media_kewego_variable_get('height') : $height;
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
   $options['item'] = isset($options['item']) ? $options['item'] : $item;
   $options['node'] = isset($options['node']) ? $options['node'] : $node;
-  $options['autoplay'] = isset($options['autoplay']) ? $options['autoplay'] : $autoplay;
+  $options['autoplay'] = isset($options['autoplay']) ? $options['autoplay'] : media_kewego_variable_get('autostart') == 1 ? 'true' : $autoplay;
+  $options['fullscreen'] = media_kewego_variable_get('fullscreen') == 1 ? 'true' : 'false';
+  $options['videoformat'] = media_kewego_variable_get('videoformat') ? media_kewego_variable_get('videoformat') : 'old';
+  $options['language'] = media_kewego_variable_get('language') ? media_kewego_variable_get('language') : 'en';
   $output = theme('media_kewego_default', $options);
   return $output;
 }
