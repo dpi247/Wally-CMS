@@ -12,15 +12,6 @@
 function media_kewego_install() {
   // Ensure we have the required variable namespace.
   drupal_load('module', 'media_kewego');
-  
-  $success = drupal_install_schema('media_kewego');
-
-  if ($success) {
-    drupal_set_message(st('The Media: Kewego module installed tables successfully.'));
-  }
-  else {
-    drupal_set_message(st('The installation of the Media: Kewego module failed.'), 'error');
-  }
 }
 
 /**
@@ -38,87 +29,4 @@ function media_kewego_uninstall() {
  */
 function media_kewego_disable() {
   cache_clear_all('*', 'cache_media_kewego_status', TRUE);
-}
-
-/**
- * Implementation of hook_schema().
- */
-function media_kewego_schema() {
-  $schema = array();
-
-  $schema['cache_media_kewego_status'] = drupal_get_schema_unprocessed('system', 'cache');
-  $schema['cache_media_kewego_status']['description'] = 'Cache table used to store video status for Media: Kewego.';
-
-  $schema['media_kewego_metadata'] = array(
-    'description' => 'Media: Kewego table for video metadata.',
-    'fields' => array(
-      'value' => array(
-        'description' => 'The identifier for a Kewego video.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'not null' => FALSE,
-      ),
-      'status' => array(
-        'description' => "The availability status of this media.",
-        'type' => 'int',
-        'unsigned' => 'TRUE',
-        'not null' => TRUE,
-        'default' => MEDIA_KEWEGO_STATUS_AVAILABLE,
-      ),
-      'last_touched' => array(
-        'description' => "Timestamp when the data was last retrieved from Kewego.",
-        'type' => 'int',
-        'unsigned' => 'TRUE',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-    'indexes' => array(
-      'status'     => array('status'),
-      'last_touched'     => array('last_touched'),
-    ),
-    'primary key' => array('value'),
-  );
-
-  $schema['media_kewego_node_data'] = array(
-    'description' => 'Media: Kewego table for video node reference.',
-    'fields' => array(
-      'value' => array(
-        'description' => 'The identifier for a Kewego video.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'not null' => FALSE,
-      ),
-      'nid' => array(
-        'description' => 'The {node} nid.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'field_name' => array(
-        'description' => 'The node field storing this data.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
-      'delta' => array(
-        'description' => "The field delta.",
-        'type' => 'int',
-        'unsigned' => 'TRUE',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
-    ),
-    'indexes' => array(
-      'value'       => array('value'),
-      'nid'         => array('nid'),
-      'field_name'  => array('field_name'),
-      'delta'       => array('delta'),
-    ),
-  );
-
-  return $schema;
 }
