@@ -186,23 +186,27 @@ function _wimprthelp_create_file_from_uri($file_uri){
      // $file_path= variable_get('wallymport_source', $proceed_folder_path).'/'.$uri['path'];//$uri['host'] //
       $file_temp_path=$proceed_folder_path.'/'.$uri['host']; //chemin vers le tmp/UNZIP/fichier
       $file_dest_path=file_directory_path().'/'.$uri['host'];
-      
-      if (!copy($file_temp_path, $file_dest_path)) {
+      if (!@copy($file_temp_path, $file_dest_path)) {
         drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
         return $return; 
       }
-      
       break;
+
     case 'http':
       $expl_path = explode('/', $uri['path']);
       $file_name = $expl_path[count($expl_path)-1];
       if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
         $file_temp_path = file_directory_path().'/'.$file_name;
-        exec('wget -t 45 -O '.$file_temp_path.' '.$file_uri);
-        $return = _wimprthelp_create_file($file_temp_path);
-        return $return;
+        //exec('wget -t 45 -O '.$file_temp_path.' '.$file_uri);
+        if(!@copy($file_uri,$file_temp_path))
+        {
+          drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
+        } else {
+          $return = _wimprthelp_create_file($file_temp_path);
+          return $return;
+        }
       }
       break;
   }
