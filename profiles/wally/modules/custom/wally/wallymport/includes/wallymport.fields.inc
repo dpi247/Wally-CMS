@@ -1393,8 +1393,8 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 function wimprt_set_field_editions(&$node,$dom,$log) {
 
 	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Editions: '.$dom->nodeName;
-	  }
+		$log['log'][] = 'process Editions: '.$dom->nodeName;
+  }
 
 	$result = array();
 	$valid = (bool) false;
@@ -1417,7 +1417,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 			if (strtolower($editionID)=="all") {
 				foreach ($terms as $term) $result[$term->name]["Publish"]=$value;
 				$valid = $value;
-				drupal_set_message('Editions ALL found. All edition set to '.$value.'. Editions iteration terminated.','notice');
+				drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
 				break;
 			} else {
 				if (array_key_exists($editionID, $result)) {
@@ -1438,6 +1438,69 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		
 	} else {
 		drupal_set_message('Edition vocabulary not set. See settings.','error');
+		return '';
+	}
+}
+
+/**
+ * Process field Channels from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_channels(&$node,$dom,$log) {
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][] = 'process Channels: '.$dom->nodeName;
+  }
+
+	$result = array();
+	$terms = array(); 
+	$vid=variable_get('wallymport_channels',null);
+	if ($vid) {
+
+		// Read all terms from vocabulary and set if to False (default);
+		$terms = taxonomy_get_tree($vid);
+    foreach ($terms as $term) {
+			$result[$term->name] = FALSE;
+		}
+
+		// Get edition from DOM & update array.
+		foreach($dom->getElementsByTagName('Channel') as $channel) {
+			$channelName = $channel->getAttributeNode("Name")->value;
+			if (strtolower($channelName)=="all") {
+				foreach ($terms as $term) $result[$term->name]=TRUE;
+				$valid = TRUE;
+				drupal_set_message('Channels ALL found. All channels sets. Channels iteration terminated.','notice');
+				break;
+			} else {
+				if (array_key_exists($channelName, $result)) {
+					$valid = TRUE;
+					$result[$channelName] = TRUE;
+				} else {
+					drupal_set_message('Edition: "'.$channelName.'" not found in vocabulary. Edition rejected','error');
+				}
+			}
+		}
+
+		if ($valid) { 
+				$node->field_channels=array(array("value"=>serialize($result)));
+		} else {
+			drupal_set_message('ALL Channels set to false. Package should be rejected','error');
+			// TODO: FATAL ERROR - PACKAGE
+		}
+		
+	} else {
+		drupal_set_message('Channels vocabulary not set. See settings.','error');
 		return '';
 	}
 }
