@@ -1464,45 +1464,19 @@ function wimprt_set_field_channels(&$node,$dom,$log) {
   }
 
 	$result = array();
-	$terms = array(); 
-	$vid=variable_get('wallymport_channels',null);
-	if ($vid) {
 
-		// Read all terms from vocabulary and set if to False (default);
-		$terms = taxonomy_get_tree($vid);
-    foreach ($terms as $term) {
-			$result[$term->name] = FALSE;
-		}
+  // Get edition from DOM & update array.
+  foreach($dom->getElementsByTagName('Channel') as $channel) {
+    $channelName = $channel->getAttributeNode("Name")->value;
+    $result[] = $channelName;
+  }
 
-		// Get edition from DOM & update array.
-		foreach($dom->getElementsByTagName('Channel') as $channel) {
-			$channelName = $channel->getAttributeNode("Name")->value;
-			if (strtolower($channelName)=="all") {
-				foreach ($terms as $term) $result[$term->name]=TRUE;
-				$valid = TRUE;
-				drupal_set_message('Channels ALL found. All channels sets. Channels iteration terminated.','notice');
-				break;
-			} else {
-				if (array_key_exists($channelName, $result)) {
-					$valid = TRUE;
-					$result[$channelName] = TRUE;
-				} else {
-					drupal_set_message('Edition: "'.$channelName.'" not found in vocabulary. Edition rejected','error');
-				}
-			}
-		}
-
-		if ($valid) { 
-				$node->field_channels=array(array("value"=>serialize($result)));
-		} else {
-			drupal_set_message('ALL Channels set to false. Package should be rejected','error');
-			// TODO: FATAL ERROR - PACKAGE
-		}
-		
-	} else {
-		drupal_set_message('Channels vocabulary not set. See settings.','error');
-		return '';
-	}
+  if (!empty($result)) { 
+    $node->field_channels=array(array("value"=>serialize($result)));
+  } else {
+    drupal_set_message('No channels found. Package should be rejected','error');
+    // TODO: FATAL ERROR - PACKAGE
+  }
 }
 
 /**
