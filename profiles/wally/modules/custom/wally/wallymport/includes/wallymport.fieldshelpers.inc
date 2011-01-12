@@ -184,9 +184,16 @@ function _wimprthelp_create_file_from_uri($file_uri){
   switch($uri['scheme']){
     case'embed':
      // $file_path= variable_get('wallymport_source', $proceed_folder_path).'/'.$uri['path'];//$uri['host'] //
-      $file_path=$proceed_folder_path.'/'.$uri['host'];//chemin vers le tmp/UNZIP/fichier
-      $return = _wimprthelp_create_file($file_path);
-      return $return; 
+      $file_temp_path=$proceed_folder_path.'/'.$uri['host']; //chemin vers le tmp/UNZIP/fichier
+      $file_dest_path=file_directory_path().'/'.$uri['host'];
+      
+      if (!copy($file_temp_path, $file_dest_path)) {
+        drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
+      } else {
+        $return = _wimprthelp_create_file($file_dest_path);
+        return $return; 
+      }
+      
       break;
     case 'http':
       $expl_path = explode('/', $uri['path']);
@@ -213,7 +220,8 @@ function _wimprthelp_create_file($filepath){
   $file->status = FILE_STATUS_PERMANENT;
   $file->timestamp = time();
   drupal_write_record('files', $file);
-  return field_file_load($filepath);
+  $return = field_file_load($filepath);
+  return $return;
 }
 
 
