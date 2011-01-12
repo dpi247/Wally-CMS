@@ -80,7 +80,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube',
+    'media_vimeo', 'media_youtube', 'media_kewego',
 
     // Others
     'job_queue', 
@@ -102,7 +102,7 @@ function wally_profile_modules() {
   $custom = array(
 
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
-    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',  
+    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
     
   ); 
 
