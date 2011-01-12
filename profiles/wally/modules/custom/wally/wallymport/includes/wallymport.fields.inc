@@ -518,9 +518,6 @@ function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
     $date2=$dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
   $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1,$date2);
 
- 
- 
-  
   return $node;
 
 }
@@ -579,16 +576,17 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom);
 
-  if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
+  //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
     $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
+  
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   
-  if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
+  //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
     $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
 
-  if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
+  //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
     $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
-    
+  
   wimprt_process_object_default($node,$dom,$log);
 
   if ($dom->getElementsByTagName("Caption")->length) {

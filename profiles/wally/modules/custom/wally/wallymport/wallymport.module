@@ -91,6 +91,7 @@ function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALS
 		  // Yeah .. ready to ROCK & ROLL
 		  $import_file=reset($import_files);
 		  $xml_file=$import_file->filename;
+      $proceed_folder_path = $temp_subdir; 
 		  $returns[] = wallymport_page_process_file($xml_file);
 		}
 		$zip->close();
