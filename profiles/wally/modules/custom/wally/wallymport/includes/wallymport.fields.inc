@@ -1709,6 +1709,8 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
     $node->field_packagelayout[] = $value;
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
     $node->field_packagelayout[] = $tax_term[0]->tid;
+  } else {
+		drupal_set_message('PackageLayout not found: '.$lid.', assuming new person.','error');
   }
 }
 
