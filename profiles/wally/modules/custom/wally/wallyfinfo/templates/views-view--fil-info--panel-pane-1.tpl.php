@@ -1,13 +1,11 @@
 <?php
-// $Id: views-view--fil-info-bis--panel-pane.tpl.php,v 1.0 2011/01/12 ODM $
+// $Id: views-view--fil-info--panel-pane-1.tpl.php,v 1.0 2011/01/12 ODM $
 /**
- * @file views-view--fil-info-bis--panel-pane.tpl.php
+ * @file views-view--fil-info--panel-pane-1.tpl.php
  * Default simple view template to display a list of rows.
  * 
  * Variables available:
  * - $view: The view object
- * - $field: The field handler object that can process the input
- * - $row: The raw SQL result that can be used
  *
  * @ingroup views_templates
  */
@@ -53,8 +51,8 @@ $pager = $view->pager;
     </div>
 
     <div id="btn_infos">
-      <img src="<?php print drupal_get_path('module', 'wallyfinfo').'/images/previous.png'; ?>" class="prev"/>
-      <img src="<?php print drupal_get_path('module', 'wallyfinfo').'/images/next.png'; ?>" class="next"/>
+      <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/previous.png'; ?>" class="prev"/>
+      <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/next.png'; ?>" class="next"/>
     </div>
   </div>
 </div>

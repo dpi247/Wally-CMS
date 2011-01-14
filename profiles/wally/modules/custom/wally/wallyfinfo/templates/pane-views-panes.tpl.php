@@ -17,9 +17,6 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
-dsm($pane);
-dsm($view);
-dsm($display);
 ?>
 
 <div class='box'>
