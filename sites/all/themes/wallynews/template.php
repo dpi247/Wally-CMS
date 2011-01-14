@@ -1,5 +1,10 @@
 <?php
 /**
+ * 
+ */
+
+
+/**
  * Override or insert PHPTemplate variables into the templates.
  */
 function wallynews_preprocess_page(&$vars) {
@@ -15,4 +20,5 @@ function wallynews_preprocess_page(&$vars) {
  */
 function wallynews_get_ie_styles() {
 }
+
 
