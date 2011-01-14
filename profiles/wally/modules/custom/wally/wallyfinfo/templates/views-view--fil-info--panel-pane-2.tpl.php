@@ -9,9 +9,6 @@
  *
  * @ingroup views_templates
  */
-drupal_add_js(_wallyfinfo_getjsforfilinfotheme(), 'inline');
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
-drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/pageinfos.css');
 $results = $view->result;
 $pager = $view->pager;
 $nodes = array();
@@ -24,17 +21,26 @@ foreach ($results as $result) {
 ?>
 <h2>Le fil info</h2>
 
-<script>
-$("#catmenu").jCarouselLite({
-  btnNext: "#nextinfos",
-  btnPrev: "#previnfos",
-  auto: 0,
-  vertical: false,
-  visible: 6,
-  circular: false,
-  scroll: 1
-});
-</script>
+<div class="categories">
+  <div>
+    <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/previoushoriz.png'; ?>" id="previnfos"/>
+    <div id="catmenu" class="carousel"> 
+      <ul>
+        <li id="belgiqueinfos"><a href="#">Belgique</a></li>  
+        <li id="mondeinfos"><a href="#">Monde</a></li> 
+        <li id="sportinfos"><a href="#">Sport</a></li> 
+        <li id="ecoinfos"><a href="#">Eco</a></li> 
+        <li id="netinfos"><a href="#">Internet</a></li>
+        <li id="sciencesinfos"><a href="#">Sciences et santé</a></li> 
+        <li id="cultureinfos"><a href="#">Culture</a> </li>
+        <li id="afficheinfos"><a href="#">A l'affiche</a> </li>
+        <li id="electionsinfos"><a href="#">Elections 2010</a></li>
+        <li id="diversinfos"><a href="#">Divers</a></li>
+      </ul>
+    </div>
+    <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/nexthoriz.png'; ?>" id="nextinfos"/>
+  </div>
+</div>
 
 <div class="ttesinfos">
   <div id="infobel">

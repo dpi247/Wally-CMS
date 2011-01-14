@@ -41,6 +41,15 @@
 	margin-top: 2px;
 	text-transform: none;	
 }
+.categories ul li a:hover {
+	color: #000000;
+}
+.categories .catselect {
+    background-color:#FFFFFF;
+}
+.categories .catselect a{
+	color:#000000;
+}
 .categories #previnfos{
 	display:inline-block;
 	padding-bottom: 20px;
@@ -94,3 +103,15 @@ padding-right: 5px;
 .ttesinfos ul  li .date {
 	font-size: x-small;
 }
+pe: none;
+	margin: 0px;
+	padding: 0px;
+	
+}
+.ttesinfos ul li {
+	margin-bottom: 10px;
+	background-color: #FFFFFF;
+	padding: 5px;
+	margin-left: 0px;
+	margin-top: 20px;
+	list-style

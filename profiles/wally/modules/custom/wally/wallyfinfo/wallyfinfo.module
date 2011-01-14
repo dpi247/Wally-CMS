@@ -19,129 +19,18 @@ function wallyfinfo_theme($existing) {
       'original hook' => 'views_view',
       'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
     ),
+    'views_view__fil_info__panel_pane_3' => array(
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--fil-info--panel-pane-3',
+      'original hook' => 'views_view',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
     'panels_pane' => array(
       'arguments' => array('output' => array(), 'pane' => array(), 'display' => array()),
       'original hook' => 'panels_pane',
       'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
     ),
   );
-}
-
-function _wallyfinfo_getjsforfilinfotheme() {
-  $jscode = '';
-  
-  $jscode = '
-    $("#carbel").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-    });
-    $("#carmonde").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-    });
-    $("#carsport").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#careco").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#carnet").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#carsciences").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#carcult").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#caraffiche").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#carelections").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-    $("#cardivers").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto: 3500,
-      speed: 1500,
-      vertical: true,
-      visible: 5,
-      circular: true,
-      scroll: 2
-   });
-   $("#car2").jCarouselLite({
-      btnNext: ".next",
-      btnPrev: ".prev",
-      auto:0,
-      vertical: false,
-      visible: 3,
-      scroll: 3
-    });
-  ';
-  
-  return $jscode;
 }
 
 /**
