@@ -17,6 +17,13 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
+drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/wallyfinfo-carousel.js');
+drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
+drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/slide-category.js');
+drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/page-slide-category.js');
+drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/packfilinfoscarousel.css');
+drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/pageinfos.css');
+drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/thicker.css');
 ?>
 
 <div class='box'>

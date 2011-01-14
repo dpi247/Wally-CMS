@@ -84,7 +84,12 @@ S@charset "utf-8";
 	padding-left:4px;
 	padding-right:4px;
 }
-
+.packfil .carousel #filcat ul li a:hover {
+	color: #000000;
+}
+.packfil .carousel #filcat ul li .packcatselect a{
+	color:#000000;
+}
 /*---------Navigation catégories----------*/
 
 .packfil #prev1{
@@ -171,3 +176,4 @@ S@charset "utf-8";
 	margin-top:-15px;
 	margin-right:10px;
 }
+dding-right:5px
