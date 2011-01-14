@@ -163,8 +163,8 @@ function wallycontenttypes_imagecache_actions() {
  *   The name of the template being rendered.
  */
 function wally_get_tpl_suggestions(&$variables, $hook) {
-    $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
-    if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+  $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
 
 /**
@@ -1016,6 +1016,12 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
       if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
     }
   }
+
+  if ($type == 'panels_pane') {
+    $suggestion = isset($variables['classes']) ? explode(' ',$variables['classes']) : array();
+    array_unshift($suggestion, 'panels-page');
+  }
+
   return $suggestion;  
 }
 
