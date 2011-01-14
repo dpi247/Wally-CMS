@@ -1509,12 +1509,14 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
 				$result[$i]['tid']=$terms[0]->tid;
+
 				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
 				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
+
 				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
         $result[$i]['time_rank']=0;
 			} else {
-				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','error');	
+				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
 			}
 		$i++;
 		}
