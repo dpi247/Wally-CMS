@@ -1,0 +1,175 @@
+<?php
+
+include_once('wallyfinfo.features.inc');
+
+/**
+* Implements hook_theme_registry_alter().
+*/
+/*function wallyfinfo_theme_registry_alter(&$theme_registry) {
+  $themes_to_update = array(
+    'node',
+    'views_view_unformatted',
+    'panels_pane',
+  );
+  
+  foreach ($themes_to_update as $theme_to_update) {
+    if (!isset($theme_registry[$theme_to_update])) {
+      $theme_registry[$theme_to_update] = array();
+      
+      $theme_registry[$theme_to_update]['theme paths'] = array();
+    }
+    //$theme_registry[$theme_to_update]['path'] = drupal_get_path('module', 'wallyfinfo').'/templates';
+    //$theme_registry[$theme_to_update]['theme path'] = drupal_get_path('module', 'wallyfinfo');
+    $theme_registry[$theme_to_update]['theme paths'][] = drupal_get_path('module', 'wallyfinfo').'/templates';
+  }
+  
+  drupal_rebuild_theme_registry();
+}*/
+
+/**
+* Implementation of hook_theme().
+*/
+function wallyfinfo_theme($existing) {  
+  return array(
+    'views_view__fil_info_bis__panel_pane' => array(
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--fil-info-bis--panel-pane',
+      'original hook' => 'views_view',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
+    'panels_pane' => array(
+      'arguments' => array('output' => array(), 'pane' => array(), 'display' => array()),
+      'template' => 'panels-pane--fil-info-bis',
+      'original hook' => 'panels_pane',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+      //'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+  );
+}
+
+function _wallyfinfo_getjsforfilinfotheme() {
+  $jscode = '';
+  
+  $jscode = '
+    $("#carbel").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+    });
+    $("#carmonde").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+    });
+    $("#carsport").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#careco").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#carnet").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#carsciences").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#carcult").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#caraffiche").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#carelections").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+    $("#cardivers").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto: 3500,
+      speed: 1500,
+      vertical: true,
+      visible: 5,
+      circular: true,
+      scroll: 2
+   });
+   $("#car2").jCarouselLite({
+      btnNext: ".next",
+      btnPrev: ".prev",
+      auto:0,
+      vertical: false,
+      visible: 3,
+      scroll: 3
+    });
+  ';
+  
+  return $jscode;
+}
+
+/**
+ *  Implémentation du hook_preprocess_panels_pane(); 
+ */
+function phptemplate_engine_preprocess_panels_pane(&$variables) {
+  $suggestion = array(); 
+  $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'panels_pane'); 
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
