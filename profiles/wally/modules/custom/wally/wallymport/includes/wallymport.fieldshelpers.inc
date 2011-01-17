@@ -179,14 +179,17 @@ function _wimprthelp_create_file_from_uri($file_uri){
   global $proceed_folder_path;
  
   $uri = parse_url($file_uri);
-
+  $badcar = array("+", );
 
   switch($uri['scheme']){
     case'embed':
-     // $file_path= variable_get('wallymport_source', $proceed_folder_path).'/'.$uri['path'];//$uri['host'] //
-      $file_temp_path=$proceed_folder_path.'/'.$uri['host']; //chemin vers le tmp/UNZIP/fichier
-      $file_dest_path=file_directory_path().'/'.$uri['host'];
+      // "+" sign in filename is unsupported by imagecache. 
+      $good_uri_host = str_replace($badcar, "_", $uri['host']);
+      $file_temp_path=$proceed_folder_path.'/'.$uri['host']; 
+      $file_dest_path=file_directory_path().'/'.$good_uri_host;
       if (!@copy($file_temp_path, $file_dest_path)) {
+        // Everything for owner, read and execute for others
+        chmod($file_dest_path, octdec("0777"));
         drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
@@ -197,11 +200,14 @@ function _wimprthelp_create_file_from_uri($file_uri){
     case 'http':
       $expl_path = explode('/', $uri['path']);
       $file_name = $expl_path[count($expl_path)-1];
+      $good_file_name = str_replace($badcar, "_", $file_name);
+      
+      // @todo: We should test the imported file mime type here, not the file extension!
       if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
-        $file_temp_path = file_directory_path().'/'.$file_name;
-        //exec('wget -t 45 -O '.$file_temp_path.' '.$file_uri);
+        $file_temp_path = file_directory_path().'/'.$good_file_name;
         if(!@copy($file_uri,$file_temp_path))
         {
+          chmod($file_temp_path, octdec("0777"));
           drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
         } else {
           $return = _wimprthelp_create_file($file_temp_path);
