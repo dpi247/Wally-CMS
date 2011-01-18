@@ -172,10 +172,6 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
-// dsm($op);
-//$trace=debug_backtrace();
-// dsm($trace);
-
  switch ($op) {
 
      case 'view':
@@ -875,6 +871,10 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       $datas = array();
       foreach ($preset['actions'] as $action) {
         if ($action['action']=='wallycontenttypes_wallycrop') {
+          if (!isset($action['data']['presetid']) || empty($action['data']['presetid'])) {
+            $action['data']['presetid'] = $preset['presetid'];
+            imagecache_action_save($action);
+          }
           $datas = $action['data'];
         }
       }
