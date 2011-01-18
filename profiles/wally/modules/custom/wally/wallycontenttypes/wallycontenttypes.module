@@ -270,21 +270,23 @@ function wallycontenttypes_fieldNID(&$node, $op) {
 /**
  * Process Content Taxonomy fields for populate node.
  */
-function wallycontenttypes_fieldTID(&$node) {
-  	foreach ($node as $field=>$value) {
-		switch($field) {
-			case "field_authors":
-				$node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
-				break;
-			case "field_locations":	
-				$node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
-				break;
-			case "field_entities":	
-				$node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
-				break;
-			case "field_persons":
-				$node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
-				break;
+function wallycontenttypes_fieldTID(&$node, &$op) {
+	 if(isset($node)) {
+	  	foreach ($node as $field=>$value) {
+			switch($field) {
+				case "field_authors":
+					$node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+					break;
+				case "field_locations":	
+					$node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
+					break;
+				case "field_entities":	
+					$node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
+					break;
+				case "field_persons":
+					$node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+					break;
+			}
 		}
 	}
 	return $node;
