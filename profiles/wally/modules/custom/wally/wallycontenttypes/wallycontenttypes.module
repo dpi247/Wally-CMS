@@ -534,7 +534,7 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
 function wallycontenttypes_editcrop($nid) {
   $node = node_load($nid);
   $imgcropings = array();
-  $imgcropings = json_decode($node->field_croping[0]['value']);
+  $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
   $explimgcrops = array();
   $defaultvalues = array();
   if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
@@ -564,7 +564,6 @@ function wallycontenttypes_editcrop($nid) {
   drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
  
   return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
-  
 }
 
 /**
@@ -893,6 +892,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
               $tempusablecrop = $explimgcrop;
               $tempusablecrop[2] += $tempusablecrop[0];
               $tempusablecrop[3] += $tempusablecrop[1];
+              $tempusablecrop['presetid'] = $preset['presetid'];
               break;
             }
           }
@@ -902,6 +902,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
           $tempusablecrop = $temppresetcrop;
           $tempusablecrop[2] += $tempusablecrop[0];
           $tempusablecrop[3] += $tempusablecrop[1];
+          $tempusablecrop['presetid'] = $preset['presetid'];
           drupal_set_message('No croping info found for the wallycrop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
         }
         $usablecrops[$preset['presetname']] = $tempusablecrop;
@@ -910,7 +911,6 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       }
     }
   }
-  
   return array($defaultvalues,$usablecrops);
 }
 
@@ -932,6 +932,7 @@ function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   foreach ($usablecrops as $presetname => $usablecrop) {
     if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
       $crops[$presetname] = explode(',',$_POST[$presetname.'_serialCoord']);
+      $crops[$presetname]['presetid'] = $usablecrop['presetid'];
       imagecache_image_flush($node->field_photofile[0]['filepath']);
       $redirect = true;
       $i++;

@@ -80,11 +80,11 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
   $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
-  $imgcropings = json_decode($cropings->field_croping_value);
+  $imgcropings = json_decode($cropings->field_croping_value, TRUE);
 
-  if (isset($imgcropings->$presetname)) {
+  if (isset($imgcropings[$presetname])) {
     $crop = array();
-    $crop = $imgcropings->$presetname;
+    $crop = $imgcropings[$presetname];
     $data['xoffset'] = $crop[0];
     $data['yoffset'] = $crop[1];
     $data['width'] = $crop[2];
