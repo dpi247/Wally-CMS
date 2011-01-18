@@ -23,12 +23,17 @@ dsm($node);
       <ul>
       
       <?php 
-       foreach ($nodes as $n) {
+       foreach ($node->field_embededobjects_nodes as $n) {
        if ($n->type == "wally_photoobject") {
-        //$file_path = "/".$n->field_photofile[0]["filepath"];        
-        $file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"], 'Slide '.$nbr);  
-        $result .= "<a href='#' title='Title'>";
-        $result .= $file_img; 
+       	
+       	dsm($n->field_photofile);
+       	 
+//       	$file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"], 'Slide '.$nbr);  
+
+       	
+       	
+       	$result .= "<a href='#' title='Title'>aaaaaaaa";
+  //      $result .= $file_img; 
         //$result .= "<img src='".$file_path."' width='300' height='200' alt='Slide ".$nbr."'>";
         $result .= "</a>";
         $nbr++;
