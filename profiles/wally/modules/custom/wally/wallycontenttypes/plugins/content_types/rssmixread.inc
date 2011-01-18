@@ -15,7 +15,7 @@ function wallycontenttypes_rssmixread_ctools_content_types() {
     'description' => t('Fetch some RSS feeds and mix them together in a single feed'),
 //      'required context' => new ctools_context_required(t('Node'), 'node'),
     'category' => t('Wally Tools'),
-    'defaults' => array(),
+    'defaults' => _wallyconttentypes_rssmixread_getdefaultformvalues(),
   );
 }
 
@@ -179,7 +179,6 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
   $block->module = 'wallycontenttypes';
   $block->title = 'RSS mix reader.';
   $cid = $conf['cid'];
-  
   if ((time() - $conf['last_build']) > mktime(0, $conf['delta_t'])) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($conf['uris'])));
     $override_theme = $conf['override_theme'];
@@ -230,7 +229,7 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
  * @return
  *   The default values.
  */
-function _wallyconttentypes_rssmixread_getdefaultformvalues($conf) {
+function _wallyconttentypes_rssmixread_getdefaultformvalues($conf = array()) {
   $default_form_values = array();
   if (!empty($conf)) {
     $default_form_values = $conf;
