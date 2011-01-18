@@ -33,10 +33,14 @@ function media_kewego_menu() {
  * Implementation of hook_theme().
  */
 function media_kewego_theme($existing, $type, $theme, $path) {
+  dsm($existing);
+  dsm($type);
+  dsm($theme);
+  dsm($path);
   return array(
     'media_kewego_default' => array(
       'arguments' => array('variables' => array()),
-      'path' => $path .'/themes',
+      'path' => $path.'/themes',
       'template' => 'media-kewego-default',
     ),
   );
