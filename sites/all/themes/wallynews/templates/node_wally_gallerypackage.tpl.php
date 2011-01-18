@@ -1,17 +1,10 @@
 <?php
-
-dsm($node); 
-
   $title = $node->title;
   $node_path = drupal_get_path_alias("/node/".$node->nid);
   $summary = $node->field_summary[0]["value"];
-                
-  
-
 ?>
     
 <div class="content">
-
 
 <div class="planchecontact">
 
@@ -26,12 +19,10 @@ dsm($node);
        foreach ($node->field_embededobjects_nodes as $n) {
        if ($n->type == "wally_photoobject") {
        	
-       	dsm($n->field_photofile);
+       	dsm($n);
        	 
 
        	$file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"]);  
-       	
-       	
        	
        	$result .= "<li><a href='".$n->field_photofile[0]["filepath"]."' rel='prettyPhoto[pp_gal]' title='title'>";
         $result .= $file_img; 
