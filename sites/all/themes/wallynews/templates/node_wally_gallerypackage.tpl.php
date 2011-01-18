@@ -8,10 +8,11 @@
 
 <div class="planchecontact">
 
-      <div id="text_gal">
-         <h2><?php print $title; ?></h2>
-         <?php print $summary; ?>
+      <h2><?php print $title; ?></h2>
+      <div class="content">
+      <?php print $summary; ?>
       </div>
+      
       <div class="photos"> 
       <ul>
       
