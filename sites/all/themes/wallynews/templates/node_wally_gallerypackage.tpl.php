@@ -1,4 +1,7 @@
 <?php
+
+dsm($node); 
+
 ?>
     
 <div class="content">
