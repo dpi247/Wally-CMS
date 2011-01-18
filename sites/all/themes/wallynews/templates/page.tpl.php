@@ -72,10 +72,9 @@
     <?php if ($messages): print $messages; endif; ?>
     <?php if ($help): print $help; endif; ?>
 
-
-    <div id="container">
+    <div id="page-container">
       <?php print $content ?>
-    </div><!--container-->
+    </div><!--page-container-->
 
     <div class="footer">
       <div class="copyright">Copyright © 2010 - <a href="#">Wally News</a></div>
