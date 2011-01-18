@@ -29,7 +29,6 @@
     print $result;
       
       ?>
-<!--      <li><a href="sites/all/themes/wallynews/images/steph/vanrompuy.jpg" rel="prettyPhoto[pp_gal]" title="Van Rompuy"><img src="sites/all/themes/wallynews/images/steph/thumbnails/t_vanrompuy.jpg"/></a></li>  -->
       </ul>
       </div>
     
@@ -38,16 +37,12 @@
  <script type="text/javascript" charset="utf-8">
     $(document).ready(function(){
       $("a[rel^='prettyPhoto']").prettyPhoto();
-      alert("yipie"); 
     });
   </script>
-
-
 
 <?php
   print theme("wallyct_linkedobjects", $node->field_linkedobjects_nodes, $node);
 ?>
-
 
 </div>
 <div class="clear"></div>
