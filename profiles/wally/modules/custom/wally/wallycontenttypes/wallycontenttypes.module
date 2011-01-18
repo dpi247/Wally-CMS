@@ -270,7 +270,7 @@ function wallycontenttypes_fieldNID(&$node, $op) {
 /**
  * Process Content Taxonomy fields for populate node.
  */
-function wallycontenttypes_fieldTID(&$node, &$op) {
+function wallycontenttypes_fieldTID(&$node) {
 	 if(isset($node)) {
 	  	foreach ($node as $field=>$value) {
 			switch($field) {
