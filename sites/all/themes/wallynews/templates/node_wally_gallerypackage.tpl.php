@@ -20,11 +20,12 @@
        if ($n->type == "wally_photoobject") {
        	
        	dsm($n);
-       	 
+       	
+       	
 
        	$file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"]);  
        	
-       	$result .= "<li><a href='".$n->field_photofile[0]["filepath"]."' rel='prettyPhoto[pp_gal]' title='title'>";
+       	$result .= "<li><a href='/".$n->field_photofile[0]["filepath"]."' rel='prettyPhoto[pp_gal]' title='".$n->title."'>";
         $result .= $file_img; 
         $result .= "</a></li>";
 
