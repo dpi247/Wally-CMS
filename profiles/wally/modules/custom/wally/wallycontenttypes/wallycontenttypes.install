@@ -88,7 +88,7 @@ function _wallycontenttypes_install_schemas() {
     'wallycontenttypes_rssmixread_content',
   );
   _wallycontenttypes_install_rssmixread_schema_1();
-  _wallycontenttypes_install_rssread_schema_1();
+  //_wallycontenttypes_install_rssread_schema_1();
 }
 
 function _wallycontenttypes_uninstall_schemas() {
