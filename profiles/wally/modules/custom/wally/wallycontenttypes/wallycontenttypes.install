@@ -5,81 +5,154 @@
  */
 function wallycontenttypes_install() {
   _wallycontenttypes_install_presets(); 
+  _wallycontenttypes_install_schemas();
 }
 
 /*
  * Implementation of the hook module _uninstall();
  */
 function wallycontenttypes_uninstall() {
- _wallycontenttypes_uninstall_presets();
+  _wallycontenttypes_uninstall_presets();
+  _wallycontenttypes_uninstall_schemas();
 }
 
-
 function _wallycontenttypes_install_presets() {
-    // @see wallyct_photoobject_slider.tpl.php
-    if (!imagecache_preset_by_name('slider_preset')) {
-      $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
-      $imagecacheaction = new stdClass ();
-      $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'wallycontenttypes';
-      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
-      $imagecacheaction->weight = 0;
-      drupal_write_record('imagecache_action', $imagecacheaction);
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
-      $imagecacheaction->weight = 1;
-      drupal_write_record('imagecache_action', $imagecacheaction);
-    }
-    
-    if (!imagecache_preset_by_name('theme_medium_article_preset')) {
-      $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
-      $imagecacheaction = new stdClass ();
-      $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'wallycontenttypes';
-      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
-      $imagecacheaction->weight = 0;
-      drupal_write_record('imagecache_action', $imagecacheaction); 
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 90, 'height' => 90, 'upscale' => true);
-      $imagecacheaction->weight = 1;
-      drupal_write_record('imagecache_action', $imagecacheaction);
-    }
-    
-    if (!imagecache_preset_by_name('theme_large_article_preset')) {
-      $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_large_article_preset'));
-      $imagecacheaction = new stdClass ();
-      $imagecacheaction->presetid = $imagecachepreset['presetid'];
-      $imagecacheaction->module = 'wallycontenttypes';
-      $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
-      $imagecacheaction->weight = 0;
-      drupal_write_record('imagecache_action', $imagecacheaction); 
-      $imagecacheaction->module = 'imagecache';
-      $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
-      $imagecacheaction->weight = 1;
-      drupal_write_record('imagecache_action', $imagecacheaction);
-    }
+  // @see wallyct_photoobject_slider.tpl.php
+  if (!imagecache_preset_by_name('slider_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  
+  if (!imagecache_preset_by_name('theme_medium_article_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction); 
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  
+  if (!imagecache_preset_by_name('theme_large_article_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_large_article_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction); 
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
 }
 
 function _wallycontenttypes_uninstall_presets() {
 
-    // Deleting ImageCache presets
-    // @see wallyct_photoobject_slider
-    if (!imagecache_preset_by_name('slider_preset')) {
-      imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
-    }
+  // Deleting ImageCache presets
+  // @see wallyct_photoobject_slider
+  if (!imagecache_preset_by_name('slider_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
+  }
 
-    if (!imagecache_preset_by_name('theme_large_article_preset')) {
-      imagecache_preset_delete(imagecache_preset_by_name('theme_large_article_preset'));
-    }
+  if (!imagecache_preset_by_name('theme_large_article_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('theme_large_article_preset'));
+  }
 
-    if (!imagecache_preset_by_name('theme_medium_article_preset')) {
-      imagecache_preset_delete(imagecache_preset_by_name('theme_medium_article_preset'));
-    }
+  if (!imagecache_preset_by_name('theme_medium_article_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('theme_medium_article_preset'));
+  }
 }
 
+function _wallycontenttypes_install_schemas() {
+  _wallycontenttypes_install_rssmixread_schema_1();
+}
+
+function _wallycontenttypes_uninstall_schemas() {
+  drupal_uninstall_schema('wallycontenttypes_rssmixread_content');
+}
+
+function _wallycontenttypes_install_rssmixread_schema_1() {
+  if (!db_table_exists('wallycontenttypes_rssmixread_content')) {
+    drupal_install_schema('wallycontenttypes_rssmixread_content');
+  }
+}
+
+function wallycontenttypes_schema() {
+  $schema = array();
+
+  $schema['wallycontenttypes_rssmixread_content'] = array(
+    'description' => 'Contains exportable RSS mix reader content for this site.',
+    'export' => array(
+      'identifier' => 'content',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'api' => array(
+        'owner' => 'ctools',
+        'api' => 'ctools_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'create callback' => 'wallycontenttypes_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+
+  return $schema;
+}

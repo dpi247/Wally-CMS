@@ -266,7 +266,7 @@ function wallycontenttypes_fieldNID(&$node, $op) {
 /**
  * Process Content Taxonomy fields for populate node.
  */
-function wallycontenttypes_fieldTID(&$node) {
+function wallycontenttypes_fieldTID(&$node, &$op) {
 	 if(isset($node)) {
 	  	foreach ($node as $field=>$value) {
 			switch($field) {
@@ -1045,6 +1045,30 @@ function wallycontenttypes_getpackagelayout($node) {
     $package_layout = NULL;
   }
   return $package_layout; 
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallycontenttypes_rssmixread_content_perm() {
+  return array(
+    'administer rssmixread content',
+  );
+}
+
+/**
+ * Create callback for creating a new Wallycontenttypes content type.
+ *
+ * This ensures we get proper defaults from the plugin for its settings.
+ */
+function wallycontenttypes_content_type_new($set_defaults) {
+  $item = ctools_export_new_object('wallycontenttypes_rssmixread_content', $set_defaults);
+  ctools_include('content');
+  ctools_include('context');
+  ctools_include('plugins');
+  $plugin = ctools_get_plugins('wallycontenttypes', 'content_types', 'rssmixread');
+  $item->settings = ctools_content_get_defaults($plugin, array());
+  return $item;
 }
 
 /**
