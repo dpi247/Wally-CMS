@@ -93,7 +93,7 @@ function _wallycontenttypes_install_schemas() {
 
 function _wallycontenttypes_uninstall_schemas() {
   drupal_uninstall_schema('wallycontenttypes_rssmixread_content');
-  drupal_uninstall_schema('wallycontenttypes_rssread_content');
+  //drupal_uninstall_schema('wallycontenttypes_rssread_content');
 }
 
 function _wallycontenttypes_install_rssmixread_schema_1() {
