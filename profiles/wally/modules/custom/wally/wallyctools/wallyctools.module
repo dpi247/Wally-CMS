@@ -68,19 +68,11 @@ function wallyctools_perm() {
   );
 }
 
-
-
-
-
-
 function wallyctools_ctools_plugin_api($owner, $api) {
   if ($owner == 'wallyctools' && $api == 'ctools_content') {
     return array('version' => 1);
   }
 }
-
-
-
 
 /**
  * Implementation of hook_ctools_plugin_directory() to let the system know
@@ -121,8 +113,6 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
     'description' => t('Custom content panes are basic HTML you enter that can be reused in all of your panels.'),
   );
   
-  
-
    // Load all mini panels and their displays.
   ctools_include('export');
   $items = ctools_export_crud_load_all('wallyctools');
@@ -160,8 +150,6 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
   );
 }
 
-
-
 /**
  * Implementation of hook_views_api().
  *
@@ -174,7 +162,6 @@ function wallyctools_views_api() {
   );
 }
 //-----------------------------------------------
-
 
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
   foreach($node->field_destinations as $destination_item){
@@ -245,8 +232,11 @@ function wallyctools_get_redac_view_options(){
 
 
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
-  if($form_id=='views_ui_edit_view_form'){
-    wallyctools_save_views_layout($form,$form_state);
+  switch ($form_id) {
+    case 'views_ui_edit_view_form':
+      wallyctools_save_views_layout($form,$form_state);
+    break;
+    default:
   }
 }
 
@@ -373,8 +363,8 @@ function wallyctools_get_active_handler($term_tid,$depth){
   }
   //No Handlers match
   return NULL;
-    
 }
+
 /**
  * Helper function that give the redackblock content pane used on CTools page  .
  *
@@ -390,7 +380,6 @@ function wallyctools_get_redacblock_panes(){
   }
     return $array_of_panes;
 }
-
 
 function wallyctools_theme() {
   $path = drupal_get_path('module', 'wallyctools');
@@ -408,10 +397,10 @@ function wallyctools_theme() {
   );
 }
 
-
 function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=NULL){
   return drupal_get_form('wallyctools_form_reorderdestinationview_form',$destination_tid,$target);
 }
+
 function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
     //fetch the data from the DB
     $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
@@ -477,8 +466,6 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
     );
 
   return $form;
-  
-
 }
 
 function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state) {

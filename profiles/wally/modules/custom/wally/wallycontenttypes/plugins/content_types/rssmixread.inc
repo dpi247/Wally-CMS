@@ -26,8 +26,10 @@ $plugin = array(
 function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_state) {
   $settings = wallycontenttypes_rssmixread_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
+  $creation_infos = explode('_', $form_state['conf']['caid']);
+  $creation_date = $creation_infos[1];
 
-  if ($settings['rssmixread_type'] == 'fixed') {
+  if ($settings['rssmixread_type'] == 'fixed' && ($creation_date+1)>=time()) {
     return; // no form for this case.
   }
   
@@ -100,17 +102,12 @@ function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_stat
     '#title'            => 'Theming Function Name',
   );
   
-  $form['last_build'] = array (
-    '#type'             => 'hidden',
-    '#value'            => 0,
-  );
-  
   $form['caid'] = array (
     '#type'             => 'hidden',
     '#value'            => $settings['caid'],
   );
   
-  if (!user_access('administer rssmixread content')) {
+  if (!user_access('administer rssmixread content') || $settings['rssmixread_type'] == 'fixed') {
     return;
   }
   
@@ -205,7 +202,7 @@ function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$fo
   } else if (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // custom content and give it the proper values.
-    $content = ctools_export_crud_new('wallycontenttypes_rssmixread_content');
+    $content = wallycontenttypes_newctoolsexport('wallycontenttypes_rssmixread_content', 'rssmixread');
     $content->name = $form_state['values']['name'];
     _wallycontenttypes_rssmixread_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
@@ -220,7 +217,6 @@ function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$fo
     $form_state['conf']['own_schema'] = $form['own_schema']['#value'];
     $form_state['conf']['override_theme'] = $form['override_theme']['#value'];
     $form_state['conf']['override_theme_text'] = $form['override_theme_text']['#value'];
-    $form_state['conf']['last_build'] = $form['last_build']['#value'];
     $form_state['conf']['caid'] = $form['caid']['#value'];
   }
 }
@@ -312,12 +308,14 @@ function _wallycontenttypes_rssmixread_ctools_content_type($content) {
  */
 function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallycontenttypes_rssmixread_content_type_get_conf(wallycontenttypes_rssmixread_content_type_content_type($subtype), $conf);
+
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallycontenttypes';
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
-  if ((time() - $settings['last_build']) > mktime(0, $settings['delta_t'])) {
+  $cached_feed = cache_get($cid);
+  if ($cached_feed == 0 || !isset($cached_feed) || empty($cached_feed)) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
     $override_theme = $settings['override_theme'];
     if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -346,10 +344,8 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
       array_push($feed, $item);
     }
     
-    $settings['last_build'] = time();
-    cache_set($cid, $feed);
+    cache_set($cid, $feed, 'cache', time() + mktime(0, $settings['delta_t']) + 1);
   } else {
-    $cached_feed = cache_get($cid);
     $feed = $cached_feed->data;
   }
 
