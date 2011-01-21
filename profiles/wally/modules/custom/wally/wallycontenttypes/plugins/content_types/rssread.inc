@@ -73,7 +73,7 @@ function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) 
   
   $form['caid'] = array (
     '#type'             => 'hidden',
-    '#value'            => $settings['cid'],
+    '#value'            => $settings['caid'],
   );
   
   if (!user_access('administer rssread content') || $settings['rssread_type'] == 'fixed') {
@@ -396,7 +396,7 @@ function _wallycontenttypes_rssread_defaultformvalues() {
   $default_form_values['delta_t'] = 20;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
-  $default_form_values['cid'] = 'rsssimple_'.time();
+  $default_form_values['caid'] = 'rsssimple_'.time();
 
   return $default_form_values;
 }

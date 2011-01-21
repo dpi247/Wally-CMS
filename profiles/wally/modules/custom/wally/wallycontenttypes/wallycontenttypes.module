@@ -1093,7 +1093,6 @@ function wallycontenttypes_newctoolsexport($table, $plugin_name, $set_defaults =
  *   The default values for this plugin.
  */
 function wallycontenttypes_content_type_new($plugin_name, $set_defaults) {
-  dsm(debug_backtrace());
   $item = ctools_export_new_object('wallycontenttypes_'.$plugin_name.'_content', $set_defaults);
   ctools_include('content');
   ctools_include('context');
