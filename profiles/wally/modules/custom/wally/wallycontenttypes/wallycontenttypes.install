@@ -5,7 +5,7 @@
  */
 function wallycontenttypes_install() {
   _wallycontenttypes_install_presets(); 
-  _wallycontenttypes_install_schemas();
+  drupal_install_schema('wallycontenttypes');
 }
 
 /*
@@ -13,7 +13,7 @@ function wallycontenttypes_install() {
  */
 function wallycontenttypes_uninstall() {
   _wallycontenttypes_uninstall_presets();
-  _wallycontenttypes_uninstall_schemas();
+  drupal_uninstall_schema('wallycontenttypes');
 }
 
 function _wallycontenttypes_install_presets() {
@@ -82,31 +82,6 @@ function _wallycontenttypes_uninstall_presets() {
     imagecache_preset_delete(imagecache_preset_by_name('theme_medium_article_preset'));
   }
 }
-
-function _wallycontenttypes_install_schemas() {
-  $schemas_list = array(
-    'wallycontenttypes_rssmixread_content',
-  );
-  _wallycontenttypes_install_rssmixread_schema_1();
-  //_wallycontenttypes_install_rssread_schema_1();
-}
-
-function _wallycontenttypes_uninstall_schemas() {
-  drupal_uninstall_schema('wallycontenttypes_rssmixread_content');
-  //drupal_uninstall_schema('wallycontenttypes_rssread_content');
-}
-
-function _wallycontenttypes_install_rssmixread_schema_1() {
-  if (!db_table_exists('wallycontenttypes_rssmixread_content')) {
-    drupal_install_schema('wallycontenttypes_rssmixread_content');
-  }
-}
-
-/*function _wallycontenttypes_install_rssmixread_schema_1() {
-  if (!db_table_exists('wallycontenttypes_rssmixread_content')) {
-    drupal_install_schema('wallycontenttypes_rssmixread_content');
-  }
-}*/
 
 function wallycontenttypes_schema() {
   $schema = array();
@@ -216,6 +191,6 @@ function wallycontenttypes_schema() {
     ),
     'primary key' => array('cid'),
   );
-
+  
   return $schema;
 }

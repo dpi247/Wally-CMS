@@ -221,6 +221,9 @@ function wallycontenttypes_rssmixread_content_type_edit_form_submit(&$form, &$fo
   }
 }
 
+/**
+ * Export the configuration of the reusable block.
+ */
 function _wallycontenttypes_rssmixread_content_type_edit_save(&$content, $form_state) {
   // Apply updates to the content object.
   $content->category = $form_state['values']['category'];
@@ -236,7 +239,7 @@ function _wallycontenttypes_rssmixread_content_type_edit_save(&$content, $form_s
 }
 
 /**
- * Return all custom content types available.
+ * Return all rssmixread content types available.
  */
 function wallycontenttypes_rssmixread_content_type_content_types() {
   ctools_include('export');
@@ -250,7 +253,7 @@ function wallycontenttypes_rssmixread_content_type_content_types() {
 }
 
 /**
- * Return the custom content types with the specified $subtype_id.
+ * Return the rssmixread content types with the specified $subtype_id.
  */
 function wallycontenttypes_rssmixread_content_type_content_type($subtype_id) {
   if ($subtype_id == 'rssmixread') {
@@ -266,7 +269,7 @@ function wallycontenttypes_rssmixread_content_type_content_type($subtype_id) {
 }
 
 /**
- * Settings for the default custom content type.
+ * Settings for the default rssmixread content type.
  *
  * The default is the one that allows the user to actually create a type.
  */
@@ -285,7 +288,7 @@ function _wallycontenttypes_rssmixread_default_ctools_content_type() {
 }
 
 /**
- * Return an info array for a specific custom content type.
+ * Return an info array for a specific rssmixread content type.
  */
 function _wallycontenttypes_rssmixread_ctools_content_type($content) {
   $info = array(
@@ -349,19 +352,25 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rss",$feed, $settings); 
+  $block->content = theme("wallyct_rss", $feed, $settings); 
   return $block;
 }
 
 /**
- * Return the default values of the configuration form, allow the user
- * to update settings without having to reenter all values.
+ * Given a $subtype and a $conf, return the actual settings to use.
+ *
+ * The actual settings may be stored directly in the pane or this may
+ * be a pointer to re-usable content that may be in the database or in
+ * an export. We have to determine from the subtype whether or not it
+ * is local or shared custom content.
  * 
+ * @param $subtype
+ *   The given subtype.
  * @param $conf
  *   The configuration informations.
  * 
  * @return
- *   The default values.
+ *   The usable settings.
  */
 function wallycontenttypes_rssmixread_content_type_get_conf($subtype, $conf) {
   if ($subtype['name'] != 'rssmixread') {
@@ -397,7 +406,7 @@ function wallycontenttypes_rssmixread_content_type_get_conf($subtype, $conf) {
 }
 
 /**
- * Callback to provide the administrative title of the custom content.
+ * Callback to provide the administrative title of the rssmixread content.
  */
 function wallycontenttypes_rssmixread_content_type_admin_title($subtype, $conf) {
   $settings = wallycontenttypes_rssmixread_content_type_get_conf(wallycontenttypes_rssmixread_content_type_content_type($subtype), $conf);
@@ -452,6 +461,12 @@ function wallycontenttypes_rssmixread_content_type_admin_info($subtype, $conf) {
   return $block;
 }
 
+/**
+ * Definition of the default values of the edit form.
+ * 
+ * @return
+ *   The default values.
+ */
 function _wallycontenttypes_rssmixread_defaultformvalues() {
   $default_form_values = array();
   $default_form_values['uris'] = '';
