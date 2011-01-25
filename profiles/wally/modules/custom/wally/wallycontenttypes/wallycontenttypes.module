@@ -361,7 +361,7 @@ function wallycontenttypes_fieldNID(&$node, $op) {
     switch($field) {
       case "field_mainstory":
         $node->field_mainstory_nodes = wallycontenttypes_fieldnodeload($field, $value);
-        wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0]);
+        wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0], $op);
         break;
       case "field_linkedobjects":
         $results = wallycontenttypes_fieldnodeload($field, $value);
