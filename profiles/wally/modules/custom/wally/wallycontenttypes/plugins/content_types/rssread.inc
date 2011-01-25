@@ -9,7 +9,6 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  //'category' => 'Wally tools',
   'no title override' => TRUE,
   'defaults' => _wallycontenttypes_rssread_defaultformvalues(),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
@@ -147,7 +146,7 @@ function wallycontenttypes_rssread_content_type_edit_form_submit(&$form, &$form_
     _wallycontenttypes_rssread_content_type_edit_save($form_state['settings']['content'], $form_state);
   } else if (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
-    // custom content and give it the proper values.
+    // rssread content and give it the proper values.
     $content = wallycontenttypes_newctoolsexport('wallycontenttypes_rssread_content', 'rssread');
     $content->name = $form_state['values']['name'];
     _wallycontenttypes_rssread_content_type_edit_save($content, $form_state);
@@ -284,7 +283,7 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
  * The actual settings may be stored directly in the pane or this may
  * be a pointer to re-usable content that may be in the database or in
  * an export. We have to determine from the subtype whether or not it
- * is local or shared custom content.
+ * is local or shared rssred content.
  * 
  * @param $subtype
  *   The given subtype.
@@ -300,7 +299,7 @@ function wallycontenttypes_rssread_content_type_get_conf($subtype, $conf) {
     $settings['rssread_type'] = 'fixed';
     $settings['content'] = $subtype['content'];
   } else {
-    // This means they created it as custom content and then set it as
+    // This means they created it as rssread content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
     // still stored as though we are local, but are pointing off to
     // non-local.
@@ -310,14 +309,14 @@ function wallycontenttypes_rssread_content_type_get_conf($subtype, $conf) {
       if ($content) {
         $settings = $content->settings;
       } else {
-        $content = ctools_export_crud_new('wallycontenttypes_rssread_content');
+        $content = wallycontenttypes_newctoolsexport('wallycontenttypes_rssread_content', 'rssread');
         $content->name = $conf['name'];
         $settings = _wallycontenttypes_rssread_defaultformvalues();
       }
       $settings['rssread_type'] = 'fixed';
       $settings['content'] = $content;
     } else {
-      // This means that it is created as custom and has not been set to
+      // This means that it is created as rssread and has not been set to
       // reusable.
       $settings = $conf;
       $settings['rssread_type'] = 'local';
