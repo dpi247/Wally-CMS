@@ -354,7 +354,7 @@ function wallycontenttypes_twitread_content_type_render($subtype, $conf, $panel_
   } else {
     $feed = $cached_feed->data;
   }
-dsm($feed_array);
+//dsm($feed_array);
   $block->content = theme("wallyct_twit", $feed_array[0], $settings); 
   return $block;
 }
@@ -502,12 +502,12 @@ function _wallycontenttypes_twitread_createarrayfromuri($twit_uri, $maxitem) {
   
   module_load_include('lib.php', 'twitter');
   $twitter_user = new Twitter('Wally_audaxis', 'Wa11y_Audax1s!');
-  dsm('just name');
+  /*dsm('just name');
   dsm($twitter_user->user_timeline($twit_uri));
   dsm('@ name');
   dsm($twitter_user->user_timeline('@exxxxxodus'));
   dsm('# fail');
-  dsm($twitter_user->user_timeline('#fail'));
+  dsm($twitter_user->user_timeline('#fail'));*/
   
   return $twitter_user->user_timeline('exxxxxodus');
   
