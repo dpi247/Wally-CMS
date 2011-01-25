@@ -1,0 +1,44 @@
+<?php
+
+include_once('wallyfinfo.features.inc');
+
+/**
+* Implementation of hook_theme().
+*/
+function wallyfinfo_theme($existing) {  
+  return array(
+    'views_view__fil_info__panel_pane_1' => array(
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--fil-info--panel-pane-1',
+      'original hook' => 'views_view',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
+    'views_view__fil_info__panel_pane_2' => array(
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--fil-info--panel-pane-2',
+      'original hook' => 'views_view',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
+    'views_view__fil_info__panel_pane_3' => array(
+      'arguments' => array('view' => NULL),
+      'template' => 'views-view--fil-info--panel-pane-3',
+      'original hook' => 'views_view',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
+    'panels_pane' => array(
+      'arguments' => array('output' => array(), 'pane' => array(), 'display' => array()),
+      'original hook' => 'panels_pane',
+      'path' => drupal_get_path('module', 'wallyfinfo') . '/templates',
+    ),
+  );
+}
+
+/**
+ *  Implémentation du hook_preprocess_panels_pane(); 
+ */
+function phptemplate_engine_preprocess_panels_pane(&$variables) {
+  $suggestion = array(); 
+  $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'panels_pane'); 
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
