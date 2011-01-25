@@ -59,6 +59,12 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_rss',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_twit' => $base + array(
+    'arguments' => array("feed" => NULL, "options" => NULL),
+    'template' => 'wallyct_twit',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
     'wallyct_tofacebook' => $base + array(
     'arguments' => array("node" => NULL, "options" => NULL),
@@ -159,7 +165,33 @@ function wallycontenttypes_imagecache_actions() {
 function wallycontenttypes_rssmixread_content_perm() {
   return array(
     'administer rssmixread content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallycontenttypes_rssread_content_perm() {
+  return array(
     'administer rssread content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallycontenttypes_taxonomylist_content_perm() {
+  return array(
+    'administer taxonomylist content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallycontenttypes_twitread_content_perm() {
+  return array(
+    'administer twitread content',
   );
 }
 
