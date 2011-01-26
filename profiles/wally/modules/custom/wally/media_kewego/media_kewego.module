@@ -82,6 +82,5 @@ function media_kewego_emfield_providers($module, $provider = NULL) {
  */
 function media_kewego_check_status($video_id, $reset = FALSE) {
   $status[$video_id] = EMFIELD_STATUS_AVAILABLE;  
-  
   return $status[$video_id];
 }
