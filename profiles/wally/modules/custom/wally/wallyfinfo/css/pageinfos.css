@@ -1,8 +1,9 @@
 @charset "utf-8";
 
- .categories {
+.categories {
 	width: 100%;
 }
+
 .categories ul {
 	list-style-type: none;
 	margin: 0px;
@@ -13,9 +14,11 @@
 	height:40px;*/
 	width: 100%;
 }
+
 .categories div {
-    margin-left: 25px;
+	width: 100%;
 }
+
 .categories ul li {
 	display: inline-block;
 	margin-right: 2px;
@@ -30,61 +33,52 @@
 	padding-right: 10px;
 	padding-bottom: 5px;
 	padding-left: 10px;
-	height:35px;
-	line-height:normal;
+	height: 35px;
+	line-height: normal;
 }
+
 .categories ul li a {
 	font-size: small;
 	font-weight: bold;
 	color: #FFFFFF;
 	text-decoration: none;
 	margin-top: 2px;
-	text-transform: none;	
+	text-transform: none;
 }
+
 .categories ul li a:hover {
+	cursor: pointer;
+	cursor: hand;
 	color: #000000;
 }
+
 .categories .catselect {
-    background-color:#FFFFFF;
+	background-color: #FFFFFF;
 }
-.categories .catselect a{
-	color:#000000;
+
+.categories .catselect a {
+	color: #000000;
 }
-.categories #previnfos{
-	display:inline-block;
-	padding-bottom: 20px;
-	padding-right: 5px;
-	padding-left: 0px;
+
+#catmenu {
+	display: inline-block;
+	margin-bottom: 10px;
 }
-.categories #nextinfos{
-	display:inline-block;
-	padding-bottom: 20px;
-	padding-left: 5px;
-  padding-right: 0px;
-}
-#catmenu{
-  display:inline-block;
-  margin-left: 12px;
-  margin-right: 12px;
-}
-.categories p{
-	display:inline-block;
-}
-.categories p #nextinfos{
-  padding-right: 5px;
-	padding-bottom: 20px;
-	padding-left: 20px;
+
+.categories p {
+	display: inline-block;
 }
 
 .ttesinfos {
 	width: 100%;
 }
+
 .ttesinfos ul {
 	list-style-type: none;
 	margin: 0px;
 	padding: 0px;
-	
 }
+
 .ttesinfos ul li {
 	margin-bottom: 10px;
 	background-color: #FFFFFF;
@@ -92,11 +86,13 @@
 	margin-left: 0px;
 	margin-top: 20px;
 	list-style: none;
-	background-image:none;
+	background-image: none;
 }
+
 .ttesinfos ul li:hover {
 	list-style: none;
 }
+
 .ttesinfos ul  li h2 {
 	padding-left: 15px;
 	font-weight: bold;
@@ -104,22 +100,34 @@
 	text-transform: none;
 	font-size: medium;
 }
-.ttesinfos ul li p  {
+
+.ttesinfos ul li p {
 	text-transform: none;
 }
 
 .ttesinfos ul  li .date {
 	font-size: x-small;
 }
-pe: none;
-	margin: 0px;
-	padding: 0px;
-	
+
+.pager_page {
+	text-align: center;
 }
-.ttesinfos ul li {
-	margin-bottom: 10px;
-	background-color: #FFFFFF;
-	padding: 5px;
-	margin-left: 0px;
-	margin-top: 20px;
-	list-style
+
+.pager_page span {
+	padding-left: 3px;
+	padding-right: 3px;
+	text-align: center;
+	color: gray;
+	border: none;
+	font-size: 1.2em;
+	cursor: pointer;
+	cursor: hand;
+}
+
+.pager_page span:hover {
+	padding-left: 2px;
+	padding-right: 2px;
+	font-size: 1.2em;
+	color: black;
+	border: solid 1px;
+}

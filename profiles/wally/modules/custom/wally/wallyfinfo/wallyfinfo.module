@@ -79,20 +79,38 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
-    
-    foreach ($view_results as $view_result) {
-      $display = '';
-      $display = '
-          <li>
-            <div class="'.strtolower($destination->name).'">
-              <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
-                <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
-                <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
-              </a>
-            </div>
-          </li>
-    	';
-      $all_display[] = $display;
+
+    if ($display_name == 'panel_pane_1') {
+      foreach ($view_results as $view_result) {
+        $display = '';
+        $display = '
+            <li>
+              <div class="'.strtolower($destination->name).'">
+                <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
+                  <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
+                  <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
+                </a>
+              </div>
+            </li>
+      	';
+        $all_display[] = $display;
+      }
+    } elseif ($display_name == 'panel_pane_2') {
+      foreach ($view_results as $view_result) {
+        $node = node_load($view_result->nid);
+        wallycontenttypes_packagepopulate($node, null);
+        $display = '';
+        $display = '
+        	<li>
+              <div class="'.strtolower($destination->name).'_page">
+                <h2 class="title">'.check_plain($node->title).'</h2>
+                <p class="date">'.date("d M Y, H:m", $node->created).'</p> 
+                '.$node->field_mainstory_nodes[0]->field_textbody[0]['value'].'
+              </div>
+            </li>
+      	';
+        $all_display[] = $display;
+      }
     }
     
     cache_set($cid, $all_display, 'cache', time() + 60);
@@ -104,7 +122,154 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
 }
 
 /**
- * Return the javascript code to use the jCarousel effect.
+ * Return the javascript code to use the jCarousel effect in the 'page' fil_info.
+ * 
+ * @param array $available_dests
+ *   Array of the first level 'Destination Path' taxonomy terms.
+ * 
+ * @return
+ * 	 The js code.
+ * 
+ * @todo
+ *   Change CSS to make it more adaptative.
+ */
+function _wallyfinfo_slidecategoryjs_page($available_dests) {  
+  $jscode = '';
+
+  $jscode .= '
+  	$(document).ready(function() {
+  	  var page_offset_page = 0;';
+  
+  // jCarousel effect for the categories menu.
+  $jscode .= '
+  	  $("#catmenu").jcarousel({
+  	    wrap: "both",
+      	size: '.sizeof($available_dests).',
+        visible: 3,
+        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthoriz.png\" class=\"nextCat_page\"/>",
+        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushoriz.png\" class=\"prevCat_page\"/>",
+        buttonNextEvent: "click",
+        buttonPrevEvent: "click"
+      });
+      var carouselCat_page = $("#catmenu").data("jcarousel");
+      
+      $("#catmenu .jcarousel-clip").css("width", "100%");
+      $("#catmenu .jcarousel-clip").css("height", "100%");
+      
+      $(".nextCat_page").css("float", "right");
+      $(".nextCat_page").css("width", "15px");
+      $(".nextCat_page").css("right", "0");
+      $(".nextCat_page").css("margin-top", "0px");
+      $(".nextCat_page").css("margin-bottom", "15px");
+      $(".nextCat_page").css("margin-left", "5px");
+      $(".nextCat_page").css("cursor", "pointer");
+      $(".nextCat_page").css("cursor", "hand");
+      
+      $(".prevCat_page").css("float", "left");
+      $(".prevCat_page").css("width", "15px");
+      $(".prevCat_page").css("margin-top", "0px");
+      $(".prevCat_page").css("margin-bottom", "15px");
+      $(".prevCat_page").css("margin-right", "5px");
+      $(".prevCat_page").css("cursor", "pointer");
+      $(".prevCat_page").css("cursor", "hand");';
+  
+  $offset = 0;
+  foreach ($available_dests as $available_dest) {
+    ++$offset;
+    $jscode .= '
+      carouselCat_page.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'_page\">'.$available_dest->name.'</a>");';
+  }
+  
+  $jscode .= '
+  	  $("#catmenu .jcarousel-clip li").css("text-align", "center");
+      carouselCat_page.first = 1;
+	  carouselCat_page.reload();';
+  
+  // jCarousel effect for the items.
+  foreach ($available_dests as $available_dest) {
+    $jscode .= '
+      $("#car'.strtolower($available_dest->name).'_page").jcarousel({
+      	vertical: true,
+      	size: 10,
+        visible: 10,
+        auto: 0,
+      });
+      var carousel'.$available_dest->name.'_page = $("#car'.strtolower($available_dest->name).'_page").data("jcarousel");';
+  }
+  
+  // Hide all categories at start.
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      $("#car'.strtolower($available_dest->name).'_page").hide();';
+  }
+  
+  
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      var currentCarousel_page = carousel'.$available_dest->name.'_page;
+  	  var currentCarouselName_page = "'.strtolower($available_dest->name).'_page";
+  	  var currentTid_page = '.$available_dest->tid.'';
+    break;
+  }
+  
+  // Definition of the click actions for the categories labels.
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      $("a#'.strtolower($available_dest->name).'_page").click(function() {
+        page_offset_page = 0;
+        currentCarousel_page = carousel'.$available_dest->name.'_page;
+        currentCarouselName_page = "'.strtolower($available_dest->name).'_page";
+        currentTid_page = "'.$available_dest->tid.'";
+        reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
+      });';
+  }
+  
+ // Pager events.
+  for ($i=1; $i<6; $i++) {
+    $jscode .= '
+      $(".pager_page #page'.$i.'").click(function() {
+        page_offset_page = '.(10*($i-1)).';
+        reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
+      });';
+  }
+  
+  $jscode .= '
+      function reload_carousel_page(carousel, dest_name, tid) {';
+  	// Hide all categories except de concerned and empty all carousels.
+    foreach ($available_dests as $av_dest) {
+      if ($av_dest->name != $available_dest->name) {
+      $jscode .= '
+        $("#car'.strtolower($av_dest->name).'_page").hide();
+        $("#car'.strtolower($av_dest->name).'_page .jcarousel-clip").css("height", "0px");';
+      }
+      $jscode .= '
+      	carousel'.$av_dest->name.'_page.list.empty();
+        $("ul#liste'.strtolower($av_dest->name).' li").remove();';
+    }
+    
+    // Show the concerned category, add items to the concerned carousel and restart it.
+    $jscode .= '
+        $("#car" + dest_name).show();
+        $("#car" + dest_name + " .jcarousel-clip").css("height", "2300px");
+
+        for (offset = 0; offset < 10; offset++) {
+          carousel.add(offset+1, $.ajax({
+                                   url: "/view/fil_info/panel_pane_2/" + tid + "/" + (offset+page_offset_page),
+                                   async: false
+                                 }).responseText);
+        }
+        
+        carousel.first = 1;
+  	    carousel.reload();
+  	    carousel.startAuto(carousel.options.auto);
+	  }
+  	});';
+  
+  return $jscode;
+}
+
+/**
+ * Return the javascript code to use the jCarousel effect in the 'box' fil info.
  * 
  * @param array $available_dests
  *   Array of the first level 'Destination Path' taxonomy terms.
@@ -112,7 +277,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
  * @return
  * 	 The js code.
  */
-function _wallyfinfo_slidecategoryjs($available_dests) {  
+function _wallyfinfo_slidecategoryjs_box($available_dests) {  
   $jscode = '';
 
   $jscode .= '
@@ -125,44 +290,44 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
   	    wrap: "both",
       	size: '.sizeof($available_dests).',
         visible: 3,
-        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthorizblanc.png\" class=\"next1\"/>",
-        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prev1\"/>",
+        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthorizblanc.png\" class=\"nextCat\"/>",
+        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prevCat\"/>",
         buttonNextEvent: "click",
         buttonPrevEvent: "click"
       });
-      var carousel2 = $("#filcat").data("jcarousel");
+      var carouselCat = $("#filcat").data("jcarousel");
       
       $("#filcat .jcarousel-clip").css("width", "100%");
       $("#filcat .jcarousel-clip").css("height", "100%");
       
-      $(".next1").css("float", "right");
-      $(".next1").css("width", "15px");
-      $(".next1").css("right", "0");
-      $(".next1").css("margin-top", "0px");
-      $(".next1").css("margin-bottom", "15px");
-      $(".next1").css("margin-left", "5px");
-      $(".next1").css("cursor", "pointer");
-      $(".next1").css("cursor", "hand");
+      $(".nextCat").css("float", "right");
+      $(".nextCat").css("width", "15px");
+      $(".nextCat").css("right", "0");
+      $(".nextCat").css("margin-top", "0px");
+      $(".nextCat").css("margin-bottom", "15px");
+      $(".nextCat").css("margin-left", "5px");
+      $(".nextCat").css("cursor", "pointer");
+      $(".nextCat").css("cursor", "hand");
       
-      $(".prev1").css("float", "left");
-      $(".prev1").css("width", "15px");
-      $(".prev1").css("margin-top", "0px");
-      $(".prev1").css("margin-bottom", "15px");
-      $(".prev1").css("margin-right", "5px");
-      $(".prev1").css("cursor", "pointer");
-      $(".prev1").css("cursor", "hand");';
+      $(".prevCat").css("float", "left");
+      $(".prevCat").css("width", "15px");
+      $(".prevCat").css("margin-top", "0px");
+      $(".prevCat").css("margin-bottom", "15px");
+      $(".prevCat").css("margin-right", "5px");
+      $(".prevCat").css("cursor", "pointer");
+      $(".prevCat").css("cursor", "hand");';
   
   $offset = 0;
   foreach ($available_dests as $available_dest) {
     ++$offset;
     $jscode .= '
-      carousel2.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
+      carouselCat.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
   }
   
   $jscode .= '
   	  $("#filcat .jcarousel-clip li").css("text-align", "center");
-      carousel2.first = 1;
-	  carousel2.reload();';
+      carouselCat.first = 1;
+	  carouselCat.reload();';
   
   // jCarousel effect for the items.
   foreach ($available_dests as $available_dest) {
