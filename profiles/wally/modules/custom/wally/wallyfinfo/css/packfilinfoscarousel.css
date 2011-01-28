@@ -85,6 +85,8 @@ S@charset "utf-8";
 	padding-right:4px;
 }
 .packfil .carousel #filcat ul li a:hover {
+	cursor: pointer;
+	cursor: hand;
 	color: #000000;
 }
 .packfil .carousel #filcat ul li .packcatselect a{
@@ -180,4 +182,23 @@ S@charset "utf-8";
 	width:15px;
 	margin-right:10px;
 }
-dding-right:5px
+.packfil .pager{
+	text-align: center;
+}
+.packfil .pager span{
+	padding-left: 3px;
+	padding-right: 3px;
+	text-align: center;
+	color: gray;
+	border: none;
+	font-size: 1.2em;
+	cursor: pointer;
+	cursor: hand;
+}
+.packfil .pager span:hover{
+	padding-left: 2px;
+	padding-right: 2px;
+	font-size: 1.2em;
+	color: black;
+	border: solid 1px;
+}
