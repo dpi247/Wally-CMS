@@ -17,10 +17,23 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/wallyfinfo-carousel.js');
+$all_voc = taxonomy_get_vocabularies();
+foreach ($all_voc as $voc) {
+  if ($voc->name == 'Destination Path') {
+    $available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+    break;
+  }
+}
+foreach ($available_dests as $available_dest) {
+  $view_results[] = views_get_view_result('fil_info', 'panel_pane_1', $available_dest->tid);
+}
+dsm($view_results);
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/slide-category.js');
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/page-slide-category.js');
+drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
+//drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/page-slide-category.js');
+//drupal_add_js(_wallyfinfo_slidecategoryjs($available_dests), 'inline');
+//drupal_add_js(_wallyfinfo_wallyfinfocarouseljs($available_dests), 'inline');
+drupal_add_js(_wallyfinfo_slidecategoryjs($available_dests), 'inline');
 drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/packfilinfoscarousel.css');
 drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/pageinfos.css');
 drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/thicker.css');

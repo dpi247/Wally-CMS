@@ -95,7 +95,7 @@ S@charset "utf-8";
 .packfil #prev1{
 	float:left;
 	width:15px;
-	margin-top: 15px;
+	margin-top: 0px;
 	margin-bottom: 15px;
 	margin-right:5px;
 }
@@ -103,7 +103,7 @@ S@charset "utf-8";
 	float:right;
 	width:15px;
 	right:0;
-	margin-top: 15px;
+	margin-top: 0px;
 	margin-bottom: 15px;
 	margin-left:5px;
 }
@@ -111,6 +111,11 @@ S@charset "utf-8";
 /*---------Infos (défilent)----------*/
 
 .packfil .carousel {
+	/*border: thin solid #666666;*/
+	width:100%;
+	display:inline-block;
+}
+.packfil .jcarousel-clip {
 	/*border: thin solid #666666;*/
 	width:100%;
 	display:inline-block;

@@ -3,6 +3,7 @@
 /**
  * @file views-view--fil-info--panel-pane-2.tpl.php
  * Default simple view template to display a list of rows.
+ * To be used in the 'Main column' panel.
  * 
  * Variables available:
  * - $view: The view object

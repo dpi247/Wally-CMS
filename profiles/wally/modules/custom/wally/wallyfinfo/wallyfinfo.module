@@ -3,6 +3,22 @@
 include_once('wallyfinfo.features.inc');
 
 /**
+ *  Implémentation du hook_menu(); 
+ */
+function wallyfinfo_menu() {
+  $items = array();
+  
+  $items['view/fil_info'] = array(
+    'description' => t('Get view display for fil_info.'), 
+    'page callback' => 'wallyfinfo_getviewfinfo', 
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
 * Implementation of hook_theme().
 */
 function wallyfinfo_theme($existing) {  
@@ -42,3 +58,237 @@ function phptemplate_engine_preprocess_panels_pane(&$variables) {
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
 
+/**
+ * Print a HTML list containing the fields returned by one of the display of the 'fil_info' view.
+ * 
+ * @param string $display_name
+ * 	 Name of display in the 'fil_info' view.
+ * 	 Example : 'panel_pane_1'.
+ * @param int $dest_id
+ *   Taxonomy term id ('tid') of the requested destination.
+ * 
+ * @return
+ * 	 No value but print the HTML code.
+ */
+function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {  
+  $destination = taxonomy_get_term($dest_id);
+  $view_results = array();
+  $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
+
+  $display = '';
+  $i=0;
+  /*foreach ($view_results as $view_result) {
+    $i++;
+    if ($i==11) break;
+    $display .= '
+        <li>
+          <div class="'.strtolower($destination->name).'">
+            <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
+              <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
+              <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
+            </a>
+          </div>
+        </li>
+  	';
+  }*/
+  
+  $display .= '
+        <li>
+          <div class="'.strtolower($destination->name).'">
+            <a href="'.drupal_get_path_alias("/node/".$view_results[$offset]->nid).'">
+              <small>'.date('H:m', check_plain($view_results[$offset]->node_created)).'</small>
+              <h2>'.strtolower($destination->name).check_plain($view_results[$offset]->node_title).'</h2>
+            </a>
+          </div>
+        </li>
+  	';
+  
+  print $display;
+}
+
+function _wallyfinfo_wallyfinfocarouseljs($available_dests) {
+  $jscode = '';
+  
+  $jscode .= '
+  	$(document).ready(function() {';
+  foreach ($available_dests as $available_dest) {
+    $jscode .= '
+      $("#car'.strtolower($available_dest->name).'").jcarousel({
+      	vertical: true,
+        scroll: 2,
+        visible: 5,
+        auto: 3500,
+        initCallback: null,
+        reloadCallback: null,
+        itemLoadCallback: null,
+        itemFirstInCallback: null,
+        itemFirstOutCallback: null,
+        itemLastInCallback: null,
+        itemLastOutCallback: null,
+        itemVisibleInCallback: null,
+        itemVisibleOutCallback: null,
+        buttonNext: ".next",
+        buttonPrev: ".prev",
+        itemFallbackDimension: null
+      });
+      var carousel'.$available_dest->name.' = $("#car'.strtolower($available_dest->name).'").data("jcarousel");
+      alert(carousel'.$available_dest->name.');';
+  }
+  
+  $jscode .= '
+      $("#car2").jCarouselLite({
+        btnNext: "#next1",
+        btnPrev: "#prev1",
+        auto:0,
+        vertical: false,
+        visible: 3,
+        scroll: 2
+      });';
+    
+      /*$("#catmenu").jCarouselLite({
+        btnNext: "#nextinfos",
+        btnPrev: "#previnfos",
+        auto: 0,
+        vertical: false,
+        visible: 6,
+        circular: false,
+        scroll: 1
+      });
+    
+      $("#thicker").jCarouselLite({
+        auto: 2500,
+        speed: 1200,
+        vertical: false,
+        visible: 1,
+        circular: true
+      });*/
+  $jscode .= '
+	});';
+  
+  return $jscode;
+}
+
+/**
+ * Return the javascript code to use the jCarousel and jCarouselLite effects.
+ * 
+ * @param array $available_dests
+ *   Array of the first level 'Destination Path' taxonomy terms.
+ * 
+ * @return
+ * 	 The js code.
+ */
+function _wallyfinfo_slidecategoryjs($available_dests) {  
+  $jscode = '';
+
+  $jscode .= '
+  	$(document).ready(function() {';
+  
+  // jCarouselLite effect for the categories menu.
+  $jscode .= '
+  	  $("#filcat").jcarousel({
+  	    wrap: "both",
+      	size: '.sizeof($available_dests).',
+        visible: 3,
+        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthorizblanc.png\" class=\"next1\"/>",
+        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prev1\"/>",
+        buttonNextEvent: "click",
+        buttonPrevEvent: "click"
+      });
+      var carousel2 = $("#filcat").data("jcarousel");
+      $("#filcat .jcarousel-clip").css("width", "100%");
+      $("#filcat .jcarousel-clip").css("height", "100%");
+      $(".next1").css("float", "right");
+      $(".next1").css("width", "15px");
+      $(".next1").css("right", "0");
+      $(".next1").css("margin-top", "0px");
+      $(".next1").css("margin-bottom", "15px");
+      $(".next1").css("margin-left", "5px");
+      $(".prev1").css("float", "left");
+      $(".prev1").css("width", "15px");
+      $(".prev1").css("margin-top", "0px");
+      $(".prev1").css("margin-bottom", "15px");
+      $(".prev1").css("margin-right", "5px");';
+  
+  $offset = 0;
+  foreach ($available_dests as $available_dest) {
+    ++$offset;
+    $jscode .= '
+      carousel2.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
+  }
+  
+  $jscode .= '
+      carousel2.first = 1;
+	  carousel2.reload();';
+  
+  // jCarousel effect for the items.
+  foreach ($available_dests as $available_dest) {
+    $jscode .= '
+      $("#car'.strtolower($available_dest->name).'").jcarousel({
+      	vertical: true,
+      	size: 10,
+        scroll: 2,
+        visible: 4,
+        auto: 1,
+        animation: "slow",
+        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/next.png\" class=\"next\"/>",
+        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previous.png\" class=\"prev\"/>",
+        buttonNextEvent: "click",
+        buttonPrevEvent: "click"
+      });
+      var carousel'.$available_dest->name.' = $("#car'.strtolower($available_dest->name).'").data("jcarousel");';
+  }
+  
+  // Hide all categories at start.
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      $("#car'.strtolower($available_dest->name).'").hide();';
+  }
+  
+  // Definition of the click actions for the categories labels.
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      $("a#'.strtolower($available_dest->name).'").click(function() {';
+    
+    // Hide all categories except de concerned and empty all carousels.
+    foreach ($available_dests as $av_dest) {
+      if ($av_dest->name != $available_dest->name) {
+        $jscode .= '
+        $("#car'.strtolower($av_dest->name).'").hide();
+        $("#car'.strtolower($av_dest->name).' .jcarousel-clip").css("height", "0px");';
+      }
+      $jscode .= '
+        carousel'.$av_dest->name.'.list.empty();';
+        //$("ul#liste'.strtolower($av_dest->name).' li").remove();';
+    }
+    
+    // Show the concerned category, add items to the concerned carousel and restart it.
+    $jscode .= '
+        $("#car'.strtolower($available_dest->name).'").show();
+        $("#car'.strtolower($available_dest->name).' .jcarousel-clip").css("height", "300px");
+        $(".next").css("float", "right");
+        $(".next").css("width", "15px");
+        $(".next").css("margin-right", "10px");
+        $(".prev").css("float", "left");
+        $(".prev").css("width", "15px");
+        $(".prev").css("margin-left", "10px");';
+    
+    for ($offset = 0; $offset < 10; $offset++) {
+      $jscode .= '
+        carousel'.$available_dest->name.'.add('.($offset+1).', $.ajax({
+                                                                 url: "/view/fil_info/panel_pane_1/'.$available_dest->tid.'/'.$offset.'",
+                                                                 async: false
+                                                               }).responseText);';
+    }
+    
+    $jscode.= '
+        carousel'.$available_dest->name.'.first = 1;
+		carousel'.$available_dest->name.'.reload();
+		carousel'.$available_dest->name.'.startAuto(carousel'.$available_dest->name.'.options.auto);
+      });';
+  }
+  
+  $jscode .= '
+  	});';
+  
+  return $jscode;
+}
