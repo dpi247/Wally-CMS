@@ -70,106 +70,41 @@ function phptemplate_engine_preprocess_panels_pane(&$variables) {
  * @return
  * 	 No value but print the HTML code.
  */
-function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {  
-  $destination = taxonomy_get_term($dest_id);
-  $view_results = array();
-  $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
-
-  $display = '';
-  $i=0;
-  /*foreach ($view_results as $view_result) {
-    $i++;
-    if ($i==11) break;
-    $display .= '
-        <li>
-          <div class="'.strtolower($destination->name).'">
-            <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
-              <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
-              <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
-            </a>
-          </div>
-        </li>
-  	';
-  }*/
+function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {
+  $all_display = array();
+  $cid = 'wallyfinfo_'.$diplay_name.'_'.$dest_id;
+  $cached_display = cache_get($cid);
   
-  $display .= '
-        <li>
-          <div class="'.strtolower($destination->name).'">
-            <a href="'.drupal_get_path_alias("/node/".$view_results[$offset]->nid).'">
-              <small>'.date('H:m', check_plain($view_results[$offset]->node_created)).'</small>
-              <h2>'.strtolower($destination->name).check_plain($view_results[$offset]->node_title).'</h2>
-            </a>
-          </div>
-        </li>
-  	';
-  
-  print $display;
-}
-
-function _wallyfinfo_wallyfinfocarouseljs($available_dests) {
-  $jscode = '';
-  
-  $jscode .= '
-  	$(document).ready(function() {';
-  foreach ($available_dests as $available_dest) {
-    $jscode .= '
-      $("#car'.strtolower($available_dest->name).'").jcarousel({
-      	vertical: true,
-        scroll: 2,
-        visible: 5,
-        auto: 3500,
-        initCallback: null,
-        reloadCallback: null,
-        itemLoadCallback: null,
-        itemFirstInCallback: null,
-        itemFirstOutCallback: null,
-        itemLastInCallback: null,
-        itemLastOutCallback: null,
-        itemVisibleInCallback: null,
-        itemVisibleOutCallback: null,
-        buttonNext: ".next",
-        buttonPrev: ".prev",
-        itemFallbackDimension: null
-      });
-      var carousel'.$available_dest->name.' = $("#car'.strtolower($available_dest->name).'").data("jcarousel");
-      alert(carousel'.$available_dest->name.');';
+  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display)) {
+    $destination = taxonomy_get_term($dest_id);
+    $view_results = array();
+    $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
+    
+    foreach ($view_results as $view_result) {
+      $display = '';
+      $display = '
+          <li>
+            <div class="'.strtolower($destination->name).'">
+              <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
+                <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
+                <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
+              </a>
+            </div>
+          </li>
+    	';
+      $all_display[] = $display;
+    }
+    
+    cache_set($cid, $all_display, 'cache', time() + 60);
+  } else {
+    $all_display = $cached_display->data;
   }
   
-  $jscode .= '
-      $("#car2").jCarouselLite({
-        btnNext: "#next1",
-        btnPrev: "#prev1",
-        auto:0,
-        vertical: false,
-        visible: 3,
-        scroll: 2
-      });';
-    
-      /*$("#catmenu").jCarouselLite({
-        btnNext: "#nextinfos",
-        btnPrev: "#previnfos",
-        auto: 0,
-        vertical: false,
-        visible: 6,
-        circular: false,
-        scroll: 1
-      });
-    
-      $("#thicker").jCarouselLite({
-        auto: 2500,
-        speed: 1200,
-        vertical: false,
-        visible: 1,
-        circular: true
-      });*/
-  $jscode .= '
-	});';
-  
-  return $jscode;
+  print $all_display[$offset];
 }
 
 /**
- * Return the javascript code to use the jCarousel and jCarouselLite effects.
+ * Return the javascript code to use the jCarousel effect.
  * 
  * @param array $available_dests
  *   Array of the first level 'Destination Path' taxonomy terms.
@@ -183,7 +118,7 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
   $jscode .= '
   	$(document).ready(function() {';
   
-  // jCarouselLite effect for the categories menu.
+  // jCarousel effect for the categories menu.
   $jscode .= '
   	  $("#filcat").jcarousel({
   	    wrap: "both",
@@ -228,7 +163,7 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
       	size: 10,
         scroll: 2,
         visible: 4,
-        auto: 1,
+        auto: 2,
         animation: "slow",
         buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/next.png\" class=\"next\"/>",
         buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previous.png\" class=\"prev\"/>",

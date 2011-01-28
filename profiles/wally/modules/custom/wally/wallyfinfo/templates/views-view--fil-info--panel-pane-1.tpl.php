@@ -27,7 +27,6 @@ $pager = $view->pager;
     <h2>Le fil info</h2>
     
     <div class="filhead">
-      <a>Voir toutes les infos</a>
         <div class="centrercat">
           <div class="carousel" id="car2">
             <div id="filcat">
