@@ -54,7 +54,7 @@ function wallyfinfo_theme($existing) {
  */
 function phptemplate_engine_preprocess_panels_pane(&$variables) {
   $suggestion = array(); 
-  $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'panels_pane'); 
+  $suggestion = wallycontenttypes_getpackagesuggestions($variables, 'panels_pane'); 
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
 
@@ -72,7 +72,7 @@ function phptemplate_engine_preprocess_panels_pane(&$variables) {
  */
 function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {
   $all_display = array();
-  $cid = 'wallyfinfo_'.$diplay_name.'_'.$dest_id;
+  $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
   
   if ($cached_display == 0 || !isset($cached_display) || empty($cached_display)) {
@@ -116,7 +116,8 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
   $jscode = '';
 
   $jscode .= '
-  	$(document).ready(function() {';
+  	$(document).ready(function() {
+  	  var page_offset = 0;';
   
   // jCarousel effect for the categories menu.
   $jscode .= '
@@ -130,19 +131,26 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
         buttonPrevEvent: "click"
       });
       var carousel2 = $("#filcat").data("jcarousel");
+      
       $("#filcat .jcarousel-clip").css("width", "100%");
       $("#filcat .jcarousel-clip").css("height", "100%");
+      
       $(".next1").css("float", "right");
       $(".next1").css("width", "15px");
       $(".next1").css("right", "0");
       $(".next1").css("margin-top", "0px");
       $(".next1").css("margin-bottom", "15px");
       $(".next1").css("margin-left", "5px");
+      $(".next1").css("cursor", "pointer");
+      $(".next1").css("cursor", "hand");
+      
       $(".prev1").css("float", "left");
       $(".prev1").css("width", "15px");
       $(".prev1").css("margin-top", "0px");
       $(".prev1").css("margin-bottom", "15px");
-      $(".prev1").css("margin-right", "5px");';
+      $(".prev1").css("margin-right", "5px");
+      $(".prev1").css("cursor", "pointer");
+      $(".prev1").css("cursor", "hand");';
   
   $offset = 0;
   foreach ($available_dests as $available_dest) {
@@ -152,6 +160,7 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
   }
   
   $jscode .= '
+  	  $("#filcat .jcarousel-clip li").css("text-align", "center");
       carousel2.first = 1;
 	  carousel2.reload();';
   
@@ -179,50 +188,79 @@ function _wallyfinfo_slidecategoryjs($available_dests) {
       $("#car'.strtolower($available_dest->name).'").hide();';
   }
   
+  
+  foreach ($available_dests as $key=>$available_dest) {
+    $jscode .= '
+      var currentCarousel = carousel'.$available_dest->name.';
+  	  var currentCarouselName = "'.strtolower($available_dest->name).'";
+  	  var currentTid = '.$available_dest->tid.'';
+    break;
+  }
+  
   // Definition of the click actions for the categories labels.
   foreach ($available_dests as $key=>$available_dest) {
     $jscode .= '
-      $("a#'.strtolower($available_dest->name).'").click(function() {';
-    
-    // Hide all categories except de concerned and empty all carousels.
+      $("a#'.strtolower($available_dest->name).'").click(function() {
+        page_offset = 0;
+        currentCarousel = carousel'.$available_dest->name.';
+        currentCarouselName = "'.strtolower($available_dest->name).'";
+        currentTid = "'.$available_dest->tid.'";
+        reload_carousel(currentCarousel, currentCarouselName, currentTid);
+      });';
+  }
+  
+ // Pager events.
+  for ($i=1; $i<6; $i++) {
+    $jscode .= '
+      $(".pager #page'.$i.'").click(function() {
+        page_offset = '.(10*($i-1)).';
+        reload_carousel(currentCarousel, currentCarouselName, currentTid);
+      });';
+  }
+  
+  $jscode .= '
+      function reload_carousel(carousel, dest_name, tid) {';
+  	// Hide all categories except de concerned and empty all carousels.
     foreach ($available_dests as $av_dest) {
       if ($av_dest->name != $available_dest->name) {
-        $jscode .= '
+      $jscode .= '
         $("#car'.strtolower($av_dest->name).'").hide();
         $("#car'.strtolower($av_dest->name).' .jcarousel-clip").css("height", "0px");';
       }
       $jscode .= '
-        carousel'.$av_dest->name.'.list.empty();';
+      	carousel'.$av_dest->name.'.list.empty();';
         //$("ul#liste'.strtolower($av_dest->name).' li").remove();';
     }
     
     // Show the concerned category, add items to the concerned carousel and restart it.
     $jscode .= '
-        $("#car'.strtolower($available_dest->name).'").show();
-        $("#car'.strtolower($available_dest->name).' .jcarousel-clip").css("height", "300px");
+        $("#car" + dest_name).show();
+        $("#car" + dest_name + " .jcarousel-clip").css("height", "300px");
+        
         $(".next").css("float", "right");
         $(".next").css("width", "15px");
         $(".next").css("margin-right", "10px");
+        $(".next").css("cursor", "pointer");
+        $(".next").css("cursor", "hand");
+        
         $(".prev").css("float", "left");
         $(".prev").css("width", "15px");
-        $(".prev").css("margin-left", "10px");';
-    
-    for ($offset = 0; $offset < 10; $offset++) {
-      $jscode .= '
-        carousel'.$available_dest->name.'.add('.($offset+1).', $.ajax({
-                                                                 url: "/view/fil_info/panel_pane_1/'.$available_dest->tid.'/'.$offset.'",
-                                                                 async: false
-                                                               }).responseText);';
-    }
-    
-    $jscode.= '
-        carousel'.$available_dest->name.'.first = 1;
-		carousel'.$available_dest->name.'.reload();
-		carousel'.$available_dest->name.'.startAuto(carousel'.$available_dest->name.'.options.auto);
-      });';
-  }
-  
-  $jscode .= '
+        $(".prev").css("margin-left", "10px");
+        $(".prev").css("cursor", "pointer");
+        $(".prev").css("cursor", "hand");
+
+        for (offset = 0; offset < 10; offset++) {
+
+          carousel.add(offset+1, $.ajax({
+                                   url: "/view/fil_info/panel_pane_1/" + tid + "/" + (offset+page_offset),
+                                   async: false
+                                 }).responseText);
+        }
+        
+        carousel.first = 1;
+  	    carousel.reload();
+  	    carousel.startAuto(carousel.options.auto);
+	  }
   	});';
   
   return $jscode;

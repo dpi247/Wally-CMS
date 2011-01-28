@@ -17,7 +17,6 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-
 $results = $view->result;
 $pager = $view->pager;
 ?>
@@ -45,19 +44,13 @@ $pager = $view->pager;
     </div>
     <?php } ?>
     
-    <div>
+    <div class="pager">
     <?php
     if($view->total_rows > $pager['items_per_page']) { 
-      for($i=0; $i<5; $i++) {
-        if($i==$pager['current_page']) {
+      for($i=1; $i<6; $i++) {
     ?>
-      <span><?php print $i; ?></span>
+      <span id="page<?php print $i; ?>"><?php print $i; ?></span>
     <?php
-        } else {
-    ?>
-      <span><a href="?page=<?php print $i; ?>"><?php print $i; ?></a></span>
-    <?php
-        }
       }
     }
     ?>
