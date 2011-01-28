@@ -3,12 +3,21 @@
 /**
  * @file views-view--fil-info--panel-pane-1.tpl.php
  * Default simple view template to display a list of rows.
+ * To be used in the 'Related column' panel.
  * 
  * Variables available:
  * - $view: The view object
  *
  * @ingroup views_templates
  */
+$all_voc = taxonomy_get_vocabularies();
+foreach ($all_voc as $voc) {
+  if ($voc->name == 'Destination Path') {
+    $available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+    break;
+  }
+}
+
 $results = $view->result;
 $pager = $view->pager;
 ?>
@@ -18,41 +27,24 @@ $pager = $view->pager;
     <h2>Le fil info</h2>
     
     <div class="filhead">
-      <a href="#">Voir toutes les infos</a>
+      <a>Voir toutes les infos</a>
         <div class="centrercat">
-          <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/previoushorizblanc.png'; ?>" alt="bouton catégories précedentes" id="prev1"/>
           <div class="carousel" id="car2">
             <div id="filcat">
               <ul>
-                <li id="belgique"><a href="#">Belgique</a></li>  
-                <li id="monde"><a href="#">Monde</a></li> 
-                <li id="sport"><a href="#">Sport</a></li> 
-                <li id="eco"><a href="#">Eco</a></li> 
-                <li id="net"><a href="#">Internet</a></li>
-                <li id="sciences"><a href="#">Sciences et santé</a></li> 
-                <li id="culture"><a href="#">Culture</a> </li>
-                <li id="affiche"><a href="#">A l'affiche</a> </li>
-                <li id="elections"><a href="#">Elections 2010</a></li>
-                <li id="divers"><a href="#">Divers</a></li>
               </ul>
             </div>
           </div>
-          <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/nexthorizblanc.png'; ?>" id="next1"/>
         </div>
       <p class="jr"><?php print date('d M Y'); ?></p>
     </div>
 
-    <div id="carbel" class="carousel">
-      <ul id="listebelgique" class="hideme">
-        <?php foreach ($results as $result) { ?>
-        <li>
-          <div class="belgique">
-            <a href="<?php print drupal_get_path_alias("/node/".$result->nid); ?>"><small><?php print date('H:m', check_plain($result->node_created)); ?></small><h2><?php print check_plain($result->node_title); ?></h2></a>
-          </div>
-        </li>
-        <?php } ?>
+	<?php foreach ($available_dests as $available_dest) { ?>
+    <div id="car<?php print strtolower($available_dest->name); ?>" class="carousel">
+      <ul id="liste<?php print strtolower($available_dest->name); ?>" class="hideme">
       </ul>
     </div>
+    <?php } ?>
     
     <div>
     <?php
@@ -70,11 +62,6 @@ $pager = $view->pager;
       }
     }
     ?>
-    </div>
-
-    <div id="btn_infos">
-      <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/previous.png'; ?>" class="prev"/>
-      <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/next.png'; ?>" class="next"/>
     </div>
   </div>
 </div>
