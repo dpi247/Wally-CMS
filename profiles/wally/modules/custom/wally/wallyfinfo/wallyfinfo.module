@@ -226,6 +226,10 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
  // Pager events.
   for ($i=1; $i<6; $i++) {
     $jscode .= '
+      $(".pager_page #page'.$i.'").click(function() {
+        page_offset_page = '.(10*($i-1)).';
+        reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
+      });
       $(".pager_page #page'.$i.'bis").click(function() {
         page_offset_page = '.(10*($i-1)).';
         reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
