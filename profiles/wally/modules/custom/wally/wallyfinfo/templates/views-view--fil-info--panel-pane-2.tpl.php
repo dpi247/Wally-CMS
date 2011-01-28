@@ -10,51 +10,55 @@
  *
  * @ingroup views_templates
  */
-$results = $view->result;
-$pager = $view->pager;
-$nodes = array();
-$mainstories = array();
-foreach ($results as $result) {
-  $temp_node = node_load($result->nid);
-  wallycontenttypes_packagepopulate($temp_node, '');
-  $nodes[] = $temp_node;
+$all_voc = taxonomy_get_vocabularies();
+foreach ($all_voc as $voc) {
+  if ($voc->name == 'Destination Path') {
+    $available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+    break;
+  }
 }
+$pager = $view->pager;
 ?>
 <h2>Le fil info</h2>
 
 <div class="categories">
   <div>
-    <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/previoushoriz.png'; ?>" id="previnfos"/>
     <div id="catmenu" class="carousel"> 
       <ul>
-        <li id="belgiqueinfos"><a href="#">Belgique</a></li>  
-        <li id="mondeinfos"><a href="#">Monde</a></li> 
-        <li id="sportinfos"><a href="#">Sport</a></li> 
-        <li id="ecoinfos"><a href="#">Eco</a></li> 
-        <li id="netinfos"><a href="#">Internet</a></li>
-        <li id="sciencesinfos"><a href="#">Sciences et santé</a></li> 
-        <li id="cultureinfos"><a href="#">Culture</a> </li>
-        <li id="afficheinfos"><a href="#">A l'affiche</a> </li>
-        <li id="electionsinfos"><a href="#">Elections 2010</a></li>
-        <li id="diversinfos"><a href="#">Divers</a></li>
       </ul>
     </div>
-    <img src="<?php print base_path().drupal_get_path('module', 'wallyfinfo').'/images/nexthoriz.png'; ?>" id="nextinfos"/>
   </div>
 </div>
 
+<div class="pager_page">
+<?php
+if($view->total_rows > $pager['items_per_page']) { 
+  for($i=1; $i<6; $i++) {
+?>
+  <span id="page<?php print $i; ?>"><?php print $i; ?></span>
+<?php
+  }
+}
+?>
+</div>
+
 <div class="ttesinfos">
-  <div id="infobel">
-    <ul id="listebelgique" class="infoshideme">
-      <?php foreach($nodes as $node) { ?>
-      <li>
-        <div class="belgique">
-          <h2 class="title"><?php print check_plain($node->title); ?></h2>
-          <p class="date"><?php print date('d M Y, H:m', $node->created); ?></p> 
-          <?php print $node->field_mainstory_nodes[0]->field_textbody[0]['value']; ?>
-        </div>
-      </li>
-      <?php } ?>
+  <?php foreach ($available_dests as $available_dest) { ?>
+  <div id="car<?php print strtolower($available_dest->name); ?>_page" class="carousel">
+    <ul id="liste<?php print strtolower($available_dest->name); ?>" class="hideme">
     </ul>
   </div>
+  <?php } ?>
+</div>
+    
+<div class="pager_page">
+<?php
+if($view->total_rows > $pager['items_per_page']) { 
+  for($i=1; $i<6; $i++) {
+?>
+  <span id="page<?php print $i; ?>"><?php print $i; ?></span>
+<?php
+  }
+}
+?>
 </div>

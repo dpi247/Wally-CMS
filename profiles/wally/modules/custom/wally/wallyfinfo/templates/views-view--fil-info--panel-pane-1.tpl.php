@@ -17,7 +17,6 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-$results = $view->result;
 $pager = $view->pager;
 ?>
 
@@ -27,7 +26,7 @@ $pager = $view->pager;
     
     <div class="filhead">
         <div class="centrercat">
-          <div class="carousel" id="car2">
+          <div class="carousel" id="carCat">
             <div id="filcat">
               <ul>
               </ul>

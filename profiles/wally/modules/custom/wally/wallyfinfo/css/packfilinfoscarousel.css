@@ -1,13 +1,16 @@
-S@charset "utf-8";
+S
+ @charset "utf-8";
+
 /*---------général----------*/
 .packfil {
 	margin: 0px;
 	padding: 0px;
-	width:100%;
+	width: 100%;
 }
+
 .packfil #colinfos {
 	display: inline-block;
-	width:100%;
+	width: 100%;
 }
 
 /*---------Head infos (fixe)----------*/
@@ -17,18 +20,20 @@ S@charset "utf-8";
 	padding-right: 10px;
 	background-color: #666666;
 }
-.packfil .filhead a{
+
+.packfil .filhead a {
 	color: #CCCCCC;
 	text-decoration: underline;
 	font-weight: normal;
 	margin-bottom: 10px;
-	margin-left:10px;
+	margin-left: 10px;
 }
-.packfil .filhead p.jr{
+
+.packfil .filhead p.jr {
 	color: #000000;
 	font-weight: bold;
 	padding-bottom: 5px;
-	margin-right:-10px;
+	margin-right: -10px;
 	border-top-width: medium;
 	border-top-style: solid;
 	border-top-color: #999999;
@@ -41,151 +46,166 @@ S@charset "utf-8";
 	clear: left;
 	padding-top: 5px;
 }
+
 /*---------Catégories (défilent)----------*/
 .packfil .centrercat {
-	margin-left:auto;
-	margin-right:auto;
+	margin-left: auto;
+	margin-right: auto;
 	width: 90%;
 }
-.packfil #car2{
-	float:left;
+
+.packfil #car2 {
+	float: left;
 	margin-top: 15px;
 	margin-bottom: 15px;
 }
+
 .packfil .carousel #filcat {
-	display:block;
-	height:35px;
+	display: block;
+	height: 35px;
 	vertical-align: top;
-	padding-left: 5%;	
+	padding-left: 5%;
 }
-.packfil .carousel #filcat ul{
+
+.packfil .carousel #filcat ul {
 	list-style-type: none;
 	line-height: normal;
-	width:90%;
+	width: 90%;
 }
-.packfil .carousel #filcat ul li{
+
+.packfil .carousel #filcat ul li {
 	display: inline-block;
-	height:33px;
-	width:30%;
-	line-height:normal;
-	text-indent:-14px;
+	height: 33px;
+	width: 30%;
+	line-height: normal;
+	text-indent: -14px;
 	padding: 0px;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	margin-right: 0px;
 	margin-left: 0px;
 }
-.packfil .carousel #filcat ul li a{
+
+.packfil .carousel #filcat ul li a {
 	font-weight: bold;
 	color: #FFFFFF;
 	text-decoration: none;
-	border:none;
+	border: none;
 	text-align: left;
-	padding-left:4px;
-	padding-right:4px;
+	padding-left: 4px;
+	padding-right: 4px;
 }
+
 .packfil .carousel #filcat ul li a:hover {
 	cursor: pointer;
 	cursor: hand;
 	color: #000000;
 }
-.packfil .carousel #filcat ul li .packcatselect a{
-	color:#000000;
-}
-/*---------Navigation catégories----------*/
 
-.packfil #prev1{
-	float:left;
-	width:15px;
-	margin-top: 0px;
-	margin-bottom: 15px;
-	margin-right:5px;
+.packfil .carousel #filcat ul li .packcatselect a {
+	color: #000000;
 }
-.packfil #next1{
-	float:right;
-	width:15px;
-	right:0;
+
+/*---------Navigation catégories----------*/
+.packfil #prev1 {
+	float: left;
+	width: 15px;
 	margin-top: 0px;
 	margin-bottom: 15px;
-	margin-left:5px;
+	margin-right: 5px;
+}
+
+.packfil #next1 {
+	float: right;
+	width: 15px;
+	right: 0;
+	margin-top: 0px;
+	margin-bottom: 15px;
+	margin-left: 5px;
 }
 
 /*---------Infos (défilent)----------*/
+.packfil .carousel { /*border: thin solid #666666;*/
+	width: 100%;
+	display: inline-block;
+}
 
-.packfil .carousel {
-	/*border: thin solid #666666;*/
-	width:100%;
-	display:inline-block;
+.packfil .jcarousel-clip { /*border: thin solid #666666;*/
+	width: 100%;
+	display: inline-block;
 }
-.packfil .jcarousel-clip {
-	/*border: thin solid #666666;*/
-	width:100%;
-	display:inline-block;
-}
-.packfil .carousel  .culture, .packfil  .carousel .monde, .packfil .carousel .belgique, .packfil .carousel .eco, .packfil .carousel .divers, .packfil .carousel .sciences, .packfil .carousel .sport, .packfil .carousel .net, .packfil .carousel .elections, .packfil .carousel .affiche {
+
+.packfil .carousel  .culture,.packfil  .carousel .monde,.packfil .carousel .belgique,.packfil .carousel .eco,.packfil .carousel .divers,.packfil .carousel .sciences,.packfil .carousel .sport,.packfil .carousel .net,.packfil .carousel .elections,.packfil .carousel .affiche
+	{
 	width: 100%;
 	/*margin-bottom: 4px;*/
-	position:relative;
-	/*padding-bottom: 2px;*/
-	/*display:inline-block;*/
-
+	position: relative;
+	/*padding-bottom: 2px;*/ /*display:inline-block;*/
 	/*margin-bottom:15px;*/
-	margin-bottom:0;
-	margin-top:0;
+	margin-bottom: 0;
+	margin-top: 0;
 }
-.packfil .carousel .culture a, .packfil .carousel .monde a, .packfil .carousel .belgique a, .packfil .carousel .eco a, .packfil .carousel .divers a, .packfil .carousel .sciences a, .packfil .carousel .sport a, .packfil .carousel .net a, .packfil .carousel .elections a, .packfil .carousel .affiche a {
+
+.packfil .carousel .culture a,.packfil .carousel .monde a,.packfil .carousel .belgique a,.packfil .carousel .eco a,.packfil .carousel .divers a,.packfil .carousel .sciences a,.packfil .carousel .sport a,.packfil .carousel .net a,.packfil .carousel .elections a,.packfil .carousel .affiche a
+	{
 	text-transform: none;
 	color: #000000;
 	text-decoration: none;
-	display:block;
+	display: block;
 	/*border-bottom-width: thin;
 	border-bottom-style: solid;
 	border-bottom-color: #CCCCCC;*/
-	padding-bottom:18px;
+	padding-bottom: 18px;
 }
-.packfil .carousel ul li a small{
-	background: url("/sites/all/themes/wallynews/images/2.gif") no-repeat scroll left center transparent;
+
+.packfil .carousel ul li a small {
+	background: url("/sites/all/themes/wallynews/images/2.gif") no-repeat
+		scroll left center transparent;
 	padding-left: 12px;
-	width:50px;
+	width: 50px;
 }
+
 .packfil .carousel ul li a h2 {
 	font-size: small;
 	border: none;
-	margin-top:0px;
-	padding-top:0px;
-	margin-bottom:0;
-	padding-bottom:10px;
-	padding-right:5px;		
+	margin-top: 0px;
+	padding-top: 0px;
+	margin-bottom: 0;
+	padding-bottom: 10px;
+	padding-right: 5px;
 	line-height: normal;
 }
 
 /*---------Navigation dans les infos----------*/
-
-.packfil #btn_infos{
+.packfil #btn_infos {
 	padding-right: 2px;
 	padding-left: 2px;
-	height:20px;
+	height: 20px;
 	padding-top: 10px;
-	margin-left:-10px;
-	margin-right:-10px;
+	margin-left: -10px;
+	margin-right: -10px;
 	border-top-width: thick;
 	border-top-style: solid;
 	border-top-color: #999999;
 }
-.packfil #btn_infos .prev{
-	float:right;
-	width:15px;
-	margin-right:10px;
+
+.packfil #btn_infos .prev {
+	float: right;
+	width: 15px;
+	margin-right: 10px;
 }
-.packfil #btn_infos .next{
-	float:right;
-	width:15px;
-	margin-right:10px;
+
+.packfil #btn_infos .next {
+	float: right;
+	width: 15px;
+	margin-right: 10px;
 }
-.packfil .pager{
+
+.packfil .pager {
 	text-align: center;
 }
-.packfil .pager span{
+
+.packfil .pager span {
 	padding-left: 3px;
 	padding-right: 3px;
 	text-align: center;
@@ -195,7 +215,8 @@ S@charset "utf-8";
 	cursor: pointer;
 	cursor: hand;
 }
-.packfil .pager span:hover{
+
+.packfil .pager span:hover {
 	padding-left: 2px;
 	padding-right: 2px;
 	font-size: 1.2em;
