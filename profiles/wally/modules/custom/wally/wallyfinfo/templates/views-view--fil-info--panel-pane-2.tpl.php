@@ -56,7 +56,7 @@ if($view->total_rows > $pager['items_per_page']) {
 if($view->total_rows > $pager['items_per_page']) { 
   for($i=1; $i<6; $i++) {
 ?>
-  <span id="page<?php print $i; ?>"><?php print $i; ?></span>
+  <span id="page<?php print $i; ?>bis"><?php print $i; ?></span>
 <?php
   }
 }

@@ -159,7 +159,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
       $(".nextCat_page").css("float", "right");
       $(".nextCat_page").css("width", "15px");
       $(".nextCat_page").css("right", "0");
-      $(".nextCat_page").css("margin-top", "0px");
+      $(".nextCat_page").css("margin-top", "10px");
       $(".nextCat_page").css("margin-bottom", "15px");
       $(".nextCat_page").css("margin-left", "5px");
       $(".nextCat_page").css("cursor", "pointer");
@@ -167,7 +167,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
       
       $(".prevCat_page").css("float", "left");
       $(".prevCat_page").css("width", "15px");
-      $(".prevCat_page").css("margin-top", "0px");
+      $(".prevCat_page").css("margin-top", "10px");
       $(".prevCat_page").css("margin-bottom", "15px");
       $(".prevCat_page").css("margin-right", "5px");
       $(".prevCat_page").css("cursor", "pointer");
@@ -203,7 +203,6 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
       $("#car'.strtolower($available_dest->name).'_page").hide();';
   }
   
-  
   foreach ($available_dests as $key=>$available_dest) {
     $jscode .= '
       var currentCarousel_page = carousel'.$available_dest->name.'_page;
@@ -227,7 +226,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
  // Pager events.
   for ($i=1; $i<6; $i++) {
     $jscode .= '
-      $(".pager_page #page'.$i.'").click(function() {
+      $(".pager_page #page'.$i.'bis").click(function() {
         page_offset_page = '.(10*($i-1)).';
         reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
       });';

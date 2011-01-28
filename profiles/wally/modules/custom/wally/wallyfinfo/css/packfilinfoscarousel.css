@@ -79,7 +79,6 @@ S
 	width: 30%;
 	line-height: normal;
 	text-indent: -14px;
-	padding: 0px;
 	margin-top: 0px;
 	margin-bottom: 0px;
 	margin-right: 0px;
@@ -92,8 +91,6 @@ S
 	text-decoration: none;
 	border: none;
 	text-align: left;
-	padding-left: 4px;
-	padding-right: 4px;
 }
 
 .packfil .carousel #filcat ul li a:hover {
