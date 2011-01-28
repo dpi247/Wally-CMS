@@ -21,6 +21,9 @@ $plugin = array(
 
 /**
  * Building the configuration form of a RSS mix reader.
+ * 
+ * @todo
+ *   Add link to external doc for the 'own schema' explanation.
  */
 function wallycontenttypes_rssmixread_content_type_edit_form(&$form, &$form_state) {
   $settings = wallycontenttypes_rssmixread_content_type_get_conf($form_state['subtype'], $form_state['conf']);
@@ -351,7 +354,7 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rss", $feed, $settings); 
+  $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
   return $block;
 }
 
