@@ -519,6 +519,8 @@ function wallytoolbox_rss_item_to_array_new_photoobject() {
   $photoobject['FileSize']['value'] = '';
   return $photoobject;
 }
+
+
 	
 
 /**
