@@ -1,6 +1,7 @@
 <?php
 
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module 
+//@todo: DDU le poids system doit être changé lors du hook_install
 
 include_once 'includes/Prenode.inc';
 /**
@@ -196,6 +197,7 @@ function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$
     }
     if($form[$element]['#type']=='fieldset'){
       wydit_prepare_primary_package_form(&$form[$element],$form_state,$type,$fields,$parents);
+      wydit_changetypefromfieldset($form[$element],$fields);
     }
     if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==0 ){
       //@todo: DDU what happen if the element is required ?
@@ -276,6 +278,8 @@ function wallyedit_form_pagenodeedition_form_submit($form,&$form_state){
     drupal_set_message('reset');
     ctools_object_cache_clear('prenode', $form_state[$form_state['type']]['#node']->nid);
     
+
+    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
     
   }
   
@@ -334,10 +338,8 @@ function wallyedit_form_pagenodeedition_form_submit($form,&$form_state){
   $action =split('__',$form_state['clicked_button']['#name']);
   $action=$action[0];
   switch($action){
-    case 'remove':
-    break;
+    
     case 'edit':
-      dsm('edit');
       $new_form_state=array();
       $new_form_state['parents']=$form_state['clicked_button']["#parents"];
       $new_form_state['action']='/node/'.arg(1).'/wydit_edit/ajax';
@@ -348,7 +350,6 @@ function wallyedit_form_pagenodeedition_form_submit($form,&$form_state){
       
     break;
     case 'add_new':
-      dsm('add newccc');
       
       //@todo: remove hard coding of parents
       $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
@@ -367,19 +368,33 @@ function wallyedit_form_pagenodeedition_form_submit($form,&$form_state){
       }
     break;
     case 'add_existing':
-      dsm('add existing');
     break;
     case 'save_global':
-      dsm('save');
+    break;
+    case 'remove':
+      //dsm($form_state);
+      $form_state=wydit_remove_element($form_state,$form_state['clicked_button']['#parents']);
+      //dsm($form_state);
+      wydit_clean_and_save_form_state($form_state);
+      
+      $prenode=new Prenode($form_state[$form_state['type']]['#node']->nid);
+      $new_form_state=$prenode->getFormState();
+      unset($_POST);
+      $new_form_state['want form']=TRUE  ;
+      
+      
+      $new_form = ctools_build_form('wallyedit_form_pagenodeedition_form', wydit_clean_form_state($new_form_state));
+      $commands[] = ctools_ajax_command_html('#wallyedit_container',$new_form); 
+      
+      //ctools_ajax_render($commands); 
+      
     break;
   }
  
   // drupal_goto('node');
    
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
-    
   //$commands[] = ctools_ajax_command_html('#wallyedit_container', theme_status_messages());
-    
   ctools_ajax_render($commands); 
 }
 
@@ -776,7 +791,11 @@ function prenode_load($nid,$reload_node=FALSE){
 }
 //_______________________________
 
-function wydit_changetypefromfieldset($fieldset){
+function wydit_changetypefromfieldset(& $fieldset,$fields){
+  if(count($fieldset)==7){
+  unset($fieldset['#type']);
+  }
+ // foreach(element_children($fieldset))
 
 
 }
@@ -818,7 +837,6 @@ function wydit_publish_prenode_save(& $form_state){
 //return rand();
 $b=$form_state['#node'];
   $node=node_save($b);
-dsm($node,'ggg');
 
 //$form_state['#node']=$node;
 //dsm($node->nid);
@@ -829,6 +847,22 @@ return $node->nid;
 FORM_STATE MANAGEMENT
 */
 
+//Thx to JDE
+function wydit_remove_element($a, $b, $level=0){
+  foreach($a as $key => $value){
+    if($key == $b[$level]){ //on atteint l'elem de $a correspondant au $path dans $b pour ce niveau de traitement
+	  if($level != (count($b)-1)){ //On est pas encore au dernier niveau de traitement
+		if(is_array($value)){//logique car il y a encore des niveaux à traiter dans $b;
+		  $a[$key] = wydit_remove_element($value, $b, $level+1);
+		}
+	  }
+	  else{
+	    unset($a[$b[$level]]); 
+	  }	
+	}
+  }
+  return $a;
+}
 
 
 
@@ -913,6 +947,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
   else return NULL;
   
 }
+
 
 
 

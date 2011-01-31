@@ -4,6 +4,7 @@
 <div>
   <?php print $help; ?>
 </div>
+<?php dsm($rows);?>
 <?php if ($rows): ?>
   <table id="content-display-overview" class="sticky-enabled">
     <thead>
