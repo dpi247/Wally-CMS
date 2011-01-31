@@ -15,11 +15,11 @@
       
       <div class="photos"> 
       <ul>
-      
+           
       <?php 
        foreach ($node->field_embededobjects_nodes as $n) {
        if ($n->type == "wally_photoobject") {
-       	$file_img = theme('imagecache', 'slider_preset', $n->field_photofile[0]["filename"]);  
+       	$file_img = theme('imagecache', 'theme_medium_article_preset', $n->field_photofile[0]["filename"]);  
        	$result .= "<li><a href='/".$n->field_photofile[0]["filepath"]."' rel='prettyPhoto[pp_gal]' title='".$n->title."'>";
         $result .= $file_img; 
         $result .= "</a></li>";

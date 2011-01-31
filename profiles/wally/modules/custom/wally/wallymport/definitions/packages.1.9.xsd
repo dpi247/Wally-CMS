@@ -133,8 +133,8 @@
 	<xsd:complexContent>
 		<xsd:extension base="ObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="Summary" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
+				<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="FileURI" type="xsd:anyURI" />
 				<xsd:element name="FileSize" type="xsd:decimal" />
 				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
