@@ -10,8 +10,6 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   
-  dsm('SELECTOR PAGE');
-  dsm($_POST);
   
   //@todo: DIRTY HACK TO REMOVE !!!
   $parents=unserialize($_POST['parents']);

@@ -10,7 +10,6 @@ function wallyedit_callback_edit($prenode,$js=FALSE){
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   
-  dsm('EDIT PAGE');
   
   $form_state=$prenode->getFormState();
   //$form_state=array();
