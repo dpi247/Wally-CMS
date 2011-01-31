@@ -1,0 +1,27 @@
+<?php
+
+function wallyedit_page_node_edition($prenode,$js=FALSE){
+  global $custom_theme;
+  $custom_theme=variable_get('admin_theme','rubik');
+
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  
+  
+    dsm('MAIN PAGE');
+  
+  $form_state=$prenode->getFormState();
+  //dsm($form_state);
+  $form = ctools_build_form('wallyedit_form_pagenodeedition_form', $form_state);
+  
+  
+  if($js){
+    //AJAX rendering int the submit function   
+  }
+  else{
+    return theme('wallyedit_page_node_edition',$form,$prenode);
+  }
+}

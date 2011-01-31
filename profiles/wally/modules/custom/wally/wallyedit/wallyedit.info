@@ -1,0 +1,5 @@
+core = "6.x"
+name = "Wally Edition Interface"
+package = "Wally"
+project = "wallyfundamentals"
+version = "6.x-1.0-rc1"
