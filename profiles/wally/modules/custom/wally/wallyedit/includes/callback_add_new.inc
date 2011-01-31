@@ -10,7 +10,6 @@ function wallyedit_callback_add_new($prenode,$js=FALSE){
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   
-  dsm('ADD PAGE');
   
   //$form_state=array();
   $form_state=$prenode->getFormState();
