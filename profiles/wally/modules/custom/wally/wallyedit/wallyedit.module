@@ -17,6 +17,14 @@ include_once 'includes/Prenode.inc';
  */ 
 function wallyedit_menu(){
   return array(
+  'admin/content/wallyedit'=>array(
+      'page callback'=>'wallyedit_page_admin',
+      'access arguments' => 'administer nodes',
+  	  'file'=>'includes/page_admin.inc',
+  	  //'file path'=>'includes/',
+  	  'title'=> 'WallyEdit Admin',
+  	  'Description'=> 'Manage Node Edition',
+    ),
     'node/%prenode/edit2/%ctools_js'=>array(
       'page callback'=>'wallyedit_page_node_edition',
       'page arguments'=>array(1,3),
@@ -97,6 +105,10 @@ function wallyedit_theme(){
   );
   
   return array(
+    'wallyedit_admin'=>$base+array(
+     // 'template' => 'my-template-day-node',
+      'arguments' => array('rows'=>array()),
+      ),
     'wallyedit_page_node_edition'=>$base+array(
      // 'template' => 'my-template-day-node',
       'arguments' => array('form'=>array(),'prenode' => NULL),
@@ -946,6 +958,14 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
   }
   else return NULL;
   
+}
+
+function wydit_get_url_action($action,$nid){
+  switch ($action){
+    case 'edit':
+      return 'node/'.$nid.'/edit2/1';
+    break;
+  }
 }
 
 

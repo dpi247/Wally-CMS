@@ -551,3 +551,70 @@ function cckdestinations_views_api() {
     'path' => drupal_get_path('module', 'cckdestinations') .'/views',
   );
 }
+
+
+
+function cckdestinations_token_list($type = 'all') {
+  dsm($type);
+      $tokens=array();
+  
+  if ($type == 'node') {
+    $tokens['cckdest']['cckdest:destination_term']      = t("Main Destination Term");
+    $tokens['cckdest']['cckdest:destination_term_path']      =t("Main Destination Term path");
+    $tokens['cckdest']['cckdest:destination_term_id']      = t("Main Destination Term id");
+    
+    
+  }
+      return $tokens;
+  
+}
+function cckdestinations_token_values($type, $object = NULL, $options = array()) {
+
+    $tokens=array();
+  if ($type == 'node') {
+   $term=new StdClass;
+   $term->tid=$object->field_destinations[0]['tid'];
+   $term->vid=variable_get('wallymport_destinationpath',2);
+   
+   $path="";
+   $tree=taxonomy_get_parents_all($term->tid);
+   foreach($tree as$term){
+     if($path==''){
+       $path.=$term->name;
+   
+     }
+     else{
+       $path.=$path.'/'.$term->name;
+   
+     }
+   }
+   $tokens['cckdest:destination_term']      = strtolower($term->name);
+    $tokens['cckdest:destination_term_path']      = strtolower($path);
+    $tokens['cckdest:destination_term_id']      = strtolower($term->tid);
+  }
+  dsm($tokens);
+    return $tokens;
+  
+}
+
+function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']') {
+  token_include();
+  $full_list = token_get_list($types);
+
+  $headers = array(t('Token'), t('Replacement value'));
+  $rows = array();
+  foreach ($full_list as $key => $category) {
+    if($key!='global'){
+    $rows[] = array(array('data' => drupal_ucfirst($key) .' '. t('tokens'), 'class' => 'region', 'colspan' => 2));
+    foreach ($category as $token => $description) {
+      $row = array();
+      $row[] = $prefix . $token . $suffix;
+      $row[] = $description;
+      $rows[] = $row;
+    }
+    }
+  }
+
+  $output = theme('table', $headers, $rows, array('class' => 'description'));
+  return $output;
+}
