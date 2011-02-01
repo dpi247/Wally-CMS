@@ -7,6 +7,7 @@
 ?>
     
 <div class="content">
+<h3>NID: <?php print $node->nid; ?></h3>
 <?php
 	if (isset($mainstory)) {
 		print theme("wallyct_mainstory", $mainstory, $node); 
