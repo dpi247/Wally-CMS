@@ -8,7 +8,7 @@
   
 ?>
 <h2>
-	<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
+	<a href="/<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 		<?php print $mainstory->title; ?>
 	</a>
 </h2>             
