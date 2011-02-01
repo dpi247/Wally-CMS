@@ -592,7 +592,6 @@ function cckdestinations_token_values($type, $object = NULL, $options = array())
     $tokens['cckdest:destination_term_path']      = strtolower($path);
     $tokens['cckdest:destination_term_id']      = strtolower($term->tid);
   }
-  dsm($tokens);
     return $tokens;
   
 }
