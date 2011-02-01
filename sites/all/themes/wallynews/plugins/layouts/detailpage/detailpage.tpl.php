@@ -2,7 +2,7 @@
   $path = base_path().path_to_theme();
 ?>
 
-<div id="container">
+<div id="detailpage-container">
 
   <?php if($content['header']) {
     print "<div class='clear'></div>";

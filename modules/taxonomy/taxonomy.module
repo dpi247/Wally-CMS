@@ -1227,7 +1227,7 @@ function taxonomy_nodeapi($node, $op, $arg = 0) {
       break;
 
     case 'rss item':
-      return taxonomy_rss_item($node);
+    return taxonomy_rss_item($node);
 
     case 'update index':
       return taxonomy_node_update_index($node);
@@ -1280,9 +1280,10 @@ function taxonomy_rss_item($node) {
   foreach ($node->taxonomy as $term) {
     $output[] = array('key'   => 'category',
                       'value' => $term->name,
-                      'attributes' => array('domain' => url('taxonomy/term/'. $term->tid, array('absolute' => TRUE))));
+                      'attributes' => array('domain' => url('taxonomy/terme/'. $term->tid, array('absolute' => TRUE))));
   }
   return $output;
+  
 }
 
 /**

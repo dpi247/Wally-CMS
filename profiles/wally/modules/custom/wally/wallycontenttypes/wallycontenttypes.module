@@ -120,6 +120,12 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
+    'wallyct_galleryphoto' => $base + array(
+    'arguments' => array("node" => NULL),
+    'template' => 'wallyct_galleryphoto',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
     'wallyct_editcrop' => $base + array(
     'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
     'template' => 'wallyct_editcrop',

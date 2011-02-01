@@ -311,6 +311,11 @@ features[taxonomy][] = "locations"
 features[taxonomy][] = "persons"
 features[taxonomy][] = "rating"
 features[taxonomy][] = "tags"
+
+scripts[] = scripts/jquery.js
+scripts[] = scripts/rotator.js
+stylesheets[all][] = css/rotator.css
+
 name = "WallyContentTypes"
 package = "Wally"
 project = "wallycontenttypes"
