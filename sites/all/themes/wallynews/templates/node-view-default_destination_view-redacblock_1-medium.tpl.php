@@ -27,7 +27,7 @@
 	}
 ?>
 <h2  style="">
-	<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
+	<a href="/<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 		<?php print $mainstory->title; ?>
 	</a>
 </h2>
@@ -35,7 +35,7 @@
 	Publié le <?php print date('d M Y', $mainstory->created) ?>
 	<span> // <?php print $destination_term; ?></span>
 </div> 
-<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
+<a href="/<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 	<?php print $file_img; ?>
 </a>
 <div class="archivecontent">

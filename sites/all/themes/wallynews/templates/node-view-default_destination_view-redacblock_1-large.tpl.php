@@ -26,7 +26,7 @@
 
 ?>
 <h2>
-	<a href="<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
+	<a href="/<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
 		<?php print $mainstory->title; ?>
 	</a>
 </h2>
@@ -36,7 +36,7 @@
 </div> 
 <div class="archivecontent" style="min-height: 200px;">
 <?php if ($main_image) { 
-    print "<a href='".$node_path."' rel='main story title' title='".$mainstory->title."'>";
+    print "<a href='/".$node_path."' rel='main story title' title='".$mainstory->title."'>";
     print $main_image;
     print "</a>";
   }
