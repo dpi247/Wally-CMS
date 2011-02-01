@@ -6,13 +6,14 @@ engine = phptemplate
 
 stylesheets[all][] = css/all_style.css
 stylesheets[all][] = css/home_style.css
-stylesheets[all][] = css/steph/rotator.css
-stylesheets[all][] = css/steph/test-prettyPhoto.css
-stylesheets[all][] = css/steph/style_gallery.css
+stylesheets[all][] = css/rotator.css
+stylesheets[all][] = css/test-prettyPhoto.css
+stylesheets[all][] = css/style_gallery.css
 
 scripts[] = scripts/gotop.js
-scripts[] = scripts/steph/rotator.js
-scripts[] = scripts/steph/test-jquery.prettyPhoto.js
+scripts[] = scripts/rotator.js
+scripts[] = scripts/test-jquery.prettyPhoto.js
+scripts[] = scripts/jquery.js
 
 ;scripts[] = scripts/contentslider.js
 ;scripts[] = scripts/carousel.js>

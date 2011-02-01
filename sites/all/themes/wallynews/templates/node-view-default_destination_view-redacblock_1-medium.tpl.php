@@ -1,4 +1,5 @@
 <?php
+	dsm ($node);
 	$title = $node->title;
 	$node_path = drupal_get_path_alias("node/".$node->nid);
 	$mainstory = $node->field_mainstory_nodes[0];
@@ -25,6 +26,7 @@
 			break;
 		}
 	}
+
 ?>
 <h2  style="">
 	<a href="/<?php print $node_path; ?>" rel="main story title" title="<?php print $mainstory->title; ?>">
@@ -40,6 +42,7 @@
 </a>
 <div class="archivecontent">
 <?php
+	
 		if (isset($mainstory->field_textchapo[0]['value'])) {
 			print $mainstory->field_textchapo[0]['value'];
 		} else {
