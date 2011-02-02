@@ -17,8 +17,7 @@
  *   'supported_features' => an array of rows describing the state of certain supported features by the provider.
  *      These will be rendered in a table, with the columns being 'Feature', 'Supported', 'Notes'.
  * 
- * @todo
- *   Check if these infos are correct.
+ * @todo: Check if these infos are correct.
  */
 function emvideo_kewego_info() {
   $features = array(
