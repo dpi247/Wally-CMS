@@ -27,7 +27,7 @@ foreach ($all_voc as $voc) {
 foreach ($available_dests as $available_dest) {
   $view_results[] = views_get_view_result('fil_info', 'panel_pane_1', $available_dest->tid);
 }
-dsm($view_results);
+//dsm($view_results);
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
 drupal_add_js(_wallyfinfo_slidecategoryjs_page($available_dests), 'inline');
