@@ -85,6 +85,6 @@
   </div><!--wrapper-->
 </div>
 <div title="Scroll Back to Top" style="position: fixed; bottom: 5px; right: 5px; opacity: 0; cursor: pointer;" id="topcontrol"><div class="topper"></div></div>
-<?php print $scripts2 ?>
+
 </body>
 </html>
