@@ -24,7 +24,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->presetid = $imagecachepreset['presetid'];
     $imagecacheaction->module = 'wallycontenttypes';
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
     drupal_write_record('imagecache_action', $imagecacheaction);
     $imagecacheaction->module = 'imagecache';
@@ -40,7 +40,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->presetid = $imagecachepreset['presetid'];
     $imagecacheaction->module = 'wallycontenttypes';
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
     drupal_write_record('imagecache_action', $imagecacheaction); 
     $imagecacheaction->module = 'imagecache';
@@ -56,7 +56,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->presetid = $imagecachepreset['presetid'];
     $imagecacheaction->module = 'wallycontenttypes';
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
-    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
     drupal_write_record('imagecache_action', $imagecacheaction); 
     $imagecacheaction->module = 'imagecache';
