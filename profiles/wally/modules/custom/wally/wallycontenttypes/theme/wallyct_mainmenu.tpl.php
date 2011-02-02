@@ -32,6 +32,10 @@ function wallyct_mainmenu_tree_output($tree, $menuid="menu-primary-links", $firs
       if (!$data['link']['hidden']) {
        // if extra class set, add to the menu item.
         $extra_class = isset($data['link']['localized_options']['extra class']) ? $data['link']['localized_options']['extra class'] : NULL;
+        if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))
+         && (empty($link['language']) || $link['language']->language == $language->language)) {
+       $extra_class .= ' active';
+     }
         // Get correct link for item.
         $link = wallyct_mainmenu_menu_item_link($data['link']);
         // is there any sub-menu? 
@@ -96,7 +100,7 @@ function theme_wallyct_mainmenu_item($link, $has_children, $menu = '', $in_activ
  //   if ($in_active_trail) {
  //     $class .= ' active-trail';
  //   }
-    return '<li'. (!empty($class) ? ' class="'. $class .'"' : '') .'>'. $link . $menu .'</li>';
+    return '<li'. (!empty($extra_class) ? ' class="'. $extra_class .'"' : '') .'>'. $link . $menu .'</li>';
   }
 }
 
