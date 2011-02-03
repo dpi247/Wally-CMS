@@ -946,14 +946,12 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $imgfile) {
 	        $temppresetcrop[0] = $datas['xoffset'];
         } else {
           $temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
-          $temppresetcrop[0] =  50;
         }
 
         if (is_numeric($datas['yoffset'])) {
           $temppresetcrop[1] = $datas['yoffset'];
         } else {
           $temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
-          $temppresetcrop[1] =  75;
         }
         $temppresetcrop[2] = $datas['width'] + 0;
         $temppresetcrop[3] = $datas['height'] + 0;
