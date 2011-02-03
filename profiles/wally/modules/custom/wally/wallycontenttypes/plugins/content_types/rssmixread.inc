@@ -354,8 +354,15 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
-  return $block;
+  // @TODO: tester si la fonction existe
+  if ($settings['override_theme_text'] != "" ){
+    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
+    return $block;
+  }else{      
+    $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
+    return $block;  
+  }
+
 }
 
 /**
