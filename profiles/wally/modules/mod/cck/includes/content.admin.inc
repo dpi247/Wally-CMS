@@ -573,7 +573,6 @@ function content_display_overview_form(&$form_state, $type_name, $contexts_selec
   $type = content_types($type_name);
   $field_types = _content_field_types();
   $fields = $type['fields'];
-  dsm($fields);
   $groups = array();
   if (module_exists('fieldgroup')) {
     $groups = fieldgroup_groups($type['type']);
