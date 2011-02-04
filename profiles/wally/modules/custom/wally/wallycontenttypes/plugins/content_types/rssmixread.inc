@@ -1,6 +1,6 @@
 <?php
 /*
-  Plugin declaration function - returns a plugin definition array that
+ * Plugin declaration function - returns a plugin definition array that
  * describes the content type.
  */
  
