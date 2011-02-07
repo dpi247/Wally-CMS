@@ -1125,10 +1125,10 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
  *   Array of suggestion pages templates.
  */
 function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
-  $context = $variables['context'];
-  $context_keys = array_keys($variables['context']);
-  $context = $variables['context'][$context_keys[0]];
-  $subtype = $variables['subtype'];
+$context = isset($variables['context']) ? $variables['context'] : array();
+  $context_keys = array_keys($context);
+  $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
+  $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
 
   $destinations = array();
   $suggestion = array(); 
@@ -1136,7 +1136,7 @@ function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
   $vid=variable_get('wallymport_destinationpath',null);
   $path = ""; 
   $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
-  
+
   if(is_array($context->tids)){
 	  foreach ($context->tids as $tid) {
 	    $destinations[] = taxonomy_get_term($tid);
