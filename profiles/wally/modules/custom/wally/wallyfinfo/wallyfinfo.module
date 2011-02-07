@@ -66,11 +66,14 @@ function phptemplate_engine_preprocess_panels_pane(&$variables) {
  * 	 Example : 'panel_pane_1'.
  * @param int $dest_id
  *   Taxonomy term id ('tid') of the requested destination.
+ * @param int $offset
+ *   Offset in the view results.
  * 
  * @return
  * 	 No value but print the HTML code.
  */
 function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {
+  print "coucou";
   $all_display = array();
   $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
