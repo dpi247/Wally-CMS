@@ -252,16 +252,7 @@ function wallycontenttypes_remotehtml_content_type_get_conf($subtype, $conf) {
       } else {
         $content = wallycontenttypes_newctoolsexport('wallycontenttypes_remotehtml_content', 'remotehtml');
         $content->name = $conf['name'];
-        $settings = array(
-          'admin_title' => t('Remote HTML Block'),
-          'title' => '',
-          'body' => '',
-          'format' => FILTER_FORMAT_DEFAULT,
-          'substitute' => TRUE,
-          'custom_type' => 'fixed',
-          'content' => $content,
-        );
-        $settings += _wallycontenttypes_remotehtml_defaultformvalues();
+        $settings = _wallycontenttypes_remotehtml_defaultformvalues();
       }
       $settings['remotehtml_type'] = 'fixed';
       $settings['content'] = $content;
