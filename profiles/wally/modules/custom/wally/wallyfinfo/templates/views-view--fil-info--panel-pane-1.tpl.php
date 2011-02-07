@@ -17,6 +17,8 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
+global $base_url;
+dsm($base_url);
 dsm(url("view/fil_info/panel_pane_2/4/0"));
 $pager = $view->pager;
 ?>
