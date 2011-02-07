@@ -1,0 +1,120 @@
+@charset "utf-8";
+.main_image {
+	width: 100%;
+	height:100%;
+	background: #333;
+	position: relative;
+	overflow: hidden; /*--Overflow hidden allows the description to toggle/tuck away as it slides down--*/
+	color: #fff;
+	height: 100%;
+	margin-right: auto;
+	margin-left: auto;
+}
+.main_image img{
+	width: 100%;
+	height:auto;
+}
+.main_image h2 {
+	font-size: small;
+	font-weight: bold;
+	margin: 0;
+	color: #FFFFFF;
+	text-transform: uppercase;
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+}
+.main_image p {
+	font-size: small;
+	line-height: normal;
+	margin: 0;
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	padding-left: 10px;
+}
+.main_image .desc{
+	position: absolute;
+	bottom: 0;
+	left: 0; /*--Stick the desc class to the bottom of our main image container--*/
+	width: 100%;
+	display: none; /*--Hide description by default, if js is enabled, we will show this--*/
+	
+}
+.main_image .block{
+    width: 100%;
+	height: 45%;
+    background: #111;
+    border-top: 1px solid #000;
+}
+.block small { /*--We'll be using this same style on our thumbnail list--*/
+	font-size: xx-small;
+	padding: 0;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	margin-left: 10px;
+}
+.main_image a.collapse { /*--This is our hide/show tab--*/
+	height: 27px;
+	width: 93px;
+	text-indent: -99999px;
+	position: absolute;
+	top: -27px;
+	right: 20px;
+	background-image: url(/sites/all/themes/wallynews/images/steph/img/btn_collapse.gif);
+	background-repeat: no-repeat;
+	background-position: left top;
+}
+.main_image a.show {background-position: left bottom;}
+.image_thumb {
+	width: 100%;
+	border-right: 1px solid #fff;
+	border-top: 1px solid #ccc;
+	display: block;
+	position: relative;
+}
+.image_thumb ul {
+	padding: 0;
+	list-style: none;
+	position: relative;
+	display: block;
+}
+.image_thumb ul li{
+	background: #f0f0f0 url(/sites/all/themes/wallynews/images/steph/img/nav_a.gif) repeat-x;
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #fff;
+	border-right: 1px solid #ccc;
+	padding-top: 10px;
+	padding-right: 2px;
+	padding-bottom: 10px;
+	padding-left: 2px;
+	display: inline-block;
+	width: 20%;
+	margin-top:10px;
+}
+.image_thumb ul li.hover { /*--Hover State--*/
+    background: #ddd;
+    cursor: pointer;
+}
+.image_thumb ul li.active { /*--Active State--*/
+    background: #fff;
+    cursor: default;
+}
+.image_thumb img {
+	background: #fff;
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80%;
+}
+html .image_thumb ul li h2 {
+	display: none;
+}
+.image_thumb ul li .block {
+	float: left; 
+	margin-left: 10px;
+	padding: 0;
+	width: 170px;
+}	
+.image_thumb ul li p{display: none;}
