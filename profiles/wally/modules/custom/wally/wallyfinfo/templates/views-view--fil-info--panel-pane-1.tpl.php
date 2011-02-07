@@ -17,6 +17,7 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
+dsm($view);
 $pager = $view->pager;
 ?>
 
