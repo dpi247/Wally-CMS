@@ -325,7 +325,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   $offset = 0;
   foreach ($available_dests as $available_dest) {
     ++$offset;
-    $jscode .= 'alert("'.$available_dest->name.'");
+    $jscode .= '
       carouselCat.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
   }
   
