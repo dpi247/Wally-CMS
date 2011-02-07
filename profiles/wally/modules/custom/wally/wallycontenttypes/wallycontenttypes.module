@@ -1137,11 +1137,11 @@ function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
   $path = ""; 
   $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
   
-  
-  foreach ($context->tids as $tid) {
-    $destinations[] = taxonomy_get_term($tid);
+  if(is_array($context->tids)){
+	  foreach ($context->tids as $tid) {
+	    $destinations[] = taxonomy_get_term($tid);
+	  }
   }
-  
   $suggestion[] = 'plugins';
   $suggestion[] = 'plugins_'.$subtype;
 
