@@ -1125,7 +1125,7 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
  *   Array of suggestion pages templates.
  */
 function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
-$context = isset($variables['context']) ? $variables['context'] : array();
+  $context = isset($variables['context']) ? $variables['context'] : array();
   $context_keys = array_keys($context);
   $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
   $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
