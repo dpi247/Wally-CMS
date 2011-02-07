@@ -49,9 +49,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_documenttype',
       'weight' => '0',
       'nodes' => array(
-        'wally_articlepackage' => 'wally_articlepackage',
-        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_pollpackage' => 'wally_pollpackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_articlepackage' => 'wally_articlepackage',
       ),
     ),
     'editions' => array(
@@ -80,9 +80,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_entities',
       'weight' => '0',
       'nodes' => array(
-        'wally_entitytype' => 'wally_entitytype',
-        'wally_articlepackage' => 'wally_articlepackage',
         'wally_pollpackage' => 'wally_pollpackage',
+        'wally_articlepackage' => 'wally_articlepackage',
+        'wally_entitytype' => 'wally_entitytype',
         'wally_gallerypackage' => 'wally_gallerypackage',
       ),
     ),
@@ -133,10 +133,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_persons',
       'weight' => '0',
       'nodes' => array(
-        'wally_persontype' => 'wally_persontype',
         'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_pollpackage' => 'wally_pollpackage',
+        'wally_persontype' => 'wally_persontype',
       ),
     ),
     'rating' => array(
@@ -165,9 +165,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_tags',
       'weight' => '0',
       'nodes' => array(
-        'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_articlepackage' => 'wally_articlepackage',
         'wally_pollpackage' => 'wally_pollpackage',
+        'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
       ),
     ),
   );
