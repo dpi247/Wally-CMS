@@ -73,7 +73,6 @@ function phptemplate_engine_preprocess_panels_pane(&$variables) {
  * 	 No value but print the HTML code.
  */
 function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset = 0) {
-  print "coucou";
   $all_display = array();
   $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
@@ -82,7 +81,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
-
+print_r($view_results);
     if ($display_name == 'panel_pane_1') {
       foreach ($view_results as $view_result) {
         $display = '';
