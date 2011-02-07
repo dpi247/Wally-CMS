@@ -2,8 +2,8 @@
   $node_path = drupal_get_path_alias("/node/".$node->nid);
   $imgstory = $node->field_embededobjects_nodes;
   $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
-  $main_summary = $field_summary[0]['value'];
-  $main_desc = $field_objectdescription [0]['value'];
+  $main_summary = $node->field_summary[0]['value'];
+  $main_desc = $node->field_objectdescription [0]['value'];
   //$main_edition = $field_editions [0]['value'];
   //$main_channel = $field_channels [0]['value'];
   $presetname='slider_gallery_preset';
@@ -23,11 +23,13 @@ foreach ($imgstory as $n) {
 		
 	}
 
+//dsm($file_img);
+
 ?>
 	<?//AFFICHAGE
 	  // Nom de la photo ?>
 
-<div id="gal2" class="gallery">
+<div id="gal1" class="gallery">
 <h2><?php print $node->title ; ?></h2>
 <?php print $main_summary ; ?> <br/> 
 <?php print $main_desc ; ?>
@@ -71,7 +73,7 @@ foreach ($imgstory as $n) {
 
 <script>
 $(document).ready(function() {	
-	diapo('gal2');
+	diapo('gal1');
 });
 
 </script>

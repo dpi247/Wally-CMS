@@ -1,0 +1,4 @@
+name = Wally RSS
+description = Wally RSS.
+core = 6.x
+package = Wally

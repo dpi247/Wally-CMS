@@ -1,0 +1,35 @@
+<?php
+/*
+ * Implementation of the hook module _install();
+ */
+function wallyrsspublish_install() {
+  _wallyrsspublish_install_presets(); 
+ }
+
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function wallyrsspublish_uninstall() {
+  _wallyrsspublish_uninstall_presets();
+ }
+
+function _wallyrsspublish_install_presets() {
+if (!imagecache_preset_by_name('rsspublish_preset')) {
+      $imagecachepreset = imagecache_preset_save(array('presetname' => 'rsspublish_preset'));
+      $imagecacheaction = new stdClass ();
+      $imagecacheaction->presetid = $imagecachepreset['presetid']; 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale';
+      $imagecacheaction->data = array('width' => '50%', 'height' => '50%', 'upscale' => true);
+      $imagecacheaction->weight = 1;
+      drupal_write_record('imagecache_action', $imagecacheaction);
+    }
+}
+
+function _wallyrsspublish_uninstall_presets() {
+  // Deleting ImageCache presets
+  // @see wallyct_photoobject_slider
+  if (!imagecache_preset_by_name('rsspublish_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
+  }
+}
