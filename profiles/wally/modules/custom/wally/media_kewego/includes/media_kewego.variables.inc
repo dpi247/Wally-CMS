@@ -115,8 +115,6 @@ function media_kewego_variable_del($name) {
  *  $name is NULL, in which case we return an array of all default values.
  *
  * @see media_kewego_variable_get()
- * @see media_kewego_variable_set()
- * @see media_kewego_variable_del()
  */
 function media_kewego_variable_default($name = NULL) {
   static $defaults;
