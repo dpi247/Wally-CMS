@@ -77,7 +77,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
   $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
   
-  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display)) {
+  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display) || true) {
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
