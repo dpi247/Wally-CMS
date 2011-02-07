@@ -17,7 +17,7 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-dsm(drupal_http_request(url("/view/fil_info/panel_pane_2/4/0")));
+dsm(url("view/fil_info/panel_pane_2/4/0"));
 $pager = $view->pager;
 ?>
 
