@@ -24,7 +24,7 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
+//drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
 //drupal_add_js(_wallyfinfo_slidecategoryjs_page($available_dests), 'inline');
 drupal_add_js(_wallyfinfo_slidecategoryjs_box($available_dests), 'inline');
