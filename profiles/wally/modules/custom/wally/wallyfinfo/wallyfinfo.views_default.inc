@@ -115,7 +115,7 @@ function wallyfinfo_views_default_views() {
     ),
   ));
   $handler->override_option('arguments', array(
-    'tid' => array(
+    'field_destinations_tid' => array(
       'default_action' => 'ignore',
       'style_plugin' => 'default_summary',
       'style_options' => array(),
@@ -127,14 +127,13 @@ function wallyfinfo_views_default_views() {
       'default_argument' => '',
       'validate_type' => 'none',
       'validate_fail' => 'not found',
-      'break_phrase' => 0,
       'add_table' => 0,
       'require_value' => 0,
       'reduce_duplicates' => 0,
       'set_breadcrumb' => 0,
-      'id' => 'tid',
-      'table' => 'term_node',
-      'field' => 'tid',
+      'id' => 'field_destinations_tid',
+      'table' => 'node_data_field_destinations',
+      'field' => 'field_destinations_tid',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
         '2' => 0,
@@ -168,7 +167,6 @@ function wallyfinfo_views_default_views() {
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
         '1' => 0,
-        '11' => 0,
         '2' => 0,
         '3' => 0,
         '4' => 0,
@@ -225,13 +223,14 @@ function wallyfinfo_views_default_views() {
       'relationship' => 'none',
     ),
   ));
-  $handler->override_option('items_per_page', 30);
+  $handler->override_option('items_per_page', 50);
+  $handler->override_option('use_pager', 'mini');
   $handler->override_option('row_plugin', 'fields');
-  $handler->override_option('pane_title', '');
-  $handler->override_option('pane_description', '');
+  $handler->override_option('pane_title', 'Fil info box');
+  $handler->override_option('pane_description', 'Fil info in a small box');
   $handler->override_option('pane_category', array(
-    'name' => 'View panes',
-    'weight' => 0,
+    'name' => 'Wally Tools',
+    'weight' => '0',
   ));
   $handler->override_option('allow', array(
     'use_pager' => FALSE,
@@ -249,7 +248,7 @@ function wallyfinfo_views_default_views() {
   $handler->override_option('inherit_panels_path', 0);
   $handler = $view->new_display('panel_pane', 'Fil info page', 'panel_pane_2');
   $handler->override_option('arguments', array(
-    'tid' => array(
+    'field_destinations_tid' => array(
       'default_action' => 'ignore',
       'style_plugin' => 'default_summary',
       'style_options' => array(),
@@ -261,14 +260,13 @@ function wallyfinfo_views_default_views() {
       'default_argument' => '',
       'validate_type' => 'none',
       'validate_fail' => 'not found',
-      'break_phrase' => 0,
       'add_table' => 0,
       'require_value' => 0,
       'reduce_duplicates' => 0,
       'set_breadcrumb' => 0,
-      'id' => 'tid',
-      'table' => 'term_node',
-      'field' => 'tid',
+      'id' => 'field_destinations_tid',
+      'table' => 'node_data_field_destinations',
+      'field' => 'field_destinations_tid',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
         '2' => 0,
@@ -302,7 +300,6 @@ function wallyfinfo_views_default_views() {
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
         '1' => 0,
-        '11' => 0,
         '2' => 0,
         '3' => 0,
         '4' => 0,
@@ -359,12 +356,13 @@ function wallyfinfo_views_default_views() {
       'relationship' => 'none',
     ),
   ));
-  $handler->override_option('items_per_page', 30);
-  $handler->override_option('pane_title', '');
-  $handler->override_option('pane_description', '');
+  $handler->override_option('items_per_page', 50);
+  $handler->override_option('use_pager', 'mini');
+  $handler->override_option('pane_title', 'Fil info page');
+  $handler->override_option('pane_description', 'Fil info in a full page');
   $handler->override_option('pane_category', array(
-    'name' => 'View panes',
-    'weight' => 0,
+    'name' => 'Wally Tools',
+    'weight' => '0',
   ));
   $handler->override_option('allow', array(
     'use_pager' => FALSE,
@@ -451,7 +449,7 @@ function wallyfinfo_views_default_views() {
     ),
   ));
   $handler->override_option('arguments', array(
-    'tid' => array(
+    'field_destinations_tid' => array(
       'default_action' => 'ignore',
       'style_plugin' => 'default_summary',
       'style_options' => array(),
@@ -463,14 +461,13 @@ function wallyfinfo_views_default_views() {
       'default_argument' => '',
       'validate_type' => 'none',
       'validate_fail' => 'not found',
-      'break_phrase' => 0,
       'add_table' => 0,
       'require_value' => 0,
       'reduce_duplicates' => 0,
       'set_breadcrumb' => 0,
-      'id' => 'tid',
-      'table' => 'term_node',
-      'field' => 'tid',
+      'id' => 'field_destinations_tid',
+      'table' => 'node_data_field_destinations',
+      'field' => 'field_destinations_tid',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
         '2' => 0,
@@ -504,7 +501,6 @@ function wallyfinfo_views_default_views() {
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
         '1' => 0,
-        '11' => 0,
         '2' => 0,
         '3' => 0,
         '4' => 0,
@@ -562,11 +558,11 @@ function wallyfinfo_views_default_views() {
     ),
   ));
   $handler->override_option('row_plugin', 'fields');
-  $handler->override_option('pane_title', '');
-  $handler->override_option('pane_description', '');
+  $handler->override_option('pane_title', 'Fil info thicker');
+  $handler->override_option('pane_description', 'Fil info in a banner');
   $handler->override_option('pane_category', array(
-    'name' => 'View panes',
-    'weight' => 0,
+    'name' => 'Wally Tools',
+    'weight' => '0',
   ));
   $handler->override_option('allow', array(
     'use_pager' => FALSE,
