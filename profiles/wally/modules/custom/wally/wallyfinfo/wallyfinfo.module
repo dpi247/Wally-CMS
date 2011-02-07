@@ -152,7 +152,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
         buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushoriz.png\" class=\"prevCat_page\"/>",
         buttonNextEvent: "click",
         buttonPrevEvent: "click"
-      });alert("carousel ready");
+      });
       var carouselCat_page = $("#catmenu").data("jcarousel");
       
       $("#catmenu .jcarousel-clip").css("width", "100%");
@@ -325,7 +325,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   $offset = 0;
   foreach ($available_dests as $available_dest) {
     ++$offset;
-    $jscode .= '
+    $jscode .= 'alert("'.$available_dest->name.'");
       carouselCat.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
   }
   
