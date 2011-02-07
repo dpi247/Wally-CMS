@@ -6025,6 +6025,60 @@ Free',
     ),
   );
 
+  // Exported field: field_personemail
+  $fields['wally_gallerypackage-field_personemail'] = array(
+    'field_name' => 'field_personemail',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'weight' => '74',
+      'parent' => '',
+      '4' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'email',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'email',
+    'active' => '1',
+    'widget' => array(
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'email' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'PersonEmail',
+      'weight' => '74',
+      'description' => '',
+      'type' => 'email_textfield',
+      'module' => 'email',
+    ),
+  );
+
   // Exported field: field_persons
   $fields['wally_gallerypackage-field_persons'] = array(
     'field_name' => 'field_persons',

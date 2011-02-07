@@ -11,6 +11,7 @@ include_once('wallycontenttypes.features.inc');
  * functions. 
  */
  
+
 /**
  *  Implémentation du hook_menu(); 
  */
@@ -51,7 +52,7 @@ function wallycontenttypes_theme(&$var) {
     'wallyct_mainmenu' => $base + array(
     'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
     'template' => 'wallyct_mainmenu',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
     'wallyct_rss' => $base + array(
@@ -591,14 +592,15 @@ function wallycontenttypes_editcrop($nid) {
   $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
   $explimgcrops = array();
   $defaultvalues = array();
+  
   if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
     foreach ($imgcropings as $presetname => $imgcroping) {
       $tempexplcrop = array();
       $tempexplcrop = $imgcroping;
-      $tempexplcrop[0] = $tempexplcrop[0] + 0;
-      $tempexplcrop[1] = $tempexplcrop[1] + 0;
-      $tempexplcrop[2] = $tempexplcrop[2] + 0;
-      $tempexplcrop[3] = $tempexplcrop[3] + 0;
+      $tempexplcrop[0] = $tempexplcrop[0];
+      $tempexplcrop[1] = $tempexplcrop[1];
+      $tempexplcrop[2] = $tempexplcrop[2];
+      $tempexplcrop[3] = $tempexplcrop[3];
       $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
       $explimgcrops[$presetname] = $tempexplcrop;
     }
@@ -606,12 +608,11 @@ function wallycontenttypes_editcrop($nid) {
     if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
   }
 
-  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops);
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $node->field_photofile[0]);
+
   $defaultvalues = $usablecropsanddefaults[0];
   $usablecrops = $usablecropsanddefaults[1];
-
   _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
-  
   $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
   drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
   drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
@@ -810,6 +811,7 @@ function _wallycontenttypes_mysnippetdisabledtaxonomytree(&$elements) {
  *   The js code.
  */
 function _wallycontenttypes_jscodeforthecroping($usablecrops) {
+		
   $return = '
     var ac, currentAc;
   
@@ -874,7 +876,6 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       
   $return .= '$("#'.array_shift(array_keys($usablecrops)).'").trigger("click");
     });
-
     
     function showCoordsAndSave(c) {
       if (currentAc) {
@@ -901,7 +902,7 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
  * @return
  *   The default values for this croping.
  */
-function _wallycontenttypes_getdefaultvaluesforthecroping($crop) {
+function _wallycontenttypes_getdefaultvaluesforthecroping($crop, $img) {
   $cropdefault = array();
   for ($i=0; $i<4; $i++) {
     $cropdefault[$i] = $crop[$i];
@@ -918,9 +919,13 @@ function _wallycontenttypes_getdefaultvaluesforthecroping($crop) {
  * @return
  *   The usables crops for Jcrop.
  */
-function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
+function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $imgfile) {
+	
+
   $usablecrops = array();
   $presets = imagecache_presets();
+  $img = imageapi_image_open($imgfile["filepath"]);
+  
   foreach ($presets as $preset) {
     if ($preset['actions']) {
       $datas = array();
@@ -933,19 +938,31 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
           $datas = $action['data'];
         }
       }
+      
       if (!empty($datas)) {
         $temppresetcrop = array();
-        $temppresetcrop[0] = $datas['xoffset'] + 0;
-        $temppresetcrop[1] = $datas['yoffset'] + 0;
+
+        if (is_numeric($datas['xoffset'])) {
+	        $temppresetcrop[0] = $datas['xoffset'];
+        } else {
+          $temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+        }
+
+        if (is_numeric($datas['yoffset'])) {
+          $temppresetcrop[1] = $datas['yoffset'];
+        } else {
+          $temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
+        }
         $temppresetcrop[2] = $datas['width'] + 0;
         $temppresetcrop[3] = $datas['height'] + 0;
         $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
 
         $tempusablecrop = array();
+
         if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
           foreach ($explimgcrops as $presetname => $explimgcrop) {
             if ($presetname == $preset['presetname'] && abs($temppresetcrop[4]-$explimgcrop[4])/$temppresetcrop[4]<0.1) {
-              $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop);
+              $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop, $img);
               $tempusablecrop = $explimgcrop;
               $tempusablecrop[2] += $tempusablecrop[0];
               $tempusablecrop[3] += $tempusablecrop[1];
@@ -954,8 +971,9 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
             }
           }
         }
+        
         if (empty($tempusablecrop)) {
-          $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop);
+          $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop, $img);
           $tempusablecrop = $temppresetcrop;
           $tempusablecrop[2] += $tempusablecrop[0];
           $tempusablecrop[3] += $tempusablecrop[1];
@@ -968,6 +986,8 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops) {
       }
     }
   }
+
+  
   return array($defaultvalues,$usablecrops);
 }
 
