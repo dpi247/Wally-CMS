@@ -117,7 +117,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
   } else {
     $all_display = $cached_display->data;
   }
-  
+  print_r($all_display);
   print $all_display[$offset];
 }
 
