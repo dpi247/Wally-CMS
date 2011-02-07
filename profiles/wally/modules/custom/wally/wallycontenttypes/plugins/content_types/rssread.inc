@@ -260,7 +260,7 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
   $block->title = 'RSS reader.';
   $cid = $conf['caid'];
   $cached_feed = cache_get($cid);
-  if ($cached_feed == 0 || !isset($cached_feed) || empty($cached_feed)) {
+  if ($cached_feed == 0 || !isset($cached_feed) || empty($cached_feed) || time() > $cached_feed->expire) {
     $rss_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
@@ -268,7 +268,7 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
 
     $feed = _wallycontenttypes_rssread_createarrayfromuri($rss_uri, $maxitem);
 
-    cache_set($cid, $feed, 'cache', time() + mktime(0, $settings['delta_t']) + 1);
+    cache_set($cid, $feed, 'cache', time() + 60*$settings['delta_t'] + 1);
   } else {
     $feed = $cached_feed->data;
   }
