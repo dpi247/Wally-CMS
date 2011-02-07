@@ -348,7 +348,7 @@ function wallycontenttypes_rssmixread_content_type_render($subtype, $conf, $pane
       $item = array_shift($feed_array[$most_recent_index]);
       array_push($feed, $item);
     }
-    cache_set($cid, $feed, 'cache', mktime() + 60*$settings['delta_t'] + 1);
+    cache_set($cid, $feed, 'cache', time() + 60*$settings['delta_t'] + 1);
   } else {
     $feed = $cached_feed->data;
   }
