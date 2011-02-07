@@ -286,7 +286,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   $jscode = '';
 
   $jscode .= '
-  	$(document).ready(function() {
+  	$(document).ready(function() {alert("document ready ok");
   	  var page_offset = 0;';
   
   // jCarousel effect for the categories menu.
@@ -299,7 +299,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
         buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prevCat\"/>",
         buttonNextEvent: "click",
         buttonPrevEvent: "click"
-      });alert("carousel init ok");
+      });
       var carouselCat = $("#filcat").data("jcarousel");
       
       $("#filcat .jcarousel-clip").css("width", "100%");
