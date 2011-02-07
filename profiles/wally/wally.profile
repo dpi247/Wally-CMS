@@ -18,7 +18,7 @@ function wally_profile_details() {
 /**
  * Return an array of developpement modules.
  * 
- *@TODO: doing something interesting with this
+ * @TODO: doing something interesting with this
  */
 function wally_devel_modules() {
   $dev = array(
