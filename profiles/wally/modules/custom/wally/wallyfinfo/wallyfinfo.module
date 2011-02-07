@@ -79,7 +79,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
-
+dsm($view_results);
     if ($display_name == 'panel_pane_1') {
       foreach ($view_results as $view_result) {
         $display = '';
@@ -117,7 +117,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
   } else {
     $all_display = $cached_display->data;
   }
-  dsm($all_display);
+
   print $all_display[$offset];
 }
 
