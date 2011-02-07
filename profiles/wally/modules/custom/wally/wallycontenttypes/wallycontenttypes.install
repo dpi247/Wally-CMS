@@ -18,8 +18,8 @@ function wallycontenttypes_uninstall() {
 
 function _wallycontenttypes_install_presets() {
   // @see wallyct_photoobject_slider.tpl.php
-  if (!imagecache_preset_by_name('slider_preset')) {
-    $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
+  if (!imagecache_preset_by_name('sm_event_main')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'sm_event_main'));
     $imagecacheaction = new stdClass ();
     $imagecacheaction->presetid = $imagecachepreset['presetid'];
     $imagecacheaction->module = 'wallycontenttypes';
@@ -263,6 +263,59 @@ function wallycontenttypes_schema() {
   
   $schema['wallycontenttypes_twitread_content'] = array(
     'description' => 'Contains exportable Twitter reader content for this site.',
+    'export' => array(
+      'identifier' => 'content',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'api' => array(
+        'owner' => 'ctools',
+        'api' => 'ctools_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+      'create callback' => 'wallycontenttypes_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  $schema['wallycontenttypes_remotehtml_content'] = array(
+    'description' => 'Contains Remote HTML content for this site.',
     'export' => array(
       'identifier' => 'content',
       'bulk export' => TRUE,
