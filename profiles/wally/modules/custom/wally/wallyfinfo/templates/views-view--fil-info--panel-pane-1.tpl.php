@@ -17,7 +17,7 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-global $base_url;
+//global $base_url;
 $pager = $view->pager;
 ?>
 

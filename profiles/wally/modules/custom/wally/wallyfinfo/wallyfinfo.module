@@ -363,7 +363,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
     $jscode .= '
       var currentCarousel = carousel'.$available_dest->name.';
   	  var currentCarouselName = "'.strtolower($available_dest->name).'";
-  	  var currentTid = '.$available_dest->tid.'';
+  	  var currentTid = '.$available_dest->tid.';';
     break;
   }
   
