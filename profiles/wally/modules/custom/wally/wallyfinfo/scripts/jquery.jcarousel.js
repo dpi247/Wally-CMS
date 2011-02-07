@@ -57,7 +57,7 @@
      * @param o {Object} A set of key/value pairs to set as configuration properties.
      * @cat Plugins/jCarousel
      */
-    $.jcarousel = function(e, o) {
+    $.jcarousel = function(e, o) {alert("carousel constructor");
         this.options    = $.extend({}, defaults, o || {});
 
         this.locked          = false;
