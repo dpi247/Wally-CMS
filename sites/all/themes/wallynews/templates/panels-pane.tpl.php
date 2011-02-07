@@ -17,9 +17,11 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
- drupal_add_css(drupal_get_path('themes', 'wallynews').'/css/rotator.css');
- drupal_add_js(drupal_get_path('themes', 'wallynews').'/scripts/jquery.js');
- drupal_add_js(drupal_get_path('themes', 'wallynews').'/scripts/rotator.js');
+ /*
+  * drupal_add_css(drupal_get_path('themes', 'wallynews').'/css/rotator.css');
+	* drupal_add_js(drupal_get_path('themes', 'wallynews').'/scripts/jquery.js');
+ 	* drupal_add_js(drupal_get_path('themes', 'wallynews').'/scripts/rotator.js');
+  */
 ?>
 <?php
     
