@@ -11,7 +11,6 @@
  * @ingroup views_templates
  */
 $results = $view->result;
-$pager = $view->pager;
 ?>
 
 <div id="divthicker">

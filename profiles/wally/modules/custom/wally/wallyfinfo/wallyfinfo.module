@@ -50,6 +50,51 @@ function wallyfinfo_theme($existing) {
 }
 
 /**
+ *  Implémentation du hook_form_FORM_ID_form_alter(); 
+ */
+function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state) {
+  $all_voc = taxonomy_get_vocabularies();
+  foreach ($all_voc as $voc) {
+    if ($voc->name == 'Destination Path') {
+      //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+      $available_dests = taxonomy_get_tree($voc->vid);
+      break;
+    }
+  }
+  
+  foreach ($available_dests as $available_dest) {
+    $form['available_dests'][$available_dest->name] = array (
+      '#type'             => 'checkbox',
+      '#title'            => $available_dest->name,
+    );
+  }
+  $form['#submit'][] = 'wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit';
+  
+  drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/ui.dropdownchecklist.js');
+  drupal_add_js('alert("coucou");
+    $("select#coucou").dropdownchecklist();alert("pre execute ok");
+  ','inline');
+}
+
+function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
+  $all_voc = taxonomy_get_vocabularies();
+  foreach ($all_voc as $voc) {
+    if ($voc->name == 'Destination Path') {
+      //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+      $available_dests = taxonomy_get_tree($voc->vid);
+      break;
+    }
+  }
+  
+  $form_state['conf']['available_dests'] = array();
+  foreach ($available_dests as $available_dest) {
+    if ($form['available_dests'][$available_dest->name]['#value']) {
+      $form_state['conf']['available_dests'][] = $available_dest;
+    }
+  }
+}
+
+/**
  *  Implémentation du hook_preprocess_panels_pane(); 
  */
 function phptemplate_engine_preprocess_panels_pane(&$variables) {
@@ -90,7 +135,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
               <div class="'.strtolower($destination->name).'">
                 <a href="'.drupal_get_path_alias("/node/".$view_result->nid).'">
                   <small>'.date('H:m', check_plain($view_result->node_created)).'</small>
-                  <h2>'.strtolower($destination->name).check_plain($view_result->node_title).'</h2>
+                  <h2>'.check_plain($view_result->node_title).'</h2>
                 </a>
               </div>
             </li>
@@ -291,7 +336,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
  */
 function _wallyfinfo_slidecategoryjs_box($available_dests) {
   static $first_inc_box = TRUE;
-  
+
   $jscode = '';
   
   if (!$first_inc_box)
@@ -462,7 +507,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
  * @todo
  *   Change CSS to make it more adaptative.
  */
-function _wallyfinfo_slidecategoryjs_thicker($available_dests) {  
+function _wallyfinfo_slidecategoryjs_thicker() {  
   static $first_inc_thicker = TRUE;
   
   $jscode = '';
