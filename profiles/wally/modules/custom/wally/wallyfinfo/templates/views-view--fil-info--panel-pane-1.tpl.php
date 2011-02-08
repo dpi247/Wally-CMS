@@ -18,7 +18,6 @@ foreach ($all_voc as $voc) {
   }
 }
 //global $base_url;
-$pager = $view->pager;
 ?>
 
 <div class="packfil">
@@ -46,12 +45,10 @@ $pager = $view->pager;
     
     <div class="pager">
     <?php
-    if($view->total_rows > $pager['items_per_page']) { 
-      for($i=1; $i<6; $i++) {
+    for($i=1; $i<6; $i++) {
     ?>
       <span id="page<?php print $i; ?>"><?php print $i; ?></span>
     <?php
-      }
     }
     ?>
     </div>
