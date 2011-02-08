@@ -13,7 +13,6 @@ stylesheets[all][] = css/style_gallery.css
 scripts[] = scripts/gotop.js
 scripts[] = scripts/rotator.js
 scripts[] = scripts/test-jquery.prettyPhoto.js
-scripts[] = scripts/jquery.js
 
 ;scripts[] = scripts/contentslider.js
 ;scripts[] = scripts/carousel.js>
