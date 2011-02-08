@@ -6,8 +6,7 @@
   $main_desc = $field_objectdescription [0]['value'];
   //$main_edition = $field_editions [0]['value'];
   //$main_channel = $field_channels [0]['value'];
-  $presetname='slider_gallery_preset';
- 
+  $presetname='gallery_preset';
 foreach ($imgstory as $n) {
 		if ($n->type == "wally_photoobject") {
       
@@ -40,7 +39,7 @@ foreach ($imgstory as $n) {
       <div class="block">
             <h2><?php print $title_img[0]; ?></h2>
 				  <div class="date">
-					 Publié le <?php print date('d M Y', $imgstory->created) ?>
+					 Publié le <?php print date('d M Y', $imgstory[0]->created) ?>
 					 <span> // <?php print $destination_term; ?></span>
 				  </div>
 				<p> <?php print $summary[0] ?></p>
@@ -56,7 +55,7 @@ foreach ($imgstory as $n) {
      			 
 			   <h2><?php print $title_img[$i]; ?></h2>
 				  <div class="date">
-					 Publié le <?php print date('d M Y', $imgstory->created) ?>
+					 Publié le <?php print date('d M Y', $imgstory[$i]->created) ?>
 					 <span> // <?php print $destination_term; ?></span>
 				  </div>
 				<p> <?php print $summary[$i] ?></p>
@@ -64,9 +63,7 @@ foreach ($imgstory as $n) {
 		 </li>
        <?php $i++; } ?>
     </ul>
-  </div>
-   <div class = "test" >
-   </div>   
+  </div>  
 </div>
 
 <script>
