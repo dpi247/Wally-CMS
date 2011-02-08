@@ -1137,7 +1137,7 @@ function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
   $path = ""; 
   $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
 
-  if(is_array($context->tids)){
+  if(isset($context->tids)){
 	  foreach ($context->tids as $tid) {
 	    $destinations[] = taxonomy_get_term($tid);
 	  }
