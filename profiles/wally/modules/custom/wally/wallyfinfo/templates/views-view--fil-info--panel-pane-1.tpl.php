@@ -10,6 +10,7 @@
  *
  * @ingroup views_templates
  */
+dsm(get_defined_vars());
 $all_voc = taxonomy_get_vocabularies();
 foreach ($all_voc as $voc) {
   if ($voc->name == 'Destination Path') {

@@ -17,24 +17,14 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
+dsm($pane->pid);
+dsm(get_defined_vars());
+dsm($pane);
 $pane_config = $pane->configuration;
 $available_dests = $pane_config['available_dests'];
-/*$all_voc = taxonomy_get_vocabularies();
-foreach ($all_voc as $voc) {
-  if ($voc->name == 'Destination Path') {
-    //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
-    $available_dests = taxonomy_get_tree($voc->vid);
-    break;
-  }
-}*/
-drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/carousel.js');
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
-//drupal_add_js(_wallyfinfo_slidecategoryjs_page($available_dests), 'inline');
 drupal_add_js(_wallyfinfo_slidecategoryjs_box($available_dests), 'inline');
-//drupal_add_js(_wallyfinfo_slidecategoryjs_thicker(), 'inline');
 drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/packfilinfoscarousel.css');
-drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/pageinfos.css');
-drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/thicker.css');
 ?>
 
 <div class='box'>
