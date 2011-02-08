@@ -83,7 +83,8 @@ function emvideo_kewego_extract($video_id = '') {
   $allowed_urls = media_kewego_variable_get('allowed_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
   foreach ($allowed_urls as $allowed_url) {
-    $temp_return = '';
+    $return[] = '+'.str_replace('*', '(.*)', $allowed_url).'([^"\& ]+)+i';
+    /*$temp_return = '';
     $parsed_url = parse_url($allowed_url);
     if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
       $temp_return = '@'.$parsed_url['host'];
@@ -92,7 +93,7 @@ function emvideo_kewego_extract($video_id = '') {
       }
       $temp_return .= '([^"\& ]+)@i';
       $return[] = $temp_return;
-    }
+    }*/
   }
 
   return $return;
