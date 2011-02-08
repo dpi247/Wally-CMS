@@ -27,19 +27,19 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$nid= $item->nid;
 	$my_node = node_load($nid);
 	wallycontenttypes_packagepopulate(&$my_node,'show');
-	$mainstory = $my_node->field_mainstory_nodes[0];
-	$teaser_length = 300;
-	$teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $my_node);
+	$descr = "";
+    if ($my_node->type == 'wally_articlepackage'){
+	  $mainstory = $my_node->field_mainstory_nodes[0];
+	  $teaser_length = 300;
+	  $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $my_node);
 
-
-
-	if (isset($mainstory->field_textchapo[0]['value'])) {
+	  if (isset($mainstory->field_textchapo[0]['value'])) {
 		$descr = $mainstory->field_textchapo[0]['value'];
-	}
-	else {
+	  }
+	  else {
 		$descr = $teaser;
-	}
-
+	  }
+    }
 
 
 
@@ -59,7 +59,7 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$vars['item'] = $item;
 	$vars['url'] = $path_photo;
 	$vars['type']= $type;
-	$vars['description'] = $descr;
+	$vars['description'] = check_plain($descr);
 	$vars['title'] = check_plain($item->title);
 	$vars['link'] = check_url($item->link);
 	$vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);

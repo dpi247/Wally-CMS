@@ -25,5 +25,5 @@
 	url="<?php print $url;?>" type="<?php print $type;?>"
 	fileSize="<?php print $filesize;?>" />
 <media:title><?php print $title; ?></media:title>
-
+<?php print $item_elements;?>
 </item>
