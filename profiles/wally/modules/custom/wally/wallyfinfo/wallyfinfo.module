@@ -136,8 +136,15 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
  *   Change CSS to make it more adaptative.
  */
 function _wallyfinfo_slidecategoryjs_page($available_dests) {  
+  static $first_inc_page = TRUE;
+  
   $jscode = '';
+  
+  if (!$first_inc_page)
+    return $jscode;
 
+  $first_inc_page = FALSE;
+  
   $jscode .= '
   	$(document).ready(function() {
   	  var page_offset_page = 0;';
@@ -282,8 +289,15 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
  * @return
  * 	 The js code.
  */
-function _wallyfinfo_slidecategoryjs_box($available_dests) {  
+function _wallyfinfo_slidecategoryjs_box($available_dests) {
+  static $first_inc_box = TRUE;
+  
   $jscode = '';
+  
+  if (!$first_inc_box)
+    return $jscode;
+    
+  $first_inc_box = FALSE;
 
   $jscode .= '
   	$(document).ready(function() {
@@ -432,6 +446,42 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   	    carousel.startAuto(carousel.options.auto);
 	  }
   	});';
+  
+  return $jscode;
+}
+
+/**
+ * Return the javascript code to use the jCarousel effect in the 'thicker' fil_info.
+ * 
+ * @param array $available_dests
+ *   Array of the first level 'Destination Path' taxonomy terms.
+ * 
+ * @return
+ * 	 The js code.
+ * 
+ * @todo
+ *   Change CSS to make it more adaptative.
+ */
+function _wallyfinfo_slidecategoryjs_thicker($available_dests) {  
+  static $first_inc_thicker = TRUE;
+  
+  $jscode = '';
+  
+  if (!$first_inc_thicker)
+    return $jscode;
+
+  $first_inc_thicker = FALSE;
+  
+  $jscode .= '
+    $(document).ready(function() {
+      $("#thicker").jCarouselLite({
+      	auto: 2500,
+      	speed: 1200,
+      	vertical: false,
+      	visible: 1,
+      	circular: true,
+      });
+    });';
   
   return $jscode;
 }
