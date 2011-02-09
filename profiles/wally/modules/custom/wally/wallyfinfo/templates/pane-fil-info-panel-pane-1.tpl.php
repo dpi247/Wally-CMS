@@ -17,9 +17,6 @@
  * - $display: The complete panels display object containing all kinds of
  *   data including the contexts and all of the other panes being displayed.
  */
-dsm($pane->pid);
-dsm(get_defined_vars());
-dsm($pane);
 $pane_config = $pane->configuration;
 $available_dests = $pane_config['available_dests'];
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
