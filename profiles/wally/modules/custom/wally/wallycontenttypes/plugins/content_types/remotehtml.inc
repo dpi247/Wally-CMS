@@ -314,7 +314,7 @@ function wallycontenttypes_remotehtml_content_type_admin_title($subtype, $conf) 
   $settings = wallycontenttypes_remotehtml_content_type_get_conf(wallycontenttypes_remotehtml_content_type_content_type($subtype), $conf);
 
   $output = t('Remote HTML Block');
-  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : $settings['title'];
+  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : (!empty($settings['title'])) ? $settings['title'] : $settings['caid'] ;
   if ($title) {
     if ($settings['remotehtml_type'] != 'fixed') {
       $output = t('Remote HTML Block: @title', array('@title' => $title));
