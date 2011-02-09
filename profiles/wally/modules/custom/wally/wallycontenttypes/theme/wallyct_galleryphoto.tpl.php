@@ -7,12 +7,12 @@
   $node_path = drupal_get_path_alias("/node/".$node->nid);
   $imgstory = $node->field_embededobjects_nodes;
   $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
-  $main_summary = $field_summary[0]['value'];
-  $main_desc = $field_objectdescription [0]['value'];
+  $main_summary = $node->field_summary[0]['value'];
+  $main_desc = $node->field_objectdescription [0]['value'];
   //$main_edition = $field_editions [0]['value'];
   //$main_channel = $field_channels [0]['value'];
   $presetname='gallery_preset';
-dsm($main_summary);
+  
   foreach ($imgstory as $n) {
   	if ($n->type == "wally_photoobject") {
   		$file_path = $n->field_photofile[0]['filepath'];
