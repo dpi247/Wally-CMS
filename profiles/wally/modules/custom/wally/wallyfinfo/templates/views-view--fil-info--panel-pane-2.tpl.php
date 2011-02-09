@@ -13,7 +13,7 @@
 $all_voc = taxonomy_get_vocabularies();
 foreach ($all_voc as $voc) {
   if ($voc->name == 'Destination Path') {
-    $available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+    $available_dests = taxonomy_get_tree($voc->vid);
     break;
   }
 }

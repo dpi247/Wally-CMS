@@ -53,43 +53,45 @@ function wallyfinfo_theme($existing) {
  *  Implémentation du hook_form_FORM_ID_form_alter(); 
  */
 function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state) {
-  $all_voc = taxonomy_get_vocabularies();
-  foreach ($all_voc as $voc) {
-    if ($voc->name == 'Destination Path') {
-      //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
-      $available_dests = taxonomy_get_tree($voc->vid);
-      break;
+  if ($form_state['subtype_name'] == 'fil_info-panel_pane_1' || $form_state['subtype_name'] == 'fil_info-panel_pane_2') {
+    $all_voc = taxonomy_get_vocabularies();
+    foreach ($all_voc as $voc) {
+      if ($voc->name == 'Destination Path') {
+        //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+        $available_dests = taxonomy_get_tree($voc->vid);
+        break;
+      }
     }
-  }
-  
-  foreach ($available_dests as $available_dest) {
-    $form['available_dests'][$available_dest->name] = array (
-      '#type'             => 'checkbox',
-      '#title'            => $available_dest->name,
-    );
-  }
-  $form['#submit'][] = 'wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit';
-  
-  drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/ui.dropdownchecklist.js');
-  drupal_add_js('alert("coucou");
-    $("select#coucou").dropdownchecklist();alert("pre execute ok");
-  ','inline');
-}
-
-function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
-  $all_voc = taxonomy_get_vocabularies();
-  foreach ($all_voc as $voc) {
-    if ($voc->name == 'Destination Path') {
-      //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
-      $available_dests = taxonomy_get_tree($voc->vid);
-      break;
+    
+    foreach ($available_dests as $available_dest) {
+      $form['available_dests'][$available_dest->name] = array (
+        '#type'             => 'checkbox',
+        '#title'            => $available_dest->name,
+      );
     }
+    $form['#submit'][] = 'wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit';
+    
+    drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/ui.dropdownchecklist.js');
+    drupal_add_js('alert("coucou");
+      $("select#coucou").dropdownchecklist();alert("pre execute ok");
+    ','inline');
   }
   
-  $form_state['conf']['available_dests'] = array();
-  foreach ($available_dests as $available_dest) {
-    if ($form['available_dests'][$available_dest->name]['#value']) {
-      $form_state['conf']['available_dests'][] = $available_dest;
+  function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
+    $all_voc = taxonomy_get_vocabularies();
+    foreach ($all_voc as $voc) {
+      if ($voc->name == 'Destination Path') {
+        //$available_dests = taxonomy_get_tree($voc->vid, 0, -1, 1);
+        $available_dests = taxonomy_get_tree($voc->vid);
+        break;
+      }
+    }
+    
+    $form_state['conf']['available_dests'] = array();
+    foreach ($available_dests as $available_dest) {
+      if ($form['available_dests'][$available_dest->name]['#value']) {
+        $form_state['conf']['available_dests'][] = $available_dest;
+      }
     }
   }
 }
