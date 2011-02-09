@@ -54,7 +54,7 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$file_img = theme('imagecache', $presetname,  $imainstory);
 	$path_photo = imagecache_create_url($presetname, $imainstory);
 
-
+	
 	$vars['filesize'] = $filesize;
 	$vars['item'] = $item;
 	$vars['url'] = $path_photo;
@@ -63,6 +63,7 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$vars['title'] = check_plain($item->title);
 	$vars['link'] = check_url($item->link);
 	$vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
+	
 }
 
 
