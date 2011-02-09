@@ -10,7 +10,7 @@ if (!function_exists('rss_feed')) {
   }
 }
 
-if ($options['override_title']) {
+if (isset($options['override_title'])) {
   $title = t($options['override_title_text']);
 } else {
   $title = t('RSS reader');
