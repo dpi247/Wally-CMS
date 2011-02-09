@@ -49,7 +49,6 @@ function wallycontenttypes_galleryphoto_content_type_render($subtype, $conf, $pa
     
     $mynode = node_load($identifier);
     wallycontenttypes_packagepopulate($mynode,"");
-    dsm($mynode); 
     $block->content = theme("wallyct_galleryphoto",$mynode); 
     
     
