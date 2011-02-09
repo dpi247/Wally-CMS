@@ -19,20 +19,20 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/steph/rotator.js');
   <?php foreach ($embededobjects as $embededobject) :?>  
 
         
-      <li>        
+      <li><!--        
         <?php if($embededobject->type=="wally_videoobject"):?>
         <?php //dsm($embededobject->field_photofile[0]);?>
           <a title="<?php print $embededobject->title?>" rel="prettyPhoto[pp_gal]" href="<?php print $embededobject->field_video3rdparty[0]['embed']; ?>"> 
            <img src="<?php print $embededobject->field_video3rdparty[0]['data']['thumbnail']['url'];?>" />
-                    </a>
+                    </a> 
         <?php endif;?>
-        <!-- 
+        -->
         <?php if($embededobject->type=="wally_photoobject"):?>
          <a title="<?php print $embededobject->title?>" rel="prettyPhoto[pp_gal]" href="/<?php print $embededobject->field_photofile[0]['filepath']; ?>"> 
              <?php print  theme('imagecache','slider_preset',$embededobject->field_photofile[0]['filepath'])?>
           </a>
        <?php endif;?>
-         -->
+         
    
       </li>
   <?php endforeach;?>

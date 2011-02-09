@@ -17,10 +17,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_authors',
       'weight' => '0',
       'nodes' => array(
-        'wally_gallerypackage' => 'wally_gallerypackage',
-        'wally_pollpackage' => 'wally_pollpackage',
-        'wally_persontype' => 'wally_persontype',
         'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_persontype' => 'wally_persontype',
+        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'destination_path' => array(
@@ -49,9 +49,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_documenttype',
       'weight' => '0',
       'nodes' => array(
-        'wally_pollpackage' => 'wally_pollpackage',
-        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'editions' => array(
@@ -80,10 +80,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_entities',
       'weight' => '0',
       'nodes' => array(
-        'wally_pollpackage' => 'wally_pollpackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_entitytype' => 'wally_entitytype',
         'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'keywords' => array(
@@ -98,8 +98,8 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_keywords',
       'weight' => '0',
       'nodes' => array(
-        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
@@ -116,9 +116,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'weight' => '0',
       'nodes' => array(
         'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_locationtype' => 'wally_locationtype',
         'wally_pollpackage' => 'wally_pollpackage',
-        'wally_gallerypackage' => 'wally_gallerypackage',
       ),
     ),
     'persons' => array(
@@ -133,10 +133,10 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_persons',
       'weight' => '0',
       'nodes' => array(
-        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_articlepackage' => 'wally_articlepackage',
-        'wally_pollpackage' => 'wally_pollpackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
         'wally_persontype' => 'wally_persontype',
+        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
     'rating' => array(
@@ -165,9 +165,9 @@ function wallycontenttypes_taxonomy_default_vocabularies() {
       'module' => 'features_tags',
       'weight' => '0',
       'nodes' => array(
-        'wally_pollpackage' => 'wally_pollpackage',
         'wally_articlepackage' => 'wally_articlepackage',
         'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_pollpackage' => 'wally_pollpackage',
       ),
     ),
   );
