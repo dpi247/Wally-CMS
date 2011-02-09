@@ -421,7 +421,8 @@ function wallycontenttypes_rssmixread_content_type_admin_title($subtype, $conf) 
   $settings = wallycontenttypes_rssmixread_content_type_get_conf(wallycontenttypes_rssmixread_content_type_content_type($subtype), $conf);
 
   $output = t('RSS mix reader');
-  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : $settings['title'];
+  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : (!empty($settings['title'])) ? $settings['title'] : $settings['caid'] ;
+  
   if ($title) {
     if ($settings['rssmixread_type'] != 'fixed') {
       $output = t('RSS mix reader: @title', array('@title' => $title));
@@ -445,17 +446,20 @@ function wallycontenttypes_rssmixread_content_type_admin_info($subtype, $conf) {
   $settings = wallycontenttypes_rssmixread_content_type_get_conf(wallycontenttypes_rssmixread_content_type_content_type($subtype), $conf);
 
   $block = new stdClass();
-  $block->title = filter_xss_admin($settings['title']);
+  $block->title = (!empty($settings['title'])) ? filter_xss_admin($settings['title']) : filter_xss_admin($settings['caid']);
+  
   // We don't want to render php output on preview here, because if something is
   // wrong the whole display will be borked. So we check to see if the php
   // evaluator filter is being used, and make a temporary change to the filter
   // so that we get the printed php, not the eval'ed php.
   $php_filter = FALSE;
-  foreach (filter_list_format($settings['format']) as $filter) {
-    if ($filter->module == 'php') {
-      $php_filter = TRUE;
-      break;
-    }
+  if (!empty($settings['format'])) {
+	  foreach (filter_list_format($settings['format']) as $filter) {
+	    if ($filter->module == 'php') {
+	      $php_filter = TRUE;
+	      break;
+	    }
+	  }
   }
   // If a php filter is active, just print the source, but only if the current
   // user has access to the actual filter.
@@ -468,7 +472,12 @@ function wallycontenttypes_rssmixread_content_type_admin_info($subtype, $conf) {
   else {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
-    $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+    if (!empty($settings['body'])) {
+    	$block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+  	} else {
+  		$block->content = t("n/a");
+  	}
+
   }
   return $block;
 }
