@@ -1695,28 +1695,24 @@ Free',
       ),
     ),
     'widget_active' => '1',
-    'type' => 'emwave',
+    'type' => 'emaudio',
     'required' => '0',
     'multiple' => '0',
-    'module' => 'emwave',
+    'module' => 'emaudio',
     'active' => '1',
     'widget' => array(
-      'full_width' => '0',
-      'full_height' => '800',
-      'full_link' => 'provider',
-      'preview_width' => '360',
-      'preview_height' => '240',
-      'preview_link' => 'node',
-      'bg_color' => 'white',
-      'color' => 'black',
-      'font' => 'Arial',
-      'font_size' => '12',
-      'participants' => array(
-        'node' => 0,
-        'comment' => 0,
+      'audio_width' => '425',
+      'audio_height' => '350',
+      'audio_autoplay' => 0,
+      'preview_width' => '425',
+      'preview_height' => '350',
+      'preview_autoplay' => 0,
+      'thumbnail_width' => '120',
+      'thumbnail_height' => '90',
+      'thumbnail_default_path' => '',
+      'providers' => array(
+        'soundcloud' => 0,
       ),
-      'comments' => '',
-      'providers' => array(),
       'default_value' => array(
         '0' => array(
           'embed' => '',
@@ -1724,11 +1720,11 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Audio 3rd Party',
+      'label' => 'Audio 3rd party',
       'weight' => '-2',
       'description' => '',
-      'type' => 'emwave_textfields',
-      'module' => 'emwave',
+      'type' => 'emaudio_textfields',
+      'module' => 'emaudio',
     ),
   );
 
@@ -15496,7 +15492,7 @@ Free',
   // Translatables
   // Included for use with string extractors like potx.
   t('Address');
-  t('Audio 3rd Party');
+  t('Audio 3rd party');
   t('Audio File');
   t('Audio Summary');
   t('Authors');
