@@ -76,8 +76,10 @@ function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(
       $("select#coucou").dropdownchecklist();alert("pre execute ok");
     ','inline');
   }
+}
   
-  function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
+function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
+  if ($form_state['subtype_name'] == 'fil_info-panel_pane_1' || $form_state['subtype_name'] == 'fil_info-panel_pane_2') {
     $all_voc = taxonomy_get_vocabularies();
     foreach ($all_voc as $voc) {
       if ($voc->name == 'Destination Path') {
@@ -86,7 +88,7 @@ function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(
         break;
       }
     }
-    
+  
     $form_state['conf']['available_dests'] = array();
     foreach ($available_dests as $available_dest) {
       if ($form['available_dests'][$available_dest->name]['#value']) {
@@ -124,7 +126,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
   $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
   
-  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display) || true) {
+  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display)) {
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
