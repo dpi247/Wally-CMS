@@ -88,7 +88,7 @@ function pub_cron_run() {
     variable_del('cronpub_semaphore');
 
     // Redirect to admin page if success
-    drupal_goto('admin/');
+    drupal_goto('admin/rossel');
   }
 }
 
@@ -105,12 +105,130 @@ function pub_cron_cleanup() {
   }
 }
 
+function pub_blocks_admin() {
+  $return = '';
+  $return .= drupal_get_form('pub_blocks_admin_form');
+  
+  return $return;
+}
+
+function pub_blocks_admin_form(&$form_state) {
+  $form['action_choice'] = array(
+    '#type' => 'radios',
+    '#title' => t('Action'),
+    '#options' => array(
+      'edit' => t('Edit'),
+      'delete' => t('Delete')
+    ),
+    '#required' => TRUE,
+  );
+  
+  $form['blocks'] = array(
+    '#title' => t('Choose blocks'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $pub_list = db_query('SELECT * FROM `zz_pub_UMI` ORDER BY `position`');
+  while ($pub_elem = db_fetch_array($pub_list)) {
+    $form['blocks'][$pub_elem['position']] = array(
+      '#type' => 'checkbox',
+      '#title' => $pub_elem['position'],
+      '#default_value' => 0,
+    );
+  }
+  
+  $form['blocks_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Go'),
+    '#value' => t('Go'),
+  );
+  
+  return $form;
+}
+
+function pub_blocks_admin_form_validate($form, &$form_state) {
+  foreach ($form['blocks'] as $name => $value) {
+    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
+      return;
+  }
+  form_set_error('blocks', t('Select at least one block.'));
+}
+
+function pub_blocks_admin_form_submit($form, &$form_state) {
+  switch ($form['action_choice']['#value']) {
+    case 'edit':
+      foreach ($form['blocks'] as $name => $value) {
+        if ($value['#value'] == 1) {
+          drupal_goto('admin/build/block/configure/pub/'.$name);
+        }
+      }
+      break;
+    case 'delete':
+      foreach ($form['blocks'] as $name => $value) {
+        if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
+          db_query('DELETE FROM `zz_pub_UMI` WHERE `position` = "%s"', $name);
+        }
+      }
+      break;
+    default:
+  }
+}
+
+function pub_cache_admin() {
+  $return = '';
+  $return .= drupal_get_form('pub_cache_admin_form');
+  
+  return $return;
+}
+
+function pub_cache_admin_form(&$form_state) {
+  $form['blocks_cache'] = array(
+    '#title' => t('Choose blocks'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $pub_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
+  while ($pub_elem = db_fetch_array($pub_list)) {
+    $form['blocks_cache'][$pub_elem['cid']] = array(
+      '#type' => 'checkbox',
+      '#title' => $pub_elem['cid'],
+      '#default_value' => 0,
+    );
+  }
+  
+  $form['blocks_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Go'),
+    '#value' => t('Go'),
+  );
+  
+  return $form;
+}
+
+function pub_cache_admin_form_validate($form, &$form_state) {
+  foreach ($form['blocks_cache'] as $name => $value) {
+    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
+      return;
+  }
+  form_set_error('blocks_cache', t('Select at least one block.'));
+}
+
+function pub_cache_admin_form_submit($form, &$form_state) {
+  foreach ($form['blocks_cache'] as $name => $value) {
+    if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
+      db_query('DELETE FROM `cache` WHERE `cid` = "%s"', $name);
+    }
+  }
+}
+
 function _pub_callalltags() {
   $xml_list = drupal_http_request('http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml');
   $dom = new DomDocument();
   $dom->LoadXML($xml_list->data);
   
-  $pub_list = db_query('SELECT * FROM `pub_UMI`');
+  $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
   $pub_array = array();
   while ($pub_elem = db_fetch_array($pub_list)) {
     $pub_array[] = $pub_elem;
@@ -123,12 +241,12 @@ function _pub_callalltags() {
     }
     unset($tag_elem['website']);
     foreach($pub_array as $pub_elem) {
-      if ($tag_elem['page'] == $pub_elem['page'] && $tag_elem['position'] == $pub_elem['position']) {
-        drupal_write_record('pub_UMI', $tag_elem, array('page', 'position'), array('page', 'position'));
+      if ($tag_elem['position'] == $pub_elem['position']) {
+        drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
         break;
       }
     }
-    drupal_write_record('pub_UMI', $tag_elem, array('page', 'position'));
+    drupal_write_record('zz_pub_UMI', $tag_elem);
   }
   
   return TRUE;
