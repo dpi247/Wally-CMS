@@ -124,6 +124,14 @@ function  _emvideo_embedly_request($src_url){
 	return $embedly_result;
 }
 
+function emvideo_embedly_error_check($url) {
+    global $user;
+    $error = t('This url ('.$url.') seems to be not supported by the Embedly API. Please retry or choose an other one.');
+    if (user_access('administer site configuration')) {
+      drupal_set_message($error, 'error');
+    }
+}
+
 
 /**
  * hook emvideo_PROVIDER_video
@@ -143,7 +151,11 @@ function  _emvideo_embedly_request($src_url){
  */
 function emvideo_embedly_video($video_id, $width, $height, $field, $item, $node, $autoplay, $options = array()) {
 	$item_url = $item['embed'];
-  $embedly_result = _media_embedly_request($item_url);
-  $output = theme('media_embedly_default', $embedly_result);
+  $embedly_result = _media_embedly_video_request($item_url);
+  IF ($embedly_result["html"] == ""){
+    $output = emvideo_embedly_error_check($item_url);
+  } else {
+    $output = theme('media_embedly_default', $embedly_result);
+  }
   return $output;
 }
