@@ -6,7 +6,7 @@
 function pub_menu() {
   $items = array();
   $items['admin/rossel/pub'] = array(
-    'title' => 'Rossel pub',
+    'title' => 'Pub general configuration',
     'page callback' => 'pub_page_admin',
     'page arguments' => array('pub_page_admin'),
     'access arguments' => array('access administration pages'),
@@ -22,6 +22,24 @@ function pub_menu() {
     'description' => 'Run pub cron.',
   	'file' => 'includes/pub.admin.inc',
   );
+  
+  $items['admin/rossel/pubblocks'] = array(
+    'title' => 'Manage blocks',
+    'page callback' => 'pub_blocks_admin',
+    'page arguments' => array('pub_blocks_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to manage pub blocks.',
+    'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubcache'] = array(
+    'title' => 'Manage cache',
+    'page callback' => 'pub_cache_admin',
+    'page arguments' => array('pub_cache_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to manage pub blocks cache.',
+    'file' => 'includes/pub.admin.inc',
+  );
 
   return $items;
 }
@@ -32,7 +50,7 @@ function pub_menu() {
 function pub_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $pub_list = db_query('SELECT * FROM `pub_UMI`');
+      $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
           'info' => t('Pub block '.$pub_elem['position']),
