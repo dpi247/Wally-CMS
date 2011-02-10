@@ -165,7 +165,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
     $feed_name = check_plain($feed_infos['name']);
     $channel_last_build = strtotime(_wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
     
-    if ($channel_last_build > $sql_last_build) {
+    if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
       $valid_dom = new DomDocument('1.0', 'UTF-8');
       $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
       $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
