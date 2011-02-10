@@ -80,7 +80,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube', 'media_kewego',
+    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly',
 
     // Others
     'job_queue', 
@@ -92,7 +92,7 @@ function wally_profile_modules() {
     'taxonomy_manager', 'taxonomy_menu', 
     
     // User interface
-    'jquery_ui', 
+    'jquery_ui',
     
     // Views
     'views', 'views_ui',
