@@ -80,7 +80,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly',
+    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr',
 
     // Others
     'job_queue', 
@@ -363,6 +363,15 @@ function _wally_initialize_settings(&$context){
   variable_set('wallymport_temp',"/tmp");
   variable_set('wallymport_debug',"0");
   
+  
+  // Embedly Module config settings
+  variable_set('emfield_emvideo_allow_embedly',"i:1;");
+  variable_set('media_embedly__video_width','s:0:"";');
+  variable_set('emfield_emaudio_allow_embedly',"i:1;");
+  variable_set('media_embedly__audio_width','s:0:"";');  
+  
+  // Flickr Module config settings
+  variable_set('emfield_emimage_allow_flickr',"i:1;");
   
   $msg = st('Setup general configuration');
   _wally_log($msg);
