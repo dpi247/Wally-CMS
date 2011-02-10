@@ -2,7 +2,7 @@
 // $Id: media_embedly.variables.inc,v 1.0 2011/01/07 ODM $
 
 /**
- * @file Contains the variables and defaults used by Media: YouTube.
+ * @file Contains the variables and defaults used by Media: Embedly.
  */
 
 /**
@@ -40,7 +40,7 @@ define('MEDIA_EMBEDLY_STATUS_PRIVATE', 0x0002);
 
 
 /**
- * Wrapper for variable_get() that uses the Media: Kewego variable registry.
+ * Wrapper for variable_get() that uses the Media: Embedly variable registry.
  *
  * @param string $name
  *  The variable name to retrieve. Note that it will be namespaced by
