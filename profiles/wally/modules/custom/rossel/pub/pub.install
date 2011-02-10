@@ -1,0 +1,71 @@
+<?php
+
+/*
+ * Implementation of the hook module _install();
+ */
+function pub_install() {
+  drupal_install_schema('pub');
+}
+
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function pub_uninstall() {
+  drupal_uninstall_schema('pub');
+}
+
+function pub_schema() {
+  $schema = array();
+
+  $schema['zz_pub_UMI'] = array(
+    'description' => 'Contains possible UMI formats for Rossel pubs.',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'page' => array(
+        'type' => 'text',
+        'description' => 'Page name.',
+      ),
+      'position' => array(
+        'type' => 'text',
+        'description' => 'Position name.',
+      ),
+      'kvregion_ls' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'kvregion_sp' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'kvville_sp' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'version' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      '_PlacementID' => array(
+        'type' => 'int',
+        'size' => 'medium',
+        'default' => 0,
+      ),
+      '_SizeID' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  return $schema;
+}
