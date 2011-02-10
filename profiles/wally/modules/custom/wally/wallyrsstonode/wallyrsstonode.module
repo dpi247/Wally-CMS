@@ -89,11 +89,11 @@ function wallyrsstonode_cron_run() {
  */
 function wallyrsstonode_cron_cleanup() {
   // See if the semaphore is still locked.
-  if (variable_get('cron_semaphore', FALSE)) {
-    watchdog('cron', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+  if (variable_get('cronrsstonode_semaphore', FALSE)) {
+    watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
 
     // Release cron semaphore
-    variable_del('cron_semaphore');
+    variable_del('cronrsstonode_semaphore');
   }
 }
 
