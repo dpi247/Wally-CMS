@@ -11,7 +11,8 @@
 	
   $teaser_length = 300;
 	$teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
-  
+
+	@todo: Pourquoi 2 boucles?
 	foreach ($node->field_embededobjects_nodes as $n) {
 		if ($n->type == "wally_photoobject") {
       $file_path = '';
