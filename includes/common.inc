@@ -473,7 +473,7 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
   }
 
   // Make sure the socket opened properly.
-  if (!$fp) {dsm("socket error");
+  if (!$fp) {
     // When a network error occurs, we use a negative number so it does not
     // clash with the HTTP status codes.
     $result->code = -$errno;
