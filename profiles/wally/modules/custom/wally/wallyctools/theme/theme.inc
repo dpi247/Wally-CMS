@@ -38,17 +38,13 @@ foreach($handlers['filter'] as $key=>$value){
       );
 }
 
-  
-
 
 /**
 * Theme preprocess function for views-view-row-unformatted.tpl.php
 */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
-  $view     = &$vars['view'];
-  $options  = $view->style_handler->options;
-  $handler  = $view->style_handler;
-  
+
+	$view     = &$vars['view'];
   $options = $vars['options'];
 
   // Make sure the variables are defined.
@@ -77,7 +73,7 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $node->node_view_destination=$vars['destination'];
   
     
-  
+
   $vars['node'] = node_view($node, $options['build_mode'] == 'teaser', FALSE, $options['links']);
 
   if (!empty($options['comments']) && function_exists('comment_render')) {
