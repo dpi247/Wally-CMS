@@ -225,6 +225,7 @@ function pub_cache_admin_form_submit($form, &$form_state) {
 
 function _pub_callalltags() {
   $xml_list = drupal_http_request('http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml');
+  dsm($xml_list);
   $dom = new DomDocument();
   $dom->LoadXML($xml_list->data);
   
