@@ -72,10 +72,24 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $node->node_view_target=$vars['target'];
   $node->node_view_destination=$vars['destination'];
   
+  if (isset($options['build_mode'])) {
+		if ($options['build_mode'] == 'teaser') {
+  		$teaser = TRUE; 
+		} else {
+  		$teaser = FALSE; 
+		}
+  } else {
+  	$teaser = FALSE; 
+  }
+
+  if (!isset($options['links'])) {
+  	$links = TRUE; 
+  } else {
+  	$links = $options['links']; 
+  }
+  
+	$vars['node'] = node_view($node, $teaser, FALSE, $links);
     
-
-  $vars['node'] = node_view($node, $options['build_mode'] == 'teaser', FALSE, $options['links']);
-
   if (!empty($options['comments']) && function_exists('comment_render')) {
     $vars['comments'] = comment_render($node);
   }
