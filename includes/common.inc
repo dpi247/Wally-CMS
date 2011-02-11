@@ -458,7 +458,8 @@ function drupal_http_request($url, $headers = array(), $method = 'GET', $data = 
     case 'feed':
       $port = isset($uri['port']) ? $uri['port'] : 80;
       $host = $uri['host'] . ($port != 80 ? ':'. $port : '');
-      $fp = @fsockopen($uri['host'], $port, $errno, $errstr, 15);
+      //$fp = @fsockopen($uri['host'], $port, $errno, $errstr, 15);
+      $fp = fsockopen($uri['host'], $port, $errno, $errstr, 15);
       break;
     case 'https':
       // Note: Only works for PHP 4.3 compiled with OpenSSL.
