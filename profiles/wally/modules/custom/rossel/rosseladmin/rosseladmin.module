@@ -12,8 +12,8 @@ define('ROSSEL_ADMIN_PATH', 'admin/rossel');
 function rosseladmin_menu() {
   $items = array();
   $items[ROSSEL_ADMIN_PATH] = array(
-    'title' => 'Rossel',
-    'description' => 'Rossel administration links.',
+    'title' => 'Rossel advertising',
+    'description' => t('Rossel advertising administration links.'),
     'position' => 'right',
     'weight' => 6,
     'page callback' => 'system_admin_menu_block_page',
