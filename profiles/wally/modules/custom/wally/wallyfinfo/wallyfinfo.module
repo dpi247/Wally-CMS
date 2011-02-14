@@ -537,7 +537,7 @@ function _wallyfinfo_slidecategoryjs_thicker() {
   
   $jscode .= '
     $(document).ready(function() {
-      $("#thicker").jCarouselLite({
+      $("#thicker").jcarousellite({
       	auto: 2500,
       	speed: 1200,
       	vertical: false,
