@@ -568,7 +568,6 @@ function wallyedit_form_page_editmode_form_submit($form,&$form_state){
       $type_name=$form_state['type'];
       $type=wydit_get_infos_type($type_name);
       $fields = $type['fields'];
-      
       //@todo: remove hard coding of parents
       $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
       if(count($field_infos['referenceable_types'])==1){
@@ -594,7 +593,7 @@ function wallyedit_form_page_editmode_form_submit($form,&$form_state){
     case 'add_existing':
       
           
-      $view = views_get_view('test_vbo');
+      $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
       
       // set the view arguments here, if needed : SET the cache name and the target
@@ -640,10 +639,10 @@ function wallyedit_editmode_selectbox_form($form_state){
   */
   views_add_js('ajax_view');
   
-  $views= views_embed_view('test_vbo', 'default', 6,64);
+  $views= views_embed_view('prenode_selectbox_vbo', 'default', 6,64);
   
   $args=array(6,64);
-  $view = views_get_view('test_vbo');
+  $view = views_get_view('prenode_selectbox_vbo');
 
   
   
@@ -653,7 +652,7 @@ function wallyedit_editmode_selectbox_form($form_state){
   'nodes_per_page'=>20,
   "pager_id"=>'',
   );
-  $block=views_content_views_content_type_render('test_vbo',$conf,array(),array());
+  $block=views_content_views_content_type_render('prenode_selectbox_vbo',$conf,array(),array());
 
   $form['vbo']=array(
     '#type'=>'markup',
@@ -922,7 +921,6 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
   
   $form=array('#tree'=>true);
   $form['#action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax';
-  
   $field_infos=$form_state['fields_infos'];
   $parents=$form_state['parents'];
   $form['parents33']=array('#type'=>'value','#value'=>$form_state['parents']);
@@ -1104,14 +1102,14 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
   $form['add_existing_action']=array(
     "#type"=>"submit",
     "#value"=>'add existing one',
-    "#name"=>'add_existing',
+    "#name"=>'add_existing__'.$parents[count($parents)-1],
     "#attributes"=>array('class' => 'form-submit ctools-use-ajax'),
     "#parents"=>array_merge($parents,array("add_existing"))
   );
   $form['add_new_action']=array(
     "#type"=>"submit",
     "#value"=>'add new one',
-    "#name"=>'add_new',
+    "#name"=>'add_new__'.$parents[count($parents)-1],
     '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
     "#parents"=>array_merge($parents,array("add_new"))
   );

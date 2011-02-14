@@ -633,7 +633,20 @@ function filefield_js($type_name, $field_name, $delta) {
   if (isset($form_element['_weight'])) {
     unset($form_element['_weight']);
   }
-
+  //  patch DDU
+  if(!isset($form_element)){
+    if (module_exists('fieldgroup') && ($group_name = _fieldgroup_field_get_group($type_name, $field_name))) {
+      if (isset($form['#multigroups']) && isset($form['#multigroups'][$group_name][$field_name])) {
+        $form_element = $form[$type_name][$group_name][$delta][$field_name];
+      }
+      else {
+        $form_element = $form[$type_name][$group_name][$field_name][$delta];
+      }
+    }
+    else {
+      $form_element = $form[$type_name][$field_name][$delta];
+    }
+  }
   $output = drupal_render($form_element);
 
   // AHAH is not being nice to us and doesn't know the "other" button (that is,
