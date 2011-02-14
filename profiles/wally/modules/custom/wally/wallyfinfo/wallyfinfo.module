@@ -197,51 +197,53 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
   $jscode .= '
   	$(document).ready(function() {
   	  var page_offset_page = 0;';
-  
-  // jCarousel effect for the categories menu.
-  $jscode .= '
-  	  $("#catmenu").jcarousel({
-  	    wrap: "both",
-      	size: '.sizeof($available_dests).',
-        visible: 3,
-        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthoriz.png\" class=\"nextCat_page\"/>",
-        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushoriz.png\" class=\"prevCat_page\"/>",
-        buttonNextEvent: "click",
-        buttonPrevEvent: "click"
-      });
-      var carouselCat_page = $("#catmenu").data("jcarousel");
-      
-      $("#catmenu .jcarousel-clip").css("width", "100%");
-      $("#catmenu .jcarousel-clip").css("height", "100%");
-      
-      $(".nextCat_page").css("float", "right");
-      $(".nextCat_page").css("width", "15px");
-      $(".nextCat_page").css("right", "0");
-      $(".nextCat_page").css("margin-top", "10px");
-      $(".nextCat_page").css("margin-bottom", "15px");
-      $(".nextCat_page").css("margin-left", "5px");
-      $(".nextCat_page").css("cursor", "pointer");
-      $(".nextCat_page").css("cursor", "hand");
-      
-      $(".prevCat_page").css("float", "left");
-      $(".prevCat_page").css("width", "15px");
-      $(".prevCat_page").css("margin-top", "10px");
-      $(".prevCat_page").css("margin-bottom", "15px");
-      $(".prevCat_page").css("margin-right", "5px");
-      $(".prevCat_page").css("cursor", "pointer");
-      $(".prevCat_page").css("cursor", "hand");';
-  
-  $offset = 0;
-  foreach ($available_dests as $available_dest) {
-    ++$offset;
+
+  if (sizeof($available_dests)>1) {
+    // jCarousel effect for the categories menu.
     $jscode .= '
-      carouselCat_page.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'_page\">'.$available_dest->name.'</a>");';
+        $("#catmenu").jcarousel({
+          wrap: "both",
+          size: '.sizeof($available_dests).',
+          visible: 3,
+          buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthoriz.png\" class=\"nextCat_page\"/>",
+          buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushoriz.png\" class=\"prevCat_page\"/>",
+          buttonNextEvent: "click",
+          buttonPrevEvent: "click"
+        });
+        var carouselCat_page = $("#catmenu").data("jcarousel");
+        
+        $("#catmenu .jcarousel-clip").css("width", "100%");
+        $("#catmenu .jcarousel-clip").css("height", "100%");
+        
+        $(".nextCat_page").css("float", "right");
+        $(".nextCat_page").css("width", "15px");
+        $(".nextCat_page").css("right", "0");
+        $(".nextCat_page").css("margin-top", "10px");
+        $(".nextCat_page").css("margin-bottom", "15px");
+        $(".nextCat_page").css("margin-left", "5px");
+        $(".nextCat_page").css("cursor", "pointer");
+        $(".nextCat_page").css("cursor", "hand");
+        
+        $(".prevCat_page").css("float", "left");
+        $(".prevCat_page").css("width", "15px");
+        $(".prevCat_page").css("margin-top", "10px");
+        $(".prevCat_page").css("margin-bottom", "15px");
+        $(".prevCat_page").css("margin-right", "5px");
+        $(".prevCat_page").css("cursor", "pointer");
+        $(".prevCat_page").css("cursor", "hand");';
+    
+    $offset = 0;
+    foreach ($available_dests as $available_dest) {
+      ++$offset;
+      $jscode .= '
+        carouselCat_page.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'_page\">'.$available_dest->name.'</a>");';
+    }
+    
+    $jscode .= '
+        $("#catmenu .jcarousel-clip li").css("text-align", "center");
+        carouselCat_page.first = 1;
+        carouselCat_page.reload();';
   }
-  
-  $jscode .= '
-  	  $("#catmenu .jcarousel-clip li").css("text-align", "center");
-      carouselCat_page.first = 1;
-	  carouselCat_page.reload();';
   
   // jCarousel effect for the items.
   foreach ($available_dests as $available_dest) {
@@ -269,19 +271,21 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
     break;
   }
   
-  // Definition of the click actions for the categories labels.
-  foreach ($available_dests as $key=>$available_dest) {
-    $jscode .= '
-      $("a#'.strtolower($available_dest->name).'_page").click(function() {
-        page_offset_page = 0;
-        currentCarousel_page = carousel'.$available_dest->name.'_page;
-        currentCarouselName_page = "'.strtolower($available_dest->name).'_page";
-        currentTid_page = "'.$available_dest->tid.'";
-        reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
-      });';
+  if (sizeof($available_dests)>1) {
+    // Definition of the click actions for the categories labels.
+    foreach ($available_dests as $key=>$available_dest) {
+      $jscode .= '
+        $("a#'.strtolower($available_dest->name).'_page").click(function() {
+          page_offset_page = 0;
+          currentCarousel_page = carousel'.$available_dest->name.'_page;
+          currentCarouselName_page = "'.strtolower($available_dest->name).'_page";
+          currentTid_page = "'.$available_dest->tid.'";
+          reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
+        });';
+    }
   }
   
- // Pager events.
+  // Pager events.
   for ($i=1; $i<6; $i++) {
     $jscode .= '
       $(".pager_page #page'.$i.'").click(function() {
@@ -293,6 +297,9 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
         reload_carousel_page(currentCarousel_page, currentCarouselName_page, currentTid_page);
       });';
   }
+  
+  $jscode .= '
+      reload_carousel(currentCarousel_page, currentCarouselName_page, currentTid_page);';
   
   $jscode .= '
       function reload_carousel_page(carousel, dest_name, tid) {';
@@ -351,51 +358,53 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   $jscode .= '
   	$(document).ready(function() {
   	  var page_offset = 0;';
-  
-  // jCarousel effect for the categories menu.
-  $jscode .= '
-  	  $("#filcat").jcarousel({
-  	    wrap: "both",
-      	size: '.sizeof($available_dests).',
-        visible: 3,
-        buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthorizblanc.png\" class=\"nextCat\"/>",
-        buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prevCat\"/>",
-        buttonNextEvent: "click",
-        buttonPrevEvent: "click"
-      });
-      var carouselCat = $("#filcat").data("jcarousel");
-      
-      $("#filcat .jcarousel-clip").css("width", "100%");
-      $("#filcat .jcarousel-clip").css("height", "100%");
-      
-      $(".nextCat").css("float", "right");
-      $(".nextCat").css("width", "15px");
-      $(".nextCat").css("right", "0");
-      $(".nextCat").css("margin-top", "0px");
-      $(".nextCat").css("margin-bottom", "15px");
-      $(".nextCat").css("margin-left", "5px");
-      $(".nextCat").css("cursor", "pointer");
-      $(".nextCat").css("cursor", "hand");
-      
-      $(".prevCat").css("float", "left");
-      $(".prevCat").css("width", "15px");
-      $(".prevCat").css("margin-top", "0px");
-      $(".prevCat").css("margin-bottom", "15px");
-      $(".prevCat").css("margin-right", "5px");
-      $(".prevCat").css("cursor", "pointer");
-      $(".prevCat").css("cursor", "hand");';
-  
-  $offset = 0;
-  foreach ($available_dests as $available_dest) {
-    ++$offset;
+  dsm(sizeof($available_dests));
+  if (sizeof($available_dests)>1) {
+    // jCarousel effect for the categories menu.
     $jscode .= '
-      carouselCat.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
+        $("#filcat").jcarousel({
+          wrap: "both",
+          size: '.sizeof($available_dests).',
+          visible: 3,
+          buttonNextHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/nexthorizblanc.png\" class=\"nextCat\"/>",
+          buttonPrevHTML: "<img src=\"'.base_path().drupal_get_path("module", "wallyfinfo").'/images/previoushorizblanc.png\" class=\"prevCat\"/>",
+          buttonNextEvent: "click",
+          buttonPrevEvent: "click"
+        });
+        var carouselCat = $("#filcat").data("jcarousel");
+        
+        $("#filcat .jcarousel-clip").css("width", "100%");
+        $("#filcat .jcarousel-clip").css("height", "100%");
+        
+        $(".nextCat").css("float", "right");
+        $(".nextCat").css("width", "15px");
+        $(".nextCat").css("right", "0");
+        $(".nextCat").css("margin-top", "0px");
+        $(".nextCat").css("margin-bottom", "15px");
+        $(".nextCat").css("margin-left", "5px");
+        $(".nextCat").css("cursor", "pointer");
+        $(".nextCat").css("cursor", "hand");
+        
+        $(".prevCat").css("float", "left");
+        $(".prevCat").css("width", "15px");
+        $(".prevCat").css("margin-top", "0px");
+        $(".prevCat").css("margin-bottom", "15px");
+        $(".prevCat").css("margin-right", "5px");
+        $(".prevCat").css("cursor", "pointer");
+        $(".prevCat").css("cursor", "hand");';
+    
+    $offset = 0;
+    foreach ($available_dests as $available_dest) {
+      ++$offset;
+      $jscode .= '
+        carouselCat.add('.$offset.', "<a id=\"'.strtolower($available_dest->name).'\">'.$available_dest->name.'</a>");';
+    }
+    
+    $jscode .= '
+        $("#filcat .jcarousel-clip li").css("text-align", "center");
+        carouselCat.first = 1;
+        carouselCat.reload();';
   }
-  
-  $jscode .= '
-  	  $("#filcat .jcarousel-clip li").css("text-align", "center");
-      carouselCat.first = 1;
-	  carouselCat.reload();';
   
   // jCarousel effect for the items.
   foreach ($available_dests as $available_dest) {
@@ -430,19 +439,21 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
     break;
   }
   
-  // Definition of the click actions for the categories labels.
-  foreach ($available_dests as $key=>$available_dest) {
-    $jscode .= '
-      $("a#'.strtolower($available_dest->name).'").click(function() {
-        page_offset = 0;
-        currentCarousel = carousel'.$available_dest->name.';
-        currentCarouselName = "'.strtolower($available_dest->name).'";
-        currentTid = "'.$available_dest->tid.'";
-        reload_carousel(currentCarousel, currentCarouselName, currentTid);
-      });';
+  if (sizeof($available_dests)>1) {
+    // Definition of the click actions for the categories labels.
+    foreach ($available_dests as $key=>$available_dest) {
+      $jscode .= '
+        $("a#'.strtolower($available_dest->name).'").click(function() {
+          page_offset = 0;
+          currentCarousel = carousel'.$available_dest->name.';
+          currentCarouselName = "'.strtolower($available_dest->name).'";
+          currentTid = "'.$available_dest->tid.'";
+          reload_carousel(currentCarousel, currentCarouselName, currentTid);
+        });';
+    }
   }
   
- // Pager events.
+  // Pager events.
   for ($i=1; $i<6; $i++) {
     $jscode .= '
       $(".pager #page'.$i.'").click(function() {
