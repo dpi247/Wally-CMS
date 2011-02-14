@@ -433,7 +433,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   // Definition of the click actions for the categories labels.
   foreach ($available_dests as $key=>$available_dest) {
     $jscode .= '
-      $("a#'.strtolower($available_dest->name).'").click(function() {alert("'.strtolower($available_dest->name).'");
+      $("a#'.strtolower($available_dest->name).'").click(function() {
         page_offset = 0;
         currentCarousel = carousel'.$available_dest->name.';
         currentCarouselName = "'.strtolower($available_dest->name).'";
@@ -450,6 +450,11 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
         reload_carousel(currentCarousel, currentCarouselName, currentTid);
       });';
   }
+  
+  $jscode .= '
+      $("a#'.strtolower($available_dest->name).'").click(function() {
+        reload_carousel(currentCarousel, currentCarouselName, currentTid);
+      });';
   
   $jscode .= '
       function reload_carousel(carousel, dest_name, tid) {';
