@@ -22,6 +22,16 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['get_xml'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL used for getting blocks informations'),
+    '#description' => t('The URL used for getting blocks informations.'),
+    '#default_value' => variable_get('pub_get_xml', ''),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
   $form['pub_submit'] = array(
     '#type' => 'submit',
     '#title' => t('Save'),
@@ -36,6 +46,7 @@ function pub_page_admin_form($form_state) {
  */
 function pub_page_admin_form_submit($form, &$form_state) {
   variable_set('pub_website', $form['website']['#value']);
+  variable_set('pub_get_xml', $form['get_xml']['#value']);
   drupal_set_message('Configuration saved', 'notice');
 }
 
@@ -254,7 +265,7 @@ function pub_cache_admin_form_submit($form, &$form_state) {
  *   TRUE in case success, FALSE otherwise.
  */
 function _pub_callalltags() {
-  //$xml_list = drupal_http_request('http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml');
+  //$xml_list = drupal_http_request(variable_get('pub_get_xml'));
   $xml_list->data = XML_LIST_DATA;
   $xml_list->code = 200;
   
