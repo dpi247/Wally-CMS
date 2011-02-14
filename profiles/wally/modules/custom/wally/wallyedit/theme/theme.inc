@@ -2,14 +2,12 @@
 function theme_wallyedit_admin($rows=array(),$headers){
 
 drupal_set_title("Wallyedit Admin");
-dsm($rows);
 
 foreach($rows as $row){
   $collumn[]=array('data'=>$row['sid']);
   $collumn[]=array('data'=>$row['name']);
   $collumn[]=array('data'=>$row['data'][$row['data']['type']]['#node']->type);
   $collumn[]=array('data'=>l('edit',$row['edit_action_url']));
-  dsm($row['edit_action']);
     
   $collumns[]=$collumn;
 }

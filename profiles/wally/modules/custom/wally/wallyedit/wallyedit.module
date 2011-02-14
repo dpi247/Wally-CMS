@@ -519,7 +519,6 @@ function wallyedit_form_page_editmode_form_submit($form,&$form_state){
   ctools_modal_add_js();
   ctools_include('object-cache');
   $commands=array();
-  dsm($form_state);
  
   if($form_state["clicked_button"]['#name']=='reset_global'){
     drupal_set_message('reset');
@@ -711,10 +710,8 @@ function wydit_subform_global_page_submit(&$form_state){
             //determine index, if no wieght -inline element- use $key value
             if(isset($form_state['values'][$form_state['type']][$field['field_name']]["weight_".$key])){
               $index=$form_state['values'][$form_state['type']][$field['field_name']]["weight_".$key];
-              dsm('index for key='.$key.'='.$index);
             }
             else{
-              dsm(no_key);
               $index=$key;
             }
 
