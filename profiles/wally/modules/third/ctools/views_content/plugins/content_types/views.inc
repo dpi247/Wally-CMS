@@ -100,7 +100,6 @@ function _views_content_views_content_type($view) {
  * Outputs a view based on the module and delta supplied in the configuration.
  */
 function views_content_views_content_type_render($subtype, $conf, $panel_args, $contexts) {
-dsm($subtype);dsm($conf);dsm($panel_args);dsm($contexts);
   if (!is_array($contexts)) {
     $contexts = array($contexts);
   }
