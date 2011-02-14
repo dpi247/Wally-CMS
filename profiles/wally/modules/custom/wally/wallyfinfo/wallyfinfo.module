@@ -433,7 +433,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   // Definition of the click actions for the categories labels.
   foreach ($available_dests as $key=>$available_dest) {
     $jscode .= '
-      $("a#'.strtolower($available_dest->name).'").click(function() {
+      $("a#'.strtolower($available_dest->name).'").click(function() {alert("'.strtolower($available_dest->name).'");
         page_offset = 0;
         currentCarousel = carousel'.$available_dest->name.';
         currentCarouselName = "'.strtolower($available_dest->name).'";
