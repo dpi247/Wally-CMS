@@ -10,16 +10,22 @@ function wallyedit_page_node_edition($prenode,$js=FALSE){
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   
-  
   $form_state=$prenode->getFormState();
-  //dsm($form_state);
-  $form = ctools_build_form('wallyedit_form_pagenodeedition_form', $form_state);
+  $form_state["action"]= '/node/'.$form_state['cache name'].'/edit2/ajax';
   
+  
+  if($_POST['form_id']=='views_bulk_operations_form__1'){
+    
+    $view = views_get_view('test_vbo');
+    $view->execute_display('default');
+  
+  }
+  $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
   
   if($js){
     //AJAX rendering int the submit function   
   }
   else{
-    return theme('wallyedit_page_node_edition',$form,$prenode);
+    return theme('wallyedit_page_editmode',$form,$prenode);
   }
 }

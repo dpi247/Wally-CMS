@@ -17,30 +17,49 @@
  */
 class Prenode{
 
+  var $cache_name;
+  
   var $node;
   var $form_state;
   var $base_table = 'node';
+  
 
   /**
    * Constructor
    */
-  function Prenode($nid){
-    /*
-    $prenode=PreNode::LoadPrenodeFromNid($nid);
-    if($prenode){
-    }
-    else{ 
-      $prenode=PreNode::ConvertNodeToPrenode(node_load($nid));
-    }*/
-    $node=node_load($nid);
-    if(!$node){
-      drupal_set_message("WallyEdit: node not found","error");    
-      watchdog("error","WallyEdit: node not found");    
-    }
+  function Prenode($cache_name=NULL){
+    $this->cache_name=$cache_name;
     
-    $this->node=$node;
-    $this->getFormState();
+    if($cache_name){
+      $node=node_load($cache_name);
+      if(!$node){
+        //this not a node, maybe a prenode ?
+        ctools_include('object-cache');
+        
+        
+        if($cache = ctools_object_cache_get('prenode', $cache_name)){
+        //Case of a prenode in creation mode
+          $this->form_state=$cache;
+          $this->form_state['cache name']= $cache_name;
+        }
+        else{
+          drupal_set_message("WallyEdit: node not found","error");    
+          watchdog("error","WallyEdit: node not found");    
+        }
+      }
+      else{
+        //Case of a prenode in edition mode
+        
+        $this->setNode($node);
+        $this->getFormState();
+    
+      }
+      
+    }
     return $this;
+  }
+  function setNode($node){
+  $this->node=$node;
   }
    function getFormState($reset=false){
      if(isset($this->form_state) and $reset==false)
@@ -62,16 +81,16 @@ class Prenode{
       're_render' => FALSE,
       'no_redirect' => TRUE,
     );
-     $form_state = array(
-      'cache name' => $this->node->nid,
-     "action"=>'/node/6/edit2/ajax',
+    
+    $form_state = array(
+      'cache name' => wydit_get_cache_name($this->cache_name),
+ //     "action"=>'/node/'.arg(1).'/edit2/ajax',
     );
-    if($cache = ctools_object_cache_get('prenode', $this->node->nid)){
-     $form_state=$cache;
-     $form_state['type']= $type_name;
-     $form_state['type']= $type_name;
-     //$form_state[$type_name]['#node']=$this->node;
-  
+    
+    if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
+      $form_state=$cache;
+      $form_state['type']= $type_name;
+      //$form_state[$type_name]['#node']=$this->node;
     }
     else{
       $form_state['type']= $type_name;
@@ -81,10 +100,24 @@ class Prenode{
       //$form_state[$type_name]['#form_state']=$this->node;
       
       $type=wydit_get_infos_type( $type_name);
+      
       $fields = $type['fields'];
-    
       foreach($fields as $field_name=>$infos){
         if($infos['display_settings']["wallyedit"]>1){
+          $form_state[$type_name][$field_name]=array();
+          if($infos['display_settings']["wallyedit"]==2){
+            
+            
+            
+           
+            $type=wydit_get_inline_type($infos['referenceable_types']);
+            $main_node=new stdClass;
+            $main_node->type=$type;
+            $form_state[$type_name][$field_name][0]['#node']=$main_node;
+            $form_state[$type_name][$field_name][0]['type']=$main_node->type;
+
+  
+           }
           foreach($this->node->{$field_name} as $key=>$value){
             $temp_node=node_load($value['nid']);
             $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;

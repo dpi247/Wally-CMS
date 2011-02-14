@@ -1,0 +1,10 @@
+<?php
+
+function wallyedit_install() {
+     
+  // New module weights in core: put devel as the very last in the chain.
+  db_query("UPDATE {system} SET weight =30  WHERE name = 'wallyedit'");
+  db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
+  db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
+    
+}
