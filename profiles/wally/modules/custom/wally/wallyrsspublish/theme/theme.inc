@@ -1,18 +1,49 @@
 <?php
 
 function wallyrsspublish_preprocess_views_view_rss(&$vars) {
-	global $base_url;
-	global $language;
 
-	$view     = &$vars['view'];
-	$options  = &$vars['options'];
-	$items    = &$vars['rows'];
-	
-	$tid = $view->args[0];
-	$tax = taxonomy_get_term($tid);
-	$taxo = $tax->name;
+  global $base_url;
+  global $language;
 
-	$vars['title'] = $taxo;
+  $view     = &$vars['view'];
+  $options  = &$vars['options'];
+  $items    = &$vars['rows'];
+  
+  
+  $tid = $view->args[0];	
+  $tax = taxonomy_get_term($tid);
+  $vars['title'] = $tax->name;
+  $vars['description']= check_plain($tax->description);
+
+  $style    = &$view->style_plugin;
+
+  // Figure out which display which has a path we're using for this feed. If there isn't
+  // one, use the global $base_url
+  $link_display_id = $view->display_handler->get_link_display();
+  if ($link_display_id && !empty($view->display[$link_display_id])) {
+    $path = $view->display[$link_display_id]->handler->get_path();
+  }
+
+  if ($path) {
+    $path = $view->get_url(NULL, $path);
+    $url_options = array('absolute' => TRUE);
+    if (!empty($view->exposed_raw_input)) {
+      $url_options['query'] = $view->exposed_raw_input;
+    }
+
+    // Compare the link to the default home page; if it's the default home page, just use $base_url.
+    if ($path == variable_get('site_frontpage', 'node')) {
+      $path = '';
+    }
+    $vars['link'] = check_url(url($path, $url_options));
+  }
+
+  $vars['langcode'] = check_plain($language->language);
+  $vars['namespaces'] = drupal_attributes($style->namespaces);
+  $vars['items'] = $items;
+  $vars['channel_elements'] = format_xml_elements($style->channel_elements);
+
+  drupal_set_header('Content-Type: application/rss+xml; charset=utf-8');
 }
 
 
@@ -45,12 +76,12 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 
 
 
-	$imain = $my_node->field_embededobjects_nodes;
+	$imain = $my_node->field_embededobjects_nodes[0];
 
-	$type = $imain[0]->field_photofile[0]['filemime'];
-	$filesize = $imain[0]->field_photofile[0]['filesize'];
-
-	$imainstory = $imain[0]->field_photofile[0]['filepath'];
+	$type = $imain->field_photofile[0]['filemime'];
+	$filesize = $imain->field_photofile[0]['filesize'];
+	
+	$imainstory = $imain->field_photofile[0]['filepath'];
 	$file_img = theme('imagecache', $presetname,  $imainstory);
 	$path_photo = imagecache_create_url($presetname, $imainstory);
 

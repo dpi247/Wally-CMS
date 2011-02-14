@@ -9,10 +9,16 @@ function wallyrsspublish_theme() {
 	require_once "./$path/theme/theme.inc";
 	return array(
 	    'views_view_row_rss__default_destination_view_feed' => array(
-      'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
-      'template' => 'views-view-row-rss',
-      'original hook' => 'views_view_row_rss',
-      'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
+          'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
+          'template' => 'views-view-row-rss',
+          'original hook' => 'views_view_row_rss',
+          'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
+    ),
+     'views_view_rss__default_destination_view_feed' => array(
+       'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
+       'template' => 'views-view-rss',
+       'original hook' => 'views_view_rss',
+       'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
     ),
 	);
 }
