@@ -616,7 +616,7 @@ function filefield_js($type_name, $field_name, $delta) {
   $form_id = array_shift($args);
   $form['#post'] = $_POST;
   $form = form_builder($form_id, $form, $form_state);
-
+dsm($form_id);
   // Update the cached form with the new element at the right place in the form.
   if (module_exists('fieldgroup') && ($group_name = _fieldgroup_field_get_group($type_name, $field_name))) {
     if (isset($form['#multigroups']) && isset($form['#multigroups'][$group_name][$field_name])) {
@@ -647,6 +647,7 @@ function filefield_js($type_name, $field_name, $delta) {
       $form_element = $form[$type_name][$field_name][$delta];
     }
   }
+     
   $output = drupal_render($form_element);
 
   // AHAH is not being nice to us and doesn't know the "other" button (that is,
