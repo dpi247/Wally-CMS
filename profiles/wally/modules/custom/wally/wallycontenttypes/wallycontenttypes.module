@@ -460,9 +460,13 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
 		if (!($r[$value] = node_load($node2load["nid"]))) { 
 			unset($r[$value]); 
 		}
+		// Render the node.
+   	$r[$value] = node_build_content($r[$value]);
+		drupal_render($r[$value]->content);
 	} 
 	return $r; 
 }
+
 
 /**
 * Add taxonomy term from textobject to articlepackage when textobject is updated
