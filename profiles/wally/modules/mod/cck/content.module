@@ -1239,11 +1239,9 @@ function _content_field_invoke($op, &$node, $teaser = NULL, $page = NULL) {
   $type_name = is_string($node) ? $node : (is_array($node) ? $node['type'] : $node->type);
   $type = content_types($type_name);
   $field_types = _content_field_types();
-
   $return = array();
   foreach ($type['fields'] as $field) {
     $items = isset($node->$field['field_name']) ? $node->$field['field_name'] : array();
-
     // Make sure AHAH 'add more' button isn't sent to the fields for processing.
     unset($items[$field['field_name'] .'_add_more']);
 

@@ -252,9 +252,15 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
  * ctools_plugin_example/panels are used.
  */
 function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && !empty($plugin)) {
+ 
+   if ($module == 'ctools' && $plugin == 'export_ui') {
+    return 'plugins/' . $plugin;
+  }
+  //@todo: use explicit orm of plugin not $plugin
+ if ($module == 'ctools' && !empty($plugin)) {
     return "plugins/$plugin";
   }
+ 
 }
 
 /*

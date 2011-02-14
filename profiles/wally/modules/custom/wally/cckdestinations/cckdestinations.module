@@ -382,6 +382,7 @@ function cckdestinations_field_formatter_info() {
 }
 
 function cckdestinations_cron(){
+  echo 'cckdest cron'.date("H:i:s")."\n";;
   cckdestinations_api_decrement_rank();
 }
 
@@ -555,7 +556,6 @@ function cckdestinations_views_api() {
 
 
 function cckdestinations_token_list($type = 'all') {
-  dsm($type);
       $tokens=array();
   
   if ($type == 'node') {

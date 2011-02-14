@@ -660,6 +660,7 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
 
   $page->disabled = FALSE;
   
+  */
   
 
 /**

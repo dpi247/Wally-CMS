@@ -16,7 +16,7 @@ function wallyedit_page_node_edition($prenode,$js=FALSE){
   
   if($_POST['form_id']=='views_bulk_operations_form__1'){
     
-    $view = views_get_view('test_vbo');
+    $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
   
   }

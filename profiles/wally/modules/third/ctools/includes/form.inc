@@ -255,6 +255,10 @@ function ctools_process_form($form_id, &$form, &$form_state) {
     // browser don't increment all the element IDs needlessly.
     form_clean_id(NULL, TRUE);
 
+    //unset($form_state['submitted']);
+    $titi=!empty($form_state['submitted']);
+    $toto=!form_get_errors();
+
     if ((!empty($form_state['submitted'])) && !form_get_errors() && empty($form_state['rebuild'])) {
       $form_state['redirect'] = NULL;
       form_execute_handlers('submit', $form, $form_state);

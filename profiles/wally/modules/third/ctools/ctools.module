@@ -409,6 +409,8 @@ function ctools_menu() {
  * Implementation of hook_cron. Clean up old caches.
  */
 function ctools_cron() {
+    echo 'ctools cron'.date("H:i:s")."\n";;
+  
   ctools_include('utility');
   _ctools_passthrough($items, 'cron');
 }
