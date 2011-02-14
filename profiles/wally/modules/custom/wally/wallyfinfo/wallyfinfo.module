@@ -318,7 +318,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
     // Show the concerned category, add items to the concerned carousel and restart it.
     $jscode .= '
         $("#car" + dest_name).show();
-        $("#car" + dest_name + " .jcarousel-clip").css("height", "2400px");
+        $("#car" + dest_name + " .jcarousel-clip").css("height", "2600px");
 
         for (offset = 0; offset < 10; offset++) {
           carousel.add(offset+1, $.ajax({
