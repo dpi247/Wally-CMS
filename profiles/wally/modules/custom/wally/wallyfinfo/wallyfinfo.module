@@ -452,9 +452,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
   }
   
   $jscode .= '
-      $("a#'.strtolower($available_dest->name).'").click(function() {
-        reload_carousel(currentCarousel, currentCarouselName, currentTid);
-      });';
+      reload_carousel(currentCarousel, currentCarouselName, currentTid);';
   
   $jscode .= '
       function reload_carousel(carousel, dest_name, tid) {';
