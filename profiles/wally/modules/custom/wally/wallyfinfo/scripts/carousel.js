@@ -223,7 +223,7 @@
         }, o || {});
 
         return this.each(function() {                           // Returns the element collection. Chainable.
-
+alert("coucou");
             var running = false, animCss = o.vertical ? "top" : "left", sizeCss = o.vertical ? "height" : "width";
             var div = $(this), ul = $("ul", div), tLi = $("li", ul), tl = tLi.size(), v = o.visible;
 
