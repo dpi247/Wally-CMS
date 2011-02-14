@@ -3,3 +3,7 @@ name = "Wally Edition Interface"
 package = "Wally"
 project = "wallyfundamentals"
 version = "6.x-1.0-rc1"
+
+dependencies[] = ctools
+dependencies[] = views_bulk_operations
+
