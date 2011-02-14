@@ -150,7 +150,7 @@ function pub_blocks_admin_form(&$form_state) {
   while ($pub_elem = db_fetch_array($pub_list)) {
     $form['blocks'][$pub_elem['position']] = array(
       '#type' => 'checkbox',
-      '#title' => '<a href="admin/build/block/configure/pub/'.$name.'?destination=admin/rossel/pubblocks"'.$pub_elem['position'].'</a>',
+      '#title' => '<a href="admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks">'.$pub_elem['position'].'</a>',
       '#default_value' => 0,
     );
   }
