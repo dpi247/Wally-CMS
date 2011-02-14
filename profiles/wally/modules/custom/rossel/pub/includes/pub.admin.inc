@@ -130,7 +130,7 @@ function pub_blocks_admin() {
  * Form for the pub blocks admin page.
  */
 function pub_blocks_admin_form(&$form_state) {
-  $form['action_choice'] = array(
+  /*$form['action_choice'] = array(
     '#type' => 'radios',
     '#title' => t('Action'),
     '#options' => array(
@@ -138,7 +138,7 @@ function pub_blocks_admin_form(&$form_state) {
       'delete' => t('Delete')
     ),
     '#required' => TRUE,
-  );
+  );*/
   
   $form['blocks'] = array(
     '#title' => t('Choose blocks'),
@@ -150,15 +150,15 @@ function pub_blocks_admin_form(&$form_state) {
   while ($pub_elem = db_fetch_array($pub_list)) {
     $form['blocks'][$pub_elem['position']] = array(
       '#type' => 'checkbox',
-      '#title' => $pub_elem['position'],
+      '#title' => '<a href="admin/build/block/configure/pub/'.$name.'?destination=admin/rossel/pubblocks"'.$pub_elem['position'].'</a>',
       '#default_value' => 0,
     );
   }
   
   $form['blocks_submit'] = array(
     '#type' => 'submit',
-    '#title' => t('Go'),
-    '#value' => t('Go'),
+    '#title' => t('Delete'),
+    '#value' => t('Delete'),
   );
   
   return $form;
@@ -179,7 +179,7 @@ function pub_blocks_admin_form_validate($form, &$form_state) {
  * Submit actions for the form for the pub blocks admin page.
  */
 function pub_blocks_admin_form_submit($form, &$form_state) {
-  switch ($form['action_choice']['#value']) {
+  /*switch ($form['action_choice']['#value']) {
     case 'edit':
       foreach ($form['blocks'] as $name => $value) {
         if ($value['#value'] == 1) {
@@ -187,15 +187,15 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
         }
       }
       break;
-    case 'delete':
+    case 'delete':*/
       foreach ($form['blocks'] as $name => $value) {
         if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
           db_query('DELETE FROM `zz_pub_UMI` WHERE `position` = "%s"', $name);
         }
       }
-      break;
+      /*break;
     default:
-  }
+  }*/
 }
 
 /**
