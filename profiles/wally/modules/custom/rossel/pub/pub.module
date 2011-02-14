@@ -204,7 +204,7 @@ function _pub_getcontent($delta) {
   }
   
   $pub_content .= '. ';
-  $pub_content .= 'Block delta: '.$delta;
+  $pub_content .= 'Pub block delta: '.$delta;
   dsm($pub_content);
   return $pub_content;
 }
