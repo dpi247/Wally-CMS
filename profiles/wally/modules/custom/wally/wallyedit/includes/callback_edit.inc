@@ -12,8 +12,7 @@ function wallyedit_callback_edit($prenode,$js=FALSE){
   
   
   $form_state=$prenode->getFormState();
-  //$form_state=array();
-  $form = ctools_build_form('wallyedit_form_editnode_form', $form_state);
+  $form = ctools_build_form('wallyedit_form_editmode_edit_form', $form_state);
   
   
   if($js){
