@@ -11,9 +11,15 @@ function pub_install() {
  * Implementation of the hook module _uninstall();
  */
 function pub_uninstall() {
-  db_query('DELETE FROM `cache` WHERE `cid` LIKE "pub_%"');
+  cache_clear_all('pub_', 'cache', TRUE);
+  cache_clear_all('analytic_block_', 'cache', TRUE);
+  cache_clear_all('xiti_block_', 'cache', TRUE);
+  cache_clear_all('metriweb_block_', 'cache', TRUE);
   db_query("DELETE FROM `variable` WHERE `name` LIKE 'pub_block_%'");
   variable_del('pub_website');
+  variable_del('analytic_block_refresh_time');
+  variable_del('xiti_block_refresh_time');
+  variable_del('metriweb_block_refresh_time');
   cache_clear_all('variables', 'cache');
   drupal_uninstall_schema('pub');
 }
