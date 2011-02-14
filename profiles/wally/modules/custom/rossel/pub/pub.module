@@ -53,10 +53,26 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
-          'info' => t('Pub block '.$pub_elem['position']),
+          'info' => t('Pub '.$pub_elem['position']),
           'cache' => BLOCK_NO_CACHE,
         );
       }
+      
+      $blocks['analytic_block'] = array(
+        'info' => t('Analytic'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      
+      $blocks['xiti_block'] = array(
+        'info' => t('Xiti'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      
+      $blocks['metriweb_block'] = array(
+        'info' => t('MetriWeb'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      
       return $blocks;
     case 'configure':
       $form = array();
@@ -84,13 +100,46 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       );
       return $form;
     case 'save':
-      variable_set('pub_block_'.$delta.'_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+      switch ($delta) {
+        case 'analytic_block':
+          variable_set('analytic_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'xiti_block':
+          variable_set('xiti_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'metriweb_block':
+          variable_set('metriweb_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        default:
+          variable_set('pub_block_'.$delta.'_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+      }
       break;
     case 'view':
-      $block = array(
-        'subject' => t('Block de pub.'), 
-        'content' => _pub_getcontent($delta),
-      );
+      switch ($delta) {
+        case 'analytic_block':
+          $block = array(
+            'subject' => t('Analytic block.'), 
+            'content' => _analytic_getcontent(),
+          );
+          break;
+        case 'xiti_block':
+          $block = array(
+            'subject' => t('Xiti block.'), 
+            'content' => _xiti_getcontent(),
+          );
+          break;
+        case 'metriweb_block':
+          $block = array(
+            'subject' => t('MetriWeb block.'), 
+            'content' => _metriweb_getcontent(),
+          );
+          break;
+        default:
+          $block = array(
+            'subject' => t('Pub block.'), 
+            'content' => _pub_getcontent($delta),
+          );
+      }
       return $block;
   }
 }
@@ -98,14 +147,20 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
 /**
  * Get content for the pub block.
  * 
+ * @param string $delta
+ *   The delta of the concerned block.
+ * 
  * @return
  *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
  */
 function _pub_getcontent($delta) {
   $cached_pub = cache_get('pub_'.$delta.'_temp');
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
   
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time() || TRUE) {
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $orig_url = $_GET['q'];
     $expl_url = explode('/', $orig_url);
     
@@ -148,6 +203,8 @@ function _pub_getcontent($delta) {
     $pub_content = $cached_pub->data;
   }
   
+  $pub_content .= '. ';
+  $pub_content .= 'Block delta: '.$delta;
   dsm($pub_content);
   return $pub_content;
 }
@@ -165,4 +222,82 @@ function _pub_getcontentfromwebservice($req) {
   $content = $req;
   
   return $content;
+}
+
+/**
+ * Get content for the analytic block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _analytic_getcontent() {
+  $cached_pub = cache_get('analytic_block_temp');
+  $cache_time = variable_get('analytic_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $analytic_content = 'Analytic block content.';
+    
+    cache_set('analytic_block_temp', $analytic_content, 'cache', time() + 3600*$cache_time);
+    cache_set('analytic_block_perm', $analytic_content);
+  } else {
+    $analytic_content = $cached_pub->data;
+  }
+  
+  dsm($analytic_content);
+  return $analytic_content;
+}
+
+/**
+ * Get content for the Xiti block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _xiti_getcontent() {
+  $cached_pub = cache_get('xiti_block_temp');
+  $cache_time = variable_get('xiti_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $xiti_content = 'Xiti block content.';
+    
+    cache_set('xiti_block_temp', $xiti_content, 'cache', time() + 3600*$cache_time);
+    cache_set('xiti_block_perm', $xiti_content);
+  } else {
+    $xiti_content = $cached_pub->data;
+  }
+  
+  dsm($xiti_content);
+  return $xiti_content;
+}
+
+/**
+ * Get content for the MetriWeb block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _metriweb_getcontent() {
+  $cached_pub = cache_get('metriweb_block_temp');
+  $cache_time = variable_get('metriweb_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $metriweb_content = 'MetriWeb block content.';
+    
+    cache_set('metriweb_block_temp', $metriweb_content, 'cache', time() + 3600*$cache_time);
+    cache_set('metriweb_block_perm', $metriweb_content);
+  } else {
+    $metriweb_content = $cached_pub->data;
+  }
+  
+  dsm($metriweb_content);
+  return $metriweb_content;
 }
