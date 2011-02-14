@@ -17,6 +17,7 @@ function pub_uninstall() {
   cache_clear_all('metriweb_block_', 'cache', TRUE);
   db_query("DELETE FROM `variable` WHERE `name` LIKE 'pub_block_%'");
   variable_del('pub_website');
+  variable_del('pub_get_xml');
   variable_del('analytic_block_refresh_time');
   variable_del('xiti_block_refresh_time');
   variable_del('metriweb_block_refresh_time');
