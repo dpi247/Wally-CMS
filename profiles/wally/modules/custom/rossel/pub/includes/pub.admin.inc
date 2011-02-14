@@ -147,10 +147,11 @@ function pub_blocks_admin_form(&$form_state) {
   );
   
   $pub_list = db_query('SELECT * FROM `zz_pub_UMI` ORDER BY `position`');
+  global $base_url;
   while ($pub_elem = db_fetch_array($pub_list)) {
     $form['blocks'][$pub_elem['position']] = array(
       '#type' => 'checkbox',
-      '#title' => '<a href="admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks">'.$pub_elem['position'].'</a>',
+      '#title' => '<a href="'.$base_url.'/admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks">'.$pub_elem['position'].'</a>',
       '#default_value' => 0,
     );
   }
