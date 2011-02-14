@@ -253,7 +253,7 @@ function pub_cache_admin_form_validate($form, &$form_state) {
 function pub_cache_admin_form_submit($form, &$form_state) {
   foreach ($form['blocks_cache'] as $name => $value) {
     if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
-      cache_clear_all($name, 'cache');
+      cache_clear_all($name, 'cache', TRUE);
     }
   }
 }
