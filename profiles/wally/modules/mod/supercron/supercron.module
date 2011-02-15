@@ -1,0 +1,20 @@
+<?php
+// $Id: supercron.module,v 1.2 2010/03/18 22:57:45 63reasons Exp $
+
+/**
+ * @file
+ * The supercron module functions.
+ */
+
+/*
+ * It is possible for a cron call to be started *just* before this module is disabled during
+ * uninstallation, and to complete right after uninstallation is complete. This conditional insert
+ * allows these scenarios to not have consequenceson the uninstallation process.
+ *
+ * We'll say it here and again in the code: the team at 63reasons is paranoid about code
+ * stability. We want to reduce any source of error as much as we can.
+ */
+
+
+if (function_exists('drupal_get_path')) include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+

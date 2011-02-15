@@ -1,0 +1,24 @@
+/* $Id: supercron.css,v 1.1 2010/03/18 23:02:38 63reasons Exp $ */
+
+form#supercron-settings th a.advanced-help-link {padding-right: 7px;}
+a.invoke {padding: 0 0 0 20px; background: url(images/cog_go.png) 0 0 no-repeat; z-index: 1}
+
+td a.invoke {display: block; padding: 0 0; height: 16px; width: 16px; overflow: hidden; }
+
+a.supercron-rule-setting {padding: 4px 0 0 22px; background: url(images/clock_edit.png) 5px 5px no-repeat; line-height: 20px; }
+
+
+#supercron-settings-rule-toolbox {display: none;}
+
+fieldset.supercron-wizard .form-item {float: left;}
+
+#edit-minutes-custom-wrapper,
+#edit-hours-custom-wrapper,
+#edit-days-custom-wrapper,
+#edit-months-custom-wrapper,
+#edit-week-days-custom-wrapper {width: 65px;}
+#supercron-lower-warning {color: red;}
+
+fieldset.supercron-wizard .form-item .form-item {float: none;}
+
+fieldset.supercron-wizard fieldset {float: left; width: 280px; margin-right: 5px;}
