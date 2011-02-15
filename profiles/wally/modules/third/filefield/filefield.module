@@ -647,8 +647,6 @@ function filefield_js($type_name, $field_name, $delta) {
       $form_element = $form[$type_name][$field_name][$delta];
     }
   }
-    dsm($form);
-    dsm($form_eleme);
     
   $output = drupal_render($form_element);
 
