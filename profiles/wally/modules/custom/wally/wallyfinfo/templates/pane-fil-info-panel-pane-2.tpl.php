@@ -18,12 +18,43 @@
  *   data including the contexts and all of the other panes being displayed.
  */
 $pane_config = $pane->configuration;
-$available_dests = $pane_config['available_dests'];
+$available_dests = array();
+if ($pane_config['available_dests'][0] == 'contextual') {
+  $orig_url = $_GET['q'];
+  $expl_url = explode('/', $orig_url);
+
+  switch ($expl_url[0]) {
+    case 'node':
+      if ($expl_url[1]) {
+        $node = node_load($expl_url[1]);
+        $node_dest = $node->field_destinations;
+        $available_dests[] = taxonomy_get_term($node_dest[0]['tid']);
+      }
+      break;
+    case 'taxonomy':
+      if ($expl_url[2]) {
+        $tids = $expl_url[2];
+        $expl_tids = preg_split('(\+|\,|\ )', $tids);
+        $available_dests[] = taxonomy_get_term($expl_tids[0]);
+      }
+      break;
+    default:
+  }
+} else {
+  $available_dests = $pane_config['available_dests'];
+}
 drupal_add_js(drupal_get_path('module', 'wallyfinfo').'/scripts/jquery.jcarousel.js');
 drupal_add_js(_wallyfinfo_slidecategoryjs_page($available_dests), 'inline');
 drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/pageinfos.css');
 ?>
 
 <div class='box'>
-  <?php print $content; ?>
+  <?php
+    if (sizeof($available_dests)>0) {
+      print $content;
+    } else {
+      drupal_set_message('No destinations available', 'error');
+      print '';
+    }
+  ?>
 </div>
