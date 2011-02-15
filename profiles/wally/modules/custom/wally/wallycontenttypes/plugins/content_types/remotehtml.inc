@@ -288,10 +288,12 @@ function wallycontenttypes_remotehtml_content_type_render($subtype, $conf, $pane
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
   
-  $recache = TRUE;
+  
 	$uri_response = drupal_http_request($settings['uri']);//ne pas remettre en cache si le serveur distant ne répond pas
     if ($uri_response->status_message != 'OK') {
       $recache = FALSE;
+    }else{
+    	$recache = TRUE;
     }
   
   $cached_block = cache_get($cid);
