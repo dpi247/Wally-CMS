@@ -9,13 +9,11 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
   
-  
-  $tid = $view->args[0];	
-  $tax = taxonomy_get_term($tid);
-  $vars['title'] = $tax->name;
-  $vars['description']= check_plain($tax->description);
-
-  $style    = &$view->style_plugin;
+  $name = $view->args[0];
+  $tax = taxonomy_get_term_by_name($name);
+  $vars['title'] = $name;
+  $vars['description']= check_plain($tax[0]->description);
+  $style = &$view->style_plugin;
 
   // Figure out which display which has a path we're using for this feed. If there isn't
   // one, use the global $base_url
