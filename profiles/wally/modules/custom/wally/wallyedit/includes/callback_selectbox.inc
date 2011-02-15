@@ -15,7 +15,6 @@ function wallyedit_callback_selectbox($prenode,$js=FALSE){
   
   module_load_include('inc','views','/includes/ajax');
    
-  dsm($_POST);
   $view = views_get_view('test_vbo');
   $view->set_display('default');
   // set the view arguments here, if needed

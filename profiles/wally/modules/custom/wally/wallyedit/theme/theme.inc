@@ -69,7 +69,7 @@ function theme_wydit_selector_theme($form){
   }
   $table_id='table_order_'.$form['#parents'][count($form['#parents'])-1];
 
-  drupal_add_tabledrag($table_id, 'order', 'sibiling', 'order_weightss', NULL, NULL,TRUE);    
+  drupal_add_tabledrag($table_id, 'order', 'sibiling', 'order_weightss', NULL, NULL,FALSE);    
   $output = theme('table', $header, $rows,array('id'=>$table_id));
   
   $output .= drupal_render($form['add_existing_action']);

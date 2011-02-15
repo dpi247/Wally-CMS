@@ -119,11 +119,7 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id){
     //$form['#validate']=array();
     
   }
-  if($form_id=='views_bulk_operations_form__1'){
-    if($form['#id']=='views-exposed-form-test-vbo-default'){
-      $form["#action"]='/node/99/wydit_selectbox/ajax';
-    }
-  } 
+  
 }
 function wydit_test_form(&$form, &$form_state){
   
@@ -339,8 +335,21 @@ function wallyedit_form_page_createmode_form_submit($form,&$form_state){
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);  
       }
-    break;
+    break; 
     case 'add_existing':
+      
+          
+      $view = views_get_view('prenode_selectbox_vbo');
+      $view->set_display('default');
+      
+      // set the view arguments here, if needed : SET the cache name and the target
+      $view->set_arguments( array( $form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])) );
+    
+      // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
+      $view->override_path = 'views/ajax';
+      $output = $view->preview();
+    
+      $commands[] = ctools_ajax_command_html('#wallyedit_container',$output);  
     break;
     case 'save_global':
     break;
@@ -591,10 +600,41 @@ function wallyedit_form_page_editmode_form_submit($form,&$form_state){
       }
     break;
     case 'add_existing':
+      $type_name=$form_state['type'];
+      $type=wydit_get_infos_type($type_name);
+      $fields = $type['fields'];
+      //@todo: remove hard coding of parents
+      $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
       
+      $referencables=$field_infos['referenceable_types'];
+      foreach($referencables as $value){
+        if($value){
+          $allowed_types[$value]=$value;
+        }
+      }
           
+      $handler_type_filter=array(  
+        'type' => array(
+          'operator' => 'in',
+          'value' =>$allowed_types,
+          'group' => '0',
+          'exposed' => FALSE,
+          'expose' => array(
+            'operator' => FALSE,
+            'label' => '',
+          ),
+          'id' => 'type',
+          'table' => 'node',
+          'field' => 'type',
+          'relationship' => 'none',
+        ),
+        );
+      
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
+      
+      $view->display[$view->current_display]->handler->options['filters']=array_merge($view->display[$view->current_display]->handler->options['filters'],$handler_type_filter);
+      $view->display[$view->current_display]->handler->display_options['filters']=array_merge($view->display[$view->current_display]->handler->display_options['filters'],$handler_type_filter);
       
       // set the view arguments here, if needed : SET the cache name and the target
       $view->set_arguments( array( $form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])) );
@@ -718,6 +758,10 @@ function wydit_subform_global_page_submit(&$form_state){
             $subtype=$a[$form_state['type']][$field['field_name']][$index]['#node']->type;
             $a[$form_state['type']][$field['field_name']][$index]['type']=$subtype;
           }
+          
+         $a[$form_state['type']][$field['field_name']][$index]['#node']->title=$form_state['values'][$form_state['type']]['title'];
+          
+          
          //ReOrder by index
          ksort( $a[$form_state['type']][$field['field_name']]);
          $a[$form_state['type']][$field['field_name']]=array_values($a[$form_state['type']][$field['field_name']]);
@@ -1406,7 +1450,7 @@ function wallyedit_selector_action_submit($form, $form_state) {
 function wallyedit_action_info() {
   return array('wallyedit_selector_action' => array(
     'type' => 'node',
-    'description' => t('Add those node to the prenodePRENODEPRENODEPRENODEPRENODEPRENODEPRENODE'),
+    'description' => t('Add thoses nodes to the prenode'),
     'configurable' => FALSE,
     'hooks'=> array('any'=>TRUE),
   ));
@@ -1414,7 +1458,7 @@ function wallyedit_action_info() {
  function wallyedit_node_operations(){
    $operations = array(
     'wallyedit_selector_action_batch' => array(
-      'label' => t('Add those node to the prenodeBATCHBATCHBATCH'),
+      'label' => t('Add thoses nodes to the prenode'),
       'callback' => 'wallyedit_node_operations_selector_action',
     ),
   );
