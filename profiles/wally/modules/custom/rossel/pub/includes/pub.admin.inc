@@ -229,7 +229,7 @@ function pub_cache_admin_form(&$form_state) {
     $expl_id = explode('-', $pub_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
       '#type' => 'checkbox',
-      '#title' => $pub_elem['cid'],
+      '#title' => $expl_id[0],
       '#default_value' => 0,
     );
   }
