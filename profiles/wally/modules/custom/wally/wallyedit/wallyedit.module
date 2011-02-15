@@ -1130,14 +1130,14 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
     $form[$key]['edit_action']=array(
       "#type"=>"submit",
       "#value"=>'edit',
-      "#name"=>'edit__'.$key,
+      "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
       '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
       "#parents"=>array_merge($parents,array("$key"))
     );
     $form[$key]['delete_action']=array(
       "#type"=>"submit",
       "#value"=>'remove',
-      "#name"=>'remove__'.$key,
+      "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
       '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
       "#parents"=>array_merge($parents,array("$key"))
     );
