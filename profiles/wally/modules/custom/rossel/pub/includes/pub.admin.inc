@@ -140,6 +140,12 @@ function pub_blocks_admin_form(&$form_state) {
     '#required' => TRUE,
   );*/
   
+  $form['instruction'] = array(
+    '#title' => t('Click on a block name to edit it, check one (or more) box and click "Delete" button to delete them.'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
   $form['blocks'] = array(
     '#title' => t('Choose blocks'),
     '#type' => 'radios',
@@ -150,7 +156,7 @@ function pub_blocks_admin_form(&$form_state) {
   while ($pub_elem = db_fetch_array($pub_list)) {
     $form['blocks'][$pub_elem['position']] = array(
       '#type' => 'checkbox',
-      '#title' => '<a href="/admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks">'.$pub_elem['position'].'</a>',
+      '#title' => '<a href="/admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks" title="'.t("Edit this block").'">'.$pub_elem['position'].'</a>',
       '#default_value' => 0,
     );
   }
@@ -220,9 +226,40 @@ function pub_cache_admin_form(&$form_state) {
   
   $pub_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
   while ($pub_elem = db_fetch_array($pub_list)) {
-    $form['blocks_cache'][$pub_elem['cid']] = array(
+    $expl_id = explode('-', $pub_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
       '#type' => 'checkbox',
       '#title' => $pub_elem['cid'],
+      '#default_value' => 0,
+    );
+  }
+  
+  $analytic_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "analytic_%" ORDER BY `cid`');
+  while ($analytic_elem = db_fetch_array($analytic_list)) {
+    $expl_id = explode('-', $analytic_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $xiti_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "xiti_%" ORDER BY `cid`');
+  while ($xiti_elem = db_fetch_array($xiti_list)) {
+    $expl_id = explode('-', $xiti_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $metriweb_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "metriweb_%" ORDER BY `cid`');
+  while ($metriweb_elem = db_fetch_array($metriweb_list)) {
+    $expl_id = explode('-', $metriweb_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
       '#default_value' => 0,
     );
   }

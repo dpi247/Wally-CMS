@@ -159,7 +159,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
 function _pub_getcontent($delta) {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
-  $cached_pub = cache_get('pub_'.$delta.'_temp_'.$orig_url);
+  $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {    
@@ -192,12 +192,12 @@ function _pub_getcontent($delta) {
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm_'.$orig_url);
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
       $pub_content = $cached_pub->data;
     }
     
-    cache_set('pub_'.$delta.'_temp_'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
-    cache_set('pub_'.$delta.'_perm_'.$orig_url, $pub_content);
+    cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
+    cache_set('pub_'.$delta.'_perm-'.$orig_url, $pub_content);
   } else {
     $pub_content = $cached_pub->data;
   }
@@ -235,14 +235,14 @@ function _pub_getcontentfromwebservice($req) {
 function _analytic_getcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
-  $cached_pub = cache_get('analytic_block_temp_'.$orig_url);
+  $cached_pub = cache_get('analytic_block_temp-'.$orig_url);
   $cache_time = variable_get('analytic_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $analytic_content = 'Analytic block content.';
     
-    cache_set('analytic_block_temp_'.$orig_url, $analytic_content, 'cache', time() + 3600*$cache_time);
-    cache_set('analytic_block_perm_'.$orig_url, $analytic_content);
+    cache_set('analytic_block_temp-'.$orig_url, $analytic_content, 'cache', time() + 3600*$cache_time);
+    cache_set('analytic_block_perm-'.$orig_url, $analytic_content);
   } else {
     $analytic_content = $cached_pub->data;
   }
@@ -263,14 +263,14 @@ function _analytic_getcontent() {
 function _xiti_getcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
-  $cached_pub = cache_get('xiti_block_temp_'.$orig_url);
+  $cached_pub = cache_get('xiti_block_temp-'.$orig_url);
   $cache_time = variable_get('xiti_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $xiti_content = 'Xiti block content.';
     
-    cache_set('xiti_block_temp_'.$orig_url, $xiti_content, 'cache', time() + 3600*$cache_time);
-    cache_set('xiti_block_perm_'.$orig_url, $xiti_content);
+    cache_set('xiti_block_temp-'.$orig_url, $xiti_content, 'cache', time() + 3600*$cache_time);
+    cache_set('xiti_block_perm-'.$orig_url, $xiti_content);
   } else {
     $xiti_content = $cached_pub->data;
   }
@@ -291,14 +291,14 @@ function _xiti_getcontent() {
 function _metriweb_getcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
-  $cached_pub = cache_get('metriweb_block_temp_'.$orig_url);
+  $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
   $cache_time = variable_get('metriweb_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $metriweb_content = 'MetriWeb block content.';
     
-    cache_set('metriweb_block_temp_'.$orig_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
-    cache_set('metriweb_block_perm_'.$orig_url, $metriweb_content);
+    cache_set('metriweb_block_temp-'.$orig_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
+    cache_set('metriweb_block_perm-'.$orig_url, $metriweb_content);
   } else {
     $metriweb_content = $cached_pub->data;
   }
