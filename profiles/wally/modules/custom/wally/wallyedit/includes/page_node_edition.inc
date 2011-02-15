@@ -9,14 +9,14 @@ function wallyedit_page_node_edition($prenode,$js=FALSE){
   ctools_include('ajax');
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
-  
+  dsm(EDIT);
   $form_state=$prenode->getFormState();
   $form_state["action"]= '/node/'.$form_state['cache name'].'/edit2/ajax';
   
   
   if($_POST['form_id']=='views_bulk_operations_form__1'){
     
-    $view = views_get_view('prenode_selectbox_vbo');
+    $view = views_get_view('test_vbo');
     $view->execute_display('default');
   
   }
