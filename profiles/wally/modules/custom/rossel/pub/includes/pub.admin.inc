@@ -305,6 +305,7 @@ function _pub_callalltags() {
   //$xml_list = drupal_http_request(variable_get('pub_get_xml'));
   $xml_list->data = XML_LIST_DATA;
   $xml_list->code = 200;
+  $website = variable_get('pub_website');
   
   if ($xml_list->code == 200) {
     $dom = new DomDocument();
@@ -317,18 +318,20 @@ function _pub_callalltags() {
     }
     
     foreach($dom->getElementsByTagName('row') as $row) {
-      $tag_elem = array();
-      foreach($row->attributes as $attrName => $attrValue) {
-        $tag_elem[$attrName] = $attrValue->value;
-      }
-      unset($tag_elem['website']);
-      foreach($pub_array as $pub_elem) {
-        if ($tag_elem['position'] == $pub_elem['position']) {
-          drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
-          break;
+      if ($row->getAttribute('website') == $website) {
+        $tag_elem = array();
+        foreach($row->attributes as $attrName => $attrValue) {
+          $tag_elem[$attrName] = $attrValue->value;
         }
+        unset($tag_elem['website']);
+        foreach($pub_array as $pub_elem) {
+          if ($tag_elem['position'] == $pub_elem['position']) {
+            drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
+            break;
+          }
+        }
+        drupal_write_record('zz_pub_UMI', $tag_elem);
       }
-      drupal_write_record('zz_pub_UMI', $tag_elem);
     }
     
     return TRUE;
