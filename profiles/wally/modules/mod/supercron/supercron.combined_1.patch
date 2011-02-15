@@ -1,0 +1,194 @@
+diff --git a/supercron-main.inc b/supercron-main.inc
+index 95a58ee..7c79ee2 100644
+--- a/supercron-main.inc
++++ b/supercron-main.inc
+@@ -2,7 +2,6 @@
+ 
+ include_once(drupal_get_path('module', 'supercron') . '/supercron.inc');
+ 
+-
+ /**
+  * Implement hook_help().
+  */
+@@ -213,15 +212,14 @@ function supercron_exit() {
+     if ($execute) _supercron_parallel_call(url(supercron_autocron_url(), array('absolute'=>TRUE)));
+ }
+ 
+-
+ function supercron_base_path() {
+   global $base_path;
+-
+-  return str_replace('/index.php', '', $_SERVER['SCRIPT_FILENAME']) . $base_path;
++  return $base_path . drupal_get_path('module', 'supercron') . '/' . SUPERCRON_SCRIPT_NAME ;
+ }
+ 
+ function supercron_standard_path() {
+-  return supercron_base_path() . SUPERCRON_SCRIPT_NAME;
++  global $base_path;
++  return $base_path . SUPERCRON_SCRIPT_NAME ;
+ }
+ 
+ function supercron_get_script_URL() {
+@@ -246,7 +244,7 @@ function supercron_get_script_path() {
+     return supercron_standard_path();
+   }
+   elseif ($script_path == SUPERCRON_SCRIPT_PATH_MODULE_ROOT) {
+-    return str_replace('supercron.module', '', realpath(__FILE__)) . SUPERCRON_SCRIPT_NAME;
++    return supercron_base_path();
+   }
+   else {
+     return '';
+diff --git a/supercron.admin.inc b/supercron.admin.inc
+index e7656ae..e3e282c 100644
+--- a/supercron.admin.inc
++++ b/supercron.admin.inc
+@@ -8,22 +8,27 @@
+ 
+ include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+ 
++function _supercron_show_script_warning() {
++  drupal_set_message(
++    t(
++      'The !script file should copied from the !here directory to the !path directory.  ' .
++      'Until that is done, your tasks will not execute as scheduled.',
++      array(
++        '!script' => SUPERCRON_SCRIPT_NAME,
++        '!here'   => realpath(dirname(__FILE__)),
++        '!path'   => realpath('./'),
++      )
++    ),
++    'warning'
++  );
++}
++
+ function _supercron_check_requirements() {
++  global $base_path;
+   $supercron_script_path = variable_get('supercron_script_path', SUPERCRON_SCRIPT_PATH_MODULE_ROOT);
+-
+-  if ($superccron_script_path == SUPERCRON_SCRIPT_PATH_DRUPAL_ROOT) {
+-    if (!file_exists(supercron_get_script_path())) {
+-      $message = t(
+-        'The !script file should copied from the !here directory to !path; until'
+-          . ' that is done, your tasks will not execute when scheduled to.',
+-        array(
+-          '!script' => SUPERCRON_SCRIPT_NAME,
+-          '!here'   => supercron_base_path() . drupal_get_path('module', 'supercron'),
+-          '!path'   => supercron_base_path()
+-        )
+-      );
+-
+-      drupal_set_message($message, 'error');
++  if ($supercron_script_path == SUPERCRON_SCRIPT_PATH_DRUPAL_ROOT) {
++    if (!file_exists(SUPERCRON_SCRIPT_NAME)) {
++      _supercron_show_script_warning();
+     }
+   }
+ }
+@@ -137,7 +142,8 @@ function supercron_get_formatted_stats() {
+ /**
+  * SuperCron settings form.
+  */
+-function supercron_settings(&$form_state) {
++function supercron_settings($form_state) {
++  global $base_path;
+   // Check requirements
+   _supercron_check_requirements();
+ 
+@@ -156,17 +162,8 @@ function supercron_settings(&$form_state) {
+ 
+       drupal_set_message($message, 'warning');
+     }
+-    elseif (!file_exists($script_path)) {
+-      $message = 'The !script file should be copied from the !here directory to';
+-      $message .= ' !path; until that is done, your cron-driven tasks will not execute when';
+-      $message .= ' scheduled to.';
+-      $message = t($message, array(
+-        '!script' => SUPERCRON_SCRIPT_NAME,
+-        '!here'   => supercron_base_path() . drupal_get_path('module', 'supercron'),
+-        '!path'   => supercron_base_path()
+-      ));
+-
+-      drupal_set_message($message, 'warning');
++    elseif (!file_exists(SUPERCRON_SCRIPT_NAME)) {
++      _supercron_show_script_warning();
+     }
+     if (module_exists('elysia_cron'))
+       drupal_set_message(t('You are running Elysia Cron simultaneously with SuperCron; please disable one or the other to avoid cron task conflicts.'), 'warning');
+@@ -351,7 +348,7 @@ function _supercron_theme_make_span($id, $content, $extras = '') {
+   return $value . '>' . htmlentities($content) . '</span>';
+ }
+ 
+-function theme_supercron_settings(&$form) {
++function theme_supercron_settings($form) {
+   if (user_access(SUPERCRON_EXCEPTION_FEED_PERMISSION)) {
+     drupal_add_feed(url(supercron_rss_url()), t('SuperCron Exceptions'));
+   }
+@@ -445,8 +442,8 @@ function supercron_settings_submit($form, &$form_state) {
+     drupal_write_record('supercron_enabled_mods', $record, 'id');
+   }
+ 
+-    variable_set(SUPERCRON_THROTTLE_SUPPORT_VARIABLE, $form_state['values']['throttle']);
+-    variable_get(SUPERCRON_AUTOCRON_AUTOENABLED, $form_state['values']['crashsafety']);
++  variable_set(SUPERCRON_THROTTLE_SUPPORT_VARIABLE, $form_state['values']['throttle']);
++  variable_set(SUPERCRON_AUTOCRON_AUTOENABLED, $form_state['values']['crashsafety']);
+ 
+   if ($form_state['values'][SUPERCRON_SCRIPT_PATH] == SUPERCRON_SCRIPT_PATH_CUSTOM) {
+     variable_set(SUPERCRON_SCRIPT_PATH, $form_state['values'][SUPERCRON_SCRIPT_PATH . '_text']);
+diff --git a/supercron.admin.rule.inc b/supercron.admin.rule.inc
+index b6d4d71..bcd4a65 100644
+--- a/supercron.admin.rule.inc
++++ b/supercron.admin.rule.inc
+@@ -6,6 +6,7 @@
+  * Contains administrative configuration details for complex cron scheduling
+  */
+ 
++include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+ 
+ function supercron_settings_rule_toolbox() {
+   $module_path = drupal_get_path('module', 'supercron');
+diff --git a/supercron.classes.inc b/supercron.classes.inc
+index a4bae65..e7d72e7 100644
+--- a/supercron.classes.inc
++++ b/supercron.classes.inc
+@@ -439,6 +439,7 @@ class supercron_module {
+ 
+         if ($this->multithread OR $forced_multithreading) {
+             $url = str_replace('%', $this->module_name, supercron_registry()->get_external_invocation_url());
++            $url = url($url,array(absolute => TRUE));
+             _supercron_parallel_call($url);
+         }
+         else {
+diff --git a/supercron.crontab-admin.inc b/supercron.crontab-admin.inc
+index 5611323..4505c2a 100644
+--- a/supercron.crontab-admin.inc
++++ b/supercron.crontab-admin.inc
+@@ -6,8 +6,10 @@
+  * Contains administrative configuration helper for Cron tasks
+  */
+ 
++include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+ 
+-function supercron_invocation_form(&$form_state) {
++function supercron_invocation_form($form_state) {
++  global $base_path;
+   $module_path = drupal_get_path('module', 'supercron');
+   drupal_add_js("{$module_path}/js/ZeroClipboard.js");
+   drupal_add_js("{$module_path}/js/supercron.crontab.js");
+@@ -36,7 +38,7 @@ function supercron_invocation_form(&$form_state) {
+     : $supercron_script_path,
+     '#options'   => array(
+       SUPERCRON_SCRIPT_PATH_DRUPAL_ROOT => t('Drupal root (@path)', array('@path' => supercron_standard_path())),
+-      SUPERCRON_SCRIPT_PATH_MODULE_ROOT => t('Module root (@path)', array('@path' => supercron_base_path() . drupal_get_path('module', 'supercron') . '/supercron.php')),
++      SUPERCRON_SCRIPT_PATH_MODULE_ROOT => t('Module root (@path)', array('@path' => supercron_base_path())),
+       SUPERCRON_SCRIPT_PATH_CUSTOM      => t('Other place')
+     ),
+   );
+@@ -100,8 +102,6 @@ function supercron_invocation_form(&$form_state) {
+ }
+ 
+ function supercron_invocation_form_submit($form, &$form_state) {
+-  variable_set(SUPERCRON_THROTTLE_SUPPORT_VARIABLE, $form_state['values']['throttle']);
+-
+   if ($form_state['values'][SUPERCRON_SCRIPT_PATH] == SUPERCRON_SCRIPT_PATH_CUSTOM) {
+     variable_set(SUPERCRON_SCRIPT_PATH, $form_state['values'][SUPERCRON_SCRIPT_PATH . '_text']);
+   }
