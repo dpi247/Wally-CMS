@@ -109,6 +109,9 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id){
        if(isset($fields[$field]['display_settings']['wallyedit'])){
          $form[$field]["wallyedit"]["#default_value"]=$fields[$field]['display_settings']['wallyedit'];
        }
+       else{
+         $form[$field]["wallyedit"]["#default_value"]=1;
+       }
      }
      foreach($form["#groups"] as $field){}
   }
