@@ -287,8 +287,15 @@ function wallycontenttypes_remotehtml_content_type_render($subtype, $conf, $pane
   $block->module = 'wallycontenttypes';
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
+  
+  $recache = TRUE;
+	$uri_response = drupal_http_request($settings['uri']);//ne pas remettre en cache si le serveur distant ne répond pas
+    if ($uri_response->status_message != 'OK') {
+      $recache = FALSE;
+    }
+  
   $cached_block = cache_get($cid);
-  if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || time() > $cached_block->expire) {
+  if ($recache || !is_object($cached_block) || !isset($cached_block) || empty($cached_block) || time() > $cached_block->expire) {
     $block_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
