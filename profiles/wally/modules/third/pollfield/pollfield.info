@@ -6,9 +6,9 @@ dependencies[] = views
 package = CCK
 core = 6.x
 
-; Information added by drupal.org packaging script on 2010-06-26
-version = "6.x-1.12-beta1"
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "6.x-1.13-beta1"
 core = "6.x"
 project = "pollfield"
-datestamp = "1277562616"
+datestamp = "1296068213"
 
