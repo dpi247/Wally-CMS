@@ -756,6 +756,7 @@ function wydit_subform_global_page_submit(&$form_state){
 
             $a[$form_state['type']][$field['field_name']][$index]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field['field_name']][$key])+(array)$form_state[$form_state['type']][$field['field_name']][$key]['#node']);
             $subtype=$a[$form_state['type']][$field['field_name']][$index]['#node']->type;
+            
             $a[$form_state['type']][$field['field_name']][$index]['type']=$subtype;
             
           }
@@ -772,6 +773,9 @@ function wydit_subform_global_page_submit(&$form_state){
     //dsm($a);
     }
   
+  }
+  if(isset($a[$form_state['type']]['field_mainstory'])){
+    $a[$form_state['type']]['field_mainstory']['#node']->title=$a[$form_state['type']]['#node']->title;
   }
   
   
