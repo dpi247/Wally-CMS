@@ -12,7 +12,6 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   
   
   //@todo: DIRTY HACK TO REMOVE !!!
-  dsm($_POST,post);
   $parents=unserialize($_POST['parents']);
   $cache_name=$_POST['cache_name'];
   $form_state=array(
@@ -26,7 +25,6 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   
   
   if($js){
-    dsm(rrrrrssssvvvvv);
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
     ctools_ajax_render($commands); 
      
