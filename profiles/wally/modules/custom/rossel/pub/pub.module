@@ -119,25 +119,25 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
         case 'analytic_block':
           $block = array(
             'subject' => t('Analytic block.'), 
-            'content' => _analytic_getcontent(),
+            'content' => _pub_getanalyticcontent(),
           );
           break;
         case 'xiti_block':
           $block = array(
             'subject' => t('Xiti block.'), 
-            'content' => _xiti_getcontent(),
+            'content' => _pub_getxiticontent(),
           );
           break;
         case 'metriweb_block':
           $block = array(
             'subject' => t('MetriWeb block.'), 
-            'content' => _metriweb_getcontent(),
+            'content' => _pub_getmetriwebcontent(),
           );
           break;
         default:
           $block = array(
             'subject' => t('Pub block.'), 
-            'content' => _pub_getcontent($delta),
+            'content' => _pub_getpubcontent($delta),
           );
       }
       return $block;
@@ -156,37 +156,13 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getcontent($delta) {
+function _pub_getpubcontent($delta) {
   $orig_url = $_GET['q'];
-  $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
   
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {    
-    switch ($expl_url[0]) {
-      case 'node':
-        if ($expl_url[1]) {
-          $node = node_load($expl_url[1]);
-          $node_dest = $node->field_destinations;
-          $tax_term = taxonomy_get_term($node_dest[0]['tid']);
-          $webserv_req = $tax_term->name.'/'.$node->nid;
-        } else {
-          $webserv_req = 'custom/'.$orig_url;
-        }
-        break;
-      case 'taxonomy':
-        if ($expl_url[2]) {
-          $tids = $expl_url[2];
-          $expl_tids = preg_split('(\+|\,|\ )', $tids);
-          $tax_term = taxonomy_get_term($expl_tids[0]);
-          $webserv_req = $tax_term->name;
-        } else {
-          $webserv_req = 'custom/'.$orig_url;
-        }
-        break;
-      default:
-        $webserv_req = 'custom/'.$orig_url;
-    }
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
     $content_from_webservice = _pub_getcontentfromwebservice($webserv_req);
     
     if ($content_from_webservice) {
@@ -232,7 +208,7 @@ function _pub_getcontentfromwebservice($req) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _analytic_getcontent() {
+function _pub_getanalyticcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('analytic_block_temp-'.$orig_url);
@@ -260,7 +236,7 @@ function _analytic_getcontent() {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _xiti_getcontent() {
+function _pub_getxiticontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('xiti_block_temp-'.$orig_url);
@@ -288,7 +264,7 @@ function _xiti_getcontent() {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _metriweb_getcontent() {
+function _pub_getmetriwebcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
@@ -305,4 +281,70 @@ function _metriweb_getcontent() {
   
   dsm($metriweb_content);
   return $metriweb_content;
+}
+
+/**
+ * Return the request sent to the webservice. The request is based on the URL.
+ * 
+ * @param string $orig_url
+ *   The page URL, given by $_GET['q'].
+ * 
+ * @return
+ *   The request as a string.
+ */
+function _pub_getwebservreq($orig_url) {
+  $expl_url = explode('/', $orig_url);
+  $webserv_req = '';
+  $home_page = variable_get('site_frontpage', '');
+  if ($home_page == $orig_url) {
+    $webserv_req = 'home';
+  } else {
+    switch ($expl_url[0]) {
+      case 'node':
+        if ($expl_url[1]) {
+          $node = node_load($expl_url[1]);
+          $node_dest = $node->field_destinations;
+          $tax_hierar = _pub_gethierarchiefromtid($node_dest[0]['tid']);
+          $webserv_req = $tax_hierar.'/'.$node->nid;
+        } else {
+          $webserv_req = 'custom/'.$orig_url;
+        }
+        break;
+      case 'taxonomy':
+        if ($expl_url[2]) {
+          $tids = $expl_url[2];
+          $expl_tids = preg_split('(\+|\,|\ )', $tids);
+          $tax_hierar = _pub_gethierarchiefromtid($expl_tids[0]);
+          $webserv_req = $tax_hierar;
+        } else {
+          $webserv_req = 'custom/'.$orig_url;
+        }
+        break;
+      default:
+        $webserv_req = 'custom/'.$orig_url;
+    }
+  }
+  
+  return $webserv_req;
+}
+
+/**
+ * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
+ * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
+ * 
+ * @param string $tid
+ *   A taxonomy term ID.
+ * 
+ * @return
+ *   A string containing the parents hierarchy, separated by "/".
+ */
+function _pub_gethierarchiefromtid($tid) {
+  $return = '';
+  
+  $tax_list = taxonomy_get_parents_all($tid);
+  foreach (array_reverse($tax_list) as $tax_elem) {
+    $return .= $tax_elem->name.'/';
+  }
+  
+  return substr($return, 0, strlen($return)-1);
 }
