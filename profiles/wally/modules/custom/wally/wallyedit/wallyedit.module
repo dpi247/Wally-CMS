@@ -942,6 +942,8 @@ function wydit_subform_global_add_form(&$form_state){
   	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
   ); 
   $form['#tree']=true;
+  dsm($form);
+  dsm($form_state);
   
   return $form;
 }
