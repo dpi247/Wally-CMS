@@ -106,7 +106,9 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id){
        if($fields[$field]['type']=='nodereference'){
        $form[$field]["wallyedit"]["#options"]=array_merge($form[$field]["wallyedit"]["#options"],array(2=>t('inline'),3=>t('Select box')));
        }
-       $form[$field]["wallyedit"]["#default_value"]=$fields[$field]['display_settings']['wallyedit'];
+       if(isset($fields[$field]['display_settings']['wallyedit'])){
+         $form[$field]["wallyedit"]["#default_value"]=$fields[$field]['display_settings']['wallyedit'];
+       }
      }
      foreach($form["#groups"] as $field){}
   }
