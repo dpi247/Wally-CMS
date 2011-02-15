@@ -141,7 +141,7 @@ function pub_blocks_admin_form(&$form_state) {
   );*/
   
   $form['instruction'] = array(
-    '#title' => t('Click on a block name to edit it, check one (or more) box and click "Delete" button to delete them.'),
+    '#title' => t('Click on a block name to edit it, check one (or more) box and click "Delete" button to delete them'),
     '#type' => 'radios',
     '#options' => array(),
   );
