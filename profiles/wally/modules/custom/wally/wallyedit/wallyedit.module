@@ -774,9 +774,7 @@ function wydit_subform_global_page_submit(&$form_state){
     }
   
   }
-  if(isset($a[$form_state['type']]['field_mainstory'])){
-    $a[$form_state['type']]['field_mainstory']['#node']->title=$a[$form_state['type']]['#node']->title;
-  }
+
   
   
   ctools_object_cache_set('prenode', $a['cache name'], $a);
