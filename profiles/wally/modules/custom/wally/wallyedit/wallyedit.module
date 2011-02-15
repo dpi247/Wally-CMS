@@ -757,7 +757,6 @@ function wydit_subform_global_page_submit(&$form_state){
             $a[$form_state['type']][$field['field_name']][$index]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field['field_name']][$key])+(array)$form_state[$form_state['type']][$field['field_name']][$key]['#node']);
             $subtype=$a[$form_state['type']][$field['field_name']][$index]['#node']->type;
             $a[$form_state['type']][$field['field_name']][$index]['type']=$subtype;
-            $a[$form_state['type']][$field['field_name']][$index]['#node']->title=$form_state['values'][$form_state['type']]['title'];
             
           }
           
