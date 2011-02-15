@@ -38,12 +38,12 @@ function wallycontenttypes_views_default_views() {
       'breadcrumb' => '',
       'default_argument_type' => 'fixed',
       'default_argument' => '',
-      'validate_type' => 'none',
+      'validate_type' => 'taxonomy_term',
       'validate_fail' => 'not found',
-      'add_table' => 0,
+      'add_table' => 1,
       'require_value' => 0,
-      'reduce_duplicates' => 0,
-      'set_breadcrumb' => 0,
+      'reduce_duplicates' => 1,
+      'set_breadcrumb' => 1,
       'id' => 'field_destinations_tid',
       'table' => 'node_data_field_destinations',
       'field' => 'field_destinations_tid',
@@ -57,6 +57,7 @@ function wallycontenttypes_views_default_views() {
       'default_argument_user' => 0,
       'default_argument_php' => '',
       'validate_argument_node_type' => array(
+        'poll' => 0,
         'wally_articlepackage' => 0,
         'wally_audioobject' => 0,
         'wally_digitalobject' => 0,
@@ -76,8 +77,8 @@ function wallycontenttypes_views_default_views() {
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
+        '2' => 2,
         '1' => 0,
-        '2' => 0,
         '3' => 0,
         '4' => 0,
         '5' => 0,
@@ -87,7 +88,7 @@ function wallycontenttypes_views_default_views() {
         '8' => 0,
         '9' => 0,
       ),
-      'validate_argument_type' => 'tid',
+      'validate_argument_type' => 'convert',
       'validate_argument_transform' => 0,
       'validate_user_restrict_roles' => 0,
       'validate_argument_php' => '',
@@ -136,15 +137,9 @@ function wallycontenttypes_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
+  $handler->override_option('use_pager', 'mini');
   $handler->override_option('row_plugin', 'node');
-  $handler->override_option('row_options', array(
-    'relationship' => 'none',
-    'build_mode' => 'teaser',
-    'links' => 1,
-    'comments' => 0,
-  ));
   $handler = $view->new_display('redacblock', 'Default Destination block', 'redacblock_1');
-  $handler->override_option('row_plugin', 'redacblock_row');
   $handler->override_option('row_options', NULL);
   $handler->override_option('redacblock_layout', array(
     'small' => 'small',
@@ -187,11 +182,7 @@ function wallycontenttypes_views_default_views() {
     'description' => '',
   ));
   $handler->override_option('row_plugin', 'node_rss');
-  $handler->override_option('row_options', array(
-    'relationship' => 'none',
-    'item_length' => 'default',
-  ));
-  $handler->override_option('path', 'rss/%');
+  $handler->override_option('path', 'rss/%/rss.xml');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => '',
@@ -206,10 +197,7 @@ function wallycontenttypes_views_default_views() {
     'weight' => 0,
     'name' => 'navigation',
   ));
-  $handler->override_option('displays', array(
-    'default' => 0,
-    'redacblock_1' => 0,
-  ));
+  $handler->override_option('displays', array());
   $handler->override_option('sitename_title', FALSE);
 
   $views[$view->name] = $view;
