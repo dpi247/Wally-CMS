@@ -92,7 +92,7 @@ function wallyrsstonode_page_admin_form($form_state, $default_form_values) {
     '#title' => t('Use HTML in the text body'),
     '#description' => t('Use HTML in the text body.'),
     '#options' => $body_html_options,
-    '#default_value' => $default_body_html,
+    '#default_value' => isset($default_body_html) ? $default_body_html : 0,
     '#weight' => 0.2,
   );
   
