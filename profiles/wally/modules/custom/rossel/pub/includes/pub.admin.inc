@@ -26,7 +26,7 @@ function pub_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('URL used for getting blocks informations'),
     '#description' => t('The URL used for getting blocks informations.'),
-    '#default_value' => variable_get('pub_get_xml', ''),
+    '#default_value' => variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
