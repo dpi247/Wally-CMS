@@ -20,6 +20,17 @@
  * @todo: Check if these infos are correct.
  */
 function emvideo_embedly_info() {
+	$features = array(
+    array(t('Autoplay'), t('Yes'), ''),
+    array(t('RSS Attachment'), t('Yes'), ''),
+    array(t('Show related videos'), t('Yes'), t('This is embedded in the video itself when enabled; currently not available with other providers. Set the feature above.')),
+    array(t('Thumbnails'), t('Yes'), t('')),
+    array(t('Duration'), t('Yes'), ''),
+    array(t('Status'), t('Yes'), t('Stores video status (available and unavailable).')),
+    array(t('Custom player colors'), t('Yes'), t("You may customize the player's skin by choosing your own colors, and/or border in that setting field set.")),
+    array(t('Full screen mode'), t('Yes'), t('You may customize the player to enable or disable full screen playback. Full screen mode is enabled by default.')),
+    array(t('Use JW FLV Media Player'), t('Yes'), t("You may opt to use the !flvplayer to play YouTube videos if it's installed on your server.", array('!flvplayer' => l(t('JW FLV Media Player'), 'http://www.longtailvideo.com/players/jw-flv-player/')))),
+  );
   return array(
     'module' => 'media_embedly',
     'provides' => array('emvideo'),
@@ -27,7 +38,7 @@ function emvideo_embedly_info() {
     'name' => t('Embedly'),
     'url' => MEDIA_EMBEDLY_MAIN_URL,
     'settings_description' => t('These settings specifically affect videos displayed from <a href="@embedly" target="_blank">Embedly</a>. You can learn more about its <a href="@api" target="_blank">API</a> here.', array('@embedly' => MEDIA_EMBEDLY_MAIN_URL, '@api' => MEDIA_EMBEDLY_API_INFO)),
-    'supported_features' => '',
+    'supported_features' => $features,
   );
 }
 
@@ -56,7 +67,9 @@ function emvideo_embedly_data_version() {
  */
 function emvideo_embedly_data($field, $item) {
   $data = array();
-
+  //dsm($item);
+  $emdata = _emvideo_embedly_request($item['embed']);
+  $data['thumbnail']['url'] = $emdata['thumbnail_url'];
   return $data;
 }
 
