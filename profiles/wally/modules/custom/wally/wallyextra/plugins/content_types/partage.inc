@@ -4,7 +4,7 @@
  * describes the content type.
  */
  
-function wallycontenttypes_partage_ctools_content_types() {
+function wallyextra_partage_ctools_content_types() {
     return array(
       'single' => TRUE,
       'title' => t('Partage to face book and all'),
@@ -16,18 +16,18 @@ function wallycontenttypes_partage_ctools_content_types() {
     );
 }
 
-function wallycontenttypes_partage_content_type_edit_form(&$form, &$form_state) {
+function wallyextra_partage_content_type_edit_form(&$form, &$form_state) {
 }
 
-function wallycontenttypes_partage_content_type_edit_form_submit(&$form, &$form_state) {
+function wallyextra_partage_content_type_edit_form_submit(&$form, &$form_state) {
 }
 
-function wallycontenttypes_partage_content_type_render($subtype, $conf, $panel_args, $context) {
+function wallyextra_partage_content_type_render($subtype, $conf, $panel_args, $context) {
    
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
 
   $block = new stdClass();
-  $block->module = 'wallycontenttypes';
+  $block->module = 'wallyextra';
   $block->delta  = $node->nid;
   
   if (empty($node)) {

@@ -10,7 +10,7 @@
  */
 $plugin = array(
   'no title override' => TRUE,
-  'defaults' => _wallycontenttypes_taxonomylist_defaultformvalues(),
+  'defaults' => _wallyextra_taxonomylist_defaultformvalues(),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'edit form' => '',
@@ -23,8 +23,8 @@ $plugin = array(
 /**
  * Building the configuration form of a taxonomy list.
  */
-function wallycontenttypes_taxonomylist_content_type_edit_form(&$form, &$form_state) {
-  $settings = wallycontenttypes_taxonomylist_content_type_get_conf($form_state['subtype'], $form_state['conf']);
+function wallyextra_taxonomylist_content_type_edit_form(&$form, &$form_state) {
+  $settings = wallyextra_taxonomylist_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
 
   if ($settings['taxonomylist_type'] == 'fixed' && ($form_state['conf']['creation_date']+1)>=time()) {
@@ -103,15 +103,15 @@ function wallycontenttypes_taxonomylist_content_type_edit_form(&$form, &$form_st
 /**
  * Submitting the configuration form of a taxonomy list.
  */
-function wallycontenttypes_taxonomylist_content_type_edit_form_submit(&$form, &$form_state) {
+function wallyextra_taxonomylist_content_type_edit_form_submit(&$form, &$form_state) {
     if ($form_state['settings']['taxonomylist_type'] == 'fixed') {
-    _wallycontenttypes_taxonomylist_content_type_edit_save($form_state['settings']['content'], $form_state);
+    _wallyextra_taxonomylist_content_type_edit_save($form_state['settings']['content'], $form_state);
   } else if (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // taxonomylist content and give it the proper values.
-    $content = wallycontenttypes_newctoolsexport('wallycontenttypes_taxonomylist_content', 'taxonomylist');
+    $content = wallyextra_newctoolsexport('wallyextra_taxonomylist_content', 'taxonomylist');
     $content->name = $form_state['values']['name'];
-    _wallycontenttypes_taxonomylist_content_type_edit_save($content, $form_state);
+    _wallyextra_taxonomylist_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
@@ -124,7 +124,7 @@ function wallycontenttypes_taxonomylist_content_type_edit_form_submit(&$form, &$
 /**
  * Export the configuration of the reusable block.
  */
-function _wallycontenttypes_taxonomylist_content_type_edit_save(&$content, $form_state) {
+function _wallyextra_taxonomylist_content_type_edit_save(&$content, $form_state) {
   // Apply updates to the content object.
   $content->category = $form_state['values']['category'];
   $content->admin_title = $form_state['values']['name'];
@@ -135,19 +135,19 @@ function _wallycontenttypes_taxonomylist_content_type_edit_save(&$content, $form
     }
   }
 
-  ctools_export_crud_save('wallycontenttypes_taxonomylist_content', $content);
+  ctools_export_crud_save('wallyextra_taxonomylist_content', $content);
 }
 
 /**
  * Return all taxonomylist content types available.
  */
-function wallycontenttypes_taxonomylist_content_type_content_types() {
+function wallyextra_taxonomylist_content_type_content_types() {
   ctools_include('export');
   $types = array();
-  $types['taxonomylist'] = _wallycontenttypes_taxonomylist_default_ctools_content_type();
+  $types['taxonomylist'] = _wallyextra_taxonomylist_default_ctools_content_type();
   
-  foreach (ctools_export_crud_load_all('wallycontenttypes_taxonomylist_content') as $name => $content) {
-    $types[$name] = _wallycontenttypes_taxonomylist_ctools_content_type($content);
+  foreach (ctools_export_crud_load_all('wallyextra_taxonomylist_content') as $name => $content) {
+    $types[$name] = _wallyextra_taxonomylist_ctools_content_type($content);
   }
   return $types;
 }
@@ -155,15 +155,15 @@ function wallycontenttypes_taxonomylist_content_type_content_types() {
 /**
  * Return the taxonomylist content types with the specified $subtype_id.
  */
-function wallycontenttypes_taxonomylist_content_type_content_type($subtype_id) {
+function wallyextra_taxonomylist_content_type_content_type($subtype_id) {
   if ($subtype_id == 'taxonomylist') {
-    return _wallycontenttypes_taxonomylist_default_ctools_content_type();
+    return _wallyextra_taxonomylist_default_ctools_content_type();
   }
   else {
     ctools_include('export');
-    $content = ctools_export_crud_load('wallycontenttypes_taxonomylist_content', $subtype_id);
+    $content = ctools_export_crud_load('wallyextra_taxonomylist_content', $subtype_id);
     if ($content) {
-      return _wallycontenttypes_taxonomylist_ctools_content_type($content);
+      return _wallyextra_taxonomylist_ctools_content_type($content);
     }
   }
 }
@@ -173,14 +173,14 @@ function wallycontenttypes_taxonomylist_content_type_content_type($subtype_id) {
  *
  * The default is the one that allows the user to actually create a type.
  */
-function _wallycontenttypes_taxonomylist_default_ctools_content_type() {
+function _wallyextra_taxonomylist_default_ctools_content_type() {
   $info = array(
     'name' => 'taxonomylist',
     'title' => t('Package related Taxonomy List (simple/tree)'),
     'category' => t('Packages'),
-    'edit form' => 'wallycontenttypes_taxonomylist_content_type_edit_form',
+    'edit form' => 'wallyextra_taxonomylist_content_type_edit_form',
     'description' => t('Fetch all taxonomy terms related to package node (List/Tree Mode).'),
-    'defaults' => _wallycontenttypes_taxonomylist_defaultformvalues(),
+    'defaults' => _wallyextra_taxonomylist_defaultformvalues(),
   );
 
   return $info;
@@ -189,13 +189,13 @@ function _wallycontenttypes_taxonomylist_default_ctools_content_type() {
 /**
  * Return an info array for a specific taxonomylist content type.
  */
-function _wallycontenttypes_taxonomylist_ctools_content_type($content) {
+function _wallyextra_taxonomylist_ctools_content_type($content) {
   $info = array(
     'name' => $content->name,
     'title' => check_plain($content->admin_title),
     'description' => check_plain($content->admin_description),
     'category' => $content->category ? check_plain($content->category) : t('Wally reusable blocks'),
-    'edit form' => 'wallycontenttypes_taxonomylist_content_type_edit_form',
+    'edit form' => 'wallyextra_taxonomylist_content_type_edit_form',
     // Store this here to make it easy to access.
     'content' => $content,
   );
@@ -206,8 +206,8 @@ function _wallycontenttypes_taxonomylist_ctools_content_type($content) {
 /**
  * Rendering of the taxonomy list ctools.
  */
-function wallycontenttypes_taxonomylist_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = wallycontenttypes_taxonomylist_content_type_get_conf(wallycontenttypes_taxonomylist_content_type_content_type($subtype), $conf);
+function wallyextra_taxonomylist_content_type_render($subtype, $conf, $panel_args, $context) {
+  $settings = wallyextra_taxonomylist_content_type_get_conf(wallyextra_taxonomylist_content_type_content_type($subtype), $conf);
   
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
   $block = new stdClass();
@@ -215,9 +215,7 @@ function wallycontenttypes_taxonomylist_content_type_render($subtype, $conf, $pa
   if (empty($node)) {
     $block->title = "Error.";
     $block->content = t('wallycontenttype: A context is required.<br/> Please specify a node context in the settings of this pane');
-  }
-  else {
-
+  } else {
     $taxonomyfield = $settings['taxonomyfield'];
          
     $block->title = "Taxonomy Tag List.";
@@ -247,7 +245,7 @@ function wallycontenttypes_taxonomylist_content_type_render($subtype, $conf, $pa
  * @return
  *   The usable settings.
  */
-function wallycontenttypes_taxonomylist_content_type_get_conf($subtype, $conf) {
+function wallyextra_taxonomylist_content_type_get_conf($subtype, $conf) {
   if ($subtype['name'] != 'taxonomylist') {
     $settings = $subtype['content']->settings;
     $settings['taxonomylist_type'] = 'fixed';
@@ -259,13 +257,13 @@ function wallycontenttypes_taxonomylist_content_type_get_conf($subtype, $conf) {
     // non-local.
     if (!empty($conf['name'])) {
       ctools_include('export');
-      $content = ctools_export_crud_load('wallycontenttypes_taxonomylist_content', $conf['name']);
+      $content = ctools_export_crud_load('wallyextra_taxonomylist_content', $conf['name']);
       if ($content) {
         $settings = $content->settings;
       } else {
-        $content = wallycontenttypes_newctoolsexport('wallycontenttypes_taxonomylist_content', 'taxonomylist');
+        $content = wallyextra_newctoolsexport('wallyextra_taxonomylist_content', 'taxonomylist');
         $content->name = $conf['name'];
-        $settings = _wallycontenttypes_taxonomylist_defaultformvalues();
+        $settings = _wallyextra_taxonomylist_defaultformvalues();
       }
       $settings['taxonomylist_type'] = 'fixed';
       $settings['content'] = $content;
@@ -283,8 +281,8 @@ function wallycontenttypes_taxonomylist_content_type_get_conf($subtype, $conf) {
 /**
  * Callback to provide the administrative title of the taxonomylist content.
  */
-function wallycontenttypes_taxonomylist_content_type_admin_title($subtype, $conf) {
-  $settings = wallycontenttypes_taxonomylist_content_type_get_conf(wallycontenttypes_taxonomylist_content_type_content_type($subtype), $conf);
+function wallyextra_taxonomylist_content_type_admin_title($subtype, $conf) {
+  $settings = wallyextra_taxonomylist_content_type_get_conf(wallyextra_taxonomylist_content_type_content_type($subtype), $conf);
 
   $output = t('Package related Taxonomy List (simple/tree)');
   $title = !empty($settings['admin_title']) ? $settings['admin_title'] : $settings['title'];
@@ -304,8 +302,8 @@ function wallycontenttypes_taxonomylist_content_type_admin_title($subtype, $conf
  * Callback to provide administrative info. In this case we'll render the
  * content as long as it's not PHP, which is too risky to render here.
  */
-function wallycontenttypes_taxonomylist_content_type_admin_info($subtype, $conf) {
-  $settings = wallycontenttypes_taxonomylist_content_type_get_conf(wallycontenttypes_taxonomylist_content_type_content_type($subtype), $conf);
+function wallyextra_taxonomylist_content_type_admin_info($subtype, $conf) {
+  $settings = wallyextra_taxonomylist_content_type_get_conf(wallyextra_taxonomylist_content_type_content_type($subtype), $conf);
 
   $block = new stdClass();
   $block->title = filter_xss_admin($settings['title']);
@@ -342,7 +340,7 @@ function wallycontenttypes_taxonomylist_content_type_admin_info($subtype, $conf)
  * @return
  *   The default values.
  */
-function _wallycontenttypes_taxonomylist_defaultformvalues() {
+function _wallyextra_taxonomylist_defaultformvalues() {
   $default_form_values = array();
   $default_form_values['taxonomyfield'] = 'field_authors';
   $default_form_values['taxonomystyle'] = 'simple';

@@ -1,0 +1,264 @@
+<?php 
+
+/**
+ *  Implémentation du hook_theme(); 
+ */
+function wallyextra_theme(&$var) {
+
+  $path = drupal_get_path('module', 'wallyextra');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
+ return array(
+ 
+		'wallyct_mainmenu' => $base + array(
+    'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
+    'template' => 'wallyct_mainmenu',
+    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_rss' => $base + array(
+    'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+    'template' => 'wallyct_rss',
+    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_remotehtml' => $base + array(
+    'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
+    'template' => 'wallyct_remotehtml',
+    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_twit' => $base + array(
+    'arguments' => array("feed" => NULL, "options" => NULL),
+    'template' => 'wallyct_twit',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_tofacebook' => $base + array(
+    'arguments' => array("node" => NULL, "options" => NULL),
+    'template' => 'wallyct_tofacebook',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_taxotermlist' => $base + array(
+    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+    'template' => 'wallyct_taxotermlist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_taxotermlist_tree' => $base + array(
+    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+    'template' => 'wallyct_taxotermlist_tree',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyextra_rssmixread_content_perm() {
+  return array(
+    'administer rssmixread content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyextra_rssread_content_perm() {
+  return array(
+    'administer rssread content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyextra_taxonomylist_content_perm() {
+  return array(
+    'administer taxonomylist content',
+  );
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyextra_twitread_content_perm() {
+  return array(
+    'administer twitread content',
+  );
+}
+
+/*
+ * Implementation of hook_ctools_plugin_directory().
+ * 
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types. In this case the subdirectories of
+ * ctools_plugin_example/panels are used.
+ */
+function wallyextra_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/*
+ * Implement hook_ctools_plugin_api().
+ * 
+ * If you do this, CTools will pick up default panels pages in
+ * <modulename>.pages_default.inc
+ */
+function wallyextra_ctools_plugin_api($module, $api) {
+  // @todo this example should explain how to put it in a different file.
+  if ($module == 'panels_mini' && $api == 'panels_default') {
+    return array('version' => 1);
+  }
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * This preprocess function could be set by any hook_theme but for content type CTolls only.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions_from_plugins(&$variables) {
+  $suggestion = wallyextra_getsuggestions_from_plugins($variables); 
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/**
+ * Build all the suggestions template for a content type CTools
+ * of any content type with Destinations information.   
+ *
+ *  Wally specific suggestions are:  
+ * 
+ *  - {plugin_type}_{destinations_terms_underscore_separated}.tpl.php
+ *  - {plugin_type}.tpl.php
+ * 
+ * @param $variables
+ *   Templating variables
+ * @param $type
+ *   Prefix added to suggestions (default = page). Could be "page" or "node".
+ * 
+ * @return 
+ *   Array of suggestion pages templates.
+ */
+function wallyextra_getsuggestions_from_plugins(&$variables) {
+  $context = isset($variables['context']) ? $variables['context'] : array();
+  $context_keys = array_keys($context);
+  $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
+  $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
+  $destinations = array();
+  $suggestion = array();
+  $tax_children = array();
+  $vid=variable_get('wallymport_destinationpath',null);
+  $path = "";
+  $package_layout = (isset($variables['node'])) ? wallyextra_getpackagelayout($variables['node']) : NULL ; 
+
+  if(isset($context->tids)){
+	  foreach ($context->tids as $tid) {
+	    $destinations[] = taxonomy_get_term($tid);
+	  }
+  }
+  $suggestion[] = 'plugins';
+  $suggestion[] = 'plugins_'.$subtype;
+
+  if (count($destinations)) {
+    foreach ($destinations as $destination) {
+      $tax_children = taxonomy_get_parents_all($destination->tid, $vid);
+      $count = count($tax_children);
+      for ($i = $count-1; $i >= 0; $i--) {
+        ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
+        if ($subtype) $suggestion[] = 'plugins_'.$subtype . '_' . $path;
+      }
+    }
+  }
+
+  return $suggestion;  
+}
+
+/**
+ * Extract page layout information from the node. 
+ *
+ * @param $node
+ *   The node currently processed
+ *
+ * @return 
+ *   The Package layout as a string or NULL.
+ */
+function wallyextra_getpackagelayout($node) {
+  if (isset($node->field_packagelayout)) {
+    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
+    $package_layout = strtolower(trim($package_layout->name));
+  } else {
+    $package_layout = NULL;
+  }
+  return $package_layout; 
+}
+
+/**
+ * Create a new object for the given $table.
+ *
+ * @param $table
+ *   The name of the table to use to retrieve $schema values. This table
+ *   must have an 'export' section containing data or this function
+ *   will fail.
+ * @param $plugin_name
+ *   The name of the concerned plugin.
+ * @param $set_defaults
+ *   If TRUE, which is the default, then default values will be retrieved
+ *   from schema fields and set on the object.
+ *
+ * @return
+ *   The loaded object.
+ */
+function wallyextra_newctoolsexport($table, $plugin_name, $set_defaults = TRUE) {
+  $schema = ctools_export_get_schema($table);
+  $export = $schema['export'];
+
+  if (!empty($export['create callback']) && function_exists($export['create callback'])) {
+    return $export['create callback']($plugin_name, $set_defaults);
+  }
+  else {
+    return ctools_export_new_object($table, $set_defaults);
+  }
+}
+
+/**
+ * Create callback for creating a new Wallyextra content type.
+ *
+ * This ensures we get proper defaults from the plugin for its settings.
+ * 
+ * @param $plugin_name
+ *   The name of the concerned plugin.
+ * @param $set_defaults
+ *   If TRUE, which is the default, then default values will be retrieved
+ *   from schema fields and set on the object.
+ * 
+ * @return
+ *   The default values for this plugin.
+ */
+function wallyextra_content_type_new($plugin_name, $set_defaults) {
+  $item = ctools_export_new_object('wallyextra_'.$plugin_name.'_content', $set_defaults);
+  ctools_include('content');
+  ctools_include('context');
+  ctools_include('plugins');
+  $plugin = ctools_get_plugins('wallyextra', 'content_types', $plugin_name);
+  $item->settings = ctools_content_get_defaults($plugin, array());
+  return $item;
+}
+
+/**
+ * @} End of "defgroup wallyextra".
+ */

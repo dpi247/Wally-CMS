@@ -1,0 +1,7 @@
+core = "6.x"
+description = "Wally extra plugins"
+name = "WallyExtra"
+package = "Wally"
+project = "wallyextra"
+
+version = "6.x-1.0-rc1"
