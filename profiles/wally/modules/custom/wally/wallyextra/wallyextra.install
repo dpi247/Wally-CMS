@@ -20,16 +20,18 @@ function wallyextra_schema() {
   $schema['wallyextra_rssmixread_content'] = array(
     'description' => 'Contains exportable RSS mix reader content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'wallyextra_rssmixread',
       'bulk export' => TRUE,
       'primary key' => 'cid',
+      'key'=>'name',
+      'default hook' => 'wallyextra_rssmix_content_obj',
       'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_rssmix_content',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyextra_content_type_new',
+//      'create callback' => 'wallyextra_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
@@ -73,16 +75,17 @@ function wallyextra_schema() {
   $schema['wallyextra_rssread_content'] = array(
     'description' => 'Contains exportable RSS reader content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'wallyextra_rssread',
       'bulk export' => TRUE,
       'primary key' => 'cid',
+      'key'=>'name',
       'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_rssread_content',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyextra_content_type_new',
+ //     'create callback' => 'wallyextra_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
@@ -126,16 +129,18 @@ function wallyextra_schema() {
   $schema['wallyextra_taxonomylist_content'] = array(
     'description' => 'Contains exportable taxonomy list content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'wallyextra_taxonomylist',
       'bulk export' => TRUE,
       'primary key' => 'cid',
-      'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
+      'key' => 'name',
+  'key' => 'cid',
+  	  'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_taxonomylist_content',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyextra_content_type_new',
+   //   'create callback' => 'wallyextra_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
@@ -179,16 +184,17 @@ function wallyextra_schema() {
   $schema['wallyextra_twitread_content'] = array(
     'description' => 'Contains exportable Twitter reader content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'wallyextra_twitreadt',
       'bulk export' => TRUE,
       'primary key' => 'cid',
-      'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
+      'key' => 'name',
+  'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_twitread_content',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyextra_content_type_new',
+//      'create callback' => 'wallyextra_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
@@ -232,16 +238,16 @@ function wallyextra_schema() {
   $schema['wallyextra_remotehtml_content'] = array(
     'description' => 'Contains Remote HTML content for this site.',
     'export' => array(
-      'identifier' => 'content',
+      'identifier' => 'wallyextra_remotehtml',
       'bulk export' => TRUE,
       'primary key' => 'cid',
       'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_remotehtml_content',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyextra_content_type_new',
+//      'create callback' => 'wallyextra_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
