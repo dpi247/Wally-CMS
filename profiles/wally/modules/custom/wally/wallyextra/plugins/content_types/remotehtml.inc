@@ -1,20 +1,21 @@
 <?php
+
 $plugin = array(
-    'no_title_override' => TRUE,
-    'defaults' => _wallycontenttypes_remotehtml_defaultformvalues(),
-    'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
-      // Make sure the edit form is only used for some subtypes.
-    'edit form' => '',
-    'add form' => '',
-    'edit text' => t('Edit'),
-    'all contexts' => TRUE,
-  );
+	'no_title_override' => TRUE,
+	'defaults' => _wallyextra_remotehtml_defaultformvalues(),
+	'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
+		// Make sure the edit form is only used for some subtypes.
+	'edit form' => '',
+	'add form' => '',
+	'edit text' => t('Edit'),
+	'all contexts' => TRUE,
+);
 
 /**
  * Building the configuration form of a Remote HTML Block.
  */
-function wallycontenttypes_remotehtml_content_type_edit_form(&$form, &$form_state) {
-  $settings = wallycontenttypes_remotehtml_content_type_get_conf($form_state['subtype'], $form_state['conf']);
+function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
+  $settings = wallyextra_remotehtml_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
   $creation_infos = explode('_', $form_state['conf']['caid']);
   $creation_date = $creation_infos[1];
@@ -94,11 +95,8 @@ function wallycontenttypes_remotehtml_content_type_edit_form(&$form, &$form_stat
     '#dependency' => array('edit-reusable' => array(1)),
   );
 }
-  
 
-
-
-function wallycontenttypes_remotehtml_content_type_edit_form_validate(&$form, &$form_state) {
+function wallyextra_remotehtml_content_type_edit_form_validate(&$form, &$form_state) {
   if (isset($form['uri']['#value'])) {
     $uri_response = drupal_http_request($form['uri']['#value']);
     if ($uri_response->status_message != 'OK') {
@@ -116,15 +114,15 @@ function wallycontenttypes_remotehtml_content_type_edit_form_validate(&$form, &$
 /**
  * Submitting the configuration form of a Remote Html Block
  */
-function wallycontenttypes_remotehtml_content_type_edit_form_submit(&$form, &$form_state) {
+function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_state) {
   if ($form_state['settings']['remotehtml_type'] == 'fixed') {
-    _wallycontenttypes_remotehtml_content_type_edit_save($form_state['settings']['content'], $form_state);
+    _wallyextra_remotehtml_content_type_edit_save($form_state['settings']['content'], $form_state);
   } else if (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // remotehtml content and give it the proper values.
-    $content = wallycontenttypes_newctoolsexport('wallycontenttypes_remotehtml_content', 'remotehtml');
+    $content = wallyextra_newctoolsexport('wallyextra_remotehtml_content', 'remotehtml');
     $content->name = $form_state['values']['name'];
-    _wallycontenttypes_remotehtml_content_type_edit_save($content, $form_state);
+    _wallyextra_remotehtml_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
@@ -137,7 +135,7 @@ function wallycontenttypes_remotehtml_content_type_edit_form_submit(&$form, &$fo
   }
 }
 
-function _wallycontenttypes_remotehtml_content_type_edit_save(&$content, $form_state){
+function _wallyextra_remotehtml_content_type_edit_save(&$content, $form_state){
   // Apply updates to the content object.
   $content->name = $form_state['values']['name'];
   $content->category = $form_state['values']['category'];
@@ -149,19 +147,19 @@ function _wallycontenttypes_remotehtml_content_type_edit_save(&$content, $form_s
     }
   }
 
-  ctools_export_crud_save('wallycontenttypes_remotehtml_content', $content);
+  ctools_export_crud_save('wallyextra_remotehtml_content', $content);
 } 
 
 /**
  * Return all remotehtml content types available.
  */
-function wallycontenttypes_remotehtml_content_type_content_types() {
+function wallyextra_remotehtml_content_type_content_types() {
   ctools_include('export');
   $types = array();
-  $types['remotehtml'] = _wallycontenttypes_remotehtml_default_ctools_content_type();
+  $types['remotehtml'] = _wallyextra_remotehtml_default_ctools_content_type();
   
-  foreach (ctools_export_crud_load_all('wallycontenttypes_remotehtml_content') as $name => $content) {
-    $types[$name] = _wallycontenttypes_remotehtml_ctools_content_type($content);
+  foreach (ctools_export_crud_load_all('wallyextra_remotehtml_content') as $name => $content) {
+    $types[$name] = _wallyextra_remotehtml_ctools_content_type($content);
   }
   return $types;
 }
@@ -169,15 +167,15 @@ function wallycontenttypes_remotehtml_content_type_content_types() {
 /**
  * Return the remotehtml content types with the specified $subtype_id.
  */
-function wallycontenttypes_remotehtml_content_type_content_type($subtype_id) {
+function wallyextra_remotehtml_content_type_content_type($subtype_id) {
   if ($subtype_id == 'remotehtml') {
-    return _wallycontenttypes_remotehtml_default_ctools_content_type();
+    return _wallyextra_remotehtml_default_ctools_content_type();
   }
   else {
     ctools_include('export');
-    $content = ctools_export_crud_load('wallycontenttypes_remotehtml_content', $subtype_id);
+    $content = ctools_export_crud_load('wallyextra_remotehtml_content', $subtype_id);
     if ($content) {
-      return _wallycontenttypes_remotehtml_ctools_content_type($content);
+      return _wallyextra_remotehtml_ctools_content_type($content);
     }
   }
 }
@@ -187,28 +185,28 @@ function wallycontenttypes_remotehtml_content_type_content_type($subtype_id) {
  *
  * The default is the one that allows the user to actually create a type.
  */
-function _wallycontenttypes_remotehtml_default_ctools_content_type() {
+function _wallyextra_remotehtml_default_ctools_content_type() {
   $info = array(
     'name' => 'remotehtml',
     'title' => t('Remote HTML'),
     'category' => t('Wally Tools'),
-    'edit form' => 'wallycontenttypes_remotehtml_content_type_edit_form',
+    'edit form' => 'wallyextra_remotehtml_content_type_edit_form',
     'description' => t('Remote HTML Block from a trusted partner website. '),
     'all contexts' => TRUE,
-    'defaults' => _wallycontenttypes_remotehtml_defaultformvalues(),
+    'defaults' => _wallyextra_remotehtml_defaultformvalues(),
   );
 
   return $info;
 }
 
 
-function _wallycontenttypes_remotehtml_ctools_content_type($content) {
+function _wallyextra_remotehtml_ctools_content_type($content) {
   $info = array(
     'name' => $content->name,
     'title' => check_plain($content->admin_title),
     'description' => check_plain($content->admin_description),
     'category' => $content->category ? check_plain($content->category) : t('Wally reusable blocks'),
-    'edit form' => 'wallycontenttypes_remotehtml_content_type_edit_form',
+    'edit form' => 'wallyextra_remotehtml_content_type_edit_form',
     'all contexts' => TRUE,
     'icon' => 'icon_block_custom.png',
     // Store this here to make it easy to access.
@@ -234,7 +232,7 @@ function _wallycontenttypes_remotehtml_ctools_content_type($content) {
  * @return
  *   The usable settings.
  */
-function wallycontenttypes_remotehtml_content_type_get_conf($subtype, $conf) {
+function wallyextra_remotehtml_content_type_get_conf($subtype, $conf) {
   if ($subtype['name'] != 'remotehtml') {
     $settings = $subtype['content']->settings;
     $settings['remotehtml_type'] = 'fixed';
@@ -246,13 +244,13 @@ function wallycontenttypes_remotehtml_content_type_get_conf($subtype, $conf) {
     // non-local.
     if (!empty($conf['name'])) {
       ctools_include('export');
-      $content = ctools_export_crud_load('wallycontenttypes_remotehtml_content', $conf['name']);
+      $content = ctools_export_crud_load('wallyextra_remotehtml_content', $conf['name']);
       if ($content) {
         $settings = $content->settings;
       } else {
-        $content = wallycontenttypes_newctoolsexport('wallycontenttypes_remotehtml_content', 'remotehtml');
+        $content = wallyextra_newctoolsexport('wallyextra_remotehtml_content', 'remotehtml');
         $content->name = $conf['name'];
-        $settings = _wallycontenttypes_remotehtml_defaultformvalues();
+        $settings = _wallyextra_remotehtml_defaultformvalues();
       }
       $settings['remotehtml_type'] = 'fixed';
       $settings['content'] = $content;
@@ -266,45 +264,27 @@ function wallycontenttypes_remotehtml_content_type_get_conf($subtype, $conf) {
 
   return $settings;
 }
-  
-
-
-
-
-
-
-
-
 
 /**
  * Rendering of the Remote HTML ctools.
  */
-function wallycontenttypes_remotehtml_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = wallycontenttypes_remotehtml_content_type_get_conf(wallycontenttypes_remotehtml_content_type_content_type($subtype), $conf);
+function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args, $context) {
+  $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
   
   //$feed = array();
   $block = new stdClass();
-  $block->module = 'wallycontenttypes';
+  $block->module = 'wallyextra';
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
-  
-  
-	$uri_response = drupal_http_request($settings['uri']);//ne pas remettre en cache si le serveur distant ne répond pas
-    if ($uri_response->status_message != 'OK') {
-      $recache = FALSE;
-    }else{
-    	$recache = TRUE;
-    }
-  
   $cached_block = cache_get($cid);
-  if ($recache || !is_object($cached_block) || !isset($cached_block) || empty($cached_block) || time() > $cached_block->expire) {
+  if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || time() > $cached_block->expire) {
     $block_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
     //@TODO réécrire cette partie
     //$maxitem = $settings['maxitem'];
     $htmlblock = file_get_contents($block_uri);
-    //$feed = _wallycontenttypes_remotehtml_createarrayfromuri($block_uri, $maxitem);
+    //$feed = _wallyextra_remotehtml_createarrayfromuri($block_uri, $maxitem);
 
     cache_set($cid, $htmlblock, 'cache', time() + 60*$settings['delta_t'] + 1);
   } else {
@@ -319,8 +299,8 @@ function wallycontenttypes_remotehtml_content_type_render($subtype, $conf, $pane
 /**
  * Callback to provide the administrative title of the HTML Block content.
  */
-function wallycontenttypes_remotehtml_content_type_admin_title($subtype, $conf) {
-  $settings = wallycontenttypes_remotehtml_content_type_get_conf(wallycontenttypes_remotehtml_content_type_content_type($subtype), $conf);
+function wallyextra_remotehtml_content_type_admin_title($subtype, $conf) {
+  $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
 
   $output = t('Remote HTML Block');
   $title = !empty($settings['admin_title']) ? $settings['admin_title'] : (!empty($settings['title'])) ? $settings['title'] : $settings['caid'] ;
@@ -336,13 +316,12 @@ function wallycontenttypes_remotehtml_content_type_admin_title($subtype, $conf) 
   return $output;
 }
 
-
 /**
  * Callback to provide administrative info. In this case we'll render the
  * content as long as it's not PHP, which is too risky to render here.
  */
-function wallycontenttypes_remotehtml_content_type_admin_info($subtype, $conf) {
-  $settings = wallycontenttypes_remotehtml_content_type_get_conf(wallycontenttypes_remotehtml_content_type_content_type($subtype), $conf);
+function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
+  $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
 
   $block = new stdClass();
   $block->title = (!empty($settings['title'])) ? filter_xss_admin($settings['title']) : filter_xss_admin($settings['caid']);
@@ -385,7 +364,7 @@ function wallycontenttypes_remotehtml_content_type_admin_info($subtype, $conf) {
  * @return
  *   The default values.
  */
-function _wallycontenttypes_remotehtml_defaultformvalues() {
+function _wallyextra_remotehtml_defaultformvalues() {
   $default_form_values = array();
   $default_form_values['uri'] = '';
   $default_form_values['delta_t'] = 20;
@@ -395,17 +374,3 @@ function _wallycontenttypes_remotehtml_defaultformvalues() {
 
   return $default_form_values;
 }
-
-
-
-/* function wallycontenttypes_remotehtml_ctools_content_types(){
-  return  array(
-    'single' => TRUE,
-    'title' => t('Distant HTML Block (from another website or partner)'),
-    'description' => t('Get HTML from distant url and keep a cached version to display in your websiter'),
-    'required context' => new ctools_context_required()
-  
-  );
-*/  
-  
-

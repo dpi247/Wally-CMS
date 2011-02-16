@@ -10,7 +10,7 @@
  */
 $plugin = array(
   'no title override' => TRUE,
-  'defaults' => _wallycontenttypes_rssread_defaultformvalues(),
+  'defaults' => _wallyextra_rssread_defaultformvalues(),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'edit form' => '',
@@ -22,8 +22,8 @@ $plugin = array(
 /**
  * Building the configuration form of a RSS reader.
  */
-function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) {
-  $settings = wallycontenttypes_rssread_content_type_get_conf($form_state['subtype'], $form_state['conf']);
+function wallyextra_rssread_content_type_edit_form(&$form, &$form_state) {
+  $settings = wallyextra_rssread_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
   $creation_infos = explode('_', $form_state['conf']['caid']);
   $creation_date = $creation_infos[1];
@@ -117,7 +117,7 @@ function wallycontenttypes_rssread_content_type_edit_form(&$form, &$form_state) 
 /**
  * Validation for the configuration form of a RSS reader.
  */
-function wallycontenttypes_rssread_content_type_edit_form_validate(&$form, &$form_state) {
+function wallyextra_rssread_content_type_edit_form_validate(&$form, &$form_state) {
   if (isset($form['uri']['#value'])) {
     $uri_response = drupal_http_request($form['uri']['#value']);
     if ($uri_response->status_message != 'OK') {
@@ -141,15 +141,15 @@ function wallycontenttypes_rssread_content_type_edit_form_validate(&$form, &$for
 /**
  * Submitting the configuration form of a RSS reader.
  */
-function wallycontenttypes_rssread_content_type_edit_form_submit(&$form, &$form_state) {
+function wallyextra_rssread_content_type_edit_form_submit(&$form, &$form_state) {
   if ($form_state['settings']['rssread_type'] == 'fixed') {
-    _wallycontenttypes_rssread_content_type_edit_save($form_state['settings']['content'], $form_state);
+    _wallyextra_rssread_content_type_edit_save($form_state['settings']['content'], $form_state);
   } else if (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // rssread content and give it the proper values.
-    $content = wallycontenttypes_newctoolsexport('wallycontenttypes_rssread_content', 'rssread');
+    $content = wallyextra_newctoolsexport('wallyextra_rssread_content', 'rssread');
     $content->name = $form_state['values']['name'];
-    _wallycontenttypes_rssread_content_type_edit_save($content, $form_state);
+    _wallyextra_rssread_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
@@ -166,7 +166,7 @@ function wallycontenttypes_rssread_content_type_edit_form_submit(&$form, &$form_
 /**
  * Export the configuration of the reusable block.
  */
-function _wallycontenttypes_rssread_content_type_edit_save(&$content, $form_state) {
+function _wallyextra_rssread_content_type_edit_save(&$content, $form_state) {
   // Apply updates to the content object.
   $content->category = $form_state['values']['category'];
   $content->admin_title = $form_state['values']['name'];
@@ -177,19 +177,19 @@ function _wallycontenttypes_rssread_content_type_edit_save(&$content, $form_stat
     }
   }
 
-  ctools_export_crud_save('wallycontenttypes_rssread_content', $content);
+  ctools_export_crud_save('wallyextra_rssread_content', $content);
 }
 
 /**
  * Return all rssread content types available.
  */
-function wallycontenttypes_rssread_content_type_content_types() {
+function wallyextra_rssread_content_type_content_types() {
   ctools_include('export');
   $types = array();
-  $types['rssread'] = _wallycontenttypes_rssread_default_ctools_content_type();
+  $types['rssread'] = _wallyextra_rssread_default_ctools_content_type();
   
-  foreach (ctools_export_crud_load_all('wallycontenttypes_rssread_content') as $name => $content) {
-    $types[$name] = _wallycontenttypes_rssread_ctools_content_type($content);
+  foreach (ctools_export_crud_load_all('wallyextra_rssread_content') as $name => $content) {
+    $types[$name] = _wallyextra_rssread_ctools_content_type($content);
   }
   return $types;
 }
@@ -197,15 +197,15 @@ function wallycontenttypes_rssread_content_type_content_types() {
 /**
  * Return the rssread content types with the specified $subtype_id.
  */
-function wallycontenttypes_rssread_content_type_content_type($subtype_id) {
+function wallyextra_rssread_content_type_content_type($subtype_id) {
   if ($subtype_id == 'rssread') {
-    return _wallycontenttypes_rssread_default_ctools_content_type();
+    return _wallyextra_rssread_default_ctools_content_type();
   }
   else {
     ctools_include('export');
-    $content = ctools_export_crud_load('wallycontenttypes_rssread_content', $subtype_id);
+    $content = ctools_export_crud_load('wallyextra_rssread_content', $subtype_id);
     if ($content) {
-      return _wallycontenttypes_rssread_ctools_content_type($content);
+      return _wallyextra_rssread_ctools_content_type($content);
     }
   }
 }
@@ -215,15 +215,15 @@ function wallycontenttypes_rssread_content_type_content_type($subtype_id) {
  *
  * The default is the one that allows the user to actually create a type.
  */
-function _wallycontenttypes_rssread_default_ctools_content_type() {
+function _wallyextra_rssread_default_ctools_content_type() {
   $info = array(
     'name' => 'rssread',
     'title' => t('RSS Reader'),
     'category' => t('Wally Tools'),
-    'edit form' => 'wallycontenttypes_rssread_content_type_edit_form',
+    'edit form' => 'wallyextra_rssread_content_type_edit_form',
     'description' => t('Fetch a RSS feed'),
     'all contexts' => TRUE,
-    'defaults' => _wallycontenttypes_rssread_defaultformvalues(),
+    'defaults' => _wallyextra_rssread_defaultformvalues(),
   );
 
   return $info;
@@ -232,13 +232,13 @@ function _wallycontenttypes_rssread_default_ctools_content_type() {
 /**
  * Return an info array for a specific rssread content type.
  */
-function _wallycontenttypes_rssread_ctools_content_type($content) {
+function _wallyextra_rssread_ctools_content_type($content) {
   $info = array(
     'name' => $content->name,
     'title' => check_plain($content->admin_title),
     'description' => check_plain($content->admin_description),
     'category' => $content->category ? check_plain($content->category) : t('Wally reusable blocks'),
-    'edit form' => 'wallycontenttypes_rssread_content_type_edit_form',
+    'edit form' => 'wallyextra_rssread_content_type_edit_form',
     'all contexts' => TRUE,
     'icon' => 'icon_block_custom.png',
     // Store this here to make it easy to access.
@@ -251,30 +251,36 @@ function _wallycontenttypes_rssread_ctools_content_type($content) {
 /**
  * Rendering of the RSS reader ctools.
  */
-function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = wallycontenttypes_rssread_content_type_get_conf(wallycontenttypes_rssread_content_type_content_type($subtype), $conf);
+function wallyextra_rssread_content_type_render($subtype, $conf, $panel_args, $context) {
+  $settings = wallyextra_rssread_content_type_get_conf(wallyextra_rssread_content_type_content_type($subtype), $conf);
   
   $feed = array();
   $block = new stdClass();
-  $block->module = 'wallycontenttypes';
+  $block->module = 'wallyextra';
   $block->title = 'RSS reader.';
   $cid = $conf['caid'];
   $cached_feed = cache_get($cid);
-  if ($cached_feed == 0 || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
     $rss_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
     $maxitem = $settings['maxitem'];
 
-    $feed = _wallycontenttypes_rssread_createarrayfromuri($rss_uri, $maxitem);
+    $feed = _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem);
 
     cache_set($cid, $feed, 'cache', time() + mktime(0, $settings['delta_t']) + 1);
   } else {
     $feed = $cached_feed->data;
   }
 
-  $block->content = theme("wallyct_rss", $feed, $settings); 
-  return $block;
+  // @TODO: tester si la fonction existe
+  if ($settings['override_theme_text'] != "" ){
+    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
+    return $block;
+  }else{      
+    $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
+    return $block;  
+  }
 }
 
 /**
@@ -293,7 +299,7 @@ function wallycontenttypes_rssread_content_type_render($subtype, $conf, $panel_a
  * @return
  *   The usable settings.
  */
-function wallycontenttypes_rssread_content_type_get_conf($subtype, $conf) {
+function wallyextra_rssread_content_type_get_conf($subtype, $conf) {
   if ($subtype['name'] != 'rssread') {
     $settings = $subtype['content']->settings;
     $settings['rssread_type'] = 'fixed';
@@ -305,13 +311,13 @@ function wallycontenttypes_rssread_content_type_get_conf($subtype, $conf) {
     // non-local.
     if (!empty($conf['name'])) {
       ctools_include('export');
-      $content = ctools_export_crud_load('wallycontenttypes_rssread_content', $conf['name']);
+      $content = ctools_export_crud_load('wallyextra_rssread_content', $conf['name']);
       if ($content) {
         $settings = $content->settings;
       } else {
-        $content = wallycontenttypes_newctoolsexport('wallycontenttypes_rssread_content', 'rssread');
+        $content = wallyextra_newctoolsexport('wallyextra_rssread_content', 'rssread');
         $content->name = $conf['name'];
-        $settings = _wallycontenttypes_rssread_defaultformvalues();
+        $settings = _wallyextra_rssread_defaultformvalues();
       }
       $settings['rssread_type'] = 'fixed';
       $settings['content'] = $content;
@@ -329,11 +335,11 @@ function wallycontenttypes_rssread_content_type_get_conf($subtype, $conf) {
 /**
  * Callback to provide the administrative title of the rssread content.
  */
-function wallycontenttypes_rssread_content_type_admin_title($subtype, $conf) {
-  $settings = wallycontenttypes_rssread_content_type_get_conf(wallycontenttypes_rssread_content_type_content_type($subtype), $conf);
+function wallyextra_rssread_content_type_admin_title($subtype, $conf) {
+  $settings = wallyextra_rssread_content_type_get_conf(wallyextra_rssread_content_type_content_type($subtype), $conf);
 
   $output = t('RSS reader');
-  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : $settings['title'];
+  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : (!empty($settings['title'])) ? $settings['title'] : $settings['caid'] ;
   if ($title) {
     if ($settings['rssread_type'] != 'fixed') {
       $output = t('RSS reader: @title', array('@title' => $title));
@@ -350,21 +356,23 @@ function wallycontenttypes_rssread_content_type_admin_title($subtype, $conf) {
  * Callback to provide administrative info. In this case we'll render the
  * content as long as it's not PHP, which is too risky to render here.
  */
-function wallycontenttypes_rssread_content_type_admin_info($subtype, $conf) {
-  $settings = wallycontenttypes_rssread_content_type_get_conf(wallycontenttypes_rssread_content_type_content_type($subtype), $conf);
+function wallyextra_rssread_content_type_admin_info($subtype, $conf) {
+  $settings = wallyextra_rssread_content_type_get_conf(wallyextra_rssread_content_type_content_type($subtype), $conf);
 
   $block = new stdClass();
-  $block->title = filter_xss_admin($settings['title']);
+  $block->title = (!empty($settings['title'])) ? filter_xss_admin($settings['title']) : filter_xss_admin($settings['caid']);
   // We don't want to render php output on preview here, because if something is
   // wrong the whole display will be borked. So we check to see if the php
   // evaluator filter is being used, and make a temporary change to the filter
   // so that we get the printed php, not the eval'ed php.
   $php_filter = FALSE;
-  foreach (filter_list_format($settings['format']) as $filter) {
-    if ($filter->module == 'php') {
-      $php_filter = TRUE;
-      break;
-    }
+  if (!empty($settings['format'])) {
+	  foreach (filter_list_format($settings['format']) as $filter) {
+	    if ($filter->module == 'php') {
+	      $php_filter = TRUE;
+	      break;
+	    }
+	  }
   }
   // If a php filter is active, just print the source, but only if the current
   // user has access to the actual filter.
@@ -377,7 +385,11 @@ function wallycontenttypes_rssread_content_type_admin_info($subtype, $conf) {
   else {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
-    $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+    if (!empty($settings['body'])) {
+    	$block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+  	} else {
+  		$block->content = t("n/a");
+  	}
   }
   return $block;
 }
@@ -388,7 +400,7 @@ function wallycontenttypes_rssread_content_type_admin_info($subtype, $conf) {
  * @return
  *   The default values.
  */
-function _wallycontenttypes_rssread_defaultformvalues() {
+function _wallyextra_rssread_defaultformvalues() {
   $default_form_values = array();
   $default_form_values['uri'] = '';
   $default_form_values['maxitem'] = 10;
@@ -412,7 +424,7 @@ function _wallycontenttypes_rssread_defaultformvalues() {
  * @return
  *   The array.
  */
-function _wallycontenttypes_rssread_createarrayfromuri($rss_uri, $maxitem) {
+function _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
   if ($feed_xml) {

@@ -26,6 +26,16 @@ function wallycontenttypes_menu() {
     'access arguments' => array('edit croping'), 
     'type' => MENU_CALLBACK,
   );
+  
+  if (module_exists('wallyedit')) {
+    $items['admin/content/editcropwallyedit'] = array(
+      'title' => t('Edit croping for WallyEdit'), 
+      'description' => t('Edit croping for WallyEdit'), 
+      'page callback' => 'wallycontenttypes_editcropwallyedit', 
+      'access arguments' => array('edit croping'), 
+      'type' => MENU_CALLBACK,
+    );
+  }
 
   return $items;
 }
@@ -48,49 +58,7 @@ function wallycontenttypes_theme(&$var) {
     'template' => 'wallyct_photoobject_slider',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
-    'wallyct_mainmenu' => $base + array(
-    'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
-    'template' => 'wallyct_mainmenu',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
-    ),
     
-    'wallyct_rss' => $base + array(
-    'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
-    'template' => 'wallyct_rss',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
-    ),
-    
-    'wallyct_remotehtml' => $base + array(
-    'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
-    'template' => 'wallyct_remotehtml',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
-    ),
-    
-    'wallyct_twit' => $base + array(
-    'arguments' => array("feed" => NULL, "options" => NULL),
-    'template' => 'wallyct_twit',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-
-    'wallyct_tofacebook' => $base + array(
-    'arguments' => array("node" => NULL, "options" => NULL),
-    'template' => 'wallyct_tofacebook',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-
-    'wallyct_taxotermlist' => $base + array(
-    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'wallyct_taxotermlist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-
-    'wallyct_taxotermlist_tree' => $base + array(
-    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'wallyct_taxotermlist_tree',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-
     'wallyct_mainstory' => $base + array(
     'arguments' => array("mainstory" => NULL, "node" => NULL),
     'template' => 'wallyct_mainstory',
@@ -173,42 +141,6 @@ function wallycontenttypes_imagecache_actions() {
 }
 
 /**
- * Implementation of hook_perm()
- */
-function wallycontenttypes_rssmixread_content_perm() {
-  return array(
-    'administer rssmixread content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallycontenttypes_rssread_content_perm() {
-  return array(
-    'administer rssread content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallycontenttypes_taxonomylist_content_perm() {
-  return array(
-    'administer taxonomylist content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallycontenttypes_twitread_content_perm() {
-  return array(
-    'administer twitread content',
-  );
-}
-
-/**
  * Implementation of hook_nodeapi().
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
@@ -242,41 +174,6 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
                _wallycontenttypes_addtaxonomywhenupdated($node);
     break;
  	}
-}
-
-/*
- * Implementation of hook_ctools_plugin_directory().
- * 
- * It simply tells panels where to find the .inc files that define various
- * args, contexts, content_types. In this case the subdirectories of
- * ctools_plugin_example/panels are used.
- */
-function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
- 
-   if ($module == 'ctools' && $plugin == 'export_ui') {
-    return 'plugins/' . $plugin;
-  }
-  //@todo: use explicit orm of plugin not $plugin
- if ($module == 'ctools' && !empty($plugin)) {
-    return "plugins/$plugin";
-  }
- 
-}
-
-/*
- * Implement hook_ctools_plugin_api().
- * 
- * If you do this, CTools will pick up default panels pages in
- * <modulename>.pages_default.inc
- */
-function wallycontenttypes_ctools_plugin_api($module, $api) {
-  // @todo this example should explain how to put it in a different file.
-  if ($module == 'panels_mini' && $api == 'panels_default') {
-    return array('version' => 1);
-  }
-  if ($module == 'page_manager' && $api == 'pages_default') {
-    return array('version' => 1);
-  }
 }
 
 /**
@@ -334,20 +231,6 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
  */
 function wally_get_tpl_suggestions(&$variables, $hook) {
   $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
-  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
-}
-
-/**
- * Insert additional template suggestions to wally specific theme functions.
- * This preprocess function could be set by any hook_theme but for content type CTolls only.
- *
- * @param $vars
- *   An array of variables to pass to the theme template.
- * @param $hook
- *   The name of the template being rendered.
- */
-function wally_get_tpl_suggestions_from_plugins(&$variables) {
-  $suggestion = wallycontenttypes_getsuggestions_from_plugins($variables); 
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
 
@@ -461,18 +344,17 @@ function wallycontenttypes_fieldTIDload($field, $values, $type) {
  * Process all node reference fields and return array of node
  */
 function wallycontenttypes_fieldnodeload($field, $values=null) {
-	$r = array(); 
-	foreach ($values as $value=>$node2load) {
-		if (!($r[$value] = node_load($node2load["nid"]))) { 
-			unset($r[$value]); 
-		}
-		// Render the node.
-   	$r[$value] = node_build_content($r[$value]);
-		drupal_render($r[$value]->content);
-	} 
-	return $r; 
+  $r = array(); 
+  foreach ($values as $value=>$node2load) {
+    if (!($r[$value] = node_load($node2load["nid"]))) { 
+      unset($r[$value]); 
+    }
+    // Render the node.
+    $r[$value] = node_build_content($r[$value]);
+    drupal_render($r[$value]->content);
+  } 
+  return $r; 
 }
-
 
 /**
 * Add taxonomy term from textobject to articlepackage when textobject is updated
@@ -623,8 +505,8 @@ function wallycontenttypes_editcrop($nid) {
   } else {
     if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
   }
-
-  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $node->field_photofile[0]);
+  $photofile = $node->field_photofile;
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photofile[0]['filepath']);
 
   $defaultvalues = $usablecropsanddefaults[0];
   $usablecrops = $usablecropsanddefaults[1];
@@ -633,7 +515,58 @@ function wallycontenttypes_editcrop($nid) {
   drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
   drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
   drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
- 
+
+  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
+}
+
+/**
+ * Edition of the cropings of a photo for the WallyEdit edition page.
+ * 
+ * @param string $temp_nid
+ *   Temp ID of the node containing the photo being edited.
+ * @param string $photo_path
+ *   Drupal path of the photo being edited.
+ * @param string $current_cropings
+ *   Actual values of the cropings of this photo. Serialized with
+ * json_encode().
+ * 
+ * @see http://deepliquid.com/blog/archives/category/jcrop
+ *   Jcrop homepage.
+ * 
+ * @return
+ *   HTML code of the image and the form containing the new values.
+ */
+function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cropings = '') {
+  $node = node_load($nid);
+  $imgcropings = json_decode($current_cropings, TRUE);
+  $explimgcrops = array();
+  $defaultvalues = array();
+  
+  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
+    foreach ($imgcropings as $presetname => $imgcroping) {
+      $tempexplcrop = array();
+      $tempexplcrop = $imgcroping;
+      $tempexplcrop[0] = $tempexplcrop[0];
+      $tempexplcrop[1] = $tempexplcrop[1];
+      $tempexplcrop[2] = $tempexplcrop[2];
+      $tempexplcrop[3] = $tempexplcrop[3];
+      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
+      $explimgcrops[$presetname] = $tempexplcrop;
+    }
+  } else {
+    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
+  }
+
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path);
+
+  $defaultvalues = $usablecropsanddefaults[0];
+  $usablecrops = $usablecropsanddefaults[1];
+  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
+  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
+  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
+  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
+  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+
   return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
 }
 
@@ -705,7 +638,7 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
   global $base_url;
-
+dsm($form);
   $form['group_photo']['field_croping']['#access'] = FALSE;
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
     $form['group_photo']['edit_croping']=array(
@@ -929,19 +862,19 @@ function _wallycontenttypes_getdefaultvaluesforthecroping($crop, $img) {
 /**
  * Return the crops in a usable form for Jcrop, needed by wallycontenttypes_editcrop.
  * 
- * @param $explimgcrops
+ * @param array $explimgcrops
  *   The croping informations extracted from the node.
+ * @param string $photo_path
+ *   Drupal path of the photo being edited.
  * 
  * @return
  *   The usables crops for Jcrop.
  */
-function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $imgfile) {
-	
-
+function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path) {
   $usablecrops = array();
   $presets = imagecache_presets();
-  $img = imageapi_image_open($imgfile["filepath"]);
-  
+  $img = imageapi_image_open($photo_path);
+
   foreach ($presets as $preset) {
     if ($preset['actions']) {
       $datas = array();
@@ -994,11 +927,11 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $imgfile) {
           $tempusablecrop[2] += $tempusablecrop[0];
           $tempusablecrop[3] += $tempusablecrop[1];
           $tempusablecrop['presetid'] = $preset['presetid'];
-          drupal_set_message('No croping info found for the wallycrop action of the '.$preset['presetname'].' preset, default values loaded.',"error");
+          drupal_set_message('No croping info found for the wallycrop action of the '.$preset['presetname'].' preset, default values loaded.',"notice");
         }
         $usablecrops[$preset['presetname']] = $tempusablecrop;
       } else {
-        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"error");
+        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"notice");
       }
     }
   }
@@ -1118,58 +1051,6 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
 }
 
 /**
- * Build all the suggestions template for a content type CTools
- * of any content type with Destinations information.   
- *
- *  Wally specific suggestions are:  
- * 
- *  - {plugin_type}_{destinations_terms_underscore_separated}.tpl.php
- *  - {plugin_type}.tpl.php
- * 
- * @param $variables
- *   Templating variables
- * @param $type
- *   Prefix added to suggestions (default = page). Could be "page" or "node".
- * 
- * @return 
- *   Array of suggestion pages templates.
- */
-function wallycontenttypes_getsuggestions_from_plugins(&$variables) {
-  $context = isset($variables['context']) ? $variables['context'] : array();
-  $context_keys = array_keys($context);
-  $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
-  $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
-
-  $destinations = array();
-  $suggestion = array(); 
-  $tax_children = array(); 
-  $vid=variable_get('wallymport_destinationpath',null);
-  $path = ""; 
-  $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
-
-  if(isset($context->tids)){
-	  foreach ($context->tids as $tid) {
-	    $destinations[] = taxonomy_get_term($tid);
-	  }
-  }
-  $suggestion[] = 'plugins';
-  $suggestion[] = 'plugins_'.$subtype;
-
-  if (count($destinations)) {
-    foreach ($destinations as $destination) {
-      $tax_children = taxonomy_get_parents_all($destination->tid, $vid);
-      $count = count($tax_children);
-      for ($i = $count-1; $i >= 0; $i--) {
-        ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
-        if ($subtype) $suggestion[] = 'plugins_'.$subtype . '_' . $path;
-      }
-    }
-  }
-
-  return $suggestion;  
-}
-
-/**
  * Extract page layout information from the node. 
  *
  * @param $node
@@ -1186,58 +1067,6 @@ function wallycontenttypes_getpackagelayout($node) {
     $package_layout = NULL;
   }
   return $package_layout; 
-}
-
-/**
- * Create a new object for the given $table.
- *
- * @param $table
- *   The name of the table to use to retrieve $schema values. This table
- *   must have an 'export' section containing data or this function
- *   will fail.
- * @param $plugin_name
- *   The name of the concerned plugin.
- * @param $set_defaults
- *   If TRUE, which is the default, then default values will be retrieved
- *   from schema fields and set on the object.
- *
- * @return
- *   The loaded object.
- */
-function wallycontenttypes_newctoolsexport($table, $plugin_name, $set_defaults = TRUE) {
-  $schema = ctools_export_get_schema($table);
-  $export = $schema['export'];
-
-  if (!empty($export['create callback']) && function_exists($export['create callback'])) {
-    return $export['create callback']($plugin_name, $set_defaults);
-  }
-  else {
-    return ctools_export_new_object($table, $set_defaults);
-  }
-}
-
-/**
- * Create callback for creating a new Wallycontenttypes content type.
- *
- * This ensures we get proper defaults from the plugin for its settings.
- * 
- * @param $plugin_name
- *   The name of the concerned plugin.
- * @param $set_defaults
- *   If TRUE, which is the default, then default values will be retrieved
- *   from schema fields and set on the object.
- * 
- * @return
- *   The default values for this plugin.
- */
-function wallycontenttypes_content_type_new($plugin_name, $set_defaults) {
-  $item = ctools_export_new_object('wallycontenttypes_'.$plugin_name.'_content', $set_defaults);
-  ctools_include('content');
-  ctools_include('context');
-  ctools_include('plugins');
-  $plugin = ctools_get_plugins('wallycontenttypes', 'content_types', $plugin_name);
-  $item->settings = ctools_content_get_defaults($plugin, array());
-  return $item;
 }
 
 /**
