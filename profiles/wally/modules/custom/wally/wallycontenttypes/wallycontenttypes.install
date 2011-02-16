@@ -355,7 +355,6 @@ function wallycontenttypes_schema() {
   );
   
   return $schema;
-    
 }
 
 

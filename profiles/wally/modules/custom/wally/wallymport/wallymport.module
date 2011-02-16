@@ -24,12 +24,12 @@ function wallymport_menu() {
   );
 
   $items['wallymport/process_folder'] = array(
-	'title' => 'Run XML Import Process for a forlder',
-	'description' => 'Run data import',
-	'page callback' => 'wallymport_page_process_folder',
-//  'access arguments' => array('access administration pages'),
-  'access callback' => TRUE,
-	'type' => MENU_CALLBACK,
+    'title' => 'Run XML Import Process for a forlder',
+    'description' => 'Run data import',
+    'page callback' => 'wallymport_page_process_folder',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
