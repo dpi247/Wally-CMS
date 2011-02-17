@@ -16,8 +16,9 @@
   foreach ($imgstory as $n) {
   	if ($n->type == "wally_photoobject") {
   		$file_path = $n->field_photofile[0]['filepath'];
+  		$alt = $n->field_summary[0]['value'];
   		$explfilepath = explode('/', $file_path );
-  		$file_img[] = theme('imagecache', $presetname,  $file_path);//, array('class'=>'img'));
+  		$file_img[] = theme('imagecache', $presetname,  $file_path, $alt );//, array('class'=>'img'));
   		$path_photo[] = imagecache_create_url($presetname, $file_path);
   		$title_img[] = $n->title;
   		$summary[]= $n->field_summary[0]['value'];
