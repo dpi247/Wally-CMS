@@ -350,8 +350,10 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
       unset($r[$value]); 
     }
     // Render the node.
-    $r[$value] = node_build_content($r[$value]);
-    drupal_render($r[$value]->content);
+    if (isset($r[$value])) {
+      $r[$value] = node_build_content($r[$value]);
+      drupal_render($r[$value]->content);
+    }
   } 
   return $r; 
 }
