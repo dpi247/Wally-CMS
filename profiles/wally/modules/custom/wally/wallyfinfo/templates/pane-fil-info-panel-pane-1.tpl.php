@@ -19,7 +19,7 @@
  */
 $pane_config = $pane->configuration;
 $available_dests = array();
-if ($pane_config['available_dests'][0] == 'contextual') {
+if (isset($pane_config['available_dests'][0]) && $pane_config['available_dests'][0] == 'contextual') {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
 
