@@ -180,12 +180,18 @@ function wally_profile_tasks(&$task, $url) {
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_install_menus', array());
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
+      $batch['operations'][] = array('_wally_placeholder_content', array());
     }
     
     $batch['operations'][] = array('_wally_set_permissions', array());
     $batch['operations'][] = array('_wally_initialize_settings', array());
-    $batch['operations'][] = array('_wally_placeholder_content', array());
     $batch['operations'][] = array('_wally_set_views', array());
+    
+    // Enable view popular after loading default views.
+    if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
+      $batch['operations'][] = array('_wally_enable_view_popular()', array());
+    }
+    
     $batch['operations'][] = array('_wally_cleanup', array());
 
     $batch['error_message'] = st('There was an error configuring @drupal.', array('@drupal' => drupal_install_profile_name()));
@@ -356,19 +362,19 @@ function _wally_initialize_settings(&$context){
    // Wally Import Settings
    // Doing here because we need features to be
    // activated before
-  $vid = install_taxonomy_get_vid("Destination Path");     
+  $vid = install_taxonomy_get_vid("Destination Path");
   variable_set('wallymport_destinationpath',strval($vid));
-  $vid = install_taxonomy_get_vid("Editions");     
+  $vid = install_taxonomy_get_vid("Editions");
   variable_set('wallymport_edition',strval($vid));
-  $vid = install_taxonomy_get_vid("Locations");     
+  $vid = install_taxonomy_get_vid("Locations");
   variable_set('wallymport_location',strval($vid));
-  $vid = install_taxonomy_get_vid("Persons");     
+  $vid = install_taxonomy_get_vid("Persons");
   variable_set('wallymport_person',strval($vid));
-  $vid = install_taxonomy_get_vid("Entities");     
+  $vid = install_taxonomy_get_vid("Entities");
   variable_set('wallymport_entity',strval($vid));
-  $vid = install_taxonomy_get_vid("Free tags");     
+  $vid = install_taxonomy_get_vid("Free tags");
   variable_set('wallymport_freetagtaxonomy',strval($vid));
-  $vid = install_taxonomy_get_vid("Keywords (categorized)");     
+  $vid = install_taxonomy_get_vid("Keywords categorized");
   variable_set('wallymport_classifiedtagtaxonomy',strval($vid));
 
   variable_set('wallymport_taxonomy_recusive',"true");
@@ -377,7 +383,6 @@ function _wally_initialize_settings(&$context){
   variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
   variable_set('wallymport_temp',"/tmp");
   variable_set('wallymport_debug',"0");
-  
   
   // Embedly Module config settings
   variable_set('emfield_emvideo_allow_embedly',"i:1;");
@@ -580,6 +585,20 @@ function _wally_placeholder_content(&$context) {
   _wally_log($msg);
   $context['message'] = $msg;
 }
+
+/**
+ * Enable view popular
+ */
+function _wally_enable_view_popular() {
+  //most popular (statistics) view is disabled by default, enable it
+  $view = views_get_view('popular');
+  $view->disabled = FALSE;
+  $view->save();
+
+  $msg = st('Enabled view popular');
+  _wally_log($msg);
+  $context['message'] = $msg;
+} 
 
 /**
  * Load & Updates views
