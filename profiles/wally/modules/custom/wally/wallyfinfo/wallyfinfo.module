@@ -73,16 +73,19 @@ function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(
       }
     }
     
+    $available_dests_conf = $form_state['conf']['available_dests'];
     $form['available_dests']['contextual'] = array (
       '#type'             => 'checkbox',
       '#title'            => 'Use the contextual destination.',
       '#description'      => 'If checked, only this one will be used.',
+      '#default_value'    => ($available_dests_conf[0] == 'contextual') ? 1 : 0,
     );
     
     foreach ($available_dests as $available_dest) {
       $form['available_dests'][$available_dest->name] = array (
         '#type'             => 'checkbox',
         '#title'            => $available_dest->name,
+        '#default_value'    => is_object($available_dests_conf[$available_dest->name]) ? 1 : 0,
       );
     }
     $form['#submit'][] = 'wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit';
@@ -114,7 +117,7 @@ function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit
   
     foreach ($available_dests as $available_dest) {
       if ($form['available_dests'][$available_dest->name]['#value']) {
-        $form_state['conf']['available_dests'][] = $available_dest;
+        $form_state['conf']['available_dests'][$available_dest->name] = $available_dest;
       }
     }
   }
