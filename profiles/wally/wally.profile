@@ -146,7 +146,6 @@ function wally_profile_task_list() {
  * Implementation of hook_profile_tasks().
  */
 function wally_profile_tasks(&$task, $url) {
-
 // @TODO: Use "locale" for installation translation.
 // global $install_locale;
   
@@ -163,27 +162,32 @@ function wally_profile_tasks(&$task, $url) {
   }
     
   if($task == 'wally-configure') {
+    $wally_install_config = variable_get('wally_install_config', array());
 
     $batch['title'] = st('Configuring @drupal .', array('@drupal' => drupal_install_profile_name()));
 
     $files = module_rebuild_cache();
 
-      // Building "Batch" operations list.
+    // Building "Batch" operations list.
+  
+    // We initialize each feature individually rather then all together
+    // in the end, to avoid php execution timeout.
+    foreach ( wally_feature_modules() as $feature ) {   
+      $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
+      $batch['operations'][] = array('features_flush_caches', array()); 
+    }
     
-      // We initialize each feature individually rather then all together
-      // in the end, to avoid php execution timeout.
-      foreach ( wally_feature_modules() as $feature ) {   
-        $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
-        $batch['operations'][] = array('features_flush_caches', array()); 
-      }    
-      $batch['operations'][] = array('_wally_set_permissions', array());      
-      $batch['operations'][] = array('_wally_initialize_settings', array());      
-      $batch['operations'][] = array('_wally_placeholder_content', array());      
-      $batch['operations'][] = array('_wally_set_views', array());      
+    if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_install_menus', array());
-      $batch['operations'][] = array('_wally_setup_blocks', array()); 
-      $batch['operations'][] = array('_wally_cleanup', array());
-          
+      $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
+    }
+    
+    $batch['operations'][] = array('_wally_set_permissions', array());
+    $batch['operations'][] = array('_wally_initialize_settings', array());
+    $batch['operations'][] = array('_wally_placeholder_content', array());
+    $batch['operations'][] = array('_wally_set_views', array());
+    $batch['operations'][] = array('_wally_cleanup', array());
+
     $batch['error_message'] = st('There was an error configuring @drupal.', array('@drupal' => drupal_install_profile_name()));
 
     // Callback function when finished
@@ -193,7 +197,7 @@ function wally_profile_tasks(&$task, $url) {
     batch_set($batch);
     batch_process($url, $url);
   }
-
+  
   // Land here until the batches are done
   if (in_array($task, array('wally-configure-batch'))) {
     include_once 'includes/batch.inc';
@@ -309,9 +313,9 @@ function _wally_set_permissions(&$context){
 }
 
 /**
- * Set misc settings
+ * Set default taxonomy terms
  */
-function _wally_initialize_settings(&$context){
+function _wally_initialize_taxonomy_terms(&$context){
        
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Destination Path");
@@ -321,7 +325,7 @@ function _wally_initialize_settings(&$context){
     }
   }  
   
-  // Destination taxonomy (vocabulary created by wallycontenttype feature).
+  // Document Type taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Document Type");     
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
@@ -338,7 +342,17 @@ function _wally_initialize_settings(&$context){
   }
   
   menu_rebuild();
+  
+  $msg = st('Setup default taxonomy terms');
+  _wally_log($msg);
+  $context['message'] = $msg;
+}
 
+/**
+ * Set misc settings
+ */
+function _wally_initialize_settings(&$context){
+  
    // Wally Import Settings
    // Doing here because we need features to be
    // activated before
@@ -515,13 +529,12 @@ function _wally_ratingtaxonomy_terms($vid) {
 }
 
 
-
 /**
  * Create some content of type "page" as placeholders for content
  * and so menu items can be created
  */
 function _wally_placeholder_content(&$context) {
-  global $base_url;  
+  global $base_url;
 
   $user = user_load(array('uid' => 1));
 
@@ -538,7 +551,7 @@ function _wally_placeholder_content(&$context) {
     'translate' => 0,    
     'revision_uid' => 1,
     'title' => st('Default'),
-    'body' => 'place some text here....',    
+    'body' => 'place some text here....',
     'format' => 2,
     'name' => $user->name,
   );
@@ -825,14 +838,25 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   );
   
   $form['wally']['demo_content'] = array(
-      '#type' => 'select',
-      '#title' => t('Install Demo content?'),
-      '#default_value' => FALSE,
-      '#options' => array(
-          TRUE => t('Yes'),
-          FALSE => t('No'),
-      ),      
-      '#description' => t('Do you want some demo content items?'),
-      '#required' => TRUE,
-    );
+    '#type' => 'select',
+    '#title' => t('Install Demo content?'),
+    '#default_value' => FALSE,
+    '#options' => array(
+        TRUE => t('Yes'),
+        FALSE => t('No'),
+    ),      
+    '#description' => t('Do you want some demo content items?'),
+    '#required' => TRUE,
+  );
+  
+  form['#submit'] = '_wally_install_form_submit';
+}
+
+function _wally_install_form_submit(&$form, $form_state) {
+  $wally_install_config = array();
+  foreach ($form['wally'] as $name => $value) {
+    $wally_install_config[$name] = $value['#value'];
+  }
+  
+  variable_set('wally_install_config', $wally_install_config);
 }
