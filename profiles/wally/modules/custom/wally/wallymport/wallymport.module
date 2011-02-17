@@ -31,8 +31,71 @@ function wallymport_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
+  
+  $items['wallymport/destinations_items'] = array(
+    'title' => 'Return a XML list of all available destinations',
+    'description' => 'Return a XML list of all available destinations',
+    'page callback' => 'wallymport_page_destinations_items',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
+}
+
+/**
+ * Find all available destinations and create a XML document containing
+ * the list of them. The structure of the XML follows packages.xsd.
+ * 
+ * <xsd:complexType name="DestinationsItem">
+ *   <xsd:sequence>
+ *     <xsd:element name="DestinationPath" type="xsd:string" />
+ *   </xsd:sequence>
+ *   <xsd:attribute name="DestinationRank" type="xsd:string" use="required" />
+ *   <xsd:attribute name="Position" type="xsd:string" />
+ *   <xsd:attribute name="DocumentLayout" use="required" type="xsd:string" />
+ * </xsd:complexType>
+ * 
+ * @return
+ *   The XML document as a string.
+ */
+function wallymport_page_destinations_items(){
+  $all_dests = cckdestinations_get_classes_and_options();
+  $ranks_list = array('1', '2', '3', '4', '5');
+  $dom_dests = new DOMDocument('1.0', 'UTF-8');
+
+  $destinations = $dom_dests->createElement('Destinations');
+  $destinations = $dom_dests->appendChild($destinations);
+
+  foreach ($all_dests['tid']['#options'] as $tid=>$term_infos) {
+    $term = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
+    $term = strtoupper($term);
+    foreach ($all_dests['target']['#options'] as $target_name=>$target_infos) {
+      if (substr($target_name, 0, strlen($tid)) == $tid && !is_numeric(substr($target_name, strlen($tid), 1))) {
+        $target = $target_infos[substr($target_name, strlen($tid))];
+        foreach ($all_dests['layout']['#options'] as $layout_name=>$layout_infos) {
+          if (substr($layout_name, 0, strlen($target_name)) == $target_name) {
+            $layout = $layout_infos[substr($layout_name, strlen($target_name))];
+            foreach ($ranks_list as $rank_elem) {
+              $destination = $dom_dests->createElement('Destination');
+              $destination = $destinations->appendChild($destination);
+              
+              $destination->setAttribute('Position', $target);
+              $destination->setAttribute('DocumentLayout', $layout);
+              $destination->setAttribute('DestinationRank', $rank_elem);
+              
+              $destination_path = $dom_dests->createElement('DestinationPath');
+              $destination_path = $destination->appendChild($destination_path);
+              $destination_path_text = $dom_dests->createTextNode($term);
+              $destination_path->appendChild($destination_path_text);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  print $dom_dests->saveXML(); 
 }
 
 /**
