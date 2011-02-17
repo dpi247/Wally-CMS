@@ -103,6 +103,7 @@ function wally_profile_modules() {
 
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
     'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
+    'wallyextra',
     
   ); 
 
@@ -655,13 +656,6 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
     $mlid = taxonomy_menu_handler('insert', $args);
   }
 }
-
-
-
-  $page->disabled = FALSE;
-  
-
-  
 
 /**
  * Cleanup after the install
