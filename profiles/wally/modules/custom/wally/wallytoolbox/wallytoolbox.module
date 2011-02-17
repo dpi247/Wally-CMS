@@ -631,7 +631,17 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
     if ($thumbnail_h) $tempobject['Thumbnail']['H'] = $thumbnail_h;
   }
   $media_rating = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'rating');
-  $acceptable_rating = array('G', 'PG', 'PG-13', 'R', 'NC-17');
+  $acceptable_rating = array();
+  $all_voc = taxonomy_get_vocabularies();
+  foreach ($all_voc as $voc) {
+    if ($voc->name == 'Rating') {
+      $available_ratings = taxonomy_get_tree($voc->vid);
+      foreach ($available_ratings as $available_rating) {
+        $acceptable_rating[] = $available_rating->name;
+      }
+      break;
+    }
+  }
   if (in_array(strtoupper($media_rating), $acceptable_rating)) {
     $tempobject['Rating']['value'] = strtoupper($media_rating);
   }
