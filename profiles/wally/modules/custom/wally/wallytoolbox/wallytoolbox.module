@@ -66,6 +66,45 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 }
 
 /**
+ * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
+ * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
+ * 
+ * @param string $tid
+ *   A taxonomy term ID or name. If it is a name, the chosen term will
+ * be the one matching the $vid, if given, or the first in the results
+ * list.
+ * @param string $vid
+ *   The vocabulary ID.
+ * 
+ * @return
+ *   A string containing the parents hierarchy, separated by "/".
+ */
+function wallytoolbox_taxonomy_get_path_by_tid_or_term($tid, $vid = '') {
+  $return = '';
+  
+  if (!is_numeric($tid)) {
+    $terms_list = taxonomy_get_term_by_name($tid);
+    if ($vid != '') {
+      foreach ($terms_list as $term_elem) {
+        if ($term_elem->vid == $vid) {
+          $tid = $term_elem->tid;
+          break;
+        }
+      }
+    } else {
+      $tid = $terms_list[0]->tid;
+    }
+  }
+  
+  $tax_list = taxonomy_get_parents_all($tid);
+  foreach (array_reverse($tax_list) as $tax_elem) {
+    $return .= $tax_elem->name.'/';
+  }
+  
+  return substr($return, 0, strlen($return)-1);
+}
+
+/**
  * Add a taxonomy term into a vocabulary without 
  * need to store a node.
  *
