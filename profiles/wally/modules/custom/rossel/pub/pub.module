@@ -208,7 +208,7 @@ function _pub_getpubcontent($delta) {
   
   $pub_content .= '. ';
   $pub_content .= 'Pub block delta: '.$delta;
-  dsm($pub_content);
+  print_r($pub_content, TRUE);
   return theme('pub_content', $pub_content, $delta);
 }
 
@@ -251,7 +251,7 @@ function _pub_getanalyticcontent() {
     $analytic_content = $cached_pub->data;
   }
   
-  dsm($analytic_content);
+  print_r($analytic_content, TRUE);
   return theme('analytic_content', $pub_content);
 }
 
@@ -279,7 +279,7 @@ function _pub_getxiticontent() {
     $xiti_content = $cached_pub->data;
   }
   
-  dsm($xiti_content);
+  print_r($xiti_content, TRUE);
   return theme('xiti_content', $pub_content);
 }
 
@@ -307,7 +307,7 @@ function _pub_getmetriwebcontent() {
     $metriweb_content = $cached_pub->data;
   }
   
-  dsm($metriweb_content);
+  print_r($metriweb_content, TRUE);
   return theme('metriweb_content', $pub_content);
 }
 
