@@ -31,6 +31,7 @@ function template_preprocess_content_field_overview_form(&$vars) {
   while ($order) {
     $key = reset($order);
     $element = &$form[$key];
+    
 
     // Only display the 'Add' separator if the 'add' rows are still
     // at the end of the table.
@@ -45,37 +46,40 @@ function template_preprocess_content_field_overview_form(&$vars) {
       }
     }
 
-    $row = new stdClass();
+    if (isset($element)) {
+      $row = new stdClass();
+      // Add target classes for the tabledrag behavior.
+      $element['weight']['#attributes']['class'] = 'field-weight';
+      $element['parent']['#attributes']['class'] = 'group-parent';
+      $element['hidden_name']['#attributes']['class'] = 'field-name';
+      // Add target classes for the update selects behavior.
+      static $first_one = TRUE;
+      if (!isset($element['#row_type']) && $first_one) {dsm($order); dsm($key); dsm($element); dsm(debug_backtrace()); $first_one = FALSE;}
+      switch ($element['#row_type']) {
+        case 'add_new_field':
+          $element['type']['#attributes']['class'] = 'content-field-type-select';
+          $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
+          break;
+        case 'add_existing_field':
+          $element['field_name']['#attributes']['class'] = 'content-field-select';
+          $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
+          $element['label']['#attributes']['class'] = 'content-label-textfield';
+          break;
+      }
+      foreach (element_children($element) as $child) {
+        $row->{$child} = drupal_render($element[$child]);
+      }
+      $row->label_class = 'label-'. strtr($element['#row_type'], '_', '-');
+      $row->row_type = $element['#row_type'];
+      $row->indentation = theme('indentation', isset($element['#depth']) ? $element['#depth'] : 0);
+      $row->class = 'draggable';
+      $row->class .= isset($element['#disabled_row']) ? ' menu-disabled' : '';
+      $row->class .= isset($element['#add_new']) ? ' content-add-new' : '';
+      $row->class .= isset($element['#leaf']) ? ' tabledrag-leaf' : '';
+      $row->class .= isset($element['#root']) ? ' tabledrag-root' : '';
 
-    // Add target classes for the tabledrag behavior.
-    $element['weight']['#attributes']['class'] = 'field-weight';
-    $element['parent']['#attributes']['class'] = 'group-parent';
-    $element['hidden_name']['#attributes']['class'] = 'field-name';
-    // Add target classes for the update selects behavior.
-    switch ($element['#row_type']) {
-      case 'add_new_field':
-        $element['type']['#attributes']['class'] = 'content-field-type-select';
-        $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
-        break;
-      case 'add_existing_field':
-        $element['field_name']['#attributes']['class'] = 'content-field-select';
-        $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
-        $element['label']['#attributes']['class'] = 'content-label-textfield';
-        break;
+      $rows[] = $row;
     }
-    foreach (element_children($element) as $child) {
-      $row->{$child} = drupal_render($element[$child]);
-    }
-    $row->label_class = 'label-'. strtr($element['#row_type'], '_', '-');
-    $row->row_type = $element['#row_type'];
-    $row->indentation = theme('indentation', isset($element['#depth']) ? $element['#depth'] : 0);
-    $row->class = 'draggable';
-    $row->class .= isset($element['#disabled_row']) ? ' menu-disabled' : '';
-    $row->class .= isset($element['#add_new']) ? ' content-add-new' : '';
-    $row->class .= isset($element['#leaf']) ? ' tabledrag-leaf' : '';
-    $row->class .= isset($element['#root']) ? ' tabledrag-root' : '';
-
-    $rows[] = $row;
     array_shift($order);
   }
   $vars['rows'] = $rows;
