@@ -54,6 +54,12 @@ function wallyextra_theme(&$var) {
     'template' => 'wallyct_taxotermlist_tree',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyct_personslist_detail' => $base + array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'wallyct_personslist_detail',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
   );
 }

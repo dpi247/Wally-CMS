@@ -1,7 +1,7 @@
 <?php
 
 $plugin = array(
-	'no_title_override' => TRUE,
+	'no_title_override' => FALSE,
 	'defaults' => _wallyextra_remotehtml_defaultformvalues(),
 	'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
 		// Make sure the edit form is only used for some subtypes.
