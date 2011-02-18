@@ -69,12 +69,6 @@ function pub_theme() {
       'template' => 'metriweb-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
-    'pane_block' => array(
-      'arguments' => array('output' => array(), 'pane' => array(), 'display' => array()),
-      'template' => 'pane-block',
-      'original hook' => 'panels_pane',
-      'path' => drupal_get_path('module', 'pub') . '/templates',
-    ),
   );
 }
 
