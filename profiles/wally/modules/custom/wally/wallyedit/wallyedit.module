@@ -19,7 +19,7 @@ function wallyedit_menu(){
   return array(
       'admin/content/wallyedit'=>array(
       'page callback'=>'wallyedit_page_admin',
-      'access arguments' => 'administer nodes',
+      'access arguments' => array('administer nodes'),
   	  'file'=>'includes/page_admin.inc',
   	  //'file path'=>'includes/',
   	  'title'=> 'WallyEdit Admin',
