@@ -45,9 +45,9 @@ function media_embedly_theme($existing, $type, $theme, $path) {
 /**
  * Implementation of hook_flush_caches().
  */
-function media_embedly_flush_caches() {
-  return array('cache_media_embedly_status');
-}
+/*function media_embedly_flush_caches() {
+  return array('');
+}*/
 
 /**
  * Implementation of hook_emfield_status().
