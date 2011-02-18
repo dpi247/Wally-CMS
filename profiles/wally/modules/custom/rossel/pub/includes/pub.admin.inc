@@ -289,8 +289,6 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
   }*/
       break;
     case 'Create new block':
-    dsm($form);
-    dsm($form_state);
       $new_block = array();
       foreach ($form['new_block'] as $name => $value) {
         if (substr($name, 0, 1) != '#') {
