@@ -1032,7 +1032,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-2',
+    'weight' => '-1',
     'fields' => array(
       '0' => 'field_personfirstname',
       '1' => 'field_personlastname',
@@ -1076,7 +1076,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_personbirthdate',
       '1' => 'field_personsex',
