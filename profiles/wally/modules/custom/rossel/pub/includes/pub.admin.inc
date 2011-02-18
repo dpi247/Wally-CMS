@@ -167,6 +167,81 @@ function pub_blocks_admin_form(&$form_state) {
     '#value' => t('Delete'),
   );
   
+  $form['new_block'] = array(
+    '#title' => t('Create a new block'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $form['new_block']['page'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Page'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['position'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Position'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['_PlacementID'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Placement ID'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['_SizeID'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Size ID'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+
+  $form['new_block']['kvregion_ls'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvregion_ls'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['kvregion_sp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvregion_sp'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['kvville_sp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvville_sp'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Create new block'),
+    '#value' => t('Create new block'),
+  );
+  
   return $form;
 }
 
@@ -174,17 +249,27 @@ function pub_blocks_admin_form(&$form_state) {
  * Validation for the form for the pub blocks admin page.
  */
 function pub_blocks_admin_form_validate($form, &$form_state) {
-  foreach ($form['blocks'] as $name => $value) {
-    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
-      return;
+  switch ($form_state['values']['op']) {
+    case 'Delete':
+      foreach ($form['blocks'] as $name => $value) {
+        if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
+          return;
+      }
+      form_set_error('blocks', t('Select at least one block.'));
+      break;
+    case 'Create new block':
+      break;
+    default:
   }
-  form_set_error('blocks', t('Select at least one block.'));
 }
 
 /**
  * Submit actions for the form for the pub blocks admin page.
  */
 function pub_blocks_admin_form_submit($form, &$form_state) {
+  switch ($form_state['values']['op']) {
+    case 'Delete':
+  
   /*switch ($form['action_choice']['#value']) {
     case 'edit':
       foreach ($form['blocks'] as $name => $value) {
@@ -202,6 +287,20 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
       /*break;
     default:
   }*/
+      break;
+    case 'Create new block':
+    dsm($form);
+    dsm($form_state);
+      $new_block = array();
+      foreach ($form['new_block'] as $name => $value) {
+        if (substr($name, 0, 1) != '#') {
+          $new_block[$name] = $value['#value'];
+        }
+      }
+      drupal_write_record('zz_pub_UMI', $new_block);
+      break;
+    default:
+  }
 }
 
 /**
@@ -319,6 +418,7 @@ function _pub_callalltags() {
     
     foreach($dom->getElementsByTagName('row') as $row) {
       if ($row->getAttribute('website') == $website) {
+        $update = FALSE;
         $tag_elem = array();
         foreach($row->attributes as $attrName => $attrValue) {
           $tag_elem[$attrName] = $attrValue->value;
@@ -327,10 +427,14 @@ function _pub_callalltags() {
         foreach($pub_array as $pub_elem) {
           if ($tag_elem['position'] == $pub_elem['position']) {
             drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
+            $update = TRUE;
             break;
           }
         }
-        drupal_write_record('zz_pub_UMI', $tag_elem);
+        
+        if (!$update) {
+          drupal_write_record('zz_pub_UMI', $tag_elem);
+        }
       }
     }
     
