@@ -45,9 +45,9 @@ function media_kewego_theme($existing, $type, $theme, $path) {
 /**
  * Implementation of hook_flush_caches().
  */
-function media_kewego_flush_caches() {
+/*function media_kewego_flush_caches() {
   return array('cache_media_kewego_status');
-}
+}*/
 
 /**
  * Implementation of hook_emfield_status().
