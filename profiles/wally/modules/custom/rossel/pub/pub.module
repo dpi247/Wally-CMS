@@ -45,6 +45,40 @@ function pub_menu() {
 }
 
 /**
+ * Implémentation du hook_theme
+ */
+function pub_theme() {
+  return array(
+    'pub_content' => array(
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'analytic_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'analytic-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'xiti_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'xiti-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'metriweb_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriweb-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pane_block' => array(
+      'arguments' => array('output' => array(), 'pane' => array(), 'display' => array()),
+      'template' => 'pane-block',
+      'original hook' => 'panels_pane',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+  );
+}
+
+/**
  * Implémentation du hook_block
  */
 function pub_block($op = 'list', $delta = 0, $edit = array()) {
@@ -54,23 +88,23 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
           'info' => t('Pub '.$pub_elem['position']),
-          'cache' => BLOCK_NO_CACHE,
+          'cache' => BLOCK_CACHE_PER_PAGE,
         );
       }
       
       $blocks['analytic_block'] = array(
         'info' => t('Analytic'),
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => BLOCK_CACHE_PER_PAGE,
       );
       
       $blocks['xiti_block'] = array(
         'info' => t('Xiti'),
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => BLOCK_CACHE_PER_PAGE,
       );
       
       $blocks['metriweb_block'] = array(
         'info' => t('MetriWeb'),
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => BLOCK_CACHE_PER_PAGE,
       );
       
       return $blocks;
@@ -181,7 +215,7 @@ function _pub_getpubcontent($delta) {
   $pub_content .= '. ';
   $pub_content .= 'Pub block delta: '.$delta;
   dsm($pub_content);
-  return $pub_content;
+  return theme('pub_content', $pub_content, $delta);
 }
 
 /**
@@ -224,7 +258,7 @@ function _pub_getanalyticcontent() {
   }
   
   dsm($analytic_content);
-  return $analytic_content;
+  return theme('analytic_content', $pub_content);
 }
 
 /**
@@ -252,7 +286,7 @@ function _pub_getxiticontent() {
   }
   
   dsm($xiti_content);
-  return $xiti_content;
+  return theme('xiti_content', $pub_content);
 }
 
 /**
@@ -280,7 +314,7 @@ function _pub_getmetriwebcontent() {
   }
   
   dsm($metriweb_content);
-  return $metriweb_content;
+  return theme('metriweb_content', $pub_content);
 }
 
 /**
