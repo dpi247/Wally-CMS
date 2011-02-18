@@ -9,7 +9,7 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'no title override' => TRUE,
+  'no title override' => FALSE,
   'defaults' => _wallyextra_rssmixread_defaultformvalues(),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
