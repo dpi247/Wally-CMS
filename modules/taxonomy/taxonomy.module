@@ -969,7 +969,7 @@ function _taxonomy_term_children($tid) {
  *   An array of matching term objects.
  */
 function taxonomy_get_term_by_name($name) {
-  $db_result = db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t WHERE t.name = '%s'", 't', 'tid'), trim($name));
+  $db_result = db_query(db_rewrite_sql("SELECT t.tid, t.* FROM {term_data} t WHERE LOWER(t.name) = LOWER('%s')", 't', 'tid'), trim($name));
   $result = array();
   while ($term = db_fetch_object($db_result)) {
     $result[] = $term;
@@ -1227,7 +1227,7 @@ function taxonomy_nodeapi($node, $op, $arg = 0) {
       break;
 
     case 'rss item':
-    return taxonomy_rss_item($node);
+      return taxonomy_rss_item($node);
 
     case 'update index':
       return taxonomy_node_update_index($node);
@@ -1280,10 +1280,9 @@ function taxonomy_rss_item($node) {
   foreach ($node->taxonomy as $term) {
     $output[] = array('key'   => 'category',
                       'value' => $term->name,
-                      'attributes' => array('domain' => url('taxonomy/terme/'. $term->tid, array('absolute' => TRUE))));
+                      'attributes' => array('domain' => url('taxonomy/term/'. $term->tid, array('absolute' => TRUE))));
   }
   return $output;
-  
 }
 
 /**

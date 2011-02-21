@@ -1,5 +1,5 @@
 <?php
-// $Id: default.settings.php,v 1.8.2.4 2009/09/14 12:59:18 goba Exp $
+// $Id: default.settings.php,v 1.8.2.5 2010/12/15 13:21:14 goba Exp $
 
 /**
  * @file
@@ -89,9 +89,28 @@
  *   $db_url = 'mysqli://username:password@localhost/databasename';
  *   $db_url = 'pgsql://username:password@localhost/databasename';
  */
-
 $db_url = 'mysql://username:password@localhost/databasename';
 $db_prefix = '';
+
+/**
+ * Database default collation.
+ *
+ * All data stored in Drupal is in UTF-8. Certain databases, such as MySQL,
+ * support different algorithms for comparing, indexing, and sorting characters;
+ * a so called "collation". The default collation of a database normally works
+ * for many use-cases, but depending on the language(s) of the stored data, it
+ * may be necessary to use a different collation.
+ * Important:
+ * - Only set or change this value BEFORE installing Drupal, unless you know
+ *   what you are doing.
+ * - All database tables and columns should be in the same collation. Otherwise,
+ *   string comparisons performed for table JOINs will be significantly slower.
+ * - Especially when storing data in German or Russian on MySQL 5.1+, you want
+ *   to use the 'utf8_unicode_ci' collation instead.
+ *
+ * @see http://drupal.org/node/772678
+ */
+# $db_collation = 'utf8_general_ci';
 
 /**
  * Access control for update.php script
@@ -147,7 +166,7 @@ ini_set('session.use_cookies',      1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.use_trans_sid',    0);
 ini_set('url_rewriter.tags',        '');
- 
+
 /**
  * If you encounter a situation where users post a large amount of text, and
  * the result is stripped out upon viewing but can still be edited, Drupal's
