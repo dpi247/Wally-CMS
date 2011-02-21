@@ -2437,8 +2437,6 @@ function content_preprocess_node(&$vars) {
  */
 function content_content_fieldapi($op, $field) {
   if (module_exists('devel')) {
-    //dsm($op);
-    //dsm($field);
   }
 }
 

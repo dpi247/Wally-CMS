@@ -175,18 +175,6 @@ function page_manager_get_pages($tasks, &$pages, $task_id = NULL) {
     $pages['storages'][$storage] = $storage;
     $row['data']['storage'] = array('data' => $storage, 'class' => 'page-manager-page-storage');
 
-
-/*
-    if (empty($task['disabled'])) {
-      $item = menu_get_item($path);
-      if (empty($item)) {
-        dsm($path);
-      }
-      else {
-        dsm($item);
-      }
-    }
-*/
     $operations = array(
       array(
         'title' => t('Edit'),
