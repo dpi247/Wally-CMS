@@ -118,22 +118,22 @@ function wallyextra_rssread_content_type_edit_form(&$form, &$form_state) {
  * Validation for the configuration form of a RSS reader.
  */
 function wallyextra_rssread_content_type_edit_form_validate(&$form, &$form_state) {
-  if (isset($form['uri']['#value'])) {
-    $uri_response = drupal_http_request($form['uri']['#value']);
+  if (isset($form_state['values']['uri'])) {
+    $uri_response = drupal_http_request($form_state['values']['uri']);
     if ($uri_response->status_message != 'OK') {
       form_set_error('uri', t('The URI '.check_plain($uri_string).' doesn\'t respond.'));
     }
   }
 
-  if (isset($form['maxitem']['#value']) && !is_numeric($form['maxitem']['#value'])) {
+  if (isset($form_state['values']['maxitem']) && !is_numeric($form_state['values']['maxitem'])) {
     form_set_error('maxitem', t('The max item isn\'t a numeric value'));
-  } elseif (isset($form['maxitem']['#value']) && $form['maxitem']['#value'] <= 0) {
+  } elseif (isset($form_state['values']['maxitem']) && $form_state['values']['maxitem'] <= 0) {
     form_set_error('maxitem', t('The max item value must be greater than 0'));
   }
   
-  if (isset($form['delta_t']['#value']) && !is_numeric($form['delta_t']['#value'])) {
+  if (isset($form_state['values']['delta_t']) && !is_numeric($form_state['values']['delta_t'])) {
     form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($form['delta_t']['#value']) && $form['delta_t']['#value'] < 0) {
+  } elseif (isset($form_state['values']['delta_t']) && $form_state['values']['delta_t'] < 0) {
     form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
   }
 }
@@ -153,13 +153,13 @@ function wallyextra_rssread_content_type_edit_form_submit(&$form, &$form_state) 
     $form_state['conf']['name'] = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
-    cache_clear_all($cid = $form['caid']['#value'], $table = 'cache');
-    $form_state['conf']['uri']=$form['uri']['#value'];
-    $form_state['conf']['override_theme']=$form['override_theme']['#value'];
-    $form_state['conf']['override_theme_text']=$form['override_theme_text']['#value'];
-    $form_state['conf']['maxitem']=$form['maxitem']['#value'];
-    $form_state['conf']['delta_t'] = $form['delta_t']['#value'];
-    $form_state['conf']['caid'] = $form['caid']['#value'];
+    cache_clear_all($cid = $form_state['values']['caid'], $table = 'cache');
+    $form_state['conf']['uri']=$form_state['values']['uri'];
+    $form_state['conf']['override_theme']=$form_state['values']['override_theme'];
+    $form_state['conf']['override_theme_text']=$form_state['values']['override_theme_text'];
+    $form_state['conf']['maxitem']=$form_state['values']['maxitem'];
+    $form_state['conf']['delta_t'] = $form_state['values']['delta_t'];
+    $form_state['conf']['caid'] = $form_state['values']['caid'];
   }
 }
 
