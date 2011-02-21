@@ -67,7 +67,6 @@ function emvideo_embedly_data_version() {
  */
 function emvideo_embedly_data($field, $item) {
   $data = array();
-  //dsm($item);
   $emdata = _emvideo_embedly_request($item['embed']);
   $data['thumbnail']['url'] = $emdata['thumbnail_url'];
   return $data;
