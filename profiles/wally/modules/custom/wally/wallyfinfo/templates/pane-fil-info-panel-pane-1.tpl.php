@@ -51,7 +51,14 @@ drupal_add_css(drupal_get_path('module', 'wallyfinfo').'/css/packfilinfoscarouse
 <div class='box'>
   <?php
     if (sizeof($available_dests)>0) {
-      print $content;
+  ?>
+      <div class="packfil">
+        <div id="colinfos">
+          <h2><?php print $pane_config['override_title'] ? check_plain($pane_config['override_title_text']) : t('Le fil info'); ?></h2>
+          <?php print $content; ?>
+        </div>
+      </div>
+  <?php
     } else {
       drupal_set_message('No destinations available', 'error');
       print '';
