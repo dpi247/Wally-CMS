@@ -10,6 +10,5 @@
  * $target: The targeted block.
  * 
  */
-//dsm('Display: '. $view .', destination: '. $destination .', target: '. $target);
 
 ?>

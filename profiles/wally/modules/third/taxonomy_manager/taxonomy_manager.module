@@ -352,7 +352,7 @@ function taxonomy_manager_tree_process_elements($element) {
   $module_path = drupal_get_path('module', 'taxonomy_manager') .'/';
   $id = form_clean_id(implode('-', $element['#parents']));
   $vid = $element['#vid'];
-dsm($element);
+
   if (!$element['#siblings_page'] && !in_array($id, $_taxonomy_manager_existing_ids)) {
     $_taxonomy_manager_existing_ids[$id] = $id;
     drupal_add_css($module_path .'css/taxonomy_manager.css');
