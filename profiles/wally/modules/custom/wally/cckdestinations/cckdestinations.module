@@ -74,8 +74,8 @@ function cckdestinations_field_settings( $op, $field ){
       break;
     case 'views data':
       module_load_include('inc', 'cckdestinations', 'views/cckdestinations.views');
-	  return cckdestinations_views_content_field_data($field);
-	  break;
+      return cckdestinations_views_content_field_data($field);
+      break;
   }
 }
 
@@ -96,7 +96,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       break;
     case 'presave':
       foreach ($items as $delta => $item) {
-          $items[$delta]['time_rank'] = ($item[ 'time_rank' ]!=NULL)?check_plain($item[ 'time_rank' ]):strtotime($node->field_publicationdate[0]['value']);
+        $items[$delta]['time_rank'] = ($item[ 'time_rank' ]!=NULL)?check_plain($item[ 'time_rank' ]):strtotime($node->field_publicationdate[0]['value']);
       }
     break;
   }
@@ -168,7 +168,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#attributes' => array('class' => 'tid'),
  );
 
-
 /**
  * @todo Get the real values from database. 
  */
@@ -194,8 +193,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'=>FALSE,
     '#weight' => 4,
      // specify theming callback & add a new #attribute to the element.
-  '#theme' => 'cckdestinations_cascading_select',
-  '#attributes' => array('class' => 'layout'),
+    '#theme' => 'cckdestinations_cascading_select',
+    '#attributes' => array('class' => 'layout'),
  );
   $element['rank'] = array(
     '#title' => t( 'Rank' ),
@@ -226,7 +225,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  */
  
 function cckdestinations_get_classes_and_options(){
- 
   $result['tid']['#options']=array();
   $result['target']['#options']=array();
   $result['target']['#classes']=array();
@@ -276,19 +274,19 @@ function theme_cckdestinations_cascading_select($element) {
  * @return HTML options form elements. 
  */
 function cckdestinations_cascading_select_options($element, $choices = NULL) {
-	    
-    $choices = $element['#options'];
-    $classes = $element['#classes'];
+  $choices = $element['#options'];
+  $classes = $element['#classes'];
 
-    $module_path = drupal_get_path('module', 'cckdestinations') .'/';
-    drupal_add_js($module_path .'js/cckdestinations.js');
+  $module_path = drupal_get_path('module', 'cckdestinations') .'/';
+  drupal_add_js($module_path .'js/cckdestinations.js');
 
-    // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
-    // isset() fails in this situation.
-    $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
-    $value_is_array = is_array($element['#value']);
+  // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
+  // isset() fails in this situation.
+  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
+  $value_is_array = is_array($element['#value']);
 
-    foreach ($choices as $k => $c) {
+  foreach ($choices as $k => $c) {
+    if (is_array($c)) {
       $key = array_keys($c);
       $key = $key[0];
       $choice = $c[$key];
@@ -315,8 +313,8 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
         }
         $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
         $options .= $option;
-        
       }
+    }
   }
   return $options;
 }
@@ -358,26 +356,25 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
 function cckdestinations_field_formatter_info() {
   return array(
     'default' => array(
-       'label' => t( 'Default Formater' ),
-       'field types' => array( 'destinationsfield' ),
+      'label' => t( 'Default Formater' ),
+      'field types' => array( 'destinationsfield' ),
     ),
     'tid' => array(
-       'label' => t( 'Term Only Formater' ),
-       'field types' => array( 'destinationsfield' ),
+      'label' => t( 'Term Only Formater' ),
+      'field types' => array( 'destinationsfield' ),
     ),
     'target' => array(
-       'label' => t( 'Target Only Formater' ),
-       'field types' => array( 'destinationsfield' ),
+      'label' => t( 'Target Only Formater' ),
+      'field types' => array( 'destinationsfield' ),
     ),
     'layout' => array(
-       'label' => t( 'Layout Only Formater' ),
-       'field types' => array( 'destinationsfield' ),
+      'label' => t( 'Layout Only Formater' ),
+      'field types' => array( 'destinationsfield' ),
     ),
     'rank' => array(
-       'label' => t( 'Rank Only Formater' ),
-       'field types' => array( 'destinationsfield' ),
+      'label' => t( 'Rank Only Formater' ),
+      'field types' => array( 'destinationsfield' ),
     ),
-    
   );
 }
 
@@ -387,7 +384,7 @@ function cckdestinations_cron(){
 }
 
 function cckdestinations_api_decrement_rank(){
-      db_query("UPDATE {content_field_destination} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
+  db_query("UPDATE {content_field_destination} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
 }
 
 /**
@@ -556,44 +553,39 @@ function cckdestinations_views_api() {
 
 
 function cckdestinations_token_list($type = 'all') {
-      $tokens=array();
+  $tokens=array();
   
   if ($type == 'node') {
     $tokens['cckdest']['cckdest:destination_term']      = t("Main Destination Term");
     $tokens['cckdest']['cckdest:destination_term_path']      =t("Main Destination Term path");
     $tokens['cckdest']['cckdest:destination_term_id']      = t("Main Destination Term id");
-    
-    
   }
-      return $tokens;
-  
+  return $tokens;
 }
 function cckdestinations_token_values($type, $object = NULL, $options = array()) {
-
-    $tokens=array();
+  $tokens=array();
+  
   if ($type == 'node') {
-   $term=new StdClass;
-   $term->tid=$object->field_destinations[0]['tid'];
-   $term->vid=variable_get('wallymport_destinationpath',2);
-   
-   $path="";
-   $tree=taxonomy_get_parents_all($term->tid);
-   foreach($tree as$term){
-     if($path==''){
-       $path.=$term->name;
-   
-     }
-     else{
-       $path.=$path.'/'.$term->name;
-   
-     }
-   }
-   $tokens['cckdest:destination_term']      = strtolower($term->name);
+    $term=new StdClass;
+    $term->tid=$object->field_destinations[0]['tid'];
+    $term->vid=variable_get('wallymport_destinationpath',2);
+    
+    $path="";
+    $tree=taxonomy_get_parents_all($term->tid);
+    foreach($tree as$term){
+      if($path==''){
+        $path.=$term->name;
+      } else {
+        $path.=$path.'/'.$term->name;
+      }
+    }
+    
+    $tokens['cckdest:destination_term']      = strtolower($term->name);
     $tokens['cckdest:destination_term_path']      = strtolower($path);
     $tokens['cckdest:destination_term_id']      = strtolower($term->tid);
   }
-    return $tokens;
   
+  return $tokens;
 }
 
 function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']') {
@@ -604,13 +596,13 @@ function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']'
   $rows = array();
   foreach ($full_list as $key => $category) {
     if($key!='global'){
-    $rows[] = array(array('data' => drupal_ucfirst($key) .' '. t('tokens'), 'class' => 'region', 'colspan' => 2));
-    foreach ($category as $token => $description) {
-      $row = array();
-      $row[] = $prefix . $token . $suffix;
-      $row[] = $description;
-      $rows[] = $row;
-    }
+      $rows[] = array(array('data' => drupal_ucfirst($key) .' '. t('tokens'), 'class' => 'region', 'colspan' => 2));
+      foreach ($category as $token => $description) {
+        $row = array();
+        $row[] = $prefix . $token . $suffix;
+        $row[] = $description;
+        $rows[] = $row;
+      }
     }
   }
 
