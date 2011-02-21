@@ -152,8 +152,8 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
  * Validation for the configuration form of a RSS mix reader.
  */
 function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_state) {
-  if (isset($form['uris']['#value'])) {
-    $uri_strings = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($form['uris']['#value'])));
+  if (isset($form_state['values']['uris'])) {
+    $uri_strings = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($form_state['values']['uris'])));
     foreach ($uri_strings as $uri_string) {
       $uri_response = drupal_http_request($uri_string);
       if ($uri_response->status_message != 'OK') {
@@ -162,26 +162,26 @@ function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_st
     }
   }
 
-  if (isset($form['maxitem_global']['#value']) && !is_numeric($form['maxitem_global']['#value'])) {
+  if (isset($form_state['values']['maxitem_global']) && !is_numeric($form_state['values']['maxitem_global'])) {
     form_set_error('maxitem_global', t('The total max item isn\'t a numeric value'));
-  } elseif (isset($form['maxitem_global']['#value']) && $form['maxitem_global']['#value'] <= 0) {
+  } elseif (isset($form_state['values']['maxitem_global']) && $form_state['values']['maxitem_global'] <= 0) {
     form_set_error('maxitem_global', t('The total max item value must be greater than 0'));
   }
   
-  if (isset($form['maxitem_byfeed']['#value']) && !is_numeric($form['maxitem_byfeed']['#value'])) {
+  if (isset($form_state['values']['maxitem_byfeed']) && !is_numeric($form_state['values']['maxitem_byfeed'])) {
     form_set_error('maxitem_byfeed', t('The max item by feed isn\'t a numeric value'));
-  } elseif (isset($form['maxitem_byfeed']['#value']) && $form['maxitem_byfeed']['#value'] <= 0) {
+  } elseif (isset($form_state['values']['maxitem_byfeed']) && $form_state['values']['maxitem_byfeed'] <= 0) {
     form_set_error('maxitem_byfeed', t('The max item by feed value must be greater than 0'));
   }
   
-  if (isset($form['delta_t']['#value']) && !is_numeric($form['delta_t']['#value'])) {
+  if (isset($form_state['values']['delta_t']) && !is_numeric($form_state['values']['delta_t'])) {
     form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($form['delta_t']['#value']) && $form['delta_t']['#value'] < 0) {
+  } elseif (isset($form_state['values']['delta_t']) && $form_state['values']['delta_t'] < 0) {
     form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
   }
   
-  if ($form['own_schema']['#value'] && !empty($form['own_schema']['#value'])) {
-    $temp_schema = explode(',', $form['own_schema']['#value']);
+  if ($form_state['values']['own_schema'] && !empty($form_state['values']['own_schema'])) {
+    $temp_schema = explode(',', $form_state['values']['own_schema']);
     foreach ($temp_schema as $temp_elem) {
       if ($temp_elem != 'any' && !is_numeric($temp_elem)) {
         $temp_sub_schema = explode('-', $temp_elem);
@@ -209,16 +209,16 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['conf']['name'] = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
-    cache_clear_all($form['caid']['#value'], $table = 'cache');
-    $form_state['conf']['uris'] = $form['uris']['#value'];
-    $form_state['conf']['maxitem_global'] = $form['maxitem_global']['#value'];
-    $form_state['conf']['maxitem_byfeed'] = $form['maxitem_byfeed']['#value'];
-    $form_state['conf']['delta_t'] = $form['delta_t']['#value'];
-    $form_state['conf']['mix_schema'] = $form['mix_schema']['#value'];
-    $form_state['conf']['own_schema'] = $form['own_schema']['#value'];
-    $form_state['conf']['override_theme'] = $form['override_theme']['#value'];
-    $form_state['conf']['override_theme_text'] = $form['override_theme_text']['#value'];
-    $form_state['conf']['caid'] = $form['caid']['#value'];
+    cache_clear_all($form_state['values']['caid'], $table = 'cache');
+    $form_state['conf']['uris'] = $form_state['values']['uris'];
+    $form_state['conf']['maxitem_global'] = $form_state['values']['maxitem_global'];
+    $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
+    $form_state['conf']['delta_t'] = $form_state['values']['delta_t'];
+    $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
+    $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
+    $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
+    $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
+    $form_state['conf']['caid'] = $form_state['values']['caid'];
   }
 }
 
