@@ -17,40 +17,32 @@ foreach ($all_voc as $voc) {
     break;
   }
 }
-//global $base_url;
 ?>
-
-<div class="packfil">
-  <div id="colinfos">
-    <h2>Le fil info</h2>
-    
-    <div class="filhead">
-        <div class="centrercat">
-          <div class="carousel" id="carCat">
-            <div id="filcat">
-              <ul>
-              </ul>
-            </div>
-          </div>
+<div class="filhead">
+    <div class="centrercat">
+      <div class="carousel" id="carCat">
+        <div id="filcat">
+          <ul>
+          </ul>
         </div>
-      <p class="jr"><?php print date('d M Y'); ?></p>
+      </div>
     </div>
+  <p class="jr"><?php print date('d M Y'); ?></p>
+</div>
 
-	<?php foreach ($available_dests as $available_dest) { ?>
-    <div id="car<?php print strtolower($available_dest->name); ?>" class="carousel">
-      <ul id="liste<?php print strtolower($available_dest->name); ?>" class="hideme">
-      </ul>
-    </div>
-    <?php } ?>
-    
-    <div class="pager">
-    <?php
-    for($i=1; $i<6; $i++) {
-    ?>
-      <span id="page<?php print $i; ?>"><?php print $i; ?></span>
-    <?php
-    }
-    ?>
-    </div>
-  </div>
+<?php foreach ($available_dests as $available_dest) { ?>
+<div id="car<?php print strtolower($available_dest->name); ?>" class="carousel">
+  <ul id="liste<?php print strtolower($available_dest->name); ?>" class="hideme">
+  </ul>
+</div>
+<?php } ?>
+
+<div class="pager">
+<?php
+for($i=1; $i<6; $i++) {
+?>
+  <span id="page<?php print $i; ?>"><?php print $i; ?></span>
+<?php
+}
+?>
 </div>

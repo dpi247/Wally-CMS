@@ -19,8 +19,6 @@ foreach ($all_voc as $voc) {
 }
 $pager = $view->pager;
 ?>
-<h2>Le fil info</h2>
-
 <div class="categories">
   <div>
     <div id="catmenu" class="carousel"> 
