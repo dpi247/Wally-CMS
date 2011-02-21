@@ -96,7 +96,6 @@ function imagecache_alpha_image(&$image, $data = array()) {
     
     if (!$info) { 
       watchdog("imagecache", "Problem converting image to fill behind. Source image returned no info");
-      #dsm($source);
       return; // error
     }
 

@@ -1222,7 +1222,6 @@ function content_field_edit_form_validate($form, &$form_state) {
     // @TODO
     // This is a change that might result in loss of data.
     // Add a confirmation form here.
-    // dsm($dropped_data);
   }
 
   module_invoke($widget_type['module'], 'widget_settings', 'validate', array_merge($field, $form_values));
@@ -1622,7 +1621,6 @@ function content_alter_db($previous_field, $new_field) {
 
   // TODO: debugging stuff - should be removed
   if (module_exists('devel')) {
-    //dsm($ret);
   }
   return $ret;
 }
