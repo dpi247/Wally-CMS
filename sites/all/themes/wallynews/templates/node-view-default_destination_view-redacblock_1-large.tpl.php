@@ -1,5 +1,4 @@
 <?php
-	//dsm ($node);
 	$title = $node->title;
 	$node_path = drupal_get_path_alias("node/".$node->nid);
 	$mainstory = $node->field_mainstory_nodes[0];
