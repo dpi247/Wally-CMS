@@ -11,9 +11,6 @@
 class cckdestinations_views_handler_filter_target extends views_handler_filter_string {
   /*
   function query() {
-    dsm(query);
-  dsm($this);
-  dsm($this->display_handler);
    if (empty($this->value)) {
       return;
     }

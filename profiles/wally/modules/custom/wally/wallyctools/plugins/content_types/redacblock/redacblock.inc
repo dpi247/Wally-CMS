@@ -309,8 +309,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     $view->init_handlers();
     
     // $view->display[$view_id]->handler->handlers['filter']['t']=$options;
- // dsm($view->display[$view_id]->handler);//->override_option('filters',$options);
-   //dsm( $view->display_handler->get_handlers('filters')); 
   //$view->set_item($view_name, 'filter', $name, $item);
   
   
