@@ -1,5 +1,5 @@
 <?php
-// $Id: theme.inc,v 1.415.2.27 2010/03/01 10:02:01 goba Exp $
+// $Id: theme.inc,v 1.415.2.28 2010/11/03 19:03:19 goba Exp $
 
 /**
  * @file
@@ -262,11 +262,8 @@ function drupal_rebuild_theme_registry() {
 function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
   $result = array();
   $function = $name .'_theme';
-  
   if (function_exists($function)) {
     $result = $function($cache, $type, $theme, $path);
-
-//    var_dump($result);
 
     foreach ($result as $hook => $info) {
       $result[$hook]['type'] = $type;
@@ -751,7 +748,6 @@ function drupal_discover_template($paths, $suggestions, $extension = '.tpl.php')
   // Loop through all paths and suggestions in FIFO order.
   $suggestions = array_reverse($suggestions);
   $paths = array_reverse($paths);
-  
   foreach ($suggestions as $suggestion) {
     if (!empty($suggestion)) {
       $suggestion = str_replace(array("/", "\\", "\0"), '', $suggestion);
@@ -1024,24 +1020,24 @@ function theme_get_setting($setting_name, $refresh = FALSE) {
 
     if ($settings['toggle_logo']) {
       if ($settings['default_logo']) {
-        $settings['logo'] = file_create_url(dirname($theme_object->filename) .'/logo.png');
+        $settings['logo'] = base_path() . dirname($theme_object->filename) .'/logo.png';
       }
       elseif ($settings['logo_path']) {
-        $settings['logo'] = file_create_url($settings['logo_path']);
+        $settings['logo'] = base_path() . $settings['logo_path'];
       }
     }
 
     if ($settings['toggle_favicon']) {
       if ($settings['default_favicon']) {
         if (file_exists($favicon = dirname($theme_object->filename) .'/favicon.ico')) {
-          $settings['favicon'] = file_create_url($favicon);
+          $settings['favicon'] = base_path() . $favicon;
         }
         else {
-          $settings['favicon'] = file_create_url('misc/favicon.ico');
+          $settings['favicon'] = base_path() .'misc/favicon.ico';
         }
       }
       elseif ($settings['favicon_path']) {
-        $settings['favicon'] = file_create_url($settings['favicon_path']);
+        $settings['favicon'] = base_path() . $settings['favicon_path'];
       }
       else {
         $settings['toggle_favicon'] = FALSE;
@@ -1248,6 +1244,7 @@ function theme_links($links, $attributes = array('class' => 'links')) {
  *
  * @param $path
  *   Either the path of the image file (relative to base_path()) or a full URL.
+ *   If this is a full URL, $getsize must be set to FALSE or nothing will be returned.
  * @param $alt
  *   The alternative text for text-based browsers.
  * @param $title
@@ -1256,13 +1253,15 @@ function theme_links($links, $attributes = array('class' => 'links')) {
  *   Associative array of attributes to be placed in the img tag.
  * @param $getsize
  *   If set to TRUE, the image's dimension are fetched and added as width/height attributes.
+ *   Defaults to TRUE. Must be set to FALSE if $path is a full URL.
+ * 
  * @return
  *   A string containing the image tag.
  */
 function theme_image($path, $alt = '', $title = '', $attributes = NULL, $getsize = TRUE) {
   if (!$getsize || (is_file($path) && (list($width, $height, $type, $image_attributes) = @getimagesize($path)))) {
     $attributes = drupal_attributes($attributes);
-    $url = (url($path) == $path) ? $path : file_create_url($path);
+    $url = (url($path) == $path) ? $path : (base_path() . $path);
     return '<img src="'. check_url($url) .'" alt="'. check_plain($alt) .'" title="'. check_plain($title) .'" '. (isset($image_attributes) ? $image_attributes : '') . $attributes .' />';
   }
 }
@@ -1846,10 +1845,10 @@ function template_preprocess_page(&$variables) {
 
   // Construct page title
   if (drupal_get_title()) {
-    $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Pressflow'));
+    $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
   }
   else {
-    $head_title = array(variable_get('site_name', 'Pressflow'));
+    $head_title = array(variable_get('site_name', 'Drupal'));
     if (variable_get('site_slogan', '')) {
       $head_title[] = variable_get('site_slogan', '');
     }
@@ -1870,7 +1869,7 @@ function template_preprocess_page(&$variables) {
   $variables['primary_links']     = theme_get_setting('toggle_primary_links') ? menu_primary_links() : array();
   $variables['secondary_links']   = theme_get_setting('toggle_secondary_links') ? menu_secondary_links() : array();
   $variables['search_box']        = (theme_get_setting('toggle_search') ? drupal_get_form('search_theme_form') : '');
-  $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Pressflow')) : '');
+  $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');
   $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? filter_xss_admin(variable_get('site_slogan', '')) : '');
   $variables['css']               = drupal_add_css();
   $variables['styles']            = drupal_get_css();
