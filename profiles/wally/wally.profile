@@ -189,7 +189,7 @@ function wally_profile_tasks(&$task, $url) {
     
     // Enable view popular after loading default views.
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
-      $batch['operations'][] = array('_wally_enable_view_popular()', array());
+      $batch['operations'][] = array('_wally_enable_view_popular', array());
     }
     
     $batch['operations'][] = array('_wally_cleanup', array());
@@ -589,7 +589,7 @@ function _wally_placeholder_content(&$context) {
 /**
  * Enable view popular
  */
-function _wally_enable_view_popular() {
+function _wally_enable_view_popular(&$context) {
   //most popular (statistics) view is disabled by default, enable it
   $view = views_get_view('popular');
   $view->disabled = FALSE;
@@ -603,14 +603,8 @@ function _wally_enable_view_popular() {
 /**
  * Load & Updates views
  */
-function _wally_set_views() {
-
+function _wally_set_views(&$context) {
   views_include_default_views();
-  
-  //most popular (statistics) view is disabled by default, enable it
-  $view = views_get_view('popular');
-  $view->disabled = FALSE;
-  $view->save();
 
   $msg = st('Installed Views');
   _wally_log($msg);
