@@ -868,7 +868,7 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#required' => TRUE,
   );
   
-  $form['#submit'] = '_wally_install_form_submit';
+  $form['#submit'][] = '_wally_install_form_submit';
 }
 
 function _wally_install_form_submit(&$form, $form_state) {
