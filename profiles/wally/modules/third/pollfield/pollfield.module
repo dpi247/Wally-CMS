@@ -1518,6 +1518,27 @@ function pollfield_add_choice(){
   // drupal_process_form set up.
   $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //When rebuild we don't get the right values
+  
+  
+  
+  
+  
+  
   // Render the new output.
 //  $form_choices=$form["group_poll"][$field_name][$field_name_delta]['group'];
   $form_choices=$form[$field_name][$field_name_delta]['group'];
