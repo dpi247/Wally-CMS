@@ -179,6 +179,11 @@ function wally_profile_tasks(&$task, $url) {
     
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_install_menus', array());
+    }
+    
+    $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
+    
+    if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
       $batch['operations'][] = array('_wally_placeholder_content', array());
     }
@@ -629,6 +634,18 @@ function _wally_install_menus(&$context) {
   install_menu_create_menu_item('node/2', 'Terms of use', '', 'secondary-links', 0, 2);
   install_menu_create_menu_item('node/3', 'Privacy', '', 'secondary-links', 0, 3);
   
+  $msg = st('Installed Menus');
+  _wally_log($msg);
+  $context['message'] = $msg;
+} 
+
+/**
+ * Setup taxonomy settings for the menus and primary links.
+ */
+function _wally_install_taxonomysettingsmenus(&$context) {
+
+  $menu_name = "primary-links";
+  
   // Settings about taxonomy menu
   // Be aware that "Menu Setup" need called after 
   // populate taxonomies ( @see: _wally_initialize_settings ); 
@@ -654,7 +671,7 @@ function _wally_install_menus(&$context) {
   variable_set('taxonomy_menu_voc_item_'.$vid, 0);
   _wally_setup_taxonomymenu($vid, $menu_name);
   
-  $msg = st('Installed Menus');
+  $msg = st('Installed Taxonomy Settings for the Menus');
   _wally_log($msg);
   $context['message'] = $msg;
 } 
