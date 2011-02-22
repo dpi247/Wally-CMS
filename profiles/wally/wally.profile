@@ -122,7 +122,7 @@ function wally_feature_modules() {
     'wallycontenttypes', 
     'wallyfundamentals', 
   );
-  return array();//$features;
+  return $features;
 }
 
 /**
