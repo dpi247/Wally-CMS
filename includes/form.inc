@@ -764,6 +764,7 @@ function form_execute_handlers($type, &$form, &$form_state) {
     $handlers = $form['#'. $type];
   }
   else {
+    print_r($form);
     $handlers = array();
   }
 
