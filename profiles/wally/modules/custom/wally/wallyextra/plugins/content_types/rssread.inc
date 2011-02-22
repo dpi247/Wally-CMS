@@ -273,11 +273,10 @@ function wallyextra_rssread_content_type_render($subtype, $conf, $panel_args, $c
     $feed = $cached_feed->data;
   }
 
-  // @TODO: tester si la fonction existe
-  if ($settings['override_theme_text'] != "" ){
+  if ($settings['override_theme_text'] != "" && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
     return $block;
-  }else{      
+  } else {      
     $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
     return $block;  
   }
