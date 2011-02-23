@@ -1,5 +1,7 @@
 <?php
-
+function wallyedit_enable(){
+drupal_rebuild_theme_registry();
+}
 function wallyedit_install() {
      
   // New module weights in core: put devel as the very last in the chain.
