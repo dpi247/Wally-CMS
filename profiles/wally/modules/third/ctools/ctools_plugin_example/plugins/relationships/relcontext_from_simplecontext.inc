@@ -28,6 +28,8 @@ $plugin = array(
  * Return a new context based on an existing context.
  */
 function ctools_relcontext_from_simplecontext_context($context = NULL, $conf) {
+  dsm($context,rel);
+  dsm($conf,rel);
   // If unset it wants a generic, unfilled context, which is just NULL.
   if (empty($context->data)) {
     return ctools_context_create_empty('relcontext', NULL);

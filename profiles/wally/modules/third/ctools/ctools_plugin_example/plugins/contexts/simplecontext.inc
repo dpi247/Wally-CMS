@@ -47,7 +47,10 @@ $plugin = array(
 function ctools_plugin_example_context_create_simplecontext($empty, $data = NULL, $conf = FALSE) {
   $context = new ctools_context('simplecontext');
   $context->plugin = 'simplecontext';
-
+  dsm($context);
+  dsm($data);
+  dsm($conf);
+  dsm($empty);
   if ($empty) {
     return $context;
   }
