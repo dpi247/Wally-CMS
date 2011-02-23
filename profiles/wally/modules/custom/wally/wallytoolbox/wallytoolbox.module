@@ -218,7 +218,7 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
 
 
 /**
- * Get all nodes where scckfield match a value. 
+ * Get all nodes where cckfield match a value. 
  *
  * @param $param
  *   An associative array containing:
