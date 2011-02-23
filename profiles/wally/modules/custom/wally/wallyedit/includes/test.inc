@@ -15,7 +15,6 @@ function wallyedit_test($a){
      $form_state = array(
       'cache name' => 6,
     );
-    dsm(ctools_object_cache_get('prenode', $form_state['cache name']));
     if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
      $form_state=$cache;
     }
