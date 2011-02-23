@@ -103,7 +103,7 @@ function wally_profile_modules() {
 
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
     'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
-    'wallyextra', 'wallyedit',
+    'wallyedit',
     
   ); 
 
@@ -119,8 +119,9 @@ function wally_profile_modules() {
 function wally_feature_modules() {
   $features = array(
     'integrationstarter',
-    'wallycontenttypes', 
-    'wallyfundamentals', 
+    'wallycontenttypes',
+    'wallyfundamentals',
+    'wallyextra',
   );
   return $features;
 }
