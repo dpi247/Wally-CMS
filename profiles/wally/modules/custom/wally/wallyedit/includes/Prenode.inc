@@ -128,7 +128,6 @@ class Prenode{
             $temp_node=node_load($value['nid']);
             
             $form_state[$field_name][$key]["#form_state"]=$temp_node;
-            dsm($form_state[$type_name][$field_name]);
             
           }
           */

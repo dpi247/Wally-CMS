@@ -66,7 +66,6 @@ views_add_js('ajax_view');
   );
   $block=views_content_views_content_type_render('test_vbo',$conf,array(),array());
     
-    dsm(rrrrrssssvvvvv);
      views_ajax();
   //  $commands[] = ctools_ajax_command_html('#wallyedit_container',$block->content);  
     

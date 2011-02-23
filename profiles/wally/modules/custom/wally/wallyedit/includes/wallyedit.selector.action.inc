@@ -53,9 +53,6 @@ function wallyedit_selector_action_submit($form, $form_state) {
 */
 
 function wallyedit_selector_action($node, $context) {
-  
-  dsm($context);
-  dsm($context);
   /*
   $roles = $user->roles;
   $selected = (is_array($context['add_roles']) ? $context['add_roles'] : array()) +
