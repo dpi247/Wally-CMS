@@ -191,35 +191,34 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
       $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
     }
 
-	if ($type) {
-		$sql = $sql . ' AND n.type = "'.$type.'"';
-		$sql_count = $sql_count . ' AND n.type = "'.$type.'"';
-	}
+    if ($type) {
+      $sql = $sql . ' AND n.type = "'.$type.'"';
+      $sql_count = $sql_count . ' AND n.type = "'.$type.'"';
+    }
 
-	// add Order Clause
-	$sql = $sql . ' ORDER BY ' . $order; 
-	
-  $sql = db_rewrite_sql($sql);
-	$sql_count = db_rewrite_sql($sql_count);
+    // add Order Clause
+    $sql = $sql . ' ORDER BY ' . $order; 
+
+    $sql = db_rewrite_sql($sql);
+    $sql_count = db_rewrite_sql($sql_count);
 
     if ($pager) {
       $results = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
-    }
-    else {
+    } else {
       $results = db_query($sql, $args);
     }
 
     while ($result = db_fetch_object($results)) {
-		$r[] = $result->nid;
+      $r[] = $result->nid;
     }
-    
+
   }
   return $r;
 }
 
 
 /**
- * Get all nodes where  cckfield match a value. 
+ * Get all nodes where scckfield match a value. 
  *
  * @param $param
  *   An associative array containing:
