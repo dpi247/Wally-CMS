@@ -149,7 +149,7 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
  * @param $type
  *   Node Type Filter. Could be use to return only a certain type of nodes. 
  * @param $order
- *   Order close for TID (SSL format). See @link http://api.drupal.org/api/drupal/includes--database.inc/ Data Base abstraction layer @endlink for table aliases.
+ *   Order close for TID (SSL format). See @link http://api.drupal.org/api/drupal/includes--database.inc/group/database/6 Data Base abstraction layer @endlink for table aliases.
  * 
  * @return
  *   Array of Node ID. 
