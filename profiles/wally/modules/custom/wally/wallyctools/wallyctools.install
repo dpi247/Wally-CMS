@@ -146,7 +146,9 @@ function wallyctools_enable() {
   drupal_execute("ctools_export_ui_edit_item_form", $form_state);
 */
   
-   
+   foreach ($form_state as $dimi=>$jetaime) {
+     var_dump("LOL MDR");
+   }
 
 	
 	
