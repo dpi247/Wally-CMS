@@ -9,7 +9,6 @@ function wallyedit_page_node_edition($prenode,$js=FALSE){
   ctools_include('ajax');
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
-  dsm(EDIT);
   $form_state=$prenode->getFormState();
   $form_state["action"]= '/node/'.$form_state['cache name'].'/edit2/ajax';
   

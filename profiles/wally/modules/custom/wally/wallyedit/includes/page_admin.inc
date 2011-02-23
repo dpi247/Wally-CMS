@@ -7,7 +7,6 @@ function wallyedit_page_admin(){
   $result=db_query("SELECT * from {ctools_object_cache} where obj='%s'","prenode");
   
   while($obj=db_fetch_object($result)){
-    dsm($obj);
     $row['sid']=$obj->sid;
     $row['name']=$obj->name;
     $row['data']=unserialize($obj->data);
