@@ -177,7 +177,7 @@ function _wallyextra_taxonomylist_default_ctools_content_type() {
   $info = array(
     'name' => 'taxonomylist',
     'title' => t('Package related Taxonomy List (simple/tree)'),
-    'category' => t('Packages'),
+    'category' => t('Wally Extra'),
     'edit form' => 'wallyextra_taxonomylist_content_type_edit_form',
     'description' => t('Fetch all taxonomy terms related to package node (List/Tree Mode).'),
     'defaults' => _wallyextra_taxonomylist_defaultformvalues(),

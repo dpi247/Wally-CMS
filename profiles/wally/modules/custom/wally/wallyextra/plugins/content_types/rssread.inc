@@ -219,7 +219,7 @@ function _wallyextra_rssread_default_ctools_content_type() {
   $info = array(
     'name' => 'rssread',
     'title' => t('RSS Reader'),
-    'category' => t('Wally Tools'),
+    'category' => t('Wally Extra'),
     'edit form' => 'wallyextra_rssread_content_type_edit_form',
     'description' => t('Fetch a RSS feed'),
     'all contexts' => TRUE,

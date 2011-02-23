@@ -189,7 +189,7 @@ function _wallyextra_remotehtml_default_ctools_content_type() {
   $info = array(
     'name' => 'remotehtml',
     'title' => t('Remote HTML'),
-    'category' => t('Wally Tools'),
+    'category' => t('Wally Extra'),
     'edit form' => 'wallyextra_remotehtml_content_type_edit_form',
     'description' => t('Remote HTML Block from a trusted partner website. '),
     'all contexts' => TRUE,
