@@ -10,7 +10,7 @@ function wallyextra_galleryphoto_ctools_content_types() {
 		'title' => t('Package related Gallery Photo'),
 		'icon' => 'icon_node.png',
 		'description' => t('allows the display of a photo gallery.'),
-		'category' => t('Packages'),
+		'category' => t('Wally Extra'),
 		'defaults' => array(),
 	);
 }

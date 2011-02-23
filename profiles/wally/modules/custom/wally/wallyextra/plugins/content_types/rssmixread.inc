@@ -279,7 +279,7 @@ function _wallyextra_rssmixread_default_ctools_content_type() {
   $info = array(
     'name' => 'rssmixread',
     'title' => t('RSS Mix Reader'),
-    'category' => t('Wally Tools'),
+    'category' => t('Wally Extra'),
     'edit form' => 'wallyextra_rssmixread_content_type_edit_form',
     'description' => t('Fetch some RSS feeds and mix them together in a single feed'),
     'all contexts' => TRUE,

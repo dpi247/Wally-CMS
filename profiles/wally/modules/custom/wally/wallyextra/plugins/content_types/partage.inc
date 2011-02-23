@@ -11,7 +11,7 @@ function wallyextra_partage_ctools_content_types() {
       'icon' => 'icon_node.png',
       'description' => t('Partage to facebook and all.'),
       'required context' => new ctools_context_required(t('Node'), 'node'),
-      'category' => t('Packages'),
+      'category' => t('Wally Extra'),
    'defaults' => array(),
     );
 }

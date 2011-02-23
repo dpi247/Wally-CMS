@@ -11,7 +11,7 @@ function wallycontenttypes_fichepersonnetid_ctools_content_types() {
       'description' => t('Fetch all persons related to a person taxonomy term id.'),
     	// @todo: contextualiser sur une page de taxonomie
       'all contexts' => TRUE,
-      'category' => t('Packages'),
+      'category' => t('Wally Extra'),
    'defaults' => array(),
     );
 }
