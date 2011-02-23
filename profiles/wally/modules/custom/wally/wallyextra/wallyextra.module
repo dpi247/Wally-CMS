@@ -1,5 +1,7 @@
 <?php 
 
+include_once('wallyextra.features.inc');
+
 /**
  *  Implémentation du hook_theme(); 
  */

@@ -43,7 +43,6 @@ function wallytoolbox_toboolean($v, $def=NULL) {
  *   an array of taxonomy term object
  */
 function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
-
 	$t = explode("/", trim($path,"/"));
 	$t = $t[count($t)-1];
 
@@ -69,7 +68,7 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
  * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
  * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
  * 
- * @param string $tid
+ * @param string $term
  *   A taxonomy term ID or name. If it is a name, the chosen term will
  * be the one matching the $vid, if given, or the first in the results
  * list.
@@ -79,11 +78,11 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
  * @return
  *   A string containing the parents hierarchy, separated by "/".
  */
-function wallytoolbox_taxonomy_get_path_by_tid_or_term($tid, $vid = '') {
+function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '') {
   $return = '';
   
-  if (!is_numeric($tid)) {
-    $terms_list = taxonomy_get_term_by_name($tid);
+  if (!is_numeric($term)) {
+    $terms_list = taxonomy_get_term_by_name($term);
     if ($vid != '') {
       foreach ($terms_list as $term_elem) {
         if ($term_elem->vid == $vid) {
@@ -94,6 +93,8 @@ function wallytoolbox_taxonomy_get_path_by_tid_or_term($tid, $vid = '') {
     } else {
       $tid = $terms_list[0]->tid;
     }
+  } else {
+    $tid = $term;
   }
   
   $tax_list = taxonomy_get_parents_all($tid);
