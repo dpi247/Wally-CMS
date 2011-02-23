@@ -586,7 +586,6 @@ function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$
       //if($form[$element]['#required']==false){
       unset($form[$element]);
       //}
-      //else{dsm($form[$element]);}
     }
     if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==1 ){
       
@@ -594,7 +593,6 @@ function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$
       //@todo: DDU what happen if the element is required ?
       //if($form[$element]['#required']==false){
             //}
-      //else{dsm($form[$element]);}
     }
     
   if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==2 ){
@@ -660,8 +658,6 @@ if(form_get_errors()){
 
 
 function wallyedit_form_page_editmode_form_submit($form,&$form_state){
-  dsm(edit_sub);
-  dsm($form_state);
   ctools_include('form');
   ctools_include('modal');
   ctools_include('ajax');
@@ -910,7 +906,6 @@ function wydit_subform_global_page_submit(&$form_state){
         }
         
       }
-    //dsm($a);
     }
   
   }
@@ -975,8 +970,6 @@ function wydit_subform_global_add_form(&$form_state){
   	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
   ); 
   $form['#tree']=true;
-  dsm($form);
-  dsm($form_state);
   
   return $form;
 }
@@ -1382,7 +1375,6 @@ function wydit_changetypefromfieldset(& $fieldset,$fields){
 NODE PUBLICATION
  */
 function wydit_publish_prenode(&$form_state,$sub_level=false){
-  //dsm($form_state);
   $form_state[$form_state['type']]=$form_state[$form_state['type']];
   $form_state['type']=$form_state['type'];
   

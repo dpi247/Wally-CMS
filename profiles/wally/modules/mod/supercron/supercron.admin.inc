@@ -427,8 +427,6 @@ function supercron_settings_validate($form, &$form_state) {
 function supercron_settings_submit($form, &$form_state) {
   $v = &$form_state['values'];
   $weights = array();
-  
-  // dsm($v);
 
   foreach (array_keys($v['rows']) as $module_id) {
     $row = $v['rows'][$module_id];

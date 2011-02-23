@@ -110,7 +110,6 @@ function ctools_stylizer_build_style($plugin, $settings, $add_css = FALSE) {
     $processor->execute($path, $plugin, $settings);
 
 // @todo -- there needs to be an easier way to get at this.
-//  dsm($processor->message_log);
     // Add filenames to our conversions.
   }
 
