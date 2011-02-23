@@ -126,3 +126,29 @@ function wallyctools_install() {
 function wallyctools_uninstall() {
   drupal_uninstall_schema('wallyctools');
 }
+
+/**
+ * Implementation of hook_enable().
+ */
+function wallyctools_enable() {
+
+	/*
+	$form_state = array();
+  $form_state['section']='redacblock_layout';
+  $form_state['display_id']='redacblock_1';
+  $form_state['view']=views_get_view('default_destination_view');
+  drupal_retrieve_form("views_ui_edit_view_form", $form_state);
+  drupal_execute("views_ui_edit_view_form", $form_state);
+*/
+/*
+	$form_state = array();
+  drupal_retrieve_form("ctools_export_ui_edit_item_form", $form_state);
+  drupal_execute("ctools_export_ui_edit_item_form", $form_state);
+*/
+  
+   
+
+	
+	
+}
+
