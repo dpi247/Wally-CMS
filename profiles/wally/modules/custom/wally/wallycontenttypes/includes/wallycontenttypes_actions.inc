@@ -77,7 +77,13 @@ function theme_wallycontenttypes_wallycrop($element) {
  */ 
 function wallycontenttypes_wallycrop_image(&$image, $data) {
   $fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
-  $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
+  if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
+    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
+  } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid') {
+    $nid = db_fetch_object(db_query("SELECT `nid` FROM `content_field_photofile` WHERE `field_photofile_fid` = '%s'", $fid->fid));
+    $croping = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `nid` = '%s'", $nid->nid));
+  }
+  
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value, TRUE);
