@@ -564,6 +564,7 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
 function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item, $media_contents, $feed_name) {
   $first_media = TRUE;
   foreach ($media_contents as $media_content) {
+    dsm($media_content);
     if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
       wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media);
     }
