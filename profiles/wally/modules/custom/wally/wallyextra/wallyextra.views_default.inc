@@ -431,22 +431,22 @@ function wallyextra_views_default_views() {
   $handler->override_option('title', 'Most viewed');
   $handler->override_option('style_plugin', 'list');
   $handler = $view->new_display('panel_pane', 'Content pane', 'panel_pane_1');
-  $handler->override_option('pane_title', '');
+  $handler->override_option('pane_title', 'Most view');
   $handler->override_option('pane_description', '');
   $handler->override_option('pane_category', array(
     'name' => 'Wally Extra',
     'weight' => '0',
   ));
   $handler->override_option('allow', array(
-    'use_pager' => FALSE,
-    'items_per_page' => FALSE,
-    'offset' => FALSE,
-    'link_to_view' => FALSE,
-    'more_link' => FALSE,
-    'path_override' => FALSE,
-    'title_override' => FALSE,
-    'exposed_form' => FALSE,
-    'fields_override' => FALSE,
+    'use_pager' => 0,
+    'items_per_page' => 'items_per_page',
+    'offset' => 0,
+    'link_to_view' => 0,
+    'more_link' => 0,
+    'path_override' => 0,
+    'title_override' => 0,
+    'exposed_form' => 0,
+    'fields_override' => 0,
   ));
   $handler->override_option('argument_input', array());
   $handler->override_option('link_to_view', 0);
