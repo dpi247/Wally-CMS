@@ -83,11 +83,11 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
     $nid = db_fetch_object(db_query("SELECT `nid` FROM `content_field_photofile` WHERE `field_photofile_fid` = '%s'", $fid->fid));
     $croping = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `nid` = '%s'", $nid->nid));
   }
-  watchdog('Debug Presets', print_r($data, TRUE), array(), WATCHDOG_ERROR);
+  
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-
+watchdog('Debug Presets', print_r($imgcropings, TRUE), array(), WATCHDOG_ERROR);
   if (isset($imgcropings[$presetname])) {
     $crop = array();
     $crop = $imgcropings[$presetname];
@@ -96,7 +96,7 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
     $data['width'] = $crop[2];
     $data['height'] = $crop[3];
   }
-    
+    watchdog('Debug Presets', print_r($data, TRUE), array(), WATCHDOG_ERROR);
   if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
     watchdog('wallycontenttypes_actions', 'wallycontenttypes_wallycrop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;
