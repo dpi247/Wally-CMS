@@ -869,15 +869,9 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   );
   
   $form['wally']['demo_content'] = array(
-    '#type' => 'select',
+    '#type' => 'checkbox',
     '#title' => t('Install Demo content?'),
-    '#default_value' => FALSE,
-    '#options' => array(
-      TRUE => t('Yes'),
-      FALSE => t('No'),
-    ),
     '#description' => t('Do you want some demo content items?'),
-    '#required' => TRUE,
   );
   
   $form['#submit'][] = '_wally_install_form_submit';

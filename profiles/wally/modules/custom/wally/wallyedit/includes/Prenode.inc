@@ -100,28 +100,27 @@ class Prenode{
       //$form_state[$type_name]['#form_state']=$this->node;
       
       $type=wydit_get_infos_type( $type_name);
-      
+
       $fields = $type['fields'];
       foreach($fields as $field_name=>$infos){
         if($infos['display_settings']["wallyedit"]>1){
           $form_state[$type_name][$field_name]=array();
           if($infos['display_settings']["wallyedit"]==2){
             
-            
-            
-           
             $type=wydit_get_inline_type($infos['referenceable_types']);
             $main_node=new stdClass;
             $main_node->type=$type;
             $form_state[$type_name][$field_name][0]['#node']=$main_node;
             $form_state[$type_name][$field_name][0]['type']=$main_node->type;
 
-  
-           }
-          foreach($this->node->{$field_name} as $key=>$value){
-            $temp_node=node_load($value['nid']);
-            $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
-            $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+          }
+
+          if ($this->node->{$field_name}) {
+            foreach($this->node->{$field_name} as $key=>$value){
+              $temp_node=node_load($value['nid']);
+              $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
+              $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+            }
           }
           /*
         foreach($this->node->{$field_name} as $key=>$value){
