@@ -595,13 +595,13 @@ function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$
             //}
     }
     
-  if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==2 ){
-    $parents_new[]=0;
+    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==2 ){
+      $parents_new[]=0;
       wydit_prepare_inline_form_element($form[$element],$form_state[$type][$element][0],$element,$fields,$parents_new  );  
       //$form[$element]['#parents']=array($element);
     }
-  if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==3 ){
-     wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );  
+    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==3 ){
+      wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );  
       //$form[$element]['#parents']=array($element);
     }
   }
