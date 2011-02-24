@@ -353,7 +353,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   } else {
     $feed = $cached_feed->data;
   }
-dsm($settings);
+
   if ($settings['override_theme_text'] != "" && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
     return $block;
