@@ -354,7 +354,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
     $feed = $cached_feed->data;
   }
 
-  if ($settings['override_theme_text'] != "" && function_exists($settings['override_theme_text'])){
+  if ($settings['override_theme_text'] != "") {// && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
     return $block;
   } else {
