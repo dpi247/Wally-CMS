@@ -66,7 +66,7 @@ function wally_profile_modules() {
     'pollfield', 
   
     // Chaos tool suite
-    'ctools', 'page_manager', 'views_content', 'ctools_custom_content'
+    'ctools', 'page_manager', 'views_content', 'ctools_custom_content',
   
     // Date/Time
     'date_api', 'date', 'date_timezone',
