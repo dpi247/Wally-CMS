@@ -17,14 +17,14 @@ include_once 'includes/Prenode.inc';
  */ 
 function wallyedit_menu(){
   return array(
-      'admin/content/wallyedit'=>array(
+    /*'admin/content/wallyedit'=>array(
       'page callback'=>'wallyedit_page_admin',
       'access arguments' => array('administer nodes'),
   	  'file'=>'includes/page_admin.inc',
   	  //'file path'=>'includes/',
   	  'title'=> 'WallyEdit Admin',
   	  'Description'=> 'Manage Node Edition',
-    ),
+    ),*/
     'node/%prenode/edit2/%ctools_js'=>array(
       'page callback'=>'wallyedit_page_node_edition',
       'page arguments'=>array(1,3),
