@@ -286,7 +286,6 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   $value_is_array = is_array($element['#value']);
 
   foreach ($choices as $k => $c) {
-    if (is_array($c)) {
       $key = array_keys($c);
       $key = $key[0];
       $choice = $c[$key];
@@ -313,7 +312,7 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
         }
         $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
         $options .= $option;
-      }
+      
     }
   }
   return $options;
