@@ -216,7 +216,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
         foreach ($array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'] as $term) {
             $vocabulary->appendChild($valid_dom->createElement('Term', $term));
         }
-        $mainStory->appendChild($valid_dom->createElement('Copyright', $array_valid_dom['Package']['MainStory']['Copyright']['value']));
+        $mainStory->appendChild($valid_dom->createElement('Copyright', ($feed_infos['signature'] != '') ? $feed_infos['signature'] : $array_valid_dom['Package']['MainStory']['Copyright']['value']));
         $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
         $format_number = db_result(db_query("SELECT `format` FROM `filter_formats` WHERE `name` = '%s'", $feed_infos['body_html']));
         $mainStory->appendChild($valid_dom->createElement('TextBody', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number)));
