@@ -320,7 +320,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   $cached_feed = cache_get($cid);
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed) || true) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
     $override_theme = $settings['override_theme'];
     if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -516,6 +516,7 @@ function _wallyextra_rssmixread_defaultformvalues() {
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
+
   if ($feed_xml) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
@@ -569,12 +570,15 @@ function _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_
  *   The ID of the RSS feed list containing the most recent feed.
  */
 function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
-  $most_recent = array( 'Package' => array('PublicationDate' => '1970-01-01T00:00:00+00:00'));
-  
+  $most_recent = array(
+    'Package' => array('PublicationDate' => '1970-01-01T00:00:00+00:00'),
+    'arrayID' => 0,
+  );
+
   foreach ($available_items as $available_item) {
     if (strtotime($available_item['Package']['PublicationDate']) > strtotime($most_recent['Package']['PublicationDate']))
       $most_recent = $available_item;
   }
-  
+
   return $most_recent['arrayID'];
 }
