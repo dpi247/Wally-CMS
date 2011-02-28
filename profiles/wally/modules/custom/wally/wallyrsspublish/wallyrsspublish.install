@@ -3,7 +3,10 @@
  * Implementation of the hook module _install();
  */
 function wallyrsspublish_install() {
-  _wallyrsspublish_install_presets(); 
+  _wallyrsspublish_install_presets();
+if (!db_table_exists('rsspublish')) {
+    drupal_install_schema('wallyrsspublish');
+  }
  }
 
 /*
@@ -11,6 +14,7 @@ function wallyrsspublish_install() {
  */
 function wallyrsspublish_uninstall() {
   _wallyrsspublish_uninstall_presets();
+  drupal_uninstall_schema('wallyrsspublish');
  }
 
 function _wallyrsspublish_install_presets() {
@@ -33,3 +37,56 @@ function _wallyrsspublish_uninstall_presets() {
     imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
   }
 }
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallyrsspublish_schema() {
+  $schema['rsspublish'] = array(
+    'description' => 'The table containing the RSS feeds informations for the wallyrsspublish module.', 
+      'fields' => array(
+        'rss_key' => array(
+          'description' => 'The primary identifier.', 
+          'type' => 'serial',
+          'unsigned' => TRUE, 
+          'not null' => TRUE,
+        ),
+        'tid' => array(
+          'description' => 'tid.', 
+          'type' => 'int',
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => 0,
+        ), 
+        'title' => array(
+          'description' => 'Title.', 
+          'type' => 'varchar',
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ), 
+        'description' => array(
+          'description' => 'Description.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+        'imagefile' => array(
+          'description' => 'Imagefile.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+        'copyright' => array(
+          'description' => 'Copyright.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+      ), 
+      'primary key' => array('rss_key'),
+  );
+
+  return $schema;
+}
+
