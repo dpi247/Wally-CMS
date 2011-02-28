@@ -17,7 +17,7 @@ if (!function_exists('wally_tpl_persons_detail')) {
         $taxo_path = taxonomy_term_path($t);
 
         if (isset($person->field_persontaxonomy)) {
-          $title = "<a href='".$taxo_path."'>".$person->title."</a>";
+          $title = "<a href='/".$taxo_path."'>".$person->title."</a>";
         } else {
           $title = $person->title;
         }

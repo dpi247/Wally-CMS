@@ -229,7 +229,7 @@ function wallyfinfo_views_default_views() {
   $handler->override_option('pane_title', 'Fil info box');
   $handler->override_option('pane_description', 'Fil info in a small box');
   $handler->override_option('pane_category', array(
-    'name' => 'Wally Tools',
+    'name' => 'Wally Extra',
     'weight' => '0',
   ));
   $handler->override_option('allow', array(
@@ -361,7 +361,7 @@ function wallyfinfo_views_default_views() {
   $handler->override_option('pane_title', 'Fil info page');
   $handler->override_option('pane_description', 'Fil info in a full page');
   $handler->override_option('pane_category', array(
-    'name' => 'Wally Tools',
+    'name' => 'Wally Extra',
     'weight' => '0',
   ));
   $handler->override_option('allow', array(
@@ -561,7 +561,7 @@ function wallyfinfo_views_default_views() {
   $handler->override_option('pane_title', 'Fil info thicker');
   $handler->override_option('pane_description', 'Fil info in a banner');
   $handler->override_option('pane_category', array(
-    'name' => 'Wally Tools',
+    'name' => 'Wally Extra',
     'weight' => '0',
   ));
   $handler->override_option('allow', array(

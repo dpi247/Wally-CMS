@@ -157,7 +157,7 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
 function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC'){
 
   $r = array();
-  
+
   if (count($tids) > 0) {
         
     // For each term ID, generate an array of descendant term IDs to the right depth.
