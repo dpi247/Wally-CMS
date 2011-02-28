@@ -6,9 +6,9 @@
 function wallycontenttypes_ficheentitytid_ctools_content_types() {
     return array(
       'single' => TRUE,
-      'title' => t('Tid related Persons'),
+      'title' => t('Tid related Entity'),
       'icon' => 'icon_node.png',
-      'description' => t('Fetch all persons related to a person taxonomy term id.'),
+      'description' => t('Fetch all entities related to a entity taxonomy term id.'),
     	// @todo: contextualiser sur une page de taxonomie
       'all contexts' => TRUE,
       'category' => t('Wally Extra'),
