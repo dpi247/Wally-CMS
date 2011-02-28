@@ -62,6 +62,12 @@ function wallyextra_theme(&$var) {
     'template' => 'wallyct_personslist_detail',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+     'wallyct_entitylist_detail' => $base + array(
+    'arguments' => array("entities" => NULL, "node" => NULL),
+    'template' => 'wallyct_entitylist_detail',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
 
   );
 }
