@@ -3,7 +3,6 @@
  *
  * 
  */
-
   $node_path = drupal_get_path_alias("/node/".$node->nid);
   $imgstory = $node->field_embededobjects_nodes;
   $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
