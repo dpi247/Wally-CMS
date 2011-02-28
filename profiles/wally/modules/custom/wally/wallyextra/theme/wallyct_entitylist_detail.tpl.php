@@ -18,7 +18,7 @@
         				
         				
       	if (isset($entity->field_main_picture)) {
-            $portrait = "<div class='protrait'>".theme('imagecache', 'sm_bispage_big', $entity->field_main_picture[0]["filename"],$entity->title)."</div>";
+            $portrait = "<div class='protrait'>".theme('imagecache', 'sm_bispage_big', $entity->field_main_picture[0]["filepath"],$entity->title)."</div>";
         } 
         
         if (isset($entity->field_objectdescription[0]["value"])) {
