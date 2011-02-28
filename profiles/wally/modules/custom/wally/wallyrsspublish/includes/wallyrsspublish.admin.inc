@@ -9,7 +9,6 @@ function wallyrsspublish_settingsrss_form(){
         break;
     }
   }
-  	dsm($taxos);
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
   foreach ($taxos as $taxo){
@@ -74,7 +73,6 @@ function wallyrsspublish_settingsrss_form(){
 }
 
 function wallyrsspublish_settingsrss_form_validate($form, $form_state) {
-	dsm($form_state);
 /*	foreach ($destination as $dest){
     if ($form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'] == '') {
     form_set_error('', t('You must select a title for the ' .$dest. ' group of settings.'));
@@ -90,16 +88,24 @@ $all_voc = taxonomy_get_vocabularies();
         break;
     }
   }
-	
+  
+  
   foreach ($taxos as $taxo){
   $name=str_replace(' ', '-', $taxo->name);
   $object = array();
   $object['tid'] = $form_state['values']['wallyrsspublish_'.$name.'_rsstid'];
   $object['title'] = $form_state['values']['wallyrsspublish_'.$name.'_rsstitle'];
   $object['description'] = $form_state['values']['wallyrsspublish_'.$name.'_rssdescription'];
-  $object['imagefile'] = $form_state['values']['wallyrsspublish_'.$name.'_rssimage'];
+  $file = file_save_upload('wallyrsspublish_'.$name.'_rssimage');
+  $nameim = $file->filename;
+  if(!empty($nameim)){
+    $chemin_destination = 'sites/default/files/photorss/';
+    $folder = $chemin_destination.$nameim;
+    file_move($file->filepath, $folder);
+    wallyrsspublish_create_file($folder); 
+    $object['imagefile'] = $folder;
+  }
   $object['copyright'] = $form_state['values']['wallyrsspublish_'.$name.'_rsscopyright'];
-  dsm($form_state);
   $feed_infos = db_fetch_array(db_query('SELECT `rss_key` FROM `rsspublish` WHERE `tid`=%d', $object['tid']));
   
   
@@ -110,4 +116,19 @@ $all_voc = taxonomy_get_vocabularies();
     drupal_write_record('rsspublish', $object, array('rss_key'));
   }
   }
+}
+
+function wallyrsspublish_create_file($filepath){
+  global $user;
+  $file = new stdClass();
+  $file->filename = basename($filepath);
+  $file->filepath = $filepath;
+  $file->filemime = file_get_mimetype($filepath);
+  $file->filesize = filesize($filepath);
+
+  $file->uid = $user->uid;
+  $file->status = FILE_STATUS_PERMANENT;
+  $file->timestamp = time();
+  drupal_write_record('files', $file);
+  return  field_file_load($filepath);
 }
