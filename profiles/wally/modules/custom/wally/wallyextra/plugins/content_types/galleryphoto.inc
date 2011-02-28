@@ -40,7 +40,7 @@ function wallyextra_galleryphoto_content_type_render($subtype, $conf, $panel_arg
 	$block->title = "Gallery photo Tag List.";
 
 	$mynode = node_load($identifier);
-	wallyextra_packagepopulate($mynode,"");
+	wallycontenttypes_packagepopulate($mynode,"");
 	$block->content = theme("wallyct_galleryphoto",$mynode); 
 
 	return $block;
