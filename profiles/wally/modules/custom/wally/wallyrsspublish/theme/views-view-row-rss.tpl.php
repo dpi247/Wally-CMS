@@ -12,7 +12,6 @@
   <link><?php print $link; ?></link>
   <description><?php print $description;?></description>
   <?php print $item_elements;?>
-
   <media:content url="<?php print $url;?>" type="<?php print $type;?>" fileSize="<?php print $filesize;?>">
   <media:title><?php print $title;?></media:title>
   <media:thumbnail url="<?php print $url;?>" height='360' width='480'/>

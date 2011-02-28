@@ -9,12 +9,22 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
   
-  $name = $view->args[0];
+  $name = str_replace('-', ' ', $view->args[0]);
   $tax = taxonomy_get_term_by_name($name);
-  $vars['title'] = $name;
-  $vars['description']= check_plain($tax[0]->description);
+  $tid=$tax[0]->tid;
+  $descr= check_plain($tax[0]->description);
+  
+  //VERIFIER QUE LA VARIABLE SOIT !=NULL
+  $data=db_fetch_array(db_query('SELECT * FROM {rsspublish} WHERE tid= %d',$tid));
+  dsm($data);
+  
+  $vars['title'] = empty($data['title']) ? $name : $data['title'];
+  $vars['description'] = empty($data['description']) ? $descr : $data['description'];
+  $vars['copyright'] = $data['copyright'];
+  
+  
+  
   $style = &$view->style_plugin;
-
   // Figure out which display which has a path we're using for this feed. If there isn't
   // one, use the global $base_url
   $link_display_id = $view->display_handler->get_link_display();
@@ -94,6 +104,3 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
 	
 }
-
-
-

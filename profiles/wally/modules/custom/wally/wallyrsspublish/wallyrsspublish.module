@@ -22,3 +22,17 @@ function wallyrsspublish_theme() {
     ),
 	);
 }
+
+function wallyrsspublish_menu() {
+	
+    $items['admin/settings/wallyrsspublish'] = array(
+      'title' => 'Wally rss publish',
+      'description' => 'Administer Wally Rss Publish.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('wallyrsspublish_settingsrss_form'),
+      'access callback' =>TRUE,
+      'file' => 'includes/wallyrsspublish.admin.inc',
+  );
+  return $items;
+}
+
