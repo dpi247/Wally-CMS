@@ -15,11 +15,11 @@
     <description><?php print $description; ?></description>
     <language><?php print $langcode; ?></language>
     <copyright><?php print $copyright; ?></copyright>
-    <media:content url="<?php print $url;?>">
-    <media:title><?php print $title;?></media:title>
-    <media:thumbnail url="<?php print $url;?>" height='360' width='480'/>
-    <media:description type="html"><?php print $description?></media:description>
-    </media:content>
+    <image>
+      <title><?php print $title; ?></title>
+      <url><?php print $url; ?></url>
+      <link><?php print $link; ?></link>
+    </image>
     <?php print $channel_elements; ?>
     <?php print $items; ?>
   </channel>

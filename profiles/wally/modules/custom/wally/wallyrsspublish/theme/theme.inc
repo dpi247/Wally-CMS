@@ -8,16 +8,22 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
+  $presetname='rsspublish_preset';
   
   $name = str_replace('-', ' ', $view->args[0]);
   $tax = taxonomy_get_term_by_name($name);
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
   
-  //VERIFIER QUE LA VARIABLE SOIT !=NULL
   $data=db_fetch_array(db_query('SELECT * FROM {rsspublish} WHERE tid= %d',$tid));
-  dsm($data);
+  $imagefile = $data['imagefile'];
+  $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath= "%s"',$imagefile));
   
+  
+  $path_photo = imagecache_create_url($presetname, $image[filepath]);
+  $vars['url']= $path_photo;
+  $vars['type']= $image[filemime];
+  $vars['filesize'] = $image[filesize];
   $vars['title'] = empty($data['title']) ? $name : $data['title'];
   $vars['description'] = empty($data['description']) ? $descr : $data['description'];
   $vars['copyright'] = $data['copyright'];
