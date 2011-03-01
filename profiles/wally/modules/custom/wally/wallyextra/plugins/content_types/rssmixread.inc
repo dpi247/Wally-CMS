@@ -21,9 +21,6 @@ $plugin = array(
 
 /**
  * Building the configuration form of a RSS mix reader.
- * 
- * @todo
- *   Add link to external doc for the 'own schema' explanation.
  */
 function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
   $settings = wallyextra_rssmixread_content_type_get_conf($form_state['subtype'], $form_state['conf']);
@@ -81,7 +78,7 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#type'             => 'textfield',
     '#title'            => t('Define your own schema used for mixing the feeds'),
     '#description'      => t('Examples:
-        1,2,3 / 1-2,3,2,1-3,2,2-3 / any,2,1-2,3,any,2 / ...
+        1,2,3 / 1-2,3,2,1-3,2,2-3 / any,2,1-2,3,any,2 / ... see <a href="http://rossel.audaxis.com/xwiki/wiki/drupal/view/Main/User_RSS_mix" target="_new">RSS mix documentation</a>.
       '),
     '#default_value'    => $settings['own_schema'],
     '#required'         => FALSE,

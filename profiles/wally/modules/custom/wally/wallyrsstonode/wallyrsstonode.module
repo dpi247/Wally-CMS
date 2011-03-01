@@ -32,6 +32,59 @@ function wallyrsstonode_menu() {
 }
 
 /**
+ * Check the submitted values and
+ * add a new entry (or update) in the rsstonode_feeds table.
+ * 
+ * @param $object
+ *   The entry to add in the table.
+ * 
+ * @return
+ *   The returned value by drupal_write_record if the submitted value
+ * are correct, FALSE either.
+ * 
+ * @see http://api.drupal.org/api/drupal/includes--common.inc/function/drupal_write_record/6
+ *   drupal_write_record() function.
+ */
+function wallyrsstonode_add_table_entry($object) {
+  // Convert to an object if needed.
+  if (!is_array($object)) {
+    $object = (array) $object;
+  }
+
+  $available_dests = wallytoolbox_destinations_items_array();
+  
+  if ($object['name'] && is_string($object['name'])) {
+    if ($object['uri'] && is_string($object['uri'])) {
+      $uri_response = drupal_http_request($object['uri']);
+      if ($uri_response->status_message == 'OK') {
+        if ($object['destination'] && is_string($object['destination'])) {
+          $expl_dest = explode('/', $object['destination']);
+          if (sizeof($expl_dest) == 4 && $available_dests[$expl_dest[0]][$expl_dest[1]][$expl_dest[2]][$expl_dest[3]]) {
+            if ($object['delta_t'] && is_numeric($object['delta_t']) && $object['delta_t'] > 0) {
+              if ($object['signature'] && is_string($object['signature'])) {
+                if ($object['channel_img'] && is_numeric($object['channel_img']) && ($object['channel_img'] == 0 || $object['channel_img'] == 1)) {
+                  if ($object['package_layout'] && is_numeric($object['package_layout'])) {
+                    if ($object['body_html'] && is_string($object['body_html'])) {
+                      if ($object['rss_key'] && is_numeric($object['rss_key'])) {
+                        return drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
+                      } else {
+                        return drupal_write_record('rsstonode_feeds', $object);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
  * Executes the RSS to node cron run when called.
  * 
  * @return

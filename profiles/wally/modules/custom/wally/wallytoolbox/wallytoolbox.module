@@ -680,5 +680,38 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
 }
 
 /**
+ * Return all available destinations in an array following the
+ * structure :
+ * 
+ * array[destination_path_tid][position][layout][rank] = TRUE;
+ */
+function wallytoolbox_destinations_items_array(){
+  $all_dests = cckdestinations_get_classes_and_options();
+  $ranks_list = array('1', '2', '3', '4', '5');
+  $array_dests = array();
+
+  foreach ($all_dests['tid']['#options'] as $tid=>$term_infos) {
+    $array_dests[$tid] = array();
+    foreach ($all_dests['target']['#options'] as $target_name=>$target_infos) {
+      if (substr($target_name, 0, strlen($tid)) == $tid && !is_numeric(substr($target_name, strlen($tid), 1))) {
+        $target = substr($target_name, strlen($tid));
+        $array_dests[$tid][$target] = array();
+        foreach ($all_dests['layout']['#options'] as $layout_name=>$layout_infos) {
+          if (substr($layout_name, 0, strlen($target_name)) == $target_name) {
+            $layout = $layout_infos[substr($layout_name, strlen($target_name))];
+            $array_dests[$tid][$target][$layout] = array();
+            foreach ($ranks_list as $rank_elem) {
+              $array_dests[$tid][$target][$layout][$rank_elem] = TRUE;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  return $array_dests; 
+}
+
+/**
  * @} End of "defgroup wallytoolbox".
  */
