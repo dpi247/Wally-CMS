@@ -1902,10 +1902,6 @@ function views_ui_edit_display_form(&$form_state) {
   $view = &$form_state['view'];
   $display_id = $form_state['display_id'];
   $section = $form_state['section'];
-  dsm($form_state['section']);
-    dsm($form_state['display_id']);
-    dsm($form_state['view']);
-    
   if (!$view->set_display($display_id)) {
     views_ajax_render(t('Invalid display id @display', array('@display' => $display_id)));
   }
