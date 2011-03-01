@@ -26,7 +26,7 @@ function wallymport_menu() {
   $items['wallymport/process_folder'] = array(
     'title' => 'Run XML Import Process for a forlder',
     'description' => 'Run data import',
-    'page callback' => 'wallymport_page_process_folder',
+    'page callback' => 'wallymport_check_process_folder',
   //  'access arguments' => array('access administration pages'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
@@ -44,8 +44,8 @@ function wallymport_menu() {
 }
 
 /**
- * Find all available destinations and create a XML document containing
- * the list of them. The structure of the XML follows packages.xsd.
+ * Create a XML document containing all available destinations.
+ * The structure of the XML follows packages.xsd.
  * 
  * <xsd:complexType name="DestinationsItem">
  *   <xsd:sequence>
@@ -60,36 +60,29 @@ function wallymport_menu() {
  *   The XML document as a string.
  */
 function wallymport_page_destinations_items(){
-  $all_dests = cckdestinations_get_classes_and_options();
-  $ranks_list = array('1', '2', '3', '4', '5');
+  $array_dests = wallytoolbox_destinations_items_array();
   $dom_dests = new DOMDocument('1.0', 'UTF-8');
 
   $destinations = $dom_dests->createElement('Destinations');
   $destinations = $dom_dests->appendChild($destinations);
 
-  foreach ($all_dests['tid']['#options'] as $tid=>$term_infos) {
+  foreach ($array_dests as $tid=>$term_infos) {
     $term = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
     $term = strtoupper($term);
-    foreach ($all_dests['target']['#options'] as $target_name=>$target_infos) {
-      if (substr($target_name, 0, strlen($tid)) == $tid && !is_numeric(substr($target_name, strlen($tid), 1))) {
-        $target = $target_infos[substr($target_name, strlen($tid))];
-        foreach ($all_dests['layout']['#options'] as $layout_name=>$layout_infos) {
-          if (substr($layout_name, 0, strlen($target_name)) == $target_name) {
-            $layout = $layout_infos[substr($layout_name, strlen($target_name))];
-            foreach ($ranks_list as $rank_elem) {
-              $destination = $dom_dests->createElement('Destination');
-              $destination = $destinations->appendChild($destination);
-              
-              $destination->setAttribute('Position', $target);
-              $destination->setAttribute('DocumentLayout', $layout);
-              $destination->setAttribute('DestinationRank', $rank_elem);
-              
-              $destination_path = $dom_dests->createElement('DestinationPath');
-              $destination_path = $destination->appendChild($destination_path);
-              $destination_path_text = $dom_dests->createTextNode($term);
-              $destination_path->appendChild($destination_path_text);
-            }
-          }
+    foreach ($term_infos as $target_name=>$target_infos) {
+      foreach ($target_infos as $layout_name=>$layout_infos) {
+        foreach ($layout_infos as $rank_elem=>$true_value) {
+          $destination = $dom_dests->createElement('Destination');
+          $destination = $destinations->appendChild($destination);
+          
+          $destination->setAttribute('Position', $target_name);
+          $destination->setAttribute('DocumentLayout', $layout_name);
+          $destination->setAttribute('DestinationRank', $rank_elem);
+          
+          $destination_path = $dom_dests->createElement('DestinationPath');
+          $destination_path = $destination->appendChild($destination_path);
+          $destination_path_text = $dom_dests->createTextNode($term);
+          $destination_path->appendChild($destination_path_text);
         }
       }
     }
@@ -144,7 +137,10 @@ function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path 
     // Release cron semaphore
     variable_del('wallymport_process_folder_semaphore');
     
-    return $return;
+    /**
+    * @todo Remove print in production mode OR check the "log" mode or import settings.
+    */
+    print json_encode($return);
   }
 }
 
@@ -169,9 +165,6 @@ function wallymport_process_folder_cleanup() {
  *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
  * 
  * @return Nothing
- * 
- * @todo
- *   Return something readable.
  */
 function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path = FALSE){
   global $proceed_folder_path;
@@ -198,48 +191,56 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
 
   // Process each ZIP files from folder.
   foreach ($files as $file) {
-
+    $zip_error = FALSE;
     // Unzip input file to the temp directory
     $zip = new ZipArchive;
     $res = $zip->open($file->filename);
     if ($res === TRUE) { 
-
+      
       $temp_subdir=$temp.'/'.$file->name;
       file_check_directory($temp_subdir,1);
       if (is_dir($temp_subdir)) { 
-      $zip->extractTo($temp_subdir);
-      // Search for XMLs
-      $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
-      if (count($import_files)==0) {
-            drupal_set_message("error",'No XML file found in the import: '.$file->basename);
-      }
-      elseif (count($import_files)>1) {
-            drupal_set_message('There is more than one XML file found in the import: '.$file->basename,'error');
-      }
-      else {
-        // Yeah .. ready to ROCK & ROLL
-        $import_file=reset($import_files);
-        $xml_file=$import_file->filename;
-        $proceed_folder_path = $temp_subdir; 
-        $returns[] = wallymport_page_process_file($xml_file);
-      }
-      $zip->close();
+        $zip->extractTo($temp_subdir);
+        // Search for XMLs
+        $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
+        if (count($import_files)==0) {
+          $zip_error = TRUE;
+          drupal_set_message('No XML file found in the import: '.$file->basename, "error");
+        }
+        elseif (count($import_files)>1) {
+          $zip_error = TRUE;
+          drupal_set_message('There is more than one XML file found in the import: '.$file->basename, "error");
+        }
+        else {
+          // Yeah .. ready to ROCK & ROLL
+          $import_file=reset($import_files);
+          $xml_file=$import_file->filename;
+          $proceed_folder_path = $temp_subdir; 
+          $returns[] = wallymport_page_process_file($xml_file);
+        }
+        $zip->close();
       } else {
-        drupal_set_message("error",'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res);
+        $zip_error = TRUE;
+        drupal_set_message('Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res, "error");
       }
 
     } else {
-      drupal_set_message("error",'Cant UnZip file: '.$file->filename);
+      $zip_error = TRUE;
+      drupal_set_message('Cant UnZip file: '.$file->filename, "error");
     }
 
-/**
- * @todo Move the ZIP file after it get treated.
- */
+    /**
+     * @todo
+     *   Automaticely create the error and done directories.
+     */
+    if ($zip_error) {
+      file_move($file->filename, variable_get('wallymport_source').'/error/');
+    } else {
+      file_move($file->filename, variable_get('wallymport_source').'/done/');
+    }
   }
-/**
- * @todo Remove print_r in production mode OR check the "log" mode or import settings.
- */
-  return "<hr/><pre>".print_r($returns,1)."</pre><hr/>"; 
+  
+  return $returns; 
 }
 
 /**
