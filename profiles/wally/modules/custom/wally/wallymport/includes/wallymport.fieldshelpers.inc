@@ -190,7 +190,7 @@ function _wimprthelp_create_file_from_uri($file_uri){
       if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         chmod($file_dest_path, octdec("0777"));
-        drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
+        drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
         return $return; 

@@ -99,6 +99,69 @@ function wallymport_page_destinations_items(){
 }
 
 /**
+ * Check if Wallymport can process folder.
+ * 
+ * @return
+ *   Response about the success or failure of import.
+ */
+function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path = FALSE) {
+  // Try to allocate enough time to run import process.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60);
+  }
+
+  // Fetch the cron semaphore
+  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 3600) {
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del('wallymport_process_folder_semaphore');
+    } else {
+      // Cron is still running normally.
+      watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
+    }
+
+    return FALSE;
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallymport_process_folder_cleanup');
+
+    // Lock cron semaphore
+    variable_set('wallymport_process_folder_semaphore', time());
+
+    // Call the function calling the RSS feeds
+    $return = wallymport_page_process_folder($path_to_folder, $absolute_path);
+
+    // Record cron time
+    variable_set('wallymport_process_folder_last', time());
+    watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
+
+    // Release cron semaphore
+    variable_del('wallymport_process_folder_semaphore');
+    
+    return $return;
+  }
+}
+
+/**
+ * Shutdown function for Wallymport process folder cleanup.
+ */
+function wallymport_process_folder_cleanup() {
+  // See if the semaphore is still locked.
+  if (variable_get('wallymport_process_folder_semaphore', FALSE)) {
+    watchdog('Wallymport', 'Process folder task run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+
+    // Release semaphore
+    variable_del('wallymport_process_folder_semaphore');
+  }
+}
+
+/**
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
  * 
@@ -106,8 +169,11 @@ function wallymport_page_destinations_items(){
  *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
  * 
  * @return Nothing
+ * 
+ * @todo
+ *   Return something readable.
  */
-function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALSE){
+function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path = FALSE){
   global $proceed_folder_path;
   $returns = array(); 
    
@@ -115,57 +181,56 @@ function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALS
   $format='zip';   // input file extension
 
   if($absolute_path){
-  $xml_file=$path_to_folder;
-  }
-  else{
+    $xml_file=$path_to_folder;
+  } else {
     if ($path_to_folder) {
-  	$xml_file = variable_get('wallymport_source','')."/".$path_to_folder;
+      $xml_file = variable_get('wallymport_source','')."/".$path_to_folder;
     } else { 
-  	$xml_file = variable_get('wallymport_source','');
+      $xml_file = variable_get('wallymport_source','');
     }
   }
   $files = drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0);	// get list of all *.zip files
   if (count($files)==0) {
-	    drupal_set_message('No input files found','error');
-	    return null;
+    drupal_set_message('No input files found','error');
+    return null;
   }
   ksort($files);
 
   // Process each ZIP files from folder.
   foreach ($files as $file) {
 
-	// Unzip input file to the temp directory
-	$zip = new ZipArchive;
-	$res = $zip->open($file->filename);
-	if ($res === TRUE) { 
+    // Unzip input file to the temp directory
+    $zip = new ZipArchive;
+    $res = $zip->open($file->filename);
+    if ($res === TRUE) { 
 
-	  $temp_subdir=$temp.'/'.$file->name;
-	  file_check_directory($temp_subdir,1);
-	  if (is_dir($temp_subdir)) { 
-		$zip->extractTo($temp_subdir);
-		// Search for XMLs
-		$import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
-		if (count($import_files)==0) {
-  	      drupal_set_message("error",'No XML file found in the import: '.$file->basename);
-		}
-		elseif (count($import_files)>1) {
-  	      drupal_set_message('There is more than one XML file found in the import: '.$file->basename,'error');
-		}
-		else {
-		  // Yeah .. ready to ROCK & ROLL
-		  $import_file=reset($import_files);
-		  $xml_file=$import_file->filename;
-      $proceed_folder_path = $temp_subdir; 
-		  $returns[] = wallymport_page_process_file($xml_file);
-		}
-		$zip->close();
-	  } else {
-	    drupal_set_message("error",'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res);
-	  }
+      $temp_subdir=$temp.'/'.$file->name;
+      file_check_directory($temp_subdir,1);
+      if (is_dir($temp_subdir)) { 
+      $zip->extractTo($temp_subdir);
+      // Search for XMLs
+      $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
+      if (count($import_files)==0) {
+            drupal_set_message("error",'No XML file found in the import: '.$file->basename);
+      }
+      elseif (count($import_files)>1) {
+            drupal_set_message('There is more than one XML file found in the import: '.$file->basename,'error');
+      }
+      else {
+        // Yeah .. ready to ROCK & ROLL
+        $import_file=reset($import_files);
+        $xml_file=$import_file->filename;
+        $proceed_folder_path = $temp_subdir; 
+        $returns[] = wallymport_page_process_file($xml_file);
+      }
+      $zip->close();
+      } else {
+        drupal_set_message("error",'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res);
+      }
 
-	} else {
-	    drupal_set_message("error",'Cant UnZip file: '.$file->filename);
-	}
+    } else {
+      drupal_set_message("error",'Cant UnZip file: '.$file->filename);
+    }
 
 /**
  * @todo Move the ZIP file after it get treated.
@@ -175,7 +240,6 @@ function wallymport_page_process_folder($path_to_folder=null,$absolute_path=FALS
  * @todo Remove print_r in production mode OR check the "log" mode or import settings.
  */
   return "<hr/><pre>".print_r($returns,1)."</pre><hr/>"; 
-
 }
 
 /**
