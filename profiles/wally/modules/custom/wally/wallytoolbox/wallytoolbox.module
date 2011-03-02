@@ -571,7 +571,7 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
         $first_media = FALSE;
       }
     }
-  }
+  }dsm($array_item);
 }
 
 /**
