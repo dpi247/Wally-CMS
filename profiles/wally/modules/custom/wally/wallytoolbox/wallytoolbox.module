@@ -308,7 +308,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('na
   
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['channel_img'] && !isset($array_item['Package']['EmbeddedContent']) && $channel_img->item(0)) {
-    wallytoolbox_rss_item_to_array_set_image($array_item, $channel_img);
+    wallytoolbox_rss_item_to_array_set_image($array_item, $channel_img->item(0));
   }
 
   return $array_item;
@@ -671,11 +671,12 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = 'image';
-  $tempobject['Title']['value'] = $channel_img->item(0)->getAttribute('title');
-  $tempobject['ExternalReference']['value'] = $channel_img->item(0)->getAttribute('url');
-  $tempobject['FileURI']['value'] = $channel_img->item(0)->getAttribute('url');
-  $tempobject['LinkTitle']['value'] = $channel_img->item(0)->getAttribute('title');
-  $tempobject['LinkURI']['value'] = $channel_img->item(0)->getAttribute('link');
+  $tempobject['Title']['value'] = $channel_img->getAttribute('title');
+  $tempobject['ExternalReference']['value'] = $channel_img->getAttribute('url');
+  $tempobject['FileURI']['value'] = $channel_img->getAttribute('url');
+  $tempobject['FileSize']['value'] = 0;
+  $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
+  $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
 
