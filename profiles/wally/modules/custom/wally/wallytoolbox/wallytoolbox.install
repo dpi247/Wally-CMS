@@ -10,7 +10,6 @@
  * Implementation of hook_install()
  */
 function wallytoolbox_install() {
-  drupal_install_schema('wallytoolbox');
 }
 
 /**
@@ -60,4 +59,12 @@ function wallytoolbox_schema_1() {
     'primary key' => array('nid'),
   );
   return $schema;
+}
+
+/**
+ * Adding schema used for the nodes non-volatile cache system.
+ */
+function wallytoolbox_update_6001() {
+  $ret = drupal_install_schema('wallytoolbox');
+  return $ret;
 }
