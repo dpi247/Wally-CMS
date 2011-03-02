@@ -1,0 +1,63 @@
+<?php
+// $Id: wallytoolbox.install,v 1.0 2011/03/02 ODM $
+
+/**
+ * @file
+ * Contains install and update functions for WallyToolbox.
+ */
+
+/**
+ * Implementation of hook_install()
+ */
+function wallytoolbox_install() {
+  drupal_install_schema('wallytoolbox');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function wallytoolbox_uninstall() {
+  drupal_uninstall_schema('wallytoolbox');
+}
+
+/**
+ * Implementation of hook_schema
+ */
+function wallytoolbox_schema() {
+  return wallytoolbox_schema_1();
+}
+
+function wallytoolbox_schema_1() {
+  $schema['wallytoolbox_object_cache'] = array(
+    'description' => t('A special cache used to store wally packages.'),
+    'fields' => array(
+      'nid' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'description' => 'The session ID this cache object belongs to.',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'description' => 'The type of the node this cache is attached to.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created or updated.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+  return $schema;
+}
