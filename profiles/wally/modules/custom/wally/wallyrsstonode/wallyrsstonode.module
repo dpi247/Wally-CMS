@@ -169,11 +169,11 @@ function _wallyrsstonode_callallfeeds() {
       $valid_dom = $valid_dom_and_channel_last_build[0];
       $channel_last_build = $valid_dom_and_channel_last_build[1];
 
-      if (true) {//$channel_last_build > $feed_infos['last_build']) {
+      if ($channel_last_build > $feed_infos['last_build']) {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
-        //exec('rm '.$tempFile);
+        exec('rm '.$tempFile);
 
         if ($temp_return) {
           $object = array();
@@ -216,7 +216,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
     $feed_name = check_plain($feed_infos['name']);
     $channel_last_build = strtotime(_wallyrsstonode_checkifelementexists($channels->item(0), 'lastBuildDate'));
     
-    if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0 || true) {
+    if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
       $valid_dom = new DomDocument('1.0', 'UTF-8');
       $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
       $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
