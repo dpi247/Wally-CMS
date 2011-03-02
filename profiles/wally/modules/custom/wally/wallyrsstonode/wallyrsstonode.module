@@ -204,8 +204,6 @@ function _wallyrsstonode_callallfeeds() {
  * 
  * @todo
  *   Replace default values by real values in the valid_dom
- * @todo
- *   Save the image field into the db if a default image exists.
  */
 function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {  
   $dom = new DomDocument();

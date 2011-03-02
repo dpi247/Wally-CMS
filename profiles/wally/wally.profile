@@ -386,6 +386,8 @@ function _wally_initialize_settings(&$context){
   variable_set('wallymport_taxonomy_recusive',"true");
   variable_set('wallymport_defaultuser',"1");
   variable_set('wallymport_source',"sites/default/files/import");
+  variable_set('wallymport_import_done',"sites/default/files/import/done");
+  variable_set('wallymport_import_error',"sites/default/files/import/error");
   variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
   variable_set('wallymport_temp',"/tmp");
   variable_set('wallymport_debug',"0");
