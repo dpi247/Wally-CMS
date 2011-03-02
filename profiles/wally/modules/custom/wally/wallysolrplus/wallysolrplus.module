@@ -1,0 +1,58 @@
+<?php
+
+function wallysolrplus_theme() {
+	$path = drupal_get_path('module', 'wallysolrplus');
+	$base = array(
+'file' => 'theme.inc',
+'path' => "$path/theme",
+	);
+
+	require_once "./$path/theme/theme.inc";
+	return array(
+      'search_result' => array(
+      'arguments' => array('result' => NULL, 'type' => NULL),
+      'template' => 'wallysolrplus-search-result',
+      'original hook' => 'search_result',
+      'path' => drupal_get_path('module', 'wallysolrplus') . '/theme',
+    ),
+	);
+}
+
+
+
+
+/**
+ * Implementation of hook_apachesolr_update_index()
+ */
+function wallysolrplus_apachesolr_update_index(&$document, $node) {
+    
+	$summary = $node->field_summary[0]['value'];
+    
+    if ($node->type == 'wally_articlepackage') {	
+    	
+    $mainstory = $node->field_mainstory_nodes[0];	
+    $chapo = $mainstory->field_textchapo[0]['value'];
+    $document->setMultiValue('tm_field_chapo', apachesolr_clean_text($chapo));
+    $body = $mainstory->field_textbody[0]['value'];
+    $document->setMultiValue('tm_field_body',apachesolr_clean_text($body));
+    
+  }
+  
+  if ($node->type == 'wally_gallerypackage') {
+  	
+  	$embeded = $node->field_embededobjects_nodes[0];
+  	$path = $embeded->field_photofile[0]['filepath'];
+  	$document->setMultiValue('sm_image_path',$path);
+  	
+  }
+  
+    
+  
+}
+
+function wallysolrplus_apachesolr_modify_query(&$query, &$params, $caller) {
+  $params['fl'] .= ',tm_field_chapo';
+  $params['fl'] .= ',tm_field_body';
+  $params['fl'] .= ',tm_field_summary';
+  $params['fl'] .= ',sm_image_path';
+}
