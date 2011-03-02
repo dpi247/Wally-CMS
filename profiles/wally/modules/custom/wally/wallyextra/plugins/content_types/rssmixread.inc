@@ -83,6 +83,12 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#default_value'    => $settings['own_schema'],
     '#required'         => FALSE,
   );
+  
+  $form['get_distant_img'] = array (
+    '#type'             => 'checkbox',
+    '#default_value'    => $settings['get_distant_img'],
+    '#title'            => 'Copy RSS feeds images to locale folder.',
+  );
 
   $form['override_theme'] = array (
     '#type'             => 'checkbox',
@@ -213,6 +219,7 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['conf']['delta_t'] = $form_state['values']['delta_t'];
     $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
     $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
+    $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
     $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
     $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
     $form_state['conf']['caid'] = $form_state['values']['caid'];
@@ -317,7 +324,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   $cached_feed = cache_get($cid);
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed) || true) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
     $override_theme = $settings['override_theme'];
     if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -335,7 +342,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
     $maxitem_byfeed = $settings['maxitem_byfeed'];
 
     foreach ($rss_uris as $rss_uri) {
-      $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed);
+      $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
     }
     
     for ($i=0; $i<$maxitem_global; $i++) {
@@ -491,6 +498,7 @@ function _wallyextra_rssmixread_defaultformvalues() {
   $default_form_values['delta_t'] = 20;
   $default_form_values['own_schema'] = '';
   $default_form_values['mix_schema'] = 'alt';
+  $default_form_values['get_distant_img'] = 0;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
   $default_form_values['caid'] = 'rssmix_'.time();
@@ -506,11 +514,13 @@ function _wallyextra_rssmixread_defaultformvalues() {
  *   The feed URI.
  * @param $maxitem
  *   A limitation in the number of returned feeds.
+ * @param $settings
+ *   The settings of the widget.
  * 
  * @return
  *   The array.
  */
-function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
+function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
 
@@ -520,7 +530,15 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem) {
     $channels = $dom->getElementsByTagName('channel');
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-        $feed_array[] = wallytoolbox_rss_item_to_array($channels->item(0), $item);
+        $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item);
+        if ($settings['get_distant_img'] == 1) {
+          foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
+            $new_file_path = 'RSS/';
+            $new_file_path .= isset($options['override_title']) ? $settings['override_title_text'] : $settings['caid'];
+            _wimprthelp_create_file_from_uri($object['FileURI']['value'], $new_file_path);
+          }
+        }
+        $feed_array[] = $temp_feed_array;
         if (sizeof($feed_array) >= $maxitem) break;
       }
     }

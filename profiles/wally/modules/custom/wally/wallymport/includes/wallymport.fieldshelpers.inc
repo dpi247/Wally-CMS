@@ -173,14 +173,16 @@ function _wimprthelp_plain_text($text){
  * @return
  *   A Drupal File Object
  */
-function _wimprthelp_create_file_from_uri($file_uri){
+function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
   global $proceed_file_path;
   global $base_path;
   global $proceed_folder_path;
- 
+
   $uri = parse_url($file_uri);
   $badcar = array("+", );
-
+  $new_file_path = rtrim($new_file_path, '/');
+  $new_file_path .= '/';
+  
   switch($uri['scheme']){
     case'embed':
       // "+" sign in filename is unsupported by imagecache. 
@@ -204,11 +206,12 @@ function _wimprthelp_create_file_from_uri($file_uri){
       
       // @todo: We should test the imported file mime type here, not the file extension!
       if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
-        $file_temp_path = file_directory_path().'/'.$good_file_name;
-        if(!@copy($file_uri,$file_temp_path))
-        {
+        $file_temp_dir = file_directory_path().'/'.$new_file_path;
+        file_check_directory($file_temp_dir, 1);
+        $file_temp_path = $file_temp_dir.'/'.$good_file_name;
+        if(!@copy($file_uri,$file_temp_path)) {
           chmod($file_temp_path, octdec("0777"));
-          drupal_set_message("error",'Cant copy image file.'.$file_temp_path);
+          drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
         } else {
           $return = _wimprthelp_create_file($file_temp_path);
           return $return;
