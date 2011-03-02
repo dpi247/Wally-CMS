@@ -20,6 +20,24 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
+  $form['wallymport_import_done'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Imported packages directory path'),
+    '#description' => t('This must be an existing and writable path where zipped processed packages are moved after import.'),
+    '#default_value' => variable_get('wallymport_import_done', 'sites/default/files/import/done'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  $form['wallymport_import_error'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Not imported packages (with errors) directory path'),
+    '#description' => t('This must be an existing and writable path where zipped packages which could not be imported are moved after import.'),
+    '#default_value' => variable_get('wallymport_import_error', 'sites/default/files/import/error'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
   $form['wallymport_definition'] = array(
     '#type' => 'textfield',
     '#title' => t('Import Data Structure Definition file'),
@@ -162,13 +180,23 @@ function wallymport_page_admin_form_validate($form, &$form_state) {
     form_set_error('wallymport_source', t('The path provided is not an existing writable directory.'));
   }
   
+  $path = $form_state['values']['wallymport_import_done'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_import_done', t('The path provided is not an existing writable directory.'));
+  }
+  
+  $path = $form_state['values']['wallymport_import_error'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_import_error', t('The path provided is not an existing writable directory.'));
+  }
+  
   $file = $form_state['values']['wallymport_definition'];
   $file_readable=is_readable($file);
   if (!$file_readable) {
     form_set_error('wallymport_definition', t('The filename provided is not an existing readable file.'));
   }
-
-  
 }
 
 

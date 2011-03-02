@@ -229,14 +229,10 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
       drupal_set_message('Cant UnZip file: '.$file->filename, "error");
     }
 
-    /**
-     * @todo
-     *   Automaticely create the error and done directories.
-     */
     if ($zip_error) {
-      file_move($file->filename, variable_get('wallymport_source').'/error/');
+      file_move($file->filename, variable_get('wallymport_import_error'));
     } else {
-      file_move($file->filename, variable_get('wallymport_source').'/done/');
+      file_move($file->filename, variable_get('wallymport_import_done'));
     }
   }
   
