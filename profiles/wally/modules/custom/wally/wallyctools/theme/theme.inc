@@ -1,5 +1,12 @@
 <?php
 
+function wallyctools_preprocess_views_view_unformatted(&$vars) {
+    $view     = &$vars['view'];
+    $vars['template_files'][] = 'node-view-fffffffffffffffffffffffffffffffffff';
+    
+  
+}
+
 /**
  * Theme preprocess function for views-view-json.tpl.php
  *
@@ -7,7 +14,6 @@
  */
 function template_preprocess_wallyctools_style_redacblock(&$vars) {
   //  $vars['rows']       = !empty($view->result) || !empty($view->style_plugin->definition['even empty']) ? $view->style_plugin->render($view->result) : '';
-
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
@@ -44,7 +50,7 @@ foreach($handlers['filter'] as $key=>$value){
 */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
-	$view     = &$vars['view'];
+  $view     = &$vars['view'];
   $options = $vars['options'];
 
   // Make sure the variables are defined.
