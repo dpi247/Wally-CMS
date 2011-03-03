@@ -52,6 +52,12 @@ function wallyextra_rssread_content_type_edit_form(&$form, &$form_state) {
     '#default_value'    => $settings['delta_t'],
     '#required'         => TRUE,
   );
+  
+  $form['get_distant_img'] = array (
+    '#type'             => 'checkbox',
+    '#default_value'    => $settings['get_distant_img'],
+    '#title'            => 'Copy RSS feeds images to locale folder.',
+  );
 
   $form['override_theme'] = array (
     '#type'             => 'checkbox',
@@ -159,6 +165,7 @@ function wallyextra_rssread_content_type_edit_form_submit(&$form, &$form_state) 
     $form_state['conf']['override_theme_text']=$form_state['values']['override_theme_text'];
     $form_state['conf']['maxitem']=$form_state['values']['maxitem'];
     $form_state['conf']['delta_t'] = $form_state['values']['delta_t'];
+    $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
     $form_state['conf']['caid'] = $form_state['values']['caid'];
   }
 }
@@ -406,6 +413,7 @@ function _wallyextra_rssread_defaultformvalues() {
   $default_form_values['delta_t'] = 20;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
+  $default_form_values['get_distant_img'] = 0;
   $default_form_values['caid'] = 'rsssimple_'.time();
 
   return $default_form_values;
@@ -434,7 +442,15 @@ function _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem) {
     $channels = $dom->getElementsByTagName('channel');
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-        $feed_array[] = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
+        $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
+        if ($settings['get_distant_img'] == 1 && $temp_feed_array['Package']['EmbeddedContent']) {
+          foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
+            $new_file_path = 'RSS/';
+            $new_file_path .= isset($options['override_title']) ? $settings['override_title_text'] : $settings['caid'];
+            _wimprthelp_create_file_from_uri($object['FileURI']['value'], $new_file_path);
+          }
+        }
+        $feed_array[] = $temp_feed_array;
         if (sizeof($feed_array) >= $maxitem) break;
       }
     }

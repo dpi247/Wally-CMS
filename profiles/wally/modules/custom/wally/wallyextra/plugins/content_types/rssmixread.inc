@@ -324,7 +324,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   $cached_feed = cache_get($cid);
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed) || true) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
     $override_theme = $settings['override_theme'];
     if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -533,7 +533,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
-        if ($settings['get_distant_img'] == 1) {
+        if ($settings['get_distant_img'] == 1 && $temp_feed_array['Package']['EmbeddedContent']) {
           foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
             $new_file_path = 'RSS/';
             $new_file_path .= isset($options['override_title']) ? $settings['override_title_text'] : $settings['caid'];
