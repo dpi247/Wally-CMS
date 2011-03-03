@@ -276,7 +276,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
  * @return
  *   Array() of array() of nid
  */
-function wallytoolbox_get_node_by_reference($node){
+function wallytoolbox_get_node_by_reference($node) {
   $rows = array();
 
   if($node->type=='wally_textobject'){
