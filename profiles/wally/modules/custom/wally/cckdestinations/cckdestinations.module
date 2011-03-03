@@ -540,6 +540,17 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
 }
 
 /**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function cckdestinations_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+
+/**
  * Implementation of hook_views_api().
  */
 function cckdestinations_views_api() {
