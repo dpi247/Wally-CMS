@@ -268,6 +268,36 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 }
 
 /**
+ * Transform a DOMDocument, DOMNode, DOMElement, wathever, in an array.
+ */
+function dom2array($node) {
+  $res = array();
+  print $node->nodeType.'<br/>';
+  if($node->nodeType == XML_TEXT_NODE){
+      $res = $node->nodeValue;
+  }
+  else{
+      if($node->hasAttributes()){
+          $attributes = $node->attributes;
+          if(!is_null($attributes)){
+              $res['@attributes'] = array();
+              foreach ($attributes as $index=>$attr) {
+                  $res['@attributes'][$attr->name] = $attr->value;
+              }
+          }
+      }
+      if($node->hasChildNodes()){
+          $children = $node->childNodes;
+          for($i=0;$i<$children->length;$i++){
+              $child = $children->item($i);
+              $res[$child->nodeName] = dom2array($child);
+          }
+      }
+  }
+  return $res;
+}
+
+/**
  * Build an array from a RSS item. The array structure is based on the
  * structure required by Wallymport.
  * 
@@ -290,7 +320,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('name'=>'RSS', 'destination'=>'0///', 'channel_img'=>0)) {
+function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name'=>'RSS', 'destination'=>'0///', 'channel_img'=>0)) {
   $array_item = wallytoolbox_rss_item_to_array_init_array();
   
   $feed_name = wallytoolbox_rss_item_to_array_set_package($array_item, $item, $feed_infos);
@@ -301,11 +331,11 @@ function wallytoolbox_rss_item_to_array($channel, $item, $feed_infos = array('na
     wallytoolbox_rss_item_to_array_set_enclosure($array_item, $enclosure, $feed_name);
   }
 
-  $media_contents = $item->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'content');
+  $media_contents = $item->getElementsByTagNameNS($media_namespace, 'content');
   if ($media_contents->item(0)) {
-    wallytoolbox_rss_item_to_array_set_medias($array_item, $channel, $item, $media_contents, $feed_name);
+    wallytoolbox_rss_item_to_array_set_medias($array_item, $channel, $item, $media_contents, $feed_name, $media_namespace);
   }
-  
+
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['channel_img'] && !isset($array_item['Package']['EmbeddedContent']) && $channel_img->item(0)) {
     wallytoolbox_rss_item_to_array_set_image($array_item, $channel_img->item(0));
@@ -561,13 +591,12 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
  * @param string $feed_name
  *   The name of the feed being analyzed.
  */
-function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item, $media_contents, $feed_name) {
+function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item, $media_contents, $feed_name, $media_namespace = 'http://search.yahoo.com/mrss/') {
   $first_media = TRUE;
-
   foreach ($media_contents as $media_content) {
     if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
       if (getimagesize(check_plain($media_content->getAttribute('url')))) {
-        wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media);
+        wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace);
         $first_media = FALSE;
       }
     }
@@ -592,7 +621,7 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
  * @param boolean $first_media
  *   Check if it's the first media added to this array item.
  */
-function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item, $media_content, $feed_name, $first_media) {
+function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace = 'http://search.yahoo.com/mrss/') {
   if ($first_media) {
     $array_item['Package']['EmbeddedContent'] = array();
     $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
@@ -603,29 +632,29 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = $media_content->getAttribute('type');
-  $tempobject['Title']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'title');
+  $tempobject['Title']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
-  $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'copyright');
-  $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'description');
+  $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
+  $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
   $tempobject['FileURI']['value'] = check_plain($media_content->getAttribute('url'));
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
   $tempobject['FileSize']['value'] = $object_filesize;
-  $keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'keywords');
+  $keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
   if ($keywords != '') {
     $keywords = explode(',',$keywords);
     foreach ($keywords as $keyword) {
       $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $keyword);
     }
   }
-  $media_categories = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'category');
+  $media_categories = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'category');
   if ($media_categories != '') {
     $media_categories = explode('/',$media_categories);
     foreach ($media_categories as $media_category) {
       $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
     }
   }
-  $media_thumbnails = $media_content->getElementsByTagNameNS('http://search.yahoo.com/mrss/', 'thumbnail');
+  $media_thumbnails = $media_content->getElementsByTagNameNS($media_namespace, 'thumbnail');
   if ($media_thumbnails->item(0)) {
     $media_thumbnail = $media_thumbnails->item(0);
     $tempobject['Thumbnail']['URI'] = $media_thumbnail->getAttribute('url');
@@ -634,7 +663,7 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
     $thumbnail_h = $media_content->getAttribute('height');
     if ($thumbnail_h) $tempobject['Thumbnail']['H'] = $thumbnail_h;
   }
-  $media_rating = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, 'http://search.yahoo.com/mrss/', 'rating');
+  $media_rating = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'rating');
   $acceptable_rating = array();
   $all_voc = taxonomy_get_vocabularies();
   foreach ($all_voc as $voc) {
