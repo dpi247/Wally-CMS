@@ -527,10 +527,12 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
   if ($feed_xml) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
+    $rss_tags = $dom->getElementsByTagName('rss');
+    $media_namespace = $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media');
     $channels = $dom->getElementsByTagName('channel');
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-        $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item);
+        $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
         if ($settings['get_distant_img'] == 1) {
           foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
             $new_file_path = 'RSS/';

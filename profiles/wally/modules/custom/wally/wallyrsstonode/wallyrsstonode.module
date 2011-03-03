@@ -209,6 +209,8 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
   $dom = new DomDocument();
   $dom->LoadXML($feed_xml->data);
   $channels = $dom->getElementsByTagName('channel');
+  $rss_tags = $dom->getElementsByTagName('rss');
+  $media_namespace = $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media');
   
   if ($channels->item(0)) {
     $feed_destination = explode('/', $feed_infos['destination']);
@@ -222,7 +224,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos) {
       $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
       
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-        $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $feed_infos);
+        $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $feed_infos);
 
         $package = $packages->appendChild($valid_dom->createElement('Package'));
         $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'ArticlePackageType');
