@@ -1,0 +1,25 @@
+<?php
+// $Id: media_coveritlive.install $
+
+/**
+ * @file
+ * This is Media: CoverItLive's installation, configuration, and removal file.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function media_coveritlive_install() {
+  return array();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ * Delete all variables related to the module Media : CoverItLive
+ */
+function media_coveritlive_uninstall() {
+  foreach (media_coveritlive_variable_default() as $variable => $value) {
+    media_coveritlive_variable_del($variable);
+  }
+  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: CoverItLive namespace."));
+}
