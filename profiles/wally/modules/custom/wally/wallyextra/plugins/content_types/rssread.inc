@@ -435,9 +435,9 @@ function _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
   $new_file_path = 'RSS/';
-  $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
   file_check_directory($file_temp_dir, 1);
+  $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
   
   if ($feed_xml) {
     $dom = new DomDocument();
