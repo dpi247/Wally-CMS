@@ -135,12 +135,11 @@ function wallycontenttypes_imagecache_actions() {
  * Implementation of hook_nodeapi().
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+  switch ($op) {
 
- switch ($op) {
-
-   case 'view':
-    wallycontenttypes_packagepopulate($node,$op);
-    break;
+    case 'view':
+      wallycontenttypes_packagepopulate($node,$op);
+      break;
 
     // I don't know why but Node Page didn't pass thrus node view op
     // @todo: Check WHY and put back callback function to "view".
@@ -149,9 +148,12 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 	       $node->type == 'wally_gallerypackage' ||
 	       $node->type == 'wally_pollpackage')
 	 	     wallycontenttypes_packagepopulate($node,$op);
-    break;
+      break;
       
     case 'update' :
+      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+      wallytoolbox_object_cache_clear($node->nid);
+      wallytoolbox_object_referencer_cache_clear($node);
       if($node->type == 'wally_articlepackage' || 
          $node->type == 'wally_gallerypackage' ||
          $node->type == 'wally_pollpackage')
@@ -163,7 +165,13 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_videoobject' ||
               $node->type == 'wally_pollobject')
                _wallycontenttypes_addtaxonomywhenupdated($node);
-    break;
+      break;
+    
+    case 'delete' :
+      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+      wallytoolbox_object_cache_clear($node->nid);
+      wallytoolbox_object_referencer_cache_clear($node);
+      break;
  	}
 }
 
@@ -248,16 +256,19 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  *   The node that will be inspected for node/taxonomy reference
  * @param: $op
  *   Nodeapi operation
- * @param: $a3
- *   3rd argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
- * @param: $a4
- *   4th argument - depending of $op ( see @link http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_nodeapi/6  hook_nodeapi @endlink
  * 
  * @return Nothing but modify the $node
  */
-function wallycontenttypes_packagepopulate(&$node,$op){
-  wallycontenttypes_fieldNID(&$node, $op);
-  wallycontenttypes_fieldTID(&$node, $op);
+function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE){
+  require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+  $cached_node = wallytoolbox_object_cache_get($node->nid);
+  if (!$cached_node || $reset_cache) {
+    wallycontenttypes_fieldNID(&$node, $op);
+    wallycontenttypes_fieldTID(&$node, $op);
+    wallytoolbox_object_cache_set($node);
+  } else {
+    $node = $cached_node;
+  }
 }
 
 /**

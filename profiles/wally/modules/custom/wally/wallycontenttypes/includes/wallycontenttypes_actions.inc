@@ -98,7 +98,7 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
   }
 
   if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
-    watchdog('wallycontenttypes_actions', 'wallycontenttypes_wallycrop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+    watchdog('WallyContentTypes', 'WallyCrop Action : action failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;
   }
   return TRUE;

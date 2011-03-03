@@ -580,7 +580,7 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
     $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
   
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  
+
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
     $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
 
