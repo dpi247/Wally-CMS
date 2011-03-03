@@ -26,8 +26,6 @@ $plugin = array(
  */
 function cckdestinations_termfromdestination_context($context, $conf) {
   // If unset it wants a generic, unfilled context, which is just NULL.
-  dsm($context);
-  dsm($conf);
   if (empty($context->data)) {
     return ctools_context_create_empty('term', NULL);
   }
