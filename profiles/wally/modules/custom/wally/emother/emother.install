@@ -1,0 +1,39 @@
+<?php
+// $Id: emother.install $
+
+/**
+ * @file
+ * This is the emother.module's install, configuration, and removal instructions.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function emother_install() {
+  drupal_load('module', 'content');
+  content_notify('install', 'emother');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function emother_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall', 'emother');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function emother_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable', 'emother');
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function emother_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable', 'emother');
+}

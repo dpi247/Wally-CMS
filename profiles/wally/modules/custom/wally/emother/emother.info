@@ -1,0 +1,8 @@
+; $Id: emother.info $
+
+name = Embedded Other Field
+description = Defines a field type for displaying other medias from third party, such as CoverItLive.
+core = 6.x
+dependencies[] = emfield
+package = Media
+
