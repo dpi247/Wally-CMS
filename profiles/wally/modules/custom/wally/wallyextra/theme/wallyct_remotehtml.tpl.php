@@ -3,7 +3,7 @@
 if ($settings['override_title_text']) {
   $title = t($settings['override_title_text']);
 } else {
-  $title = t('Remote HTML');
+  $title = t('');
 }
 ?>
 <div class="remotehtml">
