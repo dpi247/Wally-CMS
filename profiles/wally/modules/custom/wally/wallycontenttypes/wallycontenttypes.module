@@ -138,7 +138,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op) {
 
     case 'view':
-      //wallycontenttypes_packagepopulate($node,$op);
+      wallycontenttypes_packagepopulate($node,$op);
       break;
 
     // I don't know why but Node Page didn't pass thrus node view op
