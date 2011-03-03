@@ -268,11 +268,49 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 }
 
 /**
+ * Get nid from packages who reference the current node.
+ *
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
+function wallytoolbox_get_node_by_reference($node){
+  $rows = array();
+
+  if($node->type=='wally_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+     if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    }else
+    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
+      while ($row = db_fetch_array($res2)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    }
+  }
+  elseif($node->type=='wally_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  return $rows;
+}
+
+/**
  * Transform a DOMDocument, DOMNode, DOMElement, wathever, in an array.
  */
 function dom2array($node) {
   $res = array();
-  print $node->nodeType.'<br/>';
   if($node->nodeType == XML_TEXT_NODE){
       $res = $node->nodeValue;
   }
@@ -295,6 +333,22 @@ function dom2array($node) {
       }
   }
   return $res;
+}
+
+/**
+ * Recursively remove a dir.
+ */
+function rrmdir($dir) { 
+  if ($dir && isset($dir) && is_dir($dir)) { 
+    $objects = scandir($dir); 
+    foreach ($objects as $object) { 
+      if ($object != "." && $object != "..") { 
+        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object); 
+      } 
+    } 
+    reset($objects); 
+    rmdir($dir); 
+  } 
 }
 
 /**

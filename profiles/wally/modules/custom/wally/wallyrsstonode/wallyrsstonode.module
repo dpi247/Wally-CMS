@@ -173,7 +173,7 @@ function _wallyrsstonode_callallfeeds() {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
-        exec('rm '.$tempFile);
+        file_delete($tempFile);
 
         if ($temp_return) {
           $object = array();

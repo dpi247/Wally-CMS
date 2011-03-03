@@ -36,7 +36,10 @@ function wallytoolbox_object_cache_get($nid, $skip_cache = FALSE) {
       $cache[$nid] = unserialize($data->data);
     }
   }
-  return isset($cache[$nid]) ? $cache[$nid] : NULL;
+  
+  watchdog('WallyToolbox', 'Node %nid get from cache.', array('%nid' => $nid), WATCHDOG_INFO);
+  
+  return isset($cache[$nid]) ? $cache[$nid] : FALSE;
 }
 
 /**
@@ -64,6 +67,8 @@ function wallytoolbox_object_cache_set($node) {
     'data' => $node,
   );
   
+  watchdog('WallyToolbox', 'Node %nid cached.', array('%nid' => $nid), WATCHDOG_INFO);
+  
   return drupal_write_record('wallytoolbox_object_cache', $object);
 }
 
@@ -76,12 +81,27 @@ function wallytoolbox_object_cache_set($node) {
  * @return
  *   Result of the database query.
  */
-function wallytoolbox_object_cache_clear($nid) {
+function wallytoolbox_object_cache_clear($nid) {  
   // Ensure the static cache is emptied of this $nid set.
   $cache = &ctools_static('wallytoolbox_object_cache_get', array());
   unset($cache[$nid]);
   
+  watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
+  
   return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid);
+}
+
+/**
+ * Remove cache for all nodes which have a reference to the given node.
+ * 
+ * @param $node
+ *   The node being referenced.
+ */
+function wallytoolbox_object_referencer_cache_clear($node) {
+  $ref_nodes = wallytoolbox_get_node_by_reference($node);
+  foreach ($ref_nodes as $ref_node) {
+    wallytoolbox_object_cache_clear($ref_node['nid']);
+  }
 }
 
 /**
@@ -121,6 +141,8 @@ function wallytoolbox_object_cache_clear_all() {
     unset($cache[$key]);
   }
   
+  watchdog('WallyToolbox', 'All cache cleared.', array(), WATCHDOG_INFO);
+  
   return db_query("TRUNCATE TABLE {wallytoolbox_object_cache}");
 }
 
@@ -139,6 +161,9 @@ function wallytoolbox_object_cache_clean($age = NULL) {
   if (empty($age)) {
     $age = 86400 * 7; // 7 days
   }
+  
+  watchdog('WallyToolbox', 'Old cache cleared.', array(), WATCHDOG_INFO);
+  
   return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE updated < %d", time() - $age);
 }
 

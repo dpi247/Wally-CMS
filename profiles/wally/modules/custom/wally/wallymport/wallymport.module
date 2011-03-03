@@ -25,8 +25,17 @@ function wallymport_menu() {
 
   $items['wallymport/process_folder'] = array(
     'title' => 'Run XML Import Process for a forlder',
-    'description' => 'Run data import',
+    'description' => 'Run data import (folder)',
     'page callback' => 'wallymport_check_process_folder',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wallymport/process_zip'] = array(
+    'title' => 'Run XML Import Process for a zip file',
+    'description' => 'Run data import (zip)',
+    'page callback' => 'wallymport_process_zip',
   //  'access arguments' => array('access administration pages'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
@@ -206,12 +215,10 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
         if (count($import_files)==0) {
           $zip_error = TRUE;
           drupal_set_message('No XML file found in the import: '.$file->basename, "error");
-        }
-        elseif (count($import_files)>1) {
+        } elseif (count($import_files)>1) {
           $zip_error = TRUE;
           drupal_set_message('There is more than one XML file found in the import: '.$file->basename, "error");
-        }
-        else {
+        } else {
           // Yeah .. ready to ROCK & ROLL
           $import_file=reset($import_files);
           $xml_file=$import_file->filename;
@@ -219,6 +226,7 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
           $returns[] = wallymport_page_process_file($xml_file);
         }
         $zip->close();
+        rrmdir($temp_subdir);
       } else {
         $zip_error = TRUE;
         drupal_set_message('Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res, "error");
@@ -237,6 +245,81 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
   }
   
   return $returns; 
+}
+
+/**
+ * Process all zip files from the import folder. 
+ * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
+ * 
+ * @param: $path_to_folder
+ *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
+ * 
+ * @return Nothing
+ */
+function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
+  global $proceed_folder_path;
+  $returns = array();
+  
+  $temp = file_directory_temp();
+  $format = 'zip'; // input file extension
+  
+  if($absolute_path){
+    $file = $path_to_zip;
+  } else {
+    $file = variable_get('wallymport_source','')."/".$path_to_zip;
+  }
+  
+  if (!file_exists($file)) {
+    drupal_set_message('Input file doesn\'t exists','error');
+    print 'error';
+    return;
+  }
+  
+  $zip_error = FALSE;
+  // Unzip input file to the temp directory
+  $zip = new ZipArchive;
+  $res = $zip->open($file);
+  if ($res === TRUE) { 
+    $expl_filename = explode('.'.$format, $file);
+    $expl_filename = explode('/', $expl_filename[0]);
+    $temp_subdir=$temp.'/'.$expl_filename[sizeof($expl_filename)-1];
+    file_check_directory($temp_subdir,1);
+    if (is_dir($temp_subdir)) { 
+      $zip->extractTo($temp_subdir);
+      // Search for XMLs
+      $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
+      if (count($import_files)==0) {
+        $zip_error = TRUE;
+        drupal_set_message('No XML file found in the import: '.$file, "error");
+      } elseif (count($import_files)>1) {
+        $zip_error = TRUE;
+        drupal_set_message('There is more than one XML file found in the import: '.$file, "error");
+      } else {
+        // Yeah .. ready to ROCK & ROLL
+        $import_file=reset($import_files);
+        $xml_file=$import_file->filename;
+        $proceed_folder_path = $temp_subdir; 
+        $returns[] = wallymport_page_process_file($xml_file);
+      }
+      $zip->close();
+      rrmdir($temp_subdir);
+    } else {
+      $zip_error = TRUE;
+      drupal_set_message('Input file '.$file.' could not be unzipped to '.$temp_subdir.'. Error code '.$res, "error");
+    }
+
+  } else {
+    $zip_error = TRUE;
+    drupal_set_message('Cant UnZip file: '.$file, "error");
+  }
+
+  if ($zip_error) {
+    file_move($file, variable_get('wallymport_import_error', file_directory_path()));
+  } else {
+    file_move($file, variable_get('wallymport_import_done', file_directory_path()));
+  }
+  
+  print json_encode($returns); 
 }
 
 /**

@@ -204,7 +204,6 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
       $file_name = $expl_path[count($expl_path)-1];
       $good_file_name = str_replace($badcar, "_", $file_name);
       
-      // @todo: We should test the imported file mime type here, not the file extension!
       if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
         file_check_directory($file_temp_dir, 1);
