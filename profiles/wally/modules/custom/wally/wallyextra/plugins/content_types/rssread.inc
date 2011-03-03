@@ -434,6 +434,11 @@ function _wallyextra_rssread_defaultformvalues() {
 function _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
+  $new_file_path = 'RSS/';
+  $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
+  $file_temp_dir = file_directory_path().'/'.$new_file_path;
+  file_check_directory($file_temp_dir, 1);
+  
   if ($feed_xml) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
@@ -444,10 +449,9 @@ function _wallyextra_rssread_createarrayfromuri($rss_uri, $maxitem) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
         if ($settings['get_distant_img'] == 1 && $temp_feed_array['Package']['EmbeddedContent']) {
-          foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
-            $new_file_path = 'RSS/';
-            $new_file_path .= isset($options['override_title']) ? $settings['override_title_text'] : $settings['caid'];
-            _wimprthelp_create_file_from_uri($object['FileURI']['value'], $new_file_path);
+          foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key=>$object) {
+            $file_uri = $object['FileURI']['value'];
+            $temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
           }
         }
         $feed_array[] = $temp_feed_array;

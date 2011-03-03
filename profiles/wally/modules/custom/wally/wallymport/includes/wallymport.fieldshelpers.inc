@@ -209,7 +209,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
         file_check_directory($file_temp_dir, 1);
         $file_temp_path = $file_temp_dir.'/'.$good_file_name;
-        if(!copy($file_uri, $file_temp_dir)) {
+        if(!copy($file_uri, $file_temp_path)) {
           chmod($file_temp_path, octdec("0777"));
           drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
         } else {
@@ -219,7 +219,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
       }
       break;
   }
-  return $file_uri;
+  return $return;
 }
 
 function _wimprthelp_create_file($filepath){
