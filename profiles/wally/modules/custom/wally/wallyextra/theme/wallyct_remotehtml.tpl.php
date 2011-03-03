@@ -6,7 +6,7 @@ if ($settings['override_title_text']) {
   $title = '';
 }
 ?>
-<div class="remotehtml">
+<div class="remotehtml brique">
 <h2><?php print check_plain($title); ?></h2>
 <div class="content">
 <?php print $htmlblock;
