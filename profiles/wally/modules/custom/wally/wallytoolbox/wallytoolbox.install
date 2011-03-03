@@ -10,6 +10,7 @@
  * Implementation of hook_install()
  */
 function wallytoolbox_install() {
+  drupal_install_schema('wallytoolbox');
 }
 
 /**
