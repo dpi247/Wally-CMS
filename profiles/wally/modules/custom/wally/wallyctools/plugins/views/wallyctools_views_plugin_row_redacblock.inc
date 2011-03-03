@@ -3,6 +3,20 @@
 *
 */
 class wallyctools_views_plugin_row_redacblock extends views_plugin_row {
+  function theme_functions() {
+    $suggestions=views_theme_functions($this->definition['theme'], $this->view, $this->display);
+    $vars['destination']=$this->view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
+    $vars['target']=$this->view->display_handler->handlers['filter']['field_destinations_target']->value;
+    foreach($suggestions as $sugestion){
+      $suggestions[]=$sugestion.'___'.$vars['destination'];
+      $suggestions[]=$sugestion.'___'.$vars['target'];
+      $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'];
+    }
+    
+    return $suggestions;
+  }
+  
+  
   /*
  // Basic properties that let the row style follow relationships.
   var $base_table = 'node';

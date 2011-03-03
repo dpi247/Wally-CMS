@@ -35,7 +35,6 @@ function wallyctools_menu(){
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_node(&$vars) {
-
   if (isset($vars['node']->node_view_destination)) {
     $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination); 
     $taxonomy_term_name = strtolower($taxonomy_term->name); 
@@ -79,12 +78,7 @@ function wallyctools_ctools_plugin_api($owner, $api) {
  * we implement task and task_handler plugins.
  */
 function wallyctools_ctools_plugin_directory($module, $plugin) {
-  // Most of this module is implemented as an export ui plugin, and the
-  // rest is in ctools/includes/wallyctools.inc
-  if ($module == 'ctools' && $plugin == 'export_ui') {
-    return 'plugins/' . $plugin;
-  }
-  if ($module == 'ctools' && $plugin == 'content_types') {
+  if ($module == 'ctools' && !empty($plugin)) {
     return "plugins/$plugin";
   }
 }
