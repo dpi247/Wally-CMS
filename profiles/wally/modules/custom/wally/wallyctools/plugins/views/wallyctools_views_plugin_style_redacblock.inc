@@ -15,7 +15,6 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       $funcs[] = views_theme_functions($theme, $this->view, $this->display);
     }
   }
-  dsm('rrrff');
   return $funcs;
 }
   
