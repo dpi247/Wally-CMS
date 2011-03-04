@@ -24,7 +24,7 @@
  * @return
  *   The data that was cached.
  */
-function wallytoolbox_object_cache_get($nid, $revision, $skip_cache = FALSE) {
+function wallytoolbox_object_cache_get($nid, $revision) {
   $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision));
   $data = $data ? unserialize($data->data) : FALSE;
 
