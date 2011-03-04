@@ -135,7 +135,6 @@ function wallycontenttypes_imagecache_actions() {
  * Implementation of hook_nodeapi().
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
-  dsm($op, $node->nid);
   switch ($op) {
 
     case 'view':
@@ -148,7 +147,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage')
-        wallycontenttypes_packagepopulate($node, $op);
+        wallycontenttypes_packagepopulate($node, $op, FALSE);
       break;
       
     case 'update' :
