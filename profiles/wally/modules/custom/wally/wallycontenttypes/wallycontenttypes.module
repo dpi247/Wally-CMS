@@ -138,16 +138,16 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op) {
 
     case 'view':
-      wallycontenttypes_packagepopulate($node,$op);
+      //wallycontenttypes_packagepopulate($node,$op);
       break;
 
     // I don't know why but Node Page didn't pass thrus node view op
     // @todo: Check WHY and put back callback function to "view".
-	  case 'alter':
-	    if($node->type == 'wally_articlepackage' || 
-	       $node->type == 'wally_gallerypackage' ||
-	       $node->type == 'wally_pollpackage')
-	 	     wallycontenttypes_packagepopulate($node,$op);
+    case 'alter':
+      if($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage')
+        wallycontenttypes_packagepopulate($node,$op);
       break;
       
     case 'update' :
@@ -172,7 +172,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       wallytoolbox_object_cache_clear($node->nid);
       wallytoolbox_object_referencer_cache_clear($node);
       break;
- 	}
+  }
 }
 
 /**
@@ -262,7 +262,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
 function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE){
   require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
   $cached_node = wallytoolbox_object_cache_get($node->nid);
-  if (!$cached_node || $reset_cache || true) {
+  if (!$cached_node || $reset_cache) {
     wallycontenttypes_fieldNID(&$node, $op);
     wallycontenttypes_fieldTID(&$node, $op);
     wallytoolbox_object_cache_set($node);

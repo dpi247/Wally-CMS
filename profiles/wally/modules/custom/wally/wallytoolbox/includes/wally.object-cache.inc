@@ -25,28 +25,17 @@
  *   The data that was cached.
  */
 function wallytoolbox_object_cache_get($nid, $skip_cache = FALSE) {
-  $cache = &ctools_static(__FUNCTION__, array());
-  if ($skip_cache) {
-    unset($cache[$nid]);
-  }
+  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid));
+  $data = $data ? unserialize($data->data) : FALSE;
 
-  if (!array_key_exists($nid, $cache)) {
-    $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid));
-    if ($data) {
-      $cache[$nid] = unserialize($data->data);
-    }
-  }
-  
   watchdog('WallyToolbox', 'Node %nid get from cache.', array('%nid' => $nid), WATCHDOG_INFO);
-  
-  return isset($cache[$nid]) ? $cache[$nid] : FALSE;
+
+  return $data;
 }
 
 /**
- * Store an object in the non-volatile ctools cache.
+ * Store an object in the non-volatile wally cache.
  *
- * @param $nid
- *   The node ID of the node to get.
  * @param $node
  *   The node to be cached. This will be serialized prior to writing.
  * 
@@ -54,17 +43,15 @@ function wallytoolbox_object_cache_get($nid, $skip_cache = FALSE) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_set($node) {
-  $cache = &ctools_static('wallytoolbox_object_cache_get', array());
-  
   $nid = $node->nid;
   
   wallytoolbox_object_cache_clear($nid);
 
   $object = array(
-    'nid' => $nid,
-    'type' => $node->type,
+    'nid'     => $nid,
+    'type'    => $node->type,
     'updated' => time(),
-    'data' => $node,
+    'data'    => $node,
   );
   
   watchdog('WallyToolbox', 'Node %nid cached.', array('%nid' => $nid), WATCHDOG_INFO);
@@ -82,12 +69,8 @@ function wallytoolbox_object_cache_set($node) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear($nid) {  
-  // Ensure the static cache is emptied of this $nid set.
-  $cache = &ctools_static('wallytoolbox_object_cache_get', array());
-  unset($cache[$nid]);
-  
   watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
-  
+
   return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid);
 }
 
@@ -135,12 +118,6 @@ function wallytoolbox_object_cache_test_nodes($nids) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear_all() {
-  // Ensure the static cache is emptied of this obj:name set.
-  $cache = &ctools_static('ctools_object_cache_get', array());
-  foreach ($cache as $key=>$value) {
-    unset($cache[$key]);
-  }
-  
   watchdog('WallyToolbox', 'All cache cleared.', array(), WATCHDOG_INFO);
   
   return db_query("TRUNCATE TABLE {wallytoolbox_object_cache}");
