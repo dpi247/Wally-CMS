@@ -152,25 +152,40 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       
     case 'update' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      wallytoolbox_object_cache_clear($node->nid);
-      wallytoolbox_object_referencer_cache_clear($node);
+      
+      
       if($node->type == 'wally_articlepackage' || 
-         $node->type == 'wally_gallerypackage' ||
-         $node->type == 'wally_pollpackage')
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+          wallytoolbox_object_cache_clear($node->nid);
           _wallycontenttypes_addtaxonomywheninserted($node);
+      }
       elseif( $node->type == 'wally_textobject' ||
               $node->type == 'wally_audioobject' ||
               $node->type == 'wally_digitalobject' || 
               $node->type == 'wally_photoobject' || 
               $node->type == 'wally_videoobject' ||
-              $node->type == 'wally_pollobject')
-               _wallycontenttypes_addtaxonomywhenupdated($node);
+              $node->type == 'wally_pollobject') {
+                _wallycontenttypes_addtaxonomywhenupdated($node);
+                wallytoolbox_object_referencer_cache_clear($node);
+      }
       break;
     
     case 'delete' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      wallytoolbox_object_cache_clear($node->nid);
-      wallytoolbox_object_referencer_cache_clear($node);
+      if($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage')
+        wallytoolbox_object_cache_clear($node->nid);
+      elseif( $node->type == 'wally_textobject' ||
+              $node->type == 'wally_audioobject' ||
+              $node->type == 'wally_digitalobject' || 
+              $node->type == 'wally_photoobject' || 
+              $node->type == 'wally_videoobject' ||
+              $node->type == 'wally_pollobject') {
+                _wallycontenttypes_addtaxonomywhenupdated($node);
+                wallytoolbox_object_referencer_cache_clear($node);
+      }
       break;
   }
 }
