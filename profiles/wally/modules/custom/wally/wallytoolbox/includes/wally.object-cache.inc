@@ -24,11 +24,11 @@
  * @return
  *   The data that was cached.
  */
-function wallytoolbox_object_cache_get($nid, $skip_cache = FALSE) {
-  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid));
+function wallytoolbox_object_cache_get($nid, $revision, $skip_cache = FALSE) {
+  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision));
   $data = $data ? unserialize($data->data) : FALSE;
 
-  watchdog('WallyToolbox', 'Node %nid get from cache.', array('%nid' => $nid), WATCHDOG_INFO);
+  watchdog('WallyToolbox', 'Node %nid get from cache with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
 
   return $data;
 }
@@ -44,17 +44,18 @@ function wallytoolbox_object_cache_get($nid, $skip_cache = FALSE) {
  */
 function wallytoolbox_object_cache_set($node) {
   $nid = $node->nid;
+  $revision = $node->revision_uid;
   
-  wallytoolbox_object_cache_clear($nid);
+  wallytoolbox_object_cache_clear($nid, $revision);
 
   $object = array(
-    'nid'     => $nid,
-    'type'    => $node->type,
-    'updated' => time(),
-    'data'    => $node,
+    'nid'           => $nid.'_'.$revision,
+    'type'          => $node->type,
+    'updated'       => time(),
+    'data'          => $node,
   );
   
-  watchdog('WallyToolbox', 'Node %nid cached.', array('%nid' => $nid), WATCHDOG_INFO);
+  watchdog('WallyToolbox', 'Node %nid cached with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
   
   return drupal_write_record('wallytoolbox_object_cache', $object);
 }
@@ -68,10 +69,10 @@ function wallytoolbox_object_cache_set($node) {
  * @return
  *   Result of the database query.
  */
-function wallytoolbox_object_cache_clear($nid) {  
+function wallytoolbox_object_cache_clear($nid, $revision) {  
   watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
 
-  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid);
+  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid LIKE '%s'", $nid.'_%');
 }
 
 /**
@@ -83,32 +84,8 @@ function wallytoolbox_object_cache_clear($nid) {
 function wallytoolbox_object_referencer_cache_clear($node) {
   $ref_nodes = wallytoolbox_get_node_by_reference($node);
   foreach ($ref_nodes as $ref_node) {
-    wallytoolbox_object_cache_clear($ref_node['nid']);
+    wallytoolbox_object_cache_clear($ref_node['nid'], $ref_node['revision_uid']);
   }
-}
-
-/**
- * Get the cache status of a group of nodes.
- *
- * @param $nids
- *   An array of node IDs.
- *
- * @return
- *   An associative array of "nid" => "updated" entries with 0 as
- * updated value if the node is not found.
- */
-function wallytoolbox_object_cache_test_nodes($nids) {
-  $result = db_query("SELECT nid, updated FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nids);
-
-  $return = array();
-  foreach ($nids as $nid) {
-    $return[$nid] = 0;
-  }
-  while ($test = db_fetch_object($result)) {
-    $return[$test->nid] = $test->updated;
-  }
-
-  return $return;
 }
 
 /**
@@ -122,25 +99,3 @@ function wallytoolbox_object_cache_clear_all() {
   
   return db_query("TRUNCATE TABLE {wallytoolbox_object_cache}");
 }
-
-/**
- * Remove all nodes in the object cache that are older than the
- * specified age.
- *
- * @param $age
- *   The minimum age of objects to remove, in seconds. For example, 86400 is
- *   one day. Defaults to 7 days.
- * 
- * @return
- *   Result of the database query.
- */
-function wallytoolbox_object_cache_clean($age = NULL) {
-  if (empty($age)) {
-    $age = 86400 * 7; // 7 days
-  }
-  
-  watchdog('WallyToolbox', 'Old cache cleared.', array(), WATCHDOG_INFO);
-  
-  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE updated < %d", time() - $age);
-}
-
