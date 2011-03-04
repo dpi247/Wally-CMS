@@ -284,20 +284,18 @@ function wallytoolbox_get_node_by_reference($node) {
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
-  }
-  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
-     if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+  } elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+    if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
-    }else
-    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
+    } else
+    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)) {
       while ($row = db_fetch_array($res2)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }
-  }
-  elseif($node->type=='wally_pollobject'){
+  } elseif($node->type=='wally_pollobject'){
     $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
