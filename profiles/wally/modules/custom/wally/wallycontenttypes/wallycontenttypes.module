@@ -173,6 +173,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
+          wallycontenttypes_delete_orphans_objects($node); 
           wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
       } elseif( $node->type == 'wally_textobject' ||
               $node->type == 'wally_audioobject' ||
@@ -1081,6 +1082,38 @@ function wallycontenttypes_getpackagelayout($node) {
     $package_layout = NULL;
   }
   return $package_layout; 
+}
+
+/**
+* This function is called in the nodeapi hook, op 'delete if the node is a package.
+* Its purpose is to delete the orphan objects that would be left behind when the parent is deleted.
+* @param: $node
+* The parent being deleted.
+* @return Nothing but delete the orphans.
+*/
+function wallycontenttypes_delete_orphans_objects($node){
+  $nids = array();
+  $nids[] = $node->field_mainstory[0]['nid'];
+  foreach($node->field_embededobjects as $emobject){
+    if($emobject['nid']!= NULL && !in_array($emobject['nid'], $nids)){
+      $nids[] = $emobject['nid'];
+    }
+  }
+  foreach($node->field_linkedobjects as $lnobject){
+    if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
+      $nids[] = $lnobject['nid'];
+    }
+  }
+  foreach($nids as $nid){
+    $child = node_load($nid);
+    $parents = wallytoolbox_get_node_by_reference($child);
+    foreach($parents as &$parent) {
+      $parent = $parent['nid'];
+    }
+    if(count($parents) == 1 && in_array($node->nid, $parents)){
+      node_delete($nid);
+    }
+  }
 }
 
 /**
