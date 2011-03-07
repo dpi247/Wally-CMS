@@ -85,24 +85,33 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 		$descr = $teaser;
 	  }
     }
+    
+    foreach ($my_node->field_embededobjects_nodes as $embeded){
+    	if ($embeded->type == "wally_photoobject"){
+    		$picture = $embeded;
+    		break;
+    	}
+    	
+    }
 
-
-
-
-
-	$imain = $my_node->field_embededobjects_nodes[0];
+	//$imain = $my_node->field_embededobjects_nodes[0];
+	$imain = $picture;
 
 	$type = $imain->field_photofile[0]['filemime'];
 	$filesize = $imain->field_photofile[0]['filesize'];
 	
 	$imainstory = $imain->field_photofile[0]['filepath'];
-	$file_img = theme('imagecache', $presetname,  $imainstory);
-	$path_photo = imagecache_create_url($presetname, $imainstory);
-
+	if (!empty($imainstory)){
+	  $file_img = theme('imagecache', $presetname,  $imainstory);
+	  $path_photo = imagecache_create_url($presetname, $imainstory);
+	  $vars['url'] = $path_photo;
+	}
+	else{
+	  $vars['url'] = '';
+	}
 	
 	$vars['filesize'] = $filesize;
 	$vars['item'] = $item;
-	$vars['url'] = $path_photo;
 	$vars['type']= $type;
 	$vars['description'] = check_plain($descr);
 	$vars['title'] = check_plain($item->title);

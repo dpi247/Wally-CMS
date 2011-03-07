@@ -36,3 +36,7 @@ function wallyrsspublish_menu() {
   return $items;
 }
 
+function wallyrsspublish_block(){
+
+	
+}
