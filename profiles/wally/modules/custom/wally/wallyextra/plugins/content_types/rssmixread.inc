@@ -324,7 +324,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   $cached_feed = cache_get($cid);
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed) || true) {
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
     $override_theme = $settings['override_theme'];
     if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -340,11 +340,11 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
     $override_theme_text = $settings['override_theme_text'];
     $maxitem_global = $settings['maxitem_global'];
     $maxitem_byfeed = $settings['maxitem_byfeed'];
-
+    dsm($rrs_uris, 'uris');
     foreach ($rss_uris as $rss_uri) {
       $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
     }
-    
+    dsm($feed_array, 'feed array');
     for ($i=0; $i<$maxitem_global; $i++) {
       $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
       $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
@@ -352,7 +352,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
       $item = array_shift($feed_array[$most_recent_index]);
       array_push($feed, $item);
     }
-    
+    dsm($feed, 'feed');
     cache_set($cid, $feed, 'cache', time() + mktime(0, $settings['delta_t']) + 1);
   } else {
     $feed = $cached_feed->data;
