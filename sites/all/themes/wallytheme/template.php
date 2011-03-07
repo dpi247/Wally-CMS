@@ -3,9 +3,9 @@
 /**
  *  Implémentation du hook_theme(); 
  */
-function wally_theme(&$var) {
+function wallytheme_theme(&$var) {
 
-  $path = drupal_get_path('theme', 'wally');
+  $path = drupal_get_path('theme', 'wallytheme');
   $base = array(
     'file' => 'theme.inc',
     'path' => "$path/templates",
@@ -84,9 +84,9 @@ function wally_theme(&$var) {
 /**
  * Override or insert PHPTemplate variables into the templates.
  */
-function wally_preprocess_page(&$vars) {
-  $vars['sf_primarymenu'] = theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links');
-  $vars['sf_secondarymenu'] = theme("wallyct_mainmenu", 'secondary-links', 'menu-secondary-links');
+function wallytheme_preprocess_page(&$vars) {
+  $vars['sf_primarymenu'] = theme("wallythemect_mainmenu", 'primary-links', 'menu-primary-links');
+  $vars['sf_secondarymenu'] = theme("wallythemect_mainmenu", 'secondary-links', 'menu-secondary-links');
   $vars['scripts'] = drupal_get_js();
   $vars['styles'] = drupal_get_css();
   $vars['theme_path'] = base_path() .'/'. path_to_theme();
@@ -95,7 +95,7 @@ function wally_preprocess_page(&$vars) {
 /**
  * Generates IE CSS links for LTR and RTL languages.
  */
-function wally_get_ie_styles() {
+function wallytheme_get_ie_styles() {
 }
 
 
@@ -106,7 +106,7 @@ function wally_get_ie_styles() {
  *   
  * @param $display
  */
-function wally_date_edition_diplay($unix_time, $display){
+function wallytheme_date_edition_diplay($unix_time, $display){
 	$format = array(
 	 'default_destination_view' => "l d F Y, H<abbr title=\"heure\">\h</abbr>i"
 	);
@@ -120,9 +120,9 @@ function wally_date_edition_diplay($unix_time, $display){
  * If not, return false
  * 
  */
-function wally_get_first_photoEmbededObject_from_package($embededObjects_array){	
+function wallytheme_get_first_photoEmbededObject_from_package($embededObjects_array){	
 	foreach($embededObjects_array as $embededObject){  
-	 if ($embededObject->type == "wally_photoobject"){
+	 if ($embededObject->type == "wallytheme_photoobject"){
 	   $photoObject = $embededObject;
 	   break;
 	 }
@@ -150,7 +150,7 @@ function wally_get_first_photoEmbededObject_from_package($embededObjects_array){
  * 
  */
 
-function wally_get_strapline($mainstory, $node, $size){
+function wallytheme_get_strapline($mainstory, $node, $size){
   $strapline_field = $mainstory->field_textchapo[0]['value'];
 	 
   if ($strapline_field != "" && $size == 0){
@@ -216,7 +216,7 @@ function wally_get_strapline($mainstory, $node, $size){
     
   if ($strapline == ""){
     $teaser_length = $size;
-    $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
+    $teaser = theme("wallythemect_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
     $strapline = $teaser;
   }
    $strapline .=" [...]";
@@ -228,7 +228,7 @@ function wally_get_strapline($mainstory, $node, $size){
  * Display the Facebook like button
  * @param $node_path
  */
-function wally_social_bookmarking_facebook_like($node_path){ 
+function wallytheme_social_bookmarking_facebook_like($node_path){ 
 	$button_html = '<script src="http://connect.facebook.net/fr_FR/all.js#xfbml=1"></script>
   <fb:like href="'.$node_path.'" show_faces="false" layout="button_count"></fb:like>';
 	return $button_html ;
@@ -243,29 +243,29 @@ function wally_social_bookmarking_facebook_like($node_path){
  * @return
  *   Array() of array() of nid
  */
-function wally_getpackagesid($node){
+function wallytheme_getpackagesid($node){
   $rows = array(); 
   
-  if($node->type=='wally_textobject'){
-    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+  if($node->type=='wallytheme_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wallytheme_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
   }
-  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){   
+  elseif($node->type=='wallytheme_audioobject' || $node->type=='wallytheme_digitalobject' || $node->type=='wallytheme_photoobject' || $node->type=='wallytheme_videoobject'){   
      if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }else
-    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
+    if ($res2=db_query("SELECT nid FROM {content_type_wallytheme_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res2)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }
   }
-  elseif($node->type=='wally_pollobject'){
-    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+  elseif($node->type=='wallytheme_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wallytheme_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
@@ -286,7 +286,7 @@ function wally_getpackagesid($node){
  * @return Array() of array() ordered $out's values
  */
 
-function wally_order_packages($array,$sort,$order){
+function wallytheme_order_packages($array,$sort,$order){
 	$count = count($array);
   $cpt = 1;
   $rows = array();
@@ -309,14 +309,14 @@ function wally_order_packages($array,$sort,$order){
 /**
  * 
  * Display a "see also" html list from an packages' id array
- * Used in the taxonomy term list who is showing wallyObjects 
+ * Used in the taxonomy term list who is showing wallythemeObjects 
  * @param $packages_id
  *  Array() of array() packages' id
  *  
  *  @return
  *    htlm list
  */
-function wally_display_taxonomy_term_list_see_also($packages_id){
+function wallytheme_display_taxonomy_term_list_see_also($packages_id){
   $html = "<h3>Voir aussi</h3><ul class=\"see_also_taxo_term_list\">";
   $cpt = 1;
 	foreach($packages_id as $package_id){
@@ -339,7 +339,7 @@ function wally_display_taxonomy_term_list_see_also($packages_id){
  *  
  *  @return string list of tags formated as <a href="[TAXONOMY_PAGE]" class="[SAFE_CLASS_NAME]">[TERM_NAME]</a>, <a href.....
  */
-function wally_taxonomy_tags_particle($main_story){
+function wallytheme_taxonomy_tags_particle($main_story){
 
 					$vocabulary = taxonomy_get_vocabularies();
 					$voclass = array();
@@ -361,7 +361,7 @@ function wally_taxonomy_tags_particle($main_story){
 }
 
 
-function _wally_rss_crossmedia_gen($feed) {
+function _wallytheme_rss_crossmedia_gen($feed) {
   $content = "";
   $cpt = 0;
   foreach ($feed as $k=>$item) {
