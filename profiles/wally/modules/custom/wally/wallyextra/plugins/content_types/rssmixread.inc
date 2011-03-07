@@ -324,7 +324,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   $cached_feed = cache_get($cid);
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
+  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed) || ($cached_feed->expire < time()) || ($cached_feed->expire == -1)) {
     watchdog('RSS mix', 'Invalide cache, new feeds mixed.', array(), WATCHDOG_INFO);
     
     $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));

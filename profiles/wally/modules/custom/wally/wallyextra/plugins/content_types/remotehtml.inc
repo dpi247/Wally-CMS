@@ -277,7 +277,7 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
   $cached_block = cache_get($cid);
-  if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || time() > $cached_block->expire) {
+  if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || ($cached_feed->expire < time()) || ($cached_feed->expire == -1)) {
     $block_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
