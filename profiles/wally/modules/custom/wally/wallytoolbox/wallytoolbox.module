@@ -620,7 +620,7 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
-  $tempobject['Title']['value'] = check_plain($enclosure->item(0)->getAttribute('url'));
+  $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $tempobject['FileURI']['value'] = $enclosure->item(0)->getAttribute('url');
   $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
@@ -647,7 +647,7 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
   $first_media = TRUE;
   foreach ($media_contents as $media_content) {
     if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
-      if (getimagesize(check_plain($media_content->getAttribute('url')))) {
+      if (getimagesize($media_content->getAttribute('url'))) {
         wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace);
         $first_media = FALSE;
       }
@@ -674,6 +674,7 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
  *   Check if it's the first media added to this array item.
  */
 function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace = 'http://search.yahoo.com/mrss/') {
+  static $media_num = 0;
   if ($first_media) {
     $array_item['Package']['EmbeddedContent'] = array();
     $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
@@ -684,11 +685,13 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = $media_content->getAttribute('type');
-  $tempobject['Title']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
+  $media_title = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
+  $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
+  $media_num += 1;
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
   $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
-  $tempobject['FileURI']['value'] = check_plain($media_content->getAttribute('url'));
+  $tempobject['FileURI']['value'] = $media_content->getAttribute('url');
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
   $tempobject['FileSize']['value'] = $object_filesize;
@@ -745,6 +748,7 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
  *   The image domElement from the XML RSS feed item.
  */
 function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
+  static $chan_img_num = 100;
   $array_item['Package']['EmbeddedContent'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
@@ -752,7 +756,9 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = 'image';
-  $tempobject['Title']['value'] = $channel_img->getAttribute('title');
+  $media_title = $channel_img->getAttribute('title');
+  $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
+  $chan_img_num += 1;
   $tempobject['ExternalReference']['value'] = $channel_img->getAttribute('url');
   $tempobject['FileURI']['value'] = $channel_img->getAttribute('url');
   $tempobject['FileSize']['value'] = 0;
