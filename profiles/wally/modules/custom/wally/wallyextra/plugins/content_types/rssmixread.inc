@@ -350,7 +350,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
       $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
       $most_recent_index = _wallyextra_rssmixread_getmostrecentfromavailables($available_items);
       $item = array_shift($feed_array[$most_recent_index]);
-      isset($item) ? array_push($feed, $item) :;
+      isset($item) ? array_push($feed, $item) : '';
     }
     dsm($feed, 'feed');
     cache_set($cid, $feed, 'cache', time() + mktime(0, $settings['delta_t']) + 1);
