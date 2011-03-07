@@ -21,7 +21,7 @@
 	<?php print $scripts ?>
 	
   <!--[if lt IE 7]>
-    <?php print custom_soirmag_get_ie_styles(); ?>
+    <?php print wallytheme_get_ie_styles(); ?>
   <![endif]-->
 </head>
 <body>

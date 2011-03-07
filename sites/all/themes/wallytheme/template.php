@@ -77,6 +77,10 @@ function wallytheme_theme(&$var) {
     'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
     'template' => 'rss_mix_last_blogs',
     ),  
+    'soirmag_rss_mix_fil_info' => $base + array(
+    'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+    'template' => 'rss_mix_fil_info',
+    ),  
     
   );
 }
@@ -85,8 +89,8 @@ function wallytheme_theme(&$var) {
  * Override or insert PHPTemplate variables into the templates.
  */
 function wallytheme_preprocess_page(&$vars) {
-  $vars['sf_primarymenu'] = theme("wallythemect_mainmenu", 'primary-links', 'menu-primary-links');
-  $vars['sf_secondarymenu'] = theme("wallythemect_mainmenu", 'secondary-links', 'menu-secondary-links');
+  $vars['sf_primarymenu'] = theme("wallyct_mainmenu", 'primary-links', 'menu-primary-links');
+  $vars['sf_secondarymenu'] = theme("wallyct_mainmenu", 'secondary-links', 'menu-secondary-links');
   $vars['scripts'] = drupal_get_js();
   $vars['styles'] = drupal_get_css();
   $vars['theme_path'] = base_path() .'/'. path_to_theme();
@@ -122,7 +126,7 @@ function wallytheme_date_edition_diplay($unix_time, $display){
  */
 function wallytheme_get_first_photoEmbededObject_from_package($embededObjects_array){	
 	foreach($embededObjects_array as $embededObject){  
-	 if ($embededObject->type == "wallytheme_photoobject"){
+	 if ($embededObject->type == "wally_photoobject"){
 	   $photoObject = $embededObject;
 	   break;
 	 }
@@ -216,7 +220,7 @@ function wallytheme_get_strapline($mainstory, $node, $size){
     
   if ($strapline == ""){
     $teaser_length = $size;
-    $teaser = theme("wallythemect_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
+    $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
     $strapline = $teaser;
   }
    $strapline .=" [...]";
@@ -246,26 +250,26 @@ function wallytheme_social_bookmarking_facebook_like($node_path){
 function wallytheme_getpackagesid($node){
   $rows = array(); 
   
-  if($node->type=='wallytheme_textobject'){
-    $res=db_query("SELECT nid FROM {content_type_wallytheme_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+  if($node->type=='wally_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
   }
-  elseif($node->type=='wallytheme_audioobject' || $node->type=='wallytheme_digitalobject' || $node->type=='wallytheme_photoobject' || $node->type=='wallytheme_videoobject'){   
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){   
      if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }else
-    if ($res2=db_query("SELECT nid FROM {content_type_wallytheme_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
+    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res2)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }
   }
-  elseif($node->type=='wallytheme_pollobject'){
-    $res=db_query("SELECT nid FROM {content_type_wallytheme_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+  elseif($node->type=='wally_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
@@ -309,7 +313,7 @@ function wallytheme_order_packages($array,$sort,$order){
 /**
  * 
  * Display a "see also" html list from an packages' id array
- * Used in the taxonomy term list who is showing wallythemeObjects 
+ * Used in the taxonomy term list who is showing wallyObjects 
  * @param $packages_id
  *  Array() of array() packages' id
  *  
