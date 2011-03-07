@@ -909,13 +909,15 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
         if (is_numeric($datas['xoffset'])) {
 	        $temppresetcrop[0] = $datas['xoffset'];
         } else {
-          $temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+        	if ($datas['xoffset']=="center_max") { $datas['xoffset']=="center"; };
+        	$temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
         }
 
         if (is_numeric($datas['yoffset'])) {
-          $temppresetcrop[1] = $datas['yoffset'];
+        	$temppresetcrop[1] = $datas['yoffset'];
         } else {
-          $temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
+        	if ($datas['yoffset']=="center_max") { $datas['yoffset']=="center"; };
+        	$temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
         }
         $temppresetcrop[2] = $datas['width'] + 0;
         $temppresetcrop[3] = $datas['height'] + 0;
@@ -946,7 +948,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
         }
         $usablecrops[$preset['presetname']] = $tempusablecrop;
       } else {
-        drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"notice");
+        //drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"notice");
       }
     }
   }
