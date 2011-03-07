@@ -265,7 +265,7 @@ function _wally_base_settings() {
 
   // Theme installation & settings.  
   //_wally_system_theme_data(); // @TODO: move wallynews theme to profile folder
-  install_default_theme('wally');
+  install_default_theme('wallytheme');
   install_admin_theme('rubik');	
   variable_set('node_admin_theme', TRUE);    
   $theme_settings = variable_get('theme_settings', array());

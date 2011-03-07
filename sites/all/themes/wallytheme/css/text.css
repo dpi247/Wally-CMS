@@ -1,0 +1,132 @@
+/* Resume
+------------------------------
+    1. Basic HTML
+    2. Headings
+    3. Spacing
+    4. Box type
+*/
+
+/* Colors
+------------------------------
+	# texte courant : #2a2a2a
+	# red soirmag : #BE0612
+	# actu soirmag : #88947B
+	# actu tvnews : #4C3F3F
+	# actu royal : #C3BD91
+	# actu star : #2A2727
+	# bleu canard : #5CCCCC
+*/
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 1. Basic HTML <<<-----------*/
+/* ----------------------------------------------------------*/
+
+html {
+	font-size: 16px;
+}
+
+body {
+	color: #1B1B1B;
+	font: .750em/1.5em 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', FreeSans, Verdana, Arial, Verdana, sans-serif;
+}
+
+a:focus {outline: 1px dotted invert;}
+
+hr {
+	border: 0 #ccc solid;
+	border-top-width: 1px;
+	clear: both;
+	height: 0;
+}
+#global .button, #global .form-submit {
+	background-color: #5a5f62;
+	border: 0;
+	display: block;
+	color: white;
+	height: 35px;
+	line-height: 35px;
+	text-transform: uppercase;
+	font-size: 1.1em;
+	text-align: center;
+	text-shadow: -1px -1px 0 rgba(0,0,0,0.9);
+}
+#global .button.t-moyen, #global .form-submit {
+	background: #5a5f62 url("../mediastore/elements/btn-moyen.jpg") no-repeat center center;
+	width: 110px;
+}
+#global .button.align-01 {
+	float: right;
+}
+#global .button.align-02, #global .form-submit {
+	float: none;
+	margin: 0 auto;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 2. Headings <<<-----------*/
+/* ----------------------------------------------------------*/
+
+h1 {font-size: 2em;}
+
+h2 {font-size: 1.7em;}
+
+h3 {font-size: 1.6em;}
+
+h4 {font-size: 1.5em;}
+
+h5 {font-size: 1.4em;}
+
+h6 {font-size: 1em;}
+
+h1, h2, h3, h4, h5, h6 {
+	color: #666;
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-weight: 400;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 3. Spacing <<<-----------*/
+/* ----------------------------------------------------------*/
+
+ol {list-style: decimal;}
+
+ul {list-style: square;}
+
+li {margin-left: 30px;}
+
+p, dl, hr, h1, h2, h3, h4, h5, h6, ol, ul, pre, table, address, fieldset {margin-bottom: 1.1em;}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 4. Box type <<<-----------*/
+/* ----------------------------------------------------------*/
+
+.brique {
+	background: white;
+	float: left;
+	clear: left;
+	width: 100%;
+	margin-bottom: 20px;
+}
+.bloc h2, .brique h2 {
+	background: #464B4C url(../mediastore/elements/top-deg.gif) no-repeat top right;
+	border-bottom: 2px solid #1F2224;
+	color: white;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 1em;
+	font-weight: 900;
+	margin-bottom: 0;
+	text-transform: uppercase;
+	text-align: left;
+	padding-left: 10px;
+}
+#bloc-top-5 h2 {background: #BE0612;}
+
+.bloc h2 a, .brique h2 a {
+	color: white;
+}
+#global .color-02 h2 {
+	background: #c90c21 url(../mediastore/elements/top-deg-02.gif) no-repeat top right;
+}
+#global .color-03 h2 {
+	background: #219BBE url("../mediastore/elements/top-deg-03.gif") no-repeat top right;
+}
