@@ -1,0 +1,207 @@
+#colonne-galerie .menu-top {
+	height:30px;
+	width:100%;
+	background:#f9f9fa url('../mediastore/elements/top_menu_bg.jpg') repeat-x top left;
+	list-style:none;
+	margin:0;
+	box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+	-o-box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+#colonne-galerie .menu-top li{
+	margin:0;
+	display:block;
+	height:30px;
+	float:left;
+}
+
+#colonne-galerie .menu-top li a{
+	color:#666666;
+	line-height:30px;
+	display:block;
+	float:left;
+	height:30px;
+	padding:0 10px 0 8px;
+	text-shadow:1px 1px 1px white;
+	background:url('../mediastore/elements/top_menu_sep.jpg') no-repeat top right;
+}
+
+#colonne-galerie .menu-top li.last a{
+	background:none;
+}
+
+#colonne-galerie .menu-top li a:hover{
+	text-decoration:none;
+	color: black;
+}
+
+#colonne-galerie .big-diapo {
+	margin:0 0 20px;
+}
+
+#colonne-galerie .big-diapo .apercu {
+	width:100%;
+	background:#1e1f20 url('../mediastore/elements/apercu_photo_bg.jpg') repeat-x bottom left;
+	padding:1px 0 0 0;
+}
+
+#colonne-galerie .big-diapo .apercu .photo{
+	width:660px;
+	margin:45px auto 0;
+	background:#ebedef url('../mediastore/elements/apercu_photo_inner_bg.jpg') no-repeat top left;
+	position:relative;
+	text-align:center;
+}
+
+#colonne-galerie .big-diapo .apercu .photo h2 {
+	color:#383838;
+	text-align:left;
+	padding:10px;
+	line-height:1.25em;
+	text-shadow:1px 1px 1px white;
+	margin:0;
+}
+
+#colonne-galerie .big-diapo .apercu .photo img{
+	border:1px solid #55565c;
+	display:block;
+	margin:0 auto;
+}
+
+#colonne-galerie .big-diapo .apercu .photo .prev img {
+	position:absolute;
+	left:-50px;
+	margin:-10px;
+	top:50%;
+	border:0;
+}
+
+#colonne-galerie .big-diapo .apercu .photo .next img {
+	position:absolute;
+	right:-50px;
+	margin:-10px;
+	top:50%;
+	border:0;
+}
+
+#colonne-galerie .big-diapo .apercu .legende{
+	width:100%;
+	height:79px;
+	margin:0;
+	background:#7a7c84 url('../mediastore/elements/apercu_photo_bottom_bg.jpg') no-repeat top left;
+	position:relative;
+}
+
+#colonne-galerie .big-diapo .apercu .legende p{
+	color: white;
+    font-size: 1em;
+    line-height: 1.25em;
+    padding: 17px 0 0 150px;
+    text-shadow: 1px 1px 1px #46474B;
+    width: 500px;
+}
+
+#colonne-galerie .big-diapo .apercu .legende ul {
+	position:absolute;
+	top:32px;
+	left:670px;
+	list-style:none;
+}
+
+#colonne-galerie .big-diapo .apercu .legende ul li {
+	float:left;
+	margin:0 10px 0 0;
+}
+
+#colonne-galerie .big-diapo .diapos {
+	background:#212122 url('../mediastore/elements/diapos_photo_bg.jpg') repeat-x top left;
+	height:126px;
+	width:100%;
+	position:relative;
+}
+
+#colonne-galerie .big-diapo .diapos .liste-photos {
+	width:550px;
+	margin:0 auto;
+	padding:14px 0 0 0;
+}
+
+#colonne-galerie .big-diapo .diapos .liste-photos ul {
+	list-style:none;
+	margin:0
+}
+
+#colonne-galerie .big-diapo .diapos .liste-photos ul li {
+	float:left;
+	display:block;
+	width:98px;
+	height:103px;
+	margin:0 10px 0 0;
+	position:relative;
+	padding:2px 0 0 2px;
+}
+
+#colonne-galerie .big-diapo .diapos .liste-photos ul li span.frame{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:5;
+	background:url('../mediastore/elements/photo_frame.png') no-repeat top left;
+	display:block;
+	width:100px;
+	height:105px;
+}
+
+#colonne-galerie .big-diapo .diapos .prev img {
+	left: 130px;
+    position: absolute;
+    top: 50px;
+}
+
+#colonne-galerie .big-diapo .diapos .next img {
+	right: 130px;
+    position: absolute;
+    top: 50px;
+}
+
+#colonne-galerie .galerie {
+	margin:0 0 20px;
+}
+
+
+
+#colonne-galerie .galerie .content {
+	background:white;
+	float:left;
+	width:100%;
+	padding:20px 0 18px;
+}
+
+#colonne-galerie .galerie .content ul {
+	list-style:none;
+	margin:0;
+	padding:0 0 0 60px;
+}
+
+#colonne-galerie .galerie .content ul li {
+	float:left;
+	display:block;
+	width:98px;
+	height:103px;
+	margin:0 20px 0 0;
+	position:relative;
+	padding:2px 0 0 2px;
+}
+
+#colonne-galerie .galerie .content ul li span.frame{
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:5;
+	background:url('../mediastore/elements/photo_frame.png') no-repeat top left;
+	display:block;
+	width:100px;
+	height:105px;
+}

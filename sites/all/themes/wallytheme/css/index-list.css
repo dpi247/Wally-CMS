@@ -1,0 +1,356 @@
+/* Resume
+------------------------------
+	1. Titrailles
+	2. Liste des articles
+		2.1 bouton facebook
+	3. Pagination
+*/
+
+/* Colors
+------------------------------
+	# texte courant : #2a2a2a
+	# red soirmag : #BE0612
+*/
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 1. titrailles <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#col-01 .top-index {
+	background: white;
+	clear: both;
+	margin: 30px 0 0 0;
+	position: relative;
+}
+#col-01 .on-bis {
+	background: transparent url("../mediastore/elements/pager-sans.jpg") no-repeat 0 0 !important;	
+}
+#col-01 h1 {
+	display: block;
+	padding-top: 1px;
+	height:29px;
+	font-weight: 400;
+	margin-bottom: 0;
+	position:absolute;
+	top:-28px;
+	left:0;
+}
+#col-01 h1 span.left {
+	float:left;
+	height:30px;
+	width:24px;
+	background:url('../mediastore/elements/titre_noir_left.png') no-repeat top left;
+	display:block;
+}
+#col-01 h1 span.right {
+	float:left;
+	height:30px;
+	width:23px;
+	background:url('../mediastore/elements/titre_noir_right.png') no-repeat top left;
+	display:block;
+}
+#col-01 h1 span.middle {
+	display: block;
+	color: white;
+	text-shadow: -1px -1px 0 black;
+	background:black url('../mediastore/elements/titre_noir.jpg') repeat-x top left;
+	float:left;
+	height:30px;
+	line-height:30px;
+}
+
+#col-01 .top-index .my-pager{
+	float:right;
+	position:relative;
+	top:-5px;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 1.1 exceptions <<<-----------*/
+
+.actu-tv-news #col-01 .top-index {
+	float: left;
+	width: 100%;
+}
+#global #col-02 #the-title-tv {margin-bottom: 0;}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 2. Liste des articles <<<-----------*/
+/* ----------------------------------------------------------*/
+
+.excerpt {
+	background: white;
+	margin-bottom: 20px;
+	position: relative;
+}
+.excerpt.grid_4 {
+	height: 360px;
+}
+.excerpt h2, #index .excerpt h2 {
+	background: transparent;
+	border: 0;
+	text-transform: none;
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-size: 1.7em;
+	font-weight: 400;
+	text-align: left;
+	color: black;
+	line-height: 1.1em;
+	margin-bottom: 0;
+	padding: 0 10px;
+}
+.excerpt img {
+	display: block;
+	float: left;
+	padding: 10px;
+}
+#main-excerpt h3 {
+	display: block;
+	font-style: italic;
+	font-size: 1.3em;
+	line-height: 1.2em;
+	margin: 0;
+	padding: 7px 10px 10px 0;
+	text-align: justify;
+}
+#main-excerpt small {
+	padding: 0 10px 0 10px;
+}
+.excerpt small {
+	color: #9797A0;
+	display: block;
+	padding: 10px 10px 0 10px;
+	text-transform: uppercase;
+}
+.excerpt p {
+	color: #333;
+	padding: 10px 10px 0 10px;
+	text-align: justify;
+}
+#main-excerpt p {
+	padding: 0 10px 0 0;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.1 bouton facebook <<<-----------*/
+
+#main-excerpt .connect_button_container {
+	position: absolute;
+	right: 0;
+	bottom: 10px;
+	width: 85px !important;
+}
+.excerpt .connect_button_container {
+	float: right;
+	margin: 10px 10px 0 0;
+	width: 85px !important;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.2 Liste resultat de recherche <<<-----------*/
+
+#liste-resultat {
+	background: white;
+	color: #BE0612;
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-size: 2em;
+	line-height: .7em;
+	padding-top: 10px;
+	padding-left: 45px;
+}
+#liste-resultat li{
+	border-bottom: 1px dotted #ccc;
+	margin: 0 20px 13px 0;
+}
+#liste-resultat li h2 {
+	background: transparent;
+	border: 0;
+	text-transform: none;
+	font-family: Georgia, Palatino, Palatino Linotype, Times, Times New Roman, serif;
+	font-size: .9em;
+	font-weight: 400;
+	text-align: left;
+	color: black;
+	line-height: 1.1em;
+	margin-bottom: 0;
+	padding: 0 10px;
+}
+#liste-resultat li small {
+	color: #9797A0;
+	font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif;
+	display: block;
+	padding: 0 0 0 10px;
+	margin: 0;
+	text-transform: uppercase;
+	font-size:.4em;
+}	  
+#liste-resultat li p {
+	color: #333;
+	font-family: 'Lucida Grande', 'Lucida Sans Regular', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif;
+	padding: 0 10px 0 10px;
+	text-align: justify;
+	font-size:.5em;
+}
+#liste-resultat li img {
+	display: block;
+	float: right;
+	border: 1px solid #ccc;
+	padding: 1px;
+	margin-right: 30px;
+	background: white;
+}
+#liste-resultat li h3 {
+	margin: 0 0 10px 10px;
+	font-size: .8em;
+	color: #333;
+}
+#liste-resultat li ul {
+	font-size: .55em;
+	margin-left: 1em;
+	color: #ccc;
+	list-style: none none;
+	border-left: thick solid #ccc;
+	padding-left: 10px;
+}
+#liste-resultat li ul li {
+	border: 0;
+	margin: 0;
+}
+#liste-resultat li ul li a {
+	color: #666;
+	font-family: 'Trebuchet MS', verdana, arial, sans-serif;
+}
+#liste-resultat li .photoobject_item h2 {
+	padding-right: 20px;
+	background: transparent url('../mediastore/elements/icons/photos.png') no-repeat center right;
+}
+#liste-resultat li .pollobject_item h2 {
+	padding-right: 20px;
+	background: transparent url('../mediastore/elements/icons/chart_bar.png') no-repeat center right;
+}
+#liste-resultat li .audioobject_item h2 {
+	padding-right: 20px;
+	background: transparent url('../mediastore/elements/icons/music.png') no-repeat center right;
+}
+#liste-resultat li .videoobject_item h2 {
+	padding-right: 20px;
+	background: transparent url('../mediastore/elements/icons/film.png') no-repeat center right;
+}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.3 A la une tele <<<-----------*/
+
+.christine {
+	background: white;
+	width: 290px;
+	float: left;
+	padding: 10px;
+}
+.christine img {
+	display: block;
+	float: left;
+	padding-right: 10px;
+}
+.christine p {text-align: justify;}
+
+	  /* -------------------------------------------------------------------------------------------------->>> 2.4 Une chaine <<<-----------*/
+
+#col-02 .une-chaine {
+	background: white;
+	width: 298px;
+	border: 1px solid #ccc;
+	margin-bottom: 20px;
+}
+.une-chaine h2 {
+	margin: 0;
+	background: white;
+	padding: 0;
+	border: 0;
+	text-align: center;
+}
+.une-chaine table {
+	width: 278px;
+	margin: 10px;
+}
+.une-chaine table tr td {
+	padding: 2px;
+	text-align: left;
+}
+.une-chaine table tr .heure {
+	width: 50px;
+	padding-right: 10px;
+	text-align: right;
+}
+.une-chaine table tr {
+	border-bottom: 1px dotted #ccc;
+}
+.une-chaine table .last {
+	border: 0;
+}
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 3. Pagination <<<-----------*/
+/* ----------------------------------------------------------*/
+
+.my-pager .left {
+	width:21px;
+	height:30px;
+	background:url('../mediastore/elements/pager_left.png') no-repeat top left;
+	float:left;
+}
+
+.my-pager .right {
+	width:21px;
+	height:30px;
+	background:url('../mediastore/elements/pager_right.png') no-repeat top left;
+	float:left;
+}
+
+.my-pager .item-list {
+	background: url("../mediastore/elements/pager_bg.jpg") repeat-x scroll 0 0 transparent;
+    display: block;
+    float: left;
+    height: 25px;
+    list-style: none outside none;
+    margin: 0;
+    padding: 5px 2px 0 10px;
+	clear: none;
+}
+.my-pager .item-list ul {
+	clear: none;
+}
+.my-pager ul li {
+	display: block !important;
+	float: left;
+	font-size: .9em;
+	line-height: 10px;
+	margin: 0 8px 0 0;
+	padding: 0.5em;
+	color: white;
+	text-shadow: -1px -1px 0 #666;
+	font-weight: 400;
+}
+.my-pager ul li a {
+	display: block;
+	float: left;
+	color: white;
+	text-shadow: -1px -1px 0 #666;
+}
+.my-pager ul .pager-current {
+	background: rgba(255,255,255,0.8);
+	color: #2a2a2a;
+	font-weight: 900;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	-moz-box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+	-webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+	box-shadow: inset 0 0 2px rgba(0,0,0,0.5);
+	text-shadow: none;
+}
+.my-pager ul li.nav a {
+	text-indent: 0;
+	color: white;
+	background: none;
+	width: 10px;
+	line-height: 7px;
+}
+.my-pager ul li.nav a:hover {
+	text-decoration: none;
+}

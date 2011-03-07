@@ -1,0 +1,270 @@
+/* Resume
+------------------------------
+    1. Bloc pourpre des blogs
+*/
+
+/* Colors
+------------------------------
+	# texte courant : #2a2a2a
+	# red soirmag : #BE0612
+	# actu soirmag : #88947B
+	# actu tvnews : #4C3F3F
+	# actu royal : #C3BD91
+	# actu star : #2A2727
+	# bleu canard : #5CCCCC
+*/
+
+/* ----------------------------------------------------------------------------*/
+  /* -------------------------------------------------------------------------------------------------->>> 1. Basic HTML <<<-----------*/
+/* ----------------------------------------------------------*/
+
+#event {
+	margin-bottom: 20px;
+	position: relative;
+}
+#event img {display: block;}
+#event h1 {
+	position: absolute;
+	display: block;
+	color: white;
+	margin: 0;
+	line-height: 1em;
+	padding: 10px 140px 10px 10px;
+	background: rgba(0,0,0,0.7);
+	bottom: 0;
+	left: 0;
+	width: 460px;
+}
+#event h1 a {color: white;}
+#event ul {
+	position: absolute;
+	float: right;
+	top: 10px;
+	right: 10px;
+	list-style: none none;
+}
+#event ul li {
+	margin: 0 0 10px 0;
+	background: transparent;
+	border: 1px solid #2a2a2a;
+}
+#event ul li img {
+	display: block;
+	padding: 1px;
+	background: #f3f3f3;
+}
+
+#pourpre {
+	background: #590051 url("../mediastore/elements/fond-blog.jpg") no-repeat bottom right;
+	height: 540px;
+	width: 640px;
+	position: relative;
+	left: -20px;
+	margin-bottom: 20px;
+}
+#pourpre h2 {
+	margin: 0 0 0 20px;
+	font-size: 2.5em;
+	line-height: 1.5em;
+	color: white;
+	text-shadow: -1px -1px 0 rgba(0,0,0,0.8);
+}
+#pourpre .purple {
+	position: relative;
+	height: 150px;
+	margin-left: 20px;
+	margin-top: 10px;
+	clear: both;
+}
+#pourpre .purple h3 {
+	margin: 0;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	display: block;
+	font-size: 1.3em;
+}
+#pourpre .purple h3 span {
+	padding: 2px 2px;
+	position: relative;
+	bottom: 4px;
+}
+#pourpre .purple h3 a {
+	color: black;
+}
+#pourpre .purple h3 a:hover, #pourpre .purple h3 a:focus {
+	text-decoration: none;
+}
+#pourpre .purple .author {
+	position: absolute;
+	left: 0;
+	top: 90px;
+}
+#pourpre .purple .author span {
+	display: block;
+	float: left;
+	background: white;
+	color: black;
+	font-family: Georgia, serif;
+	font-size: 1.3em;
+}
+#pourpre .purple .author .tier-02 {
+	position: relative;
+	left: 5px;
+	top: 5px;
+}
+#pourpre .purple ul {
+	list-style: none none;
+	padding-left: 140px;
+}
+#pourpre .purple ul li {
+	margin-left: 20px;
+	width: 140px;
+	display: block;
+	float: left;
+}
+#pourpre .purple ul .lines {
+	border-bottom: 1px dotted #f3f3f3;
+	width: 130px;
+	line-height: 1.1em;
+	margin-bottom: 9px
+}
+#pourpre .purple ul .last {
+	border-bottom: 0;
+	padding-top: 10px;
+}
+#pourpre .purple ul .lines h4 {
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 1em;
+}
+#pourpre .purple img {
+	display: block;
+	border: 1px solid #24001e;
+	margin-bottom: 3px;
+}
+#pourpre .purple h4 {
+	font-size: 1.2em;
+}
+#pourpre .purple h4 a {
+	color: white;
+}
+
+  /* -------------------------------------------------------------------------------------------------->>> 1.1 Couleurs des blogs <<<-----------*/
+
+#pourpre #blog-01 h3 {
+	background: transparent url("../mediastore/elements/blog1bottom.gif") no-repeat bottom left;
+}
+#pourpre #blog-01 h3 span {
+	background: #ffc051;
+	padding: 0 3px;
+	color: black;
+	text-shadow: 1px 1px 0 #fff;
+}
+#pourpre  #blog-01 {
+	background: transparent url("../mediastore/elements/pierre.jpg") no-repeat bottom left;
+}
+
+#pourpre #blog-02 h3 {
+	background: transparent url("../mediastore/elements/blog2bottom.gif") no-repeat bottom left;
+}
+#pourpre #blog-02 h3 span {
+	background: #00ffff;
+	padding: 0 3px;
+	color: black;
+	text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+#pourpre  #blog-02 {
+	background: transparent url("../mediastore/elements/francesca.jpg") no-repeat bottom left;
+}
+
+#pourpre #blog-03 h3 {
+	background: transparent url("../mediastore/elements/blog3bottom.gif") no-repeat bottom left;
+}
+#pourpre #blog-03 h3 span {
+	background: #d9042b;
+	padding: 0 3px;
+	color: white !important;
+	text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+#pourpre #blog-03 h3 a {color: white;}
+#pourpre  #blog-03 {
+	background: transparent url("../mediastore/elements/letizia.jpg") no-repeat bottom left;
+}
+.tricky {
+	position: absolute;
+	background: #590051 url("../mediastore/elements/offset.jpg") no-repeat top right;
+	z-index: 20;
+	left: 0;
+	height: 540px;
+}
+
+  /* -------------------------------------------------------------------------------------------------->>> 1.2 Blocs Wall <<<-----------*/
+
+#the-wall {
+	margin-bottom: 20px;
+}
+
+  /* -------------------------------------------------------------------------------------------------->>> 1.3 Blocs crossmedia <<<-----------*/
+
+.crossmedia {
+	background: white url("../mediastore/elements/crossmedia-bottom.gif") no-repeat bottom center;
+	width: 200px;
+	float: left;
+	margin-bottom: 10px;
+	min-height: 265px;
+}
+.crossmedia img {
+	display: block;
+	margin: 0 auto 10px auto;
+}
+.crossmedia ul {
+	list-style: none none;
+	margin: 0 0 9px 0;
+	padding: 10px 9px 0 9px;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+.crossmedia ul li {
+	border-bottom: 1px dotted #ccc;
+	margin: 0 0 5px 0;
+	line-height: 1.1em;
+	padding-bottom: 5px;
+}
+.crossmedia ul li h3 {
+	margin: 0;
+	font-family: 'Trebuchet MS', sans-serif;
+	font-size: 1.1em;
+	color: #2a2a2a;
+}
+.crossmedia ul .last {border: 0; margin: 0; padding: 0 0 5px 0;}
+.crossmedia ul li a {
+	color: #2a2a2a;
+}
+.crossmedia h2 {
+	display: block;
+	margin: 0;	
+}
+.crossmedia h2 a {
+	display: block;
+	margin: 0;
+	padding: 0;
+	text-indent: -999em;
+	width: 200px;
+	height: 23px;
+}
+#cross-cine {
+	margin: 0 10px;
+}
+#cross-sp h2 a {
+	background: transparent url("../mediastore/elements/top-sudpresse.jpg") no-repeat 0 0;
+}
+#cross-ref h2 a {
+	background: transparent url("../mediastore/elements/top-references.jpg") no-repeat 0 0;
+}
+#cross-cine h2 a {
+	background: transparent url("../mediastore/elements/top-cinenews.jpg") no-repeat 0 0;
+}
+#cross-sante h2 a {
+	background: transparent url("../mediastore/elements/top-sante.jpg") no-repeat 0 0;
+}
