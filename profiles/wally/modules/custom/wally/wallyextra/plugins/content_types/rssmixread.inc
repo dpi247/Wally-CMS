@@ -340,7 +340,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
     $override_theme_text = $settings['override_theme_text'];
     $maxitem_global = $settings['maxitem_global'];
     $maxitem_byfeed = $settings['maxitem_byfeed'];
-    dsm($rrs_uris, 'uris');
+    print_r($rrs_uris, 'uris');
     foreach ($rss_uris as $rss_uri) {
       $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
     }
