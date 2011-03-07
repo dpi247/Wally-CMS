@@ -8,7 +8,7 @@
 	$data_array["site_slogan"] = $site_slogan; 
 	$data_array["front_page"] = $front_page; 
 	$data_array["splash_active"] = $splah_active;
-	$path = drupal_get_path('theme', 'custom_soirmag');
+	$path = drupal_get_path('theme', 'wallytheme');
 	
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -24,7 +24,7 @@
 
 	<?php print $scripts ?>
   <!--[if lt IE 7]>
-    <?php print custom_soirmag_get_ie_styles(); ?>
+    <?php print wallytheme_get_ie_styles(); ?>
   <![endif]-->
 </head>
 <body>
