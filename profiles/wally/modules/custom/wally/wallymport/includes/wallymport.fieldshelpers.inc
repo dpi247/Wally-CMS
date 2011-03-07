@@ -182,7 +182,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
   $badcar = array("+", );
   $new_file_path = rtrim($new_file_path, '/');
   $new_file_path .= '/';
-  
+
   switch($uri['scheme']){
     case'embed':
       // "+" sign in filename is unsupported by imagecache. 
@@ -202,9 +202,18 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
     case 'http':
       $expl_path = explode('/', $uri['path']);
       $file_name = $expl_path[count($expl_path)-1];
-      $good_file_name = str_replace($badcar, "_", $file_name);
-      
-      if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
+      $http_req = drupal_http_request($file_uri);
+      dsm($http_req);
+      if (strstr($http_req->headers['Content-Type'], 'image')) {
+        if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
+          $good_file_name = str_replace($badcar, "_", $file_name);
+        } elseif (true) {
+          $content_disp = $http_req->headers['Content-Disposition'];
+          $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
+          $good_file_name = str_replace($badcar, "_", substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
+        } else {
+          break;
+        }
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
         file_check_directory($file_temp_dir, 1);
         $file_temp_path = $file_temp_dir.'/'.$good_file_name;
