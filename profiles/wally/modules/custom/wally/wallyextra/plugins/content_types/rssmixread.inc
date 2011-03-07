@@ -336,11 +336,11 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
       } else {
         $mix_schema = explode(',', $settings['mix_schema']);
       }
-    }
+    }dsm($mix_schema);
     $override_theme_text = $settings['override_theme_text'];
     $maxitem_global = $settings['maxitem_global'];
     $maxitem_byfeed = $settings['maxitem_byfeed'];
-    print_r($rrs_uris, 'uris');
+    dsm($rrs_uris, 'uris');
     foreach ($rss_uris as $rss_uri) {
       $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
     }
