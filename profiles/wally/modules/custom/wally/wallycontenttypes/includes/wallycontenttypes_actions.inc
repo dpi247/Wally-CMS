@@ -33,13 +33,13 @@ function wallycontenttypes_wallycrop_form($data = array()) {
     '#type' => 'textfield',
     '#title' => t('X offset'),
     '#default_value' => $data['xoffset'],
-    '#description' => t('Enter an offset in pixels or use a keyword: <em>left</em>, <em>center</em>, or <em>right</em>.'),
+    '#description' => t('Enter an offset in pixels or use a keyword: <em>left</em>, <em>center</em>, <em>center_max</em>,or <em>right</em>.'),
   );
   $form['yoffset'] = array(
     '#type' => 'textfield',
     '#title' => t('Y offset'),
     '#default_value' => $data['yoffset'],
-    '#description' => t('Enter an offset in pixels or use a keyword: <em>top</em>, <em>center</em>, or <em>bottom</em>.'),
+    '#description' => t('Enter an offset in pixels or use a keyword: <em>top</em>, <em>center</em>, <em>center_max</em>, or <em>bottom</em>.'),
   );
   return $form;
 }
@@ -76,18 +76,19 @@ function theme_wallycontenttypes_wallycrop($element) {
  *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_wallycrop_image(&$image, $data) {
-  $fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
+
+	$fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
   if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
     $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
   } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid')) {
     $nid = db_fetch_object(db_query("SELECT `nid` FROM `content_field_photofile` WHERE `field_photofile_fid` = '%s'", $fid->fid));
     $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `nid` = '%s'", $nid->nid));
   }
-  
+    
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-
+    
   if (isset($imgcropings[$presetname])) {
     $crop = array();
     $crop = $imgcropings[$presetname];
@@ -97,9 +98,22 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
     $data['height'] = $crop[3];
   }
 
-  if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
-    watchdog('WallyContentTypes', 'WallyCrop Action : action failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
-    return FALSE;
-  }
+  // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
+  //
+  if ($data["xoffset"]=="center_max" || $data["yoffset"] == "center_max") {
+  	
+	  if (!imageapi_image_scale_and_crop($image, $data['width'], $data['height'])) {
+	    watchdog('WallyContentTypes', 'WallyCrop Action : action failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+	    return FALSE;
+	  }
+	  
+	} else {
+	  if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
+	    watchdog('WallyContentTypes', 'WallyCrop Action : action failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
+	    return FALSE;
+	  }
+ 	} 
+  
+
   return TRUE;
 }
