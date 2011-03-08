@@ -226,8 +226,6 @@ function wallyctools_get_redac_view_options(){
 
 
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
-  dsm($form_id);
-  dsm($form_state);
   switch ($form_id) {
     case 'views_ui_edit_view_form':
       wallyctools_save_views_layout($form,$form_state);

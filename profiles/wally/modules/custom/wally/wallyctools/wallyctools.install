@@ -22,11 +22,11 @@ function wallyctools_schema_1() {
       'api' => array(
       //Reffer to _ctools_plugin_api 
         'owner' => 'wallyctools',
-        'api' => 'ctools_content',
+        'api' => 'wallyctools_redacblock',
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-      'create callback' => 'wallyctools_content_type_new',
+  //    'create callback' => 'wallyctools_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
