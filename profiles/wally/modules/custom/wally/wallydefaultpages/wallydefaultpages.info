@@ -1,4 +1,5 @@
 core = "6.x"
+dependencies[] = "ctools"
 dependencies[] = "page_manager"
 description = "Contains the default pages manager"
 features[ctools][] = "page_manager:pages_default:1"
