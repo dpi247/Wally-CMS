@@ -140,42 +140,6 @@ function wallyextra_views_default_views() {
   $handler->override_option('use_pager', 'mini');
   $handler->override_option('distinct', 1);
   $handler->override_option('row_plugin', 'node');
-  $handler = $view->new_display('redacblock', 'Default Destination block', 'redacblock_1');
-  $handler->override_option('row_options', NULL);
-  $handler->override_option('redacblock_layout', array(
-    'small' => 'small',
-    'medium' => 'medium',
-    'large' => 'large',
-  ));
-  $handler->override_option('pane_title', '');
-  $handler->override_option('pane_description', '');
-  $handler->override_option('pane_category', array(
-    'name' => 'View panes',
-    'weight' => 0,
-  ));
-  $handler->override_option('allow', array(
-    'use_pager' => 'use_pager',
-    'items_per_page' => 'items_per_page',
-    'offset' => 'offset',
-    'link_to_view' => 0,
-    'more_link' => 0,
-    'path_override' => 0,
-    'title_override' => 'title_override',
-    'exposed_form' => 0,
-    'fields_override' => 0,
-  ));
-  $handler->override_option('argument_input', array(
-    'field_destinations_tid' => array(
-      'type' => 'context',
-      'context' => 'terms.tids',
-      'context_optional' => 0,
-      'panel' => '0',
-      'fixed' => '',
-      'label' => 'Destinations: Destinations tid: Destinations (field_destinations)',
-    ),
-  ));
-  $handler->override_option('link_to_view', 0);
-  $handler->override_option('inherit_panels_path', 0);
   $handler = $view->new_display('feed', 'Feed', 'feed_1');
   $handler->override_option('style_plugin', 'rss');
   $handler->override_option('style_options', array(
