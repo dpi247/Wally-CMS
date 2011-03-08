@@ -74,59 +74,6 @@ function wallydefaultpages_default_page_manager_handlers() {
     $pane->position = 0;
     $display->content['new-1'] = $pane;
     $display->panels['colmain'][0] = 'new-1';
-    $pane = new stdClass;
-    $pane->pid = 'new-2';
-    $pane->panel = 'colrelated';
-    $pane->type = 'views_panes';
-    $pane->subtype = 'fil_info-panel_pane_1';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'available_dests' => array(
-        'News' => (object) array(
-  'tid' => '1',
-  'vid' => '2',
-  'name' => 'News',
-  'description' => 'All about news',
-  'weight' => '1',
-  'depth' => 0,
-  'parents' => array(
-    0 => '0',
-  ),
-),
-        'Belgique' => (object) array(
-  'tid' => '194',
-  'vid' => '2',
-  'name' => 'Belgique',
-  'description' => '',
-  'weight' => '0',
-  'depth' => 1,
-  'parents' => array(
-    0 => '1',
-  ),
-),
-        'Bruxelles' => (object) array(
-  'tid' => '195',
-  'vid' => '2',
-  'name' => 'Bruxelles',
-  'description' => '',
-  'weight' => '0',
-  'depth' => 2,
-  'parents' => array(
-    0 => '194',
-  ),
-),
-      ),
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $display->content['new-2'] = $pane;
-    $display->panels['colrelated'][0] = 'new-2';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = 'new-1';
   $handler->conf['display'] = $display;
