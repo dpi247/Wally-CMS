@@ -799,6 +799,77 @@ function wallytoolbox_destinations_items_array(){
   
   return $array_dests; 
 }
+		
+/**
+ * Adds a META TAG to the process template queue.
+ * 
+ * @param $attributes
+ *   Array of meta key keyword & key value. 
+ *   If key keyword is one of "http-equiv, name, property"
+ *   the Meta is updated in case of 2 calls.
+ * @param $content
+ *   Content of the meta tag.
+ *   
+ * @return
+ * 	Return an array of meta.
+ */
+function wallytoolbox_add_meta($attributes = array(), $content = NULL) {
+
+	static $wally_meta = array();
+	$meta_key = NULL; 
+
+	// Supported "Meta Keys" are : http-equiv, name, property. 
+	foreach ($attributes as $attribute_name => $attribute_value) {
+		switch (strtolower($attribute_name)) {
+			case "name":
+			case "http-equiv":
+			case "property":
+				$meta_key = strtolower($attribute_name)."_".$attribute_value;
+				$wally_meta[$meta_key] = array( $attribute_name => $attribute_value, "content" => $content); 
+				break;
+			default:
+				$wally_meta[] = array( $attribute_name => $attribute_value, "content" => $content); 
+				break; 
+		}
+	}
+	return $wally_meta;
+}
+
+/**
+ * Generate HTML tag for meta tags.
+ */
+function wallytoolbox_get_meta() {
+
+  if (!isset($wally_meta)) {
+    $wally_meta = wallytoolbox_add_meta(NULL, NULL);
+  }
+
+  if (empty($wally_meta)) {
+    return '';
+  }
+
+  $output = '';
+  
+  foreach ($wally_meta as $meta_k => $meta) {
+    if (!$meta) {
+      continue;
+    }
+    $output .= "<meta ";
+		foreach($meta as $data_k => $data_v) {
+			$output .= " ".$data_k."=\"".$data_v."\"";
+		}
+    $output .= " />\n";
+  }
+  
+  return $output;
+}
+
+/*
+ * Hook preprocess for meta tags.
+ */
+function wallytoolbox_preprocess_page(&$variables) {
+  $variables['meta'] = wallytoolbox_get_meta();	
+}
 
 /**
  * @} End of "defgroup wallytoolbox".
