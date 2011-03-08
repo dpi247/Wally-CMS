@@ -232,7 +232,6 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes']=array();
  
   $hierarchies= wallyctools_get_hierarchies();
-  dsm($hierarchies);
   $dla = array(); 
   foreach($hierarchies as $tid=>$hierarchie){
     // Target
@@ -247,7 +246,6 @@ function cckdestinations_get_classes_and_options(){
       }
     }
   }
-  dsm($result);
  return $result;
 }
 
@@ -285,10 +283,7 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   // isset() fails in this situation.
   $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
   $value_is_array = is_array($element['#value']);
-dsm($choices);
   foreach ($choices as $k => $c) {
-    dsm($c);
-    dsm($k);
     $key = array_keys($c);
       $key = $key[0];
       $choice = $c[$key];
