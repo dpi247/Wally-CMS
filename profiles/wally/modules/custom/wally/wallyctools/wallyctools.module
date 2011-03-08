@@ -71,6 +71,9 @@ function wallyctools_ctools_plugin_api($owner, $api) {
   if ($owner == 'wallyctools' && $api == 'ctools_content') {
     return array('version' => 1);
   }
+  if ($owner == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
 }
 
 /**
