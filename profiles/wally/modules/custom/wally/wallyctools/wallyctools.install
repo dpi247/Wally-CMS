@@ -120,6 +120,8 @@ function wallyctools_install() {
   if (!db_table_exists('wallyctools')) {
     drupal_install_schema('wallyctools');
   }
+  variable_set('page_manager_term_view_disabled', FALSE);
+  variable_set('page_manager_node_view_disabled', FALSE);
 }
 
 /**
