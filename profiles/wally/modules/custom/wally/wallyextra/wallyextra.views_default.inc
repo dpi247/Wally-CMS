@@ -29,7 +29,7 @@ function wallyextra_views_default_views() {
   ));
   $handler->override_option('arguments', array(
     'field_destinations_tid' => array(
-      'default_action' => 'ignore',
+      'default_action' => 'not found',
       'style_plugin' => 'default_summary',
       'style_options' => array(),
       'wildcard' => 'all',
@@ -40,7 +40,7 @@ function wallyextra_views_default_views() {
       'default_argument' => '',
       'validate_type' => 'taxonomy_term',
       'validate_fail' => 'not found',
-      'add_table' => 1,
+      'add_table' => 0,
       'require_value' => 0,
       'reduce_duplicates' => 1,
       'set_breadcrumb' => 1,
@@ -138,6 +138,7 @@ function wallyextra_views_default_views() {
     'type' => 'none',
   ));
   $handler->override_option('use_pager', 'mini');
+  $handler->override_option('distinct', 1);
   $handler->override_option('row_plugin', 'node');
   $handler = $view->new_display('redacblock', 'Default Destination block', 'redacblock_1');
   $handler->override_option('row_options', NULL);
