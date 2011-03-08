@@ -13,10 +13,12 @@ function wallyctools_schema_1() {
 
   $schema['wallyctools'] = array(
     'description' => 'Contains exportable customized content for this site.',
+  
     'export' => array(
       'identifier' => 'redacblock',
       'bulk export' => TRUE,
-      'primary key' => 'name',
+      'primary key' => 'cid',
+      'key'=>'name',
       'api' => array(
       //Reffer to _ctools_plugin_api 
         'owner' => 'wallyctools',
@@ -131,45 +133,7 @@ function wallyctools_uninstall() {
  * Implementation of hook_enable().
  */
 function wallyctools_enable() {
-  $views=views_get_all_views();
-  foreach($views as $view){
-    foreach($view->display as $display){
-  
-      if($display->display_plugin=='redacblock'){
-        
-        
-        //@todo: Handle the deletion of a view.
-        foreach($display->display_options['redacblock_layout']  as $layout_id=>$layout_value){
-          $row=new stdClass;
-          $row->view_vid=$view_vid=$view->name;
-          $row->view_id=$view_id=$display->id;
-          $row->layout_id=$layout_id;
-         
-          //if checked
-          if($layout_value!=FALSE){
-            $sql="Select id FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
-            $result=db_result(db_query($sql,$view_id,$view_vid,$layout_id));
-  
-            if($result>0){
-                $row->id=$result;
-                drupal_write_record('wallyctools_views_layout',$row,'id');
-            }
-            else{
-              drupal_write_record('wallyctools_views_layout',$row);
-            }
-          }
-  
-          
-          //remove reference if exist
-          else{
-            $sql="DELETE  FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
-            $result=db_query($sql,$view_id,$view_vid,$layout_id);
-            
-          }
-        }
-      }
-    }
-  }
+  wallyctools_build_all_wallyctools_views_layout_entry();
 	/*
 	$form_state = array();
   $form_state['section']='redacblock_layout';
@@ -183,6 +147,9 @@ function wallyctools_enable() {
   drupal_retrieve_form("ctools_export_ui_edit_item_form", $form_state);
   drupal_execute("ctools_export_ui_edit_item_form", $form_state);
 */
+  
+
+  
   
    foreach ($form_state as $dimi=>$jetaime) {
      var_dump("LOL MDR");
