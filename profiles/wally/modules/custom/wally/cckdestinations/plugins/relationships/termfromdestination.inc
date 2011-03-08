@@ -12,7 +12,7 @@
  */
 $plugin = array(
   'title' => t('Main Destination'),
-  'keyword' => 'destination',
+  'keyword' => 'term',
   'description' => t('Adds a taxonomy terms from a node context; if multiple terms are selected, they wil be concatenated.'),
   'required context' => new ctools_context_required(t('Node'), 'node'),
   'context' => 'cckdestinations_termfromdestination_context',
@@ -33,6 +33,7 @@ function cckdestinations_termfromdestination_context($context, $conf) {
   if (isset($context->data->field_destinations)) {
     if (isset($context->data->field_destinations[0])) {
       $term=taxonomy_get_term($context->data->field_destinations[0]['tid']);
+      dsm($term);
         return ctools_context_create('term', $term);
     }
   }
