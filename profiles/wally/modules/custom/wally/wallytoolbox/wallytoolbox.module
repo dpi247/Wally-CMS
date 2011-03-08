@@ -841,7 +841,7 @@ function wallytoolbox_add_meta($attributes = array(), $content = NULL) {
 function wallytoolbox_get_meta() {
 
   if (!isset($wally_meta)) {
-    $wally_meta = wallytoolbox_add_meta(NULL, NULL);
+    $wally_meta = wallytoolbox_add_meta(array(), NULL);
   }
 
   if (empty($wally_meta)) {
