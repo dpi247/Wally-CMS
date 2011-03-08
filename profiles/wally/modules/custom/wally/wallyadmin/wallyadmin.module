@@ -124,12 +124,11 @@ function wallyadmin_menu() {
     'file' => 'includes/searchcache.admin.inc',
   );
   $items['admin/wally/searchcache/key/%'] = array(
-    'title' => 'Search and manage cache',
     'page callback' => 'del_cache_admin',
     'page arguments' => array('del_cache_admin'),
     'access arguments' => array('access administration pages'),
     'page arguments' => array(4),
-    'description' => 'Allows administrators to delete selected cache elements	.',
+    'type' => MENU_CALLBACK,
     'file' => 'includes/searchcache.admin.inc',
   );
 
