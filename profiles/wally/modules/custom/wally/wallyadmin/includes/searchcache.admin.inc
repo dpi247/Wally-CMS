@@ -83,11 +83,10 @@ function del_cache_admin_form_validate($form, &$form_state) {
  * Submit actions for form for the delete selected cache admin page.
  */
 function del_cache_admin_form_submit(&$form, &$form_state) {
-  $message = '';
   foreach ($form['blocks_cache'] as $name => $value) {
     if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
       cache_clear_all($name, 'cache', TRUE);
-        drupal_set_message($name.' has been deleted.'); 
+      drupal_set_message($name.' has been deleted.'); 
     }
   }
   $form['#redirect'] = 'admin/wally/searchcache/';
