@@ -127,6 +127,17 @@ function wally_feature_modules() {
 }
 
 /**
+ * Features module and Wally specific features
+ */
+function wally_demo_feature_modules() {
+  $features = array(
+    'wallydefaultpages',
+    'wallyfinfo',
+  );
+  return $features;
+}
+
+/**
  * Return a list of tasks that this profile supports.
  *
  * @return
@@ -179,6 +190,10 @@ function wally_profile_tasks(&$task, $url) {
     }
     
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
+      foreach ( wally_demo_feature_modules() as $feature ) {   
+        $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
+        $batch['operations'][] = array('features_flush_caches', array()); 
+      }
       $batch['operations'][] = array('_wally_install_menus', array());
     }
     
