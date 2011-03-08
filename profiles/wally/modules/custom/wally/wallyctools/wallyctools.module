@@ -226,6 +226,8 @@ function wallyctools_get_redac_view_options(){
 
 
 function wallyctools_form_alter(&$form, &$form_state, $form_id){
+  dsm($form_id);
+  dsm($form_state);
   switch ($form_id) {
     case 'views_ui_edit_view_form':
       wallyctools_save_views_layout($form,$form_state);
@@ -237,6 +239,12 @@ function wallyctools_form_alter(&$form, &$form_state, $form_id){
 function wallyctools_save_views_layout($form,$form_state){
   //Do what I need
   $view=$form_state['view'];
+  wallyctools_build_wallyctools_views_layout_entry($view);
+}
+
+
+function wallyctools_build_wallyctools_views_layout_entry($view){
+
   foreach($view->display as $display){
 
     if($display->display_plugin=='redacblock'){
@@ -272,6 +280,12 @@ function wallyctools_save_views_layout($form,$form_state){
         }
       }
     }
+  }
+}
+function wallyctools_build_all_wallyctools_views_layout_entry(){
+$views=views_get_all_views(); 
+  foreach($views as $view){
+    wallyctools_build_wallyctools_views_layout_entry($view);
   }
 }
 
