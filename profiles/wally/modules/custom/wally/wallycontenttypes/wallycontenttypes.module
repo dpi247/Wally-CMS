@@ -817,13 +817,12 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       };
 
       ac = {';
-  
   foreach ($usablecrops as $presetname => $usablecrop) {
   	// Nasty things in the database?
-  	if (!is_float($usablecrop[0])) { $usablecrop[0] = 0;}
-  	if (!is_float($usablecrop[1])) { $usablecrop[1] = 0;}
-  	if (!is_float($usablecrop[2])) { $usablecrop[2] = 0;}
-  	if (!is_float($usablecrop[3])) { $usablecrop[3] = 0;}
+  	if (!is_numeric($usablecrop[0])) { $usablecrop[0] = 0;}
+  	if (!is_numeric($usablecrop[1])) { $usablecrop[1] = 0;}
+  	if (!is_numeric($usablecrop[2])) { $usablecrop[2] = 0;}
+  	if (!is_numeric($usablecrop[3])) { $usablecrop[3] = 0;}
   	$return .= $presetname.': ['.$usablecrop[0].','.$usablecrop[1].','.$usablecrop[2].','.$usablecrop[3].','.'],';
   }
       
