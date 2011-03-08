@@ -780,7 +780,9 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
     var ac, currentAc;
   
     $(document).ready(function() {
-      var api = $.Jcrop("#cropbox",{
+    
+
+    var api = $.Jcrop("#cropbox",{
         onSelect: showCoordsAndSave,
         bgColor: "black",
         bgOpacity: .4,
@@ -799,7 +801,7 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       // Returns event handler for animation callback
       function anim_handler(ac, ratio, i) {
         return function(e) {
-      	  $("#crop-current-name").html(i); 
+      	  $("#crop-current-name").html(i);
           api.setSelect(ac);
           api.setOptions({ aspectRatio: ratio });
           // Change class of selected button
@@ -815,9 +817,14 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
       };
 
       ac = {';
-        
+  
   foreach ($usablecrops as $presetname => $usablecrop) {
-    $return .= $presetname.': ['.$usablecrop[0].','.$usablecrop[1].','.$usablecrop[2].','.$usablecrop[3].','.'],';
+  	// Nasty things in the database?
+  	if (!is_float($usablecrop[0])) { $usablecrop[0] = 0;}
+  	if (!is_float($usablecrop[1])) { $usablecrop[1] = 0;}
+  	if (!is_float($usablecrop[2])) { $usablecrop[2] = 0;}
+  	if (!is_float($usablecrop[3])) { $usablecrop[3] = 0;}
+  	$return .= $presetname.': ['.$usablecrop[0].','.$usablecrop[1].','.$usablecrop[2].','.$usablecrop[3].','.'],';
   }
       
   $return .= '};
@@ -905,24 +912,24 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
       
       if (!empty($datas)) {
         $temppresetcrop = array();
-
+        
         if (is_numeric($datas['xoffset'])) {
 	        $temppresetcrop[0] = $datas['xoffset'];
         } else {
-        	if ($datas['xoffset']=="center_max") { $datas['xoffset']=="center"; };
+        	if ($datas['xoffset']=="center_max") { $datas['xoffset']="center"; };
         	$temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
-        }
+	      }
 
         if (is_numeric($datas['yoffset'])) {
         	$temppresetcrop[1] = $datas['yoffset'];
         } else {
-        	if ($datas['yoffset']=="center_max") { $datas['yoffset']=="center"; };
+        	if ($datas['yoffset']=="center_max") { $datas['yoffset']="center"; };
         	$temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
         }
         $temppresetcrop[2] = $datas['width'] + 0;
         $temppresetcrop[3] = $datas['height'] + 0;
         $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
-
+        
         $tempusablecrop = array();
 
         if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
