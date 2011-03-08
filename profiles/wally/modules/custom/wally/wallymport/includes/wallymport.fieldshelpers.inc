@@ -206,7 +206,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
       if (strstr($http_req->headers['Content-Type'], 'image')) {
         if (strstr($file_name,'.jpg') || strstr($file_name,'.jpeg') || strstr($file_name,'.gif') || strstr($file_name,'.png')) {
           $good_file_name = str_replace($badcar, "_", $file_name);
-        } elseif (true) {
+        } elseif ($http_req->headers['Content-Disposition']) {
           $content_disp = $http_req->headers['Content-Disposition'];
           $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
           $good_file_name = str_replace($badcar, "_", substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
