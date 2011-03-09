@@ -44,6 +44,7 @@ function wally_profile_modules() {
     'update', 'dblog',  
   );
   
+  
   // Modified modules
   $mod = array(
     // CCK (content)
@@ -57,7 +58,7 @@ function wally_profile_modules() {
   // Third party requiered modules
   $third = array(
     // Administration & Installation module
-    'devel','admin', 'login_destination', 'install_profile_api',
+    'devel', 'admin', 'install_profile_api',
 
     // CCK (content)
     'content_taxonomy', 'content_taxonomy_autocomplete', 
@@ -80,8 +81,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr',
-
+    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', 'media_coveritlive',
     // Others
     'job_queue', 
     
@@ -160,7 +160,7 @@ function wally_profile_task_list() {
 function wally_profile_tasks(&$task, $url) {
 // @TODO: Use "locale" for installation translation.
 // global $install_locale;
-  
+  _wally_log('Wally install : task : '.$task);
   $output = "";
   // Install Modules.
   install_include(wally_profile_modules());
@@ -774,7 +774,7 @@ function _wally_cleanup() {
   cache_clear_all('*', 'cache', TRUE);  
   cache_clear_all('*', 'cache_content', TRUE);
 
-  $msg = st('Clenup');
+  $msg = st('Cleanup');
   _wally_log($msg);
   $context['message'] = $msg;
 
@@ -799,7 +799,7 @@ function system_form_install_select_profile_form_alter(&$form, $form_state) {
  * Consolidate logging.
  */
 function _wally_log($msg) {
-  error_log($msg);
+  error_log('Wally install : '.$msg);
   drupal_set_message($msg,"wally profile");
 }
 
