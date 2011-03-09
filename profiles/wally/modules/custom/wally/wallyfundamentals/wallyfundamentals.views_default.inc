@@ -18,7 +18,7 @@ function wallyfundamentals_views_default_views() {
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('arguments', array(
-    'field_destinations_target' => array(
+    'field_destinations_tid' => array(
       'default_action' => 'ignore',
       'style_plugin' => 'default_summary',
       'style_options' => array(),
@@ -30,9 +30,13 @@ function wallyfundamentals_views_default_views() {
       'default_argument' => '',
       'validate_type' => 'none',
       'validate_fail' => 'not found',
-      'id' => 'field_destinations_target',
+      'add_table' => 0,
+      'require_value' => 0,
+      'reduce_duplicates' => 0,
+      'set_breadcrumb' => 0,
+      'id' => 'field_destinations_tid',
       'table' => 'node_data_field_destinations',
-      'field' => 'field_destinations_target',
+      'field' => 'field_destinations_tid',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
         '2' => 0,
