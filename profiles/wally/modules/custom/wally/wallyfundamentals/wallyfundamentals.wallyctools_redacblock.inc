@@ -8,8 +8,8 @@ function wallyfundamentals_default_wallyctools() {
   $redacblock = new stdClass;
   $redacblock->disabled = FALSE; /* Edit this to true to make a default redacblock disabled initially */
   $redacblock->api_version = 1;
-  $redacblock->name = 'default_destination_blok';
-  $redacblock->admin_title = 'default_destination_blok';
+  $redacblock->name = 'default_destination_block';
+  $redacblock->admin_title = 'default_destination_block';
   $redacblock->admin_description = '';
   $redacblock->category = '';
   $redacblock->view_name = 'default_destination_view';
@@ -19,6 +19,6 @@ function wallyfundamentals_default_wallyctools() {
     'substitute' => 0,
   );
 
-  $export['default_destination_blok'] = $redacblock;
+  $export['default_destination_block'] = $redacblock;
   return $export;
 }

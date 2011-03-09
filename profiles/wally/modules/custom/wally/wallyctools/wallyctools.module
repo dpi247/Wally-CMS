@@ -68,7 +68,7 @@ function wallyctools_perm() {
 }
 
 function wallyctools_ctools_plugin_api($owner, $api) {
-  if ($owner == 'wallyctools' && $api == 'ctools_content') {
+  if ($owner == 'wallyctools' && $api == 'wallyctools_redacblock') {
     return array('version' => 1);
   }
   if ($owner == 'page_manager' && $api == 'pages_default') {
@@ -383,7 +383,7 @@ function wallyctools_get_redacblock_panes(){
  $array_of_panes=array();
   $sql="Select pp.did, pp.subtype, wct.view_name,wct.name,wct.admin_title, wct.view_id, wctvl.layout_id FROM {panels_pane} AS pp LEFT JOIN {wallyctools} as wct ON wct.name=pp.subtype LEFT JOIN {wallyctools_views_layout} as wctvl ON wct.view_name=wctvl.view_vid AND wct.view_id=wctvl.view_id WHERE type='%s'";
   $results=(db_query($sql,"redacblock"));
-  
+  dsm($result,result);
   while($result=db_fetch_object($results)){
     $array_of_panes[]=$result;
   }
@@ -493,4 +493,45 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
   }
   //
   //optionally set the redirect value in form_submit ...
+}
+
+
+function wallyctools_redacblock_load($name){
+ ctools_include('export');
+ $result = ctools_export_crud_load('wallyctools', $name);;
+  if (isset($result)) {
+    return $result;
+  }
+}
+
+function wallyctools_redacblock_save(&$myobj) {
+  return   ctools_export_crud_save('wallyctools', $myobj);
+  
+}
+
+
+function wallyctools_initial_setup(){
+    ctools_include('export');
+
+  //This is the DB crud user ctools_export_load_object instead who search in 'IN CODE' object
+  //$content = ctools_export_crud_load('wallyctools', 'default_destination_block');
+  $view=views_get_view('default_destination_view');
+  $view->save();
+  wallyctools_build_all_wallyctools_views_layout_entry();
+  
+
+  $content = ctools_export_load_object('wallyctools',  'names', array('default_destination_block'));  
+  ctools_export_crud_save('wallyctools', $content['default_destination_block']);
+  
+  //Special treatement for pages cuz they include several object better reliable to use the "API"
+  module_load_include('inc', 'page_manager', 'page_manager.admin');
+  $page=page_manager_cache_load('term_view');
+  foreach($page->handler_info as $key=>$value){
+    $page->handler_info[$key]['changed']=PAGE_MANAGER_CHANGED_CACHED;
+  }
+  page_manager_save_page_cache($page);
+  //  $result = ctools_export_load_object('page_manager_handlers', 'names', array('term_view_panel_context'));
+  //  ctools_export_crud_save('page_manager_handlers', $result['term_view_panel_context']);
+  
+  
 }

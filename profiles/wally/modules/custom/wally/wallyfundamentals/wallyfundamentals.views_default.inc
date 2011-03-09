@@ -87,7 +87,11 @@ function wallyfundamentals_views_default_views() {
   ));
   $handler->override_option('row_plugin', 'node');
   $handler = $view->new_display('redacblock', 'Destination block', 'redacblock_1');
-  $handler->override_option('redacblock_layout', array());
+  $handler->override_option('redacblock_layout', array(
+    'small' => 'small',
+    'medium' => 'medium',
+    'large' => 'large',
+  ));
   $handler->override_option('pane_title', '');
   $handler->override_option('pane_description', '');
   $handler->override_option('pane_category', array(
