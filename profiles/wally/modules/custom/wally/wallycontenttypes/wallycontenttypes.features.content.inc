@@ -331,16 +331,20 @@ function wallycontenttypes_content_default_fields() {
     'active' => '1',
     'referenceable_types' => array(
       'wally_audioobject' => 'wally_audioobject',
+      'wally_digitalobject' => 'wally_digitalobject',
       'wally_photoobject' => 'wally_photoobject',
       'wally_pollobject' => 'wally_pollobject',
       'wally_textobject' => 'wally_textobject',
       'wally_videoobject' => 'wally_videoobject',
+      'wally_linkslistobject' => 0,
       'wally_articlepackage' => 0,
-      'wally_digitalobject' => 0,
-      'wally_entitytype' => 0,
       'wally_gallerypackage' => 0,
-      'wally_locationtype' => 0,
       'wally_pollpackage' => 0,
+      'page' => 0,
+      'wally_entitytype' => 0,
+      'wally_linktype' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -3996,9 +4000,9 @@ Free',
     ),
   );
 
-  // Exported field: field_other3rdparty
-  $fields['wally_digitalobject-field_other3rdparty'] = array(
-    'field_name' => 'field_other3rdparty',
+  // Exported field: field_other
+  $fields['wally_digitalobject-field_other'] = array(
+    'field_name' => 'field_other',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
       'label' => array(
@@ -4052,7 +4056,7 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Other 3rd Party',
+      'label' => 'Other 3rd party',
       'weight' => '7',
       'description' => '',
       'type' => 'emother_textfields',
@@ -5025,16 +5029,20 @@ Free',
     'active' => '1',
     'referenceable_types' => array(
       'wally_audioobject' => 'wally_audioobject',
+      'wally_digitalobject' => 'wally_digitalobject',
       'wally_photoobject' => 'wally_photoobject',
       'wally_pollobject' => 'wally_pollobject',
       'wally_textobject' => 'wally_textobject',
       'wally_videoobject' => 'wally_videoobject',
+      'wally_linkslistobject' => 0,
       'wally_articlepackage' => 0,
-      'wally_digitalobject' => 0,
-      'wally_entitytype' => 0,
       'wally_gallerypackage' => 0,
-      'wally_locationtype' => 0,
       'wally_pollpackage' => 0,
+      'page' => 0,
+      'wally_entitytype' => 0,
+      'wally_linktype' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -11349,16 +11357,20 @@ character',
     'active' => '1',
     'referenceable_types' => array(
       'wally_audioobject' => 'wally_audioobject',
+      'wally_digitalobject' => 'wally_digitalobject',
       'wally_photoobject' => 'wally_photoobject',
       'wally_pollobject' => 'wally_pollobject',
       'wally_textobject' => 'wally_textobject',
       'wally_videoobject' => 'wally_videoobject',
+      'wally_linkslistobject' => 0,
       'wally_articlepackage' => 0,
-      'wally_digitalobject' => 0,
-      'wally_entitytype' => 0,
       'wally_gallerypackage' => 0,
-      'wally_locationtype' => 0,
       'wally_pollpackage' => 0,
+      'page' => 0,
+      'wally_entitytype' => 0,
+      'wally_linktype' => 0,
+      'wally_locationtype' => 0,
+      'wally_persontype' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -15731,7 +15743,7 @@ Free',
   t('Object title');
   t('ObjectDescription ');
   t('ObjectID ');
-  t('Other 3rd Party');
+  t('Other 3rd party');
   t('Package Authors');
   t('Package Description ');
   t('Package Layout');
