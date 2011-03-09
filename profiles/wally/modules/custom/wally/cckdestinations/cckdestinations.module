@@ -285,31 +285,31 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   $value_is_array = is_array($element['#value']);
   foreach ($choices as $k => $c) {
     $key = array_keys($c);
-      $key = $key[0];
-      $choice = $c[$key];
+    $key = $key[0];
+    $choice = $c[$key];
 
-      if ($classes[$k]) {
-        $class = 'class="sub_'.$classes[$k][$key].'" ';
-      }
-    
-      if (is_array($choice)) {
-        $options .= '<optgroup label="'. $key .'">';
-        $options .= form_select_options($element, $choice);
-        $options .= '</optgroup>';
-      }
-      elseif (is_object($choice)) {
-        $options .= form_select_options($element, $choice->option);
+    if ($classes[$k]) {
+      $class = 'class="sub_'.$classes[$k][$key].'" ';
+    }
+  
+    if (is_array($choice)) {
+      $options .= '<optgroup label="'. $key .'">';
+      $options .= form_select_options($element, $choice);
+      $options .= '</optgroup>';
+    }
+    elseif (is_object($choice)) {
+      $options .= form_select_options($element, $choice->option);
+    }
+    else {
+      $key = (string)$key;
+      if ($value_valid && (!$value_is_array && (string)$element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
+        $selected = ' selected="selected"';
       }
       else {
-        $key = (string)$key;
-        if ($value_valid && (!$value_is_array && (string)$element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
-          $selected = ' selected="selected"';
-        }
-        else {
-          $selected = '';
-        }
-        $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
-        $options .= $option;
+        $selected = '';
+      }
+      $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
+      $options .= $option;
       
     }
   }
