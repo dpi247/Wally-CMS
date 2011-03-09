@@ -2,7 +2,6 @@
 /*
  * Template for rendering a articlepackage-article node type.
  */
-
   $mainstory = $node->field_mainstory_nodes[0];
 ?>
     
@@ -24,4 +23,6 @@
 
 
 </div>
+
+<?php print $links?>
 <div class="clear"></div>
