@@ -8,6 +8,7 @@ function wallyctools_schema() {
   return wallyctools_schema_1();
 }
 
+
 function wallyctools_schema_1() {
   $schema = array();
 
@@ -15,6 +16,7 @@ function wallyctools_schema_1() {
     'description' => 'Contains exportable customized content for this site.',
   
     'export' => array(
+      //'status'=>'enabled',
       'identifier' => 'redacblock',
       'bulk export' => TRUE,
       'primary key' => 'cid',
@@ -26,7 +28,7 @@ function wallyctools_schema_1() {
         'minimum_version' => 1,
         'current_version' => 1,
       ),
-  //    'create callback' => 'wallyctools_content_type_new',
+      //'create callback' => 'wallyctools_content_type_new',
     ),
     'fields' => array(
       'cid' => array(
