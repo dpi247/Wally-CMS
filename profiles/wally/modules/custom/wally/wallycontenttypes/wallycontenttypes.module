@@ -272,15 +272,15 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * @return Nothing but modify the $node
  */
 function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = TRUE){
-  require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-  $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid);
-  if (!$cached_node || $reset_cache) {
+  //require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+  //$cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid);
+  //if (!$cached_node || $reset_cache) {
     wallycontenttypes_fieldNID(&$node, $op);
     wallycontenttypes_fieldTID(&$node, $op);
-    wallytoolbox_object_cache_set($node);
-  } else {
-    $node = $cached_node;
-  }
+    //wallytoolbox_object_cache_set($node);
+  //} else {
+    //$node = $cached_node;
+  //}
 }
 
 /**
