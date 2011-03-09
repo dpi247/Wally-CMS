@@ -499,8 +499,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_summary',
       '1' => 'field_objectfile',
-      '2' => 'field_thumbnail',
-      '3' => 'field_rating',
+      '2' => 'field_other',
+      '3' => 'field_thumbnail',
+      '4' => 'field_rating',
     ),
   );
 
