@@ -57,7 +57,7 @@ function wally_profile_modules() {
   // Third party requiered modules
   $third = array(
     // Administration & Installation module
-    'admin', 'login_destination', 'install_profile_api',
+    'devel','admin', 'login_destination', 'install_profile_api',
 
     // CCK (content)
     'content_taxonomy', 'content_taxonomy_autocomplete', 
@@ -211,7 +211,12 @@ function wally_profile_tasks(&$task, $url) {
     // Enable view popular after loading default views.
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_enable_view_popular', array());
+      $batch['operations'][] = array('_wally_enable_page_system_node_view', array());
+      $batch['operations'][] = array('_wally_enable_page_system_term_view', array());
+      $batch['operations'][] = array('_wally_build_wallyctools_views_layout_entry', array());
     }
+    $batch['operations'][] = array('_wally_wallyctools_initial_setup', array());
+    
     
     $batch['operations'][] = array('_wally_cleanup', array());
 
@@ -280,7 +285,7 @@ function _wally_base_settings() {
 
   // Theme installation & settings.  
   //_wally_system_theme_data(); // @TODO: move wallynews theme to profile folder
-  install_default_theme('wallytheme');
+  install_default_theme('wallynews');
   install_admin_theme('rubik');	
   variable_set('node_admin_theme', TRUE);    
   $theme_settings = variable_get('theme_settings', array());
@@ -623,6 +628,34 @@ function _wally_enable_view_popular(&$context) {
   $context['message'] = $msg;
 } 
 
+
+/**
+ * Enable page_system_node_view
+ */
+function _wally_enable_page_system_node_view(&$context) {
+ variable_set('page_manager_node_view_disabled', FALSE);
+  
+} 
+
+/**
+ * Enable page_system_term_view
+ */
+function _wally_enable_page_system_term_view(&$context) {
+ variable_set('page_manager_term_view_disabled', FALSE);
+  
+} 
+
+/**
+ * Build mapping table between views and pages for redacblock. in wallyctools_views_layout table
+ */
+function _wally_build_wallyctools_views_layout_entry(&$context) {
+  wallyctools_build_all_wallyctools_views_layout_entry();
+  
+} 
+
+function _wally_wallyctools_initial_setup(&$context) {
+  wallyctools_initial_setup();
+} 
 /**
  * Load & Updates views
  */
