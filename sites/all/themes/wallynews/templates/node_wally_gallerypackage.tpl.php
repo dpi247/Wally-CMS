@@ -61,6 +61,7 @@
     </ul>
   </div>  
 </div>
+<?php print $links?>
 
 <script>
 $(document).ready(function() {	
