@@ -3996,9 +3996,9 @@ Free',
     ),
   );
 
-  // Exported field: field_other
-  $fields['wally_digitalobject-field_other'] = array(
-    'field_name' => 'field_other',
+  // Exported field: field_other3rdparty
+  $fields['wally_digitalobject-field_other3rdparty'] = array(
+    'field_name' => 'field_other3rdparty',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
       'label' => array(
@@ -4052,7 +4052,7 @@ Free',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Other 3rd party',
+      'label' => 'Other 3rd Party',
       'weight' => '7',
       'description' => '',
       'type' => 'emother_textfields',
@@ -15731,7 +15731,7 @@ Free',
   t('Object title');
   t('ObjectDescription ');
   t('ObjectID ');
-  t('Other 3rd party');
+  t('Other 3rd Party');
   t('Package Authors');
   t('Package Description ');
   t('Package Layout');
