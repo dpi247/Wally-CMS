@@ -160,7 +160,7 @@ function wally_profile_task_list() {
 function wally_profile_tasks(&$task, $url) {
 // @TODO: Use "locale" for installation translation.
 // global $install_locale;
-  _wally_log('Wally install : task : '.$task);
+
   $output = "";
   // Install Modules.
   install_include(wally_profile_modules());

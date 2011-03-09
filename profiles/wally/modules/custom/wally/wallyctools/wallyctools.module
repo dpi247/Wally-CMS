@@ -383,7 +383,7 @@ function wallyctools_get_redacblock_panes(){
  $array_of_panes=array();
   $sql="Select pp.did, pp.subtype, wct.view_name,wct.name,wct.admin_title, wct.view_id, wctvl.layout_id FROM {panels_pane} AS pp LEFT JOIN {wallyctools} as wct ON wct.name=pp.subtype LEFT JOIN {wallyctools_views_layout} as wctvl ON wct.view_name=wctvl.view_vid AND wct.view_id=wctvl.view_id WHERE type='%s'";
   $results=(db_query($sql,"redacblock"));
-  dsm($result,result);
+
   while($result=db_fetch_object($results)){
     $array_of_panes[]=$result;
   }
