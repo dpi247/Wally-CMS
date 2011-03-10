@@ -71,6 +71,24 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
+    'wallyct_photoobject' => $base + array(
+    'arguments' => array("embededobject" => NULL),
+    'template' => 'wallyct_photoobject',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_videoobject' => $base + array(
+    'arguments' => array("embededobject" => NULL),
+    'template' => 'wallyct_videoobject',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_digitalobject' => $base + array(
+    'arguments' => array("embededobject" => NULL),
+    'template' => 'wallyct_digitalobject',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
     'wallyct_linkedobjects' => $base + array(
     'arguments' => array("linkedobjects" => NULL, "node" => NULL),
     'template' => 'wallyct_linkedobjects',
