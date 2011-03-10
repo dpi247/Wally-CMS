@@ -112,8 +112,9 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   //Map XML Attributes 
    $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("PublicationDate"))
-    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  if($dom_element->hasAttribute("CreationDate"))
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
     $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
