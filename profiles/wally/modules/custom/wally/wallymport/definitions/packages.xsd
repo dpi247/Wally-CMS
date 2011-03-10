@@ -46,7 +46,7 @@
 	<!-- COMMON ATTRIBUTES -->
 	<xsd:attribute name="PackageID" type="xsd:string" use="required" />
 	<xsd:attribute name="PublicationDate" type="xsd:dateTime" />
-	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
+	<xsd:attribute name="CreationDate" type="xsd:dateTime" />
 	<xsd:attribute name="LastUpdateDate" type="xsd:dateTime" />
 	<xsd:attribute name="EmbargoDate" type="xsd:dateTime" />
 	<xsd:attribute name="UnPublishDate" type="xsd:dateTime" />
@@ -122,8 +122,8 @@
 	<!-- META-DATA OBJECT ATTRIBUTES -->
 	<xsd:attribute name="ObjectID" type="xsd:string" use="required" />
 	<xsd:attribute name="ObjectDescription" type="xsd:string" />
-	<xsd:attribute name="PublicationDate" type="xsd:dateTime" use="required" />
-	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
+	<xsd:attribute name="PublicationDate" type="xsd:dateTime" />
+	<xsd:attribute name="CreationDate" type="xsd:dateTime" />
 	<xsd:attribute name="LastUpdateDate" type="xsd:dateTime" />
 	<!-- /META-DATA OBJECT ATTRIBUTES -->
  </xsd:complexType>
