@@ -4,28 +4,35 @@
  * 
  */
 
-  $node_path = drupal_get_path_alias("/node/".$node->nid);
-  $imgstory = $node->field_embededobjects_nodes;
-  $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
-  $main_summary = $node->field_summary[0]['value'];
-  $main_desc = $node->field_objectdescription [0]['value'];
-  //$main_edition = $field_editions [0]['value'];
-  //$main_channel = $field_channels [0]['value'];
-  $presetname='gallery_preset';
-  
-  foreach ($imgstory as $n) {
-  	if ($n->type == "wally_photoobject") {
-  		$file_path = $n->field_photofile[0]['filepath'];
-  		$explfilepath = explode('/', $file_path );
-  		$alt=$n->field_summary[0]['value'];
-  		$file_img[] = theme('imagecache', $presetname,  $file_path, $alt);//, array('class'=>'img'));
-  		$path_photo[] = imagecache_create_url($presetname, $file_path);
-  		$title_img[] = $n->title;
-  		$summary[]= $n->field_summary[0]['value'];
-  	}
+$node_path = drupal_get_path_alias("/node/".$node->nid);
+$imgstory = $node->field_embededobjects_nodes;
+$destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
+$main_summary = $node->field_summary[0]['value'];
+$main_desc = $node->field_objectdescription [0]['value'];
+//$main_edition = $field_editions [0]['value'];
+//$main_channel = $field_channels [0]['value'];
+$presetname='gallery_preset';
+
+foreach ($imgstory as $n) {
+  if ($n->type == "wally_photoobject") {
+    $file_path = $n->field_photofile[0]['filepath'];
+    $explfilepath = explode('/', $file_path );
+    $alt=$n->field_summary[0]['value'];
+    $file_img[] = theme('imagecache', $presetname,  $file_path, $alt);//, array('class'=>'img'));
+    $path_photo[] = imagecache_create_url($presetname, $file_path);
+    $title_img[] = $n->title;
+    $summary[]= $n->field_summary[0]['value'];
   }
+}
+
+drupal_add_js('
+  $(document).ready(function() {
+    diapo("gal_plugin_'.$node->nid.'");
+  });
+', 'inline');
+
 ?>
-<div id="gal2" class="gallery">
+<div id="gal_plugin_<?php print $node->nid; ?>" class="gallery">
 <h2><?php print $node->title ; ?></h2>
 <?php print $main_summary ; ?> <br/> 
 <?php print $main_desc ; ?>
@@ -62,10 +69,3 @@
     </ul>
   </div>  
 </div>
-
-<script>
-$(document).ready(function() {	
-	diapo('gal2');
-});
-
-</script>

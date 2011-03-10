@@ -6,7 +6,6 @@
 	position: relative;
 	overflow: hidden; /*--Overflow hidden allows the description to toggle/tuck away as it slides down--*/
 	color: #fff;
-	height: 100%;
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -43,10 +42,10 @@
 	
 }
 .main_image .block{
-    width: 100%;
+  width: 100%;
 	height: 45%;
-    background: #111;
-    border-top: 1px solid #000;
+  background: #111;
+  border-top: 1px solid #000;
 }
 .block small { /*--We'll be using this same style on our thumbnail list--*/
 	font-size: xx-small;
@@ -95,19 +94,19 @@
 	margin-top:10px;
 }
 .image_thumb ul li.hover { /*--Hover State--*/
-    background: #ddd;
-    cursor: pointer;
+  background: #ddd;
+  cursor: pointer;
 }
 .image_thumb ul li.active { /*--Active State--*/
-    background: #fff;
-    cursor: default;
+  background: #fff;
+  cursor: default;
 }
 .image_thumb img {
-	background: #fff;
-    margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
-    height: 80%;
+	//background: #fff;
+  margin-left: 10%;
+  margin-right: 10%;
+  width: 80%;
+  //height: 80%;
 }
 html .image_thumb ul li h2 {
 	display: none;

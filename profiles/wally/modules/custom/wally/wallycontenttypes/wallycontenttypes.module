@@ -165,7 +165,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage')
-        wallycontenttypes_packagepopulate($node, $op, FALSE);
+        wallycontenttypes_packagepopulate($node, $op);
       break;
       
     case 'update' :
@@ -289,7 +289,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * 
  * @return Nothing but modify the $node
  */
-function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = TRUE){
+function wallycontenttypes_packagepopulate(&$node, $op){
   //require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
   //$cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid);
   //if (!$cached_node || $reset_cache) {
