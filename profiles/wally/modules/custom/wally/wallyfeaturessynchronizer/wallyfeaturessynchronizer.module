@@ -85,7 +85,7 @@ function page_manager_handlers_features_export_render($module, $data) {
     foreach ($data as $object_name) {
       if ($object = _ctools_features_export_crud_load($component, $object_name)) {
         if (sizeof($object->conf['access']['plugins'])>0) {
-          foreach ($traces = debug_backtrace(FALSE) as $trace) {
+          foreach ($traces = debug_backtrace() as $trace) {
             if ($trace['function'] == 'features_export_render') {
               _wallyfeaturessynchronizer_set_featid_from_object($object);
               break;
