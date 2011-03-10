@@ -276,6 +276,7 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   }
   
   $zip_error = FALSE;
+  $error_msg = FALSE;
   // Unzip input file to the temp directory
   $zip = new ZipArchive;
   $res = $zip->open($file);
@@ -290,10 +291,10 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
       $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
       if (count($import_files)==0) {
         $zip_error = TRUE;
-        drupal_set_message('No XML file found in the import: '.$file, "error");
+        $error_msg = 'No XML file found in the import: '.$file;
       } elseif (count($import_files)>1) {
         $zip_error = TRUE;
-        drupal_set_message('There is more than one XML file found in the import: '.$file, "error");
+        $error_msg = 'There is more than one XML file found in the import: '.$file;
       } else {
         // Yeah .. ready to ROCK & ROLL
         $import_file=reset($import_files);
@@ -305,19 +306,17 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
       rrmdir($temp_subdir);
     } else {
       $zip_error = TRUE;
-      drupal_set_message('Input file '.$file.' could not be unzipped to '.$temp_subdir.'. Error code '.$res, "error");
+      $error_msg = 'Input file '.$file.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
     }
 
   } else {
     $zip_error = TRUE;
-    drupal_set_message('Cant UnZip file: '.$file, "error");
+    $error_msg = 'Cant UnZip file: '.$file;
   }
-
-  if ($zip_error) {
-    file_move($file, variable_get('wallymport_import_error', file_directory_path()));
-  } else {
-    file_move($file, variable_get('wallymport_import_done', file_directory_path()));
-  }
+  
+  $error_msg ? watchdog('Wallymport', $error_msg, array(), WATCHDOG_ERROR) : NULL;
+  $returns[] = $error_msg;
+  $zip_error ? file_move($file, variable_get('wallymport_import_error', file_directory_path())) : file_move($file, variable_get('wallymport_import_done', file_directory_path()));
   
   print json_encode($returns); 
 }
