@@ -4056,7 +4056,9 @@ Free',
       'thumbnail_width' => '115',
       'thumbnail_height' => '135',
       'thumbnail_default_path' => '',
-      'providers' => array(),
+      'providers' => array(
+        'coveritlive' => 0,
+      ),
       'default_value' => array(
         '0' => array(
           'embed' => '',
