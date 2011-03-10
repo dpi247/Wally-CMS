@@ -3086,9 +3086,10 @@ Free',
     'field_name' => 'field_copyright',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '10',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3144,9 +3145,10 @@ Free',
     'field_name' => 'field_entity',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '8',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3201,9 +3203,10 @@ Free',
     'field_name' => 'field_externalreference',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '3',
+      'parent' => 'group_digitalidentification',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3259,9 +3262,10 @@ Free',
     'field_name' => 'field_free_tags',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '7',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3315,9 +3319,10 @@ Free',
     'field_name' => 'field_locations',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '5',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3375,9 +3380,10 @@ Free',
     'field_name' => 'field_markers',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '4',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3836,9 +3842,10 @@ Free',
     'field_name' => 'field_objectdescription',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '5',
+      'parent' => 'group_digitalidentification',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3894,9 +3901,10 @@ Free',
     'field_name' => 'field_objectfile',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '6',
+      'parent' => 'group_digitalobject',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -3947,9 +3955,10 @@ Free',
     'field_name' => 'field_objectid',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '4',
+      'parent' => 'group_digitalidentification',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -4005,16 +4014,17 @@ Free',
     'field_name' => 'field_other3rdparty',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '7',
+      'parent' => 'group_digitalobject',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
         'exclude' => 0,
       ),
       'full' => array(
-        'format' => 'default',
+        'format' => 'other_full',
         'exclude' => 0,
       ),
       '4' => array(
@@ -4046,9 +4056,7 @@ Free',
       'thumbnail_width' => '115',
       'thumbnail_height' => '135',
       'thumbnail_default_path' => '',
-      'providers' => array(
-        'coveritlive' => 0,
-      ),
+      'providers' => array(),
       'default_value' => array(
         '0' => array(
           'embed' => '',
@@ -4069,9 +4077,10 @@ Free',
     'field_name' => 'field_persons',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '9',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -4125,9 +4134,10 @@ Free',
     'field_name' => 'field_rating',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '9',
+      'parent' => 'group_digitalobject',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -4183,9 +4193,10 @@ Free',
     'field_name' => 'field_summary',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '5',
+      'parent' => 'group_digitalobject',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -4241,9 +4252,10 @@ Free',
     'field_name' => 'field_tags',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '6',
+      'parent' => 'group_taxonomy',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -4302,9 +4314,10 @@ Free',
     'field_name' => 'field_thumbnail',
     'type_name' => 'wally_digitalobject',
     'display_settings' => array(
+      'weight' => '8',
+      'parent' => 'group_digitalobject',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'image_plain',

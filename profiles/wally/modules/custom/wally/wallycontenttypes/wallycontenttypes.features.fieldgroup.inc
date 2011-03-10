@@ -427,7 +427,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -437,6 +437,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -471,7 +472,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-4',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -481,6 +482,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -517,7 +519,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -527,6 +529,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
