@@ -318,6 +318,9 @@ function wallycontenttypes_fieldNID(&$node, $op) {
         }
         $node->field_linkedobjects_nodes = $results;
         break;
+      case "field_mainobject" :
+        $node->field_mainobject_nodes = wallycontenttypes_fieldnodeload($field, $value);
+        break;
       case "field_embededobjects":
         $node->field_embededobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
         break;
