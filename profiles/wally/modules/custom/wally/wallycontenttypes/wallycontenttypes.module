@@ -736,6 +736,30 @@ function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
 }
 
 /**
+ * Sort an array of Wally objects in the various objects types.
+ */
+function wallycontenttypes_sort_embededobjects($embededobjects, $sort_order = array()) {
+  if (empty($sort_order)) {
+    $sort_order = array(
+      'wally_photoobject',
+      'wally_videoobject',
+      'wally_audioobject',
+      'wally_digitalobject',
+    );
+  }
+  
+  $return = array();
+  
+  foreach ($sort_order as $key_elem)
+    $return[$key_elem] = array();
+  
+  foreach ($embededobjects as $embededobject)
+    $return[$embededobject->type][] = $embededobject;
+  
+  return $return;
+}
+
+/**
 * Recursively set the disabled attribute of a CCK field
 * and all its dependent FAPI elements. For a content_taxonomy_tree
 * cck field, we must disbaled all the childrens: checkboxes or radios.
