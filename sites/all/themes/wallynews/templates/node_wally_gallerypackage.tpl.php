@@ -4,8 +4,10 @@
  * 
  */
 $node_path = drupal_get_path_alias("/node/".$node->nid);
-$imgstory = $node->field_embededobjects_nodes;
-array_unshift($imgstory, $node->field_mainobject_nodes[0]);
+$embededobjects = $node->field_embededobjects_nodes;
+array_unshift($embededobjects, $node->field_mainobject_nodes[0]);
+$sorted_embededobjects = wallycontenttypes_sort_embededobjects($embededobjects);
+$imgstory = $sorted_embededobjects['wally_photoobject'];
 $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 $main_summary = $field_summary[0]['value'];
 $main_desc = $field_objectdescription [0]['value'];
