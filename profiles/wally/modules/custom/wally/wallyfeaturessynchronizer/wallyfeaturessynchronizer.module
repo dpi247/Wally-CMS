@@ -111,7 +111,7 @@ dsm($code);
  */
 function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
-  
+  dsm($plugins, 'plugi');
   foreach ($plugins as $plug_id => $plugin) {
     $settings = $plugin['settings'] ? $plugin['settings'] : array();
     foreach ($settings as $set_id => $setting) {
