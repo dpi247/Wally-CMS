@@ -81,16 +81,15 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
     $code = implode('}', $code);
   }
   else {*/
-    $code = '  $export = array();'."\n";dsm($data, 'data');
+    $code = '  $export = array();'."\n";
     foreach ($data as $object_name) {
-      if ($object = _ctools_features_export_crud_load($component, $object_name)) {dsm($object, 'object');
+      if ($object = _ctools_features_export_crud_load($component, $object_name)) {
         if (sizeof($object->conf['access']['plugins'])>0) {
           if ($export != 'normal') {
             _wallyfeaturessynchronizer_set_featid_from_object($object);
           }
-        }dsm($object, 'object');dsm('coucou');
+        }
         $identifier = $schema['export']['identifier'];
-        dsm(function_exists('_ctools_features_export_crud_export')?'func ok':'func nok');
         $code .= _ctools_features_export_crud_export($component, $object, '  ');
         $code .= "\n";
         $code .= "  \$export[" . ctools_var_export($object_name) . "] = \${$identifier};\n";
@@ -98,7 +97,6 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
     }
     $code .= '  return $export;';
   //}
-dsm($code);
   return array($schema['export']['default hook'] => $code);
 }
 
