@@ -111,11 +111,11 @@ dsm($code);
 function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
   
-  foreach ($plugins as $plug_id => $plugin) {
+  foreach ($plugins as $plug_id => $plugin) {dsm($plugin, 'plugin');
     $settings = $plugin['settings'] ? $plugin['settings'] : array();
-    foreach ($settings as $set_id => $setting) {
+    foreach ($settings as $set_id => $setting) {dsm($setting, 'setting');
       if (is_array($setting) && sizeof($setting)>0) {
-        foreach ($setting as $tid => $tid_infos) {
+        foreach ($setting as $tid => $tid_infos) {dsm($tid, 'tid');
           $term = taxonomy_get_term($tid);
           $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
           unset($plugins[$plug_id]['settings'][$set_id][$tid]);
@@ -123,7 +123,7 @@ function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
         }
       }
     }
-  }
+  }dsm($object, '$object');
 }
 
 /**
