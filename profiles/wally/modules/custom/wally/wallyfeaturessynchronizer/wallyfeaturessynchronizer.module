@@ -89,7 +89,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
             _wallyfeaturessynchronizer_set_featid_from_object($object);
             break;
           }
-        }dsm($object, 'object');
+        }dsm($object, 'object');dsm('coucou');
         $identifier = $schema['export']['identifier'];
         dsm(function_exists('_ctools_features_export_crud_export')?'func ok':'func nok');
         $code .= _ctools_features_export_crud_export($component, $object, '  ');
