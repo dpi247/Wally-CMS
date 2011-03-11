@@ -83,13 +83,13 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
   else {*/
     $code = '  $export = array();'."\n";
     foreach ($data as $object_name) {
-      if ($object = _ctools_features_export_crud_load($component, $object_name)) {dsm($object, 'object');
+      if ($object = _ctools_features_export_crud_load($component, $object_name)) {
         if (sizeof($object->conf['access']['plugins'])>0) {
           if ($export != 'normal') {
             _wallyfeaturessynchronizer_set_featid_from_object($object);
             break;
           }
-        }
+        }dsm($object, 'object');
         $identifier = $schema['export']['identifier'];
         $code .= _ctools_features_export_crud_export($component, $object, '  ');
         $code .= "\n";
