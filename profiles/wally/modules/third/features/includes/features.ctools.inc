@@ -256,7 +256,7 @@ function _ctools_features_get_info($identifier = NULL, $reset = FALSE) {
 /**
  * Wrapper around ctools_export_crud_export() for < 1.7 compatibility.
  */
-function _ctools_features_export_crud_export($table, $object, $indent = '') {
+function _ctools_features_export_crud_export($table, $object, $indent = '') {dsm(ctools_api_version('1.7') ? 'ok' : 'nok');
   return ctools_api_version('1.7') ? ctools_export_crud_export($table, $object, $indent) : ctools_export_object($table, $object, $indent);
 }
 
