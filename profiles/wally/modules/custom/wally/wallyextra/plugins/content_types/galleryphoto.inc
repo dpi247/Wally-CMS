@@ -40,7 +40,7 @@ function wallyextra_galleryphoto_content_type_render($subtype, $conf, $panel_arg
 
 	$mynode = $identifier ? node_load($identifier) : NULL;
 	//wallycontenttypes_packagepopulate($mynode,"");
-  dsm($indentifier);
+
 	$block->content = $mynode ? theme("wallyct_galleryphoto", $mynode) : ''; 
 
 	return $block;
