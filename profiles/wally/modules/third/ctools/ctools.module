@@ -63,7 +63,7 @@ define('CTOOLS_API_VERSION', '1.8');
  * @param $maximum
  *   The maximum version of CTools allowed for your software to run with it.
  */
-function ctools_api_version($minimum, $maximum = NULL) {
+function ctools_api_version($minimum, $maximum = NULL) {dsm($minimum);
   if (version_compare(CTOOLS_API_VERSION, $minimum, '<')) {
     return FALSE;
   }
@@ -71,7 +71,7 @@ function ctools_api_version($minimum, $maximum = NULL) {
   if (isset($maximum) && version_compare(CTOOLS_API_VERSION, $maximum, '>')) {
     return FALSE;
   }
-
+dsm(coucou);
   return TRUE;
 }
 
