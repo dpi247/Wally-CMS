@@ -72,7 +72,6 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
   ctools_include('export');
   $component = 'page_manager_handlers';
   $schema = ctools_export_get_schema($component);
-  dsm(func_get_args(), 'args');
   /*if (function_exists($schema['export']['to hook code callback'])) {
     $export = $schema['export']['to hook code callback']($data, $module);
     $code = explode("{\n", $export);
@@ -84,7 +83,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
   else {*/
     $code = '  $export = array();'."\n";
     foreach ($data as $object_name) {
-      if ($object = _ctools_features_export_crud_load($component, $object_name)) {
+      if ($object = _ctools_features_export_crud_load($component, $object_name)) {dsm($object, 'object');
         if (sizeof($object->conf['access']['plugins'])>0) {
           if ($export != 'normal') {
             _wallyfeaturessynchronizer_set_featid_from_object($object);
