@@ -87,7 +87,6 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
         if (sizeof($object->conf['access']['plugins'])>0) {
           if ($export != 'normal') {
             _wallyfeaturessynchronizer_set_featid_from_object($object);
-            break;
           }
         }dsm($object, 'object');dsm('coucou');
         $identifier = $schema['export']['identifier'];
@@ -111,7 +110,7 @@ dsm($code);
  */
 function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
-  dsm($plugins, 'plugi');
+
   foreach ($plugins as $plug_id => $plugin) {
     $settings = $plugin['settings'] ? $plugin['settings'] : array();
     foreach ($settings as $set_id => $setting) {
