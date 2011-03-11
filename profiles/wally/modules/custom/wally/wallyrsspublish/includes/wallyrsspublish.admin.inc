@@ -12,6 +12,7 @@ function wallyrsspublish_settingsrss_form(){
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
   foreach ($taxos as $taxo){
+  	
   	$tid=$taxo->tid;
   	$name=str_replace(' ', '-', $taxo->name);
   	$descr=$taxo->description;
@@ -23,13 +24,6 @@ function wallyrsspublish_settingsrss_form(){
 	    '#collapsible' => TRUE,
 	    '#collapsed' => TRUE,
   	);
-  	/*if (isset($default_form_values['rss_key'])) {
-    $form[$name.'settings']['wallyrsspublish_'.$name.'_rsskey'] = array(
-    '#type' => 'hidden',
-    '#required' => FALSE,
-    '#default_value' => $default_form_values['rss_key'],
-    );
-    }*/
   	$form[$name.'settings']['wallyrsspublish_'.$name.'_rsstid'] = array(
     '#type' => 'hidden',
     '#title' => t($name.' tid'),
@@ -73,11 +67,11 @@ function wallyrsspublish_settingsrss_form(){
 }
 
 function wallyrsspublish_settingsrss_form_validate($form, $form_state) {
-/*	foreach ($destination as $dest){
+	foreach ($destination as $dest){
     if ($form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'] == '') {
     form_set_error('', t('You must select a title for the ' .$dest. ' group of settings.'));
   }
- }*/
+ }
 }
 
 function wallyrsspublish_settingsrss_form_submit($form, &$form_state) {
