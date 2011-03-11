@@ -54,21 +54,19 @@ drupal_add_js('
   </div>
   <div class="image_thumb">
     <ul>
-      <?php $i = 0; ?>
-      <?php foreach ($file_img as $image) { ?>
-        <li class="thumb"><a href=" <?php print $path_photo[$i]; ?> "><?php print $image; ?></a>
-     	    <div class="block">
-     			 
-			   <h2><?php print $title_img[$i]; ?></h2>
-				  <div class="date">
-					 Publié le <?php print date('d M Y', $imgstory[$i]->created) ?>
-					 <span> // <?php print $destination_term; ?></span>
-				  </div>
-				<p> <?php print $summary[$i] ?></p>
-			 </div>
-		 </li>
-       <?php $i++; } ?>
+      <?php foreach ($imgstory as $image) { ?>
+        <?php print theme('node', $image); ?>
+      <?php } ?>
     </ul>
-  </div>  
+  </div>
+  
+  <div class="video_thumb">
+    <ul>
+      <?php foreach ($videostory as $video) { ?>
+        <?php print theme('node', $video); ?>
+      <?php } ?>
+    </ul>
+  </div>
+  
 </div>
-<?php print $links?>
+<?php print $links ?>
