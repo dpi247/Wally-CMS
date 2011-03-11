@@ -219,7 +219,7 @@ dsm($export,'export');
   }
 
   // Generate download
-  if ($files = features_export_render($export, $module_name, TRUE)) {
+  if ($files = features_export_render($export, $module_name, TRUE)) {dsm($files, 'files');
     $filename = (!empty($export['version']) ? "{$module_name}-{$export['version']}" : $module_name) . '.tar';
 
     // Clear out output buffer to remove any garbage from tar output.
