@@ -72,7 +72,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
   ctools_include('export');
   $component = 'page_manager_handlers';
   $schema = ctools_export_get_schema($component);dsm($schema, 'schema');
-  if (function_exists($schema['export']['to hook code callback'])) {
+  /*if (function_exists($schema['export']['to hook code callback'])) {
     $export = $schema['export']['to hook code callback']($data, $module);
     $code = explode("{\n", $export);
     array_shift($code);
@@ -80,7 +80,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
     array_pop($code);
     $code = implode('}', $code);
   }
-  else {
+  else {*/
     $code = '  $export = array();'."\n";
     foreach ($data as $object_name) {
       if ($object = _ctools_features_export_crud_load($component, $object_name)) {
@@ -97,7 +97,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
       }
     }
     $code .= '  return $export;';
-  }
+  //}
 
   return array($schema['export']['default hook'] => $code);
 }
