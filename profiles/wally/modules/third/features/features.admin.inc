@@ -200,7 +200,7 @@ function features_export_build_form_submit($form, &$form_state) {
   // Generate populated feature
   $module_name = $form_state['values']['module_name'];
   $export = features_populate($stub, $form_state['values']['sources']['dependencies'], $module_name);
-dsm($export,'export');
+
   // Directly copy the following attributes
   $attr = array('name', 'description');
   foreach ($attr as $key) {
@@ -219,7 +219,7 @@ dsm($export,'export');
   }
 
   // Generate download
-  if ($files = features_export_render($export, $module_name, TRUE)) {dsm($files, 'files');
+  if ($files = features_export_render($export, $module_name, TRUE)) {
     $filename = (!empty($export['version']) ? "{$module_name}-{$export['version']}" : $module_name) . '.tar';
 
     // Clear out output buffer to remove any garbage from tar output.
