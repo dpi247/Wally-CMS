@@ -119,3 +119,49 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
 	
 }
+
+/*function wallyrsspublish_preprocess_pane_wallyrsspublish_wallyrsspublish($vars) {
+  $content = $vars['output'];
+  // basic classes
+  $vars['classes'] = 'panel-pane';
+  $vars['id'] = '';
+  // Add some usable classes based on type/subtype
+  ctools_include('cleanstring');
+  $type_class = $content->type ? 'pane-'. ctools_cleanstring($content->type, array('lower case' => TRUE)) : '';
+  $subtype_class = $content->subtype ? 'pane-'. ctools_cleanstring($content->subtype, array('lower case' => TRUE)) : '';
+  // Sometimes type and subtype are the same. Avoid redudant classes.
+  if ($type_class != $subtype_class) {
+    $vars['classes'] .= " $type_class $subtype_class";
+  }
+  else {
+    $vars['classes'] .= " $type_class";
+  }
+
+  // Add id and custom class if sent in.
+  if (!empty($content->content)) {
+    if (!empty($content->css_id)) {
+      $vars['id'] = ' id="' . $content->css_id . '"';
+    }
+    if (!empty($content->css_class)) {
+      $vars['classes'] .= ' ' . $content->css_class;
+    }
+  }
+
+  // administrative links, only if there is permission.
+  $vars['admin_links'] = '';
+  if (user_access('view pane admin links') && !empty($content->admin_links)) {
+    $vars['admin_links'] = theme('links', $content->admin_links);
+  }	
+  $vars['title'] = !empty($content->title) ? $content->title : '';
+  $vars['feeds'] = !empty($content->feeds) ? implode(' ', $content->feeds) : '';
+  $vars['content'] = !empty($content->content) ? $content->content : '';
+
+  $vars['links'] = !empty($content->links) ? theme('links', $content->links) : '';
+  $vars['more'] = '';
+  if (!empty($content->more)) {
+    if (empty($content->more['title'])) {
+      $content->more['title'] = t('more');
+    }
+    $vars['more'] = l($content->more['title'], $content->more['href'], $content->more);
+  }
+}*/
