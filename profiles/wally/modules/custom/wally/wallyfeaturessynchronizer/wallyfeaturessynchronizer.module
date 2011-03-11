@@ -117,7 +117,7 @@ function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
       if (is_array($setting) && sizeof($setting)>0) {
         foreach ($setting as $tid => $tid_infos) {dsm($tid, 'tid');
           $term = taxonomy_get_term($tid);
-          $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
+          $plugins[$plug_id]['settings'][$set_id][$term->featid] = (array)$term;
           unset($plugins[$plug_id]['settings'][$set_id][$tid]);
           $object->conf['access']['plugins'][$plug_id] = $plugins[$plug_id];
         }
