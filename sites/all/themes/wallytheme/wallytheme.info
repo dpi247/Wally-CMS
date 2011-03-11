@@ -1,5 +1,5 @@
-name = custom_soirmag
-description = Soirmag theme 2011
+name = Wally Theme
+description = This is a port of the Soirmag theme 2011 for wally ... Not finished...
 version = 1
 core = 6.x
 engine = phptemplate
