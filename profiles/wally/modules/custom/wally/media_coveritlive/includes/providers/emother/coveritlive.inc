@@ -99,7 +99,6 @@ function emother_coveritlive_embedded_link($code) {
  *    The html of the embedded media.
  */
 function emother_coveritlive_other($embed, $width, $height, $field, $item, $node, $autoplay, $options = array()) {
-dpm(debug_backtrace());
   $options['width'] = isset($options['width']) ? $options['width'] : media_coveritlive_variable_get('full_width');
   $options['height'] = isset($options['height']) ? $options['height'] : media_coveritlive_variable_get('full_height');
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
