@@ -71,7 +71,7 @@ function wallyfeaturessynchronizer_default_page_manager_handlers_alter (&$cached
 function page_manager_handlers_features_export_render($module, $data, $export = 'normal') {
   ctools_include('export');
   $component = 'page_manager_handlers';
-  $schema = ctools_export_get_schema($component);dsm($schema, 'schema');
+  $schema = ctools_export_get_schema($component);
   /*if (function_exists($schema['export']['to hook code callback'])) {
     $export = $schema['export']['to hook code callback']($data, $module);
     $code = explode("{\n", $export);
@@ -98,7 +98,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
     }
     $code .= '  return $export;';
   //}
-
+dsm($code);
   return array($schema['export']['default hook'] => $code);
 }
 
