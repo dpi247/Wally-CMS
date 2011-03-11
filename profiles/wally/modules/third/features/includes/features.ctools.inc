@@ -16,7 +16,7 @@ foreach (_ctools_features_get_info() as $component => $info) {
   if (!function_exists("{$component}_features_export_options")) {
     $code .= 'function '. $component .'_features_export_options() { return ctools_component_features_export_options("'. $component .'"); }';
   }
-  if (!function_exists("{$component}_features_export_render") && $component != 'page_manager_handlers') {
+  if (!function_exists("{$component}_features_export_render")) {
     $code .= 'function '. $component .'_features_export_render($module, $data) { return ctools_component_features_export_render("'. $component .'", $module, $data); }';
   }
   if (!function_exists("{$component}_features_revert")) {
@@ -256,7 +256,7 @@ function _ctools_features_get_info($identifier = NULL, $reset = FALSE) {
 /**
  * Wrapper around ctools_export_crud_export() for < 1.7 compatibility.
  */
-function _ctools_features_export_crud_export($table, $object, $indent = '') {dsm('coucou');dsm(ctools_api_version('1.7') ? 'ok' : 'nok');
+function _ctools_features_export_crud_export($table, $object, $indent = '') {
   return ctools_api_version('1.7') ? ctools_export_crud_export($table, $object, $indent) : ctools_export_object($table, $object, $indent);
 }
 
