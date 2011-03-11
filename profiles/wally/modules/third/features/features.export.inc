@@ -181,7 +181,7 @@ function features_export_render($export, $module_name, $reset = FALSE) {
   $code = array();
 
   // Generate hook code
-  $component_hooks = features_export_render_hooks($export, $module_name, $reset);
+  $component_hooks = features_export_render_hooks($export, $module_name, $reset);dsm($component_hooks, 'comp hooks');
   $components = features_get_components();
 
   // Group component code into their respective files
