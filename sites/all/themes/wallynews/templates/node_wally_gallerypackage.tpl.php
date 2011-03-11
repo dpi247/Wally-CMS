@@ -8,6 +8,7 @@ $embededobjects = $node->field_embededobjects_nodes;
 array_unshift($embededobjects, $node->field_mainobject_nodes[0]);
 $sorted_embededobjects = wallycontenttypes_sort_embededobjects($embededobjects);
 $imgstory = $sorted_embededobjects['wally_photoobject'];
+$videostory = $sorted_embededobjects['wally_videoobject'];
 $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 $main_summary = $field_summary[0]['value'];
 $main_desc = $field_objectdescription [0]['value'];
