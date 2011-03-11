@@ -431,7 +431,7 @@ function features_invoke_all() {
 /**
  * Like module_hook() but for arbitrary callback base names.
  */
-function features_hook($base, $hook) {dsm(function_exists($base .'_'. $hook)?'ok':'nok';);
+function features_hook($base, $hook) {dsm(function_exists($base .'_'. $hook)?'ok':'nok');
   return function_exists($base .'_'. $hook);
 }
 
