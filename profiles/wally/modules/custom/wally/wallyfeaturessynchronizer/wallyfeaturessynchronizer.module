@@ -91,6 +91,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
           }
         }dsm($object, 'object');
         $identifier = $schema['export']['identifier'];
+        dsm(function_exists('_ctools_features_export_crud_export')?'func ok':'func nok');
         $code .= _ctools_features_export_crud_export($component, $object, '  ');
         $code .= "\n";
         $code .= "  \$export[" . ctools_var_export($object_name) . "] = \${$identifier};\n";
@@ -111,19 +112,19 @@ dsm($code);
 function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
   
-  foreach ($plugins as $plug_id => $plugin) {dsm($plugin, 'plugin');
+  foreach ($plugins as $plug_id => $plugin) {
     $settings = $plugin['settings'] ? $plugin['settings'] : array();
-    foreach ($settings as $set_id => $setting) {dsm($setting, 'setting');
+    foreach ($settings as $set_id => $setting) {
       if (is_array($setting) && sizeof($setting)>0) {
-        foreach ($setting as $tid => $tid_infos) {dsm($tid, 'tid');
+        foreach ($setting as $tid => $tid_infos) {
           $term = taxonomy_get_term($tid);
-          $plugins[$plug_id]['settings'][$set_id][$term->featid] = (array)$term;
+          $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
           unset($plugins[$plug_id]['settings'][$set_id][$tid]);
           $object->conf['access']['plugins'][$plug_id] = $plugins[$plug_id];
         }
       }
     }
-  }dsm($object, '$object');
+  }
 }
 
 /**
