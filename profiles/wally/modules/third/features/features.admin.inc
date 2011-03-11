@@ -143,7 +143,7 @@ function features_export_form($form_state, $feature = NULL) {
     '#value' => t('Download feature'),
     '#weight' => 10,
     '#submit' => array('features_export_build_form_submit'),
-  );
+  );dsm($form);
   return $form;
 }
 
