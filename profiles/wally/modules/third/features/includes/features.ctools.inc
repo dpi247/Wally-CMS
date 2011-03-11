@@ -264,7 +264,7 @@ function _ctools_features_export_crud_export($table, $object, $indent = '') {dsm
  * Wrapper around ctools_export_crud_load() for < 1.7 compatibility.
  */
 function _ctools_features_export_crud_load($table, $name) {
-  if (ctools_api_version('1.7')) {dsm(coucou);
+  if (ctools_api_version('1.7')) {dsm(ctools);
     return ctools_export_crud_load($table, $name);
   }
   elseif ($objects = ctools_export_load_object($table, 'names', array($name))) {
