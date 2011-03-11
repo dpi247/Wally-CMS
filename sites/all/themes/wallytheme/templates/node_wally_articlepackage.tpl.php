@@ -59,7 +59,7 @@ drupal_add_js(drupal_get_path('theme', 'custom_soirmag').'/scripts/comportement_
 $main_story = $node->field_mainstory_nodes[0];
 $main_title = $node->field_mainstory_nodes[0]->title;
 
-$htmltags = custom_soirmag_taxonomy_tags_particle($main_story);
+$htmltags = wallytheme_taxonomy_tags_particle($main_story);
 
 $jour = date('d',$node->changed);//jour en chiff'
 $jour_sem = date('l', $node->changed);//Jour de la semaine : monday, ...

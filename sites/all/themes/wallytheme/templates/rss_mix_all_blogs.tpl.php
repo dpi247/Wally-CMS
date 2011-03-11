@@ -5,7 +5,7 @@
  * 
  */
 
-function _custom_soirmag_all_blogs_gen($data){
+function _wallytheme_all_blogs_gen($data){
 	if ($data['mod'] == 1){
 	 $html_item = "<div id=\"".$data['div_id']."\" class=\"clearfix purple\">
 	           <h3><span><a href=\"".$data['blog_url']."\">".$data['blog_name']."</a></span></h3>
