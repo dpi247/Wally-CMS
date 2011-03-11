@@ -98,7 +98,8 @@ function emother_coveritlive_embedded_link($code) {
  *  @return
  *    The html of the embedded media.
  */
-function emother_coveritlive_other($embed, $width, $height, $field, $item, $node, $options = array()) {
+function emother_coveritlive_other($embed, $width, $height, $field, $item, $node, $autoplay, $options = array()) {
+dpm(debug_backtrace());
   $options['width'] = isset($options['width']) ? $options['width'] : media_coveritlive_variable_get('full_width');
   $options['height'] = isset($options['height']) ? $options['height'] : media_coveritlive_variable_get('full_height');
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
@@ -126,7 +127,7 @@ function emother_coveritlive_other($embed, $width, $height, $field, $item, $node
  *  @return
  *    The html of the embedded media.
  */
-function emother_coveritlive_preview($embed, $width, $height, $field, $item, &$node, $options = array()) {
+function emother_coveritlive_preview($embed, $width, $height, $field, $item, &$node, $autoplay, $options = array()) {
   
   $options['width'] = isset($options['width']) ? $options['width'] : media_coveritlive_variable_get('preview_width');
   $options['height'] = isset($options['height']) ? $options['height'] : media_coveritlive_variable_get('preview_height');
