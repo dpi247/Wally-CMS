@@ -81,7 +81,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
     $code = implode('}', $code);
   }
   else {*/
-    $code = '  $export = array();'."\n";
+    $code = '  $export = array();'."\n";dsm($data, 'data');
     foreach ($data as $object_name) {
       if ($object = _ctools_features_export_crud_load($component, $object_name)) {
         if (sizeof($object->conf['access']['plugins'])>0) {
