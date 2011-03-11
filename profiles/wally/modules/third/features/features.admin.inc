@@ -185,7 +185,7 @@ function features_export_build_form_submit($form, &$form_state) {
 
   // Assemble the combined component list
   $stub = array();
-  $components = array_keys(features_get_components());
+  $components = array_keys(features_get_components());dsm($components);
   foreach ($components as $component) {
     // User-selected components take precedence.
     if (!empty($form_state['values']['sources'][$component])) {
