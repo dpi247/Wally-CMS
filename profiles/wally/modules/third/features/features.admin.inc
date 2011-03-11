@@ -143,7 +143,7 @@ function features_export_form($form_state, $feature = NULL) {
     '#value' => t('Download feature'),
     '#weight' => 10,
     '#submit' => array('features_export_build_form_submit'),
-  );dsm($form);
+  );
   return $form;
 }
 
@@ -185,7 +185,7 @@ function features_export_build_form_submit($form, &$form_state) {
 
   // Assemble the combined component list
   $stub = array();
-  $components = array_keys(features_get_components());dsm($components);
+  $components = array_keys(features_get_components());
   foreach ($components as $component) {
     // User-selected components take precedence.
     if (!empty($form_state['values']['sources'][$component])) {
@@ -200,7 +200,7 @@ function features_export_build_form_submit($form, &$form_state) {
   // Generate populated feature
   $module_name = $form_state['values']['module_name'];
   $export = features_populate($stub, $form_state['values']['sources']['dependencies'], $module_name);
-
+dsm($export,'export');
   // Directly copy the following attributes
   $attr = array('name', 'description');
   foreach ($attr as $key) {
