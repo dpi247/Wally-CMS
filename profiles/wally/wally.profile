@@ -81,7 +81,7 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', 'media_coveritlive',
+    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', //'media_coveritlive',
     // Others
     'job_queue', 
     
