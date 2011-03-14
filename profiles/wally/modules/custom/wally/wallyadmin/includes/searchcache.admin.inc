@@ -47,10 +47,7 @@ function del_cache_admin($key) {
  */
 function del_cache_admin_form(&$form_state, $key) {
     $list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "%%%s%%" ORDER BY `cid`', $key);
-    if(!db_result($list)){
-      drupal_set_message('No result for '.$key);
-      drupal_goto('admin/wally/searchcache/');
-    }
+        
     while ($elem = db_fetch_array($list)) {
       $expl_id = explode('-', $elem['cid']);
       $form['blocks_cache'][$expl_id[0]] = array(
@@ -58,6 +55,11 @@ function del_cache_admin_form(&$form_state, $key) {
         '#title' => $expl_id[0],
         '#default_value' => 0,
       );
+    }
+    
+    if(!isset($form['blocks_cache'])){
+      drupal_set_message('No result for '.$key);
+      drupal_goto('admin/wally/searchcache/');
     }
    $form['submit'] = array(
     '#type' => 'submit',
