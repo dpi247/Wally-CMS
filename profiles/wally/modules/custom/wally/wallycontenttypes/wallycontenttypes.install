@@ -34,6 +34,22 @@ function _wallycontenttypes_install_presets() {
     drupal_write_record('imagecache_action', $imagecacheaction);
   }
   
+  if (!imagecache_preset_by_name('slider_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  
   if (!imagecache_preset_by_name('theme_medium_article_preset')) {
     $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
     $imagecacheaction = new stdClass ();
@@ -85,6 +101,10 @@ function _wallycontenttypes_install_presets() {
 
 function _wallycontenttypes_uninstall_presets() {
   // Deleting ImageCache presets
+  if (!imagecache_preset_by_name('sm_event_main')) {
+    imagecache_preset_delete(imagecache_preset_by_name('sm_event_main'));
+  }
+  
   // @see wallyct_photoobject_slider
   if (!imagecache_preset_by_name('slider_preset')) {
     imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
