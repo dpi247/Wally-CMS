@@ -39,6 +39,7 @@ function simplesamlphp_auth_init() {
   
   //get the simplesamlphp session
   $basedir = variable_get('simplesamlphp_auth_installdir', '/var/www/php/ssoLibs/simplesamlphp_1_4');
+  drupal_set_message($basedir);
   if(file_exists($basedir . '/www/_include.php')){
     require_once($basedir . '/www/_include.php');
     /* Load simpleSAMLphp, configuration and metadata */
