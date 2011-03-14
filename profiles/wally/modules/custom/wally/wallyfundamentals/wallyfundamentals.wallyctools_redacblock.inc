@@ -17,6 +17,19 @@ function wallyfundamentals_default_wallyctools() {
   $redacblock->settings = array(
     'title' => '',
     'substitute' => 0,
+    'override_pager_settings' => 0,
+    'use_pager' => 0,
+    'nodes_per_page' => '10',
+    'pager_id' => '0',
+    'offset' => '0',
+    'more_link' => 0,
+    'link_to_view' => 0,
+    'panel_args' => 0,
+    'args' => '',
+    'url' => '',
+    'context' => array(
+      0 => '',
+    ),
   );
 
   $export['default_destination_block'] = $redacblock;

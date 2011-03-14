@@ -135,15 +135,14 @@ function theme_emother_other_thumbnail($field, $item, $formatter, $node, $no_lin
  *   The output.
  */
 function theme_emother_other_other($field, $item, $formatter, $node, $options = array()) {
-    
+  
   if ($item['value'] && $item['provider']) {
     $embed = $item['value'];
     $width = isset($options['width']) ? $options['width'] : (isset($field['widget']['other_width']) ? $field['widget']['other_width'] : variable_get('emother_default_full_width', EMOTHER_DEFAULT_FULL_WIDTH));
     $height = isset($options['height']) ? $options['height'] : (isset($field['widget']['other_height']) ? $field['widget']['other_height'] : variable_get('emother_default_full_height', EMOTHER_DEFAULT_FULL_HEIGHT));
-    $autoplay = isset($options['autoplay']) ? $options['autoplay'] : $field['widget']['audio_autoplay'];
+    $autoplay = isset($options['autoplay']) ? $options['autoplay'] : $field['widget']['other_autoplay'];
     $output = module_invoke('emfield', 'include_invoke', 'emother', $item['provider'], 'other', $embed, $width, $height, $field, $item, $node ,$autoplay, $options);
   }
-
   return $output;
 }
 /**
@@ -191,7 +190,7 @@ function theme_emother_other_preview($field, $item, $formatter, $node, $options 
     $embed = $item['value'];
     $width = isset($options['width']) ? $options['width'] : (isset($field['widget']['preview_width']) ? $field['widget']['preview_width'] : variable_get('emother_default_preview_width', EEMOTHER_DEFAULT_PREVIEW_WIDTH));
     $height = isset($options['height']) ? $options['height'] : (isset($field['widget']['preview_height']) ? $field['widget']['preview_height'] : variable_get('emother_default_preview_height', EMOTHER_DEFAULT_PREVIEW_HEIGHT));
-    $autoplay = isset($options['autoplay']) ? $options['autoplay'] : $field['widget']['audio_autoplay'];
+    $autoplay = isset($options['autoplay']) ? $options['autoplay'] : $field['widget']['other_autoplay'];
     $output = module_invoke('emfield', 'include_invoke', 'emother', $item['provider'], 'preview', $embed, $width, $height, $field, $item, $node, $autoplay, $options);
   }
 
