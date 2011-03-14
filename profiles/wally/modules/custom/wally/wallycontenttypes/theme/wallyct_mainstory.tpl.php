@@ -2,7 +2,7 @@
 /**
  * Wally default template for rendering Packages Autors List 
  */
-     
+     dsm($mainstory);
     // Barette
     if ($mainstory->field_textbarette[0]["value"]) {
       $textbarette = "<span class='barette'>".$mainstory->field_textbarette[0]["value"]."</span>";
