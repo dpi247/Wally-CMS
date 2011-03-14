@@ -317,7 +317,10 @@ function _wallyextra_rssmixread_ctools_content_type($content) {
  */
 function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallyextra_rssmixread_content_type_get_conf(wallyextra_rssmixread_content_type_content_type($subtype), $conf);
-
+  $new_file_path = 'RSS/';
+  $file_temp_dir = file_directory_path().'/'.$new_file_path;
+  file_check_directory($file_temp_dir, 1);
+  $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
@@ -352,7 +355,15 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
       $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
       $most_recent_index = _wallyextra_rssmixread_getmostrecentfromavailables($available_items);
       $item = array_shift($feed_array[$most_recent_index]);
-      isset($item) ? array_push($feed, $item) : '';
+      if (isset($item)){
+        array_push($feed, $item);
+        if ($settings['get_distant_img'] == 1 && $item['Package']['EmbeddedContent']) {
+          foreach ($item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key=>$object) {
+            $file_uri = $object['FileURI']['value'];
+            $item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+          }
+        }
+      } 
     }
 
     cache_set($cid, $feed, 'cache', time() + 60*$settings['delta_t'] + 1);
@@ -525,10 +536,7 @@ function _wallyextra_rssmixread_defaultformvalues() {
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
-  $new_file_path = 'RSS/';
-  $file_temp_dir = file_directory_path().'/'.$new_file_path;
-  file_check_directory($file_temp_dir, 1);
-  $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
+ 
   
   if ($feed_xml) {
     $dom = new DomDocument();
@@ -539,12 +547,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
     if ($channels->item(0)) {
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
-        if ($settings['get_distant_img'] == 1 && $temp_feed_array['Package']['EmbeddedContent']) {
-          foreach ($temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key=>$object) {
-            $file_uri = $object['FileURI']['value'];
-            $temp_feed_array['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
-          }
-        }
+     
         $feed_array[] = $temp_feed_array;
         if (sizeof($feed_array) >= $maxitem) break;
       }
