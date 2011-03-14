@@ -28,7 +28,7 @@ function wallytoolbox_object_cache_get($nid, $revision) {
   $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision));
   $data = $data ? unserialize($data->data) : FALSE;
 
-  watchdog('WallyToolbox', 'Node %nid get from cache with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
+  //watchdog('WallyToolbox', 'Node %nid get from cache with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
 
   return $data;
 }
@@ -55,7 +55,7 @@ function wallytoolbox_object_cache_set($node) {
     'data'          => $node,
   );
   
-  watchdog('WallyToolbox', 'Node %nid cached with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
+  //watchdog('WallyToolbox', 'Node %nid cached with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
   
   return drupal_write_record('wallytoolbox_object_cache', $object);
 }
@@ -70,7 +70,7 @@ function wallytoolbox_object_cache_set($node) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear($nid, $revision) {  
-  watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
+  //watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
 
   return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid LIKE '%s'", $nid.'_%');
 }
@@ -95,7 +95,7 @@ function wallytoolbox_object_referencer_cache_clear($node) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear_all() {
-  watchdog('WallyToolbox', 'All cache cleared.', array(), WATCHDOG_INFO);
+  //watchdog('WallyToolbox', 'All cache cleared.', array(), WATCHDOG_INFO);
   
   return db_query("TRUNCATE TABLE {wallytoolbox_object_cache}");
 }
