@@ -180,10 +180,12 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_digitalobject' || 
               $node->type == 'wally_photoobject' || 
               $node->type == 'wally_videoobject' ||
-              $node->type == 'wally_pollobject') {
+              $node->type == 'wally_pollobject' ||
+              $node->type == 'poll') {
+                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
                 _wallycontenttypes_addtaxonomywhenupdated($node);
-                wallytoolbox_object_referencer_cache_clear($node);
       }
+      wallytoolbox_object_referencer_cache_clear($node);
       break;
     
     case 'delete' :
@@ -198,9 +200,11 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_digitalobject' || 
               $node->type == 'wally_photoobject' || 
               $node->type == 'wally_videoobject' ||
-              $node->type == 'wally_pollobject') {
-                wallytoolbox_object_referencer_cache_clear($node);
+              $node->type == 'wally_pollobject' ||
+              $node->type == 'poll') {
+                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
       }
+      wallytoolbox_object_referencer_cache_clear($node);
       break;
   }
 }
@@ -247,6 +251,22 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
         break;
     }
   }
+}
+
+function wallycontenttypes_form_poll_view_voting_alter (&$form, &$form_state) {
+  $form['choice']['#title'] = $form['#node']->title;
+  $form['vote']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontenttypes_form_poll_cancel_form_alter (&$form, &$form_state) {
+  $form['submit']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontentypes_update_poll_cache (&$form, &$form_state) {
+  $node = $form['#node'];
+  $nid = $node->nid;
+  wallytoolbox_object_cache_clear($nid, $node->revision_uid);
+  wallytoolbox_object_referencer_cache_clear($node);
 }
 
 /**
@@ -317,6 +337,9 @@ function wallycontenttypes_fieldNID(&$node, $op) {
           $result->field_links_list_nodes = wallycontenttypes_fieldnodeload("field_links_list_nodes", $result->field_links_list);
         }
         $node->field_linkedobjects_nodes = $results;
+        break;
+      case "field_mainpoll" :
+        $node->field_mainpoll_nodes = wallycontenttypes_fieldnodeload($field, $value);
         break;
       case "field_mainobject" :
         $node->field_mainobject_nodes = wallycontenttypes_fieldnodeload($field, $value);
