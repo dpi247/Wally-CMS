@@ -3,10 +3,11 @@
  * @file
  * Rate widget theme
  */
-
+dpm(debug_backtrace());
 ?>
 <div class="rate-thumbs-up-down-rating-up"><?php print $results['up_percent'] . '%'; ?></div>
 <?php
+dpm(theme('rate_button', $links[0]['text'], $links[0]['href'], 'rate-thumbs-up-down-btn-up'));
 print theme('rate_button', $links[0]['text'], $links[0]['href'], 'rate-thumbs-up-down-btn-up');
 print theme('rate_button', $links[1]['text'], $links[1]['href'], 'rate-thumbs-up-down-btn-down');
 ?>

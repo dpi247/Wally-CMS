@@ -3,6 +3,7 @@
  * Template for rendering a articlepackage-article node type.
  */
 $mainstory = $node->field_mainstory_nodes[0];
+dpm($node);
 ?>
     
 <div class="content">
@@ -12,7 +13,9 @@ $mainstory = $node->field_mainstory_nodes[0];
   }
 ?>
 <?php
-  print theme("wallyct_embededobjects", $node->field_embededobjects_nodes, $node);
+  foreach ($node->field_embededobjects_nodes as $embededobject){
+    print theme('node', $embededobject) ;    
+  }
 ?>
 
 <?php

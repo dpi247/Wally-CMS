@@ -80,8 +80,8 @@ function wally_profile_modules() {
     'imagecache', 'imagecache_ui',  
     
     // Media
-    'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo',
-    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', //'media_coveritlive',
+    'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo', 'emother',
+    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', 'media_coveritlive',
     // Others
     'job_queue', 
     
