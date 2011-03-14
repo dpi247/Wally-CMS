@@ -10,7 +10,7 @@ drupal_add_js(drupal_get_path('theme', 'wallynews').'/scripts/rotator.js');
           $type = explode('_', $embededobject->type);
         ?>  
         <li>    
-          <?php print theme('wallyct_'.$type[1], $embededobject); ?>
+          <?php print theme('wallyct_'.$type[1], $embededobject); dsm($type); ?>
         </li>
         <?php endforeach;?>
       </ul>
