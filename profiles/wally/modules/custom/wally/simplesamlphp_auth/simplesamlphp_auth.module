@@ -239,7 +239,7 @@ function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
 /**
 * Implementation of hook_block()
 */
-function simplesamlphp_aurolesth_block($op = 'list', $delta = 0, $edit = array()) {
+function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
 	if ($op == 'list') {
 		$blocks = array(
 			array(
@@ -411,9 +411,9 @@ function _simplesamlphp_auth_generate_login_text() {
 	 * We need to load a few classes from simpleSAMLphp. These are available because
 	 * the _include script above did set the PHP class PATH properly.
 	 */
-	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Utilities.php');
-	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Session.php');
-	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/XHTML/Template.php');
+	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'/') . 'SimpleSAML/Utilities.php');
+	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'/') . 'SimpleSAML/Session.php');
+	require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'/') . 'SimpleSAML/XHTML/Template.php');
 		
 	$initSSOurl = str_replace('http://', 'http://', SimpleSAML_Utilities::selfURLhost()) . 
 		'/' . $saml_config->getValue('baseurlpath') . 'saml2/sp/initSSO.php?RelayState=' . 
