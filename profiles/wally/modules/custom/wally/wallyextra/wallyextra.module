@@ -68,6 +68,11 @@ function wallyextra_theme(&$var) {
     'template' => 'wallyct_entitylist_detail',
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
+    
+    'wallyextra_template_points_up_down' => $base + array(
+      'arguments' => array('links' => NULL, 'results' => NULL, 'mode' => NULL),
+      'template' => 'wallyextra_points-up-down',
+    ),
 
   );
 }
@@ -273,6 +278,25 @@ function wallyextra_content_type_new($plugin_name, $set_defaults) {
   $item->settings = ctools_content_get_defaults($plugin, array());
   return $item;
 }
+
+/*
+ * Implementation of hook_rate_templates().
+ */ 
+function wallyextra_rate_templates() {
+ $templates = array();
+  $templates['points_up_down'] = new stdClass();
+  $templates['points_up_down']->value_type = 'points';
+  $templates['points_up_down']->options = array(
+    array(1, 'up'),
+    array(-1, 'down'),
+  );
+  $templates['points_up_down']->theme = 'wallyextra_template_points_up_down';
+  $templates['points_up_down']->css = drupal_get_path('module', 'wallyextra') . '/theme/wallyextra_points-up-down.css';
+  $templates['points_up_down']->customizable = FALSE;
+  $templates['points_up_down']->translate = TRUE;
+  $templates['points_up_down']->template_title = t('Points up / down');
+    return $templates;
+  }
 
 /**
  * @} End of "defgroup wallyextra".
