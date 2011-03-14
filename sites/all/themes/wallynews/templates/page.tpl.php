@@ -77,6 +77,8 @@
     </div><!--page-container-->
 
     <div class="footer">
+      <div id="footer_content"><?php print $footer?></div>
+    
       <div class="copyright">Copyright © 2010 - <a href="#">Wally News</a></div>
       <div class="designby">Powered by <a href="http://www.drupal.org/">Drupal</a> | Wally News Theme by <a href="#" title="#">Exxodus</a></div>
       <div class="clear"></div>
