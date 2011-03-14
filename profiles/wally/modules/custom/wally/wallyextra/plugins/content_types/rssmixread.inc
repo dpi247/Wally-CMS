@@ -356,16 +356,16 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
       $most_recent_index = _wallyextra_rssmixread_getmostrecentfromavailables($available_items);
       $item = array_shift($feed_array[$most_recent_index]);
       if (isset($item)){
-        array_push($feed, $item);
         if ($settings['get_distant_img'] == 1 && $item['Package']['EmbeddedContent']) {
           foreach ($item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key=>$object) {
             $file_uri = $object['FileURI']['value'];
             $item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
-          }
+          } 
         }
+        array_push($feed, $item);
       } 
     }
-
+  
     cache_set($cid, $feed, 'cache', time() + 60*$settings['delta_t'] + 1);
   } else {
     $feed = $cached_feed->data;
