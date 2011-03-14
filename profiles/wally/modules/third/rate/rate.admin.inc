@@ -72,9 +72,7 @@ function rate_choose_template_form(&$form_state, $id = NULL) {
   }
 
   $options = array('custom' => t('Custom'));
-  dpm(module_implements('rate_templates'));
   foreach (module_implements('rate_templates') as $module) {
-  dpm(module_invoke($module, 'rate_templates'));
     foreach (module_invoke($module, 'rate_templates') as $name => $widget) {
       $options[$name] = $widget->template_title;
     }
