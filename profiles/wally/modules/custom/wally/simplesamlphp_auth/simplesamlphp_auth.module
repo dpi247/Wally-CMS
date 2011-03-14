@@ -39,83 +39,89 @@ function simplesamlphp_auth_init() {
   
   //get the simplesamlphp session
   $basedir = variable_get('simplesamlphp_auth_installdir', '/var/www/php/ssoLibs/simplesamlphp_1_4');
-  require_once($basedir . '/www/_include.php');
-  /* Load simpleSAMLphp, configuration and metadata */
-  $saml_config = SimpleSAML_Configuration::getInstance();
-  $saml_session = SimpleSAML_Session::getInstance();
+  if(file_check_path($basedir . '/www/_include.php')){
+    require_once($basedir . '/www/_include.php');
+    /* Load simpleSAMLphp, configuration and metadata */
+    $saml_config = SimpleSAML_Configuration::getInstance();
+    $saml_session = SimpleSAML_Session::getInstance();
+    
+    if ($user->uid) {
+       //user is logged in - Drupal
+      // Do nothing if user is admin
+      //_simplesaml_auth_debug('User is already logged in [' . $user->uid . ']');
+      if ( $user->uid != 1   && ! (isset($saml_session) && $saml_session->isValid())) {
+         // User is logged but the SAML session is not valid anymore
+         // Force user deconnection
+         require_once drupal_get_path('module', 'user') .'/user.pages.inc';
+         user_logout();
+      }
+      
+    } 
+    else {
+      // user is not logged in - Drupal
+      
+      if (isset($saml_session) && $saml_session->isValid() ) {
+  		
+          //user is logged in - SimpleSAMLphp, user is not logged in - Drupal
+          
+          //get unique identifier from saml attributes
+          $authname = _simplesamlphp_auth_get_authname();
+          _simplesaml_auth_debug('Authname is [' .$authname . '] userid is [' . $user->uid . ']');
+          
+          // Retrieve user mapping. Get drupal uid by looking up identifier in authmap
+          //$result = db_query("SELECT uid FROM {authmap} WHERE authname = '%s' AND module = 'simplesamlphp_auth'", $authname)
+          //$expected = db_fetch_array($result);
   
-  if ($user->uid) {
-     //user is logged in - Drupal
-    // Do nothing if user is admin
-    //_simplesaml_auth_debug('User is already logged in [' . $user->uid . ']');
-    if ( $user->uid != 1   && ! (isset($saml_session) && $saml_session->isValid())) {
-       // User is logged but the SAML session is not valid anymore
-       // Force user deconnection
-       require_once drupal_get_path('module', 'user') .'/user.pages.inc';
-       user_logout();
-    }
-    
-  } 
-  else {
-    // user is not logged in - Drupal
-    
-    if (isset($saml_session) && $saml_session->isValid() ) {
-		
-        //user is logged in - SimpleSAMLphp, user is not logged in - Drupal
-        
-        //get unique identifier from saml attributes
-        $authname = _simplesamlphp_auth_get_authname();
-        _simplesaml_auth_debug('Authname is [' .$authname . '] userid is [' . $user->uid . ']');
-        
-        // Retrieve user mapping. Get drupal uid by looking up identifier in authmap
-        //$result = db_query("SELECT uid FROM {authmap} WHERE authname = '%s' AND module = 'simplesamlphp_auth'", $authname)
-        //$expected = db_fetch_array($result);
-
-        if (!empty($authname)) {
-          // User is logged in with SAML authentication and we got the unique identifier.
-          // Try to log into Drupal. 
-          _simplesaml_auth_debug('Load user [' .$authname . ']');
-          $user = user_external_load($authname);
-    
-          if (!$user) {
-            // If unsuccessful, register the user. This will trigger
-            // simplesamlphp_auth_user() and any other _user() hooks.
-            _simplesaml_auth_debug('Register user [' . $authname . ']');
-            user_external_login_register($authname, 'simplesamlphp_auth');
-            if ($user) {
-                //populate roles based on configuration setting
-                _simplesaml_auth_debug('setting roles' );
-                $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
-                _simplesaml_auth_debug('get mail' );
-                $mail_address = _simplesamlphp_auth_get_mail();
-                _simplesaml_auth_debug('get name' );
-                $name = _simplesamlphp_auth_get_name();
-				_simplesaml_auth_debug('setting mail to  [' . $mail_address . ']');
-				_simplesaml_auth_debug('setting name  to [' .$name[0] . ' - ' . $name[1] . ']');
-				/*if($user->name =="webmaster"){
-					$roles = array_push($roles, 3);
-				}
-				*/ 
-				$userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
-				//var_dump($roles);
-				//exit;
-                $user = user_save($user, $userinfo);
+          if (!empty($authname)) {
+            // User is logged in with SAML authentication and we got the unique identifier.
+            // Try to log into Drupal. 
+            _simplesaml_auth_debug('Load user [' .$authname . ']');
+            $user = user_external_load($authname);
+      
+            if (!$user) {
+              // If unsuccessful, register the user. This will trigger
+              // simplesamlphp_auth_user() and any other _user() hooks.
+              _simplesaml_auth_debug('Register user [' . $authname . ']');
+              user_external_login_register($authname, 'simplesamlphp_auth');
+              if ($user) {
+                  //populate roles based on configuration setting
+                  _simplesaml_auth_debug('setting roles' );
+                  $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
+                  _simplesaml_auth_debug('get mail' );
+                  $mail_address = _simplesamlphp_auth_get_mail();
+                  _simplesaml_auth_debug('get name' );
+                  $name = _simplesamlphp_auth_get_name();
+  				_simplesaml_auth_debug('setting mail to  [' . $mail_address . ']');
+  				_simplesaml_auth_debug('setting name  to [' .$name[0] . ' - ' . $name[1] . ']');
+  				/*if($user->name =="webmaster"){
+  					$roles = array_push($roles, 3);
+  				}
+  				*/ 
+  				$userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
+  				//var_dump($roles);
+  				//exit;
+                  $user = user_save($user, $userinfo);
+              }
             }
-          }
-          //finalizing the login, calls hook_user op login
-          $edit = array();
-          user_authenticate_finalize(&$edit);
-        } //if !empty authname
-        
-        
-    } else {
-		_simplesaml_auth_debug('User not logged');
-        //user is not logged in - SimpleSAMLphp, user is not logged in - Drupal
-        //anonymous user
-        //_simplesaml_auth_debug('No valid session [' .$user->uid. ']');
-    } //if isset saml_session
+            //finalizing the login, calls hook_user op login
+            $edit = array();
+            user_authenticate_finalize(&$edit);
+          } //if !empty authname
+          
+          
+      } else {
+  		_simplesaml_auth_debug('User not logged');
+          //user is not logged in - SimpleSAMLphp, user is not logged in - Drupal
+          //anonymous user
+          //_simplesaml_auth_debug('No valid session [' .$user->uid. ']');
+      } //if isset saml_session
+      
+    } //if user->uid
     
-  } //if user->uid
+  }
+  else{
+    drupal_set_message("You need to configure the simpleSAML auth module");
+  }
   
 }
 
