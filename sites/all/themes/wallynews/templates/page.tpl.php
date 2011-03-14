@@ -71,6 +71,7 @@
 
     <?php if ($messages): print $messages; endif; ?>
     <?php if ($help): print $help; endif; ?>
+    <?php if ($tabs): print $tabs; endif; ?>
 
     <div id="page-container">
       <?php print $content ?>
