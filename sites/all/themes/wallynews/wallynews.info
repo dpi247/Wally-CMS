@@ -4,6 +4,10 @@ version = VERSION
 core = 6.x
 engine = phptemplate
 
+
+regions[footer] = Footer
+
+
 stylesheets[all][] = css/all_style.css
 stylesheets[all][] = css/home_style.css
 stylesheets[all][] = css/rotator.css
