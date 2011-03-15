@@ -150,7 +150,7 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
     }
   }
   
-  $return = new stdObject();
+  $return = new stdClass;
   $return->pack = $valid_dom;
   $return->imgs = $imgs_to_zip;
   return $return;
