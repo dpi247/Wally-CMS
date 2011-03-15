@@ -31,7 +31,6 @@ function wallyexport_export_packages($nids) {
   $return = array();
   
   $files = drupal_system_listing('.*\.zip$', '', 'name', 0);
-  ksort($files);
   foreach ($files as $file) {
     file_delete($file->filename);
   }
@@ -72,9 +71,14 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
     case 'wally_articlepackage' :
       $package_type = 'ArticlePackageType';
       break;
+    case 'wally_gallerypackage' :
+      $package_type = 'GalleryPackageType';
+      break;
     default :
       return FALSE;
   }
+  
+  $imgs_to_zip = array();
 
   $package = $packages->appendChild($valid_dom->createElement('Package'));
   $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $package_type);
@@ -92,7 +96,26 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
   $package->appendChild($valid_dom->createElement('PackageLayout', $package_object->field_packagelayout[0]['value']));
   $package->appendChild($valid_dom->createElement('Summary', $package_object->field_summary[0]['value']));
   $package->appendChild($valid_dom->createElement('ExternalURI', $package_object->field_externaluri[0]['value']));
-  $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
+  
+  switch ($package_type) {
+    case 'ArticlePackageType' :
+      $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
+      $pack_mainstory = $package_object->field_mainstory_nodes[0];
+      $mainStory->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
+      $mainStory->setAttribute('ObjectID', $pack_mainstory->field_objectid[0]['value']);
+      $mainStory->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+      $mainStory->setAttribute('CreationDate', date('Y-m-d', $pack_mainstory->field_created).'T'.date('H:i:s', $pack_mainstory->field_created));
+      $mainStory->appendChild($valid_dom->createElement('Title', $pack_mainstory->field_objecttitle[0]['value']));
+      $mainStory->appendChild($valid_dom->createElement('ExternalReference', $pack_mainstory->field_externalreference[0]['value']));
+      $mainStory->appendChild($valid_dom->createElement('Copyright', $pack_mainstory->field_copyright[0]['value']));
+      $mainStory->appendChild($valid_dom->createElement('TextTitle', $pack_mainstory->title));
+      $mainStory->appendChild($valid_dom->createElement('TextBody', $pack_mainstory->field_textbody[0]['value']));
+      break;
+    case 'GalleryPackageType' :
+      $mainObject = $package->appendChild($valid_dom->createElement('MainObject'));
+      _wallyexport_createdomimg($valid_dom, $mainObject, $package_object, $package_object->field_mainobject_nodes[0], $imgs_to_zip);
+      break;
+  }
   
   foreach ($package_object->field_destinations as $pack_dest) {
     $destination = $destinations->appendChild($valid_dom->createElement('Destination'));
@@ -107,53 +130,14 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
   
   $chan = $chans->appendChild($valid_dom->createElement('Channel'));
   $chan->setAttribute('Name', $package_object->field_channels[0]['value']);
-  
-  $pack_mainstory = $package_object->field_mainstory_nodes[0];
-  $mainStory->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
-  $mainStory->setAttribute('ObjectID', $pack_mainstory->field_objectid[0]['value']);
-  $mainStory->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
-  $mainStory->setAttribute('CreationDate', date('Y-m-d', $pack_mainstory->field_created).'T'.date('H:i:s', $pack_mainstory->field_created));
-  $mainStory->appendChild($valid_dom->createElement('Title', $pack_mainstory->field_objecttitle[0]['value']));
-  $mainStory->appendChild($valid_dom->createElement('ExternalReference', $pack_mainstory->field_externalreference[0]['value']));
-  $mainStory->appendChild($valid_dom->createElement('Copyright', $pack_mainstory->field_copyright[0]['value']));
-  $mainStory->appendChild($valid_dom->createElement('TextTitle', $pack_mainstory->title));
-  $mainStory->appendChild($valid_dom->createElement('TextBody', $pack_mainstory->field_textbody[0]['value']));
 
-  $imgs_to_zip = array();
   if (!empty($package_object->field_embededobjects_nodes)) {
     $embeddedContent = $package->appendChild($valid_dom->createElement('EmbeddedContent'));
     $embeddedObjects = $embeddedContent->appendChild($valid_dom->createElement('EmbeddedObjects'));
     foreach($package_object->field_embededobjects_nodes as $embeded_object) {
       if ($embeded_object->type == 'wally_photoobject') {
         $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
-        $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
-        $object->setAttribute('ObjectID', $embeded_object->field_objectid[0]['value']);
-        $object->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
-        $object->setAttribute('CreationDate', date('Y-m-d', $embeded_object->created).'T'.date('H:i:s', $embeded_object->created));
-        $object->setAttribute('MimeType', $embeded_object->field_photofile[0]['filemime']);
-        $object->appendChild($valid_dom->createElement('Title', $embeded_object->title));
-        $object_elements = array(
-          'ExternalReference',
-          'Copyright',
-          'Summary',
-        );
-        foreach ($object_elements as $object_element) {
-          $low_name = 'field_'.strtolower($object_element);
-          $object_array = $embeded_object->$low_name;
-          $object->appendChild($valid_dom->createElement($object_element, $object_array[0]['value']));
-        }
-        $object->appendChild($valid_dom->createElement('FileURI', 'embed://'.$embeded_object->field_photofile[0]['filename']));
-        $object->appendChild($valid_dom->createElement('FileSize', $embeded_object->field_photofile[0]['filesize']));
-        $object_elements = array(
-          'Rating',
-        );
-        foreach ($object_elements as $object_element) {
-          $low_name = 'field_'.strtolower($object_element);
-          $object_array = $embeded_object->$low_name;
-          $object->appendChild($valid_dom->createElement($object_element, 'G'));
-        }
-        
-        $imgs_to_zip[] = $embeded_object->field_photofile[0];
+        _wallyexport_createdomimg($valid_dom, $object, $package_object, $embeded_object, $imgs_to_zip);
       }
     }
   }
@@ -179,4 +163,35 @@ function _wallyexport_createzipfromdom($package_dom, $nid, $file_name, $imgs_to_
   }
   
   return $return;
+}
+
+function _wallyexport_createdomimg(&$valid_dom, &$object, $package_object, $embeded_object, &$imgs_to_zip) {
+  $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
+  $object->setAttribute('ObjectID', $embeded_object->field_objectid[0]['value']);
+  $object->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+  $object->setAttribute('CreationDate', date('Y-m-d', $embeded_object->created).'T'.date('H:i:s', $embeded_object->created));
+  $object->setAttribute('MimeType', $embeded_object->field_photofile[0]['filemime']);
+  $object->appendChild($valid_dom->createElement('Title', $embeded_object->title));
+  $object_elements = array(
+    'ExternalReference',
+    'Copyright',
+    'Summary',
+  );
+  foreach ($object_elements as $object_element) {
+    $low_name = 'field_'.strtolower($object_element);
+    $object_array = $embeded_object->$low_name;
+    $object->appendChild($valid_dom->createElement($object_element, $object_array[0]['value']));
+  }
+  $object->appendChild($valid_dom->createElement('FileURI', 'embed://'.$embeded_object->field_photofile[0]['filename']));
+  $object->appendChild($valid_dom->createElement('FileSize', $embeded_object->field_photofile[0]['filesize']));
+  $object_elements = array(
+    'Rating',
+  );
+  foreach ($object_elements as $object_element) {
+    $low_name = 'field_'.strtolower($object_element);
+    $object_array = $embeded_object->$low_name;
+    $object->appendChild($valid_dom->createElement($object_element, 'G'));
+  }
+  
+  $imgs_to_zip[] = $embeded_object->field_photofile[0];
 }
