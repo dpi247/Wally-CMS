@@ -321,6 +321,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
   file_check_directory($file_temp_dir, 1);
   $new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
+  $new_file_path .= $new_file_path.'_'.date('Ymd', time());
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
