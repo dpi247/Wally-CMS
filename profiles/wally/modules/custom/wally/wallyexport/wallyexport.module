@@ -30,6 +30,12 @@ function wallyexport_menu() {
 function wallyexport_export_packages($nids) {
   $return = array();
   
+  $files = drupal_system_listing('.*\.zip$', '', 'name', 0);
+  ksort($files);
+  
+  foreach ($files as $file) {
+    file_delete($file);
+  }
   foreach ($nids as $nid) {
     $package_object = node_load($nid);
     wallycontenttypes_packagepopulate($package_object, '');
