@@ -108,8 +108,10 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
       $mainStory->appendChild($valid_dom->createElement('Title', $pack_mainstory->field_objecttitle[0]['value']));
       $mainStory->appendChild($valid_dom->createElement('ExternalReference', $pack_mainstory->field_externalreference[0]['value']));
       $mainStory->appendChild($valid_dom->createElement('Copyright', $pack_mainstory->field_copyright[0]['value']));
-      $mainStory->appendChild($valid_dom->createElement('TextTitle', $pack_mainstory->title));
-      $mainStory->appendChild($valid_dom->createElement('TextBody', $pack_mainstory->field_textbody[0]['value']));
+      $text_title = $mainStory->appendChild($valid_dom->createElement('TextTitle', ''));
+      $text_title->appendChild($valid_dom->createCDATASection($pack_mainstory->title));
+      $text_body = $mainStory->appendChild($valid_dom->createElement('TextBody', ''));
+      $text_body->appendChild($valid_dom->createCDATASection($pack_mainstory->field_textbody[0]['value']));
       break;
     case 'GalleryPackageType' :
       $mainObject = $package->appendChild($valid_dom->createElement('MainObject'));
