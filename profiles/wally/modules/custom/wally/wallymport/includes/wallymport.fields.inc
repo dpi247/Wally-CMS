@@ -573,7 +573,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
   $value=$dom->nodeValue;
-  
+
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom);
 
