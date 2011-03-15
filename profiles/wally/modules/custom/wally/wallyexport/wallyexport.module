@@ -32,14 +32,15 @@ function wallyexport_export_packages($nids) {
   
   $files = drupal_system_listing('.*\.zip$', '', 'name', 0);
   ksort($files);
-  
+  dsm($files);
   foreach ($files as $file) {
     file_delete($file);
   }
+  
   foreach ($nids as $nid) {
     $package_object = node_load($nid);
     wallycontenttypes_packagepopulate($package_object, '');
-    $zip_name = 'exported_'.$package_object->nid.'_'.$package_object->field_externalreference[0]['value'].'_'.rand();
+    $zip_name = 'Wally::'.$package_object->nid;
     $package_dom_and_images = _wallyexport_createvaliddomfrompackage($package_object, $zip_name);
     if ($package_dom_and_images) {
       $package_dom = $package_dom_and_images[0];
