@@ -149,7 +149,7 @@ function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path 
     /**
     * @todo Remove print in production mode OR check the "log" mode or import settings.
     */
-    print json_encode($return);
+    return json_encode($return);
   }
 }
 
@@ -238,9 +238,9 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
     }
 
     if ($zip_error) {
-      file_move($file->filename, variable_get('wallymport_import_error'));
+      file_move($file->filename, variable_get('wallymport_import_error', file_directory_path()));
     } else {
-      file_move($file->filename, variable_get('wallymport_import_done'));
+      file_move($file->filename, variable_get('wallymport_import_done', file_directory_path()));
     }
   }
   
@@ -448,17 +448,17 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
  * @return
  *   The node object that has been build
  */
-function wimprt_process_object($dom,&$log,$callback=NULL){
-  $callback=wimprt_set_callback($dom,$callback);
-  $node=wimprt_create_or_load($dom,'object', $callback,$log);
+function wimprt_process_object($dom, &$log, $callback=NULL){
+  $callback=wimprt_set_callback($dom, $callback);
+  $node=wimprt_create_or_load($dom, 'object', $callback,$log);
 
 /**
  * @todo Put into walymportlog module
  */
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
-
-  module_invoke_all('wimprt_process_object',$node,$dom,$log,'before_process');
+dsm($node);
+  module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$callback")){
     call_user_func("wimprt_process_object_$callback",&$node,$dom,&$log);
