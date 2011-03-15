@@ -179,23 +179,23 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
   global $proceed_folder_path;
 
   $uri = parse_url($file_uri);
-  $badcar = array("+", );
+  $badcar = array("+"," ");
   $new_file_path = rtrim($new_file_path, '/');
   $new_file_path .= '/';
 
   switch($uri['scheme']){
     case'embed':
-      // "+" sign in filename is unsupported by imagecache. 
+      // "+" sign in filename is unsupported by imagecache.
       $good_uri_host = str_replace($badcar, "_", $uri['host']);
-      $file_temp_path=$proceed_folder_path.'/'.$uri['host']; 
-      $file_dest_path=file_directory_path().'/'.$good_uri_host;
-      if (!@copy($file_temp_path, $file_dest_path)) {
+      $file_temp_path=$proceed_folder_path.'/'.$uri['host'];
+      $file_dest_path=file_directory_path().'/'.rand().'_'.$good_uri_host;
+      if (!copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
-        return $return; 
+        return $return;
       }
       break;
 
