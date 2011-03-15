@@ -38,7 +38,7 @@ function wallyexport_export_packages($nids) {
   foreach ($nids as $nid) {
     $package_object = node_load($nid);
     wallycontenttypes_packagepopulate($package_object, '');
-    $zip_name = 'Wally::'.$package_object->nid;
+    $zip_name = 'Wally_'.$package_object->nid;
     $package_dom_and_images = _wallyexport_createvaliddomfrompackage($package_object, $zip_name);
     if ($package_dom_and_images) {
       $package_dom = $package_dom_and_images[0];
@@ -88,7 +88,7 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
   $package->setAttribute('EmbargoDate', str_replace(' ', 'T', $package_object->field_embargodatetime[0]['value']));
   $package->setAttribute('Language', $package_object->language);
   $package->appendChild($valid_dom->createElement('PackageTitle', $package_object->title));
-  $package->appendChild($valid_dom->createElement('ExternalReference', $package_object->field_externalreference[0]['value'] ? $package_object->field_externalreference[0]['value'] : 'Wally::'.$package_object->nid));
+  $package->appendChild($valid_dom->createElement('ExternalReference', $package_object->field_externalreference[0]['value'] ? $package_object->field_externalreference[0]['value'] : 'Wally_'.$package_object->nid));
   $package->appendChild($valid_dom->createElement('ProductID', $package_object->field_productid[0]['value']));
   $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
   $editions = $package->appendChild($valid_dom->createElement('Editions'));
