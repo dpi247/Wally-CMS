@@ -35,9 +35,11 @@ function wallyexport_export_packages($nids) {
     wallycontenttypes_packagepopulate($package_object, '');
     $zip_name = 'exported_'.$package_object->nid.'_'.$package_object->field_externalreference[0]['value'].'_'.rand();
     $package_dom_and_images = _wallyexport_createvaliddomfrompackage($package_object, $zip_name);
-    $package_dom = $package_dom_and_images->pack;
-    $imgs_to_zip = $package_dom_and_images->imgs;
-    $return[] = _wallyexport_createzipfromdom($package_dom, $package_object->nid, $zip_name, $imgs_to_zip);
+    if ($package_dom_and_images) {
+      $package_dom = $package_dom_and_images->pack;
+      $imgs_to_zip = $package_dom_and_images->imgs;
+      $return[] = _wallyexport_createzipfromdom($package_dom, $package_object->nid, $zip_name, $imgs_to_zip);
+    }
   }
   
   return $return;
@@ -65,7 +67,7 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
       $package_type = 'ArticlePackageType';
       break;
     default :
-      return $valid_dom;
+      return FALSE;
   }
 
   $package = $packages->appendChild($valid_dom->createElement('Package'));
@@ -150,9 +152,9 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
     }
   }
   
-  $return = new stdClass;
-  $return->pack = $valid_dom;
-  $return->imgs = $imgs_to_zip;
+  $return = array();
+  $return[] = $valid_dom;
+  $return[] = $imgs_to_zip;
   return $return;
 }
 
