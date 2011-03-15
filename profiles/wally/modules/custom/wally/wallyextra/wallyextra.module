@@ -298,7 +298,20 @@ function wallyextra_rate_templates() {
     return $templates;
   }
 
+/*
+ * Implementation of hook_cron().
+ */ 
+function wallyextra_cron(){
+  $list = db_query('SELECT * FROM {wallyextra_cache_torefresh}');  
+  module_load_include('inc', 'wallyextra', 'plugins/content_types/rssmixread'); 
+  while ($elem = db_fetch_array($list)) {
+    $settings = unserialize($elem['settings']);
+    watchdog('RSS mix', 'Hook_cron called. Cid =  : %id.', array('%id' => $settings['caid']), WATCHDOG_INFO);
+    _wallyextra_rssmix_setcache($settings);
+    db_query('DELETE FROM {wallyextra_cache_torefresh} WHERE cid = %d', $settings['caid']);
+  }
+}
+
 /**
  * @} End of "defgroup wallyextra".
  */
-
