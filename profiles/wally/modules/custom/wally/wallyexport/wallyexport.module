@@ -67,7 +67,7 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
     default :
       return $valid_dom;
   }
-dsm($package_object);
+
   $package = $packages->appendChild($valid_dom->createElement('Package'));
   $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $package_type);
   $package->setAttribute('PackageID', $package_object->field_packageid[0]['value']);
