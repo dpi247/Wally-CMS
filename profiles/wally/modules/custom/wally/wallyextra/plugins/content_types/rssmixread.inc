@@ -317,11 +317,6 @@
 	 */
 	function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args, $context) {
 		$settings = wallyextra_rssmixread_content_type_get_conf(wallyextra_rssmixread_content_type_content_type($subtype), $conf);
-		$new_file_path = 'RSS/';
-		$file_temp_dir = file_directory_path().'/'.$new_file_path;
-		file_check_directory($file_temp_dir, 1);
-		$new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
-		$new_file_path .= '_'.date('Ymd', time());
 		$feed = array();
 		$block = new stdClass();
 		$block->module = 'wallyextra';
@@ -581,8 +576,23 @@
 		return $most_recent['arrayID'];
 	}
 
-	function _wallyextra_rssmix_setcache($settings){
+/**
+	 * Refresh the cache for the selected rssmix entry in the cache table
+	 * 
+	 * @param $settings
+	 *   The array containing the settings for this object.
+	 * 
+	 * @return
+	 *   The array containing the differents items of the rssmix feed 
+	 * 	 which will be displayed.
+	 */
+function _wallyextra_rssmix_setcache($settings){
 		$rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
+		$new_file_path = 'RSS/';
+		$file_temp_dir = file_directory_path().'/'.$new_file_path;
+		file_check_directory($file_temp_dir, 1);
+		$new_file_path .= $settings['override_title'] ? $settings['override_title_text'] : $settings['caid'];
+		$new_file_path .= '_'.date('Ymd', time());
 		$override_theme = $settings['override_theme'];
 		$feed = array();
 		if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -598,11 +608,9 @@
 		$override_theme_text = $settings['override_theme_text'];
 		$maxitem_global = $settings['maxitem_global'];
 		$maxitem_byfeed = $settings['maxitem_byfeed'];
-
 		foreach ($rss_uris as $rss_uri) {
 			$feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
 		}
-
 		for ($i=0; $i<$maxitem_global; $i++) {
 			$schema_elem = $mix_schema[$i%sizeof($mix_schema)];
 			$available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
@@ -620,5 +628,4 @@
 		}
 		cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
 		return $feed;
-
 	}
