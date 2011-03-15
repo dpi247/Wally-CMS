@@ -65,7 +65,7 @@
   
 ?>
 <h3><?php print $foretitle; ?></h3>             
-<h2><a title="" rel="bookmark" href="<?php print drupal_get_path_alias('node/'.$node->nid); ?>"><?php print $title; ?></a></h2>             
+<h2><a title="" rel="bookmark" href="<?php print '/'.drupal_get_path_alias('node/'.$node->nid); ?>"><?php print $title; ?></a></h2>             
 <h3><?php if($subtitle) print $subtitle; ?></h3>             
              
 <div class="date">Publié le <?php print date('d M Y', $mainstory->created) ?>  // <?php print $destination_term; ?></div>
