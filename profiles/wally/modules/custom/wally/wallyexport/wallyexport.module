@@ -32,9 +32,8 @@ function wallyexport_export_packages($nids) {
   
   $files = drupal_system_listing('.*\.zip$', '', 'name', 0);
   ksort($files);
-  dsm($files);
   foreach ($files as $file) {
-    file_delete($file);
+    file_delete($file->filename);
   }
   
   foreach ($nids as $nid) {
