@@ -756,36 +756,21 @@ function node_load($param = array(), $revision = NULL, $reset = NULL) {
   }
 
   if ($node && $node->nid) {
-    if (module_exists('wallytoolbox')) {
-      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid);
+    // Call the node specific callback (if any) and piggy-back the
+    // results to the node or overwrite some values.
+    if ($extra = node_invoke($node, 'load')) {
+      foreach ($extra as $key => $value) {
+        $node->$key = $value;
+      }
     }
-    if (!$cached_node || $reset) {
-      // Call the node specific callback (if any) and piggy-back the
-      // results to the node or overwrite some values.
-      if ($extra = node_invoke($node, 'load')) {
-        foreach ($extra as $key => $value) {
-          $node->$key = $value;
-        }
-      }
 
-      if ($extra = node_invoke_nodeapi($node, 'load')) {
-        foreach ($extra as $key => $value) {
-          $node->$key = $value;
-        }
+    if ($extra = node_invoke_nodeapi($node, 'load')) {
+      foreach ($extra as $key => $value) {
+        $node->$key = $value;
       }
-      
-      node_invoke_nodeapi($node, 'post_load');
-      
-      if ($cachable) {
-        $nodes[$node->nid] = is_object($node) ? drupal_clone($node) : $node;
-      }
-      
-      if (module_exists('wallytoolbox')) {
-        wallytoolbox_object_cache_set($node);
-      }
-    } else {
-      $node = $cached_node;
+    }
+    if ($cachable) {
+      $nodes[$node->nid] = is_object($node) ? drupal_clone($node) : $node;
     }
   }
 
