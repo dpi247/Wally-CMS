@@ -111,29 +111,7 @@ function emvideo_embedly_extract($video_id = '') {
  *  
  */
 function  _emvideo_embedly_request($src_url){
-	$embedly_result = array();
-  $url = "http://api.embed.ly/1/oembed";
-  $data = "?url=".$src_url."&maxwidth=600&format=xml";
-  $data = str_replace(":","%3A",$data);
-  $data = str_replace("/","%2F",$data);
-  $xml = simplexml_load_file($url.$data);
-  $embedly_result = array(
-   'version' => (string)$xml->version,
-   'type' => (string)$xml->type, 
-   'provider_url' => (string)$xml->provider_url,
-   'provider_name' => (string)$xml->provider_name,
-   'description' => (string)$xml->description,
-   'title' => (string)$xml->title,
-   'author' => (string)$xml->author_name,
-   'author_url' => (string)$xml->author_url,
-   'height' => (string)$xml->height,
-   'width' => (string)$xml->width,
-   'html' => (string)$xml->html,
-   'thumbnail_url' => (string)$xml->thumbnail_url,
-   'thumbnail_width' => (string)$xml->thumbnail_width,   
-   'thumbnail_height' => (string)$xml->thumbnail_height
-  );
-	return $embedly_result;
+	return _media_embedly_cached_request($src_url, 'video');
 }
 
 function emvideo_embedly_error_check($url) {
