@@ -167,7 +167,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
-          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+          wallytoolbox_object_cache_clear($node->nid);
           _wallycontenttypes_addtaxonomywheninserted($node);
       } elseif( $node->type == 'wally_textobject' ||
               $node->type == 'wally_audioobject' ||
@@ -176,7 +176,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_videoobject' ||
               $node->type == 'wally_pollobject' ||
               $node->type == 'poll') {
-                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+                wallytoolbox_object_cache_clear($node->nid);
                 _wallycontenttypes_addtaxonomywhenupdated($node);
       }
       wallytoolbox_object_referencer_cache_clear($node);
@@ -188,7 +188,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
           wallycontenttypes_delete_orphans_objects($node); 
-          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+          wallytoolbox_object_cache_clear($node->nid);
       } elseif( $node->type == 'wally_textobject' ||
               $node->type == 'wally_audioobject' ||
               $node->type == 'wally_digitalobject' || 
@@ -196,7 +196,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_videoobject' ||
               $node->type == 'wally_pollobject' ||
               $node->type == 'poll') {
-                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+                wallytoolbox_object_cache_clear($node->nid);
       }
       wallytoolbox_object_referencer_cache_clear($node);
       break;
@@ -259,7 +259,7 @@ function wallycontenttypes_form_poll_cancel_form_alter (&$form, &$form_state) {
 function wallycontentypes_update_poll_cache (&$form, &$form_state) {
   $node = $form['#node'];
   $nid = $node->nid;
-  wallytoolbox_object_cache_clear($nid, $node->revision_uid);
+  wallytoolbox_object_cache_clear($nid);
   wallytoolbox_object_referencer_cache_clear($node);
 }
 
@@ -305,7 +305,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  */
 function wallycontenttypes_packagepopulate(&$node, $op){
   require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-  $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name);
+  $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
   if (!$cached_node || $reset_cache) {
     wallycontenttypes_fieldNID(&$node, $op);
     wallycontenttypes_fieldTID(&$node, $op);
