@@ -24,8 +24,8 @@
  * @return
  *   The data that was cached.
  */
-function wallytoolbox_object_cache_get($nid, $revision, $view_name) {
-  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision.'_'.$view_name));
+function wallytoolbox_object_cache_get($nid, $revision, $view_name, $display) {
+  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision.'_'.$view_name.'_'.$display));
   $data = $data ? unserialize($data->data) : FALSE;
 
   //watchdog('WallyToolbox', 'Node %nid get from cache with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
@@ -46,10 +46,10 @@ function wallytoolbox_object_cache_set($node) {
   $nid = $node->nid;
   $revision = $node->revision_uid;
   
-  wallytoolbox_object_cache_clear($nid, $revision);
+  wallytoolbox_object_cache_clear($nid);
 
   $object = array(
-    'nid'           => $nid.'_'.$revision.'_'.$node->view->name,
+    'nid'           => $nid.'_'.$revision.'_'.$node->view->name.'_'.$node->view->current_display,
     'type'          => $node->type,
     'updated'       => time(),
     'data'          => $node,
