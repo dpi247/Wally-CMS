@@ -93,44 +93,43 @@ function media_embedly_check_status($video_id, $reset = FALSE) {
 */
 
 function  _media_embedly_video_request($src_url){
-	// get back the administration variables values
-  $width_adm = media_embedly_variable_get('video_width');
-  $height_adm = media_embedly_variable_get('video_height');	
-  $embedly_result = array();
-  $url = "http://api.embed.ly/1/oembed";
-  $data = "?url=".$src_url."&maxwidth=".$width_adm."&format=xml";
-  $data = str_replace(":","%3A",$data);
-  $data = str_replace("/","%2F",$data);
-  $xml = simplexml_load_file($url.$data);
-  $embedly_result = array(
-   'version' => (string)$xml->version,
-   'type' => (string)$xml->type, 
-   'provider_url' => (string)$xml->provider_url,
-   'provider_name' => (string)$xml->provider_name,
-   'description' => (string)$xml->description,
-   'title' => (string)$xml->title,
-   'author' => (string)$xml->author_name,
-   'author_url' => (string)$xml->author_url,
-   'height' => (string)$xml->height,
-   'width' => (string)$xml->width,
-   'html' => (string)$xml->html,
-   'thumbnail_url' => (string)$xml->thumbnail_url,
-   'thumbnail_width' => (string)$xml->thumbnail_width,   
-   'thumbnail_height' => (string)$xml->thumbnail_height
-  );
-  return $embedly_result;
+  return _media_embedly_cached_request($src_url, 'video');
 }
 
 function  _media_embedly_audio_request($src_url){
+  return _media_embedly_cached_request($src_url, 'audio');
+}
+
+function _media_embedly_cached_request($src_url, $type){
   // get back the administration variables values
-  $width_adm = media_embedly_variable_get('audio_width');
-  $height_adm = media_embedly_variable_get('audio_height'); 
+  $width_adm = media_embedly_variable_get($type.'_width');
+  $delta_t = media_embedly_variable_get('cache_time');
   $embedly_result = array();
   $url = "http://api.embed.ly/1/oembed";
   $data = "?url=".$src_url."&maxwidth=".$width_adm."&format=xml";
   $data = str_replace(":","%3A",$data);
   $data = str_replace("/","%2F",$data);
-  $xml = simplexml_load_file($url.$data);
+  $data = str_replace("#","%23",$data);
+  $cid = 'embedly_'.$src_url;
+  $cached_xml = cache_get($cid);
+  if (!is_object($cached_xml) || !isset($cached_xml) || empty($cached_xml)) {
+		watchdog('Embedly', 'Non existant cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+    $xml = simplexml_load_file($url.$data);
+    if($xml!='FALSE'){
+      cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
+    }
+  }elseif($cached_xml->created <= time()){ 
+    watchdog('Embedly', 'Too old cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+    $xml = simplexml_load_file($url.$data);
+    if($xml!='FALSE'){
+      cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
+    }else{
+      $xml = simplexml_load_string($cached_xml->data);
+    }
+  }else{
+    watchdog('Embedly', 'Good cache, serving cached embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+    $xml = simplexml_load_string($cached_xml->data);
+  }
   $embedly_result = array(
    'version' => (string)$xml->version,
    'type' => (string)$xml->type, 

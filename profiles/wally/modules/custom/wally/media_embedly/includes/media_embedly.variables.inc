@@ -127,7 +127,9 @@ function media_embedly_variable_default($name = NULL) {
     $defaults = array(
       'cron_time' => 10,
       'cron_limit' => 50,
-      
+      'video_width' => 300,
+      'audio_width' => 300,
+      'cache_time' => 1440,
       // Array of the allowed URLs from which the videos may come.
       'allowed_video_url' => 'http://*justin.tv/*
 http://*justin.tv/*/b/*

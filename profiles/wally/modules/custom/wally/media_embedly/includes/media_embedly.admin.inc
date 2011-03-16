@@ -33,7 +33,12 @@ function media_embedly_admin_form() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-
+  $form['settings'][media_embedly_variable_name('cache_time')] = array(
+    '#type' => 'textfield',
+    '#title' => t('Cache time'),
+    '#default_value' => media_embedly_variable_get('cache_time'),
+    '#description' => t('The time for which the cached info is considered valid (in minutes).'),
+  );
   return $form;
 };
 
