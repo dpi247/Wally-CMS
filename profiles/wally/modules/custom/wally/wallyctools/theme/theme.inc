@@ -1,10 +1,8 @@
 <?php
 
 function wallyctools_preprocess_views_view_unformatted(&$vars) {
-    $view     = &$vars['view'];
-    $vars['template_files'][] = 'node-view-fffffffffffffffffffffffffffffffffff';
-    
-  
+  $view = &$vars['view'];
+  $vars['template_files'][] = 'node-view-fffffffffffffffffffffffffffffffffff';
 }
 
 /**
@@ -23,25 +21,25 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
   $handlers=$view->display_handler->handlers;
-foreach($handlers['argument'] as $key=>$value){
+  foreach($handlers['argument'] as $key=>$value){
     if($key=='field_destinations_tid'){
       $destination_tid=$value->value[0];
       break;
     }
   }
-foreach($handlers['filter'] as $key=>$value){
+  foreach($handlers['filter'] as $key=>$value){
     if($key=='field_destinations_target'){
       $target=$value->value;
       break;
     }
   }
   $vars['admin_links_raw'] = array(
-        'title' => t('Reorder'),
-        'alt' => t("Reorder the view"),
-        'href' => "admin/wallyctools/reorder/$destination_tid/$target",
-        'fragment' => 'views-tab-' . $view->current_display,
-        'query' => drupal_get_destination(),
-      );
+    'title' => t('Reorder'),
+    'alt' => t("Reorder the view"),
+    'href' => "admin/wallyctools/reorder/$destination_tid/$target",
+    'fragment' => 'views-tab-' . $view->current_display,
+    'query' => drupal_get_destination(),
+  );
 }
 
 
@@ -49,8 +47,7 @@ foreach($handlers['filter'] as $key=>$value){
 * Theme preprocess function for views-view-row-unformatted.tpl.php
 */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
-
-  $view     = &$vars['view'];
+  $view = &$vars['view'];
   $options = $vars['options'];
 
   // Make sure the variables are defined.
@@ -103,32 +100,32 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
 
 function theme_wallyctools_form_reorderdestinationview_form($form){
-    //loop through each "row" in the table array
-    foreach($form['rows'] as $id => $row){
-      //we are only interested in numeric keys
-      if (intval($id)){ 
-        $this_row = $row['data']['#value'];
+  //loop through each "row" in the table array
+  foreach($form['rows'] as $id => $row){
+    //we are only interested in numeric keys
+    if (intval($id)){ 
+      $this_row = $row['data']['#value'];
 
-        //Add the weight field to the row
-        $this_row[] = drupal_render($form['rows'][$id]['weight']);
-  
-        //Add the row to the array of rows
-        $table_rows[] = array('data'=>$this_row, 'class'=>'draggable');
-      }
+      //Add the weight field to the row
+      $this_row[] = drupal_render($form['rows'][$id]['weight']);
+
+      //Add the row to the array of rows
+      $table_rows[] = array('data'=>$this_row, 'class'=>'draggable');
     }
-   
-    //Make sure the header count matches the column count
-    $header=array(
-     "title" ,'order'
-    );
-    drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,TRUE);     
-    
-    $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
-    $output .= drupal_render($form);
-
-    // Call add_tabledrag to add and setup the JS for us
-    // The key thing here is the first param - the table ID
-    // and the 4th param, the class of the form item which holds the weight
-
-    return $output;
   }
+ 
+  //Make sure the header count matches the column count
+  $header=array(
+   "title" ,'order'
+  );
+  drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,TRUE);     
+  
+  $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
+  $output .= drupal_render($form);
+
+  // Call add_tabledrag to add and setup the JS for us
+  // The key thing here is the first param - the table ID
+  // and the 4th param, the class of the form item which holds the weight
+
+  return $output;
+}
