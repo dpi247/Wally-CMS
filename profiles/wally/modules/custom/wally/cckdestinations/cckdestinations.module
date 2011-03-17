@@ -207,7 +207,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     $rank_values['DNC'.$defaults['rank']] = t('Do Not Change (Actual : ').$defaults['rank'].')';
     $rank_classes['DNC'.$defaults['rank']] = t('Class DNC');
   }
-  for ($i=1; $i<=$rank_limit; $i++) {
+  for ($i=0; $i<=$rank_limit; $i++) {
     $rank_values[$i] = t('Rank ').$i;
     $rank_classes[$i] = t('Class R').$i;
   }

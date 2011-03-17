@@ -38,7 +38,7 @@ function wallyexport_page_admin_form_validate($form, &$form_state) {
   }
   
   $rank_limit = $form_state['values']['cckdestinations_rank_limit'];
-  if (!is_numeric($rank_limit) || $rank_limit < 1) {
+  if (!is_numeric($rank_limit) || $rank_limit < 0) {
     form_set_error('cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 1.'));
   }
 }
@@ -78,7 +78,7 @@ function cckdestinations_node_admin_nodes() {
   if (sizeof($field_dest_tid))
     $where_query = ' WHERE '.implode(variable_get('cckdestinations_and_or_or', ' AND '), $field_dest_tid);
 
-  $result = pager_query(db_rewrite_sql('SELECT `nid` FROM {content_field_destinations}'.$where_query), 50, 0, NULL, $filter['args']);
+  $result = pager_query(db_rewrite_sql('SELECT `nid` FROM {content_field_destinations}'.$where_query.' ORDER BY `field_destinations_time_rank` DESC'), 50, 0, NULL, $filter['args']);
 
   $form['options'] = array(
     '#type' => 'fieldset',
