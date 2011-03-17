@@ -189,7 +189,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
       $good_uri_host = str_replace($badcar, "_", $uri['host']);
       $file_temp_path=$proceed_folder_path.'/'.$uri['host'];
       $file_dest_path=file_directory_path().'/'.rand().'_'.$good_uri_host;
-      if (!copy($file_temp_path, $file_dest_path)) {
+      if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
@@ -216,7 +216,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
         file_check_directory($file_temp_dir, 1);
         $file_temp_path = $file_temp_dir.'/'.md5($file_uri).'_'.$good_file_name;
-        if(!copy($file_uri, $file_temp_path)) {
+        if(!@copy($file_uri, $file_temp_path)) {
           chmod($file_temp_path, octdec("0777"));
           drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
         } else {
