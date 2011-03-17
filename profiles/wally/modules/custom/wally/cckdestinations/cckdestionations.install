@@ -1,1 +1,29 @@
 <?php
+
+/**
+ * Implementation of hook_install().
+ */
+function cckdestinations_install(){
+  content_notify('install', 'destinationsfield');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function cckdestinations_uninstall(){
+  content_notify('uninstall', 'destinationsfield');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function cckdestinations_enable(){
+  content_notify('enable', 'destinationsfield');
+}
+
+/**
+ * Implementation of hook_desable().
+ */
+function cckdestinations_disable(){
+  content_notify('disable', 'destinationsfield');
+}

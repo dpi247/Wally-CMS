@@ -6,31 +6,30 @@
  */
 
 /**
- * Implementation of hook_install().
+ * Implementation of hook_menu().
  */
-function cckdestinations_install(){
-  content_notify('install', 'destinationsfield');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function cckdestinations_uninstall(){
-  content_notify('uninstall', 'destinationsfield');
-}
-
-/**
- * Implementation of hook_enable().
- */
-function cckdestinations_enable(){
-  content_notify('enable', 'destinationsfield');
-}
-
-/**
- * Implementation of hook_desable().
- */
-function cckdestinations_disable(){
-  content_notify('disable', 'destinationsfield');
+function cckdestinations_menu() {
+  $items = array();
+  
+  $items['admin/wally/cckdestinations/settings'] = array(
+    'title' => 'CCKDestinations Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/cckdestinations.admin.inc',
+  );
+  
+  $items['admin/wally/cckdestinations/node'] = array(
+    'title' => 'Content by destinations',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_node_admin_content'),
+    'access arguments' => array('administration pages'),
+    'description' => 'View, edit, and delete your site\'s content with a destination filter.',
+    'file' => 'includes/cckdestinations.admin.inc',
+  );
+  
+  return $items;
 }
 
 /**
@@ -79,7 +78,6 @@ function cckdestinations_field_settings( $op, $field ){
   }
 }
 
-
 /**
  * Implementation of CCK hook_field().
  */
@@ -96,7 +94,11 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       break;
     case 'presave':
       foreach ($items as $delta => $item) {
-        $items[$delta]['time_rank'] = ($item[ 'time_rank' ]!=NULL)?check_plain($item[ 'time_rank' ]):strtotime($node->field_publicationdate[0]['value']);
+        if (strstr($item['rank'], 'DNC')) {
+          $items[$delta]['rank'] = substr($item['rank'], 3);
+        } else {
+          $items[$delta]['time_rank'] = time() + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
+        }
       }
     break;
   }
@@ -151,21 +153,19 @@ function cckdestinations_elements() {
 function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
-   
-  $vocabulary_id=variable_get('wallymport_destinationpath', 0);
-  $options_and_classe=cckdestinations_get_classes_and_options();
+  $vocabulary_id = variable_get('wallymport_destinationpath', 0);
+  $options_and_classe = cckdestinations_get_classes_and_options();
 
   $element['tid'] = array(
-    '#title' => t( 'Destination Path' ),
-    '#type' => 'select',
-    '#default_value' => $defaults['tid'],
-    '#options'=>array(''=>'Not Set')+$options_and_classe['tid']['#options'],
-    
-    '#required'=>FALSE,
-    '#weight' => 1,
+    '#title'            => t( 'Destination Path' ),
+    '#type'             => 'select',
+    '#default_value'    => $defaults['tid'],
+    '#options'          => array('' => 'Not Set') + $options_and_classe['tid']['#options'],
+    '#required'         => FALSE,
+    '#weight'           => 1,
      // specify theming callback & add a new #attribute to the element.
-    '#theme' => 'cckdestinations_cascading_select',
-    '#attributes' => array('class' => 'tid'),
+    '#theme'            => 'cckdestinations_cascading_select',
+    '#attributes'       => array('class' => 'tid'),
  );
 
 /**
@@ -173,48 +173,65 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  */
 
   $element['target'] = array(
-    '#title' => t( 'Target' ),
-    '#type' => 'select',
-    '#default_value' => $defaults['target'],
-    '#options'=>$options_and_classe['target']['#options'],
-    '#classes'=>$options_and_classe['target']['#classes'],
-    '#required'=>FALSE,
-    '#weight' => 3,
+    '#title'            => t( 'Target' ),
+    '#type'             => 'select',
+    '#default_value'    => $defaults['target'],
+    '#options'          => $options_and_classe['target']['#options'],
+    '#classes'          => $options_and_classe['target']['#classes'],
+    '#required'         => FALSE,
+    '#weight'           => 3,
      // specify theming callback & add a new #attribute to the element.
-    '#theme' => 'cckdestinations_cascading_select',
-    '#attributes' => array('class' => 'target'),
- );
+    '#theme'            => 'cckdestinations_cascading_select',
+    '#attributes'       => array('class' => 'target'),
+  );
+  
   $element['layout'] = array(
-    '#title' => t( 'Layout' ),
-    '#type' => 'select',
-    '#default_value' => $defaults['layout'],
-    '#options'=>$options_and_classe['layout']['#options'],
-    '#classes'=>$options_and_classe['layout']['#classes'],
-    '#required'=>FALSE,
-    '#weight' => 4,
+    '#title'            => t( 'Layout' ),
+    '#type'             => 'select',
+    '#default_value'    => $defaults['layout'],
+    '#options'          => $options_and_classe['layout']['#options'],
+    '#classes'          => $options_and_classe['layout']['#classes'],
+    '#required'         => FALSE,
+    '#weight'           => 4,
      // specify theming callback & add a new #attribute to the element.
-    '#theme' => 'cckdestinations_cascading_select',
-    '#attributes' => array('class' => 'layout'),
- );
+    '#theme'            => 'cckdestinations_cascading_select',
+    '#attributes'       => array('class' => 'layout'),
+  );
+  
+  $rank_values = array();
+  $rank_classes = array();
+  $rank_limit = variable_get('cckdestinations_rank_limit', '10');
+
+  if (isset($defaults['rank']) && $defaults['rank'] != '') {
+    $defaults['rank'] = substr($defaults['rank'], strlen($defaults['rank']) - strlen($rank_limit));
+    $rank_values['DNC'.$defaults['rank']] = t('Do Not Change (Actual : ').$defaults['rank'].')';
+    $rank_classes['DNC'.$defaults['rank']] = t('Class DNC');
+  }
+  for ($i=1; $i<=$rank_limit; $i++) {
+    $rank_values[$i] = t('Rank ').$i;
+    $rank_classes[$i] = t('Class R').$i;
+  }
+
   $element['rank'] = array(
-    '#title' => t( 'Rank' ),
-    '#type' => 'select',
-    '#default_value' => $defaults['rank'],
-    '#options'=>array(''=>'',1=>"Rank 1",2=>"Rank 2",3=>"Rank 3",4=>"Rank 4",5=>"Rank 5",),
-    '#classes'=>array(''=>'',1=>"Class R1",2=>"Class R2",3=>"Class R3",4=>"Class R4",5=>"Class R5",),
-    '#required'=>FALSE,
-    '#weight' => 5,
+    '#title'            => t( 'Rank' ),
+    '#type'             => 'select',
+    '#default_value'    => 'DNC'.$defaults['rank'],
+    '#options'          => $rank_values,
+    '#classes'          => $rank_classes,
+    '#required'         => FALSE,
+    '#weight'           => 5,
   );
-   $element['time_rank'] = array(
-    '#title' => t( 'Rank' ),
-    '#type' => 'value',
-    '#value' => $defaults['time_rank'],
-    '#required'=>FALSE,
-    '#weight' => 5,
+  
+  $element['time_rank'] = array(
+    '#title'            => t( 'Time Rank' ),
+    '#type'             => 'value',
+    '#value'            => $defaults['time_rank'],
+    '#required'         => FALSE,
+    '#weight'           => 5,
   );
+  
   return $element;
 }
-
 
 /**
  * Helper function to provide #options and #class to cckDestinations fields
@@ -225,24 +242,24 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
  */
  
 function cckdestinations_get_classes_and_options(){
-  $result['tid']['#options']=array();
-  $result['target']['#options']=array();
-  $result['target']['#classes']=array();
-  $result['layout']['#options']=array();
-  $result['layout']['#classes']=array();
- 
-  $hierarchies= wallyctools_get_hierarchies();
+  $result['tid']['#options'] = array();
+  $result['target']['#options'] = array();
+  $result['target']['#classes'] = array();
+  $result['layout']['#options'] = array();
+  $result['layout']['#classes'] = array();
+  
+  $hierarchies = wallyctools_get_hierarchies();
   $dla = array(); 
-  foreach($hierarchies as $tid=>$hierarchie){
+  foreach($hierarchies as $tid => $hierarchie){
     // Target
-    foreach($hierarchie['redacblocks'] as $redacblock_id=>$redacblock){
+    foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
       // Layout
-      foreach($redacblock['layouts'] as $layout_id=>$name){
-        $result['tid']['#options'][$tid] = array($tid=>$hierarchie['term_name']);
-        $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id=>$redacblock['title']);
-        $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id=>$tid);
-        $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id=>$name['name']);
-        $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id=>$tid.$redacblock_id);
+      foreach($redacblock['layouts'] as $layout_id => $name){
+        $result['tid']['#options'][$tid] = array($tid => $hierarchie['term_name']);
+        $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
+        $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
+        $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id => $name['name']);
+        $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id => $tid.$redacblock_id);
       }
     }
   }
@@ -336,7 +353,7 @@ function theme_cckdestinations_widget($element) {
 
 /**
  * Implementation of hook_widget().
- */  
+ */
 function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   $element = array(
     '#type' => $field['widget']['type'],
@@ -375,14 +392,14 @@ function cckdestinations_field_formatter_info() {
   );
 }
 
-function cckdestinations_cron(){
+/*function cckdestinations_cron(){
   echo 'cckdest cron'.date("H:i:s")."\n";;
   cckdestinations_api_decrement_rank();
 }
 
 function cckdestinations_api_decrement_rank(){
-  db_query("UPDATE {content_field_destination} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
-}
+  db_query("UPDATE {content_field_destinations} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
+}*/
 
 /**
  * Implementation of hook_theme().
@@ -391,29 +408,32 @@ function cckdestinations_api_decrement_rank(){
  */
 function cckdestinations_theme() {
   return array(
-    'cckdestinations_widget' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_widget' => array(
+      'arguments' => array('element' => NULL),
     ),
-
-    'cckdestinations_formatter_default' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_formatter_default' => array(
+      'arguments' => array('element' => NULL),
     ),
-    'cckdestinations_formatter_tid' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_formatter_tid' => array(
+      'arguments' => array('element' => NULL),
     ),
-        'cckdestinations_formatter_target' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_formatter_target' => array(
+      'arguments' => array('element' => NULL),
     ),
-        'cckdestinations_formatter_layout' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_formatter_layout' => array(
+      'arguments' => array('element' => NULL),
     ),
-        'cckdestinations_formatter_rank' => array(
-       'arguments' => array('element' => NULL),
+      'cckdestinations_formatter_rank' => array(
+      'arguments' => array('element' => NULL),
     ),
-        'cckdestinations_cascading_select' => array(
-       'arguments' => array('element' => NULL),
-    ),    
-);
+      'cckdestinations_cascading_select' => array(
+      'arguments' => array('element' => NULL),
+    ),
+      'cckdestinations_node_filters' => array(
+      'arguments' => array('form' => NULL),
+      'file' => 'cckdestinations.admin.inc',
+    ),
+  );
 }
 
 /**
@@ -440,7 +460,6 @@ function theme_cckdestinations_formatter_default($element = NULL) {
   $ret .= '</div>';
   return $ret;
 }
-
 
 /**
  * Implementation of CCK's hook_field_formatter().
@@ -475,7 +494,7 @@ function theme_cckdestinations_formatter_target($element = NULL) {
     return '';
   }
 
-	$stuff = $element['#item'];
+  $stuff = $element['#item'];
 
   $flds = array('tid', 'target', 'layout', 'rank');
   $sep = '';
@@ -489,7 +508,6 @@ function theme_cckdestinations_formatter_target($element = NULL) {
   $ret .= '</div>';
   return $ret;
 }
-
 
 /**
  * Implementation of CCK's hook_field_formatter for layout element.  
@@ -547,7 +565,6 @@ function cckdestinations_ctools_plugin_directory($module, $plugin) {
   }
 }
 
-
 /**
  * Implementation of hook_views_api().
  */
@@ -558,18 +575,17 @@ function cckdestinations_views_api() {
   );
 }
 
-
-
 function cckdestinations_token_list($type = 'all') {
   $tokens=array();
   
   if ($type == 'node') {
-    $tokens['cckdest']['cckdest:destination_term']      = t("Main Destination Term");
-    $tokens['cckdest']['cckdest:destination_term_path']      =t("Main Destination Term path");
-    $tokens['cckdest']['cckdest:destination_term_id']      = t("Main Destination Term id");
+    $tokens['cckdest']['cckdest:destination_term'] = t("Main Destination Term");
+    $tokens['cckdest']['cckdest:destination_term_path'] = t("Main Destination Term path");
+    $tokens['cckdest']['cckdest:destination_term_id'] = t("Main Destination Term id");
   }
   return $tokens;
 }
+
 function cckdestinations_token_values($type, $object = NULL, $options = array()) {
   $tokens=array();
   
@@ -588,9 +604,9 @@ function cckdestinations_token_values($type, $object = NULL, $options = array())
       }
     }
     
-    $tokens['cckdest:destination_term']      = strtolower($term->name);
-    $tokens['cckdest:destination_term_path']      = strtolower($path);
-    $tokens['cckdest:destination_term_id']      = strtolower($term->tid);
+    $tokens['cckdest:destination_term'] = strtolower($term->name);
+    $tokens['cckdest:destination_term_path'] = strtolower($path);
+    $tokens['cckdest:destination_term_id'] = strtolower($term->tid);
   }
   
   return $tokens;

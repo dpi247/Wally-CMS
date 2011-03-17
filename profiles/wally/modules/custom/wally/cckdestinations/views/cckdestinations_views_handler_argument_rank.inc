@@ -9,9 +9,6 @@
  * Argument handler to filter results by target.
  */
 class cckdestinations_views_handler_argument_rank extends views_handler_argument {
-
-  
-
   /**
    * Set up the query for this argument.
    *
