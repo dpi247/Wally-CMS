@@ -90,7 +90,7 @@ function wallyrsstonode_add_table_entry($object) {
  * @return
  *   Returns FALSE in case of error, redirect if successful.
  */
-function wallyrsstonode_cron_run() {
+function wallyrsstonode_cron() {
   // Try to allocate enough time to run all the hook_cronrsstonode implementations.
   if (function_exists('set_time_limit')) {
     @set_time_limit(60);
@@ -114,7 +114,7 @@ function wallyrsstonode_cron_run() {
 
     // Return FALSE and set error message;
     drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
-    return FALSE;
+    print FALSE;
   } else {
     // Register shutdown callback
     register_shutdown_function('wallyrsstonode_cron_cleanup');
@@ -132,8 +132,9 @@ function wallyrsstonode_cron_run() {
     // Release cron semaphore
     variable_del('cronrsstonode_semaphore');
 
+    print $return;
     // Redirect to admin page if success
-    drupal_goto('admin/wally/');
+    //drupal_goto('admin/wally/');
   }
 }
 
