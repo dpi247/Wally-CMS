@@ -144,6 +144,8 @@ class views_plugin_style extends views_plugin {
     // Render each group separately and concatenate.  Plugins may override this
     // method if they wish some other way of handling grouping.
     $output = '';
+    
+    dsm('------------');
     foreach ($sets as $title => $records) {
       if ($this->uses_row_plugin()) {
         $rows = array();
