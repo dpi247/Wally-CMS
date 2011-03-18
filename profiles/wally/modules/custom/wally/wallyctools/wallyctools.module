@@ -18,10 +18,10 @@
  */ 
 function wallyctools_menu(){
   return array(
-    'admin/wallyctools/reorder/%/%'=>array(
-    'page callback'=>'wallyctools_page_reorderdestinationview',
-    'page arguments'=>array(3,4),
-    'access arguments'=>'reorder destination views',
+    'admin/wallyctools/reorder/%/%' => array(
+    'page callback'                 => 'wallyctools_page_reorderdestinationview',
+    'page arguments'                => array(3,4),
+    'access arguments'              => array('reorder destination views'),
     ),
   );
 }
