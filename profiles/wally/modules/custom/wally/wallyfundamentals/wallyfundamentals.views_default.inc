@@ -83,6 +83,13 @@ function wallyfundamentals_views_default_views() {
       'validate_argument_php' => '',
     ),
   ));
+  $handler->override_option('filters', array(
+    'type' => array(
+      'id' => 'type',
+      'table' => 'node',
+      'field' => 'type',
+    ),
+  ));
   $handler->override_option('access', array(
     'type' => 'none',
   ));
@@ -91,6 +98,59 @@ function wallyfundamentals_views_default_views() {
   ));
   $handler->override_option('row_plugin', 'node');
   $handler = $view->new_display('redacblock', 'Destination block', 'redacblock_1');
+  $handler->override_option('sorts', array(
+    'field_destinations_time_rank' => array(
+      'order' => 'DESC',
+      'delta' => '-1',
+      'id' => 'field_destinations_time_rank',
+      'table' => 'node_data_field_destinations',
+      'field' => 'field_destinations_time_rank',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
+  ));
+  $handler->override_option('filters', array(
+    'type' => array(
+      'operator' => 'in',
+      'value' => array(
+        'wally_articlepackage' => 'wally_articlepackage',
+        'wally_gallerypackage' => 'wally_gallerypackage',
+        'wally_pollpackage' => 'wally_pollpackage',
+      ),
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'type',
+      'table' => 'node',
+      'field' => 'type',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
+    'status' => array(
+      'operator' => '=',
+      'value' => '1',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
+  ));
   $handler->override_option('redacblock_layout', array(
     'small' => 'small',
     'medium' => 'medium',
