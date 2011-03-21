@@ -259,7 +259,7 @@ function wallycontenttypes_form_poll_cancel_form_alter (&$form, &$form_state) {
 function wallycontentypes_update_poll_cache (&$form, &$form_state) {
   $node = $form['#node'];
   $nid = $node->nid;
-  require_once './'.drupal_get_path('module', 'wallytoolbox').'/includes/wally.object-cache.inc'
+  require_once './'.drupal_get_path('module', 'wallytoolbox').'/includes/wally.object-cache.inc';
   wallytoolbox_object_cache_clear($nid);
   wallytoolbox_object_referencer_cache_clear($node);
 }
