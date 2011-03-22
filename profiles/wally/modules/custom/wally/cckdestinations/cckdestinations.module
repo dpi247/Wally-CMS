@@ -201,12 +201,17 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $rank_values = array();
   $rank_classes = array();
   $rank_limit = variable_get('cckdestinations_rank_limit', '10');
-
+   
+  
   if (isset($defaults['rank']) && $defaults['rank'] != '') {
-    $defaults['rank'] = substr($defaults['rank'], strlen($defaults['rank']) - strlen($rank_limit));
+    //$defaults['rank'] = substr($defaults['rank'], strlen($defaults['rank']) - strlen($rank_limit));
+    $default_value=current(explode('DNC',$defaults['rank']));
+    $default_value=next(explode('DNC',$defaults['rank'])).$default_value;
+    $defaults['rank'] = $default_value;
     $rank_values['DNC'.$defaults['rank']] = t('Do Not Change (Actual : ').$defaults['rank'].')';
     $rank_classes['DNC'.$defaults['rank']] = t('Class DNC');
   }
+  
   for ($i=0; $i<=$rank_limit; $i++) {
     $rank_values[$i] = t('Rank ').$i;
     $rank_classes[$i] = t('Class R').$i;
