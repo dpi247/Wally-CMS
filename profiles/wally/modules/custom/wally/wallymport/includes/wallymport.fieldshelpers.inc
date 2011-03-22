@@ -243,6 +243,3 @@ function _wimprthelp_create_file($filepath){
   $return = field_file_load($filepath);
   return $return;
 }
-
-
-

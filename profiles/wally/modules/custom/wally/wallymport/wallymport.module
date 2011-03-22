@@ -597,7 +597,6 @@ function wimprt_process_object_default(&$node,$dom,&$log){
     if(function_exists("wimprt_set_field_$name")){
       call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
     }
-     
   }
 }
 

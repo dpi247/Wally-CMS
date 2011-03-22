@@ -113,15 +113,22 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
    $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("PublicationDate"))
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  else{
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
   if($dom_element->hasAttribute("CreationDate"))
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
+    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+    $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   if($dom_element->hasAttribute("UnPublishDate"))
     $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->language= $dom_element->getAttributeNode("Language")->value;
+  
+  if(!$dom_element->hasAttribute("PackageLayout")){
+    wimprt_set_field_packagelayout($node,'Article');
+  }
   
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
@@ -146,18 +153,19 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
 function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
-  
    $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("PublicationDate"))
-    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  if($dom_element->hasAttribute("CreationDate"))
+    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+    $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   if($dom_element->hasAttribute("UnPublishDate"))
     $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->language= $dom_element->getAttributeNode("Language")->value;
+  
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
@@ -180,21 +188,61 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
 function wimprt_process_package_pollpackagetype(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if($dom_element->hasAttribute("PublicationDate"))
-    $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  if($dom_element->hasAttribute("CreationDate"))
+    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+    $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
     $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   if($dom_element->hasAttribute("UnPublishDate"))
     $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->language= $dom_element->getAttributeNode("Language")->value;
   
-  
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
+}
+
+/**
+ * Process field SourceXML from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_sourcexml(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_sourcexml[0]['value']= _wimprthelp_plain_text($value);
+}
+
+/**
+ * Process field Package Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_packagetitle(&$node,$dom,&$log){
+  $text=$dom->nodeValue;
+  $node->title = _wimprthelp_plain_text($text);
 }
 
 /**
@@ -218,7 +266,7 @@ function wimprt_set_field_packagedescription(&$node,$dom,&$log){
 }
 
 /**
- * Process field Package Title from DOM element.
+ * Process field Internal Reference from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
  * 
@@ -232,9 +280,9 @@ function wimprt_set_field_packagedescription(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_packagetitle(&$node,$dom,&$log){
-  $text=$dom->nodeValue;
-  $node->title= _wimprthelp_plain_text($text);
+function wimprt_set_field_internalreference(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_internalreference[0]['value']= _wimprthelp_plain_text($value);
 }
 
 /**
@@ -258,6 +306,406 @@ function wimprt_set_field_externalreference(&$node,$dom,&$log){
 }
 
 /**
+ * Process field ProductID from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_productid(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_productid[0]['value']=$value;
+}
+
+/**
+ * Process field Destinations from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_destinations(&$node,$dom,$log) {
+
+  if(variable_get('wallymport_debug',0) or true){
+    $log['log'][]='process Destinations: '.$dom->nodeName;
+  }
+  $term = array();
+  $result = array(); 
+  $vid=variable_get('wallymport_destinationpath',null);
+  if ($vid) {
+		$i=0;
+		foreach($dom->getElementsByTagName('Destination') as $destination) {
+			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
+			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
+			if ($terms) {
+				// As we check the taxonomy full path and specify a vocabulary
+				// we can only have one result.
+				$result[$i]['tid']=$terms[0]->tid;
+
+				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
+				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
+
+				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
+        $result[$i]['time_rank']=strtotime($node->field_publicationdate[0]['value']) + ($result[$i]['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
+			} else {
+				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
+			}
+		$i++;
+		}
+	
+		// If no destinations at all > Package can't be created.
+		if (count($result)) {
+			$node->field_destinations=$result;
+		} else {
+			// @TODO: FATAL ERROR - PACKAGE
+			drupal_set_message('No destination AT ALL for current package.','error');
+			return '';
+		}
+	} else {
+		drupal_set_message('Destination Path vocabulary not set. See settings.','error');
+		return '';
+	}
+}
+
+/**
+ * Process field Editions from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_editions(&$node,$dom,$log) {
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][] = 'process Editions: '.$dom->nodeName;
+  }
+
+	$result = array();
+	$valid = (bool) false;
+	$terms = array(); 
+	$vid=variable_get('wallymport_edition',null);
+	if ($vid) {
+		// Read all terms from vocabulary and set if to False (default);
+		$terms = taxonomy_get_tree($vid);
+		foreach ($terms as $term) {
+			$result[$term->name]["Publish"]=false;
+			$result[$term->name]["EditionTid"]=$term->tid;
+			$result[$term->name]["EditionID"]=$term->name;
+		}
+
+		// Get edition from DOM & update array.
+		foreach($dom->getElementsByTagName('Edition') as $edition) {
+			$editionID = $edition->getAttributeNode("EditionID")->value;
+			$value = wallytoolbox_toboolean($edition->nodeValue);
+			if (strtolower($editionID)=="all") {
+				foreach ($terms as $term) $result[$term->name]["Publish"]=$value;
+				$valid = $value;
+				drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
+				break;
+			} else {
+				if (array_key_exists($editionID, $result)) {
+					$valid = ($valid || $value);
+					$result[$editionID]['Publish']=$value;
+				} else {
+					drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
+				}
+			}
+		}
+		if ($valid) { 
+      $node->field_editions=array(array("value"=>serialize($result)));
+		} else {
+			drupal_set_message('ALL Edition set to false. Package should be rejected','error');
+			// TODO: FATAL ERROR - PACKAGE
+		}
+		
+	} else {
+		drupal_set_message('Edition vocabulary not set. See settings.','error');
+		return '';
+	}
+}
+
+/**
+ * Process field Channels from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_channels(&$node,$dom,$log) {
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][] = 'process Channels: '.$dom->nodeName;
+  }
+
+	$result = array();
+
+  // Get edition from DOM & update array.
+  foreach($dom->getElementsByTagName('Channel') as $channel) {
+    $channelName = $channel->getAttributeNode("Name")->value;
+    $result[] = $channelName;
+  }
+
+  if (!empty($result)) { 
+    $node->field_channels=array(array("value"=>serialize($result)));
+  } else {
+    drupal_set_message('No channels found. Package should be rejected','error');
+    // TODO: FATAL ERROR - PACKAGE
+  }
+}
+
+/**
+ * Process field Comments Allowed from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
+	$result = COMMENT_NODE_DISABLED;
+
+	switch ($dom->nodeValue) {
+		case "Disabled":
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+		case "Read Only":
+			$result = COMMENT_NODE_READ_ONLY; 
+			break;
+		case "Read-Write":
+			$result = COMMENT_NODE_READ_WRITE; 
+			break;
+		default:
+			$result = COMMENT_NODE_DISABLED; 
+			break;
+	}
+	$node->comment = $result;
+	return $result;
+}
+
+/**
+ * Process field Free Access from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * Anything else then a booelan true value will 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_freeaccess(&$node,$dom,&$log){
+  (wallytoolbox_toboolean($dom->nodeValue)) ? 
+    $node->field_freeaccess[0]['value'] = "Free" : 
+    $node->field_freeaccess[0]['value'] = null; 
+}
+
+/**
+ * Process field AutoPublish from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * Anything else then a booelan true value will 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_autopublish(&$node, $dom, &$log){
+  //@todo ???
+}
+
+/**
+ * Process field Authors from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_authors(&$node,$dom,&$log){
+
+	$node->field_authors = array(); 
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Persons: '.$dom->nodeName;
+	  }
+
+	$results=wimprt_process_list($dom,$log,'type');
+
+	// Get Location Taxonomy for all nodes.
+	foreach($results as $result) {
+		if (isset($result->field_persontaxonomy)) {
+			if ($result->field_persontaxonomy[0]) {
+				$node->field_authors[] = array("value"=>$result->field_persontaxonomy[0]["value"]);
+				$node->taxonomy[] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);  
+			}
+		}
+	} 
+}
+
+/**
+ * Process field PackageLayout from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_packagelayout(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_packagelayout = array();
+
+	if(variable_get('wallymport_debug',0) or true) {
+		$log['log'][]='process PackageLayout: '.$dom->nodeName;
+  }
+
+	if (is_numeric($value)) {
+    $node->field_packagelayout[] = $value;
+  } elseif($tax_term = taxonomy_get_term_by_name($value)) {
+    $node->field_packagelayout[] = $tax_term[0]->tid;
+  } else {
+		drupal_set_message('PackageLayout not found: '.$lid.', assuming new packagelayout.','error');
+  }
+}
+
+/**
+ * Process field Summary from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_summary(&$node,$dom,&$log){
+  $value=$dom->nodeValue;
+  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+}
+
+/**
+ * Process field ExternalURI from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_externaluri(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_externaluri = array();
+
+	if(variable_get('wallymport_debug',0) or true) {
+		$log['log'][]='process ExternalURI: '.$dom->nodeName;
+  }
+
+	$uri_response = drupal_http_request($value);
+  if ($uri_response->status_message == 'OK') {
+    $node->field_externaluri[] = $value;
+  }
+}
+
+/**
+ * Process field PackageCopyright from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_packagecopyright(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_packagecopyright = array();
+
+	if(variable_get('wallymport_debug',0) or true) {
+		$log['log'][]='process PackageCopyright: '.$dom->nodeName;
+  }
+
+	$node->field_packagecopyright[] = $value;
+}
+
+/**
  * Process field Main Story from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
@@ -277,51 +725,6 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
 	$object=wimprt_process_object($dom,$log,'TextObject');
 	$node->field_mainstory[0]['nid']=$object->nid;
 }
-/**
- * Process field Poll Questions from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_pollquestions(&$node,$dom,&$log){
-  $i=0;
-    
-  foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
-    $node->field_poll[$i]['active']=1;
-    $feature=array();
-    $choice=1;
-    if($pollquestion->hasAttribute("Choice")){
-    if($pollquestion->getAttributeNode("Choice")->value==="radioButton")
-      $choice=0;
-    }
-    $feature['CancelVote_Allow']=1;
-    $feature['ResultsAllow']=0;
-    $feature['PollType']=$choice;
-    $node->field_poll[$i]['poll_features']=serialize($feature);
-    foreach($pollquestion->getElementsByTagName("Question") as $question)
-      $node->field_poll[$i]['question']=$pollquestion->nodeValue;
-      $j=0;
-    foreach($pollquestion->getElementsByTagName("Answer") as $answer){
-      $answers[$j]['choice']=$answer->nodeValue;
-      $answers[$j]['votes']=null;
-      $j+=1;
-      }
-      if($j>0){
-        $node->field_poll[$i]['choice']=serialize($answers);
-      }
-    $i+=1;
-    }
-
-  }
 
 /**
  * Process field Main Object from DOM element.
@@ -342,18 +745,18 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
   if($dom->hasAttribute('xsi:type')){
     $object=new stdClass;
     if(strtolower($dom->getAttributeNode('xsi:type')->value)=='photoobjecttype')
-        $object=wimprt_process_object($dom,$log,'PhotoObjectType');
+      $object=wimprt_process_object($dom,$log,'photoobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='audioobjecttype')
-        $object=wimprt_process_object($dom,$log,'audioobjecttype');
+      $object=wimprt_process_object($dom,$log,'audioobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='digitalobjecttype')
-        $object=wimprt_process_object($dom,$log,'digitalobjecttype');
+      $object=wimprt_process_object($dom,$log,'digitalobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='videoobjecttype')
-        $object=wimprt_process_object($dom,$log,'videoobjecttype');
+      $object=wimprt_process_object($dom,$log,'videoobjecttype');
         
     if($object->nid)
       $node->field_mainobject[0]['nid']=$object->nid; 
-    }
   }
+}
   
 /**
  * Process field Poll from DOM element.
@@ -374,8 +777,6 @@ function wimprt_set_field_poll(&$node,$dom,&$log){
   // Process the object & getting NID
 	$object=wimprt_process_object($dom,$log,'pollobjecttype');
 	$node->field_mainpoll[0]['nid']=$object->nid;
-  
-  
 }
 /**
  * Process field Package Description from DOM element.
@@ -417,17 +818,40 @@ function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
 	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
   $linklist=$dom->getElementsByTagName('LinksList')->item(0);
   if($dom->getElementsByTagName('LinksList')->item(0)){
-  if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
-    foreach(wimprt_process_list($linklists,$log,'object') as $result){
-      if (!array_key_exists($result->nid, $links)) {
-        $links[$result->nid]=$result->nid;
-        $node->field_linkedobjects[]['nid']=$result->nid;
+    if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
+      foreach(wimprt_process_list($linklists,$log,'object') as $result){
+        if (!array_key_exists($result->nid, $links)) {
+          $links[$result->nid]=$result->nid;
+          $node->field_linkedobjects[]['nid']=$result->nid;
+        }
       }
+    } else {
+      drupal_set_message('WARNING: No LinksList found in LinksLists element. Skipping LinksLists process.','notice');
     }
-  } else {
-    drupal_set_message('WARNING: No LinksList found in LinksLists element. Skipping LinksLists process.','notice');
   }
 }
+
+/**
+ * Process common attributes of objects from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_objecttype_preprocess(&$node,$dom){
+  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
+  if($dom->hasAttribute("ObjectDescription"))
+    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
+  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
+  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
+  if($dom->hasAttribute("LastUpdateDate"))
+    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
 }
 
 /**
@@ -456,6 +880,84 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
   $node->uid=$uid;
   
   return $node;
+}
+
+/**
+ * Process Text object from DOM.
+ * 
+ * MAP fields of the text object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_object_textobject (&$node,$dom_element,&$log){
+  //Map XML Attributes 
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom_element);
+  
+  wimprt_process_object_default($node,$dom_element,$log);
+  
+  //Exception for TextObject
+  if ($dom_element->getElementsByTagName("TextTitle")->length) {
+    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+  }
+  
+  if ($dom_element->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value"=>$dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+  } 
+}
+
+/**
+ * Process field Poll Questions from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_pollquestions(&$node,$dom,&$log){
+  $i=0;
+    
+  foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
+    $node->field_poll[$i]['active']=1;
+    $feature=array();
+    $choice=1;
+    if($pollquestion->hasAttribute("Choice")){
+    if($pollquestion->getAttributeNode("Choice")->value==="radioButton")
+      $choice=0;
+    }
+    $feature['CancelVote_Allow']=1;
+    $feature['ResultsAllow']=0;
+    $feature['PollType']=$choice;
+    $node->field_poll[$i]['poll_features']=serialize($feature);
+    foreach($pollquestion->getElementsByTagName("Question") as $question)
+      $node->field_poll[$i]['question']=$pollquestion->nodeValue;
+      $j=0;
+    foreach($pollquestion->getElementsByTagName("Answer") as $answer){
+      $answers[$j]['choice']=$answer->nodeValue;
+      $answers[$j]['votes']=null;
+      $j+=1;
+      }
+      if($j>0) {
+        $node->field_poll[$i]['choice']=serialize($answers);
+      }
+    $i+=1;
+  }
 }
 
 /**
@@ -744,25 +1246,6 @@ function wimprt_set_field_thumbnail(&$node,$dom,&$log){
 }
 
 /**
- * Process field LInks from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_links(&$node,$dom,&$log){
-  //$result=wimprt_process_list($dom,$log,'type');
-}
-
-/**
  * Process article package from DOM.
  * 
  * MAP fields of the article package content type
@@ -781,24 +1264,22 @@ function wimprt_set_field_links(&$node,$dom,&$log){
 function wimprt_process_type_link(&$node,$dom,&$log){
   //$node->type='wally_linktype';
   wimprt_process_type_default($node,$dom,$log);
-  
 
   $uri=$dom->getElementsByTagName('URI')->item(0);
   $uri_value=$uri->nodeValue;
   $uri=parse_url($uri->nodeValue);
   if($uri['scheme']=="externalRef"){
-	    $ext_ref=$uri['path'];
-		if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref))) {
-    		if (count($link)==1) {
-    			 $node->field_internal_link[0]['nid'] = $link[0]->nid;
-        	}
-		}
-	}
-	else{
-	 $node->field_link_item[0]['title']=$node->title;
-	 $node->field_link_item[0]['url']=$uri_value;
-     $node->field_link_item[0]['attributes']=array('target'=>'_blank');
-	}
+    $ext_ref=$uri['path'];
+    if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref))) {
+      if (count($link)==1) {
+        $node->field_internal_link[0]['nid'] = $link[0]->nid;
+      }
+    }
+  } else{
+    $node->field_link_item[0]['title']=$node->title;
+    $node->field_link_item[0]['url']=$uri_value;
+    $node->field_link_item[0]['attributes']=array('target'=>'_blank');
+  }
 }
 
 
@@ -880,8 +1361,7 @@ function wimprt_process_object_linkslist(&$node,$dom,&$log){
   $links=$dom->getElementsByTagName("Links")->item(0);
   foreach(wimprt_process_list($links,$log,'type') as $result){
     $node->field_links_list[]['nid']=$result->nid;
-   }
-   
+  }
 }
 
 
@@ -906,49 +1386,6 @@ function wimprt_set_field_title(&$node,$dom,&$log){
 }
 
 /**
- * Process field Free Access from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * Anything else then a booelan true value will 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_freeaccess(&$node,$dom,&$log){
-  (wallytoolbox_toboolean($dom->nodeValue)) ? 
-    $node->field_freeaccess[0]['value'] = "Free" : 
-    $node->field_freeaccess[0]['value'] = null; 
-}
-
-
-/**
- * Process field Summary from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_summary(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
-}
-
-/**
  * Process field Rating from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
@@ -968,59 +1405,6 @@ function wimprt_set_field_rating(&$node,$dom,&$log){
   $vid=variable_get('wallymport_rating',null);
   $item=wallytoolbox_taxonomy_get_term_by_path($value,$vid);
   $node->field_rating[0]['value']= $item[0]->tid;
-}
-
-/**
- * Process field ProductID from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_productid(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_productid[0]['value']=$value;
-}
-
-/**
- * Process Text object from DOM.
- * 
- * MAP fields of the text object content type
- * from the DOM (XML) element & attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_process_object_textobject (&$node,$dom_element,&$log){
-  //Map XML Attributes 
-  //put common attributes
-  wimprt_objecttype_preprocess($node,$dom_element);
-    
-  wimprt_process_object_default($node,$dom_element,$log);
-  
-  //Exception for TextObject
-  if ($dom_element->getElementsByTagName("TextTitle")->length) {
-    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
-  }
-  
-  if ($dom_element->getElementsByTagName("Title")->length) {
-    $node->field_objecttitle = array(array("value"=>$dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
-  } 
 }
 
 /**
@@ -1335,6 +1719,43 @@ function wimprt_process_type_location(&$node,$dom,&$log){
 	return($node);
 }
 
+/**
+ * Process field Locations Medium from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_markers(&$node,$dom,&$log){
+
+	$node->field_markers = array(); 
+
+	if(variable_get('wallymport_debug',0) or true){
+		$log['log'][]='process Markers: '.$dom->nodeName;
+	  }
+
+	$results=wimprt_process_list($dom,$log,'type');
+
+	// Get Location Taxonomy for all nodes.
+	foreach($results as $result) {
+		if (isset($result->field_locationtaxonomy)) {
+			if ($result->field_locationtaxonomy[0]) {
+				$node->field_markers[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
+				$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
+			}
+		}
+	}
+
+  return $results; 
+}
 
 /**
  * Process field Locations Medium from DOM element.
@@ -1371,169 +1792,7 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
 		}
 	} 
 
-    return $results; 
-}
-
-/**
- * Process field Editions from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_editions(&$node,$dom,$log) {
-
-	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][] = 'process Editions: '.$dom->nodeName;
-  }
-
-	$result = array();
-	$valid = (bool) false;
-	$terms = array(); 
-	$vid=variable_get('wallymport_edition',null);
-	if ($vid) {
-
-		// Read all terms from vocabulary and set if to False (default);
-		$terms = taxonomy_get_tree($vid);
-		foreach ($terms as $term) {
-			$result[$term->name]["Publish"]=false;
-			$result[$term->name]["EditionTid"]=$term->tid;
-			$result[$term->name]["EditionID"]=$term->name;
-		}
-
-		// Get edition from DOM & update array.
-		foreach($dom->getElementsByTagName('Edition') as $edition) {
-			$editionID = $edition->getAttributeNode("EditionID")->value;
-			$value = wallytoolbox_toboolean($edition->nodeValue);
-			if (strtolower($editionID)=="all") {
-				foreach ($terms as $term) $result[$term->name]["Publish"]=$value;
-				$valid = $value;
-				drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
-				break;
-			} else {
-				if (array_key_exists($editionID, $result)) {
-					$valid = ($valid || $value);
-					$result[$editionID]['Publish']=$value;
-				} else {
-					drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
-				}
-			}
-		}
-
-		if ($valid) { 
-				$node->field_editions=array(array("value"=>serialize($result)));
-		} else {
-			drupal_set_message('ALL Edition set to false. Package should be rejected','error');
-			// TODO: FATAL ERROR - PACKAGE
-		}
-		
-	} else {
-		drupal_set_message('Edition vocabulary not set. See settings.','error');
-		return '';
-	}
-}
-
-/**
- * Process field Channels from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_channels(&$node,$dom,$log) {
-
-	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][] = 'process Channels: '.$dom->nodeName;
-  }
-
-	$result = array();
-
-  // Get edition from DOM & update array.
-  foreach($dom->getElementsByTagName('Channel') as $channel) {
-    $channelName = $channel->getAttributeNode("Name")->value;
-    $result[] = $channelName;
-  }
-
-  if (!empty($result)) { 
-    $node->field_channels=array(array("value"=>serialize($result)));
-  } else {
-    drupal_set_message('No channels found. Package should be rejected','error');
-    // TODO: FATAL ERROR - PACKAGE
-  }
-}
-
-/**
- * Process field Destinations from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_destinations(&$node,$dom,$log) {
-
-	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Destinations: '.$dom->nodeName;
-	  }
-	$term = array();
-	$result = array(); 
-	$vid=variable_get('wallymport_destinationpath',null);
-	if ($vid) {
-		$i=0;
-		foreach($dom->getElementsByTagName('Destination') as $destination) {
-			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
-			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
-			if ($terms) {
-				// As we check the taxonomy full path and specify a vocabulary
-				// we can only have one result.
-				$result[$i]['tid']=$terms[0]->tid;
-
-				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
-				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
-
-				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
-        $result[$i]['time_rank']=0;
-			} else {
-				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
-			}
-		$i++;
-		}
-	
-		// If no destinations at all > Package can't be created.
-		if (count($result)) {
-			$node->field_destinations=$result;
-		} else {
-			// TODO: FATAL ERROR - PACKAGE
-			drupal_set_message('No destination AT ALL for current package.','error');
-			return '';
-		}
-	} else {
-		drupal_set_message('Destination Path vocabulary not set. See settings.','error');
-		return '';
-	}
+  return $results; 
 }
 
 /**
@@ -1683,93 +1942,6 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	} else {
 		drupal_set_message('No term found in vocabulary: '.$vocabulary_name.'.','error');
 	}
-}
-
-/**
- * Process field PackageLayout from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_packagelayout(&$node,$dom,&$log){
-  $value = $dom->nodeValue;
-  $node->field_packagelayout = array();
-
-	if(variable_get('wallymport_debug',0) or true) {
-		$log['log'][]='process PackageLayout: '.$dom->nodeName;
-  }
-
-	if (is_numeric($value)) {
-    $node->field_packagelayout[] = $value;
-  } elseif($tax_term = taxonomy_get_term_by_name($value)) {
-    $node->field_packagelayout[] = $tax_term[0]->tid;
-  } else {
-		drupal_set_message('PackageLayout not found: '.$lid.', assuming new person.','error');
-  }
-}
-
-/**
- * Process field ExternalURI from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_externaluri(&$node,$dom,&$log){
-  $value = $dom->nodeValue;
-  $node->field_externaluri = array();
-
-	if(variable_get('wallymport_debug',0) or true) {
-		$log['log'][]='process ExternalURI: '.$dom->nodeName;
-  }
-
-	$uri_response = drupal_http_request($value);
-  if ($uri_response->status_message == 'OK') {
-    $node->field_externaluri[] = $value;
-  }
-}
-
-/**
- * Process field PackageCopyright from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_packagecopyright(&$node,$dom,&$log){
-  $value = $dom->nodeValue;
-  $node->field_packagecopyright = array();
-
-	if(variable_get('wallymport_debug',0) or true) {
-		$log['log'][]='process PackageCopyright: '.$dom->nodeName;
-  }
-
-	$node->field_packagecopyright[] = $value;
 }
 
 /**
@@ -2127,44 +2299,6 @@ function wimprt_process_type_person(&$node,$dom,&$log){
 }
 
 /**
- * Process field Comments Allowed from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
-	
-	$result = COMMENT_NODE_DISABLED;
-
-	switch ($dom->nodeValue) {
-		case "Disabled":
-			$result = COMMENT_NODE_DISABLED; 
-			break;
-		case "Read Only":
-			$result = COMMENT_NODE_READ_ONLY; 
-			break;
-		case "Read-Write":
-			$result = COMMENT_NODE_READ_WRITE; 
-			break;
-		default:
-			$result = COMMENT_NODE_DISABLED; 
-			break;
-	}
-	$node->comment = $result;
-	return $result;
-}
-
-
-/**
  * Convert a adress DOM element to a CCK_location form element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
@@ -2232,30 +2366,6 @@ function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=nu
 	}
 	return $array_node;
 }
-/**
- * Process common attributes of objects from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- *
- * @return
- *   Nothing
- */
-function wimprt_objecttype_preprocess(&$node,$dom){
-  
-  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
-  if($dom->hasAttribute("ObjectDescription"))
-    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
-  if($dom->hasAttribute("Position"))
-    $node->object_description= $dom->getAttributeNode("Position")->value;
-  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
-  if($dom->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);}
 
 /**
  * @} End of "defgroup wallymport.field".
