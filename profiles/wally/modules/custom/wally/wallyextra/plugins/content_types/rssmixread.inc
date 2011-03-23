@@ -506,7 +506,7 @@
 		$feed_xml = drupal_http_request($rss_uri);
 	 
 		
-		if ($feed_xml) {
+		if ($feed_xml && $feed_xml->data) {
 			$dom = new DomDocument();
 			$dom->LoadXML($feed_xml->data);
 			$rss_tags = $dom->getElementsByTagName('rss');
