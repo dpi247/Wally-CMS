@@ -324,10 +324,10 @@
 		$cid = $settings['caid'];
 		$cached_feed = cache_get($cid);
 		if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
-			watchdog('RSS mix', 'Non existant cache, new feeds mixed. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
+			//watchdog('RSS mix', 'Non existant cache, new feeds mixed. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
 			$feed = _wallyextra_rssmix_setcache($settings);
 		}elseif(($cached_feed->created +$settings['delta_t']*(60)) <= time()){ 
-			watchdog('RSS mix', 'Too old cache, adding to cache_torefresh table. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
+			//watchdog('RSS mix', 'Too old cache, adding to cache_torefresh table. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
 			$object['cid'] = $cid;
 			$object['settings'] = $settings;
 			$list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE cid = "%s"', $cid);
@@ -336,7 +336,7 @@
 			}
 			$feed = $cached_feed->data;
 		} else {
-			watchdog('RSS mix', 'Good cache, serving cache : %id.', array('%id' => $cid), WATCHDOG_INFO);
+			//watchdog('RSS mix', 'Good cache, serving cache : %id.', array('%id' => $cid), WATCHDOG_INFO);
 			$feed = $cached_feed->data;
 		}
 		if ($settings['override_theme_text'] != "") {// && function_exists($settings['override_theme_text'])){
