@@ -36,6 +36,15 @@ function wallycontenttypes_menu() {
       'type' => MENU_CALLBACK,
     );
   }
+  
+  $items['admin/wally/wallycontenttypes/settings'] = array(
+    'title' => 'Wally Content Types Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallycontenttypes_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallycontenttypes.admin.inc',
+  );
 
   return $items;
 }
@@ -156,12 +165,6 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op) {
 
     case 'view':
-      //wallycontenttypes_packagepopulate($node,$op);
-      break;
-
-    // I don't know why but Node Page didn't pass thrus node view op
-    // @todo: Check WHY and put back callback function to "view".
-    case 'post_load':
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage')
@@ -309,24 +312,94 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * 
  * @return Nothing but modify the $node
  */
-function wallycontenttypes_packagepopulate(&$node, $op){
-  //require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-  //$cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid);
-  //if (!$cached_node || $reset_cache) {
-    wallycontenttypes_fieldNID(&$node, $op);
-    wallycontenttypes_fieldTID(&$node, $op);
-    //wallytoolbox_object_cache_set($node);
-  //} else {
-    //$node = $cached_node;
-  //}
+
+function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
+  if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
+    $cleaned_node = wallycontenttypes_clean_node($node);
+    require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+    $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
+    if (!$cached_node || $reset_cache) {
+      wallycontenttypes_fieldNID($cleaned_node);
+      wallycontenttypes_fieldTID($cleaned_node);
+      wallytoolbox_object_cache_set($cleaned_node);
+    } else {
+      $cleaned_node = $cached_node;
+    }
+    wallycontenttypes_restore_node($node, $cleaned_node);
+  } else {
+    wallycontenttypes_fieldNID($node);
+    wallycontenttypes_fieldTID($node);
+  }
+}
+
+/**
+ * Remove all unnecessery fields from the node before it is
+ * populated.
+ * 
+ * @param $node
+ *   The node that will be populated.
+ * 
+ * @return
+ *   The cleaned node.
+ */
+function wallycontenttypes_clean_node($node) {
+  $cleaned_node = new Stdclass;
+  $cleaned_node->nid = $node->nid;
+  $cleaned_node->revision_uid = $node->revision_uid;
+  $cleaned_node->view = $node->view;
+  $cleaned_node->type = $node->type;
+  
+  $node_content_types = content_types($node->type);
+  
+  foreach ($node_content_types['fields'] as $field_name => $field) {
+    if ($field['type'] == 'content_taxonomy' || $field['type'] == 'nodereference') {
+      $clean_field = array();
+      $clean_field = $node->$field_name;
+      $clean_field['type'] = $field['type'];
+      $clean_field['name'] = $field_name;
+      $cleaned_node->$field_name = $clean_field;
+    }
+  }
+
+  return $cleaned_node;
+}
+
+/**
+ * Restore the node after it has been populated so that the result
+ * can be returned as a clean node.
+ * 
+ * @param &$node
+ *   The node to be restored.
+ * @param $cleaned_node
+ *   The populated node.
+ */
+function wallycontenttypes_restore_node(&$node, $cleaned_node) {
+  $cleaned_node = (array)$cleaned_node;
+  unset($cleaned_node['nid']);
+  unset($cleaned_node['revision_uid']);
+  unset($cleaned_node['view']);
+  unset($cleaned_node['type']);
+  
+  foreach ($cleaned_node as $field_name => $field) {
+    if (isset($field['type']))
+      unset($cleaned_node[$field_name]);
+  }
+  
+  $node = (array)$node;
+  $node = array_merge_recursive($node, $cleaned_node);
+  $node = (object)$node;
 }
 
 /**
  * Process Node Reference fields in for populate node.
  */
-function wallycontenttypes_fieldNID(&$node, $op) {
-	foreach ($node as $field=>$value) {
-    switch($field) {
+function wallycontenttypes_fieldNID(&$node) {
+	foreach ($node as $field_name => $field) {
+    if (is_array($field) && $field['type'] == 'nodereference') {
+      $new_field_name = $field_name.'_nodes';
+      $node->$new_field_name = wallycontenttypes_fieldnodeload($field_name, $field);
+    }
+    /*switch($field) {
       case "field_mainstory":
         $node->field_mainstory_nodes = wallycontenttypes_fieldnodeload($field, $value);
         wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0], $op);
@@ -347,7 +420,7 @@ function wallycontenttypes_fieldNID(&$node, $op) {
       case "field_embededobjects":
         $node->field_embededobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
         break;
-    }
+    }*/
 	}
 	return $node;
 }
@@ -355,46 +428,60 @@ function wallycontenttypes_fieldNID(&$node, $op) {
 /**
  * Process Content Taxonomy fields for populate node.
  */
-function wallycontenttypes_fieldTID(&$node, &$op) {
-	 if(isset($node)) {
-    foreach ($node as $field=>$value) {
-			switch($field) {
-				case "field_authors":
-					$node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
-					break;
-				case "field_locations":	
-					$node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
-					break;
-				case "field_entities":	
-					$node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
-					break;
-				case "field_persons":
-					$node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
-					break;
-			}
-		}
-	}
-	return $node;
+function wallycontenttypes_fieldTID(&$node) {
+  $convert_types = array(
+    'field_authors' => 'wally_persontype',
+    'field_locations' => 'wally_locationtype',
+    'field_entities' => 'wally_entitytype',
+    'field_persons' => 'wally_persontype',
+  );
+  
+  if(isset($node)) {
+    foreach ($node as $field_name => $field) {
+      if (is_array($field) && $field['type'] == 'content_taxonomy') {
+        $new_field_name = $field_name.'_nodes';
+        $type = $convert_types[$field['name']] ? $convert_types[$field['name']] : 'none';
+        $node->$new_field_name = wallycontenttypes_fieldTIDload($field_name, $field, $type);
+      }
+      /*switch($field) {
+        case "field_authors":
+          $node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+          break;
+        case "field_locations":
+          $node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
+          break;
+        case "field_entities":
+          $node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
+          break;
+        case "field_persons":
+          $node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+          break;
+      }*/
+    }
+  }
+  return $node;
 }
 
 /**
  * Process all taxonomy reference and return an array of node
  */
-function wallycontenttypes_fieldTIDload($field, $values, $type) {
-	$r = array();
-	$tids = array();  
-	foreach ($values as $value=>$tid2load) {
-		if ($tid2load["value"]) {
-			$tids[] = $tid2load["value"]; 
-		}
-	}
+function wallycontenttypes_fieldTIDload($field, $values, $type = NULL) {
+  $r = array();
+  $tids = array();  
+  foreach ($values as $value=>$tid2load) {
+    if ($tid2load["value"]) {
+      $tids[] = $tid2load["value"]; 
+    }
+  }
   $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
-	foreach ($results as $value=>$node2load) {
-		if (!($r[$value] = node_load($node2load))) {
-			unset($r[$value]); 
-		}
-	}
-	return $r; 
+  foreach ($results as $value=>$node2load) {
+    $r[$value] = node_load($node2load);
+    
+    if (empty($r[$value])) {
+      unset($r[$value]); 
+    }
+  }
+  return $r; 
 }
 
 
@@ -402,15 +489,20 @@ function wallycontenttypes_fieldTIDload($field, $values, $type) {
  * Process all node reference fields and return array of node
  */
 function wallycontenttypes_fieldnodeload($field, $values=null) {
-  $r = array(); 
+  $r = array();
   foreach ($values as $value=>$node2load) {
-    if (!($r[$value] = node_load($node2load["nid"]))) { 
-      unset($r[$value]); 
-    }
-    // Render the node.
-    if (isset($r[$value])) {
-      $r[$value] = node_build_content($r[$value]);
-      drupal_render($r[$value]->content);
+    if (is_numeric($value)) {
+      $r[$value] = node_load($node2load["nid"]);
+      
+      // Render the node.
+      if (!empty($r[$value])) {
+        $r[$value] = node_build_content($r[$value]);
+        drupal_render($r[$value]->content);
+        if (variable_get('wallycontenttypes_packagepopulate_recursive', 1))
+          wallycontenttypes_packagepopulate($r[$value], '');
+      } else {
+        unset($r[$value]); 
+      }
     }
   } 
   return $r; 
@@ -732,7 +824,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
  *   Nothing
  */
 function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
- $fields = array(   "field_locations",
+  $fields = array(  "field_locations",
                     "field_markers",
                     "field_entities",
                     "field_persons",
