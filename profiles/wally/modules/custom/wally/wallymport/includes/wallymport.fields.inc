@@ -373,8 +373,9 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 		if (count($result)) {
 			$node->field_destinations=$result;
 		} else {
-			// @TODO: FATAL ERROR - PACKAGE
-			drupal_set_message('No destination AT ALL for current package.','error');
+			// @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
+      $node->rejected = '';
+			drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
 			return '';
 		}
 	} else {
@@ -437,8 +438,9 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		if ($valid) { 
       $node->field_editions=array(array("value"=>serialize($result)));
 		} else {
-			drupal_set_message('ALL Edition set to false. Package should be rejected','error');
-			// TODO: FATAL ERROR - PACKAGE
+      $node->rejected = '';
+			drupal_set_message('ALL Edition set to false. Package rejected','error');
+			// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
 		}
 		
 	} else {
@@ -479,8 +481,9 @@ function wimprt_set_field_channels(&$node,$dom,$log) {
   if (!empty($result)) { 
     $node->field_channels=array(array("value"=>serialize($result)));
   } else {
-    drupal_set_message('No channels found. Package should be rejected','error');
-    // TODO: FATAL ERROR - PACKAGE
+    $node->rejected = '';
+    drupal_set_message('No channels found. Package rejected','error');
+    // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
   }
 }
 
@@ -748,7 +751,7 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
       $object=wimprt_process_object($dom,$log,'photoobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='audioobjecttype')
       $object=wimprt_process_object($dom,$log,'audioobjecttype');
-    elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='digitalobjecttype')
+    elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='MultimediaObjectType')
       $object=wimprt_process_object($dom,$log,'digitalobjecttype');
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='videoobjecttype')
       $object=wimprt_process_object($dom,$log,'videoobjecttype');
@@ -1081,14 +1084,21 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
 
   //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
     $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
-  
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-
+    
+  $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI'); 
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-    $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($file_uri);
-
+  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumb_uri);
+    
+    
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
+  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emimage');  
+  if(empty($rdpartyMatch)){//No a 3rdparty
     $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  }else{//Is a 3rd party
+    $node->field_photo3rdparty[0]['embed']=$file_uri;
+  }
+    
   
   wimprt_process_object_default($node,$dom,$log);
 
@@ -1153,7 +1163,12 @@ function wimprt_process_object_audioobjecttype(&$node,$dom,&$log){
   
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
 
-  $node->field_audiofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emaudio');  
+  if(empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_audiofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  }else{//Is a 3rd party
+    $node->field_audio3rdparty[0]['embed']=$file_uri;
+  }
  
   wimprt_process_object_default($node,$dom,$log);
   
@@ -1214,9 +1229,14 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
   wimprt_objecttype_preprocess($node,$dom);
 
 
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  $node->field_videofile[0]=_wimprthelp_create_file_from_uri($file_uri);
- 
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
+  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emvideo');  
+  if(empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_videofile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  }else{//Is a 3rd party
+    $node->field_video3rdparty[0]['embed']=$file_uri;
+  }
+  
   $node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   $node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
   wimprt_process_object_default($node,$dom,$log);
@@ -1225,6 +1245,76 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
   return $node;
 
 }
+
+/**
+ * Create or load a digital object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_object_digitalobjecttype($dom,&$log){
+  $node=new stdClass;
+  $node->type='wally_digitalobject';
+
+  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_digitalobject")){
+    $node=$node_temp[0];
+  }
+
+  $uid=variable_get('wallymport_defaultuser',1);
+  $node->uid=$uid;
+
+  return $node;
+}
+
+/**
+ * Process digital object from DOM.
+ * 
+ * MAP fields of the video object content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_object_digitalobjecttype(&$node,$dom,&$log){
+  static $procced_file_path;
+  $value=$dom->nodeValue;
+  
+  //put common attributes
+  wimprt_objecttype_preprocess($node,$dom);
+
+
+  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emother');  
+  if(empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_objectfile[0]=_wimprthelp_create_file_from_uri($file_uri);
+  }else{//Is a 3rd party
+    $node->field_object3rdparty[0]['embed']=$file_uri;
+  }
+  
+ 
+  //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  wimprt_process_object_default($node,$dom,$log);
+  
+  return $node;
+
+}
+
 /**
  * Process field Thumbnail from DOM element.
  * 
