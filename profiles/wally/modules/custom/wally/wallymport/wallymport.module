@@ -419,9 +419,12 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
-
-  if(!empty($node))
+  if(!empty($node) && !$node->rejected)
     node_save($node);
+  else
+    wallycontenttypes_delete_orphans_objects($node);
+
+  
   $log['node']=array('current'=>$node,'next'=>$log['node']);
     
   return $node;
@@ -451,13 +454,11 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
 function wimprt_process_object($dom, &$log, $callback=NULL){
   $callback=wimprt_set_callback($dom, $callback);
   $node=wimprt_create_or_load($dom, 'object', $callback,$log);
-
 /**
  * @todo Put into walymportlog module
  */
   if(variable_get('wallymport_debug',0) or true)
     $log['log'][]='process object: '.$dom->nodeName;
-
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$callback")){
@@ -465,7 +466,6 @@ function wimprt_process_object($dom, &$log, $callback=NULL){
   }
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
-  
   if(!empty($node))
     node_save($node);
  
@@ -502,7 +502,6 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
-  
   if(!empty($node))
     node_save($node);
 
