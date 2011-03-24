@@ -500,8 +500,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'weight' => '-4',
     'fields' => array(
       '0' => 'field_summary',
-      '1' => 'field_objectfile',
-      '2' => 'field_other3rdparty',
+      '1' => 'field_object3rdparty',
+      '2' => 'field_objectfile',
       '3' => 'field_thumbnail',
       '4' => 'field_rating',
     ),
