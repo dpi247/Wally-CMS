@@ -343,6 +343,19 @@ function _wallyexport_createLocationTypes(&$valid_dom, &$object, $field){
   }
 }
 
+function _wallyexport_fillCropsTypes(&$valid_dom, &$object, $field){
+  foreach($field as $delta=>$elem){
+    if(!empty($elem)){
+      $crop = $object->appendChild($valid_dom->createElement('Crop'));
+      $crop->setAttribute('Type', $delta);
+      $crop->setAttribute('X', $elem[0]);
+      $crop->setAttribute('Y', $elem[1]);
+      $crop->setAttribute('H', $elem[3]);
+      $crop->setAttribute('W', $elem[2]);
+    }
+  }
+}
+
 function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_zip){
   
     $origins = array(
@@ -352,9 +365,10 @@ function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_
     switch ($elem->type) {
     case 'wally_videoobject' :
       $type = 'video';
+      $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
       _wallyexport_createMultimediaObjectType($valid_dom, $obj, $elem, $type, $origin, $delta, $files_to_zip);
       $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'VideoObjectType');
-      $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
+      
       if(!empty($elem->{'field_video'.$origin}[0]['duration'])){
         $obj->appendChild($valid_dom->createElement('VideoLength', $elem->{'field_video'.$origin}[0]['duration']));//both ?
       }
@@ -363,21 +377,28 @@ function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_
       break;
     case 'wally_photoobject' :
       $type = 'photo';
+      $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
       _wallyexport_createMultimediaObjectType($valid_dom, $obj, $elem, $type, $origin, $delta, $files_to_zip);
       $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
-      empty($elem->{'field_'.$type.$origins}[0]) ? $origin = $origins[1] : $origin = $origins[0];
-      //Crop ?
+      $crops = $obj->appendChild($valid_dom->createElement('Crops'));
+      _wallyexport_fillCropsTypes($valid_dom, $crops, json_decode($elem->field_croping[0]['value'], TRUE));
       $obj->appendChild($valid_dom->createElement('LinkTitle', $elem->field_link[0]['title']));
       $obj->appendChild($valid_dom->createElement('LinkURI', $elem->field_link[0]['url']));
       break;
     case 'wally_audioobject' :
       $type = 'audio';
+      $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
       _wallyexport_createMultimediaObjectType($valid_dom, $obj, $elem, $type, $origin, $delta, $files_to_zip);
       $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'AudioObjectType');
-      empty($elem->{'field_'.$type.$origins}[0]) ? $origin = $origins[1] : $origin = $origins[0];
       $obj->appendChild($valid_dom->createElement('AudioLength', $elem->{'field_audio'.$origin}[0]['duration']));//both ?
       $obj->appendChild($valid_dom->createElement('LinkTitle', $elem->field_link[0]['title']));
       $obj->appendChild($valid_dom->createElement('LinkURI', $elem->field_link[0]['url']));
+      break;  
+    case 'wally_digitalobject' :
+      $type = 'object';
+      $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
+      $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'MultimediaObjectType');
+      _wallyexport_createMultimediaObjectType($valid_dom, $obj, $elem, $type, $origin, $delta, $files_to_zip); 
       break;  
     case 'wally_textobject' :
       _wallyexport_createObjectType(&$valid_dom, &$obj, $elem, $delta);
@@ -404,6 +425,8 @@ function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_
     
   
 }
+
+
 
 function _wallyexport_createMultimediaObjectType(&$valid_dom, &$obj, $elem, $type, $origin, $delta, &$files_to_zip){
   //MultimediaObjectType Start
