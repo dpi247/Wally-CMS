@@ -33,13 +33,18 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
       break;
     }
   }
-  $vars['admin_links_raw'] = array(
-    'title' => t('Reorder'),
-    'alt' => t("Reorder the view"),
-    'href' => "admin/wallyctools/reorder/$destination_tid/$target",
-    'fragment' => 'views-tab-' . $view->current_display,
-    'query' => drupal_get_destination(),
-  );
+  foreach ($view->argument as $arg_name => $argument) {
+    if (strstr($arg_name, 'field_destination')) {
+      $vars['admin_links_raw'] = array(
+        'title' => t('Reorder'),
+        'alt' => t("Reorder the view"),
+        'href' => "admin/wallyctools/reorder/$destination_tid/$target",
+        'fragment' => 'views-tab-' . $view->current_display,
+        'query' => drupal_get_destination(),
+      );
+      break;
+    }
+  }
 }
 
 
