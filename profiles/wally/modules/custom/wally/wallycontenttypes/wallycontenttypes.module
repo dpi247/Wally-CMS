@@ -1173,15 +1173,22 @@ function wallycontenttypes_delete_orphans_objects($node){
   foreach($node->field_linkedobjects as $lnobject){
     if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
       $nids[] = $lnobject['nid'];
+      $node_ls = node_load($lnobject['nid']);
+      foreach($node_ls->field_links_list as $ln){
+        if($ln['nid']!= NULL && !in_array($ln['nid'], $nids)){
+          $nids[] = $ln['nid'];
+        }
+      }
     }
   }
   foreach($nids as $nid){
     $child = node_load($nid);
     $parents = wallytoolbox_get_node_by_reference($child);
+
     foreach($parents as &$parent) {
       $parent = $parent['nid'];
     }
-    if(count($parents) == 1 && in_array($node->nid, $parents)){
+    if((count($parents) == 0) || (count($parents) == 1 && in_array($node->nid, $parents))){//résumer la condition en count($parents) <= 1 ??
       node_delete($nid);
     }
   }
