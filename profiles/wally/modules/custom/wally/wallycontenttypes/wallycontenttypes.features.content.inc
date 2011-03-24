@@ -3837,6 +3837,70 @@ Free',
     ),
   );
 
+  // Exported field: field_object3rdparty
+  $fields['wally_digitalobject-field_object3rdparty'] = array(
+    'field_name' => 'field_object3rdparty',
+    'type_name' => 'wally_digitalobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'emother',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'emother',
+    'active' => '1',
+    'widget' => array(
+      'other_width' => '470',
+      'other_height' => '550',
+      'other_autoplay' => 0,
+      'preview_width' => '235',
+      'preview_height' => '275',
+      'preview_autoplay' => 0,
+      'thumbnail_width' => '115',
+      'thumbnail_height' => '135',
+      'thumbnail_default_path' => '',
+      'providers' => array(
+        'coveritlive' => 0,
+      ),
+      'default_value' => array(
+        '0' => array(
+          'embed' => '',
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Object 3rd party',
+      'weight' => '6',
+      'description' => '',
+      'type' => 'emother_textfields',
+      'module' => 'emother',
+    ),
+  );
+
   // Exported field: field_objectdescription
   $fields['wally_digitalobject-field_objectdescription'] = array(
     'field_name' => 'field_objectdescription',
@@ -3943,7 +4007,7 @@ Free',
       'max_filesize_per_file' => '',
       'max_filesize_per_node' => '',
       'label' => 'Object File',
-      'weight' => '6',
+      'weight' => '7',
       'description' => '',
       'type' => 'filefield_widget',
       'module' => 'filefield',
@@ -4006,70 +4070,6 @@ Free',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_other3rdparty
-  $fields['wally_digitalobject-field_other3rdparty'] = array(
-    'field_name' => 'field_other3rdparty',
-    'type_name' => 'wally_digitalobject',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'emother',
-    'required' => '0',
-    'multiple' => '0',
-    'module' => 'emother',
-    'active' => '1',
-    'widget' => array(
-      'other_width' => '470',
-      'other_height' => '550',
-      'other_autoplay' => 0,
-      'preview_width' => '235',
-      'preview_height' => '275',
-      'preview_autoplay' => 0,
-      'thumbnail_width' => '115',
-      'thumbnail_height' => '135',
-      'thumbnail_default_path' => '',
-      'providers' => array(
-        'coveritlive' => 0,
-      ),
-      'default_value' => array(
-        '0' => array(
-          'embed' => '',
-          'value' => '',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Other 3rd party',
-      'weight' => '7',
-      'description' => '',
-      'type' => 'emother_textfields',
-      'module' => 'emother',
     ),
   );
 
@@ -15753,12 +15753,12 @@ Free',
   t('MainPoll');
   t('Main_picture');
   t('Markers');
+  t('Object 3rd party');
   t('Object File');
   t('Object Summary');
   t('Object title');
   t('ObjectDescription ');
   t('ObjectID ');
-  t('Other 3rd party');
   t('Package Authors');
   t('Package Description ');
   t('Package Layout');
