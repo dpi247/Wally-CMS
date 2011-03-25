@@ -331,7 +331,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
     $object['cid'] = $cid;
     $object['settings'] = $settings;
     $list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE cid = "%s"', $cid);
-    if(!db_result($list)){
+    if(!db_result($list) && !empty($cid)){
       drupal_write_record('wallyextra_cache_torefresh', $object);
     }
     $feed = $cached_feed->data;
