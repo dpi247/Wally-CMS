@@ -441,7 +441,7 @@
 	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
 		<xsd:element name="Term" type="xsd:string" />
 	</xsd:sequence>
-	<xsd:attribute name="VocabularyName" type="xsd:string" use="required" />
+	<xsd:attribute name="VocabularyName" type="xsd:string" />
 	<xsd:attribute name="VocabularyDescription" type="xsd:string" />
 	<xsd:attribute name="VocabularyType" use="optional">
 		<xsd:simpleType>
