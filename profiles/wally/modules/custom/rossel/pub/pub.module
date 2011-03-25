@@ -188,10 +188,10 @@ function _pub_getpubcontent($delta) {
   $orig_url = $_GET['q'];
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
-  
+  dsm($cached_pub, 'cache');
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
-    $content_from_webservice = _pub_getcontentfromwebservice($webserv_req);
+    $content_from_webservice = _pub_getcontentfromwebservice($webserv_req, $delta, $orig_url);
     
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
@@ -221,10 +221,10 @@ function _pub_getpubcontent($delta) {
  * @todo
  *   Call webservice.
  */
-function _pub_getcontentfromwebservice($req) {
-  $content = $req;
-  
-  return $content;
+function _pub_getcontentfromwebservice($req, $delta, $orig_url) {
+  $content = drupal_http_request('http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail?scriptType=AdTech&site=SOIRMAG&pageType='.$req.'&context='.$orig_url.'&position='.$delta);
+  dsm($content, 'content');
+  return $content->data;
 }
 
 /**
@@ -335,7 +335,7 @@ function _pub_getwebservreq($orig_url) {
           $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid']);
           $webserv_req = $tax_hierar.'/'.$node->nid;
         } else {
-          $webserv_req = 'custom/'.$orig_url;
+          $webserv_req = $orig_url;
         }
         break;
       case 'taxonomy':
@@ -345,11 +345,11 @@ function _pub_getwebservreq($orig_url) {
           $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($expl_tids[0]);
           $webserv_req = $tax_hierar;
         } else {
-          $webserv_req = 'custom/'.$orig_url;
+          $webserv_req = $orig_url;
         }
         break;
       default:
-        $webserv_req = 'custom/'.$orig_url;
+        $webserv_req = $orig_url;
     }
   }
   
