@@ -29,10 +29,16 @@ function emaudio_embedly_extract($embed = '') {
   $return = array();
   $allowed_urls = media_embedly_variable_get('allowed_audio_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
+  $delimiters = array('@', '+', '#');
   foreach ($allowed_urls as $allowed_url) {
     $temp_return = '';
     $temp_return = $allowed_url;
-    $temp_return = "+".$allowed_url."+";
+    foreach ($delimiters as $delim) {
+      if (!strstr($allowed_url, $delim)) {
+        $temp_return = $delim.$allowed_url.$delim;
+        break;
+      }
+    }
     $temp_return = str_replace('*','(.*)',$temp_return);
     $return[] = $temp_return;
   }
