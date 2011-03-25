@@ -66,13 +66,6 @@ function wallyrsspublish_settingsrss_form(){
   
 }
 
-function wallyrsspublish_settingsrss_form_validate($form, $form_state) {
-	foreach ($destination as $dest){
-    if ($form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'] == '') {
-    form_set_error('', t('You must select a title for the ' .$dest. ' group of settings.'));
-  }
- }
-}
 
 function wallyrsspublish_settingsrss_form_submit($form, &$form_state) {
 $all_voc = taxonomy_get_vocabularies();
