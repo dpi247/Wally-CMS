@@ -88,10 +88,16 @@ function emvideo_embedly_extract($video_id = '') {
   $return = array();
   $allowed_urls = media_embedly_variable_get('allowed_video_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
+  $delimiters = array('@', '+', '#');
   foreach ($allowed_urls as $allowed_url) {
     $temp_return = '';
     $temp_return = $allowed_url;
-    $temp_return = "+".$allowed_url."+";
+    foreach ($delimiters as $delim) {
+      if (!strstr($allowed_url, $delim)) {
+        $temp_return = $delim.$allowed_url.$delim;
+        break;
+      }
+    }
     $temp_return = str_replace('*','(.*)',$temp_return);
     $return[] = $temp_return;
   }
@@ -111,17 +117,38 @@ function emvideo_embedly_extract($video_id = '') {
  *  
  */
 function  _emvideo_embedly_request($src_url){
-	return _media_embedly_cached_request($src_url, 'video');
+	$embedly_result = array();
+  $url = "http://api.embed.ly/1/oembed";
+  $data = "?url=".$src_url."&maxwidth=600&format=xml";
+  $data = str_replace(":","%3A",$data);
+  $data = str_replace("/","%2F",$data);
+  $xml = simplexml_load_file($url.$data);
+  $embedly_result = array(
+   'version' => (string)$xml->version,
+   'type' => (string)$xml->type, 
+   'provider_url' => (string)$xml->provider_url,
+   'provider_name' => (string)$xml->provider_name,
+   'description' => (string)$xml->description,
+   'title' => (string)$xml->title,
+   'author' => (string)$xml->author_name,
+   'author_url' => (string)$xml->author_url,
+   'height' => (string)$xml->height,
+   'width' => (string)$xml->width,
+   'html' => (string)$xml->html,
+   'thumbnail_url' => (string)$xml->thumbnail_url,
+   'thumbnail_width' => (string)$xml->thumbnail_width,   
+   'thumbnail_height' => (string)$xml->thumbnail_height
+  );
+	return $embedly_result;
 }
 
 function emvideo_embedly_error_check($url) {
-    global $user;
-    $error = t('This url ('.$url.') seems to be not supported by the Embedly API. Please retry or choose an other one.');
-    if (user_access('administer site configuration')) {
-      drupal_set_message($error, 'error');
-    }
+  global $user;
+  $error = t('This url ('.$url.') seems to be not supported by the Embedly API. Please retry or choose an other one.');
+  if (user_access('administer site configuration')) {
+    drupal_set_message($error, 'error');
+  }
 }
-
 
 /**
  * hook emvideo_PROVIDER_video
