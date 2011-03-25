@@ -307,12 +307,12 @@ function wallyextra_cron(){
   $return = array();
   while ($elem = db_fetch_array($list)) {
     $settings = unserialize($elem['settings']);
-    $return[] = 'Cache updated for : '.$settings['caid'];
+    $return[] = 'Cache updated for : '.$settings['caid'].' on '.date('Y-m-d H:i:s', time());
     _wallyextra_rssmix_setcache($settings);
     db_query('DELETE FROM {wallyextra_cache_torefresh} WHERE cid = %d', $settings['caid']);
   }
   if(empty($return)){
-    $return = 'No update done';
+    $return = 'No update done on '.date('Y-m-d H:i:s', time());
   }
   print_r($return);
 }
