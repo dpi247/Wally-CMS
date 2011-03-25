@@ -78,7 +78,7 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
  * @return
  *   A string containing the parents hierarchy, separated by "/".
  */
-function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '') {
+function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_voc = FALSE) {
   $return = '';
   
   if (!is_numeric($term)) {
@@ -100,6 +100,10 @@ function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '') {
   $tax_list = taxonomy_get_parents_all($tid);
   foreach (array_reverse($tax_list) as $tax_elem) {
     $return .= $tax_elem->name.'/';
+  }
+  if ($add_voc) {
+    $voc = taxonomy_vocabulary_load($tax_list[0]->vid);
+    $return = $voc->name.'/'.$return;
   }
   
   return substr($return, 0, strlen($return)-1);
@@ -130,7 +134,7 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
   $form_values['vid'] = $vid;
   $form_values['weight'] = $weight;
   if ($parent) $form_values['parent'] = $parent;
-  taxonomy_save_term($form_values);
+  @taxonomy_save_term($form_values);
   return $form_values['tid'];
 }
 
