@@ -110,26 +110,28 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
 function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
   
   //Map XML Attributes 
-   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
-  if($dom_element->hasAttribute("PublicationDate"))
+  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  else{
+  } elseif ($dom_element->hasAttribute("CreationDate")) {
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
+  } else  {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
+  
   if($dom_element->hasAttribute("CreationDate"))
-    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   if($dom_element->hasAttribute("EmbargoDate"))
-    $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
   if($dom_element->hasAttribute("UnPublishDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-  $node->language= $dom_element->getAttributeNode("Language")->value;
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+  $node->language = $dom_element->getAttributeNode("Language")->value;
   
   if(!$dom_element->hasAttribute("PackageLayout")){
-    wimprt_set_field_packagelayout($node,'Article');
+    wimprt_set_field_packagelayout($node,'Article',$log);
   }
-  
   //Map XML element
   wimprt_process_package_default($node,$dom_element,$log);
 }
