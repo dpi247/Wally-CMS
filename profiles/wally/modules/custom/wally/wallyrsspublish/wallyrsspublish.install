@@ -92,5 +92,5 @@ function wallyrsspublish_schema() {
 
 function wallyrsspublish_update_6001() {
   drupal_rebuild_theme_registry();
-  return 'theme registry rebuilt';
+  return array();
 }
