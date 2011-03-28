@@ -147,19 +147,19 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
         case 'analytic_block':
           $block = array(
             'subject' => t('Analytic block.'), 
-            'content' => _pub_getanalyticcontent(),
+            'content' => _pub_getanalyticcontent($delta),
           );
           break;
         case 'xiti_block':
           $block = array(
             'subject' => t('Xiti block.'), 
-            'content' => _pub_getxiticontent(),
+            'content' => _pub_getxiticontent($delta),
           );
           break;
         case 'metriweb_block':
           $block = array(
             'subject' => t('MetriWeb block.'), 
-            'content' => _pub_getmetriwebcontent(),
+            'content' => _pub_getmetriwebcontent($delta),
           );
           break;
         default:
@@ -188,10 +188,11 @@ function _pub_getpubcontent($delta) {
   $orig_url = $_GET['q'];
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
-  dsm($cached_pub, 'cache');
+
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
-    $content_from_webservice = _pub_getcontentfromwebservice($webserv_req, $delta, $orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
     
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
@@ -205,26 +206,8 @@ function _pub_getpubcontent($delta) {
   } else {
     $pub_content = $cached_pub->data;
   }
-  
-  $pub_content .= '. ';
-  $pub_content .= 'Pub block delta: '.$delta;
-  print_r($pub_content, TRUE);
-  return theme('pub_content', $pub_content, $delta);
-}
 
-/**
- * Get content from a webservice.
- * 
- * @return
- *   HTML content.
- *   
- * @todo
- *   Call webservice.
- */
-function _pub_getcontentfromwebservice($req, $delta, $orig_url) {
-  $content = drupal_http_request('http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail?scriptType=AdTech&site=SOIRMAG&pageType='.$req.'&context='.$orig_url.'&position='.$delta);
-  dsm($content, 'content');
-  return $content->data;
+  return theme('pub_content', $pub_content, $delta);;
 }
 
 /**
@@ -236,14 +219,22 @@ function _pub_getcontentfromwebservice($req, $delta, $orig_url) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getanalyticcontent() {
+function _pub_getanalyticcontent($delta) {
   $orig_url = $_GET['q'];
-  $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('analytic_block_temp-'.$orig_url);
   $cache_time = variable_get('analytic_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $analytic_content = 'Analytic block content.';
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('GA', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $analytic_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $analytic_content = $cached_pub->data ? $cached_pub->data : '';
+    }
     
     cache_set('analytic_block_temp-'.$orig_url, $analytic_content, 'cache', time() + 3600*$cache_time);
     cache_set('analytic_block_perm-'.$orig_url, $analytic_content);
@@ -251,8 +242,7 @@ function _pub_getanalyticcontent() {
     $analytic_content = $cached_pub->data;
   }
   
-  print_r($analytic_content, TRUE);
-  return theme('analytic_content', $pub_content);
+  return theme('analytic_content', $analytic_content);
 }
 
 /**
@@ -264,14 +254,22 @@ function _pub_getanalyticcontent() {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getxiticontent() {
+function _pub_getxiticontent($delta) {
   $orig_url = $_GET['q'];
-  $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('xiti_block_temp-'.$orig_url);
   $cache_time = variable_get('xiti_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $xiti_content = 'Xiti block content.';
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('Xiti', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $xiti_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $xiti_content = $cached_pub->data ? $cached_pub->data : '';
+    }
     
     cache_set('xiti_block_temp-'.$orig_url, $xiti_content, 'cache', time() + 3600*$cache_time);
     cache_set('xiti_block_perm-'.$orig_url, $xiti_content);
@@ -279,8 +277,7 @@ function _pub_getxiticontent() {
     $xiti_content = $cached_pub->data;
   }
   
-  print_r($xiti_content, TRUE);
-  return theme('xiti_content', $pub_content);
+  return theme('xiti_content', $xiti_content);
 }
 
 /**
@@ -292,14 +289,23 @@ function _pub_getxiticontent() {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getmetriwebcontent() {
+function _pub_getmetriwebcontent($delta) {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
   $cache_time = variable_get('metriweb_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $metriweb_content = 'MetriWeb block content.';
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $metriweb_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
+    }
     
     cache_set('metriweb_block_temp-'.$orig_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
     cache_set('metriweb_block_perm-'.$orig_url, $metriweb_content);
@@ -307,8 +313,23 @@ function _pub_getmetriwebcontent() {
     $metriweb_content = $cached_pub->data;
   }
   
-  print_r($metriweb_content, TRUE);
-  return theme('metriweb_content', $pub_content);
+  return theme('metriweb_content', $metriweb_content);
+}
+
+/**
+ * Get content from a webservice.
+ * 
+ * @return
+ *   HTML content.
+ *   
+ * @todo
+ *   Call webservice.
+ */
+function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position) {
+  $expl_website = explode('_', $website);
+  $req_url = '?scriptType='.$script_type.'&site='.rawurlencode($expl_website[0]).'&pageType='.rawurlencode($page_type).'&context='.rawurlencode($context).'&position='.rawurlencode($position);
+  $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
+  return ($content->code == '200') ? $content->data : FALSE;
 }
 
 /**
@@ -322,36 +343,74 @@ function _pub_getmetriwebcontent() {
  */
 function _pub_getwebservreq($orig_url) {
   $expl_url = explode('/', $orig_url);
-  $webserv_req = '';
+  $webserv_req = array();
   $home_page = variable_get('site_frontpage', '');
   if ($home_page == $orig_url) {
-    $webserv_req = 'home';
+    $webserv_req[] = 'home';
+    $webserv_req[] = 'home';
   } else {
     switch ($expl_url[0]) {
       case 'node':
         if ($expl_url[1]) {
           $node = node_load($expl_url[1]);
           $node_dest = $node->field_destinations;
-          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid']);
-          $webserv_req = $tax_hierar.'/'.$node->nid;
+          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
+          $webserv_req[] = $tax_hierar.'/'.$node->nid;
         } else {
-          $webserv_req = $orig_url;
+          $webserv_req[] = $orig_url;
         }
+        $webserv_req[] = 'node';
         break;
       case 'taxonomy':
         if ($expl_url[2]) {
           $tids = $expl_url[2];
           $expl_tids = preg_split('(\+|\,|\ )', $tids);
-          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($expl_tids[0]);
-          $webserv_req = $tax_hierar;
+          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($expl_tids[0], '', TRUE);
+          $webserv_req[] = $tax_hierar;
         } else {
-          $webserv_req = $orig_url;
+          $webserv_req[] = $orig_url;
         }
+        $webserv_req[] = 'page';
         break;
       default:
-        $webserv_req = $orig_url;
+        $primary_links_tree = menu_tree_page_data('primary-links');
+        $webserv_req = _pub_get_path_to_item($primary_links_tree, $orig_url);
+        if ($webserv_req == 'not found') {
+          $webserv_req = array();
+          $webserv_req[] = $orig_url;
+          $webserv_req[] = 'page';
+        }
     }
   }
   
   return $webserv_req;
+}
+
+/**
+ * Recursively search the menu tree for an URL. When found return the
+ * taxonomy tree related to his direct parent plus himself.
+ * 
+ * @param $menu_step
+ *   The menu level (with all the menu elements of this level)
+ *   where the search curently is.
+ * @param $link_path
+ *   The searched URL.
+ */
+function _pub_get_path_to_item($menu_step, $link_path) {
+  $temp_name = FALSE;
+  foreach ($menu_step as $elem_name => $menu_elem) {
+    if ($menu_elem['link']['link_path'] == $link_path) {
+      return 'found';
+    } elseif ($menu_elem['below']) {
+      $next_lev = _pub_get_path_to_item($menu_elem['below'], $link_path);
+      if ($next_lev == 'found' && $menu_elem['link']['module'] == 'taxonomy_menu') {
+        $result = _pub_getwebservreq($menu_elem['link']['link_path']);
+        $result[0] .= '/'.$link_path;
+        return $result;
+      } elseif (is_array($next_lev)) {
+        return $next_lev;
+      }
+    }
+  }
+  return 'not found';
 }
