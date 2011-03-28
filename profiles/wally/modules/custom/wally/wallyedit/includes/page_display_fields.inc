@@ -32,12 +32,14 @@ function wallyedit_node_overview_page () {
 function wallyedit_display_fields_form (&$form_state, $type) {
   module_load_include("inc",'content','includes/content.node_form');
   module_load_include("inc",'content','includes/content.admin');
-  $form = drupal_retrieve_form('content_field_overview_form', $form_state, $type->type);
+  $f=$form_state;
+  $form = drupal_retrieve_form('content_field_overview_form', $f, $type->type);
   //dsm($form_state, 'form_State');
   $node = new Stdclass;
   $node->type = $type->type;
-  $node_form = drupal_retrieve_form('node_form', $form_state, $node);
-  drupal_prepare_form('node_form', $node_form, $form_state);
+  $b=$form_state;
+  $node_form = drupal_retrieve_form('node_form', $f, $node);
+  drupal_prepare_form('node_form', $node_form, $f);
 
   foreach ($form['#field_rows'] as $field_id => $field_name) {
     if ($field_name == '_add_new_field' || $field_name == '_add_existing_field') {
