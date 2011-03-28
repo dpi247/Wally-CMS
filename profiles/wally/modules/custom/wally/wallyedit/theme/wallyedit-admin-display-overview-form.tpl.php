@@ -109,20 +109,6 @@ while ($order) {
             <?php print $row->indentation; ?>
             <span class="<?php print $row->label_class; ?>"><?php print $row->label; ?></span>
           </td>
-          <td colspan="2"><?php print $row->description; ?></td>
-          <td><?php print $row->wallyedit; ?></td>
-          <?php break;
-        case 'separator': ?>
-          <td colspan="5" class="region"><?php print t('Add'); ?></td>
-          <?php break;
-      endswitch; ?>
-      </tr>
-      <?php $count++;
-    endforeach; ?>
-  </tbody>
-</table>
-<?php print drupal_render($form['submit']); ?>
-<?php print drupal_render($form['submsit']); ?>
-<?php print drupal_render($form); ?>
+          <
 
 <?php print $submit; ?>
