@@ -108,6 +108,8 @@ function wallyedit_menu(){
     $form["#after_build"][]='wydit_test_form';
     //$form['#validate']=array();
   }
+  
+  return $items;
 }
 
 function wydit_test_form(&$form, &$form_state){
