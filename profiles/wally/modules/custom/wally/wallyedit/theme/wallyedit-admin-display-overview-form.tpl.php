@@ -121,5 +121,7 @@ while ($order) {
     endforeach; ?>
   </tbody>
 </table>
+<?php print drupal_render($form['submit']); ?>
+<?php print drupal_render($form['submsit']); ?>
 
 <?php print $submit; ?>
