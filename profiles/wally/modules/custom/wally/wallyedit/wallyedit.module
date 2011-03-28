@@ -16,7 +16,7 @@ include_once 'includes/Prenode.inc';
  * Implementation du hook menu
  */ 
 function wallyedit_menu(){
-  return array(
+  $items = array();
     /*'admin/content/wallyedit'=>array(
       'page callback'=>'wallyedit_page_admin',
       'access arguments' => array('administer nodes'),
@@ -25,95 +25,88 @@ function wallyedit_menu(){
   	  'title'=> 'WallyEdit Admin',
   	  'Description'=> 'Manage Node Edition',
     ),*/
-    'node/%prenode/edit2/%ctools_js'=>array(
-      'page callback'=>'wallyedit_page_node_edition',
-      'page arguments'=>array(1,3),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/page_node_edition.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'node/add2/%/%ctools_js'=>array(
-      'page callback'=>'wallyedit_page_node_creation',
-      'page arguments'=>array(2),
-      'access callback' => 'node_access',
-      'access arguments' => array('create', 2),
-  	  'file'=>'includes/page_node_creation.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'node/%prenode/wydit_edit/%ctools_js'=>array(
-      'page callback'=>'wallyedit_callback_edit',
-      'page arguments'=>array(1,3),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/callback_edit.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'node/%prenode/wydit_selectbox/%ctools_js'=>array(
-      'page callback'=>'wallyedit_callback_selectbox',
-      'page arguments'=>array(1,3),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/callback_selectbox.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'node/%prenode/wydit_typeselector/%ctools_js'=>array(
-      'page callback'=>'wallyedit_callback_typeselector',
-      'page arguments'=>array(1,3),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/callback_typeselector.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'node/%prenode/wydit_add_new/%ctools_js'=>array(
-      'page callback'=>'wallyedit_callback_add_new',
-      'page arguments'=>array(1,3),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/callback_add_new.inc',
-  	  //'file path'=>'includes/',
-    ),
-    'wallyedit/test'=>array(
-      'type'=> MENU_LOCAL_TASK,
-      'page callback'=>'wallyedit_test',
-      'page arguments'=>array(1),
-      'access callback' => 'node_access',
-      'access arguments' => array('update', 1),
-  	  'file'=>'includes/test.inc',
-  	  //'file path'=>'includes/',
-    ),
+    
+  $items['admin/content/wallydisplayfields'] = array(
+    'page callback'=>'wallyedit_node_overview_page',
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_display_fields.inc',
+    //'file path'=>'includes/',
+    'title'=> 'WallyEdit - Display all fields',
+    'Description'=> 'Display all fields and not only CCK fields.',
   );
-}
-function wallyedit_form_alter(&$form, &$form_state, $form_id){
-  if($form_id=='content_display_overview_form'){
-    
-    module_load_include("inc",'content','includes/content.node_form');
-    
-    $type_name=$form['#type_name'];
-    
-    $fields=wydit_get_fields_infos_for_typename($type_name);
-    
-    $groups = array();
-    if (module_exists('fieldgroup')) {
-      $groups = fieldgroup_groups($type_name);
-    }
-    foreach ($form["#fields"] as $field) {
-      $form[$field]["wallyedit"]=array(
-        '#type'=>'select',
-        '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
-      );
-      if($fields[$field]['type']=='nodereference'){
-        $form[$field]["wallyedit"]["#options"]=array_merge($form[$field]["wallyedit"]["#options"],array(2=>t('inline'),3=>t('Select box')));
-      }
-      if(isset($fields[$field]['display_settings']['wallyedit'])){
-        $form[$field]["wallyedit"]["#default_value"]=$fields[$field]['display_settings']['wallyedit'];
-      } else{
-        $form[$field]["wallyedit"]["#default_value"]=1;
-      }
-    }
-    foreach($form["#groups"] as $field){}
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['admin/content/wallydisplayfields/'. $type_url_str] = array(
+      'title' => $type->name,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('wallyedit_display_fields_form', $type),
+      'access arguments' => array('administer content types'),
+      'file' => 'includes/page_display_fields.inc',
+      'type' => MENU_CALLBACK,
+    );
   }
+  $items['node/%prenode/edit2/%ctools_js'] = array(
+    'page callback'=>'wallyedit_page_node_edition',
+    'page arguments'=>array(1,3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/page_node_edition.inc',
+    //'file path'=>'includes/',
+  );
+  $items['node/add2/%/%ctools_js'] = array(
+    'page callback'=>'wallyedit_page_node_creation',
+    'page arguments'=>array(2),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 2),
+    'file'=>'includes/page_node_creation.inc',
+    //'file path'=>'includes/',
+  );
+  $items['node/%prenode/wydit_edit/%ctools_js'] = array(
+    'page callback'=>'wallyedit_callback_edit',
+    'page arguments'=>array(1,3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/callback_edit.inc',
+    //'file path'=>'includes/',
+  );
+  $items['node/%prenode/wydit_selectbox/%ctools_js'] = array(
+    'page callback'=>'wallyedit_callback_selectbox',
+    'page arguments'=>array(1,3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/callback_selectbox.inc',
+    //'file path'=>'includes/',
+  );
+  $items['node/%prenode/wydit_typeselector/%ctools_js'] = array(
+    'page callback'=>'wallyedit_callback_typeselector',
+    'page arguments'=>array(1,3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/callback_typeselector.inc',
+    //'file path'=>'includes/',
+  );
+  $items['node/%prenode/wydit_add_new/%ctools_js'] = array(
+    'page callback'=>'wallyedit_callback_add_new',
+    'page arguments'=>array(1,3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/callback_add_new.inc',
+    //'file path'=>'includes/',
+  );
+  $items['wallyedit/test'] = array(
+    'type'=> MENU_LOCAL_TASK,
+    'page callback'=>'wallyedit_test',
+    'page arguments'=>array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file'=>'includes/test.inc',
+    //'file path'=>'includes/',
+  );
   
+  return $items;
+}
+
+function wallyedit_form_alter (&$form, &$form_state, $form_id) {
   if($form_id=='wally_photoobject_node_form'){
     $form["#after_build"][]='wydit_test_form';
     //$form['#validate']=array();
@@ -128,8 +121,8 @@ function wydit_test_form(&$form, &$form_state){
   unset(  $form['group_photo']['field_thumbnail'][0]["#processed"]);
 */
   return $form;
-
 }
+
 function wallyedit_theme(){
   $path = drupal_get_path('module', 'wallyedit');
   $base = array(
@@ -150,11 +143,11 @@ function wallyedit_theme(){
      // 'template' => 'my-template-day-node',
       'arguments' => array('form'=>array(),'prenode' => NULL),
     ),
-    'content_display_overview_form'=>array(
+    'wallyedit_display_fields_form'=>array(
       'template' => 'wallyedit-admin-display-overview-form',
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
-      'original hook' => 'content_display_overview_form',
+      //'original hook' => 'content_field_overview_form',
     ),
     'wydit_selector_theme'=>$base+array(
      // 'template' => 'my-template-day-node',
@@ -180,7 +173,6 @@ function wallyedit_form_page_createmode_form_validate($form,&$form_state){
     
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
     ctools_ajax_render($commands); 
-    
   }
 }
 
@@ -812,6 +804,7 @@ watchdog('wallyedit', 'rrrrrrrrrrrrrrrrrrrrrrrrrrr');
   
   ctools_ajax_render($commands); 
 }
+
 // important: add fields infos to form_state
 function wydit_subform_global_page_submit(&$form_state){
 
@@ -1272,10 +1265,10 @@ function wydit_get_infos_type($type_name){
   return $type;
 }
 
-function wydit_get_fields_infos_for_typename($type_name){
+function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
   $type=content_types(str_replace('-','_', $type_name));
 
-  $fields = $type['fields'];
+  $fields = $type[$fields];
   $fields['title']['display_settings']['wallyedit'] = 1;
   return $fields;
 }
