@@ -12,7 +12,6 @@ function wallyedit_page_node_creation($type,$js=FALSE){
   
   
   $node->type=str_replace('-','_',$type);
-  
   $prenode=new Prenode(arg(4));
   $prenode->setNode($node);
 

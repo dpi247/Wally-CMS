@@ -8,8 +8,9 @@ function wallyedit_install() {
   db_query("UPDATE {system} SET weight =100  WHERE name = 'wallyedit'");
   db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
   db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
-      drupal_install_schema('wallyedit');
-  
+  drupal_install_schema('wallyedit');
+  drupal_rebuild_theme_registry();
+      
 }
 function wallyedit_schema(){
  $schema['wallycontenttypes_remotehtml_content'] = array(
