@@ -65,7 +65,7 @@ while ($order) {
   }
   array_shift($order);
 }
-dsm($form);
+//dsm($form);
 ?>
 <div>
   <?php print $help; ?>
