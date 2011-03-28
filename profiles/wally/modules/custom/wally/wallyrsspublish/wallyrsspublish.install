@@ -90,7 +90,7 @@ function wallyrsspublish_schema() {
   return $schema;
 }
 
-function wallyextra_update_6001() {
+function wallyrsspublish_update_6001() {
   drupal_rebuild_theme_registry();
   return 'theme registry rebuilt';
 }
