@@ -63,6 +63,7 @@ function wallyexport_export_packages($nids) {
  * @see package_populate function
  */
 function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
+  dpm($package_object);
   $valid_dom = new DomDocument('1.0', 'UTF-8');
   $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
@@ -212,7 +213,7 @@ function _wallyexport_fillPackageType(&$valid_dom, &$package, $package_object, &
   _wallyexport_createPersonsType($valid_dom, $authors, $package_object->field_authors_nodes);
   $package->appendChild($valid_dom->createElement('PackageLayout', $package_object->field_packagelayout[0]['value']));
   $package->appendChild($valid_dom->createElement('Summary', $package_object->field_summary[0]['value']));
-  $package->appendChild($valid_dom->createElement('ExternalURI', $package_object->field_externaluri[0]['value']));
+  //$package->appendChild($valid_dom->createElement('ExternalURI', $package_object->field_externaluri[0]['value']));
   foreach ($package_object->field_destinations as $pack_dest) {
     $destination = $destinations->appendChild($valid_dom->createElement('Destination'));
     $destination->appendChild($valid_dom->createElement('DestinationPath', wallytoolbox_taxonomy_get_path_by_tid_or_term($pack_dest['tid'])));
@@ -457,7 +458,7 @@ function _wallyexport_createMultimediaObjectType(&$valid_dom, &$obj, $elem, $typ
   //$thumb->setAttribute('H',);
   $files_to_zip[] = $elem->field_thumbnail[0];
   }
-  if(empty($elem->field_rating[0]['value'])){
+  if(!empty($elem->field_rating[0]['value'])){
     $rating=$elem->field_rating[0]['value'];
   }else{
     $rating = 'G';
