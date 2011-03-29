@@ -459,7 +459,7 @@ function _wallyexport_createMultimediaObjectType(&$valid_dom, &$obj, $elem, $typ
   $files_to_zip[] = $elem->field_thumbnail[0];
   }
   if(!empty($elem->field_rating[0]['value'])){
-    $rating=taxonomy_get_term($elem->field_rating[0]['value']);
+    $rating=taxonomy_get_term($elem->field_rating[0]['value'])->name;
   }else{
     $rating = 'G';
   }
