@@ -63,7 +63,6 @@ function wallyexport_export_packages($nids) {
  * @see package_populate function
  */
 function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
-  dpm($package_object);
   $valid_dom = new DomDocument('1.0', 'UTF-8');
   $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
