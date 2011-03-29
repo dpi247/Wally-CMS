@@ -97,7 +97,8 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
         if (strstr($item['rank'], 'DNC')) {
           $items[$delta]['rank'] = substr($item['rank'], 3);
         } else {
-          $items[$delta]['time_rank'] = time() + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
+          $ref_time = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
+          $items[$delta]['time_rank'] = $ref_time + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
         }
       }
     break;
