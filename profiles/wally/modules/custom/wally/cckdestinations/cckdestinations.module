@@ -431,6 +431,9 @@ function cckdestinations_theme() {
       'cckdestinations_formatter_rank' => array(
       'arguments' => array('element' => NULL),
     ),
+      'cckdestinations_formatter_time_rank' => array(
+      'arguments' => array('element' => NULL),
+    ),
       'cckdestinations_cascading_select' => array(
       'arguments' => array('element' => NULL),
     ),
@@ -452,17 +455,18 @@ function theme_cckdestinations_formatter_default($element = NULL) {
   }
 
   $stuff = $element['#item'];
-
-  $flds = array('tid', 'target', 'layout', 'rank');
+  $flds = array('tid', 'target', 'layout', 'rank', 'time_rank');
   $sep = '';
-  $ret='<div class="cckdestinations">';
+  $ret='<div class="cckdestinationsgroup">';
   foreach($flds as $fld) {
-    if(!empty($stuff['safe_' . $fld ])) {
+    /*if(!empty($stuff['safe_' . $fld ])) {
       $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
       $sep = "<br />\n";
-    }
+    }*/
+    $ret .= theme('cckdestinations_formatter_'.$fld, $element);
   }
   $ret .= '</div>';
+  
   return $ret;
 }
 
@@ -478,12 +482,12 @@ function theme_cckdestinations_formatter_tid($element = NULL) {
 
   $stuff = $element['#item'];
 
-  $flds = array('tid', 'target', 'layout', 'rank');
+  $flds = array('tid');
   $sep = '';
   $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
-      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $ret .= $sep . '<span class="' . $fld . '">' . taxonomy_get_term($stuff['safe_' . $fld ])->name . '</span>';
       $sep = "<br />\n";
     }
   }
@@ -501,7 +505,7 @@ function theme_cckdestinations_formatter_target($element = NULL) {
 
   $stuff = $element['#item'];
 
-  $flds = array('tid', 'target', 'layout', 'rank');
+  $flds = array('target');
   $sep = '';
   $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
@@ -524,7 +528,7 @@ function theme_cckdestinations_formatter_layout($element = NULL) {
 
   $stuff = $element['#item'];
 
-  $flds = array('tid', 'target', 'layout', 'rank');
+  $flds = array('layout');
   $sep = '';
   $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
@@ -547,12 +551,34 @@ function theme_cckdestinations_formatter_rank($element = NULL) {
 
   $stuff = $element['#item'];
 
-  $flds = array('tid', 'target', 'layout', 'rank');
+  $flds = array('rank');
+  $sep = '';
+  $ret='<div class="cckdestinations">';
+  foreach($flds as $fld) {
+    if(isset($stuff['safe_' . $fld])) {
+      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $sep = "<br />\n";
+    }
+  }
+  $ret .= '</div>';
+  return $ret;
+}
+
+/**
+ * Implementation of CCK's hook_field_formatter for rank element.  
+ */
+function theme_cckdestinations_formatter_time_rank($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+  
+  $stuff = $element['#item'];
+  $flds = array('time_rank');
   $sep = '';
   $ret='<div class="cckdestinations">';
   foreach($flds as $fld) {
     if(!empty($stuff['safe_' . $fld ])) {
-      $ret .= $sep . '<span class="' . $fld . '">' . $stuff['safe_' . $fld ] . '</span>';
+      $ret .= $sep . '<span class="' . $fld . '">' . date('Y-m-d H:i:s', $stuff['safe_' . $fld ]) . '</span>';
       $sep = "<br />\n";
     }
   }
