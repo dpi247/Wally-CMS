@@ -137,7 +137,7 @@
 				<xsd:element name="Summary" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="FileURI" type="xsd:anyURI" />
-				<xsd:element name="FileSize" type="xsd:decimal" />
+				<xsd:element name="FileSize" minOccurs="0" maxOccurs="1" type="xsd:decimal" />
 				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
 				<xsd:element name="Rating" minOccurs="0" maxOccurs="1">
 					<xsd:simpleType>
@@ -178,7 +178,7 @@
 	<xsd:complexContent>
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="VideoLength" type="xsd:dateTime" />
+				<xsd:element name="VideoLength" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
 				<xsd:element name="LinkTitle" type="xsd:string" />
 				<xsd:element name="LinkURI" type="xsd:anyURI" />
 			</xsd:sequence>
@@ -192,7 +192,7 @@
 	<xsd:complexContent>
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="AudioLength" type="xsd:time" />
+				<xsd:element name="AudioLength" minOccurs="0" maxOccurs="1" type="xsd:time" />
 				<xsd:element name="LinkTitle" type="xsd:string" />
 				<xsd:element name="LinkURI" type="xsd:anyURI" />
 			</xsd:sequence>
