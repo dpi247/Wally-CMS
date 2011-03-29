@@ -346,8 +346,8 @@ function wallycontenttypes_clean_node($node) {
   $cleaned_node = new Stdclass;
   $cleaned_node->nid = $node->nid;
   $cleaned_node->revision_uid = $node->revision_uid;
-  $cleaned_node->view = $node->view;
-  $cleaned_node->type = $node->type;
+  $cleaned_node->view = isset($node->view) ? $node->view : NULL;
+  $cleaned_node->type = isset($node->type) ? $node->type : NULL;
   
   $node_content_types = content_types($node->type);
   
