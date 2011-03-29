@@ -85,9 +85,18 @@ function wallyfundamentals_views_default_views() {
   ));
   $handler->override_option('filters', array(
     'type' => array(
+      'operator' => 'in',
+      'value' => array(),
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
       'id' => 'type',
       'table' => 'node',
       'field' => 'type',
+      'relationship' => 'none',
     ),
   ));
   $handler->override_option('access', array(
