@@ -326,7 +326,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
     //watchdog('RSS mix', 'Non existant cache, new feeds mixed. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
     $feed = _wallyextra_rssmix_setcache($settings);
-  }elseif(($cached_feed->created +$settings['delta_t']*(60)) <= time()){ 
+  } elseif (($cached_feed->created +$settings['delta_t']*(60)) <= time()){ 
     //watchdog('RSS mix', 'Too old cache, adding to cache_torefresh table. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
     $object['cid'] = $cid;
     $object['settings'] = $settings;
@@ -543,7 +543,7 @@ function _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_
   $schema_elems = explode('-', $schema_elem);
   for ($i=0; $i<sizeof($feed_array); $i++) {
     if (in_array($i+1, $schema_elems) || $schema_elems[0] == 'any') {
-      if (is_array($feed_array[$i][0]) && isset($feed_array[$i][0]) && !empty($feed_array[$i][0])) {
+      if (isset($feed_array[$i][0]) && !empty($feed_array[$i][0]) && is_array($feed_array[$i][0])) {
         $available_items[] = $feed_array[$i][0] + array('arrayID' => $i);
       }
     }
@@ -617,7 +617,7 @@ function _wallyextra_rssmix_setcache($settings){
     $most_recent_index = _wallyextra_rssmixread_getmostrecentfromavailables($available_items);
     $item = array_shift($feed_array[$most_recent_index]);
     if (isset($item)){
-      if ($settings['get_distant_img'] == 1 && $item['Package']['EmbeddedContent']) {
+      if ($settings['get_distant_img'] == 1 && isset($item['Package']['EmbeddedContent'])) {
         foreach ($item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key=>$object) {
           $file_uri = $object['FileURI']['value'];
           $item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
