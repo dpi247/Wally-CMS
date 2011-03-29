@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://rossel.audaxis.com" elementFormDefault="qualified">
 
+
  <xsd:element name="Packages" type="PackagesType" />
 
  <!-- PACKAGES -->
