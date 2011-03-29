@@ -440,7 +440,7 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
 		if ($valid) { 
       $node->field_editions=array(array("value"=>serialize($result)));
 		} else {
-      $node->rejected = '';
+      //$node->rejected = '';
 			drupal_set_message('ALL Edition set to false. Package rejected','error');
 			// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
 		}
