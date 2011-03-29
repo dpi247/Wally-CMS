@@ -21,6 +21,28 @@ function wallydefaultpages_default_page_manager_handlers() {
     'css' => '',
     'contexts' => array(),
     'relationships' => array(),
+    'access' => array(
+      'plugins' => array(
+        0 => array(
+          'name' => 'term_vocabulary',
+          'settings' => array(
+            'vids' => array(
+              '' => (object) array(
+  'tid' => '2',
+  'vid' => '5',
+  'name' => 'Entity 1',
+  'description' => '',
+  'weight' => '0',
+  'featid' => NULL,
+),
+            ),
+          ),
+          'context' => 'argument_terms_1',
+          'not' => FALSE,
+        ),
+      ),
+      'logic' => 'and',
+    ),
   );
   $display = new panels_display;
   $display->layout = 'detailpage';
