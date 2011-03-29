@@ -510,7 +510,7 @@ function _wallyexport_getURI($infos){
   if(substr($infos['filepath'], 0, 7)=='http://'){
     return $infos['filepath'];
   }else{
-    return 'embed://'.$infos['filepath'];
+    return 'embed://'.$infos['filename'];
   }
 }  
 /*
