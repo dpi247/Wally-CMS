@@ -47,7 +47,7 @@
     // Photo Gallery Slide Show
     if ($node->field_embededobjects_nodes) {
       foreach ($node->field_embededobjects_nodes as $embededobject) {
-        if ($embedobject->type == 'wally_photoobject')
+        if ($embededobject->type == 'wally_photoobject')
           $photo_gallery = theme("wallyct_photoobject_slider",$node->field_embededobjects_nodes, $node);
       }
     } else $photo_gallery =""; 
