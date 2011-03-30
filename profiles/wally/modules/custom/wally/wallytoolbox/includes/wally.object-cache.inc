@@ -45,11 +45,13 @@ function wallytoolbox_object_cache_get($nid, $revision, $view_name, $display) {
 function wallytoolbox_object_cache_set($node) {
   $nid = $node->nid;
   $revision = $node->revision_uid;
+  $view_name = $node->view->name;
+  $display = $node->view->current_display;
   
-  wallytoolbox_object_cache_clear($nid);
+  wallytoolbox_object_cache_clear($nid.'_'.$revision.'_'.$view_name.'_'.$display);
 
   $object = array(
-    'nid'           => $nid.'_'.$revision.'_'.$node->view->name.'_'.$node->view->current_display,
+    'nid'           => $nid.'_'.$revision.'_'.$view_name.'_'.$display,
     'type'          => $node->type,
     'updated'       => time(),
     'data'          => $node,
@@ -72,7 +74,7 @@ function wallytoolbox_object_cache_set($node) {
 function wallytoolbox_object_cache_clear($nid) {
   //watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
 
-  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid LIKE '%s'", $nid.'_%');
+  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid LIKE '%s'", $nid.'%');
 }
 
 /**
@@ -84,7 +86,7 @@ function wallytoolbox_object_cache_clear($nid) {
 function wallytoolbox_object_referencer_cache_clear($node) {
   $ref_nodes = wallytoolbox_get_node_by_reference($node);
   foreach ($ref_nodes as $ref_node) {
-    wallytoolbox_object_cache_clear($ref_node['nid']);
+    wallytoolbox_object_cache_clear($ref_node['nid'].'_');
   }
 }
 
