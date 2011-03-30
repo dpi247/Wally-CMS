@@ -228,7 +228,7 @@ function wallyctools_get_redac_view_options(){
 }
 
 
-function wallyctools_form_alter(&$form, &$form_state, $form_id){
+/*function wallyctools_form_alter(&$form, &$form_state, $form_id){
   switch ($form_id) {
     case 'views_ui_edit_view_form':
       wallyctools_save_views_layout($form,$form_state);
@@ -243,9 +243,7 @@ function wallyctools_save_views_layout($form,$form_state){
   wallyctools_build_wallyctools_views_layout_entry($view);
 }
 
-
 function wallyctools_build_wallyctools_views_layout_entry($view){
-
   foreach($view->display as $display){
 
     if($display->display_plugin=='redacblock'){
@@ -272,7 +270,6 @@ function wallyctools_build_wallyctools_views_layout_entry($view){
           }
         }
 
-        
         //remove reference if exist
         else{
           $sql="DELETE  FROM {wallyctools_views_layout} WHERE view_id='%s' and view_vid='%s' and layout_id='%s'";
@@ -289,7 +286,7 @@ $views=views_get_all_views();
   foreach($views as $view){
     wallyctools_build_wallyctools_views_layout_entry($view);
   }
-}
+}*/
 
 /**
  * Helper function that provide informations about mappings between destinations terms,
@@ -512,22 +509,22 @@ function wallyctools_redacblock_save(&$myobj) {
 }
 
 function wallyctools_initial_setup(){
-    ctools_include('export');
+  ctools_include('export');
 
   //This is the DB crud user ctools_export_load_object instead who search in 'IN CODE' object
   //$content = ctools_export_crud_load('wallyctools', 'default_destination_block');
   $view=views_get_view('default_destination_view');
   $view->save();
-  wallyctools_build_all_wallyctools_views_layout_entry();
+  //wallyctools_build_all_wallyctools_views_layout_entry();
   
-  $content = ctools_export_load_object('wallyctools',  'names', array('default_destination_block'));  
+  $content = ctools_export_load_object('wallyctools', 'names', array('default_destination_block'));  
   ctools_export_crud_save('wallyctools', $content['default_destination_block']);
   
   //Special treatement for pages cuz they include several object better reliable to use the "API"
   module_load_include('inc', 'page_manager', 'page_manager.admin');
   $page=page_manager_cache_load('term_view');
   foreach($page->handler_info as $key=>$value){
-    $page->handler_info[$key]['changed']=PAGE_MANAGER_CHANGED_CACHED;
+    $page->handler_info[$key]['changed'] = PAGE_MANAGER_CHANGED_CACHED;
   }
   page_manager_save_page_cache($page);
   //  $result = ctools_export_load_object('page_manager_handlers', 'names', array('term_view_panel_context'));
