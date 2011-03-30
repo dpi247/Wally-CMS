@@ -34,7 +34,7 @@ function wallyctools_menu(){
  * we haven't got a chance to load that file before Drupal builds the
  * node portion of the theme registry.
  */
-function wallyctools_preprocess_node(&$vars) {dsm($vars['node'], 'vars node');
+function wallyctools_preprocess_node(&$vars) {
   if (isset($vars['node']->node_view_destination)) {
     $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination); 
     $taxonomy_term_name = strtolower($taxonomy_term->name); 
