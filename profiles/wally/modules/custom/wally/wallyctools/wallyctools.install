@@ -8,7 +8,6 @@ function wallyctools_schema() {
   return wallyctools_schema_1();
 }
 
-
 function wallyctools_schema_1() {
   $schema = array();
 
@@ -80,38 +79,6 @@ function wallyctools_schema_1() {
     'primary key' => array('cid'),
   );
   
-  
-    $schema['wallyctools_views_layout'] = array(
-    'description' => 'Binding between views and wallylayout',
-    'fields' => array(
-      'id' => array(
-        'type' => 'serial',
-        'description' => 'A database primary key to ensure uniqueness',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-	  'view_id' =>array(
-	  	'type'=>'varchar',
-	  	'length' => 64,
-	  	'not null' => TRUE,
-	  ),
-		
-	  'view_vid' =>array(
-	  	'type'=>'varchar',
-	  	'length' => 64,
-	  	'not null' => TRUE,
-	  ),
-		
-	  'layout_id' =>array(
-	  	'type'=>'varchar',
-	  	'length' => 64,
-	  	'not null' => TRUE,
-	  ),
-	  
-    ),
-    'primary key' => array('id'),
-  );
-  
   return $schema;
 }
 
@@ -153,3 +120,10 @@ function wallyctools_enable() {
 */
 }
 
+function wallyctools_update_6001(&$sandbox) {
+  $ret = array();
+  
+  db_drop_table($ret, 'wallyctools_views_layout');
+  
+  return $ret;
+}
