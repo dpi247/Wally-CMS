@@ -172,10 +172,8 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
     
     foreach ($tids as $index => $tid) {
       $term = taxonomy_get_term($tid);
-      if (isset($term->vid)) {
-        $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
-        $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
-      }
+      $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+      $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
     }
 
     if ($operator == 'or') {
@@ -881,7 +879,7 @@ function wallytoolbox_preprocess_page(&$variables) {
  * Implementation of hook_menu_link_alter()
  */
 function wallytoolbox_menu_link_alter(&$item, $menu){
-  if($item['module']=='taxonomy_menu'){
+  if($item['module']=='taxonomy_menu' && !isset($item['updated'])){
     $item['hidden']=1;
   }
 }
