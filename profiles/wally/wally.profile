@@ -642,20 +642,19 @@ function _wally_enable_page_system_node_view(&$context) {
  */
 function _wally_enable_page_system_term_view(&$context) {
  variable_set('page_manager_term_view_disabled', FALSE);
-  
-} 
+}
 
 /**
  * Build mapping table between views and pages for redacblock. in wallyctools_views_layout table
  */
 function _wally_build_wallyctools_views_layout_entry(&$context) {
-  wallyctools_build_all_wallyctools_views_layout_entry();
-  
+  //wallyctools_build_all_wallyctools_views_layout_entry();
 } 
 
 function _wally_wallyctools_initial_setup(&$context) {
   wallyctools_initial_setup();
-} 
+}
+
 /**
  * Load & Updates views
  */
