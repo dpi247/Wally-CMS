@@ -104,16 +104,17 @@ function wallyedit_menu(){
   );
   
   
+
+  
+  return $items;
+}
+function wallyedit_form_alter(&$form, &$form_state, $form_id){
   if($form_id=='wally__node_form' or $form_id=='wally_articlepackage_node_form'){
     $form["#after_build"][]='wydit_test_form';
     //$form['#validate']=array();
   }
-  
-  return $items;
 }
-
 function wydit_test_form(&$form, &$form_state){
-  dsm($form);
  /* unset($form["#validate"]);
   $form['#validate']=array();
   $form['group_photo']['field_thumbnail'][0]["#post"]=array();
@@ -159,6 +160,7 @@ function wallyedit_theme(){
 function wallyedit_form_page_createmode_form(&$form_state){
   $form=wydit_subform_global_page_form($form_state);
   $form['#action']='/node/add2/'.arg(2).'/ajax/'.$form_state['cache name'];
+  
   return $form;
 }
 
@@ -506,10 +508,9 @@ function wydit_subform_global_page_form(&$form_state){
   $form[$type_name]=array("#type"=>'fieldset');
   foreach($a as $element_name=>$value){
     $form[$type_name][$element_name]=$value;
-      dsm($element_name);
   }
-  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,$fields,array(0=>$type_name));
-  
+  dsm($form);
+  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,$fields,array(0=>$type_name),$form[$form_state['type']]);
   wydit_remove_form_infos($form[$type_name]);
   
   $form['#tree']=true;
@@ -539,9 +540,13 @@ function wydit_subform_global_page_form(&$form_state){
   return $form;
 }
 
-function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$parents){
+function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$parents,$global_form=NULL){
   foreach(element_children($form) as $element){
     if($element=="field_packagelayout"){
+      dsm($form[$element]);
+      dsm($global_form,'global_form');
+      //$form[$element]['module']="content_taxonomy";
+      optionwidgets_select_process($form[$element], $edit, $form_state, $global_form);
     dsm($form[$element]);
     }
     $parents_new=$parents;
@@ -551,7 +556,7 @@ function wydit_prepare_primary_package_form(& $form,&$form_state,$type,$fields,$
       continue;
     }
     if($form[$element]['#type']=='fieldset'){
-      wydit_prepare_primary_package_form(&$form[$element],$form_state,$type,$fields,$parents);
+      wydit_prepare_primary_package_form(&$form[$element],$form_state,$type,$fields,$parents,$global_form);
       wydit_changetypefromfieldset($form[$element],$fields);
     }
     if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==0 ){
@@ -1179,6 +1184,8 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
       $form[$type_name][$element_name]["#parents"]=$parents;
     }
   }
+      $form[$type_name]["#field_info"]=$a[$element_name]['#field_info'];
+  
   
   wydit_prepare_primary_package_form($form,$form_state,$element,$fields,$parents);
   
