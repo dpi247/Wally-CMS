@@ -442,7 +442,7 @@ function wallycontenttypes_fieldTID(&$node) {
   
   if(isset($node)) {
     foreach ($node as $field_name => $field) {
-      if (is_array($field) && $field['type'] == 'content_taxonomy') {
+      if (is_array($field) && isset($field['type']) && $field['type'] == 'content_taxonomy') {
         $new_field_name = $field_name.'_nodes';
         $type = $convert_types[$field['name']] ? $convert_types[$field['name']] : 'none';
         $node->$new_field_name = wallycontenttypes_fieldTIDload($field_name, $field, $type);
