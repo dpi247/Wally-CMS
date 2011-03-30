@@ -46,14 +46,16 @@ function wallyfeaturessynchronizer_default_page_manager_handlers_alter (&$cached
     $temp_conf = $cached[$component]->conf;
     $plugins = isset($temp_conf['access']['plugins']) ? $temp_conf['access']['plugins'] : array();
     foreach ($plugins as $plug_id => $plugin) {
-      $settings = $plugin['settings'] ? $plugin['settings'] : array();
-      foreach ($settings as $set_id => $setting) {
-        if (is_array($setting) && sizeof($setting)>0) {
-          foreach ($setting as $featid => $featid_infos) {
-            if (sizeof(explode('_', $featid)) == 2) {
-              $tid = _wallyfeaturessynchronizer_get_tid_from_featid($featid_infos);
-              $temp_conf['access']['plugins'][$plug_id]['settings'][$set_id][$tid] = $tid;
-              unset($temp_conf['access']['plugins'][$plug_id]['settings'][$set_id][$featid]);
+      if ($plugin['name'] == 'term') {
+        $settings = $plugin['settings'] ? $plugin['settings'] : array();
+        foreach ($settings as $set_id => $setting) {
+          if (is_array($setting) && sizeof($setting)>0) {
+            foreach ($setting as $featid => $featid_infos) {
+              if (sizeof(explode('_', $featid)) == 2 && isset($featid_infos->featid)) {
+                $tid = _wallyfeaturessynchronizer_get_tid_from_featid($featid_infos);
+                $temp_conf['access']['plugins'][$plug_id]['settings'][$set_id][$tid] = $tid;
+                unset($temp_conf['access']['plugins'][$plug_id]['settings'][$set_id][$featid]);
+              }
             }
           }
         }
@@ -110,14 +112,16 @@ function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
 
   foreach ($plugins as $plug_id => $plugin) {
-    $settings = $plugin['settings'] ? $plugin['settings'] : array();
-    foreach ($settings as $set_id => $setting) {
-      if (is_array($setting) && sizeof($setting)>0) {
-        foreach ($setting as $tid => $tid_infos) {
-          $term = taxonomy_get_term($tid);
-          $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
-          unset($plugins[$plug_id]['settings'][$set_id][$tid]);
-          $object->conf['access']['plugins'][$plug_id] = $plugins[$plug_id];
+    if ($plugin['name'] == 'term') {
+      $settings = $plugin['settings'] ? $plugin['settings'] : array();
+      foreach ($settings as $set_id => $setting) {
+        if (is_array($setting) && sizeof($setting)>0) {
+          foreach ($setting as $tid => $tid_infos) {
+            $term = taxonomy_get_term($tid);
+            $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
+            unset($plugins[$plug_id]['settings'][$set_id][$tid]);
+            $object->conf['access']['plugins'][$plug_id] = $plugins[$plug_id];
+          }
         }
       }
     }
