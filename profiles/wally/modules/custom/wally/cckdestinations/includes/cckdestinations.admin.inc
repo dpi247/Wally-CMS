@@ -5,7 +5,14 @@
  * Settings form.
  */
 function cckdestinations_page_admin_form($form_state) {
-  $form['cckdestinations_rank_delta_t'] = array(
+  $form['cckdestinations_rank'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Rank settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['cckdestinations_rank']['cckdestinations_rank_delta_t'] = array(
     '#type' => 'textfield',
     '#title' => t('Time "between" two ranks'),
     '#description' => t('The step of time, in hours, that will be set between two rank.'),
@@ -15,13 +22,27 @@ function cckdestinations_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $form['cckdestinations_rank_limit'] = array(
+  $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Maximum rank value'),
     '#description' => t('The available ranks range will be from 1 to this limit, with step of 1.'),
     '#default_value' => variable_get('cckdestinations_rank_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['cckdestinations_layout'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Layout settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['cckdestinations_layout']['cckdestinations_layouts'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Available layouts'),
+    '#default_value' => variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
     '#required' => TRUE,
   );
   
