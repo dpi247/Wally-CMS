@@ -104,7 +104,7 @@ function wallyctools_uninstall() {
  * Implementation of hook_enable().
  */
 function wallyctools_enable() {
-  wallyctools_build_all_wallyctools_views_layout_entry();
+  //wallyctools_build_all_wallyctools_views_layout_entry();
 	/*
 	$form_state = array();
   $form_state['section']='redacblock_layout';
