@@ -204,11 +204,16 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         
       case 'redacblock_layout':
         $form['#title'] .= t('Authorized Layout');
-
+        
+        $options = array();
+        $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
+        foreach ($layouts as $layout)
+          $options[$layout] = ucfirst($layout);
+        
         $form['redacblock_layout'] = array(
           '#type' => 'checkboxes',
           '#default_value' => $this->get_option('redacblock_layout'),
-          '#options'=>explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large')))),
+          '#options'=> $options,
           '#description' => t('This is the title that will appear for this view pane in the add content dialog. If left blank, the view name will be used.'),
         );
       break;
