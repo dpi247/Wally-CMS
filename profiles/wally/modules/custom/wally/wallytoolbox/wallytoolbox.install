@@ -58,6 +58,9 @@ function wallytoolbox_schema_1() {
       ),
     ),
     'primary key' => array('nid'),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
   );
   return $schema;
 }
@@ -67,5 +70,14 @@ function wallytoolbox_schema_1() {
  */
 function wallytoolbox_update_6001() {
   $ret = drupal_install_schema('wallytoolbox');
+  return $ret;
+}
+
+/**
+ * Add 'nid' index to object_cache table
+ */
+function wallytoolbox_update_6002() {
+  $ret = array();
+  db_add_index($ret, 'wallytoolbox_object_cache', 'nid', array('nid'));
   return $ret;
 }
