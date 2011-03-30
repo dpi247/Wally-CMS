@@ -282,7 +282,7 @@ function wallycontentypes_update_poll_cache (&$form, &$form_state) {
  *   The name of the template being rendered.
  */
 function wally_get_tpl_suggestions(&$variables, $hook) {
-  $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook); 
+  $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook);
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
 
