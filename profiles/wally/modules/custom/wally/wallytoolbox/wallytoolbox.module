@@ -619,7 +619,7 @@ function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed
 function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, $feed_name) {
   $array_item['Package']['EmbeddedContent'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
-  $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+  $array_item['Package']['EmbeddedC_menu_link_alterontent']['EmbeddedObjects']['Object'] = array();
   $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
@@ -873,6 +873,15 @@ function wallytoolbox_get_meta() {
  */
 function wallytoolbox_preprocess_page(&$variables) {
   $variables['meta'] = wallytoolbox_get_meta();	
+}
+
+/*
+ * Implementation of hook_menu_link_alter()
+ */
+function wallytoolbox_menu_link_alter(&$item, $menu){
+  if($item['module']=='taxonomy_menu'){
+    $item['hidden']=1;
+  }
 }
 
 /**
