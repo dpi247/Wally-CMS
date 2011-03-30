@@ -1,9 +1,5 @@
 <?php
 
-function wallyctools_preprocess_views_view_unformatted(&$vars) {
-  $view = &$vars['view'];
-  $vars['template_files'][] = 'node-view-fffffffffffffffffffffffffffffffffff';
-}
 
 /**
  * Theme preprocess function for views-view-json.tpl.php
