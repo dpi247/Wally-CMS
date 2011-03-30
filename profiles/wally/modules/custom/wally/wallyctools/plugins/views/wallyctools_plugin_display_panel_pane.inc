@@ -11,20 +11,15 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
   var $panel_pane_display = TRUE;
   var $has_pane_conf = NULL;
 
-  
   //set default options for this dispalay
   function option_definition() {
     $options = parent::option_definition();
-
     
     $options['row_plugin']['default'] = 'node';
     $options['defaults']['default']['style_plugin'] = FALSE;
     $options['defaults']['default']['style_options'] = FALSE;
     $options['defaults']['default']['row_plugin'] = FALSE;
     $options['defaults']['default']['row_options'] = FALSE;
-     
-    
-    
     
     $options['redacblock_layout'] = array('default' => array(), 'translatable' => TRUE);
     
@@ -49,7 +44,7 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         'title_override'  => array('default' => FALSE),
         'exposed_form'    => array('default' => FALSE),
         'fields_override' => array('default' => FALSE),
-       ),
+      ),
     );
 
     $options['argument_input'] = array('default' => array());
@@ -76,9 +71,6 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
   function options_summary(&$categories, &$options) {
     // It is very important to call the parent function here:
     parent::options_summary($categories, $options);
-
-    
-    
     
     $categories['panel_pane'] = array(
       'title' => t('Destination block settings'),
@@ -92,8 +84,6 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
     if (strlen($pane_title) > 16) {
       $pane_title = substr($pane_title, 0, 16) . '...';
     }
-    
-    
     
     $layout_value=t('Choose from availables layouts');
     $layout_value_setted="";
@@ -110,10 +100,8 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
      $options['redacblock_layout'] = array(
       'category' => 'panel_pane',
       'title' => t('Layout'),
-       'value' => $layout_value,
-     
+      'value' => $layout_value,
     );
-    
     
     $options['pane_title'] = array(
       'category' => 'panel_pane',
@@ -220,7 +208,7 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         $form['redacblock_layout'] = array(
           '#type' => 'checkboxes',
           '#default_value' => $this->get_option('redacblock_layout'),
-          '#options'=>array('small'=>'Small','medium'=>'Medium','large'=>'Large',),
+          '#options'=>explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large')))),
           '#description' => t('This is the title that will appear for this view pane in the add content dialog. If left blank, the view name will be used.'),
         );
       break;
@@ -452,6 +440,4 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
     // rendered normally.
     return empty($conf['exposed_form']);
   }
-
 }
-
