@@ -27,14 +27,7 @@ function wallydefaultpages_default_page_manager_handlers() {
           'name' => 'term_vocabulary',
           'settings' => array(
             'vids' => array(
-              '' => (object) array(
-  'tid' => '2',
-  'vid' => '5',
-  'name' => 'Entity 1',
-  'description' => '',
-  'weight' => '0',
-  'featid' => NULL,
-),
+              2 => 2,
             ),
           ),
           'context' => 'argument_terms_1',
