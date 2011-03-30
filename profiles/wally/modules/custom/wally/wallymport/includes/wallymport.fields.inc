@@ -1087,7 +1087,7 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
     $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
     
-  $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI'); 
+  //$thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI'); 
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
   $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumb_uri);
     
