@@ -49,10 +49,10 @@ function wally_profile_modules() {
   $mod = array(
     // CCK (content)
     'content', 'fieldgroup', 'nodereference',
-    'text', 'optionwidgets',   
+    'text', 'optionwidgets',
  
     // Location 
-    'location', 'location_cck', 
+    'location', 'location_cck',
   );
 
   // Third party requiered modules
@@ -61,7 +61,7 @@ function wally_profile_modules() {
     'devel', 'admin', 'install_profile_api',
 
     // CCK (content)
-    'content_taxonomy', 'content_taxonomy_autocomplete', 
+    'content_taxonomy', 'content_taxonomy_autocomplete',
     'content_taxonomy_options', 'content_taxonomy_tree',
     'email', 'filefield', 'imagefield', 'link', 
     'pollfield', 
@@ -105,9 +105,9 @@ function wally_profile_modules() {
     'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
     'wallyedit', 'wallyfeaturessynchronizer',
     
-  ); 
+  );
 
-  return array_merge($core_modules,$third,$mod,$custom);
+  return array_merge($core_modules,$mod,$third,$custom);
 } 
 
 /**
