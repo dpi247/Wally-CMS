@@ -100,8 +100,8 @@ function wally_content_taxonomy_get_fields_to_vid() {
       // If component is rebuildable, rebuild it.
       $taxonomy_maps = features_get_component_map('taxonomy');
       if ($taxonomy_maps[$map['vocabulary']]) {
-        $states = features_get_component_states(array($taxonomy_maps[$map['vocabulary']]));
         $tax_map = $taxonomy_maps[$map['vocabulary']];
+        $states = features_get_component_states(array($tax_map[0]));
         if ($states[$tax_map[0]]['taxonomy'] == FEATURES_REBUILDABLE) {
           features_rebuild(array($tax_map[0] => array('taxonomy')));
         }
