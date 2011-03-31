@@ -734,11 +734,13 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
 
   _taxonomy_menu_delete_all($vid);
 
+/*
   $args = array(
     'vid' => $vid,
     'menu_name' => $menu_name,
   );
   $mlid = taxonomy_menu_handler('insert', $args);
+  */
   
   $terms = taxonomy_get_tree($vid);
   foreach ($terms as $term) {
