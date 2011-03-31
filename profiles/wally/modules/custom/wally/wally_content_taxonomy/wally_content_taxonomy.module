@@ -101,8 +101,9 @@ function wally_content_taxonomy_get_fields_to_vid() {
       $taxonomy_maps = features_get_component_map('taxonomy');
       if ($taxonomy_maps[$map['vocabulary']]) {
         $states = features_get_component_states(array($taxonomy_maps[$map['vocabulary']]));
-        if ($states[$taxonomy_maps[$map['vocabulary']]]['taxonomy'] == FEATURES_REBUILDABLE) {
-          features_rebuild(array($taxonomy_maps[$map['vocabulary']] => array('taxonomy')));
+        $tax_map = $taxonomy_maps[$map['vocabulary']];
+        if ($states[$tax_map[0]]['taxonomy'] == FEATURES_REBUILDABLE) {
+          features_rebuild(array($tax_map[0] => array('taxonomy')));
         }
       }
       $field_to_vid[$map['field_name']] = db_result(db_query("SELECT vid from {vocabulary} where module like 'features_%s'", $map['vocabulary']));
