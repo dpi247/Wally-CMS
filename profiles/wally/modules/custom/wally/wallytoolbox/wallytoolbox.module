@@ -172,8 +172,10 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
     
     foreach ($tids as $index => $tid) {
       $term = taxonomy_get_term($tid);
-      $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
-      $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
+      if (isset($term->vid)) {
+        $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+        $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
+      }
     }
 
     if ($operator == 'or') {
@@ -619,7 +621,7 @@ function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed
 function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, $feed_name) {
   $array_item['Package']['EmbeddedContent'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
-  $array_item['Package']['EmbeddedC_menu_link_alterontent']['EmbeddedObjects']['Object'] = array();
+  $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
   $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];

@@ -741,7 +741,7 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
   );
   $mlid = taxonomy_menu_handler('insert', $args);
   */
-  
+
   $terms = taxonomy_get_tree($vid);
   foreach ($terms as $term) {
     $args = array(
