@@ -163,7 +163,7 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
   $r = array();
 
   if (count($tids) > 0) {
-        
+    
     // For each term ID, generate an array of descendant term IDs to the right depth.
     $descendant_tids = array();
     if ($depth === 'all') {
@@ -177,14 +177,13 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
         $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
       }
     }
-
+    
     if ($operator == 'or') {
-      $args = call_user_func_array('array_merge', $descendant_tids);
+      $args = !empty($descendant_tids) ? call_user_func_array('array_merge', $descendant_tids) : '';
       $placeholders = db_placeholders($args, 'int');
       $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
       $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
-    }
-    else {
+    } else {
       $joins = '';
       $wheres = '';
       $args = array();
