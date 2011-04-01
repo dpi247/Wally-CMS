@@ -643,7 +643,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_mainobject',
       '1' => 'field_embededobjects',
-      '2' => 'field_packagelayout',
+      '2' => 'field_linkedobjects',
+      '3' => 'field_packagelayout',
     ),
   );
 
@@ -1533,7 +1534,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_mainpoll',
       '1' => 'field_embededobjects',
-      '2' => 'field_packagelayout',
+      '2' => 'field_linkedobjects',
+      '3' => 'field_packagelayout',
     ),
   );
 
