@@ -161,6 +161,8 @@ function wallyfundamentals_views_default_views() {
     ),
   ));
   $handler->override_option('use_pager', 'mini');
+  $handler->override_option('row_plugin', 'redacblock_row');
+  $handler->override_option('row_options', NULL);
   $handler->override_option('redacblock_layout', array(
     'small' => 'small',
     'medium' => 'medium',
