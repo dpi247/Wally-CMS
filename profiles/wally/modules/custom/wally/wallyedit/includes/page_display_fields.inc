@@ -105,8 +105,8 @@ function wallyedit_display_fields_save_extra_fields(&$form, &$form_state) {
       $fields_to_save[$key] = $values;
     }
   }
-  
-  variable_set('wallyedit_extra_fields_display', $fields_to_save);
+
+  variable_set('wallyedit_extra_fields_display_'.$form['#type_name'], $fields_to_save);
 }
 
 function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
