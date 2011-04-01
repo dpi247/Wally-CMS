@@ -32,6 +32,16 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['webserv'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL of the webservice returning the pubs'),
+    '#description' => t('The URL of the webservice returning the pubs.'),
+    '#default_value' => variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
   $form['pub_submit'] = array(
     '#type' => 'submit',
     '#title' => t('Save'),
@@ -47,6 +57,7 @@ function pub_page_admin_form($form_state) {
 function pub_page_admin_form_submit($form, &$form_state) {
   variable_set('pub_website', $form['website']['#value']);
   variable_set('pub_get_xml', $form['get_xml']['#value']);
+  variable_set('pub_webserv', $form['webserv']['#value']);
   drupal_set_message('Configuration saved', 'notice');
 }
 

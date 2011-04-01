@@ -6,7 +6,6 @@
  *  - $html_code : contents the code returned by the webservice
  *  - $delta : the delta of the block
  */
-
 ?>
 
 <?php print $html_code; ?>

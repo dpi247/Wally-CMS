@@ -306,7 +306,6 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
   // isset() fails in this situation.
   $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
   $value_is_array = is_array($element['#value']);
-  
   foreach ($choices as $k => $c) {
     $key = array_keys($c);
     $key = $key[0];
