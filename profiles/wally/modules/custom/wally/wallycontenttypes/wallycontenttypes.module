@@ -13,6 +13,14 @@ include_once('wallycontenttypes.features.inc');
  
 
 /**
+ * Implementation of hook_perm().
+ */
+function wallycontenttypes_perm() {
+  return array('editing crop');
+}
+
+
+/**
  *  Implémentation du hook_menu(); 
  */
  
@@ -22,8 +30,8 @@ function wallycontenttypes_menu() {
   $items['admin/content/editcrop'] = array(
     'title' => t('Edit croping'), 
     'description' => t('Edit croping'), 
-    'page callback' => 'wallycontenttypes_editcrop', 
-    'access arguments' => array('edit croping'), 
+    'page callback' => 'wallycontenttypes_editcrop',
+    'access arguments' => array('editing crop'), 
     'type' => MENU_CALLBACK,
   );
   
@@ -32,7 +40,7 @@ function wallycontenttypes_menu() {
       'title' => t('Edit croping for WallyEdit'), 
       'description' => t('Edit croping for WallyEdit'), 
       'page callback' => 'wallycontenttypes_editcropwallyedit', 
-      'access arguments' => array('edit croping'), 
+      'access arguments' => array('editing crop'), 
       'type' => MENU_CALLBACK,
     );
   }
