@@ -41,6 +41,15 @@ function wallymport_menu() {
     'type' => MENU_CALLBACK,
   );
   
+  $items['wallymport/preview_zip'] = array(
+    'title' => 'Run XML Import Process to preview a zip file',
+    'description' => 'Run data preview (zip)',
+    'page callback' => 'wallymport_preview_zip',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['wallymport/destinations_items'] = array(
     'title' => 'Return a XML list of all available destinations',
     'description' => 'Return a XML list of all available destinations',
@@ -178,8 +187,8 @@ function wallymport_process_folder_cleanup() {
 function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path = FALSE){
   global $proceed_folder_path;
   $returns = array(); 
-   
-  $temp=file_directory_temp();
+  
+  $temp = variable_get('wallymport_temp', file_directory_temp());
   $format='zip';   // input file extension
 
   if($absolute_path){
@@ -193,69 +202,22 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
   }
   $files = drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0);	// get list of all *.zip files
   if (count($files)==0) {
-    drupal_set_message('No input files found','error');
-    return null;
+    header($error_msg, TRUE, 517);
+    return array('No input files found');
   }
   ksort($files);
 
   // Process each ZIP files from folder.
   foreach ($files as $file) {
-    $zip_error = FALSE;
-    $error_msg = FALSE;
-    // Unzip input file to the temp directory
-    $zip = new ZipArchive;
-    $res = $zip->open($file->filename);
-    if ($res === TRUE) { 
-      
-      $temp_subdir=$temp.'/'.$file->name;
-      file_check_directory($temp_subdir,1);
-      if (is_dir($temp_subdir)) { 
-        $zip->extractTo($temp_subdir);
-        // Search for XMLs
-        $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
-        if (count($import_files)==0) {
-          $zip_error = TRUE;
-          $error_msg = 'No XML file found in the import: '.$file->basename;
-          $returns[] = $error_msg;
-        } elseif (count($import_files)>1) {
-          $zip_error = TRUE;
-          $error_msg = 'There is more than one XML file found in the import: '.$file->basename;
-          $returns[] = $error_msg;
-        } else {
-          // Yeah .. ready to ROCK & ROLL
-          $import_file=reset($import_files);
-          $xml_file=$import_file->filename;
-          $proceed_folder_path = $temp_subdir; 
-          $returns[] = wallymport_page_process_file($xml_file);
-        }
-        $zip->close();
-        rrmdir($temp_subdir);
-      } else {
-        $zip_error = TRUE;
-        $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
-        $returns[] = $error_msg;
-      }
-
-    } else {
-      $zip_error = TRUE;
-      $error_msg = 'Cant UnZip file: '.$file->filename;
-      $returns[] = $error_msg;
-    }
-
-    if ($zip_error) {
-      header($error_msg, TRUE, 517);
-      file_move($file->filename, variable_get('wallymport_import_error', file_directory_path()));
-    } else {
-      file_move($file->filename, variable_get('wallymport_import_done', file_directory_path()));
-    }
+    wallymport_process_zip_file($file, $temp, $format, $returns);
   }
   
   return $returns; 
 }
 
 /**
- * Process all zip files from the import folder. 
- * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
+ * Process one zip files from the import folder.
+ * Page Callback of the processing of the import folder and call for the XML element the wallymport_page_process_file().
  * 
  * @param: $path_to_folder
  *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
@@ -266,7 +228,7 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   global $proceed_folder_path;
   $returns = array();
   
-  $temp = file_directory_temp();
+  $temp = variable_get('wallymport_temp', file_directory_temp());
   $format = 'zip'; // input file extension
   
   if($absolute_path){
@@ -276,65 +238,127 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   }
   
   if (!file_exists($file)) {
-    drupal_set_message('Input file doesn\'t exists','error');
-    print 'error';
+    header($error_msg, TRUE, 517);
+    print json_encode(array('Input file doesn\'t exists'));
     return;
   }
   
+  $expl_filename = explode('.'.$format, $file);
+  $expl_filename = explode('/', $expl_filename[0]);
+  
+  $object_file = new stdClass();
+  $object_file->name = $expl_filename[sizeof($expl_filename)-1];
+  $object_file->filename = $file;
+  $object_file->basename = $file;
+  
+  wallymport_process_zip_file($object_file, $temp, $format, $returns);
+  
+  print json_encode($returns);
+  return;
+}
+
+/**
+ * Preview a zip files from the import folder. 
+ * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
+ * 
+ * @param: $path_to_folder
+ *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
+ * 
+ * @return Nothing
+ */
+function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE){
+  global $proceed_folder_path;
+  $returns = array();
+  
+  $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+  $format = 'zip'; // input file extension
+  
+  if($absolute_path){
+    $file = $path_to_zip;
+  } else {
+    $file = variable_get('wallymport_preview_source','')."/".$path_to_zip;
+  }
+  
+  if (!file_exists($file)) {
+    header($error_msg, TRUE, 517);
+    print json_encode(array('Input file doesn\'t exists'));
+    return;
+  }
+  
+  $expl_filename = explode('.'.$format, $file);
+  $expl_filename = explode('/', $expl_filename[0]);
+  
+  $object_file = new stdClass();
+  $object_file->name = $expl_filename[sizeof($expl_filename)-1];
+  $object_file->filename = $file;
+  $object_file->basename = $file;
+  
+  wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
+  
+  print json_encode($returns);
+  return;
+}
+
+/**
+ * Process one zip file.
+ * 
+ * @param stdObject $file
+ *   File object to be processed.
+ * @param string $temp
+ *   Temp directory.
+ * @param string $format
+ *   Compression format.
+ * @param array $returns
+ *   Results of the import.
+ */
+function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview = FALSE) {
   $zip_error = FALSE;
   $error_msg = FALSE;
   // Unzip input file to the temp directory
   $zip = new ZipArchive;
-  $res = $zip->open($file);
-  if ($res === TRUE) { 
-    $expl_filename = explode('.'.$format, $file);
-    $expl_filename = explode('/', $expl_filename[0]);
-    $temp_subdir=$temp.'/'.$expl_filename[sizeof($expl_filename)-1];
+  $res = $zip->open($file->filename);
+  if ($res === TRUE) {
+    $temp_subdir=$temp.'/'.$file->name;
     file_check_directory($temp_subdir,1);
-    if (is_dir($temp_subdir)) { 
+    if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
       // Search for XMLs
       $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
       if (count($import_files)==0) {
         $zip_error = TRUE;
-        $error_msg = 'No XML file found in the import: '.$file;
+        $error_msg = 'No XML file found in the import: '.$file->basename;
         $returns[] = $error_msg;
       } elseif (count($import_files)>1) {
         $zip_error = TRUE;
-        $error_msg = 'There is more than one XML file found in the import: '.$file;
+        $error_msg = 'There is more than one XML file found in the import: '.$file->basename;
         $returns[] = $error_msg;
       } else {
         // Yeah .. ready to ROCK & ROLL
         $import_file=reset($import_files);
         $xml_file=$import_file->filename;
-        $proceed_folder_path = $temp_subdir; 
-        $returns[] = wallymport_page_process_file($xml_file);
+        $proceed_folder_path = $temp_subdir;
+        $returns[] = wallymport_page_process_file($xml_file, $preview);
       }
       $zip->close();
       rrmdir($temp_subdir);
     } else {
       $zip_error = TRUE;
-      $error_msg = 'Input file '.$file.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
+      $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
       $returns[] = $error_msg;
     }
-
+  
   } else {
     $zip_error = TRUE;
-    $error_msg = 'Cant UnZip file: '.$file;
+    $error_msg = 'Cant UnZip file: '.$file->filename;
     $returns[] = $error_msg;
   }
   
-  if($error_msg)
-    watchdog('Wallymport', $error_msg, array(), WATCHDOG_ERROR);
-  
-  if($zip_error) {
-    file_move($file, variable_get('wallymport_import_error', file_directory_path()));
+  if ($zip_error) {
     header($error_msg, TRUE, 517);
+    //file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
   } else {
-    file_move($file, variable_get('wallymport_import_done', file_directory_path()));
+    //file_delete($file->filename);
   }
-  
-  print json_encode($returns); 
 }
 
 /**
@@ -348,15 +372,13 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
  * @return
  *   nothing
  */
-function wallymport_page_process_file($path_to_file){
+function wallymport_page_process_file($path_to_file, $preview = FALSE){
   global $proceed_file_path;
 
   $proceed_file_path=$path_to_file;
     
-  if(!$path_to_file){
-    drupal_set_message("error",'You must to provide a path to the XML');
-    return '';
-  }
+  if(!$path_to_file)
+    return 'You must to provide a path to the XML';
 
   $xsd_file= variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
 //  $xml_file = variable_get('wallymport_source','')."/".$path_to_file;
@@ -366,14 +388,11 @@ function wallymport_page_process_file($path_to_file){
   fclose($handle);
   $dom = new DomDocument();
   $dom->LoadXML($contents);
-  if (!$dom->schemaValidate($xsd_file)){
-    drupal_set_message('The XML file isn\'t validate by the XSD file',"error");
-    return '';
-  }
+  if (!$dom->schemaValidate($xsd_file))
+    return 'The XML file ('.$xml_file.') isn\'t validate by the XSD file';
 
-  $node=new StdClass();
-  $log=array();
-  $return=wimprt_process_packages($node,$dom,$log);
+  $log = array();
+  $return = wimprt_process_packages($dom, $log, $preview);
   return $return;
 }
 
@@ -389,12 +408,11 @@ function wallymport_page_process_file($path_to_file){
  * @return
  *   the log object
  */
-function wimprt_process_packages($node,$dom,&$log){
+function wimprt_process_packages($dom, &$log, $preview = FALSE){
 
-  module_invoke_all('wimprt_process_packages',$dom,$log,'before_process');
+  module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
-    $node=new stdClass;
-    wimprt_process_package($node,$package_element,$log);
+    wimprt_process_package($package_element, $log, $preview);
     //$log[]=$log;
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
@@ -419,9 +437,9 @@ function wimprt_process_packages($node,$dom,&$log){
  * @return
  *   the node object that has been build
  */
-function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
-  $callback=wimprt_set_callback($dom,$callback);
-  $node=wimprt_create_or_load($dom,'package', $callback,$log);
+function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL) {
+  $callback = wimprt_set_callback($dom, $callback);
+  $node = wimprt_create_or_load($dom, 'package', $callback, $log);
 
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or true)
@@ -435,17 +453,27 @@ function wimprt_process_package(&$node,$dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
-  if(!empty($node) && !$node->rejected)
-    node_save($node);
-  else
+  if(!empty($node) && !$node->rejected) {
+    switch ($preview) {
+      case TRUE :
+        $prenode = new Prenode();
+        $prenode->ConvertNodeToPrenode($node);
+        $prenode->ConvertToPopulate();
+        dsm($node, 'node');
+        dsm($prenode, 'prenode');
+        dsm($prenode->form_state, 'form state');
+        break;
+      default :
+        node_save($node);
+    }
+  } else {
     wallycontenttypes_delete_orphans_objects($node);
+  }
 
-  
   $log['node']=array('current'=>$node,'next'=>$log['node']);
-    
-  return $node;
+  
+  return;
 }
-
 
 /**
  * Process an object element
@@ -677,11 +705,11 @@ function wimprt_set_callback($dom,$callback=NULL){
  *   A node object
  */
 function wimprt_create_or_load($dom,$objecttype, $callback,$log){
-if(function_exists("wimprt_create_or_load_".$objecttype."_".$callback)){
+  if(function_exists("wimprt_create_or_load_".$objecttype."_".$callback)){
     $node=call_user_func("wimprt_create_or_load_".$objecttype."_".$callback,$dom,&$log);
   }
   else{
-   $node=new stdClass;
+    $node=new stdClass;
   }
   return $node;
 }
