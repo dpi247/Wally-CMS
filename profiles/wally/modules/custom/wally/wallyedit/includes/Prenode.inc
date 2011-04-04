@@ -16,18 +16,15 @@
  * functions to build the view query, execute the query and render the output.
  */
 class Prenode{
-
   var $cache_name;
-  
   var $node;
   var $form_state;
   var $base_table = 'node';
   
-
   /**
    * Constructor
    */
-  function Prenode($cache_name=NULL){
+  function Prenode($cache_name = NULL){
     $this->cache_name=$cache_name;
     
     if($cache_name){
@@ -43,38 +40,44 @@ class Prenode{
           $this->form_state['cache name']= $cache_name;
         }
         else{
-          drupal_set_message("WallyEdit: node not found","error");    
-          watchdog("error","WallyEdit: node not found");    
+          drupal_set_message("WallyEdit: node not found","error");
+          watchdog("error","WallyEdit: node not found");
         }
       }
       else{
         //Case of a prenode in edition mode
-        
         $this->setNode($node);
         $this->getFormState();
-    
       }
-      
     }
     return $this;
   }
-  function setNode($node){
-  $this->node=$node;
+  
+  function ConvertToPopulate(){
+    foreach($this->form_state[$this->form_state['type']] as $field_name=>$field_content){
+      if(strpos($field_name, 'field_')===0){
+        foreach($field_content as $elem){
+          $this->form_state[$this->form_state['type']]['#node']->{$field_name.'_nodes'}[]=$elem['#node'];
+        }
+      }
+    }
   }
-   function getFormState($reset=false){
-     if(isset($this->form_state) and $reset==false)
-       return $this->form_state;
-     else{
-       
-       return $this->setFormState();
-     
-     }
-   }
+  
+  function setNode($node){
+    $this->node=$node;
+  }
+  
+  function getFormState($reset=false){
+    if(isset($this->form_state) and $reset==false)
+    return $this->form_state;
+    else{
+      return $this->setFormState();
+    }
+  }
+  
   function setFormState($reset=false){
-
     ctools_include('object-cache');
     $type_name=$this->node->type;
-    
     
     $form_state = array('ajax' => TRUE);
     $form_state += array(
@@ -91,8 +94,7 @@ class Prenode{
       $form_state=$cache;
       $form_state['type']= $type_name;
       //$form_state[$type_name]['#node']=$this->node;
-    }
-    else{
+    } else {
       $form_state['type']= $type_name;
       $form_state[$type_name]['#node']=$this->node;
       $form_state[$type_name]['type']=$type_name;
@@ -137,13 +139,14 @@ class Prenode{
     return $form_state;
   }
   
+  function ConvertNodeToPrenode($node){
+    $this->setNode($node);
+    $this->setFormState();
+  }
+
   static function LoadPrenodeFromNid($nid){
     ctools_include('object-cache');
     return ctools_object_cache_get('prenode', $nid);
-  }
-  static function ConvertNodeToPrenode($node){
-    
-    return $node;
   }
 }
 /**
