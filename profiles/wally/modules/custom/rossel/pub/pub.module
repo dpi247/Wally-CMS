@@ -321,9 +321,6 @@ function _pub_getmetriwebcontent($delta) {
  * 
  * @return
  *   HTML content.
- *   
- * @todo
- *   Call webservice.
  */
 function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position) {
   $expl_website = explode('_', $website);
