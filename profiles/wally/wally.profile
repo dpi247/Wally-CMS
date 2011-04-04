@@ -410,6 +410,9 @@ function _wally_initialize_settings(&$context){
   variable_set('wallymport_import_error',"sites/default/files/import/error");
   variable_set('wallymport_definition',"profiles/wally/modules/custom/wally/wallymport/definitions/packages.xsd");
   variable_set('wallymport_temp',"/tmp");
+  variable_set('wallymport_preview_source',"sites/default/files/preview");
+  variable_set('wallymport_preview_error',"sites/default/files/preview/error");
+  variable_set('wallymport_preview_temp',"/tmp");
   variable_set('wallymport_debug',"0");
   
   // Embedly Module config settings
