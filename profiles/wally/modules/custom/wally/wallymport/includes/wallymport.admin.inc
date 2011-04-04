@@ -11,7 +11,14 @@
  */
 function wallymport_page_admin_form($form_state) {
   $path = drupal_get_path('module', 'wallymport');
-  $form['wallymport_source'] = array(
+  $form['wallymport_import'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Import directories'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['wallymport_import']['wallymport_source'] = array(
     '#type' => 'textfield',
     '#title' => t('Import source directory path'),
     '#description' => t('This must be an existing and writable path where input zipped data is received.'),
@@ -20,7 +27,8 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
-  $form['wallymport_import_done'] = array(
+  
+  $form['wallymport_import']['wallymport_import_done'] = array(
     '#type' => 'textfield',
     '#title' => t('Imported packages directory path'),
     '#description' => t('This must be an existing and writable path where zipped processed packages are moved after import.'),
@@ -29,7 +37,8 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
-  $form['wallymport_import_error'] = array(
+  
+  $form['wallymport_import']['wallymport_import_error'] = array(
     '#type' => 'textfield',
     '#title' => t('Not imported packages (with errors) directory path'),
     '#description' => t('This must be an existing and writable path where zipped packages which could not be imported are moved after import.'),
@@ -38,7 +47,18 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
-  $form['wallymport_definition'] = array(
+  
+  $form['wallymport_import']['wallymport_temp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import temporary directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
+    '#default_value' => variable_get('wallymport_temp', file_directory_temp()),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['wallymport_import']['wallymport_definition'] = array(
     '#type' => 'textfield',
     '#title' => t('Import Data Structure Definition file'),
     '#description' => t('XSD (schema) file name, with the path.'),
@@ -46,6 +66,43 @@ function wallymport_page_admin_form($form_state) {
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
+  );
+  
+  $form['wallymport_preview'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Preview directories'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['wallymport_preview']['wallymport_preview_source'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Preview source directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data is received.'),
+    '#default_value' => variable_get('wallymport_preview_source', 'sites/default/files/preview'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['wallymport_preview']['wallymport_preview_error'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Preview errors directory path'),
+    '#description' => t('This must be an existing and writable path where zipped packages which could not be previewed are moved.'),
+    '#default_value' => variable_get('wallymport_preview_error', 'sites/default/files/preview/error'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['wallymport_preview']['wallymport_preview_temp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Preview temporary directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
+    '#default_value' => variable_get('wallymport_temp', file_directory_temp()),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
   );
   
   $form['wallymport_productID'] = array(
@@ -56,16 +113,6 @@ function wallymport_page_admin_form($form_state) {
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
-  );
-  
-   $form['wallymport_temp'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Import temporary directory path'),
-    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
-    '#default_value' => variable_get('wallymport_temp', file_directory_temp()),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
   );
   
   $form['wallymport_debug'] = array(
@@ -90,7 +137,7 @@ function wallymport_page_admin_form($form_state) {
     '#default_value' => variable_get('wallymport_destinationpath', 0),
     '#options' => $vocab_list,
     '#required' => TRUE,
-  );  
+  );
 
   $form['wallymport_edition'] = array(
     '#type' => 'select',
@@ -192,14 +239,33 @@ function wallymport_page_admin_form_validate($form, &$form_state) {
     form_set_error('wallymport_import_error', t('The path provided is not an existing writable directory.'));
   }
   
+  $path = $form_state['values']['wallymport_temp'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_temp', t('The path provided is not an existing writable directory.'));
+  }
+  
+  $path = $form_state['values']['wallymport_preview_source'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_preview_source', t('The path provided is not an existing writable directory.'));
+  }
+  
+  $path = $form_state['values']['wallymport_preview_error'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_preview_error', t('The path provided is not an existing writable directory.'));
+  }
+  
+  $path = $form_state['values']['wallymport_preview_temp'];
+  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport_preview_temp', t('The path provided is not an existing writable directory.'));
+  }
+  
   $file = $form_state['values']['wallymport_definition'];
   $file_readable=is_readable($file);
   if (!$file_readable) {
     form_set_error('wallymport_definition', t('The filename provided is not an existing readable file.'));
   }
 }
-
-
-
-
-
