@@ -1,4 +1,9 @@
 <?php
+function wallyrsspublish_enable(){
+drupal_rebuild_theme_registry();
+}
+
+
 /*
  * Implementation of the hook module _install();
  */
@@ -7,6 +12,7 @@ function wallyrsspublish_install() {
 if (!db_table_exists('rsspublish')) {
     drupal_install_schema('wallyrsspublish');
   }
+drupal_rebuild_theme_registry();
  }
 
 /*
