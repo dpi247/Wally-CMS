@@ -294,9 +294,8 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE){
   $object_file->basename = $file;
   
   wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
-  
-  print json_encode($returns);
-  return;
+
+  return $returns[0]['packages'];
 }
 
 /**
@@ -355,9 +354,9 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
   
   if ($zip_error) {
     header($error_msg, TRUE, 517);
-    file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
+    //file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
   } else {
-    file_delete($file->filename);
+    //file_delete($file->filename);
   }
 }
 
@@ -409,15 +408,16 @@ function wallymport_page_process_file($path_to_file, $preview = FALSE){
  *   the log object
  */
 function wimprt_process_packages($dom, &$log, $preview = FALSE){
-
+  $return = array();
   module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
-    wimprt_process_package($package_element, $log, $preview);
+    $return['packages'] = wimprt_process_package($package_element, $log, $preview);
     //$log[]=$log;
   }
   module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
 
-  return $log;
+  $return['log'] = $log;
+  return $return;
 }
 
 
@@ -457,7 +457,8 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     if ($preview) {
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
-      print wallyedit_callback_preview($prenode);
+      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
+      return wallyedit_callback_preview($prenode);
     } else {
       node_save($node);
     }
