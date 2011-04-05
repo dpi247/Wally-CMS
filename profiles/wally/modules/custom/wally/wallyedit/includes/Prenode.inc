@@ -91,7 +91,7 @@ class Prenode{
  //     "action"=>'/node/'.arg(1).'/edit2/ajax',
     );
     
-    if(false && $cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
+    if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
       $form_state=$cache;
       $form_state['type']= $type_name;
       //$form_state[$type_name]['#node']=$this->node;
