@@ -354,9 +354,9 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
   
   if ($zip_error) {
     header($error_msg, TRUE, 517);
-    //file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
+    file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
   } else {
-    //file_delete($file->filename);
+    file_delete($file->filename);
   }
 }
 
