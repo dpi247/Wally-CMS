@@ -53,15 +53,17 @@ class Prenode{
     return $this;
   }
   
-  function ConvertToPopulate(){
+  function ReturnPopulated(){
+    $prenode = $this->form_state[$this->form_state['type']]['#node'];
     foreach($this->form_state[$this->form_state['type']] as $field_name=>$field_content){
       if(strpos($field_name, 'field_')===0){
         foreach($field_content as $elem){
           if ($elem['#node'])
-            $this->form_state[$this->form_state['type']]['#node']->{$field_name.'_nodes'}[]=$elem['#node'];
+            $prenode->{$field_name.'_nodes'}[]=$elem['#node'];
         }
       }
     }
+    return $prenode;
   }
   
   function setNode($node){
