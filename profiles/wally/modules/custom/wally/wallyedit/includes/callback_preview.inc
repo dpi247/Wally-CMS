@@ -1,6 +1,6 @@
 <?php
 
 function wallyedit_callback_preview($prenode){
-  $node = $prenode->ConvertToPopulate();
+  $node = $prenode->ReturnPopulated();
   return theme('node', $node);
 }
