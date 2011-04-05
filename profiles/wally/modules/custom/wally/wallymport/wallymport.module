@@ -457,7 +457,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     if ($preview) {
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
-      $prenode->ConvertToPopulate();
+      print wallyedit_callback_preview($prenode);
     } else {
       node_save($node);
     }
