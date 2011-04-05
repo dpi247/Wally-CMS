@@ -57,7 +57,8 @@ class Prenode{
     foreach($this->form_state[$this->form_state['type']] as $field_name=>$field_content){
       if(strpos($field_name, 'field_')===0){
         foreach($field_content as $elem){
-          $this->form_state[$this->form_state['type']]['#node']->{$field_name.'_nodes'}[]=$elem['#node'];
+          if ($elem['#node'])
+            $this->form_state[$this->form_state['type']]['#node']->{$field_name.'_nodes'}[]=$elem['#node'];
         }
       }
     }
@@ -90,7 +91,7 @@ class Prenode{
  //     "action"=>'/node/'.arg(1).'/edit2/ajax',
     );
     
-    if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
+    if(false && $cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
       $form_state=$cache;
       $form_state['type']= $type_name;
       //$form_state[$type_name]['#node']=$this->node;
@@ -109,7 +110,7 @@ class Prenode{
           $form_state[$type_name][$field_name]=array();
           if($infos['display_settings']["wallyedit"]==2){
             
-            $type=wydit_get_inline_type($infos['referenceable_types']);
+            $type=wydit_get_inline_type($infos['referenceable_types']);dsm($type, 'type');
             $main_node=new stdClass;
             $main_node->type=$type;
             $form_state[$type_name][$field_name][0]['#node']=$main_node;
@@ -117,7 +118,7 @@ class Prenode{
 
           }
 
-          if ($this->node->{$field_name}) {
+          if ($this->node->{$field_name}) {dsm($this->node);
             foreach($this->node->{$field_name} as $key=>$value){
               $temp_node=node_load($value['nid']);
               $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
