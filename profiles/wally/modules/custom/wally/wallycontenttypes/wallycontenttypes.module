@@ -654,7 +654,7 @@ function wallycontenttypes_editcrop($nid) {
   $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
   $explimgcrops = array();
   $defaultvalues = array();
-  
+
   if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
     foreach ($imgcropings as $presetname => $imgcroping) {
       $tempexplcrop = array();
@@ -750,8 +750,14 @@ function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cr
  * @return
  *   Nothing
  */
-function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id){
+function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
+  $form['#submit'][] = '_wallycontenttypes_formsubmit';
   $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
+}
+
+function _wallycontenttypes_formsubmit(&$form, &$form_state) {
+  dsm($form, 'form');
+  dsm($form_state, 'form state');
 }
 
 /**
@@ -802,12 +808,13 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
   global $base_url;
-  $form['group_photo']['field_croping']['#access'] = FALSE;
+  $form['group_photo']['field_croping'][0]['#type'] = 'hidden';
+  $form['group_photo']['field_croping'][0]['#value'] = $form['#node']->field_croping[0]['value'];
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
-  	"#type"=>'markup',
-  	"#value"=>'<a href="'.$base_url.'/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
+    	"#type"=>'markup',
+  		"#value"=>'<a href="'.$base_url.'/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
     );
   }
   return($form);
@@ -1080,7 +1087,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
           $datas = $action['data'];
         }
       }
-      
+
       if (!empty($datas)) {
         $temppresetcrop = array();
         
