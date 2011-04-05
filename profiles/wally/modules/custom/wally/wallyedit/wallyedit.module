@@ -93,6 +93,13 @@ function wallyedit_menu(){
     'file'=>'includes/callback_add_new.inc',
     //'file path'=>'includes/',
   );
+  $items['node/%prenode/preview2'] = array(
+    'page callback'=>'wallyedit_callback_preview',
+    'page arguments'=>array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+    'file'=>'includes/callback_preview.inc',
+  );
   $items['wallyedit/test'] = array(
     'type'=> MENU_LOCAL_TASK,
     'page callback'=>'wallyedit_test',
@@ -148,6 +155,11 @@ function wallyedit_theme(){
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
       'original hook' => 'content_field_overview_form',
+    ),
+    'wallyedit_preview'=>array(
+      'template' => 'wallyedit-preview',
+      'arguments' => array('cache_name'=>0),
+      'path' => drupal_get_path('module', 'wallyedit') . '/theme',
     ),
     'wydit_selector_theme'=>$base+array(
      // 'template' => 'my-template-day-node',
@@ -538,6 +550,7 @@ function wydit_subform_global_page_form(&$form_state){
     '#name'=>'publish_global',
     "#value"=> 'Publish',
   ); 
+  $form['#suffix'] = theme('wallyedit_preview', $form_state['cache name']);
   
   return $form;
 }
