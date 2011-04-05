@@ -355,9 +355,9 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
   
   if ($zip_error) {
     header($error_msg, TRUE, 517);
-    //file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
+    file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
   } else {
-    //file_delete($file->filename);
+    file_delete($file->filename);
   }
 }
 
@@ -449,22 +449,17 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
 
   // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
   if(function_exists("wimprt_process_package_".$callback)){
-    call_user_func("wimprt_process_package_".$callback,&$node,$dom,&$log);
+    call_user_func("wimprt_process_package_".$callback, &$node, $dom, &$log, $preview);
   }
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
   if(!empty($node) && !$node->rejected) {
-    switch ($preview) {
-      case TRUE :
-        $prenode = new Prenode();
-        $prenode->ConvertNodeToPrenode($node);
-        $prenode->ConvertToPopulate();
-        dsm($node, 'node');
-        dsm($prenode, 'prenode');
-        dsm($prenode->form_state, 'form state');
-        break;
-      default :
-        node_save($node);
+    if ($preview) {
+      $prenode = new Prenode();
+      $prenode->ConvertNodeToPrenode($node);
+      $prenode->ConvertToPopulate();
+    } else {
+      node_save($node);
     }
   } else {
     wallycontenttypes_delete_orphans_objects($node);
@@ -495,7 +490,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
  * @return
  *   The node object that has been build
  */
-function wimprt_process_object($dom, &$log, $callback=NULL){
+function wimprt_process_object($dom, &$log, $callback = NULL, $preview = FALSE){
   $callback=wimprt_set_callback($dom, $callback);
   $node=wimprt_create_or_load($dom, 'object', $callback,$log);
 /**
@@ -506,11 +501,11 @@ function wimprt_process_object($dom, &$log, $callback=NULL){
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_object_$callback")){
-    call_user_func("wimprt_process_object_$callback",&$node,$dom,&$log);
+    call_user_func("wimprt_process_object_$callback", &$node, $dom, &$log, $preview);
   }
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
-  if(!empty($node))
+  if(!empty($node) && !$preview)
     node_save($node);
  
   $log['node']=array('current'=>$node,'next'=>$log['node']);
@@ -531,7 +526,7 @@ function wimprt_process_object($dom, &$log, $callback=NULL){
  * @return
  *   the node object that has been build
  */
-function wimprt_process_type($dom,&$log,$callback=NULL){
+function wimprt_process_type($dom, &$log, $callback=NULL,$preview = FALSE){
   $callback=wimprt_set_callback($dom,$callback);
   $node=wimprt_create_or_load($dom,'type', $callback,$log);
   //@todo: place in walymportlog module
@@ -546,7 +541,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
-  if(!empty($node))
+  if(!empty($node) && !$preview)
     node_save($node);
 
   $log['node']=array('current'=>$node,'next'=>$log['node']);
@@ -568,7 +563,7 @@ function wimprt_process_type($dom,&$log,$callback=NULL){
  * @return
  *   the array of nodes objects that has been build
  */
-function wimprt_process_list($dom_element,&$log,$callback=NULL){
+function wimprt_process_list($dom_element, &$log, $callback = NULL, $preview = FALSE){
   $callback=wimprt_set_callback($dom_element,$callback);
 
   //@todo: place in walymportlog module  
@@ -583,10 +578,9 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
     $element_name=$dom_child->nodeName;
     if($element_name!='#text'){
       if(function_exists("wimprt_process_".$callback)){
-        $array_of_nodes[]= call_user_func("wimprt_process_".$callback,$dom_child,&$log);
+        $array_of_nodes[]= call_user_func("wimprt_process_".$callback, $dom_child, &$log, NULL, $preview);
       }
     }
-
   }
   module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
 
@@ -608,12 +602,12 @@ function wimprt_process_list($dom_element,&$log,$callback=NULL){
  * @return
  *   The modified package node
  */
-function wimprt_process_package_default(&$node,$dom,&$log){
+function wimprt_process_package_default(&$node, $dom, &$log, $preview = FALSE){
   //Beware of namespace colision
   foreach($dom->childNodes as $element){
     $name=strtolower($element->nodeName);
     if(function_exists("wimprt_set_field_$name")){
-      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
+      call_user_func("wimprt_set_field_$name", &$node, $element, &$log, $preview);
     }
   }
   return $node;

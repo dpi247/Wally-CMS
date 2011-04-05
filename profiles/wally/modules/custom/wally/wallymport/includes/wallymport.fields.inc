@@ -107,7 +107,7 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
+function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
@@ -133,7 +133,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
     wimprt_set_field_packagelayout($node,'Article',$log);
   }
   //Map XML element
-  wimprt_process_package_default($node,$dom_element,$log);
+  wimprt_process_package_default($node, $dom_element, $log, $preview);
 }
 
 /**
@@ -152,7 +152,7 @@ function wimprt_process_package_articlepackagetype(&$node,$dom_element,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
+function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
    $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
@@ -169,7 +169,7 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
   $node->language= $dom_element->getAttributeNode("Language")->value;
   
   //Map XML element
-  wimprt_process_package_default($node,$dom_element,$log);
+  wimprt_process_package_default($node, $dom_element, $log, $preview);
 }
 /**
  * Process article package from DOM.
@@ -187,7 +187,7 @@ function wimprt_process_package_galleryPackageType(&$node,$dom_element,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_package_pollpackagetype(&$node,$dom_element,&$log){
+function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
    $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
@@ -204,7 +204,7 @@ function wimprt_process_package_pollpackagetype(&$node,$dom_element,&$log){
   $node->language= $dom_element->getAttributeNode("Language")->value;
   
   //Map XML element
-  wimprt_process_package_default($node,$dom_element,$log);
+  wimprt_process_package_default($node, $dom_element, $log, $preview);
 }
 
 /**
@@ -725,10 +725,13 @@ function wimprt_set_field_packagecopyright(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_mainstory(&$node,$dom,&$log){
+function wimprt_set_field_mainstory(&$node, $dom, &$log, $preview = FALSE) {
   // Process the object & getting NID
-	$object=wimprt_process_object($dom,$log,'TextObject');
+	$object=wimprt_process_object($dom, $log, 'TextObject', $preview);
 	$node->field_mainstory[0]['nid']=$object->nid;
+	if ($preview) {
+	  $node->field_mainstory_nodes[0] = $object;
+	}
 }
 
 /**
@@ -746,20 +749,23 @@ function wimprt_set_field_mainstory(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_mainobject(&$node,$dom,&$log){
+function wimprt_set_field_mainobject(&$node, $dom, &$log, $preview = FALSE) {
   if($dom->hasAttribute('xsi:type')){
     $object=new stdClass;
     if(strtolower($dom->getAttributeNode('xsi:type')->value)=='photoobjecttype')
-      $object=wimprt_process_object($dom,$log,'photoobjecttype');
+      $object=wimprt_process_object($dom, $log, 'photoobjecttype', $preview);
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='audioobjecttype')
-      $object=wimprt_process_object($dom,$log,'audioobjecttype');
+      $object=wimprt_process_object($dom, $log, 'audioobjecttype', $preview);
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='MultimediaObjectType')
-      $object=wimprt_process_object($dom,$log,'digitalobjecttype');
+      $object=wimprt_process_object($dom, $log, 'digitalobjecttype', $preview);
     elseif(strtolower($dom->getAttributeNode('xsi:type')->value)=='videoobjecttype')
-      $object=wimprt_process_object($dom,$log,'videoobjecttype');
+      $object=wimprt_process_object($dom, $log, 'videoobjecttype', $preview);
         
-    if($object->nid)
-      $node->field_mainobject[0]['nid']=$object->nid; 
+    if($object->nid) {
+      $node->field_mainobject[0]['nid']=$object->nid;
+      if ($preview)
+        $node->field_mainobject_nodes[0]=$object;
+    }
   }
 }
   
@@ -778,10 +784,12 @@ function wimprt_set_field_mainobject(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_poll(&$node,$dom,&$log){
+function wimprt_set_field_poll(&$node, $dom, &$log, $preview = FALSE){
   // Process the object & getting NID
-	$object=wimprt_process_object($dom,$log,'pollobjecttype');
+	$object=wimprt_process_object($dom, $log, 'pollobjecttype', $preview);
 	$node->field_mainpoll[0]['nid']=$object->nid;
+	if ($preview)
+	  $node->field_mainpoll_nodes[0]=$object;
 }
 /**
  * Process field Package Description from DOM element.
@@ -804,30 +812,36 @@ function wimprt_set_field_poll(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_EmbeddedContent(&$node,$dom,&$log){
+function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE){
  
   // Embeded objects
   $results = array(); 
-  $node->field_embededobjects = array(); 
+  $node->field_embededobjects = array();
+  $node->field_embededobjects_nodes = array();
 	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
-	foreach(wimprt_process_list($embedobjects,$log,'object') as $result){
+	foreach(wimprt_process_list($embedobjects, $log, 'object', $preview) as $result){
     if (!array_key_exists($result->nid, $results)) {
       $results[$result->nid]=$result->nid;
       $node->field_embededobjects[]['nid']=$result->nid;
+      if ($preview)
+        $node->field_embededobjects_nodes[]=$result;
     }
   }
 
   // Linkslists objects
   $links = array(); 
   $node->field_linkedobjects = array();
+  $node->field_linkedobjects_nodes = array();
 	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
   $linklist=$dom->getElementsByTagName('LinksList')->item(0);
   if($dom->getElementsByTagName('LinksList')->item(0)){
     if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
-      foreach(wimprt_process_list($linklists,$log,'object') as $result){
+      foreach(wimprt_process_list($linklists, $log, 'object', $preview) as $result){
         if (!array_key_exists($result->nid, $links)) {
           $links[$result->nid]=$result->nid;
           $node->field_linkedobjects[]['nid']=$result->nid;
+          if ($preview)
+            $node->field_linkedobjects_nodes[]=$result;
         }
       }
     } else {
@@ -903,7 +917,7 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_textobject (&$node,$dom_element,&$log){
+function wimprt_process_object_textobject (&$node, $dom_element, &$log){
   //Map XML Attributes 
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom_element);
@@ -1174,7 +1188,6 @@ function wimprt_process_object_audioobjecttype(&$node,$dom,&$log){
   }
  
   wimprt_process_object_default($node,$dom,$log);
-  
   
   return $node;
 
