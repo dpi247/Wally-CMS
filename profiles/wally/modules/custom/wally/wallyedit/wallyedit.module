@@ -147,7 +147,7 @@ function wallyedit_theme(){
      // 'template' => 'my-template-day-node',
       'arguments' => array('form'=>array(),'prenode' => NULL),
       ),
-    'content_display_overview_form'=>array(
+    'wallyedit_display_fields_form'=>array(
       'template' => 'wallyedit-admin-display-overview-form',
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
