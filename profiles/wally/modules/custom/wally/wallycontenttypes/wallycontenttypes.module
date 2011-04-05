@@ -751,13 +751,7 @@ function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cr
  *   Nothing
  */
 function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
-  $form['#submit'][] = '_wallycontenttypes_formsubmit';
   $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
-}
-
-function _wallycontenttypes_formsubmit(&$form, &$form_state) {
-  dsm($form, 'form');
-  dsm($form_state, 'form state');
 }
 
 /**
