@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Implementation of hook_form().
+ */
 function wallyrsspublish_settingsrss_form(){
 
   $all_voc = taxonomy_get_vocabularies();
@@ -14,45 +16,54 @@ function wallyrsspublish_settingsrss_form(){
   foreach ($taxos as $taxo){
   	
   	$tid=$taxo->tid;
-  	$name=str_replace(' ', '-', $taxo->name);
-  	$descr=$taxo->description;
+  	$data=db_fetch_array(db_query('SELECT * FROM {rsspublish} WHERE tid= %d',$tid));
   	
-  	$form[$name.'settings'] = array(
+  	$dest=str_replace(' ', '-', $taxo->name);
+  	$description=$taxo->description;
+  	$copyright = "Copyright";
+  	
+  	$name = empty($data['title']) ? $dest : $data['title'];
+  	$descr = empty($data['description']) ? $description : $data['description'];
+  	$copy = empty($data['copyright']) ? $copyright : $data['copyright'];
+  	
+  	
+  	$form[$dest.'settings'] = array(
 	    '#type' => 'fieldset',
-	    '#title' => t($name.' RSS Settings'),
-	    '#description' => t('General parameters used to display a '.$name.' rss.'),
+	    '#title' => t($dest.' RSS Settings'),
+	    '#description' => t('General parameters used to display a '.$dest.' rss.'),
 	    '#collapsible' => TRUE,
 	    '#collapsed' => TRUE,
   	);
-  	$form[$name.'settings']['wallyrsspublish_'.$name.'_rsstid'] = array(
+  	$form[$dest.'settings']['wallyrsspublish_'.$dest.'_rsstid'] = array(
     '#type' => 'hidden',
-    '#title' => t($name.' tid'),
+    '#title' => t($dest.' tid'),
     '#default_value' => $tid, 
     '#description' => t('Rss tid.'),
     '#required'=>TRUE,
   	);
-  	$form[$name.'settings']['wallyrsspublish_'.$name.'_rsstitle'] = array(
+  	$form[$dest.'settings']['wallyrsspublish_'.$dest.'_rsstitle'] = array(
     '#type' => 'textfield',
-    '#title' => t($name.' Title'),
+    '#title' => t($dest.' Title'),
     '#default_value' => $name, 
     '#description' => t('Rss title.'),
     '#required'=>TRUE,
   	);
-  	$form[$name.'settings']['wallyrsspublish_'.$name.'_rssdescription'] = array(
+  	$form[$dest.'settings']['wallyrsspublish_'.$dest.'_rssdescription'] = array(
     '#type' => 'textfield',
     '#title' => t($dest.' Description'),
     '#default_value' => $descr,
     '#description' => t('Rss Description.'),
   	);
-  	$form[$name.'settings']['wallyrsspublish_'.$name.'_rssimage'] = array(
+  	$form[$dest.'settings']['wallyrsspublish_'.$dest.'_rssimage'] = array(
     '#type' => 'file',
     '#title' =>t('Attach an image'),
     '#description' => t('RSS image'),
     '#size' => 100,
   	);
-  	$form[$name.'settings']['wallyrsspublish_'.$name.'_rsscopyright'] = array(
+  	$form[$dest.'settings']['wallyrsspublish_'.$dest.'_rsscopyright'] = array(
     '#type' => 'textfield',
     '#title' => t('Copyright'),
+  	'#default_value' => $copy,
   	);
   }
   
@@ -67,6 +78,10 @@ function wallyrsspublish_settingsrss_form(){
 }
 
 
+
+/**
+ * Implementation of hook_form_submit().
+ */
 function wallyrsspublish_settingsrss_form_submit($form, &$form_state) {
 $all_voc = taxonomy_get_vocabularies();
     foreach ($all_voc as $voc) {
@@ -78,12 +93,12 @@ $all_voc = taxonomy_get_vocabularies();
   
   
   foreach ($taxos as $taxo){
-  $name=str_replace(' ', '-', $taxo->name);
+  $dest=str_replace(' ', '-', $taxo->name);
   $object = array();
-  $object['tid'] = $form_state['values']['wallyrsspublish_'.$name.'_rsstid'];
-  $object['title'] = $form_state['values']['wallyrsspublish_'.$name.'_rsstitle'];
-  $object['description'] = $form_state['values']['wallyrsspublish_'.$name.'_rssdescription'];
-  $file = file_save_upload('wallyrsspublish_'.$name.'_rssimage');
+  $object['tid'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstid'];
+  $object['title'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'];
+  $object['description'] = $form_state['values']['wallyrsspublish_'.$dest.'_rssdescription'];
+  $file = file_save_upload('wallyrsspublish_'.$dest.'_rssimage');
   $nameim = $file->filename;
   if(!empty($nameim)){
     $chemin_destination = 'sites/default/files/photorss/';
@@ -92,7 +107,7 @@ $all_voc = taxonomy_get_vocabularies();
     wallyrsspublish_create_file($folder); 
     $object['imagefile'] = $folder;
   }
-  $object['copyright'] = $form_state['values']['wallyrsspublish_'.$name.'_rsscopyright'];
+  $object['copyright'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsscopyright'];
   $feed_infos = db_fetch_array(db_query('SELECT `rss_key` FROM `rsspublish` WHERE `tid`=%d', $object['tid']));
   
   
@@ -105,6 +120,12 @@ $all_voc = taxonomy_get_vocabularies();
   }
 }
 
+/**
+ * 
+ * @param $filepath
+ * 
+ * @return 
+ */
 function wallyrsspublish_create_file($filepath){
   global $user;
   $file = new stdClass();
@@ -118,4 +139,41 @@ function wallyrsspublish_create_file($filepath){
   $file->timestamp = time();
   drupal_write_record('files', $file);
   return  field_file_load($filepath);
+}
+
+function wallyrsspublish_ui_tools_clear_cache() {
+  views_invalidate_cache();
+  drupal_set_message(t('The cache has been cleared.'));
+}
+
+/**
+ * Submit hook to clear Drupal's theme registry (thereby triggering
+ * a templates rescan).
+ */
+function wallyrsspublish_ui_config_item_form_rescan($form, &$form_state) {
+  drupal_rebuild_theme_registry();
+
+  // The 'Theme: Information' page is about to be shown again. That page
+  // analyzes the output of theme_get_registry(). However, this latter
+  // function uses an internal cache (which was initialized before we
+  // called drupal_rebuild_theme_registry()) so it won't reflect the
+  // current state of our theme registry. The only way to clear that cache
+  // is to re-initialize the theme system:
+  unset($GLOBALS['theme']);
+  init_theme();
+
+  $form_state['rerender'] = TRUE;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Override handler for views_ui_edit_display_form
+ */
+function wallyrsspublish_ui_edit_display_form_change_theme($form, &$form_state) {
+  // This is just a temporary variable.
+  $form_state['view']->theme = $form_state['values']['theme'];
+
+  views_ui_cache_set($form_state['view']);
+  $form_state['rerender'] = TRUE;
+  $form_state['rebuild'] = TRUE;
 }
