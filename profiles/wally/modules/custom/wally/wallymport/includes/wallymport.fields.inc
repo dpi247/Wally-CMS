@@ -1093,6 +1093,25 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
  */
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   static $procced_file_path;
+  
+  $c = array();
+  foreach($dom->getElementsByTagName('Crop') as $crop) {
+  	if ($crop->hasAttribute("Type")) {
+  		$type_name = $crop->getAttributeNode("Type")->value;
+  		$type_array = imagecache_preset_by_name($type_name);
+  		if (!empty($type_array)){
+	    $c[$type_name][0] = $crop->getAttributeNode("X")->value;
+	    $c[$type_name][1] = $crop->getAttributeNode("Y")->value;
+	    $c[$type_name][2] = $crop->getAttributeNode("W")->value;
+	    $c[$type_name][3] = $crop->getAttributeNode("H")->value;
+      $c[$type_name]["type"] = $type_array["presetid"];
+      }
+  	}
+  }
+
+  $presets = (json_encode($c));
+  $node->field_croping[0]['value'] = $presets; 
+  
   $value=$dom->nodeValue;
   
   //put common attributes
