@@ -110,7 +110,7 @@ class Prenode{
           $form_state[$type_name][$field_name]=array();
           if($infos['display_settings']["wallyedit"]==2){
             
-            $type=wydit_get_inline_type($infos['referenceable_types']);dsm($type, 'type');
+            $type=wydit_get_inline_type($infos['referenceable_types']);
             $main_node=new stdClass;
             $main_node->type=$type;
             $form_state[$type_name][$field_name][0]['#node']=$main_node;
@@ -118,7 +118,7 @@ class Prenode{
 
           }
 
-          if ($this->node->{$field_name}) {dsm($this->node);
+          if ($this->node->{$field_name}) {
             foreach($this->node->{$field_name} as $key=>$value){
               $temp_node=node_load($value['nid']);
               $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
