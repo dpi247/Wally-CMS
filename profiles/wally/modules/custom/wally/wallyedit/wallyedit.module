@@ -515,8 +515,6 @@ function wydit_subform_global_page_form(&$form_state){
 
   $type_name=$form_state['type'];
 
-  $fields=wydit_get_fields_infos_for_typename($type_name);
-
   $a=array("#tree"=>true);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$form_state[$type_name]['#node']);
   $a['#tree']=true;
@@ -530,7 +528,8 @@ function wydit_subform_global_page_form(&$form_state){
     $form[$type_name][$element_name]=$value;
   }
   $temp_b = $form[$form_state['type']];
-  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,$fields,array(0=>$type_name),$temp_b);
+
+  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name),$temp_b);
 
   wydit_remove_form_infos($form[$type_name]);
 
@@ -564,11 +563,12 @@ function wydit_subform_global_page_form(&$form_state){
   }else{
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
-  
+
   return $form;
 }
 
-function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields, $parents, $global_form = array()){
+function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parents, $global_form = array()){
+  $fields=wydit_get_fields_infos_for_typename($type);
   foreach(element_children($form) as $element){
     $parents_new=$parents;
     $parents_new[]=$element;
@@ -581,7 +581,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields
         $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
       $form[$element]['#collapsible'] = TRUE;
       $form[$element]['#collapsed'] = TRUE;
-      wydit_prepare_primary_package_form($form[$element],$form_state,$type,$fields,$parents,$global_form);
+      wydit_prepare_primary_package_form($form[$element],$form_state,$type,$parents,$global_form);
       wydit_changetypefromfieldset($form[$element],$fields);
       /*if ($form[$element]['type']['#value'] == 'wally_photoobject') {
         $temp_b = $form_state;
@@ -630,13 +630,13 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields
     //unset($form[$element]);
   }
 
-  unset($form['menu']);
+  //unset($form['menu']);
   unset($form['buttons']);
-  unset($form['author']);
-  unset($form['revision_information']);
-  unset($form['options']);
-  unset($form['comment_settings']);
-  unset($form['#theme']);
+  //unset($form['author']);
+  //unset($form['revision_information']);
+  //unset($form['options']);
+  //unset($form['comment_settings']);
+  //unset($form['#theme']);
 
   /*
    unset($form['#id']);
@@ -929,7 +929,6 @@ function wydit_subform_global_add_form(&$form_state){
   $node->type=$form_state['type'];
 
   $type_name=$node->type;
-  $fields=wydit_get_fields_infos_for_typename($type_name);
 
   //@todo: target should be parents ?
   $target=array_merge($form_state['parents'],array("#node"));
@@ -952,7 +951,7 @@ function wydit_subform_global_add_form(&$form_state){
     $form[$type_name][$element_name]=$value;
   }
 
-  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,$fields,array(0=>$type_name));
+  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name));
 
   wydit_remove_form_infos($form[$type_name]);
 
@@ -1024,7 +1023,6 @@ function wydit_subform_global_edit_form(&$form_state){
   $node=wydit_get_current_node_from_parents($form_state);
 
   $type_name=$node->type;
-  $fields=wydit_get_fields_infos_for_typename($type_name);
 
   $form['#tree']=TRUE;
 
@@ -1049,7 +1047,7 @@ function wydit_subform_global_edit_form(&$form_state){
     $form[$type_name][$element_name]=$value;
   }
 
-  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,$fields,array(0=>$type_name));
+  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name));
 
   wydit_remove_form_infos($form[$type_name]);
 
@@ -1224,7 +1222,7 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
     }
   }
 
-  wydit_prepare_primary_package_form($form,$form_state,$element,$fields,$parents);
+  wydit_prepare_primary_package_form($form,$form_state,$element,$parents);
 
   wydit_remove_form_infos($form);
   //$form[$type_name]['select_existing']=array("#type"=>"submit","#value"=>"Select an existing node");
@@ -1347,9 +1345,9 @@ function prenode_load($nid,$reload_node=FALSE){
 //_______________________________
 
 function wydit_changetypefromfieldset(& $fieldset,$fields){
-  if(count($fieldset)==7){
+  /*if(count($fieldset)==7){
     unset($fieldset['#type']);
-  }
+  }*/
   // foreach(element_children($fieldset))
 }
 
