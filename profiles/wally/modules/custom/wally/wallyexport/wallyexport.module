@@ -344,7 +344,7 @@ function _wallyexport_createLocationTypes(&$valid_dom, &$object, $field){
 }
 
 function _wallyexport_fillCropsTypes(&$valid_dom, &$object, $field){
-if (isset($field)) {
+  if (isset($field)) {
     foreach($field as $delta=>$elem){
       if(!empty($elem)){
         $crop = $object->appendChild($valid_dom->createElement('Crop'));
