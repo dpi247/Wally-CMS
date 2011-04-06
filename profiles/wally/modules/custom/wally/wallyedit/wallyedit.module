@@ -558,14 +558,12 @@ function wydit_subform_global_page_form(&$form_state){
     "#value"=> 'Publish',
   );
   
-  ); 
   $prenode=new Prenode($form_state['cache name']);
   if(!empty($prenode->form_state)){
     $form['#suffix'] = theme('wallyedit_preview_id', $form_state['cache name']);
   }else{
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
-  
   
   return $form;
 }
@@ -579,6 +577,10 @@ function wydit_prepare_primary_package_form(&$form,&$form_state,$type,$fields,$p
       continue;
     }
     if($form[$element]['#type']=='fieldset'){
+      if (!isset($form[$element]['#title']))
+        $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
+      $form[$element]['#collapsible'] = TRUE;
+      $form[$element]['#collapsed'] = TRUE;
       wydit_prepare_primary_package_form(&$form[$element],$form_state,$type,$fields,$parents,$global_form);
       wydit_changetypefromfieldset($form[$element],$fields);
       if ($form[$element]['type']['#value'] == 'wally_photoobject') {
@@ -962,7 +964,7 @@ function wydit_subform_global_add_form(&$form_state){
   	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
   );
   $form['#tree']=true;
-   
+
   return $form;
 }
 
@@ -1624,4 +1626,19 @@ function wallyedit_selector_action($node, $context,$a,$b,$c) {
    }
    user_save($user, array('roles' => $roles));
    */
+}
+
+/**
+ * Convert a type name is a real name which can be used as title.
+ * 
+ * @param string $type
+ *   The type name to be converted.
+ * 
+ * @return
+ *   The converted name.
+ */
+function _wallyedit_convert_type_to_title($type) {
+  $expl_type = explode('_', $type);
+  $expl_type = explode('object', $expl_type[1]);
+  return ucfirst($expl_type[0]);
 }
