@@ -15,6 +15,7 @@
     <description><?php print $description; ?></description>
     <language><?php print $langcode; ?></language>
     <copyright><?php print $copyright; ?></copyright>
+    <ttl>2</ttl>
     <image>
       <title><?php print $title; ?></title>
       <url><?php print $url; ?></url>
