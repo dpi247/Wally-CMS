@@ -154,12 +154,19 @@ function wallyedit_theme(){
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
       'original hook' => 'content_field_overview_form',
-  ),
-    'wallyedit_preview'=>array(
-      'template' => 'wallyedit-preview',
+    ),
+    'wallyedit_nopreview'=>array(
+      'template' => 'wallyedit-nopreview',
+      'path' => drupal_get_path('module', 'wallyedit') . '/theme',
+    ),
+    'wallyedit_preview_iframe'=>array(
+      'template' => 'wallyedit-preview-iframe',
       'arguments' => array('cache_name'=>0),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
-  ),
+    ),
+    'wallyedit_preview_id'=>$base+array(
+      'arguments' => array('$cache_name'=>0),
+      ),
     'wydit_selector_theme'=>$base+array(
   // 'template' => 'my-template-day-node',
       'arguments' => array('form'=>array()),
@@ -551,8 +558,15 @@ function wydit_subform_global_page_form(&$form_state){
     "#value"=> 'Publish',
   );
   
-  $form['#suffix'] = theme('wallyedit_preview', $form_state['cache name']);
-
+  ); 
+  $prenode=new Prenode($form_state['cache name']);
+  if(!empty($prenode->form_state)){
+    $form['#suffix'] = theme('wallyedit_preview_id', $form_state['cache name']);
+  }else{
+    $form['#suffix'] = theme('wallyedit_nopreview');
+  }
+  
+  
   return $form;
 }
 
@@ -959,10 +973,10 @@ function wallyedit_form_createmode_add_form_submit($form,&$form_state){
   $form = ctools_build_form('wallyedit_form_page_createmode_form', $form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
-
-  ctools_ajax_render($commands);
+  $commands[] = ctools_ajax_command_html('#wallyedit_preview', theme('wallyedit_preview_iframe', $form_state->cache_name));
+  
+  ctools_ajax_render($commands); 
 }
-
 function wallyedit_form_editmode_add_form_submit($form,&$form_state){
 
   wydit_subform_global_add_form_submit($form,$form_state);
