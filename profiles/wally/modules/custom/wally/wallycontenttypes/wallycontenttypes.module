@@ -811,6 +811,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $li
   		"#value"=>'<a href="'.$base_url.$link.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
     );
   }
+  return $form;
 }
 
 /**
