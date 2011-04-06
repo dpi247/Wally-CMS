@@ -800,17 +800,17 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  * @TODO: Need more intelligence, should be enabled when
  *   a file is uploaded.
  */
-function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = '/admin/content/editcrop/') {
+  global $base_url;
   $form['group_photo']['field_croping'][0]['#type'] = 'hidden';
   $form['group_photo']['field_croping'][0]['#value'] = $form['#node']->field_croping[0]['value'];
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
     	"#type"=>'markup',
-  		"#value"=>'<a href="'.$base_url.'/admin/content/editcrop/'.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
+  		"#value"=>'<a href="'.$base_url.$link.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
     );
   }
-  return($form);
 }
 
 /**
