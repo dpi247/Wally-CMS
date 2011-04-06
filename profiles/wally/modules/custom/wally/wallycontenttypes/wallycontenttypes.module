@@ -639,7 +639,7 @@ function _wallycontenttypes_getpackagesid($node){
 /**
  * Edition of the cropings of a photo.
  * 
- * @param $nid
+ * @param string $nid
  *  ID of the node containing the photo being edited.
  * 
  * @see http://deepliquid.com/blog/archives/category/jcrop
@@ -800,15 +800,15 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  * @TODO: Need more intelligence, should be enabled when
  *   a file is uploaded.
  */
-function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = '/admin/content/editcrop/') {
-  global $base_url;
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
+  global $base_url;dsm($form);
   $form['group_photo']['field_croping'][0]['#type'] = 'hidden';
   $form['group_photo']['field_croping'][0]['#value'] = $form['#node']->field_croping[0]['value'];
-  if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
+  if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || isset($form['group_photo']['field_photofile'][0]['#default_value']['fid'])) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
     	"#type"=>'markup',
-  		"#value"=>'<a href="'.$base_url.$link.$form['nid']['#value'].'" target="">'.t("Click here to edit croping information").'</a>',
+  		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
     );
   }
   return $form;
