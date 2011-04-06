@@ -121,14 +121,14 @@ function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
         $form[$field_name]['#row_type'] = 'group';
         $first_it = FALSE;
       }
-      $form['field_'.$node_field_name] = array();
-      $form['#field_rows'][] = 'field_'.$node_field_name;
+      $form[$node_field_name] = array();
+      $form['#field_rows'][] = $node_field_name;
       //$form['#fields'][] = 'field_'.$node_field_name;
-      $form['field_'.$node_field_name]['label']['#value'] = $node_field['#title'];
-      $form['field_'.$node_field_name]['field_name']['#value'] = $node_field_name;
-      $form['field_'.$node_field_name]['type']['#value'] = $node_field['#type'];
-      $form['field_'.$node_field_name]['weight']['#value'] = '10';
-      $form['field_'.$node_field_name]['parent'] = array(
+      $form[$node_field_name]['label']['#value'] = $node_field['#title'];
+      $form[$node_field_name]['field_name']['#value'] = $node_field_name;
+      $form[$node_field_name]['type']['#value'] = $node_field['#type'];
+      $form[$node_field_name]['weight']['#value'] = '10';
+      $form[$node_field_name]['parent'] = array(
         '#type' => 'select',
         '#options' => array($field_name => $form[$field_name]['label']['#value']),
         '#default_value' => $field_name,
@@ -137,9 +137,9 @@ function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
         '#type' => 'hidden',
         '#value' => $field_name,
       );
-      $form['field_'.$node_field_name]['#leaf'] = TRUE;
-      $form['field_'.$node_field_name]['#row_type'] = 'field';
-      $form['field_'.$node_field_name]['field'] = array(
+      $form[$node_field_name]['#leaf'] = TRUE;
+      $form[$node_field_name]['#row_type'] = 'field';
+      $form[$node_field_name]['field'] = array(
         '#type' => 'value',
         '#value' => array(
           'field_name' => $node_field_name,
