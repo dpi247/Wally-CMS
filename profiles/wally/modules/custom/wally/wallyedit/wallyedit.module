@@ -583,11 +583,11 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields
       $form[$element]['#collapsed'] = TRUE;
       wydit_prepare_primary_package_form($form[$element],$form_state,$type,$fields,$parents,$global_form);
       wydit_changetypefromfieldset($form[$element],$fields);
-      if ($form[$element]['type']['#value'] == 'wally_photoobject') {
+      /*if ($form[$element]['type']['#value'] == 'wally_photoobject') {
         $temp_b = $form_state;
         $args = array();
         wallycontenttypes_addeditcroplink_after_build($form[$element], $temp_b, 'admin/content/editcropwallyedit', $args);
-      }
+      }*/
     }
     if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==0 ){
       //@todo: DDU what happen if the element is required ?
