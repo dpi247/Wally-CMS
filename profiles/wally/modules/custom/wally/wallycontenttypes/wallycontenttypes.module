@@ -801,7 +801,6 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  *   a file is uploaded.
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
-  global $base_url;
   $form['group_photo']['field_croping'][0]['#type'] = 'hidden';
   $form['group_photo']['field_croping'][0]['#value'] = $form['#node']->field_croping[0]['value'];
   if ($form['group_photo']['field_photofile'][0]['fid']['#value']) {
