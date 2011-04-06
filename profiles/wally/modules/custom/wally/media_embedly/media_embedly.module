@@ -113,13 +113,13 @@ function _media_embedly_cached_request($src_url, $type){
   $cid = 'embedly_'.$src_url;
   $cached_xml = cache_get($cid);
   if (!is_object($cached_xml) || !isset($cached_xml) || empty($cached_xml)) {
-		watchdog('Embedly', 'Non existant cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+		//watchdog('Embedly', 'Non existant cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
     $xml = simplexml_load_file($url.$data);
     if($xml!='FALSE'){
       cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
     }
   }elseif($cached_xml->created <= time()){ 
-    watchdog('Embedly', 'Too old cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+    //watchdog('Embedly', 'Too old cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
     $xml = simplexml_load_file($url.$data);
     if($xml!='FALSE'){
       cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
@@ -127,7 +127,7 @@ function _media_embedly_cached_request($src_url, $type){
       $xml = simplexml_load_string($cached_xml->data);
     }
   }else{
-    watchdog('Embedly', 'Good cache, serving cached embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+    //watchdog('Embedly', 'Good cache, serving cached embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
     $xml = simplexml_load_string($cached_xml->data);
   }
   $embedly_result = array(
