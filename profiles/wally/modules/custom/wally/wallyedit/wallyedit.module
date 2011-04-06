@@ -581,7 +581,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields
         $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
       $form[$element]['#collapsible'] = TRUE;
       $form[$element]['#collapsed'] = TRUE;
-      wydit_prepare_primary_package_form(&$form[$element],$form_state,$type,$fields,$parents,$global_form);
+      wydit_prepare_primary_package_form($form[$element],$form_state,$type,$fields,$parents,$global_form);
       wydit_changetypefromfieldset($form[$element],$fields);
       if ($form[$element]['type']['#value'] == 'wally_photoobject') {
         $temp_b = $form_state;
