@@ -1014,7 +1014,7 @@ function wydit_subform_global_add_form_submit($form,&$form_state){
 }
 
 function wallyedit_form_editmode_edit_form(&$form_state){
-  $form=wydit_subform_global_edit_form(&$form_state);
+  $form=wydit_subform_global_edit_form($form_state);
   $form['#action']='/node/'.$form_state['cache name'].'/wydit_edit/ajax';
   return $form;
 }
