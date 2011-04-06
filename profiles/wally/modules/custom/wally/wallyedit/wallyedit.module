@@ -614,7 +614,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $fields
       //$form[$element]['#parents']=array($element);
     }
   }
-  if($element=="field_packagelayout"){
+  if($element=="field_packagelayout" && isset($form[$element])){
     //$form[$element]['module']="content_taxonomy";
     $form[$element]=optionwidgets_select_process($form[$element], $edit, $form_state, $global_form);
     $b=$form[$element];
@@ -1432,7 +1432,6 @@ function wydit_add_to_form_state(&$form_state,$element,$target,$append=FALSE){
       $form_state[]=$element;
     }
     else{
-
       $form_state=$element;
     }
   }
