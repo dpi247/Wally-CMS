@@ -168,7 +168,6 @@ function wallyedit_theme(){
 }
 
 function wallyedit_form_page_createmode_form(&$form_state){
-
   $form=wydit_subform_global_page_form($form_state);
   $form['#action']='/node/add2/'.arg(2).'/ajax/'.$form_state['cache name'];
   return $form;
@@ -495,7 +494,6 @@ function wallyedit_form_page_createmode_form_submit($form,&$form_state){
  */
 
 function wallyedit_form_page_editmode_form(&$form_state){
-
   $form=wydit_subform_global_page_form($form_state);
   $form['#action']='/node/'.$form_state['cache name'].'/edit2/1';
   $form['#DANGEROUS_SKIP_CHECK']=TRUE;
@@ -531,15 +529,13 @@ function wydit_subform_global_page_form(&$form_state){
 
   $form['#tree']=true;
 
-
   $form["save_global"]=array(
     '#type'=>'submit',
     '#name'=>'save_global',
     "#value"=> 'Save',
   	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-
-
   );
+  
   $form['#tree']=true;
 
   $form["reset_global"]=array(
@@ -553,8 +549,8 @@ function wydit_subform_global_page_form(&$form_state){
     '#type'=>'submit',
     '#name'=>'publish_global',
     "#value"=> 'Publish',
-
   );
+  
   $form['#suffix'] = theme('wallyedit_preview', $form_state['cache name']);
 
   return $form;
