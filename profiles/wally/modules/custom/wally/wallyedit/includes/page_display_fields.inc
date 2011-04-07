@@ -99,7 +99,7 @@ function wallyedit_display_fields_form (&$form_state, $type) {
   $form['#parameters'][0] = 'wallyedit_display_fields_form';
 
   $form['#field_rows'] = array_values($form['#field_rows']);
-dpm($form);
+
   return $form;
 }
 
