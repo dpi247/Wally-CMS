@@ -37,13 +37,13 @@ function wallyedit_display_fields_form (&$form_state, $type) {
   $node = new Stdclass;
   $node->type = $type->type;
   $node->name = '';
-  $node_form = drupal_retrieve_form('node_form', $form_state, $node);
+  $node_form = drupal_retrieve_form(str_replace('-','_',$type->type).'_node_form', $form_state, $node);
   drupal_prepare_form('node_form', $node_form, $form_state);
 
   foreach ($form['#field_rows'] as $field_id => $field_name) {
     if ($field_name == '_add_new_field' || $field_name == '_add_existing_field') {
       unset($form['#field_rows'][$field_id]);
-    } elseif (isset($node_form[$field_name]) && is_array($node_form[$field_name])) {
+    } elseif (isset($node_form[$field_name]) && is_array($node_form[$field_name]) && $node_form[$field_name]['#type'] == 'fieldset') {
       _wallyedit_add_new_group_to_form($form, $node_form[$field_name], $field_name);
     }
   }
@@ -84,14 +84,43 @@ function wallyedit_display_fields_form (&$form_state, $type) {
     }
   }
 
+  foreach ($form["#group_rows"] as $group) {
+    $form[$group]["wallyedit"]=array(
+      '#type'=>'select',
+      '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+    );
+    if(isset($fields[$group]['display_settings']['wallyedit'])) {
+      $form[$group]["wallyedit"]["#default_value"]=$fields[$group]['display_settings']['wallyedit'];
+    } else {
+      $form[$group]["wallyedit"]["#default_value"]=1;
+    }
+  }
+
   $form['#parameters'][0] = 'wallyedit_display_fields_form';
+
+  $form['#field_rows'] = array_values($form['#field_rows']);
 
   return $form;
 }
 
 function wallyedit_display_fields_form_submit(&$form, &$form_state) {
+  wallyedit_display_fields_save_groups($form, $form_state);
   wallyedit_display_fields_save_extra_fields($form, $form_state);
   content_display_overview_form_submit($form, $form_state);
+}
+
+function wallyedit_display_fields_save_groups(&$form, &$form_state) {
+  $form_values = $form_state['values'];
+  $groups_to_save = array();
+  
+  foreach ($form_values as $key => $values) {
+    if (in_array($key, $form['#group_rows'])) {
+      $values['display_settings']['wallyedit'] = $values['wallyedit'];
+      $groups_to_save[$key] = $values;
+    }
+  }
+
+  variable_set('wallyedit_groups_display_'.$form['#type_name'], $groups_to_save);
 }
 
 function wallyedit_display_fields_save_extra_fields(&$form, &$form_state) {
@@ -110,17 +139,17 @@ function wallyedit_display_fields_save_extra_fields(&$form, &$form_state) {
 }
 
 function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
-  $first_it = TRUE;
+  $form[$field_name]['group_name']['#value'] = $field_name;
+  $form[$field_name]['group_type']['#value'] = 'Standard group';
+  $form['#group_rows'][] = $field_name;
+  $field_id = array_keys($form['#field_rows'], $field_name, TRUE);
+  unset($form['#field_rows'][$field_id[0]]);
+  //$from['#groups'][] = $field_name;
+  $form[$field_name]['#row_type'] = 'group';
+  $form[$field_name]['#disabled_row'] = FALSE;
+  
   foreach ($node_fields as $node_field_name => $node_field) {
     if (!strstr($node_field_name, '#')) {
-      if ($first_it) {
-        $form[$field_name]['group_name']['#value'] = $field_name;
-        $form[$field_name]['group_type']['#value'] = 'Standard group';
-        $from['#group_rows'][] = $field_name;
-        //$from['#groups'][] = $field_name;
-        $form[$field_name]['#row_type'] = 'group';
-        $first_it = FALSE;
-      }
       $form[$node_field_name] = array();
       $form['#field_rows'][] = $node_field_name;
       //$form['#fields'][] = 'field_'.$node_field_name;
@@ -133,7 +162,7 @@ function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
         '#options' => array($field_name => $form[$field_name]['label']['#value']),
         '#default_value' => $field_name,
       );
-      $form['field_'.$node_field_name]['prev_parent'] = array(
+      $form[$node_field_name]['prev_parent'] = array(
         '#type' => 'hidden',
         '#value' => $field_name,
       );
