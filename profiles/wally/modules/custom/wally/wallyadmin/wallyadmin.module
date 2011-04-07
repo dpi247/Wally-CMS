@@ -131,7 +131,30 @@ function wallyadmin_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/searchcache.admin.inc',
   );
-
+  $items['admin/wally/searchvars'] = array(
+    'title' => 'Search and export variables',
+    'page callback' => 'search_vars_admin',
+    //'page arguments' => array('search_vars_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to search and export variables.',
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  $items['admin/wally/searchvars/key/%'] = array(
+    'page callback' => 'export_vars_admin',
+    //'page arguments' => array('export_vars_admin'),
+    'access arguments' => array('access administration pages'),
+    'page arguments' => array(4),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  $items['admin/wally/importvars'] = array(
+    'title' => 'Import variables',
+    'page callback' => 'import_vars_admin',
+    //'page arguments' => array('import_vars_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to search and export variables.',
+    'file' => 'includes/searchvars.admin.inc',
+  );
   return $items;
 }
 
