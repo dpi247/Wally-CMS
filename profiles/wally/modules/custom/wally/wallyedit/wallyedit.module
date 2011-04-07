@@ -30,9 +30,36 @@ function wallyedit_menu(){
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_display_fields.inc',
-  //'file path'=>'includes/',
+    //'file path'=>'includes/',
     'title'=> 'WallyEdit - Display all fields',
     'Description'=> 'Display all fields and not only CCK fields.',
+  );
+  $items['admin/content/wallydisplayfields/general'] = array(
+    'page callback'=>'wallyedit_node_overview_page',
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_display_fields.inc',
+    //'file path'=>'includes/',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title'=> 'General',
+    'weight'=>-3,
+    'Description'=> 'Display all fields and not only CCK fields.',
+  );
+  $items['admin/content/wallydisplayfields/exportvars'] = array(
+    'title'=>'Export Vars',
+    'page callback'=>'export_vars_admin',
+    'access arguments' => array('access administration pages'),
+    'page arguments' => array('wallyedit'),
+    'type' => MENU_LOCAL_TASK,
+    'file path' => drupal_get_path('module', 'wallyadmin'),
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  $items['admin/content/wallydisplayfields/importvars'] = array(
+    'title'=>'Import Vars',
+    'page callback'=>'import_vars_admin',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'file path' => drupal_get_path('module', 'wallyadmin'),
+    'file' => 'includes/searchvars.admin.inc',
   );
   foreach (node_get_types('types', NULL, TRUE) as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
@@ -1330,9 +1357,9 @@ function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
 
   $extra_fields_display = variable_get('wallyedit_extra_fields_display_'.$type_name, array());
   $groups_display = variable_get('wallyedit_groups_display_'.$type_name, array());
-  $fields = array_merge($groups_display, $extra_fields_display, $type[$fields]);
-  $fields['title']['display_settings']['wallyedit'] = 1;
-  return $fields;
+  $merged_fields = array_merge($groups_display, $extra_fields_display, $type[$fields]);
+  $merged_fields['title']['display_settings']['wallyedit'] = 1;
+  return $merged_fields;
 }
 
 function wydit_get_inline_type($referencable_types){
