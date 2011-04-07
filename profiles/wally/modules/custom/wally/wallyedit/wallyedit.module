@@ -528,7 +528,6 @@ function wydit_subform_global_page_form(&$form_state){
     $form[$type_name][$element_name]=$value;
   }
   $temp_b = $form[$form_state['type']];
-
   wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name),$temp_b);
 
   wydit_remove_form_infos($form[$type_name]);
@@ -620,7 +619,11 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     $form[$element]=optionwidgets_select_process($form[$element], $edit, $form_state, $global_form);
     $b=$form[$element];
     unset($form[$element]);
-    $form[$element]=array('#type'=>'select', "#options"=>$b['value']['#options']);
+    $form[$element]=array(
+      '#title' => 'Package Layout',
+    	'#type' => 'select',
+    	"#options" => $b['value']['#options']
+    );
     $t=$parents_new;
     $t[]='0';
     $t[]='value';
@@ -1188,8 +1191,6 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
   //$node=node_load($form_element[0]['#default_value']['nid']);
   $type_name=$form_state['type'];
   $fields=wydit_get_fields_infos_for_typename($type_name);
-  $type;
-
 
   $node=$form_state["#node"];
 
@@ -1205,7 +1206,10 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
   $a=drupal_retrieve_form($type_name.'_node_form',$form_state,$form_state[$type_name]['node']);
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
 
-  $form=array("#type"=>'fieldset');
+  $form = array(
+    '#title' => $form_element['#title'],
+  	"#type" => 'fieldset'
+  );
   unset($a["#type"]);
   unset($a["form_id"]);
   unset($a["#validate"]);
@@ -1244,13 +1248,15 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
 function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$element,$fields,$parents){
 
   $form=array(
-      "#theme"=>'wydit_selector_theme',
+  	'#type' => 'fieldset',
+    "#theme" => 'wydit_selector_theme',
+    '#title' => $form_element['#title'],
   );
 
   foreach($form_state as $key=>$embed){
     $embed_node=$embed["#node"];
 
-    $form[ $key]['title']=array(
+    $form[$key]['title']=array(
       "#type"=>"markup",
       "#value"=> $embed_node->title,
     );
@@ -1258,25 +1264,24 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
       '#type'=>'weight',
       "#default_value"=> $key,
       '#attributes' => array('class'=>'order_weightss'),
-      "#parents"=>array_merge($parents,array("weight_".$key))
-
+      "#parents"=>array_merge($parents,array("weight_".$key)),
     );
     $form[$key]['edit_action']=array(
       "#type"=>"submit",
       "#value"=>'edit',
       "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
       '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-      "#parents"=>array_merge($parents,array("$key"))
+      "#parents"=>array_merge($parents,array("$key")),
     );
     $form[$key]['delete_action']=array(
       "#type"=>"submit",
       "#value"=>'remove',
       "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
       '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-      "#parents"=>array_merge($parents,array("$key"))
+      "#parents"=>array_merge($parents,array("$key")),
     );
-
   }
+  
   $form['add_existing_action']=array(
     "#type"=>"submit",
     "#value"=>'add existing one',
@@ -1284,6 +1289,7 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
     "#attributes"=>array('class' => 'form-submit ctools-use-ajax'),
     "#parents"=>array_merge($parents,array("add_existing"))
   );
+  
   $form['add_new_action']=array(
     "#type"=>"submit",
     "#value"=>'add new one',
@@ -1291,6 +1297,7 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
     '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
     "#parents"=>array_merge($parents,array("add_new"))
   );
+  
   $form_element=$form;
 }
 
