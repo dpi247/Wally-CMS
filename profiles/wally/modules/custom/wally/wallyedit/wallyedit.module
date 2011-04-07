@@ -1322,7 +1322,8 @@ function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
   $type=content_types(str_replace('-','_', $type_name));
 
   $extra_fields_display = variable_get('wallyedit_extra_fields_display_'.$type_name, array());
-  $fields = array_merge($extra_fields_display, $type[$fields]);
+  $groups_display = variable_get('wallyedit_groups_display_'.$type_name, array());
+  $fields = array_merge($groups_display, $extra_fields_display, $type[$fields]);
   $fields['title']['display_settings']['wallyedit'] = 1;
   return $fields;
 }
