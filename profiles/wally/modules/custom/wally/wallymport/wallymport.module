@@ -266,8 +266,7 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
  * 
  * @return Nothing
  */
-function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE){
-  global $proceed_folder_path;
+function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   $returns = array();
   
   $temp = variable_get('wallymport_preview_temp', file_directory_temp());
@@ -311,6 +310,7 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE){
  *   Results of the import.
  */
 function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview = FALSE) {
+  global $proceed_folder_path;
   $zip_error = FALSE;
   $error_msg = FALSE;
   // Unzip input file to the temp directory
