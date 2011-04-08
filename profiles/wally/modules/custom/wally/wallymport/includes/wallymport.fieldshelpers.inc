@@ -193,6 +193,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
+      	watchdog('Wallymport file', "copie du fichier ".$file_temp_path." vers ".$file_dest_path." a échoué", array(), WATCHDOG_ERROR);
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
         return $return;

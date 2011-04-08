@@ -20,15 +20,20 @@
  * @return
  *   A node object
  */
-function wimprt_create_or_load_package_articlepackagetype($dom,&$log){
+function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
   $node=new stdClass;
   $node->type='wally_articlepackage';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+
+  //watchdog('ext ref', $ext_ref);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_articlepackage")){
     $node=$node_temp[0];
   }
-
+  //watchdog('Wallymport pack creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
+  //watchdog('Wallymport create articlepackage', 'Node : '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
+  //watchdog('Wallymport create articlepackage', 'Dom : '.print_r(dom2array($dom), TRUE), array(), WATCHDOG_NOTICE);
+  
   $uid=variable_get('wallymport_defaultuser',1);
   $node->uid=$uid;
 
@@ -52,7 +57,7 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_gallerypackage';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_gallerypackage")){
     $node=$node_temp[0];
   }
@@ -80,7 +85,7 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_pollpackage';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_pollpackage")){
     $node=$node_temp[0];
   }
@@ -890,7 +895,7 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
   $node=new stdClass;
   $node->type='wally_textobject';
   
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_textobject')){
     $node=$node_temp[0];
   }
@@ -995,7 +1000,7 @@ function wimprt_set_field_pollquestions(&$node,$dom,&$log){
 function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_pollobject';
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_pollobject')){
     $node=$node_temp[0];
   }
@@ -1061,7 +1066,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_photoobject';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
     $node=$node_temp[0];
   }
@@ -1162,7 +1167,7 @@ function wimprt_create_or_load_object_audioobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_audioobject';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_audioobject")){
     $node=$node_temp[0];
   }
@@ -1229,7 +1234,7 @@ function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_videoobject';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_videoobject")){
     $node=$node_temp[0];
   }
@@ -1425,7 +1430,7 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linkslistobject';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
     $node=$node_temp[0];
   }
@@ -1453,7 +1458,7 @@ function wimprt_create_or_load_type_link($dom,&$log){
   $node=new stdClass;
   $node->type='wally_linktype';
   //je pense qu'il faut enlever ca car les liens n'ont pas de tag ExternalReference
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
     $node=$node_temp[0];
   }

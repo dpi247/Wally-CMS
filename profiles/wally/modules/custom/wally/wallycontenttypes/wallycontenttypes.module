@@ -655,7 +655,7 @@ function wallycontenttypes_editcrop($nid) {
   $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
   $explimgcrops = array();
   $defaultvalues = array();
-
+  
   if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
     foreach ($imgcropings as $presetname => $imgcroping) {
       $tempexplcrop = array();
@@ -803,15 +803,16 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
   global $base_url;
-  $form['group_photo']['field_croping'][0]['#type'] = 'hidden';
-  $form['group_photo']['field_croping'][0]['#value'] = drupal_to_js(json_decode($form['#node']->field_croping[0]['value']));
+  $form['group_photo']['field_croping'][0]['#access'] = FALSE;
+  //$form['group_photo']['field_croping']['#type'] = 'hidden';
+  //$form['group_photo']['field_croping'][0]['#value']['value'] = drupal_to_js(json_decode($form['#node']->field_croping[0]['value']));
   if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
     	"#type"=>'markup',
   		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
     );
-  }
+  }dsm($form);
   return $form;
 }
 
@@ -1082,7 +1083,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
           $datas = $action['data'];
         }
       }
-
+      
       if (!empty($datas)) {
         $temppresetcrop = array();
         
