@@ -30,7 +30,8 @@ function wallyexport_menu() {
 function wallyexport_export_packages($nids) {
   $return = array();
   
-  $files = drupal_system_listing('.*\.zip$', '', 'name', 0);
+  $files = file_scan_directory('', '.*\.zip$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+  //drupal_system_listing('.*\.zip$', '', 'name', 0); Old scan dir function
   foreach ($files as $file) {
     file_delete($file->filename);
   }
@@ -91,7 +92,10 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
       $mainStory->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
       $mainStory->setAttribute('ObjectID', $pack_mainstory->field_objectid[0]['value']);
       $mainStory->setAttribute('ObjectDescription', $pack_mainstory->field_objectdescription[0]['value']);
-      $mainStory->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+      
+      if(!empty($package_object->field_publicationdate[0]['value'])){
+        $mainStory->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+      }
       $mainStory->setAttribute('CreationDate', date('Y-m-d', $pack_mainstory->created).'T'.date('H:i:s', $pack_mainstory->created));
       $mainStory->setAttribute('LastUpdateDate', date('Y-m-d', $pack_mainstory->changed).'T'.date('H:i:s', $pack_mainstory->changed));
       $mainStory->appendChild($valid_dom->createElement('Title', $pack_mainstory->field_objecttitle[0]['value']));
@@ -175,12 +179,16 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
 
 function _wallyexport_fillPackageType(&$valid_dom, &$package, $package_object, &$files_to_zip){
   $package->setAttribute('PackageID', $package_object->field_packageid[0]['value']);
-  $package->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+  if(!empty($package_object->field_publicationdate[0]['value'])){
+    $package->setAttribute('PublicationDate', $package_object->field_publicationdate[0]['value']);
+  }
   $package->setAttribute('CreationDate', date('Y-m-d', $package_object->created).'T'.date('H:i:s', $package_object->created));
   $package->setAttribute('LastUpdateDate', date('Y-m-d', $package_object->changed).'T'.date('H:i:s', $package_object->changed));  
-  $package->setAttribute('EmbargoDate', str_replace(' ', 'T', $package_object->field_embargodatetime[0]['value']));
+  if(!empty($package_object->field_embargodatetime[0]['value'])){
+    $package->setAttribute('EmbargoDate', str_replace(' ', 'T', $package_object->field_embargodatetime[0]['value']));
+  }
   if(!empty($package_object->field_unpublishdate[0]['value'])){
-    $package->setAttribute('UnPublishDate', $package_object->field_unpublishdate[0]['value']);
+    $package->setAttribute('UnPublishDate', str_replace(' ', 'T', $package_object->field_unpublishdate[0]['value']));
   }
   $package->setAttribute('Language', $package_object->language);
   //!!!Temporary dirtyworkaround because a package looses its title for some reason, seems independant of this module.
@@ -372,7 +380,7 @@ function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_
       $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'VideoObjectType');
       
       if(!empty($elem->{'field_video'.$origin}[0]['duration'])){
-        $obj->appendChild($valid_dom->createElement('VideoLength', $elem->{'field_video'.$origin}[0]['duration']));//both ?
+        $obj->appendChild($valid_dom->createElement('VideoLength', date('Y-m-d', $elem->{'field_video'.$origin}[0]['duration']).'T'.date('H:i:s', $elem->{'field_video'.$origin}[0]['duration'])));//both ?
       }
       $obj->appendChild($valid_dom->createElement('LinkTitle', $elem->field_link[0]['title']));
       $obj->appendChild($valid_dom->createElement('LinkURI', $elem->field_link[0]['url']));
@@ -392,7 +400,9 @@ function _wallyexport_createembed(&$valid_dom, &$obj, $elem, $delta, &$files_to_
       $origin = (empty($elem->{'field_'.$type.$origins}[0])) ? $origins[1] : $origins[0];
       _wallyexport_createMultimediaObjectType($valid_dom, $obj, $elem, $type, $origin, $delta, $files_to_zip);
       $obj->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'AudioObjectType');
-      $obj->appendChild($valid_dom->createElement('AudioLength', $elem->{'field_audio'.$origin}[0]['duration']));//both ?
+      if(!empty($elem->{'field_audio'.$origin}[0]['duration'])){
+        $obj->appendChild($valid_dom->createElement('AudioLength', date('Y-m-d', $elem->{'field_audio'.$origin}[0]['duration']).'T'.date('H:i:s', $elem->{'field_audio'.$origin}[0]['duration'])));//both ?
+      }
       $obj->appendChild($valid_dom->createElement('LinkTitle', $elem->field_link[0]['title']));
       $obj->appendChild($valid_dom->createElement('LinkURI', $elem->field_link[0]['url']));
       break;  
