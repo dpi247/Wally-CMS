@@ -803,7 +803,8 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
   global $base_url;
-  $form['group_photo']['field_croping'][0]['#access'] = FALSE;
+  $form['group_photo']['field_croping']['#attributes'] = array('style'=>'display: none;');
+  //_wallycontenttypes_mysnippetfixdisabled($form['group_photo']['field_croping'][0]);
   //$form['group_photo']['field_croping']['#type'] = 'hidden';
   //$form['group_photo']['field_croping'][0]['#value']['value'] = drupal_to_js(json_decode($form['#node']->field_croping[0]['value']));
   if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
@@ -812,7 +813,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $li
     	"#type"=>'markup',
   		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
     );
-  }//dsm($form);
+  }
   return $form;
 }
 
@@ -895,7 +896,7 @@ function wallycontenttypes_sort_embededobjects($embededobjects, $sort_order = ar
 * cck field, we must disbaled all the childrens: checkboxes or radios.
 * 
 * @param $element
-*   The form element to procedd.
+*   The form element to proceed.
 * 
 * @return
 *   Nothing
