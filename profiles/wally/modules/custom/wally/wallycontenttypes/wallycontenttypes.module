@@ -812,7 +812,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $li
     	"#type"=>'markup',
   		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
     );
-  }dsm($form);
+  }//dsm($form);
   return $form;
 }
 
