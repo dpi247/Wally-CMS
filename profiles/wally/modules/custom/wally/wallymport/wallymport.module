@@ -22,7 +22,25 @@ function wallymport_menu() {
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallymport.admin.inc',
   );
-
+  $items['admin/wally/wallymport/settings/general'] = array(
+    'title' => 'General',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallymport.admin.inc',
+    'weight'=>-3,
+    'type'=> MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/wally/wallymport/settings/links'] = array(
+    'title' => 'Packages links',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_links_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Display download links for imported packages.',
+    'file' => 'includes/wallymport.admin.inc',
+    'type'=> MENU_LOCAL_TASK,
+  );
   $items['wallymport/process_folder'] = array(
     'title' => 'Run XML Import Process for a forlder',
     'description' => 'Run data import (folder)',
@@ -200,7 +218,8 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
       $xml_file = variable_get('wallymport_source','');
     }
   }
-  $files = drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0);	// get list of all *.zip files
+  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);// get list of all *.zip files
+  //drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0); Old scan dir function
   if (count($files)==0) {
     header($error_msg, TRUE, 517);
     return array('No input files found');
@@ -322,7 +341,8 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
       // Search for XMLs
-      $import_files = drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0);
+      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+      //drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0); Old scan dir function
       if (count($import_files)==0) {
         $zip_error = TRUE;
         $error_msg = 'No XML file found in the import: '.$file->basename;
@@ -345,18 +365,25 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
       $returns[] = $error_msg;
     }
-  
   } else {
     $zip_error = TRUE;
     $error_msg = 'Cant UnZip file: '.$file->filename;
     $returns[] = $error_msg;
   }
-  
-  if ($zip_error) {
-    header($error_msg, TRUE, 517);
-    file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
-  } else {
-    file_delete($file->filename);
+  if($preview){
+    if ($zip_error) {
+      header($error_msg, TRUE, 517);
+      file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
+    } else {
+      file_delete($file->filename);
+    }
+  }else{
+    if ($zip_error) {
+      header($error_msg, TRUE, 517);
+      file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'));
+    } else {
+      file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
+    }
   }
 }
 
