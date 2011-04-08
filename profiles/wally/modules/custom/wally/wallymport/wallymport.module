@@ -168,7 +168,7 @@ function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path 
 
     // Record cron time
     variable_set('wallymport_process_folder_last', time());
-    watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
+    // watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
 
     // Release cron semaphore
     variable_del('wallymport_process_folder_semaphore');
@@ -487,6 +487,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
       return wallyedit_callback_preview($prenode);
     } else {
+      //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
       node_save($node);
     }
   } else {
