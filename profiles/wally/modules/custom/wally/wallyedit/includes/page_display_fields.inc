@@ -108,7 +108,7 @@ function wallyedit_display_fields_form_submit(&$form, &$form_state) {
   wallyedit_display_fields_save_extra_fields($form, $form_state);
   foreach ($form_state['values'] as $field_name => $values)
     if (isset($values['field']['display_settings']))
-      $form_state['values'][$field_name] = $values['field']['display_settings'];
+      unset($form_state['values'][$field_name]['field']['display_settings']['field']);
   content_display_overview_form_submit($form, $form_state);
 }
 
@@ -137,7 +137,6 @@ function wallyedit_display_fields_save_extra_fields(&$form, &$form_state) {
       $fields_to_save[$key] = $values;
     }
   }
-
   variable_set('wallyedit_extra_fields_display_'.$form['#type_name'], $fields_to_save);
 }
 
