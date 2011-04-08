@@ -269,3 +269,31 @@ function wallymport_page_admin_form_validate($form, &$form_state) {
     form_set_error('wallymport_definition', t('The filename provided is not an existing readable file.'));
   }
 }
+
+/**
+ * Settings form.
+ */
+function wallymport_page_links_form($form_state){
+  $form = array();
+  $dirs[] = variable_get('wallymport_source', 'sites/default/files/import');
+  $dirs[] = variable_get('wallymport_import_error', 'sites/default/files/import/error');
+  $dirs[] = variable_get('wallymport_import_done', 'sites/default/files/import/done');
+  foreach($dirs as $dir){
+    if(file_check_directory($dir, 0)){
+      $form[$dir] = array(
+        '#type' => 'fieldset',
+        '#title' => t($dir),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+      );
+      $files = file_scan_directory($dir, '.*\.zip', array('.', '..', 'CVS'), 0, FALSE);
+      foreach($files as $file){
+        $form[$dir][$file->basename]=array(
+          "#type"=>'markup',
+          "#value"=>'<a href="'.file_create_url($file->filename).'">'.$file->basename.'</a><br />',
+        );
+      }
+    }
+  }
+  return $form;
+}
