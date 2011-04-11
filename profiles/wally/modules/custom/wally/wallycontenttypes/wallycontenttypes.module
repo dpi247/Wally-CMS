@@ -803,10 +803,9 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  */
 function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
   global $base_url;
-  $form['group_photo']['field_croping']['#attributes'] = array('style'=>'display: none;');
-  //_wallycontenttypes_mysnippetfixdisabled($form['group_photo']['field_croping'][0]);
-  //$form['group_photo']['field_croping']['#type'] = 'hidden';
-  //$form['group_photo']['field_croping'][0]['#value']['value'] = drupal_to_js(json_decode($form['#node']->field_croping[0]['value']));
+  $form['group_photo']['field_croping'][0]['#type'] = 'value';
+  $form['group_photo']['field_croping'][0]['value']['#type'] = 'value';
+  $form_state['values']['field_croping'][0]['value'] = $form['group_photo']['field_croping'][0]['#value']['value'];
   if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
