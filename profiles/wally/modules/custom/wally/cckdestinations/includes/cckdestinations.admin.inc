@@ -100,7 +100,7 @@ function cckdestinations_node_admin_nodes() {
     $where_query = ' WHERE '.implode(variable_get('cckdestinations_and_or_or', ' AND '), $field_dest_tid);
 
   $result = pager_query(db_rewrite_sql('SELECT `nid` FROM {content_field_destinations}'.$where_query.' ORDER BY `field_destinations_time_rank` DESC'), 50, 0, NULL, $filter['args']);
-
+	
   $form['options'] = array(
     '#type' => 'fieldset',
     '#title' => t('Update options'),
@@ -150,6 +150,7 @@ function cckdestinations_node_filter_form() {
   $session = is_array($session) ? $session : array();
   $filters = cckdestinations_node_filters();
   
+  
   $and_or_or = variable_get('cckdestinations_and_or_or', ' AND ');
 
   $i = 0;
@@ -191,8 +192,48 @@ function cckdestinations_node_filter_form() {
   }
   
   $name = $filters['category']['title'];
-  $form['filters']['status']['category'] = array('#type' => 'select', '#options' => $filters['category']['options']);
+  $mem = array();
+  $targets=array();
   
+  $options_and_classe = cckdestinations_get_classes_and_options();
+  
+  	foreach ($options_and_classe['target']['#options'] as $option){
+  		array_push($mem,$option);
+  	}
+  	foreach ($mem as $option){
+  		if(!in_array($option,$targets)){
+  			array_push($targets,$option);
+  		}
+  }
+  
+  $form['reorder']=array(
+	  '#type' => 'fieldset',
+      '#title' => t('Reorder by'),
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
+    );
+  $form['reorder']['selectbox']=array(
+    '#title'            => t( 'Destination' ),
+    '#type' => 'select',
+    '#options'=> $filters['category']['options']
+  );
+  $form['reorder']['selectboxtarget']=array(
+    '#title'            => t( 'Target' ),
+    '#type'             => 'select',
+    '#options'          => $targets,
+     // specify theming callback & add a new #attribute to the element.
+    '#theme'            => 'cckdestinations_cascading_select',
+    '#attributes'       => array('class' => 'target'),
+  );
+  $form['reorder']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reorder'),
+  );
+  
+  
+  
+  
+  $form['filters']['status']['category'] = array('#type' => 'select', '#options' => $filters['category']['options']);
   $form['filters']['filter'] = array('#type' => 'radios', '#options' => array('category' => $name), '#default_value' => 'category');
   $form['filters']['buttons']['submit'] = array('#type' => 'submit', '#value' => $filter_button_value);
   if (count($session)) {
@@ -225,6 +266,12 @@ function cckdestinations_node_filters() {
 function cckdestinations_node_filter_form_submit($form, &$form_state) {
   $filters = node_filters();
   switch ($form_state['values']['op']) {
+  	case t('Reorder'):
+	$box= $form[reorder][selectbox];
+	$dest= $box['#post']['selectbox'];
+	$boxtarget=$form[reorder][selectboxtarget];
+	$target=$boxtarget['#post']['selectboxtarget'];
+	$form_state[redirect]= 'admin/wallyctools/reorder/'.$dest.'/'.$target;
     case t('Filter'):
       variable_set('cckdestinations_and_or_or', $form_state['values']['and_or_or']);
     case t('Add'):
