@@ -59,8 +59,6 @@ function simplesamlphp_auth_uninstall() {
 	variable_del("simplesamlphp_auth_unique_id");
 	variable_del("simplesamlphp_auth_user_name");
 	
-	
-	
 	if ($query1) {
 		drupal_set_message('The simpleSAMLphp authentication module was uninstalled successfully.');
 	} else {
@@ -68,5 +66,3 @@ function simplesamlphp_auth_uninstall() {
 	}
 
 }
-
-?>
