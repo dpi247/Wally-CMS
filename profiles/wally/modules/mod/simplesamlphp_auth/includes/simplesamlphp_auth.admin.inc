@@ -4,7 +4,7 @@
 /**
  * Settings form.
  */
-function simplesamlphp_auth_settings() {
+function simplesamlphp_auth_settings_form() {
   $form = array();
 
   $form['simplesamlphp_auth_installdir'] = array(

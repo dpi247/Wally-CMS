@@ -47,10 +47,16 @@ function simplesamlphp_auth_init() {
 
   if ($user->uid) {
     //user is logged in - Drupal
-    // Do nothing if user is admin (1) OR webmaster (11)
+    // Do nothing if user is admin (1) OR no bypass configured for this role
     //_simplesaml_auth_debug('User is already logged in [' . $user->uid . ']');
-    watchdog('Simple SAML PHP', 'User : '.print_r($account, TRUE), NULL, WATCHDOG_NOTICE);
-    if ( $user->uid != 1 && $user->uid != 11  && ! (isset($saml_session) && $saml_session->isValid())) {
+    $no_bypass = TRUE;
+    foreach ($user->roles as $role) {
+      if (variable_get('simplesamlphp_auth_bypass_role_'.str_replace(' ', '_', $role), 0) === 1) {
+        $no_bypass = FALSE;
+        break;
+      }
+    }
+    if ( $user->uid != 1 && $no_bypass  && ! (isset($saml_session) && $saml_session->isValid())) {
       // User is logged but the SAML session is not valid anymore
       // Force user deconnection
       require_once drupal_get_path('module', 'user') .'/user.pages.inc';
@@ -146,9 +152,15 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
     drupal_goto($logout_url);
   } elseif ($op == 'login') {
     _simplesaml_auth_debug('Logging in username [' . $account->name . ']');
-    watchdog('Simple SAML PHP', 'Account : '.print_r($account, TRUE), NULL, WATCHDOG_NOTICE);
     //populate roles based on configuration setting
-    if($account->uid != 11){
+    $no_bypass = TRUE;
+    foreach ($account->roles as $role) {
+      if (variable_get('simplesamlphp_auth_bypass_role_'.str_replace(' ', '_', $role), 0) === 1) {
+        $no_bypass = FALSE;
+        break;
+      }
+    }
+    if($no_bypass){
       $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
       $mail_address = _simplesamlphp_auth_get_mail();
       $name = _simplesamlphp_auth_get_name();
