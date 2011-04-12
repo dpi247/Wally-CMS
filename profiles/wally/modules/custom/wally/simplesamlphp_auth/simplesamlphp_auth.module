@@ -39,24 +39,20 @@ function simplesamlphp_auth_init() {
 
   //get the simplesamlphp session
   $basedir = variable_get('simplesamlphp_auth_installdir', '/var/www/php/ssoLibs/simplesamlphp_1_4');
-  drupal_set_message($basedir);
-  if(file_exists($basedir . '/www/_include.php')){
-    require_once($basedir . '/www/_include.php');
-    /* Load simpleSAMLphp, configuration and metadata */
-    $saml_config = SimpleSAML_Configuration::getInstance();
-    $saml_session = SimpleSAML_Session::getInstance();
+  require_once($basedir . '/www/_include.php');
+  /* Load simpleSAMLphp, configuration and metadata */
+  $saml_config = SimpleSAML_Configuration::getInstance();
+  $saml_session = SimpleSAML_Session::getInstance();
 
-    if ($user->uid) {
-      //user is logged in - Drupal
-      // Do nothing if user is admin
-      //_simplesaml_auth_debug('User is already logged in [' . $user->uid . ']');
-      if ( $user->uid != 1   && ! (isset($saml_session) && $saml_session->isValid())) {
-        // User is logged but the SAML session is not valid anymore
-        // Force user deconnection
-        require_once drupal_get_path('module', 'user') .'/user.pages.inc';
-        user_logout();
-      }
-
+  if ($user->uid) {
+    //user is logged in - Drupal
+    // Do nothing if user is admin (1) OR webmaster (11)
+    //_simplesaml_auth_debug('User is already logged in [' . $user->uid . ']');
+    if ( $user->uid != 1 && $user->uid != 11  && ! (isset($saml_session) && $saml_session->isValid())) {
+      // User is logged but the SAML session is not valid anymore
+      // Force user deconnection
+      require_once drupal_get_path('module', 'user') .'/user.pages.inc';
+      user_logout();
     }
     else {
       // user is not logged in - Drupal
@@ -120,7 +116,6 @@ function simplesamlphp_auth_init() {
   else{
     drupal_set_message("You need to configure the simpleSAML auth module");
   }
-
 }
 
 /**
@@ -150,17 +145,18 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
   } elseif ($op == 'login') {
     _simplesaml_auth_debug('Logging in username [' . $account->name . ']');
     //populate roles based on configuration setting
-    $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
-    $mail_address = _simplesamlphp_auth_get_mail();
-    $name = _simplesamlphp_auth_get_name();
-    _simplesaml_auth_debug('setting mail login to [' . $mail_address . ']');
-    _simplesaml_auth_debug('setting name login to [' . $name[0] . ' - ' . $name[1] . ']');
-    $userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
-    $user = user_save($account, $userinfo);
-    drupal_set_message(t('You are now logged in as '.$account->name));
+    if($account->uid != 11){
+      $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
+      $mail_address = _simplesamlphp_auth_get_mail();
+      $name = _simplesamlphp_auth_get_name();
+      _simplesaml_auth_debug('setting mail login to  [' . $mail_address . ']');
+      _simplesaml_auth_debug('setting name login to [' .$name[0] . ' - ' . $name[1] . ']');
+      $userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
+      $user = user_save($account, $userinfo);
+      drupal_set_message(t('You are now logged in as '.$account->name));
+    }
   }
 }
-
 
 /**
  * Implementation of settings
@@ -233,23 +229,21 @@ function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
 function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
   if ($op == 'list') {
     $blocks = array(
-      array(
-  			'info' => t('simpleSAMLphp authentication'), 
-  			'weight' => 0,
-  			'status' => 1,
-  			'region' => 'left',
-  			'cache'   => BLOCK_NO_CACHE
-      )
+    array(
+			'info' => t('simpleSAMLphp authentication'), 
+			'weight' => 0,
+			'status' => 1,
+			'region' => 'left',
+			'cache'   => BLOCK_NO_CACHE
+    )
     );
     return $blocks;
 
   } else if ($op == 'view') {
     switch($delta) {
       case 0:
-        $block = array(
-        	'subject' => t('simpleSAMLphp login'),
-					'content' => _simplesamlphp_auth_generate_block_text()
-        );
+        $block = array('subject' => t('simpleSAMLphp login'),
+				'content' => _simplesamlphp_auth_generate_block_text());
         break;
     }
     return $block;
@@ -258,7 +252,6 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
 
 /*
  --------------------------------------------------------------------------------------------------
-
  */
 function _simplesamlphp_auth_get_authname() {
   global $saml_session;
@@ -317,6 +310,7 @@ function _simplesamlphp_auth_get_default_name($account) {
       default:
         throw new Exception(t('error in simplesamlphp_auth.module: no valid name attribute set'));
     }
+
   }
   return $default_name;
 }
@@ -374,7 +368,6 @@ function _simplesamlphp_auth_get_ssoID() {
   return $ssoID;
 }
 
-
 function _simplesamlphp_auth_get_logouturl() {
   global $saml_session;
   global $saml_config;
@@ -389,7 +382,6 @@ function _simplesamlphp_auth_get_logouturl() {
 
   return $initSLOurl;
 }
-
 
 function _simplesamlphp_auth_generate_login_text() {
   global $saml_session;
@@ -455,7 +447,7 @@ function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) 
  	switch($roleruleevaluation[1]) {
  	  case '=' :
  	    return in_array($roleruleevaluation[2], $attribute);
- 	    	
+ 	     
  	  case '@=' :
  	    $dc = explode('@', $attribute[0]);
  	    if (count($dc) != 2) return false;
