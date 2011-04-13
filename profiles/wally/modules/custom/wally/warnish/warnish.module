@@ -15,7 +15,7 @@ function warnish_menu() {
   
   $items['content/pollajax'] = array(
     'page callback' => 'warnish_poll_ajax_content',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
