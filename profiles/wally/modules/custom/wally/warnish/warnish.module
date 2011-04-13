@@ -1,0 +1,135 @@
+<?php
+
+/**
+ * @defgroup warnish
+ * @{
+   * 
+ * In this module we define specific cases to be bypassed by Varnish.
+ */
+
+/**
+ * Implémentation du hook_menu
+ */
+function warnish_menu() {
+  $items = array();
+  
+  $items['content/pollajax'] = array(
+    'page callback' => 'warnish_poll_ajax_content',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implémentation du hook_theme
+ */
+function warnish_theme() {
+  $items = array();
+  
+  $items['poll_html_content'] = array(
+    'arguments' => array(),
+    'template' => 'poll-html-content',
+    'path' => drupal_get_path('module', 'warnish') . '/templates',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implémentation du hook_block
+ */
+function warnish_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks = array();
+      
+      if (module_exists('poll')) {
+        $blocks['poll_ajax'] = array(
+          'info' => t('Poll AJAX'),
+          'cache' => BLOCK_NO_CACHE,
+        );
+      }
+      
+      return $blocks;
+    case 'configure':
+      $form = array();
+      $minutes_list = array();
+      for ($i=0; $i<=60; $i++) $minutes_list[$i] = ($i==1 || $i==0) ? $i.' minute' : $i.' minutes';
+      
+      $form['refresh_time_minutes'] = array(
+        '#type' => 'select',
+        '#description' => t('Time, in minutes, between updates for this block.'),
+        '#options' => $minutes_list,
+        '#default_value' => variable_get('poll_ajax_block_refresh_time', 5),
+        '#required' => TRUE,
+      );
+      
+      return $form;
+    case 'save':
+      switch ($delta) {
+        case 'poll_ajax':
+          variable_set('poll_ajax_block_refresh_time', $edit['refresh_time_minutes']);
+          break;
+      }
+      break;
+    case 'view':
+      switch ($delta) {
+        case 'poll_ajax':
+          $block = array(
+            'subject' => t('Poll AJAX block.'),
+            'content' => warnish_get_poll_html_content(),
+          );
+          break;
+      }
+      return $block;
+  }
+}
+
+/**
+ * Get content for the poll AJAX block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function warnish_get_poll_html_content() {
+  $refresh_ms = variable_get('poll_ajax_block_refresh_time', 5) * 60 * 1000;
+
+  drupal_add_js('
+    $(document).ready(function(){
+    	getPoll();
+    	setInterval("getPoll()", '.$refresh_ms.');
+    });
+    
+    function getPoll() {
+      var poll_content = $.ajax({
+                						      url: "/content/pollajax?destination='.rawurlencode($_GET['q']).'",
+                						      async: false
+                						    }).responseText;
+    	$("div#poll_ajax_content").html(poll_content);
+    };
+  ', 'inline');
+  return theme('poll_html_content');
+}
+
+/**
+ * Get latest poll content.
+ * 
+ * @return
+ *   HTML content.
+ */
+function warnish_poll_ajax_content() {
+  $poll = array();
+  $poll = poll_block('view');
+
+  print $poll['content'];
+}
+
+/**
+ * @} End of "defgroup warnish".
+ */
+  
