@@ -420,7 +420,8 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
  *   The element value or ''.
  */
 function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none', $second_choice = '', $feed_name = '') {
-  if ($namespace != 'none') {
+  $return = '';
+  if ($namespace != 'none' && is_object($dom_item)) {
     $return = $dom_item->getElementsByTagNameNS($namespace, $name)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $name)->item(0)->firstChild->wholeText : '';
     if ($second_choice != '') {
       if ($return == '') {
@@ -429,7 +430,7 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
         $return = $feed_name.':::'.$return;
       }
     }
-  } else {
+  } elseif (is_object($dom_item)) {
     $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
     if ($second_choice != '') {
       if ($return == '') {
