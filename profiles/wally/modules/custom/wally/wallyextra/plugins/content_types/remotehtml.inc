@@ -70,6 +70,14 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
     '#title' => t('Make this content reusable'),
     '#default_value' => FALSE,
   );
+  
+  $form['admin_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Administrative title'),
+    '#description' => t('The title used as name for the reusable block.'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-reusable' => array(1)),
+  );
 
   $form['name'] = array(
     '#type' => 'textfield',
@@ -139,7 +147,7 @@ function _wallyextra_remotehtml_content_type_edit_save(&$content, $form_state){
   // Apply updates to the content object.
   $content->name = $form_state['values']['name'];
   $content->category = $form_state['values']['category'];
-  $content->admin_title = $form_state['values']['name'];
+  $content->admin_title = $form_state['values']['admin_title'];
   $content->admin_description = $form_state['values']['admin_description'];
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     if (isset($form_state['values'][$key])) {
@@ -303,13 +311,20 @@ function wallyextra_remotehtml_content_type_admin_title($subtype, $conf) {
   $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
 
   $output = t('Remote HTML Block');
-  $title = !empty($settings['admin_title']) ? $settings['admin_title'] : (!empty($settings['title'])) ? $settings['title'] : $settings['caid'] ;
+  if (!empty($settings['content']->admin_title)) {
+    $title = $settings['content']->admin_title;
+  } elseif (!empty($settings['title'])) {
+    $title = $settings['title'];
+  } else {
+    $title = $settings['caid'];
+  }
+  
   if ($title) {
     if ($settings['remotehtml_type'] != 'fixed') {
       $output = t('Remote HTML Block: @title', array('@title' => $title));
     }
     else {
-      $output = $title;
+      $output = t('Reusable Remote HTML Block: @title', array('@title' => $title));
     }
   }
 
