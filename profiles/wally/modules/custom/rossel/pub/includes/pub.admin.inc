@@ -410,7 +410,7 @@ function pub_cache_admin_form_submit($form, &$form_state) {
  *   TRUE in case success, FALSE otherwise.
  */
 function _pub_callalltags() {
-  $xml_list = drupal_http_request(variable_get('pub_get_xml'));
+  $xml_list = drupal_http_request(variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'));
   //$xml_list->data = XML_LIST_DATA;
   //$xml_list->code = 200;
   $website = variable_get('pub_website', '');
