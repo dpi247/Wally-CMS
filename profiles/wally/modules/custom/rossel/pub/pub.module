@@ -147,19 +147,19 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
         case 'analytic_block':
           $block = array(
             'subject' => t('Analytic block.'), 
-            'content' => _pub_getanalyticcontent($delta),
+            'content' => _pub_getanalyticcontent(),
           );
           break;
         case 'xiti_block':
           $block = array(
             'subject' => t('Xiti block.'), 
-            'content' => _pub_getxiticontent($delta),
+            'content' => _pub_getxiticontent(),
           );
           break;
         case 'metriweb_block':
           $block = array(
             'subject' => t('MetriWeb block.'), 
-            'content' => _pub_getmetriwebcontent($delta),
+            'content' => _pub_getmetriwebcontent(),
           );
           break;
         default:
@@ -219,7 +219,7 @@ function _pub_getpubcontent($delta) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getanalyticcontent($delta) {
+function _pub_getanalyticcontent() {
   $orig_url = $_GET['q'];
   $cached_pub = cache_get('analytic_block_temp-'.$orig_url);
   $cache_time = variable_get('analytic_block_refresh_time', 24);
@@ -232,7 +232,7 @@ function _pub_getanalyticcontent($delta) {
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $cached_pub = cache_get('analytic_block_perm-'.$orig_url);
       $analytic_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
@@ -254,7 +254,7 @@ function _pub_getanalyticcontent($delta) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getxiticontent($delta) {
+function _pub_getxiticontent() {
   $orig_url = $_GET['q'];
   $cached_pub = cache_get('xiti_block_temp-'.$orig_url);
   $cache_time = variable_get('xiti_block_refresh_time', 24);
@@ -267,7 +267,7 @@ function _pub_getxiticontent($delta) {
     if ($content_from_webservice) {
       $xiti_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $cached_pub = cache_get('xiti_block_perm-'.$orig_url);
       $xiti_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
@@ -289,7 +289,7 @@ function _pub_getxiticontent($delta) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getmetriwebcontent($delta) {
+function _pub_getmetriwebcontent() {
   $orig_url = $_GET['q'];
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
@@ -303,7 +303,7 @@ function _pub_getmetriwebcontent($delta) {
     if ($content_from_webservice) {
       $metriweb_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $cached_pub = cache_get('metriweb_block_perm-'.$orig_url);
       $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
