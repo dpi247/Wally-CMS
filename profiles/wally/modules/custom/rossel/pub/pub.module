@@ -198,7 +198,7 @@ function _pub_getpubcontent($delta) {
       $pub_content = $content_from_webservice;
     } else {
       $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
-      $pub_content = $cached_pub->data;
+      $pub_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
     cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
@@ -294,8 +294,8 @@ function _pub_getmetriwebcontent() {
   $expl_url = explode('/', $orig_url);
   $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
   $cache_time = variable_get('metriweb_block_refresh_time', 24);
-
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time() || true) {
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
     $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
@@ -383,6 +383,7 @@ function _pub_getwebservreq($orig_url) {
         }
     }
   }
+  
   return $webserv_req;
 }
 
@@ -405,7 +406,7 @@ function _pub_get_path_to_item($menu_step, $link_path) {
       $next_lev = _pub_get_path_to_item($menu_elem['below'], $link_path);
       if ($next_lev == 'found' && $menu_elem['link']['module'] == 'taxonomy_menu') {
         $result = _pub_getwebservreq($menu_elem['link']['link_path']);
-        $result[0] = ($result[0]=='') ? $link_path : '/'.$link_path;
+        $result[0] = ($result[0] == '') ? $link_path : $result[0].'/'.$link_path;
         return $result;
       } elseif (is_array($next_lev)) {
         return $next_lev;
