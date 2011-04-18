@@ -108,6 +108,7 @@ function warnish_get_poll_html_content() {
     function getPoll() {
       var poll_content = $.ajax({
                 						      url: "/content/pollajax?destination='.rawurlencode($_GET['q']).'",
+                						      cache: false,
                 						      async: false
                 						    }).responseText;
     	$("div#poll_ajax_content").html(poll_content);
