@@ -954,7 +954,7 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
   $return = '
     var ac, currentAc;
   
-    $(document).ready(function() {
+    $(window).load(function() {
     
 
     var api = $.Jcrop("#cropbox",{
