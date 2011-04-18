@@ -352,7 +352,11 @@ function _pub_getwebservreq($orig_url) {
           $node = node_load($expl_url[1]);
           $node_dest = $node->field_destinations;
           $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
-          $webserv_req[] = $tax_hierar.'/'.$node->nid;
+          if ($tax_hierar == '' || empty($tax_hierar)) {
+            $webserv_req[] = $orig_url;
+          } else {
+            $webserv_req[] = $tax_hierar.'/'.$node->nid;
+          }
         } else {
           $webserv_req[] = $orig_url;
         }
@@ -394,7 +398,6 @@ function _pub_getwebservreq($orig_url) {
  */
 function _pub_get_path_to_item($menu_step, $link_path) {
   $temp_name = FALSE;
-  dsm($menu_step);
   foreach ($menu_step as $elem_name => $menu_elem) {
     if ($menu_elem['link']['link_path'] == $link_path) {
       return 'found';
