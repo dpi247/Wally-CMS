@@ -120,9 +120,9 @@ function wallyedit_menu(){
     'file'=>'includes/callback_add_new.inc',
   //'file path'=>'includes/',
   );
-  $items['node/%prenode/preview2'] = array(
+  $items['node/%prenode/preview2/%'] = array(
     'page callback'=>'wallyedit_callback_preview',
-    'page arguments'=>array(1),
+    'page arguments'=>array(1, 3),
     'access callback' => 'node_access',
     'access arguments' => array('view', 1),
     'file'=>'includes/callback_preview.inc',
@@ -188,11 +188,11 @@ function wallyedit_theme(){
     ),
     'wallyedit_preview_iframe'=>array(
       'template' => 'wallyedit-preview-iframe',
-      'arguments' => array('cache_name'=>0),
+      'arguments' => array('vars'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
     ),
     'wallyedit_preview_id'=>$base+array(
-      'arguments' => array('$cache_name'=>0),
+      'arguments' => array('cache_name'=>0, 'dest'=>'no_dest'),
       ),
     'wydit_selector_theme'=>$base+array(
   // 'template' => 'my-template-day-node',
@@ -727,10 +727,32 @@ function wydit_subform_global_page_form(&$form_state){
     '#name'=>'publish_global',
     "#value"=> 'Publish',
   );
-  
+
+  $prev_js = '$(document).ready(function() {
+            $("#edit-select-preview").change(function () {
+              var temp = "/node/'.$form_state['cache name'].'/preview2/"+$(this).val();
+              $("#prev_iframe").attr("src", temp);             
+            });
+          });';
+
+  drupal_add_js($prev_js, 'inline');
   $prenode=new Prenode($form_state['cache name']);
   if(!empty($prenode->form_state)){
-    $form['#suffix'] = theme('wallyedit_preview_id', $form_state['cache name']);
+    $options = array('no_dest'=>'No destination', );
+    foreach($form_state[$form_state['type']]['#node']->field_destinations as $delta=>$dest){
+      if($delta!='field_destinations_add_more'){
+        $dest_name = taxonomy_get_term($dest['tid'])->name;
+        $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
+      }
+    }
+    $form['select_preview'] = array(
+      '#type' => 'select',
+      '#title' => 'Preview',
+      '#default_value' => 'no_dest',
+      '#options' => $options,
+      '#attributes' => array('prenode' => $form_state['cache name']),
+    );
+    $form['#suffix'] = theme('wallyedit_preview_id', array('cache_name'=>$form_state['cache name'], 'dest'=>'no_dest'));
   }else{
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
@@ -1030,6 +1052,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
   $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+  $commands[] = ctools_ajax_command_html('#wallyedit_preview', theme('wallyedit_preview_iframe', $form_state->cache_name));
 
   ctools_ajax_render($commands);
 }
