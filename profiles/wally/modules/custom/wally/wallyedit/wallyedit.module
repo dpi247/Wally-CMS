@@ -360,6 +360,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   }
 
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+  $commands[] = ctools_ajax_command_html('#wallyedit_preview', theme('wallyedit_preview_iframe', array('cache_name'=>$form_state['cache name'], 'dest'=>$form_state['values']['select_preview'])));
   ctools_ajax_render($commands);
 }
 
@@ -676,6 +677,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   }
    
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+  $commands[] = ctools_ajax_command_html('#wallyedit_preview', theme('wallyedit_preview_iframe', array('cache_name'=>$form_state['cache name'], 'dest'=>$form_state['values']['select_preview'])));
   ctools_ajax_render($commands);
 }
 
@@ -928,7 +930,6 @@ function wallyedit_editmode_selectbox_form_submit($form,&$form_state){
 
 // important: add fields infos to form_state
 function wydit_subform_global_page_submit(&$form_state){
-
   //*********
   //Prepare form_state for input element
   //*********
@@ -1035,7 +1036,6 @@ function wydit_subform_global_add_form(&$form_state){
 }
 
 function wallyedit_form_createmode_add_form_submit($form,&$form_state){
-
   wydit_subform_global_add_form_submit($form,$form_state);
 
   $form = ctools_build_form('wallyedit_form_page_createmode_form', $form_state);
@@ -1046,7 +1046,6 @@ function wallyedit_form_createmode_add_form_submit($form,&$form_state){
   ctools_ajax_render($commands); 
 }
 function wallyedit_form_editmode_add_form_submit($form,&$form_state){
-
   wydit_subform_global_add_form_submit($form,$form_state);
 
   $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
