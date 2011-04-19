@@ -286,6 +286,9 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $cid = $conf['caid'];
   $cached_block = cache_get($cid);
   if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || ($cached_feed->expire < time()) || ($cached_feed->expire == -1)) {
+    $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+    wallytoolbox_flush_all_pages($internal_url, TRUE);
+    
     $block_uri = $settings['uri'];
     $override_theme = $settings['override_theme'];
     $override_theme_text = $settings['override_theme_text'];
