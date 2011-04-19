@@ -30,12 +30,12 @@ function wallyctools_views_plugins() {
         'admin' => t('Content pane'),
       ),
     ),
-    /*
-    'style' => array( //declare the views_json style plugin
+    
+    'style' => array( //declare the style plugin
       'redacblock_style' => array(
-       'path' =>  drupal_get_path('module', 'wallyctools') . '/plugins/views',
+        'path' =>  drupal_get_path('module', 'wallyctools') . '/plugins/views',
         'title' => t('Redacblock Style'),
-        'help' => t('Displays nodes in the JSON data format.'),
+        'help' => t('Used for WallyEdit previews'),
         'handler' => 'wallyctools_views_plugin_style_redacblock',
         'theme' => 'wallyctools_style_redacblock',
         'theme file' => 'theme.inc',
@@ -46,7 +46,7 @@ function wallyctools_views_plugins() {
         'type' => 'normal',      
       ),
     ),
-    */
+    
   'row' => array( //declare the unformatted row plugin
       'redacblock_row' => array(
         'title' => t('Destination block Row'),

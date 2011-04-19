@@ -13,6 +13,7 @@ function wallyedit_callback_preview($prenode, $dest = 'no_dest'){
     $test = new wallyctools_views_plugin_style_redacblock();
     $test->definition = array();
     $view->wallyedit_preview = $node->field_destinations[$dest];
+    $view->wallyedit_preview['cache_name'] = $prenode->cache_name;
     $test->init($view, $view->display[$view->current_display]);
   
     return $test->view->preview();

@@ -10,5 +10,7 @@
  * $target: The targeted block.
  * 
  */
-
+foreach($rows as $row){
+  print($row);
+}
 ?>
