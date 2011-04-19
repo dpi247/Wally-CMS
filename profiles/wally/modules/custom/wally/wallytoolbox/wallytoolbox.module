@@ -887,5 +887,41 @@ function wallytoolbox_menu_link_alter(&$item, $menu){
 }
 
 /**
+ * Flush the page cache for the given internal url.
+ */
+function wallytoolbox_flush_all_pages($internal_url = '*', $flush_aliases = FALSE) {
+  global $base_url;
+  $url_to_flush = array();
+  
+  if ($internal_url == '*') {
+    $url_to_flush[] = $internal_url;
+  } else {
+    $url_to_flush[] = $base_url.'/'.$internal_url;
+    
+    if ($flush_aliases) {
+      $aliases = wallytoolbox_get_all_aliases($internal_url);
+      foreach ($aliases as $alias)
+        $url_to_flush[] = $base_url.'/'.$alias;
+    }
+  }
+
+  foreach($url_to_flush as $url)
+    cache_clear_all($url, 'cache_page');
+}
+
+/**
+ * Return an array of all existing aliases for an internal url.
+ */
+function wallytoolbox_get_all_aliases($internal_url) {
+  $db_aliases = db_query("SELECT `dst` FROM `url_alias` WHERE `src` = '%s'", $internal_url);
+  $return_aliases = array();
+  
+  while ($db_alias = db_fetch_array($db_aliases))
+    $return_aliases[] = $db_alias['dst'];
+  
+  return $return_aliases;
+}
+
+/**
  * @} End of "defgroup wallytoolbox".
  */
