@@ -183,9 +183,8 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
 }
 
 function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
-  watchdog('DEBUG', print_r($form,TRUE), array(), WATCHDOG_INFO);
   $form['simplesaml_login_link'] = array(
-    '#value' => _simplesamlphp_auth_generate_login_text(),
+    '#value' => _simplesamlphp_auth_generate_login_text(TRUE),
   );
 }
 
@@ -349,7 +348,7 @@ function _simplesamlphp_auth_get_logouturl() {
   return $initSLOurl;
 }
 
-function _simplesamlphp_auth_generate_login_text() {
+function _simplesamlphp_auth_generate_login_text($url = FALSE) {
   global $saml_session;
   global $saml_config;
   $block_content = '';
@@ -371,8 +370,12 @@ function _simplesamlphp_auth_generate_login_text() {
   /* Check if valid local session exists.. */
   if (isset($saml_session) && $saml_session->isValid() ) {
     $block_content .= '<p><a href="/logout">' . t('Click here to logout via simpleSAMLphp') . '</a></p>';
+    if ($url)
+      return "/logout";
   } else {
     $block_content .= '<p><a href="' . $initSSOurl . '">' . t('Click here to login via simpleSAMLphp') . '</a></p>';
+    if ($url)
+      return $initSSOurl;
   }
 
   return $block_content;
