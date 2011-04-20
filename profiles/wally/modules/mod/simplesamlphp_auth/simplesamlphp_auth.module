@@ -184,7 +184,7 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
 
 function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
   $form['simplesaml_login_link'] = array(
-    '#value' => _simplesamlphp_auth_generate_login_text(TRUE),
+    '#value' => _simplesamlphp_auth_generate_login_text(FALSE),
   );
 }
 
