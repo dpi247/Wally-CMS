@@ -1,0 +1,41 @@
+<?php 
+
+function wallystat_cron(){
+
+	$current_tstamp = time();
+
+	$query = "SELECT nid, COUNT(nid) as nodecount FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp." GROUP BY nid";
+	$result = db_query($query);
+	while ($row = db_fetch_object($result)){
+		echo $row->nid." - ".$row->nodecount."<br/>";	
+		db_query('UPDATE {node_counter} SET daycount = daycount + '.$row->nodecount.', totalcount = totalcount + '.$row->nodecount.', timestamp = '.$current_tstamp.' WHERE nid = '.$row->nid);
+		if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
+			db_query('INSERT INTO {node_counter} (nid, daycount, totalcount, timestamp) VALUES ('.$row->nid.', '.$row->nodecount.', '.$row->nodecount.', '.$current_tstamp.')');
+		}
+	}
+	
+	$query = "DELETE FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp;
+	$result = db_query($query);
+}
+
+function wallystat_preprocess_page(&$vars){
+
+	if(isset($vars['node'])){
+		$current_id = $vars['node']->nid;
+		drupal_add_js("$(document).ready(function(){
+    									updateStats();
+									});
+									
+									function updateStats(){
+										$.ajax({
+                						      url: \""."/".drupal_get_path('module', 'wallystat')."/updater.php?nid=".$current_id."\",
+                						      cache: false,
+                						      async: false
+                						    })
+									}
+									", "inline");
+	}
+}
+
+
+?>

@@ -1,0 +1,37 @@
+<?php 
+
+function wallystat_install() {
+  drupal_install_schema('wallystat');
+}
+
+function wallystat_uninstall() {
+  drupal_uninstall_schema('wallystat');
+}
+
+function wallystat_schema() {
+  $schema = array();
+
+  $schema['wallystat_tempdata'] = array(
+    'description' => 'Contains temporary records for wally stats module',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node Id',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp when the node was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'terms' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Taxonomy Terms of the node',
+      ),
+    ),
+  );
+  return $schema;
+}
