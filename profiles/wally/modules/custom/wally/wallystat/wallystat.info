@@ -1,0 +1,6 @@
+core = "6.x"
+name = "Wally Statistics"
+package = "Wally"
+project = "wallyfundamentals"
+description = "Statitics using Javascript calls to bypass server caching"
+version = "6.x-1.0-rc1"
