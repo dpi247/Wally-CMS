@@ -147,10 +147,16 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
     }
   }
   elseif ($op == 'logout') {
-    $logout_url = _simplesamlphp_auth_get_logouturl();
-    watchdog('DEBUG', $logout_url, array(), WATCHDOG_INFO);
-    _simplesaml_auth_debug('Logging out username [' . $account->name . ']');
-    drupal_goto($logout_url);
+    global $saml_session;
+    global $saml_config;
+    $initSLOurl = '/';
+  
+    /* Check if valid local session exists.. */
+    if (isset($saml_session) && $saml_session->isValid() ) {
+      $logout_url = _simplesamlphp_auth_get_logouturl();
+      _simplesaml_auth_debug('Logging out username [' . $account->name . ']');
+      drupal_goto($logout_url);
+    }
   } elseif ($op == 'login') {
     _simplesaml_auth_debug('Logging in username [' . $account->name . ']');
     //populate roles based on configuration setting
