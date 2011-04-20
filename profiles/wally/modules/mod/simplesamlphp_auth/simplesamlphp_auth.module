@@ -173,7 +173,7 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
       $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
       $mail_address = _simplesamlphp_auth_get_mail();
       $name = _simplesamlphp_auth_get_name();
-      _simplesaml_auth_debug('setting mail login to  [' . $mail_address . ']');
+      _simplesaml_auth_debug('setting mail login to [' . $mail_address . ']');
       _simplesaml_auth_debug('setting name login to [' .$name[0] . ' - ' . $name[1] . ']');
       $userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
       $user = user_save($account, $userinfo);
