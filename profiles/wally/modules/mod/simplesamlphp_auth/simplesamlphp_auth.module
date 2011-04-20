@@ -44,8 +44,7 @@ function simplesamlphp_auth_init() {
   /* Load simpleSAMLphp, configuration and metadata */
   $saml_config = SimpleSAML_Configuration::getInstance();
   $saml_session = SimpleSAML_Session::getInstance();
-  $array_session = (array)$saml_session;
-watchdog('DEBUG', print_r($array_session, TRUE), array(), WATCHDOG_INFO);
+
   if ($user->uid) {
     //user is logged in - Drupal
     // Do nothing if user is admin (1) OR no bypass configured for this role
@@ -184,7 +183,7 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
 }
 
 function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
-
+  dsm($form);
   $form['simplesaml_login_link'] = array(
     '#value' => _simplesamlphp_auth_generate_login_text(),
   );
