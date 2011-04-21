@@ -241,9 +241,12 @@ function simplesamlphp_auth_form_login_block_content() {
     //drupal_goto('user/'. $user->uid);
 
     $form = array();
+    
+    $form['#action'] = $_GET['q'];
   
     // Display login form:
-    $form['name'] = array('#type' => 'textfield',
+    $form['name'] = array(
+      '#type' => 'textfield',
       '#title' => t('Username'),
       '#size' => 60,
       '#maxlength' => USERNAME_MAX_LENGTH,
