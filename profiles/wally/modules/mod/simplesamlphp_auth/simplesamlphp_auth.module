@@ -279,14 +279,45 @@ function simplesamlphp_auth_form_login_block_form() {
  */
 function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
   if ($form_state['values']['name'] != 'admin') {
-    $result = drupal_http_request (
+    $sso_verif_auth = drupal_http_request (
       variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate',
       array('Content-Type' => 'application/x-www-form-urlencoded'),
       'POST',
       'username='.$form_state['values']['name'].'&password='.$form_state['values']['pass']
     );
-    watchdog('VALIDATE', print_r($result, true), null, WATCHDOG_INFO);
-    drupal_goto();
+    
+    if ($sso_verif_auth->code == '200') {
+      global $saml_config;
+      require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Utilities.php');
+      require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Session.php');
+      require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/XHTML/Template.php');
+      $local_simplesaml = SimpleSAML_Utilities::selfURLhost() . '/' . $saml_config->getValue('baseurlpath') . '/';
+      $return_url = variable_get('simplesamlphp_auth_login_return_url', 'home');
+      $goto = $local_simplesaml . 'sso_SAMLRedirect.php?sp='.urlencode($local_simplesaml) . '&url=' . urlencode($return_url) . '&dummy=' . time();
+      
+      $params = array(
+        'IDToken1='.$form_state['values']['name'],
+        'IDToken2='.$form_state['values']['pass'],
+        'IDButton=Connexion',
+        'goto='.$goto,
+        'SunQueryParamsString=',
+        'encoded=false',
+        'gx_charset=UTF-8',
+      );
+      
+      $sso_auth = drupal_http_request (
+        variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/UI/login',
+        array('Content-Type' => 'application/x-www-form-urlencoded'),
+        'POST',
+        implode('&', $params)
+      );
+      
+      watchdog('VALIDATE', print_r($sso_auth, TRUE), null, WATCHDOG_INFO);
+      drupal_goto();
+    } else {
+      drupal_set_message(t('SSO authentification failed.'), 'error');
+      drupal_goto();
+    }
   }
 }
 
