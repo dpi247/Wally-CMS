@@ -182,11 +182,11 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
   }
 }
 
-function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
+/*function simplesamlphp_auth_form_user_login_alter(&$form, &$form_state) {
   $form['simplesaml_login_link'] = array(
     '#value' => _simplesamlphp_auth_generate_login_text(FALSE),
   );
-}
+}*/
 
 /**
  * Implementation of hook_block()
@@ -202,6 +202,11 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
 			'cache'   => BLOCK_NO_CACHE
     )
     );
+    
+    $blocks['simplesamlphp_auth_login'] = array(
+      'info' => t('OpenSSO login'),
+      'cache' => BLOCK_CACHE_PER_PAGE,
+    );
     return $blocks;
 
   } else if ($op == 'view') {
@@ -210,9 +215,59 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
         $block = array('subject' => t('simpleSAMLphp login'),
 				'content' => _simplesamlphp_auth_generate_block_text());
         break;
+      case 'simplesamlphp_auth_login':
+        $block = array(
+          'subject' => t('OpenSSO login'), 
+          'content' => drupal_render_form('_simplesamlphp_auth_form_login_block_form', drupal_get_form('_simplesamlphp_auth_form_login_block_form')),
+        );
+        break;
     }
     return $block;
   }
+}
+
+/**
+ * Return form of the OpenSSO login block.
+ */
+function simplesamlphp_auth_form_login_block_form() {
+  global $user;
+
+  // If we are already logged on, go to the user page instead.
+  if ($user->uid) {
+    drupal_goto('user/'. $user->uid);
+  }
+
+  $form = array();
+
+  // Display login form:
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Username'),
+    '#size' => 60,
+    '#maxlength' => USERNAME_MAX_LENGTH,
+    '#required' => TRUE,
+    '#description' => t('Enter your @s username.', array('@s' => variable_get('site_name', 'Pressflow'))),
+  );
+
+  $form['pass'] = array(
+  	'#type' => 'password',
+    '#title' => t('Password'),
+    '#description' => t('Enter the password that accompanies your username.'),
+    '#required' => TRUE,
+  );
+  
+  $sso_validators = array('simplesaml_auth_form_login_block_sso_validator');
+  $user_validators = user_login_default_validators();
+  $form['#validate'] = array_unique(array_merge($sso_validators, $user_validators));
+  $form['#submit'] = array('#type' => 'submit', '#value' => t('Log in'), '#weight' => 2);
+  
+  return $form;
+}
+
+/**
+ * SSO validator for the login form.
+ */
+function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
+  
 }
 
 /*

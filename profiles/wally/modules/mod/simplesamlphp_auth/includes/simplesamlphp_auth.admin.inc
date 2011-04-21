@@ -55,6 +55,12 @@ function simplesamlphp_auth_settings_form() {
 		'#description' => t('Example: <i>roleid1:condition1|roleid2:contition2... <br />1:eduPersonPrincipalName,@=,uninett.no;affiliation,=,employee|2:mail,=,andreas@uninett.no</i>'),
   );
   
+  $form['simplesamlphp_auth_login_post_url'] = array(
+		'#type' => 'textfield',
+		'#title' => t('SSO server called for the connection.'),
+		'#default_value' => variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso/UI/Login'),
+  );
+  
   $form['simplesamlphp_auth_roles'] = array(
     '#type' => 'fieldset',
     '#title' => t('Roles which can bypass the authentification'),
