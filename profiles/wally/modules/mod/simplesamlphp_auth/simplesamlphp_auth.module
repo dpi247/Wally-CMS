@@ -193,14 +193,14 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
  */
 function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
   if ($op == 'list') {
-    $blocks = array(
-    array(
+    $blocks = array();
+    
+    $block['simplesamlphp_auth_link_block'] = array(
 			'info' => t('simpleSAMLphp authentication'), 
 			'weight' => 0,
 			'status' => 1,
 			'region' => 'left',
 			'cache'   => BLOCK_NO_CACHE
-    )
     );
     
     $blocks['simplesamlphp_auth_login'] = array(
@@ -212,7 +212,7 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
   } else if ($op == 'view') {
     var_dump($delta);
     switch($delta) {
-      case 0:
+      case 'simplesamlphp_auth_link_block':
         $block = array(
         	'subject' => t('simpleSAMLphp login'),
 					'content' => _simplesamlphp_auth_generate_block_text()
