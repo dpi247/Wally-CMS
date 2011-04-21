@@ -1320,6 +1320,7 @@ function user_login_default_validators() {
  * or denied access.
  */
 function user_login_name_validate($form, &$form_state) {
+  watchdog('VALIDATE', 'goto', array(), WATCHDOG_INFO);
   if (isset($form_state['values']['name'])) {
     if (user_is_blocked($form_state['values']['name'])) {
       // blocked in user administration
