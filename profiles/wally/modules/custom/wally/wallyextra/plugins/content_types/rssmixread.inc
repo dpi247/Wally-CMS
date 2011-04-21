@@ -601,9 +601,6 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  * 	 which will be displayed.
  */
 function _wallyextra_rssmix_setcache($settings){
-  $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
-  wallytoolbox_flush_all_pages($internal_url, TRUE);
-  
   $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
@@ -641,8 +638,25 @@ function _wallyextra_rssmix_setcache($settings){
         } 
       }
       array_push($feed, $item);
-    } 
+    }
   }
+  
+  /*$modif = FALSE;
+  foreach ($feed as $feed_id => $feed_elem) {
+    if (true) {
+      $modif = TRUE;
+      break;
+    }
+  }
+  if ($modif) {
+    //$internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+    //wallytoolbox_flush_all_pages($internal_url, TRUE);
+    cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
+  }*/
+  
+  $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+  wallytoolbox_flush_all_pages($internal_url, TRUE);
   cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
+  
   return $feed;
 }
