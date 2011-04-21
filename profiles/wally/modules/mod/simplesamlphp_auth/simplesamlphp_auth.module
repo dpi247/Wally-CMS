@@ -18,6 +18,7 @@
  */
 function simplesamlphp_auth_menu() {
   $items = array();
+  
   $items['admin/user/simplesamlphp_auth'] = array(
     'title'              => t('simpleSAMLphp authentication module settings'),
     'description'        => t('Control the various settings of the simpleSAMLphp authentication module'),
@@ -27,6 +28,7 @@ function simplesamlphp_auth_menu() {
     'type'               => MENU_NORMAL_ITEM,
     'file'							 => 'includes/simplesamlphp_auth.admin.inc',
   );
+
   return $items;
 }
 
@@ -207,10 +209,9 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
       'info' => t('OpenSSO login'),
       'cache' => BLOCK_CACHE_PER_PAGE,
     );
+    
     return $blocks;
-
   } else if ($op == 'view') {
-    var_dump($delta);
     switch($delta) {
       case 'simplesamlphp_auth_link_block':
         $block = array(
@@ -223,7 +224,6 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
           'subject' => t('OpenSSO login'), 
           'content' => drupal_render_form('simplesamlphp_auth_form_login_block_form', drupal_get_form('simplesamlphp_auth_form_login_block_form')),
         );
-        var_dump($block);
         break;
     }
     return $block;
