@@ -58,7 +58,7 @@ function simplesamlphp_auth_settings_form() {
   $form['simplesamlphp_auth_login_post_url'] = array(
 		'#type' => 'textfield',
 		'#title' => t('SSO server called for the connection.'),
-		'#default_value' => variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso/UI/Login'),
+		'#default_value' => variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso'),
   );
   
   $form['simplesamlphp_auth_roles'] = array(
