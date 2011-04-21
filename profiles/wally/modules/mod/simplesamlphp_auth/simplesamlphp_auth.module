@@ -213,8 +213,10 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
     var_dump($delta);
     switch($delta) {
       case 0:
-        $block = array('subject' => t('simpleSAMLphp login'),
-				'content' => _simplesamlphp_auth_generate_block_text());
+        $block = array(
+        	'subject' => t('simpleSAMLphp login'),
+					'content' => _simplesamlphp_auth_generate_block_text()
+        );
         break;
       case 'simplesamlphp_auth_login':
         $block = array(
