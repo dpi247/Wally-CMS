@@ -261,7 +261,7 @@ function simplesamlphp_auth_form_login_block_content() {
     $sso_validators = array('simplesaml_auth_form_login_block_sso_validator');
     $user_validators = user_login_default_validators();
     $form['#validate'] = array_unique(array_merge($sso_validators, $user_validators));
-    $form['#submit'] = array('#type' => 'submit', '#value' => t('Log in'), '#weight' => 2);
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Log in'), '#weight' => 2);
     
     return drupal_render_form('simplesamlphp_auth_form_login_block_form', $form);
   }
