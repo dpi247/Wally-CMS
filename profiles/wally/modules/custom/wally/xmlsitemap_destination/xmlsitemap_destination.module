@@ -1,0 +1,169 @@
+<?php
+// $Id: xmlsitemap_taxonomy.module,v 1.1.4.30 2010/08/29 21:23:42 davereid Exp $
+
+/**
+ * Implements hook_xmlsitemap_link_info().
+ */
+function xmlsitemap_destination_xmlsitemap_link_info() {
+  $types['destination_term'] = array(
+    'label' => t('Destinations'),
+    'bundle label' => t('Destination Path'),
+    'base table' => 'content_field_destinations',
+    'entity keys' => array(
+      'id' => 'nid',
+      'bundle' => 'field_destinations_tid',
+    ),
+    'uri callback' => 'xmlsitemap_destination_uri',
+    'load hook' => 'node_load',
+    'xmlsitemap' => array(
+      'process callback' => 'xmlsitemap_destination_xmlsitemap_process_node_links',
+    ),
+  );
+  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
+    if($vocabulary->name == 'Destination Path'){
+      foreach(taxonomy_get_tree($vid) as $dest){
+        $types['destination_term']['bundles'][$dest->tid] = array(
+          'label' => $dest->name,
+          'admin' => array(
+            'real path' => 'admin/content/taxonomy/edit/term/' . $dest->tid,
+            'access arguments' => array('administer taxonomy'),
+          ),
+        );
+      }
+    }
+  }
+  return $types;
+}
+
+/**
+ * Implements hook_menu_alter().
+ *
+ * Remove the rebuild tab from xmllsitemap settings menu, since it doesn't work with this submodule. Use SuperCron instead.
+ */
+function xmlsitemap_destination_menu_alter(&$items){
+  unset($items['admin/settings/xmlsitemap/rebuild']);
+}
+
+/**
+ * Entity URI callback.
+ */
+function xmlsitemap_destination_uri($node) {
+  return array(
+    'path' => 'node/' . $node->nid,
+  );
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Process old taxonomy terms not found in the {xmlsitemap} table.
+ */
+function xmlsitemap_destination_cron() {
+  xmlsitemap_destination_xmlsitemap_index_links(xmlsitemap_var('batch_limit'));
+}
+
+/**
+ * Implements hook_xmlsitemap_index_links().
+ */
+function xmlsitemap_destination_xmlsitemap_index_links($limit) {
+  $tids = xmlsitemap_get_link_type_enabled_bundles('destination_term');
+  foreach($tids as $tid){
+    $query = db_query_range("SELECT cfd.nid FROM {content_field_destinations} cfd LEFT JOIN {xmlsitemap} x ON x.type = 'destination_term' AND cfd.nid = x.id WHERE x.id IS NULL AND cfd.field_destinations_tid = '" . $tid . "' ORDER BY cfd.nid DESC", $tid, 0, $limit);
+    $nids = xmlsitemap_db_fetch_col($query);
+    xmlsitemap_destination_xmlsitemap_process_node_links($nids, $tid);
+  }
+}
+
+/**
+ * Process taxonomy term sitemap links.
+ *
+ * @param $tids
+ *   An array of taxonomy term IDs.
+ */
+function xmlsitemap_destination_xmlsitemap_process_node_links(array $nids, $tid) {
+  foreach ($nids as $nid) {
+    if ($node = node_load($nid, NULL, TRUE)) {
+      $link = xmlsitemap_destination_create_link($node, $tid);
+      xmlsitemap_link_save($link);
+    }
+  }
+}
+
+/**
+ * Implements hook_taxonomy().
+ */
+function xmlsitemap_destination_taxonomy($op, $type, $array = NULL) {
+  if ($type == 'term') {
+    $tid = $array['tid'];
+    if ($op == 'delete') {
+      xmlsitemap_link_bundle_delete('destination_term', $tid);
+    }
+  }
+}
+
+/**
+ * Implements hook_nodeapi().
+ */
+function xmlsitemap_destination_nodeapi(stdClass &$node, $op, $a3 = NULL, $a4 = NULL) {
+  if($op=='delete') {
+      xmlsitemap_link_delete('destination_term', $node->nid);
+      break;
+  }
+}
+/**
+ * Create a sitemap link from a node included in a destination.
+ *
+ * @param $node
+ *   A taxonomy term object.
+ * @return
+ *   An array representing a sitemap link.
+ */
+function xmlsitemap_destination_create_link(stdClass &$node, $tid) {
+  if (!isset($node->xmlsitemap) || !is_array($node->xmlsitemap)) {
+    $node->xmlsitemap = array();
+    if ($node->nid && $link = xmlsitemap_link_load('destination_term', $node->nid)) {
+      $node->xmlsitemap = $link;
+    }
+  }
+
+  $settings = xmlsitemap_link_bundle_load('destination_term', $tid);
+  $uri = xmlsitemap_entity_uri('destination_term', $node);
+
+  $node->xmlsitemap += array(
+    'type' => 'node',
+    'id' => $node->nid,
+    'subtype' => $node->type,
+    'status' => $settings['status'],
+    'status_default' => $settings['status'],
+    'status_override' => 0,
+    'priority' => $settings['priority'],
+    'priority_default' => $settings['priority'],
+    'priority_override' => 0,
+  );
+
+  // Always recalculate changefreq and changecount.
+  $timestamps = xmlsitemap_node_get_timestamps($node);
+  $node->xmlsitemap['changefreq'] = $node->nid ? xmlsitemap_calculate_changefreq($timestamps) : 0;
+  $node->xmlsitemap['changecount'] = $node->nid ? count($timestamps) - 1 : 0;
+
+  // The following values must always be checked because they are volatile.
+  $node->xmlsitemap['loc'] = $uri['path'];
+  $node->xmlsitemap['lastmod'] = count($timestamps) ? max($timestamps) : 0;
+  $node->xmlsitemap['access'] = $node->nid ? xmlsitemap_node_view_access($node, drupal_anonymous_user()) : 1;
+  $node->xmlsitemap['language'] = isset($node->language) ? $node->language : '';
+
+  return $node->xmlsitemap;
+}
+
+/**
+ * Find the number of nodes that are associated with a destination (taxonomy) term.
+ *
+ * @param $term
+ *   A destination (taxonomy) term object.
+ * @return
+ *   The number of nodes associated with the term.
+ */
+function xmlsitemap_destination_get_node_count(stdClass $term) {
+  // @todo Use db_rewrite_sql() w/ switch user.
+  return db_result(db_query_range("SELECT COUNT(tn.nid) FROM {term_node} tn LEFT JOIN {node n} USING (nid) WHERE tn.tid = %d AND n.status = 1", $term->tid, 0, 1));
+}
