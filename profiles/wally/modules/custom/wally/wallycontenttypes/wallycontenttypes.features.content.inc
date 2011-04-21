@@ -389,7 +389,7 @@ function wallycontenttypes_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'EmbededObjects',
-      'weight' => '18',
+      'weight' => '19',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -516,6 +516,64 @@ function wallycontenttypes_content_default_fields() {
       'label' => 'ExternalReference',
       'weight' => '9',
       'description' => 'External Reference for the package. Could be the Editorial Software reference ID or D.A.M. reference ID. This reference will be used for Update; Delete operations.',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_externaluri
+  $fields['wally_articlepackage-field_externaluri'] = array(
+    'field_name' => 'field_externaluri',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_externaluri][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ExternalURI',
+      'weight' => '18',
+      'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
     ),
@@ -715,7 +773,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Linked Objects',
-      'weight' => '19',
+      'weight' => '20',
       'description' => '',
       'type' => 'nodereference_autocomplete',
       'module' => 'nodereference',
@@ -1384,7 +1442,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Package Layout',
-      'weight' => '20',
+      'weight' => '21',
       'description' => 'Layout of rendred package. Will be used for templating.',
       'type' => 'content_taxonomy_select',
       'module' => 'content_taxonomy_options',
@@ -16278,6 +16336,7 @@ Free',
   t('Entity Description ');
   t('Entity Services');
   t('ExternalReference');
+  t('ExternalURI');
   t('Extract Medium');
   t('Extract Short');
   t('Free Access');
