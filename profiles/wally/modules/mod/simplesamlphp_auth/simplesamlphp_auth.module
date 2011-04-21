@@ -248,6 +248,7 @@ function simplesamlphp_auth_form_login_block_content() {
       '#size' => 60,
       '#maxlength' => USERNAME_MAX_LENGTH,
       '#required' => TRUE,
+      '#weight' => 0,
       '#description' => t('Enter your @s username.', array('@s' => variable_get('site_name', 'Pressflow'))),
     );
   
@@ -255,6 +256,7 @@ function simplesamlphp_auth_form_login_block_content() {
     	'#type' => 'password',
       '#title' => t('Password'),
       '#description' => t('Enter the password that accompanies your username.'),
+    	'#weight' => 1,
       '#required' => TRUE,
     );
     
