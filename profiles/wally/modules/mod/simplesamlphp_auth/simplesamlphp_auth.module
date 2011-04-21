@@ -221,7 +221,7 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
       case 'simplesamlphp_auth_login':
         $block = array(
           'subject' => t('OpenSSO login'), 
-          'content' => drupal_render_form('_simplesamlphp_auth_form_login_block_form', drupal_get_form('_simplesamlphp_auth_form_login_block_form')),
+          'content' => drupal_render_form('simplesamlphp_auth_form_login_block_form', drupal_get_form('simplesamlphp_auth_form_login_block_form')),
         );
         var_dump($block);
         break;
