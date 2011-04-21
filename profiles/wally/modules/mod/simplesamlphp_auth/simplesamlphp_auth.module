@@ -296,6 +296,7 @@ function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
       $goto = $local_simplesaml . 'sso_SAMLRedirect.php?sp='.urlencode($local_simplesaml) . '&url=' . urlencode($return_url) . '&dummy=' . time();
       
       $params = array(
+        'IDToken0=',
         'IDToken1='.$form_state['values']['name'],
         'IDToken2='.$form_state['values']['pass'],
         'IDButton=Connexion',
