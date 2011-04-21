@@ -279,7 +279,12 @@ function simplesamlphp_auth_form_login_block_form() {
  */
 function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
   if ($form_state['values']['name'] != 'admin') {
-    watchdog('VALIDATE', 'goto', array(), WATCHDOG_INFO);
+    $result = drupal_http_request (
+      variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate',
+      array('Content-Type' => 'application/x-www-form-urlencoded'),
+      'POST',
+      'param1=value1&m2=value2'
+    );
     drupal_goto();
   }
 }
