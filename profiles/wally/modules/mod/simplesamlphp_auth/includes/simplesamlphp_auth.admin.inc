@@ -61,6 +61,12 @@ function simplesamlphp_auth_settings_form() {
 		'#default_value' => variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso'),
   );
   
+  $form['simplesamlphp_auth_login_return_url'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Return URL after successful login.'),
+		'#default_value' => variable_get('simplesamlphp_auth_login_return_url', 'home'),
+  );
+  
   $form['simplesamlphp_auth_roles'] = array(
     '#type' => 'fieldset',
     '#title' => t('Roles which can bypass the authentification'),
