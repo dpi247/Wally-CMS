@@ -71,7 +71,7 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
     $vars['target']=$view->wallyedit_preview['target'];
     $vars['destination']=$view->wallyedit_preview['tid'];
   }else{
-    $node = $vars['row'];
+    $node = node_load($nid);
     $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
     $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
     $vars['layout']=wallyctools_api_getlayoutfromdestinationandtarget($node,$vars['destination'],$vars['target']);
