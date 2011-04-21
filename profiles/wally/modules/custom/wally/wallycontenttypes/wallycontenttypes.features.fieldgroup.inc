@@ -92,9 +92,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'weight' => '1',
     'fields' => array(
       '0' => 'field_mainstory',
-      '1' => 'field_embededobjects',
-      '2' => 'field_linkedobjects',
-      '3' => 'field_packagelayout',
+      '1' => 'field_externaluri',
+      '2' => 'field_embededobjects',
+      '3' => 'field_linkedobjects',
+      '4' => 'field_packagelayout',
     ),
   );
 
