@@ -222,7 +222,7 @@ function simplesamlphp_auth_block($op = 'list', $delta = 0, $edit = array()) {
       case 'simplesamlphp_auth_login':
         $block = array(
           'subject' => t('OpenSSO login'), 
-          'content' => simplesamlphp_auth_form_login_block_content(),
+          'content' => drupal_render(simplesamlphp_auth_form_login_block_content()),
         );
         break;
     }
@@ -268,7 +268,7 @@ function simplesamlphp_auth_form_login_block_content() {
     $form['#validate'] = array_unique(array_merge($sso_validators, $user_validators));
     $form['submit'] = array('#type' => 'submit', '#value' => t('Log in'), '#weight' => 2);
     
-    return drupal_render_form('simplesamlphp_auth_form_login_block_form', $form);
+    return $form;
   }
   
   return '';
