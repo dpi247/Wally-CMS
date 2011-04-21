@@ -279,7 +279,7 @@ function simplesamlphp_auth_form_login_block_form() {
  */
 function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
   if ($form_state['value']['name'] != 'admin') {
-    var_dump('goto');
+    watchdog('VALIDATE', 'goto', array(), WATCHDOG_INFO);
     drupal_goto();
   }
 }
