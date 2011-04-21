@@ -304,6 +304,7 @@ function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
         'SunQueryParamsString=',
         'encoded=false',
         'gx_charset=UTF-8',
+        'submitButton=login',
       );
       
       $sso_auth = drupal_http_request (
