@@ -590,15 +590,14 @@ function _simplesamlphp_auth_sso_login_js() {
   	$("form#simplesamlphp-auth-form-login-block-form input#edit-submit").click( function () {
   		var name = $("form#simplesamlphp-auth-form-login-block-form input#edit-name").val();
   		var pass = $("form#simplesamlphp-auth-form-login-block-form input#edit-pass").val();
-  		var sso_verif_auth = $.post(
-  			"'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
-  			{ username: name, password: pass }
-      );
-      sso_verif_auth.onreadystatechange=function() {
-        if (sso_verif_auth.readyState==4) {
-        	alert(sso_verif_auth.status);
+  		$.ajax({
+        type: "POST",
+        url: "'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
+        data: "username="+name+"&password="pass+,
+        success: function(msg){
+          alert( "Data Saved: " + msg );
         }
-     	};
+      });
   	});
   });';
   
