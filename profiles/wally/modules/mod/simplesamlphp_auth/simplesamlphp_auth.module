@@ -586,7 +586,7 @@ function _simplesamlphp_auth_rolepopulation($rolemap) {
 function _simplesamlphp_auth_sso_login_js() {
   $js = '';
   
-  $js.= '$document.ready( function() {
+  $js.= '$(document).ready( function() {
   	alert("coucou");
   });';
   
