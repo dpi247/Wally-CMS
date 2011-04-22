@@ -595,7 +595,7 @@ function _simplesamlphp_auth_sso_login_js() {
   			{ username: name, password: pass },
       	function(data) {
         	alert(data);
-       	},
+       	}
       );
   	});
   });';
