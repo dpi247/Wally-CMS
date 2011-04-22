@@ -599,7 +599,6 @@ function _simplesamlphp_auth_sso_login_js() {
         data: ({username: name, password: pass}),
         dataType: "json",
         contentType: "application/x-www-form-urlencoded",
-        async: false,
         statusCode: {
         	200: function () {
         		alert("cocuouc");
