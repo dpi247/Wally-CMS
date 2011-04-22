@@ -594,9 +594,15 @@ function _simplesamlphp_auth_sso_login_js() {
   			"'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
   			{ username: name, password: pass }
       );
-      alert(sso_verif_auth.status);
+      sso_verif_auth.onreadystatechange=function() {
+        if (sso_verif_auth.readyState==4) {
+        	alert("File was last modified on - "+
+          xmlhttp.getResponseHeader("Last-Modified"))
+        }
+     	};
   	});
   });';
+  
     
     /*if ($sso_verif_auth->code == '200') {
       global $saml_config;
