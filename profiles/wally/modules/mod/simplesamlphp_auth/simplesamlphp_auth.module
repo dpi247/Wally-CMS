@@ -590,14 +590,11 @@ function _simplesamlphp_auth_sso_login_js() {
   	$("form#simplesamlphp-auth-form-login-block-form input#edit-submit").click( function () {
   		var name = $("form#simplesamlphp-auth-form-login-block-form input#edit-name").val();
   		var pass = $("form#simplesamlphp-auth-form-login-block-form input#edit-pass").val();
-  		$.post(
+  		var sso_verif_auth = $.post(
   			"'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
-  			"username="+name+"&password"+pass,
-      	function(data) {
-        	alert("coucou");
-       	},
-       	"json"
+  			{ username: name, password: pass },
       );
+      alert(sso_verif_auth);
   	});
   });';
     
