@@ -175,8 +175,8 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
       $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
       $mail_address = _simplesamlphp_auth_get_mail();
       $name = _simplesamlphp_auth_get_name();
-      _simplesaml_auth_debug('setting mail login to  [' . $mail_address . ']');
-      _simplesaml_auth_debug('setting name login to [' .$name[0] . ' - ' . $name[1] . ']');
+      _simplesaml_auth_debug('setting mail login to [' . $mail_address . ']');
+      _simplesaml_auth_debug('setting name login to [' . $name[0] . ' - ' . $name[1] . ']');
       $userinfo = array('roles' => $roles, 'mail' => $mail_address, 'profile_name' => $name[0], 'profile_surname' => $name[1]);
       $user = user_save($account, $userinfo);
       drupal_set_message(t('You are now logged in as '.$account->name));
@@ -280,14 +280,15 @@ function simplesamlphp_auth_form_login_block_form() {
  * SSO validator for the login form.
  */
 function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
-  /*if ($form_state['values']['name'] != 'admin') {
+  /*if ($form_state['values']['name'] != 'admin') {*/
     $sso_verif_auth = drupal_http_request (
       variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate',
       array('Content-Type' => 'application/x-www-form-urlencoded'),
       'POST',
       'username='.$form_state['values']['name'].'&password='.$form_state['values']['pass']
     );
-    
+    dsm($sso_verif_auth);
+    /*
     if ($sso_verif_auth->code == '200') {
       global $saml_config;
       require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Utilities.php');
