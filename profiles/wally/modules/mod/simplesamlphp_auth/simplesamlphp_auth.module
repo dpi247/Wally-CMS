@@ -269,6 +269,8 @@ function simplesamlphp_auth_form_login_block_form() {
     $sso_validators = array('simplesaml_auth_form_login_block_sso_validator');
     $user_validators = user_login_default_validators();
     $form['#validate'] = array_unique(array_merge($sso_validators, $user_validators));
+    
+    drupal_add_js(_simplesamlphp_auth_sso_login_js(), 'inline');
   }
   
   return $form;
@@ -579,6 +581,16 @@ function _simplesamlphp_auth_rolepopulation($rolemap) {
     }
  	}
  	return $roles;
+}
+
+function _simplesamlphp_auth_sso_login_js() {
+  $js = '';
+  
+  $js.= '$document.ready( function() {
+  	alert("coucou");
+  });';
+  
+  return $js;
 }
 
 /**
