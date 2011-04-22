@@ -593,11 +593,11 @@ function _simplesamlphp_auth_sso_login_js() {
   		var pass = $("form#simplesamlphp-auth-form-login-block-form input#edit-pass").val();
   		alert(name);
   		alert(pass);
-  		$.ajax({
+  		var coucou = $.ajax({
         type: "POST",
         url: "'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
         data: ({username: name, password: pass}),
-        dataType: "json",
+        dataType: "html",
         contentType: "application/x-www-form-urlencoded",
         statusCode: {
         	200: function () {
@@ -606,6 +606,7 @@ function _simplesamlphp_auth_sso_login_js() {
         }
       });
       alert("wait");
+      $("body").append(coucou);
   	});
   });';
   
