@@ -598,7 +598,7 @@ function _simplesamlphp_auth_sso_login_js() {
         dataType: "html",
         contentType: "application/x-www-form-urlencoded",
         complete: function(msg) {
-        	$("#footer_content").text(msg);
+        	alert(msg);
         }
       });
   	});
