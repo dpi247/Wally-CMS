@@ -587,7 +587,9 @@ function _simplesamlphp_auth_sso_login_js() {
   $js = '';
   
   $js.= '$(document).ready( function() {
-  	alert("coucou");
+  	$("form#simplesamlphp-auth-form-login-block-form input#edit-submit").click( function () {
+  		alert("cocuouc");
+  	});
   });';
   
   return $js;
