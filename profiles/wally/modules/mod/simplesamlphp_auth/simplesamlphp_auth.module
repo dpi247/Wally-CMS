@@ -602,6 +602,7 @@ function _simplesamlphp_auth_sso_login_js() {
 					}
         }
       });
+      alert("wait");
   	});
   });';
   
