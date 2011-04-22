@@ -596,8 +596,7 @@ function _simplesamlphp_auth_sso_login_js() {
       );
       sso_verif_auth.onreadystatechange=function() {
         if (sso_verif_auth.readyState==4) {
-        	alert("File was last modified on - "+
-          sso_verif_auth.getResponseHeader("Last-Modified"))
+        	alert(sso_verif_auth.status);
         }
      	};
   	});
