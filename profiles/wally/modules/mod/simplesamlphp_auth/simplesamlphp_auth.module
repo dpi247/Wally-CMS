@@ -595,8 +595,9 @@ function _simplesamlphp_auth_sso_login_js() {
   		$.ajax({
         type: "POST",
         url: "'.variable_get('simplesamlphp_auth_login_post_url', 'http://sso1.rossel.be:8080/opensso').'/identity/authenticate",
-        data: "username="+name+"&password="+pass,
+        data: ({username: name, password: pass}),
         dataType: "json",
+        async: false,
         statusCode: {
         	200: function () {
         		alert("cocuouc");
