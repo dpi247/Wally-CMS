@@ -287,7 +287,7 @@ function simplesaml_auth_form_login_block_sso_validator(&$form, &$form_state) {
       'POST',
       'username='.$form_state['values']['name'].'&password='.$form_state['values']['pass']
     );
-    dsm($sso_verif_auth);
+    watchdog('VALIDATE', print_r($sso_verif_auth,TRUE), null, WATCHDOG_INFO);
     /*
     if ($sso_verif_auth->code == '200') {
       global $saml_config;
