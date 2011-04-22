@@ -870,14 +870,14 @@ function wallytoolbox_get_meta() {
   return $output;
 }
 
-/*
+/**
  * Hook preprocess for meta tags.
  */
 function wallytoolbox_preprocess_page(&$variables) {
   $variables['meta'] = wallytoolbox_get_meta();	
 }
 
-/*
+/**
  * Implementation of hook_menu_link_alter()
  */
 function wallytoolbox_menu_link_alter(&$item, $menu){
