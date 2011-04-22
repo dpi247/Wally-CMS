@@ -19,7 +19,7 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	var parentValue = $("#"+parent).find("option:selected").attr("title");
 	$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
 	childVal = (typeof childVal == "undefined") ? "" : childVal ;
-	$("#"+child+' option[@value="'+ childVal +'"]').attr("selected","selected");
+	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 	
 	$("#"+parent).change(function() {
 		var parentValue = $("#"+parent).find("option:selected").attr("title");
