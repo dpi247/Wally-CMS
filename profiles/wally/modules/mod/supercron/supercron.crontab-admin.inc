@@ -6,7 +6,8 @@
  * Contains administrative configuration helper for Cron tasks
  */
 
-include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
 
 function supercron_invocation_form($form_state) {
   global $base_path;

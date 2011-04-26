@@ -1,6 +1,7 @@
 <?php
 // $Id: supercron.inc,v 1.1 2010/03/18 23:02:38 63reasons Exp $
-include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
 
 /**
  * @file
@@ -12,7 +13,8 @@ define('SUPERCRON_INVOKE_ALL',                  'admin/reports/status/run-superc
 
 // Variable constants; duplicating literals is an open invitation to bugs
 define('SUPERCRON_SCRIPT_NAME',                 'supercron.php');
-define('SUPERCRON_PHP_BINARY_PATH_PLACEHOLDER', t('[path to php binary]'));
+//define('SUPERCRON_PHP_BINARY_PATH_PLACEHOLDER', t('[path to php binary]'));
+define('SUPERCRON_PHP_BINARY_PATH_PLACEHOLDER', '[path to php binary]');
 define('SUPERCRON_ADMIN_PERMISSION',            'administer supercron');
 define('SUPERCRON_EXCEPTION_FEED_PERMISSION',   'access the supercron exception feed');
 define('SUPERCRON_AJAX_CALLBACK',               'admin/settings/supercron/get-results');

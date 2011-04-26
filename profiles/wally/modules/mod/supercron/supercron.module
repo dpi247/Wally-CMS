@@ -16,5 +16,5 @@
  */
 
 
-if (function_exists('drupal_get_path')) include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
-
+//if (function_exists('drupal_get_path')) include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
