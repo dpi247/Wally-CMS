@@ -83,6 +83,13 @@ function wallyrsstonode_schema() {
           'not null' => TRUE,
           'default' => '0',
         ),
+        'feeds_md5' => array(
+          'type' => 'text',
+          'size' => 'big',
+          'description' => 'Serialized md5 of this RSS feeds.',
+          'serialize' => TRUE,
+          'object default' => array(),
+        ),
       ), 
       'primary key' => array('rss_key'),
   );
@@ -90,7 +97,7 @@ function wallyrsstonode_schema() {
   return $schema;
 }
 
-/*
+/**
  * Implementation of the hook module _install();
  */
 function wallyrsstonode_install() {
@@ -104,4 +111,23 @@ function wallyrsstonode_install() {
  */
 function wallyrsstonode_uninstall() {
   drupal_uninstall_schema('wallyrsstonode');
+}
+
+/**
+ * Implementation du hook_update_N
+ */
+function wallyrsstonode_update_6001(&$sandbox) {
+  $ret = array();
+  
+  $spec = array(
+    'type' => 'text',
+    'size' => 'big',
+    'description' => 'Serialized md5 of this RSS feeds.',
+    'serialize' => TRUE,
+    'object default' => array(),
+  );
+  
+  db_add_field($ret, 'rsstonode_feeds', 'feeds_md5', $spec);
+  
+  return $ret;
 }
