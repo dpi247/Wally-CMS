@@ -1,24 +1,14 @@
 <?php
 define('WALLY_ADMIN_PATH', 'admin/wally');
 
-
 /**
  * @file wallyadmin.module
  */
 
 /**
- * Implementation of hook_init().
- */
-function wallyadmin_init() {  
-}
-
-
-
-/**
  * Implementation of hook_form_alter().
  */
 function wallyadmin_form_alter(&$form, $form_state, $form_id) {
-
   // Make mods to every node form
   if ($form['#id'] == 'node-form') {
         
@@ -77,21 +67,18 @@ function wallyadmin_menu_alter(&$items) {
   
   
   //Enable some often-used pathes, on the quick bar, for convenience:
-  $items['admin/content/taxonomy']['options']['admin'] = TRUE;    
-  $items['admin/content/clearcache']['options']['admin'] = TRUE;   
+  $items['admin/content/taxonomy']['options']['admin'] = TRUE;
+  $items['admin/content/clearcache']['options']['admin'] = TRUE;
    
-  $items['admin/build/context']['options']['admin'] = TRUE;    
-  $items['admin/build/modules']['options']['admin'] = TRUE;    
-  $items['admin/build/features']['options']['admin'] = TRUE; 
-  $items['admin/build/panels']['options']['admin'] = TRUE;          
+  $items['admin/build/context']['options']['admin'] = TRUE;
+  $items['admin/build/modules']['options']['admin'] = TRUE;
+  $items['admin/build/features']['options']['admin'] = TRUE;
+  $items['admin/build/panels']['options']['admin'] = TRUE;
     
     //-- And if we have context, I guess we don't need blocks UI :)
-  $items['admin/user/roles']['options']['admin'] = TRUE;    
+  $items['admin/user/roles']['options']['admin'] = TRUE;
 
 }
-
-
-
 
 /**
  * Implementation of hook_menu().
