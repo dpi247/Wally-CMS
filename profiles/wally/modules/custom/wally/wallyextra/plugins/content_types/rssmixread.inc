@@ -640,23 +640,24 @@ function _wallyextra_rssmix_setcache($settings){
       array_push($feed, $item);
     }
   }
-  
-  /*$modif = FALSE;
+
+  $modif = FALSE;
+  $feeds_md5 = isset($settings['feeds_md5']) ? $settings['feeds_md5'] : array();
   foreach ($feed as $feed_id => $feed_elem) {
-    if (true) {
+    $elem_package = $feed_elem['Package'];
+    $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['Package']['MainStory']['TextBody']['value']);
+    if (!isset($feeds_md5[$feed_id]) || $feeds_md5[$feed_id] != $elem_md5) {
       $modif = TRUE;
-      break;
+      $feeds_md5[$feed_id] = $elem_md5;
     }
   }
   if ($modif) {
-    //$internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
-    //wallytoolbox_flush_all_pages($internal_url, TRUE);
+    $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+    wallytoolbox_flush_all_pages($internal_url, TRUE);
     cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
-  }*/
-  
-  $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
-  wallytoolbox_flush_all_pages($internal_url, TRUE);
-  cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
+    $settings['content']->settings['feeds_md5'] = $feeds_md5;
+    ctools_export_crud_save('wallyextra_rssmixread_content', $settings['content']);
+  }
   
   return $feed;
 }
