@@ -1,6 +1,7 @@
 <?php
 
-include_once(drupal_get_path('module', 'supercron') . '/supercron.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron.inc');
+include_once('supercron.inc');
 
 /**
  * Implement hook_help().

@@ -6,7 +6,8 @@
  * Contains administrative configuration details for the main Settings page
  */
 
-include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
 
 function _supercron_show_script_warning() {
   drupal_set_message(

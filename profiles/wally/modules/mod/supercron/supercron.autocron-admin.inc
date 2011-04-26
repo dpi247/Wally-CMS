@@ -6,7 +6,8 @@
  * Contains administrative configuration details for the Autocron page
  */
 
-include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
 
 function supercron_autocron_form(&$form_state) {
   $autocron_enabled = variable_get(SUPERCRON_AUTOCRON_ENABLED, FALSE);

@@ -6,7 +6,8 @@
  * Contains administrative configuration details for the Firewall page
  */
 
-include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+//include_once(drupal_get_path('module', 'supercron') . '/supercron-main.inc');
+include_once('supercron-main.inc');
 
 /**
  * SuperCron firewall configuration form.
