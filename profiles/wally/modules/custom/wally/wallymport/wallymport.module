@@ -313,7 +313,7 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   
   wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
 
-  return $returns[0]['packages'];
+  return !empty($returns[0]['packages']) ? $returns[0]['packages'] : '';
 }
 
 /**
@@ -480,7 +480,8 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
   }
 
   module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
-  if(!empty($node) && !$node->rejected) {
+
+  if(!empty($node) && !isset($node->rejected)) {
     if ($preview) {
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
