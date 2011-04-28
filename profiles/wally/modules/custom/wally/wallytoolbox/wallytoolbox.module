@@ -906,7 +906,11 @@ function wallytoolbox_flush_all_pages($internal_url = '*', $flush_aliases = FALS
   }
 
   foreach($url_to_flush as $url)
-    cache_clear_all($url, 'cache_page');
+    cache_clear_all($url, 'cache_page', TRUE);
+  if (strstr($internal_url, 'home')) {
+    cache_clear_all($base_url.'/'.variable_get('site_frontpage', 'home'), 'cache_page', TRUE);
+    cache_clear_all($base_url.'/', 'cache_page');
+  }
 }
 
 /**
