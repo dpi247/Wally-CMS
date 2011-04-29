@@ -29,7 +29,7 @@ function wallyedit_menu(){
   $items['admin/content/wallydisplayfields'] = array(
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer content types'),
-    'file'=>'includes/page_display_fields.inc',
+    'file'=>'includes/page_form_display_fields.inc',
     //'file path'=>'includes/',
     'title'=> 'WallyEdit - Display all fields',
     'Description'=> 'Display all fields and not only CCK fields.',
@@ -37,7 +37,7 @@ function wallyedit_menu(){
   $items['admin/content/wallydisplayfields/general'] = array(
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer content types'),
-    'file'=>'includes/page_display_fields.inc',
+    'file'=>'includes/page_form_display_fields.inc',
     //'file path'=>'includes/',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title'=> 'General',
@@ -66,9 +66,9 @@ function wallyedit_menu(){
     $items['admin/content/wallydisplayfields/'. $type_url_str] = array(
       'title' => $type->name,
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('wallyedit_display_fields_form', $type),
+      'page arguments' => array('wallyedit_form_display_fields_form', $type),
       'access arguments' => array('administer content types'),
-      'file' => 'includes/page_display_fields.inc',
+      'file' => 'includes/page_form_display_fields.inc',
       'type' => MENU_CALLBACK,
     );
   }
@@ -136,6 +136,14 @@ function wallyedit_menu(){
     'file'=>'includes/test.inc',
   //'file path'=>'includes/',
   );
+  
+   $items['wallyedit/js_add_more'] = array(
+    'page callback' => 'wallyedit_add_more_js',
+    'access arguments' => array('access content'),
+    'file' => 'includes/wallyedit.node_form.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
 
   return $items;
 }
@@ -176,7 +184,7 @@ function wallyedit_theme(){
   // 'template' => 'my-template-day-node',
       'arguments' => array('form'=>array(),'prenode' => NULL),
   ),
-    'wallyedit_display_fields_form'=>array(
+    'wallyedit_form_display_fields_form'=>array(
       'template' => 'wallyedit-admin-display-overview-form',
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
@@ -688,6 +696,7 @@ function wydit_subform_global_page_form(&$form_state){
   $form=array('#tree'=>true);
 
   $type_name=$form_state['type'];
+  
 
   $a=array("#tree"=>true);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$form_state[$type_name]['#node']);
@@ -703,9 +712,9 @@ function wydit_subform_global_page_form(&$form_state){
   }
   $temp_b = $form[$form_state['type']];
   wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name),$temp_b);
-
   wydit_remove_form_infos($form[$type_name]);
-
+  
+  $form['type']=array('#type'=>'value','#value'=>$form_state['type']);
   $form['#tree']=true;
 
   $form["save_global"]=array(
@@ -759,7 +768,11 @@ function wydit_subform_global_page_form(&$form_state){
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
 
-  return $form;
+  $form['wally_articlepackage']['group_destinations']['field_destinations']['field_destinations_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
+  $form['wally_articlepackage']['group_destinations']['field_destinations']['field_destinations_add_more']['#ahah']['path']='wallyedit/js_add_more/wally-articlepackage/field_destinations/'.implode('/',$form['wally_articlepackage']['group_destinations']['field_destinations']['#parents']);
+  $form['wally_articlepackage']['group_destinations']['field_destinations']['field_destinations_add_more']['#ahah']['path']='wallyedit/js_add_more/wally-articlepackage/field_destinations/wally_articlepackage/group_destinations/field_destinations';
+ // $form['#input']=true;
+    return $form;
 }
 
 function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parents, $global_form = array()){
@@ -767,49 +780,58 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
   foreach(element_children($form) as $element){
     $parents_new=$parents;
     $parents_new[]=$element;
-    if($form[$element]['#type']=='value'){
-      //$form[$element]['#parents']=$parents;
+    $b=$parents;
+    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==0 ){
+        //@todo: DDU what happen if the element is required ?
+        //if($form[$element]['#required']==false){
+        unset($form[$element]);
+        //}
+        //else{dsm($form[$element]);}
+    }
+    if($form[$element]['#type']=='value' and $form[$element]["#value"]){
+      // $form[$element]['#parents']=$parents; 
       continue;
     }
     if($form[$element]['#type']=='fieldset'){
-      if (!isset($form[$element]['#title']))
+      if (!isset($form[$element]['#title'])){
         $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
+      }
       $form[$element]['#collapsible'] = TRUE;
       $form[$element]['#collapsed'] = TRUE;
+
+      $temp_b = $form_state;
+        
       wydit_prepare_primary_package_form($form[$element],$form_state,$type,$parents,$global_form);
-      wydit_changetypefromfieldset($form[$element],$fields);
+      continue; // wydit_changetypefromfieldset($form[$element],$fields);
       /*if ($form[$element]['type']['#value'] == 'wally_photoobject') {
         $temp_b = $form_state;
         $args = array();
         wallycontenttypes_addeditcroplink_after_build($form[$element], $temp_b, 'admin/content/editcropwallyedit', $args);
       }*/
     }
-    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==0 ){
-      //@todo: DDU what happen if the element is required ?
-      //if($form[$element]['#required']==false){
-      unset($form[$element]);
-      //}
-      //else{dsm($form[$element]);}
+    
+     
+      if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==1 ){
+  
+        $form[$element]['#parents']=$parents_new;
+        //@todo: DDU what happen if the element is required ?
+        //if($form[$element]['#required']==false){
+        //}
+        //else{dsm($form[$element]);}
+      }
+  
+      if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==2 ){
+       // array_pop($parents_new);
+        $parents_new[]='0';
+        $form[$element]['#parents']=array($element);
+        wydit_prepare_inline_form_element($form[$element],$form_state[$type][$element][0],$element,$fields,$parents_new  );
+      }
+      if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==3 ){
+      //  wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );
+        //$form[$element]['#parents']=array($element);
+      }
     }
-    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==1 ){
-
-      $form[$element]['#parents']=$parents_new;
-      //@todo: DDU what happen if the element is required ?
-      //if($form[$element]['#required']==false){
-      //}
-      //else{dsm($form[$element]);}
-    }
-
-    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==2 ){
-      $parents_new[]=0;
-      wydit_prepare_inline_form_element($form[$element],$form_state[$type][$element][0],$element,$fields,$parents_new  );
-      //$form[$element]['#parents']=array($element);
-    }
-    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"]==3 ){
-      wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );
-      //$form[$element]['#parents']=array($element);
-    }
-  }
+  
   if($element=="field_packagelayout" && isset($form[$element])){
     //$form[$element]['module']="content_taxonomy";
     $form[$element]=optionwidgets_select_process($form[$element], $edit, $form_state, $global_form);
@@ -820,11 +842,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     	'#type' => 'select',
     	"#options" => $b['value']['#options']
     );
-    $t=$parents_new;
-    $t[]='0';
-    $t[]='value';
-    $form[$element]['#parents']=$t;
-    $form[$element]['#validated']=TRUE;
     //$form['#DANGEROUS_SKIP_CHECK']= TRUE;
     //unset($form[$element]);
   }
@@ -850,6 +867,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
    */
   unset($form['#submit']);
   unset($form['#disabled']);
+  
 }
 
 function _wallyedit_form_page_destinations_validation(&$form, &$form_state) {
@@ -861,7 +879,6 @@ function _wallyedit_form_page_destinations_validation(&$form, &$form_state) {
   }
   if (isset($form_state['input']['group_destinations']['field_destinations'])) {
     $input_destinations = $form_state['input']['group_destinations']['field_destinations'];
-    dsm($input_destinations);
     foreach($input_destinations as $input_destination) {
       if (!isset($avail_destinations[$input_destination['tid']][$input_destination['target']][$input_destination['layout']]))
         form_set_error('field_destinations', 'Bad destination(s).');
@@ -1022,6 +1039,29 @@ function wydit_subform_global_add_form(&$form_state){
 
   wydit_remove_form_infos($form[$type_name]);
 
+  
+  
+  
+  /***************************************/
+  
+ 
+  
+  
+  /***************************************/
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   $form['#tree']=true;
 
   $form["save_global"]=array(
@@ -1127,6 +1167,9 @@ function wydit_subform_global_edit_form(&$form_state){
   );
   $form['#tree']=true;
   unset($form["#validate"]);
+  
+  
+ 
   return $form;
 }
 
@@ -1271,7 +1314,10 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
 
   $form = array(
     '#title' => $form_element['#title'],
-  	"#type" => 'fieldset'
+  	"#type" => 'fieldset',
+  '#tree'=>true,
+  '#parents'=>$parents,
+  
   );
   unset($a["#type"]);
   unset($a["form_id"]);
@@ -1279,16 +1325,19 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
   unset($a["#parents"]);
 
   // unset($a["#parents"]);
-  $form[$type_name]=array("#type"=>'fieldset');
+  //$form[$type_name]=array("#type"=>'fieldset');
   foreach(element_children($a) as $element_name){
-    $form[$type_name][$element_name]=$a[$element_name];
+    $a["#parents"]=$parents;
+    ;
+    $form[$element_name]=$a[$element_name];
+    //
 
-    //WARNNING: FIELDS DOESN4T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOUL BRING DIELD INFO FROM NODEREFERENCE CONTENT TYPE
+    //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOUL BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
+    //EDIT2: WTF ???
     if(isset($fields[$element_name]) and $fields[$element_name]['display_settings']["wallyedit"]==1 ){
-      $form[$type_name][$element_name]["#parents"]=$parents;
+      $form[$element_name]["#parents"]=$parents;
     }
   }
-
   wydit_prepare_primary_package_form($form,$form_state,$element,$parents);
 
   wydit_remove_form_infos($form);
@@ -1305,7 +1354,7 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
   $form[$type_name]["#tree"]=true;
   wydit_remove_form_infos($form[$type_name]);
   */
-  $form_element=$form;
+  $form_element=array($form);
 }
 
 function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$element,$fields,$parents){
@@ -1495,10 +1544,12 @@ function wydit_add_to_form_state(&$form_state,$element,$target,$append=FALSE){
       wydit_add_to_form_state($form_state[$key],$element,$target,$append);
     }
     else{
+      $key=$target[0];
+      
       $form_state[$target[0]]=array();
 
       array_shift($target);
-      wydit_add_to_form_state($form_state[$target[0]],$element,$target,$append);
+      wydit_add_to_form_state($form_state[$key],$element,$target,$append);
     }
 
   }
@@ -1547,7 +1598,6 @@ function wydit_clean_and_save_form_state(&$form_state){
 }
 function wydit_get_infos_groups($type_name){
   module_load_include("inc",'content','includes/content.node_form');
-
   $groups = array();
   if (module_exists('fieldgroup')) {
     $groups = fieldgroup_groups($type_name);
@@ -1715,4 +1765,11 @@ function _wallyedit_convert_type_to_title($type) {
   $expl_type = explode('_', $type);
   $expl_type = explode('object', $expl_type[1]);
   return ucfirst($expl_type[0]);
+}
+
+
+
+function wallyedit_add_more_submit_proxy($form, &$form_state) {
+  module_load_include('inc', 'wallyedit', 'includes/wallyedit.node_form');
+  wallyedit_add_more_submit($form, $form_state);
 }

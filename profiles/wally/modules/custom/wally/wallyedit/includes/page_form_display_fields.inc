@@ -29,7 +29,7 @@ function wallyedit_node_overview_page () {
   return theme('table', $header, $rows);
 }
 
-function wallyedit_display_fields_form (&$form_state, $type) {
+function wallyedit_form_display_fields_form (&$form_state, $type) {
   module_load_include("inc",'content','includes/content.node_form');
   module_load_include("inc",'content','includes/content.admin');
   $form = drupal_retrieve_form('content_field_overview_form', $form_state, $type->type);
@@ -105,14 +105,14 @@ function wallyedit_display_fields_form (&$form_state, $type) {
     }
   }
 
-  $form['#parameters'][0] = 'wallyedit_display_fields_form';
+  $form['#parameters'][0] = 'wallyedit_form_display_fields_form';
 
   $form['#field_rows'] = array_values($form['#field_rows']);
 
   return $form;
 }
 
-function wallyedit_display_fields_form_submit(&$form, &$form_state) {
+function wallyedit_form_display_fields_form_submit(&$form, &$form_state) {
   wallyedit_display_fields_save_groups($form, $form_state);
   wallyedit_display_fields_save_extra_fields($form, $form_state);
   foreach ($form_state['values'] as $field_name => $values)
