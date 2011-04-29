@@ -23,6 +23,9 @@ function theme_wallyedit_page_createmode($form,$prenode){
   $output.='<div id="wallyedit_container">';
   $output.=$form;
   $output.='</div>';
+    $output.='<div id="wallyedit_preview_container">';
+  $output.=$form;
+  $output.='</div>';
 
   return $output;
 }
