@@ -95,7 +95,7 @@ function wally_profile_modules() {
     'jquery_ui',
     
     // Views
-    'views', 'views_ui',
+    'views', 'views_ui', 'views_bulk_operations',
   ); 
   
   // Wally custom & specific modules
