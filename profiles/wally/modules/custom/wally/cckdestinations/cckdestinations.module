@@ -1,4 +1,4 @@
- <?php
+<?php
 /**
  * @defgroup cckdestination Wally CCK Destination Functions
  * @{
@@ -109,7 +109,6 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  dsm('yo');
   if (empty($item['tid']) || $item['tid']==0) {
     return TRUE;
   }    
