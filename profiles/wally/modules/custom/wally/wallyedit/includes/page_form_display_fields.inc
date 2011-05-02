@@ -120,7 +120,6 @@ function wallyedit_form_display_fields_form_submit(&$form, &$form_state) {
       unset($form_state['values'][$field_name]['field']['display_settings']['field']);
   content_display_overview_form_submit($form, $form_state);
 }
-
 function wallyedit_display_fields_save_groups(&$form, &$form_state) {
   $form_values = $form_state['values'];
   $groups_to_save = array();
@@ -128,6 +127,7 @@ function wallyedit_display_fields_save_groups(&$form, &$form_state) {
   foreach ($form_values as $key => $values) {
     if (in_array($key, $form['#group_rows'])) {
       $values['display_settings']['wallyedit'] = $values['wallyedit'];
+      unset($values['wallyedit']);
       $groups_to_save[$key] = $values;
     }
   }
@@ -143,12 +143,12 @@ function wallyedit_display_fields_save_extra_fields(&$form, &$form_state) {
     // Groups are handled in fieldgroup_display_overview_form_submit().
     if (in_array($key, $form['#field_rows']) && !in_array($key, $form['#fields'])) {
       $values['display_settings']['wallyedit'] = $values['wallyedit'];
+      unset($values['wallyedit']);
       $fields_to_save[$key] = $values;
     }
   }
   variable_set('wallyedit_extra_fields_display_'.$form['#type_name'], $fields_to_save);
 }
-
 function _wallyedit_add_new_group_to_form(&$form, $node_fields, $field_name) {
   $form[$field_name]['group_name']['#value'] = $field_name;
   $form[$field_name]['group_type']['#value'] = 'Standard group';
