@@ -1,5 +1,5 @@
 core = "6.x"
-description = "Specific cases to be bypassed by Varnish."
+description = "Varnish server interface and specific cases to be bypassed by Varnish."
 name = "Warnish"
 package = "Wally"
 project = "warnish"

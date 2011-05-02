@@ -889,28 +889,54 @@ function wallytoolbox_menu_link_alter(&$item, $menu){
 /**
  * Flush the page cache for the given internal url.
  */
-function wallytoolbox_flush_all_pages($internal_url = '*', $flush_aliases = FALSE) {
+function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FALSE, $flush_type = 'drupal') {
   global $base_url;
-  $url_to_flush = array();
+  $varnish_pages_to_flush = array();
   
-  if ($internal_url == '*') {
+  if (is_string($internal_urls))
+    $internal_urls = array($internal_urls);
+  
+  foreach ($internal_urls as $internal_url) {
+    $url_to_flush = array();
     $url_to_flush[] = $internal_url;
-  } else {
-    $url_to_flush[] = $base_url.'/'.$internal_url;
     
-    if ($flush_aliases) {
+    if ($internal_url != '*' && $flush_aliases) {
       $aliases = wallytoolbox_get_all_aliases($internal_url);
       foreach ($aliases as $alias)
-        $url_to_flush[] = $base_url.'/'.$alias;
+        $url_to_flush[] = $alias;
+    }
+  
+    foreach($url_to_flush as $url) {
+      if ($flush_type == 'drupal' || $flush_type == 'both') {
+        if ($url == '*') {
+          cache_clear_all($url, 'cache_page');
+        } else {
+          cache_clear_all($base_url.'/'.$url, 'cache_page');
+        }
+      }
+      if ($flush_type == 'varnish' || $flush_type == 'both') {
+        if ($url == '*') {
+          warnish_purge_all_pages();
+        } else {
+          $varnish_pages_to_flush[] = $url;
+        }
+      }
+    }
+    
+    if (strstr($internal_url, 'home')) {
+      if ($flush_type == 'drupal' || $flush_type == 'both') {
+        cache_clear_all($base_url.'/'.variable_get('site_frontpage', 'home'), 'cache_page', TRUE);
+        cache_clear_all($base_url.'/', 'cache_page');
+      }
+      if ($flush_type == 'varnish' || $flush_type == 'both') {
+        $varnish_pages_to_flush[] = variable_get('site_frontpage', 'home');
+        $varnish_pages_to_flush[] = '/';
+      }
     }
   }
-
-  foreach($url_to_flush as $url)
-    cache_clear_all($url, 'cache_page', TRUE);
-  if (strstr($internal_url, 'home')) {
-    cache_clear_all($base_url.'/'.variable_get('site_frontpage', 'home'), 'cache_page', TRUE);
-    cache_clear_all($base_url.'/', 'cache_page');
-  }
+  
+  if (!empty($varnish_pages_to_flush))
+    warnish_purge_page($varnish_pages_to_flush);
 }
 
 /**
