@@ -19,11 +19,10 @@ function wallycontenttypes_perm() {
   return array('editing crop');
 }
 
-
 /**
  *  Implémentation du hook_menu(); 
  */
- 
+
 function wallycontenttypes_menu() {
   $items = array();
   
@@ -68,78 +67,78 @@ function wallycontenttypes_theme(&$var) {
     'path' => "$path/theme",
   );
   
- return array(
-
+  return array(
     'wallyct_photoobject_slider' => $base + array(
-    'arguments' => array("nodes" => NULL, "node" => NULL),
-    'template' => 'wallyct_photoobject_slider',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("nodes" => NULL, "node" => NULL),
+      'template' => 'wallyct_photoobject_slider',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_mainstory' => $base + array(
-    'arguments' => array("mainstory" => NULL, "node" => NULL),
-    'template' => 'wallyct_mainstory',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("mainstory" => NULL, "node" => NULL),
+      'template' => 'wallyct_mainstory',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_embededobjects' => $base + array(
-    'arguments' => array("embededobjects" => NULL, "node" => NULL),
-    'template' => 'wallyct_embededobjects',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("embededobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_embededobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_photoobject' => $base + array(
-    'arguments' => array("embededobject" => NULL),
-    'template' => 'wallyct_photoobject',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_photoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_videoobject' => $base + array(
-    'arguments' => array("embededobject" => NULL),
-    'template' => 'wallyct_videoobject',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_videoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_digitalobject' => $base + array(
-    'arguments' => array("embededobject" => NULL),
-    'template' => 'wallyct_digitalobject',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_digitalobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_linkedobjects' => $base + array(
-    'arguments' => array("linkedobjects" => NULL, "node" => NULL),
-    'template' => 'wallyct_linkedobjects',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_teaser' => $base + array(
-    'arguments' => array("text" => NULL, "length" => 200, "node" => NULL),
-    'template' => 'wallyct_teaser',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("text" => NULL, "length" => 200, "node" => NULL),
+      'template' => 'wallyct_teaser',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-        
+    
     'wallyct_destinationlist' => $base + array(
-    'arguments' => array("destinations" => NULL, "separator" => NULL, "prefix" => NULL, "suffix" => NULL),
-    'template' => 'wallyct_destinationlist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("destinations" => NULL, "separator" => NULL, "prefix" => NULL, "suffix" => NULL),
+      'template' => 'wallyct_destinationlist',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
-
+    
     'wallyct_linkedobjects' => $base + array(
-    'arguments' => array("linkedobjects" => NULL, "node" => NULL),
-    'template' => 'wallyct_linkedobjects',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_galleryphoto' => $base + array(
-    'arguments' => array("node" => NULL),
-    'template' => 'wallyct_galleryphoto',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("node" => NULL),
+      'template' => 'wallyct_galleryphoto',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_editcrop' => $base + array(
-    'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
-    'template' => 'wallyct_editcrop',
-    'preprocess functions' => array('wally_get_tpl_suggestions')),
+      'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
+      'template' => 'wallyct_editcrop',
+      'preprocess functions' => array('wally_get_tpl_suggestions')
+    ),
 
 /*
     'wallyct_personslist' => $base + array(
@@ -148,7 +147,7 @@ function wallycontenttypes_theme(&$var) {
     'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 */
-  ); 
+  );
 }
 
 /**
@@ -956,7 +955,6 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
   
     $(window).load(function() {
     
-
     var api = $.Jcrop("#cropbox",{
         onSelect: showCoordsAndSave,
         bgColor: "black",
@@ -985,7 +983,6 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
           }
           $("#"+i).addClass("crop_selected");	
           currentAc = i;
-          
           
           return nothing(e);
         };
@@ -1024,7 +1021,8 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
     
     function showCoordsAndSave(c) {
       if (currentAc) {
-      	var serialCoord = [c.x,c.y,c.w,c.h];
+      	// 1 ajouté la fin de l\'array pour flager la modification de ce preset
+      	var serialCoord = [c.x,c.y,c.w,c.h,1];
         $("#"+currentAc+"_serialCoord").val(serialCoord);
         ac[currentAc][0] = c.x;
         ac[currentAc][1] = c.y;
@@ -1032,7 +1030,6 @@ function _wallycontenttypes_jscodeforthecroping($usablecrops) {
         ac[currentAc][3] = c.y2;
       }
     };
-        
   ';
   
   return $return;
@@ -1155,9 +1152,15 @@ function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
   $crops = array();
   foreach ($usablecrops as $presetname => $usablecrop) {
     if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
-      $crops[$presetname] = explode(',',$_POST[$presetname.'_serialCoord']);
+      $temp_crops = explode(',',$_POST[$presetname.'_serialCoord']);
+      if (isset($temp_crops[4]) && $temp_crops[4] == '1') {
+        // Le crop a été modifié pour ce preset
+        $crops[$presetname] = $temp_crops;
+        imagecache_image_flush($node->field_photofile[0]['filepath']);
+      } else {
+        $crops[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($usablecrop, NULL);
+      }
       $crops[$presetname]['presetid'] = $usablecrop['presetid'];
-      imagecache_image_flush($node->field_photofile[0]['filepath']);
       $redirect = true;
       $i++;
     }
