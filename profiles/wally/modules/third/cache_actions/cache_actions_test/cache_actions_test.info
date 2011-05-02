@@ -1,0 +1,15 @@
+; $Id: cache_actions_test.info,v 1.1.2.3 2010/09/29 07:41:08 fabsor Exp $
+name = Cache Actions Test Dependencies
+description = This module contains panels, views and rules for the tests of cache actions. Do not enable this module, the tests will do that for you.
+dependencies[] = rules
+dependencies[] = cache_actions
+dependencies[] = simpletest
+core = 6.x
+package = Rules
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "6.x-2.0-beta2"
+core = "6.x"
+project = "cache_actions"
+datestamp = "1296859598"
+
