@@ -42,7 +42,7 @@ function theme_wallyedit_page_editmode($form,$prenode){
   return $output;
 }
 
-function theme_wallyedit_preview_id($cache_name, $dest = 'no_dest'){
+function theme_wallyedit_preview_id($cache_name, $dest = 'disabled'){
   $output.='<div id="wallyedit_preview">';
   $output.= theme('wallyedit_preview_iframe', $cache_name, $dest);
   $output.='</div>';
