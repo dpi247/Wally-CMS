@@ -330,7 +330,7 @@ function wallyctools_get_hierarchies(){
  */
 function wallyctools_get_term_handler_mapping($terms,$depth){
 
-  $availlable_handlers=array();
+  $tid_did_mapping=array();
   
   foreach($terms as $term){
     $handler= wallyctools_get_active_handler($term->tid,$depth);
