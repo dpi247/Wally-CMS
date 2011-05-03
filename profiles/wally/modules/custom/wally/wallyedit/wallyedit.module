@@ -746,7 +746,7 @@ function wydit_subform_global_page_form(&$form_state){
   drupal_add_js($prev_js, 'inline');
   $prenode=new Prenode($form_state['cache name']);
   if(!empty($prenode->form_state)){
-    $options = array('disabled' => 'Preview disabled', 'no_dest'=>'No destination', );
+    $options = array('disabled' => 'Preview disabled', 'no_dest' => 'Node', );
     foreach($form_state[$form_state['type']]['#node']->field_destinations as $delta=>$dest){
       if($delta !== 'field_destinations_add_more'){
         $dest_name = taxonomy_get_term($dest['tid'])->name;
@@ -1021,6 +1021,9 @@ function wydit_subform_global_page_submit(&$form_state){
       
     }
   }
+  
+  cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
+  
   wydit_clean_and_save_form_state($a)  ;
 }
 
