@@ -174,6 +174,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
               $style->definition = array();
               $style->definition['uses row plugin'] = TRUE;
               $view->wallyedit_preview = $node->field_destinations[$dest];
+              $view->wallyedit_preview['key'] = $dest;
               $view->wallyedit_preview['cache_name'] = $prenode->cache_name;
               $style->init($view, $view->display[$view->current_display]);
               $style->view->style_plugin = $style;
