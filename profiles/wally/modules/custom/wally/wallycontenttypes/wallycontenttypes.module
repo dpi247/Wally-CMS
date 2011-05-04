@@ -172,9 +172,9 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op) {
 
     case 'view':
-      if($node->type == 'wally_articlepackage' || 
+      if(($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage')
+        $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)
         wallycontenttypes_packagepopulate($node, $op);
       break;
       
