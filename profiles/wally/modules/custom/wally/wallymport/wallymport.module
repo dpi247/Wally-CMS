@@ -264,7 +264,7 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   
   $expl_filename = explode('.'.$format, $file);
   $expl_filename = explode('/', $expl_filename[0]);
-  
+
   $object_file = new stdClass();
   $object_file->name = $expl_filename[sizeof($expl_filename)-1];
   $object_file->filename = $file;
@@ -274,6 +274,57 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   
   print json_encode($returns);
   return;
+}
+
+function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
+   $prev_js = '$(document).ready(function() {
+            $("#edit-select-preview").change(function () {
+              var temp = "/node/'.$cache_name.'/preview2/"+$(this).val();
+              $("#prev_iframe").attr("src", temp);          
+            });
+          });';
+
+  drupal_add_js($prev_js, 'inline');//need to include this without drupal
+  $prenode=new Prenode($cache_name);
+  if(!empty($prenode->form_state)){
+    $options = array('disabled' => 'Preview disabled', 'no_dest' => 'Node', );
+    foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest){
+      if($delta !== 'field_destinations_add_more'){
+        $dest_name = taxonomy_get_term($dest['tid'])->name;
+        $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
+      }
+    }
+    $form['select_preview'] = array(
+      '#type' => 'select',
+      '#title' => t('Preview destination'),
+      '#default_value' => 'disabled',
+      '#options' => $options,
+      '#attributes' => array('prenode' => $cache_name),
+    );
+    $form['#suffix'] = theme('wallyedit_preview_id', array('cache_name' => $cache_name, 'dest' => 'disabled'))
+                          .drupal_get_js();
+  }else{
+    $form['#suffix'] = theme('wallyedit_nopreview');
+  }
+
+  return $form;
+}
+
+
+/*
+ * Implementation of hook_cron().
+ */ 
+function wallymport_cron(){
+  $list = db_query('SELECT name FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%"');  
+  $return = array();
+  while ($elem = db_fetch_array($list)) {
+    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d AND updated < %d', $elem['name'], time()-3600);
+    $return[] = 'Preview cache deleted for : '.$elem['name'].' on '.date('Y-m-d H:i:s', time());
+  }
+  if(empty($return)){
+    $return = 'No deletion done on '.date('Y-m-d H:i:s', time());
+  }
+  print_r($return);
 }
 
 /**
@@ -312,8 +363,9 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   $object_file->basename = $file;
   
   wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
-
-  return !empty($returns[0]['packages']) ? $returns[0]['packages'] : '';
+  print drupal_get_form('wallymport_preview_form', $returns[0]['packages'], 'disabled');
+  
+  //return !empty($returns[0]['packages']) ? $returns[0]['packages'] : '';
 }
 
 /**
@@ -485,8 +537,10 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     if ($preview) {
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
-      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
-      return wallyedit_callback_preview($prenode);
+      //require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
+      $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+      ctools_object_cache_set('prenode', $prenode->cache_name, $prenode->setFormState());
+      return $prenode->cache_name;
     } else {
       //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
       node_save($node);
