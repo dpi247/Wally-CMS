@@ -1,11 +1,16 @@
 <?php
 
 function wallyedit_callback_preview($prenode, $dest = 'disabled'){
-  $node = $prenode->ReturnPopulated();
+  if($prenode->form_state['DoNotPopulate'] === TRUE){
+    $node = $prenode->form_state[$prenode->form_state['type']]['#node'];
+  }else{
+    $node = $prenode->ReturnPopulated();
+  } 
   if($dest == 'disabled'){
     return null;
   }elseif($dest == 'no_dest'){
     module_load_include('inc', 'ctools', 'page_manager/plugins/tasks/node_view');
+    $node->DoNotPopulate = true;
     return page_manager_node_view($node);
   }else{
     ctools_include('context');

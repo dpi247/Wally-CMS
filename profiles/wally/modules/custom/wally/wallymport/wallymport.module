@@ -537,9 +537,12 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     if ($preview) {
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
+      
       //require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
-      ctools_object_cache_set('prenode', $prenode->cache_name, $prenode->setFormState());
+      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode['DoNotPopulate'] = true;
+      ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       return $prenode->cache_name;
     } else {
       //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
