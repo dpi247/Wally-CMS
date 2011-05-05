@@ -59,7 +59,11 @@ function xmlsitemap_destination_uri($node) {
  * Process old taxonomy terms not found in the {xmlsitemap} table.
  */
 function xmlsitemap_destination_cron() {
+  $return = array();
+  $return[] = 'Start : '.date('Y-m-d H:i:s', time());
   xmlsitemap_destination_xmlsitemap_index_links(xmlsitemap_var('batch_limit'));
+  $return[] = 'Finish : '.date('Y-m-d H:i:s', time());
+  print_r($return);
 }
 
 /**
