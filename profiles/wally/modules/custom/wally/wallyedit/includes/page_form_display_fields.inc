@@ -32,11 +32,13 @@ function wallyedit_node_overview_page () {
 function wallyedit_form_display_fields_form (&$form_state, $type) {
   module_load_include("inc",'content','includes/content.node_form');
   module_load_include("inc",'content','includes/content.admin');
+  module_load_include('inc', 'node', 'node.pages');
   $form = drupal_retrieve_form('content_field_overview_form', $form_state, $type->type);
 
   $node = new Stdclass;
   $node->type = $type->type;
   $node->name = '';
+  
   $node_form = drupal_retrieve_form(str_replace('-','_',$type->type).'_node_form', $form_state, $node);
   drupal_prepare_form('node_form', $node_form, $form_state);
 
