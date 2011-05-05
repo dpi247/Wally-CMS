@@ -174,7 +174,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'view':
       if(($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)
+        $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)//DoNotPopulate is for wallyedit preview, since we give it a node already populated
         wallycontenttypes_packagepopulate($node, $op);
       break;
       
