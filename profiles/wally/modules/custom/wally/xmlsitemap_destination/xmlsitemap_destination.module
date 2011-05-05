@@ -61,8 +61,9 @@ function xmlsitemap_destination_uri($node) {
 function xmlsitemap_destination_cron() {
   $return = array();
   $return[] = 'Start : '.date('Y-m-d H:i:s', time());
-  xmlsitemap_destination_xmlsitemap_index_links(xmlsitemap_var('batch_limit'));
+  $processed = xmlsitemap_destination_xmlsitemap_index_links(xmlsitemap_var('batch_limit'));
   $return[] = 'Finish : '.date('Y-m-d H:i:s', time());
+  $return[] = $processed;
   print_r($return);
 }
 
@@ -71,11 +72,14 @@ function xmlsitemap_destination_cron() {
  */
 function xmlsitemap_destination_xmlsitemap_index_links($limit) {
   $tids = xmlsitemap_get_link_type_enabled_bundles('destination_term');
+  $nids_counts = 0;
   foreach($tids as $tid){
     $query = db_query_range("SELECT cfd.nid FROM {content_field_destinations} cfd LEFT JOIN {xmlsitemap} x ON x.type = 'destination_term' AND cfd.nid = x.id WHERE x.id IS NULL AND cfd.field_destinations_tid = '" . $tid . "' ORDER BY cfd.nid DESC", $tid, 0, $limit);
     $nids = xmlsitemap_db_fetch_col($query);
     xmlsitemap_destination_xmlsitemap_process_node_links($nids, $tid);
+    $nids_counts += count($nids);
   }
+  return 'Processed '.$nids_counts.' nodes over '.count($tids).' destinations.';
 }
 
 /**
