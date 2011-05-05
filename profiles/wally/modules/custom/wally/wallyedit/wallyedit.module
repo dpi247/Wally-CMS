@@ -188,7 +188,7 @@ function wallyedit_theme(){
       'template' => 'wallyedit-admin-display-overview-form',
       'arguments' => array('form'=>array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
-      'original hook' => 'content_field_overview_form',
+      //'original hook' => 'content_field_overview_form',
     ),
     'wallyedit_nopreview'=>array(
       'template' => 'wallyedit-nopreview',
