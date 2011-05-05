@@ -1709,7 +1709,7 @@ function wallyedit_action_info() {
 function wallyedit_node_operations(){
   $operations = array(
     'wallyedit_selector_action_batch' => array(
-      'label' => t('Add thoses nodes to the prenode'),
+      'label' => t('Add thoses nodes to the prenode (batch)'),
       'callback' => 'wallyedit_node_operations_selector_action',
   ),
   );
@@ -1717,6 +1717,7 @@ function wallyedit_node_operations(){
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
+  dsm('cool');
   $cache_name=$context['arguments'][0];
   $target=explode('/',$context['arguments'][1]);
   array_pop($target);
@@ -1733,6 +1734,15 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
   }
   wydit_clean_and_save_form_state($form_state);
    
+}
+/**
+ * Implementation of hook_views_api().
+ */
+function wallyedit_views_api() {
+  return array(
+    'api' => 2.0,
+    'path' => drupal_get_path('module', 'wallyedit') .'/views',
+  );
 }
 
 function wallyedit_selector_action($node, $context,$a,$b,$c) {

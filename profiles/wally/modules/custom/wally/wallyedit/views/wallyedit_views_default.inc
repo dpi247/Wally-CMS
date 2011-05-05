@@ -1,7 +1,7 @@
 <?php
 function wallyedit_views_default_views(){
 
-  $view = new view;
+$view = new view;
 $view->name = 'prenode_selectbox_vbo';
 $view->description = '';
 $view->tag = 'Allo to select node in the wallyedit interface';
