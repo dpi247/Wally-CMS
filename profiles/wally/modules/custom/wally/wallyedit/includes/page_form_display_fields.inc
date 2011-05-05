@@ -83,9 +83,10 @@ function wallyedit_form_display_fields_form (&$form_state, $type) {
           $hits++;
       }
       if ($fields[$field]['type']['multiple'] == 0 && $hits == 1) {
-        $form[$field]["wallyedit"]["#options"]=array_merge($form[$field]["wallyedit"]["#options"],array(2=>t('Inline'),3=>t('Select box')));
+        $form[$field]["wallyedit"]["#options"][2]=t('Inline');
+        $form[$field]["wallyedit"]["#options"][3]=t('Select box');
       } else {
-        $form[$field]["wallyedit"]["#options"]=array_merge($form[$field]["wallyedit"]["#options"],array(3=>t('Select box')));
+        $form[$field]["wallyedit"]["#options"][3]=t('Select box');
       }
     }
     if(isset($fields[$field]['display_settings']['wallyedit'])) {
