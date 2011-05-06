@@ -314,7 +314,9 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $field = content_fields($field_name, $type['type']);
 
   
-  
+  dsm($type);
+  dsm($type_name_url);
+  dsm($field,field);
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
     // Invalid request.
     drupal_json(array('data' => ''));
@@ -366,10 +368,15 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   
   $q=$_GET['q'];
   $path=array_slice(explode('/',$q),4);
+  $path=array_merge(array($type_name_url),$path);
+  dsm($form);
+  dsm($path);
+  
   $form_element=$form;
   foreach($path as $path_item){
     $form_element=$form_element[$path_item];
   }
+  dsm($form_element);
   $parents=$form_element['#parents'];
   
   $form_state_ref=$form_state['values'];
