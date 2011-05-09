@@ -101,6 +101,7 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	$options  = &$vars['options'];
 	$item     = &$vars['row'];
 	$presetname='rsspublish_preset';
+	$presetname_thumb='rsspublish_thumb_preset';
 
 
 	$nid= $item->nid;
@@ -138,10 +139,13 @@ function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
 	if (!empty($imainstory)){
 	  $file_img = theme('imagecache', $presetname,  $imainstory);
 	  $path_photo = imagecache_create_url($presetname, $imainstory);
+	  $path_photo_thumb = imagecache_create_url($presetname_thumb, $imainstory);
 	  $vars['url'] = $path_photo;
+	  $vars['url_thumb'] = $path_photo_thumb;
 	}
 	else{
 	  $vars['url'] = '';
+	  $vars['url_thumb'] = '';
 	}
 	
 	$vars['filesize'] = $filesize;
