@@ -24,7 +24,17 @@ if (!imagecache_preset_by_name('rsspublish_preset')) {
       $imagecacheaction->presetid = $imagecachepreset['presetid']; 
       $imagecacheaction->module = 'imagecache';
       $imagecacheaction->action = 'imagecache_scale';
-      $imagecacheaction->data = array('width' => '50%', 'height' => '50%', 'upscale' => true);
+      $imagecacheaction->data = array('width' => '640', 'height' => '400', 'upscale' => true);
+      $imagecacheaction->weight = 1;
+      drupal_write_record('imagecache_action', $imagecacheaction);
+    }
+if (!imagecache_preset_by_name('rsspublish_thumb_preset')) {
+      $imagecachepreset = imagecache_preset_save(array('presetname' => 'rsspublish_thumb_preset'));
+      $imagecacheaction = new stdClass ();
+      $imagecacheaction->presetid = $imagecachepreset['presetid']; 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale';
+      $imagecacheaction->data = array('width' => '300', 'height' => '150', 'upscale' => true);
       $imagecacheaction->weight = 1;
       drupal_write_record('imagecache_action', $imagecacheaction);
     }
@@ -34,6 +44,9 @@ function _wallyrsspublish_uninstall_presets() {
   // Deleting ImageCache presets
   // @see wallyct_photoobject_slider
   if (!imagecache_preset_by_name('rsspublish_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
+  }
+  if (!imagecache_preset_by_name('rsspublish_thumb_preset')) {
     imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
   }
 }
