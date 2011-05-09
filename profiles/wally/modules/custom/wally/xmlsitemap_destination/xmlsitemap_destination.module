@@ -114,8 +114,7 @@ function xmlsitemap_destination_taxonomy($op, $type, $array = NULL) {
  */
 function xmlsitemap_destination_nodeapi(stdClass &$node, $op, $a3 = NULL, $a4 = NULL) {
   if($op=='delete') {
-      xmlsitemap_link_delete('destination_term', $node->nid);
-      break;
+    xmlsitemap_link_delete('destination_term', $node->nid);
   }
 }
 /**
