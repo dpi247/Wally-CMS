@@ -417,7 +417,8 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
                       LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
                       WHERE dest.field_destinations_tid=%d
                       AND dest.field_destinations_target="%s"
-                      ORDER BY dest.field_destinations_time_rank ASC',$destination_tid,$target);
+                      ORDER BY dest.field_destinations_time_rank ASC
+                      LIMIT 0 , 50',$destination_tid,$target);
 
  // $form['rows']=array('#tree'=>true);
   $form=array("#tree"=>true);
@@ -487,10 +488,21 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
   $weights = array_keys($order_by_weight);
   $min_weight = min($weights);
   $max_weight = max($weights);
-  for($i=($max_weight-1); $i>=$min_weight; $i--) {
-    $new_time_rank[$order_by_weight[$i]['nid']] = max($order_by_weight[$i]['time_rank'], $order_by_weight[$i+1]['time_rank']+1);
-    $order_by_weight[$i]['time_rank'] = $new_time_rank[$order_by_weight[$i]['nid']];
-    db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'", $new_time_rank[$order_by_weight[$i]['nid']], $order_by_weight[$i]['nid'], $form_state['values']['destination_tid'], $form_state['values']['target']);
+  for($i=$max_weight; $i>=$min_weight; $i--) {
+    $elem_nid = $order_by_weight[$i]['nid'];
+    if (isset($order_by_weight[$i+1]) && isset($order_by_weight[$i-1])) {
+      // This is a middle element of the list
+      $avg_time_rank = (int)(($order_by_weight[$i+1]['time_rank'] + $order_by_weight[$i-1]['time_rank'])/2);
+      $new_time_rank[$elem_nid] = max($order_by_weight[$i+1]['time_rank'], $avg_time_rank);
+    } elseif (!isset($order_by_weight[$i-1])) {
+      // This is the most recent element of the list
+      $new_time_rank[$elem_nid] = max($order_by_weight[$i]['time_rank'], $order_by_weight[$i+1]['time_rank'] + 10);
+    } elseif (!isset($order_by_weight[$i+1])) {
+      // This is the oldest element of the list
+      $new_time_rank[$elem_nid] = min($order_by_weight[$i]['time_rank'], $order_by_weight[$i-1]['time_rank'] - 10);
+    }
+    $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
+    db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'", $new_time_rank[$elem_nid], $elem_nid, $form_state['values']['destination_tid'], $form_state['values']['target']);
   }
   //optionally set the redirect value in form_submit ...
 }
