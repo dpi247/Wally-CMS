@@ -76,8 +76,10 @@ function xmlsitemap_destination_xmlsitemap_index_links($limit) {
   foreach($tids as $tid){
     $query = db_query_range("SELECT cfd.nid FROM {content_field_destinations} cfd LEFT JOIN {xmlsitemap} x ON x.type = 'destination_term' AND cfd.nid = x.id WHERE x.id IS NULL AND cfd.field_destinations_tid = '" . $tid . "' ORDER BY cfd.nid DESC", $tid, 0, $limit);
     $nids = xmlsitemap_db_fetch_col($query);
-    xmlsitemap_destination_xmlsitemap_process_node_links($nids, $tid);
-    $nids_counts += count($nids);
+    if(!empty($nids)){
+      xmlsitemap_destination_xmlsitemap_process_node_links($nids, $tid);
+      $nids_counts += count($nids);  
+    }    
   }
   return 'Processed '.$nids_counts.' nodes over '.count($tids).' destinations.';
 }
@@ -89,12 +91,23 @@ function xmlsitemap_destination_xmlsitemap_index_links($limit) {
  *   An array of taxonomy term IDs.
  */
 function xmlsitemap_destination_xmlsitemap_process_node_links(array $nids, $tid) {
+  $placeholders = '%d' . str_repeat(', %d', count($nids) - 1);
+  $result = db_query(db_rewrite_sql("SELECT n.nid, n.type, n.language FROM {node} n WHERE n.nid IN (" . $placeholders . ")"), $nids);
+  while ($node_array = db_fetch_array($result)) {
+    $node = new Stdclass;    
+    $node->nid = $node_array['nid'];
+    $node->type = $node_array['type'];
+    $node->language = $node_array['language'];
+    $link = xmlsitemap_destination_create_link($node, $tid);
+    xmlsitemap_link_save($link);
+  }
+ /* Old version, copied from xmlsitemap_node.module, but uses too much ressources because of all the node_load
   foreach ($nids as $nid) {
     if ($node = node_load($nid, NULL, TRUE)) {
       $link = xmlsitemap_destination_create_link($node, $tid);
       xmlsitemap_link_save($link);
     }
-  }
+  }*/ 
 }
 
 /**
@@ -137,7 +150,7 @@ function xmlsitemap_destination_create_link(stdClass &$node, $tid) {
   $uri = xmlsitemap_entity_uri('destination_term', $node);
 
   $node->xmlsitemap += array(
-    'type' => 'node',
+    'type' => 'destination_term',
     'id' => $node->nid,
     'subtype' => $node->type,
     'status' => $settings['status'],
