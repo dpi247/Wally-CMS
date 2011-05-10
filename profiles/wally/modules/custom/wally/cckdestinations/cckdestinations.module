@@ -93,15 +93,8 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       }
       break;
     case 'presave':
-      foreach ($items as $delta => $item) {
-        if (strstr($item['rank'], 'DNC')) {
-          $items[$delta]['rank'] = substr($item['rank'], 3);
-        } else {
-          $ref_time = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
-          $items[$delta]['time_rank'] = $ref_time + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
-        }
-      }
-    break;
+      _cckdestinations_set_new_time_ranks($node, $items);
+      break;
   }
 }
 
@@ -364,6 +357,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
     '#type' => $field['widget']['type'],
     '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
   );
+  
   return $element;
 }
 
@@ -571,7 +565,7 @@ function theme_cckdestinations_formatter_time_rank($element = NULL) {
   if(empty($element['#item'])) {
     return '';
   }
-  
+
   $stuff = $element['#item'];
   $flds = array('time_rank');
   $sep = '';
@@ -663,4 +657,44 @@ function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']'
 
   $output = theme('table', $headers, $rows, array('class' => 'description'));
   return $output;
+}
+
+function _cckdestinations_set_new_time_ranks($node, &$items) {
+  $rank_limit = variable_get('cckdestinations_rank_limit', 10);
+  $view = views_get_view('default_destination_view');
+  $view->set_display('redacblock_1');
+  $view->set_items_per_page('2');
+  $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
+  
+  foreach ($items as $delta => $item) {
+    if (strstr($item['rank'], 'DNC')) {
+      $items[$delta]['rank'] = substr($item['rank'], 3);
+    } else {
+      // Set params for this destination
+      $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_behavior', 'top');
+      $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_reserved', 5);
+      $temp_time_rank = $pub_date;
+      // Get destination view results without the current node
+      $view->set_arguments(array($item['tid'], $node->nid));
+      
+      // Determination of the time rank following the behavior and the rank
+      if ($behavior == 'top' || ($item['rank'] < $reserved && $item['rank'] > 0)) {
+        $offset = ($item['rank'] < 2) ? 0 : ($item['rank'] - 1);
+        $view->set_offset($offset);
+        $view->execute();
+        $current_results = $view->result;
+        if ($item['rank'] == '0') {
+          $temp_time_rank = max($current_results[0]->node_data_field_destinations_field_destinations_time_rank + 10, $temp_time_rank);
+        } else {
+          $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
+        }
+      } elseif (($item['rank'] == 0 && $behavior == 'bottom') || $item['rank'] >= $reserved) {
+        $view->set_offset($reserved-1);
+        $view->execute();
+        $current_results = $view->result;
+        $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
+      }
+      $items[$delta]['time_rank'] = $temp_time_rank;
+    }
+  }
 }
