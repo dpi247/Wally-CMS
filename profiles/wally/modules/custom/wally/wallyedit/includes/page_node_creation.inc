@@ -23,11 +23,12 @@ function wallyedit_page_node_creation($type,$js=FALSE){
   }
   
   $form = ctools_build_form('wallyedit_form_page_createmode_form', $form_state);
-    
+  $form_prev = drupal_get_form('wydit_subform_global_preview_form', $form_state['cache name']);
+
   if($js){
     //AJAX rendering int the submit function   
   }
   else{
-    return theme('wallyedit_page_createmode',$form,$prenode);
+    return theme('wallyedit_page_createmode',$form,$prenode, $form_prev);
   }
 }

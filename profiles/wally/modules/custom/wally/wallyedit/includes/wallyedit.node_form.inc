@@ -314,9 +314,6 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $field = content_fields($field_name, $type['type']);
 
   
-  dsm($type);
-  dsm($type_name_url);
-  dsm($field,field);
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
     // Invalid request.
     drupal_json(array('data' => ''));
