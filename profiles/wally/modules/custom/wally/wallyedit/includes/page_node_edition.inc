@@ -20,11 +20,12 @@ function wallyedit_page_node_edition($prenode,$js=FALSE){
   
   }
   $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
-  
+  $form_prev = drupal_get_form('wydit_subform_global_preview_form', $form_state['cache name']);
+
   if($js){
     //AJAX rendering int the submit function   
   }
   else{
-    return theme('wallyedit_page_editmode',$form,$prenode);
+    return theme('wallyedit_page_editmode',$form,$prenode, $form_prev);
   }
 }
