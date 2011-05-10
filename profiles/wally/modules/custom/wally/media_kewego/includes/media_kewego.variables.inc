@@ -152,8 +152,8 @@ function media_kewego_variable_default($name = NULL) {
       'cron_time' => 10,
       'cron_limit' => 50,
       
-      // Array of the allowed URLs from which the videos may come.
-      'allowed_url' => array(),
+      // "textarea" of the allowed URLs from which the videos may come.
+      'allowed_url' => '',
     );
   }
 
