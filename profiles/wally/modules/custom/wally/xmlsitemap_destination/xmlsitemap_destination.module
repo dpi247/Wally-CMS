@@ -92,12 +92,14 @@ function xmlsitemap_destination_xmlsitemap_index_links($limit) {
  */
 function xmlsitemap_destination_xmlsitemap_process_node_links(array $nids, $tid) {
   $placeholders = '%d' . str_repeat(', %d', count($nids) - 1);
-  $result = db_query(db_rewrite_sql("SELECT n.nid, n.type, n.language FROM {node} n WHERE n.nid IN (" . $placeholders . ")"), $nids);
+  $result = db_query(db_rewrite_sql("SELECT n.nid, n.type, n.language, n.status, n.uid FROM {node} n WHERE n.nid IN (" . $placeholders . ")"), $nids);
   while ($node_array = db_fetch_array($result)) {
     $node = new Stdclass;    
     $node->nid = $node_array['nid'];
     $node->type = $node_array['type'];
     $node->language = $node_array['language'];
+    $node->status = $node_array['status'];
+    $node->uid = $node_array['uid'];
     $link = xmlsitemap_destination_create_link($node, $tid);
     xmlsitemap_link_save($link);
   }
