@@ -134,11 +134,11 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
   $node->language = $dom_element->getAttributeNode("Language")->value;
   
-  if(!$dom_element->hasAttribute("PackageLayout")){
-    wimprt_set_field_packagelayout($node,'Article',$log);
-  }
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
+  
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
+    $node->field_packagelayout[] = $tax_term[0]->tid;
 }
 
 /**
@@ -348,7 +348,6 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_destinations(&$node,$dom,$log) {
-
   if(variable_get('wallymport_debug',0) or true){
     $log['log'][]='process Destinations: '.$dom->nodeName;
   }
@@ -364,18 +363,21 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
 				// As we check the taxonomy full path and specify a vocabulary
 				// we can only have one result.
 				$result[$i]['tid']=$terms[0]->tid;
-
 				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
 				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
-
 				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
-        $result[$i]['time_rank']=strtotime($node->field_publicationdate[0]['value']) + ($result[$i]['rank'] * 60 * 60 * variable_get('cckdestinations_rank_delta_t', 1));
+				
+				$actual_dest = isset($node->field_destinations[$i]) ? $node->field_destinations[$i] : array('tid' => '', 'target' => '', 'layout' => '', 'rank' => '');
+				if ($result[$i]['tid'] == $actual_dest['tid'] && $result[$i]['target'] == $actual_dest['target'] && $result[$i]['layout'] == $actual_dest['layout'] && $result[$i]['rank'] == $actual_dest['rank']) {
+				  $result[$i]['rank'] = 'DNC'.$result[$i]['rank'];
+				  $result[$i]['time_rank'] = $actual_dest['time_rank'];
+				}
 			} else {
 				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
 			}
 		$i++;
 		}
-	
+
 		// If no destinations at all > Package can't be created.
 		if (count($result)) {
 			$node->field_destinations=$result;
@@ -636,7 +638,11 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
     $node->field_packagelayout[] = $tax_term[0]->tid;
   } else {
-		drupal_set_message('PackageLayout not found: '.$lid.', assuming new packagelayout.','error');
+    if ($tax_term = taxonomy_get_term_by_name('Article')) {
+      $node->field_packagelayout[] = $tax_term[0]->tid;
+    } else {
+		  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
+    }
   }
 }
 
@@ -1944,9 +1950,9 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 
 	$result = array("field_tags"=>array(), "field_free_tags"=>array());
 	
-	if(variable_get('wallymport_debug',0) or true){
+	if(variable_get('wallymport_debug',0) or true) {
 		$log['log'][]='process Taxonomy: '.$dom->nodeName;
-	  }
+	}
 
 	$freetagtaxonomy_vid=variable_get('wallymport_freetagtaxonomy',null);
 	$classifiedtagtaxonomy_vid=variable_get('wallymport_classifiedtagtaxonomy',null);
@@ -1979,7 +1985,7 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 			drupal_set_message('WARNING: No vocabulary tag found in taxonomy element. Skipping taxonomy process.','notice');
 		}
 	} else {
-		drupal_set_message('Free tagg / classified tags taxonomy vocabularies not set. See wally/settings.','error');
+		drupal_set_message('Free tag / classified tags taxonomy vocabularies not set. See wally/settings.','error');
 		return null;
 	}
 }
@@ -2003,7 +2009,6 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
  *   Nothing but modify $result
  */
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
-
 	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
 	$classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',null);
 	$taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', true));
