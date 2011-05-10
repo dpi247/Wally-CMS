@@ -7,12 +7,12 @@
 function cckdestinations_page_admin_form($form_state) {
   $form['cckdestinations_rank'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Rank settings'),
+    '#title' => t('Rank and behavior settings'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
   
-  $form['cckdestinations_rank']['cckdestinations_rank_delta_t'] = array(
+  /*$form['cckdestinations_rank']['cckdestinations_rank_delta_t'] = array(
     '#type' => 'textfield',
     '#title' => t('Time "between" two ranks'),
     '#description' => t('The step of time, in hours, that will be set between two rank.'),
@@ -20,17 +20,54 @@ function cckdestinations_page_admin_form($form_state) {
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
-  );
+  );*/
   
   $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
     '#type' => 'textfield',
-    '#title' => t('Maximum rank value'),
-    '#description' => t('The available ranks range will be from 1 to this limit, with step of 1.'),
+    '#title' => t('Global rank\'s range'),
     '#default_value' => variable_get('cckdestinations_rank_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+  
+  $all_voc = taxonomy_get_vocabularies();
+  foreach ($all_voc as $voc) {
+    if ($voc->name == 'Destination Path') {
+      $available_dests = taxonomy_get_tree($voc->vid);
+      break;
+    }
+  }
+  $behavior_options = array(
+    'top' => t('Top'),
+    'bottom' => t('Bottom'),
+  );
+
+  foreach ($available_dests as $destination) {
+    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid] = array(
+      '#type' => 'fieldset',
+      '#title' => $destination->name,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    
+    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid]['cckdestinations_destination_'.$destination->tid.'_behavior'] = array(
+      '#type' => 'select',
+      '#title' => t('Behavior'),
+      '#default_value' => variable_get('cckdestinations_destination_'.$destination->tid.'_behavior', 'top'),
+      '#options' => $behavior_options,
+    );
+    
+    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid]['cckdestinations_destination_'.$destination->tid.'_reserved'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Reserved positions'),
+      '#description' => t('Must be smaller than the global rank\'s range'),
+      '#default_value' => variable_get('cckdestinations_destination_'.$destination->tid.'_reserved', 5),
+      '#size' => 80,
+      '#maxlength' => 512,
+      '#required' => TRUE,
+    );
+  }
   
   $form['cckdestinations_layout'] = array(
     '#type' => 'fieldset',
@@ -52,15 +89,17 @@ function cckdestinations_page_admin_form($form_state) {
 /**
  * Validate function for the settings form.
  */
-function wallyexport_page_admin_form_validate($form, &$form_state) {
-  $delta_t = $form_state['values']['cckdestinations_rank_delta_t'];
-  if (!is_numeric($delta_t) || $delta_t <= 0) {
-    form_set_error('cckdestinations_rank_delta_t', t('The given time value must be a numeric value greater than 0.'));
-  }
+function cckdestinations_page_admin_form_validate($form, &$form_state) {
+  $values = $form_state['values'];
   
-  $rank_limit = $form_state['values']['cckdestinations_rank_limit'];
+  $rank_limit = $values['cckdestinations_rank_limit'];
   if (!is_numeric($rank_limit) || $rank_limit < 0) {
     form_set_error('cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 1.'));
+  }
+  
+  foreach ($values as $value_name => $value) {
+    if (strstr($value_name, '_reserved') && (!is_numeric($value) || $value < 0 || $value > $rank_limit))
+      form_set_error($value_name, t('The given value is not numeric or smaller than 0 or than global rank\'s range.'));
   }
 }
 
