@@ -85,6 +85,9 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
       }
     }
   } else {
+    $res = db_query("SHOW TABLES LIKE '%cache%'");
+    dpm($res);
+    
     $where = ($key == 'all') ? '' : 'WHERE `cid` LIKE "%%%s%%"';
     $list = db_query('SELECT * FROM {cache} '.$where.' ORDER BY `cid`', $key);
     
