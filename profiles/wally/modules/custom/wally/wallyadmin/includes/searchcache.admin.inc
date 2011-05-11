@@ -85,17 +85,32 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
       }
     }
   } else {
-    $where = ($key == 'all') ? '' : 'WHERE `cid` LIKE "%%%s%%"';
-    $list = db_query('SELECT * FROM {cache} '.$where.' ORDER BY `cid`', $key);
-    
-    while ($elem = db_fetch_array($list)) {
-      $expl_id = explode('-', $elem['cid']);
-      $form['blocks_cache'][$expl_id[0]] = array(
-        '#type' => 'checkbox',
-        '#title' => $expl_id[0],
-        '#default_value' => 0,
+    $form['#tree'] = TRUE;
+    $res = db_query("SHOW TABLES LIKE 'cache%'");
+    while($table = db_fetch_array($res)){
+      $table = array_values($table);
+      $form['blocks_cache'][$table[0]] = array(
+        '#type' => 'fieldset',
+        '#title' => $table[0],
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
       );
+      $where = ($key == 'all') ? '' : 'WHERE `cid` LIKE "%%%s%%"';
+      $list = db_query('SELECT * FROM {'.$table[0].'} '.$where.' ORDER BY `cid`', $key);
+      
+      while ($elem = db_fetch_array($list)) {
+        $expl_id = explode('-', $elem['cid']);
+        $form['blocks_cache'][$table[0]][$expl_id[0]] = array(
+          '#type' => 'checkbox',
+          '#title' => $expl_id[0],
+          '#default_value' => 0,
+        );
+      }
+      
     }
+    
+    
+    
   }
 
   if(!isset($form['blocks_cache']) || empty($form['blocks_cache'])){
@@ -116,9 +131,11 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
  * Validation for form for the delete selected cache admin page.
  */
 function del_cache_admin_form_validate($form, &$form_state) {
-  foreach ($form['blocks_cache'] as $name => $value) {
-    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
-      return;
+  foreach (element_children($form['blocks_cache']) as $table) {
+    foreach (element_children($form['blocks_cache'][$table]) as $value) {
+      if ($form['blocks_cache'][$table][$value]['#value'] == 1)
+        return;
+    }
   }
   form_set_error('blocks_cache', t('Select at least one block.'));
 }
@@ -127,10 +144,12 @@ function del_cache_admin_form_validate($form, &$form_state) {
  * Submit actions for form for the delete selected cache admin page.
  */
 function del_cache_admin_form_submit(&$form, &$form_state) {
-  foreach ($form['blocks_cache'] as $name => $value) {
-    if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
-      cache_clear_all($name, 'cache', TRUE);
-      drupal_set_message($name.' has been deleted.'); 
+  foreach (element_children($form['blocks_cache']) as $table) {
+    foreach (element_children($form['blocks_cache'][$table]) as $value) {
+      if ($form['blocks_cache'][$table][$value]['#value'] == 1) {
+        cache_clear_all($value, $table, TRUE);
+        drupal_set_message($value.' has been deleted from '.$table); 
+      }
     }
   }
   $form['#redirect'] = 'admin/wally/searchcache/';
