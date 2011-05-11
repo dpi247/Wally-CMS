@@ -249,6 +249,7 @@ function _wallyextra_rssmixread_content_type_edit_save(&$content, $form_state) {
     }
   }
 
+  ctools_include('export');
   ctools_export_crud_save('wallyextra_rssmixread_content', $content);
 }
 
@@ -330,7 +331,8 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->module = 'wallyextra';
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
-  $cached_feed = cache_get($cid);
+  $cached_feed = cache_get($cid, 'cache');//, 'rssmix');
+  
   if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
     //watchdog('RSS mix', 'Non existant cache, new feeds mixed. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
     $feed = _wallyextra_rssmix_setcache($settings);
@@ -522,7 +524,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
   
   if ($feed_xml && $feed_xml->data) {
     $dom = new DomDocument();
-    $dom = @DomDocument::LoadXML($feed_xml->data); 
+    $dom = DomDocument::LoadXML($feed_xml->data); 
     if ($dom) {
       $rss_tags = $dom->getElementsByTagName('rss');
       $media_namespace = $rss_tags->item(0) ? $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media') : 'http://search.yahoo.com/mrss/';
@@ -530,7 +532,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
       if ($channels->item(0)) {
         foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
           $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
-       
+          
           $feed_array[] = $temp_feed_array;
           if (sizeof($feed_array) >= $maxitem) break;
         }
@@ -602,7 +604,7 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  *   The array containing the differents items of the rssmix feed 
  * 	 which will be displayed.
  */
-function _wallyextra_rssmix_setcache($settings){
+function _wallyextra_rssmix_setcache($settings, $old_feed = array()){
   $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
@@ -611,6 +613,7 @@ function _wallyextra_rssmix_setcache($settings){
   $new_file_path .= '_'.date('Ymd', time());
   $override_theme = $settings['override_theme'];
   $feed = array();
+  
   if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
     $mix_schema = explode(',', $settings['own_schema']);
   } else {
@@ -621,12 +624,14 @@ function _wallyextra_rssmix_setcache($settings){
       $mix_schema = explode(',', $settings['mix_schema']);
     }
   }
+  
   $override_theme_text = $settings['override_theme_text'];
   $maxitem_global = $settings['maxitem_global'];
   $maxitem_byfeed = $settings['maxitem_byfeed'];
-  foreach ($rss_uris as $rss_uri) {
+  
+  foreach ($rss_uris as $rss_uri)
     $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
-  }
+  
   for ($i=0; $i<$maxitem_global; $i++) {
     $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
     $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
@@ -644,20 +649,19 @@ function _wallyextra_rssmix_setcache($settings){
   }
 
   $modif = FALSE;
-  $feeds_md5 = isset($settings['feeds_md5']) ? $settings['feeds_md5'] : array();
-  foreach ($feed as $feed_id => $feed_elem) {
-    $elem_package = $feed_elem['Package'];
-    $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['Package']['MainStory']['TextBody']['value']);
-    if (!isset($feeds_md5[$feed_id]) || $feeds_md5[$feed_id] != $elem_md5) {
+  for ($i=0; $i<sizeof($feed); $i++) {
+    $elem_package = $feed[$i]['Package'];
+    $feed[$i]['feed_md5'] = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
+    if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5']))
       $modif = TRUE;
-      $feeds_md5[$feed_id] = $elem_md5;
-    }
   }
+  
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);
-    cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);
+    cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);//, NULL, 'rssmix');
     $settings['content']->settings['feeds_md5'] = $feeds_md5;
+    ctools_include('export');
     ctools_export_crud_save('wallyextra_rssmixread_content', $settings['content']);
   }
   

@@ -20,12 +20,6 @@ function search_cache_admin_form(&$form_state) {
     '#description' => t('If no text is given, all caches will be displayed.'),
   );
   
-  $form['search_subtable'] = array(
-    '#title' => t('Subtable'),
-    '#type' => 'textfield',
-    '#description' => t('If no subtable is given, all subtables will be displayed.'),
-  );
-  
   $form['search_submit'] = array(
     '#type' => 'submit',
     '#value' => 'Submit'
@@ -42,9 +36,9 @@ function search_cache_admin_form_submit(&$form, &$form_state) {
 /**
  * HTML code for the delete selected cache elements admin page.
  */
-function del_cache_admin($key, $subtable = '') {
+function del_cache_admin($key) {
   $return = '';
-  $return .= drupal_get_form('del_cache_admin_form', $key, $subtable);
+  $return .= drupal_get_form('del_cache_admin_form', $key);
   
   return $return;
 }
@@ -52,34 +46,45 @@ function del_cache_admin($key, $subtable = '') {
 /**
  * Form for the delete selected cache elements admin page.
  */
-function del_cache_admin_form(&$form_state, $key, $subtable = '') {
-  if (module_exists('wallymemcache')) {
-    if ($subtable != '') {
-      $cache_elems[$subtable] = dwallymemcache_get_subtable_keys_from_keys_index($subtable);
-    } else {
-      $cache_elems = dwallymemcache_get_keys_index();
+function del_cache_admin_form(&$form_state, $key) {
+  if (class_exists('Memcached') || class_exists('Memcache')) {
+    $cache_elems = array();
+    $res = db_query("SHOW TABLES LIKE 'cache%'");
+    
+    while ($one_res = db_fetch_array($res)) {
+      $val_res = array_values($one_res);
+      $cache_elems[$val_res[0]] = dwallymemcache_get_keys_index($val_res[0]);
     }
     
-    if ($cache_elems && !empty($cache_elems)) {
-      foreach ($cache_elems as $subtable_name => $subtable_elems) {
-        if ($subtable_elems && !empty($subtable_elems)) {
-          foreach ($subtable_elems as $elem_key => $elem_fullkey) {
-            if (strstr($elem_key, $key)) {
-              $expl_id = explode('-', $elem_key);
-              $form['blocks_cache'][$subtable_name][$expl_id[0]] = array(
-                '#type' => 'checkbox',
-                '#title' => $expl_id[0],
-                '#default_value' => 0,
-              );
+    if (!empty($cache_elems)) {
+      foreach ($cache_elems as $cache_table => $subtables) {
+        if (!empty($subtables)) {
+          foreach ($subtables as $subtable => $cached_keys) {
+            if (!empty($cached_keys)) {
+              foreach ($cached_keys as $cached_key => $cached_fullkey) {
+                if (strstr($cached_key, $key)) {
+                  $form['blocks_cache'][$cache_table][$subtable][$cached_key] = array(
+                    '#type' => 'checkbox',
+                    '#title' => '<a href="/admin/wally/searchcache/viewkey/'.rawurlencode($cached_key).'">'.$cached_fullkey.'</a>',
+                    '#default_value' => 0,
+                  );
+                }
+              }
+              
+              if (isset($form['blocks_cache'][$cache_table][$subtable])) {
+                $form['blocks_cache'][$cache_table][$subtable]['#type'] = 'fieldset';
+                $form['blocks_cache'][$cache_table][$subtable]['#title'] = $subtable;
+                $form['blocks_cache'][$cache_table][$subtable]['#collapsible'] = TRUE;
+                $form['blocks_cache'][$cache_table][$subtable]['#collapsed'] = TRUE;
+              }
             }
           }
           
-          if (isset($form['blocks_cache'][$subtable_name])) {
-            $form['blocks_cache'][$subtable_name] = array(
-              '#title' => $subtable_name,
-              '#collapsible' => TRUE,
-              '#collapsed' => FALSE,
-            );
+          if (isset($form['blocks_cache'][$cache_table])) {
+            $form['blocks_cache'][$cache_table]['#type'] = 'fieldset';
+            $form['blocks_cache'][$cache_table]['#title'] = $cache_table;
+            $form['blocks_cache'][$cache_table]['#collapsible'] = TRUE;
+            $form['blocks_cache'][$cache_table]['#collapsed'] = TRUE;
           }
         }
       }
@@ -119,6 +124,12 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
     '#title' => t('Delete selected cache'),
     '#value' => t('Delete selected cache'),
   );
+  
+  $form['back'] = array(
+    '#type' => 'submit',
+    '#title' => t('Cancel'),
+    '#value' => t('Cancel'),
+  );
    
   return $form;
 }
@@ -127,12 +138,17 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
  * Validation for form for the delete selected cache admin page.
  */
 function del_cache_admin_form_validate($form, &$form_state) {
-  foreach (element_children($form['blocks_cache']) as $table) {
-    foreach (element_children($form['blocks_cache'][$table]) as $value) {
-      if ($form['blocks_cache'][$table][$value]['#value'] == 1)
+  if ($form_state['clicked_button']['#parents'][0] == 'back')
+    return;
+  
+  $values = $form_state['values'];
+  if (is_array($values)) {
+    foreach ($values as $value) {
+      if ($value == 1)
         return;
     }
   }
+  
   form_set_error('blocks_cache', t('Select at least one block.'));
 }
 
@@ -140,13 +156,38 @@ function del_cache_admin_form_validate($form, &$form_state) {
  * Submit actions for form for the delete selected cache admin page.
  */
 function del_cache_admin_form_submit(&$form, &$form_state) {
-  foreach (element_children($form['blocks_cache']) as $table) {
-    foreach (element_children($form['blocks_cache'][$table]) as $value) {
-      if ($form['blocks_cache'][$table][$value]['#value'] == 1) {
-        cache_clear_all($value, $table, TRUE);
-        drupal_set_message($value.' has been deleted from '.$table); 
+  if ($form_state['clicked_button']['#parents'][0] == 'submit') {
+    if (class_exists('Memcached') || class_exists('Memcache')) {
+      foreach (element_children($form['blocks_cache']) as $cache_table) {
+        foreach (element_children($form['blocks_cache'][$cache_table]) as $subtable) {
+          foreach (element_children($form['blocks_cache'][$cache_table][$subtable]) as $name) {
+            if ($form['blocks_cache'][$cache_table][$subtable][$name]['#value'] == 1) {
+              if (dwallymemcache_delete($name, $cache_table, FALSE, $subtable)) {
+                drupal_set_message($name.' has been deleted from '.$cache_table);
+              } else {
+                drupal_set_message($name.' has not been deleted.', 'warning');
+              }
+            }
+          }
+        }
+      }
+    } else {
+      foreach (element_children($form['blocks_cache']) as $table) {
+        foreach (element_children($form['blocks_cache'][$table]) as $value) {
+          if ($form['blocks_cache'][$table][$value]['#value'] == 1) {
+            cache_clear_all($value, $table, TRUE);
+            drupal_set_message($value.' has been deleted from '.$table); 
+          }
+        }
       }
     }
   }
+  
   $form['#redirect'] = 'admin/wally/searchcache/';
+}
+
+function view_cache_admin($cache_id) {
+  $cached = cache_get($cache_id);
+  dsm($cached->data);
+  return '';
 }
