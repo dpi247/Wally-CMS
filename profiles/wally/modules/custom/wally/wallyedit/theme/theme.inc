@@ -4,14 +4,21 @@ function theme_wallyedit_admin($rows=array(),$headers){
   drupal_set_title("Wallyedit Admin");
 
   foreach($rows as $row){
-    $collumn[]=array('data'=>$row['sid']);
-    $collumn[]=array('data'=>$row['name']);
+    $data = array();
+    foreach($row as $elem){
+      $data[] = $elem;
+    }
+    $collumn = array('data'=> $data);
+/*    $collumn[]=array('data'=>$row['name']);
     $collumn[]=array('data'=>$row['data'][$row['data']['type']]['#node']->type);
-    $collumn[]=array('data'=>l('edit',$row['edit_action_url']));
-    $collumns[]=$collumn;
+    $collumn[]=array('data'=>l('edit',$row['edit_action_url']));*/
+    $collumns[] = $collumn;
   }
   
   $output=theme('table',$headers, $collumns);
+  $output.= theme('pager');
+  
+  //print theme('page', $output);
   return $output;
 }
 

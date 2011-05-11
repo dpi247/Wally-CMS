@@ -17,15 +17,15 @@ include_once 'includes/Prenode.inc';
  */
 function wallyedit_menu(){
   $items = array();
-  /*'admin/content/wallyedit'=>array(
-   'page callback'=>'wallyedit_page_admin',
-   'access arguments' => array('administer nodes'),
-   'file'=>'includes/page_admin.inc',
-   //'file path'=>'includes/',
-   'title'=> 'WallyEdit Admin',
-   'Description'=> 'Manage Node Edition',
-   ),*/
-
+  $items['admin/content/wallyedit'] = array(
+    'page callback'=>'drupal_get_form',
+    'page arguments' => array('wallyedit_page_admin_form',),
+    'access arguments' => array('administer nodes'),
+    'file'=>'includes/page_admin.inc',
+    //'file path'=>'includes/',
+    'title'=> 'WallyEdit Admin',
+    'Description'=> 'Manage Node Edition',
+    );
   $items['admin/content/wallydisplayfields'] = array(
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer content types'),
@@ -80,6 +80,13 @@ function wallyedit_menu(){
     'file'=>'includes/page_node_edition.inc',
   //'file path'=>'includes/',
   );
+  $items['node/%prenode/delete2'] = array(
+    'page callback'=>'drupal_get_form',
+    'page arguments'=>array('wallyedit_prenode_delete_confirm', 1),
+    'access callback' => 'node_access',
+    'access arguments' => array('delete', 1),
+    'file'=>'includes/page_admin.inc',
+  );//!! For now users can only delete their own prenodes
   $items['node/add2/%/%ctools_js'] = array(
     'page callback'=>'wallyedit_page_node_creation',
     'page arguments'=>array(2),
@@ -776,6 +783,7 @@ function wydit_subform_global_preview_form(&$form_state, $cache_name = NULL){
       '#value' => t('Reload destinations list'),
       '#attributes'=>array('class' => 'ctools-use-ajax'),
   );
+  dpm($form);
   return $form;
 }
 
@@ -1699,6 +1707,9 @@ function wydit_get_url_action($action,$nid){
   switch ($action){
     case 'edit':
       return 'node/'.$nid.'/edit2/1';
+      break;
+    case 'delete':
+      return 'node/'.$nid.'/delete2';
       break;
   }
 }
