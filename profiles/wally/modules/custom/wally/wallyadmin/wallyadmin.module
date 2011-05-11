@@ -118,6 +118,14 @@ function wallyadmin_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/searchcache.admin.inc',
   );
+  $items['admin/wally/searchcache/viewkey/%'] = array(
+    'page callback' => 'view_cache_admin',
+    'page arguments' => array('view_cache_admin'),
+    'access arguments' => array('access administration pages'),
+    'page arguments' => array(4),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/searchcache.admin.inc',
+  );
   $items['admin/wally/searchvars'] = array(
     'title' => 'Search and export variables',
     'page callback' => 'search_vars_admin',

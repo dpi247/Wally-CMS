@@ -264,7 +264,7 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   
   $expl_filename = explode('.'.$format, $file);
   $expl_filename = explode('/', $expl_filename[0]);
-
+  
   $object_file = new stdClass();
   $object_file->name = $expl_filename[sizeof($expl_filename)-1];
   $object_file->filename = $file;
