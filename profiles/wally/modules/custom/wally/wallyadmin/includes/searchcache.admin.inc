@@ -106,7 +106,6 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
           '#default_value' => 0,
         );
       }
-      
     }
   }
 
