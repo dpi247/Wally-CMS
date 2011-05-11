@@ -522,16 +522,18 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
   
   if ($feed_xml && $feed_xml->data) {
     $dom = new DomDocument();
-    $dom->LoadXML($feed_xml->data);
-    $rss_tags = $dom->getElementsByTagName('rss');
-    $media_namespace = $rss_tags->item(0) ? $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media') : 'http://search.yahoo.com/mrss/';
-    $channels = $dom->getElementsByTagName('channel');
-    if ($channels->item(0)) {
-      foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-        $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
-     
-        $feed_array[] = $temp_feed_array;
-        if (sizeof($feed_array) >= $maxitem) break;
+    $dom = @DomDocument::LoadXML($feed_xml->data); 
+    if ($dom) {
+      $rss_tags = $dom->getElementsByTagName('rss');
+      $media_namespace = $rss_tags->item(0) ? $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media') : 'http://search.yahoo.com/mrss/';
+      $channels = $dom->getElementsByTagName('channel');
+      if ($channels->item(0)) {
+        foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
+          $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
+       
+          $feed_array[] = $temp_feed_array;
+          if (sizeof($feed_array) >= $maxitem) break;
+        }
       }
     }
   }
