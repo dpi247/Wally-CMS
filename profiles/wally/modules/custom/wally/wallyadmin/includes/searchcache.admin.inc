@@ -108,9 +108,6 @@ function del_cache_admin_form(&$form_state, $key, $subtable = '') {
       }
       
     }
-    
-    
-    
   }
 
   if(!isset($form['blocks_cache']) || empty($form['blocks_cache'])){
