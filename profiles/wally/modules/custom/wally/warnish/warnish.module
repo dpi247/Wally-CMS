@@ -32,7 +32,7 @@ function warnish_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('warnish_admin_settings_form'),
     'access arguments' => array('administer warnish'),
-    'file' => 'warnish.admin.inc',
+    'file' => 'includes/warnish.admin.inc',
   );
   
   $items['admin/wally/warnish/general'] = array(
@@ -47,7 +47,7 @@ function warnish_menu() {
     'description' => 'Get the output of warnishstat.',
     'page callback' => 'warnish_admin_reports_page',
     'access arguments' => array('administer warnish'),
-    'file' => 'warnish.admin.inc',
+    'file' => 'includes/warnish.admin.inc',
   );
 
   return $items;
