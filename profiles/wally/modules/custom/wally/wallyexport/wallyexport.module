@@ -30,11 +30,11 @@ function wallyexport_menu() {
 function wallyexport_export_packages($nids) {
   $return = array();
   
-  $files = file_scan_directory('', '.*\.zip$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+  /*$files = file_scan_directory('', '.*\.zip$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
   //drupal_system_listing('.*\.zip$', '', 'name', 0); Old scan dir function
   foreach ($files as $file) {
     file_delete($file->filename);
-  }
+  }*/
   
   foreach ($nids as $nid) {
     $package_object = node_load($nid);
