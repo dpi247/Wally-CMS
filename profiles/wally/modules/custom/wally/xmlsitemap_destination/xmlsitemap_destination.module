@@ -87,6 +87,8 @@ function xmlsitemap_destination_xmlsitemap_index_links($limit) {
 /**
  * Process taxonomy term sitemap links.
  *
+ * @param $nids
+ *   An array of node IDs.
  * @param $tids
  *   An array of taxonomy term IDs.
  */
@@ -136,7 +138,9 @@ function xmlsitemap_destination_nodeapi(stdClass &$node, $op, $a3 = NULL, $a4 = 
  * Create a sitemap link from a node included in a destination.
  *
  * @param $node
- *   A taxonomy term object.
+ *   A node object.
+ * @param $tid.
+ *   The term ID of the destination in which the node is.
  * @return
  *   An array representing a sitemap link.
  */
