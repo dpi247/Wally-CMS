@@ -783,7 +783,7 @@ function wydit_subform_global_preview_form(&$form_state, $cache_name = NULL){
       '#value' => t('Reload destinations list'),
       '#attributes'=>array('class' => 'ctools-use-ajax'),
   );
-  dpm($form);
+  
   return $form;
 }
 
