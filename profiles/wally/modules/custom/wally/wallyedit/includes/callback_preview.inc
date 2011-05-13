@@ -30,14 +30,16 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     foreach ($handlers as $handler) {
       if ($function = page_manager_get_renderer($handler)) {
         if ($info = $function($handler, $contexts, $args)) {
-          $test = TRUE;
+          //$test = TRUE;
           // Add my contexts
           $contexts = ctools_context_handler_get_handler_contexts($contexts, $handler);
 
+          
+          /*
           // Test.
           if ($test && !ctools_context_handler_select($handler, $contexts)) {
             return;
-          }
+          }*/
 
           if (isset($handler->handler)) {
             ctools_context_handler_pre_render($handler, $contexts, $args);
@@ -200,6 +202,8 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
         }
       }
     }
+    
+    //Following code should be useless, i only renders the view without the blocks around.
     $view = views_get_view('default_destination_view');
     $view->set_display('redacblock_1');
     module_load_include('inc', 'wallyctools', 'plugins/views/wallyctools_views_plugin_style_redacblock');
