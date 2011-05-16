@@ -31,42 +31,45 @@ function cckdestinations_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $all_voc = taxonomy_get_vocabularies();
-  foreach ($all_voc as $voc) {
-    if ($voc->name == 'Destination Path') {
-      $available_dests = taxonomy_get_tree($voc->vid);
-      break;
-    }
-  }
+  $hierarchies = wallyctools_get_hierarchies();
   $behavior_options = array(
     'top' => t('Top'),
     'bottom' => t('Bottom'),
   );
 
-  foreach ($available_dests as $destination) {
-    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid] = array(
+  foreach ($hierarchies as $tid => $hierarchy) {
+    $form['cckdestinations_rank']['cckdestinations_destination_'.$tid] = array(
       '#type' => 'fieldset',
-      '#title' => $destination->name,
+      '#title' => $hierarchy['term_name'],
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
     
-    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid]['cckdestinations_destination_'.$destination->tid.'_behavior'] = array(
-      '#type' => 'select',
-      '#title' => t('Behavior'),
-      '#default_value' => variable_get('cckdestinations_destination_'.$destination->tid.'_behavior', 'top'),
-      '#options' => $behavior_options,
-    );
-    
-    $form['cckdestinations_rank']['cckdestinations_destination_'.$destination->tid]['cckdestinations_destination_'.$destination->tid.'_reserved'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Reserved positions'),
-      '#description' => t('Must be smaller than the global rank\'s range'),
-      '#default_value' => variable_get('cckdestinations_destination_'.$destination->tid.'_reserved', 5),
-      '#size' => 80,
-      '#maxlength' => 512,
-      '#required' => TRUE,
-    );
+    foreach ($hierarchy['redacblocks'] as $redacblock) {
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']] = array(
+        '#type' => 'fieldset',
+        '#title' => $redacblock['title'],
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior'] = array(
+        '#type' => 'select',
+        '#title' => t('Behavior'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior', 'top'),
+        '#options' => $behavior_options,
+      );
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_reserved'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Reserved positions'),
+        '#description' => t('Must be smaller than the global rank\'s range'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_reserved', 5),
+        '#size' => 80,
+        '#maxlength' => 512,
+        '#required' => TRUE,
+      );
+    }
   }
   
   $form['cckdestinations_layout'] = array(
