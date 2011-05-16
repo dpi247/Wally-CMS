@@ -671,24 +671,24 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
       $items[$delta]['rank'] = substr($item['rank'], 3);
     } else {
       // Set params for this destination
-      $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_behavior', 'top');
-      $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_reserved', 5);
+      $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_behavior', 'top');
+      $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_reserved', 5);
       $temp_time_rank = $pub_date;
       // Get destination view results without the current node
       $view->set_arguments(array($item['tid'], $node->nid));
       
       // Determination of the time rank following the behavior and the rank
-      if ($behavior == 'top' || ($item['rank'] < $reserved && $item['rank'] > 0)) {
-        $offset = ($item['rank'] < 2) ? 0 : ($item['rank'] - 1);
+      if ($behavior == 'top' || ($item['rank'] <= $reserved && $item['rank'] > 0)) {
+        $offset = ($item['rank'] < 3) ? 0 : ($item['rank'] - 2);
         $view->set_offset($offset);
         $view->execute();
         $current_results = $view->result;
-        if ($item['rank'] == '0') {
-          $temp_time_rank = max($current_results[0]->node_data_field_destinations_field_destinations_time_rank + 10, $temp_time_rank);
+        if ($item['rank'] == '0' || $item['rank'] == '1') {
+          $temp_time_rank = max($current_results[0]->node_data_field_destinations_field_destinations_time_rank + 30, $temp_time_rank);
         } else {
           $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
         }
-      } elseif (($item['rank'] == 0 && $behavior == 'bottom') || $item['rank'] >= $reserved) {
+      } elseif (($item['rank'] == 0 && $behavior == 'bottom') || $item['rank'] > $reserved) {
         $view->set_offset($reserved-1);
         $view->execute();
         $current_results = $view->result;
