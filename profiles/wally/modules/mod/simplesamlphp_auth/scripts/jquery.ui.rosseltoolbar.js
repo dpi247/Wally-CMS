@@ -1,5 +1,5 @@
 //app_path="http://pdf.lesoir.be/toolbar/module/";
-app_path="http://www.lesoir.be/modules/toolbar/module/";
+app_path="http://wally-dev.audaxis.com/profiles/wally/modules/mod/simplesamlphp_auth";
 var ross = (function($) {
 	
 	$.widget("ui.rosseltoolbar", {
@@ -14,10 +14,10 @@ var ross = (function($) {
 				el = self.element;
 			
 			// Get the content of the toolbar
-			$.getJSON("../toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
+			$.getJSON(app_path+"/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
 			
 				this.data = data;
-			   alert(data);
+			    
 				buildToolbar(el,data);
 
 				if ( $.browser.msie) {
