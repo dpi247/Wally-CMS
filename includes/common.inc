@@ -2170,7 +2170,7 @@ function drupal_add_js($data = NULL, $type = 'module', $scope = 'header', $defer
     if (empty($javascript)) {
       $javascript['header'] = array(
         'core' => array(
-          'misc/jquery.js' => array('cache' => TRUE, 'defer' => FALSE, 'preprocess' => TRUE),
+          'misc/jquery-1.4.2.js' => array('cache' => TRUE, 'defer' => FALSE, 'preprocess' => TRUE),
           'misc/drupal.js' => array('cache' => TRUE, 'defer' => FALSE, 'preprocess' => TRUE),
         ),
         'module' => array(),
