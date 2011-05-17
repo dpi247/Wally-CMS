@@ -17,7 +17,7 @@ var ross = (function($) {
 			$.getJSON("../toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
 			
 				this.data = data;
-			   
+			   alert(data);
 				buildToolbar(el,data);
 
 				if ( $.browser.msie) {
