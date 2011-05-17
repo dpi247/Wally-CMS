@@ -10,7 +10,7 @@ function simplesamlphp_auth_settings_form() {
   $form['simplesamlphp_auth_installdir'] = array(
 		'#type' => 'textfield',
 		'#title' => t('Instalation directory (default: /var/simplesamlphp)'),
-		'#default_value' => variable_get('simplesamlphp_auth_installdir', '/var/simplesamlphp'),
+		'#default_value' => variable_get('simplesamlphp_auth_installdir', '/usr/local/lib/ssolibs/simplesamlphp_1_4'),
 		'#description' => t('The base directory of simpleSAMLphp. Absolute path with no trailing slash.'),
   );
 
