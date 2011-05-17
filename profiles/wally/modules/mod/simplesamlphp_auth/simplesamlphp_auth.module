@@ -31,6 +31,19 @@ function simplesamlphp_auth_menu() {
 }
 
 /**
+ * Implementation of hook_theme()
+ */
+function simplesamlphp_auth_theme() {
+  return array(
+		'toolbar' => array(
+      'arguments' => array(),
+      'template' => 'toolbar',
+      'path' => $path.'/templates',
+    ),
+  );
+}
+
+/**
  * Implementation of hook_init().
  */
 function simplesamlphp_auth_init() {
@@ -402,7 +415,7 @@ function _simplesamlphp_auth_generate_block_text() {
     $block_content .= '<p><a href="' . $initSSOurl . '">' . t('Federated login') . '</a></p>';
   }
 
-  return $block_content;
+  return theme('toolbar').$block_content;
 }
 
 function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) {
