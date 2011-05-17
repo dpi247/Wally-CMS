@@ -1,5 +1,5 @@
 <?php
-	$result = file_get_contents("http://www.lesoir.be/modules/toolbar/module/connectL.php");
+	$result = file_get_contents("connectL.php");
 	echo $result;
 ?>
 
