@@ -537,8 +537,7 @@ jQuery.extend({
 
 			// Use insertBefore instead of appendChild to circumvent an IE6 bug.
 			// This arises when a base node is used (#2709).
-			alert(script.text);
-			head.insertBefore( script, head.firstChild );	
+			head.insertBefore( script, head.firstChild );
 			head.removeChild( script );
 		}
 	},
@@ -4908,9 +4907,7 @@ jQuery.extend({
 	},
 
 	getJSON: function( url, data, callback ) {
-		var temp = jQuery.get(url, data, callback, "json");
-		alert(temp.responseText);
-		return temp;
+		return jQuery.get(url, data, callback, "json");
 	},
 
 	post: function( url, data, callback, type ) {
