@@ -4907,8 +4907,10 @@ jQuery.extend({
 		return jQuery.get(url, null, callback, "script");
 	},
 
-	getJSON: function( url, data, callback ) {alert("coucou");alert(url);
-		return jQuery.get(url, data, callback, "json");
+	getJSON: function( url, data, callback ) {
+		var temp = jQuery.get(url, data, callback, "json");
+		alert(temp);
+		return temp;
 	},
 
 	post: function( url, data, callback, type ) {
