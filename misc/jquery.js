@@ -4909,7 +4909,7 @@ jQuery.extend({
 
 	getJSON: function( url, data, callback ) {
 		var temp = jQuery.get(url, data, callback, "json");
-		alert(temp);
+		alert(temp.text);
 		return temp;
 	},
 
