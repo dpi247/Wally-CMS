@@ -4907,7 +4907,7 @@ jQuery.extend({
 		return jQuery.get(url, null, callback, "script");
 	},
 
-	getJSON: function( url, data, callback ) {
+	getJSON: function( url, data, callback ) {alert("coucou");alert(url);
 		return jQuery.get(url, data, callback, "json");
 	},
 
