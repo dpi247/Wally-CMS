@@ -21,6 +21,7 @@
 		$jsonData = array('items' => $items, 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
 	}
 	var_dump($jsonData);
+	exit;
 	echo $_GET['cbk']."(".json_encode($jsonData).")";
 	
 	function build_menu_items($url) {
