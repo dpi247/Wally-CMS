@@ -34,6 +34,8 @@ function simplesamlphp_auth_menu() {
  * Implementation of hook_theme()
  */
 function simplesamlphp_auth_theme() {
+  $path = drupal_get_path('module', 'simplesamlphp_auth');
+  
   return array(
 		'toolbar' => array(
       'arguments' => array(),
