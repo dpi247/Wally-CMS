@@ -18,7 +18,7 @@ initToolbar = function(){
 	$('#toolbar ul li:has(ul)').hover(function(){
 		$(this).children('ul').show();
 	}, function() {
-		$(this).children('ul').hide()
+		$(this).children('ul').hide();
 	});
 	$('#toolbar ul li:has(ul) a').bind('focus',function(){
 		$(this).siblings('ul').show();
@@ -29,10 +29,10 @@ initToolbar = function(){
 		$.get("/toolbar/module/getNews.php", { target: window.location.pathname }, function(data) {
 			// if there is data, filter it and render it out
 				if(data){
-					$('#encart-newsletter').html(data)
+					$('#encart-newsletter').html(data);
 				} else {
 					var errormsg = '<p>Error: could not load the page.</p>';
-					$('#encart-newsletter').html(errormsg)
+					$('#encart-newsletter').html(errormsg);
 				}
 				
 			});
@@ -75,7 +75,7 @@ initToolbar = function(){
 	});
 
 	
-}
+};
 
 openConnect = function() {
 	
@@ -97,7 +97,7 @@ openConnect = function() {
 			}
 		});
 	}
-}
+};
 
 
 openRegister = function(site,uid,mail,name) {
@@ -128,7 +128,7 @@ openRegister = function(site,uid,mail,name) {
 			comp();
 		//}
 	}
-}
+};
 
 
 buildDialog = function($dialog, data, id) {
@@ -141,7 +141,7 @@ buildDialog = function($dialog, data, id) {
 		});
 	$dialog.dialog('open');
 	return false;
-}
+};
 
 setDatePickerOnmbirth = function() {
 	if($("#mbirth").length > 0) {
@@ -161,7 +161,7 @@ setDatePickerOnmbirth = function() {
 	else {
 		setTimeout(setDatePickerOnmbirth,100);
 	}
-}
+};
 
 setAdr = function() {
 	
@@ -182,7 +182,7 @@ setAdr = function() {
 		sel.attributes['size'].value = 0;
 		document.getElementById("adrL").style.display = 'none';
 	}
-}
+};
 
 
 setC = function()  {
@@ -199,7 +199,7 @@ setC = function()  {
 			}
 		}
 	}
-}
+};
 
 
 setPays = function(zone) {
@@ -207,7 +207,7 @@ setPays = function(zone) {
 		function() { 
 		}						
 	);	
-}
+};
 
 
 coPr = function(login,password) {
@@ -262,7 +262,7 @@ coPr = function(login,password) {
 		//}
 	//});
 	return false;
-}
+};
 
 comp = function(pays) {
 	if(pays == "") {
@@ -313,7 +313,7 @@ comp = function(pays) {
 			}
 		});
 	}
-}
+};
 
 crPr = function(site) {
 	var data = new Object();
@@ -380,7 +380,7 @@ crPr = function(site) {
 	});
 	
 	return false;
-}
+};
 
 
 sNews = function() {
@@ -401,7 +401,7 @@ sNews = function() {
 					if(res == 'ok') document.getElementById("divtochange").innerHTML = '<br /><p style = "text-align: center;" class="message">Votre inscription a bien &eacute;t&eacute; enregistr&eacute;e. </p><a href="javascript:closeNews()" style="width:4em;color:white" class="btn-submit" />Fermer</a>';
 					else document.getElementById("divtochange").innerHTML = '<br /><p style = "text-align: center;" class="message">Un probl&egrave;me est survenue, veuillez r&eacute;essayer plus tard. </p><a href="javascript:closeNews()" style="width:4em;color:white" class="btn-submit" />Fermer</a>';
 				}
-			}
+			};
 			http.send(null);				
 			
 		}
@@ -414,10 +414,10 @@ sNews = function() {
 	//}
 	
 	return false;
-}
+};
 
 closeNews = function() {
 	
 	$("#encart-newsletter").animate({top:"-300px"}, 750); 
-}
+};
 }) (jQuery);
