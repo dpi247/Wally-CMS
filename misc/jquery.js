@@ -4907,10 +4907,7 @@ jQuery.extend({
 	},
 
 	getJSON: function( url, data, callback ) {
-		var temp = jQuery.get(url, data, callback, "json");
-		alert(temp);
-		alert(temp.responseXML);
-		return temp;
+		return jQuery.get(url, data, callback, "json");
 	},
 
 	post: function( url, data, callback, type ) {
