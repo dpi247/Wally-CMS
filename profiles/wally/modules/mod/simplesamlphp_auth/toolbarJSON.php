@@ -1,7 +1,5 @@
 <?php
 	session_start();
-	print 'ccouc';
-exit;
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/SSOToolbox.php');
   require_once('lib/sfYamlParser.php');
@@ -10,6 +8,8 @@ exit;
     'targetURL' => $target,
     'simplesamlphp_auth_installdir' => '/usr/local/lib/ssolibs/simplesamlphp_1_4',
   );
+  	print 'ccouc';
+exit;
 	$toolbox = new SSOToolbox($params);
 	$infoSSO = $toolbox->isAuthenticated($target);	
 
