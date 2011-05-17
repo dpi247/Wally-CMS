@@ -1,5 +1,5 @@
 //app_path="http://pdf.lesoir.be/toolbar/module/";
-var app_path="http://wally-dev.audaxis.com/profiles/wally/modules/mod/simplesamlphp_auth";
+var app_path="profiles/wally/modules/mod/simplesamlphp_auth";
 var ross = (function($) {
 	
 	$.widget("ui.rosseltoolbar", {
@@ -26,7 +26,6 @@ var ross = (function($) {
 					initToolbar();
 				}
 			});
-			alert('cocucu');
 		}
 	});
 
