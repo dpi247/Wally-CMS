@@ -113,7 +113,8 @@ openRegister = function(site,uid,mail,name) {
 		//JSON direct sample
 	   	$.get("/toolbar/reactions/proxy.php?action=openRegister&site="+site+"&uid="+uid+"&mail="+encodeURIComponent(mail)+"&name="+name, { target: window.location.pathname }, function(data) {
 		// if there is data, filter it and render it out
-			if(data) {
+			alert(idL);
+	   		if(data) {
 				$dialog=buildDialog($dialog, data,idL);
 			} else {
 				var errormsg = '<p>Error: could not load the page.</p>';
