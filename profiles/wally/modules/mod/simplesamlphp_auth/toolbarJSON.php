@@ -1,4 +1,5 @@
 <?php
+watchdog('debug', 'cocuou', null, WATCHDOG_INFO);
 	session_start();
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/SSOToolbox.php');
@@ -20,7 +21,6 @@
 		$items = build_menu_items('toolbar_nc.yaml');
 		$jsonData = array('items' => $items, 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
 	}
-	watchdog('debug', 'cocuou', null, WATCHDOG_INFO);
 
 	echo $_GET['cbk']."(".json_encode($jsonData).")";
 	
