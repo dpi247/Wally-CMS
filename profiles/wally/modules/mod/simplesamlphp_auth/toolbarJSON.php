@@ -1,5 +1,4 @@
 <?php
-watchdog('debug', 'cocuou', null, WATCHDOG_INFO);
 	session_start();
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/SSOToolbox.php');
