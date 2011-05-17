@@ -26,6 +26,7 @@ var ross = (function($) {
 					initToolbar();
 				}
 			});
+			alert('cocucu');
 		}
 	});
 
