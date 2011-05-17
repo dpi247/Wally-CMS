@@ -1,7 +1,7 @@
 <?php
-print 'ccouc';
-exit;
 	session_start();
+	print 'ccouc';
+exit;
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/SSOToolbox.php');
   require_once('lib/sfYamlParser.php');
