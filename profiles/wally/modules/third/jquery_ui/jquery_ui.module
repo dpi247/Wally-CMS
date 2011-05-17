@@ -48,7 +48,7 @@ function jquery_ui_add($files = array()) {
   // If core hasn't been added yet, add it.
   if (!isset($ui_core)) {
     $ui_core = TRUE;
-    jquery_ui_add(array('ui.core'));
+    jquery_ui_add(array('jquery.ui.core'));
   }
 
   // Loop through list of files to include and add them to the page.
