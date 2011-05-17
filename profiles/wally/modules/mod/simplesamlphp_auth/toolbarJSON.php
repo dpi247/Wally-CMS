@@ -2,8 +2,8 @@
 	session_start();
 	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/SSOToolbox.php');
-  	require_once('lib/sfYamlParser.php');
-  	$target = $_GET["target"];
+  require_once('lib/sfYamlParser.php');
+  $target = $_GET["target"];
 	$toolbox = new SSOToolbox(array('targetUrl'=>$target));
 	$infoSSO = $toolbox->isAuthenticated($target);	
 
