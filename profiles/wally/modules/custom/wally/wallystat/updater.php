@@ -7,7 +7,7 @@ if(isset($_GET['nid']) && is_numeric($_GET['nid'])){
 	//Ceci n'est pas encore utilisé dans la v1... le but est de créer les trending topics.
 	if(isset($_GET['terms'])){
 		//ON s'assure que tous les termes ici sont bien des id numériques et on recrée $safe_terms avec les valeurs vérifiées.
-		$term_array = explode('+', $_GET['terms']);
+		$term_array = explode(' ', $_GET['terms']);
 		if(is_array($term_array)){
 			$safe_terms = array();
 			foreach ($term_array as $term){
@@ -15,7 +15,7 @@ if(isset($_GET['nid']) && is_numeric($_GET['nid'])){
 					$safe_terms[] = $term; 
 				}
 			}
-			 $terms = implode('+',$safe_terms);
+			 $terms = implode(' ',$safe_terms);
 		}
 	}
 	

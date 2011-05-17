@@ -1,34 +1,118 @@
 <?php 
+/**
+ * Implementation of hook_views_api().
+ */
+function wallystat_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'wallystat') .'/views',
+  );
+}
+
+function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
+  if(!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
+    return FALSE;
+  
+  $placeholder = array();
+  if(date('z' ,$current_tstamp) != date('z' ,$last_tstamp))
+    $placeholder[] = 'daycount = 0';
+  
+  if(date('W' ,$current_tstamp) != date('W' ,$last_tstamp))
+    $placeholder[] = 'weekcount = 0';
+  
+  if(date('m' ,$current_tstamp) != date('m' ,$last_tstamp))
+    $placeholder[] = 'monthcount = 0';
+  
+  if(date('Y' ,$current_tstamp) != date('Y' ,$last_tstamp))
+    $placeholder[] = 'yearcount = 0';
+  
+  if(!empty($placeholder)){
+    return implode(', ',$placeholder);
+  }else{
+    return FALSE;
+  }
+}
 
 function wallystat_cron(){
 
 	$current_tstamp = time();
-
-	$query = "SELECT nid, COUNT(nid) as nodecount FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp." GROUP BY nid";
+  echo('Started : '.date('Y-m-d H:i:s', $current_tstamp).'<br/>');
+  
+  $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_node_counter} ORDER BY timestamp DESC", 0, 1));
+  if($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
+    db_query('UPDATE {wallystat_node_counter} SET '.$placeholder);
+    echo($placeholder.' for wallystat_node_counter <br/>');
+  }
+  
+  $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_term_counter} ORDER BY timestamp DESC", 0, 1));
+  if($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
+    db_query('UPDATE {wallystat_term_counter} SET '.$placeholder);
+    echo($placeholder.' for wallystat_term_counter <br/>');
+  }
+  
+	$query = "SELECT nid, terms FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp;
 	$result = db_query($query);
+  $node_counts = array();
+  $term_counts = array();
 	while ($row = db_fetch_object($result)){
-		echo $row->nid." - ".$row->nodecount."<br/>";	
-		db_query('UPDATE {node_counter} SET daycount = daycount + '.$row->nodecount.', totalcount = totalcount + '.$row->nodecount.', timestamp = '.$current_tstamp.' WHERE nid = '.$row->nid);
-		if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-			db_query('INSERT INTO {node_counter} (nid, daycount, totalcount, timestamp) VALUES ('.$row->nid.', '.$row->nodecount.', '.$row->nodecount.', '.$current_tstamp.')');
-		}
+    $node_counts[$row->nid] += 1;
+    $term_array = explode(' ', $row->terms);
+    if(is_array($term_array)){
+      foreach($term_array as $term){
+        $term_counts[$term] += 1;
+      }
+    }
+    
+		//echo $row->nid." - ".$row->terms."<br/>";	
+		//db_query('UPDATE {wallystat_node_counter} SET daycount = daycount + '.$row->nodecount.', totalcount = totalcount + '.$row->nodecount.', timestamp = '.$current_tstamp.' WHERE nid = '.$row->nid);
+		//if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
+		//	db_query('INSERT INTO {wallystat_node_counter} (nid, daycount, totalcount, timestamp) VALUES ('.$row->nid.', '.$row->nodecount.', '.$row->nodecount.', '.$current_tstamp.')');
+		//}
 	}
-	
+	foreach($node_counts as $nid=>$node_count){
+    db_query('UPDATE {wallystat_node_counter} SET daycount = daycount + '.$node_count.', weekcount = weekcount + '.$node_count.', monthcount = monthcount + '.$node_count.', yearcount = yearcount + '.$node_count.', totalcount = totalcount + '.$node_count.', timestamp = '.$current_tstamp.' WHERE nid = '.$nid);
+		if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
+			db_query('INSERT INTO {wallystat_node_counter} (nid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES ('.$nid.', '.$node_count.', '.$node_count.', '.$node_count.', '.$node_count.', '.$node_count.', '.$current_tstamp.')');
+		}
+  }
+  echo(count($node_counts).' nodes processed for a total of '.array_sum($node_counts).' views <br/>');
+  
+  foreach($term_counts as $tid=>$term_count){
+    db_query('UPDATE {wallystat_term_counter} SET daycount = daycount + '.$term_count.', weekcount = weekcount + '.$term_count.', monthcount = monthcount + '.$term_count.', yearcount = yearcount + '.$term_count.', totalcount = totalcount + '.$term_count.', timestamp = '.$current_tstamp.' WHERE tid = '.$tid);
+    if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
+			db_query('INSERT INTO {wallystat_term_counter} (tid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES ('.$tid.', '.$term_count.', '.$term_count.', '.$term_count.', '.$term_count.', '.$term_count.', '.$current_tstamp.')');
+		}
+  }
+  echo(count($term_counts).' terms processed for a total of '.array_sum($term_counts).' views <br/>');
+  
 	$query = "DELETE FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp;
 	$result = db_query($query);
+
+  echo('Finished : '.date('Y-m-d H:i:s', time()).'<br/>');
 }
 
 function wallystat_preprocess_page(&$vars){
-
 	if(isset($vars['node'])){
 		$current_id = $vars['node']->nid;
+    $current_terms = '';
+    if(isset($vars['node']->field_destinations) && is_array($vars['node']->field_destinations)){
+      foreach($vars['node']->field_destinations as $dest){
+        $current_terms .= $dest['tid'].'+';
+      }
+    }
+    $query = "SELECT tid FROM {term_node} WHERE nid = ".$current_id;
+    $result = db_query($query);
+    while ($row = db_fetch_array($result)){
+      $current_terms .= $row['tid'].'+';
+    }
+    $current_terms = trim($current_terms, '+');
 		drupal_add_js("$(document).ready(function(){
     									updateStats();
 									});
 									
 									function updateStats(){
 										$.ajax({
-                						      url: \""."/".drupal_get_path('module', 'wallystat')."/updater.php?nid=".$current_id."\",
+                						      url: \""."/".drupal_get_path('module', 'wallystat')."/updater.php?nid=".$current_id."&terms=".$current_terms."\",
                 						      cache: false,
                 						      async: false
                 						    })

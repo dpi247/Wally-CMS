@@ -33,5 +33,201 @@ function wallystat_schema() {
       ),
     ),
   );
+  
+  $schema['wallystat_node_counter'] = array(
+    'description' => 'Contains stats for node views',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node ID',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'totalcount' => array(
+        'type' => 'int',
+        'description' => 'Total view count',
+        'not null' => TRUE,
+      ),
+      'daycount' => array(
+        'type' => 'int',
+        'description' => 'Today view count',
+        'not null' => TRUE,
+      ),
+      'weekcount' => array(
+        'type' => 'int',
+        'description' => 'This week view count',
+        'not null' => TRUE,
+      ),
+      'monthcount' => array(
+        'type' => 'int',
+        'description' => 'This month view count',
+        'not null' => TRUE,
+      ),
+      'yearcount' => array(
+        'type' => 'int',
+        'description' => 'This year view count',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp when the node was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+    'primary key' => array('nid'),
+  );
+  
+  $schema['wallystat_term_counter'] = array(
+    'description' => 'Contains stats for node views',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'int',
+        'description' => 'Term ID',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'totalcount' => array(
+        'type' => 'int',
+        'description' => 'Total view count',
+        'not null' => TRUE,
+      ),
+      'daycount' => array(
+        'type' => 'int',
+        'description' => 'Today view count',
+        'not null' => TRUE,
+      ),
+      'weekcount' => array(
+        'type' => 'int',
+        'description' => 'This week view count',
+        'not null' => TRUE,
+      ),
+      'monthcount' => array(
+        'type' => 'int',
+        'description' => 'This month view count',
+        'not null' => TRUE,
+      ),
+      'yearcount' => array(
+        'type' => 'int',
+        'description' => 'This year view count',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp when the node was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'tid' => array('tid'),
+    ),
+    'primary key' => array('tid'),
+  );
+  
   return $schema;
+}
+
+function wallystat_update_6001() {
+  $schema = array();
+  $schema['wallystat_node_counter'] = array(
+    'description' => 'Contains stats for node views',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node ID',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'totalcount' => array(
+        'type' => 'int',
+        'description' => 'Total view count',
+        'not null' => TRUE,
+      ),
+      'daycount' => array(
+        'type' => 'int',
+        'description' => 'Today view count',
+        'not null' => TRUE,
+      ),
+      'weekcount' => array(
+        'type' => 'int',
+        'description' => 'This week view count',
+        'not null' => TRUE,
+      ),
+      'monthcount' => array(
+        'type' => 'int',
+        'description' => 'This month view count',
+        'not null' => TRUE,
+      ),
+      'yearcount' => array(
+        'type' => 'int',
+        'description' => 'This year view count',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp when the node was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+    'primary key' => array('nid'),
+  );
+  
+  $schema['wallystat_term_counter'] = array(
+    'description' => 'Contains stats for term views',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'int',
+        'description' => 'Term ID',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'totalcount' => array(
+        'type' => 'int',
+        'description' => 'Total view count',
+        'not null' => TRUE,
+      ),
+      'daycount' => array(
+        'type' => 'int',
+        'description' => 'Today view count',
+        'not null' => TRUE,
+      ),
+      'weekcount' => array(
+        'type' => 'int',
+        'description' => 'This week view count',
+        'not null' => TRUE,
+      ),
+      'monthcount' => array(
+        'type' => 'int',
+        'description' => 'This month view count',
+        'not null' => TRUE,
+      ),
+      'yearcount' => array(
+        'type' => 'int',
+        'description' => 'This year view count',
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp when the node was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'tid' => array('tid'),
+    ),
+    'primary key' => array('tid'),
+  );
+  $ret = array();
+  db_create_table($ret, 'wallystat_node_counter', $schema['wallystat_node_counter']);
+  db_create_table($ret, 'wallystat_term_counter', $schema['wallystat_term_counter']);
+  return $ret;
 }
