@@ -12,10 +12,10 @@ var ross = (function($) {
 			var self = this,
 				o = self.options,
 				el = self.element;
-			
+			alert("coucou");
 			// Get the content of the toolbar
 			$.getJSON(app_path+"/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
-				alert("coucou");
+				
 				this.data = data;
 			    
 				buildToolbar(el,data);
