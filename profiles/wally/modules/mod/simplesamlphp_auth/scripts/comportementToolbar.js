@@ -132,7 +132,6 @@ openRegister = function(site,uid,mail,name) {
 
 
 buildDialog = function($dialog, data, id) {
-	data = 'coucou';
 	$dialog = $('<div></div>').html(data)
 		.attr("id",id)
 		.dialog({
