@@ -89,7 +89,6 @@ openConnect = function() {
 		//JSON direct sample
 	   	$.get("http://wally-dev.audaxis.com/profiles/wally/modules/mod/simplesamlphp_auth/getConnect.php", { target: window.location.pathname }, function(data) {
 		// if there is data, filter it and render it out
-	   		alert(data);
 			if(data){
 				$dialog=buildDialog($dialog, data, idC);
 			} else {
@@ -133,7 +132,7 @@ openRegister = function(site,uid,mail,name) {
 
 
 buildDialog = function($dialog, data, id) {
-	
+	data = 'coucou';
 	$dialog = $('<div></div>').html(data)
 		.attr("id",id)
 		.dialog({
