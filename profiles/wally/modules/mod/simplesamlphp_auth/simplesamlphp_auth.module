@@ -416,8 +416,23 @@ function _simplesamlphp_auth_generate_block_text() {
   } else {
     $block_content .= '<p><a href="' . $initSSOurl . '">' . t('Federated login') . '</a></p>';
   }
+  
+  // Adding some js
+  $simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
+  $js_to_add = array('jquery.ui.widget', 'jquery.ui.datepicker');
+  
+  jquery_ui_add($js_to_add);
+  drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.datepicker-fr.js');
+  drupal_add_js($simplesamlphp_auth_path.'/scripts/comportementToolbar.js');
+  drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.rosseltoolbar.js');
+  
+  drupal_add_js('
+  	$(document).ready(function() {
+  		$("#rtb").rosseltoolbar();
+  	});
+  ', 'inline');
 
-  return theme('toolbar').$block_content;
+  return $block_content;
 }
 
 function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) {
