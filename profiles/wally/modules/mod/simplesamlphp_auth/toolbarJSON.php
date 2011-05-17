@@ -4,7 +4,11 @@
 	require_once('/usr/local/lib/ssolibs/ssoPhpToolbox/SSOToolbox.php');
   require_once('lib/sfYamlParser.php');
   $target = $_GET["target"];
-	$toolbox = new SSOToolbox(array('targetUrl'=>$target));
+  $params = array(
+    'targetURL' => $target,
+    'simplesamlphp_auth_installdir' => '/usr/local/lib/ssolibs/simplesamlphp_1_4',
+  );
+	$toolbox = new SSOToolbox($params);
 	$infoSSO = $toolbox->isAuthenticated($target);	
 
 	if (isset($infoSSO[0]) && $infoSSO[0]) {
