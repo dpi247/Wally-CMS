@@ -114,6 +114,7 @@ openRegister = function(site,uid,mail,name) {
 	   	$.get("/toolbar/reactions/proxy.php?action=openRegister&site="+site+"&uid="+uid+"&mail="+encodeURIComponent(mail)+"&name="+name, { target: window.location.pathname }, function(data) {
 		// if there is data, filter it and render it out
 			alert(idL);
+			alert('coucou');
 	   		if(data) {
 				$dialog=buildDialog($dialog, data,idL);
 			} else {
