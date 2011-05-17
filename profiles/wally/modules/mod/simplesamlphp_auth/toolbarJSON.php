@@ -20,7 +20,7 @@
 		$items = build_menu_items('toolbar_nc.yaml');
 		$jsonData = array('items' => $items, 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
 	}
-	print '<script type="text/javascript">alert("coucou");</script>';
+	print 'cocu';
 
 	echo $_GET['cbk']."(".json_encode($jsonData).")";
 	
