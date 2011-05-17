@@ -87,7 +87,7 @@ openConnect = function() {
 	else {
 		var $dialog;
 		//JSON direct sample
-	   	$.get("/toolbar/module/getConnect.php", { target: window.location.pathname }, function(data) {
+	   	$.get("getConnect.php", { target: window.location.pathname }, function(data) {
 		// if there is data, filter it and render it out
 			if(data){
 				$dialog=buildDialog($dialog, data, idC);
