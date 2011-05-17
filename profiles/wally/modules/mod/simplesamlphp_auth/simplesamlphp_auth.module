@@ -54,7 +54,7 @@ function simplesamlphp_auth_init() {
   global $saml_config;
 
   //get the simplesamlphp session
-  $basedir = variable_get('simplesamlphp_auth_installdir', '/var/www/php/ssoLibs/simplesamlphp_1_4');
+  $basedir = variable_get('simplesamlphp_auth_installdir', '/usr/local/lib/ssolibs/simplesamlphp_1_4');
   require_once($basedir . '/www/_include.php');
   /* Load simpleSAMLphp, configuration and metadata */
   $saml_config = SimpleSAML_Configuration::getInstance();
