@@ -432,7 +432,7 @@ function _simplesamlphp_auth_generate_block_text() {
   	});
   ', 'inline');
 
-  return $block_content;
+  return theme('toolbar').$block_content;
 }
 
 function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) {
