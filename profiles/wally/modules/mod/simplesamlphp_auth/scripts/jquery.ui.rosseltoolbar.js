@@ -15,7 +15,6 @@ var ross = (function($) {
 			
 			// Get the content of the toolbar
 			$.getJSON(app_path+"/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
-				alert("cocuoc");
 				this.data = data;
 			    
 				buildToolbar(el,data);
