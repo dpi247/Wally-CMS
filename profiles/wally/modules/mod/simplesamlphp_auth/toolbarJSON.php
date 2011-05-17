@@ -5,12 +5,11 @@
   require_once('lib/sfYamlParser.php');
   $target = $_GET["target"];
   $params = array(
-    'targetURL' => $target,
+    'targetUrl' => $target,
     'simplesamlphp_auth_installdir' => '/usr/local/lib/ssolibs/simplesamlphp_1_4',
   );
 
-	$toolbox = new SSOToolbox($params);print 'ccouc';
-exit;
+	$toolbox = new SSOToolbox($params);
 	$infoSSO = $toolbox->isAuthenticated($target);	
   
 	if (isset($infoSSO[0]) && $infoSSO[0]) {
