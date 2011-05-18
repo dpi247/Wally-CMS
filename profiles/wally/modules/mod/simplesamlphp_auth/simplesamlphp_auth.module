@@ -426,7 +426,7 @@ function _simplesamlphp_auth_generate_block_text() {
   require_once $simplesamlphp_auth_path.'/scripts/comportementToolbar.inc';
   drupal_add_js(getComportementToolbarJs(), 'inline');
   require_once $simplesamlphp_auth_path.'/scripts/jquery.ui.rosseltoolbar.inc';
-  drupal_add_js(getRosseltoolbarJs(), 'inline');return '';
+  drupal_add_js(getRosseltoolbarJs(), 'inline');
   drupal_add_js('
   	$(document).ready(function() {
   		$("#rtb").rosseltoolbar();
