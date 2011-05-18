@@ -51,7 +51,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     	$(".subM").wrapAll("<ul />");
     	if(!(typeof data.user === "undefined") && data.user.indexOf("Visiteur") >= 0) data.user = "";
     	
-    	if(false) {//data.mode == "unauthenticated") {
+    	if(data.mode == "unauthenticated") {
     		$("#tool-right").wrapInner("
     			<div id=\'ident\'>
     				<a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a>
@@ -71,7 +71,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     			</div>
     		");
     	}
-    };
+    }
   });
   ';
   
