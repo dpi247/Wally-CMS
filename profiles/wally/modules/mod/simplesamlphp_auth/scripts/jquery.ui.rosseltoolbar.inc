@@ -25,10 +25,10 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
   	buildToolbar = function(el,data) {
     	// Add all the element
     	var toolbar = el;
-    	$("#rtb").wrapInner("<div id="wrap-toolbar">");
-    	$("#wrap-toolbar").wrapInner("<div id="toolbar">");
-    	$("#toolbar").append("<div id="tool-right">");
-    	/*
+    	//$("#rtb").wrapInner("<div id="wrap-toolbar">");
+    	//$("#wrap-toolbar").wrapInner("<div id="toolbar">");
+    	//$("#toolbar").append("<div id="tool-right">");
+    	
     	for (var item in data.items) {
     		// Create a a element
     		var pos = "";
@@ -69,7 +69,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     				</ul>
     			</div>
     		");
-    	}*/
+    	}
     };
   });
   ';
