@@ -36,7 +36,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     		var loc = "";
     		var llk = "";
     		var ppk = "";
-    		if(data.items[item].clazz) pos = "class="" + data.items[item].clazz + "" ";
+    		if(data.items[item].clazz) pos = "class=\'" + data.items[item].clazz + "\' ";
     		if(data.items[item].location == "extern") loc = "target="_blank" ";
     		if(data.items[item].logo) contents = "<img src="" + data.items[item].logo + "" />";
     		else contents = data.items[item].label;
