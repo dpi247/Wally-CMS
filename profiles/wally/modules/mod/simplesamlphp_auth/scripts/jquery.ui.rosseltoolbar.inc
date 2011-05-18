@@ -67,6 +67,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     					<li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li>
     					<li><a href=\''.$logout_path.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li>
     				</ul>
+    			</div>
     		");
     	}
     };
