@@ -48,15 +48,15 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     		else $("#" + ppk).append("<li class=\'subM "+data.items[item].clazz+"\'><a id=\'" + data.items[item].id + "\' href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + ">" + contents + "</a></li>");
     	}
     	
-    	//$(".subM").wrapAll("<ul />");
-    	//if(!(typeof data.user === "undefined") && data.user.indexOf("Visiteur") >= 0) data.user = "";
+    	$(".subM").wrapAll("<ul />");
+    	if(!(typeof data.user === "undefined") && data.user.indexOf("Visiteur") >= 0) data.user = "";
     	
     	if(data.mode == "unauthenticated") {
-    		$("#tool-right").wrapInner("
+    		/*$("#tool-right").wrapInner("
     			<div id=\'ident\'>
     				<a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a>
     			</div>
-    		" + data.iframe);
+    		" + data.iframe);*/
     	}
     	else {
     		$("#tool-right").wrapInner("
