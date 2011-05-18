@@ -284,10 +284,10 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
             });
           });';
 
-  drupal_add_js($prev_js, 'inline');//need to include this without drupal
+  drupal_add_js($prev_js, 'inline');
   $prenode=new Prenode($cache_name);
   if(!empty($prenode->form_state)){
-    $options = array('disabled' => 'Preview disabled', 'no_dest' => 'Node', );
+    $options = array('no_dest' => 'Node', );
     foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest){
       if($delta !== 'field_destinations_add_more'){
         $dest_name = taxonomy_get_term($dest['tid'])->name;
@@ -297,7 +297,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
     $form['select_preview'] = array(
       '#type' => 'select',
       '#title' => t('Preview destination'),
-      '#default_value' => 'disabled',
+      '#default_value' => 'no_dest',
       '#options' => $options,
       '#attributes' => array('prenode' => $cache_name),
     );
