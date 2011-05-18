@@ -419,13 +419,13 @@ function _simplesamlphp_auth_generate_block_text() {
   
   // Adding some js
   $simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
-  $js_to_add = array('jquery.ui.widget', 'jquery.ui.datepicker', 'jquery.ui.dialog');
+  $jquery_ui_to_add = array('jquery-ui', 'jquery.ui.widget', 'jquery.ui.datepicker', 'jquery.ui.dialog');
   
-  jquery_ui_add($js_to_add);
+  jquery_ui_add($jquery_ui_to_add);
   drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.datepicker-fr.js');
-  drupal_add_js($simplesamlphp_auth_path.'/scripts/comportementToolbar.js');
+  require_once $simplesamlphp_auth_path.'/scripts/comportementToolbar.inc';
+  drupal_add_js(getComportementToolbarJs(), 'inline');
   drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.rosseltoolbar.js');
-  
   drupal_add_js('
   	$(document).ready(function() {
   		$("#rtb").rosseltoolbar();
