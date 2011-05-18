@@ -37,15 +37,15 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     		var llk = "";
     		var ppk = "";
     		if(data.items[item].clazz) pos = "class=\'" + data.items[item].clazz + "\' ";
-    		if(data.items[item].location == "extern") loc = "target="_blank" ";
-    		if(data.items[item].logo) contents = "<img src="" + data.items[item].logo + "" />";
+    		if(data.items[item].location == "extern") loc = "target=\'_blank\' ";
+    		if(data.items[item].logo) contents = "<img src=\'" + data.items[item].logo + "\' />";
     		else contents = data.items[item].label;
     		
     		llk = data.items[item].ll;
     		ppk = data.items[item].pp;
     		
-    		if(!ppk) $("#entries").append("<li id="" + data.items[item].id + "" " + pos + "><a " + pos +" href="" + llk + "" alt="" + llk + "" title="" + data.items[item].description + "" " + loc + " class="" + data.items[item].id + "">" + contents + "</a></li>");
-    		else $("#" + ppk).append("<li class="subM "+data.items[item].clazz+""><a id="" + data.items[item].id + "" href="" + llk + "" alt="" + llk + "" title="" + data.items[item].description + "" " + loc + ">" + contents + "</a></li>");
+    		if(!ppk) $("#entries").append("<li id=\'" + data.items[item].id + "\' " + pos + "><a " + pos +" href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + " class=\'" + data.items[item].id + "\'>" + contents + "</a></li>");
+    		else $("#" + ppk).append("<li class=\'subM "+data.items[item].clazz+"\'><a id=\'" + data.items[item].id + "\' href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + ">" + contents + "</a></li>");
     	}
     	
     	$(".subM").wrapAll("<ul />");
