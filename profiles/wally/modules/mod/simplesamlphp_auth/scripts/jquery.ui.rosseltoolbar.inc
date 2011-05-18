@@ -21,7 +21,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
   			});
   		}
   	});
-  	
+  	});';/*
   	buildToolbar = function(el,data) {
     	// Add all the element
     	var toolbar = el;
@@ -72,7 +72,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     	}
     };
   });
-  ';
+  ';*/
   
   return $js;
 }
