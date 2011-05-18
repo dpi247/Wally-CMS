@@ -29,7 +29,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     	$("#wrap-toolbar").wrapInner("<div id=\'toolbar\'>");
     	$("#toolbar").append("<div id=\'tool-right\'>");
     	
-    	for (var item in data.items) {
+    	/*for (var item in data.items) {
     		// Create a a element
     		var pos = "";
     		var contents = "";
@@ -44,9 +44,9 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     		llk = data.items[item].ll;
     		ppk = data.items[item].pp;
     		
-    		//if(!ppk) $("#entries").append("<li id=\'" + data.items[item].id + "\' " + pos + "><a " + pos +" href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + " class=\'" + data.items[item].id + "\'>" + contents + "</a></li>");
-    		//else $("#" + ppk).append("<li class=\'subM "+data.items[item].clazz+"\'><a id=\'" + data.items[item].id + "\' href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + ">" + contents + "</a></li>");
-    	}
+    		if(!ppk) $("#entries").append("<li id=\'" + data.items[item].id + "\' " + pos + "><a " + pos +" href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + " class=\'" + data.items[item].id + "\'>" + contents + "</a></li>");
+    		else $("#" + ppk).append("<li class=\'subM "+data.items[item].clazz+"\'><a id=\'" + data.items[item].id + "\' href=\'" + llk + "\' alt=\'" + llk + "\' title=\'" + data.items[item].description + "\' " + loc + ">" + contents + "</a></li>");
+    	}*/
     	
     	$(".subM").wrapAll("<ul />");
     	if(!(typeof data.user === "undefined") && data.user.indexOf("Visiteur") >= 0) data.user = "";
