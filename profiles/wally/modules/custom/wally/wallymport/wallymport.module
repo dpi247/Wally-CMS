@@ -285,6 +285,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
           });';
 
   drupal_add_js($prev_js, 'inline');
+  drupal_get_messages();
   $prenode=new Prenode($cache_name);
   if(!empty($prenode->form_state)){
     $options = array('no_dest' => 'Node', );
