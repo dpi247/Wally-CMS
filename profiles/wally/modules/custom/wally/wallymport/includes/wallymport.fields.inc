@@ -1273,7 +1273,6 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom);
 
-
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
   $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emvideo');  
   if(empty($rdpartyMatch)){//No a 3rdparty
