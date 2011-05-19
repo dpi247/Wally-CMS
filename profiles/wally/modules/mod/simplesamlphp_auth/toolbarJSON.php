@@ -20,13 +20,13 @@
   
 	if (isset($infoSSO[0]) && $infoSSO[0]) {
 		// Retrieve user
-		$items = build_menu_items('toolbar.yaml');
-		$jsonData = array('items' => $items, 'user' => $infoSSO[1]['title'][0]." ".$infoSSO[1]['cn'][0], 'mode' => 'authenticated', 'iframe' => '', 'profil' => $user_profile);
+		//$items = build_menu_items('toolbar.yaml');
+		$jsonData = array('items' => '', 'user' => $infoSSO[1]['title'][0]." ".$infoSSO[1]['cn'][0], 'mode' => 'authenticated', 'iframe' => '', 'profil' => $user_profile);
 	}
 	else {
-		$items = build_menu_items('toolbar_nc.yaml');
-		$jsonData = array('items' => $items, 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
-	}dsm($items);
+		//$items = build_menu_items('toolbar_nc.yaml');
+		$jsonData = array('items' => '', 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
+	}
 
 	echo $_GET['cbk']."(".json_encode($jsonData).")";
 	
