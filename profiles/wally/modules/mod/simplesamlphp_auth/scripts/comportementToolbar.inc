@@ -80,8 +80,7 @@ function getComportementToolbarJs() {
     			var url = "'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/iframeSSO.php?login=" + encodeURIComponent(login) + "&pwd=" + encodeURIComponent(password) + "&target=" + encodeURIComponent(window.location.href);
     			if ($.browser.msie) {
     				window.location.replace(url);
-    			}else
-    			{
+    			} else {
     				$("#ssol").attr("src",url);
     			}
     			$("#fgpwd").html("Rafra&icirc;chir la page si ce message appara&icirc;t");
