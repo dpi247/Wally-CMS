@@ -1,6 +1,6 @@
 <?php
 
-require_once './includes/constants.inc';
+require_once dirname(__FILE__).'/../includes/constants.inc';
 
 function getComportementToolbarJs() {
   $js = '
