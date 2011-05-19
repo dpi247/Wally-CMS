@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	
-	require_once 'http://wally-dev.drupal.dev/includes/bootstrap.inc';
+	require_once '/var/www/wally-dev.audaxis.com/includes/bootstrap.inc';
 	global $base_url;
 	$user_profile = variable_get('sso_user_profile', $base_url.'/user/');
 	$ssolibs_path = variable_get('sso_libs_path','/usr/local/lib/ssolibs');
