@@ -1,7 +1,6 @@
 <?php
 
-var_dump(pathinfo(dirname(__FILE__)));
-require_once dirname(__FILE__).'/../includes/constants.inc';
+require_once dirname(dirname(__FILE__)).'/includes/constants.inc';
 
 function getComportementToolbarJs() {
   $js = '
