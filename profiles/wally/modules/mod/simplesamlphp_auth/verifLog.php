@@ -1,6 +1,8 @@
 <?php
-	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/IDPInstance_rossel.php');
-	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/SSOToolbox.php');
+  require_once 'includes/constants.inc';
+
+	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/IDPInstance_rossel.php');
+	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/SSOToolbox.php');
 	
 // 	error_log("[SSO] - Start authentication");
 	session_start();
