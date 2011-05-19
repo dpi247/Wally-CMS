@@ -824,14 +824,13 @@ function wimprt_set_field_poll(&$node, $dom, &$log, $preview = FALSE){
  *   Nothing
  */
 function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE){
- 
   // Embeded objects
   $results = array(); 
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
 	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
 	foreach(wimprt_process_list($embedobjects, $log, 'object', $preview) as $result){
-    if (!array_key_exists($result->nid, $results)) {
+    if (!array_key_exists($result->nid, $results) || $preview) {
       $results[$result->nid]=$result->nid;
       $node->field_embededobjects[]['nid']=$result->nid;
       if ($preview)
@@ -848,7 +847,7 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE)
   if($dom->getElementsByTagName('LinksList')->item(0)){
     if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
       foreach(wimprt_process_list($linklists, $log, 'object', $preview) as $result){
-        if (!array_key_exists($result->nid, $links)) {
+        if (!array_key_exists($result->nid, $links) || $preview) {
           $links[$result->nid]=$result->nid;
           $node->field_linkedobjects[]['nid']=$result->nid;
           if ($preview)
