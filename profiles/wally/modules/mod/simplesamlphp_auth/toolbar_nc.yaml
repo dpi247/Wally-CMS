@@ -1,0 +1,96 @@
+# YAML representation of the Soir Toolbar
+"logo":
+  id : 'logo'
+  label: 'logo'
+  logo: 'http://www.lesoir.be/modules/toolbar/module/images/logo_lesoirbe.gif'
+  description: 'Lesoir.be'
+  clazz : 'first'  
+  ll: 'http://www.lesoir.be/'
+"rss":
+  id : 'rss'
+  label: 'rss'
+  clazz : 'rss'   
+  logo: 'http://www.lesoir.be/modules/toolbar/module/images/rss.gif'
+  description: 'Tous les flux RSS du Soir'
+  ll: 'http://www.lesoir.be/services/rss'
+"cds":
+  id : 'pdf'
+  label : 'Lire le journal "Le Soir"'
+  description: 'au format PDF ou via le lecteur numérique'
+  ll : 'javascript:return false;'
+"abo":
+  id : 'abo'
+  label : "Je m'abonne"
+  description: "S'abonner"
+  ll : 'http://www.lesoir.be/services/abonnement2/'
+"clubdusoir":
+  id : 'cds'
+  label : 'Club du Soir'
+  description: 'Tous les avantage du Club du Soir'
+  ll: 'http://test.clubdusoir.be'
+"newsletter":
+  id : 'show-news'
+  label : 'Newsletters'
+  description: 'Toutes les newsletters du Soir'
+  ll : 'javascript:affNews()'
+"agenda":
+  id : 'agenda'
+  label : 'Agenda'
+  description: 'Tous les évènements'
+  ll: 'http://mad.lesoir.be'
+"plus":
+  id : 'ps'
+  label : 'Plus'
+  description: 'Nos autres services'
+  ll : '#'
+"emploi":
+  id : 'emploi'
+  label : 'Emploi'
+  description: "Tous sur l'emploi"
+  ll : 'http://www.references.be/'
+  location: 'extern'
+  pp : 'ps'
+"immo":
+  id : 'immo'
+  label : 'Immo'
+  description: "Tous sur l'immo"
+  ll : 'http://immo.vlan.be'
+  pp : 'ps'
+"sante":
+  id : 'sante'
+  label : 'Santé'
+  description: "Tous sur la santé"
+  ll : 'http://www.passion-sante.be'
+  pp : 'ps'
+"annones":
+  id : 'annonces'
+  label : 'Petites annonces'
+  description: "Petites annonces"
+  ll : 'http://www.vlan.be/'
+  location: 'extern'  
+  pp : 'ps'  
+"boutique":
+  id : 'boutique'
+  label : 'Boutique'
+  description: "Boutique"
+  ll : 'http://www.laboutiquedusoir.be/'
+  pp : 'ps'   
+"victoire":
+  id : 'vict'
+  label : 'Victoire'
+  description: 'Victoire'
+  ll : 'http://www.victoiremag.be/'
+  pp : 'ps'
+  clazz : 'border'
+"encoreplus":
+  id : 'encore'
+  label : 'Encore plus'
+  description: "Encore plus"
+  ll : 'http://www.lesoir.be/servicesSSO'
+  pp : 'ps'
+"faq":
+  id : 'faq'
+  label : '?'
+  description: 'Foire aux questions'
+  clazz : 'last'
+  ll : 'http://pdf.lesoir.be/mon_profil/faq/'
