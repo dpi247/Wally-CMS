@@ -2,9 +2,10 @@
 <body>
 
 <?php
-	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/IDPInstance_rossel.php');
-	require_once('/var/www/php/ssoLibs/ssoPhpToolbox/SSOToolbox.php');
-  	$target = $_GET["target"];
+	require_once 'includes/constants.inc';
+	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/IDPInstance_rossel.php');
+	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/SSOToolbox.php');
+  $target = $_GET["target"];
 	$toolbox = new SSOToolbox(array('targetUrl'=>$target));
 	$sp = $toolbox->getSP();
 	$newTarget = $sp->getSimpleSamlPath()."sso_redirect.php?url=" . urlencode($target) . '&dummy=' . time();
