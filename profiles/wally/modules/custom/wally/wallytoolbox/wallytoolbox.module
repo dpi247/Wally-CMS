@@ -954,6 +954,9 @@ function wallytoolbox_get_all_aliases($internal_url) {
 
 /**
  * Delete the Drupal file and remove the physical file of a photo.
+ * 
+ * @param array $photofile
+ *   A Drupal file array.
  */
 function wallytoolbox_delete_photofile($photofile) {
   if (isset($photofile['filepath'])) {
