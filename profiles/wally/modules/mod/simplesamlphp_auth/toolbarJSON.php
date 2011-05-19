@@ -2,6 +2,7 @@
 	session_start();
 	
 	global $base_url;
+	var_dump($base_url);
 	require_once $base_url.'/includes/bootstrap.inc';
 	$user_profile = variable_get('sso_user_profile', $base_url.'/user/');
 	$ssolibs_path = variable_get('sso_libs_path','/usr/local/lib/ssolibs');
