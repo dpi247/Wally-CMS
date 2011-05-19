@@ -17,18 +17,10 @@
   
 	if (isset($infoSSO[0]) && $infoSSO[0]) {
 		// Retrieve user
-		//$items = build_menu_items('toolbar.yaml');
-		$jsonData = array('items' => null, 'user' => $infoSSO[1]['title'][0]." ".$infoSSO[1]['cn'][0], 'mode' => 'authenticated', 'iframe' => '', 'profil' => $user_profile);
+		$jsonData = array('user' => $infoSSO[1]['title'][0]." ".$infoSSO[1]['cn'][0], 'mode' => 'authenticated', 'iframe' => '', 'profil' => SSO_USER_PROFILE);
 	}
 	else {
-		//$items = build_menu_items('toolbar_nc.yaml');
-		$jsonData = array('items' => null, 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
+		$jsonData = array('mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
 	}
 
 	echo $_GET['cbk']."(".json_encode($jsonData).")";
-	
-	function build_menu_items($url) {
-		$yaml = new sfYamlParser();
-		$items = $yaml->parse(file_get_contents($url));
-		return $items;
-	}
