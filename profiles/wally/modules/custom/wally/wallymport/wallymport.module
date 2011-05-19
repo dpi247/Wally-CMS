@@ -316,10 +316,16 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
  * Implementation of hook_cron().
  */ 
 function wallymport_cron(){
-  $list = db_query('SELECT name FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%"');  
+  $list = db_query('SELECT name, data FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%" AND updated < %d', time() - 3600);
   $return = array();
   while ($elem = db_fetch_array($list)) {
-    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d AND updated < %d', $elem['name'], time()-3600);
+    $data = unserialize($elem['data']);
+    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0]))
+        wallytoolbox_delete_photofile($embed->field_photofile[0]);
+    }
+    
+    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d', $elem['name']);
     $return[] = 'Preview cache deleted for : '.$elem['name'].' on '.date('Y-m-d H:i:s', time());
   }
   if(empty($return)){
