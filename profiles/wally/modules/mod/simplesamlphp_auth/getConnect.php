@@ -1,6 +1,6 @@
 <?php 
   require_once 'includes/constants.inc';
-  require_once '/includes/bootstrap.inc';
+  require_once WALLY_PATH.'/includes/bootstrap.inc';
   $t = get_t();
 
 	$title=t('Connection');
