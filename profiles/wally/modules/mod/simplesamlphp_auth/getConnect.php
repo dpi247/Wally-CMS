@@ -3,7 +3,7 @@
   require_once WALLY_PATH.'/includes/bootstrap.inc';
   $t = get_t();
 
-	$title=t('Connection');
+	$title=$t('Connection');
 	if(isset($_GET["err"])){
 		$title=$_GET["msg"];
 	}
