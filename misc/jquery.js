@@ -520,7 +520,7 @@ jQuery.extend({
 	noop: function() {},
 
 	// Evalulates a script in a global context
-	globalEval: function( data ) {alert(data);
+	globalEval: function( data ) {
 		if ( data && rnotwhite.test(data) ) {
 			// Inspired by code by Andrea Giammarchi
 			// http://webreflection.blogspot.com/2007/08/global-scope-evaluation-and-dom.html
