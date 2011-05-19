@@ -2,12 +2,13 @@
 	session_start();
 	
 	global $base_url;
+	require_once '/includes/bootstrap.inc';
 	$user_profile = variable_get('sso_user_profile', $base_url.'/user/');
 	$ssolibs_path = variable_get('sso_libs_path','/usr/local/lib/ssolibs');
 	$simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
-	require_once($ssolibs_path.'/ssoPhpToolbox/IDPInstance_rossel.php');
-	require_once($ssolibs_path.'/ssoPhpToolbox/SSOToolbox.php');
-  require_once($simplesamlphp_auth_path.'/lib/sfYamlParser.php');
+	require_once $ssolibs_path.'/ssoPhpToolbox/IDPInstance_rossel.php';
+	require_once $ssolibs_path.'/ssoPhpToolbox/SSOToolbox.php';
+  require_once $simplesamlphp_auth_path.'/lib/sfYamlParser.php';
   
   $target = $_GET["target"];
   $params = array(
