@@ -1,6 +1,8 @@
 <?php
 
-function getComportementToolbarJs($getConnect = 'http://wally-dev.audaxis.com/profiles/wally/modules/mod/simplesamlphp_auth/getConnect.php') {
+require_once '../includes/constants.inc';
+
+function getComportementToolbarJs() {
   $js = '
   $(document).ready( function() {
 		if (window.XMLHttpRequest) // Firefox 
@@ -32,7 +34,7 @@ function getComportementToolbarJs($getConnect = 'http://wally-dev.audaxis.com/pr
   		else {
   			var $dialog;
   			//JSON direct sample
-  			$.get("'.$getConnect.'", { target: window.location.pathname }, function(data) {
+  			$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
   				// if there is data, filter it and render it out
   				if(data){
   					$dialog = buildDialog($dialog, data, idC);

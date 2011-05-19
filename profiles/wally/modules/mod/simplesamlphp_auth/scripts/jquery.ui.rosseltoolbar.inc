@@ -1,6 +1,8 @@
 <?php
 
-function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlphp_auth', $logout_path = '/simplesaml/sso_logout.php') {
+require_once '../includes/constants.inc';
+
+function getRosseltoolbarJs () {
   $js = '
   $(document).ready( function() {
     $.widget("ui.rosseltoolbar", {
@@ -15,7 +17,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
   					el = self.element;
   			
   			// Get the content of the toolbar
-  			$.getJSON("'.$app_path.'/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
+  			$.getJSON("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
   				this.data = data;
   				buildToolbar(el,data);
   			});
@@ -33,7 +35,7 @@ function getRosseltoolbarJs ($app_path = 'profiles/wally/modules/mod/simplesamlp
     		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a></div>" + data.iframe);
     	}
     	else {
-    		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'" + data.profil + "\' class=\'disconnected colorbox\'>'.t('Hello').' <strong>" + data.user + "</strong></a><ul><li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li><li><a href=\''.$logout_path.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li></ul></div>");
+    		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'" + data.profil + "\' class=\'disconnected colorbox\'>'.t('Hello').' <strong>" + data.user + "</strong></a><ul><li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li><li><a href=\''.SSO_LOGOUT_PATH.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li></ul></div>");
     	}
     }
   });
