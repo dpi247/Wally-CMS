@@ -56,6 +56,40 @@ function getComportementToolbarJs() {
     	$dialog.dialog("open");
     	return false;
     };
+    
+    coPr = function(login,password) {
+    	var dTime = new Date().getTime();
+    	$("#loading").show();
+    	$("#mydata").hide();
+    	$("#titerr").hide();
+    	$("#fgpwd").html("Merci pour votre patience");
+    	$("#titerr").html("");
+    
+    	$.post("/toolbar/module/verifLog.php?cbk=?", { 
+    		log: login, pass: password, rnd: dTime, target: encodeURI(window.location.href)
+    	},
+    	function(data){
+    		if(data[0]=="ERROR") {
+    			
+    			$("#regformOC").html("<div class=\'p-main-content\'><div class=\'p-wrap\'><div class=\'p-the-content\'><h1 id=\'titerr\'>"+ data[1] +"</h1><div id=\'divtochange\'><div id=\'loading\'>&nbsp;</div><form name=\'mydata\' id=\'mydata\' action=\'\' method=\'post\' onsubmit=\'return coPr(document.getElementById(\"memail\").value, document.getElementById(\"mmdp\").value);\'><input type=\'hidden\' name=\'form\' value=\'done\' /> <div class=\'row\'><label for=\'memail\'><span>*</span> E-mail :</label>	<input type=\'text\' class=\'form-text\' name=\'memail\' id=\'memail\' /></div>	<div class=\'row\'><label for=\'mmdp\'><span>*</span> Mot de passe :</label><input type=\'password\' class=\'form-text\' name=\'mmdp\' id=\'mmdp\' /></div><input type=\'submit\' class=\'btn-submit\' value=\'je r&eacute;essaie\' /></form><div class=\'row\' id=\'fgpwd\'><a href=\'http://pdf.lesoir.be/liseuseSSO/authentification/forget.php?aff=FULL&amp;backurlPDF="+encodeURIComponent(window.location.href)+"\'>J\'ai oubli&eacute; mon mot de passe</a></div></div></div><div class=\'p-bottom\'>&nbsp;</div></div></div><iframe id=\'ssol\' style=\'display: none;\'></iframe>");
+    			$("#loading").hide();
+    		
+    		}
+    		else {
+    			// IF LOGIN AND PASSWORD IS GOOD, WE LOAD THE IFRAME TO REDIRECT THE PAGE
+    			var url = "/toolbar/module/iframeSSO.php?login=" + encodeURIComponent(login) + "&pwd=" + encodeURIComponent(password) + "&target=" + encodeURIComponent(window.location.href);
+    			if ($.browser.msie) {
+    				window.location.replace(url);
+    			}else
+    			{
+    				$("#ssol").attr("src",url);
+    			}
+    			$("#fgpwd").html("Rafra&icirc;chir la page si ce message appara&icirc;t");
+    		}
+    	}, "json");
+     
+    	return false;
+    };
   });
   ';
   
