@@ -20,11 +20,11 @@
   
 	if (isset($infoSSO[0]) && $infoSSO[0]) {
 		// Retrieve user
-		//$items = build_menu_items('toolbar.yaml');
+		$items = build_menu_items('toolbar.yaml');
 		$jsonData = array('items' => '', 'user' => $infoSSO[1]['title'][0]." ".$infoSSO[1]['cn'][0], 'mode' => 'authenticated', 'iframe' => '', 'profil' => $user_profile);
 	}
 	else {
-		//$items = build_menu_items('toolbar_nc.yaml');
+		$items = build_menu_items('toolbar_nc.yaml');
 		$jsonData = array('items' => '', 'mode' => 'unauthenticated', 'iframe' => $infoSSO[1]);
 	}
 
