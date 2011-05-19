@@ -396,26 +396,26 @@ function _simplesamlphp_auth_generate_login_text($url = FALSE) {
 }
 
 function _simplesamlphp_auth_generate_block_text() {
-  global $saml_session;
-  global $saml_config;
-  $block_content = '';
-  global $base_url;
-  global $user;
+  //global $saml_session;
+  //global $saml_config;
+  //$block_content = '';
+  //global $base_url;
+  //global $user;
 
   require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Utilities.php');
   require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/Session.php');
   require_once((isset($SIMPLESAML_INCPREFIX)?$SIMPLESAML_INCPREFIX:'') . 'SimpleSAML/XHTML/Template.php');
 
-  $initSSOurl = str_replace('http://', 'http://', SimpleSAML_Utilities::selfURLhost()) .
+  /*$initSSOurl = str_replace('http://', 'http://', SimpleSAML_Utilities::selfURLhost()) .
 		'/' . $saml_config->getValue('baseurlpath') . 'saml2/sp/initSSO.php?RelayState=' . 
-  urlencode(str_replace('http://', 'http://', SimpleSAML_Utilities::selfURL()));
+  urlencode(str_replace('http://', 'http://', SimpleSAML_Utilities::selfURL()));*/
    
   /* Check if valid local session exists.. */
-  if (isset($saml_session) && $saml_session->isValid() ) {
+  /*if (isset($saml_session) && $saml_session->isValid() ) {
     $block_content .= '<p>Logged in as: '. $user->name . '<br /><a href="/logout">' . t('Federated logout') . '</a></p>';
   } else {
     $block_content .= '<p><a href="' . $initSSOurl . '">' . t('Federated login') . '</a></p>';
-  }
+  }*/
   
   // Adding some js
   $simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
@@ -433,7 +433,7 @@ function _simplesamlphp_auth_generate_block_text() {
   	});
   ', 'inline');
 
-  return theme('toolbar').$block_content;
+  return theme('toolbar');//.$block_content;
 }
 
 function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) {
