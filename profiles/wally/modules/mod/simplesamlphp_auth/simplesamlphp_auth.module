@@ -186,7 +186,6 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
     }
     if($no_bypass){
       $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
-      var_dump($roles);
       $mail_address = _simplesamlphp_auth_get_mail();
       $name = _simplesamlphp_auth_get_name();
       _simplesaml_auth_debug('setting mail login to [' . $mail_address . ']');
@@ -463,7 +462,7 @@ function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) 
 function _simplesamlphp_auth_rolepopulation($rolemap) {
   global $saml_session;
   $roles = array();
-
+var_dump($saml_session);
   _simplesaml_auth_debug('Rolemap: ' . $rolemap);
 
   /* Check if valid local session exists.. */
