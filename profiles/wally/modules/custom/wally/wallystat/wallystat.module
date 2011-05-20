@@ -56,7 +56,6 @@ function wallystat_cron(){
   }
   
   $query = "SELECT terms, count(*) as term_count FROM {wallystat_tempdata} WHERE timestamp < ".$current_tstamp." GROUP BY terms";
-  echo('select terms');
   $result = db_query($query);
   $term_counts = array();
   while ($row = db_fetch_object($result)){
@@ -79,7 +78,6 @@ function wallystat_cron(){
   
   $last_tstamp = db_result(db_query("SELECT MIN(timestamp) FROM {wallystat_tempdata}"));
   while($last_tstamp!= FALSE && $last_tstamp < $current_tstamp){
-    echo($last_tstamp. '   lala');
     $truncated_tstmp_start = $last_tstamp - (date('i', $last_tstamp)*60+date('s', $last_tstamp));
     $truncated_tstmp_end = ($current_tstamp>$truncated_tstmp_start+60*60) ? $truncated_tstmp_start-1+60*60 : $current_tstamp-1;
     $query = "SELECT nid, title, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10, count(*) as node_count FROM {wallystat_tempdata} 
