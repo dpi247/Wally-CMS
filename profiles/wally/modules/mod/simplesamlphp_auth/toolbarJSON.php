@@ -4,7 +4,6 @@
 	require_once 'includes/constants.inc';
 	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/IDPInstance_rossel.php');
 	require_once(SSO_LIBS_PATH.'/ssoPhpToolbox/SSOToolbox.php');
-  require_once(WALLY_PATH.SSO_SIMPLESAMLPHP_AUTH_PATH.'/lib/sfYamlParser.php');
   
   $target = $_GET["target"];
   $params = array(
