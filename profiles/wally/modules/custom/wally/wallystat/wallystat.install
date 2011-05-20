@@ -17,8 +17,64 @@ function wallystat_schema() {
       'nid' => array(
         'type' => 'int',
         'description' => 'Node Id',
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the node',
+      ),
+      'param01' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 1',
+      ),
+      'param02' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 2',
+      ),
+      'param03' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 3',
+      ),
+      'param04' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 4',
+      ),
+      'param05' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 5',
+      ),
+      'param06' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 6',
+      ),
+      'param07' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 7',
+      ),
+      'param08' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 8',
+      ),
+      'param09' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 9',
+      ),
+      'param10' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 10',
       ),
       'timestamp' => array(
        'description' => 'The Unix timestamp when the node was most recently saved.',
@@ -32,16 +88,87 @@ function wallystat_schema() {
         'description' => 'Taxonomy Terms of the node',
       ),
     ),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'param01' => array('param01'),
+      'param02' => array('param02'),
+      'param03' => array('param03'),
+      'param04' => array('param04'),
+      'param05' => array('param05'),
+      'param06' => array('param06'),
+      'param07' => array('param07'),
+      'param08' => array('param08'),
+      'param09' => array('param09'),
+      'param10' => array('param10'),
+      'timestamp' => array('timestamp'),
+      'terms' => array('terms'),
+    ),
   );
-  
+
   $schema['wallystat_node_counter'] = array(
     'description' => 'Contains stats for node views',
     'fields' => array(
       'nid' => array(
         'type' => 'int',
         'description' => 'Node ID',
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the node',
+      ),
+      'param01' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 1',
+      ),
+      'param02' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 2',
+      ),
+      'param03' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 3',
+      ),
+      'param04' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 4',
+      ),
+      'param05' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 5',
+      ),
+      'param06' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 6',
+      ),
+      'param07' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 7',
+      ),
+      'param08' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 8',
+      ),
+      'param09' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 9',
+      ),
+      'param10' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 10',
       ),
       'totalcount' => array(
         'type' => 'int',
@@ -75,10 +202,21 @@ function wallystat_schema() {
         'default' => 0,
       ),
     ),
-    'indexes' => array(
+    //No primary key possible, should be nid+param01_to_param10 but too long, need to use additionnal table with foreign key for use nid+params_id as PK
+    'indexes' => array(//Index too big ?
       'nid' => array('nid'),
+      'param01' => array('param01'),
+      'param02' => array('param02'),
+      'param03' => array('param03'),
+      'param04' => array('param04'),
+      'param05' => array('param05'),
+      'param06' => array('param06'),
+      'param07' => array('param07'),
+      'param08' => array('param08'),
+      'param09' => array('param09'),
+      'param10' => array('param10'),
+      //Need index for the timestamp too ?
     ),
-    'primary key' => array('nid'),
   );
   
   $schema['wallystat_term_counter'] = array(
@@ -87,6 +225,7 @@ function wallystat_schema() {
       'tid' => array(
         'type' => 'int',
         'description' => 'Term ID',
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
@@ -126,6 +265,99 @@ function wallystat_schema() {
       'tid' => array('tid'),
     ),
     'primary key' => array('tid'),
+  );
+  
+  $schema['wallystat_node_hourly_counter'] = array(
+    'description' => 'Contains stats for hourly node views for the last 48 hours',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node ID',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the node',
+      ),
+      'param01' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 1',
+      ),
+      'param02' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 2',
+      ),
+      'param03' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 3',
+      ),
+      'param04' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 4',
+      ),
+      'param05' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 5',
+      ),
+      'param06' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 6',
+      ),
+      'param07' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 7',
+      ),
+      'param08' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 8',
+      ),
+      'param09' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 9',
+      ),
+      'param10' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 10',
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp for the hour counted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'type' => 'int',
+        'description' => 'Hourly view count',
+        'not null' => TRUE,
+      ),
+    ), //No primary key possible, should be nid+param01_to_param10+timestamp but too long, need to use additionnal table with foreign key for use nid+params_id+timestamp as PK
+    'indexes' => array(//Index too big ?
+      'nid' => array('nid'),
+      'param01' => array('param01'),
+      'param02' => array('param02'),
+      'param03' => array('param03'),
+      'param04' => array('param04'),
+      'param05' => array('param05'),
+      'param06' => array('param06'),
+      'param07' => array('param07'),
+      'param08' => array('param08'),
+      'param09' => array('param09'),
+      'param10' => array('param10'),
+      'timestamp' => array('timestamp'),
+    ),
   );
   
   return $schema;
@@ -133,14 +365,71 @@ function wallystat_schema() {
 
 function wallystat_update_6001() {
   $schema = array();
-  $schema['wallystat_node_counter'] = array(
+  
+   $schema['wallystat_node_counter'] = array(
     'description' => 'Contains stats for node views',
     'fields' => array(
       'nid' => array(
         'type' => 'int',
         'description' => 'Node ID',
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the node',
+      ),
+      'param01' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 1',
+      ),
+      'param02' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 2',
+      ),
+      'param03' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 3',
+      ),
+      'param04' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 4',
+      ),
+      'param05' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 5',
+      ),
+      'param06' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 6',
+      ),
+      'param07' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 7',
+      ),
+      'param08' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 8',
+      ),
+      'param09' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 9',
+      ),
+      'param10' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 10',
       ),
       'totalcount' => array(
         'type' => 'int',
@@ -174,18 +463,30 @@ function wallystat_update_6001() {
         'default' => 0,
       ),
     ),
-    'indexes' => array(
+    //No primary key possible, should be nid+param01_to_param10 but too long, need to use additionnal table with foreign key for use nid+params_id as PK
+    'indexes' => array(//Index too big ?
       'nid' => array('nid'),
+      'param01' => array('param01'),
+      'param02' => array('param02'),
+      'param03' => array('param03'),
+      'param04' => array('param04'),
+      'param05' => array('param05'),
+      'param06' => array('param06'),
+      'param07' => array('param07'),
+      'param08' => array('param08'),
+      'param09' => array('param09'),
+      'param10' => array('param10'),
+      //Need index for the timestamp too ?
     ),
-    'primary key' => array('nid'),
   );
   
   $schema['wallystat_term_counter'] = array(
-    'description' => 'Contains stats for term views',
+    'description' => 'Contains stats for node views',
     'fields' => array(
       'tid' => array(
         'type' => 'int',
         'description' => 'Term ID',
+        'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
@@ -226,7 +527,126 @@ function wallystat_update_6001() {
     ),
     'primary key' => array('tid'),
   );
+  
+  $schema['wallystat_node_hourly_counter'] = array(
+    'description' => 'Contains stats for hourly node views for the last 48 hours',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node ID',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the node',
+      ),
+      'param01' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 1',
+      ),
+      'param02' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 2',
+      ),
+      'param03' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 3',
+      ),
+      'param04' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 4',
+      ),
+      'param05' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 5',
+      ),
+      'param06' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 6',
+      ),
+      'param07' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 7',
+      ),
+      'param08' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 8',
+      ),
+      'param09' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 9',
+      ),
+      'param10' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Custom parameter 10',
+      ),
+      'timestamp' => array(
+       'description' => 'The Unix timestamp for the hour counted.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'type' => 'int',
+        'description' => 'Hourly view count',
+        'not null' => TRUE,
+      ),
+    ), //No primary key possible, should be nid+param01_to_param10+timestamp but too long, need to use additionnal table with foreign key for use nid+params_id+timestamp as PK
+    'indexes' => array(//Index too big ?
+      'nid' => array('nid'),
+      'param01' => array('param01'),
+      'param02' => array('param02'),
+      'param03' => array('param03'),
+      'param04' => array('param04'),
+      'param05' => array('param05'),
+      'param06' => array('param06'),
+      'param07' => array('param07'),
+      'param08' => array('param08'),
+      'param09' => array('param09'),
+      'param10' => array('param10'),
+      'timestamp' => array('timestamp'),
+    ),
+  );
+  
   $ret = array();
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN title VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param01 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param02 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param03 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param04 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param05 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param06 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param07 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param08 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param09 VARCHAR(255)');
+  $ret[] = update_sql('ALTER TABLE {wallystat_tempdata} ADD COLUMN param10 VARCHAR(255)');
+  db_add_index($ret, 'wallystat_tempdata', 'nid', array('nid'));
+  db_add_index($ret, 'wallystat_tempdata', 'param01', array('param01'));
+  db_add_index($ret, 'wallystat_tempdata', 'param02', array('param02'));
+  db_add_index($ret, 'wallystat_tempdata', 'param03', array('param03'));
+  db_add_index($ret, 'wallystat_tempdata', 'param04', array('param04'));
+  db_add_index($ret, 'wallystat_tempdata', 'param05', array('param05'));
+  db_add_index($ret, 'wallystat_tempdata', 'param06', array('param06'));
+  db_add_index($ret, 'wallystat_tempdata', 'param07', array('param07'));
+  db_add_index($ret, 'wallystat_tempdata', 'param08', array('param08'));
+  db_add_index($ret, 'wallystat_tempdata', 'param09', array('param09'));
+  db_add_index($ret, 'wallystat_tempdata', 'param10', array('param10'));
+  db_add_index($ret, 'wallystat_tempdata', 'timestamp', array('timestamp'));
+  db_add_index($ret, 'wallystat_tempdata', 'terms', array('terms'));
+  db_create_table($ret, 'wallystat_node_hourly_counter', $schema['wallystat_node_hourly_counter']);
   db_create_table($ret, 'wallystat_node_counter', $schema['wallystat_node_counter']);
   db_create_table($ret, 'wallystat_term_counter', $schema['wallystat_term_counter']);
   return $ret;
