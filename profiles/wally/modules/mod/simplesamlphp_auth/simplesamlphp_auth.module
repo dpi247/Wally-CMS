@@ -468,7 +468,7 @@ function _simplesamlphp_auth_rolepopulation($rolemap) {
   /* Check if valid local session exists.. */
   if (isset($saml_session) && $saml_session->isValid() ) {
     $attributes = $saml_session->getAttributes();
-    	var_dump($attributes);
+    
     if (empty($rolemap)) return $roles;
      
     _simplesaml_auth_debug('Evaluate rolemap: ' . $rolemap);
