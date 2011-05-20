@@ -186,6 +186,7 @@ function simplesamlphp_auth_user($op, &$edit, &$account, $category = NULL) {
     }
     if($no_bypass){
       $roles = _simplesamlphp_auth_rolepopulation(variable_get('simplesamlphp_auth_rolepopulation', ''));
+      var_dump($roles);
       $mail_address = _simplesamlphp_auth_get_mail();
       $name = _simplesamlphp_auth_get_name();
       _simplesaml_auth_debug('setting mail login to [' . $mail_address . ']');
@@ -316,7 +317,7 @@ function _simplesamlphp_auth_get_name() {
   $name = array();
   /* Check if valid local session exists.. */
   if (isset($saml_session) && $saml_session->isValid() ) {
-    $attributes = $saml_session->getAttributes();var_dump($attributes);
+    $attributes = $saml_session->getAttributes();
     if (isset($attributes[variable_get('simplesamlphp_auth_nameattr', 'sn')])) {
       $name[0] = $attributes[variable_get('simplesamlphp_auth_nameattr', 'sn')][0];
     } else {
