@@ -5,6 +5,7 @@
  */
 function wallyextra_install() {
   drupal_install_schema('wallyextra');
+  wallyextra_refresh_cache_list();
 }
 
 /*
@@ -133,7 +134,7 @@ function wallyextra_schema() {
       'bulk export' => TRUE,
       'primary key' => 'cid',
       'key' => 'name',
-  'key' => 'cid',
+  		'key' => 'cid',
   	  'api' => array(
         'owner' => 'wallyextra',
         'api' => 'wallyextra_taxonomylist_content',
@@ -188,7 +189,7 @@ function wallyextra_schema() {
       'bulk export' => TRUE,
       'primary key' => 'cid',
       'key' => 'name',
-  'api' => array(
+  		'api' => array(
         'owner' => 'wallyextra',
         'api' => 'wallyextra_twitread_content',
         'minimum_version' => 1,
@@ -296,6 +297,21 @@ function wallyextra_schema() {
         'description' => 'A database primary key to ensure uniqueness',
         'not null' => TRUE,
       ),
+      'enabled' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 1
+      ),
+      'weight' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rule' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
       'settings' => array(
         'type' => 'text',
         'size' => 'big',
@@ -303,9 +319,21 @@ function wallyextra_schema() {
         'serialize' => TRUE,
        // 'object default' => array(),
       ),
+      'output' => array(
+      	'type' => 'text',
+      	'size' => 'big',
+      	'not null' => TRUE,
+        'default' => '',
+      ),
+      'last_run' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 0,
+      ),
     ),
     'primary key' => array('cid'),
   );
+  
   return $schema;
 }
 
@@ -331,5 +359,45 @@ function wallyextra_update_6001() {
   );
   $ret = array();
   db_create_table($ret, 'wallyextra_cache_torefresh', $schema['wallyextra_cache_torefresh']);
+  return $ret;
+}
+
+function wallyextra_update_6002() {
+  $ret = array();
+  
+  $fields = array(
+    'enabled' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+    	'default' => 1
+    ),
+    'weight' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+      'default' => 0,
+    ),
+    'rule' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+      'default' => 0,
+    ),
+    'output' => array(
+    	'type' => 'text',
+    	'size' => 'big',
+    	'not null' => TRUE,
+      'default' => '',
+    ),
+    'last_run' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+    	'default' => 0,
+    ),
+  );
+  
+  foreach ($fields as $field => $spec)
+    db_add_field($ret, 'wallyextra_cache_torefresh', $field, $spec);
+  
+  wallyextra_refresh_cache_list();
+  
   return $ret;
 }
