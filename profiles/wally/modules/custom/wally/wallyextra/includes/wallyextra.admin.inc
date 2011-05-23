@@ -37,8 +37,10 @@ function wallyextra_supercron_settings ($form_state) {
     );
 
     $form['rows'][$block['cid']]['weight']=array(
-      '#type'					 => 'hidden',
-      '#value' => $block['weight'],
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#default_value' => $module->weight,
+      '#attributes' => array('class' => 'weight'),
     );
     
     $form['rows'][$block['cid']]['rule']=array(
