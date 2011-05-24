@@ -5,23 +5,10 @@ require_once dirname(dirname(__FILE__)).'/includes/constants.inc';
 function getRosseltoolbarJs () {
   $js = '
   $(document).ready( function() {
-    $.widget("ui.rosseltoolbar", {
-  		options: {
-  			location: "top",
-  			type: "nologo"
-  		},
-  		
-  		_create: function() {
-  			var self = this,
-  					o = self.options,
-  					el = self.element;
-  			
-  			// Get the content of the toolbar
-  			$.getJSON("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
-  				this.data = data;
-  				buildToolbar(el,data);
-  			});
-  		}
+    // Get the content of the toolbar
+  	$.getJSON("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
+  		this.data = data;
+  		buildToolbar(el,data);
   	});
   	
   	buildToolbar = function(el,data) {
