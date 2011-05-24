@@ -3,40 +3,6 @@
 include_once('wallyextra.features.inc');
 
 /**
- * Implementation of hook_menu().
- */
-function wallyextra_menu() {
-  $items = array();
-  
-  $items['admin/wally/wallyextra/supercron'] = array(
-    'title'             => 'Wally Extra "Supercon" Settings',
-    'page callback'     => 'drupal_get_form',
-    'page arguments'		=> array('wallyextra_supercron_settings'),
-    'access arguments'  => array('access administration pages'),
-    'description'       => 'Allows administrators to set paramaters for this module to function properly.',
-    'file'              => 'includes/wallyextra.admin.inc',
-  );
-  
-  $items['admin/wally/wallyextra/supercron/output/%'] = array(
-    'page callback'    => 'wallyextra_supercron_output',
-    'page arguments'   => array(5),
-    'access arguments' => array('access administration pages'),
-    'type'             => MENU_CALLBACK,
-    'file'             => 'includes/wallyextra.admin.inc',
-  );
-  
-  $items['admin/wally/wallyextra/supercron/call/%'] = array(
-    'page callback'    => 'wallyextra_supercron_call',
-    'page arguments'   => array(5),
-    'access arguments' => array('access administration pages'),
-    'type'             => MENU_CALLBACK,
-    'file'             => 'includes/wallyextra.admin.inc',
-  );
-  
-  return $items;
-}
-
-/**
  *  Implémentation du hook_theme(); 
  */
 function wallyextra_theme(&$var) {
@@ -107,59 +73,7 @@ function wallyextra_theme(&$var) {
       'arguments' => array('links' => NULL, 'results' => NULL, 'mode' => NULL),
       'template' => 'wallyextra_points-up-down',
     ),
-    
-    'wallyextra_supercron_settings' => array(
-      'arguments' => array('form' => NULL),
-    ),
-
   );
-}
-
-/**
- * Implementation of hook_form_FORM_ID_alter()
- * 
- * Add submit callback to refresh the wallyextra_cache_torefresh table after saving a page contents.
- */
-function wallyextra_form_panels_panel_context_edit_content_alter(&$form, $form_state) {
-  $form['#submit'][] = 'wallyextra_refresh_cache_list';
-}
-
-/**
- * Implementation of hook_form_alter()
- */
-function wallyextra_form_alter(&$form, $form_state, $form_id) {
-  if (strstr($form_id, '_content_type_edit_form')) {
-    // We add a rule field to every CTools content type configuration form.
-    $form['wally_rule'] = array (
-      '#type'             => 'textfield',
-      '#title'            => t('Refresh time (minutes)'),
-      '#description'			=> t('This is the frequency with which the hook_wallyextra_refresh_block will be called for this content.'),
-      '#default_value'		=> isset($form_state['conf']['wally_rule']) ? $form_state['conf']['wally_rule'] : 15,
-    );
-    
-    $form['#validate'][] = 'wallyextra_content_type_form_validate';
-    $form['#submit'][] = 'wallyextra_content_type_form_submit';
-  }
-}
-
-/**
- * Validation for the refresh rule added to CTools content types.
- */
-function wallyextra_content_type_form_validate(&$form, &$form_state) {
-  $values = $form_state['values'];
-  
-  if (isset($values['wally_rule']) && !is_numeric($values['wally_rule'])) {
-    form_set_error('wally_rule', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($values['wally_rule']) && ($values['wally_rule'] < 0 || $values['wally_rule'] >= 60)) {
-    form_set_error('wally_rule', t('The refresh time must be greater or equal to 0 and smaller than 60 minutes'));
-  }
-}
-
-/**
- * Submit for the refresh rule added to CTools content types.
- */
-function wallyextra_content_type_form_submit(&$form, &$form_state) {
-  $form_state['conf']['wally_rule'] = $form_state['values']['wally_rule'];
 }
 
 /**
@@ -198,7 +112,7 @@ function wallyextra_twitread_content_perm() {
   );
 }
 
-/*
+/**
  * Implementation of hook_ctools_plugin_directory().
  * 
  * It simply tells panels where to find the .inc files that define various
@@ -211,7 +125,7 @@ function wallyextra_ctools_plugin_directory($module, $plugin) {
   }
 }
 
-/*
+/**
  * Implement hook_ctools_plugin_api().
  * 
  * If you do this, CTools will pick up default panels pages in
@@ -364,11 +278,11 @@ function wallyextra_content_type_new($plugin_name, $set_defaults) {
   return $item;
 }
 
-/*
+/**
  * Implementation of hook_rate_templates().
  */ 
 function wallyextra_rate_templates() {
- $templates = array();
+  $templates = array();
   $templates['points_up_down'] = new stdClass();
   $templates['points_up_down']->value_type = 'points';
   $templates['points_up_down']->options = array(
@@ -380,99 +294,41 @@ function wallyextra_rate_templates() {
   $templates['points_up_down']->customizable = FALSE;
   $templates['points_up_down']->translate = TRUE;
   $templates['points_up_down']->template_title = t('Points up / down');
-    return $templates;
-  }
-
-/*
- * Implementation of hook_cron().
- */ 
-function wallyextra_cron(){
-  $return = '<b>Run '.date('Y-m-d H:i:s').' :</b></br>';
-  
-  $blocks_list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE enabled = 1 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
-  while ($block = db_fetch_array($blocks_list)) {
-    while (is_string($block['settings']))
-      $block['settings'] = unserialize($block['settings']);
-    $output = module_invoke_all('wallyextra_refresh_block', $block['cid'], $block['settings']);
-    $block['output'] .= serialize($output);
-    $block['last_run'] = time();
-    drupal_write_record('wallyextra_cache_torefresh', $block, 'cid');
-    $return .= $block['cid'].'</br>';
-  }
-  
-  print $return;
+  return $templates;
 }
 
 /**
- * Get all blocks and put them in the wallyextra_cache_torefresh table.
+ * Implementation of hook_refresh_block()
  */
-function wallyextra_refresh_cache_list($form = null, $form_state = null) {
-  // Get a list of all blocks set in all pages
-  $pages = page_manager_get_tasks_by_type('page');
-  $handlers = array();
-  foreach ($pages as $page_name => $page) {
-    $cached_page = page_manager_get_page_cache($page_name);
-    $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
-    foreach ($cached_page->handlers as $handler) {
-      $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
-      foreach ($cached_panels->display->content as $display_content)
-        $handlers[$page_name][] = $display_content;
-    }
-  }
-  
-  // Get previous settings from DB to save the cron config
-  $blocks_list_db = db_query('SELECT * FROM {wallyextra_cache_torefresh}');
-  $blocks_list = array();
-  while ($temp_block = db_fetch_array($blocks_list_db))
-    $blocks_list[$temp_block['cid']] = $temp_block;
-  
-  // Restart from an empty table
-  db_query('TRUNCATE TABLE wallyextra_cache_torefresh');
-  
-  // Transform the list to get the same structure as the table and add an entry to the table
-  foreach ($handlers as $page_name => $page_handlers) {
-    if (is_array($page_handlers) && !empty($page_handlers)) {
-      foreach ($page_handlers as $handler) {
-        $block = array();
-        $config = $handler->configuration;
-        $block['cid'] = isset($config['caid']) ? $config['caid'] : $page_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
-        
-        if (isset($blocks_list[$block['cid']])) {
-          $block['output'] = $blocks_list[$block['cid']]['output'];
-          $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
-          $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
-          $block['weight'] = $blocks_list[$block['cid']]['weight'];
-          $block['rule'] = $blocks_list[$block['cid']]['rule'];
-        } else {
-          $block['rule'] = isset($config['wally_rule']) ? 60*$config['wally_rule'] : 0;
-        }
-        
-        $config['wally_rule'] = 0; // Just to be sure the rule parameter si setted before unset it
-        unset($config['wally_rule']);
-        $block['settings'] = $config;
-        
-        drupal_write_record('wallyextra_cache_torefresh', $block);
-      }
-    }
-  }
-}
-
-/**
- * Implementation of hook_wallyextra_refresh_block()
- */
-function wallyextra_wallyextra_refresh_block($cid, $settings) {
+function wallyextra_refresh_block($cid, $settings) {
   $return = array();
   if (strstr($cid, 'rssmix_')) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/rssmixread');
-    $old_feed = cache_get($cid);
+    wallyextra_rssmixread_refresh_block($cid, $settings);
     $return[] = 'Cache updated for : '.$cid.' on '.date('Y-m-d H:i:s', time());
-    if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
-      _wallyextra_rssmix_setcache($settings, $old_feed->data);
-    } else {
-      _wallyextra_rssmix_setcache($settings);
-    }
+  } elseif (strstr($cid, 'remotehtml_')) {
+    module_load_include('inc', 'wallyextra', 'plugins/content_types/remotehtml');
+    wallyextra_remotehtml_refresh_block($cid, $settings);
+    $return[] = 'Cache updated for : '.$cid.' on '.date('Y-m-d H:i:s', time());
   }
   return $return;
+}
+
+/**
+ * Get an object from cache or create it if it doesn't exists
+ */
+function wallyextra_get_cache_or_create($cid, $callback, $params) {
+  $cached_datas = cache_get($cid, 'cache');
+  
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+    // This cache doesn't exists, create it
+    $datas = call_user_func_array($callback, $params);
+  } else {
+    // The object exists in cache
+    $datas = $cached_datas->data;
+  }
+  
+  return $datas;
 }
 
 /**

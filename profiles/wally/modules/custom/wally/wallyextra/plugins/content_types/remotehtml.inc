@@ -30,13 +30,6 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
     '#default_value'    => $settings['uri'],
     '#required'         => TRUE,
   );
- 
-  $form['delta_t'] = array (
-    '#type'             => 'textfield',
-    '#title'            => t('Refresh time (minutes)'),
-    '#default_value'    => $settings['delta_t'],
-    '#required'         => TRUE,
-  );
 
   $form['override_theme'] = array (
     '#type'             => 'checkbox',
@@ -111,12 +104,6 @@ function wallyextra_remotehtml_content_type_edit_form_validate(&$form, &$form_st
       form_set_error('uri', t('The URI '.check_plain($uri_string).' doesn\'t respond.'));
     }
   }
-  
-  if (isset($form['delta_t']['#value']) && !is_numeric($form['delta_t']['#value'])) {
-    form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($form['delta_t']['#value']) && $form['delta_t']['#value'] < 0) {
-    form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
-  }
 }
 
 /**
@@ -138,7 +125,6 @@ function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['conf']['uri']=$form['uri']['#value'];
     $form_state['conf']['override_theme']=$form['override_theme']['#value'];
     $form_state['conf']['override_theme_text']=$form['override_theme_text']['#value'];
-    $form_state['conf']['delta_t'] = $form['delta_t']['#value'];
     $form_state['conf']['caid'] = $form['caid']['#value'];
   }
 }
@@ -279,31 +265,20 @@ function wallyextra_remotehtml_content_type_get_conf($subtype, $conf) {
 function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
   
-  //$feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
-  $cached_block = cache_get($cid);
-  if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || ($cached_feed->expire < time()) || ($cached_feed->expire == -1)) {
-    $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
-    wallytoolbox_flush_all_pages($internal_url, TRUE);
-    
-    $block_uri = $settings['uri'];
-    $override_theme = $settings['override_theme'];
-    $override_theme_text = $settings['override_theme_text'];
-    //@TODO réécrire cette partie
-    //$maxitem = $settings['maxitem'];
-    $htmlblock = file_get_contents($block_uri);
-    //$feed = _wallyextra_remotehtml_createarrayfromuri($block_uri, $maxitem);
-
-    cache_set($cid, $htmlblock, 'cache', time() + 60*$settings['delta_t'] + 1);
-  } else {
-    $htmlblock = $cached_block->data;
-  }
+  
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', array($settings));
 	
-  $block->content = theme("wallyct_remotehtml", $subtype, $context, $htmlblock, $settings);
-  //$block->content = "BOUTROULE"; 
+  $override_theme = $settings['override_theme'];
+  $override_theme_text = $settings['override_theme_text'];
+  if ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
+    $block->content = theme($settings['override_theme_text'], $subtype, $context, $htmlblock, $settings ) ;
+  else
+    $block->content = theme("wallyct_remotehtml", $subtype, $context, $htmlblock, $settings);
+  
   return $block;
 }
 
@@ -377,6 +352,13 @@ function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
 }
 
 /**
+ * Custom refresh action for Remote HTML blocks
+ */
+function wallyextra_remotehtml_refresh_block($cid, $settings) {
+  _wallyextra_remotehtml_setcache($settings);
+}
+
+/**
  * Definition of the default values of the edit form.am
  * 
  * @return
@@ -385,10 +367,30 @@ function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
 function _wallyextra_remotehtml_defaultformvalues() {
   $default_form_values = array();
   $default_form_values['uri'] = '';
-  $default_form_values['delta_t'] = 20;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
   $default_form_values['caid'] = 'remotehtml_'.time();
 
   return $default_form_values;
+}
+
+/**
+ * Refresh the cache for the selected remote HTML entry in the cache table
+ * 
+ * @param $settings
+ *   The array containing the settings for this object.
+ * 
+ * @return
+ *   The remote HTML content.
+ */
+function _wallyextra_remotehtml_setcache($settings) {
+  $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+  wallytoolbox_flush_all_pages($internal_url, TRUE);
+
+  $block_uri = $settings['uri'];
+  $htmlblock = file_get_contents($block_uri);
+
+  cache_set($cid, $htmlblock, 'cache');
+
+  return $htmlblock;
 }
