@@ -1068,7 +1068,8 @@ function wallytoolbox_cron(){
   while ($block = db_fetch_array($blocks_list)) {
     while (is_string($block['settings']))
       $block['settings'] = unserialize($block['settings']);
-    $output = module_invoke_all('refresh_block', $block['cid'], $block['settings']);
+    $block_infos = explode(':', $block['cid']);
+    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
     $block['output'] .= serialize($output);
     $block['last_run'] = time();
     drupal_write_record('wallytoolbox_content_types_cache', $block, 'cid');
@@ -1110,7 +1111,7 @@ function wallytoolbox_refresh_cache_list($form = null, $form_state = null) {
       foreach ($page_handlers as $handler) {
         $block = array();
         $config = $handler->configuration;
-        $block['cid'] = isset($config['caid']) ? $config['caid'] : $page_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
+        $block['cid'] = $page_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
         
         if (isset($blocks_list[$block['cid']])) {
           $block['output'] = $blocks_list[$block['cid']]['output'];
