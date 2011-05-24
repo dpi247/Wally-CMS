@@ -42,7 +42,7 @@ function getComportementToolbarJs() {
   	
   	buildDialog = function($dialog, data, id) {
   		$dialog = $("<div></div>").html(data)
-  			.attr("id",id)
+  			.attr("id",id);
   			/*.dialog({
     			autoOpen: false,
     			modal: true
