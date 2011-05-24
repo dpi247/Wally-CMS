@@ -352,7 +352,7 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   if($absolute_path){
     $file = $path_to_zip;
   } else {
-    $file = variable_get('wallymport_preview_source','')."/".$path_to_zip;
+    $file = variable_get('wallymport_preview_source', 'sites/default/files/preview')."/".$path_to_zip;
   }
   
   if (!file_exists($file)) {
