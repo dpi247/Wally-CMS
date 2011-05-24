@@ -35,6 +35,7 @@ else {
  *   on the page, or a string with a single file name.
  */
 function jquery_ui_add($files = array()) {
+  dsm($files);
   static $loaded_files, $ui_core, $effects_core;
   $jquery_ui_path = JQUERY_UI_PATH . '/ui';
   $compression = variable_get('jquery_update_compression_type', 'mini');
