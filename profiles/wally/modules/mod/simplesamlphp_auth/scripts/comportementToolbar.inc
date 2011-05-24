@@ -27,33 +27,27 @@ function getComportementToolbarJs() {
 	
   	openConnect = function() {
   		var idC = "regformOC";
-  		if ($("#"+idC).length > 0) {
-  			$dialog = $("#"+idC);
-  			$dialog.dialog("open");
-  		}
-  		else {
-  			var $dialog;
-  			//JSON direct sample
-  			$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
-  				// if there is data, filter it and render it out
-  				if(data){
-  					$dialog = buildDialog($dialog, data, idC);
-  				} else {
-  					var errormsg = "<p>'.t('Error: could not load the page.').'</p>";
-  					$dialog = buildDialog($dialog, errormsg, idC);
-  				}
-  			});
-  		}
+  		var $dialog;
+  		//JSON direct sample
+  		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
+  			// if there is data, filter it and render it out
+  			if(data){
+  				$dialog = buildDialog($dialog, data, idC);
+  			} else {
+  				var errormsg = "<p>'.t('Error: could not load the page.').'</p>";
+  				$dialog = buildDialog($dialog, errormsg, idC);
+  			}
+  		});
   	};
   	
   	buildDialog = function($dialog, data, id) {
   		$dialog = $("<div></div>").html(data)
   			.attr("id",id)
-  			.dialog({
+  			/*.dialog({
     			autoOpen: false,
     			modal: true
     		});
-    	$dialog.dialog("open");
+    	$dialog.dialog("open");*/
     	return false;
     };
     
