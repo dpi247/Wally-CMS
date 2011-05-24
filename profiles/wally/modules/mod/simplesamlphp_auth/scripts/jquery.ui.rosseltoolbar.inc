@@ -7,11 +7,13 @@ function getRosseltoolbarJs () {
   $(document).ready( function() {
     // Get the content of the toolbar
   	$.getJSON("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/toolbarJSON.php?cbk=?", { target: window.location.href }, function(data) {
+  		alert("cocuouc");
   		buildToolbar(data);
   	});
   	
   	buildToolbar = function(data) {
     	// Add all the element
+    	alert("cocuocusdqoufazei");
     	$("#rtb").wrapInner("<div id=\'wrap-toolbar\'>");
     	$("#wrap-toolbar").wrapInner("<div id=\'toolbar\'>");
     	$("#toolbar").append("<div id=\'tool-right\'>");
