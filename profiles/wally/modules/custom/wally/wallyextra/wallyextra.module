@@ -300,16 +300,16 @@ function wallyextra_rate_templates() {
 /**
  * Implementation of hook_refresh_block()
  */
-function wallyextra_refresh_block($cid, $settings) {
+function wallyextra_refresh_block($infos, $settings) {
   $return = array();
-  if (strstr($cid, 'rssmix_')) {
+  if ($infos['type'] == 'rssmixread') {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/rssmixread');
-    wallyextra_rssmixread_refresh_block($cid, $settings);
-    $return[] = 'Cache updated for : '.$cid.' on '.date('Y-m-d H:i:s', time());
-  } elseif (strstr($cid, 'remotehtml_')) {
+    wallyextra_rssmixread_refresh_block($settings);
+    $return[] = 'Cache updated for RSS mix : '.$settings['caid'].' on '.date('Y-m-d H:i:s', time());
+  } elseif ($infos['type'] == 'remotehtml') {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/remotehtml');
-    wallyextra_remotehtml_refresh_block($cid, $settings);
-    $return[] = 'Cache updated for : '.$cid.' on '.date('Y-m-d H:i:s', time());
+    wallyextra_remotehtml_refresh_block($settings);
+    $return[] = 'Cache updated for Remote HTML: '.$settings['caid'].' on '.date('Y-m-d H:i:s', time());
   }
   return $return;
 }

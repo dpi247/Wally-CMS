@@ -354,7 +354,7 @@ function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
 /**
  * Custom refresh action for Remote HTML blocks
  */
-function wallyextra_remotehtml_refresh_block($cid, $settings) {
+function wallyextra_remotehtml_refresh_block($settings) {
   _wallyextra_remotehtml_setcache($settings);
 }
 

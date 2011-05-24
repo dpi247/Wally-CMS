@@ -454,8 +454,8 @@ function wallyextra_rssmixread_content_type_admin_info($subtype, $conf) {
 /**
  * Custom refresh action for RSS Mix blocks
  */
-function wallyextra_rssmixread_refresh_block($cid, $settings) {
-  $old_feed = cache_get($cid);
+function wallyextra_rssmixread_refresh_block($settings) {
+  $old_feed = cache_get($settings['caid']);
   if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
     _wallyextra_rssmixread_setcache($settings, $old_feed->data);
   } else {
