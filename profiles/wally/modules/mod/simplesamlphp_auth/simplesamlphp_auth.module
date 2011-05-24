@@ -402,12 +402,7 @@ function _simplesamlphp_auth_generate_block_text() {
     $block_content .= '<p><a href="' . $initSSOurl . '">' . t('Federated login') . '</a></p>';
   }*/
   
-  // Adding some js
   $simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
-  $jquery_ui_to_add = array('ui.widget', 'ui.datepicker',);// 'jquery.ui.dialog');
-  
-  jquery_ui_add($jquery_ui_to_add);
-  drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.datepicker-fr.js');
   require_once $simplesamlphp_auth_path.'/scripts/comportementToolbar.inc';
   drupal_add_js(getComportementToolbarJs(), 'inline');
   require_once $simplesamlphp_auth_path.'/scripts/jquery.ui.rosseltoolbar.inc';
