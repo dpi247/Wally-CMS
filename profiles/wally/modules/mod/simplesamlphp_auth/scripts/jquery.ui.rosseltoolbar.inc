@@ -12,16 +12,16 @@ function getRosseltoolbarJs () {
   	
   	buildToolbar = function(data) {
     	// Add all the element
-    	$("#rtb").wrapInner("<div id=\'wrap-toolbar\'>");alert($("#rtb"));
+    	$("#rtb").wrapInner("<div id=\'wrap-toolbar\'>");
     	$("#wrap-toolbar").wrapInner("<div id=\'toolbar\'>");
     	$("#toolbar").append("<div id=\'tool-right\'>");
     	
-    	if(data.mode == "unauthenticated") {
+    	/*if(data.mode == "unauthenticated") {
     		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a></div>" + data.iframe);
     	}
     	else {
     		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'" + data.profil + "\' class=\'disconnected colorbox\'>'.t('Hello').' <strong>" + data.user + "</strong></a><ul><li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li><li><a href=\''.SSO_LOGOUT_PATH.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li></ul></div>");
-    	}
+    	}*/
     }
   });
   ';
