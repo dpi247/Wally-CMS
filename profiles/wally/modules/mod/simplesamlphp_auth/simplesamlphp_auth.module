@@ -31,21 +31,6 @@ function simplesamlphp_auth_menu() {
 }
 
 /**
- * Implementation of hook_theme()
- */
-function simplesamlphp_auth_theme() {
-  $path = drupal_get_path('module', 'simplesamlphp_auth');
-  
-  return array(
-		'toolbar' => array(
-      'arguments' => array(),
-      'template' => 'toolbar',
-      'path' => $path.'/templates',
-    ),
-  );
-}
-
-/**
  * Implementation of hook_init().
  */
 function simplesamlphp_auth_init() {
@@ -433,7 +418,7 @@ function _simplesamlphp_auth_generate_block_text() {
   	});
   ', 'inline');
 
-  return theme('toolbar');//.$block_content;
+  return '<div id="rtb"></div>';//.$block_content;
 }
 
 function _simplesamlphp_auth_evaulaterolerule($roleruleevaluation, $attributes) {
