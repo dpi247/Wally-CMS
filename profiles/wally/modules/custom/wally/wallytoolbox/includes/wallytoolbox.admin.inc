@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Wallyextra "Supercron" settings form
+ * WallyToolbox "Supercron" settings form
  */
-function wallyextra_supercron_settings ($form_state) {
-  $blocks_list = db_query('SELECT * FROM {wallyextra_cache_torefresh} ORDER BY weight ASC, cid ASC');
+function wallytoolbox_supercron_settings ($form_state) {
+  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} ORDER BY weight ASC, cid ASC');
   
   $form = array();
   
   $form['invoke-all']=array(
     '#type' => 'item',
-    '#value' => l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="Run" title="Run"> '.t('Run all'), 'admin/wally/wallyextra/supercron/call/all', array('attributes' => array(), 'html' => TRUE)),
+    '#value' => l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="Run" title="Run"> '.t('Run all'), 'admin/wally/wallytoolbox/supercron/call/all', array('attributes' => array(), 'html' => TRUE)),
   );
   
   $form['rows']['#tree'] = TRUE;
@@ -67,9 +67,9 @@ function wallyextra_supercron_settings ($form_state) {
 }
 
 /**
- * Theming for the wallyextra "Supercron" settings form
+ * Theming for the wallytoolbox "Supercron" settings form
  */
-function theme_wallyextra_supercron_settings($form) {
+function theme_wallytoolbox_supercron_settings($form) {
   $header[] = '';
   $header[] = '';
   $header[] = t('Page');
@@ -89,14 +89,14 @@ function theme_wallyextra_supercron_settings($form) {
     
     $row = array();
     $row[] = '';
-    $row[] = l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="Run" title="Run">', 'admin/wally/wallyextra/supercron/call/'.$cid, array('attributes' => array(), 'html' => TRUE));
+    $row[] = l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="Run" title="Run">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('attributes' => array(), 'html' => TRUE));
     $row[] = check_plain($expl_cid[0]);
     $row[] = check_plain($expl_cid[1]);
     $row[] = check_plain($expl_cid[2]);
     $row[] = check_plain($expl_cid[3]);
     $row[] = check_plain($expl_cid[4]);
     $row[] = date('Y-m-d H:i:s', $form_row['last_run']['#value']);
-    $row[] = l('Output', 'admin/wally/wallyextra/supercron/output/'.$cid);
+    $row[] = l('Output', 'admin/wally/wallytoolbox/supercron/output/'.$cid);
     $row[] = drupal_render($form_row['enabled']);
     $row[] = drupal_render($form_row['rule']);
     $row[] = drupal_render($form_row['weight']);
@@ -105,20 +105,20 @@ function theme_wallyextra_supercron_settings($form) {
     unset($form['rows'][$cid]);
   }
 
-  drupal_add_tabledrag('wallyextra-supercron-table', 'order', 'sibling', 'weight');
+  drupal_add_tabledrag('wallytoolbox-supercron-table', 'order', 'sibling', 'weight');
 
   $output  = '';
   $output .= drupal_render($form['invoke-all']);
-  $output .= theme('table', $header, $rows, array('id' => 'wallyextra-supercron-table'));
+  $output .= theme('table', $header, $rows, array('id' => 'wallytoolbox-supercron-table'));
   $output .= drupal_render($form);
 
   return $output;
 }
 
 /**
- * Validation for the wallyexra "Supercron" settings form
+ * Validation for the wallytoolbox "Supercron" settings form
  */
-function wallyextra_supercron_settings_validate($form, &$form_state) {
+function wallytoolbox_supercron_settings_validate($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
     if (isset($row['rule']) && !is_numeric($row['rule'])) {
       form_set_error('rows]['.$row['cid'].'][rule', t('The refresh time isn\'t a numeric value'));
@@ -129,44 +129,44 @@ function wallyextra_supercron_settings_validate($form, &$form_state) {
 }
 
 /**
- * Submit for the wallyexra "Supercron" settings form
+ * Submit for the wallytoolbox "Supercron" settings form
  */
-function wallyextra_supercron_settings_submit($form, &$form_state) {
+function wallytoolbox_supercron_settings_submit($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
     $row['rule'] *= 60;
-    drupal_write_record('wallyextra_cache_torefresh', $row, 'cid');
+    drupal_write_record('wallytoolbox_content_types_cache', $row, 'cid');
   }
   
   drupal_set_message(t('Configuration saved'));
 }
 
 /**
- * Print the outputs of a Wallyextra "Supercron" entry.
+ * Print the outputs of a wallytoolbox "Supercron" entry.
  */
-function wallyextra_supercron_output($cid) {
-  $output = db_fetch_array(db_query('SELECT output FROM {wallyextra_cache_torefresh} WHERE cid = "%s"', $cid));
+function wallytoolbox_supercron_output($cid) {
+  $output = db_fetch_array(db_query('SELECT output FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid));
   drupal_set_title(drupal_get_title().' '.$cid);
   return unserialize($output['output']);
 }
 
 /**
- * Calls a single Wallyextra "Supercron" entry (or all).
+ * Calls a single wallytoolbox "Supercron" entry (or all).
  */
-function wallyextra_supercron_call($cid) {
+function wallytoolbox_supercron_call($cid) {
   if ($cid == 'all') {
-    $blocks_list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE enabled = 1 ORDER BY weight ASC, cid ASC');
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 ORDER BY weight ASC, cid ASC');
   } else {
-    $blocks_list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE cid = "%s"', $cid);
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid);
   }
   
   while ($block = db_fetch_array($blocks_list)) {
     while (is_string($block['settings']))
       $block['settings'] = unserialize($block['settings']);
-    $output = module_invoke_all('wallyextra_refresh_block', $block['cid'], $block['settings']);
+    $output = module_invoke_all('refresh_block', $block['cid'], $block['settings']);
     $block['output'] .= serialize($output);
     $block['last_run'] = time();
-    drupal_write_record('wallyextra_cache_torefresh', $block, 'cid');
+    drupal_write_record('wallytoolbox_content_types_cache', $block, 'cid');
   }
 
-  drupal_goto('admin/wally/wallyextra/supercron');
+  drupal_goto('admin/wally/wallytoolbox/supercron');
 }

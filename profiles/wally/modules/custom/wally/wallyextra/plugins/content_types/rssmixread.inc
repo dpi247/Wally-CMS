@@ -55,13 +55,6 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#required'         => TRUE,
   );
   
-  $form['delta_t'] = array (
-    '#type'             => 'textfield',
-    '#title'            => t('Refresh time (minutes)'),
-    '#default_value'    => $settings['delta_t'],
-    '#required'         => TRUE,
-  );
-  
   $mix_schemas = array(
     'alt'               => 'Alternate',
     'any'               => 'Most Recent'
@@ -185,12 +178,6 @@ function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_st
     form_set_error('maxitem_byfeed', t('The max item by feed value must be greater than 0'));
   }
   
-  if (isset($form_state['values']['delta_t']) && !is_numeric($form_state['values']['delta_t'])) {
-    form_set_error('delta_t', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($form_state['values']['delta_t']) && $form_state['values']['delta_t'] < 0) {
-    form_set_error('delta_t', t('The refresh time must be greater or equal to 0'));
-  }
-  
   if ($form_state['values']['own_schema'] && !empty($form_state['values']['own_schema'])) {
     $temp_schema = explode(',', $form_state['values']['own_schema']);
     foreach ($temp_schema as $temp_elem) {
@@ -224,7 +211,6 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['conf']['uris'] = $form_state['values']['uris'];
     $form_state['conf']['maxitem_global'] = $form_state['values']['maxitem_global'];
     $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
-    $form_state['conf']['delta_t'] = $form_state['values']['delta_t'];
     $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
     $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
     $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
@@ -331,31 +317,15 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->module = 'wallyextra';
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
-  $cached_feed = cache_get($cid, 'cache');//, 'rssmix');
   
-  if (!is_object($cached_feed) || !isset($cached_feed) || empty($cached_feed)) {
-    //watchdog('RSS mix', 'Non existant cache, new feeds mixed. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
-    $feed = _wallyextra_rssmix_setcache($settings);
-  } elseif (($cached_feed->created +$settings['delta_t']*(60)) <= time()){ 
-    //watchdog('RSS mix', 'Too old cache, adding to cache_torefresh table. Plugin ID : %id.', array('%id' => $cid), WATCHDOG_INFO);
-    $object['cid'] = $cid;
-    $object['settings'] = $settings;
-    $list = db_query('SELECT * FROM {wallyextra_cache_torefresh} WHERE cid = "%s"', $cid);
-    if(!db_result($list) && !empty($cid)){
-      drupal_write_record('wallyextra_cache_torefresh', $object);
-    }
-    $feed = $cached_feed->data;
-  } else {
-    //watchdog('RSS mix', 'Good cache, serving cache : %id.', array('%id' => $cid), WATCHDOG_INFO);
-    $feed = $cached_feed->data;
-  }
-  if ($settings['override_theme_text'] != "") {// && function_exists($settings['override_theme_text'])){
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', array($settings));
+  
+  if ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
-    return $block;
-  } else {
+  else
     $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
-    return $block;  
-  }
+  
+  return $block;
 }
 
 /**
@@ -482,6 +452,18 @@ function wallyextra_rssmixread_content_type_admin_info($subtype, $conf) {
 }
 
 /**
+ * Custom refresh action for RSS Mix blocks
+ */
+function wallyextra_rssmixread_refresh_block($cid, $settings) {
+  $old_feed = cache_get($cid);
+  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
+    _wallyextra_rssmixread_setcache($settings, $old_feed->data);
+  } else {
+    _wallyextra_rssmixread_setcache($settings);
+  }
+}
+
+/**
  * Definition of the default values of the edit form.
  * 
  * @return
@@ -492,7 +474,6 @@ function _wallyextra_rssmixread_defaultformvalues() {
   $default_form_values['uris'] = '';
   $default_form_values['maxitem_global'] = 10;
   $default_form_values['maxitem_byfeed'] = 10;
-  $default_form_values['delta_t'] = 20;
   $default_form_values['own_schema'] = '';
   $default_form_values['mix_schema'] = 'alt';
   $default_form_values['get_distant_img'] = 0;
@@ -604,7 +585,7 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  *   The array containing the differents items of the rssmix feed 
  * 	 which will be displayed.
  */
-function _wallyextra_rssmix_setcache($settings, $old_feed = array()){
+function _wallyextra_rssmixread_setcache($settings, $old_feed = array()){
   $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;

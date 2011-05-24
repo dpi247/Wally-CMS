@@ -11,6 +11,7 @@
  */
 function wallytoolbox_install() {
   drupal_install_schema('wallytoolbox');
+  wallytoolbox_refresh_cache_list();
 }
 
 /**
@@ -62,6 +63,53 @@ function wallytoolbox_schema_1() {
       'nid' => array('nid'),
     ),
   );
+  
+  $schema['wallytoolbox_content_types_cache'] = array(
+  	'description' => 'Contains a list of cached elements to refresh and their settings.',
+    'fields' => array(
+      'cid' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'enabled' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 1
+      ),
+      'weight' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rule' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the cached content rendered',
+        'serialize' => TRUE,
+       // 'object default' => array(),
+      ),
+      'output' => array(
+      	'type' => 'text',
+      	'size' => 'big',
+      	'not null' => TRUE,
+        'default' => '',
+      ),
+      'last_run' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 0,
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
   return $schema;
 }
 
@@ -79,5 +127,16 @@ function wallytoolbox_update_6001() {
 function wallytoolbox_update_6002() {
   $ret = array();
   db_add_index($ret, 'wallytoolbox_object_cache', 'nid', array('nid'));
+  return $ret;
+}
+
+/**
+ * Add table wallytoolbox_content_types_cache (to content types CTools caching system)
+ */
+function wallytoolbox_update_6003() {
+  $ret = array();
+  $schemas = wallytoolbox_schema_1();
+  db_create_table($ret, 'wallytoolbox_content_types_cache', $schemas['wallytoolbox_content_types_cache']);
+  wallytoolbox_refresh_cache_list();
   return $ret;
 }

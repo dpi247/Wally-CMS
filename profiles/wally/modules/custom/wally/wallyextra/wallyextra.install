@@ -5,7 +5,6 @@
  */
 function wallyextra_install() {
   drupal_install_schema('wallyextra');
-  wallyextra_refresh_cache_list();
 }
 
 /*
@@ -288,55 +287,13 @@ function wallyextra_schema() {
     ),
     'primary key' => array('cid'),
   );
-  $schema['wallyextra_cache_torefresh'] = array(
-  'description' => 'Contains a list of cached elements to refresh and their settings.',
-    'fields' => array(
-      'cid' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'A database primary key to ensure uniqueness',
-        'not null' => TRUE,
-      ),
-      'enabled' => array(
-      	'type' => 'int',
-      	'not null' => TRUE,
-      	'default' => 1
-      ),
-      'weight' => array(
-      	'type' => 'int',
-      	'not null' => TRUE,
-        'default' => 0,
-      ),
-      'rule' => array(
-      	'type' => 'int',
-      	'not null' => TRUE,
-        'default' => 0,
-      ),
-      'settings' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Serialized settings for the cached content rendered',
-        'serialize' => TRUE,
-       // 'object default' => array(),
-      ),
-      'output' => array(
-      	'type' => 'text',
-      	'size' => 'big',
-      	'not null' => TRUE,
-        'default' => '',
-      ),
-      'last_run' => array(
-      	'type' => 'int',
-      	'not null' => TRUE,
-      	'default' => 0,
-      ),
-    ),
-    'primary key' => array('cid'),
-  );
   
   return $schema;
 }
 
+/**
+ * Add table wallyextra_cache_torefresh
+ */
 function wallyextra_update_6001() {
   $schema['wallyextra_cache_torefresh'] = array(
     'description' => 'Contains a list of cached elements to refresh and their settings.',
@@ -362,6 +319,9 @@ function wallyextra_update_6001() {
   return $ret;
 }
 
+/**
+ * Add fields to wallyextra_cache_torefresh
+ */
 function wallyextra_update_6002() {
   $ret = array();
   
@@ -399,5 +359,14 @@ function wallyextra_update_6002() {
   
   wallyextra_refresh_cache_list();
   
+  return $ret;
+}
+
+/**
+ * Remove table wallyextra_cache_torefresh
+ */
+function wallyextra_update_6003() {
+  $ret = array();
+  db_drop_table($ret, 'wallyextra_cache_torefresh');
   return $ret;
 }
