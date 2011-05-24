@@ -404,7 +404,7 @@ function _simplesamlphp_auth_generate_block_text() {
   
   // Adding some js
   $simplesamlphp_auth_path = drupal_get_path('module', 'simplesamlphp_auth');
-  $jquery_ui_to_add = array('jquery-ui', 'jquery.ui.widget', 'jquery.ui.datepicker',);// 'jquery.ui.dialog');
+  $jquery_ui_to_add = array('ui.widget', 'ui.datepicker',);// 'jquery.ui.dialog');
   
   jquery_ui_add($jquery_ui_to_add);
   drupal_add_js($simplesamlphp_auth_path.'/scripts/jquery.ui.datepicker-fr.js');
