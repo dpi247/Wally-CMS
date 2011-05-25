@@ -9,7 +9,7 @@
   $target = $_GET["target"];
   $params = array(
     'targetUrl' => $target,
-    'simplesamlphp_auth_installdir' => SSO_LIBS_PATH.'/simplesamlphp_1_4',
+    'simplesamlphp_auth_installdir' => SSO_LIBS_PATH.'/'.SSO_SIMPLESAML_LIB,
   );
 
 	$toolbox = new SSOToolbox($params);
