@@ -1,11 +1,10 @@
-name = Wally Ctools
-description = Wally Ctools Integration.
-core = 6.x
-package = Wally
+name = "Wally Ctools"
+description = "Wally Ctools Integration."
+core = "6.x"
+package = "Wally"
+
 dependencies[] = ctools
 dependencies[] = page_manager
 dependencies[] = views_content
 dependencies[] = cckdestinations
 dependencies[] = wallytoolbox
-
-

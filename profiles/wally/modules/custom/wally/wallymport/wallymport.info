@@ -1,14 +1,8 @@
-; $Id: yaxim.info,v 1.0 2010/09/28 16:39:00 rso - Rouslan Sorokine Exp $
-name = Wally Import
+name = "Wally Import"
 description = "Import XML Content to Drupal for Wally Object"
-package = Wally
-core = 6.x
-dependencies[] = wallytoolbox
-
-
-; Information added by drupal.org packaging script on 2010-08-23
-version = "6.x-1.0"
+package = "Wally"
 core = "6.x"
+version = "6.x-1.0"
 project = "Wally"
-datestamp = "1282573770"
 
+dependencies[] = "wallytoolbox"

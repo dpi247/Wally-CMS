@@ -1,7 +1,9 @@
 core = "6.x"
-dependencies[] = "features"
 description = "Synchronize features according to taxonomy terms."
 name = "Wally Features Synchronizer"
 package = "Wally"
-project = "wallyfeaturessynchronizer"
+project = "Wally"
 version = "6.x-1.0"
+
+dependencies[] = "features"
+dependencies[] = "wallytoolbox"

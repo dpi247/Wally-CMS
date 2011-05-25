@@ -7,9 +7,7 @@ function wallymportlog_init(){
   
   static $log=array();
   
-
 }
-
 
 /**
  * Implementation of wimprt_process_packagess().
