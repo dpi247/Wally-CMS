@@ -12,6 +12,7 @@ function cckdestinations_install(){
  */
 function cckdestinations_uninstall(){
   content_notify('uninstall', 'destinationsfield');
+  wallytoolbox_variable_del_like('cckdestinations_');
 }
 
 /**
