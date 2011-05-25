@@ -29,27 +29,18 @@ function getComportementToolbarJs() {
   		var idC = "regformOC";
   		var $dialog;
   		//JSON direct sample
-  		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
+  		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getonnect.php", { target: window.location.pathname }, function(data) {
   			// if there is data, filter it and render it out
   			if(data){
-  				$dialog = buildDialog($dialog, data, idC);
+  				$dialog = $("#ident").html(data)
+  					.attr("id",id);
   			} else {
   				var errormsg = "<p>'.t('Error: could not load the page.').'</p>";
-  				$dialog = buildDialog($dialog, errormsg, idC);
+  				$dialog = $("#ident").html(errormsg+data)
+  					.attr("id",id);
   			}
   		});
   	};
-  	
-  	buildDialog = function($dialog, data, id) {
-  		$dialog = $("#ident").html(data)
-  			.attr("id",id);
-  			/*.dialog({
-    			autoOpen: false,
-    			modal: true
-    		});
-    	$dialog.dialog("open");*/
-    	return false;
-    };
     
     coPr = function(login,password) {
     	var dTime = new Date().getTime();
