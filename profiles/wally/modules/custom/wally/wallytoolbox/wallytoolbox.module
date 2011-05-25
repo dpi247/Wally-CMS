@@ -102,6 +102,31 @@ function wallytoolbox_content_type_form_submit(&$form, &$form_state) {
 }
 
 /**
+ * Unsets all persistent variables beginning with the given string.
+ *
+ * @param $name
+ *   The name of the variable to undefine.
+ *
+ * @see variable_get(), variable_set(), variable_del()
+ */
+function wallytoolbox_variable_del_like($name) {
+  global $conf, $db_prefix;
+
+  db_query("DELETE FROM {variable} WHERE name LIKE '%s%'", $name);
+
+  unset($conf[$name]);
+
+  // The write-through rebuild optimization isn't compatible with SimpleTest.
+  // Because array-based prefixes don't work with SimpleTest, we can assume
+  // that a non-string prefix indicates lack of SimpleTest operations.
+  if (is_string($db_prefix) && strpos($db_prefix, 'simpletest') === 0) {
+    cache_clear_all('variables', 'cache');
+  }
+  
+  variable_cache_rebuild();
+}
+
+/**
  * A true boolean conversion function.
  * 
  * @param $v
