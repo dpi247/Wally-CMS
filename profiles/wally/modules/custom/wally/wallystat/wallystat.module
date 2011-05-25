@@ -172,8 +172,6 @@ function wallystat_cron(){
   $query = "DELETE FROM {wallystat_node_hourly_counter} WHERE timestamp < ".$limit_tstamp;
 	db_query($query);
   
-	
-
   echo('Finished : '.date('Y-m-d H:i:s', time()).'<br/>');
 }
 
@@ -222,6 +220,3 @@ function wallystat_preprocess_page(&$vars){
 									", "inline");
 	}
 }
-
-
-?>
