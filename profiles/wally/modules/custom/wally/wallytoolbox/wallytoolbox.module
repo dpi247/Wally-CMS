@@ -1063,6 +1063,9 @@ function wallytoolbox_delete_photofile($photofile) {
  */ 
 function wallytoolbox_cron(){
   $return = '<b>Run '.date('Y-m-d H:i:s').' :</b></br>';
+  $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
+  if ($count['COUNT(*)'] == '0')
+    wallytoolbox_refresh_cache_list();
   
   $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
