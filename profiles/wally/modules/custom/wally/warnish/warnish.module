@@ -116,7 +116,7 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
         '#type' => 'select',
         '#description' => t('Time, in minutes, between updates for this block.'),
         '#options' => $minutes_list,
-        '#default_value' => variable_get('poll_ajax_block_refresh_time', 5),
+        '#default_value' => variable_get('warnish_poll_ajax_block_refresh_time', 5),
         '#required' => TRUE,
       );
       
@@ -124,7 +124,7 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
     case 'save':
       switch ($delta) {
         case 'poll_ajax':
-          variable_set('poll_ajax_block_refresh_time', $edit['refresh_time_minutes']);
+          variable_set('warnish_poll_ajax_block_refresh_time', $edit['refresh_time_minutes']);
           break;
       }
       break;
@@ -147,10 +147,10 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
 function warnish_cron() {
   if (variable_get('warnish_flush_cron', 0)) {
     if (variable_get('cache_lifetime', 0)) {
-      $cache_flush = variable_get('cache_flush_warnish', 0);
+      $cache_flush = variable_get('warnish_cache_flush', 0);
       if ($cache_flush == 0) {
         // This is the first request to clear the cache, start a timer.
-        variable_set('cache_flush_warnish', time());
+        variable_set('warnish_cache_flush', time());
       } elseif (time() > ($cache_flush + variable_get('cache_lifetime', 0))) {
         warnish_purge_all_pages();
       }
@@ -281,7 +281,7 @@ function warnish_get_status() {
  *   Hook_block
  */
 function warnish_get_poll_html_content() {
-  $refresh_ms = variable_get('poll_ajax_block_refresh_time', 5) * 60 * 1000;
+  $refresh_ms = variable_get('warnish_poll_ajax_block_refresh_time', 5) * 60 * 1000;
 
   drupal_add_js('
     $(document).ready(function(){
