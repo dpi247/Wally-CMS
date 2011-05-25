@@ -13,15 +13,14 @@ function getRosseltoolbarJs () {
   	buildToolbar = function(data) {
     	// Add all the element
     	$("#rtb").html("<div id=\'wrap-toolbar\'></div>");
-    	$("#wrap-toolbar").wrapInner("<div id=\'toolbar\'>");
-    	$("#toolbar").append("<div id=\'tool-right\'>");
+    	$("#wrap-toolbar").html("<div id=\'tool-right\'></div>");
     	
-    	/*if(data.mode == "unauthenticated") {
-    		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a></div>" + data.iframe);
+    	if(data.mode == "unauthenticated") {
+    		$("#tool-right").html("<div id=\'ident\'><a href=\'javascript:openConnect()\' class=\'connected colorbox\'>'.t('Connection').'</a></div>" + data.iframe);
     	}
     	else {
-    		$("#tool-right").wrapInner("<div id=\'ident\'><a href=\'" + data.profil + "\' class=\'disconnected colorbox\'>'.t('Hello').' <strong>" + data.user + "</strong></a><ul><li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li><li><a href=\''.SSO_LOGOUT_PATH.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li></ul></div>");
-    	}*/
+    		$("#tool-right").html("<div id=\'ident\'><a href=\'" + data.profil + "\' class=\'disconnected colorbox\'>'.t('Hello').' <strong>" + data.user + "</strong></a><ul><li><a href=\'" + data.profil + "\'>'.t('My profile').'</a></li><li><a href=\''.SSO_LOGOUT_PATH.'?url=" + encodeURIComponent(window.location.href) + "\'>'.t('Logout').'</a></li></ul></div>");
+    	}
     }
   });
   ';
