@@ -1,7 +1,7 @@
 ; $Id: wallyrules.info,v 1.0 $
 name = "Wally Rules"
 description = "Rules used by the module 'rules'"
-package = Wally
+package = "Wally"
 version = "6.x-1.0"
 core = "6.x"
 project = "Wally"

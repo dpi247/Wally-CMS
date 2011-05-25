@@ -4,3 +4,5 @@ name = "Warnish"
 package = "Wally"
 project = "warnish"
 version = "6.x-1.0-rc1"
+
+dependencies[] = "wallytoolbox"

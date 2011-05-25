@@ -1,7 +1,8 @@
-name = Wally Solr Plus
-description = Extension Solr for Wally.
-core = 6.x
-package = Wally
+name = "Wally Solr Plus"
+description = "Extension Solr for Wally."
+core = "6.x"
+package = "Wally"
+project = "Wally"
 
 dependencies[] = "apachesolr"
 dependencies[] = "wallytoolbox"

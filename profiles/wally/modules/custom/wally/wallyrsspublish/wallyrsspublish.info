@@ -2,5 +2,6 @@ name = "Wally RSS Publish"
 description = "Creation of RSS feeds by destination".
 core = "6.x"
 package = "Wally"
+project = "Wally"
 
 dependencies[] = "wallytoolbox"

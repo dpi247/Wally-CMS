@@ -1,8 +1,7 @@
-; $Id: media_coveritlive.info$
-
-name = Media: CoverItLive
-description = Provides CoverItLive support to the Embedded Media Field module.
+name = "Media: CoverItLive"
+description = "Provides CoverItLive support to the Embedded Media Field module."
 package = "Media"
-core = 6.x
-dependencies[] = emfield
-dependencies[] = emother
+core = "6.x"
+
+dependencies[] = "emfield"
+dependencies[] = "emother"
