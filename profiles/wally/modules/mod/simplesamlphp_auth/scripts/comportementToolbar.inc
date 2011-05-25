@@ -29,14 +29,10 @@ function getComportementToolbarJs() {
   		var idC = "regformOC";
   		var $dialog;
   		//JSON direct sample
-  		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getonnect.php", { target: window.location.pathname }, function(data) {
+  		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
   			// if there is data, filter it and render it out
   			if(data){
   				$dialog = $("#ident").html(data)
-  					.attr("id",id);
-  			} else {
-  				var errormsg = "<p>'.t('Error: could not load the page.').'</p>";
-  				$dialog = $("#ident").html(errormsg+data)
   					.attr("id",id);
   			}
   		});
