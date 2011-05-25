@@ -1,4 +1,6 @@
-name = Wally RSS
-description = Wally RSS.
-core = 6.x
-package = Wally
+name = "Wally RSS Publish"
+description = "Creation of RSS feeds by destination".
+core = "6.x"
+package = "Wally"
+
+dependencies[] = "wallytoolbox"
