@@ -111,6 +111,7 @@ function wallyrsstonode_install() {
  */
 function wallyrsstonode_uninstall() {
   drupal_uninstall_schema('wallyrsstonode');
+  wallytoolbox_variable_del_like('wallyrsstonode_');
 }
 
 /**

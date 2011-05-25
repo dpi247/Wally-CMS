@@ -97,7 +97,7 @@ function wallyrsstonode_cron() {
   }
 
   // Fetch the cron semaphore
-  $semaphore = variable_get('cronrsstonode_semaphore', FALSE);
+  $semaphore = variable_get('wallyrsstonode_cron_semaphore', FALSE);
 
   if ($semaphore) {
     if (time() - $semaphore > 3600) {
@@ -106,7 +106,7 @@ function wallyrsstonode_cron() {
       //watchdog('Cron RSS to node', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
 
       // Release cron semaphore
-      variable_del('cronrsstonode_semaphore');
+      variable_del('wallyrsstonode_cron_semaphore');
     } else {
       // Cron is still running normally.
       //watchdog('Cron RSS to node', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
@@ -120,17 +120,17 @@ function wallyrsstonode_cron() {
     register_shutdown_function('wallyrsstonode_cron_cleanup');
 
     // Lock cron semaphore
-    variable_set('cronrsstonode_semaphore', time());
+    variable_set('wallyrsstonode_cron_semaphore', time());
 
     // Call the function calling the RSS feeds
     $return = _wallyrsstonode_callallfeeds();
 
     // Record cron time
-    variable_set('cronrsstonode_last', time());
+    variable_set('wallyrsstonode_cron_last', time());
     //watchdog('Cron RSS to node', 'Cron run completed.', array(), WATCHDOG_NOTICE);
 
     // Release cron semaphore
-    variable_del('cronrsstonode_semaphore');
+    variable_del('wallyrsstonode_cron_semaphore');
 
     print_r($return);
     // Redirect to admin page if success
@@ -143,11 +143,11 @@ function wallyrsstonode_cron() {
  */
 function wallyrsstonode_cron_cleanup() {
   // See if the semaphore is still locked.
-  if (variable_get('cronrsstonode_semaphore', FALSE)) {
+  if (variable_get('wallyrsstonode_cron_semaphore', FALSE)) {
     //watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
 
     // Release cron semaphore
-    variable_del('cronrsstonode_semaphore');
+    variable_del('wallyrsstonode_cron_semaphore');
   }
 }
 
