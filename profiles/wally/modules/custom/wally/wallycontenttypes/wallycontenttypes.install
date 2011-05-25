@@ -1,19 +1,20 @@
 <?php
 
-/*
- * Implementation of the hook module _install();
+/**
+ * Implementation of hook_install();
  */
 function wallycontenttypes_install() {
   _wallycontenttypes_install_presets(); 
   drupal_install_schema('wallycontenttypes');
 }
 
-/*
- * Implementation of the hook module _uninstall();
+/**
+ * Implementation of hook_uninstall();
  */
 function wallycontenttypes_uninstall() {
   _wallycontenttypes_uninstall_presets();
   drupal_uninstall_schema('wallycontenttypes');
+  wallytoolbox_variable_del_like('wallycontenttypes_');
 }
 
 function _wallycontenttypes_install_presets() {
