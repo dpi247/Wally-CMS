@@ -27,7 +27,7 @@ function getComportementToolbarJs() {
 	
   	openConnect = function() {
   		var idC = "regformOC";
-  		var $dialog;alert("coucou");
+  		var $dialog;
   		//JSON direct sample
   		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
   			// if there is data, filter it and render it out
@@ -41,7 +41,7 @@ function getComportementToolbarJs() {
   	};
   	
   	buildDialog = function($dialog, data, id) {
-  		$dialog = $("<div></div>").html(data)
+  		$dialog = $("#ident").html(data)
   			.attr("id",id);
   			/*.dialog({
     			autoOpen: false,

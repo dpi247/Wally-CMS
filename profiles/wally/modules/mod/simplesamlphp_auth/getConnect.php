@@ -6,6 +6,7 @@
 		$title=$_GET["msg"];
 	}
 ?>
+
 <div class="p-main-content">
 	<div class="p-wrap">
 		<div class="p-the-content" style="padding-top:20px;">
