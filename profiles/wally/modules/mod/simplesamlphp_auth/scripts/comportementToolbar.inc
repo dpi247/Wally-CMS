@@ -32,8 +32,7 @@ function getComportementToolbarJs() {
   		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
   			// if there is data, filter it and render it out
   			if(data){
-  				$dialog = $("#ident").html(data)
-  					.attr("id",id);
+  				$dialog = $("#ident").html(data).attr("id",id);
   			}
   		});
   	};
@@ -51,10 +50,8 @@ function getComportementToolbarJs() {
     	},
     	function(data){
     		if(data[0]=="ERROR") {
-    			
     			$("#regformOC").html("<div class=\'p-main-content\'><div class=\'p-wrap\'><div class=\'p-the-content\'><h1 id=\'titerr\'>"+ data[1] +"</h1><div id=\'divtochange\'><div id=\'loading\'>&nbsp;</div><form name=\'mydata\' id=\'mydata\' action=\'\' method=\'post\' onsubmit=\'return coPr(document.getElementById(\"memail\").value, document.getElementById(\"mmdp\").value);\'><input type=\'hidden\' name=\'form\' value=\'done\' /> <div class=\'row\'><label for=\'memail\'><span>*</span> E-mail :</label>	<input type=\'text\' class=\'form-text\' name=\'memail\' id=\'memail\' /></div>	<div class=\'row\'><label for=\'mmdp\'><span>*</span> Mot de passe :</label><input type=\'password\' class=\'form-text\' name=\'mmdp\' id=\'mmdp\' /></div><input type=\'submit\' class=\'btn-submit\' value=\'je r&eacute;essaie\' /></form><div class=\'row\' id=\'fgpwd\'><a href=\''.SSO_FORGET.'?aff=FULL&amp;backurlPDF="+encodeURIComponent(window.location.href)+"\'>J\'ai oubli&eacute; mon mot de passe</a></div></div></div><div class=\'p-bottom\'>&nbsp;</div></div></div><iframe id=\'ssol\' style=\'display: none;\'></iframe>");
     			$("#loading").hide();
-    		
     		}
     		else {
     			// IF LOGIN AND PASSWORD IS GOOD, WE LOAD THE IFRAME TO REDIRECT THE PAGE
