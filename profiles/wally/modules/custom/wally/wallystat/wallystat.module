@@ -1,43 +1,8 @@
 <?php 
-/**
- * Implementation of hook_views_api().
- */
-function wallystat_views_api() {
-  return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'wallystat') .'/views',
-  );
-}
 
 /**
- * Interal function to get the placeholder to put in the query
- * reseting some of the count fields depending on the difference of 
- * time between two timestamps
+ * Implementation of hook_cron()
  */
-function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
-  if(!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
-    return FALSE;
-  
-  $placeholder = array();
-  if(date('z' ,$current_tstamp) != date('z' ,$last_tstamp))
-    $placeholder[] = 'daycount = 0';
-  
-  if(date('W' ,$current_tstamp) != date('W' ,$last_tstamp))
-    $placeholder[] = 'weekcount = 0';
-  
-  if(date('m' ,$current_tstamp) != date('m' ,$last_tstamp))
-    $placeholder[] = 'monthcount = 0';
-  
-  if(date('Y' ,$current_tstamp) != date('Y' ,$last_tstamp))
-    $placeholder[] = 'yearcount = 0';
-  
-  if(!empty($placeholder)){
-    return implode(', ',$placeholder);
-  }else{
-    return FALSE;
-  }
-}
-
 function wallystat_cron(){
 
 	$current_tstamp = time();
@@ -179,7 +144,7 @@ function wallystat_cron(){
  * Implementation of hook_preprocess_page().
  */
 function wallystat_preprocess_page(&$vars){
-	if(isset($vars['node'])){
+	if(isset($vars['node'])) {
 		$current_id = $vars['node']->nid;
     $title = $vars['node']->title;
     $current_terms = '';
@@ -219,4 +184,67 @@ function wallystat_preprocess_page(&$vars){
 									}
 									", "inline");
 	}
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function wallystat_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'wallystat') .'/views',
+  );
+}
+
+/**
+ * Return the list of all available functions which return a statistic's parameter.
+ */
+function wallystat_available_params_function() {
+  return array(
+    'wallystat_get_url_argument' => 'One of the URL arguments',
+    'wallystat_get_node_field' => 'The value of one of the node fields',
+  );
+}
+
+/**
+ * Return an URL argument
+ */
+function wallystat_get_url_argument($i) {
+  return arg($i);
+}
+
+/**
+ * Return the value of a node field
+ */
+function wallystat_get_node_field($node, $field) {
+  return $node->$field['value'];
+}
+
+/**
+ * Interal function to get the placeholder to put in the query
+ * reseting some of the count fields depending on the difference of 
+ * time between two timestamps
+ */
+function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
+  if(!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
+    return FALSE;
+  
+  $placeholder = array();
+  if(date('z' ,$current_tstamp) != date('z' ,$last_tstamp))
+    $placeholder[] = 'daycount = 0';
+  
+  if(date('W' ,$current_tstamp) != date('W' ,$last_tstamp))
+    $placeholder[] = 'weekcount = 0';
+  
+  if(date('m' ,$current_tstamp) != date('m' ,$last_tstamp))
+    $placeholder[] = 'monthcount = 0';
+  
+  if(date('Y' ,$current_tstamp) != date('Y' ,$last_tstamp))
+    $placeholder[] = 'yearcount = 0';
+  
+  if(!empty($placeholder)){
+    return implode(', ',$placeholder);
+  }else{
+    return FALSE;
+  }
 }
