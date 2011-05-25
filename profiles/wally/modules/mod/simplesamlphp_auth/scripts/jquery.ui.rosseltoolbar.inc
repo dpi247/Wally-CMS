@@ -12,7 +12,7 @@ function getRosseltoolbarJs () {
   	
   	buildToolbar = function(data) {
     	// Add all the element
-    	$("#rtb").wrapInner("<div id=\'wrap-toolbar\'>");
+    	$("#rtb").html("<div id=\'wrap-toolbar\'></div>");
     	$("#wrap-toolbar").wrapInner("<div id=\'toolbar\'>");
     	$("#toolbar").append("<div id=\'tool-right\'>");
     	
