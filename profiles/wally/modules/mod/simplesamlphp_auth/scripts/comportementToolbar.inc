@@ -32,7 +32,7 @@ function getComportementToolbarJs() {
   		$.get("'.SSO_SIMPLESAMLPHP_AUTH_PATH.'/getConnect.php", { target: window.location.pathname }, function(data) {
   			// if there is data, filter it and render it out
   			if(data){
-  				$dialog = $("#ident").html(data).attr("id",id);
+  				$dialog = $("#ident").html(data).attr("id",idC);
   			}
   		});
   	};
