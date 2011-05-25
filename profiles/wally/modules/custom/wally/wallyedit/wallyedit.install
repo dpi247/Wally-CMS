@@ -1,19 +1,37 @@
 <?php
+
+/**
+ * Implementation of hook_enable()
+ */
 function wallyedit_enable(){
-drupal_rebuild_theme_registry();
+  drupal_rebuild_theme_registry();
 }
+
+/**
+ * Implementation of hook_install()
+ */
 function wallyedit_install() {
-     
   // New module weights in core: put devel as the very last in the chain.
-  db_query("UPDATE {system} SET weight =100  WHERE name = 'wallyedit'");
+  db_query("UPDATE {system} SET weight = 100 WHERE name = 'wallyedit'");
   db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
   db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
   drupal_install_schema('wallyedit');
   drupal_rebuild_theme_registry();
-      
 }
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function wallyedit_uninstall() {
+  drupal_uninstall_schema('wallyedit');
+  wallytoolbox_variable_del_like('wallyedit_');
+}
+
+/**
+ * Implementation of hook_schema()
+ */
 function wallyedit_schema(){
- $schema['wallycontenttypes_remotehtml_content'] = array(
+  $schema['wallycontenttypes_remotehtml_content'] = array(
     'description' => 'Contains Remote HTML content for this site.',
     'export' => array(
       'identifier' => 'content',
@@ -65,6 +83,6 @@ function wallyedit_schema(){
     ),
     'primary key' => array('cid'),
   );
-  
+
   return $schema;
-  }
+}
