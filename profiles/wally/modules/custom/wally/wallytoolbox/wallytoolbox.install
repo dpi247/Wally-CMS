@@ -11,7 +11,6 @@
  */
 function wallytoolbox_install() {
   drupal_install_schema('wallytoolbox');
-  wallytoolbox_refresh_cache_list();
 }
 
 /**
