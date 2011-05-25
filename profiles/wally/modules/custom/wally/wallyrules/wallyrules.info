@@ -5,3 +5,6 @@ package = Wally
 version = "6.x-1.0"
 core = "6.x"
 project = "Wally"
+
+dependencies[] = "rules"
+dependencies[] = "wallytoolbox"
