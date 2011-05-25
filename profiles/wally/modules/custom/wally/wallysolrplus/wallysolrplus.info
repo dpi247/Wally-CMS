@@ -2,3 +2,6 @@ name = Wally Solr Plus
 description = Extension Solr for Wally.
 core = 6.x
 package = Wally
+
+dependencies[] = "apachesolr"
+dependencies[] = "wallytoolbox"
