@@ -6,6 +6,7 @@ function wallystat_install() {
 
 function wallystat_uninstall() {
   drupal_uninstall_schema('wallystat');
+  wallytoolbox_variable_del_like('wallystat_');
 }
 
 function wallystat_schema() {
