@@ -7,6 +7,15 @@ function wallystat_page_admin_form($form_state) {
   $form = array();
   $form['#tree'] = TRUE;
   
+  $form['wallystat_stats_content_refresh_time'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Stats content refresh time'),
+    '#description' => t('Time in minutes'),
+    '#default_value' => variable_get('wallystat_stats_content_refresh_time', 15),
+    '#size' => 80,
+    '#maxlength' => 512,
+  );
+  
   $params_functions = array('none' => t('Not used')) + wallystat_available_params_function();
   
   $form['wallystat_params'] = array(
@@ -75,6 +84,9 @@ function wallystat_page_admin_form($form_state) {
 function wallystat_page_admin_form_validate($form, &$form_state) {
   $values = $form_state['values'];
   
+  if (!is_numeric($values['wallystat_stats_content_refresh_time']) || $values['wallystat_stats_content_refresh_time'] < 0)
+    form_set_error('wallystat_stats_content_refresh_time', t('The refresh time must be a numeric value greater than 0.'));
+  
   if ($values['op'] == $values['buttons']['submit']) {
     for ($i=1; $i<=10; $i++) {
       $param = $values['wallystat_params']['wallystat_param_'.$i];
@@ -89,6 +101,8 @@ function wallystat_page_admin_form_validate($form, &$form_state) {
  */
 function wallystat_page_admin_form_submit($form, &$form_state) {
   $values = $form_state['values'];
+  
+  variable_set('wallystat_stats_content_refresh_time', $values['wallystat_stats_content_refresh_time']);
   
   if ($values['op'] == $values['buttons']['submit']) {
     for ($i=1; $i<=10; $i++) {

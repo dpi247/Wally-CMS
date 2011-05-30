@@ -24,7 +24,9 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
     '#labels' => $labels,
   );
   
-  print chart_render($chart);
+  $rendered_chart = chart_render($chart);
+  
+  print $rendered_chart ? $rendered_chart : t('Chart error.');
 }
 
 ?>

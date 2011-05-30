@@ -146,7 +146,7 @@ function wallyfinfo_getviewfinfo($display_name = NULL, $dest_id = NULL, $offset 
   $cid = 'wallyfinfo_'.str_replace('_', '-', $display_name).'_'.$dest_id.'_'.($offset-($offset%10));
   $cached_display = cache_get($cid);
   
-  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display) || ($cached_feed->expire < time()) || ($cached_feed->expire == -1)) {
+  if ($cached_display == 0 || !isset($cached_display) || empty($cached_display) || ($cached_display->expire < time()) || ($cached_display->expire == -1)) {
     $destination = taxonomy_get_term($dest_id);
     $view_results = array();
     $view_results = views_get_view_result('fil_info', $display_name, $dest_id);
@@ -311,7 +311,7 @@ function _wallyfinfo_slidecategoryjs_page($available_dests) {
         $("#car" + dest_name).show();
         $("#car" + dest_name + " .jcarousel-clip").css("height", "2300px");
 
-        for (offset = 0; offset < 10; offset++) {
+        for (var offset = 0; offset < 10; offset++) {
           carousel.add(offset+1, $.ajax({
                                    url: "/view/fil_info/panel_pane_2/" + tid + "/" + (offset+page_offset_page),
                                    async: false
@@ -487,8 +487,7 @@ function _wallyfinfo_slidecategoryjs_box($available_dests) {
         $(".prev").css("cursor", "pointer");
         $(".prev").css("cursor", "hand");
 
-        for (offset = 0; offset < 10; offset++) {
-
+        for (var offset = 0; offset < 10; offset++) {
           carousel.add(offset+1, $.ajax({
                                    url: "/view/fil_info/panel_pane_1/" + tid + "/" + (offset+page_offset),
                                    async: false

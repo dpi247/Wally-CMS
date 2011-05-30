@@ -1111,18 +1111,7 @@ function wallytoolbox_cron(){
  * Get all blocks and put them in the wallytoolbox_content_types_cache table.
  */
 function wallytoolbox_refresh_cache_list($form = null, $form_state = null) {
-  // Get a list of all blocks set in all pages
-  $pages = page_manager_get_tasks_by_type('page');
-  $handlers = array();
-  foreach ($pages as $page_name => $page) {
-    $cached_page = page_manager_get_page_cache($page_name);
-    $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
-    foreach ($cached_page->handlers as $handler) {
-      $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
-      foreach ($cached_panels->display->content as $display_content)
-        $handlers[$page_name][] = $display_content;
-    }
-  }
+  list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
   
   // Get previous settings from DB to save the cron config
   $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache}');
@@ -1159,6 +1148,26 @@ function wallytoolbox_refresh_cache_list($form = null, $form_state = null) {
       }
     }
   }
+}
+
+function wallytoolbox_get_panels_and_handlers() {
+  // Get a list of all blocks set in all pages
+  $pages = page_manager_get_tasks_by_type('page');
+  $handlers = array();
+  $panels = array();
+  foreach ($pages as $page_name => $page) {
+    $cached_page = page_manager_get_page_cache($page_name);
+    $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
+    foreach ($cached_page->handlers as $handler_name => $handler) {
+      $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
+      $panels[$handler_name][] = $cached_panels;
+      foreach ($cached_panels->display->content as $display_content)
+        $handlers[$page_name][] = $display_content;
+    }
+  }
+  $return = array($panels, $handlers);
+  
+  return $return;
 }
 
 /**

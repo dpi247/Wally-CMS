@@ -318,9 +318,11 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
   
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', array($settings));
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', array(), TRUE);
   
-  if ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
+  if (is_string($feed))
+    $block->content = $feed;
+  elseif ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
   else
     $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
