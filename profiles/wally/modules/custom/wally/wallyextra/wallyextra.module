@@ -3,6 +3,21 @@
 include_once('wallyextra.features.inc');
 
 /**
+ * Implementation of hook_menu()
+ */
+function wallyextra_menu() {
+  $items = array();
+  
+  $items['wallyextra/contenttypesajax'] = array(
+    'page callback'    => '_wallyextra_content_types_ajax_callback',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+/**
  *  Implémentation du hook_theme(); 
  */
 function wallyextra_theme(&$var) {
@@ -16,62 +31,67 @@ function wallyextra_theme(&$var) {
  return array(
  
 		'wallyct_mainmenu' => $base + array(
-    'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
-    'template' => 'wallyct_mainmenu',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+      'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
+      'template' => 'wallyct_mainmenu',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
     'wallyct_rss' => $base + array(
-    'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
-    'template' => 'wallyct_rss',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+      'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_rss',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
     'wallyct_remotehtml' => $base + array(
-    'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
-    'template' => 'wallyct_remotehtml',
-    'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+      'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
+      'template' => 'wallyct_remotehtml',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
     'wallyct_twit' => $base + array(
-    'arguments' => array("feed" => NULL, "options" => NULL),
-    'template' => 'wallyct_twit',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_twit',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
     'wallyct_tofacebook' => $base + array(
-    'arguments' => array("node" => NULL, "options" => NULL),
-    'template' => 'wallyct_tofacebook',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("node" => NULL, "options" => NULL),
+      'template' => 'wallyct_tofacebook',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
     'wallyct_taxotermlist' => $base + array(
-    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'wallyct_taxotermlist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+      'template' => 'wallyct_taxotermlist',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
 
     'wallyct_taxotermlist_tree' => $base + array(
-    'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
-    'template' => 'wallyct_taxotermlist_tree',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+      'template' => 'wallyct_taxotermlist_tree',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyct_personslist_detail' => $base + array(
-    'arguments' => array("persons" => NULL, "node" => NULL),
-    'template' => 'wallyct_personslist_detail',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("persons" => NULL, "node" => NULL),
+      'template' => 'wallyct_personslist_detail',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
      'wallyct_entitylist_detail' => $base + array(
-    'arguments' => array("entities" => NULL, "node" => NULL),
-    'template' => 'wallyct_entitylist_detail',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
+      'arguments' => array("entities" => NULL, "node" => NULL),
+      'template' => 'wallyct_entitylist_detail',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
     ),
     
     'wallyextra_template_points_up_down' => $base + array(
       'arguments' => array('links' => NULL, 'results' => NULL, 'mode' => NULL),
       'template' => 'wallyextra_points-up-down',
+    ),
+    
+    'wallyextra_loading_content_type' => $base + array(
+      'arguments' => array(),
+      'template' => 'wallyextra-loading-content-type',
     ),
   );
 }
@@ -317,18 +337,74 @@ function wallyextra_refresh_block($infos, $settings) {
 /**
  * Get an object from cache or create it if it doesn't exists
  */
-function wallyextra_get_cache_or_create($cid, $callback, $params) {
+function wallyextra_get_cache_or_create($cid, $callback, $params = array(), $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
   
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || true) {
     // This cache doesn't exists, create it
-    $datas = call_user_func_array($callback, $params);
+    if ($ajax) {
+      drupal_add_js('
+        $(document).ready(function() {
+          setTimeout(function(){
+            $.ajax({
+              url: "/wallyextra/contenttypesajax/'.$cid.'/'.$callback.'",
+              cache: false,
+              complete: function(data) {
+                $("#loading_'.$cid.'").html(data.responseText);
+              }
+            });
+           }, 1);
+        });
+      ', 'inline');
+      
+      $datas = '<div id="loading_'.$cid.'">'.theme('wallyextra_loading_content_type').'</div>';
+    } else {
+      $datas = call_user_func_array($callback, $params);
+    }
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;
   }
   
   return $datas;
+}
+
+/**
+ * Callback to dynamically refresh a block contents.
+ */
+function _wallyextra_content_types_ajax_callback($cid = '', $callback = '') {
+  $content = '';
+  
+  list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
+  foreach ($handlers as $page) {
+    foreach ($page as $handler) {
+      if (isset($handler->configuration) && isset($handler->configuration['caid']) && $handler->configuration['caid'] == $cid) {
+        foreach ($panels as $page) {
+          foreach ($page as $panel) {
+            foreach ($panel->display->panels as $area) {
+              if (in_array($handler->pid, $area)) {
+                $context = isset($panel->display->context) ? $panel->display->context :  array();
+                break;
+              }
+            }
+          }
+        }
+        
+        $settings = $handler->configuration;
+        $subtype = $handler->subtype;
+        $feed = call_user_func_array($callback, array($settings));
+        
+        if ($settings['override_theme_text'] != "")
+          $content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
+        else
+          $content = theme("wallyct_rss", $subtype, $context, $feed, $settings);
+
+        break;
+      }
+    }
+  }
+  
+  print $content;
 }
 
 /**

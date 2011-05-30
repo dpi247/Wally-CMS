@@ -38,7 +38,9 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
     '#grid_lines' => chart_grid_lines(10, 10, 1, 5),
   );
   
-  print chart_render($chart);
+  $rendered_chart = chart_render($chart);
+  
+  print $rendered_chart ? $rendered_chart : t('Chart error.');
 }
 
 ?>

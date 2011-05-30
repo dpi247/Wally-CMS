@@ -239,14 +239,27 @@ function wallystat_views_api() {
  * Return the HTML of the stats for a node
  */
 function wallystat_show_stats() {
-  $last_48h = theme('wallystat_show_stats_48h');
-  $params = array();
-  for ($i=1; $i<=10; $i++) {
-    if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
-      $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
+  $href_value = $_GET['hrefvalue'];
+  $cached_content = cache_get('wallystat_stats_content_'.$href_value);
+  $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
+  
+  if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
+    // This cache doesn't exists or is too old, create it
+    $last_48h = theme('wallystat_show_stats_48h');
+    $params = array();
+    for ($i=1; $i<=10; $i++) {
+      if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
+        $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
+    }
+    
+    $content = $last_48h.implode('', $params);
+    cache_set('wallystat_stats_content_'.$href_value, $content, 'cache');
+  } else {
+    // The object exists in cache and is not too old
+    $content = $cached_content->data;
   }
   
-  print $last_48h.implode('', $params);
+  print $content;
 }
 
 /**
@@ -386,12 +399,68 @@ function _wallystat_add_updater_callback(&$vars) {
 function _wallystat_get_stats_block_content() {
   drupal_add_js('
     $(document).ready(function(){
+      browser = "other";
+      $.each($.browser, function(i, val) {
+        if (i == "mozilla" && val == true)
+          browser = "mozilla";
+      });
+    
       $("div.outerwrap div.wrapper").before("<div id=\'follower\' style=\'z-index:999\'></div>");
       $("#follower").hide();
+      var tstamp = 0;
+      var cur_href, cur_nodelink;
       
-      $("div.content").mousemove(function(e){
-        var nodelink = $(this).find("h2 a");
-        updateFollower($(nodelink).attr("href"));
+      if (browser == "mozilla") {
+        $("div.content").mouseover(function(e) {
+          cur_nodelink = $(this).find("h2 a");
+          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
+            cur_href = $(cur_nodelink).attr("href");
+            tstamp = e.timeStamp;
+          }
+        });
+        
+        $("#follower").mouseover(function(e) {
+          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
+            cur_href = $(cur_nodelink).attr("href");
+            tstamp = e.timeStamp;
+          }
+        });
+      } else {
+        $("div.content").mousemove(function(e) {
+          cur_nodelink = $(this).find("h2 a");
+          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
+            cur_href = $(cur_nodelink).attr("href");
+            tstamp = e.timeStamp;
+          }
+        });
+        
+        $("#follower").mousemove(function(e) {
+          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
+            cur_href = $(cur_nodelink).attr("href");
+            tstamp = e.timeStamp;
+          }
+        });
+      }
+      
+      $("div.content").mouseout(function(e){
+        $("#follower").hide();
+      });
+    });
+    
+    function updateFollower(e, tstamp, cur_nodelink, cur_href){
+      var update = false;
+      if ($(cur_nodelink).attr("href")) {
+        if ((e.timeStamp > (tstamp + 5*1000)) || ($(cur_nodelink).attr("href") != cur_href)) {
+          update = true;
+          $.ajax({
+            url: "/wallystat/showstats?hrefvalue="+encodeURIComponent($(cur_nodelink).attr("href")),
+            cache: false,
+            async: false,
+            complete: function(data) {
+              $("#follower").html(data.responseText);
+            }
+          });
+        }
         $("#follower").show();
         $("#follower").css({
           position: "absolute",
@@ -399,17 +468,8 @@ function _wallystat_get_stats_block_content() {
           top: e.pageY + "px",
           left: e.pageX + "px"
         });
-      });
-      
-      $("div.content").mouseout(function(e){
-        $("#follower").hide();
-      });
-    });
-    
-    function updateFollower(hrefvalue){
-      $.ajax({url: "/wallystat/showstats?hrefvalue="+encodeURIComponent(hrefvalue), cache: false, async: false, complete: function(data) {
-        $("#follower").html(data.responseText);
-      }});
+      }
+      return update;
     }
   ', 'inline');
   
