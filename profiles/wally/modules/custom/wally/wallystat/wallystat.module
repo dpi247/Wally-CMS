@@ -399,7 +399,7 @@ function _wallystat_add_updater_callback(&$vars) {
 function _wallystat_get_stats_block_content() {
   drupal_add_js('
     $(document).ready(function(){
-      browser = "other";
+      var browser = "other";
       $.each($.browser, function(i, val) {
         if (i == "mozilla" && val == true)
           browser = "mozilla";
