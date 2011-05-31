@@ -503,8 +503,7 @@ function _wallyextra_rssmixread_defaultformvalues() {
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
- 
-  
+
   if ($feed_xml && $feed_xml->data) {
     $dom = new DomDocument();
     $dom = DomDocument::LoadXML($feed_xml->data); 

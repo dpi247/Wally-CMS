@@ -374,7 +374,6 @@ function wallyextra_get_cache_or_create($cid, $callback, $params = array(), $aja
  */
 function _wallyextra_content_types_ajax_callback($cid = '', $callback = '') {
   $content = '';
-  
   list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
   foreach ($handlers as $page) {
     foreach ($page as $handler) {
@@ -398,7 +397,6 @@ function _wallyextra_content_types_ajax_callback($cid = '', $callback = '') {
           $content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
         else
           $content = theme("wallyct_rss", $subtype, $context, $feed, $settings);
-
         break;
       }
     }
