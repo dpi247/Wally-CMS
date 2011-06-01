@@ -685,10 +685,11 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $array_item['Package']['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $array_item['Package']['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  $term = taxonomy_get_term($feed_destination[0]);
   $array_item['Package']['Destinations']['Destination']['DestinationRank'] = $feed_destination[3];
   $array_item['Package']['Destinations']['Destination']['Position'] = $feed_destination[1];
   $array_item['Package']['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
-  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = taxonomy_get_term($feed_destination[0]) ? taxonomy_get_term($feed_destination[0])->name : '';
+  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
   $array_item['Package']['ExternalURI']['value'] = _wallytoolbox_checkifelementexists($item, 'link');
   
   return $feed_name;
