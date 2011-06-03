@@ -60,7 +60,7 @@ function wallytoolbox_theme(&$var) {
  * Add submit callback to refresh the wallytoolbox_content_types_cache table after saving a page contents.
  */
 function wallytoolbox_form_panels_panel_context_edit_content_alter(&$form, $form_state) {
-  $form['#submit'][] = 'wallytoolbox_refresh_cache_list';
+  wallytoolbox_refresh_cache_list();
 }
 
 /**
@@ -1111,7 +1111,7 @@ function wallytoolbox_cron(){
 /**
  * Get all blocks and put them in the wallytoolbox_content_types_cache table.
  */
-function wallytoolbox_refresh_cache_list($form = null, $form_state = null) {
+function wallytoolbox_refresh_cache_list() {
   list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
   
   // Get previous settings from DB to save the cron config
@@ -1151,8 +1151,10 @@ function wallytoolbox_refresh_cache_list($form = null, $form_state = null) {
   }
 }
 
+/**
+ * Get a list of all blocks set in all pages
+ */
 function wallytoolbox_get_panels_and_handlers() {
-  // Get a list of all blocks set in all pages
   $pages = page_manager_get_tasks_by_type('page');
   $handlers = array();
   $panels = array();
