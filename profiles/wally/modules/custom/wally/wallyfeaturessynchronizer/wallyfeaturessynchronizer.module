@@ -13,12 +13,11 @@ function wallyfeaturessynchronizer_form_taxonomy_form_term_alter (&$form, &$form
 function wallyfeaturessynchronizer_form_taxonomy_form_term_alter_validate (&$form, &$form_state) {
   $values = $form_state['values'];
   $bad_car = array('_', ' ', '\'');
-  if ($form_state['values']['tid']) {
+  if ($form_state['values']['tid'])
     $term = taxonomy_get_term($form_state['values']['tid']);
-  }
-  if (!$form_state['values']['tid'] || !isset($term->featid)) {
+
+  if (!$form_state['values']['tid'] || !isset($term->featid))
     $form_state['values']['featid'] = $values['vid'] .'_'. str_replace($bad_car, '-', strtolower($values['name']));
-  }
 }
 
 /**
@@ -110,6 +109,7 @@ function page_manager_handlers_features_export_render($module, $data, $export = 
  */
 function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
   $plugins = $object->conf['access']['plugins'];
+  $bad_car = array('_', ' ', '\'');
 
   foreach ($plugins as $plug_id => $plugin) {
     if ($plugin['name'] == 'term') {
@@ -118,6 +118,11 @@ function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
         if (is_array($setting) && sizeof($setting)>0) {
           foreach ($setting as $tid => $tid_infos) {
             $term = taxonomy_get_term($tid);
+            if (!isset($term->featid)) {
+              $term->featid = $term->vid .'_'. str_replace($bad_car, '-', strtolower($term->name));
+              drupal_write_record('term_data', $term, 'tid');
+            }
+            
             $plugins[$plug_id]['settings'][$set_id][$term->featid] = $term;
             unset($plugins[$plug_id]['settings'][$set_id][$tid]);
             $object->conf['access']['plugins'][$plug_id] = $plugins[$plug_id];
