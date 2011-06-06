@@ -270,7 +270,7 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
   
-  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', 'remotehtml', TRUE);
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', drupal_get_path('module', 'wallyextra').'/plugins/content_types/remotehtml.inc', TRUE);
     
   if (is_string($htmlblock))
     $block->content = $htmlblock;
