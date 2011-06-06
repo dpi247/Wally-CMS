@@ -1,0 +1,48 @@
+<?php
+function ccimapping_menu(){
+
+ $items = array();
+  
+  $items['admin/cci/ccimapping/configuration'] = array(
+    'title' => 'ccimapping configuration and settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_configuration_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/ccimapping.admin.inc',
+  );
+  
+  $items['admin/cci/ccimapping/packagetype/editor'] = array(
+    'title' => 'Packagetype Editor',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_packagetype_editor_form',5),
+    'access arguments' => array('administration pages'),
+    'description' => 'View, edit, and delete your site\'s content with a destination filter.',
+    'file' => 'includes/packagetype.editor.inc',
+  );
+  $items['admin/cci/ccimapping/productinfo/editor'] = array(
+    'title' => 'Product Info editor',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_productinfo_editor_form',5),
+    'access arguments' => array('administration pages'),
+    'description' => 'View, edit, and delete your site\'s content with a destination filter.',
+    'file' => 'includes/productinfo.editor.inc',
+  );
+  
+  return $items;
+}
+
+function ccimapping_theme(){
+  $path = drupal_get_path('module', 'ccimapping');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  return array(
+    'ccimapping_typeselector'=>$base + array(
+    ),
+    'ccimapping_hierarchies'=>$base + array(
+      'arguments'=>array('hierarchies'=>array()),
+    ),
+    );
+}
