@@ -68,6 +68,13 @@ function wallymport_menu() {
     'type' => MENU_CALLBACK,
   );
   
+  $items['wallymport/dynamic_preview_zip'] = array(
+    'page callback' => 'wallymport_dynamic_preview_zip',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['wallymport/destinations_items'] = array(
     'title' => 'Return a XML list of all available destinations',
     'description' => 'Return a XML list of all available destinations',
@@ -276,6 +283,9 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   return;
 }
 
+/**
+ * Return the form containing the preview iframe and the select box to choose the destination preview
+ */
 function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
    $prev_js = '$(document).ready(function() {
             $("#edit-select-preview").change(function () {
@@ -311,8 +321,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
   return $form;
 }
 
-
-/*
+/**
  * Implementation of hook_cron().
  */ 
 function wallymport_cron(){
@@ -335,7 +344,40 @@ function wallymport_cron(){
 }
 
 /**
- * Preview a zip files from the import folder. 
+ * Preview a zip file send with cURL.
+ */
+function wallymport_dynamic_preview_zip () {
+  $returns = array();
+  $format = 'zip'; // input file extension
+  $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+  $file_name = 'wally_curl_input_'.rand();
+  $file_path = $temp.'/'.$file_name.'.'.$format;
+  $fwrite = TRUE;
+
+  $input = fopen('php://input', 'r');
+  $file = fopen($file_path, 'w');
+  while (!feof($input)) {
+    $fwrite = fwrite($file, fread($input, 1024));
+    if (!fwrite)
+      break;
+  }
+  fclose($input);
+  fclose($file);
+  
+  if ($fwrite) {
+    $object_file = new stdClass();
+    $object_file->name = $file_name;
+    $object_file->filename = $file_path;
+    $object_file->basename = $file_path;
+    
+    wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
+  }
+  
+  print_r($returns);
+}
+
+/**
+ * Preview a zip file from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
  * 
  * @param: $path_to_folder
@@ -418,7 +460,7 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
         $returns[] = wallymport_page_process_file($xml_file, $preview);
       }
       $zip->close();
-      rrmdir($temp_subdir);
+      //rrmdir($temp_subdir);
     } else {
       $zip_error = TRUE;
       $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
