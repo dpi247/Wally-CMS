@@ -752,11 +752,23 @@ function wydit_subform_global_preview_form(&$form_state, $cache_name = NULL){
     $form_state['cache_name'] = $cache_name;
   }
   $prev_js = '$(document).ready(function() {
-                $("#edit-select-preview").live("change", function () {
-                  var temp = "/node/'.$form_state['cache_name'].'/preview2/"+$(this).val();
-                  $("#prev_iframe").attr("src", temp);          
-                });   
-              });';
+                buildList();
+                $("#wallyedit_preview_container").bind("DOMFocusIn", function () {
+                  buildList();
+                });
+              });
+              
+              function buildList() {
+                $("#edit-select-preview").bind("change", function () {
+                  var temp;
+                  if ($(this).val() != "disabled") {
+                    temp = "/node/'.$form_state['cache_name'].'/preview2/"+$(this).val();
+                  } else {
+                    temp = "";
+                  }
+                  $("#prev_iframe").attr("src", temp);
+                });
+              }';
   drupal_add_js($prev_js, 'inline');
   $prenode=new Prenode($form_state['cache_name']);
   if(!empty($prenode->form_state)){
