@@ -108,15 +108,6 @@ function wallyextra_rssmixread_content_perm() {
 /**
  * Implementation of hook_perm()
  */
-function wallyextra_rssread_content_perm() {
-  return array(
-    'administer rssread content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
 function wallyextra_taxonomylist_content_perm() {
   return array(
     'administer taxonomylist content',
@@ -337,29 +328,38 @@ function wallyextra_refresh_block($infos, $settings) {
 /**
  * Get an object from cache or create it if it doesn't exists
  */
-function wallyextra_get_cache_or_create($cid, $callback, $params = array(), $ajax = FALSE) {
+function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
   
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || true) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
     // This cache doesn't exists, create it
     if ($ajax) {
       drupal_add_js('
         $(document).ready(function() {
           setTimeout(function(){
             $.ajax({
-              url: "/wallyextra/contenttypesajax/'.$cid.'/'.$callback.'",
+              type: "POST",
+              url: "/wallyextra/contenttypesajax",
               cache: false,
+              data: {
+                cid: "'.$cid.'",
+                callback: "'.$callback.'",
+                settings: \''.serialize($settings).'\',
+                subtype: "'.$subtype.'",
+                context: \''.serialize($context).'\',
+                default_theme: "'.$default_theme.'"
+              },
               complete: function(data) {
-                $("#loading_'.$cid.'").html(data.responseText);
+                $("div.loading_'.$cid.'").html(data.responseText);
               }
             });
            }, 1);
         });
       ', 'inline');
       
-      $datas = '<div id="loading_'.$cid.'">'.theme('wallyextra_loading_content_type').'</div>';
+      $datas = '<div class="loading_'.$cid.'">'.theme('wallyextra_loading_content_type').'</div>';
     } else {
-      $datas = call_user_func_array($callback, $params);
+      $datas = call_user_func_array($callback, array($settings));
     }
   } else {
     // The object exists in cache
@@ -372,35 +372,23 @@ function wallyextra_get_cache_or_create($cid, $callback, $params = array(), $aja
 /**
  * Callback to dynamically refresh a block contents.
  */
-function _wallyextra_content_types_ajax_callback($cid = '', $callback = '') {
+function _wallyextra_content_types_ajax_callback() {
   $content = '';
-  list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
-  foreach ($handlers as $page) {
-    foreach ($page as $handler) {
-      if (isset($handler->configuration) && isset($handler->configuration['caid']) && $handler->configuration['caid'] == $cid) {
-        foreach ($panels as $page) {
-          foreach ($page as $panel) {
-            foreach ($panel->display->panels as $area) {
-              if (in_array($handler->pid, $area)) {
-                $context = isset($panel->display->context) ? $panel->display->context :  array();
-                break;
-              }
-            }
-          }
-        }
-        
-        $settings = $handler->configuration;
-        $subtype = $handler->subtype;
-        $feed = call_user_func_array($callback, array($settings));
-        
-        if ($settings['override_theme_text'] != "")
-          $content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
-        else
-          $content = theme("wallyct_rss", $subtype, $context, $feed, $settings);
-        break;
-      }
-    }
-  }
+  
+  $cid = $_POST['cid'];
+  $callback = $_POST['callback'];
+  $settings = unserialize($_POST['settings']);
+  $subtype = $_POST['subtype'];
+  $context = unserialize($_POST['context']);
+  $default_theme = $_POST['default_theme'];
+  
+  require_once drupal_get_path('module', 'wallyextra').'/plugins/content_types/'.$subtype.'.inc';
+  $datas = call_user_func_array($callback, array($settings));
+
+  if ($settings['override_theme_text'] != '')
+    $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
+  else
+    $content = theme($default_theme, $subtype, $context, $datas, $settings);
   
   print $content;
 }

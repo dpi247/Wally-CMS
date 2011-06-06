@@ -72,60 +72,6 @@ function wallyextra_schema() {
     'primary key' => array('cid'),
   );
   
-  $schema['wallyextra_rssread_content'] = array(
-    'description' => 'Contains exportable RSS reader content for this site.',
-    'export' => array(
-      'identifier' => 'wallyextra_rssread',
-      'bulk export' => TRUE,
-      'primary key' => 'cid',
-      'key'=>'name',
-      'api' => array(
-        'owner' => 'wallyextra',
-        'api' => 'wallyextra_rssread_content',
-        'minimum_version' => 1,
-        'current_version' => 1,
-      ),
- //     'create callback' => 'wallyextra_content_type_new',
-    ),
-    'fields' => array(
-      'cid' => array(
-        'type' => 'serial',
-        'description' => 'A database primary key to ensure uniqueness',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-      'name' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Unique ID for this content. Used to identify it programmatically.',
-      ),
-      'admin_title' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Administrative title for this content.',
-      ),
-      'admin_description' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Administrative description for this content.',
-        'object default' => '',
-      ),
-      'category' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Administrative category for this content.',
-      ),
-      'settings' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Serialized settings for the actual content to be used',
-        'serialize' => TRUE,
-        'object default' => array(),
-      ),
-    ),
-    'primary key' => array('cid'),
-  );
-  
   $schema['wallyextra_taxonomylist_content'] = array(
     'description' => 'Contains exportable taxonomy list content for this site.',
     'export' => array(
@@ -368,5 +314,14 @@ function wallyextra_update_6002() {
 function wallyextra_update_6003() {
   $ret = array();
   db_drop_table($ret, 'wallyextra_cache_torefresh');
+  return $ret;
+}
+
+/**
+ * Remove the RSS read plugin.
+ */
+function wallyextra_update_6004() {
+  $ret = array();
+  db_drop_table($ret, 'wallyextra_rssread_content');
   return $ret;
 }
