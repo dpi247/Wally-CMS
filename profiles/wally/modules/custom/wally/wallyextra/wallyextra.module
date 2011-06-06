@@ -342,7 +342,6 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
               url: "/wallyextra/contenttypesajax",
               cache: false,
               data: {
-                cid: "'.$cid.'",
                 callback: "'.$callback.'",
                 settings: \''.serialize($settings).'\',
                 subtype: "'.$subtype.'",
@@ -376,7 +375,6 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
-  $cid = $_POST['cid'];
   $callback = $_POST['callback'];
   $settings = unserialize($_POST['settings']);
   $subtype = $_POST['subtype'];
@@ -384,7 +382,9 @@ function _wallyextra_content_types_ajax_callback() {
   $default_theme = $_POST['default_theme'];
   $plugin = $_POST['plugin'];
   
-  require_once drupal_get_path('module', 'wallyextra').'/plugins/content_types/'.$plugin.'.inc';
+  if ($plugin != '')
+    require_once $plugin;
+  
   $datas = call_user_func_array($callback, array($settings));
 
   if ($settings['override_theme_text'] != '')

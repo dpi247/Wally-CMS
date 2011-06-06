@@ -321,7 +321,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
 
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', $settings, $subtype, $context, 'wallyct_rss', 'rssmixread', TRUE);
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', $settings, $subtype, $context, 'wallyct_rss', drupal_get_path('module', 'wallyextra').'/plugins/content_types/rssmixread.inc', TRUE);
   
   if (is_string($feed))
     $block->content = $feed;
@@ -590,7 +590,6 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  * 	 which will be displayed.
  */
 function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
-  watchdog('rss mix', 'coucou', null, WATCHDOG_INFO);
   $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
