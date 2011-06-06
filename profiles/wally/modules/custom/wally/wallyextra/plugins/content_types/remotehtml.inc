@@ -270,11 +270,11 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'HTML Block';
   $cid = $conf['caid'];
   
-  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', array($settings));
-	
-  $override_theme = $settings['override_theme'];
-  $override_theme_text = $settings['override_theme_text'];
-  if ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', TRUE);
+    
+  if (is_string($htmlblock))
+    $block->content = $htmlblock;
+  elseif ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $htmlblock, $settings ) ;
   else
     $block->content = theme("wallyct_remotehtml", $subtype, $context, $htmlblock, $settings);

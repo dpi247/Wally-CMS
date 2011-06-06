@@ -197,41 +197,43 @@ function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_st
  * Submitting the configuration form of a RSS mix reader.
  */
 function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_state) {
+  cache_clear_all($form_state['values']['caid']);
+  $form_state['conf']['uris'] = $form_state['values']['uris'];
+  $form_state['conf']['maxitem_global'] = $form_state['values']['maxitem_global'];
+  $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
+  $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
+  $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
+  $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
+  $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
+  $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
+  $form_state['conf']['caid'] = $form_state['values']['caid'];
+
   if ($form_state['settings']['rssmixread_type'] == 'fixed') {
-    _wallyextra_rssmixread_content_type_edit_save($form_state['settings']['content'], $form_state);
-  } else if (!empty($form_state['values']['reusable'])) {
+    $content = $form_state['settings']['content'];
+    $form_state['conf'] = array_merge($content->settings, $form_state['conf']);
+    $form_state['conf']['name'] = $content->name;
+    _wallyextra_rssmixread_content_type_edit_save($content, $form_state['conf']);
+  } elseif (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // rssmixread content and give it the proper values.
     $content = wallyextra_newctoolsexport('wallyextra_rssmixread_content', 'rssmixread');
-    _wallyextra_rssmixread_content_type_edit_save($content, $form_state);
+    _wallyextra_rssmixread_content_type_edit_save($content, $form_state['values']);
     $form_state['conf']['name'] = $content->name;
-  } else {
-    // Otherwise, just save values into $conf normally.
-    cache_clear_all($form_state['values']['caid'], $table = 'cache');
-    $form_state['conf']['uris'] = $form_state['values']['uris'];
-    $form_state['conf']['maxitem_global'] = $form_state['values']['maxitem_global'];
-    $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
-    $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
-    $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
-    $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
-    $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
-    $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
-    $form_state['conf']['caid'] = $form_state['values']['caid'];
   }
 }
 
 /**
  * Export the configuration of the reusable block.
  */
-function _wallyextra_rssmixread_content_type_edit_save(&$content, $form_state) {
+function _wallyextra_rssmixread_content_type_edit_save(&$content, $values) {
   // Apply updates to the content object.
-  $content->name = $form_state['values']['name'];
-  $content->category = $form_state['values']['category'];
-  $content->admin_title = $form_state['values']['admin_title'];
-  $content->admin_description = $form_state['values']['admin_description'];
-  foreach (array_keys($form_state['plugin']['defaults']) as $key) {
-    if (isset($form_state['values'][$key])) {
-      $content->settings[$key] = $form_state['values'][$key];
+  $content->name = $values['name'];
+  $content->category = $values['category'];
+  $content->admin_title = $values['admin_title'];
+  $content->admin_description = $values['admin_description'];
+  foreach (array_keys(_wallyextra_rssmixread_defaultformvalues()) as $key) {
+    if (isset($values[$key])) {
+      $content->settings[$key] = $values[$key];
     }
   }
 
@@ -312,20 +314,21 @@ function _wallyextra_rssmixread_ctools_content_type($content) {
  */
 function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallyextra_rssmixread_content_type_get_conf(wallyextra_rssmixread_content_type_content_type($subtype), $conf);
+
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
-  
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', array(), TRUE);
+
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', $settings, $subtype, $context, 'wallyct_rss', TRUE);
   
   if (is_string($feed))
     $block->content = $feed;
-  elseif ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
+  elseif ($settings['override_theme_text'] != '')// && function_exists($settings['override_theme_text'])){
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
   else
-    $block->content = theme("wallyct_rss", $subtype, $context, $feed, $settings); 
+    $block->content = theme('wallyct_rss', $subtype, $context, $feed, $settings); 
   
   return $block;
 }
@@ -586,7 +589,8 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  *   The array containing the differents items of the rssmix feed 
  * 	 which will be displayed.
  */
-function _wallyextra_rssmixread_setcache($settings, $old_feed = array()){
+function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
+  watchdog('rss mix', 'coucou', null, WATCHDOG_INFO);
   $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
@@ -642,9 +646,6 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()){
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);
     cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);//, NULL, 'rssmix');
-    $settings['content']->settings['feeds_md5'] = $feeds_md5;
-    ctools_include('export');
-    ctools_export_crud_save('wallyextra_rssmixread_content', $settings['content']);
   }
   
   return $feed;
