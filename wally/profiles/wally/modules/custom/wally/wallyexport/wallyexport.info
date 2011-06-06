@@ -1,0 +1,7 @@
+name = "Wally Export"
+description = "Export packages to XML files."
+package = "Wally"
+core = 6.x
+project = "Wally"
+
+dependencies[] = wallytoolbox

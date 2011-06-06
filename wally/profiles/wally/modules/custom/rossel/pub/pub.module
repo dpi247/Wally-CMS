@@ -1,0 +1,417 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function pub_menu() {
+  $items = array();
+  $items['admin/rossel/pub'] = array(
+    'title' => 'Pub general configuration',
+    'page callback' => 'pub_page_admin',
+    'page arguments' => array('pub_page_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
+    'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubcron'] = array(
+    'title' => 'Run pub cron',
+    'page callback' => 'pub_cron_run',
+    'page arguments' => array('pub_cron_run'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Run pub cron.',
+  	'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubblocks'] = array(
+    'title' => 'Manage blocks',
+    'page callback' => 'pub_blocks_admin',
+    'page arguments' => array('pub_blocks_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to manage pub blocks.',
+    'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubcache'] = array(
+    'title' => 'Manage cache',
+    'page callback' => 'pub_cache_admin',
+    'page arguments' => array('pub_cache_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to manage pub blocks cache.',
+    'file' => 'includes/pub.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implémentation du hook_theme
+ */
+function pub_theme() {
+  return array(
+    'pub_content' => array(
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'analytic_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'analytic-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'xiti_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'xiti-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'metriweb_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriweb-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implémentation du hook_block
+ */
+function pub_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
+      while ($pub_elem = db_fetch_array($pub_list)) {
+        $blocks[$pub_elem['position']] = array(
+          'info' => t('Pub '.$pub_elem['position']),
+          'cache' => BLOCK_CACHE_PER_PAGE,
+        );
+      }
+      
+      $blocks['analytic_block'] = array(
+        'info' => t('Analytic'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['xiti_block'] = array(
+        'info' => t('Xiti'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['metriweb_block'] = array(
+        'info' => t('MetriWeb'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      return $blocks;
+    case 'configure':
+      $form = array();
+      $hour_list = array();
+      for ($i=0; $i<=24; $i++) $hour_list[$i] = ($i==1 || $i==0) ? $i.' hour' : $i.' hours';
+      $day_list = array();
+      for ($i=0; $i<=30; $i++) $day_list[$i] = ($i==1 || $i==0) ? $i.' day' : $i.' days';
+      $default_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
+      $default_hour = $default_time%24;
+      $default_day = ($default_time - $default_time%24)/24;
+      $form['refresh_time_day'] = array(
+        '#title' => t('Time between updates'),
+        '#type' => 'select',
+        '#description' => t('Time, in days, between updates for this block.'),
+        '#options' => $day_list,
+        '#default_value' => $default_day,
+        '#required' => TRUE,
+      );
+      $form['refresh_time_hour'] = array(
+        '#type' => 'select',
+        '#description' => t('Time, in hours, between updates for this block.'),
+        '#options' => $hour_list,
+        '#default_value' => $default_hour,
+        '#required' => TRUE,
+      );
+      return $form;
+    case 'save':
+      switch ($delta) {
+        case 'analytic_block':
+          variable_set('analytic_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'xiti_block':
+          variable_set('xiti_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'metriweb_block':
+          variable_set('metriweb_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        default:
+          variable_set('pub_block_'.$delta.'_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+      }
+      break;
+    case 'view':
+      switch ($delta) {
+        case 'analytic_block':
+          $block = array(
+            'subject' => t('Analytic block.'), 
+            'content' => _pub_getanalyticcontent(),
+          );
+          break;
+        case 'xiti_block':
+          $block = array(
+            'subject' => t('Xiti block.'), 
+            'content' => _pub_getxiticontent(),
+          );
+          break;
+        case 'metriweb_block':
+          $block = array(
+            'subject' => t('MetriWeb block.'), 
+            'content' => _pub_getmetriwebcontent(),
+          );
+          break;
+        default:
+          $block = array(
+            'subject' => t('Pub block.'), 
+            'content' => _pub_getpubcontent($delta),
+          );
+      }
+      return $block;
+  }
+}
+
+/**
+ * Get content for the pub block.
+ * 
+ * @param string $delta
+ *   The delta of the concerned block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getpubcontent($delta) {
+  $orig_url = $_GET['q'];
+  $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
+  $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
+
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $pub_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+      $pub_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
+    cache_set('pub_'.$delta.'_perm-'.$orig_url, $pub_content);
+  } else {
+    $pub_content = $cached_pub->data;
+  }
+
+  return theme('pub_content', $pub_content, $delta);;
+}
+
+/**
+ * Get content for the analytic block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getanalyticcontent() {
+  $orig_url = $_GET['q'];
+  $cached_pub = cache_get('analytic_block_temp-'.$orig_url);
+  $cache_time = variable_get('analytic_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('GA', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $analytic_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('analytic_block_perm-'.$orig_url);
+      $analytic_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('analytic_block_temp-'.$orig_url, $analytic_content, 'cache', time() + 3600*$cache_time);
+    cache_set('analytic_block_perm-'.$orig_url, $analytic_content);
+  } else {
+    $analytic_content = $cached_pub->data;
+  }
+  
+  return theme('analytic_content', $analytic_content);
+}
+
+/**
+ * Get content for the Xiti block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getxiticontent() {
+  $orig_url = $_GET['q'];
+  $cached_pub = cache_get('xiti_block_temp-'.$orig_url);
+  $cache_time = variable_get('xiti_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('Xiti', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $xiti_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('xiti_block_perm-'.$orig_url);
+      $xiti_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('xiti_block_temp-'.$orig_url, $xiti_content, 'cache', time() + 3600*$cache_time);
+    cache_set('xiti_block_perm-'.$orig_url, $xiti_content);
+  } else {
+    $xiti_content = $cached_pub->data;
+  }
+  
+  return theme('xiti_content', $xiti_content);
+}
+
+/**
+ * Get content for the MetriWeb block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getmetriwebcontent() {
+  $orig_url = $_GET['q'];
+  $expl_url = explode('/', $orig_url);
+  $cached_pub = cache_get('metriweb_block_temp-'.$orig_url);
+  $cache_time = variable_get('metriweb_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $metriweb_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('metriweb_block_perm-'.$orig_url);
+      $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('metriweb_block_temp-'.$orig_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
+    cache_set('metriweb_block_perm-'.$orig_url, $metriweb_content);
+  } else {
+    $metriweb_content = $cached_pub->data;
+  }
+  
+  return theme('metriweb_content', $metriweb_content);
+}
+
+/**
+ * Get content from a webservice.
+ * 
+ * @return
+ *   HTML content.
+ */
+function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position) {
+  $expl_website = explode('_', $website);
+  $req_url = '?scriptType='.$script_type.'&site='.rawurlencode($expl_website[0]).'&pageType='.rawurlencode($page_type).'&context='.rawurlencode($context).'&position='.rawurlencode($position);
+  $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
+  return ($content->code == '200') ? $content->data : FALSE;
+}
+
+/**
+ * Return the request sent to the webservice. The request is based on the URL.
+ * 
+ * @param string $orig_url
+ *   The page URL, given by $_GET['q'].
+ * 
+ * @return
+ *   The request as a string.
+ */
+function _pub_getwebservreq($orig_url) {
+  $expl_url = explode('/', $orig_url);
+  $webserv_req = array();
+  $home_page = variable_get('site_frontpage', '');
+  if ($home_page == $orig_url) {
+    $webserv_req[] = 'home';
+    $webserv_req[] = 'home';
+  } else {
+    switch ($expl_url[0]) {
+      case 'node':
+        if ($expl_url[1]) {
+          $node = node_load($expl_url[1]);
+          $node_dest = $node->field_destinations;
+          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
+          if ($tax_hierar == '' || empty($tax_hierar)) {
+            $webserv_req[] = $orig_url;
+          } else {
+            $webserv_req[] = $tax_hierar.'/'.$node->nid;
+          }
+        } else {
+          $webserv_req[] = $orig_url;
+        }
+        $webserv_req[] = 'node';
+        break;
+      case 'taxonomy':
+        if ($expl_url[2]) {
+          $tids = $expl_url[2];
+          $expl_tids = preg_split('(\+|\,|\ )', $tids);
+          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($expl_tids[0], '', TRUE);
+          $webserv_req[] = $tax_hierar;
+        } else {
+          $webserv_req[] = $orig_url;
+        }
+        $webserv_req[] = 'page';
+        break;
+      default:
+        $primary_links_tree = menu_tree_page_data('primary-links');
+        $webserv_req = _pub_get_path_to_item($primary_links_tree, $orig_url);
+        if (!is_array($webserv_req)) {
+          $webserv_req = array();
+          $webserv_req[] = $orig_url;
+          $webserv_req[] = 'page';
+        }
+    }
+  }
+  
+  return $webserv_req;
+}
+
+/**
+ * Recursively search the menu tree for an URL. When found return the
+ * taxonomy tree related to his direct parent plus himself.
+ * 
+ * @param $menu_step
+ *   The menu level (with all the menu elements of this level)
+ *   where the search curently is.
+ * @param $link_path
+ *   The searched URL.
+ */
+function _pub_get_path_to_item($menu_step, $link_path) {
+  $temp_name = FALSE;
+  foreach ($menu_step as $elem_name => $menu_elem) {
+    if ($menu_elem['link']['link_path'] == $link_path) {
+      return 'found';
+    } elseif ($menu_elem['below']) {
+      $next_lev = _pub_get_path_to_item($menu_elem['below'], $link_path);
+      if ($next_lev == 'found' && $menu_elem['link']['module'] == 'taxonomy_menu') {
+        $result = _pub_getwebservreq($menu_elem['link']['link_path']);
+        $result[0] = ($result[0] == '') ? $link_path : $result[0].'/'.$link_path;
+        return $result;
+      } elseif (is_array($next_lev)) {
+        return $next_lev;
+      }
+    }
+  }
+  return 'not found';
+}

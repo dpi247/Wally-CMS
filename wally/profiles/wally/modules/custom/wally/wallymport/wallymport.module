@@ -1,0 +1,849 @@
+<?php
+/**
+ * @defgroup wallymport Wally Import Core Functions
+ * @{
+ * In this module we define core functions of wally xml import module.  
+ * Do not put field specific functions or generic helpers functions here. 
+ */
+
+module_load_include('inc', 'wallymport', 'includes/wallymport.fields');
+module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallymport_menu() {
+  $items = array();
+  $items['admin/wally/wallymport/settings'] = array(
+    'title' => 'Wally Import Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallymport.admin.inc',
+  );
+  $items['admin/wally/wallymport/settings/general'] = array(
+    'title' => 'General',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallymport.admin.inc',
+    'weight'=>-3,
+    'type'=> MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/wally/wallymport/settings/links'] = array(
+    'title' => 'Packages links',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallymport_page_links_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Display download links for imported packages.',
+    'file' => 'includes/wallymport.admin.inc',
+    'type'=> MENU_LOCAL_TASK,
+  );
+  $items['wallymport/process_folder'] = array(
+    'title' => 'Run XML Import Process for a forlder',
+    'description' => 'Run data import (folder)',
+    'page callback' => 'wallymport_check_process_folder',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wallymport/process_zip'] = array(
+    'title' => 'Run XML Import Process for a zip file',
+    'description' => 'Run data import (zip)',
+    'page callback' => 'wallymport_process_zip',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wallymport/preview_zip'] = array(
+    'title' => 'Run XML Import Process to preview a zip file',
+    'description' => 'Run data preview (zip)',
+    'page callback' => 'wallymport_preview_zip',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wallymport/dynamic_preview_zip'] = array(
+    'page callback' => 'wallymport_dynamic_preview_zip',
+  //  'access arguments' => array('access administration pages'),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['wallymport/destinations_items'] = array(
+    'title' => 'Return a XML list of all available destinations',
+    'description' => 'Return a XML list of all available destinations',
+    'page callback' => 'wallymport_page_destinations_items',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Create a XML document containing all available destinations.
+ * The structure of the XML follows packages.xsd.
+ * 
+ * <xsd:complexType name="DestinationsItem">
+ *   <xsd:sequence>
+ *     <xsd:element name="DestinationPath" type="xsd:string" />
+ *   </xsd:sequence>
+ *   <xsd:attribute name="DestinationRank" type="xsd:string" use="required" />
+ *   <xsd:attribute name="Position" type="xsd:string" />
+ *   <xsd:attribute name="DocumentLayout" use="required" type="xsd:string" />
+ * </xsd:complexType>
+ * 
+ * @return
+ *   The XML document as a string.
+ */
+function wallymport_page_destinations_items(){
+  $array_dests = wallytoolbox_destinations_items_array();
+  $dom_dests = new DOMDocument('1.0', 'UTF-8');
+
+  $destinations = $dom_dests->createElement('Destinations');
+  $destinations = $dom_dests->appendChild($destinations);
+
+  foreach ($array_dests as $tid=>$term_infos) {
+    $term = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
+    $term = strtoupper($term);
+    foreach ($term_infos as $target_name=>$target_infos) {
+      foreach ($target_infos as $layout_name=>$layout_infos) {
+        foreach ($layout_infos as $rank_elem=>$true_value) {
+          $destination = $dom_dests->createElement('Destination');
+          $destination = $destinations->appendChild($destination);
+          
+          $destination->setAttribute('Position', $target_name);
+          $destination->setAttribute('DocumentLayout', $layout_name);
+          $destination->setAttribute('DestinationRank', $rank_elem);
+          
+          $destination_path = $dom_dests->createElement('DestinationPath');
+          $destination_path = $destination->appendChild($destination_path);
+          $destination_path_text = $dom_dests->createTextNode($term);
+          $destination_path->appendChild($destination_path_text);
+        }
+      }
+    }
+  }
+  
+  print $dom_dests->saveXML(); 
+}
+
+/**
+ * Check if Wallymport can process folder.
+ * 
+ * @return
+ *   Response about the success or failure of import.
+ */
+function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path = FALSE) {
+  // Try to allocate enough time to run import process.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60);
+  }
+
+  // Fetch the cron semaphore
+  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 3600) {
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del('wallymport_process_folder_semaphore');
+    } else {
+      // Cron is still running normally.
+      watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
+    }
+
+    return FALSE;
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallymport_process_folder_cleanup');
+
+    // Lock cron semaphore
+    variable_set('wallymport_process_folder_semaphore', time());
+
+    // Call the function calling the RSS feeds
+    $return = wallymport_page_process_folder($path_to_folder, $absolute_path);
+
+    // Record cron time
+    variable_set('wallymport_process_folder_last', time());
+    // watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
+
+    // Release cron semaphore
+    variable_del('wallymport_process_folder_semaphore');
+    
+    /**
+    * @todo Remove print in production mode OR check the "log" mode or import settings.
+    */
+    print json_encode($return);
+  }
+}
+
+/**
+ * Shutdown function for Wallymport process folder cleanup.
+ */
+function wallymport_process_folder_cleanup() {
+  // See if the semaphore is still locked.
+  if (variable_get('wallymport_process_folder_semaphore', FALSE)) {
+    watchdog('Wallymport', 'Process folder task run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+
+    // Release semaphore
+    variable_del('wallymport_process_folder_semaphore');
+  }
+}
+
+/**
+ * Process all zip files from the import folder. 
+ * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
+ * 
+ * @param: $path_to_folder
+ *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
+ * 
+ * @return Nothing
+ */
+function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path = FALSE){
+  global $proceed_folder_path;
+  $returns = array(); 
+  
+  $temp = variable_get('wallymport_temp', file_directory_temp());
+  $format='zip';   // input file extension
+
+  if($absolute_path){
+    $xml_file=$path_to_folder;
+  } else {
+    if ($path_to_folder) {
+      $xml_file = variable_get('wallymport_source','')."/".$path_to_folder;
+    } else { 
+      $xml_file = variable_get('wallymport_source','');
+    }
+  }
+  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);// get list of all *.zip files
+  //drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0); Old scan dir function
+  if (count($files)==0) {
+    header($error_msg, TRUE, 517);
+    return array('No input files found');
+  }
+  ksort($files);
+
+  // Process each ZIP files from folder.
+  foreach ($files as $file) {
+    wallymport_process_zip_file($file, $temp, $format, $returns);
+  }
+  
+  return $returns; 
+}
+
+/**
+ * Process one zip files from the import folder.
+ * Page Callback of the processing of the import folder and call for the XML element the wallymport_page_process_file().
+ * 
+ * @param: $path_to_folder
+ *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
+ * 
+ * @return Nothing
+ */
+function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
+  global $proceed_folder_path;
+  $returns = array();
+  
+  $temp = variable_get('wallymport_temp', file_directory_temp());
+  $format = 'zip'; // input file extension
+  
+  if($absolute_path){
+    $file = $path_to_zip;
+  } else {
+    $file = variable_get('wallymport_source','')."/".$path_to_zip;
+  }
+  
+  if (!file_exists($file)) {
+    header($error_msg, TRUE, 517);
+    print json_encode(array('Input file doesn\'t exists'));
+    return;
+  }
+  
+  $expl_filename = explode('.'.$format, $file);
+  $expl_filename = explode('/', $expl_filename[0]);
+  
+  $object_file = new stdClass();
+  $object_file->name = $expl_filename[sizeof($expl_filename)-1];
+  $object_file->filename = $file;
+  $object_file->basename = $file;
+  
+  wallymport_process_zip_file($object_file, $temp, $format, $returns);
+  
+  print json_encode($returns);
+  return;
+}
+
+/**
+ * Return the form containing the preview iframe and the select box to choose the destination preview
+ */
+function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
+   $prev_js = '$(document).ready(function() {
+            $("#edit-select-preview").change(function () {
+              var temp = "/node/'.$cache_name.'/preview2/"+$(this).val();
+              $("#prev_iframe").attr("src", temp);          
+            });
+          });';
+
+  drupal_add_js($prev_js, 'inline');
+  drupal_get_messages();
+  $prenode=new Prenode($cache_name);
+  if(!empty($prenode->form_state)){
+    $options = array('no_dest' => 'Node', );
+    foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest){
+      if($delta !== 'field_destinations_add_more'){
+        $dest_name = taxonomy_get_term($dest['tid'])->name;
+        $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
+      }
+    }
+    $form['select_preview'] = array(
+      '#type' => 'select',
+      '#title' => t('Preview destination'),
+      '#default_value' => 'no_dest',
+      '#options' => $options,
+      '#attributes' => array('prenode' => $cache_name),
+    );
+    $form['#suffix'] = theme('wallyedit_preview_id', array('cache_name' => $cache_name, 'dest' => 'no_dest'))
+                          .drupal_get_js();
+  }else{
+    $form['#suffix'] = theme('wallyedit_nopreview');
+  }
+
+  return $form;
+}
+
+/**
+ * Implementation of hook_cron().
+ */ 
+function wallymport_cron(){
+  $list = db_query('SELECT name, data FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%" AND updated < %d', time() - 3600);
+  $return = array();
+  while ($elem = db_fetch_array($list)) {
+    $data = unserialize($elem['data']);
+    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0]))
+        wallytoolbox_delete_photofile($embed->field_photofile[0]);
+    }
+    
+    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d', $elem['name']);
+    $return[] = 'Preview cache deleted for : '.$elem['name'].' on '.date('Y-m-d H:i:s', time());
+  }
+  if(empty($return)){
+    $return = 'No deletion done on '.date('Y-m-d H:i:s', time());
+  }
+  print_r($return);
+}
+
+/**
+ * Preview a zip file send with cURL.
+ */
+function wallymport_dynamic_preview_zip () {
+  $returns = array();
+  $format = 'zip'; // input file extension
+  $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+  $file_name = 'wally_curl_input_'.rand();
+  $file_path = $temp.'/'.$file_name.'.'.$format;
+  $fwrite = TRUE;
+
+  $input = fopen('php://input', 'r');
+  $file = fopen($file_path, 'w');
+  while (!feof($input)) {
+    $fwrite = fwrite($file, fread($input, 1024));
+    if (!fwrite)
+      break;
+  }
+  fclose($input);
+  fclose($file);
+  
+  if ($fwrite) {
+    $object_file = new stdClass();
+    $object_file->name = $file_name;
+    $object_file->filename = $file_path;
+    $object_file->basename = $file_path;
+    
+    wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
+  }
+  
+  print_r($returns);
+}
+
+/**
+ * Preview a zip file from the import folder. 
+ * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
+ * 
+ * @param: $path_to_folder
+ *   The child folder to be proccesed. Root folder is alway determined by the wallymport_source settings
+ * 
+ * @return Nothing
+ */
+function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
+  $returns = array();
+  
+  $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+  $format = 'zip'; // input file extension
+  
+  if($absolute_path){
+    $file = $path_to_zip;
+  } else {
+    $file = variable_get('wallymport_preview_source', 'sites/default/files/preview')."/".$path_to_zip;
+  }
+  
+  if (!file_exists($file)) {
+    header($error_msg, TRUE, 517);
+    print json_encode(array('Input file doesn\'t exists'));
+    return;
+  }
+  
+  $expl_filename = explode('.'.$format, $file);
+  $expl_filename = explode('/', $expl_filename[0]);
+  
+  $object_file = new stdClass();
+  $object_file->name = $expl_filename[sizeof($expl_filename)-1];
+  $object_file->filename = $file;
+  $object_file->basename = $file;
+  
+  wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
+  print drupal_get_form('wallymport_preview_form', $returns[0]['packages'], 'disabled');
+  
+  //return !empty($returns[0]['packages']) ? $returns[0]['packages'] : '';
+}
+
+/**
+ * Process one zip file.
+ * 
+ * @param stdObject $file
+ *   File object to be processed.
+ * @param string $temp
+ *   Temp directory.
+ * @param string $format
+ *   Compression format.
+ * @param array $returns
+ *   Results of the import.
+ */
+function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview = FALSE) {
+  global $proceed_folder_path;
+  $zip_error = FALSE;
+  $error_msg = FALSE;
+  // Unzip input file to the temp directory
+  $zip = new ZipArchive;
+  $res = $zip->open($file->filename);
+  if ($res === TRUE) {
+    $temp_subdir=$temp.'/'.$file->name;
+    file_check_directory($temp_subdir,1);
+    if (is_dir($temp_subdir)) {
+      $zip->extractTo($temp_subdir);
+      // Search for XMLs
+      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+      //drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0); Old scan dir function
+      if (count($import_files)==0) {
+        $zip_error = TRUE;
+        $error_msg = 'No XML file found in the import: '.$file->basename;
+        $returns[] = $error_msg;
+      } elseif (count($import_files)>1) {
+        $zip_error = TRUE;
+        $error_msg = 'There is more than one XML file found in the import: '.$file->basename;
+        $returns[] = $error_msg;
+      } else {
+        // Yeah .. ready to ROCK & ROLL
+        $import_file=reset($import_files);
+        $xml_file=$import_file->filename;
+        $proceed_folder_path = $temp_subdir;
+        $returns[] = wallymport_page_process_file($xml_file, $preview);
+      }
+      $zip->close();
+      //rrmdir($temp_subdir);
+    } else {
+      $zip_error = TRUE;
+      $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
+      $returns[] = $error_msg;
+    }
+  } else {
+    $zip_error = TRUE;
+    $error_msg = 'Cant UnZip file: '.$file->filename;
+    $returns[] = $error_msg;
+  }
+  if($preview){
+    if ($zip_error || empty($returns[0]['packages'])) {
+      header($error_msg, TRUE, 517);
+      file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
+    } else {
+      file_delete($file->filename);
+    }
+  }else{
+    if ($zip_error) {
+      header($error_msg, TRUE, 517);
+      file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'));
+    } else {
+      file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
+    }
+  }
+}
+
+/**
+ * Process a xml file or a folder containg an xml file.
+ * The function load the XML file, validate it with the xsd defined in the module's settings
+ * and call the recursive process wimprt_process_packages()
+ *
+ * @param $path_to_file
+ *   The path to a XML file to be proccesed. if the path is an XML file, the parent folder will be considered.
+ *
+ * @return
+ *   nothing
+ */
+function wallymport_page_process_file($path_to_file, $preview = FALSE){
+  global $proceed_file_path;
+
+  $proceed_file_path=$path_to_file;
+    
+  if(!$path_to_file)
+    return 'You must to provide a path to the XML';
+
+  $xsd_file= variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
+//  $xml_file = variable_get('wallymport_source','')."/".$path_to_file;
+  $xml_file = $path_to_file;
+  $handle = fopen($xml_file, "r");
+  $contents = fread($handle, filesize($xml_file));
+  fclose($handle);
+  $dom = new DomDocument();
+  $dom->LoadXML($contents);
+  if (!$dom->schemaValidate($xsd_file))
+    return 'The XML file ('.$xml_file.') isn\'t validate by the XSD file';
+
+  $log = array();
+  $return = wimprt_process_packages($dom, $log, $preview);
+  return $return;
+}
+
+/**
+ * Process the packages element of a wally DomDocument object.
+ * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the log object
+ */
+function wimprt_process_packages($dom, &$log, $preview = FALSE){
+  $return = array();
+  module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
+  foreach($dom->getElementsByTagName('Package') as $package_element){
+    $return['packages'] = wimprt_process_package($package_element, $log, $preview);
+    //$log[]=$log;
+  }
+  module_invoke_all('wimprt_process_packages',$dom,$log,'after_process');
+
+  $return['log'] = $log;
+  return $return;
+}
+
+
+/**
+ * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
+ * 
+ * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
+ * if no specific function found nothing is done.
+ *
+ * @param $node
+ *   The Node that's being build
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ */
+function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL) {
+  $callback = wimprt_set_callback($dom, $callback);
+  $node = wimprt_create_or_load($dom, 'package', $callback, $log);
+
+  //@todo: place in walymportlog module
+  if(variable_get('wallymport_debug',0) or true)
+    $log['log'][]='process package: '.$dom->nodeName;
+
+  module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
+
+  // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+  if(function_exists("wimprt_process_package_".$callback)){
+    call_user_func("wimprt_process_package_".$callback, &$node, $dom, &$log, $preview);
+  }
+
+  module_invoke_all('wimprt_process_package',$node,$dom,$log,'after_process');
+
+  if(!empty($node) && !isset($node->rejected)) {
+    if ($preview) {
+      $prenode = new Prenode();
+      $prenode->ConvertNodeToPrenode($node);
+      
+      //require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
+      $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode['DoNotPopulate'] = true;
+      ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
+      return $prenode->cache_name;
+    } else {
+      //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
+      node_save($node);
+    }
+  } else {
+    wallycontenttypes_delete_orphans_objects($node);
+  }
+
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
+  
+  return;
+}
+
+/**
+ * Process an object element
+ *
+ * Call an apropriate function to process an object element
+ * depending the attribute callback of the child element.
+ *
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_object_CALLBACK
+ * 
+ * The naming convention to build a node from a specific package callback is: wimprt_process_object_CALLBACK
+ *
+ * if no specific function found nothing is done.
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   The node object that has been build
+ */
+function wimprt_process_object($dom, &$log, $callback = NULL, $preview = FALSE){
+  $callback=wimprt_set_callback($dom, $callback);
+  $node=wimprt_create_or_load($dom, 'object', $callback,$log);
+/**
+ * @todo Put into walymportlog module
+ */
+  if(variable_get('wallymport_debug',0) or true)
+    $log['log'][]='process object: '.$dom->nodeName;
+  module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
+  //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
+  if(function_exists("wimprt_process_object_$callback")){
+    call_user_func("wimprt_process_object_$callback", &$node, $dom, &$log, $preview);
+  }
+
+  module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
+  if(!empty($node) && !$preview)
+    node_save($node);
+ 
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
+  return $node;
+}
+
+/**
+ * Call an apropriate function to process an type element depending the attribute type of the child element.
+ *
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_type_CALLCACK
+ * The naming convention to build a node from a specific callback is: wimprt_process_type_CALLCACK
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ */
+function wimprt_process_type($dom, &$log, $callback=NULL,$preview = FALSE){
+  $callback=wimprt_set_callback($dom,$callback);
+  $node=wimprt_create_or_load($dom,'type', $callback,$log);
+  //@todo: place in walymportlog module
+  if(variable_get('wallymport_debug',0) or true)
+    $log['log'][]='process type: '.$dom->nodeName;
+    
+  module_invoke_all('wimprt_process_type',$node,$dom,$log,'before_process');
+  $callback=strtolower($callback);
+  //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
+  if(function_exists("wimprt_process_type_$callback")){
+    call_user_func("wimprt_process_type_$callback",&$node,$dom,&$log);
+  }
+
+  module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
+  if(!empty($node) && !$preview)
+    node_save($node);
+
+  $log['node']=array('current'=>$node,'next'=>$log['node']);
+  
+  return $node;
+}
+
+
+/**
+ * Call an apropriate function to process an list of elements depending the attribute type of the child element.
+ *
+ * The naming convention to build a node from a specific package type is: wimprt_process_type_CALLCACK
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   the array of nodes objects that has been build
+ */
+function wimprt_process_list($dom_element, &$log, $callback = NULL, $preview = FALSE){
+  $callback=wimprt_set_callback($dom_element,$callback);
+
+  //@todo: place in walymportlog module  
+  if(variable_get('wallymport_debug',0) or true){
+    $log['log'][]='process list: '.$dom_element->nodeName;
+  }
+
+  $array_of_nodes=array();
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'before_process');
+  
+  foreach($dom_element->childNodes as $dom_child){
+    $element_name=$dom_child->nodeName;
+    if($element_name!='#text'){
+      if(function_exists("wimprt_process_".$callback)){
+        $array_of_nodes[]= call_user_func("wimprt_process_".$callback, $dom_child, &$log, NULL, $preview);
+      }
+    }
+  }
+  module_invoke_all('wimprt_process_list',$array_of_nodes,$dom_element,$callback,$log,'after_process');
+
+  $log['node']=array('current'=>$array_of_nodes);
+  return $array_of_nodes;
+}
+
+
+/**
+ * The default Callback function for processing a package
+ *
+ * @param $node
+ *   The current node te be edited
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   The modified package node
+ */
+function wimprt_process_package_default(&$node, $dom, &$log, $preview = FALSE){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+    $name=strtolower($element->nodeName);
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name", &$node, $element, &$log, $preview);
+    }
+  }
+  return $node;
+}
+
+
+/**
+ * The default Callback function for processing a object
+ *
+ * @param $node
+ *   The current node te be edited
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   The modified object node
+ */
+function wimprt_process_object_default(&$node,$dom,&$log){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+    $name=strtolower($element->nodeName);
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
+    }
+  }
+}
+
+/**
+ * The default Callback function for processing a type
+ *
+ * @param $node
+ *   The current node te be edited
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   The modified type node
+ */
+function wimprt_process_type_default(&$node,$dom,&$log){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+    $name=strtolower($element->nodeName);
+    if(function_exists("wimprt_set_field_$name")){
+      call_user_func("wimprt_set_field_$name",&$node,$element,&$log);
+    }
+  }
+}
+
+/**
+ * Determine the next callback function from the Dom element
+ *
+ * If a callback is passed don't change else try to determine the next callback:
+ * - first try callbak associated with the xsi:type attribute.
+ * - second try the tag name if the xsi:type attribute doesn't exist.
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $callback
+ *   The callback passing as argument to the caller function
+ *   
+ * @return
+ *   The next callback
+ */
+function wimprt_set_callback($dom,$callback=NULL){
+  if(get_class($dom)=='DOMElement'){
+    if($callback==NULL){
+      if($dom->hasAttribute('xsi:type'))
+        $callback=$dom->getAttributeNode('xsi:type')->value;
+      else
+        $callback=$dom->nodeName;
+    }
+  }
+  return strtolower($callback);
+}
+
+/**
+ * Determine if the node from the processed element should be create or update based on the dom.
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $callback
+ *   The callback of the process function to allow specific call of wimprt_create_or_load_object_CALLBACK
+ *   
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load($dom,$objecttype, $callback,$log){
+  if(function_exists("wimprt_create_or_load_".$objecttype."_".$callback)){
+    $node=call_user_func("wimprt_create_or_load_".$objecttype."_".$callback,$dom,&$log);
+  }
+  else{
+    $node=new stdClass;
+  }
+  return $node;
+}
+
+/**
+ * @} End of "defgroup wallymport_process_default".
+ */

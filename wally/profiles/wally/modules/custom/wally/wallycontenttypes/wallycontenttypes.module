@@ -1,0 +1,1312 @@
+<?php
+
+include_once('wallycontenttypes.features.inc');
+
+/**
+ * @defgroup wallycontenttypes Wally main module.
+ * @{
+   * 
+ * In this module we define all wally specific content types & taxonomies
+ * Also include all invocation for specific theme hook & theming preprocess
+ * functions. 
+ */
+ 
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallycontenttypes_perm() {
+  return array('editing crop');
+}
+
+/**
+ *  Implémentation du hook_menu(); 
+ */
+
+function wallycontenttypes_menu() {
+  $items = array();
+  
+  $items['admin/content/editcrop'] = array(
+    'title' => t('Edit croping'), 
+    'description' => t('Edit croping'), 
+    'page callback' => 'wallycontenttypes_editcrop',
+    'access arguments' => array('editing crop'), 
+    'type' => MENU_CALLBACK,
+  );
+  
+  if (module_exists('wallyedit')) {
+    $items['admin/content/editcropwallyedit'] = array(
+      'title' => t('Edit croping for WallyEdit'), 
+      'description' => t('Edit croping for WallyEdit'), 
+      'page callback' => 'wallycontenttypes_editcropwallyedit', 
+      'access arguments' => array('editing crop'), 
+      'type' => MENU_CALLBACK,
+    );
+  }
+  
+  $items['admin/wally/wallycontenttypes/settings'] = array(
+    'title' => 'Wally Content Types Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallycontenttypes_page_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallycontenttypes.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ *  Implémentation du hook_theme(); 
+ */
+function wallycontenttypes_theme(&$var) {
+
+  $path = drupal_get_path('module', 'wallycontenttypes');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
+  return array(
+    'wallyct_photoobject_slider' => $base + array(
+      'arguments' => array("nodes" => NULL, "node" => NULL),
+      'template' => 'wallyct_photoobject_slider',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_mainstory' => $base + array(
+      'arguments' => array("mainstory" => NULL, "node" => NULL),
+      'template' => 'wallyct_mainstory',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_embededobjects' => $base + array(
+      'arguments' => array("embededobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_embededobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_photoobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_photoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_videoobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_videoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_digitalobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_digitalobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_linkedobjects' => $base + array(
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_teaser' => $base + array(
+      'arguments' => array("text" => NULL, "length" => 200, "node" => NULL),
+      'template' => 'wallyct_teaser',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_destinationlist' => $base + array(
+      'arguments' => array("destinations" => NULL, "separator" => NULL, "prefix" => NULL, "suffix" => NULL),
+      'template' => 'wallyct_destinationlist',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_linkedobjects' => $base + array(
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_galleryphoto' => $base + array(
+      'arguments' => array("node" => NULL),
+      'template' => 'wallyct_galleryphoto',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_editcrop' => $base + array(
+      'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
+      'template' => 'wallyct_editcrop',
+      'preprocess functions' => array('wally_get_tpl_suggestions')
+    ),
+
+/*
+    'wallyct_personslist' => $base + array(
+    'arguments' => array("persons" => NULL, "node" => NULL),
+    'template' => 'wallyct_personslist',
+    'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+*/
+  );
+}
+
+/**
+ * Implementation of hook_imagecache_actions().
+ */
+function wallycontenttypes_imagecache_actions() {
+  $actions = array(
+    'wallycontenttypes_wallycrop' => array(
+      'name' => 'Wally crop',
+      'description' => 'Perform a wallycrop action.',
+      'file' => 'includes/wallycontenttypes_actions.inc',
+    ),
+  );
+
+  return $actions;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+  switch ($op) {
+
+    case 'view':
+      if(($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)//DoNotPopulate is for wallyedit preview, since we give it a node already populated
+        wallycontenttypes_packagepopulate($node, $op);
+      break;
+    case 'presave' : 
+      if($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+          _wallycontenttypes_addtaxonomywheninserted($node);
+      }
+      break;
+
+    case 'update' :
+      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+      if($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      } elseif( $node->type == 'wally_textobject' ||
+              $node->type == 'wally_audioobject' ||
+              $node->type == 'wally_digitalobject' || 
+              $node->type == 'wally_photoobject' || 
+              $node->type == 'wally_videoobject' ||
+              $node->type == 'wally_pollobject' ||
+              $node->type == 'poll') {
+                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+                _wallycontenttypes_addtaxonomywhenupdated($node);
+      }
+      wallytoolbox_object_referencer_cache_clear($node);
+      break;
+    
+    case 'delete' :
+      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+      if($node->type == 'wally_articlepackage' || 
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+          wallycontenttypes_delete_orphans_objects($node); 
+          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      } elseif( $node->type == 'wally_textobject' ||
+              $node->type == 'wally_audioobject' ||
+              $node->type == 'wally_digitalobject' || 
+              $node->type == 'wally_photoobject' || 
+              $node->type == 'wally_videoobject' ||
+              $node->type == 'wally_pollobject' ||
+              $node->type == 'poll') {
+                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      }
+      wallytoolbox_object_referencer_cache_clear($node);
+      break;
+  }
+}
+
+/**
+ *  Implémentation du hook_preprocess_page(); 
+ */
+function wallycontenttypes_preprocess_page(&$variables) {
+  $suggestion = array(); 
+
+  // For all Nodes types with a destination field.
+  if (isset($variables['node']->field_destinations) && false) {
+    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'page'); 
+  }
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+} 
+
+/**
+ *  Implémentation du hook_preprocess_node(); 
+ */
+function wallycontenttypes_preprocess_node(&$variables) {
+  $suggestion = array(); 
+
+  // For all Nodes types with a destination field.
+  if (isset($variables['node']->field_destinations[0])) {
+    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'node'); 
+  }
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/**
+ *  Implémentation du hook_form_alter(); 
+ */
+function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
+  if (isset($form['type']) && isset($form['#node'])) {
+    switch ($form_id) {
+      case "wally_photoobject_node_form":
+        _wallycontenttypes_addcroppinglink($form, $form_state, $form_id);
+        break;
+      case "wally_articlepackage_node_form":
+      case "wally_gallerypackage_node_form" :
+      case "wally_pollpackage_node_form":
+        _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
+        break;
+    }
+  }
+}
+
+function wallycontenttypes_form_poll_view_voting_alter (&$form, &$form_state) {
+  $form['choice']['#title'] = $form['#node']->title;
+  $form['vote']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontenttypes_form_poll_cancel_form_alter (&$form, &$form_state) {
+  $form['submit']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontentypes_update_poll_cache (&$form, &$form_state) {
+  require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+  $node = $form['#node'];
+  $nid = $node->nid;
+  wallytoolbox_object_cache_clear($nid, $node->revision_uid);
+  wallytoolbox_object_referencer_cache_clear($node);
+}
+
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * This preprocess function could be set by any hook_theme.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions(&$variables, $hook) {
+  $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook);
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/** 
+ * Load related nodes into package object via nodepi - "op view". 
+ * 
+ * When a Wally specific node is loaded, this hook will load all the extra 
+ * nodes from all the node reference fields.
+ * 
+ * Specific wally fields supported:
+ *  
+ * - NID (node reference) specific link ( NODE -> NODE ).
+ *   - field_mainstory: Load the Mainstory text node. Load extra "types" into mainstory node.
+ *   - field_linkedobjects: Load all the linked objects (any type).
+ *   - field_embededobjects: Load all the embeded objects (any type).
+ * 
+ * - TID (Taxonomy field) specific link ( NODE -> TAXONOMY -> NODE ). 
+ *   - field_authors: Load the Persons content type for authors.
+ *   - field_locations: Load the Location content type for locations.
+ *   - field_entities: Load the entity content type for entities.
+ *   - field_persons: Load the Persons content type for persons.
+ *
+ * @param: &$node
+ *   The node that will be inspected for node/taxonomy reference
+ * @param: $op
+ *   Nodeapi operation
+ * 
+ * @return Nothing but modify the $node
+ */
+
+function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
+  if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
+    require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+    if (!isset($node->view)) {
+      $node->view->name = '';
+      $node->view->current_display = '';
+    }
+    $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
+    if (!$cached_node || $reset_cache) {
+      $cleaned_node = wallycontenttypes_clean_node($node);
+      wallycontenttypes_fieldNID($cleaned_node);
+      wallycontenttypes_fieldTID($cleaned_node);
+      wallytoolbox_object_cache_set($cleaned_node);
+    } else {
+      $cleaned_node = $cached_node;
+    }
+    wallycontenttypes_restore_node($node, $cleaned_node);
+  } else {
+    wallycontenttypes_fieldNID($node);
+    wallycontenttypes_fieldTID($node);
+  }
+}
+
+/**
+ * Remove all unnecessery fields from the node before it is
+ * populated.
+ * 
+ * @param $node
+ *   The node that will be populated.
+ * 
+ * @return
+ *   The cleaned node.
+ */
+function wallycontenttypes_clean_node($node) {
+  $cleaned_node = new Stdclass;
+  $cleaned_node->nid = $node->nid;
+  $cleaned_node->revision_uid = $node->revision_uid;
+  $cleaned_node->view = isset($node->view) ? $node->view : NULL;
+  $cleaned_node->type = isset($node->type) ? $node->type : NULL;
+  
+  $node_content_types = content_types($node->type);
+  
+  foreach ($node_content_types['fields'] as $field_name => $field) {
+    if ($field['type'] == 'content_taxonomy' || $field['type'] == 'nodereference') {
+      $clean_field = array();
+      $clean_field = $node->$field_name;
+      $clean_field['type'] = $field['type'];
+      $clean_field['name'] = $field_name;
+      $cleaned_node->$field_name = $clean_field;
+    }
+  }
+
+  return $cleaned_node;
+}
+
+/**
+ * Restore the node after it has been populated so that the result
+ * can be returned as a clean node.
+ * 
+ * @param &$node
+ *   The node to be restored.
+ * @param $cleaned_node
+ *   The populated node.
+ */
+function wallycontenttypes_restore_node(&$node, $cleaned_node) {
+  $cleaned_node = (array)$cleaned_node;
+  unset($cleaned_node['nid']);
+  unset($cleaned_node['revision_uid']);
+  unset($cleaned_node['view']);
+  unset($cleaned_node['type']);
+  
+  foreach ($cleaned_node as $field_name => $field) {
+    if (isset($field['type']))
+      unset($cleaned_node[$field_name]);
+  }
+  
+  $node = (array)$node;
+  $node = array_merge_recursive($node, $cleaned_node);
+  $node = (object)$node;
+}
+
+/**
+ * Process Node Reference fields in for populate node.
+ */
+function wallycontenttypes_fieldNID(&$node) {
+	foreach ($node as $field_name => $field) {
+    if (is_array($field) && $field['type'] == 'nodereference') {
+      $new_field_name = $field_name.'_nodes';
+      $node->$new_field_name = wallycontenttypes_fieldnodeload($field_name, $field);
+    }
+    /*switch($field) {
+      case "field_mainstory":
+        $node->field_mainstory_nodes = wallycontenttypes_fieldnodeload($field, $value);
+        wallycontenttypes_fieldTID(&$node->field_mainstory_nodes[0], $op);
+        break;
+      case "field_linkedobjects":
+        $results = wallycontenttypes_fieldnodeload($field, $value);
+        foreach ($results as &$result) {
+          $result->field_links_list_nodes = wallycontenttypes_fieldnodeload("field_links_list_nodes", $result->field_links_list);
+        }
+        $node->field_linkedobjects_nodes = $results;
+        break;
+      case "field_mainpoll" :
+        $node->field_mainpoll_nodes = wallycontenttypes_fieldnodeload($field, $value);
+        break;
+      case "field_mainobject" :
+        $node->field_mainobject_nodes = wallycontenttypes_fieldnodeload($field, $value);
+        break;
+      case "field_embededobjects":
+        $node->field_embededobjects_nodes = wallycontenttypes_fieldnodeload($field, $value);
+        break;
+    }*/
+	}
+	return $node;
+}
+
+/**
+ * Process Content Taxonomy fields for populate node.
+ */
+function wallycontenttypes_fieldTID(&$node) {
+  $convert_types = array(
+    'field_authors' => 'wally_persontype',
+    'field_locations' => 'wally_locationtype',
+    'field_entities' => 'wally_entitytype',
+    'field_persons' => 'wally_persontype',
+  );
+  
+  if(isset($node)) {
+    foreach ($node as $field_name => $field) {
+      if (is_array($field) && isset($field['type']) && $field['type'] == 'content_taxonomy') {
+        $new_field_name = $field_name.'_nodes';
+        $type = $convert_types[$field['name']] ? $convert_types[$field['name']] : 'none';
+        $node->$new_field_name = wallycontenttypes_fieldTIDload($field_name, $field, $type);
+      }
+      /*switch($field) {
+        case "field_authors":
+          $node->field_authors_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+          break;
+        case "field_locations":
+          $node->field_locations_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_locationtype");
+          break;
+        case "field_entities":
+          $node->field_entities_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_entitytype");
+          break;
+        case "field_persons":
+          $node->field_persons_nodes = wallycontenttypes_fieldTIDload($field, $value, "wally_persontype");
+          break;
+      }*/
+    }
+  }
+  return $node;
+}
+
+/**
+ * Process all taxonomy reference and return an array of node
+ */
+function wallycontenttypes_fieldTIDload($field, $values, $type = NULL) {
+  $r = array();
+  $tids = array();  
+  foreach ($values as $value=>$tid2load) {
+    if ($tid2load["value"]) {
+      $tids[] = $tid2load["value"]; 
+    }
+  }
+  $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
+  foreach ($results as $value=>$node2load) {
+    $r[$value] = node_load($node2load);
+    
+    if (empty($r[$value])) {
+      unset($r[$value]); 
+    }
+  }
+  return $r; 
+}
+
+
+/**
+ * Process all node reference fields and return array of node
+ */
+function wallycontenttypes_fieldnodeload($field, $values=null) {
+  $r = array();
+  foreach ($values as $value=>$node2load) {
+    if (is_numeric($value)) {
+      $r[$value] = node_load($node2load["nid"]);
+      
+      // Render the node.
+      if (!empty($r[$value])) {
+        $r[$value] = node_build_content($r[$value]);
+        drupal_render($r[$value]->content);
+        if (variable_get('wallycontenttypes_packagepopulate_recursive', 1))
+          wallycontenttypes_packagepopulate($r[$value], '');
+      } else {
+        unset($r[$value]); 
+      }
+    }
+  } 
+  return $r; 
+}
+
+/**
+* Add taxonomy term from textobject to articlepackage when textobject is updated
+* 
+* Packagenode is the node who reference the current node (It can be ArticlePackage, GalleryPackage or PollPackage
+* Because we dont want the package node to update its taxonomies fwhen we saved it from
+* here, we set a speciel field: "no_taxonomy_update" to TRUE, see _wallycontenttypes_addtaxonomywheninserted(); 
+* 
+* @param $node
+*   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+* 
+* @see _wallycontenttypes_addtaxonomywheninserted()
+* 
+* @return
+*   Nothing
+*/
+function _wallycontenttypes_addtaxonomywhenupdated($node){
+  $rows =_wallycontenttypes_getpackagesid($node);
+  foreach($rows as $row){
+    $packagenode=node_load($row['nid']);
+    // Because we dont want node-save api to update
+    // taxonomies from main object. We set this
+    // field to true. 
+    $packagenode->no_taxonomy_update = TRUE; 
+    $packagenode->taxonomy = $node->taxonomy;
+    $packagenode->field_markers = $node->field_markers;
+    $packagenode->field_locations = $node->field_locations;
+    $packagenode->field_entities = $node->field_entities;
+    $packagenode->field_persons = $node->field_persons;
+    $packagenode->field_tags = $node->field_tags;
+    $packagenode->field_free_tags = $node->field_free_tags;	
+    $r = node_save($packagenode);
+  }
+}
+
+/**
+ * Add taxonomy term of textobject to articlepackage when articlepackage is inserted or updated
+ * 
+ * objectnode is the node who is referenced by the current node
+ * (It can be TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject or PollObject)
+ * 
+ * Notice: When a mainobject is updated (we also save package node) we set the
+ * "no_taxonomy_update field" to TRUE, so we dont want to update taxonomies from
+ * the main object node. See _wallycontenttypes_addtaxonomywhenupdated();
+ * 
+ * @param $node
+ *   Node currently processed(ArticlePackage, GalleryPackage or PollPackage)
+ *
+ * @see _wallycontenttypes_addtaxonomywhenupdated
+ * 
+ * @return
+ *   Nothing
+*/
+ function _wallycontenttypes_addtaxonomywheninserted(&$node){
+// When a mainobject is updated we set the
+// no_taxonomy_update field to TRUE
+// so we dont want to update taxonomies from
+// the main object node. 
+
+  if (!$node->no_taxonomy_update) { 
+    switch ($node->type){
+      case 'wally_articlepackage':
+        $objectnode=node_load($node->field_mainstory[0]['nid']);
+      break;
+      case 'wally_gallerypackage':
+        $objectnode=node_load($node->field_mainobject[0]['nid']);
+      break;
+      case 'wally_pollpackage':
+        $objectnode=node_load($node->field_mainpoll[0]['nid']);
+      break;
+    }
+    if($objectnode){
+      $node->taxonomy=$objectnode->taxonomy;
+      $node->field_markers=$objectnode->field_markers;
+      $node->field_locations=$objectnode->field_locations;
+      $node->field_entities=$objectnode->field_entities;
+      $node->field_persons=$objectnode->field_persons;
+      $node->field_tags=$objectnode->field_tags;
+      $node->field_free_tags=$objectnode->field_free_tags;
+    }
+  }
+}
+   
+/**
+ * Get nid from packages who reference the current node
+ * 
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
+function _wallycontenttypes_getpackagesid($node){
+  $rows = array(); 
+  
+  if($node->type=='wally_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  return $rows;
+}
+
+/**
+ * Edition of the cropings of a photo.
+ * 
+ * @param string $nid
+ *  ID of the node containing the photo being edited.
+ * 
+ * @see http://deepliquid.com/blog/archives/category/jcrop
+ *  Jcrop homepage.
+ * 
+ * @return
+ *  HTML code of the image and the form containing the new values.
+ */
+function wallycontenttypes_editcrop($nid) {
+  $node = node_load($nid);
+  $imgcropings = array();
+  $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
+  $explimgcrops = array();
+  $defaultvalues = array();
+  
+  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
+    foreach ($imgcropings as $presetname => $imgcroping) {
+      $tempexplcrop = array();
+      $tempexplcrop = $imgcroping;
+      $tempexplcrop[0] = $tempexplcrop[0];
+      $tempexplcrop[1] = $tempexplcrop[1];
+      $tempexplcrop[2] = $tempexplcrop[2];
+      $tempexplcrop[3] = $tempexplcrop[3];
+      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
+      $explimgcrops[$presetname] = $tempexplcrop;
+    }
+  } else {
+    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
+  }
+  $photofile = $node->field_photofile;
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photofile[0]['filepath']);
+
+  $defaultvalues = $usablecropsanddefaults[0];
+  $usablecrops = $usablecropsanddefaults[1];
+  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
+  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
+  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
+  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
+  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+
+  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
+}
+
+/**
+ * Edition of the cropings of a photo for the WallyEdit edition page.
+ * 
+ * @param string $temp_nid
+ *   Temp ID of the node containing the photo being edited.
+ * @param string $photo_path
+ *   Drupal path of the photo being edited.
+ * @param string $current_cropings
+ *   Actual values of the cropings of this photo. Serialized with
+ * json_encode().
+ * 
+ * @see http://deepliquid.com/blog/archives/category/jcrop
+ *   Jcrop homepage.
+ * 
+ * @return
+ *   HTML code of the image and the form containing the new values.
+ */
+function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cropings = '') {
+  $node = node_load($nid);
+  $imgcropings = json_decode($current_cropings, TRUE);
+  $explimgcrops = array();
+  $defaultvalues = array();
+  
+  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
+    foreach ($imgcropings as $presetname => $imgcroping) {
+      $tempexplcrop = array();
+      $tempexplcrop = $imgcroping;
+      $tempexplcrop[0] = $tempexplcrop[0];
+      $tempexplcrop[1] = $tempexplcrop[1];
+      $tempexplcrop[2] = $tempexplcrop[2];
+      $tempexplcrop[3] = $tempexplcrop[3];
+      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
+      $explimgcrops[$presetname] = $tempexplcrop;
+    }
+  } else {
+    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
+  }
+
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path);
+
+  $defaultvalues = $usablecropsanddefaults[0];
+  $usablecrops = $usablecropsanddefaults[1];
+  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
+  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
+  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
+  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
+  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+
+  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
+}
+
+/**
+ * Add a Edit Crop link to form.
+ * 
+ * In case of Photo Object editing, we need to show a "edit crop"
+ * link. 
+ * 
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
+  $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
+}
+
+/**
+ * Disable all taxonomy fields on package editing.
+ * 
+ * In case of package editing, all taxonomy/entities/persons/locations/...
+ * are taken from the main object. So we disabled the edition for these
+ * fields.
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we add
+ * an after_build callback function to the form. So all cck fields are
+ * completly build.    
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
+  $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
+}
+
+/**
+ * call back to add edit crop link on Photo Object editing
+ * 
+ * Call back function used by after_build attribute to 
+ * add an edit crop link into form.
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ *   
+ * @TODO: Need more intelligence, should be enabled when
+ *   a file is uploaded.
+ */
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
+  global $base_url;
+  $form['group_photo']['field_croping'][0]['#type'] = 'value';
+  $form['group_photo']['field_croping'][0]['value']['#type'] = 'value';
+  $form_state['values']['field_croping'][0]['value'] = $form['group_photo']['field_croping'][0]['#value']['value'];
+  if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
+    $form['group_photo']['edit_croping']=array(
+      '#weight' => 28,
+    	"#type"=>'markup',
+  		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
+    );
+  }
+  return $form;
+}
+
+/**
+ * call back to disable all taxonomy fields on package editing
+ * 
+ * Call back function used by after_build attribute to 
+ * disabled all "taxonomy" from a package content types. 
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we had to put 
+ * a disabled attribute to all sub-element of the cck field. 
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset. So we have to 
+ * seach recursivly for fields.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ */
+function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
+  $fields = array(  "field_locations",
+                    "field_markers",
+                    "field_entities",
+                    "field_persons",
+                    "field_tags",
+                    "field_free_tags"
+                 );
+
+  foreach ($fields as $field) {
+    
+    // CCK field on the 1st level of $form
+    if (isset($form[$field])) {
+      _wallycontenttypes_mysnippetfixdisabled($form[$field]);
+    } else {
+      // Because we're in afterbuild function, fields could be already
+      // relocated into cck fieldsets > $form['fiedset']['cckfield'] 
+      foreach (element_children($form) as $k) {
+          if (isset($form[$k][$field])) {
+            _wallycontenttypes_mysnippetfixdisabled($form[$k][$field]);
+          }
+      }
+    } 
+  }
+  return($form);
+}
+
+/**
+ * Sort an array of Wally objects in the various objects types.
+ */
+function wallycontenttypes_sort_embededobjects($embededobjects, $sort_order = array()) {
+  if (empty($sort_order)) {
+    $sort_order = array(
+      'wally_photoobject',
+      'wally_videoobject',
+      'wally_audioobject',
+      'wally_digitalobject',
+    );
+  }
+  
+  $return = array();
+  
+  foreach ($sort_order as $key_elem)
+    $return[$key_elem] = array();
+  
+  foreach ($embededobjects as $embededobject)
+    $return[$embededobject->type][] = $embededobject;
+  
+  return $return;
+}
+
+/**
+* Recursively set the disabled attribute of a CCK field
+* and all its dependent FAPI elements. For a content_taxonomy_tree
+* cck field, we must disbaled all the childrens: checkboxes or radios.
+* 
+* @param $element
+*   The form element to proceed.
+* 
+* @return
+*   Nothing
+*/
+function _wallycontenttypes_mysnippetfixdisabled(&$elements) {
+  if ($elements["#type"]!="content_taxonomy_tree") {
+    foreach (element_children($elements) as $key) {
+      if (isset($elements[$key]) && $elements[$key]) {
+        _wallycontenttypes_mysnippetfixdisabled($elements[$key]);
+      }
+    }
+    if (!isset($elements['#attributes'])) {
+      $elements['#attributes'] = array();
+    }
+    $elements['#attributes']['disabled'] = 'disabled';
+  } else {
+    foreach (element_children($elements['value']['#elements']) as $key) {
+      _wallycontenttypes_mysnippetdisabledtaxonomytree($elements['value']['#elements'][$key]);
+    }
+ }
+}
+
+/**
+ * Recursivly search for each children element of a  content_taxonomy_tree
+ * field. To disable all childrens. 
+ * 
+ * @param $element 
+ *   Form element to proceed. Must be a content_taxonomy_tree element.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_mysnippetdisabledtaxonomytree(&$elements) {
+  foreach (element_children($elements) as $k) {
+    $elements[$k]['#attributes']['disabled'] = 'disabled';
+    if ($k=='children') {
+      foreach (element_children($elements[$k]) as $key) {
+        _wallycontenttypes_mysnippetdisabledtaxonomytree($elements[$k][$key]);
+      }
+    }
+  }
+ }
+ 
+/**
+ * Return the js code needed by wallycontenttypes_editcrop.
+ * 
+ * @param $usablecrops
+ *   Array of arrays containing the values of the cropings as required by
+ *   Jcrop (x, y, x2, y2) and the ratio, also required by Jcrop.
+ * 
+ * @return
+ *   The js code.
+ */
+function _wallycontenttypes_jscodeforthecroping($usablecrops) {
+		
+  $return = '
+    var ac, currentAc;
+  
+    $(window).load(function() {
+    
+    var api = $.Jcrop("#cropbox",{
+        onSelect: showCoordsAndSave,
+        bgColor: "black",
+        bgOpacity: .4,
+        boxWidth: 800,
+      });
+
+      var i;
+
+      // A handler to kill the action
+      function nothing(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      };
+
+      // Returns event handler for animation callback
+      function anim_handler(ac, ratio, i) {
+        return function(e) {
+      	  $("#crop-current-name").html(i);
+          api.setSelect(ac);
+          api.setOptions({ aspectRatio: ratio });
+          // Change class of selected button
+          if (currentAc) {
+          	$("#"+currentAc).removeClass("crop_selected");
+          }
+          $("#"+i).addClass("crop_selected");	
+          currentAc = i;
+          
+          return nothing(e);
+        };
+      };
+
+      ac = {';
+  foreach ($usablecrops as $presetname => $usablecrop) {
+  	// Nasty things in the database?
+  	if (!is_numeric($usablecrop[0])) { $usablecrop[0] = 0;}
+  	if (!is_numeric($usablecrop[1])) { $usablecrop[1] = 0;}
+  	if (!is_numeric($usablecrop[2])) { $usablecrop[2] = 0;}
+  	if (!is_numeric($usablecrop[3])) { $usablecrop[3] = 0;}
+  	$return .= $presetname.': ['.$usablecrop[0].','.$usablecrop[1].','.$usablecrop[2].','.$usablecrop[3].','.'],';
+  }
+      
+  $return .= '};
+
+      var ratio = {';
+      
+  foreach ($usablecrops as $presetname => $usablecrop) {
+    $return .= $presetname.': '.$usablecrop[4].',';
+  }
+        
+  $return .= '};
+
+      // Attach respective event handlers and charge default values in the form
+      for(i in ac) {
+        jQuery("#"+i).click(anim_handler(ac[i], ratio[i], i));
+      }
+      
+      // Select the first preset
+      ';
+      
+  $return .= '$("#'.array_shift(array_keys($usablecrops)).'").trigger("click");
+    });
+    
+    function showCoordsAndSave(c) {
+      if (currentAc) {
+      	// 1 ajouté la fin de l\'array pour flager la modification de ce preset
+      	var serialCoord = [c.x,c.y,c.w,c.h,1];
+        $("#"+currentAc+"_serialCoord").val(serialCoord);
+        ac[currentAc][0] = c.x;
+        ac[currentAc][1] = c.y;
+        ac[currentAc][2] = c.x2;
+        ac[currentAc][3] = c.y2;
+      }
+    };
+  ';
+  
+  return $return;
+}
+
+/**
+ * Return the default values of a croping, needed by wallycontenttypes_editcrop.
+ * 
+ * @param $crop
+ *   The croping informations to save.
+ * 
+ * @return
+ *   The default values for this croping.
+ */
+function _wallycontenttypes_getdefaultvaluesforthecroping($crop, $img) {
+  $cropdefault = array();
+  for ($i=0; $i<4; $i++) {
+    $cropdefault[$i] = $crop[$i];
+  }
+  return $cropdefault;
+}
+
+/**
+ * Return the crops in a usable form for Jcrop, needed by wallycontenttypes_editcrop.
+ * 
+ * @param array $explimgcrops
+ *   The croping informations extracted from the node.
+ * @param string $photo_path
+ *   Drupal path of the photo being edited.
+ * 
+ * @return
+ *   The usables crops for Jcrop.
+ */
+function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path) {
+  $usablecrops = array();
+  $presets = imagecache_presets();
+  $img = imageapi_image_open($photo_path);
+
+  foreach ($presets as $preset) {
+    if ($preset['actions']) {
+      $datas = array();
+      foreach ($preset['actions'] as $action) {
+        if ($action['action']=='wallycontenttypes_wallycrop') {
+          if (!isset($action['data']['presetid']) || empty($action['data']['presetid'])) {
+            $action['data']['presetid'] = $preset['presetid'];
+            imagecache_action_save($action);
+          }
+          $datas = $action['data'];
+        }
+      }
+      
+      if (!empty($datas)) {
+        $temppresetcrop = array();
+        
+        if (is_numeric($datas['xoffset'])) {
+	        $temppresetcrop[0] = $datas['xoffset'];
+        } else {
+        	if ($datas['xoffset']=="center_max") { $datas['xoffset']="center"; };
+        	$temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+	      }
+
+        if (is_numeric($datas['yoffset'])) {
+        	$temppresetcrop[1] = $datas['yoffset'];
+        } else {
+        	if ($datas['yoffset']=="center_max") { $datas['yoffset']="center"; };
+        	$temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
+        }
+        $temppresetcrop[2] = $datas['width'] + 0;
+        $temppresetcrop[3] = $datas['height'] + 0;
+        $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
+        
+        $tempusablecrop = array();
+
+        if ($explimgcrops && !empty($explimgcrops) && $explimgcrops!="") {
+          foreach ($explimgcrops as $presetname => $explimgcrop) {
+            if ($presetname == $preset['presetname'] && abs($temppresetcrop[4]-$explimgcrop[4])/$temppresetcrop[4]<0.1) {
+              $defaultvalues[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($explimgcrop, $img);
+              $tempusablecrop = $explimgcrop;
+              $tempusablecrop[2] += $tempusablecrop[0];
+              $tempusablecrop[3] += $tempusablecrop[1];
+              $tempusablecrop['presetid'] = $preset['presetid'];
+              break;
+            }
+          }
+        }
+        
+        if (empty($tempusablecrop)) {
+          $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop, $img);
+          $tempusablecrop = $temppresetcrop;
+          $tempusablecrop[2] += $tempusablecrop[0];
+          $tempusablecrop[3] += $tempusablecrop[1];
+          $tempusablecrop['presetid'] = $preset['presetid'];
+          drupal_set_message('No croping info found for the wallycrop action of the '.$preset['presetname'].' preset, default values loaded.',"notice");
+        }
+        $usablecrops[$preset['presetname']] = $tempusablecrop;
+      } else {
+        //drupal_set_message('The preset '.$preset['presetname'].' doesn\'t use the wallycrop action.',"notice");
+      }
+    }
+  }
+
+  
+  return array($defaultvalues,$usablecrops);
+}
+
+/**
+ * Save the values send by the croping in the node and redirect if needed.
+ * 
+ * @param $node
+ *   The node containing the photo being croped.
+ * @param $usablecrops
+ *   The Jcrop-usable crops, needed for the presetnames.
+ * 
+ * @return
+ *   Nothing.
+ */
+function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
+  $redirect = false;
+  $i=0;
+  $crops = array();
+  foreach ($usablecrops as $presetname => $usablecrop) {
+    if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
+      $temp_crops = explode(',',$_POST[$presetname.'_serialCoord']);
+      if (isset($temp_crops[4]) && $temp_crops[4] == '1') {
+        // Le crop a été modifié pour ce preset
+        $crops[$presetname] = $temp_crops;
+        imagecache_image_flush($node->field_photofile[0]['filepath']);
+      } else {
+        $crops[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($usablecrop, NULL);
+      }
+      $crops[$presetname]['presetid'] = $usablecrop['presetid'];
+      $redirect = true;
+      $i++;
+    }
+  }
+
+  if ($redirect) {
+    $node->field_croping[0]['value'] = drupal_to_js($crops);
+    node_save($node);
+    drupal_goto(drupal_get_path_alias("node/".$node->nid."/edit/"));
+  }
+  
+  return;
+}
+
+/**
+ * Build all the page/node suggestions template for a node of type "package"
+ * of any content type with Destinations information.   
+ *
+ *  Wally specific suggestions are (for pages):  
+ * 
+ *  - page_{destinations_terms_underscore_separated}.tpl.php
+ *  - page_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - page_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - page_{node_type}_{package_layout}.tpl.php
+ *  - page_{node_type}.tpl.php
+ *  - page.tpl.php
+ * 
+ *  Wally specific suggestions are (for nodes):  
+ * 
+ *  - node-{node_type}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - node_{node_type}_{package_layout}.tpl.php
+ *  - node_{node_type}.tpl.php < node.tpl.php
+ *
+ *  Wally specific suggestions are (other - types):  
+ * 
+ *  - {type}-{node_type}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - {type}_{node_type}_{package_layout}.tpl.php
+ *  - {type}_{node_type}.tpl.php < node.tpl.php
+ * 
+ * @param $variables
+ *   Templating variables
+ * @param $type
+ *   Prefix added to suggestions (default = page). Could be "page" or "node".
+ * 
+ * @return 
+ *   Array of suggestion pages templates.
+ */
+function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
+  $destinations = array();
+  $suggestion = array(); 
+  $tax_children = array(); 
+  $vid=variable_get('wallymport_destinationpath',null);
+  $path = ""; 
+  $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
+
+  // For a node, destination is taken on the 1st destination. 
+  if (isset($variables['node']->field_destinations[0]['tid'])) {
+    $destinations = array($variables['node']->field_destinations[0]['tid']);
+  }
+
+  (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
+ 
+  if ($package_layout) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
+
+  if (count($destinations)) {
+    $destination = $destinations[0];
+    $tax_children = taxonomy_get_parents_all($destination, $vid);
+    $count = count($tax_children);
+    for ($i = $count-1; $i >= 0; $i--) {
+      ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
+      if ($type) $suggestion[] = $type . '_' . $path;
+      if (isset($variables['node']->type)) $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
+      if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
+    }
+  }
+
+  if ($type == 'panels_pane') {
+    $suggestion = isset($variables['classes']) ? explode(' ',$variables['classes']) : array();
+    array_unshift($suggestion, 'panels-page');
+  }
+
+  return $suggestion;  
+}
+
+/**
+ * Extract page layout information from the node. 
+ *
+ * @param $node
+ *   The node currently processed
+ *
+ * @return 
+ *   The Package layout as a string or NULL.
+ */
+function wallycontenttypes_getpackagelayout($node) {
+  if (isset($node->field_packagelayout)) {
+    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
+    $package_layout = strtolower(trim($package_layout->name));
+  } else {
+    $package_layout = NULL;
+  }
+  return $package_layout; 
+}
+
+/**
+* This function is called in the nodeapi hook, op 'delete if the node is a package.
+* Its purpose is to delete the orphan objects that would be left behind when the parent is deleted.
+* @param: $node
+* The parent being deleted.
+* @return Nothing but delete the orphans.
+*/
+function wallycontenttypes_delete_orphans_objects($node){
+  $nids = array();
+  $nids[] = $node->field_mainstory[0]['nid'];
+  foreach($node->field_embededobjects as $emobject){
+    if($emobject['nid']!= NULL && !in_array($emobject['nid'], $nids)){
+      $nids[] = $emobject['nid'];
+    }
+  }
+  foreach($node->field_linkedobjects as $lnobject){
+    if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
+      $nids[] = $lnobject['nid'];
+    }
+  }
+  foreach($nids as $nid){
+    $child = node_load($nid);
+    $parents = wallytoolbox_get_node_by_reference($child);
+    foreach($parents as &$parent) {
+      $parent = $parent['nid'];
+    }
+    if(count($parents) == 1 && in_array($node->nid, $parents)){
+      node_delete($nid);
+    }
+  }
+}
+
+/**
+ * @} End of "defgroup wallycontenttypes".
+ */

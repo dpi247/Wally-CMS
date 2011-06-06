@@ -1,0 +1,14 @@
+core = "6.x"
+description = "Home page (views and page_manager) for Wally News"
+name = "WallyNewsHomePage"
+package = "Wally"
+project = "Wally"
+
+dependencies[] = "location"
+dependencies[] = "page_manager"
+dependencies[] = "views_content"
+
+features[ctools][] = "page_manager:pages_default:1"
+features[page_manager_pages][] = "home_page"
+features[views][] = "home_page_packages"
+features[views_api][] = "api:2"

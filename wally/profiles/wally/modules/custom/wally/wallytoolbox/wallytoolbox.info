@@ -1,0 +1,6 @@
+name = "Wally ToolBox"
+description = "ToolBox module with various helper function"
+package = "Wally"
+core = "6.x"
+version = "6.x-1.0"
+project = "Wally"

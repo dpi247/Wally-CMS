@@ -1,0 +1,109 @@
+<?php
+/*
+ * Implementation of the hook module _install();
+ */
+function wallyrsspublish_install() {
+  _wallyrsspublish_install_presets();
+if (!db_table_exists('rsspublish')) {
+    drupal_install_schema('wallyrsspublish');
+  }
+ }
+
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function wallyrsspublish_uninstall() {
+  _wallyrsspublish_uninstall_presets();
+  drupal_uninstall_schema('wallyrsspublish');
+ }
+
+function _wallyrsspublish_install_presets() {
+if (!imagecache_preset_by_name('rsspublish_preset')) {
+      $imagecachepreset = imagecache_preset_save(array('presetname' => 'rsspublish_preset'));
+      $imagecacheaction = new stdClass ();
+      $imagecacheaction->presetid = $imagecachepreset['presetid']; 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale';
+      $imagecacheaction->data = array('width' => '640', 'height' => '400', 'upscale' => true);
+      $imagecacheaction->weight = 1;
+      drupal_write_record('imagecache_action', $imagecacheaction);
+    }
+if (!imagecache_preset_by_name('rsspublish_thumb_preset')) {
+      $imagecachepreset = imagecache_preset_save(array('presetname' => 'rsspublish_thumb_preset'));
+      $imagecacheaction = new stdClass ();
+      $imagecacheaction->presetid = $imagecachepreset['presetid']; 
+      $imagecacheaction->module = 'imagecache';
+      $imagecacheaction->action = 'imagecache_scale';
+      $imagecacheaction->data = array('width' => '300', 'height' => '150', 'upscale' => true);
+      $imagecacheaction->weight = 1;
+      drupal_write_record('imagecache_action', $imagecacheaction);
+    }
+}
+
+function _wallyrsspublish_uninstall_presets() {
+  // Deleting ImageCache presets
+  // @see wallyct_photoobject_slider
+  if (!imagecache_preset_by_name('rsspublish_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
+  }
+  if (!imagecache_preset_by_name('rsspublish_thumb_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('rsspublish_preset'));
+  }
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallyrsspublish_schema() {
+  $schema['rsspublish'] = array(
+    'description' => 'The table containing the RSS feeds informations for the wallyrsspublish module.', 
+      'fields' => array(
+        'rss_key' => array(
+          'description' => 'The primary identifier.', 
+          'type' => 'serial',
+          'unsigned' => TRUE, 
+          'not null' => TRUE,
+        ),
+        'tid' => array(
+          'description' => 'tid.', 
+          'type' => 'int',
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => 0,
+        ), 
+        'title' => array(
+          'description' => 'Title.', 
+          'type' => 'varchar',
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ), 
+        'description' => array(
+          'description' => 'Description.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+        'imagefile' => array(
+          'description' => 'Imagefile.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+        'copyright' => array(
+          'description' => 'Copyright.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'default' => '',
+        ),
+      ), 
+      'primary key' => array('rss_key'),
+  );
+
+  return $schema;
+}
+
+function wallyrsspublish_update_6001() {
+  drupal_rebuild_theme_registry();
+  return array();
+}

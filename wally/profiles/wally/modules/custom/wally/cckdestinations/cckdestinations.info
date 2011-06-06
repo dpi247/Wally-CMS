@@ -1,0 +1,7 @@
+name = "CCK destinations"
+description = "Provide destinations for Wally instances"
+package = "Wally"
+core = "6.x"
+
+dependencies[] = "content"
+dependencies[] = "wallytoolbox"

@@ -1,0 +1,434 @@
+<?php
+
+/**
+ * @defgroup warnish
+ * @{
+   * 
+ * In this module we define specific cases to be bypassed by Varnish.
+ */
+
+define('WARNISH_NO_CLEAR', 0);
+define('WARNISH_DEFAULT_CLEAR', 1);
+define('WARNISH_SELECTIVE_CLEAR', 2); // Requires Expire.module to be enabled.
+define('WARNISH_DEFAULT_TIMETOUT', 100); // 100ms
+define('WARNISH_SERVER_STATUS_DOWN', 0);
+define('WARNISH_SERVER_STATUS_UP', 1);
+
+/**
+ * Implémentation du hook_menu
+ */
+function warnish_menu() {
+  $items = array();
+  
+  $items['content/pollajax'] = array(
+    'page callback' => 'warnish_poll_ajax_content',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['admin/wally/warnish'] = array(
+    'title' => 'Warnish settings',
+    'description' => 'Configure your warnish integration.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('warnish_admin_settings_form'),
+    'access arguments' => array('administer warnish'),
+    'file' => 'includes/warnish.admin.inc',
+  );
+  
+  $items['admin/wally/warnish/general'] = array(
+    'title' => 'General',
+    'description' => 'Configure Varnish servers and cache invalidation settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -5,
+  );
+  
+  $items['admin/reports/varnish'] = array(
+    'title' => 'Varnish status',
+    'description' => 'Get the output of warnishstat.',
+    'page callback' => 'warnish_admin_reports_page',
+    'access arguments' => array('administer warnish'),
+    'file' => 'includes/warnish.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implémentation du hook_theme
+ */
+function warnish_theme() {
+  $items = array();
+  
+  $items['poll_html_content'] = array(
+    'arguments' => array(),
+    'template' => 'poll-html-content',
+    'path' => drupal_get_path('module', 'warnish') . '/templates',
+  );
+  
+  $items['warnish_status'] = array(
+    'arguments' => array('status' => array()),
+  );
+  
+  return $items;
+}
+
+/**
+ * Theme handler for theme('warnish_status').
+ */
+function theme_warnish_status($status) {
+  $items = array();
+  foreach ($status as $terminal => $state) {
+    list($server, $port) = explode(':', $terminal);
+    if ($state == WARNISH_SERVER_STATUS_UP) {
+      $icon = theme('image', 'misc/watchdog-ok.png', "Server OK: {$server}:{$port}", "{$server}:{$port}");
+      $items[] = t('!status_icon Varnish running. Observe more detailed statistics !link.', array('!status_icon' => $icon, '!link' => l(t('here'), 'admin/reports/varnish')));
+    }
+    else {
+      $icon = theme('image', 'misc/watchdog-error.png', 'Server down: {$server}:{$port}', "{$server}:{$port}");
+      $items[] = t('!status_icon The Varnish control terminal is not responding at %server on port %port.', array('!status_icon' => $icon, '%server' => $server, '%port' => $port));
+    }
+  }
+  return theme('item_list', $items);
+}
+
+/**
+ * Implémentation du hook_block
+ */
+function warnish_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks = array();
+      
+      if (module_exists('poll')) {
+        $blocks['poll_ajax'] = array(
+          'info' => t('Poll AJAX'),
+          'cache' => BLOCK_NO_CACHE,
+        );
+      }
+      
+      return $blocks;
+    case 'configure':
+      $form = array();
+      $minutes_list = array();
+      for ($i=0; $i<=60; $i++) $minutes_list[$i] = ($i==1 || $i==0) ? $i.' minute' : $i.' minutes';
+      
+      $form['refresh_time_minutes'] = array(
+        '#type' => 'select',
+        '#description' => t('Time, in minutes, between updates for this block.'),
+        '#options' => $minutes_list,
+        '#default_value' => variable_get('warnish_poll_ajax_block_refresh_time', 5),
+        '#required' => TRUE,
+      );
+      
+      return $form;
+    case 'save':
+      switch ($delta) {
+        case 'poll_ajax':
+          variable_set('warnish_poll_ajax_block_refresh_time', $edit['refresh_time_minutes']);
+          break;
+      }
+      break;
+    case 'view':
+      switch ($delta) {
+        case 'poll_ajax':
+          $block = array(
+            'subject' => t('Poll AJAX block.'),
+            'content' => warnish_get_poll_html_content(),
+          );
+          break;
+      }
+      return $block;
+  }
+}
+
+/**
+ * Implementation du hook_cron.
+ */
+function warnish_cron() {
+  if (variable_get('warnish_flush_cron', 0)) {
+    if (variable_get('cache_lifetime', 0)) {
+      $cache_flush = variable_get('warnish_cache_flush', 0);
+      if ($cache_flush == 0) {
+        // This is the first request to clear the cache, start a timer.
+        variable_set('warnish_cache_flush', time());
+      } elseif (time() > ($cache_flush + variable_get('cache_lifetime', 0))) {
+        warnish_purge_all_pages();
+      }
+    } else {
+      warnish_purge_all_pages();
+    }
+  }
+}
+
+/** 
+ * Implemetation of hook_perm()
+ *
+ * Allows admins to control access to warnish settings.
+ */
+function warnish_perm() {
+  return array('administer warnish');
+}
+
+/**
+ * Implementation of hook_requirements()
+ *
+ * Insure that Varnish's connection is good.
+ */
+function warnish_requirements($phase) {
+  if ($phase == 'runtime') {
+    $requirements = array('warnish');
+    $requirements['warnish']['title'] = t('Varnish status');
+    // try a Varnish admin connect, report results
+    $status = _warnish_terminal_run('status');
+    $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+    foreach ($terminals as $term) {
+      list($server, $port) = explode(':', $term);
+      $stat = array_shift($status);
+      if ($stat['code'] != 200) {
+        $requirements['warnish']['value'] = t('Varnish connection broken');
+        $requirements['warnish']['severity'] = REQUIREMENT_ERROR;
+        $requirements['warnish']['description'] = t('The Varnish control terminal is not responding at %server on port %port.', array('%server' => $server, '%port' => $port));
+        return $requirements;
+      }
+      else {
+        $requirements['warnish']['value'] = t('Varnish running. Observe more detailed statistics !link.', array('!link' => l(t('here'), 'admin/reports/varnish')));
+      }
+    }
+    return $requirements;
+  }
+}
+
+/**
+ * Implementation of hook_expire_cache
+ *
+ * Takes an array from expire.module and issue purges.
+ *
+ * You may also safely call this function directly with an array of local urls to purge.
+ */
+function warnish_expire_cache($paths) {
+  $host = _warnish_get_host();
+  $base = base_path();
+  $purge = implode('$|^'. $base, $paths);
+   _warnish_terminal_run('purge req.http.host ~ '. $host .' && req.url ~ "^'. $base . $purge .'$"');
+}
+
+/**
+ * Implementation of hook_form_alter()
+ *
+ * Add our submit callback to the "clear caches" button.
+ */
+function warnish_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'system_performance_settings') {
+    $form['clear_cache']['clear']['#submit'][] = 'warnish_purge_all_pages';
+  }
+}
+
+/**
+ * Helper function to quickly flush one (or a list of) page(s) cache for the current site.
+ */
+function warnish_purge_page($paths) {
+  $host = _warnish_get_host();
+  if (is_string($paths))
+    $paths = array($paths);
+
+  $command = array();
+  foreach ($paths as $path)
+    $command[] = "purge req.http.host ~ $host && req.url == $path";
+  
+  _warnish_terminal_run($command);
+}
+
+/**
+ * Helper function to quickly flush all caches for the current site.
+ */
+function warnish_purge_all_pages($path = '*') {
+  $path = ($path == '*') ? base_path() : $path;
+  $host = _warnish_get_host();
+  _warnish_terminal_run("purge req.http.host ~ $host && req.url ~ ^$path");
+}
+
+/**
+ * Get the status (up/down) of each of the Varnish servers.
+ *
+ * @return An array of server statuses, keyed by Varnish terminal addresses.
+ * The status will be a numeric constant, either:
+ * - WARNISH_SERVER_STATUS_UP
+ * - WARNISH_SERVER_STATUS_DOWN
+ */
+function warnish_get_status() {
+  // use a static-cache so this can be called repeatedly without incurring
+  // socket-connects for each call.
+  static $results = NULL;
+  if (is_null($results)) {
+    $results = array();
+    $status = _warnish_terminal_run('status');
+    $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+    foreach ($terminals as $terminal) {
+      $stat = array_shift($status);
+      $results[$terminal] = ($stat['code'] == 200) ? WARNISH_SERVER_STATUS_UP : WARNISH_SERVER_STATUS_DOWN;
+    }
+  }
+  return $results;
+}
+
+/**
+ * Get content for the poll AJAX block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function warnish_get_poll_html_content() {
+  $refresh_ms = variable_get('warnish_poll_ajax_block_refresh_time', 5) * 60 * 1000;
+
+  drupal_add_js('
+    $(document).ready(function(){
+    	getPoll();
+    	setInterval("getPoll()", '.$refresh_ms.');
+    });
+    
+    function getPoll() {
+      var poll_content = $.ajax({
+                						      url: "/content/pollajax?destination='.rawurlencode($_GET['q']).'",
+                						      cache: false,
+                						      async: false
+                						    }).responseText;
+    	$("div#poll_ajax_content").html(poll_content);
+    };
+  ', 'inline');
+  return theme('poll_html_content');
+}
+
+/**
+ * Get latest poll content.
+ * 
+ * @return
+ *   HTML content.
+ */
+function warnish_poll_ajax_content() {
+  $poll = array();
+  $poll = poll_block('view');
+
+  print $poll['content'];
+}
+
+/**
+ * Helper function to parse the host from the global $base_url
+ */
+function _warnish_get_host() {
+  global $base_url;
+  $parts = parse_url($base_url);
+  return $parts['host'];
+}
+
+/**
+ * Helper function that sends commands to Varnish
+ *
+ * Utilizes sockets to talk to Varnish terminal.
+ * 
+ * @param $command
+ *   Can be a single string or an array of strings
+ */
+function _warnish_terminal_run($command) {
+  if (!extension_loaded('sockets')) {
+    // Prevent fatal errors if people don't have requirements.
+    return FALSE;
+  }
+  $ret = array();
+  $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+  $timeout = variable_get('warnish_socket_timeout', WARNISH_DEFAULT_TIMETOUT);
+  $seconds = (int)($timeout / 1000);
+  $milliseconds = (int)($timeout % 1000 * 1000);
+  foreach ($terminals as $terminal) {
+    list($server, $port) = explode(':', $terminal);
+    $client = socket_create(AF_INET, SOCK_STREAM, getprotobyname('tcp'));
+    socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+    socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+    if (@!socket_connect($client, $server, $port)) {
+      watchdog('Warnish', 'Unable to connect to server socket !server:!port: %error', array(
+        '!server' => $server,
+        '!port' => $port,
+        '%error' => socket_strerror(socket_last_error($client))
+        ), WATCHDOG_ERROR);
+      $ret[] = FALSE;
+      // If a Varnish server is unavailable, move on to the next in the list.
+      continue;
+    }
+    // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
+    if(variable_get('warnish_legacy', 0) != 1) {
+      $status = _warnish_read_socket($client);
+      // Do we need to authenticate?
+      if ($status['code'] == 107) { // Require authentication
+        $secret = variable_get('warnish_control_key', '');
+        $challenge = substr($status['msg'], 0, 32);
+        $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
+        $key = hash('sha256', $pack);
+        socket_write($client, "auth $key\n");
+        $status = _warnish_read_socket($client);
+        if ($status['code'] != 200) {
+          watchdog('Warnish', 'Authentication to server failed!', array(), WATCHDOG_ERROR);
+        }
+      }
+    }
+
+    if (is_array($command)) {
+      $temp_ret = array();
+      
+      foreach ($command as $com) {
+        // Send command and get response.
+        $result = socket_write($client, "$com\n");
+        $status = _warnish_read_socket($client);
+    
+        if ($status['code'] != 200) {
+          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg']), WATCHDOG_ERROR);
+          $temp_ret[] = FALSE;
+        }
+        else {
+          // successful connection
+          $temp_ret[] = $status;
+        }
+      }
+      
+      $ret[] = $temp_ret;
+    } else {
+      // Send command and get response.
+      $result = socket_write($client, "$command\n");
+      $status = _warnish_read_socket($client);
+  
+      if ($status['code'] != 200) {
+        watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg']), WATCHDOG_ERROR);
+        $ret[] = FALSE;
+      }
+      else {
+        // successful connection
+        $ret[] = $status;
+      }
+    }
+    socket_close($client);
+  }
+  
+  return $ret;
+}
+
+function _warnish_read_socket($client) {
+  // status and length info is always 13 characters. 
+  $header = socket_read($client, 13, PHP_BINARY_READ);
+  if ($header == FALSE) {
+    $error = socket_last_error();
+    watchdog('Warnish', 'Socket error: !error', array('!error' => socket_strerror($error)), WATCHDOG_ERROR);
+  }
+  $msg_len = (int) substr($header, 4, 6) + 1;
+  $status = array(
+    'code' => substr($header, 0, 3),
+    'msg' => socket_read($client, $msg_len, PHP_BINARY_READ)
+  );
+  
+  return $status;
+}
+
+/**
+ * @} End of "defgroup warnish".
+ */
+  

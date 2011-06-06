@@ -1,0 +1,10 @@
+; $Id: xmlsitemap_destination.info $
+name = XML sitemap destination
+description = Add destination links to the sitemap.
+package = XML sitemap
+core = 6.x
+dependencies[] = xmlsitemap
+dependencies[] = xmlsitemap_node
+dependencies[] = taxonomy
+files[] = xmlsitemap_destination.module
+files[] = xmlsitemap_destination.install

@@ -1,0 +1,456 @@
+<?php
+// $Id: pub.admin.inc,v 1.0 2011/02/10 ODM $
+ 
+function pub_page_admin() {
+  $return = '';
+  $return .= drupal_get_form('pub_page_admin_form');
+  
+  return $return;
+}
+
+/**
+ * Settings form.
+ */
+function pub_page_admin_form($form_state) {  
+  $form['website'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Website name'),
+    '#description' => t('The website name used to the pub requests.'),
+    '#default_value' => variable_get('pub_website', ''),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['get_xml'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL used for getting blocks informations'),
+    '#description' => t('The URL used for getting blocks informations.'),
+    '#default_value' => variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['webserv'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL of the webservice returning the pubs'),
+    '#description' => t('The URL of the webservice returning the pubs.'),
+    '#default_value' => variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['pub_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Save'),
+    '#value' => t('Save'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Submit function for the settings form.
+ */
+function pub_page_admin_form_submit($form, &$form_state) {
+  variable_set('pub_website', $form['website']['#value']);
+  variable_set('pub_get_xml', $form['get_xml']['#value']);
+  variable_set('pub_webserv', $form['webserv']['#value']);
+  drupal_set_message('Configuration saved', 'notice');
+}
+
+/**
+ * Executes the pub cron run when called.
+ * 
+ * @return
+ *   Returns FALSE in case of error, redirect if successful.
+ */
+function pub_cron_run() {
+  // Try to allocate enough time to run all the hook_cronrsstonode implementations.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60);
+  }
+
+  // Fetch the cron semaphore
+  $semaphore = variable_get('cronpub_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 3600) {
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      watchdog('Cron pub', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del('cronpub_semaphore');
+    } else {
+      // Cron is still running normally.
+      watchdog('Cron pub', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
+    }
+
+    // Return FALSE and set error message;
+    drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
+    return FALSE;
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('pub_cron_cleanup');
+
+    // Lock cron semaphore
+    variable_set('cronrsstonode_semaphore', time());
+
+    // Call the function calling the RSS feeds
+    $return = _pub_callalltags();
+
+    // Record cron time
+    variable_set('cronpub_last', time());
+    watchdog('Cron pub', 'Cron run completed.', array(), WATCHDOG_NOTICE);
+
+    // Release cron semaphore
+    variable_del('cronpub_semaphore');
+
+    // Redirect to admin page if success
+    drupal_goto('admin/rossel');
+  }
+}
+
+/**
+ * Shutdown function for pub cron cleanup.
+ */
+function pub_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (variable_get('cronpub_semaphore', FALSE)) {
+    watchdog('Cron pub', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+
+    // Release cron semaphore
+    variable_del('cronpub_semaphore');
+  }
+}
+
+/**
+ * HTML code for the pub blocks admin page.
+ */
+function pub_blocks_admin() {
+  $return = '';
+  $return .= drupal_get_form('pub_blocks_admin_form');
+  
+  return $return;
+}
+
+/**
+ * Form for the pub blocks admin page.
+ */
+function pub_blocks_admin_form(&$form_state) {
+  /*$form['action_choice'] = array(
+    '#type' => 'radios',
+    '#title' => t('Action'),
+    '#options' => array(
+      'edit' => t('Edit'),
+      'delete' => t('Delete')
+    ),
+    '#required' => TRUE,
+  );*/
+  
+  $form['instruction'] = array(
+    '#title' => t('Click on a block name to edit it, check one (or more) box and click "Delete" button to delete them'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $form['blocks'] = array(
+    '#title' => t('Choose blocks'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $pub_list = db_query('SELECT * FROM `zz_pub_UMI` ORDER BY `position`');
+  while ($pub_elem = db_fetch_array($pub_list)) {
+    $form['blocks'][$pub_elem['position']] = array(
+      '#type' => 'checkbox',
+      '#title' => '<a href="/admin/build/block/configure/pub/'.$pub_elem['position'].'?destination=admin/rossel/pubblocks" title="'.t("Edit this block").'">'.$pub_elem['position'].'</a>',
+      '#default_value' => 0,
+    );
+  }
+  
+  $form['blocks_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Delete'),
+    '#value' => t('Delete'),
+  );
+  
+  $form['new_block'] = array(
+    '#title' => t('Create a new block'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $form['new_block']['page'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Page'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['position'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Position'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['_PlacementID'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Placement ID'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['_SizeID'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Size ID'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+
+  $form['new_block']['kvregion_ls'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvregion_ls'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['kvregion_sp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvregion_sp'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block']['kvville_sp'] = array(
+    '#type' => 'textfield',
+    '#title' => t('kvville_sp'),
+    '#default_value' => '',
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => FALSE,
+  );
+  
+  $form['new_block_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Create new block'),
+    '#value' => t('Create new block'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Validation for the form for the pub blocks admin page.
+ */
+function pub_blocks_admin_form_validate($form, &$form_state) {
+  switch ($form_state['values']['op']) {
+    case 'Delete':
+      foreach ($form['blocks'] as $name => $value) {
+        if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
+          return;
+      }
+      form_set_error('blocks', t('Select at least one block.'));
+      break;
+    case 'Create new block':
+      break;
+    default:
+  }
+}
+
+/**
+ * Submit actions for the form for the pub blocks admin page.
+ */
+function pub_blocks_admin_form_submit($form, &$form_state) {
+  switch ($form_state['values']['op']) {
+    case 'Delete':
+  
+  /*switch ($form['action_choice']['#value']) {
+    case 'edit':
+      foreach ($form['blocks'] as $name => $value) {
+        if ($value['#value'] == 1) {
+          drupal_goto('admin/build/block/configure/pub/'.$name);
+        }
+      }
+      break;
+    case 'delete':*/
+      foreach ($form['blocks'] as $name => $value) {
+        if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
+          db_query('DELETE FROM `zz_pub_UMI` WHERE `position` = "%s"', $name);
+        }
+      }
+      /*break;
+    default:
+  }*/
+      break;
+    case 'Create new block':
+      $new_block = array();
+      foreach ($form['new_block'] as $name => $value) {
+        if (substr($name, 0, 1) != '#') {
+          $new_block[$name] = $value['#value'];
+        }
+      }
+      drupal_write_record('zz_pub_UMI', $new_block);
+      break;
+    default:
+  }
+}
+
+/**
+ * HTML code for the pub blocks cache admin page.
+ */
+function pub_cache_admin() {
+  $return = '';
+  $return .= drupal_get_form('pub_cache_admin_form');
+  
+  return $return;
+}
+
+/**
+ * Form for the pub blocks cache admin page.
+ */
+function pub_cache_admin_form(&$form_state) {
+  $form['blocks_cache'] = array(
+    '#title' => t('Choose blocks'),
+    '#type' => 'radios',
+    '#options' => array(),
+  );
+  
+  $pub_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
+  while ($pub_elem = db_fetch_array($pub_list)) {
+    $expl_id = explode('-', $pub_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $analytic_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "analytic_%" ORDER BY `cid`');
+  while ($analytic_elem = db_fetch_array($analytic_list)) {
+    $expl_id = explode('-', $analytic_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $xiti_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "xiti_%" ORDER BY `cid`');
+  while ($xiti_elem = db_fetch_array($xiti_list)) {
+    $expl_id = explode('-', $xiti_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $metriweb_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "metriweb_%" ORDER BY `cid`');
+  while ($metriweb_elem = db_fetch_array($metriweb_list)) {
+    $expl_id = explode('-', $metriweb_elem['cid']);
+    $form['blocks_cache'][$expl_id[0]] = array(
+      '#type' => 'checkbox',
+      '#title' => $expl_id[0],
+      '#default_value' => 0,
+    );
+  }
+  
+  $form['blocks_submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Delete cache'),
+    '#value' => t('Delete cache'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Validation for form for the pub blocks cache admin page.
+ */
+function pub_cache_admin_form_validate($form, &$form_state) {
+  foreach ($form['blocks_cache'] as $name => $value) {
+    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
+      return;
+  }
+  form_set_error('blocks_cache', t('Select at least one block.'));
+}
+
+/**
+ * Submit actions for form for the pub blocks cache admin page.
+ */
+function pub_cache_admin_form_submit($form, &$form_state) {
+  foreach ($form['blocks_cache'] as $name => $value) {
+    if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
+      cache_clear_all($name, 'cache', TRUE);
+    }
+  }
+}
+
+/**
+ * Get the most recent blocks list and save them in the 'zz_pub_UMI' table.
+ * 
+ * @return
+ *   TRUE in case success, FALSE otherwise.
+ */
+function _pub_callalltags() {
+  $xml_list = drupal_http_request(variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'));
+  //$xml_list->data = XML_LIST_DATA;
+  //$xml_list->code = 200;
+  $website = variable_get('pub_website', '');
+  
+  if ($xml_list->code == 200) {
+    $dom = new DomDocument();
+    $dom->LoadXML($xml_list->data);
+    
+    $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
+    $pub_array = array();
+    while ($pub_elem = db_fetch_array($pub_list)) {
+      $pub_array[] = $pub_elem;
+    }
+    
+    foreach($dom->getElementsByTagName('row') as $row) {
+      if ($row->getAttribute('website') == $website) {
+        $update = FALSE;
+        $tag_elem = array();
+        foreach($row->attributes as $attrName => $attrValue) {
+          $tag_elem[$attrName] = $attrValue->value;
+        }
+        unset($tag_elem['website']);
+        foreach($pub_array as $pub_elem) {
+          if ($tag_elem['position'] == $pub_elem['position']) {
+            drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
+            $update = TRUE;
+            break;
+          }
+        }
+        
+        if (!$update) {
+          drupal_write_record('zz_pub_UMI', $tag_elem);
+        }
+      }
+    }
+    
+    return TRUE;
+  } else {
+    return FALSE;
+  }
+}
+
+define('XML_LIST_DATA', '<?xml version="1.0" ?> <!--website;page;position;kvregion_ls;kvregion_sp;kvville_sp;version;_PlacementID;_SizeID--> <results><row website="LESOIRV6_FR" page="actu belgique hp fr" position="button_callbox" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2841892" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055146" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055027" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="mini_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635986" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="mini_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635987" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="mini_rectangle_3" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635988" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu belgique hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055433" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu belgique sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055268" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu belgique sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2082663" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu belgique sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055217" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="button_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2812123" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="horizontal_top" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055304" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="large_rectangle_middle" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055249" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="mini_rectangle_1" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563619" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="mini_rectangle_2" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563620" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="mini_rectangle_3" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563618" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="rectangle_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3052421" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="rectangle_top" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055429" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu brabant wallon hp fr" position="small_rectangle_1" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2490779" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="button_callbox" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2793369" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="horizontal_top" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055502" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="large_rectangle_middle" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055366" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="mini_rectangle_1" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563605" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="mini_rectangle_2" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563605" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="mini_rectangle_3" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563607" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="rectangle_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3052427" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="rectangle_top" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055281" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu bruxelles hp fr" position="small_rectangle_1" kvregion_ls="1" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2490768" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu filinfo hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055060" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu filinfo hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055252" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu filinfo hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055164" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu france hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055087" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu france hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055289" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu france hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055292" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="button_callbox" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2753308" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="horizontal_top" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055271" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="large_rectangle_middle" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055316" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="mini_rectangle_1" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563589" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="mini_rectangle_2" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563588" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="mini_rectangle_3" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563587" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="rectangle_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3052428" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu hainaut hp fr" position="rectangle_top" kvregion_ls="8" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055050" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055155" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055106" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054999" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="button_callbox" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2793424" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="horizontal_top" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055303" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="large_rectangle_middle" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055458" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="mini_rectangle_1" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563570" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="mini_rectangle_2" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563571" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="mini_rectangle_3" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563569" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="rectangle_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3052431" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu liege hp fr" position="rectangle_top" kvregion_ls="9" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055321" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu monde hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055189" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu monde hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055464" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu monde hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055108" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu monde sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055527" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu monde sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2082667" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu monde sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055480" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="button_callbox" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2793431" _SizeID="1943"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="horizontal_top" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055033" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="large_rectangle_middle" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055021" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="mini_rectangle_1" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563535" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="mini_rectangle_2" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563537" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="mini_rectangle_3" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2563536" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="rectangle_callbox" kvregion_ls="3" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3052434" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu namur luxembourg hp fr" position="rectangle_top" kvregion_ls="11" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055044" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055384" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu others sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055388" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055230" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu others sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055523" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="advert_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055339" _SizeID="2399"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="advert_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055471" _SizeID="2399"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="advert_3" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055259" _SizeID="2399"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055222" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055001" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055280" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu petite gazette hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055139" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055178" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055157" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="mini_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635984" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="mini_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635983" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="mini_rectangle_3" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2635982" _SizeID="544"/> <row website="LESOIRV6_FR" page="actu regions hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055266" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu sciences hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055002" _SizeID="225"/> <row website="LESOIRV6_FR" page="actu sciences hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055086" _SizeID="261"/> <row website="LESOIRV6_FR" page="actu sciences hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055073" _SizeID="170"/> <row website="LESOIRV6_FR" page="actu sciences hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106862" _SizeID="1397"/> <row website="LESOIRV6_FR" page="actu sciences hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2217417" _SizeID="3"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436228" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_10" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436236" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_11" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436240" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_12" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436241" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436235" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_3" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436229" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_4" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436233" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_5" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436234" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_6" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436231" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_7" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436232" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_8" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436230" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_9" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2436237" _SizeID="3178"/> <row website="LESOIRV6_FR" page="allpages ROS hp fr" position="button_right_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="9999999" _SizeID="999"/> <row website="LESOIRV6_FR" page="allpages ROS sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055351" _SizeID="225"/> <row website="LESOIRV6_FR" page="allpages ROS sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055144" _SizeID="261"/> <row website="LESOIRV6_FR" page="allpages ROS sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055353" _SizeID="170"/> <row website="LESOIRV6_FR" page="blogs others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055481" _SizeID="225"/> <row website="LESOIRV6_FR" page="blogs others sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055427" _SizeID="261"/> <row website="LESOIRV6_FR" page="blogs others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055132" _SizeID="170"/> <row website="LESOIRV6_FR" page="blogs others sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055051" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture agenda hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055093" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture agenda hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055029" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture agenda hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055404" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture cinema hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055207" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture cinema hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055516" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture cinema hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055208" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture cinema hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106877" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture cinema sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055010" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture cinema sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055493" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture cinema sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055468" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture cinema sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055386" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture frontstage hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106981" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture frontstage sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106985" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055022" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055328" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055489" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2473360" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture livres hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055485" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture livres hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055517" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture livres hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055396" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture livres hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106899" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture medias hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055007" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture medias hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055285" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture medias hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055015" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture medias hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055101" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture musique hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055085" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture musique hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055123" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture musique hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055401" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture musique hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106880" _SizeID="1397"/> <row website="LESOIRV6_FR" page="culture plastiques hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055443" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture plastiques hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055074" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture plastiques hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055287" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture scene hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055445" _SizeID="225"/> <row website="LESOIRV6_FR" page="culture scene hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055071" _SizeID="261"/> <row website="LESOIRV6_FR" page="culture scene hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055053" _SizeID="170"/> <row website="LESOIRV6_FR" page="culture scene hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106900" _SizeID="1397"/> <row website="LESOIRV6_FR" page="debats a bout portant hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055008" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats a bout portant hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055229" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats a bout portant hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055114" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats carte blanche hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055141" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats carte blanche hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055055" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats carte blanche hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055344" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats chats hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055390" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats chats hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055398" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats chats hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055470" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats chroniques hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055394" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats chroniques hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055399" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats chroniques hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055257" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats editos hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055291" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats editos hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055391" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats editos hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055116" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055299" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055256" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055024" _SizeID="170"/> <row website="LESOIRV6_FR" page="debats kroll hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055186" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats sondages hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055241" _SizeID="225"/> <row website="LESOIRV6_FR" page="debats sondages hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055352" _SizeID="261"/> <row website="LESOIRV6_FR" page="debats sondages hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055360" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special1 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2838793" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special1 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2838793" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special1 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2838795" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special2 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2850037" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special2 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2850039" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special2 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2850038" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special3 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852726" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special3 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852725" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special3 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852727" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special4 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852729" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special4 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852728" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special4 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852730" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special5 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852732" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special5 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852731" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special5 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852733" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special6 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852735" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special6 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852736" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special6 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852734" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special7 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852738" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special7 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852740" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special7 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852739" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special8 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852742" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special8 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852743" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special8 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852741" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2849661" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852746" _SizeID="225"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2849662" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852747" _SizeID="261"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2849663" _SizeID="170"/> <row website="LESOIRV6_FR" page="dossiers_speciaux special9 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2852748" _SizeID="170"/> <row website="LESOIRV6_FR" page="economie hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055513" _SizeID="225"/> <row website="LESOIRV6_FR" page="economie hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055454" _SizeID="261"/> <row website="LESOIRV6_FR" page="economie hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055117" _SizeID="170"/> <row website="LESOIRV6_FR" page="economie hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055421" _SizeID="1397"/> <row website="LESOIRV6_FR" page="economie hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2454476" _SizeID="1397"/> <row website="LESOIRV6_FR" page="economie hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055387" _SizeID="3"/> <row website="LESOIRV6_FR" page="economie sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055510" _SizeID="225"/> <row website="LESOIRV6_FR" page="economie sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2082664" _SizeID="261"/> <row website="LESOIRV6_FR" page="economie sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055369" _SizeID="170"/> <row website="LESOIRV6_FR" page="economie sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055220" _SizeID="1397"/> <row website="LESOIRV6_FR" page="economie sp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055484" _SizeID="1397"/> <row website="LESOIRV6_FR" page="economie sp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055160" _SizeID="3"/> <row website="LESOIRV6_FR" page="immo hp fr" position="button_right_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055488" _SizeID="184"/> <row website="LESOIRV6_FR" page="immo hp fr" position="button_right_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055089" _SizeID="169"/> <row website="LESOIRV6_FR" page="immo hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055078" _SizeID="225"/> <row website="LESOIRV6_FR" page="immo hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055236" _SizeID="261"/> <row website="LESOIRV6_FR" page="immo hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055397" _SizeID="170"/> <row website="LESOIRV6_FR" page="immo hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055310" _SizeID="1397"/> <row website="LESOIRV6_FR" page="immo hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2454545" _SizeID="1397"/> <row website="LESOIRV6_FR" page="immo hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055261" _SizeID="3"/> <row website="LESOIRV6_FR" page="immo sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055279" _SizeID="225"/> <row website="LESOIRV6_FR" page="immo sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055216" _SizeID="261"/> <row website="LESOIRV6_FR" page="immo sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055361" _SizeID="170"/> <row website="LESOIRV6_FR" page="immo sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055428" _SizeID="1397"/> <row website="LESOIRV6_FR" page="immo sp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2454552" _SizeID="1397"/> <row website="LESOIRV6_FR" page="immo sp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055457" _SizeID="3"/> <row website="LESOIRV6_FR" page="jeuxconcours hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055174" _SizeID="225"/> <row website="LESOIRV6_FR" page="jeuxconcours hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055499" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle air du temps hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055472" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle air du temps hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055389" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle air du temps hp fr" position="rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3070071" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle air du temps hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055340" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle auto hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011235" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle auto hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011234" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle auto hp fr" position="rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3070058" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle auto hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011233" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle auto hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011237" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle auto sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011313" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle auto sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011311" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle auto sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011315" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle auto sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011312" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011334" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011335" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3070059" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011331" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011332" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle design hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011333" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle design sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011321" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle design sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011317" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle design sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011320" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle design sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011319" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle design sp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3011318" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3028169" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3028168" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle hp fr" position="rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3070056" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3028167" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3028166" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle voyages hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055297" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle voyages hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055059" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle voyages hp fr" position="rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="3070060" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle voyages hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055385" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle voyages hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055197" _SizeID="1397"/> <row website="LESOIRV6_FR" page="lifestyle voyages sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055498" _SizeID="225"/> <row website="LESOIRV6_FR" page="lifestyle voyages sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055414" _SizeID="261"/> <row website="LESOIRV6_FR" page="lifestyle voyages sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055228" _SizeID="170"/> <row website="LESOIRV6_FR" page="lifestyle voyages sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055526" _SizeID="1397"/> <row website="LESOIRV6_FR" page="newsletter fr" position="nwl_horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055079" _SizeID="1"/> <row website="LESOIRV6_FR" page="newsletter fr" position="nwl_rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2082538" _SizeID="170"/> <row website="LESOIRV6_FR" page="services archives articles fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2491299" _SizeID="225"/> <row website="LESOIRV6_FR" page="services archives articles fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055482" _SizeID="170"/> <row website="LESOIRV6_FR" page="services archives hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055358" _SizeID="225"/> <row website="LESOIRV6_FR" page="services archives hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055413" _SizeID="170"/> <row website="LESOIRV6_FR" page="services archives results fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055441" _SizeID="225"/> <row website="LESOIRV6_FR" page="services archives results fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055331" _SizeID="170"/> <row website="LESOIRV6_FR" page="services infotraffic hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055475" _SizeID="225"/> <row website="LESOIRV6_FR" page="services infotraffic sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055072" _SizeID="225"/> <row website="LESOIRV6_FR" page="services meteo hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055378" _SizeID="225"/> <row website="LESOIRV6_FR" page="services meteo hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055288" _SizeID="261"/> <row website="LESOIRV6_FR" page="services meteo hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055486" _SizeID="170"/> <row website="LESOIRV6_FR" page="services meteo sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055333" _SizeID="225"/> <row website="LESOIRV6_FR" page="services meteo sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055435" _SizeID="261"/> <row website="LESOIRV6_FR" page="services meteo sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055423" _SizeID="170"/> <row website="LESOIRV6_FR" page="services meteo sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055491" _SizeID="1397"/> <row website="LESOIRV6_FR" page="splash fr" position="splash" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055080" _SizeID="2368"/> <row website="LESOIRV6_FR" page="sports autres sports hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055244" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports autres sports hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055127" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports autres sports hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055518" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports autres sports hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055492" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports autres sports sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055166" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports autres sports sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055038" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports autres sports sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055415" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports autres sports sp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055066" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports basket hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055176" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports basket hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055430" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports basket hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055110" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports basket hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106873" _SizeID="1397"/> <row website="LESOIRV6_FR" page="sports basket hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055509" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports cyclisme hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055525" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports cyclisme hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055097" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports cyclisme hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055463" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports cyclisme hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106872" _SizeID="1397"/> <row website="LESOIRV6_FR" page="sports cyclisme hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055293" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports football hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055522" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports football hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055324" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports football hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055416" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports football hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106864" _SizeID="1397"/> <row website="LESOIRV6_FR" page="sports football hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055153" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports footlive hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055064" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports footlive hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055182" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports footlive hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2105692" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055151" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055254" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055235" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055490" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports livef1 hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055149" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports livef1 hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055019" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports livef1 hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055180" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports mecaniques hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055035" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports mecaniques hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055506" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports mecaniques hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055061" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports mecaniques hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106870" _SizeID="1397"/> <row website="LESOIRV6_FR" page="sports mecaniques hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055091" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports tennis hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055120" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports tennis hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055181" _SizeID="261"/> <row website="LESOIRV6_FR" page="sports tennis hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055191" _SizeID="170"/> <row website="LESOIRV6_FR" page="sports tennis hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106871" _SizeID="1397"/> <row website="LESOIRV6_FR" page="sports tennis hp fr" position="textlink" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055017" _SizeID="3"/> <row website="LESOIRV6_FR" page="sports tennislive hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106956" _SizeID="225"/> <row website="LESOIRV6_FR" page="sports tennislive hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2106961" _SizeID="170"/> <row website="LESOIRV6_FR" page="studio 24h hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055179" _SizeID="225"/> <row website="LESOIRV6_FR" page="studio 24h sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055125" _SizeID="225"/> <row website="LESOIRV6_FR" page="studio infographie hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2474079" _SizeID="225"/> <row website="LESOIRV6_FR" page="studio infographie hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055113" _SizeID="261"/> <row website="LESOIRV6_FR" page="studio infographie hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2474105" _SizeID="170"/> <row website="LESOIRV6_FR" page="studio portfolio hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055134" _SizeID="225"/> <row website="LESOIRV6_FR" page="viedunet hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055319" _SizeID="225"/> <row website="LESOIRV6_FR" page="viedunet hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055138" _SizeID="261"/> <row website="LESOIRV6_FR" page="viedunet hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055356" _SizeID="170"/> <row website="LESOIRV6_FR" page="voyages hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055297" _SizeID="225"/> <row website="LESOIRV6_FR" page="voyages hp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055059" _SizeID="261"/> <row website="LESOIRV6_FR" page="voyages hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055385" _SizeID="170"/> <row website="LESOIRV6_FR" page="voyages hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055197" _SizeID="1397"/> <row website="LESOIRV6_FR" page="voyages sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055498" _SizeID="225"/> <row website="LESOIRV6_FR" page="voyages sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055414" _SizeID="261"/> <row website="LESOIRV6_FR" page="voyages sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055228" _SizeID="170"/> <row website="LESOIRV6_FR" page="voyages sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055526" _SizeID="1397"/> <row website="MARCHEART_FR" page="allpages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055547" _SizeID="225"/> <row website="MARCHEART_FR" page="allpages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055543" _SizeID="170"/> <row website="MARCHEART_FR" page="allpages others sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055548" _SizeID="1397"/> <row website="MARCHEART_FR" page="allpages others sp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055545" _SizeID="1397"/> <row website="MARCHEART_FR" page="hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055544" _SizeID="225"/> <row website="MARCHEART_FR" page="hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055542" _SizeID="170"/> <row website="MARCHEART_FR" page="hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055546" _SizeID="1397"/> <row website="MARCHEART_FR" page="hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055541" _SizeID="1397"/> <row website="MOBILE_LESOIR_FR" page="mobile hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2053968" _SizeID="2424"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="default" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2358973" _SizeID="1896"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2053969" _SizeID="2424"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="mobile_large" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2358972" _SizeID="2272"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="mobile_medium" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2358969" _SizeID="2271"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="mobile_small" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2358971" _SizeID="40"/> <row website="MOBILE_LESOIR_FR" page="mobile sp fr" position="mobile_xlarge" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2358970" _SizeID="2018"/> <row website="PASSIONMONTRES_FR" page="allpages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054752" _SizeID="225"/> <row website="PASSIONMONTRES_FR" page="allpages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054750" _SizeID="170"/> <row website="PASSIONMONTRES_FR" page="allpages others sp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054747" _SizeID="1397"/> <row website="PASSIONMONTRES_FR" page="allpages others sp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054745" _SizeID="1397"/> <row website="PASSIONMONTRES_FR" page="hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054746" _SizeID="225"/> <row website="PASSIONMONTRES_FR" page="hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054751" _SizeID="170"/> <row website="PASSIONMONTRES_FR" page="hp fr" position="small_rectangle_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054749" _SizeID="1397"/> <row website="PASSIONMONTRES_FR" page="hp fr" position="small_rectangle_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054748" _SizeID="1397"/> <row website="SAVEURS_FR" page="allpages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2794900" _SizeID="225"/> <row website="SAVEURS_FR" page="allpages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2794901" _SizeID="170"/> <row website="SAVEURS_FR" page="hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2794894" _SizeID="225"/> <row website="SAVEURS_FR" page="hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2794895" _SizeID="170"/> <row website="SOIRMAG_FR" page="allpages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055538" _SizeID="225"/> <row website="SOIRMAG_FR" page="allpages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055536" _SizeID="170"/> <row website="SOIRMAG_FR" page="hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055537" _SizeID="225"/> <row website="SOIRMAG_FR" page="hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055539" _SizeID="170"/> <row website="SOIRMAG_FR" page="splash fr" position="splash" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2055540" _SizeID="2368"/> <row website="TESTSITE" page="test_soir hp fr" position="button_1" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051763" _SizeID="3178"/> <row website="TESTSITE" page="test_soir hp fr" position="button_2" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051772" _SizeID="3178"/> <row website="TESTSITE" page="test_soir hp fr" position="button_3" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051659" _SizeID="3178"/> <row website="TESTSITE" page="test_soir hp fr" position="button_4" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051581" _SizeID="3178"/> <row website="TESTSITE" page="test_soir sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051826" _SizeID="225"/> <row website="TESTSITE" page="test_soir sp fr" position="large_rectangle_middle" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051809" _SizeID="261"/> <row website="TESTSITE" page="test_soir sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2051544" _SizeID="170"/> <row website="VICTOIREMAG_FR" page="allpages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054164" _SizeID="225"/> <row website="VICTOIREMAG_FR" page="allpages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054162" _SizeID="170"/> <row website="VICTOIREMAG_FR" page="hp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054159" _SizeID="225"/> <row website="VICTOIREMAG_FR" page="hp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054163" _SizeID="170"/> <row website="VICTOIREMAG_FR" page="splash fr" position="splash" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054161" _SizeID="2368"/> <row website="VICTOIREMAG_FR" page="voyages others sp fr" position="horizontal_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054160" _SizeID="225"/> <row website="VICTOIREMAG_FR" page="voyages others sp fr" position="rectangle_top" kvregion_ls="0" kvregion_sp="0" kvville_sp="0" version="88" _PlacementID="2054165" _SizeID="170"/> </results>');

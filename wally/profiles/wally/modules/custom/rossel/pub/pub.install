@@ -1,0 +1,82 @@
+<?php
+
+/*
+ * Implementation of the hook module _install();
+ */
+function pub_install() {
+  drupal_install_schema('pub');
+}
+
+/*
+ * Implementation of the hook module _uninstall();
+ */
+function pub_uninstall() {
+  cache_clear_all('pub_', 'cache', TRUE);
+  cache_clear_all('analytic_block_', 'cache', TRUE);
+  cache_clear_all('xiti_block_', 'cache', TRUE);
+  cache_clear_all('metriweb_block_', 'cache', TRUE);
+  db_query("DELETE FROM `variable` WHERE `name` LIKE 'pub_block_%'");
+  variable_del('pub_website');
+  variable_del('pub_get_xml');
+  variable_del('analytic_block_refresh_time');
+  variable_del('xiti_block_refresh_time');
+  variable_del('metriweb_block_refresh_time');
+  cache_clear_all('variables', 'cache');
+  drupal_uninstall_schema('pub');
+}
+
+function pub_schema() {
+  $schema = array();
+
+  $schema['zz_pub_UMI'] = array(
+    'description' => 'Contains possible UMI formats for Rossel pubs.',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'page' => array(
+        'type' => 'text',
+        'description' => 'Page name.',
+      ),
+      'position' => array(
+        'type' => 'text',
+        'description' => 'Position name.',
+      ),
+      'kvregion_ls' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'kvregion_sp' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'kvville_sp' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      'version' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+      '_PlacementID' => array(
+        'type' => 'int',
+        'size' => 'medium',
+        'default' => 0,
+      ),
+      '_SizeID' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  return $schema;
+}

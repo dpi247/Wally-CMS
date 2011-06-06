@@ -1,0 +1,9 @@
+core = "6.x"
+description = "Synchronize features according to taxonomy terms."
+name = "Wally Features Synchronizer"
+package = "Wally"
+project = "Wally"
+version = "6.x-1.0"
+
+dependencies[] = "features"
+dependencies[] = "wallytoolbox"

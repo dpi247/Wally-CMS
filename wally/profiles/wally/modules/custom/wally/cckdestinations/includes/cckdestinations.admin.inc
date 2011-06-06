@@ -1,0 +1,446 @@
+<?php
+// $Id: yaxim.admin.inc,v 1.0 2010/08/23 14:39:00 rso Exp $
+
+/**
+ * Settings form.
+ */
+function cckdestinations_page_admin_form($form_state) {
+  $form = array();
+  $form['#tree'] = TRUE;
+  
+  $form['cckdestinations_rank'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Rank and behavior settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  // Make the other form items dependent upon it.
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  
+  $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Global rank\'s range'),
+    '#default_value' => variable_get('cckdestinations_rank_limit', 10),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $hierarchies = wallyctools_get_hierarchies();
+  $behavior_options = array(
+    'top' => t('Top'),
+    'bottom' => t('Bottom'),
+  );
+
+  foreach ($hierarchies as $tid => $hierarchy) {
+    $form['cckdestinations_rank']['cckdestinations_destination_'.$tid] = array(
+      '#type' => 'fieldset',
+      '#title' => $hierarchy['term_name'],
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    
+    foreach ($hierarchy['redacblocks'] as $redacblock) {
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']] = array(
+        '#type' => 'fieldset',
+        '#title' => $redacblock['title'],
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_sort_method'] = array(
+        '#type' => 'radios',
+        '#title' => t('Sorting method'),
+        '#description' => t('Based on the rank, two sorting methods can be applied : the rank is an absolute position (a rank of 2 means the second place) or the rank represent an time interval added to the node publication date.'),
+        '#options' => array('absolute' => t('Absolute'),'interval' => t('Time interval')),
+        '#default_value' => variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_sort_method', 'absolute'),
+      );
+      
+      $radio_name = 'cckdestinations_rank[cckdestinations_destination_'.$tid.']['.$redacblock['name'].'][cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_sort_method]';
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior'] = array(
+        '#type' => 'select',
+        '#title' => t('Behavior'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior', 'top'),
+        '#options' => $behavior_options,
+        '#process' => array('ctools_dependent_process'),
+        '#dependency' => array('radio:'.$radio_name => array('absolute')),
+      );
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_reserved'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Reserved positions'),
+        '#description' => t('Must be smaller than the global rank\'s range'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_reserved', 5),
+        '#size' => 80,
+        '#maxlength' => 512,
+        '#required' => TRUE,
+      	'#process' => array('ctools_dependent_process'),
+        '#dependency' => array('radio:'.$radio_name => array('absolute')),
+      );
+      
+      $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_delta_t'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Time interval "between" two ranks'),
+        '#description' => t('The step of time, in hours, that will be set between two rank.'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_delta_t', 1),
+        '#size' => 80,
+        '#maxlength' => 512,
+        '#required' => TRUE,
+        '#process' => array('ctools_dependent_process'),
+        '#dependency' => array('radio:'.$radio_name => array('interval')),
+      );
+    }
+  }
+  
+  $form['cckdestinations_layout'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Layout settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['cckdestinations_layout']['cckdestinations_layouts'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Available layouts'),
+    '#default_value' => variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
+    '#required' => TRUE,
+  );
+  
+  $form['buttons']['submit'] = array(
+  	'#type' => 'submit',
+  	'#value' => t('Save configuration')
+  );
+  
+  $form['buttons']['reset'] = array(
+  	'#type' => 'submit',
+  	'#value' => t('Reset to defaults')
+  );
+  
+  return $form;
+}
+
+/**
+ * Validate function for the settings form.
+ */
+function cckdestinations_page_admin_form_validate($form, &$form_state) {
+  $values = $form_state['values'];
+  
+  if ($values['op'] == $values['buttons']['submit']) {
+    $rank_limit = $values['cckdestinations_rank']['cckdestinations_rank_limit'];
+    if (!is_numeric($rank_limit) || $rank_limit < 0) {
+      form_set_error('cckdestinations_rank][cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 1.'));
+    }
+    
+    foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
+      if (is_array($dest)) {
+        foreach ($dest as $block_name => $block) {
+          $sort_method = $block[$dest_name.'_'.$block_name.'_sort_method'];
+          $reserved = $block[$dest_name.'_'.$block_name.'_reserved'];
+          $delta_t = $block[$dest_name.'_'.$block_name.'_delta_t'];
+          if ($sort_method == 'interval' && (!is_numeric($delta_t) || $delta_t < 0)) {
+            form_set_error('cckdestinations_rank]['.$dest_name.']['.$block_name.']['.$dest_name.'_'.$block_name.'_delta_t', t('The time interval must be a numeric value greater than 0.'));
+          } elseif ($sort_method == 'absolute' && (!is_numeric($reserved) || $reserved < 0 || $reserved > $rank_limit)) {
+            form_set_error('cckdestinations_rank]['.$dest_name.']['.$block_name.']['.$dest_name.'_'.$block_name.'_reserved', t('The reserved positions value must be a numeric value smaller than 0 and than the global rank\'s range.'));
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Submit function for the settings form.
+ */
+function cckdestinations_page_admin_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+
+  if ($values['op'] == $values['buttons']['submit']) {
+    variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
+    variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
+
+    foreach ($values['cckdestinations_rank'] as $dest) {
+      if (is_array($dest)) {
+        foreach ($dest as $block) {
+          foreach ($block as $name => $value)
+            variable_set($name, $value);
+        }
+      }
+    }
+    
+    drupal_set_message(t('The configuration options have been saved.'));
+  } elseif ($values['op'] == $values['buttons']['reset']) {
+    wallytoolbox_variable_del_like('cckdestinations_');
+    drupal_set_message(t('The configuration options have been reset to their default values.'));
+  }
+}
+
+/**
+ * Menu callback: content administration.
+ */
+function cckdestinations_node_admin_content($form_state) {
+  require_once './'.drupal_get_path('module', 'node').'/node.admin.inc';
+  if (isset($form_state['values']['operation']) && $form_state['values']['operation'] == 'delete') {
+    return node_multiple_delete_confirm($form_state, array_filter($form_state['values']['nodes']));
+  }
+  $form = cckdestinations_node_filter_form();
+
+  $form['#theme'] = 'node_filter_form';
+  $form['admin']  = cckdestinations_node_admin_nodes();
+
+  return $form;
+}
+
+/**
+ * Form builder: Builds the node administration overview.
+ */
+function cckdestinations_node_admin_nodes() {
+  require_once './'.drupal_get_path('module', 'node').'/node.admin.inc';
+  $session = &$_SESSION['node_overview_filter'];
+  $session = is_array($session) ? $session : array();
+
+  $field_dest_tid = array();
+  foreach ($session as $filter) {
+    list($type, $value) = $filter;
+    if ($type == 'category') {
+      $field_dest_tid[] = '`field_destinations_tid` = "'.$value.'"';
+    }
+  }
+  
+  if (sizeof($field_dest_tid))
+    $where_query = ' WHERE '.implode(variable_get('cckdestinations_and_or_or', ' AND '), $field_dest_tid);
+
+  $result = pager_query(db_rewrite_sql('SELECT `nid` FROM {content_field_destinations}'.$where_query.' ORDER BY `field_destinations_time_rank` DESC'), 50, 0, NULL, $filter['args']);
+	
+  $form['options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Update options'),
+    '#prefix' => '<div class="container-inline">',
+    '#suffix' => '</div>',
+  );
+  $options = array();
+  foreach (module_invoke_all('node_operations') as $operation => $array) {
+    $options[$operation] = $array['label'];
+  }
+  $form['options']['operation'] = array(
+    '#type' => 'select',
+    '#options' => $options,
+    '#default_value' => 'approve',
+  );
+  $form['options']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update'),
+    '#submit' => array('node_admin_nodes_submit'),
+  );
+
+  $languages = language_list();
+  $destination = drupal_get_destination();
+  $nodes = array();
+  while ($node = db_fetch_object($result)) {
+    $node = node_load($node->nid);
+    $nodes[$node->nid] = '';
+    $options = empty($node->language) ? array() : array('language' => $languages[$node->language]);
+    $form['title'][$node->nid] = array('#value' => l($node->title, 'node/'. $node->nid, $options) .' '. theme('mark', node_mark($node->nid, $node->changed)));
+    $form['name'][$node->nid] =  array('#value' => check_plain(node_get_types('name', $node)));
+    $form['username'][$node->nid] = array('#value' => theme('username', $node));
+    $form['status'][$node->nid] =  array('#value' => ($node->status ? t('published') : t('not published')));
+    $form['operations'][$node->nid] = array('#value' => l(t('edit'), 'node/'. $node->nid .'/edit', array('query' => $destination)));
+  }
+  $form['nodes'] = array('#type' => 'checkboxes', '#options' => $nodes);
+  $form['pager'] = array('#value' => theme('pager', NULL, 50, 0));
+  $form['#theme'] = 'node_admin_nodes';
+  return $form;
+}
+
+/**
+ * Return form for node administration filters.
+ */
+function cckdestinations_node_filter_form() {
+  require_once './'.drupal_get_path('module', 'node').'/node.admin.inc';
+  $session = &$_SESSION['node_overview_filter'];
+  $session = is_array($session) ? $session : array();
+  $filters = cckdestinations_node_filters();
+  
+  
+  $and_or_or = variable_get('cckdestinations_and_or_or', ' AND ');
+
+  $i = 0;
+  $form['filters'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Show only items where'),
+    '#theme' => 'cckdestinations_node_filters',
+  );
+  $form['#submit'][] = 'cckdestinations_node_filter_form_submit';
+  
+  foreach ($session as $filter) {
+    list($type, $value) = $filter;
+    if ($type == 'category') {
+      // Load term name from DB rather than search and parse options array.
+      $value = module_invoke('taxonomy', 'get_term', $value);
+      $value = $value->name;
+      
+      if ($i++) {
+        $form['filters']['current'][] = array('#value' => t('<em>%c</em> where <strong>%a</strong> is <strong>%b</strong>', array('%a' => $filters[$type]['title'], '%b' => $value, '%c' => strtolower(trim($and_or_or)))));
+      }
+      else {
+        $form['filters']['current'][] = array('#value' => t('<strong>%a</strong> is <strong>%b</strong>', array('%a' => $filters[$type]['title'], '%b' => $value)));
+      }
+    }
+    if (in_array($type, array('type', 'language'))) {
+      // Remove the option if it is already being filtered on.
+      unset($filters[$type]);
+    }
+  }
+  
+  if (count($session)) {
+    if ($and_or_or == ' AND ') {
+      $filter_button_value = t('Refine');
+    } else {
+      $filter_button_value = t('Add');
+    }
+  } else {
+    $filter_button_value = t('Filter');
+  }
+  
+  $name = $filters['category']['title'];
+  $mem = array();
+  $targets=array();
+  
+  $options_and_classe = cckdestinations_get_classes_and_options();
+  
+  	foreach ($options_and_classe['target']['#options'] as $option){
+  		array_push($mem,$option);
+  	}
+  	foreach ($mem as $option){
+  		if(!in_array($option,$targets)){
+  			array_push($targets,$option);
+  		}
+  }
+  
+  $form['reorder']=array(
+	  '#type' => 'fieldset',
+      '#title' => t('Reorder by'),
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
+    );
+  $form['reorder']['selectbox']=array(
+    '#title'            => t( 'Destination' ),
+    '#type' => 'select',
+    '#options'=> $filters['category']['options']
+  );
+  $form['reorder']['selectboxtarget']=array(
+    '#title'            => t( 'Target' ),
+    '#type'             => 'select',
+    '#options'          => $targets,
+     // specify theming callback & add a new #attribute to the element.
+    '#theme'            => 'cckdestinations_cascading_select',
+    '#attributes'       => array('class' => 'target'),
+  );
+  $form['reorder']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reorder'),
+  );
+  
+  
+  
+  
+  $form['filters']['status']['category'] = array('#type' => 'select', '#options' => $filters['category']['options']);
+  $form['filters']['filter'] = array('#type' => 'radios', '#options' => array('category' => $name), '#default_value' => 'category');
+  $form['filters']['buttons']['submit'] = array('#type' => 'submit', '#value' => $filter_button_value);
+  if (count($session)) {
+    $form['filters']['buttons']['undo'] = array('#type' => 'submit', '#value' => t('Undo'));
+    $form['filters']['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset'));
+  } else {
+    $form['and_or_or'] = array('#type' => 'radios', '#title' => t('Selection rule'), '#options' => array(' AND ' => t('All destination must pass'), ' OR ' => t('Only one destination must pass')), '#default_value' => ' AND ');
+  }
+
+  drupal_add_js('misc/form.js', 'core');
+
+  return $form;
+}
+
+/**
+ * List node administration filters that can be applied.
+ */
+function cckdestinations_node_filters() {
+  // The taxonomy filter
+  if ($taxonomy = module_invoke('taxonomy', 'form_all', 1)) {
+    $filters['category'] = array('title' => t('destination'), 'options' => array('Destination Path' => $taxonomy['Destination Path']));
+  }
+
+  return $filters;
+}
+
+/**
+ * Process result from node administration filter form.
+ */
+function cckdestinations_node_filter_form_submit($form, &$form_state) {
+  $filters = node_filters();
+  switch ($form_state['values']['op']) {
+  	case t('Reorder'):
+	$box= $form[reorder][selectbox];
+	$dest= $box['#post']['selectbox'];
+	$boxtarget=$form[reorder][selectboxtarget];
+	$target=$boxtarget['#post']['selectboxtarget'];
+	$form_state[redirect]= 'admin/wallyctools/reorder/'.$dest.'/'.$target;
+    case t('Filter'):
+      variable_set('cckdestinations_and_or_or', $form_state['values']['and_or_or']);
+    case t('Add'):
+    case t('Refine'):
+      if (isset($form_state['values']['filter'])) {
+        $filter = $form_state['values']['filter'];
+
+        // Flatten the options array to accommodate hierarchical/nested options.
+        $flat_options = form_options_flatten($filters[$filter]['options']);
+
+        if (isset($flat_options[$form_state['values'][$filter]])) {
+          $_SESSION['node_overview_filter'][] = array($filter, $form_state['values'][$filter]);
+        }
+      }
+      break;
+    case t('Undo'):
+      array_pop($_SESSION['node_overview_filter']);
+      break;
+    case t('Reset'):
+      $_SESSION['node_overview_filter'] = array();
+      break;
+  }
+}
+
+/**
+ * Theme node administration filter selector.
+ *
+ * @ingroup themeable
+ */
+function theme_cckdestinations_node_filters($form) {
+  $output = '';
+  $output .= '<ul class="clear-block">';
+  if (!empty($form['current'])) {
+    foreach (element_children($form['current']) as $key) {
+      $output .= '<li>'. drupal_render($form['current'][$key]) .'</li>';
+    }
+  }
+  
+  $and_or_or = variable_get('cckdestinations_and_or_or', ' AND ');
+
+  $output .= '<li><dl class="multiselect">'. (!empty($form['current']) ? '<dt><em>'. t(strtolower(trim($and_or_or))) .'</em> '. t('where') .'</dt>' : '') .'<dd class="a">';
+  foreach (element_children($form['filter']) as $key) {
+    $output .= drupal_render($form['filter'][$key]);
+  }
+  $output .= '</dd>';
+
+  $output .= '<dt>'. t('is') .'</dt><dd class="b">';
+
+  foreach (element_children($form['status']) as $key) {
+    $output .= drupal_render($form['status'][$key]);
+  }
+  $output .= '</dd>';
+
+  $output .= '</dl>';
+  $output .= '<div class="container-inline" id="node-admin-buttons">'. drupal_render($form['buttons']) .'</div>';
+  $output .= '</li></ul>';
+
+  return $output;
+}

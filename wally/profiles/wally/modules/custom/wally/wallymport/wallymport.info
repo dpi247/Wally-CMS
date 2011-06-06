@@ -1,0 +1,8 @@
+name = "Wally Import"
+description = "Import XML Content to Drupal for Wally Object"
+package = "Wally"
+core = "6.x"
+version = "6.x-1.0"
+project = "Wally"
+
+dependencies[] = "wallytoolbox"
