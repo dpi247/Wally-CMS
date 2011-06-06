@@ -328,10 +328,10 @@ function wallyextra_refresh_block($infos, $settings) {
 /**
  * Get an object from cache or create it if it doesn't exists
  */
-function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $ajax = FALSE) {
+function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
   
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || true) {
     // This cache doesn't exists, create it
     if ($ajax) {
       drupal_add_js('
@@ -347,7 +347,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
                 settings: \''.serialize($settings).'\',
                 subtype: "'.$subtype.'",
                 context: \''.serialize($context).'\',
-                default_theme: "'.$default_theme.'"
+                default_theme: "'.$default_theme.'",
+                plugin: "'.$plugin.'"
               },
               complete: function(data) {
                 $("div.loading_'.$cid.'").html(data.responseText);
@@ -381,8 +382,9 @@ function _wallyextra_content_types_ajax_callback() {
   $subtype = $_POST['subtype'];
   $context = unserialize($_POST['context']);
   $default_theme = $_POST['default_theme'];
+  $plugin = $_POST['plugin'];
   
-  require_once drupal_get_path('module', 'wallyextra').'/plugins/content_types/'.$subtype.'.inc';
+  require_once drupal_get_path('module', 'wallyextra').'/plugins/content_types/'.$plugin.'.inc';
   $datas = call_user_func_array($callback, array($settings));
 
   if ($settings['override_theme_text'] != '')

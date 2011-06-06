@@ -321,7 +321,7 @@ function wallyextra_rssmixread_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'RSS mix reader.';
   $cid = $settings['caid'];
 
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', $settings, $subtype, $context, 'wallyct_rss', TRUE);
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_rssmixread_setcache', $settings, $subtype, $context, 'wallyct_rss', 'rssmixread', TRUE);
   
   if (is_string($feed))
     $block->content = $feed;
