@@ -331,7 +331,7 @@ function wallyextra_refresh_block($infos, $settings) {
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
   
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || true) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
     // This cache doesn't exists, create it
     if ($ajax) {
       drupal_add_js('
