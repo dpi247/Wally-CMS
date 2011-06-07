@@ -30,6 +30,9 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
 
     $output = wallyedit_callback_preview_ctools_context_handler_render($prenode, $node, $dest, $task, '', $contexts, array($node->field_destinations[$dest]['tid'], 0, 'page'));
     
+    // Hide messages before return
+    drupal_get_messages();
+    
     if ($output !== FALSE) {
       return $output;
     }
