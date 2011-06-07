@@ -1761,7 +1761,6 @@ function wallyedit_node_operations(){
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
-  dsm('cool');
   $cache_name=$context['arguments'][0];
   $target=explode('/',$context['arguments'][1]);
   array_pop($target);
