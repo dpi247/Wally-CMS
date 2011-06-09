@@ -406,19 +406,28 @@ function wallyctools_theme() {
   );
 }
 
-function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=NULL){
-  return drupal_get_form('wallyctools_form_reorderdestinationview_form',$destination_tid,$target);
+function wallyctools_page_reorderdestinationview($destination_tid = NULL, $target = NULL) {
+  $limit = 20;
+  
+  $output = drupal_get_form('wallyctools_form_reorderdestinationview_form', $limit, $destination_tid, $target);
+  $output .= theme('pager', NULL, $limit, 0);
+  return $output;
 }
 
-function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
+function wallyctools_form_reorderdestinationview_form($form_state, $limit = 20, $destination_tid = NULL, $target = NULL){
   //fetch the data from the DB
-  $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
-                      FROM {node} n
-                      LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
-                      WHERE dest.field_destinations_tid=%d
-                      AND dest.field_destinations_target="%s"
-                      ORDER BY dest.field_destinations_time_rank ASC
-                      LIMIT 0 , 50',$destination_tid,$target);
+  $query = 'SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
+            FROM {node} n
+            LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+            WHERE dest.field_destinations_tid=%d
+            AND dest.field_destinations_target="%s"
+            ORDER BY dest.field_destinations_time_rank ASC';
+  $count_query = 'SELECT COUNT(*)
+                  FROM {node} n
+                  LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+                  WHERE dest.field_destinations_tid=%d
+                  AND dest.field_destinations_target="%s"';
+  $result = pager_query($query, $limit, 0, $count_query, $destination_tid, $target);
 
  // $form['rows']=array('#tree'=>true);
   $form=array("#tree"=>true);
