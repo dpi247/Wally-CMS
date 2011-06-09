@@ -56,7 +56,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       return;
     }
     $rows = '';
-    $prenode = new Prenode($this->view->wallyedit_preview['cache_name']);
+    $prenode = new Prenode($this->view->wallyedit_preview['cache name']);
     $node = $prenode->ReturnPopulated();
     $node->node_view_destination = $this->view->wallyedit_preview['tid'];
     if($this->view->pager['current_page']==0)//useful if more than one view in a page.
