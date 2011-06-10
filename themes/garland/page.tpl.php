@@ -15,12 +15,14 @@
   <body<?php print phptemplate_body_class($left, $right); ?>>
 
 <!-- Layout -->
-  <div id="header-region" class="clear-block"><?php print $header; ?></div>
+
+  <!--<div id="header-region" class="clear-block"><?php print $header; ?></div>-->
 
     <div id="wrapper">
     <div id="container" class="clear-block">
 
-      <div id="header">
+<header class="header"><div id="header">
+     <div id="max-gen-nav"><?php print $headertop; ?></div>
         <div id="logo-floater">
         <?php
           // Prepare header
@@ -45,7 +47,7 @@
             print $site_html .'</a></h1>';
           }
         ?>
-        </div>
+        </div></header>
 
         <?php if (isset($primary_links)) : ?>
           <?php print theme('links', $primary_links, array('class' => 'links primary-links')) ?>
@@ -53,7 +55,7 @@
         <?php if (isset($secondary_links)) : ?>
           <?php print theme('links', $secondary_links, array('class' => 'links secondary-links')) ?>
         <?php endif; ?>
-
+<?php print $header; ?>
       </div> <!-- /header -->
 
       <?php if ($left): ?>
@@ -76,7 +78,7 @@
             <?php print $content ?>
           </div>
           <?php print $feed_icons ?>
-          <div id="footer"><?php print $footer_message . $footer ?></div>
+
       </div></div></div></div> <!-- /.left-corner, /.right-corner, /#squeeze, /#center -->
 
       <?php if ($right): ?>
@@ -87,6 +89,7 @@
       <?php endif; ?>
 
     </div> <!-- /container -->
+<footer><div id="max-footer"><div id="footer"><?php print $footer; ?></div><?php print $footer_message ?></div></footer>
   </div>
 <!-- /layout -->
 

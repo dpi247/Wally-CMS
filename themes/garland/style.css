@@ -20,6 +20,10 @@ body {
   color: #494949;
 }
 
+footer {
+  display:block;
+}
+
 input {
   font: 12px/100% Verdana, sans-serif;
   color: #494949;
@@ -1078,3 +1082,115 @@ table.system-status-report tr.ok, table.system-status-report tr.ok th {
   background-color: #dfd;
   border-color: #beb;
 }
+
+/* Footer Bottom Custom */
+
+#max-footer {
+	border-top: 1px solid #c4c4c4;
+	background: #dfdfdf url('../images/bg-footer.gif') repeat-x 0 0;
+}
+#max-footer #footer {
+	margin: 0 auto;
+	width: 1000px;
+	position: relative;
+	background: transparent url('../images/bg-footer.jpg') no-repeat 0 0;
+}
+#max-footer #footer .col {color: #727272; float: left; padding: 0 20px; margin: 10px 0; border-right: 1px solid #ccc; width: 150px; height: 250px;}
+#max-footer #footer .with-pics {width: 162px;}
+#max-footer #footer .last {width: 180px;}
+footer #max-footer #footer .col:last-child, footer #max-footer #footer .last {border: 0 !important;}
+#max-footer #footer .col a {color: #727272;}
+#max-footer #footer .col a:hover, #max-footer #footer .col a:focus {text-decoration: underline;}
+#max-footer #footer .col strong {display: block; padding-bottom: 1em; line-height: 1.2em;}
+#max-footer #footer .col ul {list-style: none none; margin: 0; padding-bottom: 1em;}
+#max-footer #footer .col ul li {font-size: .9em; line-height: 1.2em;}
+
+#max-footer #footer .with-pics li {
+	display: block;
+	padding: 10px 0 5px 25px;
+}
+#max-footer #footer .with-pics a {
+	text-transform: uppercase;
+	font-weight: bold;
+}
+.artefact-01 {background: transparent url('../images/icons/journal.gif') no-repeat 0 10px;}
+.artefact-02 {background: transparent url('../images/icons/agenda.png') no-repeat 0 7px;}
+.artefact-03 {background: transparent url('../images/icons/jeux.png') no-repeat 0 7px;}
+.artefact-04 {background: transparent url('../images/icons/rss.png') no-repeat 0 9px;}
+.artefact-05 {background: transparent url('../images/icons/newsletter.png') no-repeat 0 8px;}
+.artefact-06 {background: transparent url('../images/icons/home.gif') no-repeat 0 9px;}
+
+
+footer #max-footer #footer .all-websites {
+	background: transparent url('../images/all-websites-open.gif') no-repeat 0 0;
+	font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+	padding: 3px 5px 0 5px;
+	color: white;
+	display: block;
+	width: 162px;
+	height: 20px;
+}
+
+#display-footer {
+	display: none;
+	background: #dfdfdf;
+	color: #363636;
+	position: absolute;
+	width: 970px;
+	bottom: 60px;
+	left: 15px;
+	-o-box-shadow: 0 0 2px rgba(0,0,0,0.7);
+	-moz-box-shadow: 0 0 2px rgba(0,0,0,0.7);
+	-webkit-box-shadow: 0 0 2px rgba(0,0,0,0.7);
+	box-shadow: 0 0 2px rgba(0,0,0,0.7);
+	font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+}
+.ie6 #display-footer, .ie7 #display-footer, .ie8 #display-footer {border: 1px solid #666;}
+footer #max-footer #footer #display-footer a {color: #363636;}
+footer #max-footer #footer #display-footer a:hover, footer #max-footer #footer #display-footer a:focus {text-decoration: underline;}
+footer #max-footer #footer #display-footer .close {
+	display: block;
+	background: transparent url('../images/fermer.png') no-repeat center center;
+	font-size: .85em;
+	float: right;
+	color: white;
+	text-align: center;
+	margin: 3px 3px 0 0;
+	width: 71px;
+	line-height: 21px;
+	height: 21px;
+	text-shadow: 1px 0 3px rgba(0,0,0,0.8);
+}
+footer #max-footer #footer #display-footer .da-title {
+	display: block;
+	padding: 5px;
+	background: white url('../images/bg-top-footer.gif') repeat-x bottom left;
+	text-indent: 15px;
+}
+footer #max-footer #footer #display-footer .col {border-right: 1px solid #cacaca; width: 185px; height: 175px;}
+footer #max-footer #footer #display-footer .col strong {color: #363636; text-transform: uppercase; font-family: Verdana, "DejaVu Sans", "Bitstream Vera Sans", Geneva, sans-serif;}
+footer #max-footer #footer #display-footer .annonces {width: 225px;}
+footer #max-footer #footer #display-footer .col li {
+	font-size: .9em;
+	line-height: 1.3em;
+	padding-left: 12px;
+	background: transparent url('../images/puce-02.gif') no-repeat center left;
+}
+
+#max-bottom {
+	background: #414141;
+	clear: both;
+}
+#max-bottom #bottom {
+	margin: 0 auto;
+	width: 1000px;
+	color: white;
+}
+#max-bottom #bottom ul {margin: 0; padding: 5px 0; float: left; list-style: none none;}
+#max-bottom #bottom li {display: block; float: left; padding: 0 30px;}
+footer #max-bottom #bottom a {color: white;}
+footer #max-bottom #bottom a:hover, footer #max-bottom #bottom a:focus {text-decoration: underline;}
+footer #max-bottom #bottom .first li {border-right: 1px solid white;}
+footer #max-bottom #bottom .last li {background: transparent url('../images/bullet.gif') no-repeat center right;}
+footer #max-bottom #bottom .last li:last-child {background: none;}
+
