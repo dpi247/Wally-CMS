@@ -47,7 +47,7 @@
             print $site_html .'</a></h1>';
           }
         ?>
-        </div></header>
+        </div></div></header>
 
         <?php if (isset($primary_links)) : ?>
           <?php print theme('links', $primary_links, array('class' => 'links primary-links')) ?>
@@ -89,8 +89,8 @@
       <?php endif; ?>
 
     </div> <!-- /container -->
-<footer><div id="max-footer"><div id="footer"><?php print $footer; ?></div><?php print $footer_message ?></div></footer>
-  </div>
+<footer><div id="max-footer"><div id="footer"><?php print $footer; ?></div><?php print $footerbottom ?></div></footer>
+
 <!-- /layout -->
 
   <?php print $closure ?>
