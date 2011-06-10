@@ -1,0 +1,22 @@
+; $Id: wallyvdn.info,v 1.5 2007/07/01 23:27:32 goba Exp $
+name = Wally VDN
+description = Tableless, recolorable, multi-column, fluid width theme (default).
+version = VERSION
+core = 6.x
+engine = phptemplate
+
+stylesheets[all][] = stylesheets/screen.css
+stylesheets[print][] = print.css
+
+regions[header] = Header
+regions[headertop] = Header Top Fix
+regions[footer] = Footer
+regions[leftsidebar] = Left Sidebar
+regions[rightsidebar] = Right Sidebar
+regions[footerbottom] = Footer Bottom Fix
+
+; Information added by drupal.org packaging script on 2010-12-15
+version = "6.20"
+project = "drupal"
+datestamp = "1292447788"
+
