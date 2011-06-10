@@ -1,6 +1,0 @@
-core = "6.x"
-description = "Starting feature for integration of wally"
-name = "Integration Starter"
-package = Wally
-project = "integrationstarter"
-version = "6.x-1.0"

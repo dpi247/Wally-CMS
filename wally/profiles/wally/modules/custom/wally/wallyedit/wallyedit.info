@@ -1,9 +1,0 @@
-core = "6.x"
-name = "Wally Edition Interface"
-package = "Wally"
-project = "Wally"
-version = "6.x-1.0-rc1"
-
-dependencies[] = "ctools"
-dependencies[] = "views_bulk_operations"
-dependencies[] = "wallytoolbox"

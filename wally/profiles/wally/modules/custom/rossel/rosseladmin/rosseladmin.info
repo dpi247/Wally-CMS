@@ -1,7 +1,0 @@
-; $Id: rosseladmin.info,v 1.0 2011/02/10 ODM $
-name = Rossel Admin
-description = "Admin module, with various admin tweaks"
-package = Rossel
-core = 6.x
-
-dependencies[] = admin

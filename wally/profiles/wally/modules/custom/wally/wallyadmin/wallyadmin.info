@@ -1,9 +1,0 @@
-name = "Wally Admin"
-description = "Admin module, with various admin tweaks"
-package = Wally
-core = 6.x
-version = "6.x-1.0"
-project = "Wally"
-
-dependencies[] = admin
-dependencies[] = wallytoolbox

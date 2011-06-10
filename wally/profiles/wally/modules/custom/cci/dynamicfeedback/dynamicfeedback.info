@@ -1,6 +1,0 @@
-; $Id$
-name = CCI Dynamic feedback
-description = Bring information from a node to the  CCI NewsGate system
-core = 6.x
-package = CCI
-
