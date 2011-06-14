@@ -179,8 +179,8 @@
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
 				<xsd:element name="VideoLength" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
-				<xsd:element name="LinkTitle" type="xsd:string" />
-				<xsd:element name="LinkURI" type="xsd:anyURI" />
+				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
+				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -193,8 +193,8 @@
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
 				<xsd:element name="AudioLength" minOccurs="0" maxOccurs="1" type="xsd:time" />
-				<xsd:element name="LinkTitle" type="xsd:string" />
-				<xsd:element name="LinkURI" type="xsd:anyURI" />
+				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
+				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
