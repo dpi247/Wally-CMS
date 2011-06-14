@@ -167,9 +167,7 @@ function _wallyrsstonode_callallfeeds() {
   foreach ($feeds_infos as $feed_infos) {
     $feed_xml = drupal_http_request($feed_infos['uri']);
     if ($feed_xml) {
-      $valid_dom_and_channel_last_build = _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos);
-      $valid_dom = $valid_dom_and_channel_last_build[0];
-      $channel_last_build = $valid_dom_and_channel_last_build[1];
+      list($valid_dom, $channel_last_build) = _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos);
 
       if ($channel_last_build > $feed_infos['last_build']) {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
@@ -298,7 +296,7 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
             $embeddedObjects = $embeddedContent->appendChild($valid_dom->createElement('EmbeddedObjects'));
             foreach($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $item_object) {
               $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
-              $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'PhotoObjectType');
+              $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $item_object['type']);
               $object->setAttribute('ObjectID', $item_object['ObjectID']);
               $object->setAttribute('PublicationDate', $item_object['PublicationDate']);
               $object->setAttribute('CreationDate', $item_object['CreationDate']);
