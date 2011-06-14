@@ -31,7 +31,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     $output = wallyedit_callback_preview_ctools_context_handler_render($prenode, $node, $dest, $task, '', $contexts, array($node->field_destinations[$dest]['tid'], 0, 'page'));
     
     // Hide messages before return
-    drupal_get_messages();
+    //drupal_get_messages();
     
     if ($output !== FALSE) {
       return $output;
@@ -396,7 +396,7 @@ function wallyedit_callback_preview_renderer_render_redacblock($prenode, $node, 
   $style->definition['uses row plugin'] = TRUE;
   $view->wallyedit_preview = $node->field_destinations[$dest];
   $view->wallyedit_preview['key'] = $dest;
-  $view->wallyedit_preview['cache_name'] = $prenode->cache_name;
+  $view->wallyedit_preview['cache name'] = $prenode->cache_name;
   $style->init($view, $view->display[$view->current_display]);
   $style->view->style_plugin = $style;
   $content = new stdClass();

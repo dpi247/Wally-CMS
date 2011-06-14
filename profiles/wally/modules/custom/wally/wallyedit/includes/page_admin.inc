@@ -41,7 +41,7 @@ function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL){
   global $custom_theme;
   $custom_theme=variable_get('admin_theme','rubik');
   if(!empty($prenode)){
-    $form_state['cache_name'] = $prenode->cache_name;
+    $form_state['cache name'] = $prenode->cache_name;
     return confirm_form($form,
             t('Are you sure you want to delete the prenode with the title :'.$prenode->form_state[$prenode->form_state['type']]['#node']->title.' and the id : '.$prenode->cache_name.' ?'),
             'admin/content/wallyedit', t('This action cannot be undone.'),
@@ -51,7 +51,7 @@ function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL){
 
 function wallyedit_prenode_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    ctools_object_cache_clear('prenode', $form_state['cache_name']);
+    ctools_object_cache_clear('prenode', $form_state['cache name']);
     drupal_set_message(t('The item has been deleted.'));
   }
   $form_state['redirect'] = 'admin/content/wallyedit';
