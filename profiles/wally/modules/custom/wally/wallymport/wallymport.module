@@ -312,7 +312,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
       '#options' => $options,
       '#attributes' => array('prenode' => $cache_name),
     );
-    $form['#suffix'] = theme('wallyedit_preview_id', array('cache_name' => $cache_name, 'dest' => 'no_dest'))
+    $form['#suffix'] = theme('wallyedit_preview_id', array('cache name' => $cache_name, 'dest' => 'no_dest'))
                           .drupal_get_js();
   }else{
     $form['#suffix'] = theme('wallyedit_nopreview');
