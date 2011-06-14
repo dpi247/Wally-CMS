@@ -406,61 +406,66 @@ function wallyctools_theme() {
   );
 }
 
-function wallyctools_page_reorderdestinationview($destination_tid=NULL,$target=NULL){
-  return drupal_get_form('wallyctools_form_reorderdestinationview_form',$destination_tid,$target);
+function wallyctools_page_reorderdestinationview($destination_tid = NULL, $target = NULL) {
+  $limit = 20;
+  $output = drupal_get_form('wallyctools_form_reorderdestinationview_form', $limit, $destination_tid, $target);
+  $output .= theme('pager', NULL, $limit, 0);
+  return $output;
 }
 
-function wallyctools_form_reorderdestinationview_form($form_state,$destination_tid=NULL,$target=NULL){
+function wallyctools_form_reorderdestinationview_form($form_state, $limit = 20, $destination_tid = NULL, $target = NULL){
   //fetch the data from the DB
-  $result = db_query('SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
-                      FROM {node} n
-                      LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
-                      WHERE dest.field_destinations_tid=%d
-                      AND dest.field_destinations_target="%s"
-                      ORDER BY dest.field_destinations_time_rank ASC
-                      LIMIT 0 , 50',$destination_tid,$target);
+  $count_query = 'SELECT COUNT(*)
+                  FROM {node} n
+                  LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+                  WHERE dest.field_destinations_tid=%d
+                  AND dest.field_destinations_target="%s"
+                  ORDER BY dest.field_destinations_time_rank DESC';
+  $query = 'SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
+            FROM {node} n
+            LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
+            WHERE dest.field_destinations_tid = %d
+            AND dest.field_destinations_target = "%s"
+            ORDER BY dest.field_destinations_time_rank DESC';
+            //LIMIT %d, %d';
+  $result = pager_query($query, $limit, 0, $count_query, $destination_tid, $target);
 
- // $form['rows']=array('#tree'=>true);
-  $form=array("#tree"=>true);
-  $j=-1;
-  while ($row = db_fetch_object($result)){
+  $form = array("#tree" => true);
+  
+  for ($j = 1; $row = db_fetch_object($result); $j++) {
     //create a partial table row containing the data from the table
-    $data = array(
-      $row->title,
+    //add our static "row" data into a form value
+    $form['rows'][$row->nid]['data'] = array(
+      '#type' => 'value',
+      '#value' => array($row->title),
     );
-            //add our static "row" data into a form value
-    $form['rows'][$row->nid]['data']=array(
-                                 '#type' => 'value',
-                                 '#value' => $data
-                               );
 
     //now create the weight form element. 
     //NOTE how we add the id into the element key
-    $form['rows'][$row->nid]['weight']=array(
-      '#type'=>'weight',
-      '#default_value'=>$j,
+    $form['rows'][$row->nid]['weight'] = array(
+      '#type' => 'weight',
+      '#default_value' => $j,
       //add a specific class in here - we need this later
-      '#attributes' => array('class'=>'weight'),
-      '#delta'=>10
+      '#attributes' => array('class' => 'weight'),
+      '#delta' => $limit,
     );
 
-    $form['rows'][$row->nid]['time_rank']=array(
-      '#type'=>'value',
-      '#value'=>$row->field_destinations_time_rank,
+    $form['rows'][$row->nid]['time_rank'] = array(
+      '#type' => 'value',
+      '#value' => $row->field_destinations_time_rank,
     );
     
-    $form['rows'][$row->nid]['original_weight']=array(
-      '#type'=>'value',
-      '#value'=>$j,
-    );
-    $form['rows'][$row->nid]['nid']=array(
-      '#type'=>'value',
-      '#value'=>$row->nid  ,
+    $form['rows'][$row->nid]['original_weight'] = array(
+      '#type' => 'value',
+      '#value' => $j,
     );
     
-    $j--;
+    $form['rows'][$row->nid]['nid'] = array(
+      '#type' => 'value',
+      '#value' => $row->nid,
+    );
   }
-  $form['rows'] = array_reverse($form['rows'], TRUE);
+  //$form['rows'] = array_reverse($form['rows'], TRUE);
   $form['destination_tid']=array(
     '#type'=>'value',
     '#value'=>$destination_tid,
@@ -469,7 +474,7 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
     '#type'=>'value',
     '#value'=>$target,
   );
-  
+
   //Don't forget the submit button
   $form['submit']=array(
     '#type'=>'submit',
@@ -482,13 +487,14 @@ function wallyctools_form_reorderdestinationview_form($form_state,$destination_t
 function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state) {
   $order_by_weight=array();
   foreach($form_state['values']['rows'] as $key=>$data){
-    $order_by_weight[$data['weight']]=$data;
+    $order_by_weight[$data['weight']] = $data;
   }
-  $new_time_rank=array();
+  
+  $new_time_rank = array();
   $weights = array_keys($order_by_weight);
   $min_weight = min($weights);
   $max_weight = max($weights);
-  for($i=$max_weight; $i>=$min_weight; $i--) {
+  for($i=$min_weight; $i<=$max_weight; $i++) {
     $elem_nid = $order_by_weight[$i]['nid'];
     if (isset($order_by_weight[$i+1]) && isset($order_by_weight[$i-1])) {
       // This is a middle element of the list
@@ -496,17 +502,16 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
       $new_time_rank[$elem_nid] = max($order_by_weight[$i+1]['time_rank'], $avg_time_rank);
     } elseif (!isset($order_by_weight[$i-1])) {
       // This is the most recent element of the list
-      $new_time_rank[$elem_nid] = max($order_by_weight[$i]['time_rank'], $order_by_weight[$i+1]['time_rank'] + 10);
+      $new_time_rank[$elem_nid] = max($order_by_weight[$i]['time_rank'], $order_by_weight[$i+1]['time_rank'] + 30);
     } elseif (!isset($order_by_weight[$i+1])) {
       // This is the oldest element of the list
-      $new_time_rank[$elem_nid] = min($order_by_weight[$i]['time_rank'], $order_by_weight[$i-1]['time_rank'] - 10);
+      $new_time_rank[$elem_nid] = min($order_by_weight[$i]['time_rank'], $order_by_weight[$i-1]['time_rank'] - 30);
     }
     $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
     db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'", $new_time_rank[$elem_nid], $elem_nid, $form_state['values']['destination_tid'], $form_state['values']['target']);
   }
   //optionally set the redirect value in form_submit ...
 }
-
 
 function wallyctools_redacblock_load($name){
  ctools_include('export');
