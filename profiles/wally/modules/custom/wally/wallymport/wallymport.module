@@ -287,7 +287,9 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
  * Return the form containing the preview iframe and the select box to choose the destination preview
  */
 function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled'){
-   $prev_js = '$(document).ready(function() {
+  global $base_url;
+  print_r($base_url, TRUE);
+  $prev_js = '$(document).ready(function() {
             $("#edit-select-preview").change(function () {
               var temp = "/node/'.$cache_name.'/preview2/"+$(this).val();
               $("#prev_iframe").attr("src", temp);          
