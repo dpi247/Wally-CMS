@@ -373,7 +373,7 @@ function wallymport_dynamic_preview_zip () {
     wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
   }
   
-  print_r($returns);
+  print drupal_get_form('wallymport_preview_form', $returns[0]['packages'], 'disabled');
 }
 
 /**
