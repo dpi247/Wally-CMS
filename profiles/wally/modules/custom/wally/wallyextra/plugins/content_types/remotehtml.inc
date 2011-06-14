@@ -390,7 +390,7 @@ function _wallyextra_remotehtml_setcache($settings) {
   $block_uri = $settings['uri'];
   $htmlblock = file_get_contents($block_uri);
 
-  cache_set($cid, $htmlblock, 'cache');
+  cache_set($settings['caid'], $htmlblock, 'cache');
 
   return $htmlblock;
 }
