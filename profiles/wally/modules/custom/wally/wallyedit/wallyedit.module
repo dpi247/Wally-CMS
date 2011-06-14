@@ -209,22 +209,18 @@ function wallyedit_views_api() {
 function wallyedit_elements() {
   return array(
     'optionwidgets_select' => array(
-      '#input' => TRUE,
-      '#columns' => array('value'), '#delta' => 0,
-      '#process' => array('wydit_optionwidgets_select_process'),
+      '#process' => array('wydit_elements_process'),
       ),
     'optionwidgets_buttons' => array(
-      '#input' => TRUE,
-      '#columns' => array('value'), '#delta' => 0,
-      '#process' => array('wydit_optionwidgets_buttons_process'),
+      '#process' => array('wydit_elements_process'),
       ),
     'optionwidgets_onoff' => array(
-      '#input' => TRUE,
-      '#columns' => array('value'), '#delta' => 0,
-      '#process' => array('wydit_optionwidgets_onoff_process'),
+      '#process' => array('wydit_elements_process'),
+      ),
+    'date_combo' => array(
+      '#process' => array('wydit_elements_process'),
       ),
     );
-  return array();
 }
 
 function wallyedit_form_page_createmode_form(&$form_state){
@@ -376,7 +372,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   ctools_ajax_render($commands);
 }
 
-function wallyedit_form_page_editmode_form(&$form_state){
+function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
   $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/1';
   return $form;
@@ -692,7 +688,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );
     }
     
-    wydit_handle_special_form_cases($element, $form, $form_state, $global_form);
+    //wydit_handle_special_form_cases($element, $form, $form_state, $global_form);
   }
 
   unset($form['buttons']);
@@ -1152,11 +1148,11 @@ function wydit_handle_special_form_cases($element, &$form, &$form_state, &$globa
 }
 
 /**
- * Overloading of the optionwidgets_select_process function
+ * Overloading of elements process functions
  */
-function wydit_optionwidgets_select_process($element, $edit, &$form_state, $form) {
-  dsm('coucou');
-  return $element;
+function wydit_elements_process($element, $edit, &$form_state, $form) {
+  $orig_process = $element['#process'][0];
+  return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
 }
 
 function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
