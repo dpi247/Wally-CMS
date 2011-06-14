@@ -1151,8 +1151,12 @@ function wydit_handle_special_form_cases($element, &$form, &$form_state, &$globa
  * Overloading of elements process functions
  */
 function wydit_elements_process($element, $edit, &$form_state, $form) {
-  $orig_process = $element['#process'][0];
-  return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
+  if ($form['#tree']) {
+    $orig_process = $element['#process'][0];
+    return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
+  } else {
+    return $element;
+  }
 }
 
 function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
