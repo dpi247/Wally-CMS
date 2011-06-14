@@ -25,26 +25,23 @@ class Prenode{
    * Constructor
    */
   function Prenode($cache_name = NULL){
-    $this->cache_name=$cache_name;
+    $this->cache_name = $cache_name;
     
-    if($cache_name){
+    if($cache_name && !empty($cache_name)) {
       $node=node_load($cache_name);
-      if(!$node){
+      if(!$node) {
         //this not a node, maybe a prenode ?
         ctools_include('object-cache');
-        
         
         if($cache = ctools_object_cache_get('prenode', $cache_name)){
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->form_state['cache name']= $cache_name;
-        }
-        else{
+        } else {
           drupal_set_message("WallyEdit: node not found","error");
           watchdog("error","WallyEdit: node not found");
         }
-      }
-      else{
+      } else {
         //Case of a prenode in edition mode
         $this->setNode($node);
         $this->getFormState();
@@ -72,10 +69,9 @@ class Prenode{
   
   function getFormState($reset=false){
     if(isset($this->form_state) and $reset==false)
-    return $this->form_state;
-    else{
+      return $this->form_state;
+    else
       return $this->setFormState();
-    }
   }
   
   function setFormState($reset=false){
@@ -90,19 +86,15 @@ class Prenode{
     
     $form_state = array(
       'cache name' => wydit_get_cache_name($this->cache_name),
- //     "action"=>'/node/'.arg(1).'/edit2/ajax',
     );
     
     if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
-      $form_state=$cache;
-      $form_state['type']= $type_name;
-      //$form_state[$type_name]['#node']=$this->node;
+      $form_state = $cache;
+      $form_state['type'] = $type_name;
     } else {
-      $form_state['type']= $type_name;
-      $form_state[$type_name]['#node']=$this->node;
-      $form_state[$type_name]['type']=$type_name;
-  
-      //$form_state[$type_name]['#form_state']=$this->node;
+      $form_state['type'] = $type_name;
+      $form_state[$type_name]['#node'] = $this->node;
+      $form_state[$type_name]['type'] = $type_name;
       
       $type=wydit_get_infos_type( $type_name);
 
@@ -127,14 +119,6 @@ class Prenode{
               $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
             }
           }
-          /*
-        foreach($this->node->{$field_name} as $key=>$value){
-            $temp_node=node_load($value['nid']);
-            
-            $form_state[$field_name][$key]["#form_state"]=$temp_node;
-            
-          }
-          */
         }
       }
     }

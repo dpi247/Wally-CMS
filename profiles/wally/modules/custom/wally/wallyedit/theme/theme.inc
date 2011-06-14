@@ -9,20 +9,16 @@ function theme_wallyedit_admin($rows=array(),$headers){
       $data[] = $elem;
     }
     $collumn = array('data'=> $data);
-/*    $collumn[]=array('data'=>$row['name']);
-    $collumn[]=array('data'=>$row['data'][$row['data']['type']]['#node']->type);
-    $collumn[]=array('data'=>l('edit',$row['edit_action_url']));*/
     $collumns[] = $collumn;
   }
   
-  $output=theme('table',$headers, $collumns);
-  $output.= theme('pager');
+  $output = theme('table',$headers, $collumns);
+  $output .= theme('pager');
   
-  //print theme('page', $output);
   return $output;
 }
 
-function theme_wallyedit_page_createmode($form,$prenode, $form_prev){
+function theme_wallyedit_page_createmode($form){
   drupal_add_css(drupal_get_path('module', 'wallyedit') . '/css/wallyedit.css');
   $output='<div id="wallyedit_messages">';
   $output.='</div>';
@@ -30,13 +26,10 @@ function theme_wallyedit_page_createmode($form,$prenode, $form_prev){
   $output.='<div id="wallyedit_container">';
   $output.=$form;
   $output.='</div>';
-  $output.='<div id="wallyedit_preview_container">';
-  $output.= $form_prev;
-  $output.='</div>';
   return $output;
 }
 
-function theme_wallyedit_page_editmode($form,$prenode, $form_prev){
+function theme_wallyedit_page_editmode($form, $form_prev) {
   drupal_add_css(drupal_get_path('module', 'wallyedit') . '/css/wallyedit.css');
   $output='<div id="wallyedit_messages">';
   $output.='</div>';
@@ -66,22 +59,14 @@ function theme_wydit_selector_theme($form){
   $header[] = t('Type');
   $header[] = t('Action(s)');
   
-  foreach($form as $key=>$element){
+  foreach($form as $key=>$element) {
     if(is_integer($key)){
       $row = array();
-      
-      /*
-      $row[] = array('data' =>drupal_render($element['weight']));
-      $row[] = array('data' => drupal_render($element['title']));
-      $row[] = array('data' => drupal_render($element['type']));
-      $row[] = array('data' => drupal_render($element['edit_action']).' '.drupal_render($element['delete_action']));
-      */
-      
       $row[] =drupal_render($element['weight_'.$key]);
       $row[] = drupal_render($element['title']);
       $row[] = drupal_render($element['type']);
       $row[] = drupal_render($element['edit_action']).' '.drupal_render($element['delete_action']);
-          
+      
       $rows[] = array('data'=>$row, 'class'=>'draggable');
     }
   }
@@ -124,7 +109,6 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
     $key = reset($order);
     $element = &$form[$key];
     
-
     // Only display the 'Add' separator if the 'add' rows are still
     // at the end of the table.
     if (!isset($added_separator)) {
@@ -176,9 +160,7 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
   $vars['submit'] = drupal_render($form);
 
   // Add tabledrag behavior.
-//  drupal_add_tabledrag('content-field-overview', 'match', 'parent', 'group-parent', 'group-parent', 'field-name', FALSE, 1);
   drupal_add_tabledrag('content-field-overview', 'match', 'parent', 'group-parent', 'group-parent', 'field-name', TRUE, 1);
-//  drupal_add_tabledrag('content-field-overview', 'order', 'sibling', 'field-weight', NULL, NULL, FALSE);
   drupal_add_tabledrag('content-field-overview', 'order', 'sibling', 'field-weight');
 
   // Add settings for the update selects behavior.
@@ -187,6 +169,7 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
     $field = content_fields($field_name);
     $js_fields[$field_name] = array('label' => $field['widget']['label'], 'type' => $field['type'], 'widget' => $field['widget']['type']);
   }
+  
   drupal_add_js(array('contentWidgetTypes' => content_widget_type_options(), 'contentFields' => $js_fields), 'setting');
   drupal_add_js(drupal_get_path('module', 'content') .'/content.js');
 }

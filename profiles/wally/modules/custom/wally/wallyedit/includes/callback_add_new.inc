@@ -1,6 +1,6 @@
 <?php
 
-function wallyedit_callback_add_new($prenode,$js=FALSE){
+function wallyedit_callback_add_new($prenode, $js = FALSE){
   global $custom_theme;
   $custom_theme=variable_get('admin_theme','rubik');
 
@@ -14,11 +14,10 @@ function wallyedit_callback_add_new($prenode,$js=FALSE){
   
   $form = ctools_build_form('wallyedit_form_editmode_add_form', $form_state);
   
-  if($js){
+  if($js) {
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
     ctools_ajax_render($commands); 
-  }
-  else{
-    return '';  
+  } else {
+    return '';
   }
 }
