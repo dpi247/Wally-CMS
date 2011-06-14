@@ -664,6 +664,24 @@ function wallytoolbox_rss_item_to_array_new_photoobject() {
 }
 
 /**
+ * Initialise an array following the schema of a Wallymport videoobject.
+ * 
+ * @return
+ *   The initialised array.
+ */
+function wallytoolbox_rss_item_to_array_new_videoobject() {
+  $videoobject = array();
+  $videoobject['ObjectID'] = '';
+  $videoobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $videoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $videoobject['Title']['value'] = '';
+  $videoobject['ExternalReference']['value'] = '';
+  $videoobject['FileURI']['value'] = 'http://';
+  $videoobject['FileSize']['value'] = '';
+  return $videoobject;
+}
+
+/**
  * Get package available parameters from an RSS feed item domElement
  * and set an array item according to the structure defined in
  * Wallymport.
@@ -770,11 +788,29 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
 function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item, $media_contents, $feed_name, $media_namespace = 'http://search.yahoo.com/mrss/') {
   $first_media = TRUE;
   foreach ($media_contents as $media_content) {
+    $media_type = NULL;
     if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
-      if (@getimagesize($media_content->getAttribute('url'))) {
-        wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace);
-        $first_media = FALSE;
+      if (@getimagesize($media_content->getAttribute('url')))
+        $media_type = 'photoobject';
+    } elseif (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'video')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'video'))) {
+      if ($media_content->hasAttribute('url')) {
+        $third_party_url = $media_content->getAttribute('url');
+      } else {
+        $media_players = $item->getElementsByTagNameNS($media_namespace, 'player');
+        if ($media_player = $media_players->item(0)) {
+          $third_party_url = $media_player->hasAttribute('url') ? $media_player->getAttribute('url') : '';
+        } else {
+          return;
+        }
       }
+      $providers = emfield_parse_embed(NULL, $third_party_url, 'emvideo');
+      if (!empty($providers))
+        $media_type = 'videoobject';
+    }
+    
+    if ($media_type) {
+      wallytoolbox_rss_item_to_array_set_media($array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_type, $media_namespace, $third_party_url);
+      $first_media = FALSE;
     }
   }
 }
@@ -797,21 +833,29 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
  * @param boolean $first_media
  *   Check if it's the first media added to this array item.
  */
-function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_namespace = 'http://search.yahoo.com/mrss/') {
+function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item, $media_content, $feed_name, $first_media, $media_type, $media_namespace = 'http://search.yahoo.com/mrss/', $third_party_url = NULL) {
   static $media_num = 0;
+  
   if ($first_media) {
     $array_item['Package']['EmbeddedContent'] = array();
     $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
     $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
-    $first_media = FALSE;
   }
-  $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
+  
+  $tempobject = call_user_func('wallytoolbox_rss_item_to_array_new_'.$media_type);
+  call_user_func_array('wallytoolbox_rss_item_to_array_set_'.$media_type, array(&$tempobject, &$array_item, $channel, $item, $media_content, $feed_name, $media_num, $media_namespace, $third_party_url));
+  $media_num++;
+  
+  $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+}
+
+function wallytoolbox_rss_item_to_array_set_photoobject(&$tempobject, &$array_item, $channel, $item, $media_content, $feed_name, $media_num, $media_namespace = 'http://search.yahoo.com/mrss/', $third_party_url = NULL) {
+  $tempobject['type'] = 'PhotoObjectType';
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = $media_content->getAttribute('type');
   $media_title = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
-  $media_num += 1;
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
   $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
@@ -857,8 +901,60 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
   if (in_array(strtoupper($media_rating), $acceptable_rating)) {
     $tempobject['Rating']['value'] = strtoupper($media_rating);
   }
-  
-  $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+}
+
+function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_item, $channel, $item, $media_content, $feed_name, $media_num, $media_namespace = 'http://search.yahoo.com/mrss/', $third_party_url = NULL) {
+  $tempobject['type'] = 'VideoObjectType';
+  $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
+  $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
+  $tempobject['MimeType'] = $media_content->getAttribute('type');
+  $media_title = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
+  $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
+  $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
+  $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
+  $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
+  $tempobject['FileURI']['value'] = $third_party_url ? $third_party_url : '';
+  $object_filesize = $media_content->getAttribute('fileSize');
+  if (!$object_filesize) $object_filesize = 0;
+  $tempobject['FileSize']['value'] = $object_filesize;
+  $keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
+  if ($keywords != '') {
+    $keywords = explode(',',$keywords);
+    foreach ($keywords as $keyword) {
+      $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $keyword);
+    }
+  }
+  $media_categories = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'category');
+  if ($media_categories != '') {
+    $media_categories = explode('/',$media_categories);
+    foreach ($media_categories as $media_category) {
+      $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
+    }
+  }
+  $media_thumbnails = $media_content->getElementsByTagNameNS($media_namespace, 'thumbnail');
+  if ($media_thumbnails->item(0)) {
+    $media_thumbnail = $media_thumbnails->item(0);
+    $tempobject['Thumbnail']['URI'] = $media_thumbnail->getAttribute('url');
+    $thumbnail_w = $media_content->getAttribute('width');
+    if ($thumbnail_w) $tempobject['Thumbnail']['W'] = $thumbnail_w;
+    $thumbnail_h = $media_content->getAttribute('height');
+    if ($thumbnail_h) $tempobject['Thumbnail']['H'] = $thumbnail_h;
+  }
+  $media_rating = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'rating');
+  $acceptable_rating = array();
+  $all_voc = taxonomy_get_vocabularies();
+  foreach ($all_voc as $voc) {
+    if ($voc->name == 'Rating') {
+      $available_ratings = taxonomy_get_tree($voc->vid);
+      foreach ($available_ratings as $available_rating) {
+        $acceptable_rating[] = $available_rating->name;
+      }
+      break;
+    }
+  }
+  if (in_array(strtoupper($media_rating), $acceptable_rating)) {
+    $tempobject['Rating']['value'] = strtoupper($media_rating);
+  }
 }
 
 /**
