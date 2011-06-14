@@ -584,6 +584,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
 
   if(!empty($node) && !isset($node->rejected)) {
     if ($preview) {
+      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       
