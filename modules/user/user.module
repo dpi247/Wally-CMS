@@ -520,7 +520,7 @@ function user_access($string, $account = NULL, $reset = FALSE) {
     }
     $perm[$account->uid] = $perms;
   }
-
+dsm($perm);
   return isset($perm[$account->uid][$string]);
 }
 
