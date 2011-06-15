@@ -298,6 +298,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   drupal_add_js($prev_js, 'inline');
   drupal_get_messages();
   $prenode=new Prenode($cache_name);
+  print_r($prenode);
   if(!empty($prenode->form_state)){
     $options = array('no_dest' => 'Node', );
     foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest){
@@ -313,8 +314,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
       '#options' => $options,
       '#attributes' => array('prenode' => $cache_name),
     );
-    $form['#suffix'] = theme('wallyedit_preview_id', array('cache name' => $cache_name, 'dest' => 'no_dest'))
-                          .drupal_get_js();
+    $form['#suffix'] = theme('wallyedit_preview_id', array('cache name' => $cache_name, 'dest' => 'no_dest')).drupal_get_js();
   }else{
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
