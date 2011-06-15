@@ -1,7 +1,6 @@
 <?php
 
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
-//@todo: DDU le poids system doit être changé lors du hook_install => done
 
 include_once 'includes/Prenode.inc';
 /**
@@ -135,8 +134,7 @@ function wallyedit_menu(){
   $items['node/%prenode/preview2/%'] = array(
     'page callback'=>'wallyedit_callback_preview',
     'page arguments'=>array(1, 3),
-    'access callback' => 'node_access',
-    'access arguments' => array('view', 1),
+    'access arguments' => array('access content'),
     'file'=>'includes/callback_preview.inc',
   );
   
@@ -808,6 +806,104 @@ function wydit_subform_global_page_submit(&$form_state){
   wydit_clean_and_save_form_state($a);
 }
 
+function wallyedit_form_createmode_add_form(&$form_state){
+  $form = wydit_subform_global_add_form(&$form_state);
+  $form['#action'] = '/node/'.$form_state['cache name'].'/wydit_add_new/ajax';
+
+  return $form;
+}
+
+function wallyedit_form_editmode_add_form(&$form_state) {
+  $form = wydit_subform_global_add_form(&$form_state);
+  $form['#action'] = '/node/'.$form_state['cache name'].'/wydit_add_new/ajax';
+
+  return $form;
+}
+
+function wydit_subform_global_add_form(&$form_state){
+  $node->type=$form_state['type'];
+
+  $type_name=$node->type;
+
+  //@todo: target should be parents ?
+  $target=array_merge($form_state['parents'],array("#node"));
+  $form['target']=array('#type'=>'value','#value'=>$target);
+  $form['parents']=array('#type'=>'value','#value'=>$form_state['parents']);
+  $form['type']=array('#type'=>'value','#value'=>$node->type);
+
+  $a=array("#tree"=>true);
+  $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
+  $a['#tree']=true;
+
+  drupal_prepare_form($type_name.'_node_form',$a,$form_state);
+
+  unset($a["#type"]);
+  unset($a["form_id"]);
+  unset($a["#parents"]);
+  $form[$type_name]=array("#type"=>'fieldset');
+
+  foreach($a as $element_name=>$value){
+    $form[$type_name][$element_name]=$value;
+  }
+
+  wydit_prepare_primary_package_form($form[$type_name],$form_state,$type_name,array(0=>$type_name));
+
+  wydit_remove_form_infos($form[$type_name]);
+
+  $form['#tree']=true;
+
+  $form["save_global"]=array(
+    '#type'=>'submit',
+    '#name'=>'save_global',
+    "#value"=> 'Save AJAX',
+  	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+  );
+  
+  $form['#tree']=true;
+
+  return $form;
+}
+
+function wallyedit_form_createmode_add_form_submit($form,&$form_state){
+  wydit_subform_global_add_form_submit($form,$form_state);
+
+  $form = ctools_build_form('wallyedit_form_page_createmode_form', $form_state);
+  $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+  $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+  
+  ctools_ajax_render($commands); 
+}
+
+function wallyedit_form_editmode_add_form_submit($form,&$form_state){
+  wydit_subform_global_add_form_submit($form,$form_state);
+
+  $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
+  $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+  $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+
+  ctools_ajax_render($commands);
+}
+
+function wydit_subform_global_add_form_submit($form,&$form_state){
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
+
+  $node = node_submit($form_state['values'][$form_state['values']['type']]);
+
+  $b=$node;
+
+  $element['#node']=$b;
+  $element['type']=$b->type;
+  array_pop($form_state['values']["parents"]);
+  wydit_add_to_form_state($form_state,$element,$form_state['values']["parents"],TRUE);
+
+  wydit_clean_and_save_form_state($form_state);
+}
+
 function wallyedit_form_editmode_edit_form(&$form_state){
   $form = wydit_subform_global_edit_form($form_state);
   $form['#action'] = '/node/'.$form_state['cache name'].'/wydit_edit/ajax';
@@ -1081,72 +1177,6 @@ function wydit_remove_form_infos(& $form){
   $form["#type"]='fieldset';
 }
 
-function wydit_get_infos_type($type_name){
-  module_load_include("inc",'content','includes/content.node_form');
-  $type=content_types($type_name);
-  return $type;
-}
-
-function wydit_handle_special_form_cases($element, &$form, &$form_state, &$global_form) {
-  $b = array();
-  
-  if (isset($form[$element])) {
-    if (isset($form[$element][0])) {
-      $form_element = &$form[$element][0];
-      $to_unset = array($element, 0);
-    } else {
-      $form_element = &$form[$element];
-      $to_unset = array($element, 'value');
-    }
-  } else {
-    $form_element = array();
-  }
-  
-  if ($element == 'field_packagelayout' && strstr($form_element['#type'], 'optionwidgets_')){// || strstr($form_element['#type'], 'date_')) {
-    $process_function = $form_element['#type'].'_process';
-    $b = $process_function($form_element, $edit, $form_state, $global_form);
-    //unset($b['value']['#default_value']);
-    $b = array_merge($b, $b['value']);
-    $form_element = array(
-      '#title' => $b['#title'],
-      '#required' => $b['#required'],
-      '#description' => $b['#description'],
-      '#field_name' => $element,
-      '#tree' => TRUE,
-      '#accesss' => $b['#access'],
-      '#parents' => $b['#parents'],
-    );
-    //unset($b['#element_validate']);
-    unset($b['value']);
-    unset($b['#parents']);
-    $form_element[] = $b;
-    $form_element['#parents'][] = '0';
-    $form_element['#parents'][] = 'value';
-    //$form[$element] = array_merge($form[$element], $form_element['value']);
-    
-    /*$to_unset_form = &$form;
-    while (count($to_unset) > 1) {
-      $to_unset_form = &$to_unset_form[$to_unset[0]];
-      array_shift($to_unset);
-    }
-    unset($to_unset_form[$to_unset[0]]);*/
-  }
-  
-  /*if($element=="field_packagelayout"){
-    //$form[$element]['module']="content_taxonomy";
-    $form[$element]=optionwidgets_select_process($form[$element], $edit, $form_state, $global_form);
-    $b=$form[$element];
-    unset($form[$element]);
-    $form[$element]=array(
-      '#title' => 'Package Layout',
-    	'#type' => 'select',
-    	"#options" => $b['value']['#options']
-    );
-    //$form['#DANGEROUS_SKIP_CHECK']= TRUE;
-    //unset($form[$element]);
-  }*/
-}
-
 /**
  * Overloading of elements process functions
  */
@@ -1157,6 +1187,12 @@ function wydit_elements_process($element, $edit, &$form_state, $form) {
   } else {
     return $element;
   }
+}
+
+function wydit_get_infos_type($type_name){
+  module_load_include("inc",'content','includes/content.node_form');
+  $type = content_types($type_name);
+  return $type;
 }
 
 function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
@@ -1365,7 +1401,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
   else return NULL;
 }
 
-function wydit_get_url_action($action,$nid){
+function wydit_get_url_action($action, $nid){
   switch ($action){
     case 'edit':
       return 'node/'.$nid.'/edit2/1';
@@ -1379,7 +1415,7 @@ function wydit_get_url_action($action,$nid){
 /**
  * Return the unique cart_id of the user.
  */
-function wydit_get_cache_name($nid=NULL) {
+function wydit_get_cache_name($nid = NULL) {
   global $user;
 
   if ($nid) {
@@ -1424,6 +1460,30 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
   }
   
   wydit_clean_and_save_form_state($form_state);
+}
+
+function wallyedit_selector_action($node, $context, $a, $b, $c) {
+  /*
+   $roles = $user->roles;
+   $selected = (is_array($context['add_roles']) ? $context['add_roles'] : array()) +
+   (is_array($context['remove_roles']) ? $context['remove_roles'] : array());
+   $result = db_query("SELECT rid, name FROM {role} WHERE rid IN (%s)", implode(',', array_keys($selected)));
+   while ($role = db_fetch_object($result)) {
+   if (isset($context['add_roles'][$role->rid])) {
+   $add_roles[$role->rid] = $role->name;
+   }
+   if (isset($context['remove_roles'][$role->rid])) {
+   $remove_roles[$role->rid] = $role->name;
+   }
+   }
+   if (!empty($add_roles)) {
+   $roles += $add_roles;
+   }
+   if (!empty($remove_roles)) {
+   $roles = array_diff($roles, $remove_roles);
+   }
+   user_save($user, array('roles' => $roles));
+   */
 }
 
 /**
