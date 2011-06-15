@@ -70,7 +70,7 @@ function wallymport_menu() {
   
   $items['wallymport/dynamic_preview_zip'] = array(
     'page callback' => 'wallymport_dynamic_preview_zip',
-  //  'access arguments' => array('access administration pages'),
+    'access arguments' => array('access content'),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
