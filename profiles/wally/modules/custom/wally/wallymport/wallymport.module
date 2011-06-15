@@ -289,9 +289,12 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
 function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') {
   global $base_url;
   $prev_js = '$(document).ready(function() {
+            var temp = "'.$base_url.'/node/'.$cache_name.'/preview2/"+$("#edit-select-preview").val();
+            $("#prev_iframe").attr("src", temp);
+            
             $("#edit-select-preview").change(function () {
-              var temp = "'.$base_url.'/node/'.$cache_name.'/preview2/"+$(this).val();
-              $("#prev_iframe").attr("src", temp);          
+              temp = "'.$base_url.'/node/'.$cache_name.'/preview2/"+$(this).val();
+              $("#prev_iframe").attr("src", temp);
             });
           });';
 
