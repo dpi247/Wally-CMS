@@ -33,7 +33,6 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
 
-  
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
     // Invalid request.
     drupal_json(array('data' => ''));
@@ -74,73 +73,68 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   // Reset cached ids, so that they don't affect the actual form we output.
   form_clean_id(NULL, TRUE);
 
-  $q=$_GET['q'];
-  $path=array_slice(explode('/',$q),4);
-  $path=array_merge(array($type_name_url),$path);
+  $q = $_GET['q'];
+  $path = array_slice(explode('/', $q), 4);
+  $path = array_merge(array($type_name_url), $path);
   
-  $form_element=$form;
+  $form_element = $form;
   foreach($path as $path_item){
-    $form_element=$form_element[$path_item];
+    $form_element = $form_element[$path_item];
   }
-  $parents=$form_element['#parents'];
+  $parents = $form_element['#parents'];
   
-  $form_state_ref=$form_state['values'];
-  $_POST_ref=$_POST;
-  foreach($parents as $path_item){
-    $form_state_array[]=$form_state_ref[$path_item];
-    $form_state_ref=&$form_state_ref[$path_item];
-    $_POST_ref=&$_POST_ref[$path_item];
+  $form_state_ref = $form_state['values'];
+  $_POST_ref = $_POST;
+  foreach($parents as $path_item) {
+    $form_state_array[] = $form_state_ref[$path_item];
+    $form_state_ref = &$form_state_ref[$path_item];
+    $_POST_ref = &$_POST_ref[$path_item];
   }
 
   /**********************/
   // Sort the $form_state['values'] we just built *and* the incoming $_POST data
   // according to d-n-d reordering.
   
-  unset($form_state_ref[$field['field_name'] .'_add_more']);
+  unset($form_state_ref[$field['field_name'].'_add_more']);
   foreach ($_POST_ref as $delta => $item) {
     $form_state_ref[$delta]['_weight'] = $item['_weight'];
   }
   
-  $node_t=(object) $form_state_array[count( $form_state_array)-2];
-  $form_t=array();
-  $form_t['#node']=$node_t;
+  $node_t = (object)$form_state_array[count($form_state_array) - 2];
+  $form_t = array();
+  $form_t['#node'] = $node_t;
   
-  $form_state_ref= _content_sort_items($field, $form_state_ref);
-  $_POST_ref= _content_sort_items($field, $_POST_ref);
+  $form_state_ref = _content_sort_items($field, $form_state_ref);
+  $_POST_ref = _content_sort_items($field, $_POST_ref);
 
   // Build our new form element for the whole field, asking for one more element.
   $form_state_ref['item_count'] = array($field_name => count($_POST_ref) + 1);
   
-  
-  $temp=array();
-  $temp['values'][$field_name]=$form_state_ref;
+  $temp = array();
+  $temp['values'][$field_name] = $form_state_ref;
   $form_element = content_field_form( $form_t, $temp, $field);
 
   // Let other modules alter it.
   drupal_alter('form', $form_element, array(), 'content_add_more_js');
 
   // Add the new element at the right place in the (original, unbuilt) form.
-
-  $form_element[$field_name]['#parents']=$parents;
-  $form_element[$field_name][$field_name.'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
-  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path']='wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/',$path);
+  $form_element[$field_name]['#parents'] = $parents;
+  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $path);
   
-  wydit_add_to_form_state($form,$form_element[$field_name],$path);
+  wydit_add_to_form_state($form, $form_element[$field_name], $path);
   
   /**********************/
-  
   // Save the new definition of the form.
   $form_state['values'] = array();
   form_set_cache($form_build_id, $form, $form_state);
 
-/**/  
   // Build the new form against the incoming $_POST values so that we can
   // render the new element.
   $delta = max(array_keys($_POST_ref)) + 1;
   $_POST_ref[$delta]['_weight'] = $delta;
   
-  wydit_add_to_form_state($_POST,$_POST_ref,$path,1);
-/**/
+  wydit_add_to_form_state($_POST, $_POST_ref, $path, 1);
   
   $form_state = array('submitted' => FALSE);
   $form += array(
@@ -150,15 +144,15 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $form = form_builder($_POST['form_id'], $form, $form_state);
   
   // Render the new output.
-  $field_form=$form;
+  $field_form = $form;
   foreach($path as$path_item){
-    $field_form =$field_form[$path_item];
+    $field_form = $field_form[$path_item];
   }
   
   $field_form[$field_name]['#parents']=$parents;
   
-  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
-  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path']='wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/',$parents);
+  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
   
   // We add a div around the new content to receive the ahah effect.
   $field_form[$delta]['#prefix'] = '<div class="ahah-new-content">'. (isset($field_form[$delta]['#prefix']) ? $field_form[$delta]['#prefix'] : '');
