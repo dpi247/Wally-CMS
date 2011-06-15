@@ -298,7 +298,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   drupal_add_js($prev_js, 'inline');
   drupal_get_messages();
   $prenode=new Prenode($cache_name);
-  print_r($prenode);
+
   if(!empty($prenode->form_state)){
     $options = array('no_dest' => 'Node', );
     foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest){
@@ -413,6 +413,7 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   $object_file->basename = $file;
   
   wallymport_process_zip_file($object_file, $temp, $format, $returns, TRUE);
+  print_r($returns);
   print drupal_get_form('wallymport_preview_form', $returns[0]['packages'], 'disabled');
   
   //return !empty($returns[0]['packages']) ? $returns[0]['packages'] : '';
