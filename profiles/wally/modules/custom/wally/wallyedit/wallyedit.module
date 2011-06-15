@@ -134,8 +134,7 @@ function wallyedit_menu(){
   $items['node/%prenode/preview2/%'] = array(
     'page callback'=>'wallyedit_callback_preview',
     'page arguments'=>array(1, 3),
-    'access callback' => 1,
-    //'access arguments' => array('access content'),
+    'access arguments' => array('access content'),
     'file'=>'includes/callback_preview.inc',
   );
   
