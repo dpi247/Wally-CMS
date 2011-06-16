@@ -3,7 +3,7 @@
  * 
  * Display a list about the different Destination Path.
  */
-$taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+$taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
 $contenu = "<ul>";
 foreach ($taxos as $taxo){
 	$name = (string)($taxo->name);
