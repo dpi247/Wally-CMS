@@ -10,7 +10,7 @@
  *
  * @ingroup views_templates
  */
-$available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+$available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
 $pager = $view->pager;
 ?>
 <div class="categories">
