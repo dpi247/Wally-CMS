@@ -19,6 +19,13 @@ function ccimapping_form_configuration_form($form_state){
     '#default_value' => variable_get('ccimapping_product_name',''), 
   
   );
+    $form['ccimapping_type']=array(
+    '#type'=>'textarea',
+  	'#title'=>t("type mapping between CCI and Wally"),
+    '#default_value' => variable_get('ccimapping_type',''), 
+    '#description' =>t('One line per type, wally_machine_name_type|cci_machine_name_type'), 
+    
+  );
   
   return system_settings_form($form);
 }
