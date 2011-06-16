@@ -4,7 +4,7 @@
  */
 function wallyrsspublish_settingsrss_form(){
 
-  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
   foreach ($taxos as $taxo){
@@ -72,7 +72,7 @@ function wallyrsspublish_settingsrss_form(){
  * Implementation of hook_form_submit().
  */
 function wallyrsspublish_settingsrss_form_submit($form, &$form_state) {
-  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
   
   foreach ($taxos as $taxo){
     $dest=str_replace(' ', '-', $taxo->name);
