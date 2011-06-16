@@ -19,18 +19,15 @@ function xmlsitemap_destination_xmlsitemap_link_info() {
       'process callback' => 'xmlsitemap_destination_xmlsitemap_process_node_links',
     ),
   );
-  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-    if($vocabulary->name == 'Destination Path'){
-      foreach(taxonomy_get_tree($vid) as $dest){
-        $types['destination_term']['bundles'][$dest->tid] = array(
-          'label' => $dest->name,
-          'admin' => array(
-            'real path' => 'admin/content/taxonomy/edit/term/' . $dest->tid,
-            'access arguments' => array('administer taxonomy'),
-          ),
-        );
-      }
-    }
+  
+  foreach(taxonomy_get_tree(variable_get('wallymport_destinationpath', '2')) as $dest){
+    $types['destination_term']['bundles'][$dest->tid] = array(
+      'label' => $dest->name,
+      'admin' => array(
+        'real path' => 'admin/content/taxonomy/edit/term/' . $dest->tid,
+        'access arguments' => array('administer taxonomy'),
+      ),
+    );
   }
   return $types;
 }
