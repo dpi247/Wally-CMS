@@ -140,6 +140,132 @@ function cckdestinations_elements() {
 }
 
 /**
+ * Implementation of hook_form_alter()
+ */
+function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
+  if ($form['#vocabulary']['name'] != 'Destination Path') {
+    ctools_include('dependent');
+    ctools_add_js('dependent');
+    
+    $vocabulary = $form['#vocabulary'];
+    $term = $form['#term'];
+    $election_form = array(
+      '#title' => t('Elect this term as destination'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => -20,
+    );
+    
+    $default_topic_term = (isset($term['topic_term']) && $term['topic_term'] != 0) ? $term['topic_term'] : '0';
+    $election_form['topic_term'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Elect this term as destination'),
+      '#default_value' => ($default_topic_term != '0'),
+      '#id' => 'topic-term-checkbox',
+    );
+    
+    $parent = $term['topic_term'];
+    $cur_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+    foreach ($cur_dests as $dest) {
+      if ($dest->tid == $default_topic_term) {
+        $elected_term = $dest;
+        break;
+      }
+    }
+
+    $default_parent = $elected_term ? $elected_term->parents[sizeof($elected_term->parents) - 1] : null;
+    $exclude = ($default_topic_term != '0') ? array($default_topic_term) : array();
+    $election_form['elected_parent'] = _taxonomy_term_select(t('Parent'), 'parent', $default_parent, variable_get('wallymport_destinationpath', '2'), t('Parent term') .'.', FALSE, '<'. t('root') .'>', $exclude);
+    unset($election_form['elected_parent']['#weight']);
+    $election_form['elected_parent']['#process'][] = 'ctools_dependent_process';
+    $election_form['elected_parent']['#dependency']['topic-term-checkbox'] = array(1);
+
+    $election_form['recup_old'] = array(
+      '#type' => 'radios',
+      '#title' => t(''),
+      '#default_value' => 0,
+      '#options' => array(t('Start from a empty destination'), t('Apply the change to nodes currently present in this topic')),
+      '#prefix' => '<div id="edit-recup-old-wrapper">',
+      '#suffix' => '</div>',
+      '#process' => array('ctools_dependent_process', 'expand_radios'),
+      '#dependency' => array('topic-term-checkbox' => array(1)),
+    );
+    
+    $election_form['apply_to_child'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Also apply to this term\'s children'),
+      '#default_value' => 0,
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('radio:recup_old' => array('1')),
+    );
+    
+    $form['advanced']['election'] = $election_form;
+    
+    $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
+    $form['#submit'][] = 'cckdestinations_form_taxonomy_form_term_alter_submit';
+  }
+}
+
+function cckdestinations_form_taxonomy_form_term_alter_validate($form, &$form_state) {
+  $values = &$form_state['values'];
+
+  if ($values['op'] == $values['submit'] && isset($form['advanced']['election']) && $values['topic_term']) {
+    $bad_car = array('_', ' ', '\'');
+    
+    $vocabulary = $form['#vocabulary'];
+    $term = $form['#term'];
+    
+    $new_term = $term;
+    $new_term['vid'] = variable_get('wallymport_destinationpath', '2');
+    $new_term['featid'] = $new_term['vid'] .'_'. str_replace($bad_car, '-', strtolower($new_term['name']));
+    $new_term['topic_term'] = $term['tid'];
+    $new_term['parent'] = array($values['elected_parent']);
+    
+    unset($new_term['tid']);
+    $cur_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+    foreach ($cur_dests as $dest) {
+      if ($dest->featid == $new_term['featid']) {
+        $new_term['tid'] = $dest->tid;
+        break;
+      }
+    }
+    $new_term['tid'] = isset($new_term['tid']) ? $new_term['tid'] : null;
+    
+    switch (taxonomy_save_term($new_term)) {
+      case SAVED_NEW:
+        drupal_set_message(t('Created new term %term.', array('%term' => $form_state['values']['name'])));
+        watchdog('taxonomy', 'Created new term %term.', array('%term' => $form_state['values']['name']), WATCHDOG_NOTICE, l(t('edit'), 'admin/content/taxonomy/edit/term/'. $form_state['values']['tid']));
+        break;
+      case SAVED_UPDATED:
+        drupal_set_message(t('Updated term %term.', array('%term' => $form_state['values']['name'])));
+        watchdog('taxonomy', 'Updated term %term.', array('%term' => $form_state['values']['name']), WATCHDOG_NOTICE, l(t('edit'), 'admin/content/taxonomy/edit/term/'. $form_state['values']['tid']));
+        break;
+    }
+    
+    $values['topic_term'] = $new_term['tid'];
+  }
+}
+
+function cckdestinations_form_taxonomy_form_term_alter_submit($form, &$form_state) {
+  
+}
+
+/**
+ * Implémentation du hook_schema_alter.
+ */
+function cckdestinations_schema_alter (&$schema) {
+  if ($schema['term_data']) {
+    $schema['term_data']['fields']['topic_term'] = array(
+      'type' => 'int',
+      'description' => 'Tells if a term has been elected as destination and gives the related tid.',
+      'not null' => TRUE, 
+      'default' => 0,
+    );
+  }
+}
+
+/**
  * Process callback for widget
  *
  * @return A Forms API array that defines the widget's editing form.
