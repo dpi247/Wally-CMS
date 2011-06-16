@@ -20,7 +20,7 @@ function xmlsitemap_destination_xmlsitemap_link_info() {
     ),
   );
   
-  foreach(taxonomy_get_tree(variable_get('wallymport_destinationpath', '2')) as $dest){
+  foreach(taxonomy_get_tree(variable_get('wallymport_destinationpath', 0)) as $dest){
     $types['destination_term']['bundles'][$dest->tid] = array(
       'label' => $dest->name,
       'admin' => array(
