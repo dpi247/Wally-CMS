@@ -218,6 +218,15 @@ function wallyedit_elements() {
     'date_combo' => array(
       '#process' => array('wydit_elements_process'),
       ),
+    'content_taxonomy_tree' => array(
+      '#process' => array('wydit_elements_process'),
+      ),
+    'content_taxonomy_autocomplete' => array(
+      '#process' => array('wydit_elements_process'),
+      ),
+    'taxonomy_manager_tree' => array(
+      '#process' => array('wydit_elements_process'),
+      ),
     );
 }
 
@@ -685,8 +694,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($fields[$element]) && $fields[$element]['display_settings']["wallyedit"] == 3) {
       wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );
     }
-    
-    //wydit_handle_special_form_cases($element, $form, $form_state, $global_form);
   }
 
   unset($form['buttons']);
@@ -1182,11 +1189,64 @@ function wydit_remove_form_infos(& $form){
  */
 function wydit_elements_process($element, $edit, &$form_state, $form) {
   if ($form['#tree']) {
-    $orig_process = $element['#process'][0];
-    return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
-  } else {
-    return $element;
+    if ($element['#type'] == 'taxonomy_manager_tree') {
+    } elseif ($element['#type'] == 'content_taxonomy_tree') {
+      $element['#element_validate'] = array('wydit_elements_validate');
+      $element['#value'] = $element['#default_value'];
+      $orig_process = $element['#process'][0];
+      return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
+    } else {
+      $orig_process = $element['#process'][0];
+      return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
+    }
   }
+  return $element;
+}
+
+/**
+ * Overloading of elements validate functions
+ */
+function wydit_elements_validate($element, &$form_state) {
+  if ($element['#tree']) {
+    if ($element['#type'] == 'content_taxonomy_tree') {
+      $field = $form_state['#field_info'][$element['#field_name']];
+      $field_key  = $element['#columns'][0];
+      
+      $values = wydit_content_taxonomy_tree_form2data($element, $form_state, $field);
+      
+      //check for required fields
+      //if $element['#value'] is empty, it's validated by form.inc
+      //otherwise we have to check this by our own
+      if ($field['required'] && is_null($values[0]['value']) && !empty($element['#value'])) {
+        form_error($element[$field_key], t('!name field is required.', array('!name' => $element['#title'])));
+      }
+      if (($field['multiple'] >= 2) && (count($element['#value']) > $field['multiple'])) {
+        form_error($element[$field_key], t('%name: this field cannot hold more than @count values.', array('%name' => t($field['widget']['label']), '@count' => $field['multiple'])));
+      }
+      
+      form_set_value($element, $values, $form_state);
+    }
+  }
+}
+
+/**
+ * Overloading of content_taxonomy_tree_form2data function
+ */
+function wydit_content_taxonomy_tree_form2data($element, &$form_state, $field) {
+  $field_key  = $element['#columns'][0];
+  $parents = $element['#parents'];
+  $selected_terms = $form_state['values'];
+  foreach ($parents as $parent) {
+    $selected_terms = $selected_terms[$parent];
+  }
+  $selected_terms = $selected_terms[$field_key]['selected_terms'];
+  
+  if (!is_array($selected_terms) || !count($selected_terms)) {
+    $selected_terms[] = NULL;
+  }
+  
+  $form_state['#field_info'][$field['field_name']] = $field;
+  return content_transpose_array_rows_cols(array($element['#columns'][0] => array_values($selected_terms)));
 }
 
 function wydit_get_infos_type($type_name){
