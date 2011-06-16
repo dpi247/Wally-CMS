@@ -64,7 +64,7 @@ function wallyfinfo_theme($existing) {
  */
 function wallyfinfo_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state) {
   if ($form_state['subtype_name'] == 'fil_info-panel_pane_1' || $form_state['subtype_name'] == 'fil_info-panel_pane_2') {
-    $available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+    $available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
     
     $available_dests_conf = $form_state['conf']['available_dests'];
     $form['available_dests']['contextual'] = array (
@@ -94,7 +94,7 @@ function wallyfinfo_form_views_content_views_panes_content_type_edit_form_submit
       return;
     }
   
-    $available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
+    $available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
   
     foreach ($available_dests as $available_dest) {
       if ($form['available_dests'][$available_dest->name]['#value']) {
