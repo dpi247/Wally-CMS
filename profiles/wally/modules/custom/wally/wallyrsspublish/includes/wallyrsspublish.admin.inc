@@ -4,13 +4,7 @@
  */
 function wallyrsspublish_settingsrss_form(){
 
-  $all_voc = taxonomy_get_vocabularies();
-    foreach ($all_voc as $voc) {
-      if ($voc->name == 'Destination Path') {
-        $taxos = taxonomy_get_tree($voc->vid);
-        break;
-    }
-  }
+  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
   foreach ($taxos as $taxo){
@@ -72,51 +66,38 @@ function wallyrsspublish_settingsrss_form(){
     '#value' => t('Save'),
   );
   return $form;
-  
-	
-  
 }
-
-
 
 /**
  * Implementation of hook_form_submit().
  */
 function wallyrsspublish_settingsrss_form_submit($form, &$form_state) {
-$all_voc = taxonomy_get_vocabularies();
-    foreach ($all_voc as $voc) {
-      if ($voc->name == 'Destination Path') {
-        $taxos = taxonomy_get_tree($voc->vid);
-        break;
-    }
-  }
-  
+  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', '2'));
   
   foreach ($taxos as $taxo){
-  $dest=str_replace(' ', '-', $taxo->name);
-  $object = array();
-  $object['tid'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstid'];
-  $object['title'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'];
-  $object['description'] = $form_state['values']['wallyrsspublish_'.$dest.'_rssdescription'];
-  $file = file_save_upload('wallyrsspublish_'.$dest.'_rssimage');
-  $nameim = $file->filename;
-  if(!empty($nameim)){
-    $chemin_destination = 'sites/default/files/photorss/';
-    $folder = $chemin_destination.$nameim;
-    file_move($file->filepath, $folder);
-    wallyrsspublish_create_file($folder); 
-    $object['imagefile'] = $folder;
-  }
-  $object['copyright'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsscopyright'];
-  $feed_infos = db_fetch_array(db_query('SELECT `rss_key` FROM `rsspublish` WHERE `tid`=%d', $object['tid']));
-  
-  
-  if (empty($feed_infos)) {
-  	drupal_write_record('rsspublish', $object);
-  } else {
-    $object['rss_key'] = $feed_infos['rss_key'];
-    drupal_write_record('rsspublish', $object, array('rss_key'));
-  }
+    $dest=str_replace(' ', '-', $taxo->name);
+    $object = array();
+    $object['tid'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstid'];
+    $object['title'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsstitle'];
+    $object['description'] = $form_state['values']['wallyrsspublish_'.$dest.'_rssdescription'];
+    $file = file_save_upload('wallyrsspublish_'.$dest.'_rssimage');
+    $nameim = $file->filename;
+    if(!empty($nameim)){
+      $chemin_destination = 'sites/default/files/photorss/';
+      $folder = $chemin_destination.$nameim;
+      file_move($file->filepath, $folder);
+      wallyrsspublish_create_file($folder); 
+      $object['imagefile'] = $folder;
+    }
+    $object['copyright'] = $form_state['values']['wallyrsspublish_'.$dest.'_rsscopyright'];
+    $feed_infos = db_fetch_array(db_query('SELECT `rss_key` FROM `rsspublish` WHERE `tid`=%d', $object['tid']));
+    
+    if (empty($feed_infos)) {
+    	drupal_write_record('rsspublish', $object);
+    } else {
+      $object['rss_key'] = $feed_infos['rss_key'];
+      drupal_write_record('rsspublish', $object, array('rss_key'));
+    }
   }
 }
 
