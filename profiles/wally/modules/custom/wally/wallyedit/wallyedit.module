@@ -1235,8 +1235,8 @@ function wydit_elements_validate($element, &$form_state) {
       $item = $form_values;
       $posted = $element['#post'];
       foreach ($parents as $parent) {
-        $item = $item[$parent];
-        $posted = $posted[$parent];
+        $item = isset($item[$parent]) ? $item[$parent] : $item;
+        $posted = isset($posted[$parent]) ? $posted[$parent] : $posted;
       }
         
       $field = $form_state['#field_info'][$element['#field_name']];
@@ -1415,7 +1415,7 @@ function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
   
   if (!isset($merged_fields[$type_name.'_'.$fields])) {
     $type=content_types(str_replace('-','_', $type_name));
-  
+
     $extra_fields_display = variable_get('wallyedit_extra_fields_display_'.$type_name, array());
     $groups_display = variable_get('wallyedit_groups_display_'.$type_name, array());
     $arrays_to_merge = array(
