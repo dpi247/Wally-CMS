@@ -615,7 +615,7 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
   $override_theme_text = $settings['override_theme_text'];
   $maxitem_global = $settings['maxitem_global'];
   $maxitem_byfeed = $settings['maxitem_byfeed'];
-print_r($rss_uris);
+
   foreach ($rss_uris as $rss_uri)
     $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
 
