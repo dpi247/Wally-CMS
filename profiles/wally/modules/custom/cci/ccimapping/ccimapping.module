@@ -8,7 +8,7 @@ function ccimapping_menu(){
  $items = array();
   
   $items['admin/cci/ccimapping/configuration'] = array(
-    'title' => 'CCI NEWSGATE - Mapping configuration & settings',
+    'title' => 'CCI Newsgate - Mapping configuration & settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_configuration_form'),
     'access arguments' => array('access administration pages'),
@@ -17,7 +17,7 @@ function ccimapping_menu(){
   );
   
   $items['admin/cci/ccimapping/packagetype/editor'] = array(
-    'title' => 'CCI NEWSGATE - Packagetype Editor',
+    'title' => 'Packagetype Editor',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_packagetype_editor_form',5),
     'access arguments' => array('administration pages'),
@@ -25,7 +25,7 @@ function ccimapping_menu(){
     'file' => 'includes/packagetype.editor.inc',
   );
   $items['admin/cci/ccimapping/productinfo/editor'] = array(
-    'title' => 'CCI NEWSGATE - Product Info editor',
+    'title' => 'Product Info editor',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_productinfo_editor_form',5),
     'access arguments' => array('administration pages'),
