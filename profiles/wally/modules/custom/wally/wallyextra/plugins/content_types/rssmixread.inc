@@ -37,7 +37,7 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#id'               => 'uri_area',
     '#title'            => t('URL of the RSS feeds'),
     '#description'      => t('Please enter one URL by line.'),
-    '#default_value'    => $settings['uris'],
+    '#default_value'    => implode(PHP_EOL, explode('|@@@|', $settings['uris'])),
     '#required'         => TRUE,
   );
 
@@ -633,7 +633,8 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
       array_push($feed, $item);
     }
   }
-
+dsm($settings, 'settings '.$settings['caid']);
+dsm($feed, 'feed');
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
     $elem_package = $feed[$i]['Package'];
