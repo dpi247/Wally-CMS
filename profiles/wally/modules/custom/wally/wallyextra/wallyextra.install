@@ -303,8 +303,6 @@ function wallyextra_update_6002() {
   foreach ($fields as $field => $spec)
     db_add_field($ret, 'wallyextra_cache_torefresh', $field, $spec);
   
-  wallyextra_refresh_cache_list();
-  
   return $ret;
 }
 
