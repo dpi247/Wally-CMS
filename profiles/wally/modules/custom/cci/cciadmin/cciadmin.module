@@ -12,7 +12,7 @@ define('CCI_ADMIN_PATH', 'admin/cci');
 function cciadmin_menu() {
   $items = array();
   $items[CCI_ADMIN_PATH] = array(
-    'title' => 'CCI',
+    'title' => 'CCI NEWSGATE',
     'description' => t('CCI administration links.'),
     'position' => 'right',
     'weight' => 6,
