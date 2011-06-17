@@ -617,9 +617,10 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
   
   foreach ($rss_uris as $rss_uri)
     $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
-  
+  print_r($mix_schema);
   for ($i=0; $i<$maxitem_global; $i++) {
     $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
+    print ' schema elem '.$schema_elem.' ';
     $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
     $most_recent_index = _wallyextra_rssmixread_getmostrecentfromavailables($available_items);
     $item = array_shift($feed_array[$most_recent_index]);
