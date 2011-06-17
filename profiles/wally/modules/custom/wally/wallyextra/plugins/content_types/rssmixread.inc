@@ -198,6 +198,7 @@ function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_st
  * Submitting the configuration form of a RSS mix reader.
  */
 function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_state) {
+  dsm($form_state);
   cache_clear_all($form_state['values']['caid']);
   $form_state['conf']['uris'] = $form_state['values']['uris'];
   $form_state['conf']['maxitem_global'] = $form_state['values']['maxitem_global'];
