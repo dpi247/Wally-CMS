@@ -32,7 +32,7 @@ function ccimapping_form_packagetype_editor_form($form_state,$wally_type=NULL){
 
     $form['type_selector']=array(
       '#type'=>'markup',
-      '#value'=>theme("ccimapping_typeselector","productinfo"),
+      '#value'=>theme("ccimapping_typeselector","packagetype"),
     );
    
   } 
