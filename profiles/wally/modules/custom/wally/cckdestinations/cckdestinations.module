@@ -183,7 +183,7 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
     $election_form['elected_parent']['#process'][] = 'ctools_dependent_process';
     $election_form['elected_parent']['#dependency']['topic-term-checkbox'] = array(1);
 
-    $election_form['recup_old'] = array(
+    /*$election_form['recup_old'] = array(
       '#type' => 'radios',
       '#title' => t(''),
       '#default_value' => 0,
@@ -200,12 +200,11 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
       '#default_value' => 0,
       '#process' => array('ctools_dependent_process'),
       '#dependency' => array('radio:recup_old' => array('1')),
-    );
+    );*/
     
     $form['advanced']['election'] = $election_form;
     
     $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
-    $form['#submit'][] = 'cckdestinations_form_taxonomy_form_term_alter_submit';
   }
 }
 
@@ -217,7 +216,7 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
     $term = $form['#term'];
     $new_term = _cckdestinations_create_or_update_topic_term($values, $term);
     
-    if (is_array($new_term) && $values['recup_old']) {
+    /*if (is_array($new_term) && $values['recup_old']) {
       $recup_tids = array($term['tid']);
       if ($values['apply_to_child']) {
         $childrens = taxonomy_get_children($term['tid']);
@@ -225,7 +224,7 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
       }
       
       _cckdestinations_apply_topic_term_to_nodes($new_term, $recup_tids);
-    }
+    }*/
   }
 }
 
