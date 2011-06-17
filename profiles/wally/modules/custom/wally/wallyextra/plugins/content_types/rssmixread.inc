@@ -614,10 +614,10 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
   $override_theme_text = $settings['override_theme_text'];
   $maxitem_global = $settings['maxitem_global'];
   $maxitem_byfeed = $settings['maxitem_byfeed'];
-  print_r($settings);
+
   foreach ($rss_uris as $rss_uri)
     $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
-
+print_r($feed_array);
   for ($i=0; $i<$maxitem_global; $i++) {
     $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
     $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
