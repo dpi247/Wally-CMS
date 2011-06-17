@@ -224,9 +224,6 @@ function wallyedit_elements() {
     'content_taxonomy_autocomplete' => array(
       '#process' => array('wydit_elements_process'),
       ),
-    'taxonomy_manager_tree' => array(
-      '#process' => array('wydit_elements_process'),
-      ),
     );
 }
 
@@ -763,7 +760,6 @@ function wydit_subform_global_page_submit(&$form_state){
   $fields=wydit_get_fields_infos_for_typename($type_name);
 
   //clean empty multiple values (cfr hook_content_is_empty)
-
   foreach($fields as $field){
     if($field['multiple']==1){
       $function_is_empty=$field['module'].'_content_is_empty';
@@ -1189,16 +1185,14 @@ function wydit_remove_form_infos(& $form){
  */
 function wydit_elements_process($element, $edit, &$form_state, $form) {
   if ($form['#tree']) {
-    if ($element['#type'] == 'taxonomy_manager_tree') {
-    } elseif ($element['#type'] == 'content_taxonomy_tree') {
+    if ($element['#type'] == 'content_taxonomy_tree') {
       $element['#element_validate'] = array('wydit_elements_validate');
       $element['#value'] = $element['#default_value'];
-      $orig_process = $element['#process'][0];
-      return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
-    } else {
-      $orig_process = $element['#process'][0];
-      return $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
+    } elseif ($element['#type'] == 'date_combo') {
+      $element['#element_validate'] = array('wydit_elements_validate');
     }
+    $orig_process = $element['#process'][0];
+    $element = $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
   }
   return $element;
 }
@@ -1225,6 +1219,167 @@ function wydit_elements_validate($element, &$form_state) {
       }
       
       form_set_value($element, $values, $form_state);
+    } elseif ($element['#type'] == 'date_combo') {
+      $form_values = $form_state['values'];
+      $field_name = $element['#field_name'];
+      $delta = $element['#delta'];
+      $parents = $element['#parents'];
+      
+      // If the whole field is empty and that's OK, stop now.
+      if (empty($element['#post'][$field_name]) && !$element['#required']) {
+        return;
+      }
+      
+      // Repeating dates have a different form structure, so get the
+      // right item values.
+      $item = $form_values;
+      $posted = $element['#post'];
+      foreach ($parents as $parent) {
+        $item = $item[$parent];
+        $posted = $posted[$parent];
+      }
+        
+      $field = $form_state['#field_info'][$element['#field_name']];
+      $from_field = 'value';
+      $to_field = 'value2';
+      $tz_field = 'timezone';
+      $offset_field = 'offset';
+      $offset_field2 = 'offset2';
+      
+      // Unfortunately, due to the fact that much of the processing is already
+      // done by the time we get here, it is not possible highlight the field
+      // with an error, we just try to explain which element is creating the
+      // problem in the error message.
+      $parent = $element['#parents'];
+      $error_field = array_pop($parent);
+      $errors = array();
+    
+      // Check for empty 'From date', which could either be an empty
+      // value or an array of empty values, depending on the widget.
+      $empty = TRUE;
+      if (!empty($item[$from_field])) {
+        if (!is_array($item[$from_field])) {
+          $empty = FALSE;
+        }
+        else {
+          foreach ($item[$from_field] as $key => $value) {
+            if (!empty($value)) {
+              $empty = FALSE;
+              break;
+            }
+          }
+        }
+      }
+      if ($empty) {
+        $item = date_element_empty($element, $form_state);
+        if (!$element['#required']) {
+          return;
+        }
+      }
+      // Don't look for further errors if errors are already flagged
+      // because otherwise we'll show errors on the nested elements
+      // more than once.
+      elseif (!form_get_errors()) {
+                    
+        // Check todate input for blank values and substitute in fromdate
+        // values where needed, then re-compute the todate with those values.
+        if ($field['todate']) {
+          $merged_date = array();
+          $to_date_empty = TRUE;
+          foreach ($posted[$to_field] as $part => $value) {
+            $to_date_empty = $to_date_empty && empty($value) && !is_numeric($value);
+            $merged_date[$part] = empty($value) && !is_numeric($value) ? $posted[$from_field][$part] : $value;
+            if ($part == 'ampm' && $merged_date['ampm'] == 'pm' && $merged_date['hour'] < 12) {
+              $merged_date['hour'] += 12;
+            }
+            elseif ($part == 'ampm' && $merged_date['ampm'] == 'am' && $merged_date['hour'] == 12) {
+              $merged_date['hour'] -= 12;
+            }
+          }
+                  
+          // If all date values were empty and a date is required, throw 
+          // an error on the first element. We don't want to create 
+          // duplicate messages on every date part, so the error will 
+          // only go on the first.  
+          if ($to_date_empty && $field['todate'] == 'required') {
+            $errors[] = t('Some value must be entered in the To date.');
+          }
+    
+          $element[$to_field]['#value'] = $merged_date;
+          
+          // Call the right function to turn this altered user input into
+          // a new value for the todate.
+          $item[$to_field] = $merged_date;
+        }
+        else {
+          $item[$to_field] = $item[$from_field];
+        }
+        
+        $from_date = date_input_value($field, $element[$from_field]);
+        if (!empty($field['todate'])) {
+          $to_date = date_input_value($field, $element[$to_field]);
+        }
+        else {
+          $to_date = $from_date;
+        }
+        
+        // Neither the from date nor the to date should be empty at this point
+        // unless they held values that couldn't be evaluated.
+        if (!$field['required'] && (empty($from_date) || empty($to_date))) {
+          $item = date_element_empty($element, $form_state);
+          $errors[] = t('The dates are invalid.');
+        }
+        elseif (!empty($field['todate']) && $from_date > $to_date) {
+          form_set_value($element[$to_field], $to_date, $form_state);
+          $errors[] = t('The To date must be greater than the From date.');
+        }
+        else {
+          // Convert input dates back to their UTC values and re-format to ISO
+          // or UNIX instead of the DATETIME format used in element processing.
+          $timezone = !empty($item[$tz_field]) ? $item[$tz_field] : $element['#date_timezone'];
+          $timezone_db = date_get_timezone_db($field['tz_handling']);
+          $item[$tz_field] = $timezone;
+    
+          $from_date = date_make_date($from_date, $timezone);
+          $item[$offset_field] = date_offset_get($from_date);
+          
+          $to_date = date_make_date($to_date, $timezone);
+          $test_from = date_format($from_date, 'r');
+          $test_to = date_format($to_date, 'r');
+          
+          $item[$offset_field2] = date_offset_get($to_date);
+          date_timezone_set($from_date, timezone_open($timezone_db));
+          date_timezone_set($to_date, timezone_open($timezone_db));
+          $item[$from_field] = date_format($from_date, date_type_format($field['type']));
+          $item[$to_field] = date_format($to_date, date_type_format($field['type']));
+          if (isset($form_values[$field_name]['rrule'])) {
+            $item['rrule'] = $form_values[$field['field_name']]['rrule'];
+          }
+          
+          // Test a roundtrip back to the original timezone to catch
+          // invalid dates, like 2AM on the day that spring daylight savings
+          // time begins in the US.
+          date_timezone_set($from_date, timezone_open($timezone));
+          date_timezone_set($to_date, timezone_open($timezone));
+          if ($test_from != date_format($from_date, 'r')) {
+            $errors[] = t('The From date is invalid.');
+          }
+          if ($test_to != date_format($to_date, 'r')) {
+            $errors[] = t('The To date is invalid.');
+          }
+          if (empty($errors)) {
+            form_set_value($element, $item, $form_state);
+          }
+        }
+      }
+      if (!empty($errors)) {
+        if ($field['multiple']) {
+          form_set_error($error_field, t('There are errors in @field_name value #@delta:', array('@field_name' => $field['widget']['label'], '@delta' => $delta + 1)) . theme('item_list', $errors));
+        }
+        else {
+          form_set_error($error_field, t('There are errors in @field_name:', array('@field_name' => $field['widget']['label'])) . theme('item_list', $errors));      
+        }
+      }
     }
   }
 }
