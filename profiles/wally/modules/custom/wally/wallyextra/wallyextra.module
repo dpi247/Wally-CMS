@@ -343,7 +343,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
               cache: false,
               data: {
                 callback: "'.$callback.'",
-                settings: \''.serialize(str_replace(array('\n', '\r'), '|@@@|', $settings)).'\',
+                settings: \''.serialize(str_replace(array(PHP_EOL, '\n', '\r'), '|@@@|', $settings)).'\',
                 subtype: "'.$subtype.'",
                 context: \''.serialize($context).'\',
                 default_theme: "'.$default_theme.'",
