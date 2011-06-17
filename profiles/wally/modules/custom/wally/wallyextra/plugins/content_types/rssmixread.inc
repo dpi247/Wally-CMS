@@ -633,8 +633,7 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
       array_push($feed, $item);
     }
   }
-var_dump($settings);
-var_dump($feed);
+
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
     $elem_package = $feed[$i]['Package'];
