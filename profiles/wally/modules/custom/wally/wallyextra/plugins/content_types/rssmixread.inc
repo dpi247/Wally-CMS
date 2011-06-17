@@ -592,6 +592,7 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  */
 function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
   $rss_uris = explode('|@@@|', trim($settings['uris']));
+  if (is_string($rss_uris[0])) $rss_uris = explode(PHP_EOL, $rss_uris[0]);
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
   file_check_directory($file_temp_dir, 1);
