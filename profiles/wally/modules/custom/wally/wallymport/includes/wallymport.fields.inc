@@ -691,7 +691,7 @@ function wimprt_set_field_externaluri(&$node,$dom,&$log){
 
 	$uri_response = drupal_http_request($value);
   if ($uri_response->status_message == 'OK') {
-    $node->field_externaluri[] = $value;
+    $node->field_externaluri[]['value'] = $value;
   }
 }
 
