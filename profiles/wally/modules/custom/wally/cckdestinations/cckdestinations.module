@@ -113,6 +113,20 @@ function cckdestinations_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       break;
   }
 }
+/**
+ * Implementation of hook_taxonomy.
+ */
+function cckdestinations_taxonomy($op, $type, $array = NULL) {
+  if ($type == 'term') {
+    switch ($op) {
+      case 'delete' :
+        $dest_vid = variable_get('wallymport_destinationpath', 0);
+        if ($array['vid'] == $dest_vid)
+          _cckdestinations_remove_destination_from_nodes($array);
+        break;
+    }
+  }
+}
 
 /**
  * Implementation of hook_content_is_empty().
@@ -227,20 +241,23 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
 function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_state) {
   $values = &$form_state['values'];
 
-  if ($values['op'] == $values['submit'] && isset($form['advanced']['election']) && $values['topic_destination']) {
+  if ($values['op'] == $values['submit'] && isset($form['advanced']['election'])) {
     $vocabulary = $form['#vocabulary'];
     $term = $form['#term'];
-    $new_term = _cckdestinations_create_or_update_topic_destination($values, $term);
-    
-    /*if (is_array($new_term) && $values['recup_old']) {
-      $recup_tids = array($term['tid']);
-      if ($values['apply_to_child']) {
-        $childrens = taxonomy_get_children($term['tid']);
-        $recup_tids = array_merge($recup_tids, array_keys($childrens));
-      }
+    if ($values['topic_destination']) {
+      $new_term = _cckdestinations_create_or_update_topic_destination($values, $term);
       
-      _cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids);
-    }*/
+      /*if (is_array($new_term) && $values['recup_old']) {
+         $recup_tids = array($term['tid']);
+         if ($values['apply_to_child']) {
+           $childrens = taxonomy_get_children($term['tid']);
+           $recup_tids = array_merge($recup_tids, array_keys($childrens));
+         }
+       	_cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids);
+       }*/
+    } else {
+      _cckdestinations_remove_topic_destination($values, $vocabulary, $term);
+    }
   }
 }
 
@@ -832,6 +849,33 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
 }
 
 /**
+ * Remove the destination associated to a term from all nodes when a term is removed
+ * 
+ * @param array $term
+ *   The deleted term.
+ */
+function _cckdestinations_remove_destination_from_nodes($term) {
+  $db_nids = db_query('SELECT nid FROM content_field_destinations WHERE field_destinations_tid = %d', $term['tid']);
+  while ($array_nid = db_fetch_array($db_nids)) {
+    $nid = $array_nid['nid'];
+    $node = node_load($nid);
+    
+    foreach ($node->field_destinations as $dest_id => $cur_dest) {
+      if ($cur_dest['tid'] == $term['tid'])
+        unset($node->field_destinations[$dest_id]);
+    }
+    
+    node_save($node);
+  }
+  
+  if (isset($term['topic_destination']) && $term['topic_destination'] != 0) {
+    $assoc_term = (array)taxonomy_get_term($term['topic_destination']);
+    $assoc_term['topic_destination'] = 0;
+    taxonomy_save_term($assoc_term);
+  }
+}
+
+/**
  * Create (or update) a destination term as a clone of a taxonomy term.
  * 
  * @param array &$values
@@ -873,6 +917,26 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
   if ($new_term['tid']) {
     $values['topic_destination'] = $new_term['tid'];
     return $new_term;
+  } else {
+    return FALSE;
+  }
+}
+
+/**
+ * Delete the cloned taxonomy term from the destinations.
+ * 
+ * @param array &$values
+ *   The form values given by the form of a taxonomy term.
+ * @param array $term
+ *   The original term.
+ */
+function _cckdestinations_remove_topic_destination(&$values, $vocabulary, $term) {
+  if (taxonomy_del_term($term['topic_destination'])) {
+    _cckdestinations_remove_destination_from_nodes($term);
+    taxonomy_check_vocabulary_hierarchy($vocabulary, $term);
+    drupal_set_message(t('Deleted term %name.', array('%name' => $term['name'])));
+    watchdog('taxonomy', 'Deleted term %name.', array('%name' => $term['name']), WATCHDOG_NOTICE);
+    return TRUE;
   } else {
     return FALSE;
   }
@@ -944,7 +1008,7 @@ function _cckdestinations_add_topic_for_destination(&$node) {
     $destinations = $node->field_destinations;
     foreach ($destinations as $dest) {
       $dest_term = taxonomy_get_term($dest['tid']);
-      if (isset($dest_term->topic_destination) && $dest_term->topic_destination != '0' && !in_array($dest_term->topic_destination, $current_tags)) {
+      if (isset($dest_term->topic_destination) && $dest_term->topic_destination != 0 && !in_array($dest_term->topic_destination, $current_tags)) {
         $assoc_term = taxonomy_get_term($dest_term->topic_destination);
         $assoc_voc = taxonomy_vocabulary_load($assoc_term->vid);
         $field = strstr($assoc_voc->name, 'Keywords') ? 'field_tags' : 'field_'.strtolower(str_replace(' ', '_', $assoc_voc->name));
