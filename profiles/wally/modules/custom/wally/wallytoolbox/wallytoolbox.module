@@ -858,7 +858,6 @@ function wallytoolbox_rss_item_to_array_set_photoobject(&$tempobject, &$array_it
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
-  $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
   $tempobject['FileURI']['value'] = $media_content->getAttribute('url');
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
@@ -912,7 +911,6 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $tempobject['Copyright']['value'] = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'copyright');
-  $tempobject['Summary']['value'] =_wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'description');
   $tempobject['FileURI']['value'] = $third_party_url ? $third_party_url : '';
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
