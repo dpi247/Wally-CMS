@@ -47,7 +47,7 @@ $node_title = $mainstory->title;
 ?>
 
 <li><a href="<?php echo $node->field_externaluri[0]['value']?>">
-  <?php echo $node_title  ?>
+  <?php echo $node_title  ?><br>
 	<?php if ($photo_thumb_url != ""){ ?>
 	<img rel="<?php echo $photo_large_url; ?>" src="<?php echo $photo_thumb_url; ?>" width="136" height="82" alt="<?php echo $node_title?>" />
 	<?php } ?>
