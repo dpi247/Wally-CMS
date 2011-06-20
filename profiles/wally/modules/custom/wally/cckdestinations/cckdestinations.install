@@ -13,7 +13,7 @@ function cckdestinations_install(){
     'not null' => TRUE, 
     'default' => 0,
   );
-  db_add_field($ret, 'term_data', 'topic_term', $spec);
+  db_add_field($ret, 'term_data', 'topic_destination', $spec);
 }
 
 /**
@@ -24,7 +24,7 @@ function cckdestinations_uninstall(){
   wallytoolbox_variable_del_like('cckdestinations_');
   
   $ret = array();
-  db_drop_field($ret, 'term_data', 'topic_term');
+  db_drop_field($ret, 'term_data', 'topic_destination');
 }
 
 /**
@@ -52,6 +52,6 @@ function cckdestinations_update_6001(){
     'not null' => TRUE, 
     'default' => 0,
   );
-  db_add_field($ret, 'term_data', 'topic_term', $spec);
+  db_add_field($ret, 'term_data', 'topic_destination', $spec);
   return $ret;
 }

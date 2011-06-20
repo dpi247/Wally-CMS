@@ -99,6 +99,22 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
 }
 
 /**
+ * Implementation of hook_nodeapi().
+ */
+function cckdestinations_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'presave' :
+      if(($node->type == 'wally_articlepackage' ||
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') &&
+        isset($node->field_destinations)) {
+          _cckdestinations_add_topic_for_destination($node);
+      }
+      break;
+  }
+}
+
+/**
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
@@ -159,29 +175,29 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
       '#weight' => -20,
     );
     
-    $default_topic_term = (isset($term['topic_term']) && $term['topic_term'] != 0) ? $term['topic_term'] : '0';
-    $election_form['topic_term'] = array(
+    $default_topic_destination = (isset($term['topic_destination']) && $term['topic_destination'] != 0) ? $term['topic_destination'] : '0';
+    $election_form['topic_destination'] = array(
       '#type' => 'checkbox',
       '#title' => t('Elect this term as destination'),
-      '#default_value' => ($default_topic_term != '0'),
-      '#id' => 'topic-term-checkbox',
+      '#default_value' => ($default_topic_destination != '0'),
+      '#id' => 'topic-destination-checkbox',
     );
     
-    $parent = $term['topic_term'];
+    $parent = $term['topic_destination'];
     $cur_dests = taxonomy_get_tree($dest_vid);
     foreach ($cur_dests as $dest) {
-      if ($dest->tid == $default_topic_term) {
+      if ($dest->tid == $default_topic_destination) {
         $elected_term = $dest;
         break;
       }
     }
 
     $default_parent = $elected_term ? $elected_term->parents[sizeof($elected_term->parents) - 1] : null;
-    $exclude = ($default_topic_term != '0') ? array($default_topic_term) : array();
+    $exclude = ($default_topic_destination != '0') ? array($default_topic_destination) : array();
     $election_form['elected_parent'] = _taxonomy_term_select(t('Parent'), 'parent', $default_parent, $dest_vid, t('Parent term') .'.', FALSE, '<'. t('root') .'>', $exclude);
     unset($election_form['elected_parent']['#weight']);
     $election_form['elected_parent']['#process'][] = 'ctools_dependent_process';
-    $election_form['elected_parent']['#dependency']['topic-term-checkbox'] = array(1);
+    $election_form['elected_parent']['#dependency']['topic-destination-checkbox'] = array(1);
 
     /*$election_form['recup_old'] = array(
       '#type' => 'radios',
@@ -191,7 +207,7 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
       '#prefix' => '<div id="edit-recup-old-wrapper">',
       '#suffix' => '</div>',
       '#process' => array('ctools_dependent_process', 'expand_radios'),
-      '#dependency' => array('topic-term-checkbox' => array(1)),
+      '#dependency' => array('topic-destination-checkbox' => array(1)),
     );
     
     $election_form['apply_to_child'] = array(
@@ -211,10 +227,10 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
 function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_state) {
   $values = &$form_state['values'];
 
-  if ($values['op'] == $values['submit'] && isset($form['advanced']['election']) && $values['topic_term']) {
+  if ($values['op'] == $values['submit'] && isset($form['advanced']['election']) && $values['topic_destination']) {
     $vocabulary = $form['#vocabulary'];
     $term = $form['#term'];
-    $new_term = _cckdestinations_create_or_update_topic_term($values, $term);
+    $new_term = _cckdestinations_create_or_update_topic_destination($values, $term);
     
     /*if (is_array($new_term) && $values['recup_old']) {
       $recup_tids = array($term['tid']);
@@ -223,7 +239,7 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
         $recup_tids = array_merge($recup_tids, array_keys($childrens));
       }
       
-      _cckdestinations_apply_topic_term_to_nodes($new_term, $recup_tids);
+      _cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids);
     }*/
   }
 }
@@ -233,7 +249,7 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
  */
 function cckdestinations_schema_alter (&$schema) {
   if ($schema['term_data']) {
-    $schema['term_data']['fields']['topic_term'] = array(
+    $schema['term_data']['fields']['topic_destination'] = array(
       'type' => 'int',
       'description' => 'Tells if a term has been elected as destination and gives the related tid.',
       'not null' => TRUE, 
@@ -762,6 +778,14 @@ function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']'
   return $output;
 }
 
+/**
+ * Calculate the new time rank of a node.
+ * 
+ * @param object $node
+ *   The node.
+ * @param array &$items
+ *   The cckdestinations fields.
+ */
 function _cckdestinations_set_new_time_ranks($node, &$items) {
   $rank_limit = variable_get('cckdestinations_rank_limit', 10);
   $view = views_get_view('default_destination_view');
@@ -807,14 +831,22 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   }
 }
 
-function _cckdestinations_create_or_update_topic_term(&$values, $term) {
+/**
+ * Create (or update) a destination term as a clone of a taxonomy term.
+ * 
+ * @param array &$values
+ *   The form values given by the form of a taxonomy term.
+ * @param array $term
+ *   The original term that will be cloned.
+ */
+function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
   $bad_car = array('_', ' ', '\'');
   $dest_vid = variable_get('wallymport_destinationpath', 0);
 
   $new_term = $term;
   $new_term['vid'] = $dest_vid;
   $new_term['featid'] = $new_term['vid'] .'_'. str_replace($bad_car, '-', strtolower($new_term['name']));
-  $new_term['topic_term'] = $term['tid'];
+  $new_term['topic_destination'] = $term['tid'];
   $new_term['parent'] = array($values['elected_parent']);
 
   unset($new_term['tid']);
@@ -839,14 +871,22 @@ function _cckdestinations_create_or_update_topic_term(&$values, $term) {
   }
 
   if ($new_term['tid']) {
-    $values['topic_term'] = $new_term['tid'];
+    $values['topic_destination'] = $new_term['tid'];
     return $new_term;
   } else {
     return FALSE;
   }
 }
 
-function _cckdestinations_apply_topic_term_to_nodes($new_term, $recup_tids) {
+/**
+ * Apply retroaction to old nodes when a taxonomy term is elected as destination.
+ * 
+ * @param array $new_term
+ *   The new destination term, created as a clone of a taxonomy term.
+ * @param array $recup_tids
+ *   List of topics (array of tid) to which the retroaction must be applied.
+ */
+function _cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids) {
   $nids = array();
   $new_dest = array(
     'target' => 'default_destination_block',
@@ -873,6 +913,44 @@ function _cckdestinations_apply_topic_term_to_nodes($new_term, $recup_tids) {
       $new_dest['tid'] = $new_term['tid'];
       $node->field_destinations[] = $new_dest;
       node_save($node);
+    }
+  }
+}
+
+/**
+ * When a node has a destination which is an elected taxonomy term, we add the original taxonomy term as a tag to this node.
+ * 
+ * @param object &$node
+ *   The node.
+ */
+function _cckdestinations_add_topic_for_destination(&$node) {
+  if (!$node->no_taxonomy_update) {
+    switch ($node->type){
+      case 'wally_articlepackage':
+        $objectnode = node_load($node->field_mainstory[0]['nid']);
+        break;
+      case 'wally_gallerypackage':
+        $objectnode = node_load($node->field_mainobject[0]['nid']);
+        break;
+      case 'wally_pollpackage':
+        $objectnode = node_load($node->field_mainpoll[0]['nid']);
+        break;
+    }
+
+    $current_tags = array();
+    foreach ($objectnode->taxonomy as $tax)
+      $current_tags[] = $tax->tid;
+    
+    $destinations = $node->field_destinations;
+    foreach ($destinations as $dest) {
+      $dest_term = taxonomy_get_term($dest['tid']);
+      if (isset($dest_term->topic_destination) && $dest_term->topic_destination != '0' && !in_array($dest_term->topic_destination, $current_tags)) {
+        $assoc_term = taxonomy_get_term($dest_term->topic_destination);
+        $assoc_voc = taxonomy_vocabulary_load($assoc_term->vid);
+        $field = strstr($assoc_voc->name, 'Keywords') ? 'field_tags' : 'field_'.strtolower(str_replace(' ', '_', $assoc_voc->name));
+        $objectnode->{$field}[]['value'] = $assoc_term->tid;
+        node_save($objectnode);
+      }
     }
   }
 }
