@@ -209,6 +209,8 @@ function _wallyextra_taxonomylist_ctools_content_type($content) {
 function wallyextra_taxonomylist_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallyextra_taxonomylist_content_type_get_conf(wallyextra_taxonomylist_content_type_content_type($subtype), $conf);
   dsm($context,context);
+  dsm($conf,f);
+  dsm($panel_args,f);
   $node = isset($context->data) ? drupal_clone($context->data) : NULL;
   $block = new stdClass();
   
