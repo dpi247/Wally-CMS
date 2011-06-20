@@ -578,7 +578,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
  * @return
  *   Nothing
 */
- function _wallycontenttypes_addtaxonomywheninserted(&$node){
+ function _wallycontenttypes_addtaxonomywheninserted(&$node, $revision = NULL, $reset = NULL){
 // When a mainobject is updated we set the
 // no_taxonomy_update field to TRUE
 // so we dont want to update taxonomies from
@@ -587,13 +587,13 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
   if (!$node->no_taxonomy_update) { 
     switch ($node->type){
       case 'wally_articlepackage':
-        $objectnode=node_load($node->field_mainstory[0]['nid']);
+        $objectnode=node_load($node->field_mainstory[0]['nid'], $revision, $reset);
       break;
       case 'wally_gallerypackage':
-        $objectnode=node_load($node->field_mainobject[0]['nid']);
+        $objectnode=node_load($node->field_mainobject[0]['nid'], $revision, $reset);
       break;
       case 'wally_pollpackage':
-        $objectnode=node_load($node->field_mainpoll[0]['nid']);
+        $objectnode=node_load($node->field_mainpoll[0]['nid'], $revision, $reset);
       break;
     }
     if($objectnode){
