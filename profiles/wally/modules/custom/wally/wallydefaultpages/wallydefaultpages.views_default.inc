@@ -81,6 +81,7 @@ function wallydefaultpages_views_default_views() {
       'validate_argument_transform' => 0,
       'validate_user_restrict_roles' => 0,
       'validate_argument_php' => '',
+      'not' => 1,
     ),
   ));
   $handler->override_option('filters', array(
@@ -146,7 +147,16 @@ function wallydefaultpages_views_default_views() {
     'exposed_form' => FALSE,
     'fields_override' => FALSE,
   ));
-  $handler->override_option('argument_input', array());
+  $handler->override_option('argument_input', array(
+    'field_destinations_tid' => array(
+      'type' => 'context',
+      'context' => 'term.tid',
+      'context_optional' => 0,
+      'panel' => '0',
+      'fixed' => '',
+      'label' => 'Destinations: Destinations tid: Destinations (field_destinations)',
+    ),
+  ));
   $handler->override_option('link_to_view', 0);
   $handler->override_option('inherit_panels_path', 0);
 
