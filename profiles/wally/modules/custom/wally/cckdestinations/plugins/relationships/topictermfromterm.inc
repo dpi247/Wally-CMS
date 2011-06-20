@@ -29,8 +29,8 @@ function cckdestinations_topictermfromterm_context($context, $conf) {
     return ctools_context_create_empty('term', NULL);
   }
 
-  if (isset($context->data->topic_term)) {
-    $term=taxonomy_get_term($context->data->topic_term);
+  if (isset($context->data->topic_destination)) {
+    $term=taxonomy_get_term($context->data->topic_destination);
       return ctools_context_create('term', $term);
     
   }
