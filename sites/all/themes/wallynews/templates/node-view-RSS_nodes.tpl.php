@@ -2,7 +2,7 @@
 $row_index=$variables["view"]->row_index;
 $view_node_id = $variables["id"];
 $node_id = $node->nid;
-
+dsm($node);
 $photoObject_path = "";
 
 if($node->type == "wally_articlepackage"){
