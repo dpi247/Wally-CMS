@@ -2,7 +2,7 @@
 $row_index=$variables["view"]->row_index;
 $view_node_id = $variables["id"];
 $node_id = $node->nid;
-dsm($node);
+
 $photoObject_path = "";
 
 if($node->type == "wally_articlepackage"){
@@ -44,42 +44,10 @@ if ($photoObject_path != "" && $photoObject_size > 0){
 
 $node_title = $mainstory->title;
 
-switch ($row_index){
-	case 0:
-		?>
-			<a class="main-event" href="<?php echo $node_path?>">
-      <?php if ($photo_large_url != ""){ ?>	
-			<img src="<?php echo $photo_large_url; ?>" width="620" height="298" alt="<?php echo $node_title?>" />
-			<?php } ?>
-			<h1><a id="main-event-a" href="<?php echo $node_path?>"><?php echo $node_title?></a></h1>
-			</a>
-			<ul>
-				<li><a href="<?php echo $node_path?>">
-				  <?php if ($photo_thumb_url != ""){ ?>
-					<img rel="<?php echo $photo_large_url; ?>" src="<?php echo $photo_thumb_url; ?>" width="136" height="82" alt="<?php echo $node_title?>" />
-				  <?php } ?>
-				</a></li>
-		<?php
-		break;
-	case 1:
-		?>
-				<li><a href="<?php echo $node_path?>">
-				  <?php if ($photo_thumb_url != ""){ ?>
-					<img rel="<?php echo $photo_large_url; ?>" src="<?php echo $photo_thumb_url; ?>" width="136" height="82" alt="<?php echo $node_title?>" />
-				  <?php } ?>
-				</a></li>
-		<?php
-		break;
-	case 2:
-		?>
-				<li><a href="<?php echo $node_path?>">
-				  <?php if ($photo_thumb_url != ""){ ?>
-					<img rel="<?php echo $photo_large_url; ?>" src="<?php echo $photo_thumb_url; ?>" width="136" height="82" alt="<?php echo $node_title?>" />
-				  <?php } ?>
-				</a></li>
-				</ul>
-		<?php
-		break;
-  default:
-  	break;	
-}
+?>
+
+<li><a href="<?php echo $node->field_externaluri[0]['value']?>">
+	<?php if ($photo_thumb_url != ""){ ?>
+	<img rel="<?php echo $photo_large_url; ?>" src="<?php echo $photo_thumb_url; ?>" width="136" height="82" alt="<?php echo $node_title?>" />
+	<?php } ?>
+</a></li>
