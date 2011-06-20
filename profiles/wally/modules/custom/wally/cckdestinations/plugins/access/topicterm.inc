@@ -45,7 +45,7 @@ function cckdestinations_topicterm_ctools_access_check($conf, $context) {
   // As far as I know there should always be a context at this point, but this
   // is safe.
   
-
+dsm($context);
   return $context->data->topic_term!=0;
 
 }
