@@ -169,7 +169,7 @@ function _wallyrsstonode_callallfeeds() {
     if ($feed_xml) {
       list($valid_dom, $channel_last_build) = _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos);
 
-      if ($channel_last_build > $feed_infos['last_build']) {
+      if ($channel_last_build > $feed_infos['last_build'] || true) {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
@@ -304,7 +304,6 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
               $object->appendChild($valid_dom->createElement('Title', $item_object['Title']['value']));
               $object->appendChild($valid_dom->createElement('ExternalReference', $item_object['ExternalReference']['value']));
               if (isset($item_object['Copyright']['value'])) $object->appendChild($valid_dom->createElement('Copyright', $item_object['Copyright']['value']));
-              if (isset($item_object['Summary']['value'])) $object->appendChild($valid_dom->createElement('Summary', $item_object['Summary']['value']));
               $object->appendChild($valid_dom->createElement('FileURI', $item_object['FileURI']['value']));
               $object->appendChild($valid_dom->createElement('FileSize', $item_object['FileSize']['value']));
               if (isset($item_object['ThumbNail'])) {
