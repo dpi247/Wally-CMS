@@ -60,14 +60,14 @@
 </header>
      <!-- </div>  /header -->
 
-      <?php if ($left): ?>
+ <?php if ($left): ?>
         <div id="sidebar-left" class="sidebar">
           <?php if ($search_box): ?><div class="block block-theme"><?php print $search_box ?></div><?php endif; ?>
           <?php print $left ?>
         </div>
       <?php endif; ?>
 
-      <div id="center"><div id="squeeze"><div class="right-corner"><div class="left-corner">
+      <div id="max-main"><div id="main" role="main" class="clearfix">
           <?php print $breadcrumb; ?>
           <?php if ($mission): print '<div id="mission">'. $mission .'</div>'; endif; ?>
           <?php if ($tabs): print '<div id="tabs-wrapper" class="clear-block">'; endif; ?>
@@ -81,7 +81,7 @@
           </div>
           <?php print $feed_icons ?>
 
-      </div></div></div></div> <!-- /.left-corner, /.right-corner, /#squeeze, /#center -->
+      </div></div>
 
       <?php if ($right): ?>
         <div id="sidebar-right" class="sidebar">
