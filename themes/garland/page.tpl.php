@@ -16,13 +16,13 @@
 
 <!-- Layout -->
 
-  <!--<div id="header-region" class="clear-block"><?php print $header; ?></div>-->
+  <!--<div id="header-region" class="clear-block"><?php print $header; ?>
 
     <div id="wrapper">
-    <div id="container" class="clear-block">
+    <div id="container" class="clear-block"></div>-->
 
-<header class="header"><div id="header">
-     <div id="max-gen-nav"><?php print $headertop; ?></div>
+<header class="header"><!-- <div id="header"> -->
+     <?php print $headertop; ?>
         <div id="logo-floater">
         <?php
           // Prepare header
@@ -46,8 +46,8 @@
             }
             print $site_html .'</a></h1>';
           }
-        ?>
-        </div></div></header>
+        ?></div>
+        
 
         <?php if (isset($primary_links)) : ?>
           <?php print theme('links', $primary_links, array('class' => 'links primary-links')) ?>
@@ -56,7 +56,9 @@
           <?php print theme('links', $secondary_links, array('class' => 'links secondary-links')) ?>
         <?php endif; ?>
 <?php print $header; ?>
-      </div> <!-- /header -->
+<!-- </div> -->
+</header>
+     <!-- </div>  /header -->
 
       <?php if ($left): ?>
         <div id="sidebar-left" class="sidebar">
@@ -88,7 +90,7 @@
         </div>
       <?php endif; ?>
 
-    </div> <!-- /container -->
+   <!--   </div>/container -->
 <footer><div id="max-footer"><div id="footer"><?php print $footer; ?></div><?php print $footerbottom ?></div></footer>
 
 <!-- /layout -->
