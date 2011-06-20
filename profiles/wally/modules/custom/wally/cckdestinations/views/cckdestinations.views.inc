@@ -29,7 +29,9 @@ function cckdestinations_views_handlers() {
       'cckdestinations_views_handler_argument_time_rank' => array(
         'parent' => 'views_handler_argument',
       ),
-      
+      'cckdestinations_views_handler_filter_is_empty' => array(
+        'parent' => 'views_handler_filter_term_node_tid',
+      ),      
       'cckdestinations_views_handler_filter_tid' => array(
         'parent' => 'views_handler_filter_term_node_tid',
       ),
