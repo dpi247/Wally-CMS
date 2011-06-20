@@ -208,12 +208,11 @@ function _wallyextra_taxonomylist_ctools_content_type($content) {
  */
 function wallyextra_taxonomylist_content_type_render($subtype, $conf, $panel_args, $context,$b) {
   $settings = wallyextra_taxonomylist_content_type_get_conf(wallyextra_taxonomylist_content_type_content_type($subtype), $conf);
-  dsm($subtype,subtypze);
-  dsm($context,context);
-  dsm($conf,conf);
-  dsm($panel_args,panel_args);
-  dsm($b,b);
-  $node = isset($context->data) ? drupal_clone($context->data) : NULL;
+ $node = isset($context->data) ? drupal_clone($context->data) : NULL;
+  if(!isset($node)){
+    $node = node_load($panel_args[0]);
+  
+  }
   $block = new stdClass();
   
   if (empty($node)) {
