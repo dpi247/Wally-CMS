@@ -26,13 +26,12 @@ if ( isset($exturl[1])) {
 
 if ($photoObject_path == ""){
   $embeded_objects = $node->field_embededobjects_nodes;
-  dsm($embeded_objects);
-  /*$photoObject = custom_soirmag_get_first_photoEmbededObject_from_package($embeded_objects);
+  $photoObject = $embeded_objects[0];
   If ($photoObject) {
     $photoObject_path = $photoObject->field_photofile[0]['filepath'];
     $explfilepath = explode('/', $photoObject_path);
     $photoObject_size = $photoObject->field_photofile[0]['filesize'];
-  }*/
+  }
 }
 
 $photo_large_url = "";
