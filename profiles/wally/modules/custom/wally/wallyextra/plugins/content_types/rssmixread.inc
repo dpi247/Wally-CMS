@@ -37,7 +37,7 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#id'               => 'uri_area',
     '#title'            => t('URL of the RSS feeds'),
     '#description'      => t('Please enter one URL by line.'),
-    '#default_value'    => $settings['uris'],
+    '#default_value'    => implode(PHP_EOL, explode('|@@@|', $settings['uris'])),
     '#required'         => TRUE,
   );
 
@@ -157,13 +157,14 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
  */
 function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_state) {
   if (isset($form_state['values']['uris'])) {
-    $uri_strings = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($form_state['values']['uris'])));
+    $uri_strings = explode("\n", str_replace(array(PHP_EOL, "\n", "\r\n"), "\n", trim($form_state['values']['uris'])));
     foreach ($uri_strings as $uri_string) {
       $uri_response = drupal_http_request($uri_string);
       if ($uri_response->status_message != 'OK') {
         form_set_error('uris', t('The URI '.check_plain($uri_string).' doesn\'t respond.'));
       }
     }
+    $form_state['values']['uris'] = implode('|@@@|', $uri_strings);
   }
 
   if (isset($form_state['values']['maxitem_global']) && !is_numeric($form_state['values']['maxitem_global'])) {
@@ -590,7 +591,8 @@ function _wallyextra_rssmixread_getmostrecentfromavailables($available_items) {
  * 	 which will be displayed.
  */
 function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
-  $rss_uris = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($settings['uris'])));
+  $rss_uris = explode('|@@@|', trim($settings['uris']));
+  if (is_string($rss_uris[0])) $rss_uris = explode(PHP_EOL, $rss_uris[0]);
   $new_file_path = 'RSS/';
   $file_temp_dir = file_directory_path().'/'.$new_file_path;
   file_check_directory($file_temp_dir, 1);
@@ -613,10 +615,10 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
   $override_theme_text = $settings['override_theme_text'];
   $maxitem_global = $settings['maxitem_global'];
   $maxitem_byfeed = $settings['maxitem_byfeed'];
-  
+
   foreach ($rss_uris as $rss_uri)
     $feed_array[] = _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem_byfeed, $settings);
-  
+
   for ($i=0; $i<$maxitem_global; $i++) {
     $schema_elem = $mix_schema[$i%sizeof($mix_schema)];
     $available_items = _wallyextra_rssmixread_getavailableitemsfromschema($schema_elem, $feed_array);
