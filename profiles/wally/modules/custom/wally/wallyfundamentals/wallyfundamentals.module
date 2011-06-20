@@ -3,12 +3,10 @@
 include_once('wallyfundamentals.features.inc');
 
 function wallyfundamentals_cron(){
-  
   if(module_exists('supercron')){
-        db_query(
-                "UPDATE {supercron_enabled_mods}"
-                . " SET output = ''"
-        );
+    db_query(
+             "UPDATE {supercron_enabled_mods}"
+             . " SET output = ''"
+    );
   }
-  
 }
