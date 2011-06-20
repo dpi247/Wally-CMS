@@ -350,14 +350,14 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
                 plugin: "'.$plugin.'"
               },
               complete: function(data) {
-                $("div.loading_'.$cid.'").html(data.responseText);
+                $("div.loading_'.$cid.'_'.$default_theme.'").html(data.responseText);
               }
             });
            }, 1);
         });
       ', 'inline');
       
-      $datas = '<div class="loading_'.$cid.'">'.theme('wallyextra_loading_content_type').'</div>';
+      $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
     } else {
       $datas = call_user_func_array($callback, array($settings));
     }
