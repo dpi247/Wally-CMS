@@ -75,6 +75,16 @@ function wallyrsstonode_form_add_feed_form($form_state, $default_form_values) {
     '#weight' => 0,
   );
   
+  $form['wallyrsstonode_prefix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('External reference prefix.'),
+    '#description' => t('Feed name by default.'),
+    '#default_value' => $default_form_values['prefix'],
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#weight' => 0.05,
+  );
+  
   $form['wallyrsstonode_uri'] = array(
     '#type' => 'textfield',
     '#title' => t('RSS feed URI'),
@@ -197,6 +207,7 @@ function wallyrsstonode_form_add_feed_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   $object = array();
   $object['name'] = $values['wallyrsstonode_name'];
+  $object['prefix'] = $values['wallyrsstonode_prefix'];
   $object['uri'] = $values['wallyrsstonode_uri'];
   $object['publish'] = $values['wallyrsstonode_publish'];
   $rank = strstr($values['field_destinations'][0]['rank'], 'DNC') ? substr($values['field_destinations'][0]['rank'], 3) : $values['field_destinations'][0]['rank'];
@@ -274,6 +285,7 @@ function _wallyrsstonode_getdefaultvalues($feed_infos = array()) {
     $default_form_values = $feed_infos;
   } else {
     $default_form_values['name'] = '';
+    $default_form_values['prefix'] = '';
     $default_form_values['uri'] = '';
     $default_form_values['publish'] = 0;
     $default_form_values['signature'] = '';

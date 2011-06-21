@@ -27,6 +27,13 @@ function wallyrsstonode_schema() {
           'not null' => TRUE, 
           'default' => '',
         ),
+        'prefix' => array(
+          'description' => 'External reference prefix.', 
+          'type' => 'varchar', 
+          'length' => 512, 
+          'not null' => TRUE, 
+          'default' => '',
+        ),
         'uri' => array(
           'description' => 'URI.', 
           'type' => 'varchar', 
@@ -155,6 +162,25 @@ function wallyrsstonode_update_6002(&$sandbox) {
   );
   
   db_add_field($ret, 'rsstonode_feeds', 'publish', $spec);
+  
+  return $ret;
+}
+
+/**
+ * Implementation du hook_update_N
+ */
+function wallyrsstonode_update_6003(&$sandbox) {
+  $ret = array();
+  
+  $spec = array(
+    'description' => 'External reference prefix.', 
+    'type' => 'varchar', 
+    'length' => 512, 
+    'not null' => TRUE, 
+    'default' => '',
+  );
+  
+  db_add_field($ret, 'rsstonode_feeds', 'prefix', $spec);
   
   return $ret;
 }
