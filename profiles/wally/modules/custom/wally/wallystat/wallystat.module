@@ -267,8 +267,9 @@ function wallystat_show_stats() {
  */
 function wallystat_available_params_function() {
   return array(
-    'wallystat_get_url_argument' => 'One of the URL arguments',
-    'wallystat_get_node_field' => 'The value of one of the node fields',
+    'wallystat_get_url_argument' => t('One of the URL arguments'),
+    'wallystat_get_node_field' => t('The value of one of the node fields'),
+    'wallystat_get_eval' => t('PHP code'),
   );
 }
 
@@ -313,6 +314,29 @@ function wallystat_get_node_field_form() {
     '#title' => t('Field name'),
     '#size' => 80,
     '#maxlength' => 512,
+  );
+  
+  return $form;
+}
+
+/**
+ * Return the evaluated code
+ */
+function wallystat_get_eval($node, $code) {
+  return eval($code);
+}
+
+/**
+ * Return the form element(s) for this callback
+ */
+function wallystat_get_eval_form() {
+  $form = array();
+  
+  $form[] = array(
+    '#type' => 'textarea',
+    '#description' => t('The $node variable is available.'),
+    '#title' => t('PHP Code'),
+    '#rows' => 5,
   );
   
   return $form;
@@ -411,7 +435,7 @@ function _wallystat_get_stats_block_content() {
       var cur_href, cur_nodelink;
       
       if (browser == "mozilla") {
-        $("div.views-row").mouseover(function(e) {
+        $("div.content").mouseover(function(e) {
           cur_nodelink = $(this).find("h2 a");
           if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
             cur_href = $(cur_nodelink).attr("href");
@@ -426,7 +450,7 @@ function _wallystat_get_stats_block_content() {
           }
         });
       } else {
-        $("div.views-row").mousemove(function(e) {
+        $("div.content").mousemove(function(e) {
           cur_nodelink = $(this).find("h2 a");
           if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
             cur_href = $(cur_nodelink).attr("href");
@@ -442,7 +466,7 @@ function _wallystat_get_stats_block_content() {
         });
       }
       
-      $("div.views-row").mouseout(function(e){
+      $("div.content").mouseout(function(e){
         $("#follower").hide();
       });
     });
