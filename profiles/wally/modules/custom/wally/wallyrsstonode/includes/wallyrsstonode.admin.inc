@@ -5,27 +5,11 @@
  * @file
  *   Import Press Content to Drupal structure Administration
  */
- 
-/*
-function wallyrsstonode_form_alter(&$form, $form_state, $form_id) {
-  $form['#after_build'][] = 'wallyrsstonode_after_build';
-}
 
-function wallyrsstonode_after_build($form, &$form_state) {
-  return $form;
-}
-*/
  
-function wallyrsstonode_page_admin($action = '', $op = '', $rss_key = 0) {
+function wallyrsstonode_page_admin_add_feed($op = '', $rss_key = 0) {
   $default_form_values = _wallyrsstonode_getdefaultvalues();
   switch ($op) {
-    case 'delete':
-      if (db_result(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key))) {
-        db_query('DELETE FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key);
-      } else {
-        drupal_set_message('No feed matching the requested key.', "warning");
-      }
-      break;
     case 'edit':
       if ($feed_infos = db_fetch_array(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key))) {
         $default_form_values = _wallyrsstonode_getdefaultvalues($feed_infos);
@@ -37,16 +21,41 @@ function wallyrsstonode_page_admin($action = '', $op = '', $rss_key = 0) {
   }
   
   $return = '';
-  $return .= _wallyrsstonode_buildtableforadminpage();
-  $return .= drupal_get_form('wallyrsstonode_page_admin_form', $default_form_values);
+  $return .= drupal_get_form('wallyrsstonode_form_add_feed_form', $default_form_values);
   
   return $return;
+}
+
+function wallyrsstonode_page_admin_list_feeds($op = '', $rss_key = 0) {
+  switch ($op) {
+    case 'delete':
+      if (db_result(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key))) {
+        db_query('DELETE FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key);
+      } else {
+        drupal_set_message('No feed matching the requested key.', "warning");
+      }
+      break;
+    case 'edit':
+      drupal_goto('admin/wally/wallyrsstonode/add/edit/'.$rss_key);
+      break;
+    case 'queue':
+      return _wallyrsstonode_build_feed_queue($rss_key);
+      break;
+  }
+  
+  return _wallyrsstonode_build_feeds_list();
+}
+
+function wallyrsstonode_page_admin_run_cron() {
+  wallyrsstonode_cron();
+  
+  return '';
 }
 
 /**
  * Settings form.
  */
-function wallyrsstonode_page_admin_form($form_state, $default_form_values) {
+function wallyrsstonode_form_add_feed_form($form_state, $default_form_values) {
   if (isset($default_form_values['rss_key'])) {
     $form['wallyrsstonode_rsskey'] = array(
       '#type' => 'hidden',
@@ -75,6 +84,15 @@ function wallyrsstonode_page_admin_form($form_state, $default_form_values) {
     '#maxlength' => 512,
     '#required' => TRUE,
     '#weight' => 0.1,
+  );
+  
+  $form['wallyrsstonode_publish'] = array(
+    '#type' => 'radios',
+    '#title' => t('Publishing comportement'),
+    '#default_value' => $default_form_values['publish'],
+    '#options' => array(t('Publish all nodes'), t('Place nodes in a queue and choose which ones to publish')),
+    '#required' => TRUE,
+    '#weight' => 0.15,
   );
   
   $body_html_options = array();
@@ -156,14 +174,17 @@ function wallyrsstonode_page_admin_form($form_state, $default_form_values) {
     '#weight' => 5,
   );
   
+  $form['#redirect'] = 'admin/wally/wallyrsstonode';
+  
   return $form;
 }
 
 /**
  * Validate function for the settings form.
  */
-function wallyrsstonode_page_admin_form_validate($form, &$form_state) {
-  $uri_response = drupal_http_request($form['wallyrsstonode_uri']['#value']);
+function wallyrsstonode_form_add_feed_form_validate($form, &$form_state) {
+  $values = $form_state['values'];
+  $uri_response = drupal_http_request($values['wallyrsstonode_uri']);
   if ($uri_response->status_message != 'OK') {
     form_set_error('wallyrsstonode_uri', t('The URI doesn\'t respond.'));
   }
@@ -172,18 +193,21 @@ function wallyrsstonode_page_admin_form_validate($form, &$form_state) {
 /**
  * Validate function for the settings form.
  */
-function wallyrsstonode_page_admin_form_submit($form, &$form_state) {
+function wallyrsstonode_form_add_feed_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
   $object = array();
-  $object['name'] = $form['wallyrsstonode_name']['#value'];
-  $object['uri'] = $form['wallyrsstonode_uri']['#value'];
-  $object['destination'] = $form['wallyrsstonode_destinations']['field_destinations'][0]['tid']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['target']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['layout']['#value'].'/'.$form['wallyrsstonode_destinations']['field_destinations'][0]['rank']['#value'];
-  $object['delta_t'] = $form['wallyrsstonode_deltat']['#value'];
-  $object['signature'] = $form['wallyrsstonode_signature']['#value'];
-  $object['channel_img'] = $form['wallyrsstonode_channelimg']['#value'];
-  $object['package_layout'] = $form['wallyrsstonode_pack_layout']['#value'];
-  $object['body_html'] = $form['wallyrsstonode_bodyhtml']['#options'][$form['wallyrsstonode_bodyhtml']['#value']];
-  if (isset($form['wallyrsstonode_rsskey']['#value'])) {
-    $object['rss_key'] = $form['wallyrsstonode_rsskey']['#value'];
+  $object['name'] = $values['wallyrsstonode_name'];
+  $object['uri'] = $values['wallyrsstonode_uri'];
+  $object['publish'] = $values['wallyrsstonode_publish'];
+  $rank = strstr($values['field_destinations'][0]['rank'], 'DNC') ? substr($values['field_destinations'][0]['rank'], 3) : $values['field_destinations'][0]['rank'];
+  $object['destination'] = $values['field_destinations'][0]['tid'].'/'.$values['field_destinations'][0]['target'].'/'.$values['field_destinations'][0]['layout'].'/'.$rank;
+  $object['delta_t'] = $values['wallyrsstonode_delta_t'];
+  $object['signature'] = $values['wallyrsstonode_signature'];
+  $object['channel_img'] = $values['wallyrsstonode_channelimg'];
+  $object['package_layout'] = $values['wallyrsstonode_pack_layout'];
+  $object['body_html'] = $form['wallyrsstonode_bodyhtml']['#options'][$values['wallyrsstonode_bodyhtml']];
+  if (isset($values['wallyrsstonode_rsskey'])) {
+    $object['rss_key'] = $values['wallyrsstonode_rsskey'];
     drupal_write_record('rsstonode_feeds', $object, array('rss_key'));
   } else {
     drupal_write_record('rsstonode_feeds', $object);
@@ -193,35 +217,18 @@ function wallyrsstonode_page_admin_form_submit($form, &$form_state) {
 /**
  * Display table containing the current RSS feeds.
  */
-function _wallyrsstonode_buildtableforadminpage() {  
+function _wallyrsstonode_build_feeds_list() {  
   $header = array(
-    array(
-      'data' => 'Name',
-    ),   
-    array(
-      'data' => 'URI',
-    ),
-    array(
-      'data' => 'Signature',
-    ),
-    array(
-      'data' => 'Iteration (min)',
-    ),
-    array(
-      'data' => 'Default image',
-    ),
-    array(
-      'data' => 'Destination',
-    ),
-    array(
-      'data' => 'Package layout',
-    ),
-    array(
-      'data' => 'Body filter',
-    ),
-    array(
-      'data' => 'Actions',
-    ),
+    array('data' => t('Name')),
+    array('data' => t('URI')),
+    array('data' => t('Signature')),
+    array('data' => t('Iteration (min)')),
+    array('data' => t('Default image')),
+    array('data' => t('Destination')),
+    array('data' => t('Package layout')),
+    array('data' => t('Body filter')),
+    array('data' => t('Queue')),
+    array('data' => t('Actions')),
   );
   
   $db_results = db_query("SELECT * FROM `rsstonode_feeds`");
@@ -236,15 +243,26 @@ function _wallyrsstonode_buildtableforadminpage() {
     $temp_row['destination'] = check_plain($db_result['destination']);
     $temp_row['package_layout'] = check_plain($db_result['package_layout']);
     $temp_row['body_html'] = check_plain($db_result['body_html']);
-    $temp_row['actions'] = _wallyrsstonode_htmlcodeforthetableactions($db_result);
+    $temp_row['publish'] = _wallyrsstonode_html_table_queue($db_result);
+    $temp_row['actions'] = _wallyrsstonode_html_table_actions($db_result);
     $rows[] = $temp_row;
   }
   return theme_table($header, $rows);
 }
 
-function _wallyrsstonode_htmlcodeforthetableactions($feed_infos) {
-  $return = l('Edit', 'admin/wally/wallyrsstonode/adminfeeds/edit/'.$feed_infos['rss_key']).' ';
-  $return .= l('Delete', 'admin/wally/wallyrsstonode/adminfeeds/delete/'.$feed_infos['rss_key']);
+function _wallyrsstonode_html_table_actions($feed_infos) {
+  $return = l(t('Edit'), 'admin/wally/wallyrsstonode/list/edit/'.$feed_infos['rss_key']).' ';
+  $return .= l(t('Delete'), 'admin/wally/wallyrsstonode/list/delete/'.$feed_infos['rss_key']);
+  
+  return $return;
+}
+
+function _wallyrsstonode_html_table_queue($feed_infos) {
+  if ($feed_infos['publish']) {
+    $return = l(t('Show queue'), 'admin/wally/wallyrsstonode/list/queue/'.$feed_infos['rss_key']).' ';
+  } else {
+    $return = '';
+  }
   
   return $return;
 }
@@ -257,13 +275,25 @@ function _wallyrsstonode_getdefaultvalues($feed_infos = array()) {
   } else {
     $default_form_values['name'] = '';
     $default_form_values['uri'] = '';
+    $default_form_values['publish'] = 0;
     $default_form_values['signature'] = '';
     $default_form_values['channel_img'] = 0;
     $default_form_values['delta_t'] = 5;
     $default_form_values['destination'] = '0///0';
     $default_form_values['package_layout'] = '';
-    $default_form_values['body_html'] = 'No HTML';
+    $default_form_values['body_html'] = t('No HTML');
   }
   
   return $default_form_values;
+}
+
+function _wallyrsstonode_build_feed_queue($rss_key) {
+  $feeds_infos = db_result(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key));
+
+  if (!$feeds_infos['publish']) {
+    drupal_set_message(t('All the nodes created from this feed are automatically published'));
+    drupal_goto('admin/wally/wallyrsstonode');
+  }
+  
+  return '';
 }
