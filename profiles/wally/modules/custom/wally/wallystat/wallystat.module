@@ -267,8 +267,9 @@ function wallystat_show_stats() {
  */
 function wallystat_available_params_function() {
   return array(
-    'wallystat_get_url_argument' => 'One of the URL arguments',
-    'wallystat_get_node_field' => 'The value of one of the node fields',
+    'wallystat_get_url_argument' => t('One of the URL arguments'),
+    'wallystat_get_node_field' => t('The value of one of the node fields'),
+    'wallystat_get_eval' => t('PHP code'),
   );
 }
 
@@ -313,6 +314,28 @@ function wallystat_get_node_field_form() {
     '#title' => t('Field name'),
     '#size' => 80,
     '#maxlength' => 512,
+  );
+  
+  return $form;
+}
+
+/**
+ * Return the evaluated code
+ */
+function wallystat_get_eval($node, $code) {
+  return eval($code);
+}
+
+/**
+ * Return the form element(s) for this callback
+ */
+function wallystat_get_eval_form() {
+  $form = array();
+  
+  $form[] = array(
+    '#type' => 'textarea',
+    '#title' => t('PHP Code'),
+    '#rows' => 5,
   );
   
   return $form;
