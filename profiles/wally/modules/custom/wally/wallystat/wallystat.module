@@ -333,6 +333,7 @@ function wallystat_get_eval_form() {
   $form = array();
   
   $form[] = array(
+    '#description' => t('The $node variable is available.'),
     '#type' => 'textarea',
     '#title' => t('PHP Code'),
     '#rows' => 5,
