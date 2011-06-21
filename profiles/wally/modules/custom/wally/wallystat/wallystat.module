@@ -411,7 +411,7 @@ function _wallystat_get_stats_block_content() {
       var cur_href, cur_nodelink;
       
       if (browser == "mozilla") {
-        $("div.content").mouseover(function(e) {
+        $("div.views-row").mouseover(function(e) {
           cur_nodelink = $(this).find("h2 a");
           if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
             cur_href = $(cur_nodelink).attr("href");
@@ -426,7 +426,7 @@ function _wallystat_get_stats_block_content() {
           }
         });
       } else {
-        $("div.content").mousemove(function(e) {
+        $("div.views-row").mousemove(function(e) {
           cur_nodelink = $(this).find("h2 a");
           if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
             cur_href = $(cur_nodelink).attr("href");
@@ -442,7 +442,7 @@ function _wallystat_get_stats_block_content() {
         });
       }
       
-      $("div.content").mouseout(function(e){
+      $("div.views-row").mouseout(function(e){
         $("#follower").hide();
       });
     });
