@@ -246,9 +246,11 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
       $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
       $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
       
+      require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/rss.inc';
+      
       foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
         $array_valid_dom = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $feed_infos);
-dsm($array_valid_dom);
+
         $modif = FALSE;
         $elem_package = $array_valid_dom['Package'];
         $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['Package']['MainStory']['TextBody']['value']);
