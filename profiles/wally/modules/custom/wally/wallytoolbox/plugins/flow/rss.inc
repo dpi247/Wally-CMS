@@ -65,7 +65,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
  * @return
  *   The element value or ''.
  */
-function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none', $second_choice = '', $feed_name = '') {
+function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none', $second_choice = '', $feed_name = '', $prefix = '') {
   $return = '';
   if ($namespace != 'none' && is_object($dom_item)) {
     $return = $dom_item->getElementsByTagNameNS($namespace, $name)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $name)->item(0)->firstChild->wholeText : '';
@@ -73,7 +73,8 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
       if ($return == '') {
         $return = $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0)->firstChild->wholeText : '';
       } else {
-        $return = $feed_name.':::'.$return;
+        $prefix = ($prefix != '') ? $prefix : $feed_name;
+        $return = $prefix.':::'.$return;
       }
     }
   } elseif (is_object($dom_item)) {
@@ -82,7 +83,8 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
       if ($return == '') {
         $return = $dom_item->getElementsByTagName($second_choice)->item(0) ? $dom_item->getElementsByTagName($second_choice)->item(0)->firstChild->wholeText : '';
       } else {
-        $return = $feed_name.':::'.$return;
+        $prefix = ($prefix != '') ? $prefix : $feed_name;
+        $return = $prefix.':::'.$return;
       }
     }
   }
