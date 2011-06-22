@@ -37,7 +37,14 @@ function wallystat_views_data() {
       'handler' => 'views_handler_filter_string',
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_string',
+      'handler' => 'views_handler_argument_string', 
+      'field' => $db_info['columns']['title']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
+    
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -57,7 +64,13 @@ function wallystat_views_data() {
       'handler' => 'views_handler_filter_string',
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_string',
+      'handler' => 'views_handler_argument_string', 
+      'field' => $db_info['columns']['param01']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -77,7 +90,13 @@ function wallystat_views_data() {
       'handler' => 'views_handler_filter_string',
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_string',
+      'handler' => 'views_handler_argument_string', 
+      'field' => $db_info['columns']['param02']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -98,6 +117,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param03']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -118,6 +143,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param04']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -138,6 +169,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param05']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -158,6 +195,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param06']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -175,6 +218,15 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param07']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -195,6 +247,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param08']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -215,6 +273,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param09']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -235,6 +299,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
+      'field' => $db_info['columns']['param10']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -255,6 +325,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
+      'field' => $db_info['columns']['totalcount']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -275,6 +351,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
+      'field' => $db_info['columns']['daycount']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -295,6 +377,13 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
+    
+      'field' => $db_info['columns']['weekcount']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -315,6 +404,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
+      'field' => $db_info['columns']['monthcount']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -335,6 +430,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_numeric',
+      'field' => $db_info['columns']['yearcount']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -355,6 +456,12 @@ function wallystat_views_data() {
     ),
     'argument' => array(
       'handler' => 'views_handler_argument_date',
+      'field' => $db_info['columns']['timestamp']['column'],
+      'tablename' => $db_info['table'],
+      'click sortable' => TRUE,
+      'name field' => '', // TODO, mimic content.views.inc :)
+      'content_field_name' => $field['field_name'],
+      'allow_empty' => TRUE,
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -472,7 +579,7 @@ function wallystat_views_data() {
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
-    ),1333627000
+    ),
   );
   
   // timestamp
@@ -764,7 +871,7 @@ function wallystat_views_data() {
       'handler' => 'views_handler_filter_date',
     ),
     'argument' => array(
-      'handler' => 'views_handler_argument_numeric',
+      'handler' => 'views_handler_argument_date',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
