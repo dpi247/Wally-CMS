@@ -867,16 +867,6 @@ function cckdestinations_ctools_plugin_directory($module, $plugin) {
   }
 }
 
-/**
- * Implementation of hook_views_api().
- */
-function cckdestinations_views_api() {
-  return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'cckdestinations') .'/views',
-  );
-}
-
 function cckdestinations_token_list($type = 'all') {
   $tokens=array();
   

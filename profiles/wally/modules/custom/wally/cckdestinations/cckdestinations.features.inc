@@ -5,6 +5,7 @@
  */
 function cckdestinations_views_api() {
   return array(
-    'api' => '2',
+    'api' => 2,
+    'path' => drupal_get_path('module', 'cckdestinations') .'/views',
   );
 }
