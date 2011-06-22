@@ -219,16 +219,15 @@ function wallystat_cron(){
 /**
  * Implementation of hook_preprocess_page().
  */
-function wallystat_preprocess_page(&$vars) {
-  dsm($vars['node']," ici ");
-  dsm(debug_backtrace());
+/*function wallystat_preprocess_page(&$vars) {
 	if(isset($vars['node'])) {
 	  _wallystat_add_updater_callback($vars);
 	}
-}
+}*/
 
 function wallystat_preprocess(&$vars, $hook){
-dsm($hook,"hook");
+  if ($hook == 'node')
+    _wallystat_add_updater_callback($vars);
 }
 
 /**
