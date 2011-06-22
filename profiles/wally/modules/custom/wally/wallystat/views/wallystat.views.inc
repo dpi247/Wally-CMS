@@ -387,6 +387,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -403,6 +406,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -421,6 +427,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -437,6 +446,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -455,6 +467,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),1333627000
@@ -471,6 +486,9 @@ function wallystat_views_data() {
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_date',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_date',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -502,6 +520,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -518,6 +539,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -536,6 +560,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -552,6 +579,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -570,6 +600,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -586,6 +619,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -604,6 +640,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -620,6 +659,10 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -638,6 +681,10 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -654,6 +701,9 @@ function wallystat_views_data() {
      ),
     'filter' => array(
       'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -672,6 +722,10 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ),
+    
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -689,6 +743,9 @@ function wallystat_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_numeric',
     ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
@@ -705,6 +762,9 @@ function wallystat_views_data() {
     ),
     'filter' => array(
       'handler' => 'views_handler_filter_date',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
