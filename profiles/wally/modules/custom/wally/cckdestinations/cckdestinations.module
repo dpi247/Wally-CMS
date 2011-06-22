@@ -467,6 +467,7 @@ function cckdestinations_batch_dest_change($node, $context, $a, $b) {
  *   Array of nid.
  */
 function cckdestinations_batch_dest_add($node, $context, $a, $b) {
+  drupal_set_message('coucou');
   $node = node_load($node->nid);
   $posted_dest = $context['new_dest'];
   $new_dest = array(
