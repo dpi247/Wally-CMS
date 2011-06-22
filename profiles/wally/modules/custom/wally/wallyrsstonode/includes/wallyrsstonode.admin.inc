@@ -314,5 +314,5 @@ function _wallyrsstonode_build_feed_queue($rss_key) {
     $arg .= ':';
   $view->set_arguments(array($arg));
 
-  return $view->preview();;
+  return $view->render();
 }
