@@ -17,7 +17,7 @@ function cckdestinations_menu() {
     'page arguments' => array('cckdestinations_page_admin_form'),
     'access arguments' => array('access administration pages'),
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
-    'file' => 'includes/cckdestinations.admin.inc',
+    'file' => 'includes/cckdestinations.settings_admin.inc',
   );
   
   $items['admin/wally/cckdestinations/node'] = array(
@@ -26,7 +26,15 @@ function cckdestinations_menu() {
     'page arguments' => array('cckdestinations_node_admin_content'),
     'access arguments' => array('administration pages'),
     'description' => 'View, edit, and delete your site\'s content with a destination filter.',
-    'file' => 'includes/cckdestinations.admin.inc',
+    'file' => 'includes/cckdestinations.node_admin.inc',
+  );
+  
+  $items['admin/wally/cckdestinations/batch'] = array(
+    'title' => 'Batch destinations change',
+    'page callback' => 'cckdestinations_batch_destinations',
+    'access arguments' => array('administration pages'),
+    'description' => 'Change nodes destination in a batch process.',
+    'file' => 'includes/cckdestinations.batch_dest.inc',
   );
   
   return $items;
@@ -40,6 +48,26 @@ function cckdestinations_field_info(){
     'destinationsfield' => array(
       'label' => t('Destinations'),
       'description' => t('Destinations for wally instances (triple )'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_action_info()
+ */
+function cckdestinations_action_info() {
+  return array(
+    'cckdestinations_batch_dest_change' => array(
+      'type' => 'node',
+      'description' => t('Change destination'),
+      'configurable' => TRUE,
+      'hooks'=> array('any'=>TRUE),
+    ),
+    'cckdestinations_batch_dest_add' => array(
+      'type' => 'node',
+      'description' => t('Add destination'),
+      'configurable' => TRUE,
+      'hooks'=> array('any'=>TRUE),
     ),
   );
 }
@@ -172,7 +200,7 @@ function cckdestinations_elements() {
 }
 
 /**
- * Implementation of hook_form_alter()
+ * Implementation of hook_form_FORM_ID_alter()
  */
 function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
   $dest_vid = variable_get('wallymport_destinationpath', 0);
@@ -370,6 +398,85 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   return $element;
 }
 
+function cckdestinations_batch_dest_change_form($context) {
+  return cckdestinations_batch_dest_form($context);
+}
+
+function cckdestinations_batch_dest_add_form($context) {
+  return cckdestinations_batch_dest_form($context);
+}
+
+function cckdestinations_batch_dest_change_submit($form, $form_state) {
+  return cckdestinations_batch_dest_submit($form, $form_state);
+}
+
+function cckdestinations_batch_dest_add_submit($form, $form_state) {
+  return cckdestinations_batch_dest_submit($form, $form_state);
+}
+
+function cckdestinations_batch_dest_form($context) {
+  $form = array();
+  
+  module_load_include("inc", 'content', 'includes/content.node_form');
+  $wallyrsstonode_destinations = content_fields('field_destinations');
+  $form['wallyrsstonode_destinations'] = (array) content_field_form($form, $form_state, $wallyrsstonode_destinations);
+  $form['wallyrsstonode_destinations']['#weight'] = 3;
+  unset($form['wallyrsstonode_destinations']['field_destinations'][1]);
+  unset($form['wallyrsstonode_destinations']['field_destinations']['field_destinations_add_more']);
+  unset($form['wallyrsstonode_destinations']['#weight']);
+  unset($form['wallyrsstonode_destinations']['field_destinations'][0]['_weight']);
+  unset($form['wallyrsstonode_destinations']['field_destinations']['#theme']);
+  $form['wallyrsstonode_destinations']['field_destinations']['#type'] = 'fieldset';
+  $form['wallyrsstonode_destinations']['field_destinations']['#title'] = t('New destination');
+  $form['wallyrsstonode_destinations']['field_destinations']['#tree'] = FALSE;
+  
+  return $form;
+}
+
+function cckdestinations_batch_dest_submit($form, $form_state){
+  return array(
+    'new_dest' => $form_state['values']
+  );
+}
+
+/**
+ * Process of changing a destination to a list of nodes.
+ * 
+ * @param array $nodes
+ *   Array of nid.
+ */
+function cckdestinations_batch_dest_change($node, $context, $a, $b) {
+  $node = node_load($node->nid);
+  $posted_dest = $context['new_dest'];
+  $new_dest = array(
+    'tid' => $posted_dest['tid'],
+    'target' => $posted_dest['target'],
+    'layout' => $posted_dest['layout'],
+    'rank' => $posted_dest['rank'],
+  );
+  $node->field_destinations = array($new_dest);
+  node_save($node);
+}
+
+/**
+ * Process of adding a destination to a list of nodes.
+ * 
+ * @param array $nodes
+ *   Array of nid.
+ */
+function cckdestinations_batch_dest_add($node, $context, $a, $b) {
+  $node = node_load($node->nid);
+  $posted_dest = $context['new_dest'];
+  $new_dest = array(
+    'tid' => $posted_dest['tid'],
+    'target' => $posted_dest['target'],
+    'layout' => $posted_dest['layout'],
+    'rank' => $posted_dest['rank'],
+  );
+  $node->field_destinations[] = $new_dest;
+  node_save($node);
+}
+
 /**
  * Helper function to provide #options and #class to cckDestinations fields
  * 
@@ -510,6 +617,10 @@ function cckdestinations_field_formatter_info() {
       'label' => t( 'Default Formater' ),
       'field types' => array( 'destinationsfield' ),
     ),
+    'batch' => array(
+      'label' => t( 'Batch Listing Formater' ),
+      'field types' => array( 'destinationsfield' ),
+    ),
     'tid' => array(
       'label' => t( 'Term Only Formater' ),
       'field types' => array( 'destinationsfield' ),
@@ -549,6 +660,9 @@ function cckdestinations_theme() {
       'arguments' => array('element' => NULL),
     ),
       'cckdestinations_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+    ),
+      'cckdestinations_formatter_batch' => array(
       'arguments' => array('element' => NULL),
     ),
       'cckdestinations_formatter_tid' => array(
@@ -597,6 +711,29 @@ function theme_cckdestinations_formatter_default($element = NULL) {
     }*/
     $ret .= theme('cckdestinations_formatter_'.$fld, $element);
   }
+  $ret .= '</div>';
+  
+  return $ret;
+}
+
+/**
+ * Implementation of CCK's hook_field_formatter_default().
+ *
+ * @return HTML for destination form element
+ */
+function theme_cckdestinations_formatter_batch($element = NULL) {
+  if(empty($element['#item'])) {
+    return '';
+  }
+
+  $item = $element['#item'];
+  $term = taxonomy_get_term($item['tid']);
+  $ret = '<div class="cckdestinationsgroup">';
+  $ret .= '<b>'.t('Destination').' '.$item['#delta'].' : </b><br>';
+  $ret .= t('Term').' : '.$term->name.' | ';
+  $ret .= t('Target').' : '.$item['target'].' | ';
+  $ret .= t('Layout').' : '.$item['layout'].' | ';
+  $ret .= t('Rank').' : '.$item['rank'];
   $ret .= '</div>';
   
   return $ret;
