@@ -221,9 +221,14 @@ function wallystat_cron(){
  */
 function wallystat_preprocess_page(&$vars) {
   dsm($vars['node']," ici ");
+  dsm(debug_backtrace());
 	if(isset($vars['node'])) {
 	  _wallystat_add_updater_callback($vars);
 	}
+}
+
+function wallystat_preprocess(&$vars, $hook){
+dsm($hook,"hook");
 }
 
 /**
