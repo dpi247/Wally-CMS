@@ -5,7 +5,7 @@
  * In this module we define a new CCK field for destinatins (4 cascading select).  
  */
 
-include_once('cckdestinationsa.features.inc');
+include_once('cckdestinations.features.inc');
 
 /**
  * Implementation of hook_menu().
