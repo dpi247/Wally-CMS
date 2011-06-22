@@ -370,6 +370,10 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
         }
       }
       
+      $verif_package = $valid_dom->getElementsByTagName('Package');
+      if (!$verif_package->item(0))
+        $valid_dom = NULL;
+      
       $feed_infos['feeds_md5'] = $new_feeds_md5;
     } else {
       drupal_set_message('The feed '.check_plain($feed_infos['name']).' wasn\'t rebuild since last run.', "notice");
@@ -379,10 +383,6 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
     drupal_set_message('No channel in the '.check_plain($feed_infos['name']).' feed.', "notice");
     $valid_dom = 'No channel in the feed : '. $feed_infos['name'];
   }
-  
-  $verif_package = $valid_dom->getElementsByTagName('Package');
-  if (!$verif_package->item(0))
-    $valid_dom = NULL;
 
   $return = array();
   $return[] = $valid_dom;
