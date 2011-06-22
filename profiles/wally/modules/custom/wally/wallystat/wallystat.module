@@ -220,6 +220,7 @@ function wallystat_cron(){
  * Implementation of hook_preprocess_page().
  */
 function wallystat_preprocess_page(&$vars) {
+  dsm($vars);
 	if(isset($vars['node'])) {
 	  _wallystat_add_updater_callback($vars);
 	}
