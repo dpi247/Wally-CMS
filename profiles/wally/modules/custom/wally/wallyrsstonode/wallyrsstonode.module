@@ -6,6 +6,8 @@
  * Do not put field specific functions or generic helpers functions here. 
  */
 
+include_once('wallyrsstonode.features.inc');
+
 /**
  * Implementation of hook_menu().
  */
