@@ -48,6 +48,105 @@ function wallyrsstonode_menu() {
 }
 
 /**
+ * Implementation of hook_node_operations().
+ */
+function wallyrsstonode_node_operations() {
+  $operations = array(
+    'reject_from_rss_to_node' => array(
+      'label' => t('Reject from RSS to node'),
+      'callback' => 'wallyrsstonode_reject_nodes',
+      'callback arguments' => array(),
+    ),
+  );
+  return $operations;
+}
+
+/**
+ * Executes the RSS to node cron run when called.
+ * 
+ * @return
+ *   Returns FALSE in case of error, redirect if successful.
+ */
+function wallyrsstonode_cron() {
+  // Try to allocate enough time to run all the hook_cronrsstonode implementations.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60);
+  }
+
+  // Fetch the cron semaphore
+  $semaphore = variable_get('wallyrsstonode_cron_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 3600) {
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      //watchdog('Cron RSS to node', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del('wallyrsstonode_cron_semaphore');
+    } else {
+      // Cron is still running normally.
+      //watchdog('Cron RSS to node', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
+    }
+
+    // Return FALSE and set error message;
+    //drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
+    if (strstr($_GET['q'], '/wally/'))
+      return array('The cron didn\'t run successfully because the semaphore wasn\'t free.');
+    else
+      print 'The cron didn\'t run successfully because the semaphore wasn\'t free.';
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallyrsstonode_cron_cleanup');
+
+    // Lock cron semaphore
+    variable_set('wallyrsstonode_cron_semaphore', time());
+
+    // Call the function calling the RSS feeds
+    $return = _wallyrsstonode_callallfeeds();
+
+    // Record cron time
+    variable_set('wallyrsstonode_cron_last', time());
+    //watchdog('Cron RSS to node', 'Cron run completed.', array(), WATCHDOG_NOTICE);
+
+    // Release cron semaphore
+    variable_del('wallyrsstonode_cron_semaphore');
+
+    if (strstr($_GET['q'], '/wally/'))
+      return $return;
+    else
+      print_r($return);
+    // Redirect to admin page if success
+    //drupal_goto('admin/wally/');
+  }
+}
+
+/**
+ * Shutdown function for RSS to node cron cleanup.
+ */
+function wallyrsstonode_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (variable_get('wallyrsstonode_cron_semaphore', FALSE)) {
+    //watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+
+    // Release cron semaphore
+    variable_del('wallyrsstonode_cron_semaphore');
+  }
+}
+
+/**
+ * Make mass reject of nodes, the nodes are deleted.
+ *
+ * @param array $nodes
+ *   Array of node nids to reject.
+ */
+function wallyrsstonode_reject_nodes($nodes) {
+  foreach ($nodes as $nid) {
+    node_delete($nid);
+  }
+}
+
+/**
  * Check the submitted values and
  * add a new entry (or update) in the rsstonode_feeds table.
  * 
@@ -100,73 +199,6 @@ function wallyrsstonode_add_table_entry($object) {
   return FALSE;
 }
 
-/**
- * Executes the RSS to node cron run when called.
- * 
- * @return
- *   Returns FALSE in case of error, redirect if successful.
- */
-function wallyrsstonode_cron() {
-  // Try to allocate enough time to run all the hook_cronrsstonode implementations.
-  if (function_exists('set_time_limit')) {
-    @set_time_limit(60);
-  }
-
-  // Fetch the cron semaphore
-  $semaphore = variable_get('wallyrsstonode_cron_semaphore', FALSE);
-
-  if ($semaphore) {
-    if (time() - $semaphore > 3600) {
-      // Either cron has been running for more than an hour or the semaphore
-      // was not reset due to a database error.
-      //watchdog('Cron RSS to node', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
-
-      // Release cron semaphore
-      variable_del('wallyrsstonode_cron_semaphore');
-    } else {
-      // Cron is still running normally.
-      //watchdog('Cron RSS to node', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
-    }
-
-    // Return FALSE and set error message;
-    //drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
-    print 'The cron didn\'t run successfully because the semaphore wasn\'t free.';
-  } else {
-    // Register shutdown callback
-    register_shutdown_function('wallyrsstonode_cron_cleanup');
-
-    // Lock cron semaphore
-    variable_set('wallyrsstonode_cron_semaphore', time());
-
-    // Call the function calling the RSS feeds
-    $return = _wallyrsstonode_callallfeeds();
-
-    // Record cron time
-    variable_set('wallyrsstonode_cron_last', time());
-    //watchdog('Cron RSS to node', 'Cron run completed.', array(), WATCHDOG_NOTICE);
-
-    // Release cron semaphore
-    variable_del('wallyrsstonode_cron_semaphore');
-
-    print_r($return);
-    // Redirect to admin page if success
-    //drupal_goto('admin/wally/');
-  }
-}
-
-/**
- * Shutdown function for RSS to node cron cleanup.
- */
-function wallyrsstonode_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (variable_get('wallyrsstonode_cron_semaphore', FALSE)) {
-    //watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
-
-    // Release cron semaphore
-    variable_del('wallyrsstonode_cron_semaphore');
-  }
-}
-
 function _wallyrsstonode_callallfeeds() {
   // exec("crontab *.dat");
   
@@ -185,7 +217,7 @@ function _wallyrsstonode_callallfeeds() {
     if ($feed_xml) {
       list($valid_dom, $channel_last_build) = _wallyrsstonode_createvaliddomfromfeed($feed_xml, $feed_infos);
 
-      if ($channel_last_build > $feed_infos['last_build']) {
+      if ($valid_dom && $channel_last_build > $feed_infos['last_build']) {
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['rss_key'].'-'.$channel_last_build.'.tmp';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
@@ -348,6 +380,10 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
     $valid_dom = 'No channel in the feed : '. $feed_infos['name'];
   }
   
+  $verif_package = $valid_dom->getElementsByTagName('Package');
+  if (!$verif_package->item(0))
+    $valid_dom = NULL;
+
   $return = array();
   $return[] = $valid_dom;
   $return[] = $channel_last_build;

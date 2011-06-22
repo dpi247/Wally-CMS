@@ -47,8 +47,8 @@ function wallyrsstonode_page_admin_list_feeds($op = '', $rss_key = 0) {
 }
 
 function wallyrsstonode_page_admin_run_cron() {
-  wallyrsstonode_cron();
-  
+  $result = wallyrsstonode_cron();
+  drupal_set_message($result[0]);
   return '';
 }
 
@@ -300,12 +300,19 @@ function _wallyrsstonode_getdefaultvalues($feed_infos = array()) {
 }
 
 function _wallyrsstonode_build_feed_queue($rss_key) {
-  $feeds_infos = db_result(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key));
+  $feeds_infos = db_fetch_array(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key));
 
   if (!$feeds_infos['publish']) {
     drupal_set_message(t('All the nodes created from this feed are automatically published'));
     drupal_goto('admin/wally/wallyrsstonode');
   }
   
-  return '';
+  $view = views_get_view('rss_to_node_queue');
+  $view->set_display('default');
+  $arg = (strlen($feeds_infos['prefix']) > 5) ? substr($feeds_infos['prefix'], 0, 5) : $feeds_infos['prefix'];
+  while(strlen($arg) < 5)
+    $arg .= ':';
+  $view->set_arguments(array($arg));
+
+  return $view->preview();;
 }
