@@ -101,6 +101,7 @@ function wallystat_cron(){
     $term_array = explode(' ', $row->terms);
     if(is_array($term_array)){
       foreach($term_array as $term){
+        if (!isset($term_counts[$term])) $term_counts[$term] = 0;
         $term_counts[$term] += $row->term_count;
       }
     }
@@ -219,10 +220,15 @@ function wallystat_cron(){
 /**
  * Implementation of hook_preprocess_page().
  */
-function wallystat_preprocess_page(&$vars) {
+/*function wallystat_preprocess_page(&$vars) {
 	if(isset($vars['node'])) {
 	  _wallystat_add_updater_callback($vars);
 	}
+}*/
+
+function wallystat_preprocess(&$vars, $hook){
+  if ($hook == 'node')
+    _wallystat_add_updater_callback($vars);
 }
 
 /**
