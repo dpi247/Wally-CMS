@@ -270,9 +270,9 @@ function _wallyrsstonode_html_table_actions($feed_infos) {
 
 function _wallyrsstonode_html_table_queue($feed_infos) {
   if ($feed_infos['publish']) {
-    $return = l(t('Show queue'), 'admin/wally/wallyrsstonode/list/queue/'.$feed_infos['rss_key']).' ';
-  } else {
     $return = '';
+  } else {
+    $return = l(t('Show queue'), 'admin/wally/wallyrsstonode/list/queue/'.$feed_infos['rss_key']).' ';
   }
   
   return $return;
