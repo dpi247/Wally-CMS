@@ -225,7 +225,7 @@ function _wallyrsstonode_callallfeeds() {
         $temp_return = wallymport_page_process_file($tempFile);
         file_delete($tempFile);
 
-        if ($temp_return) {
+        if ($temp_return && !is_string($temp_return)) {
           $object = array();
           $object = $feed_infos;
           $object['last_build'] = $channel_last_build;

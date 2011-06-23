@@ -24,7 +24,7 @@
  *   The array-restructured item.
  */
 function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name'=>'RSS', 'destination'=>'0///', 'channel_img'=>0, 'prefix'=>'')) {
-  $array_item = wallytoolbox_flow_to_array_new_package();
+  $array_item['Package'] = wallytoolbox_flow_to_array_new_package();
   
   list($feed_name, $prefix) = wallytoolbox_rss_item_to_array_set_package($array_item, $item, $feed_infos);
   wallytoolbox_rss_item_to_array_set_mainstory($array_item, $item, $feed_name, $prefix);
@@ -139,6 +139,7 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $channel_pubDate = strtotime(_wallytoolbox_checkifelementexists($item, 'pubDate'));
   $pubDate = date('Y-m-d', $channel_pubDate).'T'.date('H:i:sP', $channel_pubDate);
   $array_item['Package']['PublicationDate'] = $pubDate;
+  $array_item['Package']['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $array_item['Package']['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
   $array_item['Package']['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
@@ -165,8 +166,10 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
  *   The name of the feed being analyzed.
  */
 function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed_name, $prefix) {
+  $array_item['Package']['MainStory'] = wallytoolbox_flow_to_array_new_textobject();
   $array_item['Package']['MainStory']['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['MainStory']['PublicationDate'] = $array_item['Package']['PublicationDate'];
+  $array_item['Package']['MainStory']['CreationDate'] = $array_item['Package']['CreationDate'];
   $array_item['Package']['MainStory']['Title']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['Package']['MainStory']['ExternalReference']['value'] =  _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
   $array_item['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyName'] = 'RSS feeds';
