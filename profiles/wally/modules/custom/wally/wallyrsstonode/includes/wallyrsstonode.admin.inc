@@ -100,7 +100,7 @@ function wallyrsstonode_form_add_feed_form($form_state, $default_form_values) {
     '#type' => 'radios',
     '#title' => t('Publishing comportement'),
     '#default_value' => $default_form_values['publish'],
-    '#options' => array(t('Publish all nodes'), t('Place nodes in a queue and choose which ones to publish')),
+    '#options' => array(t('Place nodes in a queue and choose which ones to publish'), t('Publish all nodes')),
     '#required' => TRUE,
     '#weight' => 0.15,
   );
@@ -302,7 +302,7 @@ function _wallyrsstonode_getdefaultvalues($feed_infos = array()) {
 function _wallyrsstonode_build_feed_queue($rss_key) {
   $feeds_infos = db_fetch_array(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key));
 
-  if (!$feeds_infos['publish']) {
+  if ($feeds_infos['publish']) {
     drupal_set_message(t('All the nodes created from this feed are automatically published'));
     drupal_goto('admin/wally/wallyrsstonode');
   }
