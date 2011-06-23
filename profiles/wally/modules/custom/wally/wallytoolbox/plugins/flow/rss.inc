@@ -10,7 +10,7 @@
  * $array[element_name][subelement_name] = subelement (array)
  * And so on..
  * 
- * If the subelement is just a text value, use 'value' as subelement_name.
+ * If the subelement is just a string, use 'value' as subelement_name.
  * 
  * @param $channel
  *   The full RSS channel, needed because of the media fields which can
@@ -24,7 +24,7 @@
  *   The array-restructured item.
  */
 function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name'=>'RSS', 'destination'=>'0///', 'channel_img'=>0, 'prefix'=>'')) {
-  $array_item = wallytoolbox_rss_item_to_array_init_array();
+  $array_item = wallytoolbox_flow_to_array_new_package();
   
   list($feed_name, $prefix) = wallytoolbox_rss_item_to_array_set_package($array_item, $item, $feed_infos);
   wallytoolbox_rss_item_to_array_set_mainstory($array_item, $item, $feed_name, $prefix);
@@ -120,99 +120,6 @@ function _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel
 }
 
 /**
- * Initialise an array following the schema of a Wallymport articlepackage.
- * Only required fields are initialised.
- * 
- * @return
- *   The initialised array.
- */
-function wallytoolbox_rss_item_to_array_init_array() {
-  $array_item = array();
-  $array_item['Package']['PackageID'] = '';
-  $array_item['Package']['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $array_item['Package']['EmbargoDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $array_item['Package']['Language'] = '';
-  $array_item['Package']['PackageTitle']['value'] = '';
-  $array_item['Package']['ExternalReference']['value'] = '';
-  $array_item['Package']['ProductID']['value'] = '';
-  $array_item['Package']['Destinations'] = array();
-  $array_item['Package']['Destinations']['Destination'] = array();
-  $array_item['Package']['Destinations']['Destination']['DestinationRank'] = '';
-  $array_item['Package']['Destinations']['Destination']['Position'] = '';
-  $array_item['Package']['Destinations']['Destination']['DocumentLayout'] = '';
-  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = '';
-  $array_item['Package']['Editions'] = array();
-  $array_item['Package']['Editions']['Edition']['EditionID'] = 'all';
-  $array_item['Package']['Editions']['Edition']['value'] = 'true';
-  $array_item['Package']['Channels'] = array();
-  $array_item['Package']['Channels']['Channel']['Name'] = '';
-  $array_item['Package']['Summary']['value'] = '';
-  $array_item['Package']['ExternalURI']['value'] = 'http://';
-  $array_item['Package']['MainStory'] = wallytoolbox_rss_item_to_array_new_textobject();
-  return $array_item;
-}
-
-/**
- * Initialise an array following the schema of a Wallymport textobject.
- * Only required fields are initialised (+ the taxonomy field).
- * 
- * @return
- *   The initialised array.
- */
-function wallytoolbox_rss_item_to_array_new_textobject() {
-  $textobject = array();
-  $textobject['ObjectID'] = '';
-  $textobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $textobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $textobject['Title']['value'] = '';
-  $textobject['ExternalReference']['value'] =  '';
-  $textobject['Taxonomy'] = array();
-  $textobject['Taxonomy']['Vocabulary'] = array();
-  $textobject['Taxonomy']['Vocabulary']['VocabularyName'] = 'Default';
-  $textobject['Taxonomy']['Vocabulary']['VocabularyType'] = 'free';
-  $textobject['Taxonomy']['Vocabulary']['Term'] = array();
-  $textobject['TextTitle']['value'] = '';
-  $textobject['TextBody']['value'] = '';
-  return $textobject;
-}
-
-/**
- * Initialise an array following the schema of a Wallymport photoobject.
- * 
- * @return
- *   The initialised array.
- */
-function wallytoolbox_rss_item_to_array_new_photoobject() {
-  $photoobject = array();
-  $photoobject['ObjectID'] = '';
-  $photoobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $photoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $photoobject['Title']['value'] = '';
-  $photoobject['ExternalReference']['value'] = '';
-  $photoobject['FileURI']['value'] = 'http://';
-  $photoobject['FileSize']['value'] = '';
-  return $photoobject;
-}
-
-/**
- * Initialise an array following the schema of a Wallymport videoobject.
- * 
- * @return
- *   The initialised array.
- */
-function wallytoolbox_rss_item_to_array_new_videoobject() {
-  $videoobject = array();
-  $videoobject['ObjectID'] = '';
-  $videoobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $videoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $videoobject['Title']['value'] = '';
-  $videoobject['ExternalReference']['value'] = '';
-  $videoobject['FileURI']['value'] = 'http://';
-  $videoobject['FileSize']['value'] = '';
-  return $videoobject;
-}
-
-/**
  * Get package available parameters from an RSS feed item domElement
  * and set an array item according to the structure defined in
  * Wallymport.
@@ -290,7 +197,7 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
   $array_item['Package']['EmbeddedContent'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
-  $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
+  $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
@@ -374,7 +281,7 @@ function wallytoolbox_rss_item_to_array_set_media(&$array_item, $channel, $item,
     $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
   }
   
-  $tempobject = call_user_func('wallytoolbox_rss_item_to_array_new_'.$media_type);
+  $tempobject = call_user_func('wallytoolbox_flow_to_array_new_'.$media_type);
   call_user_func_array('wallytoolbox_rss_item_to_array_set_'.$media_type, array(&$tempobject, &$array_item, $channel, $item, $media_content, $feed_name, $media_num, $media_namespace, $third_party_url));
   $media_num++;
   
@@ -502,7 +409,7 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $array_item['Package']['EmbeddedContent'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects'] = array();
   $array_item['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
-  $tempobject = wallytoolbox_rss_item_to_array_new_photoobject();
+  $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['PublicationDate'] = $array_item['Package']['PublicationDate'];
   $tempobject['MimeType'] = 'image';

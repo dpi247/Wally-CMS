@@ -753,6 +753,105 @@ function wallytoolbox_get_panels_and_handlers() {
   return $return;
 }
 
+function wallytoolbox_flow_to_array_init_array() {
+  $array_packages = array();
+  $array_packages['Packages'] = array();
+  return $array_packages;
+}
+
+/**
+ * Initialise an array following the schema of a Wallymport articlepackage.
+ * Only required fields are initialised.
+ * 
+ * @return
+ *   The initialised array.
+ */
+function wallytoolbox_flow_to_array_new_package() {
+  $array_item = array();
+  $array_item['Package']['PackageID'] = '';
+  $array_item['Package']['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $array_item['Package']['EmbargoDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $array_item['Package']['Language'] = '';
+  $array_item['Package']['PackageTitle']['value'] = '';
+  $array_item['Package']['ExternalReference']['value'] = '';
+  $array_item['Package']['ProductID']['value'] = '';
+  $array_item['Package']['Destinations'] = array();
+  $array_item['Package']['Destinations']['Destination'] = array();
+  $array_item['Package']['Destinations']['Destination']['DestinationRank'] = '';
+  $array_item['Package']['Destinations']['Destination']['Position'] = '';
+  $array_item['Package']['Destinations']['Destination']['DocumentLayout'] = '';
+  $array_item['Package']['Destinations']['Destination']['DestinationPath']['value'] = '';
+  $array_item['Package']['Editions'] = array();
+  $array_item['Package']['Editions']['Edition']['EditionID'] = 'all';
+  $array_item['Package']['Editions']['Edition']['value'] = 'true';
+  $array_item['Package']['Channels'] = array();
+  $array_item['Package']['Channels']['Channel']['Name'] = '';
+  $array_item['Package']['Summary']['value'] = '';
+  $array_item['Package']['ExternalURI']['value'] = 'http://';
+  $array_item['Package']['MainStory'] = wallytoolbox_rss_item_to_array_new_textobject();
+  return $array_item;
+}
+
+/**
+ * Initialise an array following the schema of a Wallymport textobject.
+ * Only required fields are initialised (+ the taxonomy field).
+ * 
+ * @return
+ *   The initialised array.
+ */
+function wallytoolbox_flow_to_array_new_textobject() {
+  $textobject = array();
+  $textobject['ObjectID'] = '';
+  $textobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $textobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $textobject['Title']['value'] = '';
+  $textobject['ExternalReference']['value'] =  '';
+  $textobject['Taxonomy'] = array();
+  $textobject['Taxonomy']['Vocabulary'] = array();
+  $textobject['Taxonomy']['Vocabulary']['VocabularyName'] = 'Default';
+  $textobject['Taxonomy']['Vocabulary']['VocabularyType'] = 'free';
+  $textobject['Taxonomy']['Vocabulary']['Term'] = array();
+  $textobject['TextTitle']['value'] = '';
+  $textobject['TextBody']['value'] = '';
+  return $textobject;
+}
+
+/**
+ * Initialise an array following the schema of a Wallymport photoobject.
+ * 
+ * @return
+ *   The initialised array.
+ */
+function wallytoolbox_flow_to_array_new_photoobject() {
+  $photoobject = array();
+  $photoobject['ObjectID'] = '';
+  $photoobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $photoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $photoobject['Title']['value'] = '';
+  $photoobject['ExternalReference']['value'] = '';
+  $photoobject['FileURI']['value'] = 'http://';
+  $photoobject['FileSize']['value'] = '';
+  return $photoobject;
+}
+
+/**
+ * Initialise an array following the schema of a Wallymport videoobject.
+ * 
+ * @return
+ *   The initialised array.
+ */
+function wallytoolbox_flow_to_array_new_videoobject() {
+  $videoobject = array();
+  $videoobject['ObjectID'] = '';
+  $videoobject['PublicationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $videoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $videoobject['Title']['value'] = '';
+  $videoobject['ExternalReference']['value'] = '';
+  $videoobject['FileURI']['value'] = 'http://';
+  $videoobject['FileSize']['value'] = '';
+  return $videoobject;
+}
+
 /**
  * @} End of "defgroup wallytoolbox".
  */
