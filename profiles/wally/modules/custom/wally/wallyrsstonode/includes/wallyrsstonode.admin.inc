@@ -32,14 +32,18 @@ function wallyrsstonode_page_admin_list_feeds($op = '', $rss_key = 0) {
       if (db_result(db_query('SELECT * FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key))) {
         db_query('DELETE FROM `rsstonode_feeds` WHERE `rss_key`=%d', $rss_key);
       } else {
-        drupal_set_message('No feed matching the requested key.', "warning");
+        drupal_set_message(t('No feed matching the requested key.'), "warning");
       }
       break;
     case 'edit':
       drupal_goto('admin/wally/wallyrsstonode/add/edit/'.$rss_key);
       break;
     case 'queue':
-      return _wallyrsstonode_build_feed_queue($rss_key);
+      $return = _wallyrsstonode_build_feed_queue($rss_key);
+      if ($return)
+        return $return;
+      else
+        drupal_set_message(t('Empty queue.'));
       break;
   }
   
@@ -309,10 +313,15 @@ function _wallyrsstonode_build_feed_queue($rss_key) {
   
   $view = views_get_view('rss_to_node_queue');
   $view->set_display('default');
+  $view->pager['use_pager'] = TRUE;
+  $view->pager['items_per_page'] = 20;
   $arg = (strlen($feeds_infos['prefix']) > 5) ? substr($feeds_infos['prefix'], 0, 5) : $feeds_infos['prefix'];
   while(strlen($arg) < 5)
     $arg .= ':';
   $view->set_arguments(array($arg));
 
-  return $view->render();
+  $return = $view->render();
+  if (empty($view->result))
+    $return = NULL;
+  return $return;
 }
