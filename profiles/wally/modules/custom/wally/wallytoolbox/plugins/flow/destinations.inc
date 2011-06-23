@@ -8,7 +8,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
   $tranformed_nodes = array();
   foreach ($view_results as $node_result) {
     $node = node_load($node_result->nid);
-    $tranformed_nodes[] = wallytoolbox_destinations_flow_transform_node($node);
+    $tranformed_nodes[] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
   
   return $transformed_nodes;
@@ -65,4 +65,8 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $view->destroy();
   
   return $view_results;
+}
+
+function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
+  return array();
 }
