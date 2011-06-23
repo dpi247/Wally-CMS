@@ -297,6 +297,8 @@ function _wallyrsstonode_createvaliddomfromfeed($feed_xml, &$feed_infos) {
           $package = $packages->appendChild($valid_dom->createElement('Package'));
           $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'ArticlePackageType');
           $package->setAttribute('PackageID', $array_valid_dom['Package']['PackageID']);
+          if (!$feed_infos['publish'])
+            $array_valid_dom['Package']['PublicationDate'] = '';
           $package->setAttribute('PublicationDate', $array_valid_dom['Package']['PublicationDate']);
           $package->setAttribute('CreationDate', $array_valid_dom['Package']['CreationDate']);
           $package->setAttribute('EmbargoDate', $array_valid_dom['Package']['EmbargoDate']);
