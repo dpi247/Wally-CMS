@@ -17,7 +17,7 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
   $handlers=$view->display_handler->handlers;
-  watchdog('debug rows', print_r($handlers, TRUE));
+  dsm($handlers);
   foreach($handlers['argument'] as $key=>$value){
     if($key=='field_destinations_tid'){
       $destination_tid=$value->value[0];
