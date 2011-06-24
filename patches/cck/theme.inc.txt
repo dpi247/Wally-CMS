@@ -1,2 +1,0 @@
-line 49: Added "if (isset($element)) {"
-line 82: Added "}"
