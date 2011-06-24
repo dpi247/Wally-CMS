@@ -301,38 +301,6 @@ function wallyedit_callback_preview_renderer_render_redacblock($prenode, $node, 
   $redacblock_name=$conf['content']->name;
   $view = views_get_view('default_destination_view');
   $view->set_display('redacblock_1');
-  /*$options=array(
-    'field_destinations_target' => array(
-      'operator' => '=',
-      'value' => $redacblock_name,
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'case' => 1,
-      'id' => 'field_destinations_target',
-      'table' => 'node_data_field_destinations',
-      'field' => 'field_destinations_target',
-      'relationship' => 'none',
-    ),
-  );
-  $options=array(
-    'operator' => '=',
-    'value' => $redacblock_name,
-    'group' => '0',
-    'exposed' => FALSE,
-                'expose' => array(
-                  'operator' => FALSE,
-                  'label' => '',
-  ),
-                'case' => 1,
-                'id' => 'field_destinations_target',
-                'table' => 'node_data_field_destinations',
-                'field' => 'field_destinations_target',
-                'relationship' => 'none',
-  );*/
   $options=array(
     'operator' => '=',
     'value' => $redacblock_name,
