@@ -31,7 +31,6 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
   }
   foreach ($view->argument as $arg_name => $argument) {
     if (strstr($arg_name, 'field_destination')) {
-      dsm($handlers['argument']);
       $vars['admin_links_raw'] = array(
         'title' => t('Reorder'),
         'alt' => t("Reorder the view"),
