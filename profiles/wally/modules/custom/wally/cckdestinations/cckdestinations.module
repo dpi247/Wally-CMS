@@ -164,9 +164,9 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  if (empty($item['tid']) || $item['tid']==0) {
+  if (empty($item['tid']) || $item['tid']=='0') {
     return TRUE;
-  }    
+  }
   return FALSE;
 }
 
@@ -396,7 +396,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'         => FALSE,
     '#weight'           => 5,
   );
-  
+
   return $element;
 }
 

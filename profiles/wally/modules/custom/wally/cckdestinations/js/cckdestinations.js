@@ -24,7 +24,7 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	$("#"+parent).change(function() {
 		var parentValue = $("#"+parent).find("option:selected").attr("title");
 		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-		if(isSubselectOptional)
+		if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional)
 			$("#"+child).prepend("<option value=''> -- Select -- </option>");
 		$("#"+child).trigger("change");
 		$("#"+child).focus();
