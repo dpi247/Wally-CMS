@@ -17,7 +17,6 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
   $handlers=$view->display_handler->handlers;
-  dsm($handlers['argument']);
   foreach($handlers['argument'] as $key=>$value){
     if($key=='field_destinations_tid'){
       $destination_tid=$value->value[0];
@@ -32,6 +31,7 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
   }
   foreach ($view->argument as $arg_name => $argument) {
     if (strstr($arg_name, 'field_destination')) {
+      dsm($handlers['argument']);
       $vars['admin_links_raw'] = array(
         'title' => t('Reorder'),
         'alt' => t("Reorder the view"),
