@@ -17,6 +17,7 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
   $handlers=$view->display_handler->handlers;
+  watchdog('debug rows', print_r($handlers, TRUE));
   foreach($handlers['argument'] as $key=>$value){
     if($key=='field_destinations_tid'){
       $destination_tid=$value->value[0];
@@ -115,6 +116,11 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
 
 function theme_wallyctools_form_reorderdestinationview_form($form){
+  if (!isset($form['rows']) || empty($form['rows'])) {
+    drupal_set_message(t('No nodes to reorder.'));
+    return;
+  }
+  
   //loop through each "row" in the table array
   foreach($form['rows'] as $id => $row){
     //we are only interested in numeric keys
