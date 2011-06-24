@@ -1,0 +1,109 @@
+diff -rupN cck_2.9_orig//includes/content.node_form.inc cck_2.9_patched//includes/content.node_form.inc
+--- cck_2.9_orig//includes/content.node_form.inc	2010-12-30 14:55:30.000000000 +0100
++++ cck_2.9_patched//includes/content.node_form.inc	2011-06-24 11:49:09.755973007 +0200
+@@ -1,6 +1,13 @@
+ <?php
+ // $Id: content.node_form.inc,v 1.7.2.24 2010/12/30 13:55:30 yched Exp $
+ 
++// PATCH DLA - EXXODUS - AUDAXIS
++//
++// Change the default beavure of CCK multiple value. By default multiple field show 2 empty field
++// 1 for the current data (emppty and 1 for more ...)
++// I patch the code to show up only 1 field if empty, 2 if there is already a value in the 1st fieldd
++
++
+ /**
+  * @file
+  * Create fields' form for a content type.
+@@ -156,9 +163,29 @@ function content_multiple_value_form(&$f
+       break;
+     case 1:
+       $filled_items = content_set_empty($field, $items);
+-      $current_item_count = isset($form_state['item_count'][$field_name])
++
++		// PATCH DLA - EXXODUS - AUDAXIS
++		//
++        // make the count different for no item.
++        // (filled with an empty item by content_set_empty)
++        // and 1 item with data
++       $hook_is_empty = $field['module'] .'_content_is_empty';
++       
++       if (count($items) == 1 && $hook_is_empty($items[0], $field)) {
++         $minimum_item_count = 0;
++       }
++       else {
++         $minimum_item_count = count($items);
++       }      
++     
++       $current_item_count = isset($form_state['item_count'][$field_name])
+                             ? $form_state['item_count'][$field_name]
+-                            : count($items);
++
++		// PATCH DLA - EXXODUS - AUDAXIS
++        //
++		//                  : count($items);
++                            : $minimum_item_count;
++
+       // We always want at least one empty icon for the user to fill in.
+       $max = ($current_item_count > count($filled_items))
+               ? $current_item_count - 1
+diff -rupN cck_2.9_orig//theme/theme.inc cck_2.9_patched//theme/theme.inc
+--- cck_2.9_orig//theme/theme.inc	2009-04-29 01:06:37.000000000 +0200
++++ cck_2.9_patched//theme/theme.inc	2011-06-24 11:52:21.545973000 +0200
+@@ -45,7 +45,35 @@ function template_preprocess_content_fie
+       }
+     }
+ 
+-    $row = new stdClass();
++    if (isset($element)) {
++      $row = new stdClass();
++      // Add target classes for the tabledrag behavior.
++      $element['weight']['#attributes']['class'] = 'field-weight';
++      $element['parent']['#attributes']['class'] = 'group-parent';
++      $element['hidden_name']['#attributes']['class'] = 'field-name';
++      // Add target classes for the update selects behavior.
++      switch ($element['#row_type']) {
++        case 'add_new_field':
++          $element['type']['#attributes']['class'] = 'content-field-type-select';
++          $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
++          break;
++        case 'add_existing_field':
++          $element['field_name']['#attributes']['class'] = 'content-field-select';
++          $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
++          $element['label']['#attributes']['class'] = 'content-label-textfield';
++          break;
++      }
++      foreach (element_children($element) as $child) {
++        $row->{$child} = drupal_render($element[$child]);
++      }
++      $row->label_class = 'label-'. strtr($element['#row_type'], '_', '-');
++      $row->row_type = $element['#row_type'];
++      $row->indentation = theme('indentation', isset($element['#depth']) ? $element['#depth'] : 0);
++      $row->class = 'draggable';
++      $row->class .= isset($element['#disabled_row']) ? ' menu-disabled' : '';
++      $row->class .= isset($element['#add_new']) ? ' content-add-new' : '';
++      $row->class .= isset($element['#leaf']) ? ' tabledrag-leaf' : '';
++      $row->class .= isset($element['#root']) ? ' tabledrag-root' : '';
+ 
+     // Add target classes for the tabledrag behavior.
+     $element['weight']['#attributes']['class'] = 'field-weight';
+@@ -63,19 +91,6 @@ function template_preprocess_content_fie
+         $element['label']['#attributes']['class'] = 'content-label-textfield';
+         break;
+     }
+-    foreach (element_children($element) as $child) {
+-      $row->{$child} = drupal_render($element[$child]);
+-    }
+-    $row->label_class = 'label-'. strtr($element['#row_type'], '_', '-');
+-    $row->row_type = $element['#row_type'];
+-    $row->indentation = theme('indentation', isset($element['#depth']) ? $element['#depth'] : 0);
+-    $row->class = 'draggable';
+-    $row->class .= isset($element['#disabled_row']) ? ' menu-disabled' : '';
+-    $row->class .= isset($element['#add_new']) ? ' content-add-new' : '';
+-    $row->class .= isset($element['#leaf']) ? ' tabledrag-leaf' : '';
+-    $row->class .= isset($element['#root']) ? ' tabledrag-root' : '';
+-
+-    $rows[] = $row;
+     array_shift($order);
+   }
+   $vars['rows'] = $rows;
