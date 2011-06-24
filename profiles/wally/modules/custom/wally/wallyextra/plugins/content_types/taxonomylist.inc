@@ -211,7 +211,6 @@ function wallyextra_taxonomylist_content_type_render($subtype, $conf, $panel_arg
  $node = isset($context->data) ? drupal_clone($context->data) : NULL;
   if(!isset($node)){
     $node = node_load($panel_args[0]);
-  
   }
   $block = new stdClass();
   
