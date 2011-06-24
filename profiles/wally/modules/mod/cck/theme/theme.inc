@@ -31,7 +31,6 @@ function template_preprocess_content_field_overview_form(&$vars) {
   while ($order) {
     $key = reset($order);
     $element = &$form[$key];
-    
 
     // Only display the 'Add' separator if the 'add' rows are still
     // at the end of the table.
@@ -75,8 +74,23 @@ function template_preprocess_content_field_overview_form(&$vars) {
       $row->class .= isset($element['#add_new']) ? ' content-add-new' : '';
       $row->class .= isset($element['#leaf']) ? ' tabledrag-leaf' : '';
       $row->class .= isset($element['#root']) ? ' tabledrag-root' : '';
+    }
 
-      $rows[] = $row;
+    // Add target classes for the tabledrag behavior.
+    $element['weight']['#attributes']['class'] = 'field-weight';
+    $element['parent']['#attributes']['class'] = 'group-parent';
+    $element['hidden_name']['#attributes']['class'] = 'field-name';
+    // Add target classes for the update selects behavior.
+    switch ($element['#row_type']) {
+      case 'add_new_field':
+        $element['type']['#attributes']['class'] = 'content-field-type-select';
+        $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
+        break;
+      case 'add_existing_field':
+        $element['field_name']['#attributes']['class'] = 'content-field-select';
+        $element['widget_type']['#attributes']['class'] = 'content-widget-type-select';
+        $element['label']['#attributes']['class'] = 'content-label-textfield';
+        break;
     }
     array_shift($order);
   }
