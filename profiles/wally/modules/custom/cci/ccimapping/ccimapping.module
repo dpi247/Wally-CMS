@@ -1,10 +1,14 @@
 <?php
+
+/*
+ * Implementation of the hook_module
+ */
 function ccimapping_menu(){
 
  $items = array();
   
   $items['admin/cci/ccimapping/configuration'] = array(
-    'title' => 'ccimapping configuration and settings',
+    'title' => 'CCI Newsgate - Mapping configuration & settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_configuration_form'),
     'access arguments' => array('access administration pages'),
@@ -32,6 +36,9 @@ function ccimapping_menu(){
   return $items;
 }
 
+/*
+ * Implementation of the hook_theme
+ */
 function ccimapping_theme(){
   $path = drupal_get_path('module', 'ccimapping');
   $base = array(
@@ -40,9 +47,25 @@ function ccimapping_theme(){
   );
   return array(
     'ccimapping_typeselector'=>$base + array(
+        'arguments'=>array('type'),
+  
     ),
     'ccimapping_hierarchies'=>$base + array(
       'arguments'=>array('hierarchies'=>array()),
     ),
     );
+}
+
+function ccimap_type_converter($type){
+  
+  $mappings=variable_get('ccimapping_type','');
+  $mappings=explode("\n", $mappings);
+  foreach ($mappings as $mapping){
+    $temp=explode("|", $mapping);
+  $correct_mapping[$temp[0]]=$temp[1];
+  }
+  if(array_key_exists($type, $correct_mapping)){
+    return $correct_mapping[$type];
+  }
+  else return $type;
 }

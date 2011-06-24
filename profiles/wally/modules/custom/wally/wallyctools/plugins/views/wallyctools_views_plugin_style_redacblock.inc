@@ -56,7 +56,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       return;
     }
     $rows = '';
-    $prenode = new Prenode($this->view->wallyedit_preview['cache_name']);
+    $prenode = new Prenode($this->view->wallyedit_preview['cache name']);
     $node = $prenode->ReturnPopulated();
     $node->node_view_destination = $this->view->wallyedit_preview['tid'];
     if($this->view->pager['current_page']==0)//useful if more than one view in a page.
@@ -64,7 +64,14 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
 
     $this->_clean_results($node);
     while(!$node->done){
-      foreach($this->view->result as $key=>$row){
+      foreach($this->view->result as $key=>$row) {
+        $cur_dest = $node->field_destinations[$this->view->wallyedit_preview['key']];
+        if (!isset($cur_dest['time_rank']) || empty($cur_dest['time_rank']) || $cur_dest['time_rank'] == 0) {
+          $items = array($cur_dest);
+          _cckdestinations_set_new_time_ranks($node, $items);
+          $cur_dest = $items[0];
+        }
+        $node->field_destinations[$this->view->wallyedit_preview['key']] = $cur_dest;
         if($node->field_destinations[$this->view->wallyedit_preview['key']]['time_rank'] >= $row->node_data_field_destinations_field_destinations_time_rank){
           $node->done = true;
           $result = array_merge(array_slice($this->view->result, 0, $key), array(0=>$node, ), array_slice($this->view->result, $key));

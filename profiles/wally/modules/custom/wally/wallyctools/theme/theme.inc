@@ -57,29 +57,25 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
   $nid = $vars['row']->{$vars['field_alias']};
 
-  
-  
-  if($view->wallyedit_preview){
-    if(empty($vars['row']->done)){
+  if($view->wallyedit_preview) {
+    if(empty($vars['row']->done)) {
       if (!is_numeric($nid)) {
         return;
       }
       $node = node_load($nid);
-    }else{
+    } else {
       $node = $vars['row'];
     }
-    $vars['layout']=$view->wallyedit_preview['layout'];
-    $vars['target']=$view->wallyedit_preview['target'];
-    $vars['destination']=$view->wallyedit_preview['tid'];
-  }else{
+  } else {
     if (!is_numeric($nid)) {
       return;
     }
     $node = node_load($nid);
-    $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
-    $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
-    $vars['layout']=wallyctools_api_getlayoutfromdestinationandtarget($node,$vars['destination'],$vars['target']);
   }
+  
+  $vars['destination'] = $view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
+  $vars['target'] = $view->display_handler->handlers['filter']['field_destinations_target']->value;
+  $vars['layout'] = wallyctools_api_getlayoutfromdestinationandtarget($node, $vars['destination'], $vars['target']);
 
   if (empty($node)) {
     return;

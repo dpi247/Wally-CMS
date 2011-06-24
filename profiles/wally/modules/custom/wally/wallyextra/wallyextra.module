@@ -343,7 +343,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
               cache: false,
               data: {
                 callback: "'.$callback.'",
-                settings: \''.serialize(str_replace(array(PHP_EOL), '|@@@|', $settings)).'\',
+                settings: \''.serialize(str_replace(array('\n', '\r\n'), '|@@@|', $settings)).'\',
                 subtype: "'.$subtype.'",
                 context: \''.serialize($context).'\',
                 default_theme: "'.$default_theme.'",
@@ -376,7 +376,7 @@ function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
   $callback = $_POST['callback'];
-  $settings = str_replace('|@@@|', PHP_EOL, unserialize($_POST['settings']));
+  $settings = str_replace('|@@@|', '\n', unserialize($_POST['settings']));
   $subtype = $_POST['subtype'];
   $context = unserialize($_POST['context']);
   $default_theme = $_POST['default_theme'];

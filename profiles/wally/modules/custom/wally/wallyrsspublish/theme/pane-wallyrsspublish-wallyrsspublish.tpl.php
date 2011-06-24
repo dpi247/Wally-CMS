@@ -3,13 +3,7 @@
  * 
  * Display a list about the different Destination Path.
  */
-$all_voc = taxonomy_get_vocabularies();
-foreach ($all_voc as $voc) {
-	if ($voc->name == 'Destination Path') {
-		$taxos = taxonomy_get_tree($voc->vid);
-		break;
-	}
-}
+$taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
 $contenu = "<ul>";
 foreach ($taxos as $taxo){
 	$name = (string)($taxo->name);

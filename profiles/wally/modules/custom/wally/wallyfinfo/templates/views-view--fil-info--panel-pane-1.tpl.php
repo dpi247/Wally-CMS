@@ -10,13 +10,7 @@
  *
  * @ingroup views_templates
  */
-$all_voc = taxonomy_get_vocabularies();
-foreach ($all_voc as $voc) {
-  if ($voc->name == 'Destination Path') {
-    $available_dests = taxonomy_get_tree($voc->vid);
-    break;
-  }
-}
+$available_dests = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
 ?>
 <div class="filhead">
     <div class="centrercat">

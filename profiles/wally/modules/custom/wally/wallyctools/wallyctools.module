@@ -334,7 +334,7 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
   
   foreach($terms as $term){
     $handler= wallyctools_get_active_handler($term->tid,$depth);
-    $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->did,'title'=>$handler->conf['title'],'term_name'=>$term->name);
+    $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->conf['did'],'title'=>$handler->conf['title'],'term_name'=>$term->name);
   }
   return $tid_did_mapping;
 }
@@ -354,7 +354,6 @@ function wallyctools_get_active_handler($term_tid,$depth){
   $contexts=ctools_context_handler_get_task_contexts($task,'',array($term_tid,$depth));
   
   $handlers= page_manager_load_sorted_handlers($task,NULL,TRUE);
-  
   foreach($handlers as $handler){
     //add my contexts
     $contexts= ctools_context_handler_get_handler_contexts($contexts, $handler);
@@ -375,18 +374,32 @@ function wallyctools_get_active_handler($term_tid,$depth){
  */
 function wallyctools_get_redacblock_panes(){
   $array_of_panes=array();
-  $sql="Select pp.did, pp.subtype, wct.view_name,wct.name,wct.admin_title, wct.view_id FROM {panels_pane} AS pp LEFT JOIN {wallyctools} as wct ON wct.name=pp.subtype WHERE type='%s'";
+
+  $sql="Select name, view_name, view_id, admin_title FROM {wallyctools} ";
   $results=(db_query($sql,"redacblock"));
 
   while($result=db_fetch_object($results)){
-    $temp_result = (array)$result;
-    $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
-    foreach ($layouts as $layout) {
-      $temp_result['layout_id'] = $layout;
-      $array_of_panes[]=(object)$temp_result;
-    }
+  $redacblocks[$result->name]=$result;
   }
-
+  list($panels,$handlers)=wallytoolbox_get_panels_and_handlers();
+  
+  $term_view_handlers=$handlers['term_view'];
+  foreach ($term_view_handlers as $term_view_handler){
+     if($term_view_handler->type='redacblock'){
+       if(in_array($term_view_handler->subtype, array_keys($redacblocks))){
+         $temp_result = $redacblocks[$term_view_handler->subtype];
+         $temp_result->did=$term_view_handler->did;
+         $temp_result->subtype=$term_view_handler->subtype;
+         
+         $temp_result=(array) $temp_result;
+         $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
+         foreach ($layouts as $layout) {
+           $temp_result['layout_id'] = $layout;
+           $array_of_panes[]=(object)$temp_result;
+         }  
+       }
+     }
+   }
   return $array_of_panes;
 }
 
@@ -402,7 +415,6 @@ function wallyctools_theme() {
     'wallyctools_form_reorderdestinationview_form'=>$base+array(
       'arguments'=>array('form'=>array()),
     ),
-    
   );
 }
 
@@ -514,25 +526,23 @@ function wallyctools_form_reorderdestinationview_form_submit($form, &$form_state
 }
 
 function wallyctools_redacblock_load($name){
- ctools_include('export');
- $result = ctools_export_crud_load('wallyctools', $name);;
+  ctools_include('export');
+  $result = ctools_export_crud_load('wallyctools', $name);;
   if (isset($result)) {
     return $result;
   }
 }
 
 function wallyctools_redacblock_save(&$myobj) {
-  return   ctools_export_crud_save('wallyctools', $myobj);
+  return ctools_export_crud_save('wallyctools', $myobj);
 }
 
 function wallyctools_initial_setup(){
   ctools_include('export');
 
   //This is the DB crud user ctools_export_load_object instead who search in 'IN CODE' object
-  //$content = ctools_export_crud_load('wallyctools', 'default_destination_block');
   $view=views_get_view('default_destination_view');
   $view->save();
-  //wallyctools_build_all_wallyctools_views_layout_entry();
   
   $content = ctools_export_load_object('wallyctools', 'names', array('default_destination_block'));  
   ctools_export_crud_save('wallyctools', $content['default_destination_block']);
@@ -544,6 +554,4 @@ function wallyctools_initial_setup(){
     $page->handler_info[$key]['changed'] = PAGE_MANAGER_CHANGED_CACHED;
   }
   page_manager_save_page_cache($page);
-  //  $result = ctools_export_load_object('page_manager_handlers', 'names', array('term_view_panel_context'));
-  //  ctools_export_crud_save('page_manager_handlers', $result['term_view_panel_context']);
 }

@@ -118,9 +118,7 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
-  } elseif ($dom_element->hasAttribute("CreationDate")) {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
-  } else  {
+  } else {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
   
@@ -128,10 +126,18 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
-  if($dom_element->hasAttribute("EmbargoDate"))
+  if($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-  if($dom_element->hasAttribute("UnPublishDate"))
+    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+      $node->status = 0;
+    else
+      $node->status = 1;
+  }
+  if($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+      $node->status = 0;
+  }
   $node->language = $dom_element->getAttributeNode("Language")->value;
   
   //Map XML element
@@ -160,21 +166,35 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
 function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
-   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
-  if($dom_element->hasAttribute("PublicationDate"))
+  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  } else {
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
+  
   if($dom_element->hasAttribute("CreationDate"))
-    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
-  if($dom_element->hasAttribute("EmbargoDate"))
-    $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-  $node->language= $dom_element->getAttributeNode("Language")->value;
+  if($dom_element->hasAttribute("EmbargoDate")) {
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+      $node->status = 0;
+    else
+      $node->status = 1;
+  }
+  if($dom_element->hasAttribute("UnPublishDate")) {
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+      $node->status = 0;
+  }
   
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
+  
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
+    $node->field_packagelayout[] = $tax_term[0]->tid;
 }
 /**
  * Process article package from DOM.
@@ -195,21 +215,35 @@ function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, 
 function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
-   $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
-  if($dom_element->hasAttribute("PublicationDate"))
+  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  } else {
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
+  
   if($dom_element->hasAttribute("CreationDate"))
-    $node->created = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("CreationDate")->value);
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
-  if($dom_element->hasAttribute("EmbargoDate"))
-    $node->field_embargodatetime[0]=_wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-  if($dom_element->hasAttribute("UnPublishDate"))
-    $node->field_unpublishdate[0]= _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-  $node->language= $dom_element->getAttributeNode("Language")->value;
+  if($dom_element->hasAttribute("EmbargoDate")) {
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
+    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+      $node->status = 0;
+    else
+      $node->status = 1;
+  }
+  if($dom_element->hasAttribute("UnPublishDate")) {
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
+    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+      $node->status = 0;
+  }
   
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
+  
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
+    $node->field_packagelayout[] = $tax_term[0]->tid;
 }
 
 /**
@@ -691,7 +725,7 @@ function wimprt_set_field_externaluri(&$node,$dom,&$log){
 
 	$uri_response = drupal_http_request($value);
   if ($uri_response->status_message == 'OK') {
-    $node->field_externaluri[] = $value;
+    $node->field_externaluri[0]['value'] = $value;
   }
 }
 

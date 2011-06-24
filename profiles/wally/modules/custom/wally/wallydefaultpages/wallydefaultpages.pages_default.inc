@@ -30,7 +30,7 @@ function wallydefaultpages_default_page_manager_handlers() {
               2 => 2,
             ),
           ),
-          'context' => 'argument_terms_1',
+          'context' => 'argument_term_1',
           'not' => FALSE,
         ),
       ),
@@ -75,10 +75,11 @@ function wallydefaultpages_default_page_manager_handlers() {
       'args' => '',
       'url' => '',
       'context' => array(
-        0 => 'argument_terms_1.tid',
+        0 => 'argument_term_1.tid',
       ),
       'override_title' => 0,
       'override_title_text' => '',
+      'wally_rule' => '15',
     );
     $pane->cache = array();
     $pane->style = array(
@@ -90,7 +91,7 @@ function wallydefaultpages_default_page_manager_handlers() {
     $display->content['new-1'] = $pane;
     $display->panels['colmain'][0] = 'new-1';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-1';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
 
   $export['term_view_panel_context'] = $handler;

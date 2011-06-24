@@ -1,12 +1,11 @@
 <?php 
 
-function theme_ccimapping_typeselector(){
+function theme_ccimapping_typeselector($type){
  
  $content=t('Choose a content type:');
  $content.='<ul>';
- dsm(content_types());
  foreach(content_types() as $content_type){
-    $content.='<li>'.l($content_type['name'],'admin/cci/ccimapping/editor/'.$content_type['type']).'</li>';
+    $content.='<li>'.l($content_type['name'],'admin/cci/ccimapping/'.$type.'/editor/'.$content_type['type']).'</li>';
    
  }
  $content.='</ul>';
@@ -15,7 +14,6 @@ function theme_ccimapping_typeselector(){
 
 
 function theme_ccimapping_hierarchies($hierarchies){
-  dsm($hierarchies);
 $output='<?xml version="1.0" encoding="UTF-8" standalone="no"?>'."\n";
 $output.='<exportproductinformation newsroom = "CciNewsRoom" publicationchannel = "sudpresse.be" subtype = "Online">'."\n";
 $output.=' <pubdatestring name = "%d-%m-%Y"/>'."\n";

@@ -5,6 +5,15 @@
  */
 function cckdestinations_install(){
   content_notify('install', 'destinationsfield');
+  
+  $ret = array();
+  $spec = array(
+    'type' => 'int',
+    'description' => 'Tells if a term has been elected as destination and gives the related tid.',
+    'not null' => TRUE, 
+    'default' => 0,
+  );
+  db_add_field($ret, 'term_data', 'topic_destination', $spec);
 }
 
 /**
@@ -13,6 +22,9 @@ function cckdestinations_install(){
 function cckdestinations_uninstall(){
   content_notify('uninstall', 'destinationsfield');
   wallytoolbox_variable_del_like('cckdestinations_');
+  
+  $ret = array();
+  db_drop_field($ret, 'term_data', 'topic_destination');
 }
 
 /**
@@ -27,4 +39,19 @@ function cckdestinations_enable(){
  */
 function cckdestinations_disable(){
   content_notify('disable', 'destinationsfield');
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function cckdestinations_update_6001(){
+  $ret = array();
+  $spec = array(
+    'type' => 'int',
+    'description' => 'Tells if a term has been elected as destination and gives the related tid.',
+    'not null' => TRUE, 
+    'default' => 0,
+  );
+  db_add_field($ret, 'term_data', 'topic_destination', $spec);
+  return $ret;
 }
