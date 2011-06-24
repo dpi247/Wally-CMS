@@ -28,7 +28,7 @@ $plugin = array(
       'panel_args' => FALSE,
       'args' => '',
       'url' => '',
-      'context'=>array(),
+      'required context' => new ctools_context_required(t('Term'), 'term'),
   ),
   
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
