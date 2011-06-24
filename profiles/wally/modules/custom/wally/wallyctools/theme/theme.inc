@@ -111,6 +111,11 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
 
 function theme_wallyctools_form_reorderdestinationview_form($form){
+  if (!isset($form['rows']) || empty($form['rows'])) {
+    drupal_set_message(t('No nodes to reorder.'));
+    return;
+  }
+  
   //loop through each "row" in the table array
   foreach($form['rows'] as $id => $row){
     //we are only interested in numeric keys

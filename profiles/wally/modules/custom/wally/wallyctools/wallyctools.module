@@ -307,7 +307,6 @@ function wallyctools_get_hierarchies(){
     $tid_did_mapping[$tid]['redacblocks']=array();
     
     foreach($array_of_redacblock_panes as $pane){
-      
       if($did_infos['did']==$pane->did){
         $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
         $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
@@ -335,8 +334,6 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
   
   foreach($terms as $term){
     $handler= wallyctools_get_active_handler($term->tid,$depth);
-    
-  
     $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->conf['did'],'title'=>$handler->conf['title'],'term_name'=>$term->name);
   }
   return $tid_did_mapping;
@@ -380,6 +377,7 @@ function wallyctools_get_redacblock_panes(){
 
   $sql="Select name, view_name, view_id, admin_title FROM {wallyctools} ";
   $results=(db_query($sql,"redacblock"));
+
   while($result=db_fetch_object($results)){
   $redacblocks[$result->name]=$result;
   }
@@ -400,7 +398,6 @@ function wallyctools_get_redacblock_panes(){
            $array_of_panes[]=(object)$temp_result;
          }  
        }
-
      }
    }
   return $array_of_panes;
