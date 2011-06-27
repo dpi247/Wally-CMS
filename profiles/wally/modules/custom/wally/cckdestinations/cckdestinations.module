@@ -153,8 +153,16 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
     switch ($op) {
       case 'delete' :
         $dest_vid = variable_get('wallymport_destinationpath', 0);
-        if ($array['vid'] == $dest_vid)
-          _cckdestinations_remove_destination_from_nodes($array);
+        if ($array['vid'] == $dest_vid) {
+          if (isset($array['topic_destination'])) {
+            $values = array();
+            $vocabulary = taxonomy_vocabulary_load($dest_vid);
+            $term = (array)taxonomy_get_term($array['tid']);
+            _cckdestinations_remove_topic_destination($values, $vocabulary, $term);
+          } else {
+            _cckdestinations_remove_destination_from_nodes($array);
+          }
+        }
         break;
     }
   }
