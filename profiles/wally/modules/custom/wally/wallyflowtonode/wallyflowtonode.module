@@ -1,0 +1,249 @@
+<?php
+/**
+ * @defgroup wallymport Wally Import Core Functions
+ * @{
+ * In this module we define core functions of wally RSS to node module.  
+ * Do not put field specific functions or generic helpers functions here. 
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallyflowtonode_menu() {
+  $items = array();
+  $items['admin/wally/wallyflowtonode/adminflow'] = array(
+    'title' => 'Wally RSS to node Feeds',
+    'page callback' => 'wallyflowtonode_page_admin',
+    'page arguments' => array('wallyflowtonode_page_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallyflowtonode.admin.inc',
+    'type'=>MENU_DEFAULT_LOCAL_TASK, 
+  );
+   $items['admin/wally/wallyflowtonode/adminflow/edit/%flowid'] = array(
+    'title' => 'Wally RSS to node Feeds',
+    'page callback' => 'wallyflowtonode_page_admin_add_wizzard',
+    'page arguments' => array('wallyflowtonode_page_admin'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'file' => 'includes/wallyflowtonode.add.wizzard.inc',
+    'type'=>MENU_LOCAL_TASK, 
+  );
+  
+  $items['admin/wally/wallyflowtonode/runcron'] = array(
+    'title' => 'Run RSS feed cron',
+    'page callback' => 'wallyflowtonode_cron',
+    'page arguments' => array('wallyflowtonode_cron'),
+    'access arguments' => array('access administration pages'),
+    'description' => 'Run RSS feed cron.',
+  );
+
+  return $items;
+}
+
+function flowid_to_arg($flow_id){
+  if(!isset($flow_id))
+    return 'new';
+  else 
+    return $flow_id;
+}
+
+
+
+
+/**
+ * Check the submitted values and
+ * add a new entry (or update) in the flowtonode_flows table.
+ * 
+ * @param $object
+ *   The entry to add in the table.
+ * 
+ * @return
+ *   The returned value by drupal_write_record if the submitted value
+ * are correct, FALSE either.
+ * 
+ * @see http://api.drupal.org/api/drupal/includes--common.inc/function/drupal_write_record/6
+ *   drupal_write_record() function.
+ */
+function wallyflowtonode_add_table_entry($object) {
+  // Convert to an object if needed.
+  if (!is_array($object)) {
+    $object = (array) $object;
+  }
+
+  $available_dests = wallytoolbox_destinations_items_array();
+  
+  if ($object['name'] && is_string($object['name'])) {
+    if ($object['uri'] && is_string($object['uri'])) {
+      $uri_response = drupal_http_request($object['uri']);
+      if ($uri_response->status_message == 'OK') {
+        if ($object['destination'] && is_string($object['destination'])) {
+          $expl_dest = explode('/', $object['destination']);
+          if (sizeof($expl_dest) == 4 && $available_dests[$expl_dest[0]][$expl_dest[1]][$expl_dest[2]][$expl_dest[3]]) {
+            if ($object['delta_t'] && is_numeric($object['delta_t']) && $object['delta_t'] > 0) {
+              if ($object['signature'] && is_string($object['signature'])) {
+                if ($object['channel_img'] && is_numeric($object['channel_img']) && ($object['channel_img'] == 0 || $object['channel_img'] == 1)) {
+                  if ($object['package_layout'] && is_numeric($object['package_layout'])) {
+                    if ($object['body_html'] && is_string($object['body_html'])) {
+                      if ($object['flow_key'] && is_numeric($object['flow_key'])) {
+                        return drupal_write_record('flowtonode_flows', $object, array('flow_key'));
+                      } else {
+                        return drupal_write_record('flowtonode_flows', $object);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Executes the RSS to node cron run when called.
+ * 
+ * @return
+ *   Returns FALSE in case of error, redirect if successful.
+ */
+function wallyflowtonode_cron() {
+  // Try to allocate enough time to run all the hook_cronrsstonode implementations.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60);
+  }
+
+  // Fetch the cron semaphore
+  $semaphore = variable_get('wallyflowtonode_cron_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 3600) {
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      //watchdog('Cron RSS to node', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del('wallyflowtonode_cron_semaphore');
+    } else {
+      // Cron is still running normally.
+      //watchdog('Cron RSS to node', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
+    }
+
+    // Return FALSE and set error message;
+    //drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
+    print 'The cron didn\'t run successfully because the semaphore wasn\'t free.';
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallyflowtonode_cron_cleanup');
+
+    // Lock cron semaphore
+    variable_set('wallyflowtonode_cron_semaphore', time());
+
+    // Call the function calling the RSS feeds
+    $return = _wallyflowtonode_callallfeeds();
+
+    // Record cron time
+    variable_set('wallyflowtonode_cron_last', time());
+    //watchdog('Cron RSS to node', 'Cron run completed.', array(), WATCHDOG_NOTICE);
+
+    // Release cron semaphore
+    variable_del('wallyflowtonode_cron_semaphore');
+
+    print_r($return);
+    // Redirect to admin page if success
+    //drupal_goto('admin/wally/');
+  }
+}
+
+/**
+ * Shutdown function for RSS to node cron cleanup.
+ */
+function wallyflowtonode_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (variable_get('wallyflowtonode_cron_semaphore', FALSE)) {
+    //watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
+
+    // Release cron semaphore
+    variable_del('wallyflowtonode_cron_semaphore');
+  }
+}
+
+function _wallyflowtonode_callallfeeds() {
+  // exec("crontab *.dat");
+  
+  $db_results = db_query("SELECT * FROM `flowtonode_flows`");
+  $feeds_infos = array();
+  while ($feed_infos = db_fetch_array($db_results)) {
+    $feeds_infos[] = $feed_infos;
+  }
+  
+  $xsd_file = variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
+  $log=array();
+  $return = array();
+  $return['date'] = date('Y-m-d H:i:s');
+  foreach ($feeds_infos as $feed_infos) {
+    ctools_include('plugins');
+    if ($function = ctools_plugin_get_function($feed_infos['plugin_name'], 'build')) {
+       $structured_array=$function($feed_infos);
+       do_something( $structured_array);
+    }
+  }
+  
+  return $return;
+}
+
+
+/**
+ * Search an item for a desired element.
+ * 
+ * @param $dom_item
+ *   The item in which the search is performed.
+ * @param $name
+ *   The name of the searched element.
+ * 
+ * @return
+ *   The element value or ''.
+ */
+function _wallyflowtonode_checkifelementexists($dom_item, $name) {
+  $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
+  return check_plain($return);
+}
+
+/**
+ * @} End of "defgroup wallymport_process_default".
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

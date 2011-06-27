@@ -1,0 +1,212 @@
+<?php
+function test_menu(){
+  $items=array();
+  
+  $items['test/plugins'] = array(
+      'title' => 'Plugins',
+      'page callback' => 'test_page_callback',
+      'access callback' =>true,
+      'type' => MENU_CALLBACK,
+    );
+  return $items;
+}
+
+function test_page_callback(){
+
+  ctools_include('plugins');
+  
+  $module='test';
+  $type='flow';
+  //ctools_get_plugins($module, $type, $id = NULL) ;
+  
+  $owner=$module;
+  $api=$test;
+  
+  //DONNE LES INFOS DES PLUGINS FOURNIS PAR LES MODULES
+  dsm(ctools_get_plugins($module, $type));
+  dsm(ctools_get_plugins($module, $type,'json'),'specific_plugin_info');
+  
+  //DONNE LES INFO SUR LA DEFINITION DU TYPE DU PLUGIN -INFOS SUR FLOW ...-
+  dsm(ctools_plugin_get_info($module, $type) );
+  
+  //QUELS MODULES IMPLEMENTE CE PLUGIN AVEC QUELLE VERSION ?
+  dsm(ctools_plugin_api_info($owner, $api, 0, 99),API_INFO);
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  ctools_plugin_get_function();
+  
+  
+  
+  
+  
+  
+  return '';
+}
+
+
+
+
+//NOT REQUIRED BUT USED TO SER THE DEFAULT VALUE FOR EACH PLUGIN
+//Set default value for the information about each plugin of  the flow type
+// $owner_ctools_plugin_$type()
+function test_ctools_plugin_flow(){
+  return array(
+      'cache' => FALSE,
+      'process' => 'test_flow_process',
+    );
+}
+
+//APPELLEE LORs DE ctools_plugin_load_includes() pcq renseignée en tant que process dans test_ctools_plugin_flow() qui elle même pour tous les plugins appelle ctools_plugin_process()
+function test_flow_process(&$plugin, $info){
+  $function_base = $plugin['module'] . '_' . $plugin['name'] . '_flow_';
+  if (!isset($plugin['settings form']) && function_exists($function_base . 'settings_form')) {
+      $plugin['settings form'] = $function_base . 'settings_form';
+  } 
+  if (!isset($plugin['settings form submit']) && function_exists($function_base . 'settings_form_submit')) {
+      $plugin['settings form submit'] = $function_base . 'settings_form_submit';
+  } 
+  if (!isset($plugin['settings form validate']) && function_exists($function_base . 'settings_form_validate')) {
+      $plugin['settings form validate'] = $function_base . 'settings_form_validate';
+  }
+  if (!isset($plugin['build']) && function_exists($function_base . 'build')) {
+      $plugin['settings form'] = $function_base . 'settings_form';
+  } 
+}
+
+
+
+
+
+
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function test_ctools_plugin_directory($module, $plugin) {
+  /*
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+  */
+  
+  // $plugin=flow
+  if ($module == 'test' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_test_api().
+ */
+function test_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Return all the types that can be handeld by one or more pflow plugins
+ * 
+ * 
+ * @return
+ *   an array of types 
+ * 
+ */
+function test_get_availlable_flow_type() {
+    ctools_include('plugins');
+  
+  $availlable_types=array();
+  $plugins=ctools_get_plugins('test', 'flow');
+  foreach($plugins as$plugin){
+    foreach($plugin['types'] as $type){
+      $availlable_types[$type]=$type;
+    }
+  }
+  
+  return $availlable_types;
+}
+
+function test_get_plugins_that_handle_type($type) {
+  ctools_include('plugins');
+  
+  $plugins=ctools_get_plugins('test', 'flow');
+  foreach($plugins as $plugin_name=>$plugin){
+    
+    if(in_array($type,$plugin['types'])){
+      $availlable_types[$plugin_name]=$plugin;
+    }
+  }
+  
+  return $availlable_types;
+
+}
+function test_get_plugin_by_name($plugin_name) {
+
+  ctools_include('plugins');
+  $module='test';
+  $type='flow';
+  
+  $plugin=ctools_get_plugins($module, $type,$plugin_name);
+  return $plugin;
+}
+
+
+
+/**
+ * Determine if a flow has a setting form.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function test_has_settings_form_of_plugin($plugin, $conf) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  
+  }
+
+  return TRUE;
+}
+
+
+/**
+ * Determine if a flow has a setting form and if true, return the $form object.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function test_get_settings_form_of_plugin($plugin, &$form,&$form_state) {
+
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'settings form')) {
+    return $function($form,$form_state);
+  }
+
+  return FALSE;
+}
+
