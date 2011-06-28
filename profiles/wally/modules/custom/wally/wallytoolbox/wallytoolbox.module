@@ -40,6 +40,13 @@ function wallytoolbox_menu() {
     'file'             => 'includes/wallytoolbox.admin.inc',
   );
   
+  $items['admin/wally/wallytoolbox/plugins'] = array(
+    'title'            => t('Flow plugins'),
+    'page callback'    => 'wallytoolbox_page_callback',
+    'access callback'  => TRUE,
+    'type'             => MENU_CALLBACK,
+  );
+  
   return $items;
 }
 
@@ -79,6 +86,157 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
     $form['#validate'][] = 'wallytoolbox_content_type_form_validate';
     $form['#submit'][] = 'wallytoolbox_content_type_form_submit';
   }
+}
+
+function wallytoolbox_page_callback(){
+  ctools_include('plugins');
+  
+  $module = 'wallytoolbox';
+  $type = 'flow';
+  
+  $owner = $module;
+  $api = $type;
+  
+  //DONNE LES INFOS DES PLUGINS FOURNIS PAR LES MODULES
+  dsm(ctools_get_plugins($module, $type));
+  dsm(ctools_get_plugins($module, $type, 'json'), 'specific_plugin_info');
+  
+  //DONNE LES INFO SUR LA DEFINITION DU TYPE DU PLUGIN -INFOS SUR FLOW ...-
+  dsm(ctools_plugin_get_info($module, $type));
+  
+  //QUELS MODULES IMPLEMENTE CE PLUGIN AVEC QUELLE VERSION ?
+  dsm(ctools_plugin_api_info($owner, $api, 0, 99), API_INFO);
+
+  return ctools_plugin_get_function();
+}
+
+/**
+ * NOT REQUIRED BUT USED TO SER THE DEFAULT VALUE FOR EACH PLUGIN
+ * Set default value for the information about each plugin of  the flow type
+ * $owner_ctools_plugin_$type()
+ */
+function wallytoolbox_ctools_plugin_flow(){
+  return array(
+    'cache' => FALSE,
+    'process' => 'wallytoolbox_flow_process',
+  );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallytoolbox_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'wallytoolbox' && !empty($plugin))
+    return "plugins/".$plugin;
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallytoolbox_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+
+/**
+ * APPELLEE LORS DE ctools_plugin_load_includes()
+ * pcq renseignée en tant que process dans wallytoolbox_ctools_plugin_flow()
+ * qui elle même pour tous les plugins appelle ctools_plugin_process()
+ */
+function wallytoolbox_flow_process(&$plugin, $info){
+  $function_base = $plugin['module'] . '_' . $plugin['name'] . '_flow_';
+  
+  if (!isset($plugin['settings form']) && function_exists($function_base . 'settings_form'))
+    $plugin['settings form'] = $function_base . 'settings_form';
+  
+  if (!isset($plugin['settings form submit']) && function_exists($function_base . 'settings_form_submit'))
+    $plugin['settings form submit'] = $function_base . 'settings_form_submit';
+
+  if (!isset($plugin['settings form validate']) && function_exists($function_base . 'settings_form_validate'))
+    $plugin['settings form validate'] = $function_base . 'settings_form_validate';
+
+  if (!isset($plugin['build']) && function_exists($function_base . 'build'))
+    $plugin['build'] = $function_base . 'build';
+}
+
+/**
+ * Return all the types that can be handeld by one or more flow plugins
+ * 
+ * @return
+ *   An array of types 
+ */
+function wallytoolbox_get_available_flow_type() {
+  ctools_include('plugins');
+  
+  $available_types = array();
+  $plugins = ctools_get_plugins('wallytoolbox', 'flow');
+
+  foreach($plugins as $plugin){
+    foreach($plugin['types'] as $type){
+      $available_types[$type] = $type;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallytoolbox_get_plugins_that_handle_type($type) {
+  ctools_include('plugins');
+  
+  $plugins=ctools_get_plugins('wallytoolbox', 'flow');
+  foreach($plugins as $plugin_name=>$plugin){
+    
+    if (in_array($type,$plugin['types'])) {
+      $available_types[$plugin_name] = $plugin;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallytoolbox_get_plugin_by_name($plugin_name) {
+  ctools_include('plugins');
+  $module = 'wallytoolbox';
+  $type = 'flow';
+  
+  $plugin=ctools_get_plugins($module, $type, $plugin_name);
+  return $plugin;
+}
+
+/**
+ * Determine if a flow has a setting form.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallytoolbox_has_settings_form_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a flow has a setting form and if true, return the $form object.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallytoolbox_get_settings_form_of_plugin($plugin, &$form, &$form_state) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'settings form')) {
+    return $function($form, $form_state);
+  }
+
+  return FALSE;
 }
 
 /**
@@ -756,6 +914,9 @@ function wallytoolbox_get_panels_and_handlers() {
 function wallytoolbox_flow_to_array_init_array() {
   $array_packages = array();
   $array_packages['Packages']['Package'] = array();
+  $array_packages['Packages']['__log'] = array();
+  $array_packages['Packages']['__log']['success'] = TRUE;
+  $array_packages['Packages']['__log']['msg'] = '';
   return $array_packages;
 }
 
@@ -788,6 +949,9 @@ function wallytoolbox_flow_to_array_new_package() {
   $array_item['Channels']['Channel']['Name'] = '';
   $array_item['Summary']['value'] = '';
   $array_item['ExternalURI']['value'] = 'http://';
+  $array_item['__log'] = array();
+  $array_item['__log']['success'] = TRUE;
+  $array_item['__log']['msg'] = '';
   return $array_item;
 }
 

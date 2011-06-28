@@ -2,116 +2,79 @@
 /**
  * @defgroup wallymport Wally Import Core Functions
  * @{
- * In this module we define core functions of wally RSS to node module.  
+ * In this module we define core functions of wally flow to node module.  
  * Do not put field specific functions or generic helpers functions here. 
  */
+
+include_once('wallyflowtonode.features.inc');
 
 /**
  * Implementation of hook_menu().
  */
 function wallyflowtonode_menu() {
   $items = array();
-  $items['admin/wally/wallyflowtonode/adminflow'] = array(
-    'title' => 'Wally RSS to node Feeds',
-    'page callback' => 'wallyflowtonode_page_admin',
-    'page arguments' => array('wallyflowtonode_page_admin'),
+  
+  $base = array(
     'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallyflowtonode.admin.inc',
-    'type'=>MENU_DEFAULT_LOCAL_TASK, 
   );
-   $items['admin/wally/wallyflowtonode/adminflow/edit/%flowid'] = array(
-    'title' => 'Wally RSS to node Feeds',
-    'page callback' => 'wallyflowtonode_page_admin_add_wizzard',
-    'page arguments' => array('wallyflowtonode_page_admin'),
-    'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
-    'file' => 'includes/wallyflowtonode.add.wizzard.inc',
-    'type'=>MENU_LOCAL_TASK, 
+
+  $items['admin/wally/wallyflowtonode'] = $base + array(
+    'title'=> t('Flow to node'),
+    'description' => t('Manage feeds.'),
+    'page callback'=>'wallyflowtonode_page_admin_list_feeds',
   );
   
-  $items['admin/wally/wallyflowtonode/runcron'] = array(
-    'title' => 'Run RSS feed cron',
-    'page callback' => 'wallyflowtonode_cron',
-    'page arguments' => array('wallyflowtonode_cron'),
+  $items['admin/wally/wallyflowtonode/list'] = $base + array(
+    'title' => t('List'),
+    'description' => t('Listing of the actual feeds.'),
+    'page callback' => 'wallyflowtonode_page_admin_list_feeds',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight'=> -3,
+  );
+  
+  $items['admin/wally/wallyflowtonode/add'] = array(
+    'title' => t('Add'),
+    'description' => t('Add a new feed or edit an existing one.'),
+    'page callback' => 'wallyflowtonode_page_admin_add_wizard',
+    'type' => MENU_LOCAL_TASK,
     'access arguments' => array('access administration pages'),
-    'description' => 'Run RSS feed cron.',
+    'file' => 'includes/wallyflowtonode.add_wizard.inc',
+  );
+  
+  $items['admin/wally/wallyflowtonode/runcron'] = $base + array(
+    'title' => t('Run cron'),
+    'description' => t('Run flow to node cron.'),
+    'page callback' => 'wallyflowtonode_page_admin_run_cron',
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
 }
 
-function flowid_to_arg($flow_id){
-  if(!isset($flow_id))
-    return 'new';
-  else 
-    return $flow_id;
-}
-
-
-
-
 /**
- * Check the submitted values and
- * add a new entry (or update) in the flowtonode_flows table.
- * 
- * @param $object
- *   The entry to add in the table.
- * 
- * @return
- *   The returned value by drupal_write_record if the submitted value
- * are correct, FALSE either.
- * 
- * @see http://api.drupal.org/api/drupal/includes--common.inc/function/drupal_write_record/6
- *   drupal_write_record() function.
+ * Implementation of hook_node_operations().
  */
-function wallyflowtonode_add_table_entry($object) {
-  // Convert to an object if needed.
-  if (!is_array($object)) {
-    $object = (array) $object;
-  }
-
-  $available_dests = wallytoolbox_destinations_items_array();
-  
-  if ($object['name'] && is_string($object['name'])) {
-    if ($object['uri'] && is_string($object['uri'])) {
-      $uri_response = drupal_http_request($object['uri']);
-      if ($uri_response->status_message == 'OK') {
-        if ($object['destination'] && is_string($object['destination'])) {
-          $expl_dest = explode('/', $object['destination']);
-          if (sizeof($expl_dest) == 4 && $available_dests[$expl_dest[0]][$expl_dest[1]][$expl_dest[2]][$expl_dest[3]]) {
-            if ($object['delta_t'] && is_numeric($object['delta_t']) && $object['delta_t'] > 0) {
-              if ($object['signature'] && is_string($object['signature'])) {
-                if ($object['channel_img'] && is_numeric($object['channel_img']) && ($object['channel_img'] == 0 || $object['channel_img'] == 1)) {
-                  if ($object['package_layout'] && is_numeric($object['package_layout'])) {
-                    if ($object['body_html'] && is_string($object['body_html'])) {
-                      if ($object['flow_key'] && is_numeric($object['flow_key'])) {
-                        return drupal_write_record('flowtonode_flows', $object, array('flow_key'));
-                      } else {
-                        return drupal_write_record('flowtonode_flows', $object);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return FALSE;
+function wallyflowtonode_node_operations() {
+  $operations = array(
+    'reject_from_flow_to_node' => array(
+      'label' => t('Reject from flow to node'),
+      'callback' => 'wallyflowtonode_reject_nodes',
+      'callback arguments' => array(),
+    ),
+  );
+  return $operations;
 }
 
 /**
- * Executes the RSS to node cron run when called.
+ * Implementation of hook_cron()
+ * Executes the flow to node cron run when called.
  * 
  * @return
  *   Returns FALSE in case of error, redirect if successful.
  */
 function wallyflowtonode_cron() {
-  // Try to allocate enough time to run all the hook_cronrsstonode implementations.
+  // Try to allocate enough time to run all the hook_cronflowtonode implementations.
   if (function_exists('set_time_limit')) {
     @set_time_limit(60);
   }
@@ -123,18 +86,17 @@ function wallyflowtonode_cron() {
     if (time() - $semaphore > 3600) {
       // Either cron has been running for more than an hour or the semaphore
       // was not reset due to a database error.
-      //watchdog('Cron RSS to node', 'Cron has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
-
       // Release cron semaphore
       variable_del('wallyflowtonode_cron_semaphore');
     } else {
       // Cron is still running normally.
-      //watchdog('Cron RSS to node', 'Attempting to re-run cron while it is already running.', array(), WATCHDOG_WARNING);
     }
 
     // Return FALSE and set error message;
-    //drupal_set_message('The cron didn\'t run successfully because the semaphore wasn\'t free.', "error");
-    print 'The cron didn\'t run successfully because the semaphore wasn\'t free.';
+    if (strstr($_GET['q'], '/wally/'))
+      return array(t('The cron didn\'t run successfully because the semaphore wasn\'t free.'));
+    else
+      print t('The cron didn\'t run successfully because the semaphore wasn\'t free.');
   } else {
     // Register shutdown callback
     register_shutdown_function('wallyflowtonode_cron_cleanup');
@@ -142,108 +104,203 @@ function wallyflowtonode_cron() {
     // Lock cron semaphore
     variable_set('wallyflowtonode_cron_semaphore', time());
 
-    // Call the function calling the RSS feeds
+    // Call the function calling the flows
     $return = _wallyflowtonode_callallfeeds();
 
     // Record cron time
     variable_set('wallyflowtonode_cron_last', time());
-    //watchdog('Cron RSS to node', 'Cron run completed.', array(), WATCHDOG_NOTICE);
 
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
 
-    print_r($return);
-    // Redirect to admin page if success
-    //drupal_goto('admin/wally/');
+    if (strstr($_GET['q'], '/wally/'))
+      return $return;
+    else
+      print_r($return);
   }
 }
 
+function flowid_to_arg($flow_id, $default){
+  if(!isset($flow_id))
+    return $default;
+  else 
+    return $flow_id;
+}
+
 /**
- * Shutdown function for RSS to node cron cleanup.
+ * Shutdown function for flow to node cron cleanup.
  */
 function wallyflowtonode_cron_cleanup() {
   // See if the semaphore is still locked.
   if (variable_get('wallyflowtonode_cron_semaphore', FALSE)) {
-    //watchdog('Cron RSS to node', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
-
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
   }
 }
 
+/**
+ * Make mass reject of nodes, the nodes are deleted.
+ *
+ * @param array $nodes
+ *   Array of node nids to reject.
+ */
+function wallyflowtonode_reject_nodes($nodes) {
+  foreach ($nodes as $nid) {
+    node_delete($nid);
+  }
+}
+
 function _wallyflowtonode_callallfeeds() {
-  // exec("crontab *.dat");
-  
-  $db_results = db_query("SELECT * FROM `flowtonode_flows`");
+  $db_results = db_query("SELECT * FROM {wallyflowtonode_flows}");
   $feeds_infos = array();
   while ($feed_infos = db_fetch_array($db_results)) {
     $feeds_infos[] = $feed_infos;
   }
   
-  $xsd_file = variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
-  $log=array();
   $return = array();
   $return['date'] = date('Y-m-d H:i:s');
   foreach ($feeds_infos as $feed_infos) {
     ctools_include('plugins');
-    if ($function = ctools_plugin_get_function($feed_infos['plugin_name'], 'build')) {
-       $structured_array=$function($feed_infos);
-       do_something( $structured_array);
+    if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
+      while(is_string($feed_infos['conf']))
+        $feed_infos['conf'] = unserialize($feed_infos['conf']);
+      while(is_string($feed_infos['feeds_md5']))
+        $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+      $struct_array = $function($feed_infos);
+      if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
+        $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
+
+        if ($valid_dom) {
+          $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'.tmp';
+          $valid_dom->save($tempFile);
+          $temp_return = wallymport_page_process_file($tempFile);
+          file_delete($tempFile);
+
+          if ($temp_return && !is_string($temp_return)) {
+            $object = $feed_infos;
+            drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
+          }
+          
+          $text_to_return = !empty($temp_return) ? 'Import done' : 'Import error';
+          $text_to_return .= ' for file : '.$tempFile;
+          $return[] = $text_to_return;
+        } else {
+          $return[] = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
+        }
+      } else {
+        $return[] = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' :'.$struct_array['Packages']['__log']['msg'];
+      }
+    } else {
+      $return[] = t('No plugin for the flow').' : '.$feed_infos['name'];
     }
   }
   
   return $return;
 }
 
-
 /**
- * Search an item for a desired element.
+ * Build a dom document based on an array. The array is given by a flow plugin.
  * 
- * @param $dom_item
- *   The item in which the search is performed.
- * @param $name
- *   The name of the searched element.
+ * @param array $struct_array
+ *   The structured array given by the plugin
+ * @param &$feed_infos
+ *   The informations relative to this flow as stocked in de DB.
  * 
  * @return
- *   The element value or ''.
+ *   The dom document and the new build date of this flow.
+ * 
+ * @todo
+ *   Replace default values by real values in the valid_dom
  */
-function _wallyflowtonode_checkifelementexists($dom_item, $name) {
-  $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
-  return check_plain($return);
+function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_infos) {
+  $valid_dom = new DomDocument('1.0', 'UTF-8');
+  $packages = $valid_dom->appendChild($valid_dom->createElement('Packages'));
+  $packages->setAttribute('xmlns', 'http://rossel.audaxis.com');
+
+  foreach ($struct_array['Packages']['Package'] as $array_package) {
+    $array_valid_dom['Package'] = $array_package;
+    $package = $packages->appendChild($valid_dom->createElement('Package'));
+    $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'ArticlePackageType');
+    $package->setAttribute('PackageID', $array_valid_dom['Package']['PackageID']);
+    if (!$feed_infos['publish'])
+      $array_valid_dom['Package']['EmbargoDate'] = (date('Y')+1).'-'.date('m-d').'T'.date('H:i:sP');
+    $package->setAttribute('PublicationDate', $array_valid_dom['Package']['PublicationDate']);
+    $package->setAttribute('CreationDate', $array_valid_dom['Package']['CreationDate']);
+    $package->setAttribute('EmbargoDate', $array_valid_dom['Package']['EmbargoDate']);
+    $package->setAttribute('Language', $array_valid_dom['Package']['Language']);
+    $package->appendChild($valid_dom->createElement('PackageTitle', $array_valid_dom['Package']['PackageTitle']['value']));
+    $package->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['ExternalReference']['value']));
+    $package->appendChild($valid_dom->createElement('ProductID', $array_valid_dom['Package']['ProductID']['value']));
+    $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
+    $editions = $package->appendChild($valid_dom->createElement('Editions'));
+    $chans = $package->appendChild($valid_dom->createElement('Channels'));
+    $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
+    $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
+    $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
+    $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
+
+    $destination = $destinations->appendChild($valid_dom->createElement('Destination'));
+    $destination->appendChild($valid_dom->createElement('DestinationPath', $array_valid_dom['Package']['Destinations']['Destination']['DestinationPath']['value']));
+    $destination->setAttribute('DestinationRank', $array_valid_dom['Package']['Destinations']['Destination']['DestinationRank']);
+    $destination->setAttribute('Position', $array_valid_dom['Package']['Destinations']['Destination']['Position']);
+    $destination->setAttribute('DocumentLayout', $array_valid_dom['Package']['Destinations']['Destination']['DocumentLayout']);
+
+    $edition = $editions->appendChild($valid_dom->createElement('Edition', $array_valid_dom['Package']['Editions']['Edition']['value']));
+    $edition->setAttribute('EditionID', $array_valid_dom['Package']['Editions']['Edition']['EditionID']);
+
+    $chan = $chans->appendChild($valid_dom->createElement('Channel'));
+    $chan->setAttribute('Name', $array_valid_dom['Package']['Channels']['Channel']['Name']);
+
+    $mainStory->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
+    $mainStory->setAttribute('ObjectID', $array_valid_dom['Package']['MainStory']['ObjectID']);
+    $mainStory->setAttribute('PublicationDate', $array_valid_dom['Package']['MainStory']['PublicationDate']);
+    $mainStory->setAttribute('CreationDate', $array_valid_dom['Package']['MainStory']['CreationDate']);
+    $mainStory->appendChild($valid_dom->createElement('Title', $array_valid_dom['Package']['MainStory']['Title']['value']));
+    $mainStory->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['MainStory']['ExternalReference']['value']));
+    $taxonomy = $mainStory->appendChild($valid_dom->createElement('Taxonomy'));
+    $vocabulary = $taxonomy->appendChild($valid_dom->createElement('Vocabulary'));
+    $vocabulary->setAttribute('VocabularyName', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyName']);
+    $vocabulary->setAttribute('VocabularyType', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyType']);
+    foreach ($array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'] as $term) {
+      $vocabulary->appendChild($valid_dom->createElement('Term', $term));
+    }
+    $mainStory->appendChild($valid_dom->createElement('Copyright', ($feed_infos['signature'] != '') ? $feed_infos['signature'] : $array_valid_dom['Package']['MainStory']['Copyright']['value']));
+    $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
+    $format_number = db_result(db_query("SELECT `format` FROM `filter_formats` WHERE `name` = '%s'", $feed_infos['body_html']));
+    $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number));
+    $mainStory->appendChild($valid_dom->createElement('TextBody', $cleaned_body));
+
+    if (isset($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'])) {
+      $embeddedContent = $package->appendChild($valid_dom->createElement('EmbeddedContent'));
+      $embeddedObjects = $embeddedContent->appendChild($valid_dom->createElement('EmbeddedObjects'));
+      foreach($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'] as $item_object) {
+        $object = $embeddedObjects->appendChild($valid_dom->createElement('Object'));
+        $object->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $item_object['type']);
+        $object->setAttribute('ObjectID', $item_object['ObjectID']);
+        $object->setAttribute('PublicationDate', $item_object['PublicationDate']);
+        $object->setAttribute('CreationDate', $item_object['CreationDate']);
+        if (isset($item_object['MimeType'])) $object->setAttribute('MimeType', $item_object['MimeType']);
+        $object->appendChild($valid_dom->createElement('Title', $item_object['Title']['value']));
+        $object->appendChild($valid_dom->createElement('ExternalReference', $item_object['ExternalReference']['value']));
+        if (isset($item_object['Copyright']['value'])) $object->appendChild($valid_dom->createElement('Copyright', $item_object['Copyright']['value']));
+        $object->appendChild($valid_dom->createElement('FileURI', $item_object['FileURI']['value']));
+        $object->appendChild($valid_dom->createElement('FileSize', $item_object['FileSize']['value']));
+        if (isset($item_object['ThumbNail'])) {
+          $thumbnail = $object->appendChild($valid_dom->createElement('Thumbnail'));
+          $thumbnail->setAttribute('URI', $item_object['ThumbNail']['URI']);
+          if (isset($item_object['ThumbNail']['W'])) $thumbnail->setAttribute('W', $item_object['ThumbNail']['W']);
+          if (isset($item_object['ThumbNail']['H'])) $thumbnail->setAttribute('H', $item_object['ThumbNail']['H']);
+        }
+        if (isset($item_object['Rating'])) $object->appendChild($valid_dom->createElement('Rating', $item_object['Rating']['value']));
+        if (isset($item_object['LinkTitle'])) $object->appendChild($valid_dom->createElement('LinkTitle', $item_object['LinkTitle']['value']));
+        if (isset($item_object['LinkURI'])) $object->appendChild($valid_dom->createElement('LinkURI', $item_object['LinkURI']['value']));
+      }
+    }
+  }
+
+  return $valid_dom;
 }
 
 /**
  * @} End of "defgroup wallymport_process_default".
  */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
