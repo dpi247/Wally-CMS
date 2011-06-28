@@ -7,12 +7,11 @@
 $plugin = array(
   'title' => t('Destinations'),
   'description' => t('Get view results from a term ID and transform them.'),
+  'types' => array('View results')
 );
 
 
-function wallytoolbox_destinations_flow_settings_form($form_state) {
-  $form = array();
-  
+function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   module_load_include("inc", 'content', 'includes/content.node_form');
   $wallyrsstonode_destinations = content_fields('field_destinations');
   $form['destination'] = (array) content_field_form($form, $form_state, $wallyrsstonode_destinations);
@@ -29,19 +28,6 @@ function wallytoolbox_destinations_flow_settings_form($form_state) {
   unset($form['destination']['field_destinations'][0]['#default_value']['time_rank']);
   unset($form['destination']['field_destinations'][1]);
   $form['destination']['field_destinations']['#type'] = 'fieldset';
-  $form['destination']['field_destinations']['#tree'] = FALSE;
-  
-  return $form;
-}
-
-function wallytoolbox_destinations_flow_settings_form_validate($form, &$form_state) {
-  
-}
-
-function wallytoolbox_destinations_flow_settings_form_submit($form, &$form_state) {
-  $values = $form_state['values'];
-  $form_state['conf']['tid'] = $values['tid'];
-  $form_state['conf']['target'] = $values['target'];
 }
 
 function wallytoolbox_destinations_flow_build($feed_infos) {
@@ -57,15 +43,14 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     wallycontenttypes_packagepopulate($node, '');
     $tranformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
-  dsm($tranformed_nodes);
   return $transformed_nodes;
 }
 
 function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
-  $tid = $feed_infos['tid'];
-  $target = $feed_infos['target'];
+  $tid = $feed_infos['conf']['destination']['field_destinations'][0]['tid'];
+  $target = $feed_infos['conf']['destination']['field_destinations'][0]['target'];
   
-  $redacblock = db_fetch_array(db_query('SELECT * FROM wallyctools WHERE name = "%s"', $target));
+  $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
   while (is_string($redacblock['settings']))
     $redacblock['settings'] = unserialize($redacblock['settings']);
   
