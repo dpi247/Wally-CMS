@@ -20,7 +20,6 @@ $plugin = array(
     'wallyflowmix_contenttype_pluginselector_form'=>t('OLD DIRTY B'),
     'wallyflowmix_contenttype_pluginspecific_form'=>t('C.R.E.A.M'),
     'wallyflowmix_contenttype_finalstep_form'=>t('WU'),
-    'wallyflowmix_contenttype_edit_form'=>t('Liquid Swords'),
 ),
     'edit form' => array(
     'wallyflowmix_contenttype_summary_form'=>t('fff'),
