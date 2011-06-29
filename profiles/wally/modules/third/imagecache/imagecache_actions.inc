@@ -1,5 +1,4 @@
 <?php
-// $Id: imagecache_actions.inc,v 1.24.2.3 2009/08/19 21:05:31 drewish Exp $
 
 function imagecache_resize_form($action) {
   $form['width'] = array(
@@ -76,7 +75,6 @@ function theme_imagecache_scale_and_crop($element) {
 
 
 function imagecache_scale_and_crop_image(&$image, $data) {
-    
   if (!imageapi_image_scale_and_crop($image, $data['width'], $data['height'])) {
     watchdog('imagecache', 'imagecache_scale_and_crop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;
@@ -192,7 +190,6 @@ function theme_imagecache_crop($element) {
 }
 
 function imagecache_crop_image(&$image, $data) {
-   
   if (!imageapi_image_crop($image, $data['xoffset'], $data['yoffset'], $data['width'], $data['height'])) {
       watchdog('imagecache', 'imagecache_crop failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
     return FALSE;

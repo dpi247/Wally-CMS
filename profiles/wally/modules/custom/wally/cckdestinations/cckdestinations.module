@@ -6,6 +6,7 @@
  */
 
 include_once('cckdestinations.features.inc');
+include_once('cckdestinations.views_default.inc');
 
 /**
  * Implementation of hook_menu().
@@ -153,8 +154,14 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
     switch ($op) {
       case 'delete' :
         $dest_vid = variable_get('wallymport_destinationpath', 0);
-        if ($array['vid'] == $dest_vid)
-          _cckdestinations_remove_destination_from_nodes($array);
+        if ($array['vid'] == $dest_vid) {
+          if (isset($array['topic_destination'])) {
+            $term = (array)taxonomy_get_term($array['topic_destination']);
+            $term['topic_destination'] = 0;
+            taxonomy_save_term($term);
+          }
+          _cckdestinations_remove_destination_from_nodes($array['tid']);
+        }
         break;
     }
   }
@@ -166,7 +173,7 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
 function cckdestinations_content_is_empty($item, $field) {
   if (empty($item['tid']) || $item['tid']=='0') {
     return TRUE;
-  }    
+  }
   return FALSE;
 }
 
@@ -396,7 +403,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'         => FALSE,
     '#weight'           => 5,
   );
-  
+
   return $element;
 }
 
@@ -985,24 +992,18 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
  * @param array $term
  *   The deleted term.
  */
-function _cckdestinations_remove_destination_from_nodes($term) {
-  $db_nids = db_query('SELECT nid FROM content_field_destinations WHERE field_destinations_tid = %d', $term['tid']);
+function _cckdestinations_remove_destination_from_nodes($tid) {
+  $db_nids = db_query('SELECT nid FROM content_field_destinations WHERE field_destinations_tid = %d', $tid);
   while ($array_nid = db_fetch_array($db_nids)) {
     $nid = $array_nid['nid'];
     $node = node_load($nid);
     
     foreach ($node->field_destinations as $dest_id => $cur_dest) {
-      if ($cur_dest['tid'] == $term['tid'])
+      if ($cur_dest['tid'] == $tid)
         unset($node->field_destinations[$dest_id]);
     }
     
     node_save($node);
-  }
-  
-  if (isset($term['topic_destination']) && $term['topic_destination'] != 0) {
-    $assoc_term = (array)taxonomy_get_term($term['topic_destination']);
-    $assoc_term['topic_destination'] = 0;
-    taxonomy_save_term($assoc_term);
   }
 }
 

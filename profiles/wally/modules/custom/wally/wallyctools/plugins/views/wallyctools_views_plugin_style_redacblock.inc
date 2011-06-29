@@ -50,6 +50,22 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       array_pop($this->view->result);
   }
   
+  /**
+   * Allow the style to do stuff before each row is rendered.
+   *
+   * @param $result
+   *   The full array of results from the query.
+   */
+  function pre_render($result) {
+    if (!empty($this->row_plugin)) {
+      $this->row_plugin->pre_render($result);
+    }
+    
+    $view = &$this->view;
+    if (isset($view->wallyedit_preview) && empty($view->result))
+      $view->result[] = array();
+  }
+  
   function render() {
     if (empty($this->row_plugin)) {
       vpr('views_plugin_style_default: Missing row plugin');
