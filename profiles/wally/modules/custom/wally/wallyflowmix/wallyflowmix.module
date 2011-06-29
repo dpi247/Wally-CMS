@@ -206,21 +206,26 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
   
   
   foreach($flowmix_item->flows as $key=>$flow){
-  $form['flows'][$key]['edit_action']=array(
-    '#type'=>'submit',
-    '#value'=>'Add a new flow',
-    '#wizard type'=>'next',
-    '#name'=>'edit_'.$key,
-    '#next'=>'step5'
-    ); 
-  $form['flows'][$key]['delete_action']=array(
-    '#type'=>'submit',
-    '#value'=>'Add a new flow',
-    '#wizard type'=>'next',
-    '#name'=>'delete_'.$key,
-    '#next'=>'step5'
-    ); ;
-  $form['flows'][$key]['title']=$flow->name;
+    $form['flows'][$key]['edit_action']=array(
+      '#type'=>'submit',
+      '#value'=>'Edit',
+      '#wizard type'=>'next',
+      '#name'=>'edit_'.$key,
+      '#next'=>'step5'
+      ); 
+    $form['flows'][$key]['delete_action']=array(
+      '#type'=>'submit',
+      '#value'=>'Remove',
+      '#wizard type'=>'next',
+      '#name'=>'delete_'.$key,
+      '#next'=>'step5'
+      ); 
+       
+    $form['flows'][$key]['title']=array(
+      '#type'=>'markup',
+      '#value'=>$flow->name,
+      ); 
+      
   }
   $form['name'] = array(
     '#type' => 'textfield',
@@ -511,7 +516,9 @@ function wallyflowmix_contenttype_finalstep_form(&$form, &$form_state) {
   
   
 }
+function wallyflowmix_contenttype_edit_form(&$form, &$form_state){
 
+}
 function wallyflowmix_contenttypte_finalstep_form_submit(&$form, &$form_state) {
   $form_state['clicked_button']['#next']='step1';
    
@@ -541,16 +548,26 @@ function wallyflowmix_get_cache_name($flow_id){
 
 function theme_wallyflowmix_contenttype_summary_form($form){
 
-foreach($form['flows'] as $flow_form){
+foreach($form['flows'] as $key=>$flow_form){
   $row=array(
-    $flow_form['title'],
-    drupal_render($flow_form['edit_action']).drupal_render($flow_form['delete_action']),
+    drupal_render($form['flows'][$key]['title']),
+    drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
   );
   
   $rows[]=$row;
 }
-$output=theme('table',array('titre','action'),$rows);
-$output.=drupal_render($form);
+
+
+
+$output.=drupal_render($form['buttons']['add_flow']);
+
+
+$output_after=drupal_render($form);
+
+$output.=$output_after;
+$output.=theme('table',array('titre','action'),$rows);
+
+
 return $output;
 
 }
