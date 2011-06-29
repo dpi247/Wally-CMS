@@ -74,7 +74,7 @@ function wallyflowmix_addnewflow_subtask_cancel(&$form_state) {
  *
  */
 function wallyflowmix_addnewflow_subtask_next(&$form_state) {
-  $flowmix_item = &$form_state['flow_obj'];
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   if($form_state['step']=='summary'){
     $flowmix_item->current_op=$form_state['clicked_button'];
     $flowmix_item->index=(int)str_replace('next_','',$form_state['clicked_button']['#name']);;
@@ -182,7 +182,7 @@ function wallyflowmix_page_admin_add_wizzard(){
     ctools_object_cache_set('flowmix_item', $form_state['cache name'], $flowmix_item);
   }
   //THIS IS WHERE WILL STORE ALL FORM DATA
-  $form_state['flow_obj'] = $flowmix_item;
+  $form_state['conf']['flow_obj'] = $flowmix_item;
   
   // and this is the witchcraft that makes it work
   $output = ctools_wizard_multistep_form($form_info, $step, $form_state);
@@ -193,10 +193,11 @@ function wallyflowmix_page_admin_add_wizzard(){
 }
 
 
-function wallyflowmix_summary_form(&$form, &$form_state) {
-  $flowmix_item = &$form_state['flow_obj'];
-  dsm($flowmix_item);
-   $form['name'] = array(
+function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  dsm($form_state,'form_state');
+  dsm($flowmix_item,'FLOWMIX');
+  $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('RSS feed name'),
     '#description' => t('The name you want to give to this feed.'),
@@ -283,36 +284,36 @@ function wallyflowmix_summary_form(&$form, &$form_state) {
     '#value'=>'Add a new flow',
     '#wizard type'=>'next',
     '#name'=>'next_'.count($flowmix_item->flows),
-    '#next'=>'basicsetttings'
+    '#next'=>'step2'
     ); 
+    
     
   
 }
 
-function wallyflowmix_summary_form_submit(&$form, &$form_state) {
-  dsm(cocu);
-   dsm($form_state);
-  dsm($form);
- 
-  $flowmix_item = &$form_state['flow_obj'];
-
+function wallyflowmix_contenttype_summary_form_submit(&$form, &$form_state) {
+  
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
   $save_values = array('name','maxitem_global','maxitem_byfeed','mix_schema','own_schema','get_distant_img','override_theme','override_theme_text'); 
   foreach($save_values as $value) {
     // set the values in the cache object -- it gets passed back to the next step
    // because of all that work we did in the form_info array
-    $form_state['flow_obj']->$value = $submitted[$value];
+    $form_state['conf']['flow_obj']->$value = $submitted[$value];
     
   }
-  
+  if($form_state['step']=='step1'){
+    $flowmix_item->index=count($form_state['conf']['flow_obj']->flows);
+  }
+  dsm($form_state,'form_state');
+  dsm($form_state['cache']->new_pane); 
 }
 
-function wallyflowmix_basicsetttings_form(&$form, &$form_state) {
+function wallyflowmix_contenttype_basicsetttings_form(&$form, &$form_state) {
+  dsm($form_state);
   
-  $flowmix_item = &$form_state['flow_obj'];
-  dsm($flowmix_item);
-  dsm($flowmix_item->index);
-   $form['name'] = array(
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('RSS feed name'),
     '#description' => t('The name you want to give to this feed.'),
@@ -384,14 +385,15 @@ function wallyflowmix_basicsetttings_form(&$form, &$form_state) {
  * 
  * 
  */
-function wallyflowmix_basicsetttings_form_validate(&$form, &$form_state) {
+function wallyflowmix_contenttype_basicsetttings_form_validate(&$form, &$form_state) {
   $uri_response = drupal_http_request($form['wallyflowmix_uri']['#value']);
   if ($uri_response->status_message != 'OK') {
   //  form_set_error('wallyflowmix_uri', t('The URI doesn\'t respond.'));
   }
+  
 }
-function wallyflowmix_basicsetttings_form_submit(&$form, &$form_state) {
-  $flowmix_item = &$form_state['flow_obj'];
+function wallyflowmix_contenttype_basicsetttings_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
   $save_values = array('name', 'uri', 'type','bodyhtml','deltat'); 
   // maybe don't imitate this foreach
@@ -402,14 +404,16 @@ function wallyflowmix_basicsetttings_form_submit(&$form, &$form_state) {
     $obj->$value = $submitted[$value];
     
   }
-  $form_state['flow_obj']->flows[(int)$flowmix_item->index] =$obj;
-  
+  $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index] =$obj;
+    dsm($form_state,'form_state');
+  dsm($form_state['cache']->new_pane);
 }
 
 
-function wallyflowmix_pluginselector_form(&$form, &$form_state) {
-  
-  $flowmix_item = &$form_state['flow_obj'];
+function wallyflowmix_contenttype_pluginselector_form(&$form, &$form_state) {
+  dsm($form_state,'form_state');
+  dsm($form_state['conf']['flow_obj'],'FLOWOBJ');
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   $possible_plugins=test_get_plugins_that_handle_type($flowmix_item->flows[$flowmix_item->index]->type);
   foreach($possible_plugins as $plugin_name=>$plugin){
     $options[$plugin_name]=$plugin['name'];
@@ -430,47 +434,50 @@ function wallyflowmix_pluginselector_form(&$form, &$form_state) {
   $form_state['no buttons'] = TRUE; 
 }
 
-function wallyflowmix_pluginselector_form_submit(&$form, &$form_state) {
-  $flowmix_item = &$form_state['flow_obj'];
+function wallyflowmix_contenttype_pluginselector_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
   $save_values = array('plugin_name'); 
   foreach($save_values as $value) {
     // set the values in the cache object -- it gets passed back to the next step
    // because of all that work we did in the form_info array
-    $form_state['flow_obj']->flows[$flowmix_item->index]->$value = $submitted[$value];
+    $form_state['conf']['flow_obj']->flows[$flowmix_item->index]->$value = $submitted[$value];
     
   }
   
- // $flowmix_item= $form_state['flow_obj']->flows[$flowmix_item->index];
+ // $flowmix_item= $form_state['conf']['flow_obj']->flows[$flowmix_item->index];
   // Remove pluginspecific step if no need
   if( isset($flowmix_item->plugin_name) && test_has_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->plugin_name))){
-  $form_state['clicked_button']['#next']='pluginspecific';
+  $form_state['clicked_button']['#next']='step3';
   }
+  
+    dsm($form_state,'form_state');
+  dsm($form_state['cache']->new_pane);
   
 }
 
-function wallyflowmix_pluginspecific_form(&$form, &$form_state) {
-  $flowmix_item = &$form_state['flow_obj'];
+function wallyflowmix_contenttype_pluginspecific_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
   $form['conf']=array('#tree'=>true);
-  test_get_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name),$form['conf'],$form_state['flow_obj']->conf);
+  test_get_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name),$form['conf'],$form_state['conf']['flow_obj']->conf);
     
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
 }
-function wallyflowmix_pluginspecific_form_submit(&$form, &$form_state) {
+function wallyflowmix_contenttype_pluginspecific_form_submit(&$form, &$form_state) {
   $conf = $form_state['values']['conf'];
-  $form_state['flow_obj']->flows[(int)$flowmix_item->index]->conf = $conf;
+  $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index]->conf = $conf;
     
   
 }
 
-function wallyflowmix_finalstep_form(&$form, &$form_state) {
+function wallyflowmix_contenttypte_finalstep_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['wombat_obj'];
   $form['direct_process'] = array(
     '#type' => 'checkbox',
     '#required' => 1,
     '#title' => 'Direct process',
-    '#default_value' => $form_state['flow_obj']->flows[(int)$flowmix_item->index]->direct_process,
+    '#default_value' => $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index]->direct_process,
   );
   unset($form['buttons']['return']);
   
@@ -479,14 +486,14 @@ function wallyflowmix_finalstep_form(&$form, &$form_state) {
     '#value'=>'Ok',
     '#wizard type'=>'next',
     '#name'=>'next_'.max(0,count($flowmix_item->flows)-1),
-    '#next'=>'basicsetttings'
+    '#next'=>'step1'
     );   
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
 }
 
-function wallyflowmix_finalstep_form_submit(&$form, &$form_state) {
-  $form_state['clicked_button']['#next']='summary';
+function wallyflowmix_contenttypte_finalstep_form_submit(&$form, &$form_state) {
+  $form_state['clicked_button']['#next']='step1';
    
 }
 
