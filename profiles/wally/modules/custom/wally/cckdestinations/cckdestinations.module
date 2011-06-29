@@ -1063,14 +1063,17 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
  *   The original term.
  */
 function _cckdestinations_remove_topic_destination(&$values, $vocabulary, $term) {
-  if (taxonomy_del_term($term['topic_destination'])) {
-    _cckdestinations_remove_destination_from_nodes($term);
-    taxonomy_check_vocabulary_hierarchy($vocabulary, $term);
-    drupal_set_message(t('Deleted term %name.', array('%name' => $term['name'])));
-    watchdog('taxonomy', 'Deleted term %name.', array('%name' => $term['name']), WATCHDOG_NOTICE);
-    return TRUE;
-  } else {
-    return FALSE;
+  if ($term['topic_destination']) {
+    if (taxonomy_del_term($term['topic_destination'])) {
+      path_set_alias('taxonomy/term/'.$term['tid'], 'taxonomy/term/'.$term['topic_destination'], 0, '');
+      _cckdestinations_remove_destination_from_nodes($term['topic_destination']);
+      taxonomy_check_vocabulary_hierarchy((array)$vocabulary, (array)$term);
+      drupal_set_message(t('Deleted term %name.', array('%name' => $term['name'])));
+      watchdog('taxonomy', 'Deleted term %name.', array('%name' => $term['name']), WATCHDOG_NOTICE);
+      return TRUE;
+    } else {
+      return FALSE;
+    }
   }
 }
 
