@@ -35,13 +35,14 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
   $view_results = $view->result;
   
-  $tranformed_nodes = wallytoolbox_flow_to_array_init_array();
+  $transformed_nodes = wallytoolbox_flow_to_array_init_array();
   foreach ($view_results as $node_result) {
     $node = node_load($node_result->nid);
     $node->view = $view;
     wallycontenttypes_packagepopulate($node, '');
-    $tranformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+    $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
+
   return $transformed_nodes;
 }
 
@@ -96,7 +97,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
 
 function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   $transformed_node = wallytoolbox_destinations_flow_set_package($node);
-dsm($node);
+
   // Package MainStory/MainObject
   switch ($node->type) {
     case 'wally_articlepackage':
@@ -198,7 +199,7 @@ function wallytoolbox_destinations_flow_set_object($object, $transformed_node) {
   $temp_object['LastUpdateDate'] = $transformed_node['LastUpdateDate'];
   
   // Object Elements
-  $temp_object['Title']['value'] = $textobejct->title;
+  $temp_object['Title']['value'] = $object->title;
   $temp_object['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($object, 'field_internalreference', '');
   $temp_object['ExternalReference']['value'] =  wallytoolbox_destinations_flow_node_get_field($object, 'field_externalreference', '');
   $temp_object['Markers']['Location'] = array();
