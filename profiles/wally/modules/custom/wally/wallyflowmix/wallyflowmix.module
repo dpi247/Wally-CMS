@@ -297,7 +297,46 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
     '#title'            => 'Theming Function Name',
   );
   
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $form['reusable'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Make this content reusable'),
+    '#default_value' => FALSE,
+  );
   
+  $form['admin_title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Administrative title'),
+    '#description' => t('The title used as name for the reusable block.'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-reusable' => array(1)),
+  );
+
+  $form['machine_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Machine name'),
+    '#description' => t('The machine readable name of this content. It must be unique, and it must contain only alphanumeric characters and underscores. Once created, you will not be able to change this value!'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-reusable' => array(1)),
+  );
+
+  $form['category'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Category'),
+    '#description' => t('What category this content should appear in. If left blank the category will be "Wally reusable blocks".'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-reusable' => array(1)),
+  );
+
+  $form['admin_description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Administrative description'),
+    '#description' => t('A description of what this content is, does or is for, for administrative use.'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-reusable' => array(1)),
+  );
   
   
     unset($form['buttons']['cancel']);
@@ -333,6 +372,7 @@ function wallyflowmix_contenttype_summary_form_submit(&$form, &$form_state) {
     
   }
   if($form_state['step']=='step1'){
+    dsm($form_state);
     $flowmix_item->index=count($form_state['conf']['flow_obj']->flows);
   }
 }
