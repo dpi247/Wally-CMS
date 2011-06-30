@@ -29,22 +29,6 @@ function wallyflowmix_theme(){
 
 
 
-function test_form(&$form, &$form_state) {
-  $form['direct_process'] = array(
-    '#type' => 'checkbox',
-    '#required' => 1,
-    '#title' => 'Direct process',
-  );
-  
- $form['buttons']['Ok'] = array(
-    '#type'=>'submit',
-    '#value'=>'Ok',
-    '#wizard type'=>'next',
-    '#next'=>'basicsetttings'
-    );   
-  // probably important -- i'm continuing to investigate
-  $form_state['no buttons'] = TRUE; 
-}
 
 
 
@@ -53,151 +37,36 @@ function test_form(&$form, &$form_state) {
 
 
 
-/**
- * Get the cached changes to a given task handler.
-* (Earl wrote that, not me...)
- */
-function wallyflowmix_add_get_page_cache($name) {
-  
-  $cache = ctools_object_cache_get('flowmix_item', $name);
-  return $cache;
-}
 
 
-/**
- * Callback generated when the 'cancel' button is clicked.
- *
- * All we do here is clear the cache. 
-* redirect them to where they started 
-* and call them a coward
- */
-function wallyflowmix_addnewflow_subtask_cancel(&$form_state) {
-  ctools_object_cache_clear('flowmix_item', $form_state['cache name']);
-  $form_state['redirect'] = 'admin/wally/wallyflowmix/adminflow';
-  drupal_set_message('Operation Cancelled.');
-}
-/**
- * Callback for the proceed step
- *
- */
-function wallyflowmix_addnewflow_subtask_next(&$form_state) {
-  $flowmix_item = &$form_state['conf']['flow_obj'];
-  if($form_state['step']=='summary'){
-    $flowmix_item->current_op=$form_state['clicked_button'];
-    $flowmix_item->index=(int)str_replace('next_','',$form_state['clicked_button']['#name']);;
-  }
-  $cache = ctools_object_cache_set('flowmix_item', $form_state['cache name'], $flowmix_item);
-}
 
-/**
- * Callback generated when the 'finish' button is clicked.
- *
- * Need to handle the flow creation 
- */
-function wallyflowmix_addnewflow_subtask_finish(&$form_state) {
-  }
 
-function wallyflowmix_page_admin_add_wizzard(){
 
-  $flow_id= arg(5);
-  $step = arg(6);
-  // required includes for wizard
-  ctools_include('wizard');
-  ctools_include('object-cache');
-  
-  // *** SETUP ARRAY multistep setup **** 
- // these are defined in some docs at end of article
- 
-  $form_info = array(
-    'id' => 'wallyflowmix_add',
-    'path' => "admin/wally/wallyflowmix/adminflow/edit/$flow_id/%step",
-    'show trail' => TRUE,
-    'show back' => TRUE,
-    'show cancel' => true,
-    'show return' =>false,
-   // 'free trail' => TRUE, see http://drupal.org/node/663386
-    'next text' => 'Next',
-    'next callback' =>  'wallyflowmix_addnewflow_subtask_next',
-    'finish callback' => 'wallyflowmix_addnewflow_subtask_finish',
-    'return callback' => 'wallyflowmix_addnewflow_subtask_finish',
-    'cancel callback' => 'wallyflowmix_addnewflow_subtask_cancel',
-   // this controls order, as well as form labels
-    'order' => array(
-      'summary' => t('Create Flow 1/3: Basic settings'),
-      'basicsetttings' => t('Create Flow 1/3: Basic settings'),
-  	  'pluginselector' => t('Create Flow 2/3: Plugin Selector'),
-      'pluginspecific' => t('Create Flow 2bis/3: Plugin specific settings'),
-      'finalstep' => t('Create Flow 3/3:  Final Step'),
-  ),
-   // here we map a step to a form id.
-    'forms' => array(
-      // e.g. this for the step at wombat/create 
-      'summary' => array(
-        'form id' => 'wallyflowmix_summary_form'
-      ),
-      'basicsetttings' => array(
-        'form id' => 'wallyflowmix_basicsetttings_form'
-      ),
-      'pluginselector' => array(
-        'form id' => 'wallyflowmix_pluginselector_form'
-      ),
-      'pluginspecific' => array(
-        'form id' => 'wallyflowmix_pluginspecific_form'
-      ),
-      'finalstep' => array(
-        'form id' => 'wallyflowmix_finalstep_form'
-      ),
-      ),
-  );
-  
-  
-  // *** SETTING THE FORM UP FOR MULTISTEP *** //
-  $form_state = array(
-    'cache name' =>wallyflowmix_get_cache_name($flow_id),
-  );
-  
-  //CASE A: we are at the begin of the wizard, if we have a row in DB, we should use it
-  if(!$step){
-       $form_info['next text'] = 'Add a flow';
-    
-    $result=db_query('SELECT * FROM {wallyflowmix_flows} WHERE flow_key=%d',$form_state['cache name']);
-    $fff=db_fetch_object($result);
-    if($fff){
-      $flowmix_item=$fff;
-    }
-  }
-  
-  //CASE B : either We are not in the begenning of the process either we are in the begining and there is no result in DB
-  // => we should use the cached version ()
-  if (!$flowmix_item) {
-  $flowmix_item = wallyflowmix_add_get_page_cache($form_state['cache name']);
-  } 
-  // REmove pluginspecific step if no need
-  if( isset($flowmix_item->plugin_name) && !test_has_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->plugin_name))){
-    unset( $form_info['order']['pluginspecific']);
-  }
-  
-  //CASE C : Blank case
-  if (!$flowmix_item) {
-    // set form to first step -- we have no data
-      $step = current(array_keys($form_info['order']));
-    //try to fetch flow from dtabase 
-      $flowmix_item = new stdClass();
-      $flowmix_item->index=0;
-    
-    // ** set the storage object so its ready for whatever comes next
-    ctools_object_cache_set('flowmix_item', $form_state['cache name'], $flowmix_item);
-  }
-  //THIS IS WHERE WILL STORE ALL FORM DATA
-  $form_state['conf']['flow_obj'] = $flowmix_item;
-  
-  // and this is the witchcraft that makes it work
-  $output = ctools_wizard_multistep_form($form_info, $step, $form_state);
-  
-  
-  
-  return $output;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
@@ -588,7 +457,8 @@ function wallyflowmix_get_cache_name($flow_id){
 
 function theme_wallyflowmix_contenttype_summary_form($form){
 
-foreach($form['flows'] as $key=>$flow_form){
+foreach(element_children($form['flows']) as $key=>$flow_form){
+  dsm("");
   $row=array(
     drupal_render($form['flows'][$key]['title']),
     drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
@@ -597,15 +467,19 @@ foreach($form['flows'] as $key=>$flow_form){
   $rows[]=$row;
 }
 
+dsm($rows);
 
-
-$output.=drupal_render($form['buttons']['add_flow']);
-
+if(count($form['flows'])){
+$table_output.=theme('table',array('titre','action'),$rows);
+$button_add_flow_output.=drupal_render($form['buttons']['add_flow']);
+}
 
 $output_after=drupal_render($form);
 
+$output.=$table_output;
+$output.=$button_add_flow_output;
+
 $output.=$output_after;
-$output.=theme('table',array('titre','action'),$rows);
 
 
 return $output;
