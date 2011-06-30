@@ -964,6 +964,7 @@ function wallytoolbox_flow_to_array_new_package() {
  */
 function wallytoolbox_flow_to_array_new_textobject() {
   $textobject = array();
+  $textobject['type'] = 'TextObjectType';
   $textobject['ObjectID'] = '';
   $textobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $textobject['Title']['value'] = '';
@@ -985,6 +986,7 @@ function wallytoolbox_flow_to_array_new_textobject() {
  */
 function wallytoolbox_flow_to_array_new_photoobject() {
   $photoobject = array();
+  $photoobject['type'] = 'PhotoObjectType';
   $photoobject['ObjectID'] = '';
   $photoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $photoobject['Title']['value'] = '';
@@ -1002,6 +1004,7 @@ function wallytoolbox_flow_to_array_new_photoobject() {
  */
 function wallytoolbox_flow_to_array_new_videoobject() {
   $videoobject = array();
+  $videoobject['type'] = 'VideoObjectType';
   $videoobject['ObjectID'] = '';
   $videoobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $videoobject['Title']['value'] = '';
