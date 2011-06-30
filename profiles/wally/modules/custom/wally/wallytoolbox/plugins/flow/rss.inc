@@ -6,22 +6,31 @@
  */
 $plugin = array(
   'title' => t('RSS'),
-  'description' => t('Control access by the existence of a substring in the domain of the url.'),
+  'description' => t('RSS 2.0 and RSS Media transformer.'),
   'types' => array('RSS 2.0', 'RSS Media')
 );
 
 function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
   $conf = $form_state['conf'];
+  
+  $form['maxitem'] = array (
+    '#type'             => 'textfield',
+    '#title'            => t('Max item to fetch for this feed'),
+    '#default_value'    => $conf['maxitem'],
+    '#required'         => TRUE,
+  );
+  
   $form['channel_img'] = array(
-    '#title' => t('Use of default image.'),
-    '#type' => 'checkbox',
-    '#default_value' => $conf['channel_img'],
+    '#title'            => t('Use of default image.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['channel_img'],
   );
 }
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array();
   
+  $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
     $dom = new DomDocument();
@@ -53,6 +62,8 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
             $struct_array['Packages']['Package'][] = $temp_struct_array;
           
           $new_feeds_md5[$elem_md5] = TRUE;
+          
+          if (sizeof($struct_array['Packages']['Package']) >= $maxitem) break;
         }
         
         if (empty($struct_array['Packages']['Package']))
@@ -112,8 +123,22 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   }
 
   $channel_img = $channel->getElementsByTagName('image');
-  if ($feed_infos['channel_img'] && !isset($array_package['EmbeddedContent']) && $channel_img->item(0)) {
+  if ($feed_infos['conf']['channel_img'] && !isset($array_package['EmbeddedContent']) && $channel_img->item(0)) {
     wallytoolbox_rss_item_to_array_set_image($array_package, $channel_img->item(0));
+  }
+  
+  if ($settings['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
+    $new_file_path = 'Flows/';
+    $file_temp_dir = file_directory_path().'/'.$new_file_path;
+    file_check_directory($file_temp_dir, 1);
+    $new_file_path .= $settings['caid'];
+    $new_file_path .= '_'.date('Ymd', time());
+    foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
+      if ($object['type'] == 'PhotoObjectType') {
+        $file_uri = $object['FileURI']['value'];
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+      }
+    }
   }
 
   return $array_package;
