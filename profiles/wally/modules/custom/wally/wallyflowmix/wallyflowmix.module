@@ -73,6 +73,7 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   dsm($flowmix_item,'FLOWMIX');
   
+    dsm($form);
   
   foreach($flowmix_item->flows as $key=>$flow){
     $form['flows'][$key]['edit_action']=array(
@@ -80,14 +81,14 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
       '#value'=>'Edit',
       '#wizard type'=>'next',
       '#name'=>'edit_'.$key,
-      '#next'=>'step5'
+      '#next'=>'step2'
       ); 
     $form['flows'][$key]['delete_action']=array(
       '#type'=>'submit',
       '#value'=>'Remove',
       '#wizard type'=>'next',
       '#name'=>'delete_'.$key,
-      '#next'=>'step5'
+      '#next'=>'step2'
       ); 
        
     $form['flows'][$key]['title']=array(
@@ -208,7 +209,8 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
   );
   
   
-    unset($form['buttons']['cancel']);
+    //unset($form['buttons']['cancel']);
+    unset($form['buttons']['next']);
     if(count($flowmix_item->flows)){
       $form['buttons']['save'] = array(
       '#type'=>'submit',
@@ -240,10 +242,33 @@ function wallyflowmix_contenttype_summary_form_submit(&$form, &$form_state) {
     $form_state['conf']['flow_obj']->$value = $submitted[$value];
     
   }
-  if($form_state['step']=='step1'){
-    dsm($form_state);
-    $flowmix_item->index=count($form_state['conf']['flow_obj']->flows);
+
+  dsm($form_state['clicked_button']['#name'],CLKBTN);
+  
+  if(strpos($form_state['clicked_button']['#name'],'delete')!== false){
+    dsm(str_replace('delete_','',$form_state['clicked_button']['#name']),INDX_DEL);
+    unset($flowmix_item->flows[str_replace('delete_','',$form_state['clicked_button']['#name'])]);
+    $form_state['clicked_button']['#next']='step1';
+    
+  }  
+  elseif(strpos($form_state['clicked_button']['#name'],'edit')!== false){
+    if($form_state['step']=='step1'){
+      dsm(str_replace('edit_','',$form_state['clicked_button']['#name']),INDX_EDIT);
+      $flowmix_item->index=(int)str_replace('edit_','',$form_state['clicked_button']['#name']);;
+      $form_state['clicked_button']['#next']='step2';
+      
+    }
   }
+  elseif(strpos($form_state['clicked_button']['#name'],'next')!== false){
+    if($form_state['step']=='step1'){
+      dsm(str_replace('next_','',$form_state['clicked_button']['#name']),INDX_NXT);
+      $flowmix_item->index=(int)str_replace('next_','',$form_state['clicked_button']['#name']);;
+    }
+  }
+  dsm($form_state['step'],stp);
+  dsm($flowmix_item->index,IDX);
+  
+  
 }
 
 function wallyflowmix_contenttype_basicsetttings_form(&$form, &$form_state) {
@@ -313,8 +338,13 @@ function wallyflowmix_contenttype_basicsetttings_form(&$form, &$form_state) {
       '#required' => TRUE,
     '#weight' => 1,
   );
+  
+  
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
+  
+  
+  
 }
 
 /*
@@ -341,6 +371,8 @@ function wallyflowmix_contenttype_basicsetttings_form_submit(&$form, &$form_stat
     
   }
   $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index] =$obj;
+  
+  
 }
 
 
@@ -402,6 +434,7 @@ function wallyflowmix_contenttype_pluginspecific_form_submit(&$form, &$form_stat
 }
 
 function wallyflowmix_contenttype_finalstep_form(&$form, &$form_state) {
+  dsm($form);
   $flowmix_item = &$form_state['wombat_obj'];
   $form['direct_process'] = array(
     '#type' => 'checkbox',
@@ -416,7 +449,8 @@ function wallyflowmix_contenttype_finalstep_form(&$form, &$form_state) {
     '#value'=>'Ok',
     '#wizard type'=>'next',
     '#name'=>'next_'.max(0,count($flowmix_item->flows)-1),
-    '#next'=>'step1'
+    '#next'=>'step1',
+    '#weight'=>-1000
     );   
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
@@ -458,7 +492,6 @@ function wallyflowmix_get_cache_name($flow_id){
 function theme_wallyflowmix_contenttype_summary_form($form){
 
 foreach(element_children($form['flows']) as $key=>$flow_form){
-  dsm("");
   $row=array(
     drupal_render($form['flows'][$key]['title']),
     drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
@@ -467,7 +500,6 @@ foreach(element_children($form['flows']) as $key=>$flow_form){
   $rows[]=$row;
 }
 
-dsm($rows);
 
 if(count($form['flows'])){
 $table_output.=theme('table',array('titre','action'),$rows);
