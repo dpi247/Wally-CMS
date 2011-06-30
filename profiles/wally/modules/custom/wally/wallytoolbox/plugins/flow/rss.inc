@@ -20,8 +20,14 @@ function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
     '#required'         => TRUE,
   );
   
+  $form['embed_img'] = array(
+    '#title'            => t('Use the first image embeded in the text if no image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['embed_img'],
+  );
+  
   $form['channel_img'] = array(
-    '#title'            => t('Use of default image.'),
+    '#title'            => t('Use the default channel image if no image found.'),
     '#type'             => 'checkbox',
     '#default_value'    => $conf['channel_img'],
   );
@@ -106,7 +112,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name'=>'RSS', 'destination'=>'0///', 'channel_img'=>0, 'prefix'=>'')) {
+function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name' => 'RSS', 'destination' => '0///', 'channel_img' => 0, 'prefix' => '')) {
   $array_package = wallytoolbox_flow_to_array_new_package();
   
   list($feed_name, $prefix) = wallytoolbox_rss_item_to_array_set_package($array_package, $item, $feed_infos);
@@ -120,6 +126,10 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   $media_contents = $item->getElementsByTagNameNS($media_namespace, 'content');
   if ($media_contents->item(0)) {
     wallytoolbox_rss_item_to_array_set_medias($array_package, $channel, $item, $media_contents, $feed_name, $prefix, $media_namespace);
+  }
+  
+  if ($feed_infos['conf']['embed_img'] && !isset($array_package['EmbeddedContent'])) {
+    wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
   }
 
   $channel_img = $channel->getElementsByTagName('image');
@@ -491,6 +501,61 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   }
   if (in_array(strtoupper($media_rating), $acceptable_rating)) {
     $tempobject['Rating']['value'] = strtoupper($media_rating);
+  }
+}
+
+/**
+ * Get embeded image in the text body of a RSS feed
+ * item and set an array item according to the structure defined in
+ * Wallymport.
+ * 
+ * @param array &$array_item
+ *   The array item under construction.
+ * @param domElement $item
+ *   The XML RSS feed item domElement.
+ */
+function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
+  $text_body = $array_item['MainStory']['TextBody']['value'];
+  $substr = strstr($text_body, '<img');
+  $substr = $substr ? $substr : strstr($text_body, rawurlencode('<img'));
+  $tmp_substr = $substr ? strstr($substr, '>', TRUE) : FALSE;
+  $substr = $tmp_substr ? $tmp_substr : ($substr ? strstr($substr, rawurlencode('>'), TRUE) : FALSE);
+
+  if ($substr) {
+    $src_substr = strstr($substr, 'src=');
+    $src_delimiter = substr($src_substr, 4, 1);
+    $src_substr = substr($src_substr, 5);
+    $img_url = strstr($src_substr, $src_delimiter, TRUE);
+    
+    $alt_substr = strstr($substr, 'alt=');
+    if ($alt_substr) {
+      $alt_delimiter = substr($alt_substr, 4, 1);
+      $alt_substr = substr($alt_substr, 5);
+      $img_alt = strstr($src_substr, $alt_delimiter, TRUE);
+    } else {
+      $img_alt = '';
+    }
+  
+    if (@getimagesize($img_url)) {
+      static $chan_img_num = 100;
+      $array_item['EmbeddedContent'] = array();
+      $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
+      $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+      
+      $tempobject = wallytoolbox_flow_to_array_new_photoobject();
+      $tempobject['ObjectID'] = $img_url;
+      $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+      $tempobject['MimeType'] = 'image';
+      $media_title = $img_alt;
+      $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
+      $chan_img_num++;
+      $tempobject['ExternalReference']['value'] = $img_url;
+      $tempobject['FileURI']['value'] = $img_url;
+      $tempobject['FileSize']['value'] = 0;
+      $tempobject['LinkTitle']['value'] = $img_alt;
+      $tempobject['LinkURI']['value'] = $img_url;
+      $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+    }
   }
 }
 
