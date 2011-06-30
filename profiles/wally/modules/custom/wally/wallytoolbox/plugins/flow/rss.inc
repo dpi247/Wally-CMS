@@ -115,28 +115,35 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
 function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name' => 'RSS', 'destination' => '0///', 'channel_img' => 0, 'prefix' => '')) {
   $array_package = wallytoolbox_flow_to_array_new_package();
   
+  // Get package informations
   list($feed_name, $prefix) = wallytoolbox_rss_item_to_array_set_package($array_package, $item, $feed_infos);
+  // Get main story
   wallytoolbox_rss_item_to_array_set_mainstory($array_package, $item, $feed_name, $prefix);
 
+  // Get enclosure content
   $enclosure = $item->getElementsByTagName('enclosure');
   if ($enclosure->item(0) && $enclosure->item(0)->getAttribute('type') && strstr($enclosure->item(0)->getAttribute('type'), 'image')) {
     wallytoolbox_rss_item_to_array_set_enclosure($array_package, $enclosure, $feed_name, $prefix);
   }
 
+  // Get media contents
   $media_contents = $item->getElementsByTagNameNS($media_namespace, 'content');
   if ($media_contents->item(0)) {
     wallytoolbox_rss_item_to_array_set_medias($array_package, $channel, $item, $media_contents, $feed_name, $prefix, $media_namespace);
   }
   
+  // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && !isset($array_package['EmbeddedContent'])) {
     wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
   }
 
+  // Get the channel image
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['conf']['channel_img'] && !isset($array_package['EmbeddedContent']) && $channel_img->item(0)) {
     wallytoolbox_rss_item_to_array_set_image($array_package, $channel_img->item(0));
   }
   
+  // Copy distant images to local
   if ($settings['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
     $new_file_path = 'Flows/';
     $file_temp_dir = file_directory_path().'/'.$new_file_path;
