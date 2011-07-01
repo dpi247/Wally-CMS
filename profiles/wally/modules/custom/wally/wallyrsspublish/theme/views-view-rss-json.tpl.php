@@ -6,7 +6,10 @@
  *
  * @ingroup views_templates
  */
+
+drupal_set_header('Content-Type: application/json; charset=utf-8');
 ?>
+
 <?php print "<?xml"; ?> version="1.7" encoding="utf-8" <?php print "?>"; ?>
 <rss version="2.0" xml:base="<?php print $link; ?>"<?php print $namespaces; ?>>
   <channel>
