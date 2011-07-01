@@ -606,7 +606,7 @@ function dom2array($node) {
           $children = $node->childNodes;
           for($i=0;$i<$children->length;$i++){
               $child = $children->item($i);
-              $res[$child->nodeName] = dom2array($child);
+              $res[$child->nodeName][] = dom2array($child);
           }
       }
   }
