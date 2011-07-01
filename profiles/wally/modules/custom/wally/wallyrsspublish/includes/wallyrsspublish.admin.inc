@@ -53,7 +53,7 @@ function wallyrsspublish_settingsrss_form(){
       '#title' =>t('Attach an image'),
       '#description' => t('RSS image'),
       '#size' => 100,
-      '#suffix' => '<img src="'.imagecache_create_url('rsspublish_preset', $data[imagefile]).'" height = "75px" />',
+      '#suffix' => $data['imagefile'] ? '<img src="'.imagecache_create_url('rsspublish_preset', $data['imagefile']).'" height = "75px" />' : '',
     );
     
     $form[$dest.'settings']['wallyrsspublish_'.$dest.'_rsscopyright'] = array(
