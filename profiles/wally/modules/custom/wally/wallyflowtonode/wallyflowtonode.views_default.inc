@@ -3,7 +3,7 @@
 /**
  * Implementation of hook_views_default_views().
  */
-function wallyflowtonodea_views_default_views() {
+function wallyflowtonode_views_default_views() {
   $views = array();
 
   // Exported view: flow_to_node_queue
