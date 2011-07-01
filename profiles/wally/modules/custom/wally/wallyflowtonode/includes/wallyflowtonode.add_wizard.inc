@@ -58,6 +58,7 @@ function wallyflowtonode_page_admin_add_wizard() {
   if (!$step || $step == 'basicsettings') {
     $result = db_query('SELECT * FROM {wallyflowtonode_flows} WHERE flow_key = %d', $form_state['cache name']);
     $flow_object = db_fetch_object($result);
+    //$flow_object->flows=unserialize($flow_object->flows);
     if ($flow_object) {
       $flow_item = $flow_object;
     }
@@ -130,7 +131,6 @@ function wallyflowtonode_addnewflow_subtask_next(&$form_state) {
  */
 function wallyflowtonode_addnewflow_subtask_finish(&$form_state) {
   $flow_item = &$form_state['flow_obj'];
-  dsm($form_state);
   //Some cleaning before save
   if (isset($flow_item->flow_key)) {
     drupal_set_message('The flow '.$flow_item->name.' has been edited');
@@ -173,7 +173,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   $form['prefix'] = array(
     '#type' => 'textfield',
     '#title' => t('External reference prefix.'),
-    '#description' => t('Flow name by default.'),
+    '#description' => t('Used in the package to identify the external ressource.'),
     '#default_value' => $flow_item->prefix,
     '#size' => 80,
     '#maxlength' => 512,
@@ -190,7 +190,6 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
     '#required' => TRUE,
     '#weight' => 0.1,
   );
-  
   $form['publish'] = array(
     '#type' => 'radios',
     '#title' => t('Publishing comportement'),
@@ -338,13 +337,11 @@ function wallyflowtonode_pluginspecific_form(&$form, &$form_state) {
   $flow_item = &$form_state['flow_obj'];
   $form['conf']=array('#tree'=>true);
   wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flow_item->plugin_name),$form['conf'],$form_state['flow_obj']->conf);
-  dsm($form, 'form');
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
 }
 
 function wallyflowtonode_pluginspecific_form_submit(&$form, &$form_state) {
-  dsm($form_state, 'form state');
   $conf = $form_state['values']['conf'];
   $form_state['flow_obj']->conf = $conf;
 }
