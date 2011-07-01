@@ -301,7 +301,7 @@ function wallyflowmix_contenttype_basicsetttings_form(&$form, &$form_state) {
     '#title' => t('Type of flow'),
     '#default_value' => $flowmix_item->flows[(int)$flowmix_item->index]->types,
   '#required' => TRUE,
-    '#options' => test_get_availlable_flow_type(),
+    '#options' => wallytoolbox_get_available_flow_type(),
     '#weight' => 0.11,
   );
   
@@ -378,7 +378,7 @@ function wallyflowmix_contenttype_basicsetttings_form_submit(&$form, &$form_stat
 
 function wallyflowmix_contenttype_pluginselector_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
-  $possible_plugins=test_get_plugins_that_handle_type($flowmix_item->flows[$flowmix_item->index]->type);
+  $possible_plugins=wallytoolbox_get_plugins_that_handle_type($flowmix_item->flows[$flowmix_item->index]->type);
   foreach($possible_plugins as $plugin_name=>$plugin){
     $options[$plugin_name]=$plugin['name'];
     $dl="<dt>".$plugin['name']."</dt><dd>".$plugin['description']."</dd>";
@@ -411,7 +411,7 @@ function wallyflowmix_contenttype_pluginselector_form_submit(&$form, &$form_stat
   
  // $flowmix_item= $form_state['conf']['flow_obj']->flows[$flowmix_item->index];
   // Remove pluginspecific step if no need
-  if( isset($flowmix_item->plugin_name) && test_has_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->plugin_name))){
+  if( isset($flowmix_item->plugin_name) && wallytoolbox_has_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->plugin_name))){
   $form_state['clicked_button']['#next']='step3';
   }
   
@@ -421,7 +421,7 @@ function wallyflowmix_contenttype_pluginselector_form_submit(&$form, &$form_stat
 function wallyflowmix_contenttype_pluginspecific_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $form['conf']=array('#tree'=>true);
-  test_get_settings_form_of_plugin(test_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name),$form['conf'],$form_state['conf']['flow_obj']->conf);
+  wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name),$form['conf'],$form_state['conf']['flow_obj']->conf);
     
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
