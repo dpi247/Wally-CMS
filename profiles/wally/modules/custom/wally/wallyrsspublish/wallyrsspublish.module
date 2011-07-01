@@ -28,15 +28,27 @@ function wallyrsspublish_theme() {
 
   require_once "./$path/theme/theme.inc";
   return array(
-    'views_view_row_rss__default_destination_view_feed' => array(
+    'views_view_row_rss' => array(
       'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
       'template' => 'views-view-row-rss',
       'original hook' => 'views_view_row_rss',
       'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
     ),
-    'views_view_rss__default_destination_view_feed' => array(
+    'views_view_rss' => array(
       'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
       'template' => 'views-view-rss',
+      'original hook' => 'views_view_rss',
+      'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
+    ),
+    'views_view_row_rss_json' => array(
+      'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
+      'template' => 'views-view-row-rss-json',
+      'original hook' => 'views_view_row_rss',
+      'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
+    ),
+    'views_view_rss_json' => array(
+      'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
+      'template' => 'views-view-rss-json',
       'original hook' => 'views_view_rss',
       'path' => drupal_get_path('module', 'wallyrsspublish') . '/theme',
     ),
@@ -76,6 +88,7 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
   global $base_url;
   global $language;
 
+  $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
@@ -132,6 +145,7 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
 }
 
 function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
+  $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $item     = &$vars['row'];
