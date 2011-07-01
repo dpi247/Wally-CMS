@@ -144,7 +144,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   }
   
   // Copy distant images to local
-  if ($settings['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
+  if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
     $new_file_path = 'Flows/';
     $file_temp_dir = file_directory_path().'/'.$new_file_path;
     file_check_directory($file_temp_dir, 1);
@@ -159,50 +159,6 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   }
 
   return $array_package;
-}
-
-/**
- * Search an item for a desired element.
- * 
- * @param $dom_item
- *   The item in which the search is performed.
- * @param $name
- *   The name of the searched element.
- * @param $namespace
- *   Value of the namespace if used.
- * @param $second_choice
- *   If the element given by $name isn\'t found, you have a second chance.
- * @param $feed_name
- *   The name of the feed as recorded in the DB. Needed as default
- *   external reference value.
- * 
- * @return
- *   The element value or ''.
- */
-function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none', $second_choice = '', $feed_name = '', $prefix = '') {
-  $return = '';
-  if ($namespace != 'none' && is_object($dom_item)) {
-    $return = $dom_item->getElementsByTagNameNS($namespace, $name)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $name)->item(0)->firstChild->wholeText : '';
-    if ($second_choice != '') {
-      if ($return == '') {
-        $return = $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0) ? $dom_item->getElementsByTagNameNS($namespace, $second_choice)->item(0)->firstChild->wholeText : '';
-      } else {
-        $prefix = ($prefix != '') ? $prefix : $feed_name;
-        $return = $prefix.':::'.$return;
-      }
-    }
-  } elseif (is_object($dom_item)) {
-    $return = $dom_item->getElementsByTagName($name)->item(0) ? $dom_item->getElementsByTagName($name)->item(0)->firstChild->wholeText : '';
-    if ($second_choice != '') {
-      if ($return == '') {
-        $return = $dom_item->getElementsByTagName($second_choice)->item(0) ? $dom_item->getElementsByTagName($second_choice)->item(0)->firstChild->wholeText : '';
-      } else {
-        $prefix = ($prefix != '') ? $prefix : $feed_name;
-        $return = $prefix.':::'.$return;
-      }
-    }
-  }
-  return $return;
 }
 
 /**
