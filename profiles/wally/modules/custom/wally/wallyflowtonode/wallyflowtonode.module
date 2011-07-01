@@ -175,7 +175,7 @@ function _wallyflowtonode_callallfeeds() {
           $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'.tmp';
           $valid_dom->save($tempFile);
           $temp_return = wallymport_page_process_file($tempFile);
-          file_delete($tempFile);
+          //file_delete($tempFile);
 
           if ($temp_return && !is_string($temp_return)) {
             $object = $feed_infos;
@@ -258,12 +258,14 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $mainStory->setAttribute('CreationDate', $array_valid_dom['Package']['MainStory']['CreationDate']);
     $mainStory->appendChild($valid_dom->createElement('Title', $array_valid_dom['Package']['MainStory']['Title']['value']));
     $mainStory->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['MainStory']['ExternalReference']['value']));
-    $taxonomy = $mainStory->appendChild($valid_dom->createElement('Taxonomy'));
-    $vocabulary = $taxonomy->appendChild($valid_dom->createElement('Vocabulary'));
-    $vocabulary->setAttribute('VocabularyName', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyName']);
-    $vocabulary->setAttribute('VocabularyType', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyType']);
-    foreach ($array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'] as $term) {
-      $vocabulary->appendChild($valid_dom->createElement('Term', $term));
+    if (isset($array_valid_dom['Package']['MainStory']['Taxonomy'])) {
+      $taxonomy = $mainStory->appendChild($valid_dom->createElement('Taxonomy'));
+      $vocabulary = $taxonomy->appendChild($valid_dom->createElement('Vocabulary'));
+      $vocabulary->setAttribute('VocabularyName', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyName']);
+      $vocabulary->setAttribute('VocabularyType', $array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['VocabularyType']);
+      foreach ($array_valid_dom['Package']['MainStory']['Taxonomy']['Vocabulary']['Term'] as $term) {
+        $vocabulary->appendChild($valid_dom->createElement('Term', $term));
+      }
     }
     $mainStory->appendChild($valid_dom->createElement('Copyright', ($feed_infos['signature'] != '') ? $feed_infos['signature'] : $array_valid_dom['Package']['MainStory']['Copyright']['value']));
     $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
