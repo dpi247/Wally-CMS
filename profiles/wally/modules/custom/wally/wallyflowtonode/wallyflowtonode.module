@@ -6,6 +6,8 @@
  * Do not put field specific functions or generic helpers functions here. 
  */
 
+include_once('wallyflowtonode.features.inc');
+include_once('wallyflowtonode.views_default.inc');
 
 /**
  * Implementation of hook_menu().
