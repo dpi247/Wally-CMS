@@ -7,7 +7,7 @@
 $plugin = array(
   'title' => t('Destinations'),
   'description' => t('Get view results from a term ID and transform them.'),
-  'types' => array('View results')
+  'types' => array('Destination')
 );
 
 function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
