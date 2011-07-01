@@ -140,8 +140,6 @@ function wallyrsspublish_preprocess_views_view_rss(&$vars) {
   $vars['namespaces'] = drupal_attributes($style->namespaces);
   $vars['items'] = $items;
   $vars['channel_elements'] = format_xml_elements($style->channel_elements);
-
-  drupal_set_header('Content-Type: application/rss+xml; charset=utf-8');
 }
 
 function wallyrsspublish_preprocess_views_view_row_rss(&$vars) {
