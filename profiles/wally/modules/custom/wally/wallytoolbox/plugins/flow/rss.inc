@@ -11,7 +11,8 @@ $plugin = array(
 );
 
 function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
-  $conf = $form_state['conf'];
+  $conf = $form_state;
+  
   
   $form['maxitem'] = array (
     '#type'             => 'textfield',
@@ -31,6 +32,12 @@ function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
     '#type'             => 'checkbox',
     '#default_value'    => $conf['channel_img'],
   );
+  $form['get_distant_img'] = array (
+    '#type'             => 'checkbox',
+    '#default_value'    => $flowmix_item->get_distant_img,
+    '#title'            => 'Copy RSS feeds images to locale folder.',
+  );
+  
 }
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
