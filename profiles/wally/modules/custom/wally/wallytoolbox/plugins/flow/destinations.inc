@@ -49,7 +49,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $tid = $feed_infos['conf']['destination']['field_destinations'][0]['tid'];
   $target = $feed_infos['conf']['destination']['field_destinations'][0]['target'];
-  
+  dsm($feed_infos);
   
   dsm($target,target);
   $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
