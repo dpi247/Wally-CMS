@@ -12,9 +12,10 @@
   'link':<?php //print $link; ?>,
   'description':<?php print $description;?>,
   'elements':{<?php print $item_elements;?>},
-  <?php if (!empty($url)){?>
+  <?php if (!empty($url)):?>
   media:{
     'content url':<?php print $url;?>,
     'thumbnail url':<?php print $url_thumb;?>,
   },
+  <?php endif;?>
 }
