@@ -405,7 +405,7 @@ function wallyflowmix_contenttype_pluginselector_form_submit(&$form, &$form_stat
  // $flowmix_item= $form_state['conf']['flow_obj']->flows[$flowmix_item->index];
   // Remove pluginspecific step if no need
   if( isset($flowmix_item->plugin_name) && wallytoolbox_has_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->plugin_name))){
-  $form_state['clicked_button']['#next']='step3';
+  $form_state['clicked_button']['#next']='step1';
   }
   
   
