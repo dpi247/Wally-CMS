@@ -60,6 +60,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $view_id = $redacblock['view_id'];
   $redacblock_name = $redacblock['name'];
   $view = views_get_view($view_name);
+  dsm($view,view);
   $view->set_display($view_id);
   
   $options = array(
