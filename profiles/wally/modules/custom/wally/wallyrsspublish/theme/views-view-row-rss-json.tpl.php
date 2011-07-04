@@ -7,16 +7,14 @@
  * @ingroup views_templates
  */
 ?>
-<item>
-  <title><?php print $title; ?></title>
-  <link><?php //print $link; ?></link>
-  <description><?php print $description;?></description>
-  <?php print $item_elements;?>
+{
+  'title':<?php print $title; ?>,
+  'link':<?php //print $link; ?>,
+  'description':<?php print $description;?>,
+  'elements':{<?php print $item_elements;?>},
   <?php if (!empty($url)){?>
-  <media:content url="<?php print $url;?>" type="<?php print $type;?>" fileSize="<?php print $filesize;?>">
-  <media:title><?php print $title;?></media:title>
-  <media:thumbnail url="<?php print $url_thumb;?>"/>
-  <media:description type="html"><?php print $description?></media:description>
-  </media:content>
-  <?php }?>
-</item>
+  media:{
+    'content url':<?php print $url;?>,
+    'thumbnail url':<?php print $url_thumb;?>,
+  },
+}
