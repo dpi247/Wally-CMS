@@ -18,14 +18,14 @@ $plugin = array(
     'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
     'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
     'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
- //   'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
+    'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
   ),
   'edit form' => array(
     'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
     'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
     'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
     'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-  //  'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
+    'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
   ),
   'edit text' => t('Edit'),
   'all contexts' => TRUE,
@@ -260,14 +260,14 @@ function _wallyextra_flowmix_default_ctools_content_type() {
     'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
     'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
     'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
- //   'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
+    'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
   ),
   'edit form' => array(
     'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
     'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
     'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
     'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-  //  'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
+    'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
   ),
   );
 
