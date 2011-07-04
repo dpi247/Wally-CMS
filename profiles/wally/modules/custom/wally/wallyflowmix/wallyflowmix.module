@@ -120,12 +120,7 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
     '#required'         => TRUE,
   );
   
-  $form['maxitem_byfeed'] = array (
-    '#type'             => 'textfield',
-    '#title'            => t('Max item to fetch by flow'),
-    '#default_value'    => $flowmix_item->maxitem_byfeed,
-    '#required'         => TRUE,
-  );
+  
   
   $mix_schemas = array(
     'alt'               => 'Alternate',
