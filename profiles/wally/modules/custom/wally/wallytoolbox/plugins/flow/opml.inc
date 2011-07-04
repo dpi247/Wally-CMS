@@ -118,7 +118,7 @@ function wallytoolbox_opml_item_to_array($head, $item, $feed_infos = array('name
 
   // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && !isset($array_package['EmbeddedContent'])) {
-    wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
+    wallytoolbox_opml_item_to_array_set_embeded_image($array_package, $item);
   }
   
   // Copy distant images to local
@@ -309,7 +309,7 @@ function wallytoolbox_opml_item_to_array_set_videoobject(&$tempobject, &$array_i
  * @param domElement $item
  *   The XML RSS feed item domElement.
  */
-function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
+function wallytoolbox_opml_item_to_array_set_embeded_image(&$array_item, $item) {
   $text_body = $array_item['MainStory']['TextBody']['value'];
   $substr = strstr($text_body, '<img');
   $substr = $substr ? $substr : strstr($text_body, rawurlencode('<img'));
