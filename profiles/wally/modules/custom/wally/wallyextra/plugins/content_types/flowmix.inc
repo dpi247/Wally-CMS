@@ -288,20 +288,7 @@ function _wallyextra_flowmix_ctools_content_type($content) {
     'icon' => 'icon_block_custom.png',
     // Store this here to make it easy to access.
     'content' => $content,
-  'add form' => array(
-    'wallyflowmix_contenttype_summary_form'        => t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
- //   'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
-  ),
-  'edit form' => array(
-    'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-  //  'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
-  ),
+  
   );
 
   return $info;
