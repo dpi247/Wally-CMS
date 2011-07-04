@@ -49,9 +49,9 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $tid = $feed_infos['conf']['destination']['field_destinations'][0]['tid'];
   $target = $feed_infos['conf']['destination']['field_destinations'][0]['target'];
-  dsm($feed_infos);
+  //dsm($feed_infos);
   $target='default_destination_block';
-  dsm($target,target);
+  //dsm($target,target);
   $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
   while (is_string($redacblock['settings']))
     $redacblock['settings'] = unserialize($redacblock['settings']);
@@ -60,7 +60,6 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $view_id = $redacblock['view_id'];
   $redacblock_name = $redacblock['name'];
   $view = views_get_view($view_name);
-  dsm($view,view);
   $view->set_display($view_id);
   
   $options = array(
