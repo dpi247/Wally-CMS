@@ -407,7 +407,6 @@ function wallyflowmix_contenttype_pluginselector_form_submit(&$form, &$form_stat
   if( isset($flowmix_item->plugin_name) && wallytoolbox_has_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->plugin_name))){
   $form_state['clicked_button']['#next']='step1';
   }
-    $form_state['clicked_button']['#next']='step1';
   
   
   
@@ -426,7 +425,8 @@ function wallyflowmix_contenttype_pluginspecific_form(&$form, &$form_state) {
 function wallyflowmix_contenttype_pluginspecific_form_submit(&$form, &$form_state) {
   $conf = $form_state['values']['conf'];
   $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index]->conf = $conf;
-    
+      $form_state['clicked_button']['#next']='step1';
+  
   
 }
 
