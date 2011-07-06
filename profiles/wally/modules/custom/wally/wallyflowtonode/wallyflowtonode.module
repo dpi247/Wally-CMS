@@ -21,7 +21,7 @@ function wallyflowtonode_menu() {
   );
 
   $items['admin/wally/wallyflowtonode'] = $base + array(
-    'title'=> t('Flow to node'),
+    'title'=> t('Wally Flow to node feeds'),
     'description' => t('Manage feeds.'),
     'page callback'=>'wallyflowtonode_page_admin_list_feeds',
   );

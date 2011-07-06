@@ -34,6 +34,8 @@ function wallyflowtonode_page_admin_run_cron() {
 function _wallyflowtonode_build_feeds_list() {  
   $header = array(
     array('data' => t('Name')),
+    array('data' => t('Type')),
+    array('data' => t('Plugin')),
     array('data' => t('URI')),
     array('data' => t('Signature')),
     array('data' => t('Iteration (min)')),
@@ -50,6 +52,8 @@ function _wallyflowtonode_build_feeds_list() {
   while ($db_result = db_fetch_array($db_results)) {
     $temp_row = array();
     $temp_row['name'] = check_plain($db_result['name']);
+    $temp_row['type'] = check_plain($db_result['type']);
+    $temp_row['plugin_name'] = check_plain($db_result['plugin_name']);
     $temp_row['uri'] = check_plain($db_result['uri']);
     $temp_row['signature'] = check_plain($db_result['signature']);
     $temp_row['delta_t'] = check_plain($db_result['delta_t']);
