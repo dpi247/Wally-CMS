@@ -5,8 +5,8 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'title' => t('RSS'),
-  'description' => t('RSS 2.0 and RSS Media transformer.'),
+  'title' => t('RSS - Default RSS plugin'),
+  'description' => t('a common RSS 2.0 and RSS Media transformer.'),
   'types' => array('RSS 2.0', 'RSS Media')
 );
 
