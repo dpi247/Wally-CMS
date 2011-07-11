@@ -1,0 +1,32 @@
+<?php
+// $Id: media_ustream.install,v 1.0 2011/01/07 ODM $
+
+/**
+ * @file
+ * This is Media: ustream's installation, configuration, and removal file.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function media_ustream_install() {
+  // Ensure we have the required variable namespace.
+  drupal_load('module', 'media_ustream');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function media_ustream_uninstall() {
+  foreach (media_ustream_variable_default() as $variable => $value) {
+    media_ustream_variable_del($variable);
+  }
+  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: ustream namespace."));
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function media_ustream_disable() {
+  cache_clear_all('*', 'cache_media_ustream_status', TRUE);
+}
