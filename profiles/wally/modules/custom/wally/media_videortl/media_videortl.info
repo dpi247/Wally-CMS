@@ -1,0 +1,7 @@
+name = "Media: Video RTL"
+description = "Provides Video RTL support to the Embedded Media Field module."
+package = "Media"
+core = "6.x"
+
+dependencies[] = emfield
+dependencies[] = emvideo

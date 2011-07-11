@@ -1,0 +1,32 @@
+<?php
+// $Id: media_videortl.install,v 1.0 2011/01/07 ODM $
+
+/**
+ * @file
+ * This is Media: Video RTL's installation, configuration, and removal file.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function media_videortl_install() {
+  // Ensure we have the required variable namespace.
+  drupal_load('module', 'media_videortl');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function media_videortl_uninstall() {
+  foreach (media_videortl_variable_default() as $variable => $value) {
+    media_videortl_variable_del($variable);
+  }
+  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: videortl namespace."));
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function media_videortl_disable() {
+  cache_clear_all('*', 'cache_media_videortl_status', TRUE);
+}
