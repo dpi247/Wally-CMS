@@ -31,8 +31,8 @@ function emvideo_ustream_info() {
     'provides' => array('emvideo'),
     'provider' => 'ustream',
     'name' => t('ustream'),
-    'url' => MEDIA_ustream_MAIN_URL,
-    'settings_description' => t('These settings specifically affect videos displayed from <a href="@ustream" target="_blank">ustream</a>. You can learn more about its <a href="@api" target="_blank">API</a> here.', array('@ustream' => MEDIA_ustream_MAIN_URL, '@api' => MEDIA_ustream_API_INFO)),
+    'url' => MEDIA_USTREAM_MAIN_URL,
+    'settings_description' => t('These settings specifically affect videos displayed from <a href="@ustream" target="_blank">ustream</a>. You can learn more about its <a href="@api" target="_blank">API</a> here.', array('@ustream' => MEDIA_USTREAM_MAIN_URL, '@api' => MEDIA_USTREAM_API_INFO)),
     'supported_features' => $features,
   );
 }
@@ -52,7 +52,7 @@ function emvideo_ustream_settings() {
  *  Implement hook emvideo_PROVIDER_data_version().
  */
 function emvideo_ustream_data_version() {
-  return MEDIA_ustream_DATA_VERSION;
+  return MEDIA_USTREAM_DATA_VERSION;
 }
 
 /**
@@ -164,7 +164,7 @@ function emvideo_ustream_video($video_id, $width, $height, $field, $item, $node,
  *  
  */
 function _emvideo_ustream_request($src_url){
-  preg_match('/^http:\/\/www\.ustream\.tv\/recorded\/([0-9]*)\//', $src_url,$urlT);
+  preg_match('/^http:\/\/www\.ustream\.tv\/recorded\/([0-9]*)\/highlight/', $src_url,$urlT);
   $id = $urlT[1]; 
   
   $embedly_result = array();
@@ -191,6 +191,7 @@ function _emvideo_ustream_request($src_url){
    //'thumbnail_width' => (string)$xml->thumbnail_width,   
    //'thumbnail_height' => (string)$xml->thumbnail_height
   );
+
   return $embedly_result;
 }
 

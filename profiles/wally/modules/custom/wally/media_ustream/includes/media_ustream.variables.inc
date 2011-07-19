@@ -8,19 +8,19 @@
 /**
  * The variable namespace for Media: ustream.
  */
-define('MEDIA_ustream_NAMESPACE', 'media_ustream__');
+define('MEDIA_USTREAM_NAMESPACE', 'media_ustream__');
 
 /**
  * This is the main URL for ustream.
  */
-define('MEDIA_ustream_MAIN_URL', 'http://www.ustream.com/');
+define('MEDIA_USTREAM_MAIN_URL', 'http://www.ustream.com/');
 
 /**
  * This is the URL to the API of ustream.
  */
 
-//define('MEDIA_ustream_API_INFO', 'http://developers.ustream.com/');
-//define('MEDIA_ustream_API_APPLICATION_URL', 'http://developers.ustream.com/account.php');
+//define('MEDIA_USTREAM_API_INFO', 'http://developers.ustream.com/');
+//define('MEDIA_USTREAM_API_APPLICATION_URL', 'http://developers.ustream.com/account.php');
 
 /**
  * This defines the version of the content data array that we serialize
@@ -28,22 +28,22 @@ define('MEDIA_ustream_MAIN_URL', 'http://www.ustream.com/');
  * we must increment this value, which will allow older content to be updated
  * to the new version automatically.
  */
-define('MEDIA_ustream_DATA_VERSION', 4);
+define('MEDIA_USTREAM_DATA_VERSION', 4);
 
-define('MEDIA_ustream_STATUS_UPDATE_NONE', 0);
-define('MEDIA_ustream_STATUS_UPDATE_FROM_UNAVAILABLE', 1);
-define('MEDIA_ustream_STATUS_UPDATE_ALWAYS', 2);
+define('MEDIA_USTREAM_STATUS_UPDATE_NONE', 0);
+define('MEDIA_USTREAM_STATUS_UPDATE_FROM_UNAVAILABLE', 1);
+define('MEDIA_USTREAM_STATUS_UPDATE_ALWAYS', 2);
 
-define('MEDIA_ustream_STATUS_UNAVAILABLE', 0x0000);
-define('MEDIA_ustream_STATUS_AVAILABLE', 0x0001);
-define('MEDIA_ustream_STATUS_PRIVATE', 0x0002);
+define('MEDIA_USTREAM_STATUS_UNAVAILABLE', 0x0000);
+define('MEDIA_USTREAM_STATUS_AVAILABLE', 0x0001);
+define('MEDIA_USTREAM_STATUS_PRIVATE', 0x0002);
 
 /**
  * Wrapper for variable_get() that uses the Media: ustream variable registry.
  *
  * @param string $name
  *  The variable name to retrieve. Note that it will be namespaced by
- *  pre-pending MEDIA_ustream_NAMESPACE, as to avoid variable collisions
+ *  pre-pending MEDIA_USTREAM_NAMESPACE, as to avoid variable collisions
  *  with other modules.
  * @param unknown $default
  *  An optional default variable to return if the variable hasn't been set
@@ -63,7 +63,7 @@ function media_ustream_variable_get($name, $default = NULL) {
     $default = media_ustream_variable_default($name);
   }
   // Namespace all variables
-  $variable_name = MEDIA_ustream_NAMESPACE . $name;
+  $variable_name = MEDIA_USTREAM_NAMESPACE . $name;
   return variable_get($variable_name, $default);
 }
 
@@ -72,7 +72,7 @@ function media_ustream_variable_get($name, $default = NULL) {
  *
  * @param string $name
  *  The variable name to set. Note that it will be namespaced by
- *  pre-pending MEDIA_ustream_NAMESPACE, as to avoid variable collisions with
+ *  pre-pending MEDIA_USTREAM_NAMESPACE, as to avoid variable collisions with
  *  other modules.
  * @param unknown $value
  *  The value for which to set the variable.
@@ -84,7 +84,7 @@ function media_ustream_variable_get($name, $default = NULL) {
  * @see media_ustream_variable_default()
  */
 function media_ustream_variable_set($name, $value) {
-  $variable_name = MEDIA_ustream_NAMESPACE . $name;
+  $variable_name = MEDIA_USTREAM_NAMESPACE . $name;
   return variable_set($variable_name, $value);
 }
 
@@ -93,7 +93,7 @@ function media_ustream_variable_set($name, $value) {
  *
  * @param string $name
  *  The variable name to delete. Note that it will be namespaced by
- *  pre-pending MEDIA_ustream_NAMESPACE, as to avoid variable collisions with
+ *  pre-pending MEDIA_USTREAM_NAMESPACE, as to avoid variable collisions with
  *  other modules.
  *
  * @see media_ustream_variable_get()
@@ -101,7 +101,7 @@ function media_ustream_variable_set($name, $value) {
  * @see media_ustream_variable_default()
  */
 function media_ustream_variable_del($name) {
-  $variable_name = MEDIA_ustream_NAMESPACE . $name;
+  $variable_name = MEDIA_USTREAM_NAMESPACE . $name;
   variable_del($variable_name);
 }
 
@@ -110,7 +110,7 @@ function media_ustream_variable_del($name) {
  *
  * @param string $name
  *  Optional variable name to retrieve the default. Note that it has not yet
- *  been pre-pended with the MEDIA_ustream_NAMESPACE namespace at this time.
+ *  been pre-pended with the MEDIA_USTREAM_NAMESPACE namespace at this time.
  * @return unknown
  *  The default value of this variable, if it's been set, or NULL, unless
  *  $name is NULL, in which case we return an array of all default values.
@@ -154,7 +154,11 @@ function media_ustream_variable_default($name = NULL) {
       'cron_limit' => 50,
       
       // "textarea" of the allowed URLs from which the videos may come.
-      'allowed_url' => '',
+      'allowed_url' => '
+      	http://www.ustream.tv/recorded/*
+		http://www.ustream.tv/channel/*
+		http://www.ustream.tv/*
+',
     );
   }
 
@@ -174,8 +178,8 @@ function media_ustream_variable_default($name = NULL) {
  *  The variable name to retrieve the namespaced name.
  * @return string
  *  The fully namespace variable name, prepended with
- *  MEDIA_ustream_NAMESPACE.
+ *  MEDIA_USTREAM_NAMESPACE.
  */
 function media_ustream_variable_name($name) {
-  return MEDIA_ustream_NAMESPACE . $name;
+  return MEDIA_USTREAM_NAMESPACE . $name;
 }
