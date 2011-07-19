@@ -1,0 +1,25 @@
+<?php
+// $Id: media_qualifio.install $
+
+/**
+ * @file
+ * This is Media: qualifio's installation, configuration, and removal file.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function media_qualifio_install() {
+  return array();
+}
+
+/**
+ * Implementation of hook_uninstall().
+ * Delete all variables related to the module Media : qualifio
+ */
+function media_qualifio_uninstall() {
+  foreach (media_qualifio_variable_default() as $variable => $value) {
+    media_qualifio_variable_del($variable);
+  }
+  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: qualifio namespace."));
+}
