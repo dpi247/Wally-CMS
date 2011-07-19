@@ -80,11 +80,19 @@ function emvideo_videortl_data($field, $item) {
  *   otherwise, the calling function will handle testing the embed code against each regex string in the returned array.
  */
 function emvideo_videortl_extract($video_id = '') {
-
+ /* $matches = NULL;
+  if (preg_match('@rtl\.be\/videos\/video/.*([^/"&]+)@i\.aspx', $parse, $matches)) { //Get the qualifio code, can be normal or from embed link
+    dsm($matches);
+    return $matches[1];
+  }
+  else {
+    return FALSE;
+  }
+  */
   $return = array();
   $allowed_urls = media_videortl_variable_get('allowed_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
-  $delimiters = array('@', '+', '#');
+  $delimiters = array('@', '+', '#', '/', '.aspx');
   foreach ($allowed_urls as $allowed_url) {
     if ($allowed_url && $allowed_url != '') {
       foreach ($delimiters as $delim) {
@@ -95,7 +103,7 @@ function emvideo_videortl_extract($video_id = '') {
         }
       }
     }
-    /*$temp_return = '';
+    $temp_return = '';
     $parsed_url = parse_url($allowed_url);
     if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
       $temp_return = '@'.$parsed_url['host'];
@@ -104,7 +112,7 @@ function emvideo_videortl_extract($video_id = '') {
       }
       $temp_return .= '([^"\& ]+)@i';
       $return[] = $temp_return;
-    }*/
+    }
   }
 
   return $return;
@@ -163,15 +171,19 @@ function emvideo_videortl_video($video_id, $width, $height, $field, $item, $node
  *    array with the casted as string simplexml objects
  *  
  */
-function _emvideo_videortl_request($src_url){
+function _emvideo_videortl_request($src_url) {
+  preg_match('/rtl\.be\/videos\/video\/([0-9]*)\.aspx/', $src_url,$urlT);
+  $id = $urlT[1];
+  
   $embedly_result = array();
   $url = "http://videos.rtl.be/oembed";
   $data = "?url=".$src_url."&maxwidth=600&format=xml";
   $data = str_replace(":","%3A",$data);
   $data = str_replace("/","%2F",$data);
-  
+
   $xml = simplexml_load_file($url.$data);
   $embedly_result = array(
+   'video_id' =>$id,
    'version' => (string)$xml->version,
    'type' => (string)$xml->type, 
    'provider_url' => (string)$xml->provider_url,
@@ -187,7 +199,6 @@ function _emvideo_videortl_request($src_url){
    'thumbnail_width' => (string)$xml->thumbnail_width,   
    'thumbnail_height' => (string)$xml->thumbnail_height
   );
-
   return $embedly_result;
 }
 

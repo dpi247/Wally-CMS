@@ -13,7 +13,7 @@ define('MEDIA_videortl_NAMESPACE', 'media_videortl__');
 /**
  * This is the main URL for videortl.
  */
-define('MEDIA_videortl_MAIN_URL', 'http://www.rtl.be/videos/');
+define('MEDIA_videortl_MAIN_URL', 'http://www.rtl.be/videos/video/');
 
 /**
  * This is the URL to the API of videortl.
@@ -154,7 +154,7 @@ function media_videortl_variable_default($name = NULL) {
       'cron_limit' => 50,
       
       // "textarea" of the allowed URLs from which the videos may come.
-      'allowed_url' => '',
+      'allowed_url' => 'http://www.rtl.be/videos/*',
     );
   }
 
