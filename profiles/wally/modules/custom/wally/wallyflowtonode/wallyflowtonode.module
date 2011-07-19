@@ -82,7 +82,7 @@ function wallyflowtonode_node_operations() {
  * @return
  *   Returns FALSE in case of error, redirect if successful.
  */
-function wallyflowtonode_cron() {
+function wallyflowtonode_cron($flow_key = NULL) {
   // Try to allocate enough time to run all the hook_cronflowtonode implementations.
   if (function_exists('set_time_limit')) {
     @set_time_limit(60);
@@ -114,7 +114,7 @@ function wallyflowtonode_cron() {
     variable_set('wallyflowtonode_cron_semaphore', time());
 
     // Call the function calling the flows
-    $return = _wallyflowtonode_callallfeeds();
+    $return = _wallyflowtonode_callallfeeds($flow_key);
 
     // Record cron time
     variable_set('wallyflowtonode_cron_last', time());
@@ -159,8 +159,14 @@ function wallyflowtonode_reject_nodes($nodes) {
   }
 }
 
-function _wallyflowtonode_callallfeeds() {
-  $db_results = db_query("SELECT * FROM {wallyflowtonode_flows}");
+function _wallyflowtonode_callallfeeds($flow_key = NULL) {
+  $db_query = 'SELECT * FROM {wallyflowtonode_flows}';
+  if ($flow_key) {
+    $db_query .= ' WHERE flow_key = %d';
+    $db_results = db_query($db_query, $flow_key);
+  } else {
+    $db_results = db_query($db_query);
+  }
   $feeds_infos = array();
   while ($feed_infos = db_fetch_array($db_results)) {
     $feeds_infos[] = $feed_infos;
@@ -197,7 +203,7 @@ function _wallyflowtonode_callallfeeds() {
           $return[] = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
         }
       } else {
-        $return[] = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' :'.$struct_array['Packages']['__log']['msg'];
+        $return[] = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' : '.$struct_array['Packages']['__log']['msg'];
       }
     } else {
       $return[] = t('No plugin for the flow').' : '.$feed_infos['name'];
