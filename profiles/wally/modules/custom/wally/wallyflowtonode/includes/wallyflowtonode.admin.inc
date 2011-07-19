@@ -41,9 +41,13 @@ function wallyflowtonode_form_delete_feed_form_submit(&$form, &$form_state) {
   }
 }
 
-function wallyflowtonode_page_admin_run_cron() {
-  $result = wallyflowtonode_cron();
+function wallyflowtonode_page_admin_run_cron($flow_key = NULL) {
+  $result = wallyflowtonode_cron($flow_key);
   drupal_set_message($result[0]);
+  
+  if ($flow_key)
+    drupal_goto('admin/wally/wallyflowtonode');
+  
   return '';
 }
 
@@ -89,7 +93,8 @@ function _wallyflowtonode_build_feeds_list() {
 
 function _wallyflowtonode_html_table_actions($feed_infos) {
   $return = l(t('Edit'), 'admin/wally/wallyflowtonode/add/'.$feed_infos['flow_key']).' ';
-  $return .= l(t('Delete'), 'admin/wally/wallyflowtonode/delete/'.$feed_infos['flow_key']);
+  $return .= l(t('Delete'), 'admin/wally/wallyflowtonode/delete/'.$feed_infos['flow_key']).' ';
+  $return .= l(t('Process'), 'admin/wally/wallyflowtonode/runcron/'.$feed_infos['flow_key']).' ';
   
   return $return;
 }
