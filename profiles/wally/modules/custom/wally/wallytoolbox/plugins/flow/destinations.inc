@@ -27,6 +27,12 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   unset($form['destination']['field_destinations'][0]['#default_value']['time_rank']);
   unset($form['destination']['field_destinations'][1]);
   $form['destination']['field_destinations']['#type'] = 'fieldset';
+  
+  $form['maxitem'] = array (
+    '#type'             => 'textfield',
+    '#title'            => t('Max item to fetch for this feed'),
+    '#default_value'    => $conf['maxitem'],
+  );
 }
 
 function wallytoolbox_destinations_flow_build($feed_infos) {
@@ -87,6 +93,8 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   }
 
   $view->set_arguments(array($tid));
+  if ($feed_infos['conf']['maxitem'] && $feed_infos['conf']['maxitem'] > 0)
+    $view->set_items_per_page($feed_infos['conf']['maxitem']);
   $view->execute();
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
     return array();
