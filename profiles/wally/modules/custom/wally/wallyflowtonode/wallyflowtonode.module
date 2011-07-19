@@ -182,6 +182,7 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
       while(is_string($feed_infos['feeds_md5']))
         $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
       $struct_array = $function($feed_infos);
+
       if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
         $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
 
@@ -189,7 +190,7 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
           $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'.tmp';
           $valid_dom->save($tempFile);
           $temp_return = wallymport_page_process_file($tempFile);
-          //file_delete($tempFile);
+          file_delete($tempFile);
 
           if ($temp_return && !is_string($temp_return)) {
             $object = $feed_infos;
