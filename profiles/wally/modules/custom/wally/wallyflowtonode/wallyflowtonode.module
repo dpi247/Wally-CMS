@@ -43,6 +43,14 @@ function wallyflowtonode_menu() {
     'file' => 'includes/wallyflowtonode.add_wizard.inc',
   );
   
+  $items['admin/wally/wallyflowtonode/delete'] = $base + array(
+    'title' => t('Delete'),
+    'description' => t('Page callback to confirm suppression of a flow to node.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyflowtonode_form_delete_feed_form'),
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['admin/wally/wallyflowtonode/runcron'] = $base + array(
     'title' => t('Run cron'),
     'description' => t('Run flow to node cron.'),
