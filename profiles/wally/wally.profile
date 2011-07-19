@@ -100,15 +100,13 @@ function wally_profile_modules() {
   
   // Wally custom & specific modules
   $custom = array(
-
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
-    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
+    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyflowtonode',
     'wallyedit', 'wallyfeaturessynchronizer',
-    
   );
 
-  return array_merge($core_modules,$mod,$third,$custom);
-} 
+  return array_merge($core_modules, $mod, $third, $custom);
+}
 
 /**
  * Features module and Wally specific features
