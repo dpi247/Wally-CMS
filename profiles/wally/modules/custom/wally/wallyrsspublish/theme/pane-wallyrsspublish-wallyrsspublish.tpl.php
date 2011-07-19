@@ -1,7 +1,7 @@
 <?php
+
 /**
- * 
- * Display a list about the different Destination Path.
+ * Display a list of links to the RSS feeds of the destinations.
  */
 $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
 $contenu = "<ul>";
