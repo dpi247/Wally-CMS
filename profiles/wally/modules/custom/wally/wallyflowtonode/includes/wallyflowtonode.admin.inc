@@ -3,13 +3,6 @@
 
 function wallyflowtonode_page_admin_list_feeds($op = '', $flow_key = 0) {
   switch ($op) {
-    case 'delete':
-      if (db_result(db_query('SELECT * FROM {wallyflowtonode_flows} WHERE `flow_key` = %d', $flow_key))) {
-        db_query('DELETE FROM {wallyflowtonode_flows} WHERE `flow_key` = %d', $flow_key);
-      } else {
-        drupal_set_message(t('No feed matching the requested key.'), 'warning');
-      }
-      break;
     case 'queue':
       $return = _wallyflowtonode_build_feed_queue($flow_key);
       if ($return)
@@ -20,6 +13,32 @@ function wallyflowtonode_page_admin_list_feeds($op = '', $flow_key = 0) {
   }
   
   return _wallyflowtonode_build_feeds_list();
+}
+
+function wallyflowtonode_form_delete_feed_form(&$form_state, $flow_key) {
+  $question = t('Are you sure you want to delete this flow?');
+  
+  $add_form = array();
+  $add_form['flow_key'] = array(
+    '#type' => 'value',
+    '#value' => $flow_key,
+  );
+  
+  $form = confirm_form($add_form, $question, 'admin/wally/wallyflowtonode/list');
+  $form['#redirect'] = 'admin/wally/wallyflowtonode/list';
+  return $form;
+}
+
+function wallyflowtonode_form_delete_feed_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $flow_key = $values['flow_key'];
+  
+  if (db_result(db_query('SELECT * FROM {wallyflowtonode_flows} WHERE `flow_key` = %d', $flow_key))) {
+    db_query('DELETE FROM {wallyflowtonode_flows} WHERE `flow_key` = %d', $flow_key);
+    drupal_set_message(t('Flow deleted.'));
+  } else {
+    drupal_set_message(t('No flow matching the requested key.'), 'warning');
+  }
 }
 
 function wallyflowtonode_page_admin_run_cron() {
@@ -70,7 +89,7 @@ function _wallyflowtonode_build_feeds_list() {
 
 function _wallyflowtonode_html_table_actions($feed_infos) {
   $return = l(t('Edit'), 'admin/wally/wallyflowtonode/add/'.$feed_infos['flow_key']).' ';
-  $return .= l(t('Delete'), 'admin/wally/wallyflowtonode/list/delete/'.$feed_infos['flow_key']);
+  $return .= l(t('Delete'), 'admin/wally/wallyflowtonode/delete/'.$feed_infos['flow_key']);
   
   return $return;
 }
