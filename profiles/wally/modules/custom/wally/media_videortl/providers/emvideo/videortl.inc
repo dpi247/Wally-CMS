@@ -80,15 +80,7 @@ function emvideo_videortl_data($field, $item) {
  *   otherwise, the calling function will handle testing the embed code against each regex string in the returned array.
  */
 function emvideo_videortl_extract($video_id = '') {
- /* $matches = NULL;
-  if (preg_match('@rtl\.be\/videos\/video/.*([^/"&]+)@i\.aspx', $parse, $matches)) { //Get the qualifio code, can be normal or from embed link
-    dsm($matches);
-    return $matches[1];
-  }
-  else {
-    return FALSE;
-  }
-  */
+
   $return = array();
   $allowed_urls = media_videortl_variable_get('allowed_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
