@@ -403,6 +403,17 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#required'         => FALSE,
     '#weight'           => 5,
   );
+  
+  if (isset($defaults['tid'])) {
+    $element['delete'] = array(
+      '#title'            => t('Delete'),
+      '#type'             => 'markup',
+      '#value'            => t('Remove destination'),
+      '#prefix'           => '<a id="edit-field-destinations-'.$element['#delta'].'-delete">',
+      '#suffix'           => '</a>',
+      '#weight'           => 6,
+    );
+  }
 
   return $element;
 }

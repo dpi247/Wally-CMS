@@ -17,7 +17,6 @@ $plugin = array(
   'settings form' => 'cckdestinations_subdomain_context_settings_form',
   'settings form validate' => 'cckdestinations_subdomain_context_settings_form_validate',
   'settings form submit' => 'cckdestinations_subdomain_context_settings_form_submit',
-  'keyword' => 'subdomain',
   'js' => array('misc/autocomplete.js'),
 );
 
@@ -36,6 +35,8 @@ function cckdestinations_subdomain_context_settings($conf) {
 function cckdestinations_subdomain_context_create($empty, $data = NULL, $conf = FALSE) {
   $context = new ctools_context('subdomain');
   $context->plugin = 'subdomain';
-  $context->subdomain = $_SERVER['HTTP_HOST'];
+  $domain = $_SERVER['HTTP_HOST'];
+  $expl_domain = explode('.', $domain);
+  $context->subdomain = $expl_domain[0];
   return $context;
 }

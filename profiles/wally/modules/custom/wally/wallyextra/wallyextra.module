@@ -42,6 +42,16 @@ function wallyextra_theme(&$var) {
       'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
+    'wallyct_flowmix' => $base + array(
+      'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_flowmix',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyextra_flowmix_content_type_form_summary_form' => array(
+      'arguments' => array('form' => array()),
+    ),
+    
     'wallyct_remotehtml' => $base + array(
       'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
       'template' => 'wallyct_remotehtml',
@@ -313,16 +323,19 @@ function wallyextra_rate_templates() {
  */
 function wallyextra_refresh_block($infos, $settings) {
   $return = array();
-  if ($infos['type'] == 'rssmixread') {
-    module_load_include('inc', 'wallyextra', 'plugins/content_types/rssmixread');
-    wallyextra_rssmixread_refresh_block($settings);
-    $return[] = 'Cache updated for RSS mix : '.$settings['caid'].' on '.date('Y-m-d H:i:s', time());
-  } elseif ($infos['type'] == 'remotehtml') {
-    module_load_include('inc', 'wallyextra', 'plugins/content_types/remotehtml');
-    wallyextra_remotehtml_refresh_block($settings);
-    $return[] = 'Cache updated for Remote HTML: '.$settings['caid'].' on '.date('Y-m-d H:i:s', time());
+  
+  $plugin = $infos['type'];
+  $handled_plugins = array('rssmixread', 'flowmix', 'remotehtml');
+  
+  if (in_array($plugin, $handled_plugins)) {
+    module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
+    $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
+    $refresh_function($settings);
+    $return[] = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
+    return $return;
   }
-  return $return;
+  
+  return;
 }
 
 /**
@@ -330,8 +343,8 @@ function wallyextra_refresh_block($infos, $settings) {
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
-  
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || true) {
     // This cache doesn't exists, create it
     if ($ajax) {
       drupal_add_js('
