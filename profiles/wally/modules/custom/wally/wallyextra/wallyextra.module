@@ -48,6 +48,10 @@ function wallyextra_theme(&$var) {
       'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
     ),
     
+    'wallyextra_flowmix_content_type_form_summary_form' => array(
+      'arguments' => array('form' => array()),
+    ),
+    
     'wallyct_remotehtml' => $base + array(
       'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
       'template' => 'wallyct_remotehtml',

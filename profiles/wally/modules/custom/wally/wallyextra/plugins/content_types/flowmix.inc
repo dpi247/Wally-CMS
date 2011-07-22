@@ -10,22 +10,20 @@
  */
 $plugin = array(
   'no title override' => TRUE,
-  'defaults' => _wallyextra_flowmix_default_form_values(),
+  'defaults' => _wallyextra_flowmix_content_type_form_summary_defaults(),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'add form' => array(
-    'wallyflowmix_contenttype_summary_form'        => t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
+    'wallyextra_flowmix_content_type_form_summary_form'        => t('Summary'),
+    'wallyextra_flowmix_content_type_form_basicsetttings_form' => t('Create Flow 1/2: Basic settings'),
+    'wallyextra_flowmix_content_type_form_pluginselector_form' => t('Create Flow 2/2: Plugin Selector'),
+    'wallyextra_flowmix_content_type_form_pluginspecific_form' => t('Create Flow 2bis/2: Plugin specific settings'),
   ),
   'edit form' => array(
-    'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
+    'wallyextra_flowmix_content_type_form_summary_form'        =>t('Summary'),
+    'wallyextra_flowmix_content_type_form_basicsetttings_form' =>t('Create Flow 1/2: Basic settings'),
+    'wallyextra_flowmix_content_type_form_pluginselector_form' =>t('Create Flow 2/2: Plugin Selector'),
+    'wallyextra_flowmix_content_type_form_pluginspecific_form' =>t('Create Flow 2bis/2: Plugin specific settings'),
   ),
   'edit text' => t('Edit'),
   'all contexts' => TRUE,
@@ -35,8 +33,7 @@ $plugin = array(
  * Rendering of the flow mix plugin.
  */
 function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
-  $settings = (array)$settings['flow_obj'];
+  $settings = (array)wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
 
   $feed = array();
   $block = new stdClass();
@@ -45,14 +42,14 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   $cid = $settings['caid'];
   $default_theme = 'wallyct_flowmix';
 
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', FALSE);
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', TRUE);
   
   if (is_string($feed))
     $block->content = $feed;
   elseif ($settings['override_theme_text'] != '')
-    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings ) ;
+    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
   else
-    $block->content = theme($default_theme, $subtype, $context, $feed, $settings); 
+    $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
   
   return $block;
 }
@@ -74,32 +71,40 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
  *   The usable settings.
  */
 function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
+  $settings = new stdClass();
+  $conf = $conf['flow_obj'];
+
   if ($subtype['name'] != 'flowmix') {
     $settings = $subtype['content']->settings;
-    $settings['flowmix_type'] = 'fixed';
-    $settings['content'] = $subtype['content'];
+    $settings->flowmix_type = 'fixed';
+    $settings->content = $subtype['content'];
   } else {
     // This means they created it as flowmix content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
     // still stored as though we are local, but are pointing off to
     // non-local.
-    if (!empty($conf['name'])) {
+    if (!empty($conf->name)) {
       ctools_include('export');
-      $content = ctools_export_crud_load('wallyextra_flowmix_content', $conf['name']);
+      $content = ctools_export_crud_load('wallyextra_flowmix_content', $conf->name);
       if ($content) {
         $settings = $content->settings;
+        $settings->flowmix_type = 'flowmix';
+      } elseif (!empty($conf->title)) {
+        $settings = (object)$conf;
+        $content->name = $conf->name;
+        $settings->flowmix_type = 'local';
       } else {
         $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
-        $content->name = $conf['name'];
-        $settings = _wallyextra_flowmix_default_form_values();
+        $content->name = $conf->name;
+        $settings = _wallyextra_flowmix_content_type_form_summary_defaults();
+        $settings->flowmix_type = 'flowmix';
       }
-      $settings['flowmix_type'] = 'fixed';
-      $settings['content'] = $content;
+      $settings->content = $content;
     } else {
       // This means that it is created as flowmix and has not been set to
       // reusable.
-      $settings = $conf;
-      $settings['flowmix_type'] = 'local';
+      $settings = (object)$conf;
+      $settings->flowmix_type = 'local';
     }
   }
 
@@ -113,16 +118,16 @@ function wallyextra_flowmix_content_type_admin_title($subtype, $conf) {
   $settings = wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
 
   $output = t('Flow mix');
-  if (!empty($settings['content']->admin_title)) {
-    $title = $settings['content']->admin_title;
-  } elseif (!empty($settings['title'])) {
-    $title = $settings['title'];
+  if (!empty($settings->content->admin_title)) {
+    $title = $settings->content->admin_title;
+  } elseif (!empty($settings->title)) {
+    $title = $settings->title;
   } else {
-    $title = $settings['caid'];
+    $title = $settings->caid;
   }
 
   if ($title) {
-    if ($settings['flowmix_type'] != 'fixed') {
+    if ($settings->flowmix_type != 'fixed') {
       $output = t('Flow mix: @title', array('@title' => $title));
     }
     else {
@@ -144,15 +149,15 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
   $settings = wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
 
   $block = new stdClass();
-  $block->title = (!empty($settings['title'])) ? filter_xss_admin($settings['title']) : filter_xss_admin($settings['caid']);
+  $block->title = (!empty($settings->title)) ? filter_xss_admin($settings->title) : filter_xss_admin($settings->caid);
   
   // We don't want to render php output on preview here, because if something is
   // wrong the whole display will be borked. So we check to see if the php
   // evaluator filter is being used, and make a temporary change to the filter
   // so that we get the printed php, not the eval'ed php.
   $php_filter = FALSE;
-  if (!empty($settings['format'])) {
-    foreach (filter_list_format($settings['format']) as $filter) {
+  if (!empty($settings->format)) {
+    foreach (filter_list_format($settings->format) as $filter) {
       if ($filter->module == 'php') {
         $php_filter = TRUE;
         break;
@@ -162,21 +167,21 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
   // If a php filter is active, just print the source, but only if the current
   // user has access to the actual filter.
   if ($php_filter) {
-    if (!filter_access($settings['format'])) {
+    if (!filter_access($settings->format)) {
       return NULL;
     }
-    $block->content = '<pre>'. check_plain($settings['body']) .'</pre>';
+    $block->content = '<pre>'. check_plain($settings->body) .'</pre>';
   }
   else {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
-    if (!empty($settings['body'])) {
-      $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+    if (!empty($settings->body)) {
+      $block->content = filter_xss_admin(check_markup($settings->body, $settings->format));
     } else {
       $block->content = t("n/a");
     }
-
   }
+  
   return $block;
 }
 
@@ -192,18 +197,37 @@ function wallyextra_flowmix_refresh_block($settings) {
   }
 }
 
+function _wallyextra_flowmix_content_type_save_reusable($form_state) {
+  cache_clear_all($form_state['values']['caid']);
+  
+  if ($form_state['conf']['flow_obj']->flowmix_type == 'fixed') {
+    $content = $form_state['settings']->content;
+    $form_state['conf']['flow_obj'] = (object)array_merge((array)$content->settings, (array)$form_state['conf']['flow_obj']);
+    $form_state['conf']['flow_obj']->name = $content->name;
+    _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
+  } elseif (!empty($form_state['values']['reusable'])) {
+    // If the 'reusable' checkbox was checked, we will create a new
+    // flowmix content and give it the proper values.
+    $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
+    _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
+    $form_state['conf']['flow_obj']->name = $content->name;
+  }
+}
+
 /**
  * Export the configuration of the reusable block.
  */
 function _wallyextra_flowmix_content_type_edit_save(&$content, $values) {
   // Apply updates to the content object.
-  $content->name = $values['name'];
-  $content->category = $values['category'];
-  $content->admin_title = $values['admin_title'];
-  $content->admin_description = $values['admin_description'];
-  foreach (array_keys(_wallyextra_flowmix_defaultformvalues()) as $key) {
-    if (isset($values[$key])) {
-      $content->settings[$key] = $values[$key];
+  $content->name = $values->name;
+  $content->category = $values->category;
+  $content->admin_title = $values->admin_title;
+  $content->admin_description = $values->admin_description;
+  $defaults = (array)_wallyextra_flowmix_content_type_form_summary_defaults();
+  $content->settings = new stdClass();
+  foreach (array_keys($defaults) as $key) {
+    if (isset($values->{$key})) {
+      $content->settings->{$key} = $values->{$key};
     }
   }
 
@@ -251,24 +275,21 @@ function _wallyextra_flowmix_default_ctools_content_type() {
     'name' => 'flowmix',
     'title' => t('Flow mix'),
     'category' => t('Wally Extra'),
-    'edit form' => 'wallyextra_flowmix_content_type_edit_form',
     'description' => t('Fetch some flows and mix them together in a single feed'),
     'all contexts' => TRUE,
-    'defaults' => _wallyextra_flowmix_default_form_values(),
-  'add form' => array(
-    'wallyflowmix_contenttype_summary_form'        => t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
-  ),
-  'edit form' => array(
-    'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
-  ),
+    'defaults' => _wallyextra_flowmix_content_type_form_summary_defaults(),
+    'add form' => array(
+      'wallyextra_flowmix_content_type_form_summary_form'        => t('Summary'),
+      'wallyextra_flowmix_content_type_form_basicsetttings_form' => t('Create Flow 1/2: Basic settings'),
+      'wallyextra_flowmix_content_type_form_pluginselector_form' => t('Create Flow 2/2: Plugin Selector'),
+      'wallyextra_flowmix_content_type_form_pluginspecific_form' => t('Create Flow 2bis/2: Plugin specific settings'),
+    ),
+    'edit form' => array(
+      'wallyextra_flowmix_content_type_form_summary_form'        =>t('Summary'),
+      'wallyextra_flowmix_content_type_form_basicsetttings_form' =>t('Create Flow 1/2: Basic settings'),
+      'wallyextra_flowmix_content_type_form_pluginselector_form' =>t('Create Flow 2/2: Plugin Selector'),
+      'wallyextra_flowmix_content_type_form_pluginspecific_form' =>t('Create Flow 2bis/2: Plugin specific settings'),
+    ),
   );
 
   return $info;
@@ -283,25 +304,12 @@ function _wallyextra_flowmix_ctools_content_type($content) {
     'title' => check_plain($content->admin_title),
     'description' => check_plain($content->admin_description),
     'category' => $content->category ? check_plain($content->category) : t('Wally reusable blocks'),
-    'edit form' => 'wallyextra_flowmix_content_type_edit_form',
     'all contexts' => TRUE,
     'icon' => 'icon_block_custom.png',
     // Store this here to make it easy to access.
     'content' => $content,
-  'add form' => array(
-    'wallyflowmix_contenttype_summary_form'        => t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' => t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' => t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' => t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      => t('Create Flow 3/3:  Final Step'),
-  ),
-  'edit form' => array(
-    'wallyflowmix_contenttype_summary_form'        =>t('Summary'),
-    'wallyflowmix_contenttype_basicsetttings_form' =>t('Create Flow 1/3: Basic settings'),
-    'wallyflowmix_contenttype_pluginselector_form' =>t('Create Flow 2/3: Plugin Selector'),
-    'wallyflowmix_contenttype_pluginspecific_form' =>t('Create Flow 2bis/3: Plugin specific settings'),
-    'wallyflowmix_contenttype_finalstep_form'      =>t('Create Flow 3/3:  Final Step'),
-  ),
+    'add form' => 'wallyextra_flowmix_content_type_form_summary_form',
+    'edit form' => 'wallyextra_flowmix_content_type_form_summary_form',
   );
 
   return $info;
@@ -318,10 +326,7 @@ function _wallyextra_flowmix_ctools_content_type($content) {
  * 	 which will be displayed.
  */
 function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
-  $override_theme = $settings['override_theme'];
   $feed = array();
-  $settings['flows'][1]->conf = $settings['flows'][0]->conf;
-  $settings['flows'][0]->conf = array('maxitem' => 5);
 
   if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
     $mix_schema = explode(',', $settings['own_schema']);
@@ -448,6 +453,437 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
   return $most_recent['arrayID'];
 }
 
-function _wallyextra_flowmix_default_form_values(){
-  return array();
+function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
+  
+  $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
+  $form_state['settings'] = $settings;
+  $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
+  $creation_date = $creation_infos[1];
+  if ($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) {
+    return; // no form for this case.
+  }
+
+  foreach($settings->flows as $key=>$flow){
+    $form['flows'][$key]['edit_action']=array(
+      '#type'          => 'submit',
+      '#value'         => t('Edit'),
+      '#wizard type'   => 'next',
+      '#name'          => 'edit_'.$key,
+      '#next'          => 'step2'
+    );
+    
+    $form['flows'][$key]['delete_action']=array(
+      '#type'          => 'submit',
+      '#value'         => t('Remove'),
+      '#wizard type'   => 'next',
+      '#name'          => 'delete_'.$key,
+      '#next'          => 'step2'
+    );
+    
+    $form['flows'][$key]['title']=array(
+      '#type'          => 'markup',
+      '#value'         => $flow->name,
+    );
+  }
+  
+  /*$form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Flow name'),
+    '#description' => t('The name you want to give to this flow.'),
+    '#default_value' => $flowmix_item->name,
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+    '#weight' => 0,
+  );*/
+  
+  $form['title'] = array(
+    '#type'             => 'textfield',
+    '#title'            => t('Title'),
+    '#description'      => t('The title of the block.'),
+    '#default_value'    => $settings->title,
+    '#required'         => TRUE,
+    '#weight'           => 0,
+  );
+
+  $form['maxitem_global'] = array (
+    '#type'             => 'textfield',
+    '#title'            => t('Max item displayed in the final mixed flow'),
+    '#default_value'    => $settings->maxitem_global,
+    '#required'         => TRUE,
+  );
+
+  $mix_schemas = array(
+    'alt'               => 'Alternate',
+    'any'               => 'Most Recent',
+    'mix'               => 'Define custom schema'
+  );
+
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $form['mix_schema'] = array(
+    '#type'             => 'select',
+    '#title'            => t('Schema used for mixing the feeds'),
+    '#default_value'    => $settings->mix_schema,
+    '#options'          => $mix_schemas,
+  );
+
+  $form['own_schema'] = array (
+    '#type'             => 'textfield',
+    '#title'            => t('Define your custom schema used for mixing the feeds'),
+    '#description'      => t('Examples:
+        1,2,3 / 1-2,3,2,1-3,2,2-3 / any,2,1-2,3,any,2 / ... see <a href="http://rossel.audaxis.com/xwiki/wiki/drupal/view/Main/User_RSS_mix" target="_new">RSS mix documentation</a>.
+      '),
+    '#default_value'    => $settings->own_schema,
+    '#required'         => FALSE,
+    '#dependency'       => array('edit-mix-schema'=>array('mix')),
+    '#process'          => array('ctools_dependent_process'),
+  );
+
+  $form['override_theme'] = array (
+    '#type'             => 'checkbox',
+    '#default_value'    => $settings->override_theme,
+    '#id'               => 'override-theme-checkbox',
+    '#title'            => t('Override Theming Function'),
+  );
+
+  $form['override_theme_text'] = array (
+    '#type'             => 'textfield',
+    '#default_value'    => $settings->override_theme_text,
+    '#id'               => 'override-theme-textfield',
+    '#dependency'       => array('override-theme-checkbox' => array('1')),
+    '#process'          => array('ctools_dependent_process'),
+    '#title'            => t('Theming Function Name'),
+  );
+  
+  $form['caid'] = array (
+    '#type'             => 'hidden',
+    '#value'            => $settings->caid,
+  );
+  
+  if (user_access('administer flowmix content') && $settings->flowmix_type == 'local') {
+    $form['reusable'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Make this content reusable'),
+      '#default_value' => $settings->reusable,
+    );
+  
+    $form['admin_title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Administrative title'),
+      '#description' => t('The title used as name for the reusable block.'),
+      '#default_value' => $settings->admin_title,
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-reusable' => array(1)),
+    );
+  
+    $form['name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Machine name'),
+      '#description' => t('The machine readable name of this content. It must be unique, and it must contain only alphanumeric characters and underscores. Once created, you will not be able to change this value!'),
+      '#default_value' => $settings->name,
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-reusable' => array(1)),
+    );
+  
+    $form['category'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Category'),
+      '#description' => t('What category this content should appear in. If left blank the category will be "Wally reusable blocks".'),
+      '#default_value' => $settings->category,
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-reusable' => array(1)),
+    );
+  
+    $form['admin_description'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Administrative description'),
+      '#description' => t('A description of what this content is, does or is for, for administrative use.'),
+      '#default_value' => $settings->admin_description,
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-reusable' => array(1)),
+    );
+  }
+
+  unset($form['buttons']['next']);
+  if(count($settings->flows)){
+    $form['buttons']['save'] = array(
+      '#type'=>'submit',
+      '#value'=>t('Save'),
+      '#wizard type'=>'finish',
+      '#name'=>'save',
+    );
+  }
+  
+  $form['buttons']['add_flow'] = array(
+    '#type'=>'submit',
+    '#value'=>t('Add a new flow'),
+    '#wizard type'=>'next',
+    '#name'=>'next_'.count($settings->flows),
+    '#next'=>'step2'
+  );
+}
+
+function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NULL){
+  if (isset($form_state) && !empty($form_state)) {
+    return $form_state;
+  }
+  
+  $defaults = new stdClass();
+  $defaults->title = '';
+  $defaults->maxitem_global = '';
+  $defaults->mix_schema = 'alt';
+  $defaults->own_schema = '';
+  $defaults->override_theme = 0;
+  $defaults->override_theme_text = '';
+  $defaults->caid = 'flowmix_'.time();
+  $defaults->flows = array();
+  
+  return $defaults;
+}
+
+function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $submitted = $form_state['values'];
+  $save_values = array(
+    'title',
+    'maxitem_global',
+    'mix_schema',
+    'own_schema',
+    'override_theme',
+    'override_theme_text',
+    'caid',
+    'reusable',
+    'admin_title',
+    'name',
+    'category',
+    'admin_description',
+  );
+  foreach($save_values as $value) {
+    // set the values in the cache object -- it gets passed back to the next step
+    // because of all that work we did in the form_info array
+    if (isset($submitted[$value]))
+      $form_state['conf']['flow_obj']->$value = $submitted[$value];
+  }
+
+  if (strpos($form_state['clicked_button']['#name'], 'delete') !== false) {
+    unset($flowmix_item->flows[str_replace('delete_', '', $form_state['clicked_button']['#name'])]);
+    $form_state['clicked_button']['#next'] = 'step1';
+  }
+  elseif (strpos($form_state['clicked_button']['#name'], 'edit') !== false) {
+    if ($form_state['step'] == 'step1') {
+      $flowmix_item->index = (int)str_replace('edit_', '', $form_state['clicked_button']['#name']);
+      $form_state['clicked_button']['#next'] = 'step2';
+    }
+  }
+  elseif (strpos($form_state['clicked_button']['#name'], 'next') !== false) {
+    if ($form_state['step'] == 'step1') {
+      $flowmix_item->index = (int)str_replace('next_', '', $form_state['clicked_button']['#name']);
+    }
+  }
+  elseif (strpos($form_state['clicked_button']['#name'], 'save') !== false) {
+    if ($form_state['step'] == 'step1') {
+      _wallyextra_flowmix_content_type_save_reusable($form_state);
+    }
+  }
+}
+
+function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $flow_conf = _wallyextra_flowmix_content_type_form_basicsetttings_defaults($flowmix_item->flows[(int)$flowmix_item->index]);
+  
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Flow feed name'),
+    '#description' => t('The name you want to give to this flow.'),
+    '#default_value' => $flow_conf->name,
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+    '#weight' => 0,
+  );
+
+  $form['type'] = array(
+    '#type' => 'select',
+    '#title' => t('Type of flow'),
+    '#default_value' => $flow_conf->type,
+    '#required' => TRUE,
+    '#options' => wallytoolbox_get_available_flow_type(),
+    '#weight' => 0.1,
+  );
+
+  $body_html_options = array();
+  $body_html_query = db_query("SELECT * FROM `filter_formats");
+  $i = 0;
+  while ($body_html_element = db_fetch_array($body_html_query)) {
+    $body_html_options[] = $body_html_element['name'];
+    if ($body_html_element['name'] == $default_form_values['body_html'])
+    $default_body_html = $i;
+    $i++;
+  }
+
+  $form['body_html'] = array(
+    '#type' => 'select',
+    '#title' => t('Use HTML in the text body'),
+    '#description' => t('Use HTML in the text body.'),
+    '#options' => $body_html_options,
+    '#default_value' => $flow_conf->body_html,
+    '#weight' => 0.2,
+  );
+
+  /*$minutes_list = array();
+  for ($i=1; $i<=60; $i++) $minutes_list[$i] = $i;
+
+  $form['delta_t'] = array(
+    '#type' => 'select',
+    '#title' => t('Time between updates'),
+    '#description' => t('Time, in minutes, between updates for this feed.'),
+    '#options' => $minutes_list,
+    '#default_value' => $flow_conf->delta_t,
+    '#required' => TRUE,
+    '#weight' => 1,
+  );*/
+
+  // probably important -- i'm continuing to investigate
+  $form_state['no buttons'] = TRUE;
+}
+
+function _wallyextra_flowmix_content_type_form_basicsetttings_defaults($flow_conf = NULL) {
+  if (isset($flow_conf) && !empty($flow_conf)) {
+    return $flow_conf;
+  }
+  
+  $defaults = new stdClass();
+  $defaults->name = '';
+  $defaults->type = '';
+  $defaults->body_html = 0;
+  //$defaults->delta_t = 5;
+  
+  return $defaults;
+}
+
+function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $submitted = $form_state['values'];
+  $save_values = array('name', 'type', 'body_html');//, 'delta_t');
+  // maybe don't imitate this foreach
+  foreach($save_values as $value) {
+    // set the values in the cache object -- it gets passed back to the next step
+    // because of all that work we did in the form_info array
+    $flowmix_item->flows[(int)$flowmix_item->index]->$value = $submitted[$value];
+  }
+  if ($form_state['op'] == 'edit') {
+    $flowmix_item->flows[(int)$flowmix_item->index]->plugin_name = $flowmix_item->flows[(int)$flowmix_item->index]->plugin_name;
+    $flowmix_item->flows[(int)$flowmix_item->index]->conf = $flowmix_item->flows[(int)$flowmix_item->index]->conf;
+  }
+}
+
+function wallyextra_flowmix_content_type_form_pluginselector_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+
+  $possible_plugins = wallytoolbox_get_plugins_that_handle_type($flowmix_item->flows[$flowmix_item->index]->type);
+  foreach($possible_plugins as $plugin_name => $plugin){
+    $options[$plugin_name] = $plugin['title'].' ('.$plugin['description'].')';
+  }
+
+  $form['plugin_name'] = array(
+    '#type' => 'radios',
+    '#tree' => true,
+    '#options' => $options,
+    '#title' => t('Select A plugin'),
+    '#default_value' => $flowmix_item->flows[(int)$flowmix_item->index]->plugin_name,
+    '#required' => TRUE,
+  );
+
+  unset($form['buttons']['cancel']);
+  $form_state['no buttons'] = TRUE;
+}
+
+function wallyextra_flowmix_content_type_form_pluginselector_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $submitted = $form_state['values'];
+  $save_values = array('plugin_name');
+  foreach ($save_values as $value) {
+    // set the values in the cache object -- it gets passed back to the next step
+    // because of all that work we did in the form_info array
+    $flowmix_item->flows[(int)$flowmix_item->index]->$value = $submitted[$value];
+  }
+  if ($form_state['op'] == 'edit') {
+    $flowmix_item->flows[(int)$flowmix_item->index]->conf = $flowmix_item->flows[(int)$flowmix_item->index]->conf;
+  }
+  
+  // Remove pluginspecific step if no need
+  if (isset($flowmix_item->plugin_name) && wallytoolbox_has_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->plugin_name))) {
+    $form_state['clicked_button']['#next'] = 'step1';
+  }
+}
+
+function wallyextra_flowmix_content_type_form_pluginspecific_form(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $form['conf']=array('#tree'=>true);
+  wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name), $form['conf'], $form_state['conf']['flow_obj']->flows[(int)$flowmix_item->index]->conf);
+
+  $form['buttons']['Ok'] = array(
+    '#type'            => 'submit',
+    '#value'           => t('Ok'),
+    '#wizard type'     => 'next',
+    '#name'            => 'next_'.max(0,count($flowmix_item->flows)-1),
+    '#next'            => 'step1',
+    '#weight'          => -1000,
+  );
+
+  unset($form['buttons']['cancel']);
+  // probably important -- i'm continuing to investigate
+  $form_state['no buttons'] = TRUE;
+}
+
+function wallyextra_flowmix_content_type_form_pluginspecific_form_validate(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $plugin = wallytoolbox_get_plugin_by_name($flowmix_item->flows[(int)$flowmix_item->index]->plugin_name);
+  
+  // Call the plugin's proper(s) validation(s) function(s)
+  if (!empty($form['conf']['#validate'])) {
+    $conf_values['values'] = $form_state['values']['conf'];
+    foreach ($form['conf']['#validate'] as $validate_func)
+      drupal_validate_form($plugin['settings form'], $form['conf'], $conf_values);
+  }
+  
+  drupal_get_messages();
+  foreach (form_get_errors() as $field => $error) {
+    form_set_error('conf]['.$field, $error);
+  }
+}
+
+function wallyextra_flowmix_content_type_form_pluginspecific_form_submit(&$form, &$form_state) {
+  $flowmix_item = &$form_state['conf']['flow_obj'];
+  $flowmix_item->flows[(int)$flowmix_item->index]->conf = $form_state['values']['conf'];
+  
+  if (strpos($form_state['clicked_button']['#wizard type'], 'finish') !== false) {
+    _wallyextra_flowmix_content_type_save_reusable($form_state);
+  }
+}
+
+function theme_wallyextra_flowmix_content_type_form_summary_form($form){
+  foreach(element_children($form['flows']) as $key=>$flow_form){
+    $rows[] = array(
+      drupal_render($form['flows'][$key]['title']),
+      drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
+    );
+  }
+
+  if(count($form['flows'])){
+    $table_output.=theme('table',array('titre','action'),$rows);
+    $button_add_flow_output.=drupal_render($form['buttons']['add_flow']);
+  }
+
+  $output_after=drupal_render($form);
+
+  $output.=$table_output;
+  $output.=$button_add_flow_output;
+  $output.=$output_after;
+
+  return $output;
 }
