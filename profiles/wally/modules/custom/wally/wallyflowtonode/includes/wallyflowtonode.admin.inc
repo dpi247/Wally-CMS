@@ -60,9 +60,7 @@ function _wallyflowtonode_build_feeds_list() {
     array('data' => t('Type')),
     array('data' => t('Plugin')),
     array('data' => t('URI')),
-    array('data' => t('Signature')),
     array('data' => t('Iteration (min)')),
-    array('data' => t('Default image')),
     array('data' => t('Destination')),
     array('data' => t('Package layout')),
     array('data' => t('Body filter')),
@@ -73,17 +71,25 @@ function _wallyflowtonode_build_feeds_list() {
   $db_results = db_query("SELECT * FROM {wallyflowtonode_flows}");
   $rows = array();
   while ($db_result = db_fetch_array($db_results)) {
+    while (is_string($db_result['conf']))
+      $db_result['conf'] = unserialize($db_result['conf']);
+    
+    $pack_layout = taxonomy_get_term($db_result['package_layout']);
+    $body_html_options = array();
+    $body_html_query = db_query("SELECT * FROM {filter_formats}");
+    $i = 0;
+    while ($body_html_element = db_fetch_array($body_html_query)) {
+      $body_html_options[] = $body_html_element['name'];
+    }
     $temp_row = array();
     $temp_row['name'] = check_plain($db_result['name']);
     $temp_row['type'] = check_plain($db_result['type']);
     $temp_row['plugin_name'] = check_plain($db_result['plugin_name']);
-    $temp_row['uri'] = check_plain($db_result['uri']);
-    $temp_row['signature'] = check_plain($db_result['signature']);
+    $temp_row['uri'] = check_plain($db_result['conf']['uri']);
     $temp_row['delta_t'] = check_plain($db_result['delta_t']);
-    $temp_row['channel_img'] = $db_result['channel_img']==1 ? 'yes' : 'no';
     $temp_row['destination'] = check_plain($db_result['destination']);
-    $temp_row['package_layout'] = check_plain($db_result['package_layout']);
-    $temp_row['body_html'] = check_plain($db_result['body_html']);
+    $temp_row['package_layout'] = $pack_layout->name;
+    $temp_row['body_html'] = $body_html_options[$db_result['body_html']];
     $temp_row['publish'] = _wallyflowtonode_html_table_queue($db_result);
     $temp_row['actions'] = _wallyflowtonode_html_table_actions($db_result);
     $rows[] = $temp_row;
@@ -117,10 +123,7 @@ function _wallyflowtonode_getdefaultvalues($feed_infos = array()) {
   } else {
     $default_form_values['name'] = '';
     $default_form_values['prefix'] = '';
-    $default_form_values['uri'] = '';
     $default_form_values['publish'] = 0;
-    $default_form_values['signature'] = '';
-    $default_form_values['channel_img'] = 0;
     $default_form_values['delta_t'] = 5;
     $default_form_values['destination'] = '0///0';
     $default_form_values['package_layout'] = '';
