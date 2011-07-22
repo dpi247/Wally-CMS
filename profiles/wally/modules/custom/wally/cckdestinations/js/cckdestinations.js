@@ -1,3 +1,17 @@
+var hidden_dest = [];
+
+$(document).ready(function() {
+	updateList();
+	var i = $("#field_destinations_values tbody tr").length;
+	$("#field-destinations-items").bind("DOMNodeInserted", function(event) {
+		if ($("#field_destinations_values tbody tr").length > i) {
+			updateList();
+			refreshHidden();
+			i = $("#field_destinations_values tbody tr").length;
+		}
+	});
+});
+
 function updateList() {
 	$(".tid").each(function(index) {
 		taxo = this.id;
@@ -37,20 +51,11 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 function addDeleteAction(del) {
 	if ($("#"+del).length > 0) {
 		$("#"+del).click(function() {
-			var cur_taxo = this.id.replace("delete", "tid");
-			var selected = $("#"+cur_taxo).find("option:selected");
-			selected.removeAttr("selected");
-			$("#"+cur_taxo+' option[value="0"]').attr("selected", "selected");
-
-			var not_found = true;
-			var parent_tr = $("#"+cur_taxo);
-			while (not_found) {
-				parent_tr = parent_tr.parent();
-				if (parent_tr.hasClass("draggable")) {
-					not_found = false;
-				}
-			}
-			parent_tr.hide();
+			var cur_taxo = hideTr(this.id);
+			
+			var expl_del = del.split("-");
+			var del_id = expl_del[3];
+			hidden_dest[del_id] = del_id;
 			
 			var cur_targ = cur_taxo.replace("tid", "target");
 			var cur_lay = cur_taxo.replace("tid", "layout");
@@ -62,13 +67,28 @@ function addDeleteAction(del) {
 	}
 }
 
-$(document).ready(function() {
-	updateList();
-	var i = $("#field_destinations_values tbody tr").length;
-	$("#field-destinations-items").bind("DOMNodeInserted", function(event) {
-		if ($("#field_destinations_values tbody tr").length > i) {
-			updateList();
-			i = $("#field_destinations_values tbody tr").length;
+function hideTr(del_id) {
+	var cur_taxo = del_id.replace("delete", "tid");
+	var selected = $("#"+cur_taxo).find("option:selected");
+	selected.removeAttr("selected");
+	$("#"+cur_taxo+' option[value="0"]').attr("selected", "selected");
+
+	var not_found = true;
+	var parent_tr = $("#"+cur_taxo);
+	while (not_found) {
+		parent_tr = parent_tr.parent();
+		if (parent_tr.hasClass("draggable")) {
+			not_found = false;
 		}
-	});
-});
+	}
+	parent_tr.hide();
+	
+	return cur_taxo;
+}
+
+function refreshHidden() {
+	for(var i in hidden_dest) {
+		var del_to_hide = "edit-field-destinations-"+i+"-delete";
+		hideTr(del_to_hide);
+	}
+}
