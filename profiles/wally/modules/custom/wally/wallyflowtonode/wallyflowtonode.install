@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallyflowtonode_schema() {
+  $schema['wallyflowtonode_flows'] = array(
+    'description' => 'The table containing the RSS feeds informations for the wallyflowtonode module.',
+    'fields' => array(
+      'flow_key' => array(
+        'description' => 'The primary identifier.', 
+        'type' => 'serial',
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+      ), 
+      'name' => array(
+        'description' => 'Name.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'prefix' => array(
+        'description' => 'External reference prefix.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'uri' => array(
+        'description' => 'URI.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'publish' => array(
+        'description' => 'Publish or not.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+         'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'the type of flow.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'plugin_name' => array(
+        'description' => 'the type of flow.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'last_build' => array(
+        'description' => 'Last time the feed was updated.', 
+        'type' => 'int', 
+        'unsigned' => TRUE,
+        'not null' => TRUE, 
+        'default' => 0,
+      ), 
+      'delta_t' => array(
+        'description' => 'Time (minutes) between updates.', 
+        'type' => 'int', 
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 10,
+      ), 
+      'destination' => array(
+        'description' => 'The full destination (path/target/layout/rank).', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'package_layout' => array(
+        'description' => 'Package layout.', 
+        'type' => 'int', 
+        'unsigned' => TRUE,
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'body_html' => array(
+        'description' => 'Use of HTML for the text body or not.', 
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'conf' =>  array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      ),
+      'feeds_md5' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized md5 of this RSS feeds.',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ), 
+    'primary key' => array('flow_key'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of the hook module _install();
+ */
+function wallyflowtonode_install() {
+  if (!db_table_exists('wallyflowtonode_flows')) {
+    drupal_install_schema('wallyflowtonode');
+  }
+  
+  if (db_table_exists('rsstonode_feeds')) {
+    $old_feeds_db = db_query('SELECT * FROM {rsstonode_feeds}');
+    while ($new_feed = db_fetch_object($old_feeds_db)) {
+      $new_feed->flow_key = $new_feed->rss_key;
+      $new_feed->conf = array('channel_img' => $new_feed->channel_img);
+      drupal_write_record('wallyflowtonode_flows', $new_feed);
+    }
+    
+    require_once 'includes/module.inc';
+    require_once 'includes/install.inc';
+    module_disable(array('wallyrsstonode'));
+    drupal_uninstall_module('wallyrsstonode');
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallyflowtonode_uninstall() {
+  drupal_uninstall_schema('wallyflowtonode');
+  wallytoolbox_variable_del_like('wallyflowtonode_');
+}
+
+/**
+ * Implementation of hook_update_N()
+ */
+function wallyflowtonode_update_6001() {
+  $ret = array();
+  db_drop_field($ret, 'wallyflowtonode_flows', 'uri');
+  return $ret;
+}
