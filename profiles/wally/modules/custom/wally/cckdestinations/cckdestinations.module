@@ -335,7 +335,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
- );
+  );
 
 /**
  * @todo Get the real values from database. 
@@ -404,7 +404,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#weight'           => 5,
   );
   
-  if (isset($defaults['tid'])) {
+  if (isset($defaults['tid']) && $defaults['tid']) {
     $element['delete'] = array(
       '#title'            => t('Delete'),
       '#type'             => 'markup',
