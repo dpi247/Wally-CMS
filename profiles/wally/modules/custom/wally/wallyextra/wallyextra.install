@@ -446,21 +446,3 @@ function wallyextra_update_6005() {
   db_create_table($ret, 'wallyextra_flowmix_content', $schema['wallyextra_flowmix_content']);
   return $ret;
 }
-function wallyextra_update_6006() {
-  
-  $ret = array();
-  
-  $fields = array(
-    'title' => array(
-    	'type' => 'varchar',
-    	'not null' => FALSE,
-    	'default' => '',
-    ),
-   
-  );
-  
-  foreach ($fields as $field => $spec)
-    db_add_field($ret, 'wallyextra_flowmix_content', $field, $spec);
-  
-  return $ret;
-}
