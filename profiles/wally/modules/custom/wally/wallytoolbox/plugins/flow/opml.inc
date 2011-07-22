@@ -7,11 +7,22 @@
 $plugin = array(
   'title' => t('OPML'),
   'description' => t('Fetch an OPML feed.'),
-  'types' => array('Blog Spirit OPML')
+  'types' => array('Blog Spirit OPML'),
+  'defaults' => wallytoolbox_opml_flow_settings_default(),
 );
 
 function wallytoolbox_opml_flow_settings_form(&$form, &$form_state) {
-  $conf = $form_state['conf'];
+  $conf = wallytoolbox_opml_flow_settings_default($form_state);
+  
+  $form['uri'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URI'),
+    '#description' => t('URI of the OPML (could be an url or something else).'),
+    '#default_value' => $conf['uri'],
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
   
   $form['maxitem'] = array (
     '#type'             => 'textfield',
@@ -25,6 +36,20 @@ function wallytoolbox_opml_flow_settings_form(&$form, &$form_state) {
     '#type'             => 'checkbox',
     '#default_value'    => $conf['channel_img'],
   );
+}
+
+function wallytoolbox_opml_flow_settings_default($form_state = array()) {
+  if (isset($form_state) && !empty($form_state)) {
+    return $form_state;
+  }
+  
+  $defaults = array(
+    'uri' => '',
+    'maxitem' => '',
+    'channel_img' => 0,
+  );
+  
+  return $defaults;
 }
 
 function wallytoolbox_opml_flow_build(&$feed_infos) {

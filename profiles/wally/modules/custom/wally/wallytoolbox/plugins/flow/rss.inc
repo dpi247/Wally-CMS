@@ -6,45 +6,79 @@
  */
 $plugin = array(
   'title' => t('RSS - Default RSS plugin'),
-  'description' => t('a common RSS 2.0 and RSS Media transformer.'),
-  'types' => array('RSS 2.0', 'RSS Media')
+  'description' => t('A common RSS 2.0 and RSS Media transformer.'),
+  'types' => array('RSS 2.0', 'RSS Media'),
+  'defaults' => wallytoolbox_rss_flow_settings_default(),
 );
 
 function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
-  $conf = $form_state;
+  $conf = wallytoolbox_rss_flow_settings_default($form_state);
+  
+  $form['uri'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URI'),
+    '#description' => t('URI of the RSS (could be an url or something else).'),
+    '#default_value' => $conf['uri'],
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
   
   $form['maxitem'] = array (
     '#type'             => 'textfield',
     '#title'            => t('Max item to fetch for this feed'),
     '#description'      => t('Set to 0 for no limitation'),
     '#default_value'    => $conf['maxitem'],
-    '#required'         => TRUE,
   );
   
   $form['embed_img'] = array(
-    '#title'            => t('Use the first image embeded in the text if no image found.'),
+    '#title'            => t('Use the first image embeded in the text if no media image found.'),
     '#type'             => 'checkbox',
     '#default_value'    => $conf['embed_img'],
   );
   
   $form['channel_img'] = array(
-    '#title'            => t('Use the default channel image if no image found.'),
+    '#title'            => t('Use the default channel image if no media image found.'),
     '#type'             => 'checkbox',
     '#default_value'    => $conf['channel_img'],
   );
   
   $form['get_distant_img'] = array (
     '#type'             => 'checkbox',
-    '#default_value'    => $flowmix_item->get_distant_img,
-    '#title'            => 'Copy RSS feeds images to locale folder.',
+    '#default_value'    => $conf['get_distant_img'],
+    '#title'            => t('Copy RSS feeds images to locale folder.'),
   );
+}
+
+function wallytoolbox_rss_flow_settings_default($form_state = array()) {
+  if (isset($form_state) && !empty($form_state)) {
+    return $form_state;
+  }
+  
+  $defaults = array(
+    'uri' => '',
+    'maxitem' => '',
+    'embed_img' => 0,
+    'channel_img' => 0,
+    'get_distant_img' => 0,
+  );
+  
+  return $defaults;
+}
+
+function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $uri_response = drupal_http_request($values['uri']);
+  if ($uri_response->status_message != 'OK') {
+    form_set_error('uri', t('The URI doesn\'t respond.'));
+  }
 }
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array();
   
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['uri']);
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
@@ -54,7 +88,6 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
     $channel_last_build = 0;
 
     if ($channels->item(0)) {
-      $feed_destination = explode('/', $feed_infos['destination']);
       $sql_last_build = $feed_infos['last_build'];
       $feed_name = check_plain($feed_infos['name']);
       $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
@@ -80,17 +113,17 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
         }
         
         if (empty($struct_array['Packages']['Package']))
-          _wallytoolbox_rss_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
+          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
         
         $feed_infos['feeds_md5'] = $new_feeds_md5;
       } else {
-        _wallytoolbox_rss_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
+        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
       }
     } else {
-      _wallytoolbox_rss_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
+      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
     }
   } else {
-    _wallytoolbox_rss_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.$feed_infos['name']);
+    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.$feed_infos['name']);
   }
   
   return $struct_array;
@@ -119,7 +152,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name' => 'RSS', 'destination' => '0///', 'channel_img' => 0, 'prefix' => '')) {
+function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'http://search.yahoo.com/mrss/', $feed_infos = array('name' => 'RSS', 'destination' => '0///', 'prefix' => '')) {
   $array_package = wallytoolbox_flow_to_array_new_package();
   
   // Get package informations
@@ -559,7 +592,7 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
 
-function _wallytoolbox_rss_set_log(&$item, $success, $msg, $severity = 'notice') {
+function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {
   drupal_set_message($msg, $severity);
   $item['__log']['success'] = $success;
   $item['__log']['msg'] = $msg;

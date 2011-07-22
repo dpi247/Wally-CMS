@@ -74,17 +74,45 @@ function wallytoolbox_form_panels_panel_context_edit_content_alter(&$form, $form
  * Implementation of hook_form_alter()
  */
 function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
-  if (strstr($form_id, '_content_type_edit_form')) {
-    // We add a rule field to every CTools content type configuration form.
-    $form['wally_rule'] = array (
-      '#type'             => 'textfield',
-      '#title'            => t('Refresh time (minutes)'),
-      '#description'			=> t('This is the frequency with which the hook_refresh_block will be called for this content.'),
-      '#default_value'		=> isset($form_state['conf']['wally_rule']) ? $form_state['conf']['wally_rule'] : 15,
-    );
+  if (strstr($form_id, '_content_type_')) {
+    $form_to_alter = FALSE;
+    if (strstr($form_id, '_content_type_edit_form')) {
+      // The form id respects the standard structure, easy to recognize
+      $form_to_alter = TRUE;
+    } else {
+      // The form id has another structure, we have to search through all available plugins
+      $plugins = panels_common_get_allowed_types('panels_page');
+      $edit_forms = array();
+      foreach ($plugins as $plugin) {
+        foreach ($plugin as $subtype) {
+          if (isset($subtype['edit form'])) {
+            if (is_array($subtype['edit form'])) {
+              // This is in case of multistep forms
+              $keys = array_keys($subtype['edit form']);
+              $edit_forms[] = $keys[0];
+            } else {
+              $edit_forms[] = $subtype['edit form'];
+            }
+          }
+        }
+      }
+
+      if (in_array($form_id, $edit_forms))
+        $form_to_alter = TRUE;
+    }
     
-    $form['#validate'][] = 'wallytoolbox_content_type_form_validate';
-    $form['#submit'][] = 'wallytoolbox_content_type_form_submit';
+    if ($form_to_alter) {
+      // We add a rule field to every CTools content type configuration form.
+      $form['wally_rule'] = array (
+        '#type'             => 'textfield',
+        '#title'            => t('Refresh time (minutes)'),
+        '#description'      => t('This is the frequency with which the hook_refresh_block will be called for this content.'),
+        '#default_value'    => isset($form_state['conf']['wally_rule']) ? $form_state['conf']['wally_rule'] : 15,
+      );
+      
+      $form['#validate'][] = 'wallytoolbox_content_type_form_validate';
+      $form['#submit'][] = 'wallytoolbox_content_type_form_submit';
+    }
   }
 }
 
@@ -187,7 +215,6 @@ function wallytoolbox_get_plugins_that_handle_type($type) {
   
   $plugins=ctools_get_plugins('wallytoolbox', 'flow');
   foreach($plugins as $plugin_name=>$plugin){
-    
     if (in_array($type,$plugin['types'])) {
       $available_types[$plugin_name] = $plugin;
     }
@@ -201,7 +228,7 @@ function wallytoolbox_get_plugin_by_name($plugin_name) {
   $module = 'wallytoolbox';
   $type = 'flow';
   
-  $plugin=ctools_get_plugins($module, $type, $plugin_name);
+  $plugin = ctools_get_plugins($module, $type, $plugin_name);
   return $plugin;
 }
 
@@ -231,9 +258,13 @@ function wallytoolbox_get_settings_form_of_plugin($plugin, &$form, &$form_state)
   if (empty($plugin['settings form']) ) {
     return FALSE;
   }
+  
+  if (!empty($plugin['settings form validate'])) {
+    $form['#validate'][] = $plugin['settings form validate'];
+  }
 
   if ($function = ctools_plugin_get_function($plugin, 'settings form')) {
-    return $function($form, $form_state);
+     return $function($form, $form_state);
   }
 
   return FALSE;
@@ -244,7 +275,7 @@ function wallytoolbox_get_settings_form_of_plugin($plugin, &$form, &$form_state)
  */
 function wallytoolbox_content_type_form_validate(&$form, &$form_state) {
   $values = $form_state['values'];
-  
+
   if (isset($values['wally_rule']) && !is_numeric($values['wally_rule'])) {
     form_set_error('wally_rule', t('The refresh time isn\'t a numeric value'));
   } elseif (isset($values['wally_rule']) && ($values['wally_rule'] < 0 || $values['wally_rule'] >= 60)) {
@@ -256,7 +287,12 @@ function wallytoolbox_content_type_form_validate(&$form, &$form_state) {
  * Submit for the refresh rule added to CTools content types.
  */
 function wallytoolbox_content_type_form_submit(&$form, &$form_state) {
-  $form_state['conf']['wally_rule'] = $form_state['values']['wally_rule'];
+  $conf = $form_state['conf'];
+  $conf_keys = array_keys($conf);
+  if (is_object($conf[$conf_keys[0]]))
+    $form_state['conf'][$conf_keys[0]]->wally_rule = $form_state['values']['wally_rule'];
+  else
+    $form_state['conf']['wally_rule'] = $form_state['values']['wally_rule'];
 }
 
 /**
@@ -906,9 +942,8 @@ function wallytoolbox_get_panels_and_handlers() {
         $handlers[$page_name][] = $display_content;
     }
   }
-  $return = array($panels, $handlers);
   
-  return $return;
+  return array($panels, $handlers);
 }
 
 function wallytoolbox_flow_to_array_init_array() {
