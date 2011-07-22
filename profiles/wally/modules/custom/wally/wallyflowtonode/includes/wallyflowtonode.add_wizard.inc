@@ -147,6 +147,11 @@ function wallyflowtonode_addnewflow_subtask_finish(&$form_state) {
 }
 
 function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
+  while(is_string($form_state['flow_obj']->conf))
+    $form_state['flow_obj']->conf = unserialize($form_state['flow_obj']->conf);
+  while(is_string($form_state['flow_obj']->feeds_md5))
+    $form_state['flow_obj']->feeds_md5 = unserialize($form_state['flow_obj']->feeds_md5);
+  dsm(debug_backtrace());
   $flow_item = &$form_state['flow_obj'];
   $flow_item = (array)$flow_item;
   if (!isset($flow_item) || empty($flow_item)) {
@@ -154,10 +159,6 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   } else {
     $flow_item = (object)$flow_item;
   }
-  while(is_string($flow_item->conf))
-    $flow_item->conf = unserialize($flow_item->conf);
-  while(is_string($flow_item->feeds_md5))
-    $flow_item->feeds_md5 = unserialize($flow_item->feeds_md5);
 
   $form['name'] = array(
     '#type' => 'textfield',
@@ -172,7 +173,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   
   $form['prefix'] = array(
     '#type' => 'textfield',
-    '#title' => t('External reference prefix.'),
+    '#title' => t('External reference prefix'),
     '#description' => t('Used in the package to identify the external ressource.'),
     '#default_value' => $flow_item->prefix,
     '#size' => 80,
@@ -180,16 +181,6 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
     '#weight' => 0.05,
   );
   
-  $form['uri'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Flow "URI"'),
-    '#description' => t('URI of the requested RSS feed.'),
-    '#default_value' => $flow_item->uri,
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-    '#weight' => 0.1,
-  );
   $form['publish'] = array(
     '#type' => 'radios',
     '#title' => t('Publishing comportement'),
@@ -202,7 +193,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   $form['type'] = array(
     '#type' => 'select',
     '#title' => t('Type of flow'),
-    '#default_value' => $flow_item->types,
+    '#default_value' => $flow_item->type,
     '#required' => TRUE,
     '#options' => wallytoolbox_get_available_flow_type(),
     '#weight' => 0.11,
@@ -271,23 +262,18 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
  * Basic settings validation
  */
 function wallyflowtonode_basicsettings_form_validate(&$form, &$form_state) {
-  $values = $form_state['values'];
-  $uri_response = drupal_http_request($values['uri']);
-  if ($uri_response->status_message != 'OK') {
-    form_set_error('wallyflowtonode_uri', t('The URI doesn\'t respond.'));
-  }
 }
 
 function wallyflowtonode_basicsettings_form_submit(&$form, &$form_state) {
   $submitted = $form_state['values'];
-  $save_values = array('name', 'prefix', 'uri', 'publish', 'type', 'body_html', 'delta_t', 'package_layout'); 
+  $save_values = array('name', 'prefix', 'publish', 'type', 'body_html', 'delta_t', 'package_layout'); 
   // maybe don't imitate this foreach
   foreach ($save_values as $value) {
     // set the values in the cache object -- it gets passed back to the next step
     // because of all that work we did in the form_info array
     $form_state['flow_obj']->$value = $submitted[$value];
   }
-  
+  dsm($form_state);
   if (empty($form_state['flow_obj']->prefix))
     $form_state['flow_obj']->prefix = $form_state['flow_obj']->name;
   
@@ -334,6 +320,7 @@ function wallyflowtonode_pluginselector_form_submit(&$form, &$form_state) {
 }
 
 function wallyflowtonode_pluginspecific_form(&$form, &$form_state) {
+  dsm($form_state);
   $flow_item = &$form_state['flow_obj'];
   $form['conf']=array('#tree'=>true);
   wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flow_item->plugin_name),$form['conf'],$form_state['flow_obj']->conf);
@@ -383,7 +370,6 @@ function _wallyflowtonode_get_default_form_values() {
   
   $default_form_values->name = '';
   $default_form_values->prefix = '';
-  $default_form_values->uri = '';
   $default_form_values->publish = 0;
   $default_form_values->delta_t = 5;
   $default_form_values->destination = '0///0';

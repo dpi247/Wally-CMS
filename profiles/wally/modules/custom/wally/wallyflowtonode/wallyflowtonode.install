@@ -140,3 +140,12 @@ function wallyflowtonode_uninstall() {
   drupal_uninstall_schema('wallyflowtonode');
   wallytoolbox_variable_del_like('wallyflowtonode_');
 }
+
+/**
+ * Implementation of hook_update_N()
+ */
+function wallyflowtonode_update_6001() {
+  $ret = array();
+  db_drop_field($ret, 'wallyflowtonode_flows', 'uri');
+  return $ret;
+}
