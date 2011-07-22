@@ -151,7 +151,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
     $form_state['flow_obj']->conf = unserialize($form_state['flow_obj']->conf);
   while(is_string($form_state['flow_obj']->feeds_md5))
     $form_state['flow_obj']->feeds_md5 = unserialize($form_state['flow_obj']->feeds_md5);
-  dsm(debug_backtrace());
+
   $flow_item = &$form_state['flow_obj'];
   $flow_item = (array)$flow_item;
   if (!isset($flow_item) || empty($flow_item)) {
@@ -273,7 +273,7 @@ function wallyflowtonode_basicsettings_form_submit(&$form, &$form_state) {
     // because of all that work we did in the form_info array
     $form_state['flow_obj']->$value = $submitted[$value];
   }
-  dsm($form_state);
+
   if (empty($form_state['flow_obj']->prefix))
     $form_state['flow_obj']->prefix = $form_state['flow_obj']->name;
   
@@ -320,7 +320,6 @@ function wallyflowtonode_pluginselector_form_submit(&$form, &$form_state) {
 }
 
 function wallyflowtonode_pluginspecific_form(&$form, &$form_state) {
-  dsm($form_state);
   $flow_item = &$form_state['flow_obj'];
   $form['conf']=array('#tree'=>true);
   wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flow_item->plugin_name),$form['conf'],$form_state['flow_obj']->conf);
