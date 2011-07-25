@@ -77,6 +77,18 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#required'         => FALSE,
   );
   
+  $form['embed_img'] = array(
+    '#title'            => t('Use the first image embeded in the text if no media image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['embed_img'],
+  );
+  
+  $form['channel_img'] = array(
+    '#title'            => t('Use the default channel image if no media image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['channel_img'],
+  );
+  
   $form['get_distant_img'] = array (
     '#type'             => 'checkbox',
     '#default_value'    => $settings['get_distant_img'],
@@ -204,6 +216,8 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
   $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
   $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
   $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
+  $form_state['conf']['embed_img'] = $form_state['values']['embed_img'];
+  $form_state['conf']['channel_img'] = $form_state['values']['channel_img'];
   $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
   $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
   $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
@@ -482,6 +496,8 @@ function _wallyextra_rssmixread_defaultformvalues() {
   $default_form_values['maxitem_byfeed'] = 10;
   $default_form_values['own_schema'] = '';
   $default_form_values['mix_schema'] = 'alt';
+  $default_form_values['embed_img'] = 0;
+  $default_form_values['channel_img'] = 0;
   $default_form_values['get_distant_img'] = 0;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
