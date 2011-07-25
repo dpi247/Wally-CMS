@@ -507,7 +507,7 @@ function user_access($string, $account = NULL, $reset = FALSE) {
   if ($account->uid == 1) {
     return TRUE;
   }
-var_dump($account);
+
   // To reduce the number of SQL queries, we cache the user's permissions
   // in a static variable.
   if (!isset($perm[$account->uid])) {
