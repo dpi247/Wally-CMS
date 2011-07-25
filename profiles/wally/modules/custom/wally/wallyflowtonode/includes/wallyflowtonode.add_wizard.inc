@@ -320,8 +320,11 @@ function wallyflowtonode_pluginselector_form_submit(&$form, &$form_state) {
 }
 
 function wallyflowtonode_pluginspecific_form(&$form, &$form_state) {
+  while(is_string($form_state['flow_obj']->conf))
+    $form_state['flow_obj']->conf = unserialize($form_state['flow_obj']->conf);
   $flow_item = &$form_state['flow_obj'];
   $form['conf']=array('#tree'=>true);
+
   wallytoolbox_get_settings_form_of_plugin(wallytoolbox_get_plugin_by_name($flow_item->plugin_name),$form['conf'],$form_state['flow_obj']->conf);
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
@@ -343,6 +346,20 @@ function wallyflowtonode_finalstep_form(&$form, &$form_state) {
   
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
+}
+
+function wallyflowtonode_finalstep_form_submit(&$form, &$form_state) {
+  $flow_item = (array)$form_state['flow_obj'];
+  $values = $form_state['values'];
+  if ($values['direct_process']) {
+    require_once drupal_get_path('module', 'wallyflowtonode').'/includes/wallyflowtonode.admin.inc';
+    $return = array();
+    $return['date'] = date('Y-m-d H:i:s');
+    $return[] = _wallyflowtonode_callonefeed($flow_item);
+    drupal_set_message(t('Cron run on : !date', array('!date' => $return['date'])));
+    drupal_set_message($return[0]);
+    $form_state['flow_obj']->last_build = $flow_item['last_build'];
+  }
 }
 
 /**

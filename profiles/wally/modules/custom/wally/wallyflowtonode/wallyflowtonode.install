@@ -27,13 +27,6 @@ function wallyflowtonode_schema() {
         'not null' => TRUE, 
         'default' => '',
       ),
-      'uri' => array(
-        'description' => 'URI.', 
-        'type' => 'varchar', 
-        'length' => 512, 
-        'not null' => TRUE, 
-        'default' => '',
-      ),
       'publish' => array(
         'description' => 'Publish or not.',
         'type' => 'int',
