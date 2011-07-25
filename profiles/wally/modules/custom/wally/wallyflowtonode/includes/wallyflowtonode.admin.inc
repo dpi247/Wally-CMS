@@ -41,11 +41,14 @@ function wallyflowtonode_form_delete_feed_form_submit(&$form, &$form_state) {
   }
 }
 
-function wallyflowtonode_page_admin_run_cron($flow_key = NULL) {
+function wallyflowtonode_page_admin_run_cron($flow_key = NULL, $redirect = TRUE) {
   $result = wallyflowtonode_cron($flow_key);
-  drupal_set_message($result[0]);
+  drupal_set_message(t('Cron run on : !date', array('!date' => $return['date'])));
+  unset($return['date']);
+  foreach ($result as $res)
+    drupal_set_message($res);
   
-  if ($flow_key)
+  if ($flow_key && $redirect)
     drupal_goto('admin/wally/wallyflowtonode');
   
   return '';
