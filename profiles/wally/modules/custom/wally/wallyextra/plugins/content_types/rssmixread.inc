@@ -516,6 +516,8 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
       $media_namespace = $rss_tags->item(0) ? $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media') : 'http://search.yahoo.com/mrss/';
       $channels = $dom->getElementsByTagName('channel');
       if ($channels->item(0)) {
+        require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/rss.inc';
+        
         foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
           $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
           

@@ -75,9 +75,13 @@ function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $conf = $conf['flow_obj'];
 
   if ($subtype['name'] != 'flowmix') {
-    $settings = $subtype['content']->settings;
-    $settings->flowmix_type = 'fixed';
+    if (!empty($conf->title)) {
+      $settings = $conf;
+    } else {
+      $settings = $subtype['content']->settings;
+    }
     $settings->content = $subtype['content'];
+    $settings->flowmix_type = 'fixed';
   } else {
     // This means they created it as flowmix content and then set it as
     // reusable. Since we're not allowed to change the subtype, we're
@@ -200,7 +204,7 @@ function wallyextra_flowmix_refresh_block($settings) {
 function _wallyextra_flowmix_content_type_save_reusable($form_state) {
   cache_clear_all($form_state['values']['caid']);
   
-  if ($form_state['conf']['flow_obj']->flowmix_type == 'fixed') {
+  if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = $form_state['settings']->content;
     $form_state['conf']['flow_obj'] = (object)array_merge((array)$content->settings, (array)$form_state['conf']['flow_obj']);
     $form_state['conf']['flow_obj']->name = $content->name;
@@ -308,8 +312,18 @@ function _wallyextra_flowmix_ctools_content_type($content) {
     'icon' => 'icon_block_custom.png',
     // Store this here to make it easy to access.
     'content' => $content,
-    'add form' => 'wallyextra_flowmix_content_type_form_summary_form',
-    'edit form' => 'wallyextra_flowmix_content_type_form_summary_form',
+    'add form' => array(
+      'wallyextra_flowmix_content_type_form_summary_form'        => t('Summary'),
+      'wallyextra_flowmix_content_type_form_basicsetttings_form' => t('Create Flow 1/2: Basic settings'),
+      'wallyextra_flowmix_content_type_form_pluginselector_form' => t('Create Flow 2/2: Plugin Selector'),
+      'wallyextra_flowmix_content_type_form_pluginspecific_form' => t('Create Flow 2bis/2: Plugin specific settings'),
+    ),
+    'edit form' => array(
+      'wallyextra_flowmix_content_type_form_summary_form'        =>t('Summary'),
+      'wallyextra_flowmix_content_type_form_basicsetttings_form' =>t('Create Flow 1/2: Basic settings'),
+      'wallyextra_flowmix_content_type_form_pluginselector_form' =>t('Create Flow 2/2: Plugin Selector'),
+      'wallyextra_flowmix_content_type_form_pluginspecific_form' =>t('Create Flow 2bis/2: Plugin specific settings'),
+    ),
   );
 
   return $info;
@@ -456,12 +470,19 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
-  
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
+  
   $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
   $creation_date = $creation_infos[1];
-  if ($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) {
+  if (($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) || (isset($form_state['post']['save']) && !isset($form_state['post']['title']))) {
+    unset($form['buttons']['next']);
+    $form['buttons']['save'] = array(
+      '#type'          => 'submit',
+      '#value'         => t('Save'),
+      '#wizard type'   => 'finish',
+      '#name'          => 'save',
+    );
     return; // no form for this case.
   }
 
@@ -860,6 +881,7 @@ function wallyextra_flowmix_content_type_form_pluginspecific_form_validate(&$for
 function wallyextra_flowmix_content_type_form_pluginspecific_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $flowmix_item->flows[(int)$flowmix_item->index]->conf = $form_state['values']['conf'];
+  $form_state['settings'] = $flowmix_item;
   
   if (strpos($form_state['clicked_button']['#wizard type'], 'finish') !== false) {
     _wallyextra_flowmix_content_type_save_reusable($form_state);
