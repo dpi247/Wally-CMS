@@ -12,7 +12,6 @@
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
-
 $plugin = array(
   'no title override' => FALSE,
   'defaults' => array(
