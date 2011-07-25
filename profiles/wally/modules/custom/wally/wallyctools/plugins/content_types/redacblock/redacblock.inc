@@ -14,7 +14,7 @@
  */
 
 global $user;
-var_dump($user);
+//var_dump($user);
 
 $plugin = array(
   'no title override' => FALSE,
