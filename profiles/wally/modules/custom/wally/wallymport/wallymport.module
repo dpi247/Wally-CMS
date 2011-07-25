@@ -118,6 +118,7 @@ function wallymport_page_destinations_items(){
           $destination = $dom_dests->createElement('Destination');
           $destination = $destinations->appendChild($destination);
           
+          $destination->setAttribute('tid', $tid);
           $destination->setAttribute('Position', $target_name);
           $destination->setAttribute('DocumentLayout', $layout_name);
           $destination->setAttribute('DestinationRank', $rank_elem);
