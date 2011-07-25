@@ -80,13 +80,13 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
   $form['embed_img'] = array(
     '#title'            => t('Use the first image embeded in the text if no media image found.'),
     '#type'             => 'checkbox',
-    '#default_value'    => $conf['embed_img'],
+    '#default_value'    => $settings['embed_img'],
   );
   
   $form['channel_img'] = array(
     '#title'            => t('Use the default channel image if no media image found.'),
     '#type'             => 'checkbox',
-    '#default_value'    => $conf['channel_img'],
+    '#default_value'    => $settings['channel_img'],
   );
   
   $form['get_distant_img'] = array (
