@@ -405,8 +405,7 @@ function page_manager_edit_page_operation() {
 
   $operations = page_manager_get_operations($page);
   $content = page_manager_get_operation_content($js, $page, $args, $operations);
-dsm($operations, 'operations');
-dsm($content, 'content');
+
   // If the operation requested we go somewhere else afterward, oblige it.
   if (isset($content['new trail'])) {
     $args = $content['new trail'];
