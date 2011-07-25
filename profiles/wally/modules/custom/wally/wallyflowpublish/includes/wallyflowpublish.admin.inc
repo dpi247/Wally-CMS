@@ -63,6 +63,41 @@ function wallyflowpublish_settings_form(){
     );
   }
 
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  $mediafed_defaults = variable_get('wallyflowpublish_mediafed', array());
+  
+  $form['mediafed'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('MediaFed'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['mediafed']['activate'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Activate URL redirection for MediaFed'),
+    '#default_value' => $mediafed_defaults['activate'],
+  );
+  
+  $form['mediafed']['redirect_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirection URL'),
+    '#description' => t('The MediaFed URL where the users will be redirected. Use <i>%name</i> to replace the taxonomy term name. Example : <i>http://www.urlmediafed.com/%name/rss.xml</i>'),
+    '#default_value' => $mediafed_defaults['redirect_url'],
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-activate' => array(1)),
+  );
+  
+  $form['mediafed']['user_agent'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Bypass User Agent'),
+    '#description' => t('The user agent used by MediaFed, this user agent will bypass the redirection. Regex allowed (without delimiters).'),
+    '#default_value' => $mediafed_defaults['user_agent'],
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('edit-activate' => array(1)),
+  );
+  
   $form['settings'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -76,13 +111,14 @@ function wallyflowpublish_settings_form(){
  */
 function wallyflowpublish_settings_form_submit($form, &$form_state) {
   $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
+  $values = $form_state['values'];
 
   foreach ($taxos as $taxo){
     $dest = str_replace(' ', '-', $taxo->name);
     $object = array();
-    $object['tid'] = $form_state['values']['wallyflowpublish_'.$dest.'_tid'];
-    $object['title'] = $form_state['values']['wallyflowpublish_'.$dest.'_title'];
-    $object['description'] = $form_state['values']['wallyflowpublish_'.$dest.'_description'];
+    $object['tid'] = $values['wallyflowpublish_'.$dest.'_tid'];
+    $object['title'] = $values['wallyflowpublish_'.$dest.'_title'];
+    $object['description'] = $values['wallyflowpublish_'.$dest.'_description'];
     $file = file_save_upload('wallyflowpublish_'.$dest.'_image');
     $nameim = $file->filename;
     if(!empty($nameim)){
@@ -94,7 +130,7 @@ function wallyflowpublish_settings_form_submit($form, &$form_state) {
         $object['imagefile'] = $dest_path;
       }
     }
-    $object['copyright'] = $form_state['values']['wallyflowpublish_'.$dest.'_copyright'];
+    $object['copyright'] = $values['wallyflowpublish_'.$dest.'_copyright'];
     $feed_infos = db_fetch_array(db_query('SELECT `flow_key` FROM {wallyflowpublish_dests} WHERE `tid` = %d', $object['tid']));
 
     if (empty($feed_infos)) {
@@ -104,6 +140,19 @@ function wallyflowpublish_settings_form_submit($form, &$form_state) {
       drupal_write_record('wallyflowpublish_dests', $object, array('flow_key'));
     }
   }
+  
+  if ($values['activate']) {
+    $mediafed = array(
+      'activate' => TRUE,
+      'redirect_url' => $values['redirect_url'],
+      'user_agent' => $values['user_agent'],
+    );
+  } else {
+    $mediafed = array(
+      'activate' => FALSE,
+    );
+  }
+  variable_set('wallyflowpublish_mediafed', $mediafed);
   
   drupal_set_message(t('Configuration saved'));
 }

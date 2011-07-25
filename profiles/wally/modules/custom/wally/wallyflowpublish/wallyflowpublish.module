@@ -78,11 +78,36 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
   return $block;
 }
 
+/**
+ * Implementation of hook_views_pre_execute()
+ * Catch the view process before execution to handle MediaFed redirection.
+ */
+function wallyflowpublish_views_pre_execute($view) {
+  if ($view->name == 'default_destination_view_feed' && $view->current_display == 'feed_1') {
+    $mediafed = variable_get('wallyflowpublish_mediafed', array('activate' => FALSE));
+    if (!isset($_GET['format']) && $mediafed['activate']) {
+      $user_agent = $_SERVER['HTTP_USER_AGENT'];
+      $delimiters = array('@', '+', '#');
+      foreach ($delimiters as $delimiter) {
+        if (!strstr($mediafed['user_agent'], $delimiter)) {
+          $regex_agent = $delimiter.$mediafed['user_agent'].$delimiter;
+          if (preg_match($regex_agent, $user_agent)) {
+            $redirect_url = str_replace('%name', $view->args[0], $mediafed['redirect_url']);
+            drupal_goto($redirect_url);
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+
 function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   global $base_url;
   global $language;
 
-  $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
+  if(isset($_GET['format']))
+    $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
@@ -93,7 +118,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
 
-  $data=db_fetch_array(db_query('SELECT * FROM {flowpublish} WHERE tid= %d',$tid));
+  $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid= %d',$tid));
   $imagefile = $data['imagefile'];
   $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath= "%s"',$imagefile));
 
@@ -137,7 +162,8 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
 }
 
 function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
-  $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
+  if(isset($_GET['format']))
+    $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $item     = &$vars['row'];
