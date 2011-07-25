@@ -28,6 +28,7 @@ function wallyflowpublish_install() {
 function wallyflowpublish_uninstall() {
   _wallyflowpublish_uninstall_presets();
   drupal_uninstall_schema('wallyflowpublish');
+  wallytoolbox_variable_del_like('wallyflowpublish_');
 }
 
 function _wallyflowpublish_install_presets() {
