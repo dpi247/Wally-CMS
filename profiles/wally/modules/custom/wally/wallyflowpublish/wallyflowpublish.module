@@ -1,0 +1,197 @@
+<?php
+
+/**
+ * Implementation of hook_menu()
+ */
+function wallyflowpublish_menu() {
+  $items = array();
+  $items['admin/wally/wallyflowpublish'] = array(
+    'title'             => t('Wally Flow Publish'),
+    'description'       => t('Administer Wally Flow Publish.'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('wallyflowpublish_settings_form'),
+    'access arguments'  => array('access administration pages'),
+    'file'              => 'includes/wallyflowpublish.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function wallyflowpublish_theme() {
+  $path = drupal_get_path('module', 'wallyflowpublish');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path.'/theme',
+  );
+
+  return array(
+    'views_view_row_rss' => $base + array(
+      'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
+      'template' => 'views-view-row-rss',
+      'original hook' => 'views_view_row_rss',
+    ),
+    'views_view_rss' => $base + array(
+      'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
+      'template' => 'views-view-rss',
+      'original hook' => 'views_view_rss',
+    ),
+    'views_view_row_rss_json' => $base + array(
+      'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
+      'template' => 'views-view-row-rss-json',
+      'original hook' => 'views_view_row_rss',
+    ),
+    'views_view_rss_json' => $base + array(
+      'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
+      'template' => 'views-view-rss-json',
+      'original hook' => 'views_view_rss',
+    ),
+    'pane_wallyflowpublish_wallyflowpublish' => $base + array(
+      'arguments' => array( 'content'=> NULL, 'pane' =>NULL, 'display' =>NULL),
+      'template' => 'pane-wallyflowpublish-wallyflowpublish',
+      'original hook' => 'panels_pane',
+    ),
+  );
+}
+
+function wallyflowpublish_block($op = 'list', $delta = 0) {
+  switch($op) {
+    case 'list' :
+      // Énumération des blocs disponibles
+      $blocs = array();
+      $blocs['wallyflowpublish'] = array(
+        'info' => t('Wally Flow Publish'), 
+        'cache' => BLOCK_CACHE_GLOBAL 
+      );
+      return $blocs;
+    case 'view' :
+      // Génération du contenu à afficher pour le block
+      $bloc = array();
+      if ($delta == 'wallyflowpublish') {
+        // Construction du block
+        $bloc['subject'] = t('Wally Flow Publish');
+        $bloc['content'] = theme('pane_wallyflowpublish_wallyflowpublish', $content, $pane, $display);
+      }
+      return $bloc;
+  }
+  return $block;
+}
+
+function wallyflowpublish_preprocess_views_view_rss(&$vars) {
+  global $base_url;
+  global $language;
+
+  $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
+  $view     = &$vars['view'];
+  $options  = &$vars['options'];
+  $items    = &$vars['rows'];
+  $presetname='flowpublish_preset';
+
+  $name = str_replace('-', ' ', $view->args[0]);
+  $tax = taxonomy_get_term_by_name($name);
+  $tid=$tax[0]->tid;
+  $descr= check_plain($tax[0]->description);
+
+  $data=db_fetch_array(db_query('SELECT * FROM {flowpublish} WHERE tid= %d',$tid));
+  $imagefile = $data['imagefile'];
+  $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath= "%s"',$imagefile));
+
+  $variables['head_title'] = array(variable_get('site_name', 'Drupal'));
+  $variables['head_title'] = implode(' | ', $variables['head_title']);
+
+  $path_photo = imagecache_create_url($presetname, $image[filepath]);
+  $vars['url']= $path_photo;
+  $vars['type']= $image[filemime];
+  $vars['filesize'] = $image[filesize];
+  $vars['title'] = empty($data['title']) ? $variables['head_title'].' : '.$name : $variables['head_title'].' : '.$data['title'];
+  $vars['description'] = empty($data['description']) ? $descr : $data['description'];
+  $vars['copyright'] = $data['copyright'];
+
+  $style = &$view->style_plugin;
+  // Figure out which display which has a path we're using for this feed. If there isn't
+  // one, use the global $base_url
+  $link_display_id = $view->display_handler->get_link_display();
+  if ($link_display_id && !empty($view->display[$link_display_id])) {
+    $path = $view->display[$link_display_id]->handler->get_path();
+  }
+
+  if ($path) {
+    $path = $view->get_url(NULL, $path);
+    $url_options = array('absolute' => TRUE);
+    if (!empty($view->exposed_raw_input)) {
+      $url_options['query'] = $view->exposed_raw_input;
+    }
+
+    // Compare the link to the default home page; if it's the default home page, just use $base_url.
+    if ($path == variable_get('site_frontpage', 'node')) {
+      $path = '';
+    }
+    $vars['link'] = check_url(url($path, $url_options));
+  }
+
+  $vars['langcode'] = check_plain($language->language);
+  $vars['namespaces'] = drupal_attributes($style->namespaces);
+  $vars['items'] = $items;
+  $vars['channel_elements'] = format_xml_elements($style->channel_elements);
+}
+
+function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
+  $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
+  $view     = &$vars['view'];
+  $options  = &$vars['options'];
+  $item     = &$vars['row'];
+  $presetname='flowpublish_preset';
+  $presetname_thumb='flowpublish_thumb_preset';
+
+  $nid= $item->nid;
+  $my_node = node_load($nid);
+  wallycontenttypes_packagepopulate(&$my_node,'show');
+  $descr = "";
+  if ($my_node->type == 'wally_articlepackage'){
+    $mainstory = $my_node->field_mainstory_nodes[0];
+    $teaser_length = 300;
+    $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $my_node);
+
+    if (isset($mainstory->field_textchapo[0]['value'])) {
+      $descr = $mainstory->field_textchapo[0]['value'];
+    }
+    else {
+      $descr = $teaser;
+    }
+  }
+
+  foreach ($my_node->field_embededobjects_nodes as $embeded){
+    if ($embeded->type == "wally_photoobject"){
+      $picture = $embeded;
+      break;
+    }
+  }
+
+  //$imain = $my_node->field_embededobjects_nodes[0];
+  $imain = $picture;
+
+  $type = $imain->field_photofile[0]['filemime'];
+  $filesize = $imain->field_photofile[0]['filesize'];
+
+  $imainstory = $imain->field_photofile[0]['filepath'];
+  if (!empty($imainstory)){
+    $file_img = theme('imagecache', $presetname,  $imainstory);
+    $path_photo = imagecache_create_url($presetname, $imainstory);
+    $path_photo_thumb = imagecache_create_url($presetname_thumb, $imainstory);
+    $vars['url'] = $path_photo;
+    $vars['url_thumb'] = $path_photo_thumb;
+  }
+  else{
+    $vars['url'] = '';
+    $vars['url_thumb'] = '';
+  }
+
+  $vars['filesize'] = $filesize;
+  $vars['item'] = $item;
+  $vars['type']= $type;
+  $vars['description'] = check_plain($descr);
+  $vars['title'] = check_plain($item->title);
+  $vars['link'] = check_url($item->link);
+  $vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
+}
