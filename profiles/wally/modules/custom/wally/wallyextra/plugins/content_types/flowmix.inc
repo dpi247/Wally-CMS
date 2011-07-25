@@ -254,13 +254,17 @@ function wallyextra_flowmix_content_type_content_types() {
  */
 function wallyextra_flowmix_content_type_content_type($subtype_id) {
   if ($subtype_id == 'flowmix') {
-    return _wallyextra_flowmix_default_ctools_content_type();
+    $plugin = _wallyextra_flowmix_default_ctools_content_type();
+    dsm($plugin, 'default plugin');
+    return $plugin;
   }
   else {
     ctools_include('export');
     $content = ctools_export_crud_load('wallyextra_flowmix_content', $subtype_id);
     if ($content) {
-      return _wallyextra_flowmix_ctools_content_type($content);
+      $plugin = _wallyextra_flowmix_ctools_content_type($content);
+      dsm($plugin, 'default plugin');
+      return $plugin;
     }
   }
 }
