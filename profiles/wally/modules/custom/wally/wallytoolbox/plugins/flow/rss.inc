@@ -76,7 +76,7 @@ function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array();
-  
+
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
@@ -95,7 +95,9 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
       if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
         $feed_infos['last_build'] = $channel_last_build;
         
-        $feeds_md5 = isset($feed_infos['feeds_md5']) ? unserialize($feed_infos['feeds_md5']) : array();
+        while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
+          $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+        $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
         $new_feeds_md5 = array();
         $temp_struct_array = array();
         
