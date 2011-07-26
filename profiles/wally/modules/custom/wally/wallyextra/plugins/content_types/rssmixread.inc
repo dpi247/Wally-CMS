@@ -523,6 +523,9 @@ function _wallyextra_rssmixread_defaultformvalues() {
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
+  $settings['conf']['embed_img'] = $settings['embed_img'];
+  $settings['conf']['channel_img'] = $settings['channel_img'];
+  $settings['conf']['get_distant_img'] = $settings['get_distant_img'];
 
   if ($feed_xml && $feed_xml->data) {
     $dom = new DomDocument();
@@ -660,7 +663,7 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
     if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5']))
       $modif = TRUE;
   }
-  
+
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);
