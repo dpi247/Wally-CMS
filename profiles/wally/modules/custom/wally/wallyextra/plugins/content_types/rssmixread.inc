@@ -535,7 +535,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
         require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/rss.inc';
         
         foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-          $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
+          $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $settings);
           
           $feed_array[] = $temp_feed_array;
           if (sizeof($feed_array) >= $maxitem) break;
