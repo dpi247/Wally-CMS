@@ -529,6 +529,7 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
     $src_delimiter = substr($src_substr, 4, 1);
     $src_substr = substr($src_substr, 5);
     $img_url = strstr($src_substr, $src_delimiter, TRUE);
+    $img_url = html_entity_decode($img_url);
     
     $alt_substr = strstr($substr, 'alt=');
     if ($alt_substr) {
