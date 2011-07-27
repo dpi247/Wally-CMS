@@ -172,14 +172,24 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
     wallytoolbox_rss_item_to_array_set_medias($array_package, $channel, $item, $media_contents, $feed_name, $prefix, $media_namespace);
   }
   
+  $no_photo = TRUE;
+  if (isset($array_package['EmbeddedContent'])) {
+    foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object) {
+      if ($object['type'] == 'PhotoObjectType') {
+        $no_photo = FALSE;
+        break;
+      }
+    }
+  }
+  
   // Get embeded images in the text body
-  if ($feed_infos['conf']['embed_img'] && !isset($array_package['EmbeddedContent'])) {
+  if ($feed_infos['conf']['embed_img'] && $no_photo) {
     wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
   }
 
   // Get the channel image
   $channel_img = $channel->getElementsByTagName('image');
-  if ($feed_infos['conf']['channel_img'] && !isset($array_package['EmbeddedContent']) && $channel_img->item(0)) {
+  if ($feed_infos['conf']['channel_img'] && $no_photo && $channel_img->item(0)) {
     wallytoolbox_rss_item_to_array_set_image($array_package, $channel_img->item(0));
   }
   
