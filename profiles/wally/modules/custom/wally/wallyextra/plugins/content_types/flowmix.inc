@@ -203,8 +203,6 @@ function wallyextra_flowmix_refresh_block($settings) {
 
 function _wallyextra_flowmix_content_type_save_reusable($form_state) {
   cache_clear_all($form_state['values']['caid']);
-  dsm($form_state, 'form state save');
-  dsm($form_state['conf']['flow_obj'], 'conf flow obj');
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = $form_state['settings']->content;
     $form_state['conf']['flow_obj'] = (object)array_merge((array)$content->settings, (array)$form_state['conf']['flow_obj']);
@@ -647,7 +645,6 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     '#name'=>'next_'.count($settings->flows),
     '#next'=>'step2'
   );
-  dsm($form, 'summary form');
 }
 
 function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NULL){
@@ -669,7 +666,6 @@ function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NU
 }
 
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
-  dsm($form_state, 'form state');
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
   $save_values = array(
