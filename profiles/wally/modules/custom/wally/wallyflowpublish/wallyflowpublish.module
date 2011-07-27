@@ -37,16 +37,6 @@ function wallyflowpublish_theme() {
       'template' => 'views-view-rss',
       'original hook' => 'views_view_rss',
     ),
-    'views_view_row_rss_json' => $base + array(
-      'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
-      'template' => 'views-view-row-rss-json',
-      'original hook' => 'views_view_row_rss',
-    ),
-    'views_view_rss_json' => $base + array(
-      'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
-      'template' => 'views-view-rss-json',
-      'original hook' => 'views_view_rss',
-    ),
     'pane_wallyflowpublish_wallyflowpublish' => $base + array(
       'arguments' => array( 'content'=> NULL, 'pane' =>NULL, 'display' =>NULL),
       'template' => 'pane-wallyflowpublish-wallyflowpublish',
