@@ -319,9 +319,11 @@ function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed
  *   The name of the feed being analyzed.
  */
 function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, $feed_name, $prefix) {
-  $array_item['EmbeddedContent'] = array();
-  $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
-  $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+  if (!isset($array_item['EmbeddedContent'])) {
+    $array_item['EmbeddedContent'] = array();
+    $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
+    $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+  }
   $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
@@ -558,9 +560,11 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
   
     if (@getimagesize($img_url)) {
       static $chan_img_num = 100;
-      $array_item['EmbeddedContent'] = array();
-      $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
-      $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+      if (!isset($array_item['EmbeddedContent'])) {
+        $array_item['EmbeddedContent'] = array();
+        $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
+        $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+      }
       
       $tempobject = wallytoolbox_flow_to_array_new_photoobject();
       $tempobject['ObjectID'] = $img_url;
@@ -591,9 +595,11 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
  */
 function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   static $chan_img_num = 100;
-  $array_item['EmbeddedContent'] = array();
-  $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
-  $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+  if (!isset($array_item['EmbeddedContent'])) {
+    $array_item['EmbeddedContent'] = array();
+    $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
+    $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+  }
   $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
