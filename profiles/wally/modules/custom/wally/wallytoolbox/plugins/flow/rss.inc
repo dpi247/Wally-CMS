@@ -207,6 +207,11 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
         $file_uri = $object['FileURI']['value'];
         $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
       }
+      
+      if (isset($object['Thumbnail'])) {
+        $file_uri = $object['Thumbnail']['URI'];
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+      }
     }
   }
 
@@ -499,7 +504,7 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
       $array_item['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
     }
   }
-  $media_thumbnails = $media_content->getElementsByTagNameNS($media_namespace, 'thumbnail');
+  $media_thumbnails = $item->getElementsByTagNameNS($media_namespace, 'thumbnail');
   if ($media_thumbnails->item(0)) {
     $media_thumbnail = $media_thumbnails->item(0);
     $tempobject['Thumbnail']['URI'] = $media_thumbnail->getAttribute('url');
@@ -523,6 +528,7 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   if (in_array(strtoupper($media_rating), $acceptable_rating)) {
     $tempobject['Rating']['value'] = strtoupper($media_rating);
   }
+  dsm($tempobject);
 }
 
 /**
