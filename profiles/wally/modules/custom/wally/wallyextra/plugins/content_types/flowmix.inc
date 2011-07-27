@@ -469,7 +469,7 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 }
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
-  dsm('cocou', 'summary');
+  dsm($form_state['conf'], 'summary');
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
