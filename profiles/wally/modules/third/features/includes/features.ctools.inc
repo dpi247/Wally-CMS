@@ -1,5 +1,4 @@
 <?php
-// $Id: features.ctools.inc,v 1.1.2.28 2010/08/19 21:55:48 yhahn Exp $
 
 /**
  * This is a wild hack, but effective.
@@ -58,6 +57,7 @@ function ctools_features_export($data, &$export, $module_name = '') {
       $export['features']['ctools'][$identifier] = $identifier;
     }
   }
+
   return array();
 }
 
@@ -104,11 +104,9 @@ function ctools_component_features_api($module_name) {
  */
 function ctools_component_features_export_options($component) {
   $options = array();
-  
+
   ctools_include('export');
-  
   $schema = ctools_export_get_schema($component);
-  
   if ($schema && $schema['export']['bulk export']) {
     if (!empty($schema['export']['list callback']) && function_exists($schema['export']['list callback'])) {
       $options = $schema['export']['list callback']();
@@ -126,9 +124,7 @@ function ctools_component_features_export_options($component) {
  */
 function ctools_component_features_export($component, $data, &$export, $module_name = '') {
   // Add the actual implementing module as a dependency
-  
   $info = _ctools_features_get_info();
-  
   if ($module_name !== $info[$component]['module']) {
     $export['dependencies'][$info[$component]['module']] = $info[$component]['module'];
   }
@@ -161,6 +157,7 @@ function ctools_component_features_export($component, $data, &$export, $module_n
 function ctools_component_features_export_render($component, $module, $data) {
   ctools_include('export');
   $schema = ctools_export_get_schema($component);
+
   if (function_exists($schema['export']['to hook code callback'])) {
     $export = $schema['export']['to hook code callback']($data, $module);
     $code = explode("{\n", $export);
@@ -170,13 +167,12 @@ function ctools_component_features_export_render($component, $module, $data) {
     $code = implode('}', $code);
   }
   else {
-    $code = '  $export = array();'."\n";
+    $code = '  $export = array();'."\n\n";
     foreach ($data as $object_name) {
       if ($object = _ctools_features_export_crud_load($component, $object_name)) {
         $identifier = $schema['export']['identifier'];
         $code .= _ctools_features_export_crud_export($component, $object, '  ');
-        $code .= "\n";
-        $code .= "  \$export[" . ctools_var_export($object_name) . "] = \${$identifier};\n";
+        $code .= "  \$export[" . ctools_var_export($object_name) . "] = \${$identifier};\n\n";
       }
     }
     $code .= '  return $export;';
@@ -205,8 +201,6 @@ function _ctools_features_get_info($identifier = NULL, $reset = FALSE) {
     $components = array();
     $modules = features_get_info();
     ctools_include('export');
-    
-    
     foreach (ctools_export_get_schemas_by_module() as $module => $schemas) {
       foreach ($schemas as $table => $schema) {
         if ($schema['export']['bulk export']) {
@@ -226,7 +220,7 @@ function _ctools_features_get_info($identifier = NULL, $reset = FALSE) {
       }
     }
   }
-   
+
   // Return information specific to a particular component.
   if (isset($identifier)) {
     // Identified by the table name.
