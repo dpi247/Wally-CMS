@@ -528,7 +528,6 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   if (in_array(strtoupper($media_rating), $acceptable_rating)) {
     $tempobject['Rating']['value'] = strtoupper($media_rating);
   }
-  dsm($tempobject);
 }
 
 /**
