@@ -92,6 +92,8 @@ function template_preprocess_content_field_overview_form(&$vars) {
         $element['label']['#attributes']['class'] = 'content-label-textfield';
         break;
     }
+    
+    $rows[] = $row;
     array_shift($order);
   }
   $vars['rows'] = $rows;
