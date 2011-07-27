@@ -7,7 +7,7 @@
 $plugin = array(
   'title' => t('RSS - Default RSS plugin'),
   'description' => t('A common RSS 2.0 and RSS Media transformer.'),
-  'types' => array('RSS 2.0', 'RSS Media'),
+  'types' => array('RSS 1.0', 'RSS 2.0', 'RSS Media'),
   'defaults' => wallytoolbox_rss_flow_settings_default(),
 );
 
@@ -76,7 +76,7 @@ function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array();
-  
+
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
@@ -95,7 +95,9 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
       if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
         $feed_infos['last_build'] = $channel_last_build;
         
-        $feeds_md5 = isset($feed_infos['feeds_md5']) ? unserialize($feed_infos['feeds_md5']) : array();
+        while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
+          $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+        $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
         $new_feeds_md5 = array();
         $temp_struct_array = array();
         
@@ -326,7 +328,11 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
   $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
   $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
-  $tempobject['FileURI']['value'] = $enclosure->item(0)->getAttribute('url');
+  if (empty($tempobject['ExternalReference']['value']))
+    $tempobject['ExternalReference']['value'] = $tempobject['Title']['value'];
+  $img_url = $enclosure->item(0)->getAttribute('url');
+  $img_url = urldecode(html_entity_decode($img_url));
+  $tempobject['FileURI']['value'] = $img_url;
   $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
@@ -539,7 +545,7 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
     $src_delimiter = substr($src_substr, 4, 1);
     $src_substr = substr($src_substr, 5);
     $img_url = strstr($src_substr, $src_delimiter, TRUE);
-    $img_url = html_entity_decode($img_url);
+    $img_url = urldecode(html_entity_decode($img_url));
     
     $alt_substr = strstr($substr, 'alt=');
     if ($alt_substr) {
@@ -596,7 +602,9 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
   $chan_img_num++;
   $tempobject['ExternalReference']['value'] = $channel_img->getAttribute('url');
-  $tempobject['FileURI']['value'] = $channel_img->getAttribute('url');
+  $img_url = $channel_img->getAttribute('url');
+  $img_url = urldecode(html_entity_decode($img_url));
+  $tempobject['FileURI']['value'] = $img_url;
   $tempobject['FileSize']['value'] = 0;
   $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
   $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
