@@ -328,7 +328,11 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
   $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
   $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
-  $tempobject['FileURI']['value'] = $enclosure->item(0)->getAttribute('url');
+  if (empty($tempobject['ExternalReference']['value']))
+    $tempobject['ExternalReference']['value'] = $tempobject['Title']['value'];
+  $img_url = $enclosure->item(0)->getAttribute('url');
+  $img_url = urldecode(html_entity_decode($img_url));
+  $tempobject['FileURI']['value'] = $img_url;
   $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
@@ -541,7 +545,7 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
     $src_delimiter = substr($src_substr, 4, 1);
     $src_substr = substr($src_substr, 5);
     $img_url = strstr($src_substr, $src_delimiter, TRUE);
-    $img_url = html_entity_decode($img_url);
+    $img_url = urldecode(html_entity_decode($img_url));
     
     $alt_substr = strstr($substr, 'alt=');
     if ($alt_substr) {
@@ -598,7 +602,9 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
   $chan_img_num++;
   $tempobject['ExternalReference']['value'] = $channel_img->getAttribute('url');
-  $tempobject['FileURI']['value'] = $channel_img->getAttribute('url');
+  $img_url = $channel_img->getAttribute('url');
+  $img_url = urldecode(html_entity_decode($img_url));
+  $tempobject['FileURI']['value'] = $img_url;
   $tempobject['FileSize']['value'] = 0;
   $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
   $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
