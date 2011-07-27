@@ -668,6 +668,7 @@ function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NU
 }
 
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
+  dsm($form_state, 'form state');
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
   $save_values = array(
