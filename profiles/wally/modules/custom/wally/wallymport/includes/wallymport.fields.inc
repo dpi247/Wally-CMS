@@ -907,7 +907,7 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE)
  * @return
  *   Nothing
  */
-function wimprt_objecttype_preprocess(&$node,$dom){
+function wimprt_objecttype_preprocess(&$node,$dom,$preview){
   $node->object_id= $dom->getAttributeNode("ObjectID")->value;
   if($dom->hasAttribute("ObjectDescription"))
     $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
@@ -915,6 +915,9 @@ function wimprt_objecttype_preprocess(&$node,$dom){
   $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
   if($dom->hasAttribute("LastUpdateDate"))
     $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
+    
+  if ($preview)
+    $node->rejected = TRUE;
 }
 
 /**
@@ -961,10 +964,10 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_textobject (&$node, $dom_element, &$log){
+function wimprt_process_object_textobject (&$node, $dom_element, &$log, $preview){
   //Map XML Attributes 
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom_element);
+  wimprt_objecttype_preprocess($node,$dom_element,$preview);
   
   wimprt_process_object_default($node,$dom_element,$log);
   
@@ -1067,11 +1070,11 @@ function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_pollobjecttype(&$node,$dom,&$log){
+function wimprt_process_object_pollobjecttype(&$node,$dom,&$log,$preview){
   
   static $proceed_file_path;
   //put common attribute
-  wimprt_objecttype_preprocess($node,$dom);
+  wimprt_objecttype_preprocess($node,$dom,$preview);
 
   wimprt_process_object_default($node,$dom,$log);
    
@@ -1135,7 +1138,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
  * @todo
  *   Check variable name line 575, procced or proceed?
  */
-function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
+function wimprt_process_object_photoobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
   
   $c = array();
@@ -1159,7 +1162,7 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log){
   $value=$dom->nodeValue;
   
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom);
+  wimprt_objecttype_preprocess($node,$dom,$preview);
 
   //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
     $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
@@ -1233,12 +1236,12 @@ function wimprt_create_or_load_object_audioobjecttype($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_audioobjecttype(&$node,$dom,&$log){
+function wimprt_process_object_audioobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
   $value=$dom->nodeValue;
   
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom);
+  wimprt_objecttype_preprocess($node,$dom,$preview);
 
   
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
@@ -1300,12 +1303,12 @@ function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_videoobjecttype(&$node,$dom,&$log){
+function wimprt_process_object_videoobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
   $value=$dom->nodeValue;
   
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom);
+  wimprt_objecttype_preprocess($node,$dom,$preview);
 
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
   $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emvideo');  
@@ -1368,12 +1371,12 @@ function wimprt_create_or_load_object_digitalobjecttype($dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_object_digitalobjecttype(&$node,$dom,&$log){
+function wimprt_process_object_digitalobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
   $value=$dom->nodeValue;
   
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom);
+  wimprt_objecttype_preprocess($node,$dom,$preview);
 
 
   $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
@@ -1429,7 +1432,9 @@ function wimprt_set_field_thumbnail(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_process_type_link(&$node,$dom,&$log){
+function wimprt_process_type_link(&$node,$dom,&$log,$preview){
+  wimprt_typetype_preprocess(&$node,$dom,$preview);
+  
   //$node->type='wally_linktype';
   wimprt_process_type_default($node,$dom,$log);
 
@@ -1807,11 +1812,13 @@ function wimprt_create_or_load_type_location($dom,$log){
  * @return
  *   Nothing
  */
-function wimprt_process_type_location(&$node,$dom,&$log){
+function wimprt_process_type_location(&$node,$dom,&$log,$preview){
+  wimprt_typetype_preprocess(&$node,$dom,$preview);
 
 	if (!($vid=variable_get('wallymport_location',null))) {
 		// TO DO FATAL :: No location taxonomy vocabulary
 		drupal_set_message('Location Taxonomy Vocabulary  not Found. See admin.','error');
+		$node->rejected = TRUE;
 		return null;
 	}
 
@@ -2148,6 +2155,24 @@ function wimprt_set_field_entities(&$node,$dom,&$log){
 }
 
 /**
+ * Process common attributes of types from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_typetype_preprocess(&$node,$dom,$preview){
+  if ($preview)
+    $node->rejected = TRUE;
+}
+
+/**
  * Create or load a entity type depending of EntityID.
  * 
  * If no node match the EntityID, a new node is created.
@@ -2197,11 +2222,13 @@ function wimprt_create_or_load_type_entity($dom,$log){
  * @return
  *   Nothing
  */
-function wimprt_process_type_entity(&$node,$dom,&$log){
+function wimprt_process_type_entity(&$node,$dom,&$log,$preview){
+  wimprt_typetype_preprocess(&$node,$dom,$preview);
 
 	if (!($vid=variable_get('wallymport_entity',null))) {
 		// TO DO FATAL :: No location taxonomy vocabulary
-		drupal_set_message('Entity Taxonomy Vocabulary  not Found. See admin.','error');
+		drupal_set_message('Entity Taxonomy Vocabulary not Found. See admin.','error');
+		$node->rejected = TRUE;
 		return null;
 	}
 
@@ -2366,11 +2393,13 @@ function wimprt_create_or_load_type_person($dom,$log){
  * @return
  *   Nothing
  */
-function wimprt_process_type_person(&$node,$dom,&$log){
+function wimprt_process_type_person(&$node,$dom,&$log,$preview){
+  wimprt_typetype_preprocess(&$node,$dom,$preview);
 
 	if (!($vid=variable_get('wallymport_person',null))) {
 		// TO DO FATAL :: No location taxonomy vocabulary
 		drupal_set_message('Person Taxonomy Vocabulary  not Found. See admin.','error');
+		$node->rejected = TRUE;
 		return null;
 	}
 	

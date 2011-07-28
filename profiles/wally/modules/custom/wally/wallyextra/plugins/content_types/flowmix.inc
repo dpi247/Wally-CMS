@@ -668,6 +668,7 @@ function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NU
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
+  
   if ((isset($form_state['input']['save']) && !isset($form_state['input']['title']))) {
     // This means no values were posted so we must be in the case where we use a reusable
     $form_state['conf']['flow_obj'] = $form_state['settings'];

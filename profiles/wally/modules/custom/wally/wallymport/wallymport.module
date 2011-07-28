@@ -510,7 +510,7 @@ function wallymport_page_process_file($path_to_file, $preview = FALSE){
   $proceed_file_path=$path_to_file;
     
   if(!$path_to_file)
-    return 'You must to provide a path to the XML';
+    return t('You must provide a path to the XML');
 
   $xsd_file= variable_get('wallymport_definition', 'definitions/yaxim.input.xsd');
 //  $xml_file = variable_get('wallymport_source','')."/".$path_to_file;
@@ -521,7 +521,7 @@ function wallymport_page_process_file($path_to_file, $preview = FALSE){
   $dom = new DomDocument();
   $dom->LoadXML($contents);
   if (!$dom->schemaValidate($xsd_file))
-    return 'The XML file ('.$xml_file.') isn\'t validate by the XSD file';
+    return t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
 
   $log = array();
   $return = wimprt_process_packages($dom, $log, $preview);
@@ -647,7 +647,7 @@ function wimprt_process_object($dom, &$log, $callback = NULL, $preview = FALSE){
   }
 
   module_invoke_all('wimprt_process_object',$node,$dom,$log,'after_process');
-  if(!empty($node) && !$preview)
+  if(!empty($node) && !$node->rejected)
     node_save($node);
  
   $log['node']=array('current'=>$node,'next'=>$log['node']);
@@ -679,11 +679,11 @@ function wimprt_process_type($dom, &$log, $callback=NULL,$preview = FALSE){
   $callback=strtolower($callback);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
   if(function_exists("wimprt_process_type_$callback")){
-    call_user_func("wimprt_process_type_$callback",&$node,$dom,&$log);
+    call_user_func("wimprt_process_type_$callback",&$node,$dom,&$log,$preview);
   }
 
   module_invoke_all('wimprt_process_type',$node,$dom,$log,'after_process');
-  if(!empty($node) && !$preview)
+  if(!empty($node) && !$node->rejected)
     node_save($node);
 
   $log['node']=array('current'=>$node,'next'=>$log['node']);
