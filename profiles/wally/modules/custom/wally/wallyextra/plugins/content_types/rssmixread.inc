@@ -77,6 +77,18 @@ function wallyextra_rssmixread_content_type_edit_form(&$form, &$form_state) {
     '#required'         => FALSE,
   );
   
+  $form['embed_img'] = array(
+    '#title'            => t('Use the first image embeded in the text if no media image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $settings['embed_img'],
+  );
+  
+  $form['channel_img'] = array(
+    '#title'            => t('Use the default channel image if no media image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $settings['channel_img'],
+  );
+  
   $form['get_distant_img'] = array (
     '#type'             => 'checkbox',
     '#default_value'    => $settings['get_distant_img'],
@@ -204,6 +216,8 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
   $form_state['conf']['maxitem_byfeed'] = $form_state['values']['maxitem_byfeed'];
   $form_state['conf']['mix_schema'] = $form_state['values']['mix_schema'];
   $form_state['conf']['own_schema'] = $form_state['values']['own_schema'];
+  $form_state['conf']['embed_img'] = $form_state['values']['embed_img'];
+  $form_state['conf']['channel_img'] = $form_state['values']['channel_img'];
   $form_state['conf']['get_distant_img'] = $form_state['values']['get_distant_img'];
   $form_state['conf']['override_theme'] = $form_state['values']['override_theme'];
   $form_state['conf']['override_theme_text'] = $form_state['values']['override_theme_text'];
@@ -482,6 +496,8 @@ function _wallyextra_rssmixread_defaultformvalues() {
   $default_form_values['maxitem_byfeed'] = 10;
   $default_form_values['own_schema'] = '';
   $default_form_values['mix_schema'] = 'alt';
+  $default_form_values['embed_img'] = 0;
+  $default_form_values['channel_img'] = 0;
   $default_form_values['get_distant_img'] = 0;
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
@@ -507,6 +523,9 @@ function _wallyextra_rssmixread_defaultformvalues() {
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
   $feed_xml = drupal_http_request($rss_uri);
+  $settings['conf']['embed_img'] = $settings['embed_img'];
+  $settings['conf']['channel_img'] = $settings['channel_img'];
+  $settings['conf']['get_distant_img'] = $settings['get_distant_img'];
 
   if ($feed_xml && $feed_xml->data) {
     $dom = new DomDocument();
@@ -519,7 +538,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
         require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/rss.inc';
         
         foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-          $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace);
+          $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $settings);
           
           $feed_array[] = $temp_feed_array;
           if (sizeof($feed_array) >= $maxitem) break;
@@ -644,7 +663,7 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
     if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5']))
       $modif = TRUE;
   }
-  
+
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);

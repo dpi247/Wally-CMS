@@ -324,7 +324,18 @@ function _pub_getmetriwebcontent() {
  */
 function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position) {
   $expl_website = explode('_', $website);
-  $req_url = '?scriptType='.$script_type.'&site='.rawurlencode($expl_website[0]).'&pageType='.rawurlencode($page_type).'&context='.rawurlencode($context).'&position='.rawurlencode($position);
+  $domain = $_SERVER['HTTP_HOST'];
+  $expl_domain = explode('.', $domain);
+  $subdomain = $expl_domain[0];
+  $params = array(
+    'site='.rawurlencode($expl_website[0]),
+    'pageType='.rawurlencode($page_type),
+    'context='.rawurlencode($context),
+    'position='.rawurlencode($position),
+    'domain='.$domain,
+    'subdomain='.$subdomain,
+  );
+  $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
   $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
 }

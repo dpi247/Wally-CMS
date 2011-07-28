@@ -203,7 +203,6 @@ function wallyextra_flowmix_refresh_block($settings) {
 
 function _wallyextra_flowmix_content_type_save_reusable($form_state) {
   cache_clear_all($form_state['values']['caid']);
-  
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = $form_state['settings']->content;
     $form_state['conf']['flow_obj'] = (object)array_merge((array)$content->settings, (array)$form_state['conf']['flow_obj']);
