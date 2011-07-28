@@ -668,25 +668,31 @@ function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NU
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
-  $save_values = array(
-    'title',
-    'maxitem_global',
-    'mix_schema',
-    'own_schema',
-    'override_theme',
-    'override_theme_text',
-    'caid',
-    'reusable',
-    'admin_title',
-    'name',
-    'category',
-    'admin_description',
-  );
-  foreach($save_values as $value) {
-    // set the values in the cache object -- it gets passed back to the next step
-    // because of all that work we did in the form_info array
-    if (isset($submitted[$value]))
-      $form_state['conf']['flow_obj']->$value = $submitted[$value];
+  
+  if ((isset($form_state['input']['save']) && !isset($form_state['input']['title']))) {
+    // This means no values were posted so we must be in the case where we use a reusable
+    $form_state['conf']['flow_obj'] = $form_state['settings'];
+  } else {
+    $save_values = array(
+      'title',
+      'maxitem_global',
+      'mix_schema',
+      'own_schema',
+      'override_theme',
+      'override_theme_text',
+      'caid',
+      'reusable',
+      'admin_title',
+      'name',
+      'category',
+      'admin_description',
+    );
+    foreach($save_values as $value) {
+      // set the values in the cache object -- it gets passed back to the next step
+      // because of all that work we did in the form_info array
+      if (isset($submitted[$value]))
+        $form_state['conf']['flow_obj']->$value = $submitted[$value];
+    }
   }
 
   if (strpos($form_state['clicked_button']['#name'], 'delete') !== false) {
