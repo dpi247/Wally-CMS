@@ -1,0 +1,118 @@
+<?php
+/**
+ * Implementation of the hook module _install();
+ */
+function wallyflowpublish_install() {
+  _wallyflowpublish_install_presets();
+  if (!db_table_exists('wallyflowpublish_dests')) {
+    drupal_install_schema('wallyflowpublish');
+  }
+  
+  if (db_table_exists('rsspublish')) {
+    $old_feeds_db = db_query('SELECT * FROM {rsspublish}');
+    while ($new_feed = db_fetch_object($old_feeds_db)) {
+      $new_feed->flow_key = $new_feed->rss_key;
+      drupal_write_record('wallyflowpublish_dests', $new_feed);
+    }
+    
+    require_once 'includes/module.inc';
+    require_once 'includes/install.inc';
+    module_disable(array('wallyrsspublish'));
+    drupal_uninstall_module('wallyrsspublish');
+  }
+}
+
+/**
+ * Implementation of the hook module _uninstall();
+ */
+function wallyflowpublish_uninstall() {
+  _wallyflowpublish_uninstall_presets();
+  drupal_uninstall_schema('wallyflowpublish');
+  wallytoolbox_variable_del_like('wallyflowpublish_');
+}
+
+function _wallyflowpublish_install_presets() {
+  if (!imagecache_preset_by_name('flowpublish_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'flowpublish_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => '640', 'height' => '400', 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  if (!imagecache_preset_by_name('flowpublish_thumb_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'flowpublish_thumb_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => '300', 'height' => '150', 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+}
+
+function _wallyflowpublish_uninstall_presets() {
+  // Deleting ImageCache presets
+  // @see wallyct_photoobject_slider
+  if (!imagecache_preset_by_name('flowpublish_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('flowpublish_preset'));
+  }
+  if (!imagecache_preset_by_name('flowpublish_thumb_preset')) {
+    imagecache_preset_delete(imagecache_preset_by_name('flowpublish_preset'));
+  }
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallyflowpublish_schema() {
+  $schema['wallyflowpublish_dests'] = array(
+    'description' => 'The table containing the feeds informations for the wallyflowpublish module.',
+    'fields' => array(
+      'flow_key' => array(
+        'description' => 'The primary identifier.', 
+        'type' => 'serial',
+        'unsigned' => TRUE, 
+        'not null' => TRUE,
+      ),
+      'tid' => array(
+        'description' => 'tid.', 
+        'type' => 'int',
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'Title.', 
+        'type' => 'varchar',
+        'length' => 512, 
+        'not null' => TRUE, 
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => 'Description.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'default' => '',
+      ),
+      'imagefile' => array(
+        'description' => 'Imagefile.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'default' => '',
+      ),
+      'copyright' => array(
+        'description' => 'Copyright.', 
+        'type' => 'varchar', 
+        'length' => 512, 
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('flow_key'),
+  );
+
+  return $schema;
+}

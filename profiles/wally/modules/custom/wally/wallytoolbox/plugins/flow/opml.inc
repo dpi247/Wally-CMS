@@ -28,7 +28,6 @@ function wallytoolbox_opml_flow_settings_form(&$form, &$form_state) {
     '#type'             => 'textfield',
     '#title'            => t('Max item to fetch for this feed'),
     '#default_value'    => $conf['maxitem'],
-    '#required'         => TRUE,
   );
   
   $form['channel_img'] = array(

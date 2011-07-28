@@ -175,42 +175,47 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
   $return = array();
   $return['date'] = date('Y-m-d H:i:s');
   foreach ($feeds_infos as $feed_infos) {
-    ctools_include('plugins');
-    if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
-      while(is_string($feed_infos['conf']))
-        $feed_infos['conf'] = unserialize($feed_infos['conf']);
-      while(is_string($feed_infos['feeds_md5']))
-        $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
-      $struct_array = $function($feed_infos);
-
-      if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
-        $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
-
-        if ($valid_dom) {
-          $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'.tmp';
-          $valid_dom->save($tempFile);
-          $temp_return = wallymport_page_process_file($tempFile);
-          file_delete($tempFile);
-
-          if ($temp_return && !is_string($temp_return)) {
-            $object = $feed_infos;
-            drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
-          }
-          
-          $text_to_return = !empty($temp_return) ? 'Import done' : 'Import error';
-          $text_to_return .= ' for file : '.$tempFile;
-          $return[] = $text_to_return;
-        } else {
-          $return[] = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
-        }
-      } else {
-        $return[] = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' : '.$struct_array['Packages']['__log']['msg'];
-      }
-    } else {
-      $return[] = t('No plugin for the flow').' : '.$feed_infos['name'];
-    }
+    $return[] = _wallyflowtonode_callonefeed($feed_infos);
   }
   
+  return $return;
+}
+
+function _wallyflowtonode_callonefeed(&$feed_infos) {
+  ctools_include('plugins');
+  if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
+    while(is_string($feed_infos['conf']))
+      $feed_infos['conf'] = unserialize($feed_infos['conf']);
+    while(is_string($feed_infos['feeds_md5']))
+      $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+    $struct_array = $function($feed_infos);
+
+    if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
+      $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
+
+      if ($valid_dom) {
+        $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'_'.time().'.tmp';
+        $valid_dom->save($tempFile);
+        $temp_return = wallymport_page_process_file($tempFile);
+        file_delete($tempFile);
+
+        if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {
+          $object = $feed_infos;
+          drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
+        }
+
+        $text_to_return = !empty($temp_return) ? 'Import done' : 'Import error';
+        $text_to_return .= ' for file : '.$tempFile;
+        $return = $text_to_return;
+      } else {
+        $return = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
+      }
+    } else {
+      $return = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' : '.$struct_array['Packages']['__log']['msg'];
+    }
+  } else {
+    $return = t('No plugin for the flow').' : '.$feed_infos['name'];
+  }
   return $return;
 }
 
