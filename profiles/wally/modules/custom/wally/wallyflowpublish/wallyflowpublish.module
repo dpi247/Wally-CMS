@@ -210,4 +210,6 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
   $vars['title'] = check_plain($item->title);
   $vars['link'] = check_url($item->link);
   $vars['item_elements'] = empty($item->elements) ? '' : format_xml_elements($item->elements);
+  
+  $vars['node'] = $my_node;
 }
