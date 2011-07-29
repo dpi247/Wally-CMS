@@ -13,7 +13,7 @@ function wallyflowpublish_settings_form(){
     $datas[$db_result['tid']] = $db_result;
   
   $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
-dsm($datas);
+
   foreach ($taxos as $taxo){
     $tid = $taxo->tid;
     $data = $datas[$tid];
