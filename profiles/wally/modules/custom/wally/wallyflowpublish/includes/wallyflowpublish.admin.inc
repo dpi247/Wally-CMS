@@ -4,6 +4,8 @@
  * Settings form
  */
 function wallyflowpublish_settings_form(){
+  global $base_url;
+  
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
   $form['#tree'] = TRUE;
@@ -24,12 +26,25 @@ function wallyflowpublish_settings_form(){
     $name = empty($data['title']) ? $dest : $data['title'];
     $descr = empty($data['description']) ? $taxo->description : $data['description'];
     $copy = empty($data['copyright']) ? t('Copyright') : $data['copyright'];
-    
+
+    $view = views_get_view('default_destination_view_feed');
+    $display = $view->display['feed_1'];
+    $view_path = $display->display_options['path'];
+    $expl_path = explode('%', $view_path);
+    $link = '/'.$expl_path[0].$name;
+    $link = (isset($expl_path[1]) && $expl_path[1] != '') ? $link.'/'.$expl_path[1] : $link;
+    $feed_link ='<a href="'.$link.'">'.t('View !dest feed', array('!dest' => $dest)).' ('.$base_url.$link.')</a>';
+
     $form[$tid] = array(
 	    '#type' => 'fieldset',
 	    '#title' => t('!dest Flow Settings', array('!dest' => $dest)),
 	    '#collapsible' => TRUE,
 	    '#collapsed' => TRUE,
+    );
+    
+    $form[$tid]['feed_link'] = array(
+      '#type' => 'markup',
+      '#value' => $feed_link,
     );
     
     $form[$tid]['tid'] = array(
