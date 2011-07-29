@@ -1886,7 +1886,8 @@ class views_db_object {
     $this->set_display($display_id);
 var_dump($display_id);
 print 'coucou';
-var_dump($this);
+print_r($this);
+exit;
     $fields = $this->display[$display_id]->handler->get_option($types[$type]['plural']);
 
     if (empty($id)) {
