@@ -1,0 +1,12 @@
+; $Id: taxonomy_vocab_relate.info,v 1.1 2009/01/19 06:31:20 tomfriedhof Exp $
+name = Taxonomy Vocabulary Relate
+description = "Relate two vocabularies together"
+
+; Required core version (Drupal 6+; no effect in Drupal 5)
+core = 6.x
+; Information added by drupal.org packaging script on 2009-01-19
+version = "6.x-1.0"
+core = "6.x"
+project = "taxonomy_vocab_relate"
+datestamp = "1232349354"
+
