@@ -101,7 +101,7 @@ function wally_profile_modules() {
   // Wally custom & specific modules
   $custom = array(
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
-    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyrsstonode',
+    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyflowtonode',
     'wallyedit', 'wallyfeaturessynchronizer',
   );
 
