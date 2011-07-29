@@ -27,7 +27,7 @@ function wallyflowpublish_theme() {
   );
 
   return array(
-    'views_view_row_rss' => $base + array(
+    /*'views_view_row_rss' => $base + array(
       'arguments' => array('view' => NULL,'options' => NULL,'row'=>NULL),
       'template' => 'views-view-row-rss',
       'original hook' => 'views_view_row_rss',
@@ -36,7 +36,7 @@ function wallyflowpublish_theme() {
       'arguments' => array('view' => NULL,'options' => NULL,'rows'=>NULL),
       'template' => 'views-view-rss',
       'original hook' => 'views_view_rss',
-    ),
+    ),*/
     'pane_wallyflowpublish_wallyflowpublish' => $base + array(
       'arguments' => array( 'content'=> NULL, 'pane' =>NULL, 'display' =>NULL),
       'template' => 'pane-wallyflowpublish-wallyflowpublish',
@@ -74,17 +74,22 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
  */
 function wallyflowpublish_views_pre_execute($view) {
   if ($view->name == 'default_destination_view_feed' && $view->current_display == 'feed_1') {
-    $mediafed = variable_get('wallyflowpublish_mediafed', array('activate' => FALSE));
+    $name = str_replace('-', ' ', $view->args[0]);
+    $tax = taxonomy_get_term_by_name($name);
+    $tid = $tax[0]->tid;
+    $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
+    while (is_string($data['mediafed']))
+      $data['mediafed'] = unserialize($data['mediafed']);
+    $mediafed = $data['mediafed'];
+
     if (!isset($_GET['format']) && $mediafed['activate']) {
       $user_agent = $_SERVER['HTTP_USER_AGENT'];
       $delimiters = array('@', '+', '#');
       foreach ($delimiters as $delimiter) {
         if (!strstr($mediafed['user_agent'], $delimiter)) {
           $regex_agent = $delimiter.$mediafed['user_agent'].$delimiter;
-          if (preg_match($regex_agent, $user_agent)) {
-            $redirect_url = str_replace('%name', $view->args[0], $mediafed['redirect_url']);
-            drupal_goto($redirect_url);
-          }
+          if (preg_match($regex_agent, $user_agent))
+            drupal_goto($mediafed['redirect_url']);
           break;
         }
       }
@@ -108,9 +113,9 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
 
-  $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid= %d',$tid));
+  $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d',$tid));
   $imagefile = $data['imagefile'];
-  $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath= "%s"',$imagefile));
+  $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath = "%s"',$imagefile));
 
   $variables['head_title'] = array(variable_get('site_name', 'Drupal'));
   $variables['head_title'] = implode(' | ', $variables['head_title']);
