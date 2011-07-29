@@ -73,46 +73,70 @@ function wallyflowpublish_schema() {
     'description' => 'The table containing the feeds informations for the wallyflowpublish module.',
     'fields' => array(
       'flow_key' => array(
-        'description' => 'The primary identifier.', 
+        'description' => 'The primary identifier', 
         'type' => 'serial',
         'unsigned' => TRUE, 
         'not null' => TRUE,
       ),
       'tid' => array(
-        'description' => 'tid.', 
+        'description' => 'tid', 
         'type' => 'int',
         'length' => 512, 
         'not null' => TRUE, 
         'default' => 0,
       ),
       'title' => array(
-        'description' => 'Title.', 
+        'description' => 'Title', 
         'type' => 'varchar',
         'length' => 512, 
         'not null' => TRUE, 
         'default' => '',
       ),
       'description' => array(
-        'description' => 'Description.', 
+        'description' => 'Description', 
         'type' => 'varchar', 
         'length' => 512, 
         'default' => '',
       ),
       'imagefile' => array(
-        'description' => 'Imagefile.', 
+        'description' => 'Imagefile', 
         'type' => 'varchar', 
         'length' => 512, 
         'default' => '',
       ),
       'copyright' => array(
-        'description' => 'Copyright.', 
+        'description' => 'Copyright', 
         'type' => 'varchar', 
         'length' => 512, 
         'default' => '',
+      ),
+      'mediafed' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for MediaFed config',
+        'serialize' => TRUE,
+        'object default' => array(),
       ),
     ),
     'primary key' => array('flow_key'),
   );
 
   return $schema;
+}
+
+/**
+ * Implementation of hook_update_N()
+ * Add MediaFed config.
+ */
+function wallyflowpublish_update_6001() {
+  $ret = array();
+  $spec = array(
+    'type' => 'text',
+    'size' => 'big',
+    'description' => 'Serialized settings for MediaFed config',
+    'serialize' => TRUE,
+    'object default' => array(),
+  );
+  db_add_field($ret, 'wallyflowpublish_dests', 'mediafed', $spec);
+  return $ret;
 }
