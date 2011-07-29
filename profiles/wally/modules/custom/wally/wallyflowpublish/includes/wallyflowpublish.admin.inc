@@ -4,51 +4,58 @@
  * Settings form
  */
 function wallyflowpublish_settings_form(){
-  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
-
   $form = array();
   $form['#attributes'] = array('enctype' => "multipart/form-data");
+  $form['#tree'] = TRUE;
+  
+  $db_datas = db_query('SELECT * FROM {wallyflowpublish_dests}');
+  while ($db_result = db_fetch_array($db_datas))
+    $datas[$db_result['tid']] = $db_result;
+  
+  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
+dsm($datas);
   foreach ($taxos as $taxo){
     $tid = $taxo->tid;
-    $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
+    $data = $datas[$tid];
+    while(is_string($data['mediafed']))
+      $data['mediafed'] = unserialize($data['mediafed']);
     
     $dest = str_replace(' ', '-', $taxo->name);
     $name = empty($data['title']) ? $dest : $data['title'];
     $descr = empty($data['description']) ? $taxo->description : $data['description'];
     $copy = empty($data['copyright']) ? t('Copyright') : $data['copyright'];
     
-    $form[$dest.'_settings'] = array(
+    $form[$tid] = array(
 	    '#type' => 'fieldset',
-	    '#title' => t($dest.' Flow Settings'),
-	    '#description' => t('General parameters used to display a '.$dest.' flow.'),
+	    '#title' => t('!dest Flow Settings', array('!dest' => $dest)),
 	    '#collapsible' => TRUE,
 	    '#collapsed' => TRUE,
     );
     
-    $form[$dest.'_settings']['wallyflowpublish_'.$dest.'_tid'] = array(
+    $form[$tid]['tid'] = array(
       '#type' => 'hidden',
-      '#title' => t($dest.' TID'),
+      '#title' => t('!dest TID', array('!dest' => $dest)),
       '#default_value' => $tid, 
       '#description' => t('Flow tid.'),
       '#required'=>TRUE,
     );
     
-    $form[$dest.'_settings']['wallyflowpublish_'.$dest.'_title'] = array(
+    $form[$tid]['title'] = array(
       '#type' => 'textfield',
-      '#title' => t($dest.' Title'),
+      '#title' => t('!dest Title', array('!dest' => $dest)),
       '#default_value' => $name, 
       '#description' => t('Flow title.'),
       '#required'=>TRUE,
     );
     
-    $form[$dest.'_settings']['wallyflowpublish_'.$dest.'_description'] = array(
+    $form[$tid]['description'] = array(
       '#type' => 'textfield',
-      '#title' => t($dest.' Description'),
+      '#title' => t('!dest Description', array('!dest' => $dest)),
       '#default_value' => $descr,
       '#description' => t('Flow Description.'),
     );
     
-    $form[$dest.'_settings']['wallyflowpublish_'.$dest.'_image'] = array(
+    $form[$tid][$tid.'_imagefile'] = array(
       '#type' => 'file',
       '#title' =>t('Attach an image'),
       '#description' => t('Flow image'),
@@ -56,49 +63,56 @@ function wallyflowpublish_settings_form(){
       '#suffix' => $data['imagefile'] ? '<img src="'.imagecache_create_url('flowpublish_preset', $data['imagefile']).'" height = "75px" />' : '',
     );
     
-    $form[$dest.'_settings']['wallyflowpublish_'.$dest.'_copyright'] = array(
+    $form[$tid]['copyright'] = array(
       '#type' => 'textfield',
       '#title' => t('Copyright'),
     	'#default_value' => $copy,
     );
+    
+    ctools_include('dependent');
+    ctools_add_js('dependent');
+    $mediafed_defaults = $data['mediafed'];
+    
+    $form[$tid]['mediafed'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('MediaFed'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    
+    $form[$tid]['mediafed']['activate'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Activate URL redirection for MediaFed'),
+      '#default_value' => $mediafed_defaults['activate'],
+    );
+    
+    $form[$tid]['mediafed']['redirect_url'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Redirection URL'),
+      '#description' => t('The MediaFed URL where the users will be redirected.'),
+      '#default_value' => $mediafed_defaults['redirect_url'],
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-activate' => array(1)),
+    );
+    
+    $form[$tid]['mediafed']['user_agent'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Bypass User Agent'),
+      '#description' => t('The user agent used by MediaFed, this user agent will bypass the redirection. Regex allowed (without delimiters).'),
+      '#default_value' => $mediafed_defaults['user_agent'],
+      '#process' => array('ctools_dependent_process'),
+      '#dependency' => array('edit-activate' => array(1)),
+    );
+    
+    if (isset($data['flow_key']) && !empty($data['flow_key'])) {
+      $form[$tid]['flow_key'] = array(
+        '#type' => 'hidden',
+        '#value' => $data['flow_key'],
+      );
+    }
   }
-
-  ctools_include('dependent');
-  ctools_add_js('dependent');
-  $mediafed_defaults = variable_get('wallyflowpublish_mediafed', array());
   
-  $form['mediafed'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('MediaFed'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-  
-  $form['mediafed']['activate'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Activate URL redirection for MediaFed'),
-    '#default_value' => $mediafed_defaults['activate'],
-  );
-  
-  $form['mediafed']['redirect_url'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Redirection URL'),
-    '#description' => t('The MediaFed URL where the users will be redirected. Use <i>%name</i> to replace the taxonomy term name. Example : <i>http://www.urlmediafed.com/%name/rss.xml</i>'),
-    '#default_value' => $mediafed_defaults['redirect_url'],
-    '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('edit-activate' => array(1)),
-  );
-  
-  $form['mediafed']['user_agent'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Bypass User Agent'),
-    '#description' => t('The user agent used by MediaFed, this user agent will bypass the redirection. Regex allowed (without delimiters).'),
-    '#default_value' => $mediafed_defaults['user_agent'],
-    '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('edit-activate' => array(1)),
-  );
-  
-  $form['settings'] = array(
+  $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
   );
@@ -114,12 +128,9 @@ function wallyflowpublish_settings_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
   foreach ($taxos as $taxo){
-    $dest = str_replace(' ', '-', $taxo->name);
-    $object = array();
-    $object['tid'] = $values['wallyflowpublish_'.$dest.'_tid'];
-    $object['title'] = $values['wallyflowpublish_'.$dest.'_title'];
-    $object['description'] = $values['wallyflowpublish_'.$dest.'_description'];
-    $file = file_save_upload('wallyflowpublish_'.$dest.'_image');
+    $tid = $taxo->tid;
+    
+    $file = file_save_upload($tid.'_image');
     $nameim = $file->filename;
     if(!empty($nameim)){
       $folder_path = file_directory_path().'/wallyflowpublish_photos/';
@@ -127,32 +138,16 @@ function wallyflowpublish_settings_form_submit($form, &$form_state) {
         $dest_path = $folder_path.$nameim;
         file_move($file->filepath, $dest_path);
         wallyflowpublish_create_file($dest_path);
-        $object['imagefile'] = $dest_path;
+        $values[$tid]['imagefile'] = $dest_path;
       }
     }
-    $object['copyright'] = $values['wallyflowpublish_'.$dest.'_copyright'];
-    $feed_infos = db_fetch_array(db_query('SELECT `flow_key` FROM {wallyflowpublish_dests} WHERE `tid` = %d', $object['tid']));
 
-    if (empty($feed_infos)) {
-      drupal_write_record('wallyflowpublish_dests', $object);
-    } else {  
-      $object['flow_key'] = $feed_infos['flow_key'];
-      drupal_write_record('wallyflowpublish_dests', $object, array('flow_key'));
+    if (isset($values[$tid]['flow_key'])) {
+      drupal_write_record('wallyflowpublish_dests', $values[$tid], 'flow_key');
+    } else {
+      drupal_write_record('wallyflowpublish_dests', $values[$tid]);
     }
   }
-  
-  if ($values['activate']) {
-    $mediafed = array(
-      'activate' => TRUE,
-      'redirect_url' => $values['redirect_url'],
-      'user_agent' => $values['user_agent'],
-    );
-  } else {
-    $mediafed = array(
-      'activate' => FALSE,
-    );
-  }
-  variable_set('wallyflowpublish_mediafed', $mediafed);
   
   drupal_set_message(t('Configuration saved'));
 }
