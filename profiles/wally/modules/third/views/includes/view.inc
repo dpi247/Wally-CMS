@@ -1884,7 +1884,7 @@ class views_db_object {
   function add_item($display_id, $type, $table, $field, $options = array(), $id = NULL) {
     $types = views_object_types();
     $this->set_display($display_id);
-variable_set('coucou '.$display_id, $this);
+variable_set('coucou', $this);
     $fields = $this->display[$display_id]->handler->get_option($types[$type]['plural']);
 
     if (empty($id)) {
