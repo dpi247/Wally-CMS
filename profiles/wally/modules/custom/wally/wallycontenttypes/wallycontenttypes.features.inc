@@ -13,6 +13,10 @@ function wallycontenttypes_content_taxonomy_mapping() {
       'field_name' => 'field_documenttype',
       'vocabulary' => 'documenttype',
     ),
+    'field_editions-editions' => array(
+      'field_name' => 'field_editions',
+      'vocabulary' => 'editions',
+    ),
     'field_entities-entities' => array(
       'field_name' => 'field_entities',
       'vocabulary' => 'entities',
