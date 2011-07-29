@@ -1,0 +1,83 @@
+<?php
+// $Id: taxonomy_vocab_relate.module,v 1.1 2009/01/19 06:31:20 tomfriedhof Exp $
+
+/**
+ * @file
+ * Relate vocabularies with each other
+ */
+
+function taxonomy_vocab_relate_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == 'taxonomy_form_vocabulary') {
+    $vid = $form['vid']['#value'];
+    $tvr = variable_get('taxonomy_vocab_relate_'. $vid, 0);
+    $form['#submit'][] = 'taxonomy_vocab_relate_submit';
+    
+    $form['settings']['tvr'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Taxonomy Vocabuluary Relate'),
+      '#collapsible' => TRUE,
+      '#collapsed' => ($tvr ? FALSE : TRUE),
+      '#tree' => TRUE,
+    );
+    
+    $form['settings']['tvr']['vocabs'] = array(      
+      '#type' => 'checkboxes',
+      '#title' => t('Relate this vocabulary to another vocabulary'),
+      '#options' => _taxonomy_vocab_relate_vocabs($vid),
+      '#default_value' => ($tvr ? $tvr : array()),
+    );
+  }
+  if ($form_id == 'taxonomy_form_term') {
+    $vid = $form['#vocabulary']['vid'];
+    $related_vid = variable_get('taxonomy_vocab_relate_'. $vid, array());
+    $form['#submit'][] = 'taxonomy_vocab_relate_term_submit';
+
+    foreach ($related_vid as $rvid) {
+      $vocab_name = db_result(db_query("SELECT name FROM {vocabulary} WHERE vid = %d", $rvid));
+      $form['advanced']['relations_'. $rvid] = _taxonomy_term_select(t('Related terms in ') . $vocab_name, 'relations', array_keys(taxonomy_get_related($form['tid']['#value'])), $rvid, NULL, 1, '<'. t('none') .'>', array($edit['tid']));
+      $form['advanced']['relations_'. $rvid]['#weight'] = -14;
+    }
+  }
+}
+
+/**
+ * Return an array of all vocabularies in system
+ */
+function _taxonomy_vocab_relate_vocabs($this_vid) {
+  $options = array();
+  $vocabs = taxonomy_get_vocabularies();
+  foreach ($vocabs as $vid => $vocab) {
+    if ($this_vid == $vid) {
+      continue;
+    }
+    $options[$vid] = $vocab->name;
+  }
+  return $options;
+}
+
+function taxonomy_vocab_relate_submit(&$form, $form_state) {
+  $vid = $form['vid']['#value'];
+  $relations = $form['settings']['tvr']['vocabs']['#value'];
+  
+  if (!empty($relations)) {
+    variable_set('taxonomy_vocab_relate_'. $vid, $relations);
+  }
+  else {
+    variable_del('taxonomy_vocab_relate'. $vid);
+  }
+}
+
+/**
+ * Save the related terms to the term_relation table
+ */
+function taxonomy_vocab_relate_term_submit(&$form, $form_state) {
+  $vid = $form['#vocabulary']['vid'];
+  $related_vid = variable_get('taxonomy_vocab_relate_'. $vid, array());
+  foreach ($related_vid as $rvid) {
+    foreach ($form_state['values']['relations_'. $rvid] as $related_id) {
+      if ($related_id != 0) {
+        db_query('INSERT INTO {term_relation} (tid1, tid2) VALUES (%d, %d)', $form_state['values']['tid'], $related_id);
+      }
+    }
+  }
+}
