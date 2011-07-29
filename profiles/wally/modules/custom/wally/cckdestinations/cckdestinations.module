@@ -880,7 +880,7 @@ function theme_cckdestinations_formatter_time_rank($element = NULL) {
  * we implement task and task_handler plugins.
  */
 function cckdestinations_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && !empty($plugin)) {
+  if ($module == 'ctools' && !empty($plugin) && $plugin != 'access') {
     return "plugins/$plugin";
   }
 }
