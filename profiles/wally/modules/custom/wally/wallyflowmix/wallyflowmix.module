@@ -31,6 +31,11 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
 
   foreach($flowmix_item->flows as $key=>$flow){
+    $form['flows'][$key]['plugin_name']=array(
+      '#type'=>'markup',
+      '#value'=>$flow->plugin_name,
+      
+      ); 
     $form['flows'][$key]['edit_action']=array(
       '#type'=>'submit',
       '#value'=>'Edit',
@@ -91,7 +96,7 @@ function wallyflowmix_contenttype_summary_form(&$form, &$form_state) {
 
   $form['mix_schema'] = array(
     '#type'             => 'select',
-    '#title'            => t('Schema used for mixing the feeds'),
+    '#title'            => t('Schema used for mixing the flows'),
     '#default_value'    => $flowmix_item->mix_schema,
     '#options'          => $mix_schemas,
   );
@@ -407,21 +412,22 @@ function wallyflowmix_get_cache_name($flow_id){
   return 'wftn_'.$cache_name;
 }
 
-function theme_wallyflowmix_contenttype_summary_form($form){
+function theme_wallyflowmix_contenttype_summary_form($form,$form_state){
   foreach(element_children($form['flows']) as $key=>$flow_form){
-    $rows[] = array(
-      drupal_render($form['flows'][$key]['title']),
-      drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
-    );
-  }
-
-  if(count($form['flows'])){
-    $table_output.=theme('table',array('titre','action'),$rows);
-    $button_add_flow_output.=drupal_render($form['buttons']['add_flow']);
-  }
+	  $row=array(
+	    drupal_render($form['flows'][$key]['title']),
+	    drupal_render($form['flows'][$key]['plugin_name']),
+	    drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),
+	  );
+	  
+	  $rows[]=$row;
+	}
 
   $output_after=drupal_render($form);
-
+  if(count($form['flows'])){
+	$table_output.=theme('table',array('titre','plugin','action'),$rows);
+	$button_add_flow_output.=drupal_render($form['buttons']['add_flow']);
+  }
   $output.=$table_output;
   $output.=$button_add_flow_output;
   $output.=$output_after;
