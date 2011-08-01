@@ -127,7 +127,6 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     wallycontenttypes_packagepopulate($node, '');
     $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
-
   return $transformed_nodes;
 }
 
@@ -148,10 +147,10 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $view = views_get_view($view_name);
   $view->set_display($view_id);
 
-  $sort_criteria = _wallytoolbox_destinations_flow_get_sorting_criteria($conf['sorting']);
+  /*$sort_criteria = _wallytoolbox_destinations_flow_get_sorting_criteria($conf['sorting']);
   $view->display[$view->current_display]->handler->set_option('sorts', array(
     $conf['sorting']['sort_criteria'] => $sort_criteria,
-  ));
+  ));*/
 
   $options = array(
     'operator' => '=',
