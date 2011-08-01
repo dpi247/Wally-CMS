@@ -253,6 +253,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
   $view = views_get_view($view_name);
   
+  dsm($contexts, 'contexts');
+  dsm($view, 'view');
+  
   $view->set_display($view_id);
   $options=array(
   'field_destinations_target' => array(
