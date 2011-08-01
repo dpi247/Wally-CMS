@@ -309,25 +309,23 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
   $block->delta  = $view_name .'-'.  $view_id;
 
-  /*
-   $handler->override_option('filters', array(
-   'des_target' => array(
-   'operator' => '=',
-   'value' => 'primary_list',
-   'group' => '0',
-   'exposed' => FALSE,
-   'expose' => array(
-   'operator' => FALSE,
-   'label' => '',
-   ),
-   'id' => 'status',
-   'table' => 'node',
-   'field' => 'status',
-   'relationship' => 'none',
-   ),
-   )
-   );
-   */
+  /*$handler->override_option('filters', array(
+    'des_target' => array(
+      'operator' => '=',
+      'value' => 'primary_list',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'relationship' => 'none',
+      ),
+    )
+  );*/
 
   if (empty($view) || !is_object($view) || empty($view->display_handler)) {
     return;
@@ -353,10 +351,12 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $args = preg_replace(',/?(%\d|@\d),', '', $args);
   $args = $args ? explode('/', $args) : array();
 
-  if ($conf['panel_args'] && is_array($panel_args))
-  $args = array_merge($panel_args, $args);
-  if (isset($contexts) && is_array($contexts))
-  array_splice($args, $count, 0, array($contexts['argument_terms_1']->data->tid));
+  if ($conf['panel_args'] && is_array($panel_args)) {
+    $args = array_merge($panel_args, $args);
+  }
+  if (isset($contexts) && is_array($contexts)) {
+    array_splice($args, $count, 0, array($contexts['argument_terms_1']->data->tid));
+  }
   $view->set_arguments($args);
 
   if ($conf['url']) {
@@ -435,6 +435,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
  * Returns an edit form for the redacblock type.
  */
 function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
+  dsm(func_get_args(), 'args');
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $view_name=$conf['content']->view_name;
   $view_id=$conf['content']->view_id;
