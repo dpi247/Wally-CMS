@@ -435,7 +435,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
  * Returns an edit form for the redacblock type.
  */
 function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
-  dsm(func_get_args(), 'args');
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $view_name = $conf['content']->view_name;
   $view_id = $conf['content']->view_id;
