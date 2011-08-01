@@ -240,7 +240,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if (!is_array($contexts)) {
     $contexts = array($contexts);
   }
-dsm($contexts);
+
   $view_name = $conf['content']->view_name;
   $view_id = $conf['content']->view_id;
 
