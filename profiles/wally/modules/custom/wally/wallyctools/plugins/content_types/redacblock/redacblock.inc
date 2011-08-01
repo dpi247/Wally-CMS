@@ -437,8 +437,8 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   dsm(func_get_args(), 'args');
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
-  $view_name=$conf['content']->view_name;
-  $view_id=$conf['content']->view_id;
+  $view_name = $conf['content']->view_name;
+  $view_id = $conf['content']->view_id;
 
   $view = views_get_view($view_name);
   $view->set_display($view_id);
@@ -454,22 +454,21 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   }
 
   $form['contexts'] = array(
-      '#title' => t('Substitutions'),
-      '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+    '#title' => t('Substitutions'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
 
   $rows = array();
   foreach ($form_state['contexts'] as $context) {
     foreach (ctools_context_get_converters('%' . check_plain($context->keyword) . ':', $context) as $keyword => $title) {
       $rows[] = array(
-      check_plain($keyword),
-      t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
+        check_plain($keyword),
+        t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
       );
     }
   }
-
 
   $header = array(t('Keyword'), t('Value'));
   $form['contexts']['context'] = array('#value' => theme('table', $header, $rows));
@@ -487,9 +486,9 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     }
   }
 
-  if ($required) {
+  /*if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
-  }
+  }*/
 
   $form['pager_settings'] = array(
     '#type' => 'fieldset',
@@ -558,10 +557,10 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   );
 
   $form['more_link'] = array(
-        '#type' => 'checkbox',
-        '#default_value' => $conf['more_link'],
-        '#title' => t('Provide a "more" link that links to the view'),
-        '#description' => t('This is independent of any more link that may be provided by the view itself; if you see two more links, turn this one off. Views will only provide a more link if using the "block" type, however, so if using embed, use this one.'),
+    '#type' => 'checkbox',
+    '#default_value' => $conf['more_link'],
+    '#title' => t('Provide a "more" link that links to the view'),
+    '#description' => t('This is independent of any more link that may be provided by the view itself; if you see two more links, turn this one off. Views will only provide a more link if using the "block" type, however, so if using embed, use this one.'),
   );
 
   $form['panel_args'] = array(
