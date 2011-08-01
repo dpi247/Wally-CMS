@@ -61,7 +61,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
     '#attributes'       => array('class' => 'target'),
   );
   
-  $form['sorting'] = array(
+  /*$form['sorting'] = array(
     '#type'             => 'fieldset',
     '#title'            => t('Sort results'),
     '#collapsible'      => TRUE,
@@ -86,7 +86,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
     '#title'            => t('Sort order'),
     '#options'          => array('DESC' => t('Desc'), 'ASC' => t('Asc')),
     '#default_value'    => $conf['sorting']['sort_order'],
-  );
+  );*/
   
   $form['maxitem'] = array (
     '#type'             => 'textfield',
@@ -105,10 +105,10 @@ function wallytoolbox_destinations_flow_settings_default($form_state = array()) 
       'tid' => '',
       'target' => '',
     ),
-    'sorting' => array(
+    /*'sorting' => array(
       'sort_crit' => 'time_rank',
       'sort_order' => 'DESC',
-    ),
+    ),*/
     'maxitem' => '',
   );
   
@@ -192,7 +192,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
 }
 
 function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
-  $transformed_node = wallytoolbox_destinations_flow_set_package($node);
+  $transformed_node = wallytoolbox_destinations_flow_set_package($node, $feed_infos);
 
   // Package MainStory/MainObject
   switch ($node->type) {
@@ -228,7 +228,12 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   return $transformed_node;
 }
 
-function wallytoolbox_destinations_flow_set_package($node) {
+function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()) {
+  if (!empty($feed_infos)) {
+    $conf = $feed_infos['conf'];
+    $tid = $conf['destination']['tid'];
+  }
+  
   $transformed_node = array();
 
 	// Package Attributes
@@ -256,6 +261,8 @@ function wallytoolbox_destinations_flow_set_package($node) {
     $temp_dest['Position'] = $dest['target'];
     $temp_dest['DocumentLayout'] = $dest['layout'];
     $temp_dest['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
+    if (isset($tid) && $dest['tid'] == $tid && isset($dest['time_rank']))
+      $transformed_node['PublicationDate'] = date('Y-m-d', $dest['time_rank']).'T'.date('H:i:s', $dest['time_rank']);
     $transformed_node['Destinations']['Destination'][] = $temp_dest;
   }
   $transformed_node['Editions']['Edition'] = array();
@@ -540,7 +547,7 @@ function wallytoolbox_destinations_flow_node_get_field($node, $field_name, $defa
   return isset($node->{$field_name}[0][$subfield]) ? $node->{$field_name}[0][$subfield] : $default;
 }
 
-function _wallytoolbox_destinations_flow_get_sorting_criteria($sorting) {
+/*function _wallytoolbox_destinations_flow_get_sorting_criteria($sorting) {
   $sort_criterias = array(
     'field_destinations_time_rank' => array(
       'id' => 'field_destinations_time_rank',
@@ -568,4 +575,4 @@ function _wallytoolbox_destinations_flow_get_sorting_criteria($sorting) {
   }
   
   return $return;
-}
+}*/
