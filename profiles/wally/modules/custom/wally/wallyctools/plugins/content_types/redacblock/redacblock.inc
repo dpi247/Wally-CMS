@@ -698,7 +698,6 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
-  $form_state['conf']['context'] = $form_state['values']['context'];
 
   //CASE 1: Adding an existing redac block.
   if ($form_state['settings']['redacblock_type'] == 'fixed') {
