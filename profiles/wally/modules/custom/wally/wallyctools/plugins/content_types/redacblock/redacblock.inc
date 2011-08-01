@@ -765,7 +765,7 @@ function redacblock_new_redacblock_form($form,$form_state){
     '#description' => t('If checked, context keywords will be substituted in this content.'),
   );*/
 
-   return $form;
+  return $form;
 }
 
 /*function redacblock_new_redacblock_form_submit($form,$form_state){
