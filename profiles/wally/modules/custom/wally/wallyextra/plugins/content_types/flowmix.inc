@@ -41,8 +41,9 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   $block->title = 'Flow mix.';
   $cid = $settings['caid'];
   $default_theme = 'wallyct_flowmix';
+  $ajax = TRUE;
 
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', TRUE);
+  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
   if (is_string($feed))
     $block->content = $feed;
@@ -346,7 +347,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
   } else {
     if ($settings['mix_schema'] == 'alt') {
       $mix_schema = array();
-      for ($i=0; $i<sizeof($flow_uris); $i++) $mix_schema[] = $i+1;
+      for ($i=0; $i<sizeof($settings['flows']); $i++) $mix_schema[] = $i+1;
     } else {
       $mix_schema = explode(',', $settings['mix_schema']);
     }
