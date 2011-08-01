@@ -13,7 +13,7 @@ $plugin = array(
 
 function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   $conf = wallytoolbox_destinations_flow_settings_default($form_state);
-
+  
   /*module_load_include("inc", 'content', 'includes/content.node_form');
   $wallyrsstonode_destinations = content_fields('field_destinations');
   $form['destination'] = (array) content_field_form($form, $form_state, $wallyrsstonode_destinations);
@@ -120,6 +120,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
   $view_results = $view->result;
+  
   $transformed_nodes = wallytoolbox_flow_to_array_init_array();
   foreach ($view_results as $node_result) {
     $node = node_load($node_result->nid);
@@ -127,6 +128,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     wallycontenttypes_packagepopulate($node, '');
     $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
+
   return $transformed_nodes;
 }
 
@@ -186,7 +188,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   }
   $ret_view = $view;
   $view->destroy();
-
+  
   return $ret_view;
 }
 
