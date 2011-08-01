@@ -543,6 +543,7 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
 */
 function _wallycontenttypes_addtaxonomywhenupdated($node){
   $rows =_wallycontenttypes_getpackagesid($node);
+  dsm($rows);
   foreach($rows as $row){
     $packagenode=node_load($row['nid']);
     // Because we dont want node-save api to update
