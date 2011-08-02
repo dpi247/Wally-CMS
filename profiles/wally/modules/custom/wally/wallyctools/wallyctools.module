@@ -385,7 +385,7 @@ function wallyctools_get_redacblock_panes(){
   
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
-     if($term_view_handler->type='redacblock'){
+     if($term_view_handler->type=='redacblock'){
        if(in_array($term_view_handler->subtype, array_keys($redacblocks))){
          $temp_result = $redacblocks[$term_view_handler->subtype];
          $temp_result->did=$term_view_handler->did;
