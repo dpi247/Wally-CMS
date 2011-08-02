@@ -89,7 +89,6 @@ function wallyflowpublish_views_pre_execute($view) {
 
     if (!isset($_GET['format']) && $mediafed['activate']) {
       $user_agent = $_SERVER['HTTP_USER_AGENT'];
-      print $user_agent;
       $delimiters = array('@', '+', '#');
       foreach ($delimiters as $delimiter) {
         if (!strstr($mediafed['user_agent'], $delimiter)) {
