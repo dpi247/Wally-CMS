@@ -106,8 +106,10 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   global $base_url;
   global $language;
 
-  if(isset($_GET['format']))
+  if(isset($_GET['format'])) {
     $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
+  }
+  $vars['template_files'][] = 'views-view-rss';
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
@@ -125,7 +127,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $variables['head_title'] = array(variable_get('site_name', 'Drupal'));
   $variables['head_title'] = implode(' | ', $variables['head_title']);
 
-  $path_photo = imagecache_create_url($presetname, $image[filepath]);
+  $path_photo = imagecache_create_url($presetname, $image['filepath']);
   $vars['url']= $path_photo;
   $vars['type']= $image[filemime];
   $vars['filesize'] = $image[filesize];
@@ -162,8 +164,10 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
 }
 
 function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
-  if(isset($_GET['format']))
+  if(isset($_GET['format'])) {
     $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
+  }
+  $vars['template_files'][] = 'views-view-row-rss';
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $item     = &$vars['row'];

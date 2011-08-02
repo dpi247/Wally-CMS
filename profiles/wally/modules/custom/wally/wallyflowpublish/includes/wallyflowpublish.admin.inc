@@ -144,8 +144,8 @@ function wallyflowpublish_settings_form_submit($form, &$form_state) {
 
   foreach ($taxos as $taxo){
     $tid = $taxo->tid;
-    
-    $file = file_save_upload($tid.'_image');
+    $file = file_save_upload($tid);
+
     $nameim = $file->filename;
     if(!empty($nameim)){
       $folder_path = file_directory_path().'/wallyflowpublish_photos/';
