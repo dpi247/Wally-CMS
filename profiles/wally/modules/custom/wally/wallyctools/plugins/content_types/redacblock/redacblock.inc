@@ -468,8 +468,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $view_name=$conf['content']->view_name;
   $view_id=$conf['content']->view_id;
-  drupal_set_message( '<pre>'.print_r($conf,1).'</pre>');
-  echo '<pre>'.print_r($conf,1).'</pre>';
   $view = views_get_view($view_name);
   $view->set_display($view_id);
   $form_state['settings'] = $conf;
