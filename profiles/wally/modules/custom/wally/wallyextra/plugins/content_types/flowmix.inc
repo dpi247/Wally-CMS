@@ -42,7 +42,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   $cid = $settings['caid'];
   $default_theme = 'wallyct_flowmix';
   $ajax = TRUE;
-dsm($settings);
+
   $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
   if (is_string($feed))
