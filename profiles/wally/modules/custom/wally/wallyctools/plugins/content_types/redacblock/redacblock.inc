@@ -250,8 +250,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
   $view_name=$conf['content']->view_name;
   $view_id=$conf['content']->view_id;
-  echo '<pre>'.print_r($subtype,1).'</pre>';
-  echo '<pre>'.print_r($conf,1).'</pre>';
   $view = views_get_view($view_name);
   
   $view->set_display($view_id);
