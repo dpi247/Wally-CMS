@@ -120,6 +120,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
     $name .= '/'.$arg;
   }
   $tax = wallytoolbox_taxonomy_get_term_by_path($name);
+  print_r($tax);
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
 
