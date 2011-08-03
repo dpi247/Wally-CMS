@@ -147,7 +147,7 @@ function wallyextra_views_default_views() {
     'description' => '',
   ));
   $handler->override_option('row_plugin', 'node_rss');
-  $handler->override_option('path', 'feed/%');
+  $handler->override_option('path', 'feed');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => '',
