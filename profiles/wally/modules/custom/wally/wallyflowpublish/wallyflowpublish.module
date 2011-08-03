@@ -115,8 +115,13 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $items    = &$vars['rows'];
   $presetname='flowpublish_preset';
 
-  $name = str_replace('-', ' ', $view->args[0]);
-  $tax = taxonomy_get_term_by_name($name);
+  $name = '';
+  print_r($view->args);
+  foreach ($view->args as $arg) {
+    $name .= '/'.$arg;
+  }
+  $tax = wallytoolbox_taxonomy_get_term_by_path($name);
+  print_r((array)$tax);
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
 
