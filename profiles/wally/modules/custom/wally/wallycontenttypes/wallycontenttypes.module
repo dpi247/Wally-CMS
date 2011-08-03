@@ -1268,7 +1268,7 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
 function wallycontenttypes_getpackagelayout($node) {
   if (isset($node->field_packagelayout)) {
     $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
-    $package_layout = strtolower(trim($package_layout->name));
+    $package_layout = strtolower(str_replace(' ', '_', trim($package_layout->name)));
   } else {
     $package_layout = NULL;
   }
