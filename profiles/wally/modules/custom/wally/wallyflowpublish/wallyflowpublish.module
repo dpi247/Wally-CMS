@@ -114,7 +114,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
   $presetname='flowpublish_preset';
-
+print_r($view);
   $name = '';
   foreach ($view->args as $arg) {
     $name .= '/'.$arg;
@@ -126,7 +126,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d',$tid));
   $imagefile = $data['imagefile'];
   $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath = "%s"',$imagefile));
-print_r($data);
+
   $variables['head_title'] = array(variable_get('site_name', 'Drupal'));
   $variables['head_title'] = implode(' | ', $variables['head_title']);
 
