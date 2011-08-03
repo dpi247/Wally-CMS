@@ -177,7 +177,7 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
   $item     = &$vars['row'];
   $presetname='flowpublish_preset';
   $presetname_thumb='flowpublish_thumb_preset';
-
+print_r($item);
   $nid= $item->nid;
   $my_node = node_load($nid);
   wallycontenttypes_packagepopulate(&$my_node,'show');
