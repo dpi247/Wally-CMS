@@ -34,7 +34,7 @@ $plugin = array(
  */
 function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = (array)wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
-dsm($settings);
+dsm($settings, $settings['title']);
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
