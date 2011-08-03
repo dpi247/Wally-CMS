@@ -34,14 +34,14 @@ $plugin = array(
  */
 function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = (array)wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
-
+dsm($settings);
   $feed = array();
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'Flow mix.';
   $cid = $settings['caid'];
   $default_theme = 'wallyct_flowmix';
-  $ajax = TRUE;
+  $ajax = FALSE;
 
   $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
