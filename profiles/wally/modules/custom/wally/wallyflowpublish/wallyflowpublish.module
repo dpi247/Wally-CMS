@@ -120,14 +120,13 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
     $name .= '/'.$arg;
   }
   $tax = wallytoolbox_taxonomy_get_term_by_path($name);
-  print_r($tax);
   $tid=$tax[0]->tid;
   $descr= check_plain($tax[0]->description);
 
   $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d',$tid));
   $imagefile = $data['imagefile'];
   $image = db_fetch_array(db_query('SELECT * FROM {files} WHERE filepath = "%s"',$imagefile));
-
+print_r($data);
   $variables['head_title'] = array(variable_get('site_name', 'Drupal'));
   $variables['head_title'] = implode(' | ', $variables['head_title']);
 
@@ -177,7 +176,7 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
   $item     = &$vars['row'];
   $presetname='flowpublish_preset';
   $presetname_thumb='flowpublish_thumb_preset';
-print_r($item);
+
   $nid= $item->nid;
   $my_node = node_load($nid);
   wallycontenttypes_packagepopulate(&$my_node,'show');
