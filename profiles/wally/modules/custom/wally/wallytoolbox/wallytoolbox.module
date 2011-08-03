@@ -199,9 +199,7 @@ function wallytoolbox_get_available_flow_type() {
   ctools_include('plugins');
   
   $available_types = array();
-  $plugins = array();
-  foreach (module_implements('ctools_plugin_flow') as $module)
-    $plugins = array_merge($plugins, ctools_get_plugins($module, 'flow'));
+  $plugins = ctools_get_plugins('wallytoolbox', 'flow');
 
   foreach($plugins as $plugin){
     foreach($plugin['types'] as $type){
@@ -215,9 +213,7 @@ function wallytoolbox_get_available_flow_type() {
 function wallytoolbox_get_plugins_that_handle_type($type) {
   ctools_include('plugins');
   
-  $plugins = array();
-  foreach (module_implements('ctools_plugin_flow') as $module)
-    $plugins = array_merge($plugins, ctools_get_plugins($module, 'flow'));
+  $plugins=ctools_get_plugins('wallytoolbox', 'flow');
   foreach($plugins as $plugin_name=>$plugin){
     if (in_array($type,$plugin['types'])) {
       $available_types[$plugin_name] = $plugin;
@@ -229,15 +225,10 @@ function wallytoolbox_get_plugins_that_handle_type($type) {
 
 function wallytoolbox_get_plugin_by_name($plugin_name) {
   ctools_include('plugins');
+  $module = 'wallytoolbox';
   $type = 'flow';
   
-  $plugin = array();
-  foreach (module_implements('ctools_plugin_flow') as $module) {
-    $plugin = ctools_get_plugins($module, $type, $plugin_name);
-    if (!empty($plugin))
-      break;
-  }
-  
+  $plugin = ctools_get_plugins($module, $type, $plugin_name);
   return $plugin;
 }
 
