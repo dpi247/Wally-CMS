@@ -400,7 +400,7 @@ function _wallyextra_content_types_ajax_callback() {
   
   $datas = call_user_func_array($callback, array($settings));
 
-  if ($settings['override_theme_text'] != '')
+  if ($settings['override_theme'] && $settings['override_theme_text'] != '')
     $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
   else
     $content = theme($default_theme, $subtype, $context, $datas, $settings);
