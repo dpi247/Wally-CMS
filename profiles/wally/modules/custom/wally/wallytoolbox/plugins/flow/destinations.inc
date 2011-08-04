@@ -128,7 +128,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     wallycontenttypes_packagepopulate($node, '');
     $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
   }
-dsm($transformed_nodes);
+
   return $transformed_nodes;
 }
 
