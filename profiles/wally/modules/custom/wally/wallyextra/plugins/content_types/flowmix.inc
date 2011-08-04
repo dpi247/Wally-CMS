@@ -92,12 +92,12 @@ dsm($subtype, 'subtype');
       ctools_include('export');
       $content = ctools_export_crud_load('wallyextra_flowmix_content', $conf->name);
       if (!empty($conf->title)) {
-        $settings = $content->settings;
-        $settings->flowmix_type = 'flowmix';
-      } elseif ($content) {
         $settings = (object)$conf;
         $content->name = $conf->name;
         $settings->flowmix_type = 'local';
+      } elseif ($content) {
+        $settings = $content->settings;
+        $settings->flowmix_type = 'flowmix';
       } else {
         $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
         $content->name = $conf->name;
