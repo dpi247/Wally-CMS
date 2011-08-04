@@ -249,7 +249,9 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $package->setAttribute('CreationDate', $array_valid_dom['Package']['CreationDate']);
     $package->setAttribute('EmbargoDate', $array_valid_dom['Package']['EmbargoDate']);
     $package->setAttribute('Language', $array_valid_dom['Package']['Language']);
-    $package->appendChild($valid_dom->createElement('PackageTitle', $array_valid_dom['Package']['PackageTitle']['value']));
+    $text_title = $valid_dom->createCDATASection($array_valid_dom['Package']['PackageTitle']['value']);
+    $text_title_dom = $package->appendChild($valid_dom->createElement('PackageTitle'));
+    $text_title_dom->appendChild($text_title);
     $package->appendChild($valid_dom->createElement('ExternalReference', $array_valid_dom['Package']['ExternalReference']['value']));
     $package->appendChild($valid_dom->createElement('ProductID', $array_valid_dom['Package']['ProductID']['value']));
     $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
