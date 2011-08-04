@@ -75,7 +75,7 @@ function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
 
-  if ($subtype['name'] != 'flowmix') {
+  if ($subtype['name'] != 'flowmix' || $conf->flowmix_type == 'fixed') {
     if (!empty($conf->title)) {
       $settings = $conf;
     } else {
