@@ -74,7 +74,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
 function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
-
+dsm($subtype, 'subtype');
   if ($subtype['name'] != 'flowmix') {
     if (!empty($conf->title)) {
       $settings = $conf;
