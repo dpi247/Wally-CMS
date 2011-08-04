@@ -74,7 +74,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
 function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
-dsm($subtype, 'subtype');
+
   if ($subtype['name'] != 'flowmix') {
     if (!empty($conf->title)) {
       $settings = $conf;
@@ -91,13 +91,13 @@ dsm($subtype, 'subtype');
     if (!empty($conf->name)) {
       ctools_include('export');
       $content = ctools_export_crud_load('wallyextra_flowmix_content', $conf->name);
-      if (!empty($conf->title)) {
+      if ($content) {
+        $settings = $content->settings;
+        $settings->flowmix_type = 'flowmix';
+      } elseif (!empty($conf->title)) {
         $settings = (object)$conf;
         $content->name = $conf->name;
         $settings->flowmix_type = 'local';
-      } elseif ($content) {
-        $settings = $content->settings;
-        $settings->flowmix_type = 'flowmix';
       } else {
         $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
         $content->name = $conf->name;
@@ -469,12 +469,10 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
-  dsm($flowmix_item, 'conf');
   $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
-  dsm($settings,'settings');
-  dsm($flowmix_item, 'item');
+  
   $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
   $creation_date = $creation_infos[1];
   if (($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) || (isset($form_state['post']['save']) && !isset($form_state['post']['title']))) {
