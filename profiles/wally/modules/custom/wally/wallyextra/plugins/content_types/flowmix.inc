@@ -47,7 +47,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   
   if (is_string($feed))
     $block->content = $feed;
-  elseif ($settings['override_theme_text'] != '')
+  elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
   else
     $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
