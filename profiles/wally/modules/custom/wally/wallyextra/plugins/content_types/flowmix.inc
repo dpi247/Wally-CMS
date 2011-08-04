@@ -41,7 +41,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   $block->title = 'Flow mix.';
   $cid = $settings['caid'];
   $default_theme = 'wallyct_flowmix';
-  $ajax = FALSE;
+  $ajax = TRUE;
 
   $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
@@ -75,7 +75,7 @@ function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
 
-  if ($subtype['name'] != 'flowmix' || $conf->flowmix_type == 'fixed') {
+  if ($subtype['name'] != 'flowmix') {
     if (!empty($conf->title)) {
       $settings = $conf;
     } else {
@@ -469,12 +469,10 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
-  dsm($flowmix_item, 'conf');
-  dsm($form_state['subtype'], 'subtype');
   $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
-  dsm($settings, 'settings');
+
   $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
   $creation_date = $creation_infos[1];
   if (($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) || (isset($form_state['post']['save']) && !isset($form_state['post']['title']))) {
