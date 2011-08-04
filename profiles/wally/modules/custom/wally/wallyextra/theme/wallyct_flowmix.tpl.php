@@ -1,5 +1,5 @@
 <?php
-dsm($feed);
+
 if (!function_exists('rss_feed')) {
   function rss_feed($feed) {
     $content = "";
@@ -16,7 +16,7 @@ if (isset($options['override_title'])) {
   $title = t('Flow mix');
 }
 ?>
-coucou
+
 <h2><? print check_plain($title); ?></h2>
 <ul>
 <?php print rss_feed($feed); ?>
