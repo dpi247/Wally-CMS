@@ -261,7 +261,9 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
 
     $destination = $destinations->appendChild($valid_dom->createElement('Destination'));
-    $destination->appendChild($valid_dom->createElement('DestinationPath', $array_valid_dom['Package']['Destinations']['Destination']['DestinationPath']['value']));
+    $dest_path = $valid_dom->createCDATASection($array_valid_dom['Package']['Destinations']['Destination']['DestinationPath']['value']);
+    $dest_path_dom = $destination->appendChild($valid_dom->createElement('DestinationPath'));
+    $dest_path_dom->appendChild($dest_path);
     $destination->setAttribute('DestinationRank', $array_valid_dom['Package']['Destinations']['Destination']['DestinationRank']);
     $destination->setAttribute('Position', $array_valid_dom['Package']['Destinations']['Destination']['Position']);
     $destination->setAttribute('DocumentLayout', $array_valid_dom['Package']['Destinations']['Destination']['DocumentLayout']);
@@ -289,7 +291,7 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     }
     $mainStory->appendChild($valid_dom->createElement('Copyright', ($feed_infos['signature'] != '') ? $feed_infos['signature'] : $array_valid_dom['Package']['MainStory']['Copyright']['value']));
     $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
-    $format_number = db_result(db_query("SELECT `format` FROM `filter_formats` WHERE `name` = '%s'", $feed_infos['body_html']));
+    $format_number = db_result(db_query("SELECT `format` FROM {filter_formats} WHERE `name` = '%s'", $feed_infos['body_html']));
     $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number));
     $mainStory->appendChild($valid_dom->createElement('TextBody', $cleaned_body));
 
