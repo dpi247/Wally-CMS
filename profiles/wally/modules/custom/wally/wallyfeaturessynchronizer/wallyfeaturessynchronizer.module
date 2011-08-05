@@ -46,6 +46,7 @@ function wallyfeaturessynchronizer_default_page_manager_handlers_alter (&$cached
   foreach ($cached as $component => $comp_infos) {
     $temp_conf = $cached[$component]->conf;
     $plugins = isset($temp_conf['access']['plugins']) ? $temp_conf['access']['plugins'] : array();
+    dsm($plugins);
     foreach ($plugins as $plug_id => $plugin) {
       if ($plugin['name'] == 'term') {
         $settings = $plugin['settings'] ? $plugin['settings'] : array();
