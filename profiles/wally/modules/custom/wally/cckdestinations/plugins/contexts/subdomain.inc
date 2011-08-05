@@ -12,6 +12,7 @@
  */
 $plugin = array(
   'title' => t('Subdomain'),
+  'keyword' => 'subdomain',
   'description' => t('The page subdomain.'),
   'context' => 'cckdestinations_subdomain_context_create',
   'settings form' => 'cckdestinations_subdomain_context_settings_form',
