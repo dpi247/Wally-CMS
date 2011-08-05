@@ -401,5 +401,6 @@ function wallydefaultpages_default_page_manager_handlers() {
   $handler->conf['display'] = $display;
 
   $export['term_view_panel_context_3'] = $handler;
+  dsm($export);
   return $export;
 }
