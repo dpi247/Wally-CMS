@@ -15,7 +15,16 @@ function wallydefaultpages_default_page_manager_handlers() {
   $handler->weight = -28;
   $handler->conf = array(
     'title' => 'Topic-Destination Redirection',
-    'contexts' => array(),
+    'contexts' => array(
+      'argument_terms_1' => array(
+        'keyword' => 'term',
+        'identifier' => variable_get('page_manager_term_view_type', 'multiple') == 'multiple' ? t('Term(s) being viewed') : t('Term being viewed'),
+        'id' => 1,
+        'name' => variable_get('page_manager_term_view_type', 'multiple') == 'multiple' ? 'terms' : 'term',
+        'settings' => array('input_form' => 'tid', 'breadcrumb' => variable_get('page_manager_taxonomy_breadcrumb', TRUE)),
+        'default' => '404',
+      ),
+    ),
     'relationships' => array(
       0 => array(
         'context' => 'argument_terms_1',
@@ -137,56 +146,6 @@ function wallydefaultpages_default_page_manager_handlers() {
     $pane->position = 0;
     $display->content['new-1'] = $pane;
     $display->panels['colmain'][0] = 'new-1';
-    $pane = new stdClass;
-    $pane->pid = 'new-2';
-    $pane->panel = 'colrelated';
-    $pane->type = 'flowmix';
-    $pane->subtype = 'flowmix';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'flow_obj' => (object) array(
-  'title' => 'aaaaa',
-  'maxitem_global' => '10',
-  'mix_schema' => 'alt',
-  'own_schema' => '',
-  'override_theme' => 0,
-  'override_theme_text' => '',
-  'caid' => 'flowmix_1312271427',
-  'flows' => array(
-    0 => (object) array(
-  'name' => 'dest',
-  'type' => 'Destination',
-  'body_html' => '0',
-  'plugin_name' => 'destinations',
-  'conf' => array(
-    'destination' => array(
-      'tid' => '1',
-      'target' => 'default_destination_block',
-    ),
-    'maxitem' => '3',
-  ),
-),
-  ),
-  'flowmix_type' => 'local',
-  'reusable' => 0,
-  'admin_title' => '',
-  'name' => '',
-  'category' => '',
-  'admin_description' => '',
-  'index' => 0,
-  'wally_rule' => '15',
-),
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $display->content['new-2'] = $pane;
-    $display->panels['colrelated'][0] = 'new-2';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;
@@ -401,6 +360,5 @@ function wallydefaultpages_default_page_manager_handlers() {
   $handler->conf['display'] = $display;
 
   $export['term_view_panel_context_3'] = $handler;
-  dsm($export);
   return $export;
 }
