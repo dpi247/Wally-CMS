@@ -43,6 +43,7 @@ function wallyfeaturessynchronizer_schema_alter (&$schema) {
  *   The unaltered default values object.
  */
 function wallyfeaturessynchronizer_default_page_manager_handlers_alter (&$cached) {
+  dsm(debug_backtrace());
   foreach ($cached as $component => $comp_infos) {
     $temp_conf = $cached[$component]->conf;
     $plugins = isset($temp_conf['access']['plugins']) ? $temp_conf['access']['plugins'] : array();
