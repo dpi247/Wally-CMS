@@ -15,16 +15,6 @@ function wallydefaultpages_default_page_manager_handlers() {
   $handler->weight = -28;
   $handler->conf = array(
     'title' => 'Topic-Destination Redirection',
-    'arguments' => array(
-      'argument_terms_1' => array(
-        'keyword' => 'term',
-        'identifier' => variable_get('page_manager_term_view_type', 'multiple') == 'multiple' ? t('Term(s) being viewed') : t('Term being viewed'),
-        'id' => 1,
-        'name' => variable_get('page_manager_term_view_type', 'multiple') == 'multiple' ? 'terms' : 'term',
-        'settings' => array('input_form' => 'tid', 'breadcrumb' => variable_get('page_manager_taxonomy_breadcrumb', TRUE)),
-        'default' => '404',
-      ),
-    ),
     'contexts' => array(),
     'relationships' => array(
       0 => array(
