@@ -350,9 +350,25 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if ($conf['panel_args'] && is_array($panel_args)) {
     $args = array_merge($panel_args, $args);
   }
-  if (isset($contexts) && is_array($contexts)) {
-    array_splice($args, $count, 0, array($contexts['argument_terms_1']->data->tid));
+
+
+  if (isset($conf['context']) && is_array($conf['context'])) {
+    foreach ($conf['context'] as $count => $context_info) {
+      if (!strpos($context_info, '.')) {
+        // old skool: support pre-converter contexts as well.
+        $cid = $context_info;
+        $converter = '';
+      }
+      else {
+        list($cid, $converter) = explode('.', $context_info, 2);
+      }
+      if (!empty($contexts[$cid])) {
+        $arg = ctools_context_convert_context($contexts[$cid], $converter);
+        array_splice($args, $count, 0, array($arg));
+      }
+    }
   }
+  
   $view->set_arguments($args);
 
   if ($conf['url']) {
@@ -481,9 +497,9 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     }
   }
 
-  /*if ($required) {
+  if ($required) {
     $form['context'] = ctools_context_converter_selector($form_state['contexts'], $required, isset($conf['context']) ? $conf['context'] : array());
-  }*/
+  }
 
   $form['pager_settings'] = array(
     '#type' => 'fieldset',
