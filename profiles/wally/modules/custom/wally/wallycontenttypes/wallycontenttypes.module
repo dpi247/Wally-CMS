@@ -196,6 +196,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_digitalobject' || 
               $node->type == 'wally_photoobject' || 
               $node->type == 'wally_videoobject' ||
+              $node->type == 'wally_linkslistobject' ||
               $node->type == 'wally_pollobject' ||
               $node->type == 'poll') {
                 wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
@@ -216,6 +217,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
               $node->type == 'wally_digitalobject' || 
               $node->type == 'wally_photoobject' || 
               $node->type == 'wally_videoobject' ||
+              $node->type == 'wally_linkslistobject' ||
               $node->type == 'wally_pollobject' ||
               $node->type == 'poll') {
                 wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
