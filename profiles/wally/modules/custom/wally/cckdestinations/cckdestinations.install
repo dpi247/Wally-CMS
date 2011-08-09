@@ -14,6 +14,13 @@ function cckdestinations_install(){
     'default' => 0,
   );
   db_add_field($ret, 'term_data', 'topic_destination', $spec);
+  
+  if (module_exists('taxonomy_vocab_relate')) {
+    $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'taxonomy_vocab_relate'"));
+    db_query("UPDATE {system} SET weight = %d WHERE name = 'cckdestinations'", $weight + 1);
+  } else {
+    db_query("UPDATE {system} SET weight = 1 WHERE name = 'cckdestinations'");
+  }
 }
 
 /**
@@ -43,8 +50,9 @@ function cckdestinations_disable(){
 
 /**
  * Implementation of hook_update_N().
+ * Add topic_destination field to term_data table
  */
-function cckdestinations_update_6001(){
+function cckdestinations_update_6001() {
   $ret = array();
   $spec = array(
     'type' => 'int',
@@ -53,5 +61,20 @@ function cckdestinations_update_6001(){
     'default' => 0,
   );
   db_add_field($ret, 'term_data', 'topic_destination', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Change module's weight to follow taxonomy_vocab_relate in hook_form_alter
+ */
+function cckdestinations_update_6002() {
+  $ret = array();
+  if (module_exists('taxonomy_vocab_relate')) {
+    $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'taxonomy_vocab_relate'"));
+    $ret[] = db_query("UPDATE {system} SET weight = %d WHERE name = 'cckdestinations'", $weight + 1);
+  } else {
+    $ret[] = db_query("UPDATE {system} SET weight = 1 WHERE name = 'cckdestinations'");
+  }
   return $ret;
 }
