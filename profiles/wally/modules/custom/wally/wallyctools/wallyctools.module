@@ -337,7 +337,7 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
       'did' => $handler->conf['did'],
       'title' => $handler->conf['title'],
       'term_name' => $term->name,
-      'hierachic_name' => str_repeat('-', count($term_parents)).$term->name,
+      'hierarchic_name' => str_repeat('-', count($term_parents)).$term->name,
     );
   }
   return $tid_did_mapping;
