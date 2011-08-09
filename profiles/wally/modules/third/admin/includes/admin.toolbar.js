@@ -159,6 +159,8 @@ Drupal.adminToolbar.toggle = function (toolbar) {
 Drupal.adminToolbar.getState = function(key) {
   if (!Drupal.adminToolbar.state) {
     Drupal.adminToolbar.state = {};
+    if(typeof($.cookie) != "function")
+    	return false;
     var cookie = $.cookie('DrupalAdminToolbar');
     var query = cookie ? cookie.split('&') : [];
     if (query) {
