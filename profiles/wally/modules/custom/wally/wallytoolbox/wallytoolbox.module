@@ -541,6 +541,26 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
   return $r;
 }
 
+/**
+ * Find all term objects related to a given term ID.
+ */
+function wallytoolbox_taxonomy_get_related($tid, $key = 'tid', $bidirect = FALSE) {
+  if ($bidirect) {
+    return taxonomy_get_related($tid, $key);
+  } else {
+    if ($tid) {
+      $result = db_query('SELECT t.*, tid1, tid2 FROM {term_relation}, {term_data} t WHERE t.tid = tid2 AND tid1 = %d AND t.tid != %d ORDER BY weight, name', $tid, $tid);
+      $related = array();
+      while ($term = db_fetch_object($result)) {
+        $related[$term->$key] = $term;
+      }
+      return $related;
+    }
+    else {
+      return array();
+    }
+  }
+}
 
 /**
  * Get all nodes where cckfield match a value. 
