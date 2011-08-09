@@ -299,7 +299,6 @@ function wallyctools_get_hierarchies(){
   
   $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
   $depth=0;
-  
   $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
   $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
   
@@ -315,7 +314,6 @@ function wallyctools_get_hierarchies(){
       }
     }
   }
-  
   return $tid_did_mapping;
 }
 
@@ -329,12 +327,18 @@ function wallyctools_get_hierarchies(){
  * @return an array where term are key and the handler of the variant for this term
  */
 function wallyctools_get_term_handler_mapping($terms,$depth){
-
-  $tid_did_mapping=array();
-  
+  $tid_did_mapping = array();
   foreach($terms as $term){
-    $handler= wallyctools_get_active_handler($term->tid,$depth);
-    $tid_did_mapping[$term->tid]=array('name'=>$handler->name,'did'=>$handler->conf['did'],'title'=>$handler->conf['title'],'term_name'=>$term->name);
+    $term_parents = array_filter($term->parents);
+    
+    $handler = wallyctools_get_active_handler($term->tid,$depth);
+    $tid_did_mapping[$term->tid] = array(
+      'name' => $handler->name,
+      'did' => $handler->conf['did'],
+      'title' => $handler->conf['title'],
+      'term_name' => $term->name,
+      'hierachic_name' => str_repeat('-', count($term_parents)).$term->name,
+    );
   }
   return $tid_did_mapping;
 }
