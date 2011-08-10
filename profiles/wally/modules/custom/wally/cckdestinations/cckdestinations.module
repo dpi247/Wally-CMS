@@ -213,6 +213,8 @@ function cckdestinations_elements() {
  */
 function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
   $dest_vid = variable_get('wallymport_destinationpath', 0);
+  
+  $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
 
   if (isset($form['tid']) && $form['#vocabulary']['vid'] != $dest_vid) {
     ctools_include('dependent');
@@ -272,13 +274,15 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
     );*/
     
     $form['advanced']['election'] = $election_form;
-    
-    $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
   }
 }
 
 function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_state) {
   $values = &$form_state['values'];
+  
+  if (strstr($values['name'], '/')) {
+    form_set_error('name', t('The name of the taxonomy term can\'t contain any slashes ("/")'));
+  }
 
   if ($values['op'] == $values['submit'] && isset($form['advanced']['election'])) {
     $vocabulary = $form['#vocabulary'];
