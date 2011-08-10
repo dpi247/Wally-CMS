@@ -4,9 +4,9 @@ if (module_exists('apachesolr_search')) {
   $plugin = array(
     'single' => TRUE,
     'no title override' => TRUE,
-    'title' => t('Apache Solr search results'),
+    'title' => t('Apache Solr search google results'),
     'icon' => 'icon_search.png',
-    'description' => t('The results of an Apache Solr search.'),
+    'description' => t('The results (google like) of an Apache Solr search.'),
     'required context' => new ctools_context_optional(t('Context to fetch search query from'), 'string'),
     'category' => t('Apache Solr Search'),
     'defaults' => array(
@@ -30,21 +30,22 @@ if (module_exists('apachesolr_search')) {
     'render first' => TRUE,
   );
 }
+	   
 
 /**
- * Render the search results.
+ * Render the search results as google like.
  */
-function apachesolr_panels_apachesolr_result_content_type_render($subtype, $conf, $args, $context) {
+function spapachesolr_panels_apachesolr_gresult_content_type_render($subtype, $conf, $args, $context) {
   $block = new stdClass();
   $block->module = 'apachesolr_panels';
   $block->delta = 'results';
-
+  
   $search = array(
     'keys' => '',
     'filters' => $_GET['filters'],
     'sort' => $_GET['solrsort'],
   );
-
+  
   // Use keywords from the selected context if set to do so.
   if (!empty($context) && !empty($context->data)) {
     $search['keys'] = $context->data;
@@ -88,8 +89,8 @@ function apachesolr_panels_apachesolr_result_content_type_render($subtype, $conf
       $breadcrumb = drupal_get_breadcrumb();
     }
 
-    $results = apachesolr_panels_search_execute($search);
-
+   	$results = apachesolr_panels_search_execute_g($search);
+    
     // Restore the original breadcrumb trail if set to do so.
     if (empty($conf['breadcrumb'])) {
       drupal_set_breadcrumb($breadcrumb);
@@ -128,10 +129,167 @@ function apachesolr_panels_apachesolr_result_content_type_render($subtype, $conf
   return $block;
 }
 
+
+
+/**
+ * Execute a Solr search google style (wally only).
+ *
+ * Using hook_search() would make this module a first-class search module
+ * alongside Apache Solr Search, which we don't want. Instead, we execute the
+ * search directly and imitate what the core Search module does.
+ *
+ * @see search_data()
+ */
+function apachesolr_panels_search_execute_g($search) {
+	
+	
+	global $pager_page_array, $pager_total, $pager_total_items;
+	
+  // Store information about the search for use in other panes.
+  apachesolr_panels_static_search_cache($search);
+
+  $layout = NULL;
+  // vire tous les filtres de type "type:";
+  foreach( explode(" ", $search['filters']) as $filter) {
+		if (strpos($filter, "type:") === false) {
+			$search['filters_notype'] .= $filter." ";
+    } else {
+    	// determine dans quel type de recherche on se trouve. 
+    	// afin de créer le layout de resultat de recherche. 
+    	switch($filter) {
+    		// Mur photo.
+		    case "type:wally_photoobject":
+  				$layout = "photo";
+		    	break;
+		    // Mur Video
+		    case "type:wally_videoobject":
+  				$layout = "video";
+		    	break;
+    		default:
+		   }
+    }
+  }
+  
+  if ($layout==NULL) {
+  	if ($search["page"]==0 OR !isset($search["page"])) {
+    	// Classique Page 1 (home)
+  		$layout = "default_home";
+    } else {
+    	// Classique mais page 2 - N
+    	$layout = "default";
+  	}
+  }
+ 
+  $search['filters_wally_textobject'] = $search['filters_notype']." type:wally_textobject";
+	$search['filters_wally_videoobject'] = $search['filters_notype']." type:wally_videoobject";
+	$search['filters_wally_photoobject'] = $search['filters_notype']." type:wally_photoobject";
+  
+  $results = array();
+  
+dsm("passe une ligne");
+dsm("passe une ligne");
+dsm("passe une ligne");
+dsm("passe une ligne");
+    
+	switch($layout) {
+
+		// pas de filtre image/vidéo précisé. On montre tout AVEC insert video/photo.
+  	case "default_home":
+		  try {
+				$results_videos = apachesolr_search_execute($search['keys'], $search['filters_wally_videoobject'], $search['sort'], $search['path'], $search['page']);
+				$pager_videos["total_items"] = $pager_total_items;
+  
+		  	$results_images = apachesolr_search_execute($search['keys'], $search['filters_wally_photoobject'], $search['sort'], $search['path'], $search['page']);
+				$pager_images["total_items"] = $pager_total_items;
+		  	
+		  	$results = apachesolr_search_execute($search['keys'], $search['filters'], $search['sort'], $search['path'], $search['page']);
+				$pager["total_items"] = $pager_total_items;
+		  	$pager["pager_page_array"] = $pager_page_array;
+				$pager["pager_total"] = $pager_total;
+				
+		  }
+		  catch (Exception $e) {
+		    watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+		    apachesolr_failure(t('Solr search'), $search['keys']);
+		  }
+		  // Imitate search_data() to present the results as Apache Solr Search would.
+		  if (is_array($results) && count($results)) {
+
+		  	$html_return_first = theme('spapachesolr_panels_gresult_home_first', array_shift($results),$pager); 
+				$html_return_other = theme('spapachesolr_panels_gresult_home_other', $results, $pager); 
+				$html_return_photos = theme('spapachesolr_panels_gresult_home_photos', $results_images, $pager_images); 
+				$html_return_videos = theme('spapachesolr_panels_gresult_home_videos', $results_videos, $pager_videos); 
+				
+				return $html_return_first.$html_return_photos.$html_return_videos.$html_return_other.theme_pager(NULL,10,0);
+		  	
+		  }
+		  
+		// Filtre image.
+  	case "photo":
+		  try {
+		    $results = apachesolr_search_execute($search['keys'], $search['filters_wally_photoobject'], $search['sort'], $search['path'], $search['page']);
+				$pager["total_items"] = $pager_total_items;
+		  	$pager["pager_page_array"] = $pager_page_array;
+				$pager["pager_total"] = $pager_total;
+		    		    
+		  }
+		  catch (Exception $e) {
+		    watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+		    apachesolr_failure(t('Solr search'), $search['keys']);
+		  }
+		  // Imitate search_data() to present the results as Apache Solr Search would.
+		  if (is_array($results) && count($results)) {
+		  		return theme('spapachesolr_panels_gresult_home_photos', $results, $pager).theme_pager(NULL,10,0);
+		  }
+		  
+		// Filtre videos.
+  	case "video":
+		  try {
+		    $results = apachesolr_search_execute($search['keys'], $search['filters_wally_videoobject'], $search['sort'], $search['path'], $search['page']);
+				$pager["total_items"] = $pager_total_items;
+		  	$pager["pager_page_array"] = $pager_page_array;
+				$pager["pager_total"] = $pager_total;
+		  }
+		  catch (Exception $e) {
+		    watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+		    apachesolr_failure(t('Solr search'), $search['keys']);
+		  }
+		  // Imitate search_data() to present the results as Apache Solr Search would.
+		  if (is_array($results) && count($results)) {
+		  		return theme('spapachesolr_panels_gresult_home_videos', $results, $pager).theme_pager(NULL,10,0);
+		  }
+		
+		// pas de filtre image/vidéo précisé. On montre tout SANS insert video/photo.
+		default:
+		  try {
+		    $results = apachesolr_search_execute($search['keys'], $search['filters'], $search['sort'], $search['path'], $search['page']);
+				$pager["total_items"] = $pager_total_items;
+		  	$pager["pager_page_array"] = $pager_page_array;
+				$pager["pager_total"] = $pager_total;
+		  }
+		  catch (Exception $e) {
+		    watchdog('Apache Solr', nl2br(check_plain($e->getMessage())), NULL, WATCHDOG_ERROR);
+		    apachesolr_failure(t('Solr search'), $search['keys']);
+		  }
+		  // Imitate search_data() to present the results as Apache Solr Search would.
+		  if (is_array($results) && count($results)) {
+		  	return theme('spapachesolr_panels_gresult_home_other', $results, $pager).theme_pager(NULL,2,0);
+		  }
+		  
+		  
+  	
+  }
+  
+
+}
+
+
+
+
 /**
  * Return an edit form for the pane's settings.
  */
-function apachesolr_panels_apachesolr_result_content_type_edit_form(&$form, &$form_state) {
+function spapachesolr_panels_apachesolr_gresult_content_type_edit_form(&$form, &$form_state) {
   $conf = $form_state['conf'];
 
   $action_options = array(
@@ -300,7 +458,7 @@ function apachesolr_panels_apachesolr_result_content_type_edit_form(&$form, &$fo
 /**
  * Handle submission of edit form.
  */
-function apachesolr_panels_apachesolr_result_content_type_edit_form_submit(&$form, &$form_state) {
+function spapachesolr_panels_apachesolr_result_content_type_edit_form_submit(&$form, &$form_state) {
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
