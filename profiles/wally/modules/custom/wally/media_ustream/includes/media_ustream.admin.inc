@@ -88,6 +88,18 @@ function media_ustream_admin_form() {
     '#default_value' => media_ustream_variable_get('height'),
     '#description' => t('The player height.'),
   );
-
+  $form['api'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Ustream API'),
+    '#description' => t('If you wish to allow video uploads via the Media Mover module, you will need to apply for an API Developer Key'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['api'][media_ustream_variable_name('api_key')] = array(
+    '#type' => 'textfield',
+    '#title' => t('Ustream developer key'),
+    '#default_value' => media_ustream_variable_get('api_key'),
+    '#description' => t('Please enter your Ustream Developer Key here.'),
+  );  
   return $form;
 }

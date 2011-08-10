@@ -123,7 +123,7 @@ function media_ustream_variable_default($name = NULL) {
   if (!isset($defaults)) {
     $defaults = array(
       // The ustream API developer key.
-      'api_key' => '',
+      'api_key' => 'D0BB3CB7E07E8AED19BB513E6F4A57FB',
 
       // Default ustream user & password.
       'ustream_username' => '',

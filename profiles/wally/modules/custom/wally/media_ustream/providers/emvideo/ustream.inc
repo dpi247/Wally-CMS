@@ -169,7 +169,7 @@ function _emvideo_ustream_request($src_url){
   
   $embedly_result = array();
   $url = "http://api.ustream.tv/xml/video/";
-  $data = $id."/getInfo";
+  $data = $id."/getInfo?key=".media_ustream_variable_get('api_key');
   //$data = str_replace(":","%3A",$data);
   //$data = str_replace("/","%2F",$data);
 
