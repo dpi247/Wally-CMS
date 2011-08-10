@@ -217,63 +217,7 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
   $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
 
   if (isset($form['tid']) && $form['#vocabulary']['vid'] != $dest_vid) {
-    ctools_include('dependent');
-    ctools_add_js('dependent');
-    
-    $vocabulary = $form['#vocabulary'];
-    $term = $form['#term'];
-    $election_form = array(
-      '#title' => t('Elect this term as destination'),
-      '#type' => 'fieldset',
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#weight' => -20,
-    );
-    
-    $default_topic_destination = (isset($term['topic_destination']) && $term['topic_destination'] != 0) ? $term['topic_destination'] : '0';
-    $election_form['topic_destination'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Elect this term as destination'),
-      '#default_value' => ($default_topic_destination != '0'),
-      '#id' => 'topic-destination-checkbox',
-    );
-    
-    $parent = $term['topic_destination'];
-    $cur_dests = taxonomy_get_tree($dest_vid);
-    foreach ($cur_dests as $dest) {
-      if ($dest->tid == $default_topic_destination) {
-        $elected_term = $dest;
-        break;
-      }
-    }
-
-    $default_parent = $elected_term ? $elected_term->parents[sizeof($elected_term->parents) - 1] : null;
-    $exclude = ($default_topic_destination != '0') ? array($default_topic_destination) : array();
-    $election_form['elected_parent'] = _taxonomy_term_select(t('Parent'), 'parent', $default_parent, $dest_vid, t('Parent term') .'.', FALSE, '<'. t('root') .'>', $exclude);
-    unset($election_form['elected_parent']['#weight']);
-    $election_form['elected_parent']['#process'][] = 'ctools_dependent_process';
-    $election_form['elected_parent']['#dependency']['topic-destination-checkbox'] = array(1);
-
-    /*$election_form['recup_old'] = array(
-      '#type' => 'radios',
-      '#title' => t(''),
-      '#default_value' => 0,
-      '#options' => array(t('Start from a empty destination'), t('Apply the change to nodes currently present in this topic')),
-      '#prefix' => '<div id="edit-recup-old-wrapper">',
-      '#suffix' => '</div>',
-      '#process' => array('ctools_dependent_process', 'expand_radios'),
-      '#dependency' => array('topic-destination-checkbox' => array(1)),
-    );
-    
-    $election_form['apply_to_child'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Also apply to this term\'s children'),
-      '#default_value' => 0,
-      '#process' => array('ctools_dependent_process'),
-      '#dependency' => array('radio:recup_old' => array('1')),
-    );*/
-    
-    $form['advanced']['election'] = $election_form;
+    cckdestinations_form_election_form($form, $form_state);
   }
 }
 
@@ -302,6 +246,66 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
       _cckdestinations_remove_topic_destination($values, $vocabulary, $term);
     }
   }
+}
+
+function cckdestinations_form_election_form(&$form, &$form_state) {
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $vocabulary = $form['#vocabulary'];
+  $term = $form['#term'];
+  $election_form = array(
+    '#title' => t('Elect this term as destination'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#weight' => -20,
+  );
+
+  $default_topic_destination = (isset($term['topic_destination']) && $term['topic_destination'] != 0) ? $term['topic_destination'] : '0';
+  $election_form['topic_destination'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Elect this term as destination'),
+    '#default_value' => ($default_topic_destination != '0'),
+    '#id' => 'topic-destination-checkbox',
+  );
+
+  $parent = $term['topic_destination'];
+  $cur_dests = taxonomy_get_tree($dest_vid);
+  foreach ($cur_dests as $dest) {
+    if ($dest->tid == $default_topic_destination) {
+      $elected_term = $dest;
+      break;
+    }
+  }
+
+  $default_parent = $elected_term ? $elected_term->parents[sizeof($elected_term->parents) - 1] : null;
+  $exclude = ($default_topic_destination != '0') ? array($default_topic_destination) : array();
+  $election_form['elected_parent'] = _taxonomy_term_select(t('Parent'), 'parent', $default_parent, $dest_vid, t('Parent term') .'.', FALSE, '<'. t('root') .'>', $exclude);
+  unset($election_form['elected_parent']['#weight']);
+  $election_form['elected_parent']['#process'][] = 'ctools_dependent_process';
+  $election_form['elected_parent']['#dependency']['topic-destination-checkbox'] = array(1);
+
+  /*$election_form['recup_old'] = array(
+    '#type' => 'radios',
+    '#title' => t(''),
+    '#default_value' => 0,
+    '#options' => array(t('Start from a empty destination'), t('Apply the change to nodes currently present in this topic')),
+    '#prefix' => '<div id="edit-recup-old-wrapper">',
+    '#suffix' => '</div>',
+    '#process' => array('ctools_dependent_process', 'expand_radios'),
+    '#dependency' => array('topic-destination-checkbox' => array(1)),
+  );
+
+  $election_form['apply_to_child'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Also apply to this term\'s children'),
+    '#default_value' => 0,
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('radio:recup_old' => array('1')),
+  );*/
+
+  $form['advanced']['election'] = $election_form;
 }
 
 /**
@@ -339,6 +343,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
+    '#vid'              => $vocabulary_id,
   );
 
 /**
@@ -680,34 +685,34 @@ function cckdestinations_api_decrement_rank(){
  */
 function cckdestinations_theme() {
   return array(
-      'cckdestinations_widget' => array(
+    'cckdestinations_widget' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_default' => array(
+    'cckdestinations_formatter_default' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_batch' => array(
+    'cckdestinations_formatter_batch' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_tid' => array(
+    'cckdestinations_formatter_tid' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_target' => array(
+    'cckdestinations_formatter_target' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_layout' => array(
+    'cckdestinations_formatter_layout' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_rank' => array(
+    'cckdestinations_formatter_rank' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_formatter_time_rank' => array(
+    'cckdestinations_formatter_time_rank' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_cascading_select' => array(
+    'cckdestinations_cascading_select' => array(
       'arguments' => array('element' => NULL),
     ),
-      'cckdestinations_node_filters' => array(
+    'cckdestinations_node_filters' => array(
       'arguments' => array('form' => NULL),
       'file' => 'cckdestinations.admin.inc',
     ),

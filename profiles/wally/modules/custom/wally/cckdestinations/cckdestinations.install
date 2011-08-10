@@ -43,8 +43,9 @@ function cckdestinations_disable(){
 
 /**
  * Implementation of hook_update_N().
+ * Add topic_destination field to term_data table
  */
-function cckdestinations_update_6001(){
+function cckdestinations_update_6001() {
   $ret = array();
   $spec = array(
     'type' => 'int',

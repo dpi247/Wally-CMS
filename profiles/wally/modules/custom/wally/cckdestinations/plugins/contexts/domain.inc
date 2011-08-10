@@ -12,6 +12,7 @@
  */
 $plugin = array(
   'title' => t('Domain'),
+  'keyword' => 'domain',
   'description' => t('The page domain.'),
   'context' => 'cckdestinations_domain_context_create',
   'settings form' => 'cckdestinations_domain_context_settings_form',
@@ -35,6 +36,6 @@ function cckdestinations_domain_context_settings($conf) {
 function cckdestinations_domain_context_create($empty, $data = NULL, $conf = FALSE) {
   $context = new ctools_context('domain');
   $context->plugin = 'domain';
-  $context = $_SERVER['HTTP_HOST'];
+  $context->domain = $_SERVER['HTTP_HOST'];
   return $context;
 }
