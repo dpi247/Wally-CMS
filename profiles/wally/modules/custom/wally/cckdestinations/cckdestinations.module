@@ -237,13 +237,6 @@ function cckdestinations_form_alter(&$form, &$form_state, $form_id) {
       foreach ($related_vid as $rvid) {
         $relation_form = &$form['advanced']['relations_'. $rvid];
         $relation_form['#vid'] = $rvid;
-        /*if (sizeof($relation_form['#options']) > variable_get('cckdestinations_taxonomy_limit', 10)) {
-          $relation_form['#type'] = 'cckdestinations_autocomplete';
-          $relation_form['#value_callback'] = 'cckdestinations_autocomplete_value';
-          $relation_form['#vid'] = $rvid;
-          unset($relation_form['#theme']);
-          unset($relation_form['#options']);
-        }*/
       }
     }
   }
@@ -380,6 +373,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
+    '#vid'              => $vocabulary_id,
   );
 
 /**
@@ -563,7 +557,7 @@ function cckdestinations_get_classes_and_options(){
     foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
       // Layout
       foreach($redacblock['layouts'] as $layout_id => $name){
-        $result['tid']['#options'][$tid] = array($tid => $hierarchie['term_name']);
+        $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
         $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
         $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
         $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id => $name['name']);
@@ -1000,19 +994,24 @@ function cckdestinations_token_help($types = 'all', $prefix = '[', $suffix = ']'
 function cckdestinations_autocomplete_value($element, $edit = FALSE) {
   $field_key = $element['#name'];
   $terms = array();
-  if (count($element['#default_value'])) {
-    foreach ($element['#default_value'] as $delta => $entry) {
-      $terms[] = taxonomy_get_term($entry);
+
+  if (count($element['#default_value']) && !empty($element['#default_value'])) {
+    if ($element['#multiple']) {
+      foreach ($element['#default_value'] as $delta => $entry) {
+        $terms[] = taxonomy_get_term($entry);
+      }
+    } else {
+      $terms[] = taxonomy_get_term($element['#default_value']);
     }
   }
-  $value = cckdestinations_autocomplete_merge_tags($terms, $element['#vid']);
+  $value = cckdestinations_autocomplete_merge_tags($terms, $element['#vid'], $element['#multiple']);
   $value = !empty($value) ? $value : NULL;
 
   return array($field_key => $value);
 }
 
 function cckdestinations_select_process($element, $edit, $form_state, $form) {
-  if ($element['#theme'] == 'taxonomy_term_select') {
+  if ($element['#theme'] == 'taxonomy_term_select' || strstr($element['#id'], '-tid')) {
     if (sizeof($element['#options']) > variable_get('cckdestinations_taxonomy_limit', 10)) {
       $element['#type'] = 'cckdestinations_autocomplete';
       $element['#value_callback'] = 'cckdestinations_autocomplete_value';
@@ -1057,13 +1056,13 @@ function cckdestinations_autocomplete_process($element, $edit, $form_state, $for
     '#array_parents' => $element['#array_parents'],
     '#name' => $element['#name'],
     '#multiple' => $element['#multiple'],
+    '#attributes' => $element['#attributes'],
   );
   
   if (empty($element[$field_key]['#element_validate'])) {
     $element[$field_key]['#element_validate'] = array();
   }
   array_unshift($element[$field_key]['#element_validate'], 'cckdestinations_autocomplete_validate');
-  
   return $element;
 }
 
@@ -1083,7 +1082,7 @@ function cckdestinations_autocomplete_validate($element, &$form_state) {
   
   $value = $element['#value'];
 
-  $extracted_ids = cckdestinations_autocomplete_tags_get_tids($value, $element['#vid']);
+  $extracted_ids = cckdestinations_autocomplete_tags_get_tids($value, $element['#vid'], $element['#multiple']);
 
   form_set_value($element, $extracted_ids['existing_tids'], $form_state);
 }
@@ -1164,7 +1163,7 @@ function cckdestinations_autocomplete_load($vid, $multiple, $string = '') {
  *  so we'll detect them here and process them independently.
  * @param $typed_input A string containing all comma separated tags. As the user typed it.
  */
-function cckdestinations_autocomplete_tags_get_tids($typed_input, $vid) {
+function cckdestinations_autocomplete_tags_get_tids($typed_input, $vid, $multiple = TRUE) {
   // This regexp allows the following types of user input:
   // this, "somecmpany, llc", "and ""this"" w,o.rks", foo bar
   $typed_terms = cckdestinations_autocomplete_split_tags($typed_input);
@@ -1178,7 +1177,11 @@ function cckdestinations_autocomplete_tags_get_tids($typed_input, $vid) {
     $term_ok = FALSE;
     if ($term = taxonomy_get_term($typed_term)) {
       if ($term->vid == $vid) {
-        $result['existing_tids'][$term->tid] = $term->tid;
+        if ($multiple) {
+          $result['existing_tids'][$term->tid] = $term->tid;
+        } else {
+          $result['existing_tids'] = $term->tid;
+        }
         $term_ok = TRUE;
       }
     }
@@ -1206,7 +1209,7 @@ function cckdestinations_autocomplete_split_tags($typed_input) {
 /**
  * Helper function to merge the tags, to prefill the fields when editing a node.
  */
-function cckdestinations_autocomplete_merge_tags($terms, $vid) {
+function cckdestinations_autocomplete_merge_tags($terms, $vid, $multiple = TRUE) {
   $typed_terms = array();
   if (!empty($terms)) {
     foreach ($terms as $term) {
@@ -1215,14 +1218,17 @@ function cckdestinations_autocomplete_merge_tags($terms, $vid) {
         //if ($tid && in_array($term->tid,drupal_map_assoc(array_keys((taxonomy_get_children($tid,$vid)))))) {
           // Commas and quotes in terms are special cases, so encode 'em.
           $name = $term->name;
+          $tag_hierarchy = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
+          $name .= $multiple ? '' : ' ('.$tag_hierarchy.')';
           if (preg_match('/,/', $term->name) || preg_match('/"/', $term->name)) {
             $name = '"'. preg_replace('/"/', '""', $name) .'"';
           }
-          $typed_terms[] = '"'.$name.' ['.$term->tid.']"';
+          $typed_terms[] = $multiple ? '"'.$name.' ['.$term->tid.']"' : $name.' ['.$term->tid.']';
        // }
       }
     }
   }
+  
   return implode(', ', $typed_terms);
 }
 
