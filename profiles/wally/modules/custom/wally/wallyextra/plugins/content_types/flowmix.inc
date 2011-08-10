@@ -47,7 +47,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   
   if (is_string($feed))
     $block->content = $feed;
-  elseif ($settings['override_theme_text'] != '')
+  elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
     $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
   else
     $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
@@ -472,7 +472,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
   $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
-  
+
   $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
   $creation_date = $creation_infos[1];
   if (($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) || (isset($form_state['post']['save']) && !isset($form_state['post']['title']))) {
