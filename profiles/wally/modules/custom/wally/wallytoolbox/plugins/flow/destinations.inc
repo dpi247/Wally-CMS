@@ -137,7 +137,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $tid = $conf['destination']['tid'];
   $target = $conf['destination']['target'];
   //dsm($feed_infos);
-  //$target='default_destination_block';
+  $target='default_destination_block';
   //dsm($target,target);
   $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
   while (is_string($redacblock['settings']))
@@ -397,6 +397,12 @@ function wallytoolbox_destinations_flow_set_multimediaobject($multimediaobject, 
   $temp_multimedia['FileSize']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'file', '', 'filesize');
   $temp_multimedia['Thumbnail']['value'] = $multimediaobject->field_thumbnail[0];
   $temp_multimedia['Rating']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_rating', '');
+  dsm($multimediaobject);
+  if (isset($multimediaobject->{'field_'.$mediatype.'file'}[0]) && !empty($multimediaobject->{'field_'.$mediatype.'file'}[0])) {
+    $temp_multimedia[ucfirst($mediatype).'File'] = $multimediaobject->{'field_'.$mediatype.'file'}[0];
+  } elseif (isset($multimediaobject->{'field_'.$mediatype.'3rdparty'}[0]) && !empty($multimediaobject->{'field_'.$mediatype.'3rdparty'}[0])) {
+    $temp_multimedia[ucfirst($mediatype).'3rdParty'] = $multimediaobject->{'field_'.$mediatype.'3rdparty'}[0];
+  }
   
   return $temp_multimedia;
 }
@@ -419,7 +425,7 @@ function wallytoolbox_destinations_flow_set_textobject($textobject, $transformed
 
 function wallytoolbox_destinations_flow_set_photoobject($photoobject) {
   $temp_photo = wallytoolbox_destinations_flow_set_multimediaobject($photoobject, $transformed_node);
-  
+
   // PhotoObject Elements
   $temp_photo['Crops']['Crop'] = array();
   while (!empty($photoobject->field_croping[0]['value']) && is_string($photoobject->field_croping[0]['value']))
