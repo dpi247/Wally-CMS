@@ -32,6 +32,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   $form['destination']['field_destinations']['#type'] = 'fieldset';*/
   
   $options_and_classe = cckdestinations_get_classes_and_options();
+  $vocabulary_id = variable_get('wallymport_destinationpath', 0);
 
   $form['destination'] = array(
     '#type' => 'fieldset',
@@ -47,6 +48,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
+    '#vid'              => $vocabulary_id,
   );
 
   $form['destination']['target'] = array(
