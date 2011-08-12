@@ -614,25 +614,44 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
  */
 function wallytoolbox_get_node_by_reference($node) {
   $rows = array();
-
+ if($node->type=='wally_linktype'){
+   $res=db_query("SELECT DISTINCT (
+		tr.nid
+		) 
+		FROM {content_field_links_list} tr
+		WHERE {tr.field_links_list_nid} =%d
+		UNION
+		SELECT DISTINCT (
+		tok.nid
+		) AS temp_nid
+		FROM {content_type_wally_articlepackage} tok
+		LEFT JOIN {content_field_linkedobjects tup} ON tok.nid = tup.nid
+		LEFT JOIN {content_field_links_list tik} ON tik.nid = tup.field_linkedobjects_nid
+		WHERE tik.field_links_list_nid =%d
+		    ", $node->nid,$node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    
+    }
+  }
   if($node->type=='wally_textobject'){
-    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    $res=db_query("SELECT DISTINCT(nid) FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
   } elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
-    if ($res=db_query("SELECT nid FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+    if ($res=db_query("SELECT DISTINCT(nid) FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
       while ($row = db_fetch_array($res)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     } else
-    if ($res2=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)) {
+    if ($res2=db_query("SELECT DISTINCT(nid) FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)) {
       while ($row = db_fetch_array($res2)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
     }
   } elseif($node->type=='wally_pollobject' || $node->type=='poll'){
-    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    $res=db_query("SELECT DISTINCT(nid) FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
     while ($row = db_fetch_array($res)) {
       if (!in_array($row, $rows)) $rows[] = $row;
     }
