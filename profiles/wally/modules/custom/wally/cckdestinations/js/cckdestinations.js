@@ -68,7 +68,7 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 		if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional)
 			$("#"+child).prepend("<option value=''> -- Select -- </option>");
 		$("#"+child).trigger("change");
-		$("#"+child).focus();
+		//$("#"+child).focus();
 	});
 }
 
