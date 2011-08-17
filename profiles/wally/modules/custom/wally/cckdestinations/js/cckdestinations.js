@@ -54,7 +54,7 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	childVal = (typeof childVal == "undefined") ? "" : childVal ;
 	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 	
-	$("#"+parent).bind("DOMSubtreeModified", function(event) {
+	$("#"+parent).bind("change DOMSubtreeModified", function(event) {
 		if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
 			var parentValue = $("#"+parent).find("option:selected").attr("title");
 		} else {
