@@ -8,7 +8,7 @@
 /**
  * Filter handler for limiting a view to URLs of a certain protocol.
  */
-class cckdestinations_views_handler_filter_target extends views_handler_filter_string {
+class cckdestinations_views_handler_filter_target extends views_handler_filter_in_operator {
   /*
   function query() {
    if (empty($this->value)) {
@@ -44,4 +44,26 @@ class cckdestinations_views_handler_filter_target extends views_handler_filter_s
   
   }
   */
+  
+ 
+  
+function get_value_options() {
+  
+ $array_of_panes=array();
+    if (!isset($this->value_options)) {
+      $this->value_title = t('Target');
+
+
+  $sql="Select name, view_name, view_id, admin_title FROM {wallyctools} ";
+  $results=(db_query($sql,"redacblock"));
+
+  while($result=db_fetch_object($results)){
+     $options[$result->name] = $result->name;
+     
+  }
+      
+  
+      $this->value_options = $options;
+    }
+  }
 }
