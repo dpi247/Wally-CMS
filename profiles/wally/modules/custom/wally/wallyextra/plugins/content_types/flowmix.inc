@@ -3,7 +3,7 @@
  * Plugin declaration function - returns a plugin definition array that
  * describes the content type.
  */
- 
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
