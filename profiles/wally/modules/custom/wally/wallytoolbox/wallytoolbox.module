@@ -1009,12 +1009,13 @@ function wallytoolbox_get_panels_and_handlers() {
   return array($panels, $handlers);
 }
 
-function wallytoolbox_flow_to_array_init_array() {
+function wallytoolbox_flow_to_array_init_array($feed_infos = array()) {
   $array_packages = array();
   $array_packages['Packages']['Package'] = array();
   $array_packages['Packages']['__log'] = array();
   $array_packages['Packages']['__log']['success'] = TRUE;
   $array_packages['Packages']['__log']['msg'] = '';
+  $array_packages['Packages']['__settings'] = $feed_infos;
   return $array_packages;
 }
 
