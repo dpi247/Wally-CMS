@@ -32,6 +32,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   $form['destination']['field_destinations']['#type'] = 'fieldset';*/
   
   $options_and_classe = cckdestinations_get_classes_and_options();
+  $vocabulary_id = variable_get('wallymport_destinationpath', 0);
 
   $form['destination'] = array(
     '#type' => 'fieldset',
@@ -47,6 +48,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
+    '#vid'              => $vocabulary_id,
   );
 
   $form['destination']['target'] = array(
@@ -397,7 +399,6 @@ function wallytoolbox_destinations_flow_set_multimediaobject($multimediaobject, 
   $temp_multimedia['FileSize']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'file', '', 'filesize');
   $temp_multimedia['Thumbnail']['value'] = $multimediaobject->field_thumbnail[0];
   $temp_multimedia['Rating']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_rating', '');
-  dsm($multimediaobject);
   if (isset($multimediaobject->{'field_'.$mediatype.'file'}[0]) && !empty($multimediaobject->{'field_'.$mediatype.'file'}[0])) {
     $temp_multimedia[ucfirst($mediatype).'File'] = $multimediaobject->{'field_'.$mediatype.'file'}[0];
   } elseif (isset($multimediaobject->{'field_'.$mediatype.'3rdparty'}[0]) && !empty($multimediaobject->{'field_'.$mediatype.'3rdparty'}[0])) {
