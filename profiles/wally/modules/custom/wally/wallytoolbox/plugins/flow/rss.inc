@@ -92,7 +92,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
       $feed_name = check_plain($feed_infos['name']);
       $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
 
-      if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
+      if (true||$channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
         $feed_infos['last_build'] = $channel_last_build;
         
         while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
@@ -106,7 +106,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
           
           $elem_package = $temp_struct_array;
           $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
-          if (!isset($feeds_md5[$elem_md5]))
+          if (true||!isset($feeds_md5[$elem_md5]))
             $struct_array['Packages']['Package'][] = $temp_struct_array;
           
           $new_feeds_md5[$elem_md5] = TRUE;
@@ -275,6 +275,7 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $array_item['Destinations']['Destination']['Position'] = $feed_destination[1];
   $array_item['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
   $array_item['Destinations']['Destination']['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
+  $array_item['PackageLayout']['value'] = $feed_infos['package_layout'];
   $array_item['ExternalURI']['value'] = _wallytoolbox_checkifelementexists($item, 'link');
 
   return array($feed_name, $prefix);
