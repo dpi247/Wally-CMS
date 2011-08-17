@@ -75,7 +75,7 @@ function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
 }
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
-  $struct_array = wallytoolbox_flow_to_array_init_array();
+  $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
