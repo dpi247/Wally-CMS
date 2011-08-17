@@ -320,7 +320,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
       $mix_schema = explode(',', $settings['mix_schema']);
     }
   }
-  
+
   foreach ($settings['flows'] as $flow) {
     $flow = (array)$flow;
     $temp_feed_array = _wallyextra_flowmix_create_array_from_uri($flow);
@@ -334,17 +334,22 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     $available_items = _wallyextra_flowmix_get_available_items_from_schema($schema_elem, $feed_array);
     $most_recent_index = _wallyextra_flowmix_get_most_recent_from_availables($available_items);
     $item = array_shift($feed_array[$most_recent_index]);
+    $item['__flow_id'] = $most_recent_index;
     if (isset($item)){
       array_push($feed, $item);
     }
   }
+  
+  $feed['__settings'] = $settings;
 
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
-    $elem_package = $feed[$i];
-    $feed[$i]['feed_md5'] = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
-    if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5']))
-      $modif = TRUE;
+      $elem_package = $feed[$i];
+      $feed[$i]['feed_md5'] = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
+      if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5'])) {
+        $modif = TRUE;
+        break;
+      }
   }
   
   if ($modif) {
