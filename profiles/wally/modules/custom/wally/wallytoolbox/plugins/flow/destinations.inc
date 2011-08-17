@@ -118,7 +118,7 @@ function wallytoolbox_destinations_flow_settings_default($form_state = array()) 
 }
 
 function wallytoolbox_destinations_flow_build($feed_infos) {
-  $array_packages = wallytoolbox_flow_to_array_init_array();
+  $array_packages = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
   $view_results = $view->result;
