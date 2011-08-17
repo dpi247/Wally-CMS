@@ -36,7 +36,7 @@ function cckdestinations_views_handlers() {
         'parent' => 'views_handler_filter_term_node_tid',
       ),
       'cckdestinations_views_handler_filter_target' => array(
-        'parent' => 'views_handler_filter_string',
+        'parent' => 'views_handler_filter_in_operator',
       ),
       'cckdestinations_views_handler_filter_layout' => array(
         'parent' => 'views_handler_filter_string',
