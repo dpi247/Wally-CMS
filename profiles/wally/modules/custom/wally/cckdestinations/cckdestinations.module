@@ -251,7 +251,7 @@ function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
   $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
 
   if (isset($form['tid']) && $form['#vocabulary']['vid'] != $dest_vid) {
-    cckdestinations_form_election_form($form, $form_state);
+    cckdestinations_form_election_form($form, $form_state, $dest_vid);
   }
 }
 
@@ -282,7 +282,7 @@ function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_s
   }
 }
 
-function cckdestinations_form_election_form(&$form, &$form_state) {
+function cckdestinations_form_election_form(&$form, &$form_state, $dest_vid) {
   ctools_include('dependent');
   ctools_add_js('dependent');
 
