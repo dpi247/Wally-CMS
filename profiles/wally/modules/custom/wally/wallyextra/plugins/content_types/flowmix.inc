@@ -372,7 +372,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     }
   }
   
-  $feed['__settings'] = $settings;
+  //$feed['__settings'] = $settings;
 
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
