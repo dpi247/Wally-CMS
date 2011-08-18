@@ -151,7 +151,7 @@ function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path 
   $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
 
   if ($semaphore) {
-    if (time() - $semaphore > 3600) {
+    if (time() - $semaphore > 60) {
       // Either cron has been running for more than an hour or the semaphore
       // was not reset due to a database error.
       watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
