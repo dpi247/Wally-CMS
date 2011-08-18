@@ -143,8 +143,8 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
   
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
 }
 
 /**
