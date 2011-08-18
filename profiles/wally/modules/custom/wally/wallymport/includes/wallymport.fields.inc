@@ -668,16 +668,17 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
   }
 
 	if (is_numeric($value)) {
-    $node->field_packagelayout[] = $value;
+    $node->field_packagelayout[]['value'] = $value;
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
   } else {
     if ($tax_term = taxonomy_get_term_by_name('Article')) {
-      $node->field_packagelayout[] = $tax_term[0]->tid;
+      $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
     } else {
 		  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
     }
   }
+  print_r($node->field_packagelayout);
 }
 
 /**
