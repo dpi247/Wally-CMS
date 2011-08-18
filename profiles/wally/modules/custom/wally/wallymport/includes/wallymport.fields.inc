@@ -678,7 +678,6 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
 		  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
     }
   }
-  print_r($node->field_packagelayout);
 }
 
 /**
