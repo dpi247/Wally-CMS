@@ -155,6 +155,7 @@ function media_dailymotion_variable_default($name = NULL) {
       
       // "textarea" of the allowed URLs from which the videos may come.
       'allowed_url' => '
+http://www.dailymotion.com/video/*
 http://*.dailymotion.com/video/*
 http://*.dailymotion.com/*/video/*
 ',
