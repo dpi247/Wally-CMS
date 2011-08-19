@@ -226,7 +226,7 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
       $xml_file = variable_get('wallymport_source','');
     }
   }
-  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);// get list of all *.zip files
+  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all *.zip files
   //drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0); Old scan dir function
   if (count($files)==0) {
     header($error_msg, TRUE, 517);
