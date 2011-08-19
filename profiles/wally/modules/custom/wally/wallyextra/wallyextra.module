@@ -327,6 +327,7 @@ function wallyextra_refresh_block($infos, $settings) {
   $plugin = $infos['type'];
   $handled_plugins = array('rssmixread', 'flowmix', 'remotehtml');
   
+  // Check if we can handle refreshing of the treated plugin's cache
   if (in_array($plugin, $handled_plugins)) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
