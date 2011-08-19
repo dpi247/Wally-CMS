@@ -488,8 +488,7 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       header($error_msg, TRUE, 517);
       file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'));
     } else {
-      file_delete($file->filename);
-      //file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
+      file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
     }
   }
 }
