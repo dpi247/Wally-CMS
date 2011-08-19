@@ -925,19 +925,24 @@ function wallytoolbox_delete_photofile($photofile) {
  * Implementation of hook_cron().
  */ 
 function wallytoolbox_cron(){
-  $return = '<b>Run '.date('Y-m-d H:i:s').' :</b></br>';
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  
+  // Check if the table is not empty, and build it if necessary
   $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
   if ($count['COUNT(*)'] == '0')
     wallytoolbox_refresh_cache_list();
   
+  // Select blocks where last run is too old according to their refresh time
   $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
     while (is_string($block['settings']))
       $block['settings'] = unserialize($block['settings']);
     $block_infos = explode(':', $block['cid']);
+    // Invoke hook_refresh_block
     $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
     $block['output'] .= serialize($output);
     $block['last_run'] = time();
+    // Save modifications
     drupal_write_record('wallytoolbox_content_types_cache', $block, 'cid');
     $return .= $block['cid'].'</br>';
   }
@@ -949,6 +954,7 @@ function wallytoolbox_cron(){
  * Get all blocks and put them in the wallytoolbox_content_types_cache table.
  */
 function wallytoolbox_refresh_cache_list() {
+  // Get all blocks, from DB or features
   list($panels, $handlers) = wallytoolbox_get_panels_and_handlers();
   
   // Get previous settings from DB to save the cron config
