@@ -165,7 +165,7 @@ function emvideo_dailymotion_video($video_id, $width, $height, $field, $item, $n
  *  
  */
 function _emvideo_dailymotion_request($src_url){
-  preg_match('/\/video\/(.*)_', $src_url,$urlT);
+  preg_match('/\/video\/(.*)_/', $src_url,$urlT);
   $id = $urlT[1]; 
 
   
