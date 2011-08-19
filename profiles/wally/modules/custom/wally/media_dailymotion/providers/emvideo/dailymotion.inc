@@ -165,7 +165,7 @@ function emvideo_dailymotion_video($video_id, $width, $height, $field, $item, $n
  *  
  */
 function _emvideo_dailymotion_request($src_url){
-  preg_match('/^http:\/\/www\.dailymotion\.tv\/video\/(.*)_', $src_url,$urlT);
+  preg_match('/\/video\/(.*)_', $src_url,$urlT);
   $id = $urlT[1]; 
 
   
@@ -189,7 +189,7 @@ function _emvideo_dailymotion_request($src_url){
    'thumbnail_width' => (string)$xml->thumbnail_width,   
    'thumbnail_height' => (string)$xml->thumbnail_height
   );
-  
+
   return $embedly_result;
 }
 
