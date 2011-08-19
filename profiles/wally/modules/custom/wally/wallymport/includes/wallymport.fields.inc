@@ -143,8 +143,8 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
   
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
 }
 
 /**
@@ -193,8 +193,8 @@ function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, 
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
   
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
 }
 /**
  * Process article package from DOM.
@@ -242,8 +242,8 @@ function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $pr
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
   
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name($value))
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
 }
 
 /**
@@ -668,12 +668,12 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
   }
 
 	if (is_numeric($value)) {
-    $node->field_packagelayout[] = $value;
+    $node->field_packagelayout[]['value'] = $value;
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
-    $node->field_packagelayout[] = $tax_term[0]->tid;
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
   } else {
     if ($tax_term = taxonomy_get_term_by_name('Article')) {
-      $node->field_packagelayout[] = $tax_term[0]->tid;
+      $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
     } else {
 		  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
     }

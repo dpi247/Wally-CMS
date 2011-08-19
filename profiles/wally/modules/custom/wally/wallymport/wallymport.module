@@ -151,7 +151,7 @@ function wallymport_check_process_folder($path_to_folder = NULL, $absolute_path 
   $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
 
   if ($semaphore) {
-    if (time() - $semaphore > 3600) {
+    if (time() - $semaphore > 60) {
       // Either cron has been running for more than an hour or the semaphore
       // was not reset due to a database error.
       watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
@@ -226,7 +226,7 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
       $xml_file = variable_get('wallymport_source','');
     }
   }
-  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);// get list of all *.zip files
+  $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all *.zip files
   //drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0); Old scan dir function
   if (count($files)==0) {
     header($error_msg, TRUE, 517);
@@ -488,7 +488,8 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       header($error_msg, TRUE, 517);
       file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'));
     } else {
-      file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
+      rrmdir($file->filename);
+      //file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
     }
   }
 }
