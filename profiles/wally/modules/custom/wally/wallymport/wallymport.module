@@ -241,7 +241,7 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
 
   // Process each ZIP files from folder.
   foreach ($files as $file) {
-    wallymport_process_zip_file($file, $temp, $format, $returns);
+    wallymport_process_zip_file($file, $temp, $format, $returns, FALSE, 'wallymport/process_folder');
   }
   
   return $returns; 
@@ -445,7 +445,7 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
  * @param array $returns
  *   Results of the import.
  */
-function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview = FALSE) {
+function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview = FALSE, $redirect = FALSE) {
   global $proceed_folder_path;
   $zip_error = FALSE;
   $error_msg = FALSE;
@@ -516,6 +516,11 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       }
     }
   }
+  
+  if ($redirect) {
+    drupal_goto($redirect);
+  }
+  return;
 }
 
 /**
