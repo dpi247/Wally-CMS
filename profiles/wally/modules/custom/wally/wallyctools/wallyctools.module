@@ -376,7 +376,7 @@ function wallyctools_get_redacblock_panes(){
   $array_of_panes=array();
 
   $sql="Select name, view_name, view_id, admin_title FROM {wallyctools} ";
-  $results=(db_query($sql));
+  $results=(db_query($sql,"redacblock"));
 
   while($result=db_fetch_object($results)){
   $redacblocks[$result->name]=$result;
@@ -392,16 +392,23 @@ function wallyctools_get_redacblock_panes(){
          $temp_result->subtype=$term_view_handler->subtype;
          
          $temp_result=(array) $temp_result;
-         $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
+
+         
+         $view = views_get_view($redacblocks[$term_view_handler->subtype]->view_name);
+         $view->set_display($redacblocks[$term_view_handler->subtype]->view_id);
+         $layouts=$view->display[$redacblocks[$term_view_handler->subtype]->view_id]->display_options['redacblock_layout'];
+         
          foreach ($layouts as $layout) {
+           if($layout){
            $temp_result['layout_id'] = $layout;
-           $array_of_panes[]=(object)$temp_result;
+           $array_of_panes[]=(object)$temp_result;}
          }  
        }
      }
    }
   return $array_of_panes;
 }
+
 
 function wallyctools_theme() {
   $path = drupal_get_path('module', 'wallyctools');
