@@ -30,8 +30,8 @@ function wallyflowpublish_settings_form(){
     $view = views_get_view('default_destination_view_feed');
     $display = $view->display['feed_1'];
     $view_path = $display->display_options['path'];
-    $expl_path = explode('%', $view_path);
-    $link = '/'.$expl_path[0].$name;
+    $expl_path = explode('/%/', $view_path);
+    $link = '/'.$expl_path[0].'/'.$name;
     $link = (isset($expl_path[1]) && $expl_path[1] != '') ? $link.'/'.$expl_path[1] : $link;
     $feed_link ='<a href="'.$link.'">'.t('View !dest feed', array('!dest' => $dest)).' ('.$base_url.$link.')</a>';
 
