@@ -280,7 +280,7 @@ function _wallyfeaturessynchronizer_get_tid_from_featid($feat_term) {
     $temp_term = $array_feat_term;
   }
 
-  return $temp_term->tid;
+  return $array_feat_term['tid'];
 }
 
 /*
