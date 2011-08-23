@@ -247,6 +247,8 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $view = views_get_view($view_name);
 
   $view->set_display($view_id);
+  
+  
   $options = array(
     'field_destinations_target' => array(
       'operator' => '=',
@@ -282,8 +284,8 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   );
 
   $options = array(
-    'operator' => '=',
-    'value' => $redacblock_name,
+    'operator' => 'in',
+    'value' => array($redacblock_name),
     'group' => '0',
     'exposed' => FALSE,
     'expose' => array(
@@ -300,6 +302,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   //init handler should be placed after add_item !!!
   $view->init_handlers();
 
+  
   //$view->display[$view_id]->handler->handlers['filter']['t']=$options;
   //$view->set_item($view_name, 'filter', $name, $item);
 
