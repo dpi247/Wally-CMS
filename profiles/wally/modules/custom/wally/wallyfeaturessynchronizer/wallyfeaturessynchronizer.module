@@ -64,27 +64,30 @@ function wallyfeaturessynchronizer_views_default_views_alter (&$cached) {
   foreach ($cached as $view_name => $view) {
     foreach ($view->display as $display_id => $display) {
       $new_fields = array();
-      foreach ($display->handler->get_option($types[$type]['plural']) as $id => $field) {
-        $handler = views_get_handler($field['table'], $field['field'], $type);
-        // Build handler to get field informations
-        if (!isset($handler->content_field['type'])) {
-          $handler->content_field['type'] = '';
-        }
-
-        $new_fields[$id] = $field;
-        // Only handle fields with taxonomy values
-        if ($id == 'field_destinations_tid' || $handler->content_field['type'] == 'content_taxonomy') {
-          foreach ($field['value'] as $key => $value) {
-            if (is_array($value) && isset($value['featid'])) {
-              // Replace TID with the full term
-              $new_fields[$id]['value'][$key] = _wallyfeaturessynchronizer_get_tid_from_featid((object)$value);
+      if (isset($display->handler) && is_object($display->handler)) {
+        foreach ($display->handler->get_option($types[$type]['plural']) as $id => $field) {
+          $handler = views_get_handler($field['table'], $field['field'], $type);
+          // Build handler to get field informations
+          if (!isset($handler->content_field['type'])) {
+            $handler->content_field['type'] = '';
+          }
+  
+          $new_fields[$id] = $field;
+          // Only handle fields with taxonomy values
+          if ($id == 'field_destinations_tid' || $handler->content_field['type'] == 'content_taxonomy') {
+            foreach ($field['value'] as $key => $value) {
+              if (is_array($value) && isset($value['featid'])) {
+                // Replace TID with the full term
+                $new_fields[$id]['value'][$key] = _wallyfeaturessynchronizer_get_tid_from_featid((object)$value);
+              }
             }
           }
         }
+        
+        // Save new values in the view
+        $display->handler->set_option($types[$type]['plural'], $new_fields);
+        $view->display[$display_id] = $display;
       }
-      // Save new values in the view
-      $display->handler->set_option($types[$type]['plural'], $new_fields);
-      $view->display[$display_id] = $display;
     }
     $cached[$view_name] = $view;
   }
