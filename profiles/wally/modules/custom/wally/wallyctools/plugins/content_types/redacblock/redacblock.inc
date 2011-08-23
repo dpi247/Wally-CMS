@@ -247,41 +247,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $view = views_get_view($view_name);
 
   $view->set_display($view_id);
-  
-  
-  $options = array(
-    'field_destinations_target' => array(
-      'operator' => '=',
-      'value' => $redacblock_name,
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'case' => 1,
-      'id' => 'field_destinations_target',
-      'table' => 'node_data_field_destinations',
-      'field' => 'field_destinations_target',
-      'relationship' => 'none',
-    ),
-  );
-
-  $options = array(
-    'operator' => '=',
-    'value' => $redacblock_name,
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'case' => 1,
-    'id' => 'field_destinations_target',
-    'table' => 'node_data_field_destinations',
-    'field' => 'field_destinations_target',
-    'relationship' => 'none',
-  );
 
   $options = array(
     'operator' => 'in',
@@ -302,7 +267,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   //init handler should be placed after add_item !!!
   $view->init_handlers();
 
-  
   //$view->display[$view_id]->handler->handlers['filter']['t']=$options;
   //$view->set_item($view_name, 'filter', $name, $item);
 
@@ -353,7 +317,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if ($conf['panel_args'] && is_array($panel_args)) {
     $args = array_merge($panel_args, $args);
   }
-
 
   if (isset($conf['context']) && is_array($conf['context'])) {
     foreach ($conf['context'] as $count => $context_info) {
@@ -713,7 +676,8 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
-
+  $form_state['conf']['context'] = $form_state['values']['context'];
+  
   //CASE 1: Adding an existing redac block.
   if ($form_state['settings']['redacblock_type'] == 'fixed') {
     _wallyctools_redacblock_content_type_edit_save($form_state['settings']['content'], $form_state);
