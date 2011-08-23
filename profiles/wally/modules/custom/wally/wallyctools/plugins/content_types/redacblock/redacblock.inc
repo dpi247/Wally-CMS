@@ -235,7 +235,6 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * based on the module and delta supplied in the configuration.
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
-	
   $conf =wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
   if (!is_array($contexts)) {
@@ -249,7 +248,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
   $view->set_display($view_id);
 
-
   $options = array(
     'operator' => 'in',
     'value' => array($redacblock_name),
@@ -261,7 +259,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     ),
     'relationship' => 'none',
   );
-  
 
   //$view->display_handler->get_handlers('argument')
 
@@ -679,7 +676,7 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
-      $form_state['conf']['context'] = $form_state['values']['context'];
+  $form_state['conf']['context'] = $form_state['values']['context'];
   
   //CASE 1: Adding an existing redac block.
   if ($form_state['settings']['redacblock_type'] == 'fixed') {
