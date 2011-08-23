@@ -277,7 +277,7 @@ function _wallyfeaturessynchronizer_get_tid_from_featid($feat_term) {
   if (!isset($temp_term->tid)) {
     $array_feat_term = (array)$feat_term;
     taxonomy_save_term($array_feat_term);
-    $temp_term = $array_feat_term;
+    $temp_term = (object)$array_feat_term;
   }
 
   return $temp_term->tid;
