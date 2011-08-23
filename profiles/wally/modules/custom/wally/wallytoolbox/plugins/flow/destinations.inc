@@ -238,8 +238,10 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   }
   
   $transformed_node = array();
+  
+  $transformed_node['nid'] = $node->nid;
 
-	// Package Attributes
+  // Package Attributes
   $transformed_node['PackageID'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_packageid', '');
   $transformed_node['PublicationDate'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_publicationdate', '');
   $transformed_node['CreationDate'] = date('Y-m-d', $node->created).'T'.date('H:i:s', $node->created);

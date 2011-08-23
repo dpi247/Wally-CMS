@@ -272,15 +272,15 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->module = 'wallyextra';
   $block->title = 'HTML Block';
   $cid = $settings['caid'];
-  
+
   $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', drupal_get_path('module', 'wallyextra').'/plugins/content_types/remotehtml.inc', TRUE);
-    
+  
   if (is_string($htmlblock))
     $block->content = $htmlblock;
-  elseif ($settings['override_theme_text'] != "")// && function_exists($settings['override_theme_text'])){
-    $block->content = theme($settings['override_theme_text'], $subtype, $context, $htmlblock, $settings ) ;
+  elseif ($settings['override_theme'] && $settings['override_theme_text'] != "")
+    $block->content = theme($settings['override_theme_text'], $subtype, $context, $htmlblock['content'], $settings ) ;
   else
-    $block->content = theme("wallyct_remotehtml", $subtype, $context, $htmlblock, $settings);
+    $block->content = theme("wallyct_remotehtml", $subtype, $context, $htmlblock['content'], $settings);
   
   return $block;
 }
@@ -394,6 +394,6 @@ function _wallyextra_remotehtml_setcache($settings) {
   $htmlblock = file_get_contents($block_uri);
 
   cache_set($settings['caid'], $htmlblock, 'cache');
-
+  
   return $htmlblock;
 }
