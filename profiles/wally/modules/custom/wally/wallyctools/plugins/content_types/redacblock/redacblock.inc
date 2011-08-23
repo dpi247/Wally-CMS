@@ -235,6 +235,10 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * based on the module and delta supplied in the configuration.
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
+	
+  dsm($conf);
+  dsm($panel_args);
+  dsm($contexts);
   $conf =wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
   if (!is_array($contexts)) {
@@ -350,7 +354,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if ($conf['panel_args'] && is_array($panel_args)) {
     $args = array_merge($panel_args, $args);
   }
-
+  dsm('rrr');
 
   if (isset($conf['context']) && is_array($conf['context'])) {
     foreach ($conf['context'] as $count => $context_info) {
