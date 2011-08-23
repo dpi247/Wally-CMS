@@ -109,6 +109,22 @@ function cckdestinations_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['cckdestinations_select_to_auto'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy autocomplete settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  
+  $form['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Limit of terms'),
+    '#description' => t('If the amount of proposed terms is greater thant this limit, the select box will be replaced by a suggestion text field.'),
+    '#default_value' => variable_get('cckdestinations_taxonomy_limit', 10),
+    '#size' => 80,
+    '#maxlength' => 512,
+  );
+  
   $form['buttons']['submit'] = array(
   	'#type' => 'submit',
   	'#value' => t('Save configuration')
@@ -131,7 +147,12 @@ function cckdestinations_page_admin_form_validate($form, &$form_state) {
   if ($values['op'] == $values['buttons']['submit']) {
     $rank_limit = $values['cckdestinations_rank']['cckdestinations_rank_limit'];
     if (!is_numeric($rank_limit) || $rank_limit < 0) {
-      form_set_error('cckdestinations_rank][cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 1.'));
+      form_set_error('cckdestinations_rank][cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 0.'));
+    }
+    
+    $tax_limit = $values['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit'];
+    if (!is_numeric($tax_limit) || $tax_limit < 0) {
+      form_set_error('cckdestinations_select_to_auto][cckdestinations_taxonomy_limit', t('The given term limit value must be a numeric value greater or equal than 0.'));
     }
     
     foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
@@ -160,6 +181,7 @@ function cckdestinations_page_admin_form_submit($form, &$form_state) {
   if ($values['op'] == $values['buttons']['submit']) {
     variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
     variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
+    variable_set('cckdestinations_taxonomy_limit', $values['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit']);
 
     foreach ($values['cckdestinations_rank'] as $dest) {
       if (is_array($dest)) {
