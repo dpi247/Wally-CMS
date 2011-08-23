@@ -184,7 +184,7 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
   if ($my_node->type == 'wally_articlepackage'){
     $mainstory = $my_node->field_mainstory_nodes[0];
     $teaser_length = 300;
-    
+   
     if (isset($mainstory->field_textchapo[0]['value'])) {
       $descr = $mainstory->field_textchapo[0]['value'];
     }

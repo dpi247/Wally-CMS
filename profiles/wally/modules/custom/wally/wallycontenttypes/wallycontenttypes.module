@@ -515,8 +515,8 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
       
       // Render the node.
       if (!empty($r[$value])) {
-        //$r[$value] = node_build_content($r[$value]);
-       // drupal_render($r[$value]->content);
+        // $r[$value] = node_build_content($r[$value]);
+        // drupal_render($r[$value]->content);
         if (variable_get('wallycontenttypes_packagepopulate_recursive', 1))
           wallycontenttypes_packagepopulate($r[$value], '');
       } else {
