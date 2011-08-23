@@ -327,6 +327,7 @@ function wallyextra_refresh_block($infos, $settings) {
   $plugin = $infos['type'];
   $handled_plugins = array('rssmixread', 'flowmix', 'remotehtml');
   
+  // Check if we can handle refreshing of the treated plugin's cache
   if (in_array($plugin, $handled_plugins)) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
@@ -347,6 +348,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
     // This cache doesn't exists, create it
     if ($ajax) {
+      // Adding the AJAX call
       drupal_add_js('
         $(document).ready(function() {
           setTimeout(function(){
@@ -370,8 +372,11 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
         });
       ', 'inline');
       
+      // Temporary HTML content
+      // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
     } else {
+      // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
       if (is_string($datas))
         $datas = array('content' => $datas);
@@ -392,6 +397,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
+  // Get POSTed values
   $callback = $_POST['callback'];
   $settings = str_replace('|@@@|', '\n', unserialize($_POST['settings']));
   $subtype = $_POST['subtype'];
@@ -399,11 +405,14 @@ function _wallyextra_content_types_ajax_callback() {
   $default_theme = $_POST['default_theme'];
   $plugin = $_POST['plugin'];
   
+  // Load plugin if necessary
   if ($plugin != '')
     require_once $plugin;
   
+  // Get contents to be passed to theming function
   $datas = call_user_func_array($callback, array($settings));
 
+  // Usual theming
   if ($settings['override_theme'] && $settings['override_theme_text'] != '')
     $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
   else

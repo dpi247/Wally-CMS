@@ -36,6 +36,61 @@ function wallyfeaturessynchronizer_schema_alter (&$schema) {
 }
 
 /**
+ * Implementation of hook_features_api
+ */
+function wallyfeaturessynchronizer_features_api() {
+  return array(
+    'views' => array(
+      'base' => 'wallyfeaturessynchronizer_views',
+    ),
+    'page_manager_handlers' => array(
+      'base' => 'wallyfeaturessynchronizer_page_manager_handlers',
+    ),
+  );
+}
+
+/**
+ * Alter the object considered by features as default value to replace
+ * the complete taxonomy terms by their IDs.
+ * 
+ * @param &$cached
+ *   The unaltered default values object.
+ */
+function wallyfeaturessynchronizer_views_default_views_alter (&$cached) {
+  $bad_car = array('_', ' ', '\'');
+  $types = views_object_types();
+  $type = 'filter';
+  
+  foreach ($cached as $view_name => $view) {
+    foreach ($view->display as $display_id => $display) {
+      $new_fields = array();
+      foreach ($display->handler->get_option($types[$type]['plural']) as $id => $field) {
+        $handler = views_get_handler($field['table'], $field['field'], $type);
+        // Build handler to get field informations
+        if (!isset($handler->content_field['type'])) {
+          $handler->content_field['type'] = '';
+        }
+
+        $new_fields[$id] = $field;
+        // Only handle fields with taxonomy values
+        if ($id == 'field_destinations_tid' || $handler->content_field['type'] == 'content_taxonomy') {
+          foreach ($field['value'] as $key => $value) {
+            if (is_array($value) && isset($value['featid'])) {
+              // Replace TID with the full term
+              $new_fields[$id]['value'][$key] = _wallyfeaturessynchronizer_get_tid_from_featid((object)$value);
+            }
+          }
+        }
+      }
+      // Save new values in the view
+      $display->handler->set_option($types[$type]['plural'], $new_fields);
+      $view->display[$display_id] = $display;
+    }
+    $cached[$view_name] = $view;
+  }
+}
+
+/**
  * Alter the object considered by features as default value to replace
  * the complete taxonomy terms by their IDs.
  * 
@@ -67,11 +122,77 @@ function wallyfeaturessynchronizer_default_page_manager_handlers_alter (&$cached
 }
 
 /**
+ * Implementation of hook_features_export_render() for views.
+ * 
+ * @see features.views.inc
+ */
+function wallyfeaturessynchronizer_views_features_export_render($module, $data, $export = 'normal') {
+  $code = array();
+  $code[] = '  $views = array();';
+  $code[] = '';
+  
+  // Build views & add to export array
+  foreach ($data as $view_name) {
+    // Build the view
+    $view = views_get_view($view_name, TRUE);
+    
+    // Beginning of custom code
+    $bad_car = array('_', ' ', '\'');
+    if ($export !== NULL) {
+      $view->set_display();
+      $types = views_object_types();
+      $type = 'filter';
+      foreach ($view->display as $display_id => $display) {
+        $new_fields = array();
+        foreach ($display->handler->get_option($types[$type]['plural']) as $id => $field) {
+          // Build handler to get field informations
+          $handler = views_get_handler($field['table'], $field['field'], $type);
+          $handler->init($view, $field);
+          if (!isset($handler->content_field['type'])) {
+            $handler->content_field['type'] = '';
+          }
+          
+          $new_fields[$id] = $field;
+          // Only handle fields with taxonomy values
+          if ($id == 'field_destinations_tid' || $handler->content_field['type'] == 'content_taxonomy') {
+            foreach ($field['value'] as $key => $value) {
+              if (is_numeric($value)) {
+                $term = taxonomy_get_term($value);
+                if (!isset($term->featid)) {
+                  $term->featid = $term->vid .'_'. str_replace($bad_car, '-', strtolower($term->name));
+                  drupal_write_record('term_data', $term, 'tid');
+                }
+                // Replace TID with the full term
+                $new_fields[$id]['value'][$key] = (array)$term;
+              }
+            }
+          }
+        }
+        // Save new values in the view
+        $display->handler->set_option($types[$type]['plural'], $new_fields);
+        $view->display[$display_id] = $display;
+      }
+    }
+    // End of custom code
+    
+    if ($view) {
+      $code[] = '  // Exported view: '. $view_name;
+      $code[] = $view->export('  ');
+      $code[] = '  $views[$view->name] = $view;';
+      $code[] = '';
+    }
+  }
+  $code[] = '  return $views;';
+  $code = implode("\n", $code);
+  return array('views_default_views' => $code);
+}
+
+/**
  * Implementation of hook_features_export_render() for page_manager_handlers.
  * 
  * @see features.ctools.inc
  */
-function page_manager_handlers_features_export_render($module, $data, $export = 'normal') {
+function wallyfeaturessynchronizer_page_manager_handlers_features_export_render($module, $data, $export = 'normal') {
   ctools_include('export');
   
   $component = 'page_manager_handlers';
@@ -144,7 +265,6 @@ function _wallyfeaturessynchronizer_set_featid_from_object (&$object) {
 function _wallyfeaturessynchronizer_get_tid_from_featid($feat_term) {
   $terms = taxonomy_get_tree($feat_term->vid);
   $temp_term = new stdClass();
-  
   foreach ($terms as $term) {
     if ($term->featid == $feat_term->featid) {
       $temp_term = $term;
@@ -154,8 +274,37 @@ function _wallyfeaturessynchronizer_get_tid_from_featid($feat_term) {
   if (!isset($temp_term->tid)) {
     $array_feat_term = (array)$feat_term;
     taxonomy_save_term($array_feat_term);
-    $temp_term = $feat_term;
+    $temp_term = $array_feat_term;
   }
-  
+
   return $temp_term->tid;
 }
+
+/*
+ * Redirection of hooks to their original implementation if they have not been implemented if this module
+ */
+
+function wallyfeaturessynchronizer_views_features_export($data, &$export, $module_name = '') {
+  views_features_export($data, $export, $module_name);
+}
+
+function wallyfeaturessynchronizer_views_features_export_options() {
+  return views_features_export_options();
+}
+
+function wallyfeaturessynchronizer_views_features_revert($module) {
+  views_features_revert($module);
+}
+
+function wallyfeaturessynchronizer_page_manager_handlers_features_export($data, &$export, $module_name = '') {
+  page_manager_handlers_features_export($data, $export, $module_name);
+}
+
+function wallyfeaturessynchronizer_page_manager_handlers_features_export_options() {
+  return page_manager_handlers_features_export_options();
+}
+
+function wallyfeaturessynchronizer_page_manager_handlers_features_revert($module) {
+  page_manager_handlers_features_revert($module);
+}
+
