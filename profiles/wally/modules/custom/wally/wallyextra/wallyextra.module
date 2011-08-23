@@ -378,10 +378,14 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
     } else {
       // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
+      if (is_string($datas))
+        $datas = array('content' => $datas);
     }
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;
+    if (is_string($datas))
+      $datas = array('content' => $datas);
   }
   
   return $datas;
