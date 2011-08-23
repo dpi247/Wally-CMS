@@ -229,8 +229,13 @@ function wallymport_page_process_folder($path_to_folder = NULL, $absolute_path =
   $files = file_scan_directory($xml_file, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all *.zip files
   //drupal_system_listing('.*\.'. $format .'$', $xml_file, 'name', 0); Old scan dir function
   if (count($files)==0) {
-    header($error_msg, TRUE, 517);
-    return array('No input files found');
+    if (!variable_get('wallymport_source', FALSE)) {
+      $error_msg = t('Import directory path not configured.');
+    } else {
+      $error_msg = t('No input files found.');
+    }
+    drupal_set_header('HTTP/1.1 517 '.$error_msg);
+    return array($error_msg);
   }
   ksort($files);
 
@@ -265,8 +270,13 @@ function wallymport_process_zip($path_to_zip, $absolute_path = FALSE){
   }
   
   if (!file_exists($file)) {
-    header($error_msg, TRUE, 517);
-    print json_encode(array('Input file doesn\'t exists'));
+    if (!variable_get('wallymport_source', FALSE)) {
+      $error_msg = t('Import directory path not configured.');
+    } else {
+      $error_msg = t('Input file doesn\'t exists');
+    }
+    drupal_set_header('HTTP/1.1 517 '.$error_msg);
+    print json_encode(array($error_msg));
     return;
   }
   
@@ -403,8 +413,9 @@ function wallymport_preview_zip($path_to_zip, $absolute_path = FALSE) {
   }
   
   if (!file_exists($file)) {
-    header($error_msg, TRUE, 517);
-    print json_encode(array('Input file doesn\'t exists'));
+    $error_msg = t('Input file doesn\'t exists');
+    drupal_set_header('HTTP/1.1 517 '.$error_msg);
+    print json_encode(array($error_msg));
     return;
   }
   
@@ -451,11 +462,11 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       //drupal_system_listing('.*\.xml$', $temp_subdir, 'name', 0); Old scan dir function
       if (count($import_files)==0) {
         $zip_error = TRUE;
-        $error_msg = 'No XML file found in the import: '.$file->basename;
+        $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
         $returns[] = $error_msg;
       } elseif (count($import_files)>1) {
         $zip_error = TRUE;
-        $error_msg = 'There is more than one XML file found in the import: '.$file->basename;
+        $error_msg = t('There is more than one XML file found in the import: !file', array('!file' => $file->basename));
         $returns[] = $error_msg;
       } else {
         // Yeah .. ready to ROCK & ROLL
@@ -468,30 +479,45 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
       //rrmdir($temp_subdir);
     } else {
       $zip_error = TRUE;
-      $error_msg = 'Input file '.$file->filename.' could not be unzipped to '.$temp_subdir.'. Error code '.$res;
+      $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
       $returns[] = $error_msg;
     }
   } else {
     $zip_error = TRUE;
-    $error_msg = 'Cant UnZip file: '.$file->filename;
+    $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
     $returns[] = $error_msg;
   }
-  if($preview){
+  if ($preview) {
     if ($zip_error || empty($returns[0]['packages'])) {
-      header($error_msg, TRUE, 517);
+      drupal_set_header('HTTP/1.1 517 '.$error_msg);
       file_move($file->filename, variable_get('wallymport_preview_error', file_directory_path()));
     } else {
       file_delete($file->filename);
     }
-  }else{
+  } else {
     if ($zip_error) {
-      header($error_msg, TRUE, 517);
-      file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'));
+      if (!file_move($file->filename, variable_get('wallymport_import_error', 'sites/default/files/import/error'))) {
+        $error_msg .= ' '.t('An error occured during file copy to error directory.');
+        if (!variable_get('wallymport_import_error', FALSE)) {
+          $error_msg .= ' '.t('Error directory not configured.');
+        }
+      }
+      drupal_set_header('HTTP/1.1 517 '.$error_msg);
     } else {
-      rrmdir($file->filename);
-      //file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'));
+      $error_msg = FALSE;
+      if (!file_move($file->filename, variable_get('wallymport_import_done', 'sites/default/files/import/done'))) {
+        $error_msg = t('An error occured during file copy to done directory.');
+        if (!variable_get('wallymport_import_done', FALSE)) {
+          $error_msg .= ' '.t('Done directory not configured.');
+        }
+      }
+      if ($error_msg) {
+        drupal_set_header('HTTP/1.1 517 '.$error_msg);
+      }
     }
   }
+
+  return;
 }
 
 /**
