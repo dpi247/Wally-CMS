@@ -26,6 +26,9 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
   foreach($handlers['filter'] as $key=>$value){
     if($key=='field_destinations_target'){
       $target=$value->value;
+      if (is_array($target)) {
+        $target = $target[0];
+      }
       break;
     }
   }
