@@ -125,6 +125,15 @@ function cckdestinations_page_admin_form($form_state) {
     '#maxlength' => 512,
   );
   
+  $form['cckdestinations_select_to_auto']['cckdestinations_display_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Displayed matching terms'),
+    '#description' => t('The autocomplete field will display this amount of matching terms.'),
+    '#default_value' => variable_get('cckdestinations_display_limit', 10),
+    '#size' => 80,
+    '#maxlength' => 512,
+  );
+  
   $form['buttons']['submit'] = array(
   	'#type' => 'submit',
   	'#value' => t('Save configuration')
@@ -154,6 +163,10 @@ function cckdestinations_page_admin_form_validate($form, &$form_state) {
     if (!is_numeric($tax_limit) || $tax_limit < 0) {
       form_set_error('cckdestinations_select_to_auto][cckdestinations_taxonomy_limit', t('The given term limit value must be a numeric value greater or equal than 0.'));
     }
+    $display_limit = $values['cckdestinations_select_to_auto']['cckdestinations_display_limit'];
+    if (!is_numeric($tax_limit) || $tax_limit < 0) {
+      form_set_error('cckdestinations_select_to_auto][cckdestinations_display_limit', t('The given display limit value must be a numeric value greater or equal than 0.'));
+    }
     
     foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
       if (is_array($dest)) {
@@ -182,6 +195,7 @@ function cckdestinations_page_admin_form_submit($form, &$form_state) {
     variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
     variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
     variable_set('cckdestinations_taxonomy_limit', $values['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit']);
+    variable_set('cckdestinations_display_limit', $values['cckdestinations_select_to_auto']['cckdestinations_display_limit']);
 
     foreach ($values['cckdestinations_rank'] as $dest) {
       if (is_array($dest)) {
@@ -198,3 +212,4 @@ function cckdestinations_page_admin_form_submit($form, &$form_state) {
     drupal_set_message(t('The configuration options have been reset to their default values.'));
   }
 }
+
