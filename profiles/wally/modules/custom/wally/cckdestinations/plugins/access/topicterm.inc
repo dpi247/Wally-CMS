@@ -27,7 +27,6 @@ $plugin = array(
  * Settings form for the 'by node_type' access plugin
  */
 function cckdestinations_topicterm_ctools_access_settings(&$form, &$form_state, $conf) {
-  
 
 }
 
@@ -45,7 +44,6 @@ function cckdestinations_topicterm_ctools_access_check($conf, $context) {
   // As far as I know there should always be a context at this point, but this
   // is safe.
   return $context->data->topic_destination>0;
-
 }
 
 //TODO: what restriction is for ?
@@ -57,7 +55,8 @@ function cckdestinations_topicterm_ctools_access_check($conf, $context) {
     $context->restrictions['type'] = array_keys(array_filter($conf['type']));
   }
 }
-*/
+*
+
 /**
  * Provide a summary description based upon the checked topicterms.
  */
