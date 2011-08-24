@@ -119,8 +119,10 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
+  $redirect_path = $path;
+  unset($redirect_path[0]);
   $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $path);
+  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
   wydit_add_to_form_state($form, $form_element[$field_name], $path);
   
@@ -145,12 +147,12 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   
   // Render the new output.
   $field_form = $form;
-  foreach($path as$path_item){
+  foreach($path as $path_item){
     $field_form = $field_form[$path_item];
   }
-  
-  $field_form[$field_name]['#parents']=$parents;
-  
+
+  //$field_form[$field_name]['#parents']=$parents;
+  $field_form['#parents'] = $parents;
   $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
   $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
   
