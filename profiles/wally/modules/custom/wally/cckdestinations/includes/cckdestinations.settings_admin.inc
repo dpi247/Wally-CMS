@@ -119,7 +119,7 @@ function cckdestinations_page_admin_form($form_state) {
   $form['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Limit of terms'),
-    '#description' => t('If the amount of proposed terms is greater thant this limit, the select box will be replaced by a suggestion text field.'),
+    '#description' => t('If the amount of proposed terms is greater thant this limit, the select box will be replaced by a suggestion autocomplete text field.'),
     '#default_value' => variable_get('cckdestinations_taxonomy_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
