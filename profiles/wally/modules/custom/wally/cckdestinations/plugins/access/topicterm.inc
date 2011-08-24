@@ -55,7 +55,7 @@ function cckdestinations_topicterm_ctools_access_check($conf, $context) {
     $context->restrictions['type'] = array_keys(array_filter($conf['type']));
   }
 }
-*
+*/
 
 /**
  * Provide a summary description based upon the checked topicterms.
