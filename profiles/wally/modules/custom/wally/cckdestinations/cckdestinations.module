@@ -1126,6 +1126,8 @@ function cckdestinations_autocomplete_load($vid, $multiple, $string = '') {
   }
 
   if ($load) {
+    $display_limit = variable_get('cckdestinations_display_limit', 10);
+    
     // Get current list of tids
     $current_tids = cckdestinations_autocomplete_tags_get_tids($string, $vid);
     $current_tids = isset($current_tids['existing_tids']) ? $current_tids['existing_tids'] : array();
@@ -1134,10 +1136,10 @@ function cckdestinations_autocomplete_load($vid, $multiple, $string = '') {
       LEFT JOIN {term_synonym} s ON t.tid = s.tid
       WHERE t.vid = %d 
       AND (LOWER(t.name) LIKE LOWER('%%%s%%') OR LOWER(s.name) LIKE LOWER('%%%s%%'))", 't', 'tid'),
-    $vid, $last_string, $last_string, 0, 10 + count($current_tids));
+    $vid, $last_string, $last_string, 0, $display_limit + count($current_tids));
     $prefix = count($array) ? '"'. implode('", "', $array) .'", ' : '';
 
-    while (($tag = db_fetch_object($result)) && (count($matches) < 10)) {
+    while (($tag = db_fetch_object($result)) && (count($matches) < $display_limit)) {
       if (!in_array($tag->tid, $current_tids)) { // Do not propose a term already given
         $tag_help = $tag->name;
         $tag_hierarchy = wallytoolbox_taxonomy_get_path_by_tid_or_term($tag->tid);
