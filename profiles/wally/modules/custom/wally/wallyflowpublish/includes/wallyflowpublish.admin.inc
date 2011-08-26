@@ -14,7 +14,8 @@ function wallyflowpublish_settings_form(){
   while ($db_result = db_fetch_array($db_datas))
     $datas[$db_result['tid']] = $db_result;
   
-  $taxos = taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
+  $dest_vid = variable_get('wallymport_destinationpath', 0);
+  $taxos = taxonomy_get_tree($dest_vid);
 
   foreach ($taxos as $taxo){
     $tid = $taxo->tid;
@@ -24,6 +25,7 @@ function wallyflowpublish_settings_form(){
     
     $dest = str_replace(' ', '-', $taxo->name);
     $name = empty($data['title']) ? $dest : $data['title'];
+    $link_name = wallytoolbox_taxonomy_get_path_by_tid_or_term($taxo->tid, $dest_vid);
     $descr = empty($data['description']) ? $taxo->description : $data['description'];
     $copy = empty($data['copyright']) ? t('Copyright') : $data['copyright'];
 
@@ -31,7 +33,7 @@ function wallyflowpublish_settings_form(){
     $display = $view->display['feed_1'];
     $view_path = $display->display_options['path'];
     $expl_path = explode('/%/', $view_path);
-    $link = '/'.$expl_path[0].'/'.$name;
+    $link = '/'.$expl_path[0].'/'.$link_name;
     $link = (isset($expl_path[1]) && $expl_path[1] != '') ? $link.'/'.$expl_path[1] : $link;
     $feed_link ='<a href="'.$link.'">'.t('View !dest feed', array('!dest' => $dest)).' ('.$base_url.$link.')</a>';
 
