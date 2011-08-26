@@ -402,12 +402,15 @@ function wallyctools_get_redacblock_panes(){
          $view = views_get_view($redacblocks[$term_view_handler->subtype]->view_name);
          $view->set_display($redacblocks[$term_view_handler->subtype]->view_id);
          $layouts=$view->display[$redacblocks[$term_view_handler->subtype]->view_id]->display_options['redacblock_layout'];
-         
-         foreach ($layouts as $layout) {
-           if($layout){
-           $temp_result['layout_id'] = $layout;
-           $array_of_panes[]=(object)$temp_result;}
-         }  
+        
+	 if(is_array($layouts)){
+           foreach ($layouts as $layout) {
+             if($layout){
+               $temp_result['layout_id'] = $layout;
+               $array_of_panes[]=(object)$temp_result;
+             }
+           }
+	 }
        }
      }
    }
