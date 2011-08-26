@@ -333,7 +333,7 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  //dsm('http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'.$req_url);
+  dsm('http://wspub2.rossel.be:8080/Wally-Tags/rest/wally/script/detail'.$req_url);
   
   $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
