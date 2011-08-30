@@ -97,7 +97,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   );
   
   $form['render_node'] = array (
-    '#type'             => 'options',
+    '#type'             => 'radios',
     '#default_value'    => $conf['render_node'],
     '#title'            => t('Output node structure.'),
     '#options'          => array('wally' => t('Wally XML'), 'node' => t('Drupal node')),
