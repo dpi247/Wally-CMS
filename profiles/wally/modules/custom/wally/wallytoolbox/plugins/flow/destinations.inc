@@ -95,6 +95,13 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
     '#title'            => t('Max item to fetch for this feed'),
     '#default_value'    => $conf['maxitem'],
   );
+  
+  $form['render_node'] = array (
+    '#type'             => 'options',
+    '#default_value'    => $conf['render_node'],
+    '#title'            => t('Output node structure.'),
+    '#options'          => array('wally' => t('Wally XML'), 'node' => t('Drupal node')),
+  );
 }
 
 function wallytoolbox_destinations_flow_settings_default($form_state = array()) {
@@ -112,12 +119,14 @@ function wallytoolbox_destinations_flow_settings_default($form_state = array()) 
       'sort_order' => 'DESC',
     ),*/
     'maxitem' => '',
+    'render_node' => 'wally',
   );
   
   return $defaults;
 }
 
 function wallytoolbox_destinations_flow_build($feed_infos) {
+  $conf = $feed_infos['conf'];
   $array_packages = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
@@ -128,7 +137,11 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     $node = node_load($node_result->nid);
     $node->view = $view;
     wallycontenttypes_packagepopulate($node, '');
-    $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+    if ($conf['render_node'] == 'wally') {
+      $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+    } else {
+      $transformed_nodes['Packages']['Package'][] = $node;
+    }
   }
 
   return $transformed_nodes;
@@ -243,6 +256,7 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   
   $transformed_node = array();
   
+  $transformed_node['type'] = $node->type;
   $transformed_node['nid'] = $node->nid;
 
   // Package Attributes
