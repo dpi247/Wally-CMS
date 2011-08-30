@@ -82,7 +82,7 @@ function wallyedit_form_display_fields_form (&$form_state, $type) {
         if ($key === $value)
           $hits++;
       }
-      if ($fields[$field]['type']['multiple'] == 0 && $hits == 1) {
+      if ($fields[$field]['multiple'] == 0 && $hits == 1) {
         $form[$field]["wallyedit"]["#options"][2]=t('Inline');
         $form[$field]["wallyedit"]["#options"][3]=t('Select box');
       } else {

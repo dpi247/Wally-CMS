@@ -739,7 +739,10 @@ function arrayRecursiveDiff($aArray1, $aArray2) {
  */
 function wallytoolbox_destinations_items_array(){
   $all_dests = cckdestinations_get_classes_and_options();
-  $ranks_list = array('1', '2', '3', '4', '5');
+  $rank_limit = variable_get('cckdestinations_rank_limit', '10');
+  for ($i=0; $i<=$rank_limit; $i++) {
+    $ranks_list[] = $i;
+  }
   $array_dests = array();
 
   foreach ($all_dests['tid']['#options'] as $tid=>$term_infos) {
