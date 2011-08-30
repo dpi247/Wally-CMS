@@ -95,6 +95,13 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
     '#title'            => t('Max item to fetch for this feed'),
     '#default_value'    => $conf['maxitem'],
   );
+  
+  $form['render_node'] = array (
+    '#type'             => 'options',
+    '#default_value'    => $conf['render_node'],
+    '#title'            => t('Output node structure.'),
+    '#options'          => array('wally' => t('Wally XML'), 'node' => t('Drupal node')),
+  );
 }
 
 function wallytoolbox_destinations_flow_settings_default($form_state = array()) {
@@ -112,12 +119,14 @@ function wallytoolbox_destinations_flow_settings_default($form_state = array()) 
       'sort_order' => 'DESC',
     ),*/
     'maxitem' => '',
+    'render_node' => 'wally',
   );
   
   return $defaults;
 }
 
 function wallytoolbox_destinations_flow_build($feed_infos) {
+  $conf = $feed_infos['conf'];
   $array_packages = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
@@ -128,7 +137,11 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     $node = node_load($node_result->nid);
     $node->view = $view;
     wallycontenttypes_packagepopulate($node, '');
-    $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+    if ($conf['render_node'] == 'wally') {
+      $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+    } else {
+      $transformed_nodes['Packages']['Package'][] = $node;
+    }
   }
 
   return $transformed_nodes;
@@ -200,13 +213,19 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   // Package MainStory/MainObject
   switch ($node->type) {
     case 'wally_articlepackage':
-      $transformed_node['MainStory'] = wallytoolbox_destinations_flow_set_textobject($node->field_mainstory_nodes[0], $transformed_node);
+      $main_story = wallytoolbox_destinations_flow_set_textobject($node->field_mainstory_nodes[0], $transformed_node);
+      $main_story['type'] = $node->field_mainstory_nodes[0]->type;
+      $transformed_node['MainStory'] = $main_story;
       break;
     case 'wally_gallerypackage':
       $expl_type = explode($embeded->type, '_');
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
-      $transformed_node['MainObject'] = $set_function($node->field_mainobject[0], $transformed_node);
+      if (function_exists($set_function)) {
+        $embed_object = $set_function($node->field_mainobject[0], $transformed_node);
+        $embed_object['type'] = $embeded->type;
+        $transformed_node['MainObject'] = $embed_object;
+      }
   }
   
   // Package EmbededObjects
@@ -216,7 +235,11 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
       $expl_type = explode('_', $embeded->type);
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
-      $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $set_function($embeded, $transformed_node);
+      if (function_exists($set_function)) {
+        $embed_object = $set_function($embeded, $transformed_node);
+        $embed_object['type'] = $embeded->type;
+        $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $embed_object;
+      }
     }
   }
   
@@ -224,7 +247,9 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   if (!empty($node->field_linkedobjects_nodes)) {
     $transformed_node['EmbeddedContent']['LinksLists']['LinksList'] = array();
     foreach ($node->field_linkedobjects_nodes as $linked) {
-      $transformed_node['EmbeddedContent']['LinksLists']['LinksList'][] = wallytoolbox_destinations_flow_set_linklist($linked);
+      $linked_object = wallytoolbox_destinations_flow_set_linklist($linked);
+      $linked_object['type'] = $linked->type;
+      $transformed_node['EmbeddedContent']['LinksLists']['LinksList'][] = $linked_object;
     }
   }
 
@@ -239,6 +264,7 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   
   $transformed_node = array();
   
+  $transformed_node['type'] = $node->type;
   $transformed_node['nid'] = $node->nid;
 
   // Package Attributes
