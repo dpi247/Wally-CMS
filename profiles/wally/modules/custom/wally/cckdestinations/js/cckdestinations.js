@@ -9,12 +9,13 @@ $(document).ready(function() {
 	}
 	
 	updateList();
-	var i = $("#field_destinations_values tbody tr").length;
+	//var i = $("#field_destinations_values tbody tr").length;
 	$("#field-destinations-items").bind("DOMNodeInserted", function(event) {
-		if ($("#field_destinations_values tbody tr").length > i && event.target.nodeName == "DIV") {
+		//if ($("#field_destinations_values tbody tr").length > i && event.target.nodeName == "DIV") {
+		if (event.target.nodeName == "DIV") {
 			updateList();
 			refreshHidden();
-			i = $("#field_destinations_values tbody tr").length;
+			//i = $("#field_destinations_values tbody tr").length;
 		}
 	});
 });

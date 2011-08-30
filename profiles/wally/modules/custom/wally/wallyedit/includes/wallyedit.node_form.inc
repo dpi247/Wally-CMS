@@ -111,11 +111,18 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $form_state_ref['item_count'] = array($field_name => count($_POST_ref) + 1);
   
   $temp = array();
+  $max_id = max(array_keys($form_state_ref));
+  for ($i = 0; $i <= $max_id; $i++) {
+    if (!isset($form_state_ref[$i])) {
+      $form_state_ref[$i]['#fake_item'] = TRUE;
+    }
+  }
   $temp['values'][$field_name] = $form_state_ref;
   $form_element = content_field_form( $form_t, $temp, $field);
+  $form_element[$field_name]['#parents'] = $parents;
 
   // Let other modules alter it.
-  drupal_alter('form', $form_element, array(), 'content_add_more_js');
+  drupal_alter('form', $form_element, $form_state, 'content_add_more_js');
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
