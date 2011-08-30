@@ -75,42 +75,12 @@ function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
 
-  if ($subtype['name'] != 'flowmix') {
-    if (!empty($conf->title)) {
-      $settings = $conf;
-    } else {
-      $settings = $subtype['content']->settings;
-    }
-    $settings->content = $subtype['content'];
-    $settings->flowmix_type = 'fixed';
+  if ($subtype['name'] == 'flowmix') {
+    $settings = $conf;
+    $settings->flowmix_type = 'local';
   } else {
-    // This means they created it as flowmix content and then set it as
-    // reusable. Since we're not allowed to change the subtype, we're
-    // still stored as though we are local, but are pointing off to
-    // non-local.
-    if (!empty($conf->name)) {
-      ctools_include('export');
-      $content = ctools_export_crud_load('wallyextra_flowmix_content', $conf->name);
-      if ($content) {
-        $settings = $content->settings;
-        $settings->flowmix_type = 'flowmix';
-      } elseif (!empty($conf->title)) {
-        $settings = (object)$conf;
-        $content->name = $conf->name;
-        $settings->flowmix_type = 'local';
-      } else {
-        $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
-        $content->name = $conf->name;
-        $settings = _wallyextra_flowmix_content_type_form_summary_defaults();
-        $settings->flowmix_type = 'flowmix';
-      }
-      $settings->content = $content;
-    } else {
-      // This means that it is created as flowmix and has not been set to
-      // reusable.
-      $settings = (object)$conf;
-      $settings->flowmix_type = 'local';
-    }
+    $settings = $subtype['content']->settings;
+    $settings->flowmix_type = 'fixed';
   }
 
   return $settings;
@@ -205,16 +175,14 @@ function wallyextra_flowmix_refresh_block($settings) {
 function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
   cache_clear_all($form_state['values']['caid']);
   if ($form_state['settings']->flowmix_type == 'fixed') {
-    $content = $form_state['settings']->content;
-    $form_state['conf']['flow_obj'] = (object)array_merge((array)$content->settings, (array)$form_state['conf']['flow_obj']);
-    $form_state['conf']['flow_obj']->name = $content->name;
+    $content = ctools_export_crud_load('wallyextra_flowmix_content', $form_state['subtype']['name']);
     _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
   } elseif (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // flowmix content and give it the proper values.
     $content = wallyextra_newctoolsexport('wallyextra_flowmix_content', 'flowmix');
     _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
-    $form_state['conf']['flow_obj']->name = $content->name;
+    $form_state['pane']->subtype = $content->name;
   }
 }
 
@@ -471,13 +439,13 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 }
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
-  $flowmix_item = &$form_state['conf']['flow_obj'];
-  $flowmix_item = _wallyextra_flowmix_content_type_form_summary_defaults($flowmix_item);
+  if (isset($form_state['conf']['flow_obj']) && !empty($form_state['conf']['flow_obj']) && sizeof($form_state['input']) > 3 && (isset($form_state['input']['conf']) || isset($form_state['input']['save'])))
+    $form_state['subtype']['content']->settings = $form_state['conf']['flow_obj'];
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
 
-  $creation_infos = explode('_', $form_state['conf']['flow_obj']->caid);
-  $creation_date = $creation_infos[1];
+  $creation_infos = isset($form_state['conf']['flow_obj']) ? $form_state['conf']['flow_obj']->caid : $form_state['plugin']['defaults']->caid;
+  $creation_date = str_replace('flowmix_', '', $creation_infos);
   if (($settings->flowmix_type == 'fixed' && ($creation_date + 1) >= time()) || (isset($form_state['post']['save']) && !isset($form_state['post']['title']))) {
     unset($form['buttons']['next']);
     $form['buttons']['save'] = array(
@@ -641,11 +609,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
   );
 }
 
-function _wallyextra_flowmix_content_type_form_summary_defaults($form_state = NULL){
-  if (isset($form_state) && !empty($form_state)) {
-    return $form_state;
-  }
-  
+function _wallyextra_flowmix_content_type_form_summary_defaults() {  
   $defaults = new stdClass();
   $defaults->title = '';
   $defaults->maxitem_global = '';
@@ -665,7 +629,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
 
   if ((isset($form_state['input']['save']) && !isset($form_state['input']['title']))) {
     // This means no values were posted so we must be in the case where we use a reusable
-    $form_state['conf']['flow_obj'] = $form_state['settings'];
+    $flowmix_item = $form_state['settings'];
   } else {
     $save_values = array(
       'title',
@@ -685,9 +649,10 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
       // set the values in the cache object -- it gets passed back to the next step
       // because of all that work we did in the form_info array
       if (isset($submitted[$value]))
-        $form_state['conf']['flow_obj']->$value = $submitted[$value];
+        $flowmix_item->$value = $submitted[$value];
     }
   }
+  $flowmix_item->flows = $form_state['settings']->flows;
 
   if (strpos($form_state['clicked_button']['#name'], 'delete') !== false) {
     unset($flowmix_item->flows[str_replace('delete_', '', $form_state['clicked_button']['#name'])]);
@@ -775,16 +740,13 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form,
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $edited_flow = &$flowmix_item->flows[(int)$flowmix_item->index];
   $submitted = $form_state['values'];
-  $save_values = array('name', 'type', 'body_html');//, 'delta_t');
+  
+  $save_values = array_keys((array)_wallyextra_flowmix_content_type_form_basicsetttings_defaults());
   // maybe don't imitate this foreach
   foreach ($save_values as $value) {
     // Set the values in the cache object -- it gets passed back to the next step
     // because of all that work we did in the form_info array
     $edited_flow->$value = $submitted[$value];
-  }
-  if ($form_state['op'] == 'edit') {
-    $flowmix_item->flows[(int)$flowmix_item->index]->plugin_name = $flowmix_item->flows[(int)$flowmix_item->index]->plugin_name;
-    $flowmix_item->flows[(int)$flowmix_item->index]->conf = $flowmix_item->flows[(int)$flowmix_item->index]->conf;
   }
 }
 
@@ -820,9 +782,6 @@ function wallyextra_flowmix_content_type_form_pluginselector_form_submit(&$form,
     // Set the values in the cache object -- it gets passed back to the next step
     // because of all that work we did in the form_info array
     $edited_flow->$value = $submitted[$value];
-  }
-  if ($form_state['op'] == 'edit') {
-    $flowmix_item->flows[(int)$flowmix_item->index]->conf = $flowmix_item->flows[(int)$flowmix_item->index]->conf;
   }
   
   // Remove pluginspecific step if no need
