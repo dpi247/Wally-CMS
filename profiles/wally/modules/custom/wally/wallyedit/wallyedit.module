@@ -664,8 +664,8 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       if (!isset($form[$element]['#title'])){
         $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
       }
-      $form[$element]['#collapsible'] = TRUE;
-      $form[$element]['#collapsed'] = TRUE;
+      //$form[$element]['#collapsible'] = TRUE;
+      //$form[$element]['#collapsed'] = TRUE;
 
       $temp_b = $form_state;
 
