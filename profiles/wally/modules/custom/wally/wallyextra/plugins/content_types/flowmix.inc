@@ -439,7 +439,7 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 }
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
-  if (isset($form_state['conf']['flow_obj']) && !empty($form_state['conf']['flow_obj']) && sizeof($form_state['input']) > 3)
+  if (isset($form_state['conf']['flow_obj']) && !empty($form_state['conf']['flow_obj']) && sizeof($form_state['input']) > 3 && (isset($form_state['input']['conf']) || isset($form_state['input']['save'])))
     $form_state['subtype']['content']->settings = $form_state['conf']['flow_obj'];
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;

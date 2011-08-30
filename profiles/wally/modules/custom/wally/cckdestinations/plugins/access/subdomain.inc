@@ -26,17 +26,18 @@ $plugin = array(
  * Settings form for the 'by node_type' access plugin
  */
 function cckdestinations_subdomain_ctools_access_settings(&$form, &$form_state, $conf) {
+  $form = array();
   
- 
   $form['settings']['token'] = array(
     '#title' => t('token'),
     '#type' => 'textfield',
     '#description' => t('The token to search in the domain.'),
     '#default_value' => $conf['token'],
   );
-  $options=array(
-    "strstr"=>'strstr (case sensitive)',
-    'reg'=>'regular expression'
+  
+  $options = array(
+    'strstr' => 'strstr ('.t('Case Sensitive').')',
+    'reg' => t('Regular Expression'),
   );
   $form['settings']['method'] = array(
     '#title' => t('method'),
@@ -60,19 +61,18 @@ function cckdestinations_subdomain_ctools_access_settings_submit(&$form, &$form_
 function cckdestinations_subdomain_ctools_access_check($conf, $context) {
   // As far as I know there should always be a context at this point, but this
   // is safe.
-  
-  $domain=$_SERVER['HTTP_HOST'];
+  $domain = $_SERVER['HTTP_HOST'];
   
   switch ($conf['method']){
     case'strstr':
       return strstr($domain, $conf['token']);
     break;
     case'reg':
-      return preg_match ($conf['token'] ,$domain )>0;
+      return preg_match($conf['token'], $domain) > 0;
     break;
   }
+  
   return false;
-
 }
 
 //TODO: what restriction is for ?
