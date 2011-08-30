@@ -206,7 +206,9 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
       $expl_type = explode($embeded->type, '_');
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
-      $transformed_node['MainObject'] = $set_function($node->field_mainobject[0], $transformed_node);
+      if (function_exists($set_function)) {
+        $transformed_node['MainObject'] = $set_function($node->field_mainobject[0], $transformed_node);
+      }
   }
   
   // Package EmbededObjects
@@ -216,7 +218,9 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
       $expl_type = explode('_', $embeded->type);
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
-      $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $set_function($embeded, $transformed_node);
+      if (function_exists($set_function)) {
+        $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $set_function($embeded, $transformed_node);
+      }
     }
   }
   
