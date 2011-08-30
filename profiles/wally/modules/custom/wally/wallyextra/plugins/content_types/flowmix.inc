@@ -343,13 +343,15 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
       $elem_package = $feed[$i];
-      $feed[$i]['feed_md5'] = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
+      $md5_string = $elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'];
+      $md5_string .= isset($elem_package['MainStory']['TextBody']['value']) ? $elem_package['MainStory']['TextBody']['value'] : '';
+      $feed[$i]['feed_md5'] = md5($md5_string);
       if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5'])) {
         $modif = TRUE;
         break;
       }
   }
-  
+  dsm($feed);
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);
