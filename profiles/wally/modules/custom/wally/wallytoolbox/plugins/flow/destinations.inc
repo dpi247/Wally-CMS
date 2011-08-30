@@ -140,7 +140,9 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
     if ($conf['render_node'] == 'wally') {
       $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
     } else {
-      $transformed_nodes['Packages']['Package'][] = $node;
+      $package = wallytoolbox_destinations_flow_set_package($node, $feed_infos, TRUE);
+      $package['node'] = $node;
+      $transformed_nodes['Packages']['Package'][] = $package;
     }
   }
 
@@ -256,7 +258,7 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   return $transformed_node;
 }
 
-function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()) {
+function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array(), $meta_pack = FALSE) {
   if (!empty($feed_infos)) {
     $conf = $feed_infos['conf'];
     $tid = $conf['destination']['tid'];
@@ -284,39 +286,41 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   $transformed_node['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_internalreference', '');
   $transformed_node['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externalreference', '');
   $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
-  $transformed_node['Destinations']['Destination'] = array();
-  foreach ($node->field_destinations as $dest) {
-    $temp_dest = array();
-    $term = taxonomy_get_term($dest['tid']);
-    $temp_dest['DestinationRank'] = $dest['rank'];
-    $temp_dest['Position'] = $dest['target'];
-    $temp_dest['DocumentLayout'] = $dest['layout'];
-    $temp_dest['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
-    if (isset($tid) && $dest['tid'] == $tid && isset($dest['time_rank']))
-      $transformed_node['PublicationDate'] = date('Y-m-d', $dest['time_rank']).'T'.date('H:i:s', $dest['time_rank']);
-    $transformed_node['Destinations']['Destination'][] = $temp_dest;
+  if (!$meta_pack) {
+    $transformed_node['Destinations']['Destination'] = array();
+    foreach ($node->field_destinations as $dest) {
+      $temp_dest = array();
+      $term = taxonomy_get_term($dest['tid']);
+      $temp_dest['DestinationRank'] = $dest['rank'];
+      $temp_dest['Position'] = $dest['target'];
+      $temp_dest['DocumentLayout'] = $dest['layout'];
+      $temp_dest['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
+      if (isset($tid) && $dest['tid'] == $tid && isset($dest['time_rank']))
+        $transformed_node['PublicationDate'] = date('Y-m-d', $dest['time_rank']).'T'.date('H:i:s', $dest['time_rank']);
+      $transformed_node['Destinations']['Destination'][] = $temp_dest;
+    }
+    $transformed_node['Editions']['Edition'] = array();
+    foreach ($node->field_editions as $edition) {
+      $temp_edition = array();
+      $temp_edition['EditionID'] = $edition['value'];
+      $temp_edition['value'] = TRUE;
+      $transformed_node['Editions']['Edition'][] = $temp_edition;
+    }
+    $transformed_node['Channels']['Channel'] = array();
+    foreach ($node->field_channels as $channel) {
+      $temp_edition = array();
+      $temp_edition['value'] = $channel['value'];
+      $transformed_node['Channels']['Channel'][] = $temp_edition;
+    }
+    $transformed_node['CommentsAllowed']['value'] = $node->comment;
+    $transformed_node['FreeAccess']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
+    $transformed_node['Authors']['Person'] = array();
+    foreach ($node->field_authors_nodes as $author) {
+      $transformed_node['Authors']['Person'][] = wallytoolbox_destinations_flow_set_persontax($author);
+    }
+    $transformed_node['PackageLayout']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_packagelayout', '');
+    $transformed_node['Summary']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_summary', '');
   }
-  $transformed_node['Editions']['Edition'] = array();
-  foreach ($node->field_editions as $edition) {
-    $temp_edition = array();
-    $temp_edition['EditionID'] = $edition['value'];
-    $temp_edition['value'] = TRUE;
-    $transformed_node['Editions']['Edition'][] = $temp_edition;
-  }
-  $transformed_node['Channels']['Channel'] = array();
-  foreach ($node->field_channels as $channel) {
-    $temp_edition = array();
-    $temp_edition['value'] = $channel['value'];
-    $transformed_node['Channels']['Channel'][] = $temp_edition;
-  }
-  $transformed_node['CommentsAllowed']['value'] = $node->comment;
-  $transformed_node['FreeAccess']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
-  $transformed_node['Authors']['Person'] = array();
-  foreach ($node->field_authors_nodes as $author) {
-    $transformed_node['Authors']['Person'][] = wallytoolbox_destinations_flow_set_persontax($author);
-  }
-  $transformed_node['PackageLayout']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_packagelayout', '');
-  $transformed_node['Summary']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_summary', '');
   $transformed_node['ExternalURI']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externaluri', '');
 
   return $transformed_node;
