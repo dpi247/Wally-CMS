@@ -213,14 +213,18 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   // Package MainStory/MainObject
   switch ($node->type) {
     case 'wally_articlepackage':
-      $transformed_node['MainStory'] = wallytoolbox_destinations_flow_set_textobject($node->field_mainstory_nodes[0], $transformed_node);
+      $main_story = wallytoolbox_destinations_flow_set_textobject($node->field_mainstory_nodes[0], $transformed_node);
+      $main_story['type'] = $node->field_mainstory_nodes[0]->type;
+      $transformed_node['MainStory'] = $main_story;
       break;
     case 'wally_gallerypackage':
       $expl_type = explode($embeded->type, '_');
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
       if (function_exists($set_function)) {
-        $transformed_node['MainObject'] = $set_function($node->field_mainobject[0], $transformed_node);
+        $embed_object = $set_function($node->field_mainobject[0], $transformed_node);
+        $embed_object['type'] = $embeded->type;
+        $transformed_node['MainObject'] = $embed_object;
       }
   }
   
@@ -232,7 +236,9 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
       $short_type = $expl_type[1];
       $set_function = 'wallytoolbox_destinations_flow_set_'.$short_type;
       if (function_exists($set_function)) {
-        $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $set_function($embeded, $transformed_node);
+        $embed_object = $set_function($embeded, $transformed_node);
+        $embed_object['type'] = $embeded->type;
+        $transformed_node['EmbeddedContent']['EmbeddedObjects']['Object'][] = $embed_object;
       }
     }
   }
@@ -241,7 +247,9 @@ function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
   if (!empty($node->field_linkedobjects_nodes)) {
     $transformed_node['EmbeddedContent']['LinksLists']['LinksList'] = array();
     foreach ($node->field_linkedobjects_nodes as $linked) {
-      $transformed_node['EmbeddedContent']['LinksLists']['LinksList'][] = wallytoolbox_destinations_flow_set_linklist($linked);
+      $linked_object = wallytoolbox_destinations_flow_set_linklist($linked);
+      $linked_object['type'] = $linked->type;
+      $transformed_node['EmbeddedContent']['LinksLists']['LinksList'][] = $linked_object;
     }
   }
 
