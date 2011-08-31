@@ -1,5 +1,4 @@
 <?php
-// $Id: memcache.db.inc,v 1.2.2.11.2.7 2010/12/28 10:50:10 robertDouglass Exp $
 
 /** THIS FILE IS DEPRECATED - DO NOT USE **/
 // http://drupal.org/node/959200

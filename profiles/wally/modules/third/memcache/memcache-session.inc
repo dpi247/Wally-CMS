@@ -1,5 +1,4 @@
 <?php
-// $Id: memcache-session.inc,v 1.1.2.2.2.14 2010/12/16 02:15:00 Jeremy Exp $
 
 require_once dirname(__FILE__) . '/dmemcache.inc';
 
@@ -94,7 +93,7 @@ function sess_write($key, $value) {
   // If the client doesn't have a session, and one isn't being created ($value),
   // do nothing. If session saving has been turned off, do nothing.
   // Cases 1a, 1c, and 2c are covered here.
-  if ((empty($_COOKIE[session_name()]) && empty($value)) || !session_save_session()) {
+  if (!session_save_session() || ($user->uid == 0 && empty($_COOKIE[session_name()]) && empty($value))) {
     return TRUE;
   }
 
@@ -202,6 +201,30 @@ function sess_count($timestamp = 0, $anonymous = true) {
  */
 function sess_destroy_sid($sid) {
   dmemcache_delete($sid, 'session');
+
+  // If the session ID being destroyed is the one of the current user,
+  // clean-up his/her session data and cookie.
+  if ($sid == session_id()) {
+    global $user;
+
+    // Reset $_SESSION and $user to prevent a new session from being started
+    // in drupal_session_commit()
+    $_SESSION = array();
+    $user = drupal_anonymous_user();
+
+    // Unset the session cookie.
+    if (isset($_COOKIE[session_name()])) {
+      $params = session_get_cookie_params();
+
+      if (version_compare(PHP_VERSION, '5.2.0') === 1) {
+        setcookie(session_name(), '', $_SERVER['REQUEST_TIME'] - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+      }
+      else {
+        setcookie(session_name(), '', $_SERVER['REQUEST_TIME'] - 3600, $params['path'], $params['domain'], $params['secure']);
+      }
+      unset($_COOKIE[session_name()]);
+    }
+  }
 }
 
 /**
