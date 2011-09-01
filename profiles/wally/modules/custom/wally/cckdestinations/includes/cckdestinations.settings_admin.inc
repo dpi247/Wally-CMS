@@ -30,8 +30,8 @@ function cckdestinations_page_admin_form($form_state) {
   
   $hierarchies = wallyctools_get_hierarchies();
   $behavior_options = array(
-    'top' => t('Top'),
     'bottom' => t('Bottom'),
+    'top' => t('Top'),
   );
 
   foreach ($hierarchies as $tid => $hierarchy) {
@@ -63,7 +63,7 @@ function cckdestinations_page_admin_form($form_state) {
       $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior'] = array(
         '#type' => 'select',
         '#title' => t('Behavior'),
-        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior', 'top'),
+        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior', 'bottom'),
         '#options' => $behavior_options,
         '#process' => array('ctools_dependent_process'),
         '#dependency' => array('radio:'.$radio_name => array('absolute')),
