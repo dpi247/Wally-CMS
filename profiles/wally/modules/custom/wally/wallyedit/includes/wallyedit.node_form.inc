@@ -1,12 +1,6 @@
 <?php
 // $Id: content.node_form.inc,v 1.7.2.21 2009/07/18 00:40:20 markuspetrux Exp $
 
-// PATCH DLA - EXXODUS - AUDAXIS
-//
-// Change the default beavure of CCK multiple value. By default multiple field show 2 empty field
-// 1 for the current data (emppty and 1 for more ...)
-// I patch the code to show up only 1 field if empty, 2 if there is already a value in the 1st fieldd
-
 /**
  * @file
  * Create fields' form for a content type.
