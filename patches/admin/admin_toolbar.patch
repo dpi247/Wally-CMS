@@ -1,0 +1,13 @@
+Index: profiles/wally/modules/third/admin/includes/admin.toolbar.js
+===================================================================
+--- profiles/wally/modules/third/admin/includes/admin.toolbar.js	(révision 64169)
++++ profiles/wally/modules/third/admin/includes/admin.toolbar.js	(révision 64170)
+@@ -159,6 +159,8 @@
+ Drupal.adminToolbar.getState = function(key) {
+   if (!Drupal.adminToolbar.state) {
+     Drupal.adminToolbar.state = {};
++    if(typeof($.cookie) != "function")
++    	return false;
+     var cookie = $.cookie('DrupalAdminToolbar');
+     var query = cookie ? cookie.split('&') : [];
+     if (query) {

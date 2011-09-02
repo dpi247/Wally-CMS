@@ -171,7 +171,7 @@ function content_multiple_value_form(&$form, &$form_state, $field, $items) {
         // and 1 item with data
        $hook_is_empty = $field['module'] .'_content_is_empty';
        
-       if (count($items) == 1 && $hook_is_empty($items[0], $field)) {
+       if (count($items) == 1 && $hook_is_empty($items[min(array_keys($items))], $field)) {
          $minimum_item_count = 0;
        }
        else {

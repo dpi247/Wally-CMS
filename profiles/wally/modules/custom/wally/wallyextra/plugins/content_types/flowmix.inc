@@ -351,7 +351,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
         break;
       }
   }
-  dsm($feed);
+  
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     wallytoolbox_flush_all_pages($internal_url, TRUE);

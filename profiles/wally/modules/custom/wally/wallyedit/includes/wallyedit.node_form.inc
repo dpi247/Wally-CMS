@@ -104,21 +104,21 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $form_t = array();
   $form_t['#node'] = $node_t;
   
-  $form_state_ref = _content_sort_items($field, $form_state_ref);
-  $_POST_ref = _content_sort_items($field, $_POST_ref);
+  //$form_state_ref = _content_sort_items($field, $form_state_ref);
+  //$_POST_ref = _content_sort_items($field, $_POST_ref);
 
   // Build our new form element for the whole field, asking for one more element.
   $form_state_ref['item_count'] = array($field_name => count($_POST_ref) + 1);
   
-  $temp = array();
-  $max_id = max(array_keys($form_state_ref));
-  for ($i = 0; $i <= $max_id; $i++) {
-    if (!isset($form_state_ref[$i])) {
-      $form_state_ref[$i]['#fake_item'] = TRUE;
-    }
-  }
-  $temp['values'][$field_name] = $form_state_ref;
-  $form_element = content_field_form( $form_t, $temp, $field);
+  $temp = array(
+    'values' => array(
+      $field_name => $form_state_ref,
+    ),
+    'item_count' => $form_state_ref['item_count'],
+  );
+
+  //$temp['values'][$field_name] = $form_state_ref;
+  $form_element = content_field_form($form_t, $temp, $field);
 
   // Let other modules alter it.
   drupal_alter('form', $form_element, array(), 'content_add_more_js');
