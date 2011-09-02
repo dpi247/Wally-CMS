@@ -13,9 +13,12 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   //@todo: DIRTY HACK TO REMOVE !!!
   $parents=unserialize($_POST['parents']);
   $cache_name=$_POST['cache name'];
+  watchdog($_POST['cache name'],cbk);
+  watchdog(print_r($_POST['cache name'],1),cbk);
+  watchdog(cbk,print_r($prenode,1));
   $form_state=array(
     'parents'=>$parents,
-    'cache name'=>$cache_name,
+    'cache name'=>$prenode->cache_name,
   );
 
   $form = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state);
