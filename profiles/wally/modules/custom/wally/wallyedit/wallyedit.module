@@ -22,16 +22,17 @@ function wallyedit_menu(){
     'page arguments' => array('wallyedit_page_admin_form',),
     'access arguments' => array('administer nodes'),
     'file'=>'includes/page_admin.inc',
-    'title'=> 'WallyEdit Admin',
-    'Description'=> 'Manage Node Edition',
+    'title'=>t('WallyEdit Admin'),
+    'Description'=>t('Manage Node Edition'),
   );
   
+  // Original display fields admin
   $items['admin/content/wallydisplayfields'] = array(
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_fields.inc',
-    'title'=> 'WallyEdit - Display all fields',
-    'Description'=> 'Display all fields and not only CCK fields.',
+    'title'=> t('WallyEdit - Display all fields'),
+    'Description'=> t('Display all fields and not only CCK fields.'),
   );
   
   $items['admin/content/wallydisplayfields/general'] = array(
@@ -39,13 +40,13 @@ function wallyedit_menu(){
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_fields.inc',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'title'=> 'General',
+    'title'=> t('General'),
     'weight'=>-3,
-    'Description'=> 'Display all fields and not only CCK fields.',
+    'Description'=> t('Display all fields and not only CCK fields.'),
   );
   
   $items['admin/content/wallydisplayfields/exportvars'] = array(
-    'title'=>'Export Vars',
+    'title'=>t('Export Vars'),
     'page callback'=>'export_vars_admin',
     'access arguments' => array('access administration pages'),
     'page arguments' => array('wallyedit'),
@@ -55,7 +56,7 @@ function wallyedit_menu(){
   );
   
   $items['admin/content/wallydisplayfields/importvars'] = array(
-    'title'=>'Import Vars',
+    'title'=>t('Import Vars'),
     'page callback'=>'import_vars_admin',
     'access arguments' => array('access administration pages'),
     'type' => MENU_LOCAL_TASK,
@@ -75,6 +76,57 @@ function wallyedit_menu(){
     );
   }
   
+  // Tabs organisation admin
+  $items['admin/content/wallydisplaytabs'] = array(
+    'page callback'=>'wallyedit_tabs_overview_page',
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'title'=> t('WallyEdit - Display all fields into tabs'),
+    'Description'=> t('Display all fields and organise them into tabs.'),
+  );
+  
+  $items['admin/content/wallydisplaytabs/displaytabs'] = array(
+    'page callback'=>'wallyedit_tabs_overview_page',
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title'=> t('Tabs organisation'),
+    'weight'=>-3,
+    'Description'=> t('Display all fields and organise them into tabs.'),
+  );
+  
+  $items['admin/content/wallydisplaytabs/exportvars'] = array(
+    'title'=>t('Export Vars'),
+    'page callback'=>'export_vars_admin',
+    'access arguments' => array('access administration pages'),
+    'page arguments' => array('wallyedit'),
+    'type' => MENU_LOCAL_TASK,
+    'file path' => drupal_get_path('module', 'wallyadmin'),
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  
+  $items['admin/content/wallydisplaytabs/importvars'] = array(
+    'title'=>t('Import Vars'),
+    'page callback'=>'import_vars_admin',
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_LOCAL_TASK,
+    'file path' => drupal_get_path('module', 'wallyadmin'),
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['admin/content/wallydisplaytabs/'. $type_url_str] = array(
+      'title' => $type->name,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('wallyedit_form_display_tabs_form', $type),
+      'access arguments' => array('administer content types'),
+      'file' => 'includes/page_form_display_tabs.inc',
+      'type' => MENU_CALLBACK,
+    );
+  }
+  
+  // Edition interface callbacks
   $items['node/%prenode/edit2/%ctools_js'] = array(
     'page callback'=>'wallyedit_page_node_edition',
     'page arguments'=>array(1,3),
@@ -170,6 +222,11 @@ function wallyedit_theme(){
     ),
     'wallyedit_form_display_fields_form'=>array(
       'template' => 'wallyedit-admin-display-overview-form',
+      'arguments' => array('form' => array()),
+      'path' => drupal_get_path('module', 'wallyedit') . '/theme',
+    ),
+    'wallyedit_form_display_tabs_form'=>array(
+      'template' => 'wallyedit-admin-display-tabs-overview-form',
       'arguments' => array('form' => array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
     ),
