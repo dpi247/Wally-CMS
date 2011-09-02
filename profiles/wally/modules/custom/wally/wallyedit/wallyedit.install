@@ -31,58 +31,47 @@ function wallyedit_uninstall() {
  * Implementation of hook_schema()
  */
 function wallyedit_schema(){
-  $schema['wallycontenttypes_remotehtml_content'] = array(
-    'description' => 'Contains Remote HTML content for this site.',
-    'export' => array(
-      'identifier' => 'content',
-      'bulk export' => TRUE,
-      'primary key' => 'cid',
-      'api' => array(
-        'owner' => 'ctools',
-        'api' => 'ctools_content',
-        'minimum_version' => 1,
-        'current_version' => 1,
-      ),
-      'create callback' => 'wallycontenttypes_content_type_new',
-    ),
+  $schema['wallyedit_tabs_edition'] = array(
+    'description' => 'Contains tabs organisation settings for the edition interface.',
     'fields' => array(
-      'cid' => array(
+      'pid' => array(
         'type' => 'serial',
-        'description' => 'A database primary key to ensure uniqueness',
+        'description' => 'Profile ID, a database primary key to ensure uniqueness',
         'not null' => TRUE,
         'no export' => TRUE,
       ),
-      'name' => array(
+      'profile_label' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+        'description' => 'Human readable name.',
       ),
-      'admin_title' => array(
+      'content_type' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'Administrative title for this content.',
+        'description' => 'Content type concerned by these settings.',
       ),
-      'admin_description' => array(
+      'tabs' => array(
         'type' => 'text',
         'size' => 'big',
-        'description' => 'Administrative description for this content.',
-        'object default' => '',
-      ),
-      'category' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Administrative category for this content.',
-      ),
-      'settings' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Serialized settings for the actual content to be used',
+        'description' => 'Serialized tabs organisation.',
         'serialize' => TRUE,
         'object default' => array(),
       ),
     ),
-    'primary key' => array('cid'),
+    'primary key' => array('pid'),
   );
 
   return $schema;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the tab organisation table.
+ */
+function wallyedit_update_6001() {
+  $schemas = wallyedit_schema();
+  $tabs_schema = $schemas['wallyedit_tabs_edition'];
+  $ret = array();
+  db_create_table($ret, 'wallyedit_tabs_edition', $tabs_schema);
+  return $ret;
 }
