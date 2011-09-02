@@ -185,9 +185,7 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  if ($item['#fake_item']) {
-    return FALSE;
-  } elseif (empty($item['tid']) || $item['tid']=='0') {
+  if (empty($item['tid']) || $item['tid']=='0') {
     return TRUE;
   }
   return FALSE;
@@ -201,7 +199,8 @@ function cckdestinations_widget_info() {
     'cckdestinations_widget' => array(
       'label' => t('Destination Select  fields'),
       'field types' => array('destinationsfield'),
-      'multiple values' => CONTENT_HANDLE_CORE,
+      'multiple values' => CONTENT_HANDLE_MODULE,
+      //'multiple values' => CONTENT_HANDLE_CORE,
       'callbacks' => array(
         'default value' => CONTENT_CALLBACK_DEFAULT,
       ),
@@ -250,17 +249,18 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
     }
   } elseif ($form_id == 'content_add_more_js') {
     if (isset($form['field_destinations'])) {
-      /*$parents = $form['field_destinations']['#parents'];
-      $values = $form_state['values'];
-      foreach ($parents as $parent) {
-        $values = $values[$parent];
-      }*/
-      $children = element_children($form['field_destinations']);
-      $max_id = max($children);
-      foreach ($children as $child_id) {
-        if (is_numeric($child_id) && isset($form['field_destinations'][$child_id]['#fake_item']) && $form['field_destinations'][$child_id]['#fake_item'] && $child_id != $max_id){
-          unset($form['field_destinations'][$child_id]);
-        }
+      $form_copy = $form['field_destinations'];
+      unset($form_copy['field_destinations_add_more']);
+      $actual_keys = element_children($form_copy);
+      $min_actual_keys = min($actual_keys);
+      $max_actual_keys = max($actual_keys);
+      $temp_elem = array();
+      for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+        $temp_elem[$i] = $form['field_destinations'][$i];
+        unset($form['field_destinations'][$i]);
+      }
+      for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+        $form['field_destinations'][$temp_elem[$i]['#delta']] = $temp_elem[$i];
       }
     }
   }
@@ -697,16 +697,108 @@ function theme_cckdestinations_widget($element) {
 /**
  * Implementation of hook_widget().
  */
-function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0) {
-  $fake_item = FALSE;
-  if (!isset($items[$delta]) || $items[$delta]['#fake_item']) {
-    $fake_item = TRUE;
+function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0, $sub_level = FALSE) {
+  if ($sub_level) {
+    $element = array(
+      '#type' => $field['widget']['type'],
+      '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+    );
+  } else {
+    // Adaptation of "content_multiple_value_form" function form CCK
+    $field_name = $field['field_name'];
+    $hook_is_empty = $field['module'] .'_content_is_empty';
+
+    $deltas_items = $items;
+    unset($deltas_items['item_count']);
+    $deltas = array_keys($deltas_items);
+
+    if (count($deltas) == 1 && $hook_is_empty($items[min(array_keys($items))], $field)) {
+      $minimum_item_count = 0;
+    } else {
+      $minimum_item_count = count($deltas);
+    }
+    $current_item_count = isset($form_state['item_count'][$field_name])
+                          ? $form_state['item_count'][$field_name]
+                          : $minimum_item_count;
+
+    if (count($deltas) > 1 || $current_item_count > 1) {
+      $deltas[] = max($deltas) + 1;
+    }
+
+    $title = check_plain(t($field['widget']['label']));
+    $description = content_filter_xss(t($field['widget']['description']));
+
+    $form_element = array(
+      '#theme' => 'content_multiple_values',
+    );
+
+    $function = $field['widget']['module'] .'_widget';
+
+    foreach ($deltas as $delta) {
+      if ($element = $function($form, $form_state, $field, $items, $delta, TRUE)) {
+        $defaults = array(
+          '#title' => ($field['multiple'] >= 1) ? '' : $title,
+          '#description' => ($field['multiple'] >= 1) ? '' : $description,
+          '#required' => $delta == 0 && $field['required'],
+          '#weight' => $delta,
+          '#delta' => $delta,
+          '#columns' => array_keys($field['columns']),
+          '#field_name' => $field_name,
+          '#type_name' => $field['type_name'],
+        );
+
+        // Add an input field for the delta (drag-n-drop reordering), which will
+        // be hidden by tabledrag js behavior.
+        // We name the element '_weight' to avoid clashing with column names
+        // defined by field modules.
+        $element['_weight'] = array(
+          '#type' => 'weight',
+          '#delta' => 100,//max($deltas), // this 'delta' is the 'weight' element's property
+          '#default_value' => isset($items[$delta]['_weight']) ? $items[$delta]['_weight'] : $delta,
+          '#weight' => 100,
+        );
+
+        $form_element[$delta] = array_merge($element, $defaults);
+      }
+    }
+
+    // Add AHAH add more button, if not working with a programmed form.
+    if ($field['multiple'] == 1 && empty($form['#programmed'])) {
+      // Make sure the form is cached so ahah can work.
+      $form['#cache'] = TRUE;
+      $content_type = content_types($field['type_name']);
+      $field_name_css = str_replace('_', '-', $field_name);
+
+      $form_element[$field_name .'_add_more'] = array(
+        '#type' => 'submit',
+        '#name' => $field_name .'_add_more',
+        '#value' => t('Add another item'),
+        '#weight' => $field['widget']['weight'] + $max + 1,
+        // Submit callback for disabled JavaScript. drupal_get_form() might get
+        // the form from the cache, so we can't rely on content_form_alter()
+        // including this file. Therefore, call a proxy function to do this.
+        '#submit' => array('content_add_more_submit_proxy'),
+        '#ahah' => array(
+          'path' => 'content/js_add_more/'. $content_type['url_str'] .'/'. $field_name,
+          'wrapper' => $field_name_css .'-items',
+          'method' => 'replace',
+          'effect' => 'fade',
+        ),
+        // When JS is disabled, the content_add_more_submit handler will find
+        // the relevant field using these entries.
+        '#field_name' => $field_name,
+        '#type_name' => $field['type_name'],
+      );
+
+      // Add wrappers for the fields and 'more' button.
+      $form_element['#prefix'] = '<div id="'. $field_name_css .'-items">';
+      $form_element['#suffix'] = '</div>';
+      $form_element[$field_name .'_add_more']['#prefix'] = '<div class="content-add-more clear-block">';
+      $form_element[$field_name .'_add_more']['#suffix'] = '</div>';
+    }
+    
+    $element = $form_element;
   }
-  $element = array(
-    '#type' => $field['widget']['type'],
-    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
-    '#fake_item' => $fake_item,
-  );
   
   return $element;
 }
@@ -1375,26 +1467,45 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   
   unset($form_state_ref[$rem_delta]);
   unset($_POST_ref[$rem_delta]);
-  $form_state_ref = _content_sort_items($field, $form_state_ref);
-  $_POST_ref = _content_sort_items($field, $_POST_ref);
+  //$form_state_ref = _content_sort_items($field, $form_state_ref);
+  //$_POST_ref = _content_sort_items($field, $_POST_ref);
 
   // Build our new form element for the whole field, asking for one more element.
   $form_state_ref['item_count'] = array($field_name => count($_POST_ref) + 1);
   
   $temp = array();
   $temp['values'][$field_name] = $form_state_ref;
-  $form_element = content_field_form($form_t, $temp, $field);
+  $form_element = content_field_form($form_t, $form_state_ref, $field);
+  
+  unset($form_state_ref['item_count']);
+  $new_keys = array_keys($form_state_ref);
+  $form_element_copy = $form_element[$field_name];
+  unset($form_element_copy[$field_name.'_add_more']);
+  $actual_keys = element_children($form_element_copy);
+  $min_actual_keys = min($actual_keys);
+  $max_actual_keys = max($actual_keys);
+  $temp_elem = array();
+  for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+    $temp_elem[$i] = $form_element[$field_name][$i];
+    unset($form_element[$field_name][$i]);
+  }
+  for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+    if (isset($new_keys[$i])) {
+      $form_element[$field_name][$new_keys[$i]] = $temp_elem[$i];
+    }
+  }
 
   // Let other modules alter it.
   drupal_alter('form', $form_element, array(), 'cckdestinations_remove_ahah');
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
-  $redirect_path = $path;
-  unset($redirect_path[0]);
-  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
-  unset($form_element[$field_name][$rem_delta]);
+  if (strstr($form['form_id']['#value'], 'wallyedit')) {
+    $redirect_path = $path;
+    unset($redirect_path[0]);
+    $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+    $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
+  }
   
   wydit_add_to_form_state($form, $form_element[$field_name], $path);
 
@@ -1416,11 +1527,13 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
     $field_form = $field_form[$path_item];
   }
 
-  //$field_form[$field_name]['#parents']=$parents;
-  $field_form['#parents'] = $parents;
-  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
-
+  if (strstr($form['form_id']['#value'], 'wallyedit')) {
+    //$field_form[$field_name]['#parents']=$parents;
+    $field_form['#parents'] = $parents;
+    $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+    $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
+  }
+  
   // Prevent duplicate wrapper.
   unset($field_form['#prefix'], $field_form['#suffix']);
 
