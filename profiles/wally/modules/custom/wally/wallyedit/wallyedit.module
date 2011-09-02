@@ -78,18 +78,27 @@ function wallyedit_menu(){
   
   // Tabs organisation admin
   $items['admin/content/wallydisplaytabs'] = array(
-    'page callback'=>'wallyedit_tabs_overview_page',
+    'page callback'=>'wallyedit_profiles_overview_page',
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_tabs.inc',
     'title'=> t('WallyEdit - Display all fields into tabs'),
     'Description'=> t('Display all fields and organise them into tabs.'),
   );
   
+  $items['admin/content/wallydisplaytabs/displayprofiles'] = array(
+    'page callback'=>'wallyedit_profiles_overview_page',
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title'=> t('Profiles'),
+    'weight'=>-3,
+    'Description'=> t('Choose profile to organise tabs for the edition interface.'),
+  );
+  
   $items['admin/content/wallydisplaytabs/displaytabs'] = array(
     'page callback'=>'wallyedit_tabs_overview_page',
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_tabs.inc',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
     'title'=> t('Tabs organisation'),
     'weight'=>-3,
     'Description'=> t('Display all fields and organise them into tabs.'),

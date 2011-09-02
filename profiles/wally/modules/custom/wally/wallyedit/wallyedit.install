@@ -34,16 +34,16 @@ function wallyedit_schema(){
   $schema['wallyedit_tabs_edition'] = array(
     'description' => 'Contains tabs organisation settings for the edition interface.',
     'fields' => array(
-      'pid' => array(
+      'tid' => array(
         'type' => 'serial',
-        'description' => 'Profile ID, a database primary key to ensure uniqueness',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
         'not null' => TRUE,
         'no export' => TRUE,
       ),
-      'profile_label' => array(
+      'pid' => array(
         'type' => 'varchar',
         'length' => '255',
-        'description' => 'Human readable name.',
+        'description' => 'Profile ID linked to these settings.',
       ),
       'content_type' => array(
         'type' => 'varchar',
@@ -56,6 +56,24 @@ function wallyedit_schema(){
         'description' => 'Serialized tabs organisation.',
         'serialize' => TRUE,
         'object default' => array(),
+      ),
+    ),
+    'primary key' => array('tid'),
+  );
+  
+  $schema['wallyedit_profiles'] = array(
+    'description' => 'Contains profiles informations for the edition interface.',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'Profile ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Human readable name.',
       ),
     ),
     'primary key' => array('pid'),
@@ -71,7 +89,9 @@ function wallyedit_schema(){
 function wallyedit_update_6001() {
   $schemas = wallyedit_schema();
   $tabs_schema = $schemas['wallyedit_tabs_edition'];
+  $profiles_schema = $schemas['wallyedit_profiles'];
   $ret = array();
   db_create_table($ret, 'wallyedit_tabs_edition', $tabs_schema);
+  db_create_table($ret, 'wallyedit_profiles', $profiles_schema);
   return $ret;
 }
