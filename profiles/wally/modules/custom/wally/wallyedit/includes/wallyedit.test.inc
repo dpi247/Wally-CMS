@@ -12,7 +12,9 @@ function wallyedit_test_form($form_state){
   $type_name='wally_articlepackage';
   
   $groups=fieldgroup_groups($type_name) ;
-  $fields=wydit_get_fields_infos_for_typename($type_name);
+      $type=content_types(str_replace('-','_', $type_name));
+  
+  $fields=$type['fields'];
  
   
   //remove fields already included in a groups
