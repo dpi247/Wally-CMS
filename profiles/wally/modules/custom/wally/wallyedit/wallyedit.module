@@ -205,6 +205,12 @@ function wallyedit_menu(){
     'file' => 'includes/wallyedit.node_form.inc',
     'type' => MENU_CALLBACK,
   );
+     $items['wallyedit/test'] = array(
+    'page callback' => 'wallyedit_test',
+    'access arguments' => array('access content'),
+    'file' => 'includes/wallyedit.test.inc',
+    'type' => MENU_CALLBACK,
+  );
   
   return $items;
 }
@@ -253,6 +259,10 @@ function wallyedit_theme(){
       ),
     'wydit_selector_theme'=>$base+array(
       'arguments' => array('form' => array()),
+    ),
+    
+    'wallyedit_test_form'=>$base+array(
+      'arguments'=>array('form'=>array()),
     ),
   );
 }
