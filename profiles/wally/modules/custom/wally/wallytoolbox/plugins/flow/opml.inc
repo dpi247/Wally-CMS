@@ -55,7 +55,7 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
   
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['uri']);
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
@@ -103,7 +103,7 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
   } else {
     _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.check_plain($feed_infos['name']));
   }
-  
+  dsm($struct_array);
   return $struct_array;
 }
 
