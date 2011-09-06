@@ -103,7 +103,6 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
   } else {
     _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.check_plain($feed_infos['name']));
   }
-  dsm($struct_array);
   return $struct_array;
 }
 
