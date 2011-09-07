@@ -26,8 +26,6 @@ $plugin = array(
  * Settings form for the 'by node_type' access plugin
  */
 function cckdestinations_subdomain_ctools_access_settings(&$form, &$form_state, $conf) {
-  $form = array();
-  
   $form['settings']['token'] = array(
     '#title' => t('token'),
     '#type' => 'textfield',
@@ -48,12 +46,6 @@ function cckdestinations_subdomain_ctools_access_settings(&$form, &$form_state, 
   );
 }
 
-/**
- * Compress the subdomains allowed to the minimum.
- */
-function cckdestinations_subdomain_ctools_access_settings_submit(&$form, &$form_state) {
-
-}
 
 /**
  * Check for access.
