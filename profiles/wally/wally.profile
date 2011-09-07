@@ -13,7 +13,7 @@ function wally_profile_details() {
     'name' => 'Wally',
     'description' => t('The ultimate power of Drupal for online publisher from Audaxis.'),
   );
-} 
+}  
  
 /**
  * Return an array of developpement modules.
