@@ -14,7 +14,7 @@ function wally_profile_details() {
     'description' => t('The ultimate power of Drupal for online publisher from Audaxis.'),
   );
 } 
-
+ 
 /**
  * Return an array of developpement modules.
  * 
