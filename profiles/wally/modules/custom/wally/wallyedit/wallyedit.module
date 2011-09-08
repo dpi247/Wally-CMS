@@ -1210,6 +1210,10 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
       "#type"=>"markup",
       "#value"=> $embed_node->title,
     );
+    $form[$key]['type']=array(
+      "#type"=>"markup",
+      "#value"=> $embed_node->type,
+    );
     $form[$key]['weight_'.$key]=array(
       '#type'=>'weight',
       "#default_value"=> $key,
