@@ -8,3 +8,11 @@
 	float:left;
 
 }
+
+
+table table{
+width:80%;
+}
+table table tbody{
+border:none;
+}

@@ -265,9 +265,12 @@ function wallyedit_theme(){
     
     'wallyedit_test_form'=>$base+array(
       'arguments'=>array('form'=>array()),
+     'template' => 'wallyedit-admin-display-form2',
+    
     ),
   );
 }
+
 
 /**
  * Implementation of hook_elements
