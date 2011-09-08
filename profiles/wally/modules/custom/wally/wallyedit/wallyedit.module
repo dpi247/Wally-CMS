@@ -3,6 +3,8 @@
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
 
 include_once 'includes/Prenode.inc';
+include_once('wallyedit.features.inc');
+
 /**
  * @file
  * wallyedit module
