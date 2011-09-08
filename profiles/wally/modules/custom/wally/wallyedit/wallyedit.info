@@ -7,3 +7,7 @@ version = "6.x-1.0-rc1"
 dependencies[] = "ctools"
 dependencies[] = "views_bulk_operations"
 dependencies[] = "wallytoolbox"
+dependencies[] = "location"
+
+features[views][] = "prenode_selectbox_vbo"
+features[views_api][] = "api:2"
