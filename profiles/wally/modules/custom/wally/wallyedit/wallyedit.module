@@ -270,16 +270,6 @@ function wallyedit_theme(){
 }
 
 /**
- * Implementation of hook_views_api().
- */
-function wallyedit_views_api() {
-  return array(
-    'api' => 2.0,
-    'path' => drupal_get_path('module', 'wallyedit') .'plugins/views',
-  );
-}
-
-/**
  * Implementation of hook_elements
  */
 function wallyedit_elements() {
