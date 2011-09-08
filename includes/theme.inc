@@ -633,7 +633,9 @@ function theme() {
     init_theme();
     $hooks = theme_get_registry();
   }
-
+  
+  if ($hook=="mobile_mainmenu") dsm($hooks,"hoiokes");
+    
   if (is_array($hook)) {
     foreach ($hook as $candidate) {
       if (isset($hooks[$candidate])) {
@@ -647,7 +649,6 @@ function theme() {
     return;
   }
 
-  if ($hook=="mobile_mainmenu") dsm($hooks,"hoiokes");
   
   
   $info = $hooks[$hook];
