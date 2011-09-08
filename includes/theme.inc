@@ -1,20 +1,4 @@
 <?php
-
-/**
- * 
- *      .-.
-        |-|
-        | |
-     _.-|=|-.
-    / | | | |
-    |       |\
-    |        /
-     \     /`
-  jgs |   |
- * 
- * 
- */
-
 /**
  * @file
  * The theme system, which controls the output of Drupal.
@@ -633,8 +617,6 @@ function theme() {
     init_theme();
     $hooks = theme_get_registry();
   }
-  
-  if ($hook=="mobile_mainmenu") dsm($hooks,"hoiokes");
     
   if (is_array($hook)) {
     foreach ($hook as $candidate) {
