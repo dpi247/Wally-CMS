@@ -628,10 +628,6 @@ function theme() {
   $args = func_get_args();
   $hook = array_shift($args);
 
-  
-      dsm($hook,'HOOK');
-  
-  
   static $hooks = NULL;
   if (!isset($hooks)) {
     init_theme();
@@ -651,6 +647,9 @@ function theme() {
     return;
   }
 
+  if ($hook=="mobile_mainmenu") dsm($hooks,"hoiokes");
+  
+  
   $info = $hooks[$hook];
   global $theme_path;
   $temp = $theme_path;
@@ -742,12 +741,6 @@ function theme() {
     if (isset($variables['template_file'])) {
       $suggestions[] = $variables['template_file'];
     }
-
-    if ($hook=="mobile_mainmenu") {
-      dsm($suggestions,"suggestioss");
-    }
-    
-
     
     if ($suggestions) {
       $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
