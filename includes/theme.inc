@@ -739,6 +739,7 @@ function theme() {
       $suggestions[] = $variables['template_file'];
     }
 
+    dsm($hook,'HOOK');
     if ($hook=="mobile_mainmenu") {
       dsm($suggestions,"suggestioss");
     }
