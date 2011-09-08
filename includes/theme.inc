@@ -628,6 +628,10 @@ function theme() {
   $args = func_get_args();
   $hook = array_shift($args);
 
+  
+      dsm($hook,'HOOK');
+  
+  
   static $hooks = NULL;
   if (!isset($hooks)) {
     init_theme();
@@ -739,7 +743,6 @@ function theme() {
       $suggestions[] = $variables['template_file'];
     }
 
-    dsm($hook,'HOOK');
     if ($hook=="mobile_mainmenu") {
       dsm($suggestions,"suggestioss");
     }
