@@ -29,7 +29,7 @@ function wallycontenttypes_menu() {
   $items['admin/content/editcrop'] = array(
     'title' => t('Edit croping'), 
     'description' => t('Edit croping'), 
-    'page callback' => 'wallycontenttypes_editcrop',
+    'page callback' => 'wallycontenttypes_ajax_editcrop',
     'access arguments' => array('editing crop'), 
     'type' => MENU_CALLBACK,
   );
@@ -667,6 +667,102 @@ function _wallycontenttypes_getpackagesid($node){
   return $rows;
 }
 
+function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
+  if ($js) {
+    ctools_include('modal');
+    ctools_include('ajax');
+  }
+  ctools_include('form');
+
+  $form_state = array(
+    'ajax' => $js,
+  );
+
+  if ($nid_type == 'prenode') {
+    ctools_include('object-cache');
+    if ($prenode = ctools_object_cache_get('prenode', $nid, TRUE)) {
+      $args = func_get_args();
+      array_shift($args);
+      array_shift($args);
+      array_shift($args);
+      if (!empty($args)) {
+        $parents = $args;
+        $node = $prenode;
+        foreach ($parents as $parent) {
+          $node = $node[$parent];
+        }
+        $node = $node['#node'];
+        $form_state['parents'] = $parents;
+      } else {
+        $node = $prenode['wally_photoobject']['#node'];
+      }
+    }
+  } else {
+    $node = node_load($nid);
+    $prenode = $node;
+  }
+
+  $imgcropings = array();
+  $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
+  $explimgcrops = array();
+  $defaultvalues = array();
+
+  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
+    foreach ($imgcropings as $presetname => $imgcroping) {
+      $tempexplcrop = array();
+      $tempexplcrop = $imgcroping;
+      $tempexplcrop[0] = $tempexplcrop[0];
+      $tempexplcrop[1] = $tempexplcrop[1];
+      $tempexplcrop[2] = $tempexplcrop[2];
+      $tempexplcrop[3] = $tempexplcrop[3];
+      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
+      $explimgcrops[$presetname] = $tempexplcrop;
+      $last_preset = $presetname;
+    }
+  } else {
+    if (!empty($imgcropings)) drupal_set_message(t('Bad JSON encoding.'),"error");
+  }
+  $photofile = $node->field_photofile;
+  $filepath = $photofile[0]['filepath'];
+  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $filepath);
+
+  $defaultvalues = $usablecropsanddefaults[0];
+  $usablecrops = $usablecropsanddefaults[1];
+
+  $form_state['nid'] = $nid;
+  $form_state['prenode'] = $prenode;
+  $form_state['nid_type'] = $nid_type;
+  $form_state['filepath'] = $filepath;
+  $form_state['usablecrops'] = $usablecrops;
+  $form_state['defaultvalues'] = $defaultvalues;
+
+  $output = ctools_build_form('wallycontenttypes_form_edit_crop_form', $form_state);
+
+  // If javascript is active, we have to use a render array.
+  $commands = array();
+  if ($output === FALSE || !empty($form_state['complete'])) {
+    // Dismiss the modal.
+    $commands[] = ctools_ajax_command_html('#ctools-sample', $animal);
+    $commands[] = ctools_modal_command_dismiss();
+  }
+  else if (!empty($form_state['cancel'])) {
+    // If cancelling, return to the activity.
+    $commands[] = ctools_modal_command_dismiss();
+  }
+  else {
+    $module_path = drupal_get_path('module', 'wallycontenttypes');
+    drupal_add_js($module_path.'/scripts/editcrop/jquery.Jcrop.js');
+    drupal_add_css($module_path.'/css/editcrop/jquery.Jcrop.css');
+    drupal_add_css($module_path.'/css/editcrop/editcrop.css');
+    drupal_add_js($module_path.'/scripts/editcrop/edit_crop.js');
+    drupal_add_js(array('js_usablecrops' => $usablecrops), 'setting');
+
+    $commands = ctools_modal_form_render($form_state, $output);
+  }
+
+  ctools_ajax_render($commands);
+}
+
 /**
  * Edition of the cropings of a photo.
  * 
@@ -679,39 +775,97 @@ function _wallycontenttypes_getpackagesid($node){
  * @return
  *  HTML code of the image and the form containing the new values.
  */
-function wallycontenttypes_editcrop($nid) {
-  $node = node_load($nid);
-  $imgcropings = array();
-  $imgcropings = json_decode($node->field_croping[0]['value'], TRUE);
-  $explimgcrops = array();
-  $defaultvalues = array();
-  
-  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
-    foreach ($imgcropings as $presetname => $imgcroping) {
-      $tempexplcrop = array();
-      $tempexplcrop = $imgcroping;
-      $tempexplcrop[0] = $tempexplcrop[0];
-      $tempexplcrop[1] = $tempexplcrop[1];
-      $tempexplcrop[2] = $tempexplcrop[2];
-      $tempexplcrop[3] = $tempexplcrop[3];
-      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
-      $explimgcrops[$presetname] = $tempexplcrop;
+function wallycontenttypes_form_edit_crop_form(&$form_state) {
+  if (empty($form_state['input'])) {
+    $form_state['complete'] = TRUE;
+  }
+  $defaultvalues = $form_state['defaultvalues'];
+
+  $form = array(
+    '#attributes' => array('class' => 'crops'),
+    '#prefix' => '<div class="crop_wrap">',
+    '#suffix' => '</div>',
+  );
+
+  $first = TRUE;
+  foreach ($defaultvalues as $presetname => $defaultvalue) {
+    $form[$presetname.'_serialCoord'] = array(
+      '#type' => 'hidden',
+      '#id' => $presetname.'_serialCoord',
+      '#title' => $presetname.'_serialCoord',
+      '#default_value' => implode($defaultvalue,','),
+    );
+
+    $form[$presetname] = array(
+      '#type' => 'submit',
+      '#id' => $presetname,
+      '#title' => $presetname,
+      '#value' => $presetname,
+    );
+
+    if ($first) {
+      $form[$presetname.'_serialCoord']['#prefix'] = '
+        <label for="edit-crop">'.t('Move and resize crops').' : <span id="crop-current-name">'.t('Choose a preset to edit.').'</span>
+        </label>
+        <div id="cropimage"><img src="'.base_path().$form_state['filepath'].'" id="cropbox" /></div>
+        <div class="crops">';
+      $first = FALSE;
+    }
+    if (count(element_children($form)) == 2*(count($defaultvalues))) {
+      $form[$presetname]['#suffix'] = '</div>';
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Save'),
+    '#value' => t('Save'),
+    '#prefix' => '<div class="crop_submit buttons">',
+    '#suffix' => '</div>',
+  );
+
+  return $form;
+}
+
+function wallycontenttypes_form_edit_crop_form_submit (&$form, &$form_state) {
+  $prenode = $form_state['prenode'];
+  $usablecrops = $form_state['usablecrops'];
+  $values = $form_state['values'];
+
+  if ($form_state['nid_type'] == 'prenode') {
+    if (isset($form_state['parents'])) {
+      $parents = $form_state['parents'];
+      $node = &$prenode;
+      foreach ($parents as $parent) {
+        $node = &$node[$parent];
+      }
+      $node = &$node['#node'];
+    } else {
+      $node = &$prenode['wally_photoobject']['#node'];
     }
   } else {
-    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
+    $node = &$prenode;
   }
-  $photofile = $node->field_photofile;
-  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photofile[0]['filepath']);
 
-  $defaultvalues = $usablecropsanddefaults[0];
-  $usablecrops = $usablecropsanddefaults[1];
-  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
-  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
-  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
-  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
-  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+  $crops = array();
+  foreach ($usablecrops as $presetname => $usablecrop) {
+    $temp_crops = explode(',',$values[$presetname.'_serialCoord']);
+    if (isset($temp_crops[4]) && $temp_crops[4] == '1') {
+      // Le crop a été modifié pour ce preset
+      imagecache_image_flush($node->field_photofile[0]['filepath']);
+    }
+    $crops[$presetname] = $temp_crops;
+    $crops[$presetname]['presetid'] = $usablecrop['presetid'];
+  }
 
-  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
+  $node->field_croping[0]['value'] = drupal_to_js($crops);
+  if ($form_state['nid_type'] == 'prenode') {
+    wydit_save_form_state($prenode);
+  } else {
+    $former_changed = $node->changed;
+    node_save($node);
+    db_query("UPDATE {node} set changed = %d WHERE nid = %d", $former_changed, $node->nid);
+  }
 }
 
 /**
@@ -756,11 +910,11 @@ function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cr
 
   $defaultvalues = $usablecropsanddefaults[0];
   $usablecrops = $usablecropsanddefaults[1];
-  _wallycontenttypes_savevaluesandredirect($node, $usablecrops);
+  //_wallycontenttypes_savevaluesandredirect($node, $usablecrops);
   $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
   drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
   drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
-  drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
+  //drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
 
   return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
 }
@@ -831,18 +985,63 @@ function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
  * @TODO: Need more intelligence, should be enabled when
  *   a file is uploaded.
  */
-function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state, $link = 'admin/content/editcrop', $args = array()) {
-  global $base_url;
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
+  // Include the CTools tools that we need.
+  ctools_include('ajax');
+  ctools_include('modal');
+
+  // Add CTools' javascript to the page.
+  ctools_modal_add_js();
+
+  // Create our own javascript that will be used to theme a modal.
+  $edit_crop_style = array(
+    'edit-crop-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 500,
+        'height' => 300,
+        'addWidth' => 20,
+        'addHeight' => 15,
+      ),
+      'modalOptions' => array(
+        'opacity' => .5,
+        'background-color' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'CToolsSampleModal',
+      'throbber' => theme('image', ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), t('Loading...'), t('Loading')),
+    ),
+  );
+
+  drupal_add_js($edit_crop_style, 'setting');
+
+  // Since we have our js, css and images in well-known named directories,
+  // CTools makes it easy for us to just use them without worrying about
+  // using drupal_get_path() and all that ugliness.
+  ctools_add_js('ctools-ajax-sample', 'ctools_ajax_sample');
+  ctools_add_css('ctools-ajax-sample', 'ctools_ajax_sample');
+
+  $pseudo_nid = isset($form_state['cache name']) ? $form_state['cache name'] : $form['nid']['#value'];
+  $nid_type = isset($form_state['cache name']) ? 'prenode' : 'node';
+
+  $callback = 'admin/content/editcrop/'.$nid_type.'/'.$pseudo_nid.'/1';
+  $callback .= isset($form_state['values']['parents']) ? '/'.implode('/', $form_state['values']['parents']) : '';
+
+  $edit_crop_link = ctools_modal_text_button(t('Click here to edit croping informations'), $callback, '');
+  
   $form['group_photo']['field_croping'][0]['#type'] = 'value';
   $form['group_photo']['field_croping'][0]['value']['#type'] = 'value';
-  $form_state['values']['field_croping'][0]['value'] = $form['group_photo']['field_croping'][0]['#value']['value'];
+
+  _wallycontenttypes_update_crop_state_value($form, $form_state);
+
   if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
     $form['group_photo']['edit_croping']=array(
       '#weight' => 28,
-    	"#type"=>'markup',
-  		"#value"=>'<a href="'.$base_url.'/'.$link.'/'.$form['nid']['#value'].'/'.implode('/', $args).'" target="">'.t("Click here to edit croping information").'</a>',
+    	'#type' => 'markup',
+  		'#value' => $edit_crop_link,
     );
   }
+
   return $form;
 }
 
@@ -920,6 +1119,43 @@ function wallycontenttypes_sort_embededobjects($embededobjects, $sort_order = ar
 }
 
 /**
+ * Update form_state values with the correct croping values
+ */
+function _wallycontenttypes_update_crop_state_value($form, &$form_state) {
+  $values = &$form_state['values'];
+  // @todo Trouver un moyen de vérifier qu'on est dans le process de submit
+  // pour éviter de faire un node load à la construction du form
+  if (isset($form_state['cache name'])) {
+    ctools_include('object-cache');
+    if ($prenode = ctools_object_cache_get('prenode', $form_state['cache name'])) {
+      if ($form['#tree']) {
+        $crop_value = &$values['wally_photoobject']['field_croping'][0]['value'];
+      } else {
+        $crop_value = &$values['field_croping'][0]['value'];
+      }
+      if (isset($form_state['values']['parents'])) {
+        $parents = $form_state['values']['parents'];
+        foreach ($parents as $parent) {
+          $prenode = $prenode[$parent];
+        }
+      } else {
+        $prenode = $prenode['wally_photoobject'];
+      }
+      $crop_value = $prenode['#node']->field_croping[0]['value'];
+    }
+  } else {
+    if ($node = node_load($values['nid'])) {
+      if ($form['#tree']) {
+        $crop_value = &$values['wally_photoobject']['field_croping'][0]['value'];
+      } else {
+        $crop_value = &$values['field_croping'][0]['value'];
+      }
+      $crop_value = $node->field_croping[0]['value'];
+    }
+  }
+}
+
+/**
 * Recursively set the disabled attribute of a CCK field
 * and all its dependent FAPI elements. For a content_taxonomy_tree
 * cck field, we must disbaled all the childrens: checkboxes or radios.
@@ -967,103 +1203,6 @@ function _wallycontenttypes_mysnippetdisabledtaxonomytree(&$elements) {
       }
     }
   }
- }
- 
-/**
- * Return the js code needed by wallycontenttypes_editcrop.
- * 
- * @param $usablecrops
- *   Array of arrays containing the values of the cropings as required by
- *   Jcrop (x, y, x2, y2) and the ratio, also required by Jcrop.
- * 
- * @return
- *   The js code.
- */
-function _wallycontenttypes_jscodeforthecroping($usablecrops) {
-		
-  $return = '
-    var ac, currentAc;
-  
-    $(window).load(function() {
-    
-    var api = $.Jcrop("#cropbox",{
-        onSelect: showCoordsAndSave,
-        bgColor: "black",
-        bgOpacity: .4,
-        boxWidth: 800,
-      });
-
-      var i;
-
-      // A handler to kill the action
-      function nothing(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        return false;
-      };
-
-      // Returns event handler for animation callback
-      function anim_handler(ac, ratio, i) {
-        return function(e) {
-      	  $("#crop-current-name").html(i);
-          api.setSelect(ac);
-          api.setOptions({ aspectRatio: ratio });
-          // Change class of selected button
-          if (currentAc) {
-          	$("#"+currentAc).removeClass("crop_selected");
-          }
-          $("#"+i).addClass("crop_selected");	
-          currentAc = i;
-          
-          return nothing(e);
-        };
-      };
-
-      ac = {';
-  foreach ($usablecrops as $presetname => $usablecrop) {
-  	// Nasty things in the database?
-  	if (!is_numeric($usablecrop[0])) { $usablecrop[0] = 0;}
-  	if (!is_numeric($usablecrop[1])) { $usablecrop[1] = 0;}
-  	if (!is_numeric($usablecrop[2])) { $usablecrop[2] = 0;}
-  	if (!is_numeric($usablecrop[3])) { $usablecrop[3] = 0;}
-  	$return .= $presetname.': ['.$usablecrop[0].','.$usablecrop[1].','.$usablecrop[2].','.$usablecrop[3].','.'],';
-  }
-      
-  $return .= '};
-
-      var ratio = {';
-      
-  foreach ($usablecrops as $presetname => $usablecrop) {
-    $return .= $presetname.': '.$usablecrop[4].',';
-  }
-        
-  $return .= '};
-
-      // Attach respective event handlers and charge default values in the form
-      for(i in ac) {
-        jQuery("#"+i).click(anim_handler(ac[i], ratio[i], i));
-      }
-      
-      // Select the first preset
-      ';
-      
-  $return .= '$("#'.array_shift(array_keys($usablecrops)).'").trigger("click");
-    });
-    
-    function showCoordsAndSave(c) {
-      if (currentAc) {
-      	// 1 ajouté la fin de l\'array pour flager la modification de ce preset
-      	var serialCoord = [c.x,c.y,c.w,c.h,1];
-        $("#"+currentAc+"_serialCoord").val(serialCoord);
-        ac[currentAc][0] = c.x;
-        ac[currentAc][1] = c.y;
-        ac[currentAc][2] = c.x2;
-        ac[currentAc][3] = c.y2;
-      }
-    };
-  ';
-  
-  return $return;
 }
 
 /**
@@ -1098,7 +1237,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
   $usablecrops = array();
   $presets = imagecache_presets();
   $img = imageapi_image_open($photo_path);
-
+  
   foreach ($presets as $preset) {
     if ($preset['actions']) {
       $datas = array();
@@ -1111,7 +1250,6 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
           $datas = $action['data'];
         }
       }
-      
       if (!empty($datas)) {
         $temppresetcrop = array();
         
@@ -1164,46 +1302,6 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
 
   
   return array($defaultvalues,$usablecrops);
-}
-
-/**
- * Save the values send by the croping in the node and redirect if needed.
- * 
- * @param $node
- *   The node containing the photo being croped.
- * @param $usablecrops
- *   The Jcrop-usable crops, needed for the presetnames.
- * 
- * @return
- *   Nothing.
- */
-function _wallycontenttypes_savevaluesandredirect($node, $usablecrops) {
-  $redirect = false;
-  $i=0;
-  $crops = array();
-  foreach ($usablecrops as $presetname => $usablecrop) {
-    if (isset($_POST[$presetname.'_serialCoord']) && $_POST[$presetname.'_serialCoord']!="") {
-      $temp_crops = explode(',',$_POST[$presetname.'_serialCoord']);
-      if (isset($temp_crops[4]) && $temp_crops[4] == '1') {
-        // Le crop a été modifié pour ce preset
-        $crops[$presetname] = $temp_crops;
-        imagecache_image_flush($node->field_photofile[0]['filepath']);
-      } else {
-        $crops[$presetname] = _wallycontenttypes_getdefaultvaluesforthecroping($usablecrop, NULL);
-      }
-      $crops[$presetname]['presetid'] = $usablecrop['presetid'];
-      $redirect = true;
-      $i++;
-    }
-  }
-
-  if ($redirect) {
-    $node->field_croping[0]['value'] = drupal_to_js($crops);
-    node_save($node);
-    drupal_goto(drupal_get_path_alias("node/".$node->nid."/edit/"));
-  }
-  
-  return;
 }
 
 /**
