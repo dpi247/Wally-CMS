@@ -447,7 +447,7 @@ function wallyctools_form_reorderdestinationview_form($form_state, $limit = 20, 
                   WHERE dest.field_destinations_tid=%d
                   AND dest.field_destinations_target="%s"
                   ORDER BY dest.field_destinations_time_rank DESC';
-  $query = 'SELECT DISTINCT(dest.nid),dest.field_destinations_time_rank,n.title
+  $query = 'SELECT DISTINCT(dest.nid), dest.field_destinations_time_rank, n.title, n.type
             FROM {node} n
             LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
             WHERE dest.field_destinations_tid = %d
@@ -464,6 +464,11 @@ function wallyctools_form_reorderdestinationview_form($form_state, $limit = 20, 
     $form['rows'][$row->nid]['data'] = array(
       '#type' => 'value',
       '#value' => array($row->title),
+    );
+
+    $form['rows'][$row->nid]['type'] = array(
+      '#type' => 'value',
+      '#value' => array($row->type),
     );
 
     //now create the weight form element. 
