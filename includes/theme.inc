@@ -1,6 +1,21 @@
 <?php
 
 /**
+ * 
+ *      .-.
+        |-|
+        | |
+     _.-|=|-.
+    / | | | |
+    |       |\
+    |        /
+     \     /`
+  jgs |   |
+ * 
+ * 
+ */
+
+/**
  * @file
  * The theme system, which controls the output of Drupal.
  *
@@ -724,6 +739,12 @@ function theme() {
       $suggestions[] = $variables['template_file'];
     }
 
+    if ($hook=="mobile_mainmenu") {
+      dsm($suggestions,"suggestioss");
+    }
+    
+
+    
     if ($suggestions) {
       $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
     }
