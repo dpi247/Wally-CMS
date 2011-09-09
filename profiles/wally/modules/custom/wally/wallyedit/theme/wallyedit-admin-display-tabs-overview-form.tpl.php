@@ -48,8 +48,8 @@
   </thead>
   <tbody>
     <?php $row = 0; ?>
-    <?php foreach ($element_onglets as $region => $title): ?>
-      <tr class="onglet onglet-<?php print $region?>">
+    <?php dsm($element_listing);foreach ($element_onglets as $region => $title): ?>
+      <tr class="onglet onglet-<?php dsm($region); print $region?>">
         <td colspan="5" class="onglet"><?php print $title; ?></td>
       </tr>
       <tr class="onglet-message onglet-<?php print $region?>-message <?php print empty($block_listing[$region]) ? 'region-empty' : 'region-populated'; ?>">

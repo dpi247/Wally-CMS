@@ -163,10 +163,12 @@ function theme_wallyedit_form_fields_overview_form ($form) {
 }
 
 function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
-  foreach($variables['form']['level1'] as $index_element => $element){
-    $onglet_name=$variables['form']['level1'][$index_element]['onglet']["#default_value"];
-    $options_onglet[$onglet_name]=$onglet_name;
+$type_name=str_replace('-','_',arg(5));
+  $options_onglet_infos=wallyedit_get_onglets(arg(4),$type_name);
+  foreach($options_onglet_infos as $key=>$value){
+  $options_onglet[$key]=$key;
   }
+  dsm($options_onglet);
   $variables['element_onglets'] =  $options_onglet;// + array(-1 => t('Disabled'));
 
   foreach (element_children($variables['form']['level1']) as $i) {

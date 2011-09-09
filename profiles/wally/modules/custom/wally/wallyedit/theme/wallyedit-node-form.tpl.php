@@ -25,13 +25,13 @@ a.selected {
  
 #scroller-body {
     background:url(images/body.gif) no-repeat bottom center;
-    width:277px;
+   /* width:277px; */
     padding-bottom:30px;
  
 }
  
 #mask {
-    width:250px;
+   /* width:250px; */
     overflow:hidden;
     margin:0 auto;
 }
@@ -250,12 +250,12 @@ return typeof val == 'object' ? val : { top:val, left:val };
 <?php
    module_load_include("inc",'wallyedit','includes/wallyedit.test');
   $onglets_struct=wallyedit_get_onglets($form["type"]["#value"]);
-     
+     dsm($onglets_struct);
 ?>
 $(document).ready(function() { 
  
     //Get the height of the first item
-    $('#mask').css({'height':$('#onglet-<?php print current(array_keys($onglets_struct))?>').height()}); 
+   // $('#mask').css({'height':$('#onglet-<?php print current(array_keys($onglets_struct))?>').height()}); 
      
     //Calculate the total width - sum of all sub-onglets width
     //Width is generated according to the width of #mask * total of sub-onglets
@@ -294,22 +294,15 @@ $(document).ready(function() {
 <div id="scroller-body">
     <div id="mask">
         <div id="onglet">
-        <?php  foreach($onglets_struct[$onglet]['elements'] as $onglet=>$onglet_content):?>
+        <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
           <div id="onglet-<?php print $onglet?>">
-          <?php dsm($onglet_content);?>
           
-          <?php foreach($onglet_content as  $element_name):?>
-            <?php // dsm($form[$form['type']['#value']][$element_name]);?>
-            <?php print drupal_render_form($form[$form['type']['#value']][$element_name])?>
-          <?php endforeach;?>
+                  <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
+                  <?php dsm($element_name);dsm($form[$form['type']['#value']][$element_name]);?>
+            <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
           
-                .....Onglet<?php print $onglet?>
-                .....Onglet1
-                .....Onglet1
-                .....Onglet1
-                .....Onglet<?php print $onglet?>
-                .....Onglet1
-                .....Onglet1
+                    <?php endforeach;?>
+         
             </div>
             <?php endforeach;?>
         </div>
