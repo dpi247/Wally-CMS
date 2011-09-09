@@ -14,17 +14,6 @@ function wallyedit_test_form(&$form_state){
   $form_state['type'] = $type_name;
   $form_state['pid'] = $profile_id;
 
-  $type=content_types(str_replace('-','_', $type_name));
-
-  $groups=fieldgroup_groups($type_name) ;
-  $fields=$type['fields'];
-
-  //remove fields already included in a groups
-  foreach($groups as $group){
-    foreach($group["fields"] as $key=>$field){
-      unset($fields[$key]);
-    }
-  }
 
   $onglets = wallyedit_get_onglets($profile_id, $type_name, $groups, $fields);
 dsm($onglets);
@@ -153,7 +142,19 @@ dsm($tabs_config);
   }
 }
 
-function wallyedit_get_onglets($profile_id, $type_name, $groups, $fields) {
+function wallyedit_get_onglets($type_name) {
+  //@TODO: Use static caching mecanism
+  $type=content_types(str_replace('-','_', $type_name));
+
+  $groups=fieldgroup_groups($type_name) ;
+  $fields=$type['fields'];
+
+  //remove fields already included in a groups
+  foreach($groups as $group){
+    foreach($group["fields"] as $key=>$field){
+      unset($fields[$key]);
+    }
+  }
   $db_tabs = db_query('SELECT tid, name, label, weight, erasable FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
   $tab_settings = db_fetch_array(db_query('SELECT tabs FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name));
 
