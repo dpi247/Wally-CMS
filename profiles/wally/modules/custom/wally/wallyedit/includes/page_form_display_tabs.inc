@@ -342,7 +342,7 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   $type_name = $form_state['type'];
   $profile_id = $form_state['pid'];
   $level1['level1'] = $values['level1'];
-  
+
   uasort($level1['level1'], '_wallyedit_sort_fields_helper');
   foreach ($level1['level1'] as &$element) {
     if (is_array($element['level2']) && !empty($element['level2'])) {
@@ -356,10 +356,19 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
     'tabs' => $level1,
   );
 
-  if(drupal_write_record('wallyedit_tabs_edition', $tabs_config)) {
-    drupal_set_message(t('Configuration saved'));
+  if ($sid = db_result(db_query('SELECT sid FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name))) {
+    $tabs_config['sid'] = $sid;
+    if(drupal_write_record('wallyedit_tabs_edition', $tabs_config, 'sid')) {
+      drupal_set_message(t('Configuration saved'));
+    } else {
+      drupal_set_message(t('An error occured'), 'error');
+    }
   } else {
-    drupal_set_message(t('An error occured'), 'error');
+    if(drupal_write_record('wallyedit_tabs_edition', $tabs_config)) {
+      drupal_set_message(t('Configuration saved'));
+    } else {
+      drupal_set_message(t('An error occured'), 'error');
+    }
   }
 }
 
