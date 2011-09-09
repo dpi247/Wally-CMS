@@ -224,10 +224,7 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
       break;
     }
   }
-  $type=content_types($type_name);
-  
-  $form_state['type'] = $type_name;
-  $form_state['pid'] = $profile_id;
+  $type = content_types($type_name);
 
   $onglets = wallyedit_get_onglets($profile_id, $type_name);
 
@@ -235,28 +232,37 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
     '#tree' => TRUE,
   );
 
-  foreach($onglets as $index_onglet=>$onglet){
-    $options_onglet[$index_onglet]=$index_onglet;
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $profile_id,
+  );
+
+  $form['type'] = array(
+    '#type' => 'value',
+    '#value' => $type_name,
+  );
+
+  foreach($onglets as $index_onglet => $onglet){
+    $options_onglet[$index_onglet] = $onglet['label'];
   }
-  foreach($onglets as $index_onglet=>$onglet){
 
-    foreach($onglet["elements"] as $index_element=>$element){
-
+  foreach($onglets as $index_onglet => $onglet){
+    foreach($onglet["elements"] as $index_element => $element){
       $form['level1'][$index_element]['field_name']=array(
         '#type' => 'markup',
-        '#value' => $element['field_name'].$element['group_name']
-      );
-      $form['level1'][$index_element]['weight']=array(
-            "#type"=>'weight',
-			'#default_value'=>$weight,
-      //    "#attributes"=>array('class'=>"my-elements-weight-lev1 my-elements-weight-lev1-". $index_onglet),
+        '#value' => isset($element['label']) ? $element['label'] : $element['field_name'].$element['group_name'],
       );
 
-       
-      if(isset($element['type']) && $element['type']=='nodereference') {
-        $form['level1'][$index_element]['wallyedit']=array(
-        '#type'=>'select',
-        '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+      $form['level1'][$index_element]['weight']=array(
+        "#type"=>'weight',
+        '#default_value'=>$weight,
+        //"#attributes"=>array('class'=>"my-elements-weight-lev1 my-elements-weight-lev1-". $index_onglet),
+      );
+
+      if(isset($element['type']) && $element['type'] == 'nodereference') {
+        $form['level1'][$index_element]['wallyedit'] = array(
+          '#type'=>'select',
+          '#options'=>array(0 => t("Exclude"), 1 => t("Normal")),
         );
         $hits = 0;
         foreach ($element['referenceable_types'] as $key => $value) {
@@ -264,45 +270,43 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
           $hits++;
         }
         if ($element['multiple'] == 0 && $hits == 1) {
-          $form['level1'][$index_element]["wallyedit"]["#options"][2]=t('Inline');
-          $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+          $form['level1'][$index_element]["wallyedit"]["#options"][2] = t('Inline');
+          $form['level1'][$index_element]["wallyedit"]["#options"][3] = t('Select box');
         } else {
-          $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+          $form['level1'][$index_element]["wallyedit"]["#options"][3] = t('Select box');
         }
       }
       if(isset($element['display_settings']['wallyedit'])) {
-        $form['level1'][$index_element]["wallyedit"]["#default_value"]=$element['display_settings']['wallyedit'];
+        $form['level1'][$index_element]["wallyedit"]["#default_value"] = $element['display_settings']['wallyedit'];
       } else {
-        $form['level1'][$index_element]["wallyedit"]["#default_value"]=1;
+        $form['level1'][$index_element]["wallyedit"]["#default_value"] = 1;
       }
 
-
-
-      $form['level1'][$index_element]['onglet']=array(
-            "#type"=>'select',
-            "#options"=>$options_onglet,
-			'#default_value'=>$index_onglet,
-      //     "#attributes"=>array('class'=>"my-elements-onglet-lev1 my-elements-onglet-lev1-". $index_onglet),
+      $form['level1'][$index_element]['onglet'] = array(
+        "#type"=>'select',
+        "#options"=>$options_onglet,
+        '#default_value'=>$index_onglet,
+        //"#attributes"=>array('class'=>"my-elements-onglet-lev1 my-elements-onglet-lev1-". $index_onglet),
       );
-      if(isset($element['group_name'])){
+
+      if(isset($element['group_name'])) {
         //Gentlemans, We have a band here
         foreach($element["fields"] as $index_field=>$field){
-
           $form['level1'][$index_element]['level2'][$index_field]['field_name']=array(
             '#type' => 'markup',
-            '#value' => $field['field_name']
+            '#value' => isset($field['label']) ? $field['label'] : $field['field_name'],
           );
+
           $form['level1'][$index_element]['level2'][$index_field]['weight']=array(
             "#type"=>'weight',
-			'#default_value'=>$weight,
+            '#default_value'=>$weight,
             "#attributes"=>array('class'=>"my-elements-weight-lev2 my-elements-weight-lev2-". $index_field),
           );
 
-
-          if(isset($element['type']) && $element['type']=='nodereference') {
-            $form['level1'][$index_element]['wallyedit']=array(
-            '#type'=>'select',
-            '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+          if(isset($element['type']) && $element['type'] == 'nodereference') {
+            $form['level1'][$index_element]['wallyedit'] = array(
+              '#type'=>'select',
+              '#options'=>array(0 => t("Exclude"), 1 => t("Normal")),
             );
             $hits = 0;
             foreach ($element['referenceable_types'] as $key => $value) {
@@ -310,19 +314,17 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
               $hits++;
             }
             if ($element['multiple'] == 0 && $hits == 1) {
-              $form['level1'][$index_element]["wallyedit"]["#options"][2]=t('Inline');
-              $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+              $form['level1'][$index_element]["wallyedit"]["#options"][2] = t('Inline');
+              $form['level1'][$index_element]["wallyedit"]["#options"][3] = t('Select box');
             } else {
-              $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+              $form['level1'][$index_element]["wallyedit"]["#options"][3] = t('Select box');
             }
           }
           if(isset($element['display_settings']['wallyedit'])) {
-            $form['level1'][$index_element]["wallyedit"]["#default_value"]=$element['display_settings']['wallyedit'];
+            $form['level1'][$index_element]["wallyedit"]["#default_value"] = $element['display_settings']['wallyedit'];
           } else {
-            $form['level1'][$index_element]["wallyedit"]["#default_value"]=1;
+            $form['level1'][$index_element]["wallyedit"]["#default_value"] = 1;
           }
-
-
         }
       }
     }
@@ -339,8 +341,8 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
 
 function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   $values = $form_state['values'];
-  $type_name = $form_state['type'];
-  $profile_id = $form_state['pid'];
+  $type_name = $values['type'];
+  $profile_id = $values['profile_id'];
   $level1['level1'] = $values['level1'];
 
   uasort($level1['level1'], '_wallyedit_sort_fields_helper');
