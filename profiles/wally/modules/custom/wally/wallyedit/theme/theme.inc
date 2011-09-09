@@ -1,5 +1,6 @@
 <?php
 
+
 function theme_wallyedit_admin($rows=array(),$headers){
   drupal_set_title("Wallyedit Admin");
 

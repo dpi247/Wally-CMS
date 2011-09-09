@@ -228,6 +228,11 @@ function wallyedit_theme(){
   );
 
   return array(
+    'wallyedit_node_form'=>$base+array(
+      'arguments' => array('form' => array()),
+       'template' => 'wallyedit-node-form',
+  
+    ),
     'wallyedit_admin'=>$base+array(
       'arguments' => array('rows' => array()),
     ),
@@ -450,6 +455,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
   $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/1';
+  
   return $form;
 }
 
@@ -626,6 +632,7 @@ function wydit_subform_global_page_form(&$form_state){
   
   $form['type']=array('#type'=>'value','#value'=>$form_state['type']);
   $form['#tree']=true;
+  $form['#theme'][]="wallyedit_node_form";
 
   $form["save_global"]=array(
     '#type'=>'submit',
@@ -634,8 +641,6 @@ function wydit_subform_global_page_form(&$form_state){
   	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
   );
   
-  $form['#tree']=true;
-
   $form["reset_global"]=array(
     '#type'=>'submit',
     '#name'=>'reset_global',
@@ -648,7 +653,6 @@ function wydit_subform_global_page_form(&$form_state){
     '#name'=>'publish_global',
     "#value"=> 'Publish',
   );
-
   return $form;
 }
 
@@ -1253,6 +1257,7 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
 //___________________________________________________
 function wydit_remove_form_infos(& $form){
   $form["#type"]='fieldset';
+  
 }
 
 /**
