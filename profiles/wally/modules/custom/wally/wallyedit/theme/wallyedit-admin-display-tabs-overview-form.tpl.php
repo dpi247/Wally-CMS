@@ -26,11 +26,6 @@
  */
 ?>
 <?php
-
-  // Add table javascript.
-  drupal_add_js('misc/tableheader.js');
-  drupal_add_js(drupal_get_path('module', 'wallyedit') .'/js/wallyedit.js');
-  drupal_add_css(drupal_get_path('module', 'wallyedit') .'/css/wallyedit.css');
   foreach ($element_onglets as $region => $title) {
     drupal_add_tabledrag('blocks', 'match', 'sibling', 'my-element-onglet-lev1', 'my-element-onglet-lev1-'. $region, NULL, FALSE);
     drupal_add_tabledrag('blocks', 'order', 'sibling', 'element-weight-lev1', 'element-weight-lev1-'. $region);
@@ -48,12 +43,12 @@
   </thead>
   <tbody>
     <?php $row = 0; ?>
-    <?php dsm($element_listing);foreach ($element_onglets as $region => $title): ?>
-      <tr class="onglet onglet-<?php dsm($region); print $region?>">
-        <td colspan="5" class="onglet"><?php print $title; ?></td>
+    <?php foreach ($element_onglets as $region => $title): ?>
+      <tr class="onglet onglet-<?php print $region?>">
+        <td colspan="5" class="onglet"><b><?php print $title; ?></b></td>
       </tr>
-      <tr class="onglet-message onglet-<?php print $region?>-message <?php print empty($block_listing[$region]) ? 'region-empty' : 'region-populated'; ?>">
-        <td colspan="5>"><em><?php print t('No blocks in this region'); ?></em></td>
+      <tr class="onglet-message onglet-<?php print $region?>-message <?php print empty($element_listing[$region]) ? 'onglet-empty' : 'onglet-populated'; ?>">
+        <td colspan="5>"><em><?php print t('No tabs in this region'); ?></em></td>
       </tr>
       <?php foreach ($element_listing[$region] as $delta => $data): ?>
         <?php if($data->has_level2):?>
@@ -68,7 +63,6 @@
              <?php
                drupal_add_tabledrag('blocks_'.$delta, 'order', 'sibling', 'element-weight-lev2-'.$delta, 'element-weight-lev2-'. $delta);
              ?>
-                  
                <thead> 
                 <tr class="table-fake-thead">
                    <th><?php print t('Element'); ?></th>
@@ -88,7 +82,6 @@
 			  </tbody>
 			</table>
 			</td>
-          </td>
         </tr>
         <?php else:?>
           <tr class="draggable <?php print $row % 2 == 0 ? 'odd' : 'even'; ?> <?php print $data->row_class ? ' '. $data->row_class : ''; ?>">
@@ -107,3 +100,4 @@
 </table>
 
 <?php print $form_submit; ?>
+
