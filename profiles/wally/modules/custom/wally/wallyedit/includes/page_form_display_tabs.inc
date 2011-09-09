@@ -1,0 +1,697 @@
+<?php
+
+/**
+ * Show existing profiles and tabs and add new ones
+ */
+function wallyedit_page_profiles_overview () {
+  $profiles_header = array(t('Name'), array('data' => t('Operations'), 'colspan' => '2'));
+  $profiles_rows = array();
+  $profiles_caption = t('Profiles List');
+
+  $db_profiles = db_query('SELECT * FROM {wallyedit_profiles}');
+  $profiles = array();
+  while ($profile = db_fetch_array($db_profiles)) {
+    $profiles[$profile['pid']] = $profile;
+    $row = array(
+      check_plain($profile['label']),
+      array('data' => l(t('Choose content type'), 'admin/content/wallydisplaytabs/displaytabs/'. $profile['pid']).' · <a href="/admin/content/wallydisplaytabs/deleteprofile/'.$profile['pid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>'),
+    );
+
+    $profiles_rows[] = $row;
+  }
+
+  $output = theme('table', $profiles_header, $profiles_rows, array(), $profiles_caption);
+  $output .= drupal_get_form('wallyedit_form_add_new_profile_form');
+
+  return $output;
+}
+
+/**
+ * List content types for a profile and choose edition type
+ */
+function wallyedit_form_tabs_content_types_overview_form (&$form_state, $profile_id) {
+  $form = array(
+    '#tree' => TRUE,
+  );
+
+  if (is_numeric($profile_id)) {
+    $interface_types = variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+    $types = node_get_types();
+    $names = node_get_types('names');
+    $editions = array(
+      'wally' => 'Wally',
+      'drupal' => 'Drupal',
+    );
+    $form['profile_id'] = array(
+      '#type' => 'value',
+      '#value' => $profile_id,
+    );
+    $form['rows'] = array();
+
+    foreach ($names as $key => $name) {
+      $type = $types[$key];
+      if (node_hook($type, 'form')) {
+        $form['rows'][$key] = array();
+
+        $type_url_str = str_replace('_', '-', $type->type);
+
+        $form['rows'][$key]['name'] = array(
+          '#type' => 'value',
+          '#value' => l($name, 'admin/content/node-type/'. $type_url_str),
+        );
+
+        $form['rows'][$key]['type'] = array(
+          '#type' => 'value',
+          '#value' => check_plain($type->type),
+        );
+
+        $form['rows'][$key]['description'] = array(
+          '#type' => 'value',
+          '#value' => $type->description,
+        );
+
+        $form['rows'][$key]['edition'] = array(
+          '#type' => 'select',
+          '#options' => $editions,
+          '#default_value' => $interface_types[$key],
+        );
+
+        $form['rows'][$key]['operations'] = array(
+          '#type' => 'value',
+          '#value' => l(t('Organise fields into tabs'), 'admin/content/wallydisplaytabs/displaytabs/'.$profile_id.'/'.$type_url_str),
+        );
+      }
+    }
+    
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    );
+  } else {
+    drupal_set_message(t('No profile given!'), 'error');
+  }
+  
+  return $form;
+}
+
+function wallyedit_form_tabs_content_types_overview_form_submit ($form, &$form_state) {
+  $values = $form_state['values'];
+  
+  $content_editions = array();
+  foreach ($values['rows'] as $content_key => $content_values) {
+    $content_editions[$content_key] = $content_values['edition'];
+  }
+  
+  variable_set('wallyedit_content_types_interface_type_'.$values['profile_id'], $content_editions);
+  drupal_set_message(t('Configuration saved.'));
+}
+
+/**
+ * Show tabs for a profile and a content type
+ */
+function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_key) {
+  $form = array(
+    '#tree' => TRUE,
+  );
+
+  if (is_numeric($profile_id)) {
+      $form['profile_id'] = array(
+      '#type' => 'value',
+      '#value' => $profile_id,
+    );
+
+    $content_names = node_get_types('names');
+    foreach ($content_names as $key => $name) {
+      $type_url_str = str_replace('_', '-', $key);
+      if ($content_key == $type_url_str) {
+        $content_key = $key;
+        break;
+      }
+    }
+
+    $form['content_key'] = array(
+      '#type' => 'value',
+      '#value' => $content_key,
+    );
+
+    $db_tabs = db_query('SELECT * FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s" ORDER BY weight ASC', $profile_id, $content_key);
+    $count_tabs = db_result(db_query('SELECT COUNT(*) FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $content_key));
+    for ($j = 1; $tab = db_fetch_array($db_tabs); $j++) {
+      $form['rows'][$tab['tid']]['label'] = array(
+        '#type' => 'value',
+        '#value' => $tab['label'],
+      );
+
+      $operations = l(t('Manage fields'), 'admin/content/wallydisplaytabs/displaytabs/'.$profile_id.'/'.$type_url_str.'/fields');
+      $operations .= ' · <a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
+      $operations .= $tab['erasable'] ? ' · <a href="/admin/content/wallydisplaytabs/deletetab/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>' : '';
+      $form['rows'][$tab['tid']]['operations'] = array(
+        '#type' => 'value',
+        '#value' => $operations,
+      );
+      
+      $form['rows'][$tab['tid']]['weight'] = array(
+        '#type' => 'weight',
+        '#default_value' => $j,
+        //add a specific class in here - we need this later
+        '#attributes' => array('class' => 'weight'),
+        '#delta' => $count_tabs,
+      );
+    }
+
+    $form['save_order'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save order'),
+      '#weight' => 0,
+    );
+
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Add a new tab'),
+      '#description' => t('Enter tab label here'),
+      '#default_value' => '',
+    );
+
+    $form['erasable'] = array(
+      '#type' => 'hidden',
+      '#title' => t('Erasable'),
+      '#value' => 1,
+    );
+
+    $form['add'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add'),
+    );
+  } else {
+    drupal_set_message(t('No profile given!'), 'error');
+  }
+
+  return $form;
+}
+
+function wallyedit_form_tabs_overview_form_submit ($form, &$form_state) {
+  $values = $form_state['values'];
+
+  if ($values['op'] == $values['add']) {
+    $new_tab = array();
+    $bad_car = array(' ', '-');
+    $new_tab['name'] = strtolower(str_replace($bad_car, '_', $values['label'])).'_'.time();
+    $new_tab['label'] = $values['label'];
+    $new_tab['weight'] = 0;
+    $new_tab['pid'] = $values['profile_id'];
+    $new_tab['content_type'] = $values['content_key'];
+    $new_tab['erasable'] = $values['erasable'];
+
+    drupal_write_record('wallyedit_tabs_config', $new_tab);
+    drupal_set_message(t('Tab "@tab" saved!', array('@tab' => $new_tab['label'])));
+  } elseif ($values['op'] == $values['save_order']) {
+    foreach ($values['rows'] as $tab_id => $tab_values) {
+      db_query('UPDATE {wallyedit_tabs_config} SET weight = %d WHERE tid = %d', $tab_values['weight'], $tab_id);
+    }
+    drupal_set_message(t('Tab order saved!'));
+  }
+}
+
+/**
+ * Organise fields for a profile and a content type
+ */
+function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $content_key) {
+  $content_names = node_get_types('names');
+  foreach ($content_names as $key => $name) {
+    $type_url_str = str_replace('_', '-', $key);
+    if ($content_key == $type_url_str) {
+      $type_name = $key;
+      break;
+    }
+  }
+  $type=content_types($type_name);
+  
+  $form_state['type'] = $type_name;
+  $form_state['pid'] = $profile_id;
+
+  $onglets = wallyedit_get_onglets($profile_id, $type_name);
+
+  $form=array(
+    '#tree' => TRUE,
+  );
+
+  foreach($onglets as $index_onglet=>$onglet){
+    $options_onglet[$index_onglet]=$index_onglet;
+  }
+  foreach($onglets as $index_onglet=>$onglet){
+
+    foreach($onglet["elements"] as $index_element=>$element){
+
+      $form['level1'][$index_element]['field_name']=array(
+        '#type' => 'markup',
+        '#value' => $element['field_name'].$element['group_name']
+      );
+      $form['level1'][$index_element]['weight']=array(
+            "#type"=>'weight',
+			'#default_value'=>$weight,
+      //    "#attributes"=>array('class'=>"my-elements-weight-lev1 my-elements-weight-lev1-". $index_onglet),
+      );
+
+       
+      if(isset($element['type']) && $element['type']=='nodereference') {
+        $form['level1'][$index_element]['wallyedit']=array(
+        '#type'=>'select',
+        '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+        );
+        $hits = 0;
+        foreach ($element['referenceable_types'] as $key => $value) {
+          if ($key === $value)
+          $hits++;
+        }
+        if ($element['multiple'] == 0 && $hits == 1) {
+          $form['level1'][$index_element]["wallyedit"]["#options"][2]=t('Inline');
+          $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+        } else {
+          $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+        }
+      }
+      if(isset($element['display_settings']['wallyedit'])) {
+        $form['level1'][$index_element]["wallyedit"]["#default_value"]=$element['display_settings']['wallyedit'];
+      } else {
+        $form['level1'][$index_element]["wallyedit"]["#default_value"]=1;
+      }
+
+
+
+      $form['level1'][$index_element]['onglet']=array(
+            "#type"=>'select',
+            "#options"=>$options_onglet,
+			'#default_value'=>$index_onglet,
+      //     "#attributes"=>array('class'=>"my-elements-onglet-lev1 my-elements-onglet-lev1-". $index_onglet),
+      );
+      if(isset($element['group_name'])){
+        //Gentlemans, We have a band here
+        foreach($element["fields"] as $index_field=>$field){
+
+          $form['level1'][$index_element]['level2'][$index_field]['field_name']=array(
+            '#type' => 'markup',
+            '#value' => $field['field_name']
+          );
+          $form['level1'][$index_element]['level2'][$index_field]['weight']=array(
+            "#type"=>'weight',
+			'#default_value'=>$weight,
+            "#attributes"=>array('class'=>"my-elements-weight-lev2 my-elements-weight-lev2-". $index_field),
+          );
+
+
+          if(isset($element['type']) && $element['type']=='nodereference') {
+            $form['level1'][$index_element]['wallyedit']=array(
+            '#type'=>'select',
+            '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+            );
+            $hits = 0;
+            foreach ($element['referenceable_types'] as $key => $value) {
+              if ($key === $value)
+              $hits++;
+            }
+            if ($element['multiple'] == 0 && $hits == 1) {
+              $form['level1'][$index_element]["wallyedit"]["#options"][2]=t('Inline');
+              $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+            } else {
+              $form['level1'][$index_element]["wallyedit"]["#options"][3]=t('Select box');
+            }
+          }
+          if(isset($element['display_settings']['wallyedit'])) {
+            $form['level1'][$index_element]["wallyedit"]["#default_value"]=$element['display_settings']['wallyedit'];
+          } else {
+            $form['level1'][$index_element]["wallyedit"]["#default_value"]=1;
+          }
+
+
+        }
+      }
+    }
+  }
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Save'),
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
+  $values = $form_state['values'];
+  $type_name = $form_state['type'];
+  $profile_id = $form_state['pid'];
+  $level1['level1'] = $values['level1'];
+
+  $tabs_config = array(
+    'pid' => $profile_id,
+    'content_type' => $type_name,
+    'tabs' => $level1,
+  );
+
+  if(drupal_write_record('wallyedit_tabs_edition', $tabs_config)) {
+    drupal_set_message(t('Configuration saved'));
+  } else {
+    drupal_set_message(t('An error occured'), 'error');
+  }
+}
+
+/**
+ * Add new profile
+ */
+function wallyedit_form_add_new_profile_form(&$form_state) {
+  $form = array();
+
+  $form['label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Add a new profile'),
+    '#description' => t('Enter profile label here'),
+    '#default_value' => '',
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Add'),
+    '#value' => t('Add'),
+  );
+
+  return $form;
+}
+
+function wallyedit_form_add_new_profile_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+
+  drupal_write_record('wallyedit_profiles', $values);
+  drupal_set_message(t('Profile "@profile" saved!', array('@profile' => $values['label'])));
+
+  foreach (node_get_types('names') as $content_type => $ct_name) {
+    $main_tab = array(
+      'name' => 'main_'.$values['pid'].'_'.$content_type,
+      'label' => t('Main'),
+      'weight' => 1,
+      'pid' => $values['pid'],
+      'content_type' => $content_type,
+      'erasable' => 0,
+    );
+    drupal_write_record('wallyedit_tabs_config', $main_tab);
+    $meta_tab = array(
+      'name' => 'meta_'.$values['pid'].'_'.$content_type,
+      'label' => t('Meta'),
+      'weight' => 2,
+      'pid' => $values['pid'],
+      'content_type' => $content_type,
+      'erasable' => 0,
+    );
+    drupal_write_record('wallyedit_tabs_config', $meta_tab);
+  }
+}
+
+function wallyedit_form_display_tabs_form (&$form_state, $type, $profile_id) {
+  module_load_include("inc",'content','includes/content.node_form');
+  module_load_include("inc",'content','includes/content.admin');
+  module_load_include('inc', 'node', 'node.pages');
+  $form = drupal_retrieve_form('content_field_overview_form', $form_state, $type->type);
+
+  $node = new Stdclass;
+  $node->type = $type->type;
+  $node->name = '';
+  
+  // Get node form
+  $node_form = drupal_retrieve_form(str_replace('-','_',$type->type).'_node_form', $form_state, $node);
+  drupal_prepare_form('node_form', $node_form, $form_state);
+
+  // Remove unnecessery fields and groups from the form
+  foreach ($form['#field_rows'] as $field_id => $field_name) {
+    if ($field_name == '_add_new_field' || $field_name == '_add_existing_field') {
+      unset($form['#field_rows'][$field_id]);
+    } elseif (isset($node_form[$field_name]) && is_array($node_form[$field_name]) && $node_form[$field_name]['#type'] == 'fieldset') {
+      _wallyedit_tabs_add_new_group_to_form($form, $node_form[$field_name], $field_name);
+    }
+  }
+  foreach ($form['#group_rows'] as $group_id => $group_name) {
+    if ($group_name == '_add_new_group')
+      unset($form['#group_rows'][$group_id]);
+  }
+  unset($form['_add_new_field']);
+  unset($form['_add_existing_field']);
+  unset($form['_add_new_group']);
+
+  foreach ($form as $field_name => $field) {
+    if (is_array($field) && isset($field['configure']))
+      unset($form[$field_name]['configure']);
+    if (is_array($field) && isset($field['remove']))
+      unset($form[$field_name]['remove']);
+  }
+
+  $fields = wydit_get_fields_infos_for_typename($type->type, 'fields');
+
+  foreach ($form["#field_rows"] as $field) {
+    $form[$field]["wallyedit"]=array(
+      '#type'=>'select',
+      '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+    );
+    if(isset($fields[$field]['type']) && $fields[$field]['type']=='nodereference') {
+      $hits = 0;
+      foreach ($fields[$field]['referenceable_types'] as $key => $value) {
+        if ($key === $value)
+          $hits++;
+      }
+      if ($fields[$field]['multiple'] == 0 && $hits == 1) {
+        $form[$field]["wallyedit"]["#options"][2]=t('Inline');
+        $form[$field]["wallyedit"]["#options"][3]=t('Select box');
+      } else {
+        $form[$field]["wallyedit"]["#options"][3]=t('Select box');
+      }
+    }
+    if(isset($fields[$field]['display_settings']['wallyedit'])) {
+      $form[$field]["wallyedit"]["#default_value"]=$fields[$field]['display_settings']['wallyedit'];
+    } else {
+      $form[$field]["wallyedit"]["#default_value"]=1;
+    }
+  }
+
+  foreach ($form["#group_rows"] as $group) {
+    $form[$group]["wallyedit"]=array(
+      '#type'=>'select',
+      '#options'=>array(0=>t("Exclude"),1=>t("Normal")),
+    );
+    if(isset($fields[$group]['display_settings']['wallyedit'])) {
+      $form[$group]["wallyedit"]["#default_value"]=$fields[$group]['display_settings']['wallyedit'];
+    } else {
+      $form[$group]["wallyedit"]["#default_value"]=1;
+    }
+  }
+
+  $form['#parameters'][0] = 'wallyedit_form_display_tabs_form';
+
+  $form['#field_rows'] = array_values($form['#field_rows']);
+dsm($form);
+  return $form;
+}
+
+function wallyedit_form_display_tabs_form_submit(&$form, &$form_state) {
+  wallyedit_display_fields_save_groups($form, $form_state);
+  wallyedit_display_fields_save_extra_fields($form, $form_state);
+  foreach ($form_state['values'] as $field_name => $values)
+    if (isset($values['field']['display_settings']))
+      unset($form_state['values'][$field_name]['field']['display_settings']['field']);
+  content_display_overview_form_submit($form, $form_state);
+}
+
+function wallyedit_display_tabs_save_groups(&$form, &$form_state) {
+  $form_values = $form_state['values'];
+  $groups_to_save = array();
+  
+  foreach ($form_values as $key => $values) {
+    if (in_array($key, $form['#group_rows'])) {
+      $values['display_settings']['wallyedit'] = $values['wallyedit'];
+      unset($values['wallyedit']);
+      $groups_to_save[$key] = $values;
+    }
+  }
+
+  variable_set('wallyedit_groups_display_'.$form['#type_name'], $groups_to_save);
+}
+
+function wallyedit_display_tabs_save_extra_fields(&$form, &$form_state) {
+  $form_values = $form_state['values'];
+  $fields_to_save = array();
+
+  foreach ($form_values as $key => $values) {
+    // Groups are handled in fieldgroup_display_overview_form_submit().
+    if (in_array($key, $form['#field_rows']) && !in_array($key, $form['#fields'])) {
+      $values['display_settings']['wallyedit'] = $values['wallyedit'];
+      unset($values['wallyedit']);
+      $fields_to_save[$key] = $values;
+    }
+  }
+  variable_set('wallyedit_extra_fields_display_'.$form['#type_name'], $fields_to_save);
+}
+
+/**
+ * Form to delete a profile
+ */
+function wallyedit_form_delete_profile_form (&$form_state, $profile_id) {
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  
+  if ($profile = db_fetch_array(db_query('SELECT * FROM {wallyedit_profiles} WHERE pid = %d', $profile_id))) {
+    
+  } else {
+    drupal_set_message(t('Profile not found!'), 'error');
+    drupal_goto($redirect);
+  }
+  $question = t('Are you sure you want to delete profile "@profile"?', array('@profile' => $profile['label']));
+  
+  $add_form = array();
+  $add_form['pid'] = array(
+    '#type' => 'value',
+    '#value' => $profile_id,
+  );
+  
+  $form = confirm_form($add_form, $question, $redirect);
+  $form['#redirect'] = $redirect;
+  return $form;
+}
+
+function wallyedit_form_delete_profile_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $profile_id = $values['pid'];
+
+  if (db_result(db_query('SELECT * FROM {wallyedit_profiles} WHERE pid = %d', $profile_id))) {
+    db_query('DELETE FROM {wallyedit_profiles} WHERE pid = %d', $profile_id);
+    db_query('DELETE FROM {wallyedit_tabs_config} WHERE pid = %d', $profile_id);
+    db_query('DELETE FROM {wallyedit_tabs_edition} WHERE pid = %d', $profile_id);
+    drupal_set_message(t('Profile deleted.'));
+  } else {
+    drupal_set_message(t('No profile matching the requested key.'), 'warning');
+  }
+}
+
+/**
+ * Form to edit a tab label
+ */
+function wallyedit_form_edit_label_tab_form (&$form_state, $tab_id) {
+  $tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id));
+
+  $form = array();
+
+  $form['new_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New Label'),
+    '#default_value' => $tab['label'],
+  );
+
+  $form['tab_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $tab_id,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Save'),
+    '#value' => t('Save'),
+  );
+
+  $form['cancel'] = array(
+    '#type' => 'submit',
+    '#title' => t('Cancel'),
+    '#value' => t('Cancel'),
+  );
+
+  return $form;
+}
+
+function wallyedit_form_edit_label_tab_form_submit ($form, $form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['submit']) {
+    db_query('UPDATE {wallyedit_tabs_config} SET label = "%s" WHERE tid = %d', $values['new_label'], $values['tab_id']);
+  }
+  if (!isset($_GET['destination'])) {
+    drupal_goto('admin/content');
+  }
+}
+
+/**
+ * Form to delete a tab
+ */
+function wallyedit_form_delete_tab_form (&$form_state, $tab_id) {
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  
+  if ($tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id))) {
+    
+  } else {
+    drupal_set_message(t('Tab not found!'), 'error');
+    drupal_goto($redirect);
+  }
+  $question = t('Are you sure you want to delete tab "@tab"?', array('@tab' => $tab['label']));
+  
+  $add_form = array();
+  $add_form['tab_id'] = array(
+    '#type' => 'value',
+    '#value' => $tab_id,
+  );
+  
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  $form = confirm_form($add_form, $question, $redirect);
+  $form['#redirect'] = $redirect;
+  return $form;
+}
+
+function wallyedit_form_delete_tab_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $tab_id = $values['tab_id'];
+
+  if ($erasable = db_result(db_query('SELECT erasable FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id))) {
+    if ($erasable) {
+      db_query('DELETE FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id);
+      drupal_set_message(t('Tab deleted.'));
+    } else {
+      drupal_set_message(t('This tab can\'t be deleted.'), 'warning');
+    }
+  } else {
+    drupal_set_message(t('No tab matching the requested key.'), 'warning');
+  }
+}
+
+function _wallyedit_tabs_add_new_group_to_form(&$form, $node_fields, $field_name) {
+  $form[$field_name]['group_name']['#value'] = $field_name;
+  $form[$field_name]['group_type']['#value'] = 'Standard group';
+  $form['#group_rows'][] = $field_name;
+  $field_id = array_keys($form['#field_rows'], $field_name, TRUE);
+  unset($form['#field_rows'][$field_id[0]]);
+  //$from['#groups'][] = $field_name;
+  $form[$field_name]['#row_type'] = 'group';
+  $form[$field_name]['#disabled_row'] = FALSE;
+  
+  foreach ($node_fields as $node_field_name => $node_field) {
+    if (!strstr($node_field_name, '#')) {
+      $form[$node_field_name] = array();
+      $form['#field_rows'][] = $node_field_name;
+      //$form['#fields'][] = 'field_'.$node_field_name;
+      $form[$node_field_name]['label']['#value'] = $node_field['#title'];
+      $form[$node_field_name]['field_name']['#value'] = $node_field_name;
+      $form[$node_field_name]['type']['#value'] = $node_field['#type'];
+      $form[$node_field_name]['weight']['#value'] = '10';
+      $form[$node_field_name]['parent'] = array(
+        '#type' => 'select',
+        '#options' => array($field_name => $form[$field_name]['label']['#value']),
+        '#default_value' => $field_name,
+      );
+      $form[$node_field_name]['prev_parent'] = array(
+        '#type' => 'hidden',
+        '#value' => $field_name,
+      );
+      $form[$node_field_name]['#leaf'] = TRUE;
+      $form[$node_field_name]['#row_type'] = 'field';
+      $form[$node_field_name]['field'] = array(
+        '#type' => 'value',
+        '#value' => array(
+          'field_name' => $node_field_name,
+      		'type_name' => 'field',
+          'type' => $node_field['#type'],
+          'multiple' => 0,
+        ),
+      );
+    }
+  }
+}
