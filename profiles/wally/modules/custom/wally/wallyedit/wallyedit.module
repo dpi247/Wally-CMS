@@ -80,62 +80,79 @@ function wallyedit_menu(){
   
   // Tabs organisation admin
   $items['admin/content/wallydisplaytabs'] = array(
-    'page callback'=>'wallyedit_profiles_overview_page',
+    'page callback'=>'wallyedit_page_profiles_overview',
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_tabs.inc',
     'title'=> t('WallyEdit - Display all fields into tabs'),
     'Description'=> t('Display all fields and organise them into tabs.'),
   );
   
-  $items['admin/content/wallydisplaytabs/displayprofiles'] = array(
-    'page callback'=>'wallyedit_profiles_overview_page',
+  $items['admin/content/wallydisplaytabs/displaytabs/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_tabs_content_types_overview_form', 4),
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_tabs.inc',
+    'title'=> t('Content Types'),
+    'Description'=> t('Display all content types for a profile.'),
+  );
+  
+  $items['admin/content/wallydisplaytabs/displaytabs/%/%'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_tabs_overview_form', 4, 5),
+    'access arguments' => array('administer content types'),
+    'file' => 'includes/page_form_display_tabs.inc',
+    'title' => t('Organise fields into tabs'),
+  );
+  
+  $items['admin/content/wallydisplaytabs/displaytabs/%/%/tabs'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_tabs_overview_form', 4, 5),
+    'access arguments' => array('administer content types'),
+    'file' => 'includes/page_form_display_tabs.inc',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'title'=> t('Profiles'),
-    'weight'=>-3,
-    'Description'=> t('Choose profile to organise tabs for the edition interface.'),
+    'title' => t('Tabs'),
+    'weight' => 1,
   );
   
-  $items['admin/content/wallydisplaytabs/displaytabs'] = array(
-    'page callback'=>'wallyedit_tabs_overview_page',
+  $items['admin/content/wallydisplaytabs/displaytabs/%/%/fields'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_fields_overview_form', 4, 5),
+    'access arguments' => array('administer content types'),
+    'file' => 'includes/page_form_display_tabs.inc',
+    'type' => MENU_LOCAL_TASK,
+    'title' => t('Fields'),
+    'weight' => 2,
+  );
+  
+  $items['admin/content/wallydisplaytabs/tablabel'] = array(
+    'page callback'=>'drupal_get_form',
+    'page arguments' => array('wallyedit_form_edit_label_tab_form'),
     'access arguments' => array('administer content types'),
     'file'=>'includes/page_form_display_tabs.inc',
-    'title'=> t('Tabs organisation'),
-    'weight'=>-3,
-    'Description'=> t('Display all fields and organise them into tabs.'),
+    'title'=> t('Edit tab label'),
+    'weight' => -3,
+    'Description'=> t('Edit tab label.'),
   );
   
-  $items['admin/content/wallydisplaytabs/exportvars'] = array(
-    'title'=>t('Export Vars'),
-    'page callback'=>'export_vars_admin',
-    'access arguments' => array('access administration pages'),
-    'page arguments' => array('wallyedit'),
-    'type' => MENU_LOCAL_TASK,
-    'file path' => drupal_get_path('module', 'wallyadmin'),
-    'file' => 'includes/searchvars.admin.inc',
+  $items['admin/content/wallydisplaytabs/deletetab'] = array(
+    'page callback'=>'drupal_get_form',
+    'page arguments' => array('wallyedit_form_delete_tab_form'),
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'title'=> t('Delete tab'),
+    'weight' => -3,
+    'Description'=> t('Delete tab.'),
   );
   
-  $items['admin/content/wallydisplaytabs/importvars'] = array(
-    'title'=>t('Import Vars'),
-    'page callback'=>'import_vars_admin',
-    'access arguments' => array('access administration pages'),
-    'type' => MENU_LOCAL_TASK,
-    'file path' => drupal_get_path('module', 'wallyadmin'),
-    'file' => 'includes/searchvars.admin.inc',
+  $items['admin/content/wallydisplaytabs/deleteprofile'] = array(
+    'page callback'=>'drupal_get_form',
+    'page arguments' => array('wallyedit_form_delete_profile_form'),
+    'access arguments' => array('administer content types'),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'title'=> t('Delete profile'),
+    'weight' => -3,
+    'Description'=> t('Delete profile.'),
   );
-  
-  foreach (node_get_types('types', NULL, TRUE) as $type) {
-    $type_url_str = str_replace('_', '-', $type->type);
-    $items['admin/content/wallydisplaytabs/'. $type_url_str] = array(
-      'title' => $type->name,
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('wallyedit_form_display_tabs_form', $type),
-      'access arguments' => array('administer content types'),
-      'file' => 'includes/page_form_display_tabs.inc',
-      'type' => MENU_CALLBACK,
-    );
-  }
   
   // Edition interface callbacks
   $items['node/%prenode/edit2/%ctools_js'] = array(
@@ -201,13 +218,14 @@ function wallyedit_menu(){
     'file'=>'includes/callback_preview.inc',
   );
   
-   $items['wallyedit/js_add_more'] = array(
+  $items['wallyedit/js_add_more'] = array(
     'page callback' => 'wallyedit_add_more_js',
     'access arguments' => array('access content'),
     'file' => 'includes/wallyedit.node_form.inc',
     'type' => MENU_CALLBACK,
   );
-     $items['wallyedit/test'] = array(
+  
+  $items['wallyedit/test'] = array(
     'page callback' => 'wallyedit_test',
     'access arguments' => array('access content'),
     'file' => 'includes/wallyedit.test.inc',
@@ -224,14 +242,13 @@ function wallyedit_theme(){
   $path = drupal_get_path('module', 'wallyedit');
   $base = array(
     'file' => 'theme.inc',
-    'path' => "$path/theme",
+    'path' => $path."/theme",
   );
 
   return array(
     'wallyedit_node_form'=>$base+array(
       'arguments' => array('form' => array()),
-       'template' => 'wallyedit-node-form',
-  
+      'template' => 'wallyedit-node-form',
     ),
     'wallyedit_admin'=>$base+array(
       'arguments' => array('rows' => array()),
@@ -244,11 +261,6 @@ function wallyedit_theme(){
     ),
     'wallyedit_form_display_fields_form'=>array(
       'template' => 'wallyedit-admin-display-overview-form',
-      'arguments' => array('form' => array()),
-      'path' => drupal_get_path('module', 'wallyedit') . '/theme',
-    ),
-    'wallyedit_form_display_tabs_form'=>array(
-      'template' => 'wallyedit-admin-display-tabs-overview-form',
       'arguments' => array('form' => array()),
       'path' => drupal_get_path('module', 'wallyedit') . '/theme',
     ),
@@ -266,6 +278,16 @@ function wallyedit_theme(){
       ),
     'wydit_selector_theme'=>$base+array(
       'arguments' => array('form' => array()),
+    ),
+    'wallyedit_form_tabs_content_types_overview_form' => $base + array(
+      'arguments' => array('form' => array()),
+    ),
+    'wallyedit_form_tabs_overview_form' => $base + array(
+      'arguments' => array('form' => array()),
+    ),
+    'wallyedit_form_fields_overview_form' => $base + array(
+      'arguments' => array('form' => array()),
+      'template' => 'wallyedit-admin-display-tabs-overview-form',
     ),
     
     'wallyedit_test_form'=>$base+array(
@@ -1587,6 +1609,61 @@ function wydit_remove_element($a, $b, $level=0){
   return $a;
 }
 
+/**
+ * Return tabs structure for fields management
+ */
+function wallyedit_get_onglets($profile_id, $type_name) {
+  //@TODO: Use static caching mecanism
+  $type = content_types($type_name);
+  $groups = fieldgroup_groups($type_name) ;
+  $fields = $type['fields'];
+
+  //remove fields already included in a groups
+  foreach ($groups as $group) {
+    foreach($group["fields"] as $key => $field){
+      unset($fields[$key]);
+    }
+  }
+  $db_tabs = db_query('SELECT tid, name, label, weight, erasable FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
+  $tab_settings = db_fetch_array(db_query('SELECT tabs FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name));
+
+  while ($db_tab = db_fetch_array($db_tabs)) {
+    $onglets[$db_tab['name']] = $db_tab;
+    $onglets[$db_tab['name']]['elements'] = array();
+  }
+  $onglets['no_tab'] = array(
+    'name' => 'no_tab',
+    'label' => t('Uncategorized'),
+    'weight' => 1000,
+    'erasable' => 0,
+    'elements' => array(),
+  );
+
+  $fields_and_groups = $fields + $groups;
+  foreach ($fields_and_groups as $element_name => $element) {
+    $element_settings = isset($tab_settings['level1'][$element_name]) ? $tab_settings['level1'][$element_name] : array();
+    if (isset($onglets[$element_settings['onglet']])) {
+      $tab_name = $element_settings['onglet'];
+    } else {
+      // Default tab for uncategorized elements
+      $tab_name = 'no_tab';
+    }
+    if (isset($groups[$element_name])) {
+      // This is a group
+      // Merge to edit weight
+      $onglets[$tab_name]['elements'][$element_name] = array_merge($groups[$element_name], $element_settings);
+      foreach ($groups[$element_name]['fields'] as $field_name => $field) {
+        $element_settings['level2'][$field_name] = isset($element_settings['level2'][$field_name]) ? $element_settings['level2'][$field_name] : array();
+        $onglets[$tab_name]['elements'][$element_name]['fields'][$field_name] = array_merge($groups[$element_name]['fields'][$field_name], $element_settings['level2'][$field_name]);
+      }
+    } else {
+      // This is a field
+      $onglets[$tab_name]['elements'][$element_name] = array_merge($fields[$element_name], $element_settings);
+    }
+  }
+
+  return $onglets;
+}
 
 /**
  *  Add "$element" in the structure of the $form_state based on the path of target 

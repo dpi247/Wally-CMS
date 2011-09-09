@@ -31,8 +31,8 @@ function wallyedit_uninstall() {
  * Implementation of hook_schema()
  */
 function wallyedit_schema(){
-  $schema['wallyedit_tabs_edition'] = array(
-    'description' => 'Contains tabs organisation settings for the edition interface.',
+  $schema['wallyedit_tabs_config'] = array(
+    'description' => 'Contains existing tabs settings for the edition interface.',
     'fields' => array(
       'tid' => array(
         'type' => 'serial',
@@ -40,9 +40,54 @@ function wallyedit_schema(){
         'not null' => TRUE,
         'no export' => TRUE,
       ),
-      'pid' => array(
+      'name' => array(
         'type' => 'varchar',
         'length' => '255',
+        'description' => 'Machine name of this tab.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label of this tab.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight of this tab.',
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Profile ID linked to this tab.',
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type concerned by this tab.',
+      ),
+      'erasable' => array(
+        'description' => 'This tab can be deleted or not.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('tid'),
+  );
+  
+  $schema['wallyedit_tabs_edition'] = array(
+    'description' => 'Contains tabs organisation settings for the edition interface.',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
         'description' => 'Profile ID linked to these settings.',
       ),
       'content_type' => array(
@@ -58,7 +103,7 @@ function wallyedit_schema(){
         'object default' => array(),
       ),
     ),
-    'primary key' => array('tid'),
+    'primary key' => array('sid'),
   );
   
   $schema['wallyedit_profiles'] = array(
@@ -88,10 +133,12 @@ function wallyedit_schema(){
  */
 function wallyedit_update_6001() {
   $schemas = wallyedit_schema();
-  $tabs_schema = $schemas['wallyedit_tabs_edition'];
+  $tabs_schema = $schemas['wallyedit_tabs_config'];
+  $settings_schema = $schemas['wallyedit_tabs_edition'];
   $profiles_schema = $schemas['wallyedit_profiles'];
   $ret = array();
-  db_create_table($ret, 'wallyedit_tabs_edition', $tabs_schema);
+  db_create_table($ret, 'wallyedit_tabs_config', $tabs_schema);
+  db_create_table($ret, 'wallyedit_tabs_edition', $settings_schema);
   db_create_table($ret, 'wallyedit_profiles', $profiles_schema);
   return $ret;
 }

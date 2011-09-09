@@ -122,6 +122,7 @@ class Prenode{
         }
       }
     }
+    wydit_clean_and_save_form_state($form_state);
     $this->form_state=$form_state;
     return $form_state;
   }
