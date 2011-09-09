@@ -342,6 +342,13 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   $type_name = $form_state['type'];
   $profile_id = $form_state['pid'];
   $level1['level1'] = $values['level1'];
+  
+  uasort($level1['level1'], '_wallyedit_sort_fields_helper');
+  foreach ($level1['level1'] as &$element) {
+    if (is_array($element['level2']) && !empty($element['level2'])) {
+      uasort($element['level2'], '_wallyedit_sort_fields_helper');
+    }
+  }
 
   $tabs_config = array(
     'pid' => $profile_id,
@@ -485,7 +492,7 @@ function wallyedit_form_display_tabs_form (&$form_state, $type, $profile_id) {
   $form['#parameters'][0] = 'wallyedit_form_display_tabs_form';
 
   $form['#field_rows'] = array_values($form['#field_rows']);
-dsm($form);
+
   return $form;
 }
 
@@ -651,6 +658,19 @@ function wallyedit_form_delete_tab_form_submit(&$form, &$form_state) {
   } else {
     drupal_set_message(t('No tab matching the requested key.'), 'warning');
   }
+}
+
+/**
+ * Sort function for items order.
+ * (copied form element_sort(), which acts on #weight keys)
+ */
+function _wallyedit_sort_fields_helper ($a, $b) {
+  $a_weight = (is_array($a) && isset($a['weight'])) ? $a['weight'] : 0;
+  $b_weight = (is_array($b) && isset($b['weight'])) ? $b['weight'] : 0;
+  if ($a_weight == $b_weight) {
+    return 0;
+  }
+  return ($a_weight < $b_weight) ? -1 : 1;
 }
 
 function _wallyedit_tabs_add_new_group_to_form(&$form, $node_fields, $field_name) {
