@@ -1626,6 +1626,10 @@ function wallyedit_get_onglets($profile_id, $type_name) {
   }
   $db_tabs = db_query('SELECT tid, name, label, weight, erasable FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
   $tab_settings = db_fetch_array(db_query('SELECT tabs FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name));
+  while (is_string($tab_settings['tabs'])) {
+    $tab_settings['tabs'] = unserialize($tab_settings['tabs']);
+  }
+  $tab_settings = $tab_settings['tabs'];
 
   while ($db_tab = db_fetch_array($db_tabs)) {
     $onglets[$db_tab['name']] = $db_tab;
