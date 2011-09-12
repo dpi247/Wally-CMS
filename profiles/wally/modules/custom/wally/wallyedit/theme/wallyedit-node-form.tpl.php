@@ -301,12 +301,9 @@ $(document).ready(function() {
 
 <?php 
 
-$meta_tab_name="meta_".$profile.'_'.$node_type;
+$meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
-dsm($meta_tab_name);
-dsm($variables );
-dsm($vars );
-dsm($onglet_content);
+dsm($meta_tab_name,'rrr');
 ?>
 
 </script>
@@ -337,4 +334,8 @@ dsm($onglet_content);
   </div>
 </div>
 <div class="column-side">
+<?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $element_name=>$element_content):?>
+                <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                <?php endforeach;?>
+           
 </div>
