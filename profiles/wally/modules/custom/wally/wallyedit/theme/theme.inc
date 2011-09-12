@@ -162,18 +162,19 @@ function theme_wallyedit_form_fields_overview_form ($form) {
   return '';
 }
 
-function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables) {
-  $form = $variables['form'];
-  $type_name = $form['type']['#value'];
-  $profile_id = $form['profile_id']['#value'];
-  $form_state = array();
-  $options_onglet_infos = wallyedit_get_onglets($form_state, $profile_id, $type_name);
-  foreach ($options_onglet_infos as $key => $value) {
-    $options_onglet[$key] = $value['label'];
+function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
+  $type_name=$variables['form']['type']["#value"];
+  
+  
+  $variables['profile']='default';
+  $variables['node_type']=$type_name;
+  
+  
+  $options_onglet_infos=wallyedit_get_onglets(arg(4),$type_name);
+  foreach($options_onglet_infos as $key=>$value){
+    $options_onglet[$key]=$key;
   }
-
-  $variables['element_onglets'] = $options_onglet;// + array(-1 => t('Disabled'));
-  $variables['element_listing'] = array();
+  $variables['element_onglets'] =  $options_onglet;// + array(-1 => t('Disabled'));
 
   foreach (element_children($variables['form']['level1']) as $i) {
     $element = &$variables['form']['level1'][$i];
@@ -216,11 +217,6 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables) 
       $last_region = $onglet;
     }
   }
-
-  // Add table javascript.
-  drupal_add_js('misc/tableheader.js');
-  drupal_add_js(drupal_get_path('module', 'wallyedit') .'/js/wallyedit.js');
-  drupal_add_css(drupal_get_path('module', 'wallyedit') .'/css/wallyedit.css');
 
   $variables['form_submit'] = drupal_render($variables['form']);
 }
