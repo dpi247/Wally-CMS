@@ -306,6 +306,7 @@ $no_tab_name="no_tab";
 dsm($meta_tab_name);
 dsm($variables );
 dsm($vars );
+dsm($onglet_content);
 ?>
 
 </script>
