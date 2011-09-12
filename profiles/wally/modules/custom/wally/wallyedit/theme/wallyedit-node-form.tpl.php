@@ -17,10 +17,23 @@ a.selected {
  
 #scroller-header {
     background:url(images/header.gif) no-repeat;
-    width:277px;
+    /*width:277px;*/
     height:24px;
     padding:35px 0 0 15px;
     font-weight:700;
+}
+#scroller-header{
+  height:36px;
+  padding:0px;
+  line-height:20px;
+}
+#scroller-header a{
+    background: url("../images/bleeds.png") repeat-x scroll 0 -41px #F4F4F4;
+    border-bottom: 0 none #FFFFFF;
+    border-color: #FFFFFF;
+    border-radius: 3px 3px 0 0;
+    color: #333333;
+    padding: 4px 14px 11px;
 }
  
 #scroller-body {
@@ -248,9 +261,9 @@ return typeof val == 'object' ? val : { top:val, left:val };
 
 
 <?php
-   module_load_include("inc",'wallyedit','includes/wallyedit.test');
-  $onglets_struct=wallyedit_get_onglets($form["type"]["#value"]);
-     dsm($onglets_struct);
+ // module_load_include("inc",'wallyedit','includes/wallyedit.test');
+  $onglets_struct=wallyedit_get_onglets(1,$form["type"]["#value"]);
+  dsm($onglets_struct);
 ?>
 $(document).ready(function() { 
  
@@ -285,26 +298,42 @@ $(document).ready(function() {
     });
      
 });
+
+<?php 
+
+$meta_tab_name="meta_".$profile.'_'.$node_type;
+$no_tab_name="no_tab";
+dsm($meta_tab_name);
+dsm($variables );
+dsm($vars );
+?>
+
 </script>
-<div id="scroller-header">
-    <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
-       <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected">Link 1</a>
-    <?php endforeach;?>
-</div>
-<div id="scroller-body">
-    <div id="mask">
-        <div id="onglet">
-        <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
-          <div id="onglet-<?php print $onglet?>">
-          
-                  <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
-                  <?php dsm($element_name);dsm($form[$form['type']['#value']][$element_name]);?>
-            <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
-          
-                    <?php endforeach;?>
-         
-            </div>
+<div class="column-main">
+  <div id="scroller-header">
+      <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
+        <?php dsm($onglet);if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
+          <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet?></a>
+        <?php endif;?>
+      <?php endforeach;?>
+  </div>
+  <div id="scroller-body">
+      <div id="mask">
+          <div id="onglet">
+          <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
+            <?php dsm($onglet);if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
+              <div id="onglet-<?php print $onglet?>">
+            
+                <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
+                <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                <?php endforeach;?>
+           
+              </div>
+              <?php endif;?>
             <?php endforeach;?>
-        </div>
-    </div>
+          </div>
+      </div>
+  </div>
+</div>
+<div class="column-side">
 </div>
