@@ -224,9 +224,8 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
       break;
     }
   }
-  $type = content_types($type_name);
-
-  $onglets = wallyedit_get_onglets($profile_id, $type_name);
+  
+  $onglets = wallyedit_get_onglets($form_state, $profile_id, $type_name);
 
   $form=array(
     '#tree' => TRUE,

@@ -166,12 +166,13 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables) 
   $form = $variables['form'];
   $type_name = $form['type']['#value'];
   $profile_id = $form['profile_id']['#value'];
-  $options_onglet_infos = wallyedit_get_onglets($profile_id, $type_name);
+  $form_state = array();
+  $options_onglet_infos = wallyedit_get_onglets($form_state, $profile_id, $type_name);
   foreach ($options_onglet_infos as $key => $value) {
     $options_onglet[$key] = $value['label'];
   }
 
-  $variables['element_onglets'] =  $options_onglet;// + array(-1 => t('Disabled'));
+  $variables['element_onglets'] = $options_onglet;// + array(-1 => t('Disabled'));
   $variables['element_listing'] = array();
 
   foreach (element_children($variables['form']['level1']) as $i) {

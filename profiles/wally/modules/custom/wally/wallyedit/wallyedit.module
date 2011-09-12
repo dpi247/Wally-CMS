@@ -1612,18 +1612,45 @@ function wydit_remove_element($a, $b, $level=0){
 /**
  * Return tabs structure for fields management
  */
-function wallyedit_get_onglets($profile_id, $type_name) {
+function wallyedit_get_onglets($form_state, $profile_id, $type_name) {
   //@TODO: Use static caching mecanism
-  $type = content_types($type_name);
-  $groups = fieldgroup_groups($type_name) ;
-  $fields = $type['fields'];
+  module_load_include("inc",'content','includes/content.node_form');
+  module_load_include("inc",'content','includes/content.admin');
+  module_load_include('inc', 'node', 'node.pages');
+  $form = drupal_retrieve_form('content_field_overview_form', $form_state, $type_name);
 
-  //remove fields already included in a groups
-  foreach ($groups as $group) {
-    foreach($group["fields"] as $key => $field){
-      unset($fields[$key]);
+  $node = new Stdclass;
+  $node->type = $type_name;
+  $node->name = '';
+  $node_form = drupal_retrieve_form($type_name.'_node_form', $form_state, $node);
+  drupal_prepare_form('node_form', $node_form, $form_state);
+  
+  $fields_and_groups = wydit_get_fields_infos_for_typename($type_name, 'fields');
+  foreach (element_children($node_form) as $element_name) {
+    if ($node_form[$element_name]['#type'] == 'fieldset') {
+      wallyedit_add_new_group_to_fields($fields_and_groups, $node_form[$element_name], $element_name);
     }
   }
+
+  //remove fields already included in a groups
+  foreach ($fields_and_groups as $element_name => &$elem) {
+    if (isset($elem['group'])) {
+      $elem = $elem['group'];
+      foreach($elem["fields"] as $key => $field) {
+        unset($fields_and_groups[$key]);
+      }
+    } elseif (isset($elem['field'])) {
+      $elem = $elem['field'];
+    } else {
+      $elem = array_merge($form[$element_name], $elem);
+      foreach ($elem as $key => &$value) {
+        if (is_array($value) && isset($value['#value'])) {
+          $value = $value['#value'];
+        }
+      }
+    }
+  }
+
   $db_tabs = db_query('SELECT tid, name, label, weight, erasable FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
   $tab_settings = db_fetch_array(db_query('SELECT tabs FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name));
   while (is_string($tab_settings['tabs'])) {
@@ -1643,7 +1670,6 @@ function wallyedit_get_onglets($profile_id, $type_name) {
     'elements' => array(),
   );
 
-  $fields_and_groups = $fields + $groups;
   foreach ($fields_and_groups as $element_name => $element) {
     $element_settings = isset($tab_settings['level1'][$element_name]) ? $tab_settings['level1'][$element_name] : array();
     if (isset($onglets[$element_settings['onglet']])) {
@@ -1652,21 +1678,42 @@ function wallyedit_get_onglets($profile_id, $type_name) {
       // Default tab for uncategorized elements
       $tab_name = 'no_tab';
     }
-    if (isset($groups[$element_name])) {
+    if (isset($element['group_name'])) {
       // This is a group
       // Merge to edit weight
-      $onglets[$tab_name]['elements'][$element_name] = array_merge($groups[$element_name], $element_settings);
-      foreach ($groups[$element_name]['fields'] as $field_name => $field) {
+      $onglets[$tab_name]['elements'][$element_name] = array_merge($fields_and_groups[$element_name], $element_settings);
+      foreach ($fields_and_groups[$element_name]['fields'] as $field_name => $field) {
         $element_settings['level2'][$field_name] = isset($element_settings['level2'][$field_name]) ? $element_settings['level2'][$field_name] : array();
-        $onglets[$tab_name]['elements'][$element_name]['fields'][$field_name] = array_merge($groups[$element_name]['fields'][$field_name], $element_settings['level2'][$field_name]);
+        $onglets[$tab_name]['elements'][$element_name]['fields'][$field_name] = array_merge($fields_and_groups[$element_name]['fields'][$field_name], $element_settings['level2'][$field_name]);
       }
     } else {
       // This is a field
-      $onglets[$tab_name]['elements'][$element_name] = array_merge($fields[$element_name], $element_settings);
+      $onglets[$tab_name]['elements'][$element_name] = array_merge($fields_and_groups[$element_name], $element_settings);
     }
   }
 
   return $onglets;
+}
+
+function wallyedit_add_new_group_to_fields(&$fields, $node_fields, $field_name) {
+  $fields[$field_name]['group']['group_name'] = $field_name;
+  $fields[$field_name]['group']['group_type'] = 'Standard group';
+  $fields[$field_name]['group']['label'] = $node_fields['#title'];
+  $fields[$field_name]['group']['weight'] = $node_fields['#weight'];
+  
+  $elem_child = element_children($node_fields);
+  
+  if (!empty($elem_child)) {
+    $fields[$field_name]['group']['fields'] = array();
+    foreach ($elem_child as $node_field_name) {
+      $node_field = $node_fields[$node_field_name];
+      $temp_field = array();
+      $temp_field['field_name'] = $node_field_name;
+      $temp_field['weight'] = 0;
+      $temp_field['label'] = $node_field['#title'];
+      $fields[$field_name]['group']['fields'][$node_field_name] = $temp_field;
+    }
+  }
 }
 
 /**
