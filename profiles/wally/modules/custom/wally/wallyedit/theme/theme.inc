@@ -168,8 +168,6 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
   $profile_id = (int) $form['profile_id']['#value'];
   $form_state = array();
   $options_onglet_infos = wallyedit_get_onglets( $profile_id, $type_name);
-  dsm($options_onglet_infos  );
-  dsm($form);
   foreach ($options_onglet_infos as $key => $value) {
     $options_onglet[$key] = $value['label'];
   }

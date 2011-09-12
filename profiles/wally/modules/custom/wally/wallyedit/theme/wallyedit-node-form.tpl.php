@@ -58,6 +58,11 @@ float:left;
  
 }
 
+#onglet input.fluid {
+    -moz-box-sizing: border-box;
+    width: 95%;
+}
+
  
 /* extra optional styling for each tab content */
 #onglet-1 {
@@ -263,7 +268,6 @@ return typeof val == 'object' ? val : { top:val, left:val };
 <?php
  // module_load_include("inc",'wallyedit','includes/wallyedit.test');
   $onglets_struct=wallyedit_get_onglets(1,$form["type"]["#value"]);
-  dsm($onglets_struct);
 ?>
 $(document).ready(function() { 
  
@@ -303,14 +307,13 @@ $(document).ready(function() {
 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
-dsm($meta_tab_name,'rrr');
 ?>
 
 </script>
 <div class="column-main">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
-        <?php dsm($onglet);if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
+        <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
           <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet?></a>
         <?php endif;?>
       <?php endforeach;?>
@@ -319,7 +322,7 @@ dsm($meta_tab_name,'rrr');
       <div id="mask">
           <div id="onglet">
           <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
-            <?php dsm($onglet);if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
+            <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
               <div id="onglet-<?php print $onglet?>">
             
                 <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
