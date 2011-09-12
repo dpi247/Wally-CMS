@@ -732,6 +732,122 @@ function wyditadmin_get_fields_tree($profile_id, $type_name) {
 }
 
 /**
+ * Return list of existing fields for a content type
+ */
+function wyditadmin_get_existing_fields($type_name) {
+  static $existing_fields = array();
+  if (!isset($existing_fields[$type_name])) {
+    $content_fields = content_types($type_name);
+    
+    foreach ($content_fields['fields'] as $content_field) {
+      $existing_fields[$type_name][$content_field['field_name']] = array(
+        'type' => $content_field['type'],
+        'widget' => $content_field['widget']['type'],
+        'name' => $content_field['field_name'],
+        'label' => $content_field['widget']['label'],
+      );
+    }
+
+    $form_state = array();
+    $node = new Stdclass;
+    $node->type = $type_name;
+    $node->name = '';
+    module_load_include('inc', 'node', 'node.pages');
+    $form = node_form($form_state, $node);
+    $modules = array('comment', 'menu', 'path', 'upload');
+    foreach ($modules as $module) {
+      $function = $module.'_form_alter';
+      $function($form, $form_state, $type_name.'_node_form');
+    }
+    $existing_fields[$type_name]['title'] = array(
+      'type' => $form['title']['#type'],
+      'widget' => $form['title']['#type'],
+      'name' => 'title',
+      'label' => $form['title']['#title'],
+    );
+    $existing_fields[$type_name]['revision'] = array(
+      'type' => $form['revision_information']['revision']['#type'],
+      'widget' => $form['revision_information']['revision']['#type'],
+      'name' => 'revision',
+      'label' => $form['revision_information']['revision']['#title'],
+    );
+    $existing_fields[$type_name]['log'] = array(
+      'type' => $form['revision_information']['log']['#type'],
+      'widget' => $form['revision_information']['log']['#type'],
+      'name' => 'revision',
+      'label' => $form['revision_information']['log']['#title'],
+    );
+    $existing_fields[$type_name]['name'] = array(
+      'type' => $form['author']['name']['#type'],
+      'widget' => $form['author']['name']['#type'],
+      'name' => 'name',
+      'label' => $form['author']['name']['#title'],
+    );
+    $existing_fields[$type_name]['date'] = array(
+      'type' => $form['author']['date']['#type'],
+      'widget' => $form['author']['date']['#type'],
+      'name' => 'date',
+      'label' => $form['author']['date']['#title'],
+    );
+    $existing_fields[$type_name]['options'] = array(
+      'type' => $form['options']['status']['#type'],
+      'widget' => $form['options']['status']['#type'],
+      'name' => 'status',
+      'label' => $form['options']['status']['#title'],
+    );
+    $existing_fields[$type_name]['promote'] = array(
+      'type' => $form['options']['promote']['#type'],
+      'widget' => $form['options']['promote']['#type'],
+      'name' => 'promote',
+      'label' => $form['options']['promote']['#title'],
+    );
+    $existing_fields[$type_name]['sticky'] = array(
+      'type' => $form['options']['sticky']['#type'],
+      'widget' => $form['options']['sticky']['#type'],
+      'name' => 'sticky',
+      'label' => $form['options']['sticky']['#title'],
+    );
+    $existing_fields[$type_name]['comment'] = array(
+      'type' => $form['comment_settings']['comment']['#type'],
+      'widget' => $form['comment_settings']['comment']['#type'],
+      'name' => 'comment',
+      'label' => $form['comment_settings']['#title'],
+    );
+    $existing_fields[$type_name]['link_title'] = array(
+      'type' => $form['menu']['link_title']['#type'],
+      'widget' => $form['menu']['link_title']['#type'],
+      'name' => 'link_title',
+      'label' => $form['menu']['link_title']['#title'],
+    );
+    $existing_fields[$type_name]['parent'] = array(
+      'type' => $form['menu']['parent']['#type'],
+      'widget' => $form['menu']['parent']['#type'],
+      'name' => 'parent',
+      'label' => $form['menu']['parent']['#title'],
+    );
+    $existing_fields[$type_name]['weight'] = array(
+      'type' => $form['menu']['weight']['#type'],
+      'widget' => $form['menu']['weight']['#type'],
+      'name' => 'weight',
+      'label' => $form['menu']['weight']['#title'],
+    );
+    $existing_fields[$type_name]['path'] = array(
+      'type' => $form['path']['path']['#type'],
+      'widget' => $form['path']['path']['#type'],
+      'name' => 'path',
+      'label' => $form['path']['#title'],
+    );
+    $existing_fields[$type_name]['upload'] = array(
+      'type' => $form['attachments']['wrapper']['new']['upload']['#type'],
+      'widget' => $form['attachments']['wrapper']['new']['upload']['#type'],
+      'name' => 'upload',
+      'label' => $form['attachments']['wrapper']['new']['upload']['#title'],
+    );
+  }
+  return $existing_fields[$type_name];
+}
+
+/**
  * Sort function for items order.
  * (copied form element_sort(), which acts on #weight keys)
  */
