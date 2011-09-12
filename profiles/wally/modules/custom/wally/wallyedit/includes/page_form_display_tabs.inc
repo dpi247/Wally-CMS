@@ -351,6 +351,10 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
     }
   }
 
+  wallyedit_save_tabs_and_weight($type_name, $profile_id, $level1);
+}
+
+function wallyedit_save_tabs_and_weight($type_name, $profile_id, $level1) {
   $tabs_config = array(
     'pid' => $profile_id,
     'content_type' => $type_name,
@@ -360,15 +364,15 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   if ($sid = db_result(db_query('SELECT sid FROM {wallyedit_tabs_edition} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name))) {
     $tabs_config['sid'] = $sid;
     if(drupal_write_record('wallyedit_tabs_edition', $tabs_config, 'sid')) {
-      drupal_set_message(t('Configuration saved'));
+      drupal_set_message(t('Tabs and weight configuration saved'));
     } else {
-      drupal_set_message(t('An error occured'), 'error');
+      drupal_set_message(t('An error occured during tabs and weight save'), 'error');
     }
   } else {
     if(drupal_write_record('wallyedit_tabs_edition', $tabs_config)) {
-      drupal_set_message(t('Configuration saved'));
+      drupal_set_message(t('Tabs and weight configuration saved'));
     } else {
-      drupal_set_message(t('An error occured'), 'error');
+      drupal_set_message(t('An error occured during tabs and weight save'), 'error');
     }
   }
 }
@@ -506,45 +510,6 @@ function wallyedit_form_display_tabs_form (&$form_state, $type, $profile_id) {
   return $form;
 }
 
-function wallyedit_form_display_tabs_form_submit(&$form, &$form_state) {
-  wallyedit_display_fields_save_groups($form, $form_state);
-  wallyedit_display_fields_save_extra_fields($form, $form_state);
-  foreach ($form_state['values'] as $field_name => $values)
-    if (isset($values['field']['display_settings']))
-      unset($form_state['values'][$field_name]['field']['display_settings']['field']);
-  content_display_overview_form_submit($form, $form_state);
-}
-
-function wallyedit_display_tabs_save_groups(&$form, &$form_state) {
-  $form_values = $form_state['values'];
-  $groups_to_save = array();
-  
-  foreach ($form_values as $key => $values) {
-    if (in_array($key, $form['#group_rows'])) {
-      $values['display_settings']['wallyedit'] = $values['wallyedit'];
-      unset($values['wallyedit']);
-      $groups_to_save[$key] = $values;
-    }
-  }
-
-  variable_set('wallyedit_groups_display_'.$form['#type_name'], $groups_to_save);
-}
-
-function wallyedit_display_tabs_save_extra_fields(&$form, &$form_state) {
-  $form_values = $form_state['values'];
-  $fields_to_save = array();
-
-  foreach ($form_values as $key => $values) {
-    // Groups are handled in fieldgroup_display_overview_form_submit().
-    if (in_array($key, $form['#field_rows']) && !in_array($key, $form['#fields'])) {
-      $values['display_settings']['wallyedit'] = $values['wallyedit'];
-      unset($values['wallyedit']);
-      $fields_to_save[$key] = $values;
-    }
-  }
-  variable_set('wallyedit_extra_fields_display_'.$form['#type_name'], $fields_to_save);
-}
-
 /**
  * Form to delete a profile
  */
@@ -671,6 +636,102 @@ function wallyedit_form_delete_tab_form_submit(&$form, &$form_state) {
 }
 
 /**
+ * Return list of profiles
+ */
+function wyditadmin_get_profiles() {
+  static $profiles = array();
+  if (empty($profiles)) {
+    $db_profiles = db_query('SELECT * FROM {wallyedit_profiles}');
+    while ($profile = db_fetch_array($db_profiles)) {
+      $profiles[$profile['pid']] = $profile;
+    }
+  }
+  return $profiles;
+}
+
+/**
+ * Return list of tabs for a profile and a content type
+ */
+function wyditadmin_get_tabs($profile_id, $type_name) {
+  static $tabs = array();
+  if (!isset($tabs[$profile_id][$type_name])) {
+    $db_tabs = db_query('SELECT * FROM {wallyedit_tabs} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
+    while ($tab = db_fetch_array($db_tabs)) {
+      $tabs[$profile_id][$type_name][$tab['tid']] = $tab;
+    }
+  }
+  return $tabs[$profile_id][$type_name];
+}
+
+/**
+ * Return list of groups for a content type
+ */
+function wyditadmin_get_groups($type_name) {
+  static $groups = array();
+  if (!isset($groups[$type_name])) {
+    $db_groups = db_query('SELECT * FROM {wallyedit_groups} WHERE content_type = "%s"', $type_name);
+    while ($group = db_fetch_array($db_groups)) {
+      $groups[$type_name][$group['gid']] = $group;
+    }
+  }
+  return $groups[$type_name];
+}
+
+/**
+ * Return list of fields in a flat stucture
+ */
+function wyditadmin_get_fields_flat($profile_id, $type_name) {
+  static $fields = array();
+  if (!isset($fields[$profile_id][$type_name])) {
+    $db_fields = db_query('SELECT * FROM {wallyedit_fields} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
+    while ($field = db_fetch_array($db_fields)) {
+      $fields[$profile_id][$type_name][$field['fid']] = $field;
+    }
+  }
+  return $fields[$profile_id][$type_name];
+}
+
+/**
+ * Return list of fields in a tree stucture
+ */
+function wyditadmin_get_fields_tree($profile_id, $type_name) {
+  static $tree_fields = array();
+  if (!isset($tree_fields[$profile_id][$type_name])) {
+    $tabs = wyditadmin_get_tabs($profile_id, $type_name);
+    $groups = wyditadmin_get_groups($type_name);
+    $flat_fields = wyditadmin_get_fields_flat($profile_id, $type_name);
+    foreach ($tabs as $tab) {
+      $tree_fields[$profile_id][$type_name][$tab['name']] = $tab;
+      $tree_fields[$profile_id][$type_name][$tab['name']]['elements'] = array();
+      foreach ($groups as $group) {
+        $tree_fields[$profile_id][$type_name][$tab['name']]['elements'][$group['name']] = $group;
+        $tree_fields[$profile_id][$type_name][$tab['name']]['elements'][$group['name']]['fields'] = array();
+      }
+    }
+    foreach ($flat_fields as $fid => $field) {
+      $tab_name = $tabs[$field['tid']]['name'];
+      $group_name = $field['gid'] != 0 ? $groups[$field['gid']]['name'] : 'none';
+      if ($group_name != 'none') {
+        $tree_fields[$profile_id][$type_name][$tab_name]['elements'][$group_name]['fields'][$field['name']] = $field;
+      } else {
+        $tree_fields[$profile_id][$type_name][$tab_name]['elements'][$field['name']] = $field;
+      }
+    }
+    foreach ($tabs as $tab) {
+      foreach ($groups as $group) {
+        if (empty($tree_fields[$profile_id][$type_name][$tab['name']]['elements'][$group['name']]['fields'])) {
+          unset ($tree_fields[$profile_id][$type_name][$tab['name']]['elements'][$group['name']]);
+        }
+      }
+      if (empty($tree_fields[$profile_id][$type_name][$tab['name']]['elements'])) {
+        unset ($tree_fields[$profile_id][$type_name][$tab['name']]);
+      }
+    }
+  }
+  return $tree_fields[$profile_id][$type_name];
+}
+
+/**
  * Sort function for items order.
  * (copied form element_sort(), which acts on #weight keys)
  */
@@ -683,45 +744,3 @@ function _wallyedit_sort_fields_helper ($a, $b) {
   return ($a_weight < $b_weight) ? -1 : 1;
 }
 
-function _wallyedit_tabs_add_new_group_to_form(&$form, $node_fields, $field_name) {
-  $form[$field_name]['group_name']['#value'] = $field_name;
-  $form[$field_name]['group_type']['#value'] = 'Standard group';
-  $form['#group_rows'][] = $field_name;
-  $field_id = array_keys($form['#field_rows'], $field_name, TRUE);
-  unset($form['#field_rows'][$field_id[0]]);
-  //$from['#groups'][] = $field_name;
-  $form[$field_name]['#row_type'] = 'group';
-  $form[$field_name]['#disabled_row'] = FALSE;
-  
-  foreach ($node_fields as $node_field_name => $node_field) {
-    if (!strstr($node_field_name, '#')) {
-      $form[$node_field_name] = array();
-      $form['#field_rows'][] = $node_field_name;
-      //$form['#fields'][] = 'field_'.$node_field_name;
-      $form[$node_field_name]['label']['#value'] = $node_field['#title'];
-      $form[$node_field_name]['field_name']['#value'] = $node_field_name;
-      $form[$node_field_name]['type']['#value'] = $node_field['#type'];
-      $form[$node_field_name]['weight']['#value'] = '10';
-      $form[$node_field_name]['parent'] = array(
-        '#type' => 'select',
-        '#options' => array($field_name => $form[$field_name]['label']['#value']),
-        '#default_value' => $field_name,
-      );
-      $form[$node_field_name]['prev_parent'] = array(
-        '#type' => 'hidden',
-        '#value' => $field_name,
-      );
-      $form[$node_field_name]['#leaf'] = TRUE;
-      $form[$node_field_name]['#row_type'] = 'field';
-      $form[$node_field_name]['field'] = array(
-        '#type' => 'value',
-        '#value' => array(
-          'field_name' => $node_field_name,
-      		'type_name' => 'field',
-          'type' => $node_field['#type'],
-          'multiple' => 0,
-        ),
-      );
-    }
-  }
-}

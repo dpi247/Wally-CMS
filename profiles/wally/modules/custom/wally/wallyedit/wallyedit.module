@@ -1512,14 +1512,15 @@ function wydit_get_infos_type($type_name){
   return $type;
 }
 
-function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
+function wydit_get_fields_infos_for_typename($type_name, $profile_id, $fields = 'fields'){
   static $merged_fields = array();
   
-  if (!isset($merged_fields[$type_name.'_'.$fields])) {
+  if (!isset($merged_fields[$type_name.'_'.$fields][$profile_id])) {
     $type=content_types(str_replace('-','_', $type_name));
 
-    $extra_fields_display = variable_get('wallyedit_extra_fields_display_'.$type_name, array());
-    $groups_display = variable_get('wallyedit_groups_display_'.$type_name, array());
+    $extra_fields_display = variable_get('wallyedit_extra_fields_display_'.$type->type.'_'.$profile_id, array());
+    $groups_display = variable_get('wallyedit_groups_display_'.$type->type.'_'.$profile_id, array());
+    $groups_display = array_merge(fieldgroup_groups($type_name), $groups_display);
     $arrays_to_merge = array(
       $extra_fields_display,
       $groups_display,
@@ -1528,10 +1529,10 @@ function wydit_get_fields_infos_for_typename($type_name, $fields = 'fields'){
 
     $temp_merged_fields = call_user_func_array('array_merge', $arrays_to_merge);
     $temp_merged_fields['title']['display_settings']['wallyedit'] = 1;
-    $merged_fields[$type_name.'_'.$fields] = $temp_merged_fields;
+    $merged_fields[$type_name.'_'.$fields][$profile_id] = $temp_merged_fields;
   }
 
-  return $merged_fields[$type_name.'_'.$fields];
+  return $merged_fields[$type_name.'_'.$fields][$profile_id];
 }
 
 function wydit_get_inline_type($referencable_types){
@@ -1624,8 +1625,8 @@ function wallyedit_get_onglets( $profile_id, $type_name,$form_state=array()) {
   $node->name = '';
   $node_form = drupal_retrieve_form($type_name.'_node_form', $form_state, $node);
   drupal_prepare_form('node_form', $node_form, $form_state);
-  
-  $fields_and_groups = wydit_get_fields_infos_for_typename($type_name, 'fields');
+
+  $fields_and_groups = wydit_get_fields_infos_for_typename($type_name, $profile_id, 'fields');
   foreach (element_children($node_form) as $element_name) {
     if ($node_form[$element_name]['#type'] == 'fieldset') {
       wallyedit_add_new_group_to_fields($fields_and_groups, $node_form[$element_name], $element_name);
@@ -1636,9 +1637,6 @@ function wallyedit_get_onglets( $profile_id, $type_name,$form_state=array()) {
   foreach ($fields_and_groups as $element_name => &$elem) {
     if (isset($elem['group'])) {
       $elem = $elem['group'];
-      foreach($elem["fields"] as $key => $field) {
-        unset($fields_and_groups[$key]);
-      }
     } elseif (isset($elem['field'])) {
       $elem = $elem['field'];
     } else {
@@ -1647,6 +1645,12 @@ function wallyedit_get_onglets( $profile_id, $type_name,$form_state=array()) {
         if (is_array($value) && isset($value['#value'])) {
           $value = $value['#value'];
         }
+      }
+    }
+    
+    if (isset($elem['group_name'])) {
+      foreach($elem["fields"] as $key => $field) {
+        unset($fields_and_groups[$key]);
       }
     }
   }
