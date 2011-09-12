@@ -225,7 +225,7 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
     }
   }
   
-  $onglets = wallyedit_get_onglets($form_state, $profile_id, $type_name);
+  $onglets = wallyedit_get_onglets($profile_id, $type_name,$form_state);
 
   $form=array(
     '#tree' => TRUE,

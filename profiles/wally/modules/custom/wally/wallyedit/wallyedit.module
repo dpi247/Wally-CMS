@@ -1612,7 +1612,7 @@ function wydit_remove_element($a, $b, $level=0){
 /**
  * Return tabs structure for fields management
  */
-function wallyedit_get_onglets( $profile_id, $type_name) {
+function wallyedit_get_onglets( $profile_id, $type_name,$form_state=array()) {
   //@TODO: Use static caching mecanism
   module_load_include("inc",'content','includes/content.node_form');
   module_load_include("inc",'content','includes/content.admin');
@@ -1622,7 +1622,6 @@ function wallyedit_get_onglets( $profile_id, $type_name) {
   $node = new Stdclass;
   $node->type = $type_name;
   $node->name = '';
-  $form_state=array();
   $node_form = drupal_retrieve_form($type_name.'_node_form', $form_state, $node);
   drupal_prepare_form('node_form', $node_form, $form_state);
   
