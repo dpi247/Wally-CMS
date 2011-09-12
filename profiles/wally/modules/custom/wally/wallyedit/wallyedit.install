@@ -31,81 +31,6 @@ function wallyedit_uninstall() {
  * Implementation of hook_schema()
  */
 function wallyedit_schema(){
-  $schema['wallyedit_tabs_config'] = array(
-    'description' => 'Contains existing tabs settings for the edition interface.',
-    'fields' => array(
-      'tid' => array(
-        'type' => 'serial',
-        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-      'name' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Machine name of this tab.',
-      ),
-      'label' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Label of this tab.',
-      ),
-      'weight' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'description' => 'Weight of this tab.',
-      ),
-      'pid' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'description' => 'Profile ID linked to this tab.',
-      ),
-      'content_type' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Content type concerned by this tab.',
-      ),
-      'erasable' => array(
-        'description' => 'This tab can be deleted or not.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-        'default' => 1,
-      ),
-    ),
-    'primary key' => array('tid'),
-  );
-  
-  $schema['wallyedit_tabs_edition'] = array(
-    'description' => 'Contains tabs organisation settings for the edition interface.',
-    'fields' => array(
-      'sid' => array(
-        'type' => 'serial',
-        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-      'pid' => array(
-        'type' => 'int',
-        'not null' => TRUE,
-        'description' => 'Profile ID linked to these settings.',
-      ),
-      'content_type' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Content type concerned by these settings.',
-      ),
-      'tabs' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Serialized tabs organisation.',
-        'serialize' => TRUE,
-        'object default' => array(),
-      ),
-    ),
-    'primary key' => array('sid'),
-  );
-  
   $schema['wallyedit_profiles'] = array(
     'description' => 'Contains profiles informations for the edition interface.',
     'fields' => array(
@@ -123,22 +48,160 @@ function wallyedit_schema(){
     ),
     'primary key' => array('pid'),
   );
+  
+  $schema['wallyedit_tabs'] = array(
+    'description' => 'Contains existing tabs settings for the edition interface.',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'serial',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Profile ID.',
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+      'erasable' => array(
+        'description' => 'This tab can be deleted or not.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('tid'),
+  );
+  
+  $schema['wallyedit_groups'] = array(
+    'description' => 'Contains existing groups settings for the edition interface.',
+    'fields' => array(
+      'gid' => array(
+        'type' => 'serial',
+        'description' => 'Group settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+    ),
+    'primary key' => array('gid'),
+  );
+  
+  $schema['wallyedit_fields'] = array(
+    'description' => 'Contains fields organisation settings for the edition interface.',
+    'fields' => array(
+      'fid' => array(
+        'type' => 'serial',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Profile ID.',
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Tab ID.',
+      ),
+      'gid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Group ID.',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Type name.',
+      ),
+      'widget' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Widget.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+      'display' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Display this field or not.',
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
 
   return $schema;
 }
 
 /**
  * Implementation of hook_update_N.
- * Install the tab organisation table.
+ * Install the tab organisation tables.
  */
 function wallyedit_update_6001() {
   $schemas = wallyedit_schema();
-  $tabs_schema = $schemas['wallyedit_tabs_config'];
-  $settings_schema = $schemas['wallyedit_tabs_edition'];
-  $profiles_schema = $schemas['wallyedit_profiles'];
   $ret = array();
-  db_create_table($ret, 'wallyedit_tabs_config', $tabs_schema);
-  db_create_table($ret, 'wallyedit_tabs_edition', $settings_schema);
-  db_create_table($ret, 'wallyedit_profiles', $profiles_schema);
+  foreach ($schemas as $schema_name => $schema) {
+    db_create_table($ret, $schema_name, $schema);
+  }
   return $ret;
 }
