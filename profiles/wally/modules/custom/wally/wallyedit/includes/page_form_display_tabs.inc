@@ -145,8 +145,8 @@ function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content
       '#value' => $group['label'],
     );
 
-    $operations = '<a href="/admin/content/wallydisplaytabs/grouplabel/'.$group['gid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
-    $operations .= ' · <a href="/admin/content/wallydisplaytabs/deletegroup/'.$group['gid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>';
+    $operations = '<a href="/admin/content/wallydisplaytabs/grouplabel/'.$group['gid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
+    $operations .= ' · <a href="/admin/content/wallydisplaytabs/deletegroup/'.$group['gid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Delete').'</a>';
     $form['rows'][$group['gid']]['operations'] = array(
       '#type' => 'value',
       '#value' => $operations,
@@ -262,8 +262,8 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
         '#value' => $tab['label'],
       );
 
-      $operations = '<a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
-      $operations .= $tab['erasable'] ? ' · <a href="/admin/content/wallydisplaytabs/deletetab/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>' : '';
+      $operations = '<a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
+      $operations .= $tab['erasable'] ? ' · <a href="/admin/content/wallydisplaytabs/deletetab/'.$tab['tid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Delete').'</a>' : '';
       $form['rows'][$tab['tid']]['operations'] = array(
         '#type' => 'value',
         '#value' => $operations,
