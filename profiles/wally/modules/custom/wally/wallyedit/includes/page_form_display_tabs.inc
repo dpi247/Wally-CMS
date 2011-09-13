@@ -365,7 +365,7 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
   }
   $groups_options[0]=t('No group');
   
-  $tabs_options=array(NULL=>t('hidden'));
+  $tabs_options=array(0=>t('hidden'));
   foreach($tabs as $tab){
    $tabs_options[$tab['tid']]=$tab['label'];
   }
