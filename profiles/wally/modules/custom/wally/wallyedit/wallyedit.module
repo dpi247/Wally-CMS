@@ -844,7 +844,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     $parents_new = $parents;
     $parents_new[] = $element;
     $b = $parents;
-    if(isset($fields[$element]) and $fields[$element]['display_settings']["wallyedit"] == 0){
+    if(isset($fields[$element]) and $fields[$element]['display'] == 0){
       //@todo: DDU what happen if the element is required ?
       unset($form[$element]);
     }
@@ -864,7 +864,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       continue;
     }
 
-    if(isset($fields[$element]) && $fields[$element]['display_settings']["wallyedit"] == 1) {
+    if(isset($fields[$element]) && $fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
 
       if($fields[$element]['multiple'] == 1){
@@ -874,12 +874,12 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       //@todo: DDU what happen if the element is required ?
     }
 
-    if(isset($fields[$element]) && $fields[$element]['display_settings']["wallyedit"] == 2) {
+    if(isset($fields[$element]) && $fields[$element]['display'] == 2) {
       $parents_new[]='0';
       $form[$element]['#parents']=array($element);
       wydit_prepare_inline_form_element($form[$element],$form_state[$type][$element][0],$element,$fields,$parents_new,$global_path.'/'.$element.'/0'  );
     }
-    if(isset($fields[$element]) && $fields[$element]['display_settings']["wallyedit"] == 3) {
+    if(isset($fields[$element]) && $fields[$element]['display'] == 3) {
       wydit_prepare_selectbox_form_element($form[$element],$form_state[$type][$element],$element,$fields,$parents_new  );
     }
   }
@@ -973,7 +973,7 @@ function wydit_subform_global_page_submit(&$form_state){
   $a['cache name']=$form_state['cache name'];
 
   foreach($fields as $field){
-    if($field['display_settings']["wallyedit"]>1){
+    if($field['display']>1){
       if(isset($form_state[$form_state['type']][$field['field_name']])){
         foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value){
           //avoid the weight_.$key element
@@ -1300,7 +1300,7 @@ function wydit_prepare_inline_form_element(&$form_element,$form_state,$element,$
 
     //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOUL BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
     //EDIT2: WTF ???
-    if(isset($fields[$element_name]) and $fields[$element_name]['display_settings']["wallyedit"]==1 ){
+    if(isset($fields[$element_name]) and $fields[$element_name]['display']==1 ){
       $form[$element_name]["#parents"]=$parents;
     }
   }
@@ -1623,7 +1623,7 @@ function wydit_get_fields_infos_for_typename($type_name, $profile_id, $fields = 
     );
 
     $temp_merged_fields = call_user_func_array('array_merge', $arrays_to_merge);
-    $temp_merged_fields['title']['display_settings']['wallyedit'] = 1;
+    $temp_merged_fields['title']['display'] = 1;
     $merged_fields[$type_name.'_'.$fields][$profile_id] = $temp_merged_fields;
   }
 
@@ -1657,7 +1657,7 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
   $fields=wydit_get_fields_infos_for_typename($type_name);
 
   foreach($fields as $field){
-    if($field['display_settings']["wallyedit"]>1){
+    if($field['display']>1){
       if(isset($form_state[$form_state['type']][$field['field_name']])){
         foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value){
           $nid=wydit_publish_prenode($form_state[$form_state['type']][$field['field_name']][$key],TRUE);
@@ -1868,7 +1868,7 @@ function wydit_clean_form_state($form_state){
   $fields=wydit_get_fields_infos_for_typename($type_name);
 
   foreach($fields as $field){
-    if($field['display_settings']["wallyedit"]>1){
+    if($field['display']>1){
       $a[$form_state['type']][$field['field_name']]=array();
       if(isset($form_state[$form_state['type']][$field['field_name']])){
         foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value) {
