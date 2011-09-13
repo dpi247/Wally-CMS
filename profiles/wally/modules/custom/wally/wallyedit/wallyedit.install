@@ -209,5 +209,11 @@ function wallyedit_update_6001() {
   foreach ($schemas as $schema_name => $schema) {
     db_create_table($ret, $schema_name, $schema);
   }
+  $spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'description' => 'Profile ID used as default in the Wally edition interface.',
+  );
+  db_add_field($ret, 'users', 'wydit_default_profile', $spec);
   return $ret;
 }
