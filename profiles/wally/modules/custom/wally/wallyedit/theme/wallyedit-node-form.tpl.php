@@ -74,6 +74,9 @@ float:left;
 #onglet-3 {
 }
 </style>
+
+
+
 <script>
 /**
 * jQuery.ScrollTo
@@ -262,17 +265,20 @@ return typeof val == 'object' ? val : { top:val, left:val };
 };
 })( jQuery );
 
-
-
-
 <?php
- // module_load_include("inc",'wallyedit','includes/wallyedit.test');
-  $onglets_struct=wallyedit_get_onglets(1,$form["type"]["#value"]);
+  module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
+  $tabs=wyditadmin_get_fields_tree(1, $form["type"]["#value"]);
+  $onglets_struct=$tabs;
+  dsm($tabs);
+  
+  $type=wydit_get_infos_type($form["type"]["#value"]);
+  $cck_fields = $type['fields'];
+  
 ?>
 $(document).ready(function() { 
  
     //Get the height of the first item
-   // $('#mask').css({'height':$('#onglet-<?php print current(array_keys($onglets_struct))?>').height()}); 
+   // $('#mask').css({'height':$('#onglet-<?php print current(array_keys($onglets_struct));?>').height()}); 
      
     //Calculate the total width - sum of all sub-onglets width
     //Width is generated according to the width of #mask * total of sub-onglets
@@ -304,17 +310,15 @@ $(document).ready(function() {
 });
 
 <?php 
-
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
 ?>
-
 </script>
 <div class="column-main">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
-          <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet?></a>
+          <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet_content['label']?></a>
         <?php endif;?>
       <?php endforeach;?>
   </div>
@@ -324,9 +328,17 @@ $no_tab_name="no_tab";
           <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
               <div id="onglet-<?php print $onglet?>">
-            
                 <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
-                <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                
+                <?php dsm($form[$form['type']['#value']]);?>
+                
+                  <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                    <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                  <?php else:?>
+                  <?php dsm($form[$element_name],'misty');?>
+                  <?php dsm('r');?>
+                    <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                  <?php endif;?>
                 <?php endforeach;?>
            
               </div>
@@ -337,8 +349,9 @@ $no_tab_name="no_tab";
   </div>
 </div>
 <div class="column-side">
-<?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $element_name=>$element_content):?>
-                <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
-                <?php endforeach;?>
-           
+<?php if(count($onglets_struct[$meta_tab_name]['elements'])):?>
+  <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $element_name=>$element_content):?>
+    <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+  <?php endforeach;?>   
+  <?php endif;?>      
 </div>
