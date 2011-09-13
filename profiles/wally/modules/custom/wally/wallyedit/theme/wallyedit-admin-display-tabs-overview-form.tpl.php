@@ -26,16 +26,18 @@
  */
 ?>
 <?php
-  foreach ($element_onglets as $region => $title) {
-    drupal_add_tabledrag('blocks', 'match', 'sibling', 'my-element-onglet-lev1', 'my-element-onglet-lev1-'. $region, NULL, FALSE);
-    drupal_add_tabledrag('blocks', 'order', 'sibling', 'element-weight-lev1', 'element-weight-lev1-'. $region);
+  foreach ($tabs_infos as $tab_id => $tab) {
+    drupal_add_js('misc/tableheader.js');
+    drupal_add_tabledrag('blocks', 'match', 'sibling', 'my-element-tab-lev1', 'my-element-tab-lev1-'. $tab_id, NULL, FALSE);
+    drupal_add_tabledrag('blocks', 'order', 'sibling', 'element-weight-lev1', 'element-weight-lev1-'. $tab_id);
   }
 ?>
 <table id="blocks" class="sticky-enabled">
   <thead>
     <tr>
       <th><?php print t('Element'); ?></th>
-      <th><?php print t('Onglet'); ?></th>
+      <th><?php print t('tab'); ?></th>
+      <th><?php print t('group'); ?></th>
       <th><?php print t('Weight'); ?></th>
       <th><?php print t('Widget'); ?></th>
       <th><?php print t('Operations'); ?></th>
@@ -43,56 +45,24 @@
   </thead>
   <tbody>
     <?php $row = 0; ?>
-    <?php foreach ($element_onglets as $region => $title): ?>
-      <tr class="onglet onglet-<?php print $region?>">
-        <td colspan="5" class="onglet"><b><?php print $title; ?></b></td>
+    <?php foreach ($tabs_infos as $tab_id=>$tab):  ?>
+      <tr class="tab tab-<?php print $tab_id?>">
+        <td colspan="6" class="tab"><b><?php print $tab['label']; ?></b></td>
       </tr>
-      <tr class="onglet-message onglet-<?php print $region?>-message <?php print empty($element_listing[$region]) ? 'onglet-empty' : 'onglet-populated'; ?>">
-        <td colspan="5>"><em><?php print t('No tabs in this region'); ?></em></td>
+      <tr class="tab-message tab-<?php print $tab['tid']?>-message <?php print empty($tabs_elements[$tab['tid']]) ? 'tab-empty' : 'tab-populated'; ?>">
+        <td colspan="6"><em><?php print t('No tabs in this region'); ?></em></td>
       </tr>
-      <?php foreach ($element_listing[$region] as $delta => $data): ?>
-        <?php if($data->has_level2):?>
-         <tr  class="draggable <?php print $row % 2 == 0 ? 'odd' : 'even'; ?> <?php print $data->row_class ? ' '. $data->row_class : ''; ?>">
-            <td class="block"><?php print $data->block_title; ?></td>
-                 <td><?php print $data->region_select; ?></td>
-                 <td><?php print $data->weight_select; ?></td>
-                 <td><?php print $data->wallyedit_select; ?></td>
-                 <td><?php print $data->configure_link; ?></td>
-                 <td colspan="6">
-             <table id="blocks_<?php print $delta?>">
-             <?php
-               drupal_add_tabledrag('blocks_'.$delta, 'order', 'sibling', 'element-weight-lev2-'.$delta, 'element-weight-lev2-'. $delta);
-             ?>
-               <thead> 
-                <tr class="table-fake-thead">
-                   <th><?php print t('Element'); ?></th>
-                   <th><?php print t('Weight'); ?></th>
-                   <th><?php print t('Widget'); ?></th>
-                   <th><?php print t('Operations'); ?></th>
-                 </tr>
-               </thead>
-               <tbody>
-                 <?php foreach($data->level2 as $subdata_key=>$subdata) :?>
-                   <tr class="draggable <?php print $row % 2 == 0 ? 'odd' : 'even'; ?> <?php print $subdata->row_class ? ' '. $subdata->row_class : ''; ?> ">
-                     <td class="block"><?php print $subdata->block_title; ?></td>
-                     <td><?php print $subdata->weight_select; ?></td>
-                     <td><?php print $subdata->configure_link; ?></td>
-                   </tr>
-	            <?php endforeach;?>
-			  </tbody>
-			</table>
-			</td>
-        </tr>
-        <?php else:?>
+      <?php foreach ($tabs_elements[$tab['tid']] as $delta => $data): ?>
+        
           <tr class="draggable <?php print $row % 2 == 0 ? 'odd' : 'even'; ?> <?php print $data->row_class ? ' '. $data->row_class : ''; ?>">
-            <td class="block"><?php print $data->block_title; ?></td>
+            <td class="block"><?php print $data->label; ?></td>
             <td><?php print $data->region_select; ?></td>
+            <td><?php print $data->group_select; ?></td>
             <td><?php print $data->weight_select; ?></td>
             <td><?php print $data->configure_link; ?></td>
             <td colspan="6">
             </td>
           </tr>
-      <?php endif;?>
       <?php $row++; ?>
       <?php endforeach; ?>
     <?php endforeach; ?>

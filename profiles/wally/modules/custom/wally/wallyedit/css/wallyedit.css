@@ -18,6 +18,6 @@ table table tbody {
 	border: none;
 }
 
-table tbody tr.onglet-populated {
+table tbody tr.tab-populated {
 	display: none;
 }

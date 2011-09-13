@@ -22,15 +22,15 @@ Drupal.behaviors.blockDrag = function(context) {
 	// Add a handler so when a row is dropped, update fields dropped into new regions.
 	tableDrag.onDrop = function() {
 		dragObject = this;
-		if ($(dragObject.rowObject.element).prev('tr').is('.onglet-message')) {
+		if ($(dragObject.rowObject.element).prev('tr').is('.tab-message')) {
 			var regionRow = $(dragObject.rowObject.element).prev('tr').get(0);
-			var regionName = regionRow.className.replace(/([^ ]+[ ]+)*onglet-([^ ]+)-message([ ]+[^ ]+)*/, '$2');
-			var regionField = $('select.my-element-onglet-lev1', dragObject.rowObject.element);
+			var regionName = regionRow.className.replace(/([^ ]+[ ]+)*tab-([^ ]+)-message([ ]+[^ ]+)*/, '$2');
+			var regionField = $('select.my-element-tab-lev1', dragObject.rowObject.element);
 			var weightField = $('select.element-weight-lev1', dragObject.rowObject.element);
 			var oldRegionName = weightField[0].className.replace(/([^ ]+[ ]+)*element-weight-lev1-([^ ]+)([ ]+[^ ]+)*/, '$2');
 
-			if (!regionField.is('.my-element-onglet-lev1-'+ regionName)) {
-				regionField.removeClass('my-element-onglet-lev1-' + oldRegionName).addClass('my-element-onglet-lev1-' + regionName);
+			if (!regionField.is('.my-element-tab-lev1-'+ regionName)) {
+				regionField.removeClass('my-element-tab-lev1-' + oldRegionName).addClass('my-element-tab-lev1-' + regionName);
 				weightField.removeClass('element-weight-lev1-' + oldRegionName).addClass('element-weight-lev1-' + regionName);
 				regionField.val(regionName);
 			}
@@ -38,15 +38,15 @@ Drupal.behaviors.blockDrag = function(context) {
 	};
 
 	// Add the behavior to each region select list.
-	$('select.my-element-onglet-lev1:not(.blockongletselect-processed)', context).each(function() {
+	$('select.my-element-tab-lev1:not(.blocktabselect-processed)', context).each(function() {
 		$(this).change(function(event) {
 			// Make our new row and select field.
 			var row = $(this).parents('tr:first');
 			var select = $(this);
 			tableDrag.rowObject = new tableDrag.row(row);
 			// Find the correct region and insert the row as the first in the region.
-			$('tr.onglet-message', table).each(function() {
-				if ($(this).is('.onglet-' + select[0].value + '-message')) {
+			$('tr.tab-message', table).each(function() {
+				if ($(this).is('.tab-' + select[0].value + '-message')) {
 					// Add the new row and remove the old one.
 					$(this).after(row);
 					// Manually update weights and restripe.
@@ -68,11 +68,11 @@ Drupal.behaviors.blockDrag = function(context) {
 			// Remove focus from selectbox.
 			select.get(0).blur();
 		});
-		$(this).addClass('blockongletselect-processed');
+		$(this).addClass('blocktabselect-processed');
 	});
 
 	var checkEmptyRegions = function(table, rowObject) {
-		$('tr.onglet-message', table).each(function() {
+		$('tr.tab-message', table).each(function() {
 			// If the dragged row is in this region, but above the message row, swap it down one space.
 			if ($(this).prev('tr').get(0) == rowObject.element) {
 				// Prevent a recursion problem when using the keyboard to move rows up.
@@ -82,11 +82,11 @@ Drupal.behaviors.blockDrag = function(context) {
 			}
 			// This region has become empty
 			if ($(this).next('tr').is(':not(.draggable)') || $(this).next('tr').size() == 0) {
-				$(this).removeClass('onglet-populated').addClass('onglet-empty');
+				$(this).removeClass('tab-populated').addClass('tab-empty');
 			}
 			// This region has become populated.
-			else if ($(this).is('.onglet-empty')) {
-				$(this).removeClass('onglet-empty').addClass('onglet-populated');
+			else if ($(this).is('.tab-empty')) {
+				$(this).removeClass('tab-empty').addClass('tab-populated');
 			}
 		});
 	};
