@@ -121,6 +121,36 @@ function theme_wallyedit_form_tabs_content_types_overview_form ($form) {
   return $output;
 }
 
+function theme_wallyedit_form_groups_overview_form ($form) {
+  if (!isset($form['rows']) || empty($form['rows'])) {
+    drupal_set_message(t('No groups!'), 'error');
+    drupal_goto('admin/content/wallydisplaytabs');
+  }
+  
+  $content_names = node_get_types('names');
+  $content_name = $content_names[$form['content_key']['#value']];
+
+  $group_rows = array();
+  foreach (element_children($form['rows']) as $group_id) {
+    $group_form = $form['rows'][$group_id];
+    $row = array(
+      $group_form['label']['#value'],
+      $group_form['operations']['#value'],
+      //Add the weight field to the row
+      drupal_render($form['rows'][$group_id]['weight']),
+    );
+    $groups_rows[] = array('data' => $row, 'class' => 'draggable');
+  }
+
+  $groups_header = array(t('Label'), t('Operations'), t('Order'));
+  drupal_add_tabledrag('example-table', 'order', 'self', 'weight', NULL, NULL, TRUE);
+  $groups_caption = t('Groups list for content type "@content_name"', array('@content_name' => $content_name));
+  $output = theme('table', $groups_header, $groups_rows, array('id' => 'example-table'), $groups_caption);
+  $output .= drupal_render($form);
+  
+  return $output;
+}
+
 function theme_wallyedit_form_tabs_overview_form ($form) {
   if (!isset($form['rows']) || empty($form['rows'])) {
     drupal_set_message(t('No tabs!'), 'error');
