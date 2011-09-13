@@ -194,6 +194,17 @@ function wallyedit_menu(){
     'Description'=> t('Delete profile.'),
   );
   
+  $items['admin/content/wallydisplaytabs/setdefaultprofile/%'] = array(
+    'page callback'=>'wallyedit_page_set_default_profile',
+    'page arguments' => array(4),
+    'access callback' => 'wallyedit_access',
+    'access arguments' => array(4),
+    'file'=>'includes/page_form_display_tabs.inc',
+    'title'=> t('Set default profile'),
+    'weight' => -3,
+    'Description'=> t('Set default profile.'),
+  );
+  
   // Edition interface callbacks
   $items['node/%prenode/edit2/%ctools_js'] = array(
     'page callback'=>'wallyedit_page_node_edition',
