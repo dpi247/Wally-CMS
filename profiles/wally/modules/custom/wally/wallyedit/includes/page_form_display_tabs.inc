@@ -107,6 +107,108 @@ function wallyedit_form_tabs_content_types_overview_form_submit ($form, &$form_s
 }
 
 /**
+ * Show groups for a content type
+ */
+function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content_key) {
+  $form = array(
+    '#tree' => TRUE,
+  );
+
+  $content_names = node_get_types('names');
+  foreach ($content_names as $key => $name) {
+    $type_url_str = str_replace('_', '-', $key);
+    if ($content_key == $type_url_str) {
+      $type_name = $key;
+      break;
+    }
+  }
+
+  $form['content_key'] = array(
+    '#type' => 'value',
+    '#value' => $type_name,
+  );
+
+  $groups = wyditadmin_get_groups($type_name);
+  $max_weight = 0;
+  foreach ($groups as $group) {
+    if (abs($group['weight']) > $max_weight) {
+      $max_weight = abs($group['weight']);
+    }
+  }
+  if ($max_weight < count($groups)) {
+    $max_weight = count($groups);
+  }
+  $form['rows'] = array();
+  foreach ($groups as $group) {
+    $form['rows'][$group['gid']]['label'] = array(
+      '#type' => 'value',
+      '#value' => $group['label'],
+    );
+
+    $operations = '<a href="/admin/content/wallydisplaytabs/grouplabel/'.$group['gid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
+    $operations .= ' · <a href="/admin/content/wallydisplaytabs/deletegroup/'.$group['gid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>';
+    $form['rows'][$group['gid']]['operations'] = array(
+      '#type' => 'value',
+      '#value' => $operations,
+    );
+
+    $form['rows'][$group['gid']]['weight'] = array(
+      '#type' => 'weight',
+      '#default_value' => $group['weight'],
+      //add a specific class in here - we need this later
+      '#attributes' => array('class' => 'weight'),
+      '#delta' => $max_weight,
+    );
+  }
+
+  if (!empty($form['rows'])) {
+    $form['save_order'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save order'),
+      '#weight' => 0,
+    );
+  }
+
+  $form['label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Add a new group'),
+    '#description' => t('Enter group label here'),
+    '#default_value' => '',
+  );
+
+  $form['add'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add'),
+  );
+  
+  drupal_set_message(t('Groups defined for a content type are common to every profiles.'), 'notice');
+
+  return $form;
+}
+
+function wallyedit_form_groups_overview_form_submit ($form, &$form_state) {
+  $values = $form_state['values'];
+
+  if ($values['op'] == $values['add']) {
+    $new_group = array();
+    $bad_car = array(' ', '-');
+    $new_group['name'] = strtolower(str_replace($bad_car, '_', $values['label'])).'_'.time();
+    $new_group['label'] = $values['label'];
+    $new_group['weight'] = 0;
+    $new_group['pid'] = $values['profile_id'];
+    $new_group['content_type'] = $values['content_key'];
+
+    drupal_write_record('wallyedit_groups', $new_group);
+    drupal_set_message(t('Group "@group" saved!', array('@group' => $new_group['label'])));
+  } elseif ($values['op'] == $values['save_order']) {
+    foreach ($values['rows'] as $group_id => $group_values) {
+      db_query('UPDATE {wallyedit_groups} SET weight = %d WHERE gid = %d', $group_values['weight'], $group_id);
+    }
+    drupal_set_message(t('Group order saved!'));
+  }
+}
+
+/**
  * Show tabs for a profile and a content type
  */
 function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_key) {
@@ -115,7 +217,7 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
   );
 
   if (is_numeric($profile_id)) {
-      $form['profile_id'] = array(
+    $form['profile_id'] = array(
       '#type' => 'value',
       '#value' => $profile_id,
     );
@@ -124,19 +226,28 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
     foreach ($content_names as $key => $name) {
       $type_url_str = str_replace('_', '-', $key);
       if ($content_key == $type_url_str) {
-        $content_key = $key;
+        $type_name = $key;
         break;
       }
     }
 
     $form['content_key'] = array(
       '#type' => 'value',
-      '#value' => $content_key,
+      '#value' => $type_name,
     );
 
-    $db_tabs = db_query('SELECT * FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s" ORDER BY weight ASC', $profile_id, $content_key);
-    $count_tabs = db_result(db_query('SELECT COUNT(*) FROM {wallyedit_tabs_config} WHERE pid = %d AND content_type = "%s"', $profile_id, $content_key));
-    for ($j = 1; $tab = db_fetch_array($db_tabs); $j++) {
+    $tabs = wyditadmin_get_tabs($profile_id, $type_name);
+    $max_weight = 0;
+    foreach ($tabs as $tab) {
+      if (abs($tab['weight']) > $max_weight) {
+        $max_weight = abs($tab['weight']);
+      }
+    }
+    if ($max_weight < count($tabs)) {
+      $max_weight = count($tabs);
+    }
+    $form['rows'] = array();
+    foreach ($tabs as $tab) {
       $form['rows'][$tab['tid']]['label'] = array(
         '#type' => 'value',
         '#value' => $tab['label'],
@@ -407,23 +518,23 @@ function wallyedit_form_add_new_profile_form_submit(&$form, &$form_state) {
 
   foreach (node_get_types('names') as $content_type => $ct_name) {
     $main_tab = array(
+      'pid' => $values['pid'],
+      'content_type' => $content_type,
       'name' => 'main_'.$values['pid'].'_'.$content_type,
       'label' => t('Main'),
       'weight' => 1,
-      'pid' => $values['pid'],
-      'content_type' => $content_type,
       'erasable' => 0,
     );
-    drupal_write_record('wallyedit_tabs_config', $main_tab);
+    drupal_write_record('wallyedit_tabs', $main_tab);
     $meta_tab = array(
+      'pid' => $values['pid'],
+      'content_type' => $content_type,
       'name' => 'meta_'.$values['pid'].'_'.$content_type,
       'label' => t('Meta'),
       'weight' => 2,
-      'pid' => $values['pid'],
-      'content_type' => $content_type,
       'erasable' => 0,
     );
-    drupal_write_record('wallyedit_tabs_config', $meta_tab);
+    drupal_write_record('wallyedit_tabs', $meta_tab);
   }
 }
 
@@ -541,8 +652,8 @@ function wallyedit_form_delete_profile_form_submit(&$form, &$form_state) {
 
   if (db_result(db_query('SELECT * FROM {wallyedit_profiles} WHERE pid = %d', $profile_id))) {
     db_query('DELETE FROM {wallyedit_profiles} WHERE pid = %d', $profile_id);
-    db_query('DELETE FROM {wallyedit_tabs_config} WHERE pid = %d', $profile_id);
-    db_query('DELETE FROM {wallyedit_tabs_edition} WHERE pid = %d', $profile_id);
+    db_query('DELETE FROM {wallyedit_tabs} WHERE pid = %d', $profile_id);
+    db_query('DELETE FROM {wallyedit_fields} WHERE pid = %d', $profile_id);
     drupal_set_message(t('Profile deleted.'));
   } else {
     drupal_set_message(t('No profile matching the requested key.'), 'warning');
@@ -655,7 +766,8 @@ function wyditadmin_get_profiles() {
 function wyditadmin_get_tabs($profile_id, $type_name) {
   static $tabs = array();
   if (!isset($tabs[$profile_id][$type_name])) {
-    $db_tabs = db_query('SELECT * FROM {wallyedit_tabs} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
+    $tabs[$profile_id][$type_name] = array();
+    $db_tabs = db_query('SELECT * FROM {wallyedit_tabs} WHERE pid = %d AND content_type = "%s" ORDER BY weight ASC', $profile_id, $type_name);
     while ($tab = db_fetch_array($db_tabs)) {
       $tabs[$profile_id][$type_name][$tab['tid']] = $tab;
     }
@@ -669,7 +781,8 @@ function wyditadmin_get_tabs($profile_id, $type_name) {
 function wyditadmin_get_groups($type_name) {
   static $groups = array();
   if (!isset($groups[$type_name])) {
-    $db_groups = db_query('SELECT * FROM {wallyedit_groups} WHERE content_type = "%s"', $type_name);
+    $groups[$type_name] = array();
+    $db_groups = db_query('SELECT * FROM {wallyedit_groups} WHERE content_type = "%s" ORDER BY weight ASC', $type_name);
     while ($group = db_fetch_array($db_groups)) {
       $groups[$type_name][$group['gid']] = $group;
     }
@@ -683,7 +796,8 @@ function wyditadmin_get_groups($type_name) {
 function wyditadmin_get_fields_flat($profile_id, $type_name) {
   static $fields = array();
   if (!isset($fields[$profile_id][$type_name])) {
-    $db_fields = db_query('SELECT * FROM {wallyedit_fields} WHERE pid = %d AND content_type = "%s"', $profile_id, $type_name);
+    $fields[$profile_id][$type_name] = array();
+    $db_fields = db_query('SELECT * FROM {wallyedit_fields} WHERE pid = %d AND content_type = "%s" ORDER BY weight ASC', $profile_id, $type_name);
     while ($field = db_fetch_array($db_fields)) {
       $fields[$profile_id][$type_name][$field['fid']] = $field;
     }
@@ -697,6 +811,7 @@ function wyditadmin_get_fields_flat($profile_id, $type_name) {
 function wyditadmin_get_fields_tree($profile_id, $type_name) {
   static $tree_fields = array();
   if (!isset($tree_fields[$profile_id][$type_name])) {
+    $tree_fields[$profile_id][$type_name] = array();
     $tabs = wyditadmin_get_tabs($profile_id, $type_name);
     $groups = wyditadmin_get_groups($type_name);
     $flat_fields = wyditadmin_get_fields_flat($profile_id, $type_name);
