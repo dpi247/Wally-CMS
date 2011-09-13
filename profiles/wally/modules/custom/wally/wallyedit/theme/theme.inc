@@ -208,7 +208,6 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
   foreach($tabs as $tab){
     $tabs_infos[$tab['tid']]=$tab;
   }
-  $tabs_infos[0]=array('label'=>t('Hidden'),'tid'=>0);
 
   $variables['tabs_infos'] = $tabs_infos;// + array(-1 => t('Disabled'));
 
