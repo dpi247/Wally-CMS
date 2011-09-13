@@ -473,7 +473,7 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
       'tid' => $field_value['tab'],
       'gid' => $field_value['group'],
       'weight' => $field_value['weight'],
-      'display' => $field_value['wallyedit'],
+      'display' => isset($field_value['wallyedit']) ? $field_value['wallyedit'] : 1,
     );
     $field_to_save = array_merge($field_to_save, $existing_fields[$field_name]);
     if (isset($field_value['fid'])) {
@@ -669,6 +669,16 @@ function wallyedit_form_delete_group_form_submit(&$form, &$form_state) {
   } else {
     drupal_set_message(t('No group matching the requested key.'), 'warning');
   }
+}
+
+/**
+ * Set the default profile for all users if no others is chosen
+ */
+function wallyedit_page_set_default_profile ($profile_id) {
+  db_query('UPDATE {wallyedit_profiles} SET default = 0');
+  db_query('UPDATE {wallyedit_profiles} SET default = 1 WHERE pid = %d', $profile_id);
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  drupal_goto($redirect);
 }
 
 /**
