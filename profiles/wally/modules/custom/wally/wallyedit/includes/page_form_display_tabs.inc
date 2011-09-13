@@ -991,8 +991,10 @@ function wyditadmin_get_existing_fields($type_name) {
     $form = node_form($form_state, $node);
     $modules = array('comment', 'menu', 'path', 'upload');
     foreach ($modules as $module) {
-      $function = $module.'_form_alter';
-      $function($form, $form_state, $type_name.'_node_form');
+      if (module_exists($module)) {
+        $function = $module.'_form_alter';
+        $function($form, $form_state, $type_name.'_node_form');
+      }
     }
     $existing_fields[$type_name]['title'] = array(
       'type' => $form['title']['#type'],
