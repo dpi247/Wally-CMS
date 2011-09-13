@@ -195,22 +195,20 @@ function theme_wallyedit_form_fields_overview_form ($form) {
 function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
   drupal_add_css(drupal_get_path('module', 'wallyedit') . '/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit') . '/js/wallyedit.js');
-   
-  
+
   $form = $variables['form'];
   $type_name = $form['type']['#value'];
   $profile_id = (int) $form['profile_id']['#value'];
 
   $tabs=wyditadmin_get_tabs($profile_id, $type_name);
-  
+
   foreach($tabs as $tab){
-   $tabs_infos[$tab['tid']]=$tab;
+    $tabs_infos[$tab['tid']]=$tab;
   }
   $tabs_infos[0]=array('label'=>t('Hidden'),'tid'=>0);
-  
+
   $variables['tabs_infos'] = $tabs_infos;// + array(-1 => t('Disabled'));
-  
-  
+
   $variables['tabs_elements'] = array();
   foreach (element_children($form['fields']) as $i) {
     $element = &$variables['form']['fields'][$i];
@@ -221,7 +219,7 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
       // Set special classes needed for table drag and drop.
       $variables['form']['fields'][$i]['tab']['#attributes']['class'] = 'my-element-tab-lev1 my-element-tab-lev1-'. $tab;
       $variables['form']['fields'][$i]['weight']['#attributes']['class'] = 'element-weight-lev1 element-weight-lev1-'. $tab;
-      
+
       $variables['tabs_elements'][$tab][$i] = new stdClass();
       $variables['tabs_elements'][$tab][$i]->row_class = isset($element['#attributes']['class']) ? $element['#attributes']['class'] : '';
       $variables['tabs_elements'][$tab][$i]->block_modified = isset($element['#attributes']['class']) && strpos($element['#attributes']['class'], 'block-modified') !== FALSE ? TRUE : FALSE;
@@ -230,10 +228,8 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
       $variables['tabs_elements'][$tab][$i]->group_select = drupal_render($element['group']);
       $variables['tabs_elements'][$tab][$i]->weight_select = drupal_render($element['weight']);
       $variables['tabs_elements'][$tab][$i]->wallyedit_select = drupal_render($element['wallyedit']);
-      $variables['tabs_elements'][$tab][$i]->configure_link = drupal_render($element['configure']);
       $variables['tabs_elements'][$tab][$i]->printed = FALSE;
 
-    
       $last_region = $tab;
     }
   }

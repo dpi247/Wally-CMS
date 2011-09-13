@@ -353,60 +353,60 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
     }
   }
 
-  $existing_fields=wyditadmin_get_existing_fields($type_name);
-  $flat_fields=wyditadmin_get_fields_flat($profile_id, $type_name);
-  $tabs=wyditadmin_get_tabs($profile_id, $type_name);
+  $existing_fields = wyditadmin_get_existing_fields($type_name);
+  $flat_fields = wyditadmin_get_fields_flat($profile_id, $type_name);
+  $tabs = wyditadmin_get_tabs($profile_id, $type_name);
+  $groups = wyditadmin_get_groups($type_name);
 
-  $groups=wyditadmin_get_groups($type_name);
-  $groups_options=array();
+  $groups_options = array();
   foreach($groups as $group){
-    $groups_options[$group['gid']]=$group['label'];
+    $groups_options[$group['gid']] = $group['label'];
   }
-  $groups_options[0]=t('No group');
+  $groups_options[0] = t('No group');
 
-  $tabs_options=array(0=>t('hidden'));
+  $tabs_options = array(0 => t('hidden'));
   foreach($tabs as $tab){
-    $tabs_options[$tab['tid']]=$tab['label'];
+    $tabs_options[$tab['tid']] = $tab['label'];
   }
 
   $form=array(
     '#tree' => TRUE,
   );
 
-  foreach($existing_fields as $field_name=>$field){
-    if(false){
-      $tab_id='';
-    }
-    else{
-      $tab_id='no_tabs';
-    }
-    
+  foreach ($existing_fields as $field_name => $field) {
     if (isset($flat_fields[$field_name])) {
       $form['fields'][$field_name]['fid'] = array(
         '#type' => 'value',
         '#value' => $flat_fields[$field_name]['fid'],
       );
+      $default_field = $flat_fields[$field_name];
+    } else {
+      $default_field = $field + array(
+        'gid' => 0,
+        'tid' => 0,
+      );
     }
 
-    $form['fields'][$field_name]['label']=array(
+    $form['fields'][$field_name]['label'] = array(
       '#type' => 'markup',
-      '#value' => isset($existing_fields[$field['type_name']]['label']) ?  $existing_fields[$field['type_name']]['field_name']:$field['label'] ,
-    );
-    $form['fields'][$field_name]['group']=array(
-      '#type' => 'select',
-      '#options'=>$groups_options,
-      '#default_value' => isset($existing_fields[$field['type_name']]['group'])?$existing_fields[$field['type_name']]['group']:-1,
-    );
-    $form['fields'][$field_name]['weight']=array(
-      "#type"=>'weight',
-      '#default_value'=>$existing_fields[$field['type_name']]['weight'],
-    //"#attributes"=>array('class'=>"my-elements-weight-lev1 my-elements-weight-lev1-". $index_onglet),
+      '#value' => $default_field['label'],
     );
 
-    if(isset($field['type']) && $field['type'] == 'nodereference') {
+    $form['fields'][$field_name]['group'] = array(
+      '#type' => 'select',
+      '#options' => $groups_options,
+      '#default_value' => $default_field['gid'],
+    );
+
+    $form['fields'][$field_name]['weight'] = array(
+      "#type" => 'weight',
+      '#default_value' => $default_field['weight'],
+    );
+
+    if (isset($field['type']) && $field['type'] == 'nodereference') {
       $form['fields'][$field_name]['wallyedit'] = array(
-        '#type'=>'select',
-        '#options'=>array(0 => t("Exclude"), 1 => t("Normal")),
+        '#type' => 'select',
+        '#options' => array(0 => t("Exclude"), 1 => t("Normal")),
       );
       $hits = 0;
       foreach ($field['referenceable_types'] as $key => $value) {
@@ -421,38 +421,33 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
       else {
         $form['fields'][$field_name]["wallyedit"]["#options"][3] = t('Select box');
       }
-    }
-    if(isset($field['display_settings']['wallyedit'])) {
-      $form['fields'][$field_name]["wallyedit"]["#default_value"] = $field['display_settings']['wallyedit'];
-    }
-    else {
-      $form['fields'][$field_name]["wallyedit"]["#default_value"] = 1;
+
+      $form['fields'][$field_name]['wallyedit']['#default_value'] = $default_field['display'];
     }
 
     $form['fields'][$field_name]['tab'] = array(
-        "#type"=>'select',
-        "#options"=>$tabs_options,
-        '#default_value'=>isset($existing_fields[$field['type_name']]['tab'])?$existing_fields[$field['type_name']]['tab']:0,
-    //"#attributes"=>array('class'=>"my-elements-onglet-lev1 my-elements-tab-lev1-". $index_onglet),
+      "#type" => 'select',
+      "#options" => $tabs_options,
+      '#default_value' => $default_field['tid'],
     );
-
   }
-
-
 
   $form['profile_id'] = array(
     '#type' => 'value',
     '#value' => $profile_id,
   );
+
   $form['type'] = array(
     '#type' => 'value',
     '#value' => $type_name,
   );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#title' => t('Save'),
     '#value' => t('Save'),
   );
+
   return $form;
 }
 
