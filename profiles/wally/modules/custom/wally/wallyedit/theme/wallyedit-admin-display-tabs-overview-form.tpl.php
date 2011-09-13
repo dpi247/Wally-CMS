@@ -33,6 +33,9 @@ foreach ($tabs_infos as $tab_id => $tab) {
 }
 ?>
 <table id="blocks" class="sticky-enabled">
+	<caption>
+	<?php print $caption ?>
+	</caption>
 	<thead>
 		<tr>
 			<th><?php print t('Element'); ?></th>
@@ -43,18 +46,18 @@ foreach ($tabs_infos as $tab_id => $tab) {
 		</tr>
 	</thead>
 	<tbody>
-	<?php $row = 0; ?>
-	<?php foreach ($tabs_infos as $tab_id=>$tab):  ?>
+		<?php $row = 0; ?>
+		<?php foreach ($tabs_infos as $tab_id=>$tab):  ?>
 		<tr class="tab tab-<?php print $tab_id?>">
 			<td colspan="6" class="tab"><b><?php print $tab['label']; ?> </b></td>
 		</tr>
-		
+
 		<tr
 			class="tab-message tab-<?php print $tab['tid']?>-message <?php print empty($tabs_elements[$tab['tid']]) ? 'tab-empty' : 'tab-populated'; ?>">
 			<td colspan="6"><em><?php print t('No tabs in this region'); ?> </em>
 			</td>
 		</tr>
-		
+
 		<?php if(isset($tabs_elements[$tab['tid']])):?>
 		<?php foreach ($tabs_elements[$tab['tid']] as $delta => $data): ?>
 		<tr

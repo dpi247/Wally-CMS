@@ -200,7 +200,10 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form (&$variables){
   $type_name = $form['type']['#value'];
   $profile_id = (int) $form['profile_id']['#value'];
 
-  $tabs=wyditadmin_get_tabs($profile_id, $type_name);
+  $profile = db_fetch_array(db_query('SELECT * FROM {wallyedit_profiles} WHERE pid = %d', $profile_id));
+  $variables['caption'] = $caption = t('Fields management for profile "!profile_label" and content type "!content_type"', array('!profile_label' => $profile['label'], '!content_type' => $type_name));
+
+  $tabs = wyditadmin_get_tabs($profile_id, $type_name);
 
   foreach($tabs as $tab){
     $tabs_infos[$tab['tid']]=$tab;
