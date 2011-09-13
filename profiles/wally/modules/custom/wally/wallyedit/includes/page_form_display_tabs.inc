@@ -262,7 +262,6 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
         '#value' => $tab['label'],
       );
 
-
       $operations = '<a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
       $operations .= $tab['erasable'] ? ' · <a href="/admin/content/wallydisplaytabs/deletetab/'.$tab['tid'].'/'.$profile_id.'?destination='.$_GET['q'].'">'.t('Delete').'</a>' : '';
       $form['rows'][$tab['tid']]['operations'] = array(
