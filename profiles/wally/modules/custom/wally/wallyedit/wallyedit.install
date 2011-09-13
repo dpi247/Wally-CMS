@@ -45,6 +45,12 @@ function wallyedit_schema(){
         'length' => '255',
         'description' => 'Human readable name.',
       ),
+      'default' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Boolean, default profile.',
+        'default' => 0,
+      ),
     ),
     'primary key' => array('pid'),
   );

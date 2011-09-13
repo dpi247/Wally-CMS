@@ -4,7 +4,7 @@
  * Show existing profiles and tabs and add new ones
  */
 function wallyedit_page_profiles_overview () {
-  $profiles_header = array(t('Name'), array('data' => t('Operations'), 'colspan' => '2'));
+  $profiles_header = array(t('Name'), t('Default profile'), array('data' => t('Operations'), 'colspan' => '2'));
   $profiles_rows = array();
   $profiles_caption = t('Profiles List');
 
@@ -12,9 +12,13 @@ function wallyedit_page_profiles_overview () {
   $profiles = array();
   while ($profile = db_fetch_array($db_profiles)) {
     $profiles[$profile['pid']] = $profile;
+    $operations = l(t('Choose content type'), 'admin/content/wallydisplaytabs/displaytabs/'. $profile['pid']);
+    $operations .= ' · <a href="/admin/content/wallydisplaytabs/deleteprofile/'.$profile['pid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>';
+    $operations .= ' · <a href="/admin/content/wallydisplaytabs/setdefaultprofile/'.$profile['pid'].'?destination='.$_GET['q'].'">'.t('Use as default').'</a>';
     $row = array(
       check_plain($profile['label']),
-      array('data' => l(t('Choose content type'), 'admin/content/wallydisplaytabs/displaytabs/'. $profile['pid']).' · <a href="/admin/content/wallydisplaytabs/deleteprofile/'.$profile['pid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>'),
+      (isset($profile['default']) && $profile['default'] == 1) ? t('Yes') : t('No'),
+      array('data' => $operations),
     );
 
     $profiles_rows[] = $row;
@@ -362,9 +366,8 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
   foreach($groups as $group){
     $groups_options[$group['gid']] = $group['label'];
   }
-  $groups_options[0] = t('No group');
 
-  $tabs_options = array(0 => t('hidden'));
+  $tabs_options = array();
   foreach($tabs as $tab){
     $tabs_options[$tab['tid']] = $tab['label'];
   }
@@ -869,6 +872,12 @@ function wyditadmin_get_tabs($profile_id, $type_name) {
     while ($tab = db_fetch_array($db_tabs)) {
       $tabs[$profile_id][$type_name][$tab['tid']] = $tab;
     }
+    $tabs[$profile_id][$type_name][0] = array(
+      'tid' => 0,
+      'content_type' => $type_name,
+      'name' => 'no_tab',
+      'label' => t('Hidden'),
+    );
   }
   return $tabs[$profile_id][$type_name];
 }
@@ -884,6 +893,12 @@ function wyditadmin_get_groups($type_name) {
     while ($group = db_fetch_array($db_groups)) {
       $groups[$type_name][$group['gid']] = $group;
     }
+    $groups[$type_name][0] = array(
+      'gid' => 0,
+      'content_type' => $type_name,
+      'name' => 'no_group',
+      'label' => t('No group'),
+    );
   }
   return $groups[$type_name];
 }
@@ -923,7 +938,7 @@ function wyditadmin_get_fields_tree($profile_id, $type_name) {
     }
     foreach ($flat_fields as $fid => $field) {
       $tab_name = $tabs[$field['tid']]['name'];
-      $group_name = $field['gid'] != 0 ? $groups[$field['gid']]['name'] : 'none';
+      $group_name = $groups[$field['gid']]['name'];
       if ($group_name != 'none') {
         $tree_fields[$profile_id][$type_name][$tab_name]['elements'][$group_name]['fields'][$field['name']] = $field;
       } else {
