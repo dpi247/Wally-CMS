@@ -394,6 +394,38 @@ function wallyedit_perm() {
 }
 
 /**
+ * Implementation of hook_user()
+ */
+function wallyedit_user($type, &$array, &$user, $category) {
+  switch ($type) {
+    case 'form':
+      module_load_include('inc', 'wallyedit', 'includes/page_form_display_tabs');
+      $profiles = wyditadmin_get_profiles();
+      $options_profiles = array();
+      $default_profile = 0;
+      foreach ($profiles as $profile) {
+        $options_profiles[$profile['pid']] = $profile['label'];
+        if ($profile['default']) {
+          $default_profile = $profile['pid'];
+        }
+      }
+      $default_profile = isset($user->wydit_default_profile) ? $user->wydit_default_profile : $default_profile;
+      $form['wydit_default_profile'] = array(
+        '#type' => 'select',
+        '#title' => t('Edition interface default profile'),
+        '#description' => t('Choose the profile that will be used as default for your edition interface fields management.'),
+        '#options' => $options_profiles,
+        '#default_value' => $default_profile,
+      );
+      return $form;
+      break;
+    case 'submit':
+      $user->wydit_default_profile = $array['wydit_default_profile'];
+      break;
+  }
+}
+
+/**
  * Access callback for interface administration
  */
 function wallyedit_access($profile_id ) {
