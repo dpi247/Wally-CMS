@@ -186,6 +186,15 @@ function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content
   return $form;
 }
 
+function wallyedit_form_groups_overview_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['add']) {
+    if ($values['label'] == '') {
+      form_set_error('label', t('Empty label given!'));
+    }
+  }
+}
+
 function wallyedit_form_groups_overview_form_submit ($form, &$form_state) {
   $values = $form_state['values'];
 
@@ -253,8 +262,7 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
         '#value' => $tab['label'],
       );
 
-      $operations = l(t('Manage fields'), 'admin/content/wallydisplaytabs/displaytabs/'.$profile_id.'/'.$type_url_str.'/fields');
-      $operations .= ' · <a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
+      $operations = '<a href="/admin/content/wallydisplaytabs/tablabel/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Edit Label').'</a>';
       $operations .= $tab['erasable'] ? ' · <a href="/admin/content/wallydisplaytabs/deletetab/'.$tab['tid'].'?destination='.$_GET['q'].'">'.t('Delete').'</a>' : '';
       $form['rows'][$tab['tid']]['operations'] = array(
         '#type' => 'value',
@@ -298,6 +306,15 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
   }
 
   return $form;
+}
+
+function wallyedit_form_tabs_overview_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['add']) {
+    if ($values['label'] == '') {
+      form_set_error('label', t('Empty label given!'));
+    }
+  }
 }
 
 function wallyedit_form_tabs_overview_form_submit ($form, &$form_state) {
@@ -510,6 +527,13 @@ function wallyedit_form_add_new_profile_form(&$form_state) {
   return $form;
 }
 
+function wallyedit_form_add_new_profile_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['label'] == '') {
+    form_set_error('label', t('Empty label given!'));
+  }
+}
+
 function wallyedit_form_add_new_profile_form_submit(&$form, &$form_state) {
   $values = $form_state['values'];
 
@@ -661,6 +685,95 @@ function wallyedit_form_delete_profile_form_submit(&$form, &$form_state) {
 }
 
 /**
+ * Form to edit a group label
+ */
+function wallyedit_form_edit_label_group_form (&$form_state, $group_id) {
+  $group = db_fetch_array(db_query('SELECT label FROM {wallyedit_groups} WHERE gid = %d', $group_id));
+
+  $form = array();
+
+  $form['new_label'] = array(
+    '#type' => 'textfield',
+    '#title' => t('New Label'),
+    '#default_value' => $group['label'],
+  );
+
+  $form['group_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $group_id,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#title' => t('Save'),
+    '#value' => t('Save'),
+  );
+
+  $form['cancel'] = array(
+    '#type' => 'submit',
+    '#title' => t('Cancel'),
+    '#value' => t('Cancel'),
+  );
+
+  return $form;
+}
+
+function wallyedit_form_edit_label_group_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['new_label'] == '') {
+    form_set_error('new_label', t('Empty label given!'));
+  }
+}
+
+function wallyedit_form_edit_label_group_form_submit ($form, $form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['submit']) {
+    db_query('UPDATE {wallyedit_groups} SET label = "%s" WHERE gid = %d', $values['new_label'], $values['group_id']);
+  }
+  if (!isset($_GET['destination'])) {
+    drupal_goto('admin/content');
+  }
+}
+
+/**
+ * Form to delete a group
+ */
+function wallyedit_form_delete_group_form (&$form_state, $group_id) {
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  
+  if ($group = db_fetch_array(db_query('SELECT label FROM {wallyedit_groups} WHERE gid = %d', $group_id))) {
+    
+  } else {
+    drupal_set_message(t('Group not found!'), 'error');
+    drupal_goto($redirect);
+  }
+  $question = t('Are you sure you want to delete group "@group"?', array('@group' => $group['label']));
+  
+  $add_form = array();
+  $add_form['group_id'] = array(
+    '#type' => 'value',
+    '#value' => $group_id,
+  );
+  
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
+  $form = confirm_form($add_form, $question, $redirect);
+  $form['#redirect'] = $redirect;
+  return $form;
+}
+
+function wallyedit_form_delete_group_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $group_id = $values['group_id'];
+
+  if ($group = db_result(db_query('SELECT * FROM {wallyedit_groups} WHERE gid = %d', $group_id))) {
+    db_query('DELETE FROM {wallyedit_groups} WHERE gid = %d', $group_id);
+    drupal_set_message(t('Group deleted.'));
+  } else {
+    drupal_set_message(t('No group matching the requested key.'), 'warning');
+  }
+}
+
+/**
  * Form to edit a tab label
  */
 function wallyedit_form_edit_label_tab_form (&$form_state, $tab_id) {
@@ -692,6 +805,13 @@ function wallyedit_form_edit_label_tab_form (&$form_state, $tab_id) {
   );
 
   return $form;
+}
+
+function wallyedit_form_edit_label_tab_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['new_label'] == '') {
+    form_set_error('new_label', t('Empty label given!'));
+  }
 }
 
 function wallyedit_form_edit_label_tab_form_submit ($form, $form_state) {
