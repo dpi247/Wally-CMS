@@ -287,6 +287,58 @@ function wallyedit_menu(){
 }
 
 /**
+ * Implementation of hook_menu_alter()
+ * Simulate redirection to edition interface instead of classical node form
+ */
+function wallyedit_menu_alter(&$items) {
+  $default_profile = wallyedit_get_default_profile();
+  if ($default_profile == 0) {
+    return;
+  }
+
+  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$default_profile, array());
+  if (empty($interface_types)) {
+    return;
+  }
+
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    if (isset($interface_types[$type->type]) && $interface_types[$type->type] == 'wally') {
+      $type_url_str = str_replace('_', '-', $type->type);
+      $items['node/add/' . $type_url_str]['page callback'] = 'wallyedit_page_node_creation';
+      $items['node/add/' . $type_url_str]['file'] = 'includes/page_node_creation.inc';
+      $items['node/add/' . $type_url_str]['module'] = 'wallyedit';
+    }
+  }
+
+  $items['node/%node/edit']['page callback'] = 'wallyedit_page_edit_selection';
+}
+
+/**
+ * Select classical edition interface or wallyedit's.
+ */
+function wallyedit_page_edit_selection() {
+  $args = func_get_args();
+  $node = $args[0];
+  
+  $goto = 'wally';
+  $default_profile = wallyedit_get_default_profile();
+  if ($default_profile == 0) {
+    $goto = 'drupal';
+  }
+
+  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$default_profile, array());
+  if (empty($interface_types)) {
+    $goto = 'drupal';
+  }
+
+  if ($goto == 'wally' || (isset($interface_types[$node->type]) && $interface_types[$node->type] == 'wally')) {
+    return menu_execute_active_handler('node/'.$node->nid.'/edit2/1');
+  } else {
+    return call_user_func_array('node_page_edit', $args);
+  }
+}
+
+/**
  * Implementation of hook_theme()
  */
 function wallyedit_theme(){
@@ -428,7 +480,7 @@ function wallyedit_user($type, &$array, &$user, $category) {
 /**
  * Access callback for interface administration
  */
-function wallyedit_access($profile_id ) {
+function wallyedit_access($profile_id) {
   global $user;
   static $perm = array();
 
@@ -461,6 +513,52 @@ function wallyedit_access($profile_id ) {
   }
 
   return isset($perm[$account->uid][$string]);
+}
+
+/**
+ * Get the default profile for current user
+ */
+function wallyedit_get_default_profile() {
+  global $user;
+  static $default_profile = array();
+  
+  if (!isset($default_profile[$user->uid])) {
+    $default_profile[$user->uid] = 0;
+    if (isset($user->wydit_default_profile)) {
+      $default_profile[$user->uid] = $user->wydit_default_profile;
+    } else {
+      $available_profiles = wallyedit_get_available_profiles();
+      foreach ($available_profiles as $available_profile) {
+        if ($available_profile['default'] == 1) {
+          $default_profile[$user->uid] = $available_profile['pid'];
+          break;
+        }
+      }
+    }
+  }
+  
+  return $default_profile[$user->uid];
+}
+
+/**
+ * Get available profiles for current user
+ */
+function wallyedit_get_available_profiles() {
+  global $user;
+  static $available_profiles = array();
+  
+  if (!isset($available_profiles[$user->uid])) {
+    module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
+    
+    $profiles = wyditadmin_get_profiles();
+    foreach ($profiles as $profile) {
+      if (wallyedit_access($profile['pid'])) {
+        $available_profiles[$user->uid][$profile['pid']] = $profile;
+      }
+    }
+  }
+  
+  return $available_profiles[$user->uid];
 }
 
 function wallyedit_form_page_createmode_form(&$form_state){
