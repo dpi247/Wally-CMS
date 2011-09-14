@@ -107,6 +107,7 @@ function wallyedit_form_tabs_content_types_overview_form_submit ($form, &$form_s
   }
   
   variable_set('wallyedit_content_types_interface_type_'.$values['profile_id'], $content_editions);
+  menu_rebuild();
   drupal_set_message(t('Configuration saved.'));
 }
 
