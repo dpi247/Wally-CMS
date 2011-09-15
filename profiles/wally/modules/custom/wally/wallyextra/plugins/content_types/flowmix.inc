@@ -10,7 +10,7 @@
  */
 $plugin = array(
   'no title override' => TRUE,
-  'defaults' => _wallyextra_flowmix_content_type_form_summary_defaults(),
+  'defaults' => array('flow_obj' => _wallyextra_flowmix_content_type_form_summary_defaults()),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'add form' => array(
@@ -76,7 +76,7 @@ function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $conf = $conf['flow_obj'];
 
   if ($subtype['name'] == 'flowmix') {
-    $settings = $conf;
+    $settings = (object)$conf;
     $settings->flowmix_type = 'local';
   } else {
     $settings = $subtype['content']->settings;
@@ -249,7 +249,7 @@ function _wallyextra_flowmix_default_ctools_content_type() {
     'category' => t('Wally Extra'),
     'description' => t('Fetch some flows and mix them together in a single feed'),
     'all contexts' => TRUE,
-    'defaults' => _wallyextra_flowmix_content_type_form_summary_defaults(),
+    'defaults' => array('flow_obj' => _wallyextra_flowmix_content_type_form_summary_defaults()),
     'add form' => array(
       'wallyextra_flowmix_content_type_form_summary_form'        => t('Summary'),
       'wallyextra_flowmix_content_type_form_basicsetttings_form' => t('Create Flow 1/2: Basic settings'),
