@@ -432,6 +432,7 @@ function _pub_callalltags() {
         foreach($row->attributes as $attrName => $attrValue) {
           $tag_elem[$attrName] = $attrValue->value;
         }
+        dsm($tag_elem, 'tag elem');
         unset($tag_elem['website']);
         foreach($pub_array as $pub_elem) {
           if ($tag_elem['position'] == $pub_elem['position']) {
