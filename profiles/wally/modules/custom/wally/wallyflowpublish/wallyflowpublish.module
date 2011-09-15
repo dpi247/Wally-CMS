@@ -85,8 +85,8 @@ function wallyflowpublish_views_pre_execute(&$view) {
     $tax = wallytoolbox_taxonomy_get_term_by_path($name);
     $tid = $tax[0]->tid;
     $old_tid = $view->build_info['query_args'][3];
-    $view->build_info['query'] = str_replace('\''.$old_tid.'\'', '\''.$old_tid.'\'', $view->build_info['query']);
-    $view->build_info['count_query'] = str_replace('\''.$old_tid.'\'', '\''.$old_tid.'\'', $view->build_info['count_query']);
+    $view->build_info['query'] = str_replace('\''.$old_tid.'\'', '\''.$tid.'\'', $view->build_info['query']);
+    $view->build_info['count_query'] = str_replace('\''.$old_tid.'\'', '\''.$tid.'\'', $view->build_info['count_query']);
     $view->build_info['query_args'][3] = $tid;
 
     $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
