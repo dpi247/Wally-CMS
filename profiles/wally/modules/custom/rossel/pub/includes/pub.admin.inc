@@ -426,8 +426,6 @@ function _pub_callalltags() {
     }
     
     foreach($dom->getElementsByTagName('row') as $row) {
-      dsm($row->getAttribute('website'), 'xml website');
-      dsm($website, 'wally website');
       if ($row->getAttribute('website') == $website) {
         $update = FALSE;
         $tag_elem = array();
