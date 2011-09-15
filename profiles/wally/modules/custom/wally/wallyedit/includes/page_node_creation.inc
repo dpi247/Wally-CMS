@@ -20,11 +20,11 @@ function wallyedit_page_node_creation($type, $js = FALSE){
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
   }
-  
+
   $form = ctools_build_form('wallyedit_form_page_createmode_form', $form_state);
 
   if($js) {
-    //AJAX rendering int the submit function   
+    //AJAX rendering in the submit function   
   } else {
     return theme('wallyedit_page_createmode', $form);
   }
