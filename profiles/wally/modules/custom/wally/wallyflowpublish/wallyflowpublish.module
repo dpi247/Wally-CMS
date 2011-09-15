@@ -77,14 +77,14 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
  * Implementation of hook_views_pre_execute()
  * Catch the view process before execution to handle MediaFed redirection.
  */
-function wallyflowpublish_views_pre_execute(&$view) {
+function wallyflowpublish_views_pre_execute($view, $display_id, &$args) {
   if ($view->name == 'default_destination_view_feed' && $view->current_display == 'feed_1') {
-    foreach ($view->args as $arg) {
+    foreach ($args as $arg) {
       $name .= '/'.$arg;
     }
     $tax = wallytoolbox_taxonomy_get_term_by_path($name);
     $tid = $tax[0]->tid;
-    $view->args[0] = $tid;
+    $args[0] = $tid;
 
     $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
     while (is_string($data['mediafed']))
