@@ -3,7 +3,7 @@
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
 
 include_once 'includes/Prenode.inc';
-include_once('wallyedit.features.inc');
+include_once 'wallyedit.features.inc';
 
 /**
  * @file
@@ -399,11 +399,38 @@ function wallyedit_theme(){
     'wallyedit_test_form'=>$base+array(
       'arguments'=>array('form'=>array()),
       'template' => 'wallyedit-admin-display-form2',
-    
     ),
   );
 }
 
+/**
+ * Implementation of hook_form_alter()
+ */
+function wallyedit_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'wallyedit_form_page_createmode_form' || $form_id == 'wallyedit_form_page_editmode_form') {
+    $available_profiles = wallyedit_get_available_profiles();
+    $options_profiles = array();
+    foreach ($available_profiles as $av_prof) {
+      $options_profiles[$av_prof['pid']] = $av_prof['label'];
+    }
+    $default_profile = wallyedit_get_default_profile();
+    $form['choose_profile'] = array(
+      '#type' => 'select',
+      '#title' => t('Choose profile'),
+      '#options' => $options_profiles,
+      '#default_value' => $default_profile,
+      '#weight' => -100,
+    );
+    
+    $form['confirm_profile'] = array(
+      '#type' => 'submit',
+      '#title' => t('Confirm profile'),
+      '#value' => t('Confirm profile'),
+    );
+
+    array_unshift($form['#submit'], 'wallyedit_form_change_profile_form_submit');
+  }
+}
 
 /**
  * Implementation of hook_elements
@@ -571,6 +598,13 @@ function wallyedit_form_page_createmode_form_validate(&$form, &$form_state){
   if(form_get_errors()){
     _wallyedit_form_page_ctools_validtion();
   }
+}
+
+/**
+ * Redirect to chosen profile
+ */
+function wallyedit_form_change_profile_form_submit ($form, &$form_state) {
+  dsm($form_state, 'form state');
 }
 
 function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){

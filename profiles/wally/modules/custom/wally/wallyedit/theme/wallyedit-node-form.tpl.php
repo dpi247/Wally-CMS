@@ -337,6 +337,8 @@ $no_tab_name="no_tab";
 </script>
 <div id="column-main-left">
   <div id="scroller-header">
+  <?php print drupal_render($form['choose_profile']); ?>
+	<?php print drupal_render($form['confirm_profile']); ?>
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
           <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet_content['label']?></a>
