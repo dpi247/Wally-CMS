@@ -697,7 +697,7 @@ class view extends views_db_object {
       $function = $module . '_views_pre_execute';
       $function($this);
     }
-dsm($view, 'view exec');
+dsm($this, 'view exec');
     $query = db_rewrite_sql($this->build_info['query'], $this->base_table, $this->base_field, array('view' => &$this));
     $count_query = db_rewrite_sql($this->build_info['count_query'], $this->base_table, $this->base_field, array('view' => &$this));
 
