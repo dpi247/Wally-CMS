@@ -18,14 +18,14 @@ class wallyctools_ui extends ctools_export_ui {
       '#default_value' => $form_state['item']->settings['title'],
       '#title' => t('Title'),
     );
+
     $form['block']['view'] = array(
-        '#type' => 'select',
-        '#options'=> wallyctools_get_redac_view_options(),
-       '#title' => t('view associated with the block'),
-        '#required'=>true,
-      );
-     
-   
+      '#type' => 'select',
+      '#options'=> wallyctools_get_redac_view_options(),
+      '#title' => t('view associated with the block'),
+      '#required'=>true,
+    );
+
     $form['substitute'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use context keywords'),
@@ -35,21 +35,18 @@ class wallyctools_ui extends ctools_export_ui {
   }
 
   function edit_form_submit(&$form, &$form_state) {
-    
-     //handle the view select before the call of parent::edit_form_submit($form, $form_state);
+
+    //handle the view select before the call of parent::edit_form_submit($form, $form_state);
     $view=split('\+',$form_state['values']['view']);
     unset($form_state['values']['view']);
     $form_state['values']['view_name']=$view[0];
     $form_state['values']['view_id']=$view[1];
-    
-    parent::edit_form_submit($form, $form_state);
-    
-    
+
     // Since items in our settings are not in the schema, we have to do these manually:
     $form_state['item']->settings['title'] = $form_state['values']['title'];
     $form_state['item']->settings['substitute'] = $form_state['values']['substitute'];
-    
-   
+
+    parent::edit_form_submit($form, $form_state);
   }
 
   function list_form(&$form, &$form_state) {
@@ -80,9 +77,10 @@ class wallyctools_ui extends ctools_export_ui {
   function list_sort_options() {
     return array(
       'disabled' => t('Enabled, title'),
-      'title' => t('Title'),
+      'title' => t('Admin title'),
       'name' => t('Name'),
       'category' => t('Category'),
+      'title' => t('Title'),
       'storage' => t('Storage'),
       'view_name' => t('View'),
       'view_id' => t('View display'),
@@ -95,7 +93,7 @@ class wallyctools_ui extends ctools_export_ui {
       case 'disabled':
         $this->sorts[$item->name] = empty($item->disabled) . $item->admin_title;
         break;
-      case 'title':
+      case 'admin_title':
         $this->sorts[$item->name] = $item->admin_title;
         break;
       case 'name':
@@ -104,11 +102,14 @@ class wallyctools_ui extends ctools_export_ui {
       case 'view_id':
         $this->sorts[$item->name] = $item->name;
         break;
-        case 'view_name':
+      case 'view_name':
         $this->sorts[$item->name] = $item->name;
         break;
       case 'category':
         $this->sorts[$item->name] = $item->category;
+        break;
+      case 'title':
+        $this->sorts[$item->name] = $item->settings['title'];
         break;
       case 'storage':
         $this->sorts[$item->name] = $item->type . $item->admin_title;
@@ -120,6 +121,7 @@ class wallyctools_ui extends ctools_export_ui {
         array('data' => check_plain($item->name), 'class' => 'ctools-export-ui-name'),
         array('data' => check_plain($item->admin_title), 'class' => 'ctools-export-ui-title'),
         array('data' => check_plain($item->category), 'class' => 'ctools-export-ui-category'),
+        array('data' => check_plain($item->settings['title']), 'class' => 'ctools-export-ui-title'),
         //@todo: check class
         array('data' => check_plain($item->view_name), 'class' => 'ctools-export-ui-name'),
         array('data' => check_plain($item->view_id), 'class' => 'ctools-export-ui-name'),
@@ -132,13 +134,14 @@ class wallyctools_ui extends ctools_export_ui {
 
   function list_table_header() {
     return array(
-      array('data' => t('Name'), 'class' => 'ctools-export-ui-name'),
-      array('data' => t('Title'), 'class' => 'ctools-export-ui-title'),
-      array('data' => t('Category'), 'class' => 'ctools-export-ui-category'),
-      //@todo: check class
-      array('data' => t('View'), 'class' => 'ctools-export-ui-category'),
-      array('data' => t('View Display'), 'class' => 'ctools-export-ui-category'),
-      array('data' => t('Operations'), 'class' => 'ctools-export-ui-operations'),
+    array('data' => t('Name'), 'class' => 'ctools-export-ui-name'),
+    array('data' => t('Admin title'), 'class' => 'ctools-export-ui-title'),
+    array('data' => t('Category'), 'class' => 'ctools-export-ui-category'),
+    array('data' => t('Title'), 'class' => 'ctools-export-ui-title'),
+    //@todo: check class
+    array('data' => t('View'), 'class' => 'ctools-export-ui-category'),
+    array('data' => t('View Display'), 'class' => 'ctools-export-ui-category'),
+    array('data' => t('Operations'), 'class' => 'ctools-export-ui-operations'),
     );
   }
 
