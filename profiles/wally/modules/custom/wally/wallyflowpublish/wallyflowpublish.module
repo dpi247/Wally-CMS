@@ -79,13 +79,9 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
  */
 function wallyflowpublish_views_pre_execute($view) {
   if ($view->name == 'default_destination_view_feed' && $view->current_display == 'feed_1') {
-    foreach ($view->args as $arg) {
-      $name .= '/'.$arg;
-    }
-    $tax = wallytoolbox_taxonomy_get_term_by_path($name);
+    $name = str_replace('-', ' ', $view->args[0]);
+    $tax = taxonomy_get_term_by_name($name);
     $tid = $tax[0]->tid;
-    $view->args[0] = $tid;
-
     $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
     while (is_string($data['mediafed']))
       $data['mediafed'] = unserialize($data['mediafed']);
@@ -118,7 +114,8 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
   $presetname='flowpublish_preset';
-
+dsm($items, 'items');
+dsm($view, 'view');
   $name = '';
   foreach ($view->args as $arg) {
     $name .= '/'.$arg;
