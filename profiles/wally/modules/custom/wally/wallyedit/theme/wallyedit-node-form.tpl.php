@@ -1,12 +1,17 @@
 <style>
 #column-main-left{
-width:60%
+width:60%;
+float:left;
 }
 
 #column-side-right{
-width:30%
-}
+width:30%;
+float:right;
 
+}
+#wallyedit_preview_container,profile_selector{
+clear:both;
+}
 
 #scroller-header a {
     text-decoration:none;
@@ -294,7 +299,7 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
-  
+  dsm($tabs);
 ?>
 $(document).ready(function() { 
  
@@ -332,13 +337,16 @@ $(document).ready(function() {
 
 <?php 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
+dsm($meta_tab_name);
 $no_tab_name="no_tab";
 ?>
 </script>
+<div id="profile_selector">
+<?php print drupal_render($form['choose_profile']); ?>
+	<?php print drupal_render($form['confirm_profile']); ?>
+</div>
 <div id="column-main-left">
   <div id="scroller-header">
-  <?php print drupal_render($form['choose_profile']); ?>
-	<?php print drupal_render($form['confirm_profile']); ?>
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
           <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet_content['label']?></a>
@@ -389,7 +397,7 @@ $no_tab_name="no_tab";
 <div id="column-side-right">
                   <?php  foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                      print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                      <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
                     <?php else:?>
                       <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
                     <?php endif;?>
