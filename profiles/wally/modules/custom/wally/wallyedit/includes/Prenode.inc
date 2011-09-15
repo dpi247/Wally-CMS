@@ -1,5 +1,4 @@
 <?php
-// $Id: view.inc,v 1.167.2.7 2010/03/22 20:55:11 merlinofchaos Exp $
 /**
  * @file prnode.inc
  * Provides the prenode object type and associated methods.
@@ -26,10 +25,11 @@ class Prenode{
    * Constructor
    */
   function Prenode($cache_name = NULL){
-    $this->profile_id=1;
+    $this->profile_id=wallyedit_get_default_profile();
     $this->cache_name = $cache_name;
     
-    if($cache_name && !empty($cache_name)) {
+    if($cache_name && !empty($cache_name) ) {
+      
       $node=node_load($cache_name);
       if(!$node) {
         //this not a node, maybe a prenode ?
@@ -43,12 +43,15 @@ class Prenode{
           drupal_set_message("WallyEdit: node not found","error");
           watchdog("error","WallyEdit: node not found");
         }
-      } else {
+      } 
+      else {
         //Case of a prenode in edition mode
         $this->setNode($node);
         $this->getFormState();
       }
     }
+        //dsm($this);
+    
     return $this;
   }
   
@@ -72,14 +75,14 @@ class Prenode{
   function getFormState($reset=false){
     if(isset($this->form_state) and $reset==false and false)
       return $this->form_state;
-    else
+    else{
       return $this->setFormState();
+    }
   }
   
   function setFormState($reset=false){
     ctools_include('object-cache');
     $type_name=$this->node->type;
-    
     $form_state = array('ajax' => TRUE);
     $form_state += array(
       're_render' => FALSE,
@@ -102,10 +105,10 @@ class Prenode{
 
       $fields = $type['fields'];
       module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
-      
       $flat_fields = wyditadmin_get_fields_flat($this->profile_id, $type_name);
         
       foreach($flat_fields as $field_name=>$infos){
+        echo $infos['display'];
         if($infos['display']>1){
           $form_state[$type_name][$field_name]=array();
           if($infos['display']==2){

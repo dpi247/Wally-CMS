@@ -1,4 +1,13 @@
 <style>
+#column-main-left{
+width:60%
+}
+
+#column-side-right{
+width:30%
+}
+
+
 #scroller-header a {
     text-decoration:none;
     color:#867863;
@@ -73,6 +82,18 @@ float:left;
  
 #onglet-3 {
 }
+
+
+
+body div.column-main {
+    float:left;
+    
+    
+}
+body div.column-side {
+    float:left;
+    
+    }
 </style>
 
 
@@ -267,10 +288,10 @@ return typeof val == 'object' ? val : { top:val, left:val };
 
 <?php
   module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
-  $tabs=wyditadmin_get_fields_tree(1, $form["type"]["#value"]);
-  $onglets_struct=$tabs;
-  dsm($tabs);
   
+  //TODO: Adapt to get used profile
+  $tabs=wyditadmin_get_fields_tree(wallyedit_get_default_profile(), $form["type"]["#value"]);
+  $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
   
@@ -314,7 +335,7 @@ $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
 ?>
 </script>
-<div class="column-main">
+<div id="column-main-left">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
@@ -328,17 +349,32 @@ $no_tab_name="no_tab";
           <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
               <div id="onglet-<?php print $onglet?>">
-                <?php  foreach($onglets_struct[$onglet]['elements'] as $element_name=>$element_content):?>
                 
-                <?php dsm($form[$form['type']['#value']]);?>
                 
-                  <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                    <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-                  <?php else:?>
-                  <?php dsm($form[$element_name],'misty');?>
-                  <?php dsm('r');?>
-                    <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                
+                  <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                     <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                    <?php else:?>
+                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                    <?php endif;?>
+         
+                  
+                <?php endforeach;?>
+              <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content):?>
+                <?php if($group_id!='no_group'):?>
+                
+                  <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                      <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                    <?php else:?>
+                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                    <?php endif;?>
+                  <?php endforeach;?>
+                  
+                  
                   <?php endif;?>
+                  
                 <?php endforeach;?>
            
               </div>
@@ -348,10 +384,30 @@ $no_tab_name="no_tab";
       </div>
   </div>
 </div>
-<div class="column-side">
-<?php if(count($onglets_struct[$meta_tab_name]['elements'])):?>
-  <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $element_name=>$element_content):?>
-    <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
-  <?php endforeach;?>   
-  <?php endif;?>      
+<div id="column-side-right">
+                  <?php  foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                      print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                    <?php else:?>
+                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                    <?php endif;?>
+         
+                  
+                <?php endforeach;?>
+              <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
+                <?php if($group_id!='no_group'):?>
+                  <?php  foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                      <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                    <?php else:?>
+                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                    <?php endif;?>
+                  <?php endforeach;?>
+                  
+                  
+                  <?php endif;?>
+                  
+                <?php endforeach;?>
+           
+  
 </div>
