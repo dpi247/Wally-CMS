@@ -77,7 +77,7 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
  * Implementation of hook_views_pre_execute()
  * Catch the view process before execution to handle MediaFed redirection.
  */
-function wallyflowpublish_views_pre_execute($view) {
+function wallyflowpublish_views_pre_execute(&$view) {
   if ($view->name == 'default_destination_view_feed' && $view->current_display == 'feed_1') {
     foreach ($view->args as $arg) {
       $name .= '/'.$arg;
