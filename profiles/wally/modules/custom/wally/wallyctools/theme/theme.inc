@@ -118,12 +118,13 @@ function theme_wallyctools_form_reorderdestinationview_form($form){
     drupal_set_message(t('No nodes to reorder.'));
     return;
   }
-  
+
   //loop through each "row" in the table array
   foreach($form['rows'] as $id => $row){
     //we are only interested in numeric keys
     if (intval($id)){ 
       $this_row = $row['data']['#value'];
+      $this_row[] = $row['type']['#value'][0];
 
       //Add the weight field to the row
       $this_row[] = drupal_render($form['rows'][$id]['weight']);
@@ -135,7 +136,7 @@ function theme_wallyctools_form_reorderdestinationview_form($form){
  
   //Make sure the header count matches the column count
   $header=array(
-   "title" ,'order'
+    t("Title"), t("Type") , t('Order')
   );
   drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,TRUE);     
   

@@ -126,14 +126,14 @@ function wallytoolbox_page_callback(){
   $api = $type;
   
   //DONNE LES INFOS DES PLUGINS FOURNIS PAR LES MODULES
-  //dsm(ctools_get_plugins($module, $type));
-  //dsm(ctools_get_plugins($module, $type, 'json'), 'specific_plugin_info');
+  dsm(ctools_get_plugins($module, $type));
+  dsm(ctools_get_plugins($module, $type, 'json'), 'specific_plugin_info');
   
   //DONNE LES INFO SUR LA DEFINITION DU TYPE DU PLUGIN -INFOS SUR FLOW ...-
-  //dsm(ctools_plugin_get_info($module, $type));
+  dsm(ctools_plugin_get_info($module, $type));
   
   //QUELS MODULES IMPLEMENTE CE PLUGIN AVEC QUELLE VERSION ?
-  //dsm(ctools_plugin_api_info($owner, $api, 0, 99), API_INFO);
+  dsm(ctools_plugin_api_info($owner, $api, 0, 99), API_INFO);
 
   return ctools_plugin_get_function();
 }
