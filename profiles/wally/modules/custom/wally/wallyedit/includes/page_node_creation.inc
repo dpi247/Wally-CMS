@@ -1,6 +1,6 @@
 <?php
 
-function wallyedit_page_node_creation($type, $js = FALSE){
+function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
   global $custom_theme;
   $custom_theme=variable_get('admin_theme','rubik');
 

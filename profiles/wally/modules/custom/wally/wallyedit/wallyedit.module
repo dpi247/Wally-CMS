@@ -206,9 +206,9 @@ function wallyedit_menu(){
   );
   
   // Edition interface callbacks
-  $items['node/%prenode/edit2/%ctools_js'] = array(
+  $items['node/%prenode/edit2/%ctools_js/%'] = array(
     'page callback'=>'wallyedit_page_node_edition',
-    'page arguments'=>array(1,3),
+    'page arguments'=>array(1, 3, 4),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/page_node_edition.inc',
@@ -222,9 +222,9 @@ function wallyedit_menu(){
     'file'=>'includes/page_admin.inc',
   );//!! For now users can only delete their own prenodes
   
-  $items['node/add2/%/%ctools_js'] = array(
+  $items['node/add2/%/%ctools_js/%'] = array(
     'page callback'=>'wallyedit_page_node_creation',
-    'page arguments'=>array(2),
+    'page arguments'=>array(2, 3, 4),
     'access callback' => 'node_access',
     'access arguments' => array('create', 2),
     'file'=>'includes/page_node_creation.inc',
@@ -291,23 +291,9 @@ function wallyedit_menu(){
  * Simulate redirection to edition interface instead of classical node form
  */
 function wallyedit_menu_alter(&$items) {
-  $default_profile = wallyedit_get_default_profile();
-  if ($default_profile == 0) {
-    return;
-  }
-
-  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$default_profile, array());
-  if (empty($interface_types)) {
-    return;
-  }
-
   foreach (node_get_types('types', NULL, TRUE) as $type) {
-    if (isset($interface_types[$type->type]) && $interface_types[$type->type] == 'wally') {
-      $type_url_str = str_replace('_', '-', $type->type);
-      $items['node/add/' . $type_url_str]['page callback'] = 'wallyedit_page_node_creation';
-      $items['node/add/' . $type_url_str]['file'] = 'includes/page_node_creation.inc';
-      $items['node/add/' . $type_url_str]['module'] = 'wallyedit';
-    }
+    $type_url_str = str_replace('_', '-', $type->type);
+    $items['node/add/' . $type_url_str]['page callback'] = 'wallyedit_page_add_selection';
   }
 
   $items['node/%node/edit']['page callback'] = 'wallyedit_page_edit_selection';
@@ -316,23 +302,66 @@ function wallyedit_menu_alter(&$items) {
 /**
  * Select classical edition interface or wallyedit's.
  */
-function wallyedit_page_edit_selection() {
+function wallyedit_page_add_selection() {
   $args = func_get_args();
-  $node = $args[0];
+  $type_url_str = $args[0];
+  $current_profile = (isset($args[1]) && is_numeric($args[1])) ? $args[1] : 0;
+  
+  foreach (node_get_types('types', NULL, TRUE) as $type) {
+    $temp_type_url_str = str_replace('_', '-', $type->type);
+    if ($temp_type_url_str == $type_url_str) {
+      $type_name = $type->type;
+      break;
+    }
+  }
   
   $goto = 'wally';
-  $default_profile = wallyedit_get_default_profile();
-  if ($default_profile == 0) {
+  if ($current_profile == 0) {
+    $default_profile = wallyedit_get_default_profile();
+    if ($default_profile == 0) {
+      $goto = 'drupal';
+    } else {
+      $current_profile = $default_profile;
+    }
+  }
+
+  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$current_profile, array());
+  if (empty($interface_types)) {
     $goto = 'drupal';
   }
 
-  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$default_profile, array());
+  if ($goto == 'wally' || (isset($interface_types[$type_name]) && $interface_types[$type_name] == 'wally')) {
+    return menu_execute_active_handler('node/add2/'.$type_name.'/1/'.$current_profile);
+  } else {
+    return call_user_func_array('node_add', $args);
+  }
+}
+
+/**
+ * Select classical edition interface or wallyedit's.
+ */
+function wallyedit_page_edit_selection() {
+  $args = func_get_args();
+  $node = $args[0];
+  $current_profile = (isset($args[1]) && is_numeric($args[1])) ? $args[1] : 0;
+  
+  $goto = 'wally';
+  if ($current_profile == 0) {
+    $default_profile = wallyedit_get_default_profile();
+    if ($default_profile == 0) {
+      $goto = 'drupal';
+    } else {
+      $current_profile = $default_profile;
+    }
+  }
+
+  $interface_types = variable_get('wallyedit_content_types_interface_type_'.$current_profile, array());
   if (empty($interface_types)) {
     $goto = 'drupal';
   }
 
   if ($goto == 'wally' || (isset($interface_types[$node->type]) && $interface_types[$node->type] == 'wally')) {
-    return menu_execute_active_handler('node/'.$node->nid.'/edit2/1');
+    return menu_execute_active_handler('node/'.$node->nid.'/edit2/1/'.$current_profile);
   } else {
     return call_user_func_array('node_page_edit', $args);
   }
@@ -590,7 +619,7 @@ function wallyedit_get_available_profiles() {
 
 function wallyedit_form_page_createmode_form(&$form_state){
   $form = wydit_subform_global_page_form($form_state);
-  $form['#action'] = '/node/add2/'.arg(2).'/ajax/'.$form_state['cache name'];
+  $form['#action'] = '/node/add/'.arg(2).'/ajax/'.$form_state['cache name'];
   return $form;
 }
 
@@ -746,7 +775,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
-  $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/1';
+  $form['#action'] = '/node/'.$form_state['cache name'].'/edit/1';
   
   return $form;
 }
@@ -2108,7 +2137,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
 function wydit_get_url_action($action, $nid){
   switch ($action){
     case 'edit':
-      return 'node/'.$nid.'/edit2/1';
+      return 'node/'.$nid.'/edit/1';
       break;
     case 'delete':
       return 'node/'.$nid.'/delete2';
