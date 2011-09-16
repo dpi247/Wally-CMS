@@ -24,6 +24,7 @@ class wallyctools_ui extends ctools_export_ui {
       '#options'=> wallyctools_get_redac_view_options(),
       '#title' => t('view associated with the block'),
       '#required'=>true,
+      '#default_value' => $form_state['item']->view_name.'+'.$form_state['item']->view_id,
     );
 
     $form['substitute'] = array(
