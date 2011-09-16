@@ -904,12 +904,17 @@ function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FAL
  * Return an array of all existing aliases for an internal url.
  */
 function wallytoolbox_get_all_aliases($internal_url) {
-  $db_aliases = db_query("SELECT `dst` FROM `url_alias` WHERE `src` = '%s'", $internal_url);
+  $db_aliases = db_query('SELECT dst FROM {url_alias} WHERE src = "%s" ORDER BY pid DESC', $internal_url);
   $return_aliases = array();
-  
-  while ($db_alias = db_fetch_array($db_aliases))
+
+  while ($db_alias = db_fetch_array($db_aliases)) {
     $return_aliases[] = $db_alias['dst'];
-  
+  }
+
+  if(count($return_aliases) == 0){
+    $return_aliases[] = $internal_url;
+  }
+
   return $return_aliases;
 }
 
@@ -1167,25 +1172,6 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
     }
   }
   return $return;
-}
-
-/**
- * 
- * Given a Drupal node path, return all its aliases
- * @param $path
- * 
- * @return an array of all aliases
- */
-function wallytoolbox_get_path_aliases($path){
-  $alias = array();
-  $res = db_query("SELECT dst FROM {url_alias} WHERE src = \"".$path."\" ORDER BY pid DESC");
-    while ($row = db_fetch_array($res)) {
-      $alias[] = $row['dst'];
-    }
-  if(count($alias) == 0){
-    $alias[] = $path;
-  }
-  return $alias;
 }
 
 /**
