@@ -419,7 +419,7 @@ function _pub_callalltags() {
     $dom = new DomDocument();
     $dom->LoadXML($xml_list->data);
     
-    $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
+    $pub_list = db_query('SELECT * FROM {zz_pub_UMI}');
     $pub_array = array();
     while ($pub_elem = db_fetch_array($pub_list)) {
       $pub_array[] = $pub_elem;
