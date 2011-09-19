@@ -951,7 +951,7 @@ function wyditadmin_get_existing_fields($type_name) {
     $existing_fields[$type_name]['log'] = array(
       'type' => $form['revision_information']['log']['#type'],
       'widget' => $form['revision_information']['log']['#type'],
-      'name' => 'revision',
+      'name' => 'log',
       'label' => $form['revision_information']['log']['#title'],
     );
     $existing_fields[$type_name]['name'] = array(
