@@ -48,7 +48,7 @@ function wallyedit_schema(){
         'length' => '255',
         'description' => 'Human readable name.',
       ),
-      'default' => array(
+      'default_profile' => array(
         'type' => 'int',
         'not null' => TRUE,
         'description' => 'Boolean, default profile.',
