@@ -24,12 +24,11 @@ class Prenode{
   /**
    * Constructor
    */
-  function Prenode($cache_name = NULL){
-    $this->profile_id=wallyedit_get_default_profile();
+  function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = 0){
+    $this->profile_id = $profile_id;
     $this->cache_name = $cache_name;
     
-    if($cache_name && !empty($cache_name) ) {
-      
+    if($cache_name && !empty($cache_name)) {
       $node=node_load($cache_name);
       if(!$node) {
         //this not a node, maybe a prenode ?
@@ -50,7 +49,6 @@ class Prenode{
         $this->getFormState();
       }
     }
-        //dsm($this);
     
     return $this;
   }
@@ -91,6 +89,7 @@ class Prenode{
     
     $form_state = array(
       'cache name' => wydit_get_cache_name($this->cache_name),
+      'profile_id' => $this->profile_id,
     );
     
     if($cache = ctools_object_cache_get('prenode', $form_state['cache name']) and false){
@@ -106,19 +105,18 @@ class Prenode{
       $fields = $type['fields'];
       module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
       $flat_fields = wyditadmin_get_fields_flat($this->profile_id, $type_name);
-        
-      foreach($flat_fields as $field_name=>$infos){
-        echo $infos['display'];
+      $existing_fields = wyditadmin_get_existing_fields($type_name);
+
+      foreach($flat_fields as $field_name => $infos){
+        $orig_field_infos = $existing_fields[$field_name];
         if($infos['display']>1){
           $form_state[$type_name][$field_name]=array();
           if($infos['display']==2){
-            
-            $type=wydit_get_inline_type($infos['referenceable_types']);
+            $type=wydit_get_inline_type($orig_field_infos['referenceable_types']);
             $main_node=new stdClass;
             $main_node->type=$type;
             $form_state[$type_name][$field_name][0]['#node']=$main_node;
             $form_state[$type_name][$field_name][0]['type']=$main_node->type;
-
           }
 
           if ($this->node->{$field_name}) {
