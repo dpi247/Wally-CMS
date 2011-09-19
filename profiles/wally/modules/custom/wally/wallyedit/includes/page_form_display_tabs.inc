@@ -508,7 +508,7 @@ function wallyedit_form_add_new_profile_form(&$form_state) {
 
   $form['default'] = array(
     '#type' => 'hidden',
-    '#value' => 0,
+    '#value' => '0',
   );
 
   return $form;
