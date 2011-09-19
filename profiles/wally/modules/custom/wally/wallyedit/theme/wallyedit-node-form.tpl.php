@@ -427,5 +427,4 @@ $no_tab_name="no_tab";
            
   
 </div>
-
-<?php drupal_render($form);?>
+<?php print drupal_render($form);?>
