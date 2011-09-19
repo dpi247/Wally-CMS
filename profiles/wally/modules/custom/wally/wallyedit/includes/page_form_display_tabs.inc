@@ -681,8 +681,8 @@ function wallyedit_form_delete_group_form_submit(&$form, &$form_state) {
  * Set the default profile for all users if no others is chosen
  */
 function wallyedit_page_set_default_profile ($profile_id) {
-  db_query('UPDATE {wallyedit_profiles} SET `default` = 0');
-  db_query('UPDATE {wallyedit_profiles} SET `default` = 1 WHERE pid = %d', $profile_id);
+  db_query('UPDATE {wallyedit_profiles} SET `default_profile` = 0');
+  db_query('UPDATE {wallyedit_profiles} SET `default_profile` = 1 WHERE pid = %d', $profile_id);
   $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
   drupal_goto($redirect);
 }
