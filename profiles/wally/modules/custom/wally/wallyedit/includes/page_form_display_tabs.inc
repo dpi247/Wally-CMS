@@ -339,7 +339,7 @@ function wallyedit_form_tabs_overview_form_submit ($form, &$form_state) {
     drupal_set_message(t('Tab "@tab" saved!', array('@tab' => $new_tab['label'])));
   } elseif ($values['op'] == $values['save_order']) {
     foreach ($values['rows'] as $tab_id => $tab_values) {
-      db_query('UPDATE {wallyedit_tabs_config} SET weight = %d WHERE tid = %d', $tab_values['weight'], $tab_id);
+      db_query('UPDATE {wallyedit_tabs} SET weight = %d WHERE tid = %d', $tab_values['weight'], $tab_id);
     }
     drupal_set_message(t('Tab order saved!'));
   }
