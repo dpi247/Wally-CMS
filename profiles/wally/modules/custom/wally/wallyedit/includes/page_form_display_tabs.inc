@@ -134,6 +134,7 @@ function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content
   );
 
   $groups = wyditadmin_get_groups($type_name);
+  unset($groups[0]);
   $max_weight = 0;
   foreach ($groups as $group) {
     if (abs($group['weight']) > $max_weight) {
@@ -173,7 +174,7 @@ function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content
       '#weight' => 0,
     );
   }
-
+dsm($form);
   $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Add a new group'),
@@ -251,6 +252,7 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
     );
 
     $tabs = wyditadmin_get_tabs($profile_id, $type_name);
+    unset($tabs[0]);
     $max_weight = 0;
     foreach ($tabs as $tab) {
       if (abs($tab['weight']) > $max_weight) {
@@ -279,7 +281,7 @@ function wallyedit_form_tabs_overview_form (&$form_state, $profile_id, $content_
         '#default_value' => $j,
         //add a specific class in here - we need this later
         '#attributes' => array('class' => 'weight'),
-        '#delta' => $count_tabs,
+        '#delta' => $max_weight,
       );
     }
 
