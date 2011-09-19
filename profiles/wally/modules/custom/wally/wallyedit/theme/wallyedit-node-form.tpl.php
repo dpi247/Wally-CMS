@@ -9,10 +9,13 @@ width:30%;
 float:right;
 
 }
-#wallyedit_preview_container,profile_selector{
+#wallyedit_preview_container{
 clear:both;
 }
-
+#profile_selector{
+clear:both;
+margin-bottom:30px;
+}
 #scroller-header a {
     text-decoration:none;
     color:#867863;
@@ -99,6 +102,9 @@ body div.column-side {
     float:left;
     
     }
+    
+    
+    
 </style>
 
 
@@ -299,7 +305,7 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
-  dsm($tabs);
+//  dsm($form);
 ?>
 $(document).ready(function() { 
  
@@ -343,7 +349,7 @@ $no_tab_name="no_tab";
 </script>
 <div id="profile_selector">
 <?php print drupal_render($form['choose_profile']); ?>
-	<?php print drupal_render($form['confirm_profile']); ?>
+<?php print drupal_render($form['confirm_profile']); ?>
 </div>
 <div id="column-main-left">
   <div id="scroller-header">
@@ -421,3 +427,5 @@ $no_tab_name="no_tab";
            
   
 </div>
+
+<?php drupal_render($form);?>
