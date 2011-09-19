@@ -506,6 +506,11 @@ function wallyedit_form_add_new_profile_form(&$form_state) {
     '#value' => t('Add'),
   );
 
+  $form['default'] = array(
+    '#type' => 'hidden',
+    '#value' => 0,
+  );
+
   return $form;
 }
 
