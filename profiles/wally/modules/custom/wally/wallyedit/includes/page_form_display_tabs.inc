@@ -17,7 +17,7 @@ function wallyedit_page_profiles_overview () {
     $operations .= ' · <a href="/admin/content/wallydisplaytabs/setdefaultprofile/'.$profile['pid'].'?destination='.$_GET['q'].'">'.t('Use as default').'</a>';
     $row = array(
       check_plain($profile['label']),
-      (isset($profile['default']) && $profile['default'] == 1) ? t('Yes') : t('No'),
+      (isset($profile['default_profile']) && $profile['default_profile'] == 1) ? t('Yes') : t('No'),
       array('data' => $operations),
     );
 
@@ -506,7 +506,7 @@ function wallyedit_form_add_new_profile_form(&$form_state) {
     '#value' => t('Add'),
   );
 
-  $form['default'] = array(
+  $form['default_profile'] = array(
     '#type' => 'hidden',
     '#value' => '0',
   );
