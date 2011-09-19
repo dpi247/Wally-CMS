@@ -625,7 +625,7 @@ function wallyedit_form_page_createmode_form(&$form_state) {
 
 function wallyedit_form_page_createmode_form_validate(&$form, &$form_state){
   if(form_get_errors()){
-    _wallyedit_form_page_ctools_validtion();
+    //_wallyedit_form_page_ctools_validtion();
   }
 }
 
@@ -633,15 +633,19 @@ function wallyedit_form_page_createmode_form_validate(&$form, &$form_state){
  * Add submit function during after build process to be sure to pass after cck
  */
 function wallyedit_form_change_profile_form_after_build ($form, &$form_state) {
-  array_unshift($form['#submit'], 'wallyedit_form_change_profile_form_submit');
+  array_unshift($form['#validate'], 'wallyedit_form_change_profile_form_validate');
   return $form;
 }
 
 /**
  * Redirect to chosen profile
  */
-function wallyedit_form_change_profile_form_submit ($form, &$form_state) {
-  dsm($form_state, 'form state change profile');
+function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['confirm_profile']) {
+    drupal_get_messages();
+    drupal_goto('node/add2/'.str_replace('_', '-', $values['type']).'/1/'.$values['choose_profile']);
+  }
 }
 
 function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
