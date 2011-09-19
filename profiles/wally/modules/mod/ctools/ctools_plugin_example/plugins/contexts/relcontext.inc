@@ -38,7 +38,6 @@ $plugin = array(
 function ctools_plugin_example_context_create_relcontext($empty, $data = NULL, $conf = FALSE) {
   $context = new ctools_context('relcontext');
   $context->plugin = 'relcontext';
-
   if ($empty) {
     return $context;
   }
