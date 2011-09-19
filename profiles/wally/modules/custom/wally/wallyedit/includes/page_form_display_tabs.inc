@@ -472,11 +472,20 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   );
 
   foreach ($fields as $field_name => $field_value) {
+    if (isset($field_value['wallyedit'])) {
+      $display_value = $field_value['wallyedit'];
+    } else {
+      if ($field_value['tab'] == 0) {
+        $display_value = 0;
+      } else {
+        $display_value = 1;
+      }
+    }
     $field_to_save = $base_config + array(
       'tid' => $field_value['tab'],
       'gid' => $field_value['group'],
       'weight' => $field_value['weight'],
-      'display' => isset($field_value['wallyedit']) ? $field_value['wallyedit'] : 0,
+      'display' => $display_value,
     );
     $field_to_save = array_merge($field_to_save, $existing_fields[$field_name]);
     if (isset($field_value['fid'])) {
