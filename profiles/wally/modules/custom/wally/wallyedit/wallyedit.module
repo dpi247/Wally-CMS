@@ -512,7 +512,7 @@ function wallyedit_user($type, &$array, &$user, $category) {
       $default_profile = 0;
       foreach ($profiles as $profile) {
         $options_profiles[$profile['pid']] = $profile['label'];
-        if ($profile['default']) {
+        if ($profile['default_profile']) {
           $default_profile = $profile['pid'];
         }
       }
@@ -584,7 +584,7 @@ function wallyedit_get_default_profile() {
     } else {
       $available_profiles = wallyedit_get_available_profiles();
       foreach ($available_profiles as $available_profile) {
-        if ($available_profile['default'] == 1) {
+        if ($available_profile['default_profile'] == 1) {
           $default_profile[$user->uid] = $available_profile['pid'];
           break;
         }
