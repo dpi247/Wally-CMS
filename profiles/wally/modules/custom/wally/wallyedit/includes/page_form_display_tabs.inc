@@ -523,7 +523,7 @@ function wallyedit_form_add_new_profile_form_validate ($form, &$form_state) {
 
 function wallyedit_form_add_new_profile_form_submit(&$form, &$form_state) {
   $values = $form_state['values'];
-
+dsm($values);
   drupal_write_record('wallyedit_profiles', $values);
   drupal_set_message(t('Profile "@profile" saved!', array('@profile' => $values['label'])));
 
