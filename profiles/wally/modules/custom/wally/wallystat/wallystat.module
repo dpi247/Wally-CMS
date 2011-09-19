@@ -226,9 +226,15 @@ function wallystat_cron(){
 	}
 }*/
 
-function wallystat_preprocess(&$vars, $hook){
-  if ($hook == 'node')
-    _wallystat_add_updater_callback($vars);
+function wallystat_init(){
+    if (arg(0) == 'node'){
+      if(arg(1)!=''){
+        if(arg(2)==NULL){
+      	  $vars['node']=node_load(arg(1));
+     	  _wallystat_add_updater_callback($vars);
+	    }
+	  }
+    }
 }
 
 /**
