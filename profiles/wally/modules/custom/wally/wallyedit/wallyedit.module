@@ -1151,30 +1151,24 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
   unset($form['#disabled']);
 }
 
-
 function wally_edit_clean_after_build($form){
   foreach($form[$form['type']['#value']] as $element_key=>$element_content){
     if(is_array($form[$form['type']['#value']][$element_key])){
-    if($form[$form['type']['#value']][$element_key]["#type"]=='fieldset'){
-     //  $form[$form['type']['#value']][$element_key]['#theme']='wallyedit_fieldset';
-      //    dsm($form[$form['type']['#value']][$element_key]);
-      
-      $has_type_other_than_value=false;
-      foreach(element_children($form[$form['type']['#value']][$element_key]) as $subelement_key=>$subelement_content){
-       if($subelement_content["#type"]!='value'){
-         $has_type_other_than_value=TRUE;
-       
-       }
+      if($form[$form['type']['#value']][$element_key]["#type"]=='fieldset'){
+        $has_type_other_than_value=false;
+        foreach(element_children($form[$form['type']['#value']][$element_key]) as $subelement_key=>$subelement_content){
+          if($subelement_content["#type"]!='value'){
+            $has_type_other_than_value=TRUE;
+          }
+        }
+        if(!$has_type_other_than_value){
+          //unset($form[$form['type']['#value']][$element_key]["#type"]);
+        }
       }
-      if(!$has_type_other_than_value){
-       // unset($form[$form['type']['#value']][$element_key]["#type"]);
-      }
-  }
     }
+  }
+  return $form;
 }
-return $form;
-}
-
 
 function _wallyedit_form_page_ctools_validation() {
   ctools_include('form');
