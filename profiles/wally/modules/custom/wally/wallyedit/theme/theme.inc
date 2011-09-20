@@ -1,6 +1,21 @@
 <?php
 
+function theme_wallyedit_fieldset($variables) {
+  $element = $variables['element'];
+  
+  $output .= $element['#children'];
+  if (isset($element['#value'])) {
+    $output .= $element['#value'];
+  }
+  
+  return $output;
+}
 
+function theme_wallyedit_inline_form($form) {
+  dsm('fffffoooooo');
+  $output='rrrrrr'.drupal_render($form);
+  return $output;
+}
 function theme_wallyedit_admin($rows=array(),$headers){
   drupal_set_title("Wallyedit Admin");
 
