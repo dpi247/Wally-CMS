@@ -367,19 +367,22 @@ $no_tab_name="no_tab";
               <div id="onglet-<?php print $onglet?>">
                 
                 
-                
-                  <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                     <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-                    <?php else:?>
-                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
-                    <?php endif;?>
-         
+                  <div class="group">
+                  <h2><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></h2>
+                    <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
+                      <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
+                       <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                      <?php else:?>
+                        <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                      <?php endif;?>
                   
                 <?php endforeach;?>
+             </div>
               <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content):?>
                 <?php if($group_id!='no_group'):?>
-                
+                <div class="group">
+                  <h2><?php dsm($onglets_struct[$onglet]['elements'][$group_id],'rrr');print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
+                  
                   <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
                       <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
@@ -387,7 +390,7 @@ $no_tab_name="no_tab";
                       <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
                     <?php endif;?>
                   <?php endforeach;?>
-                  
+                  </div>
                   
                   <?php endif;?>
                   
@@ -401,6 +404,9 @@ $no_tab_name="no_tab";
   </div>
 </div>
 <div id="column-side-right">
+<div class="group">
+                  <h2><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></h2>
+                  
                   <?php  foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
                       <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
@@ -410,9 +416,13 @@ $no_tab_name="no_tab";
          
                   
                 <?php endforeach;?>
+                </div>
               <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
                 <?php if($group_id!='no_group'):?>
-                  <?php  foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
+                 
+                 <div class="group">
+                  <h2><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
+                   <?php  foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
                       <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
                     <?php else:?>
@@ -420,7 +430,7 @@ $no_tab_name="no_tab";
                     <?php endif;?>
                   <?php endforeach;?>
                   
-                  
+                  </div>
                   <?php endif;?>
                   
                 <?php endforeach;?>
