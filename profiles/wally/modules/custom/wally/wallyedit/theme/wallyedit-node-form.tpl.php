@@ -305,7 +305,6 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
-  dsm($form);
 ?>
 $(document).ready(function() { 
  
@@ -343,7 +342,6 @@ $(document).ready(function() {
 
 <?php 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
-dsm($meta_tab_name);
 $no_tab_name="no_tab";
 ?>
 </script>
@@ -381,7 +379,7 @@ $no_tab_name="no_tab";
               <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content):?>
                 <?php if($group_id!='no_group'):?>
                 <div class="group">
-                  <h2><?php dsm($onglets_struct[$onglet]['elements'][$group_id],'rrr');print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
+                  <h2><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
                   
                   <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
@@ -437,4 +435,7 @@ $no_tab_name="no_tab";
            
   
 </div>
+
+<div style="display:none">
 <?php print drupal_render($form);?>
+</div>
