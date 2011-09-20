@@ -1118,8 +1118,8 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       $form[$element]['#parents'] = $parents_new;
 
       if($fields[$element]['multiple'] == 1){
-        $form[$element][$fields[$element]['field_name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
-        $form[$element][$fields[$element]['field_name'].'_add_more']['#ahah']['path']=str_replace('//','/','wallyedit/js_add_more/'.$type.'/'.$element.'/'.$global_path.'/'.$element);
+        $form[$element][$fields[$element]['name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
+        $form[$element][$fields[$element]['name'].'_add_more']['#ahah']['path']=str_replace('//','/','wallyedit/js_add_more/'.$type.'/'.$element.'/'.$global_path.'/'.$element);
       }
       //@todo: DDU what happen if the element is required ?
     }
@@ -1142,7 +1142,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
 
 function wally_edit_clean_after_build($form){
   foreach($form[$form['type']['#value']] as $element_key=>$element_content){
-    //dsm($form[$form['type']['#value']][$element_key]);
     if(is_array($form[$form['type']['#value']][$element_key])){
     if($form[$form['type']['#value']][$element_key]["#type"]=='fieldset'){
       $has_type_other_than_value=false;

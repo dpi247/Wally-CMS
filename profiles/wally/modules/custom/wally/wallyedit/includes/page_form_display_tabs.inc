@@ -174,7 +174,7 @@ function wallyedit_form_groups_overview_form(&$form_state, $profile_id, $content
       '#weight' => 0,
     );
   }
-dsm($form);
+
   $form['label'] = array(
     '#type' => 'textfield',
     '#title' => t('Add a new group'),
