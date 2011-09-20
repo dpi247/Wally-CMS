@@ -22,7 +22,7 @@ $no_tab_name="no_tab";
         <div class="accordion-group">
           <h2 class="accordion_group_title"><?php print $tabs[$onglet]['elements']['no_group']["label"]?></h2>
           <?php  foreach($tabs[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
-            <?php dsm($form[0][$cck_fields[$element_name]]);  ?>
+            <?php // dsm($form[0][$cck_fields[$element_name]]);  ?>
             <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
               <?php  print drupal_render($form[0][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
             <?php else:?>
