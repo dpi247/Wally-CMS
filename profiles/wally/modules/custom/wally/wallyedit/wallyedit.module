@@ -1076,7 +1076,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
   $fields = wyditadmin_get_existing_fields($type);
   $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type);
   
-  
   foreach(element_children($form) as $element) {
     $parents_new = $parents;
     $parents_new[] = $element;
@@ -1118,7 +1117,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
 
-      if($flat_fields[$element]['multiple'] == 1){
+      if($fields[$element]['multiple'] == 1){
         $form[$element][$fields[$element]['field_name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
         $form[$element][$fields[$element]['field_name'].'_add_more']['#ahah']['path']=str_replace('//','/','wallyedit/js_add_more/'.$type.'/'.$element.'/'.$global_path.'/'.$element);
       }
