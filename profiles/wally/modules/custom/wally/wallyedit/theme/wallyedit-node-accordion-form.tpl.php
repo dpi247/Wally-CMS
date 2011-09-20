@@ -17,7 +17,7 @@ $no_tab_name="no_tab";
 <div id="accordion_container">
   <?php  foreach($tabs as $onglet=>$onglet_content):?>
     <div id="accordion-tab-<?php print $onglet?>" class="accordion-tab">
-      <h2 class="accordion-tab-title"> Tab title</h2>
+      <h2 class="accordion-tab-title"> Accordion Tab title</h2>
       <?php  foreach($tabs[$onglet]['elements'] as $group_id=>$group_content):?>
         <div class="accordion-group">
           <h2 class="accordion_group_title"><?php print $tabs[$onglet]['elements']['no_group']["label"]?></h2>
