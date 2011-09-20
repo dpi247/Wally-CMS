@@ -305,7 +305,7 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
-//  dsm($form);
+  dsm($form);
 ?>
 $(document).ready(function() { 
  
