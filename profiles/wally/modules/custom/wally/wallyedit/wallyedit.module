@@ -637,7 +637,7 @@ function wallyedit_form_page_createmode_form(&$form_state) {
 
 function wallyedit_form_page_createmode_form_validate(&$form, &$form_state){
   if(form_get_errors()){
-    _wallyedit_form_page_ctools_validtion();
+    _wallyedit_form_page_ctools_validation();
   }
 }
 
@@ -668,7 +668,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   ctools_modal_add_js();
   ctools_include('object-cache');
   $commands = array();
-
+dsm($form_state);
   if($form_state["clicked_button"]['#name'] == 'reset_global'){
     drupal_set_message('reset');
     ctools_object_cache_clear('prenode', $form_state['cache name']);
@@ -1137,9 +1137,9 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 2) {
       $parents_new[]='0';
       $form[$element]['#parents']=array($element);
+      $form_state[$type][$element][0]['profile_id'] = $form_state['profile_id'];
       wydit_prepare_inline_form_element($form[$element], $form_state[$type][$element][0], $element, $fields, $parents_new, $global_path.'/'.$element.'/0'  );
       $form[$element]['#theme']='wallyedit_inline_form';
-      
     }
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 3) {
       wydit_prepare_selectbox_form_element($form[$element], $form_state[$type][$element], $element, $fields, $parents_new);
@@ -1550,6 +1550,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $type_name=$form_state['type'];
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type_name);
+  $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
 
   $node=$form_state["#node"];
 
@@ -1581,10 +1582,11 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
 
     //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOUL BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
     //EDIT2: WTF ???
-    if(isset($fields[$element_name]) and $fields[$element_name]['display'] == 1){
+    if(isset($fields[$element_name]) and $flat_fields[$element_name]['display'] == 1){
       $form[$element_name]["#parents"] = $parents;
     }
   }
+
   wydit_prepare_primary_package_form($form, $form_state, $type_name, $parents, NULL, $global_path);
 
   wydit_remove_form_infos($form);
