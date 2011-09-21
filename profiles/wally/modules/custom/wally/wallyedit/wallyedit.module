@@ -212,7 +212,7 @@ function wallyedit_menu(){
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/page_node_edition.inc',
-    'load arguments' => array(3, 4),
+    'load arguments' => array(4),
   );
   
   $items['node/%prenode/delete2'] = array(
@@ -361,7 +361,7 @@ function wallyedit_page_edit_selection() {
     $goto = 'drupal';
   }
 
-  if ($goto == 'wally' || (isset($interface_types[$node->type]) && $interface_types[$node->type] == 'wally')) {
+  if ($goto == 'wally' && isset($interface_types[$node->type]) && $interface_types[$node->type] == 'wally') {
     return menu_execute_active_handler('node/'.$node->nid.'/edit2/1/'.$current_profile);
   } else {
     return call_user_func_array('node_page_edit', $args);
