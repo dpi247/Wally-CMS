@@ -16,7 +16,7 @@ function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
   ctools_modal_add_js();
   
   $node->type = str_replace('-','_',$type);
-  $prenode = new Prenode(arg(4), FALSE, $current_profile);
+  $prenode = new Prenode(NULL, FALSE, $current_profile);
   $prenode->setNode($node);
 
   //Cuz we set the node after the build we need to rebuild the form_state

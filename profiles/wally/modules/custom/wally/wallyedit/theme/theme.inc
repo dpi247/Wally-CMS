@@ -344,13 +344,13 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
   drupal_add_js(array('contentWidgetTypes' => content_widget_type_options(), 'contentFields' => $js_fields), 'setting');
   drupal_add_js(drupal_get_path('module', 'content') .'/content.js');
 }
+
 function wallyedit_preprocess_wallyedit_node_form(&$vars){
   //TODO: Adapt to get used profile
   $vars['profile_id']=wallyedit_get_default_profile();
-  dsm(wallyedit_get_default_profile());
   $vars['node_type']=$vars['form']['type']['#value'];
-
 }
+
 function wallyedit_preprocess_wallyedit_form_display_tabs_form(&$vars){
   $form = &$vars['form'];
 
