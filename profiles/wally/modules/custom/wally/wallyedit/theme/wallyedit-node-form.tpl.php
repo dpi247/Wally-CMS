@@ -377,6 +377,7 @@ $(document).ready(function() {
 <?php 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
+dsm($form, 'form');
 ?>
 </script>
 <div id="profile_selector">

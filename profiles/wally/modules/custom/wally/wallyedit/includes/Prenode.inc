@@ -47,7 +47,7 @@ class Prenode{
           drupal_set_message("WallyEdit: node not found","error");
           watchdog("error","WallyEdit: node not found");
         }
-      } 
+      }
       else {
         //Case of a prenode in edition mode
         $this->setNode($node);
@@ -76,7 +76,7 @@ class Prenode{
   }
   
   function getFormState($reset=false){
-    if(isset($this->form_state) and $reset==false )
+    if(isset($this->form_state) and $reset==false)
       return $this->form_state;
     else{
       return $this->setFormState();
