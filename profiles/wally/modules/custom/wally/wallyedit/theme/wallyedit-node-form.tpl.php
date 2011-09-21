@@ -436,6 +436,12 @@ $no_tab_name="no_tab";
   
 </div>
 
+<div id="buttons">
+  <?php print drupal_render($form['save_global']);?>
+  <?php print drupal_render($form['reset_global']);?>
+  <?php print drupal_render($form['publish_global']);?>
+</div>
+
 <div style="display:none">
 <?php print drupal_render($form);?>
 </div>
