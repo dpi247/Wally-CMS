@@ -24,8 +24,13 @@ class Prenode{
   /**
    * Constructor
    */
-  function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = 0){
-    $this->profile_id = $profile_id;
+  function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = NULL){
+    if($profile_id==NULL){
+      $profile_id= 0;
+    }
+    else{
+      $this->profile_id = $profile_id;
+    }
     $this->cache_name = $cache_name;
     
     if($cache_name && !empty($cache_name)) {
@@ -71,7 +76,7 @@ class Prenode{
   }
   
   function getFormState($reset=false){
-    if(isset($this->form_state) and $reset==false and false)
+    if(isset($this->form_state) and $reset==false )
       return $this->form_state;
     else{
       return $this->setFormState();
@@ -92,7 +97,7 @@ class Prenode{
       'profile_id' => $this->profile_id,
     );
     
-    if($cache = ctools_object_cache_get('prenode', $form_state['cache name']) and false){
+    if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
