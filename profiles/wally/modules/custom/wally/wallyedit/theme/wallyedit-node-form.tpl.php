@@ -1,32 +1,36 @@
 <style>
-#column-main-left{
-width:60%;
-float:left;
+<!--
+body {
+	overflow-y: scroll;
 }
-
+#column-main-left {
+	width: 65%;
+	float: left;
+	padding-right: 10px;
+	overflow: hidden;
+}
 #column-side-right{
-width:30%;
-float:right;
-
+	width: 33%;
+	float: left;
 }
-#wallyedit_preview_container{
-clear:both;
+#wallyedit_preview_container {
+	clear:both;
 }
 #profile_selector{
-clear:both;
-margin-bottom:30px;
+	clear:both;
+	margin-bottom:30px;
 }
+.margin {margin-bottom: 10px;}
 #scroller-header a {
     text-decoration:none;
     color:#867863;
     padding:0 2px;
 }
- 
 #scroller-header a:hover {
     text-decoration:none;
     color:#4b412f
 }
- 
+
 a.selected {
     text-decoration:underline !important;
     color:#4b412f !important;
@@ -40,71 +44,90 @@ a.selected {
     font-weight:700;
 }
 #scroller-header{
-  height:36px;
-  padding:0px;
-  line-height:20px;
+	height:36px;
+	padding:0px;
+	line-height:20px;
+	padding: 0 0 10px 0
 }
-#scroller-header a{
-    background: url("../images/bleeds.png") repeat-x scroll 0 -41px #F4F4F4;
-    border-bottom: 0 none #FFFFFF;
-    border-color: #FFFFFF;
-    border-radius: 3px 3px 0 0;
-    color: #333333;
-    padding: 4px 14px 11px;
+#scroller-header a {
+    background: -moz-linear-gradient(center top , #FFFFFF, #EEEEEE) repeat scroll 0 0 transparent;
+    border: 1px solid #CCCCCC;
+    border-radius: 15px 15px 15px 15px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+    color: #666;
+    display: block;
+    float: left;
+    padding: 4px 15px 6px;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px 0 white;
+	margin: 0 10px 0 0;
 }
- 
+#scroller-header .selected {
+    background: -moz-linear-gradient(center top , #FFC039, #FF920D) repeat scroll 0 0 transparent;
+    border: 1px solid #FF920D;
+    color: white !important;
+    text-shadow: 0 -1px 0 #DE6E00;
+	text-decoration: none !important;
+}
 #scroller-body {
-    background:url(images/body.gif) no-repeat bottom center;
-   /* width:277px; */
-    padding-bottom:30px;
- 
+	background: white;
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
 }
- 
 #mask {
-   /* width:250px; */
-    overflow:hidden;
-    margin:0 auto;
+	width: 100%;
+	overflow:hidden;
+	margin:0 auto;
 }
- 
 #onglet {
- 
+	float: left;
+	width: 100000px;
 }
- 
 #onglet div {
-float:left;
- 
+	float: none;
+	overflow: hidden;
+	clear: both;
 }
-
-#onglet input.fluid {
-    -moz-box-sizing: border-box;
-    width: 95%;
-}
-
- 
-/* extra optional styling for each tab content */
-#onglet-1 {
-}
- 
-#onglet-2 {
-}
- 
-#onglet-3 {
-}
-
-
-
+#onglet .content-tabs { 
+	float: left;
+	clear: none;
+} 
+#onglet td div {clear: none;}
 body div.column-main {
-    float:left;
-    
-    
+    float:left;  
 }
 body div.column-side {
     float:left;
-    
-    }
-    
-    
-    
+}
+.resizable-textarea {
+    width: 100%;
+}
+html.js .resizable-textarea textarea {
+    display: block;
+    margin-bottom: 0;
+    width: 99%;
+}
+.accordion-tab {margin-bottom: 10px;}
+.accordion-tab-title {
+	padding: 2px 10px 2px 20px;
+	background: #f3f3f3;
+	cursor: pointer;
+}
+.accordion-tab-title:hover {
+	background: #ECF8F4;
+	color: black;
+}
+.group .title span {
+	display: block;
+	float: left;
+	background: #f3f3f3;
+	padding: 10px;
+}
+.group .title {clear: both; float: left; width: 100%; border-bottom: 1px solid #ccc;}
+
+-->
 </style>
 
 
@@ -313,12 +336,23 @@ $(document).ready(function() {
      
     //Calculate the total width - sum of all sub-onglets width
     //Width is generated according to the width of #mask * total of sub-onglets
-    $('#onglet').width(parseInt($('#mask').width() * $('#onglet div').length));
+    //$('#onglet').width(parseInt($('#mask').width() * $('#onglet div').length));
      
     //Set the sub-onglet width according to the #mask width (width of #mask and sub-onglet must be same)
-    $('#onglet div').width($('#mask').width());
-     
+    //$('#onglet div').width($('#mask').width());
+    
+	//calcul idoine des tailles utiles
+	var mainColumnWidth = $('#column-main-left').innerWidth() - 32;
+	$('.content-tabs').css('width', mainColumnWidth);
+	
+	//accordion de qualite
+	$('#accordion_container .accordion-tab-title').click(function() {
+		$(this).next().toggle('slow');
+		return false;
+	}).next().hide();
+	
     //Get all the links with rel as onglet
+	$('a[rel=onglet]:first').addClass('selected');
     $('a[rel=onglet]').click(function () {
      
         //Get the height of the sub-onglet
@@ -332,7 +366,7 @@ $(document).ready(function() {
         $('#mask').animate({'height':ongletheight},{queue:false, duration:500});        
          
         //Scroll to the correct onglet, the onglet id is grabbed from the href attribute of the anchor
-        $('#mask').scrollTo($(this).attr('href'), 800);    
+        $('#mask').scrollTo($(this).attr('href'), 500);    
          
         //Discard the link default behavior
         return false;
@@ -353,7 +387,7 @@ $no_tab_name="no_tab";
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
-          <a href="#onglet-<?php print $onglet?>" rel="onglet" class="selected"><?php print $onglet_content['label']?></a>
+          <a href="#onglet-<?php print $onglet?>" rel="onglet"><?php print $onglet_content['label']?></a>
         <?php endif;?>
       <?php endforeach;?>
   </div>
@@ -362,11 +396,11 @@ $no_tab_name="no_tab";
           <div id="onglet">
           <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
-              <div id="onglet-<?php print $onglet?>">
+              <div class="content-tabs" id="onglet-<?php print $onglet?>">
                 
                 
                   <div class="group">
-                  <h2><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></h2>
+                  <h2 class="title title-group  margin"><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
                     <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
                       <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
                        <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
@@ -379,7 +413,7 @@ $no_tab_name="no_tab";
               <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content):?>
                 <?php if($group_id!='no_group'):?>
                 <div class="group">
-                  <h2><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
+                  <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
                   
                   <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
@@ -403,7 +437,7 @@ $no_tab_name="no_tab";
 </div>
 <div id="column-side-right">
 <div class="group">
-                  <h2><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></h2>
+                  <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
                   
                   <?php  foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
@@ -419,7 +453,7 @@ $no_tab_name="no_tab";
                 <?php if($group_id!='no_group'):?>
                  
                  <div class="group">
-                  <h2><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></h2>
+                  <h2 class="title title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
                    <?php  foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
                       <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>

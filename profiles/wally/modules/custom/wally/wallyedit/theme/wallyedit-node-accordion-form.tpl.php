@@ -11,6 +11,9 @@ $cck_fields = $type['fields'];
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
 ?>
+
+<h2 class="title  title-accordion "><span>Titre Accordeon</span></h2>
+
 <div id="accordion_container">
   <?php  foreach($tabs as $onglet=>$onglet_content):?>
     <div id="accordion-tab-<?php print $onglet?>" class="accordion-tab">
