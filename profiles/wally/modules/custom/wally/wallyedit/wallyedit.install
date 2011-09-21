@@ -25,6 +25,7 @@ function wallyedit_install() {
 function wallyedit_uninstall() {
   drupal_uninstall_schema('wallyedit');
   wallytoolbox_variable_del_like('wallyedit_');
+  rebuild_menu();
   
   $ret = array();
   db_drop_field($ret, 'users', 'wydit_default_profile');
