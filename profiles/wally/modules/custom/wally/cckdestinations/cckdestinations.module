@@ -1090,7 +1090,7 @@ function cckdestinations_token_values($type, $object = NULL, $options = array())
       if($path==''){
         $path.=$term->name;
       } else {
-        $path.=$path.'/'.$term->name;
+        $path.='/'.$term->name;
       }
     }
     
