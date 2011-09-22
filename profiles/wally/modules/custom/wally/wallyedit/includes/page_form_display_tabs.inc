@@ -909,7 +909,6 @@ function wyditadmin_get_existing_fields($type_name) {
   static $existing_fields = array();
   if (!isset($existing_fields[$type_name])) {
     $content_fields = content_types($type_name);
-    
     foreach ($content_fields['fields'] as $content_field) {
       $existing_fields[$type_name][$content_field['field_name']] = array(
         'type' => $content_field['type'],

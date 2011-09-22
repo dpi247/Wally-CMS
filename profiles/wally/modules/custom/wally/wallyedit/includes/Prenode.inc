@@ -26,13 +26,13 @@ class Prenode{
    */
   function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = NULL){
     if($profile_id==NULL){
-      $profile_id= 0;
+      $profile_id = 0;
     }
     else{
       $this->profile_id = $profile_id;
     }
     $this->cache_name = $cache_name;
-    
+
     if($cache_name && !empty($cache_name)) {
       $node=node_load($cache_name);
       if(!$node) {
@@ -142,6 +142,11 @@ class Prenode{
   function ConvertNodeToPrenode($node){
     $this->setNode($node);
     $this->setFormState();
+  }
+  
+  function setCurrentProfile($current_profile) {
+    $this->profile_id = $current_profile;
+    $this->form_state['profile_id'] = $current_profile;
   }
 
   static function LoadPrenodeFromNid($nid){
