@@ -247,6 +247,7 @@ function wallytoolbox_opml_blogspirit_item_to_array_set_mainstory(&$array_item, 
   $array_item['MainStory']['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'user_username');
   $array_item['MainStory']['TextTitle']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $array_item['MainStory']['Section']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'blog_title');
+  $array_item['MainStory']['SectionUrl']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'blog_url');
   $array_item['MainStory']['PostDate']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_pubdate');
   $array_item['MainStory']['TextBody']['value'] = str_replace('&nbsp', ' ', _wallytoolbox_get_dom_element_attribute_opml($item, 'post_source'));
   
