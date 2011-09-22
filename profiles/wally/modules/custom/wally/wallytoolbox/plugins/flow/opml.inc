@@ -5,9 +5,9 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'title' => t('OPML'),
+  'title' => t('Plugin OPML'),
   'description' => t('Fetch an OPML feed.'),
-  'types' => array('Blog Spirit OPML'),
+  'types' => array('OPML'),
   'defaults' => wallytoolbox_opml_flow_settings_default(),
 );
 
