@@ -14,13 +14,14 @@ function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
   ctools_include('ajax');
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
-  
+
   $node->type = str_replace('-','_',$type);
-  $prenode = new Prenode(NULL, FALSE, $current_profile);
+  $prenode = new Prenode(arg(5), FALSE, $current_profile);
   $prenode->setNode($node);
 
   //Cuz we set the node after the build we need to rebuild the form_state
   $form_state = $prenode->getFormState(TRUE);
+  variable_set('wallyedit_temp_'.rand(),$form_state);
   if ($_POST['form_id']=='views_bulk_operations_form__1') {
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');

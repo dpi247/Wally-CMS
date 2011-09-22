@@ -37,7 +37,6 @@ a.selected {
 }
  
 #scroller-header {
-    background:url(images/header.gif) no-repeat;
     /*width:277px;*/
     height:24px;
     padding:35px 0 0 15px;
@@ -322,9 +321,8 @@ return typeof val == 'object' ? val : { top:val, left:val };
 
 <?php
   module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
-  
-  //TODO: Adapt to get used profile
-  $tabs=wyditadmin_get_fields_tree(wallyedit_get_default_profile(), $form["type"]["#value"]);
+
+  $tabs=wyditadmin_get_fields_tree($profile_id, $form["type"]["#value"]);
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($form["type"]["#value"]);
   $cck_fields = $type['fields'];
@@ -377,7 +375,6 @@ $(document).ready(function() {
 <?php 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
-dsm($form, 'form');
 ?>
 </script>
 <div id="profile_selector">

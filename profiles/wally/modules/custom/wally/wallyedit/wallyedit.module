@@ -212,7 +212,7 @@ function wallyedit_menu(){
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/page_node_edition.inc',
-    'load arguments' => array(4),
+    'load arguments' => array('%map'),
   );
   
   $items['node/%prenode/delete2'] = array(
@@ -425,20 +425,16 @@ function wallyedit_theme(){
       'arguments' => array('form' => array()),
       'template' => 'wallyedit-admin-display-tabs-overview-form',
     ),
-    
     'wallyedit_test_form'=>$base+array(
       'arguments'=>array('form'=>array()),
       'template' => 'wallyedit-admin-display-form2',
     ),
     'wallyedit_fieldset'=>$base+array(
-          'arguments'=>array('element'=>array()),
-    
+      'arguments'=>array('element'=>array()),
     ),
     'wallyedit_inline_form'=>$base+array(
-          'arguments'=>array('form'=>array()),
+      'arguments'=>array('form'=>array()),
       'template' => 'wallyedit-node-accordion-form',
-        
-    
     ),
   );
 }
@@ -632,7 +628,7 @@ function wallyedit_get_available_profiles() {
 
 function wallyedit_form_page_createmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
-  $form['#action'] = '/node/add2/'.str_replace('_', '-', $form_state['type']).'/1/'.$form_state['profile_id'];
+  $form['#action'] = '/node/add2/'.str_replace('_', '-', $form_state['type']).'/1/'.$form_state['profile_id'].'/'.$form_state['cache name'];
   $form['#after_build'][]='wally_edit_clean_after_build';
   
   return $form;
@@ -994,6 +990,11 @@ function wydit_subform_global_page_form(&$form_state){
 
   $form['#tree']=true;
   $form['#theme'][] = "wallyedit_node_form";
+  
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['profile_id'],
+  );
 
   $form["save_global"]=array(
     '#type'=>'submit',
@@ -1107,8 +1108,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
 
       wydit_prepare_primary_package_form($form[$element], $form_state, $type, $parents, $global_form, $global_path.'/'.$element);
 
-      
-      
       if(count(element_children($form[$element]))==0){
         unset($form[$element]);
       }
@@ -1253,26 +1252,29 @@ function wydit_subform_global_page_submit(&$form_state){
   $a[$form_state['type']]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']])+(array)$form_state[$form_state['type']]['#node']);
   $a['type']=$form_state['type'];
   $a['cache name']=$form_state['cache name'];
+  $a['profile_id']=$form_state['profile_id'];
 
-  foreach($fields as $field){
+  $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+  foreach($flat_fields as $field){
+    $field_name = $field['name'];
     if($field['display']>1){
-      if(isset($form_state[$form_state['type']][$field['field_name']])){
-        foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value){
+      if(isset($form_state[$form_state['type']][$field_name])){
+        foreach($form_state[$form_state['type']][$field_name] as $key=>$value){
           //avoid the weight_.$key element
           if(is_numeric($key)){
             //determine index, if no weight -inline element- use $key value
-            if(isset($form_state['values'][$form_state['type']][$field['field_name']]["weight_".$key])) {
-              $index=$form_state['values'][$form_state['type']][$field['field_name']]["weight_".$key];
+            if(isset($form_state['values'][$form_state['type']][$field_name]["weight_".$key])) {
+              $index=$form_state['values'][$form_state['type']][$field_name]["weight_".$key];
             } else {
               $index=$key;
             }
-            $a[$form_state['type']][$field['field_name']][$index]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field['field_name']][$key])+(array)$form_state[$form_state['type']][$field['field_name']][$key]['#node']);
-            $subtype=$a[$form_state['type']][$field['field_name']][$index]['#node']->type;
-            $a[$form_state['type']][$field['field_name']][$index]['type']=$subtype;
+            $a[$form_state['type']][$field_name][$index]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field_name][$key])+(array)$form_state[$form_state['type']][$field_name][$key]['#node']);
+            $subtype=$a[$form_state['type']][$field_name][$index]['#node']->type;
+            $a[$form_state['type']][$field_name][$index]['type']=$subtype;
           }
           //ReOrder by index
-          ksort($a[$form_state['type']][$field['field_name']]);
-          $a[$form_state['type']][$field['field_name']]=array_values($a[$form_state['type']][$field['field_name']]);
+          ksort($a[$form_state['type']][$field_name]);
+          $a[$form_state['type']][$field_name]=array_values($a[$form_state['type']][$field_name]);
         }
       }
     }
@@ -1590,6 +1592,11 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
 
   wydit_prepare_primary_package_form($form, $form_state, $type_name, $parents, NULL, $global_path);
 
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['profile_id'],
+  );
+  
   wydit_remove_form_infos($form);
 
   $form_element=array($form);
@@ -1924,9 +1931,9 @@ function wydit_get_inline_type($referencable_types){
 
 //______________________________
 
-function prenode_load($nid, $reload_node = FALSE){
-  variable_set('wallyedit_temp', debug_backtrace());
-  $prenode = new Prenode($nid, $reload_node);
+function prenode_load($nid, $args) {
+  $prenode = new Prenode($nid, FALSE, $args[4]);
+  $prenode->setCurrentProfile($args[4]);
   return $prenode;
 }
 
@@ -2152,15 +2159,16 @@ function wydit_clean_form_state($form_state){
   $type_name=$form_state['type'];
 
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
-  $fields = wyditadmin_get_existing_fields($type_name);
+  $fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
 
   foreach($fields as $field){
+    $field_name = $field['name'];
     if($field['display']>1){
-      $a[$form_state['type']][$field['field_name']]=array();
-      if(isset($form_state[$form_state['type']][$field['field_name']])){
-        foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value) {
-          $a[$form_state['type']][$field['field_name']][$key]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field['field_name']][$key])+(array)$form_state[$form_state['type']][$field['field_name']][$key]['#node']);
-          $a[$form_state['type']][$field['field_name']][$key]['type']=$a[$form_state['type']][$field['field_name']][$key]['#node']->type;
+      $a[$form_state['type']][$field_name]=array();
+      if(isset($form_state[$form_state['type']][$field_name])){
+        foreach($form_state[$form_state['type']][$field_name] as $key=>$value) {
+          $a[$form_state['type']][$field_name][$key]['#node']=(object)((array)node_submit($form_state['values'][$form_state['type']][$field_name][$key])+(array)$form_state[$form_state['type']][$field_name][$key]['#node']);
+          $a[$form_state['type']][$field_name][$key]['type']=$a[$form_state['type']][$field_name][$key]['#node']->type;
         }
       }
     }

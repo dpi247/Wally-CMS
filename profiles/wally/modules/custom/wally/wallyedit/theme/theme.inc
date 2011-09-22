@@ -346,9 +346,14 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
 }
 
 function wallyedit_preprocess_wallyedit_node_form(&$vars){
-  //TODO: Adapt to get used profile
-  $vars['profile_id']=wallyedit_get_default_profile();
+  $vars['profile_id']=$vars['form']['profile_id']['#value'];
   $vars['node_type']=$vars['form']['type']['#value'];
+}
+
+function wallyedit_preprocess_wallyedit_inline_form(&$vars){
+  $vars['profile_id']=$vars['form'][0]['profile_id']['#value'];
+  $vars['node_type']=$vars['form'][0]['type']['#value'];
+  dsm($vars, 'vars');
 }
 
 function wallyedit_preprocess_wallyedit_form_display_tabs_form(&$vars){
