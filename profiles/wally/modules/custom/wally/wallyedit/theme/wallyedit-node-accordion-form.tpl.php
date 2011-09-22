@@ -1,7 +1,7 @@
 <?php
   module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
   $tabs=wyditadmin_get_fields_tree($profile_id, $node_type);
-  $type=wydit_get_infos_type($type_name);
+  $type=wydit_get_infos_type($node_type);
   $cck_fields = $type['fields'];
 
   $meta_tab_name="meta_".$profile_id.'_'.$node_type;
