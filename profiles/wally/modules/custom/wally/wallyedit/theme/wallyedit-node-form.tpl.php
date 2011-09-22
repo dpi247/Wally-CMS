@@ -322,9 +322,9 @@ return typeof val == 'object' ? val : { top:val, left:val };
 <?php
   module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
 
-  $tabs=wyditadmin_get_fields_tree($profile_id, $form["type"]["#value"]);
+  $tabs=wyditadmin_get_fields_tree($profile_id, $node_type);
   $onglets_struct=$tabs;
-  $type=wydit_get_infos_type($form["type"]["#value"]);
+  $type=wydit_get_infos_type($node_type);
   $cck_fields = $type['fields'];
 ?>
 $(document).ready(function() { 
@@ -383,52 +383,46 @@ $no_tab_name="no_tab";
 </div>
 <div id="column-main-left">
   <div id="scroller-header">
-      <?php foreach($onglets_struct as $onglet=>$onglet_content):?>
-        <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
-          <a href="#onglet-<?php print $onglet?>" rel="onglet"><?php print $onglet_content['label']?></a>
+      <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
+        <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
+          <a href="#onglet-<?php print $onglet; ?>" rel="onglet"><?php print $onglet_content['label']; ?></a>
         <?php endif;?>
       <?php endforeach;?>
   </div>
   <div id="scroller-body">
       <div id="mask">
           <div id="onglet">
-          <?php  foreach($onglets_struct as $onglet=>$onglet_content):?>
-            <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name):?>
-              <div class="content-tabs" id="onglet-<?php print $onglet?>">
-                
-                
+          <?php  foreach($onglets_struct as $onglet=>$onglet_content): ?>
+            <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
+              <div class="content-tabs" id="onglet-<?php print $onglet; ?>">
                   <div class="group">
-                  <h2 class="title title-group  margin"><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
-                    <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
-                      <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                       <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                  <h2 class="title title-group  margin"><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
+                    <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
+                      <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+                       <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
                       <?php else:?>
-                        <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                        <?php print drupal_render($form[$node_type][$element_name]); ?>
                       <?php endif;?>
                   
                 <?php endforeach;?>
              </div>
-              <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content):?>
-                <?php if($group_id!='no_group'):?>
+              <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
+                <?php if($group_id!='no_group'): ?>
                 <div class="group">
-                  <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
-                  
-                  <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                      <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                  <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]; ?></span></h2>
+                  <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
                     <?php else:?>
-                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
-                    <?php endif;?>
-                  <?php endforeach;?>
+                      <?php print drupal_render($form[$node_type][$element_name]); ?>
+                    <?php endif; ?>
+                  <?php endforeach; ?>
                   </div>
-                  
-                  <?php endif;?>
-                  
-                <?php endforeach;?>
-           
+                  <?php endif; ?>
+                <?php endforeach; ?>
               </div>
-              <?php endif;?>
-            <?php endforeach;?>
+              <?php endif; ?>
+            <?php endforeach; ?>
           </div>
       </div>
   </div>
@@ -436,15 +430,12 @@ $no_tab_name="no_tab";
 <div id="column-side-right">
 <div class="group">
                   <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
-                  
-                  <?php  foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                      <?php  print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                  <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
                     <?php else:?>
-                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                      <?php print drupal_render($form[$node_type][$element_name])?>
                     <?php endif;?>
-         
-                  
                 <?php endforeach;?>
                 </div>
               <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
@@ -452,20 +443,17 @@ $no_tab_name="no_tab";
                  
                  <div class="group">
                   <h2 class="title title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
-                   <?php  foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content):?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent'])):?>
-                      <?php print drupal_render($form[$form['type']['#value']][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+                   <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
+                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
                     <?php else:?>
-                      <?php print drupal_render($form[$form['type']['#value']][$element_name])?>
+                      <?php print drupal_render($form[$node_type][$element_name])?>
                     <?php endif;?>
                   <?php endforeach;?>
                   
                   </div>
                   <?php endif;?>
-                  
                 <?php endforeach;?>
-           
-  
 </div>
 
 <div id="buttons">

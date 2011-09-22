@@ -353,7 +353,6 @@ function wallyedit_preprocess_wallyedit_node_form(&$vars){
 function wallyedit_preprocess_wallyedit_inline_form(&$vars){
   $vars['profile_id']=$vars['form'][0]['profile_id']['#value'];
   $vars['node_type']=$vars['form'][0]['type']['#value'];
-  dsm($vars, 'vars');
 }
 
 function wallyedit_preprocess_wallyedit_form_display_tabs_form(&$vars){
