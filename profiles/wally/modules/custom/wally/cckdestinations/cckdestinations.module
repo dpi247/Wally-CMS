@@ -704,11 +704,13 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
       '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
     );
   } else {
+    $filled_items = content_set_empty($field, $items);
+
     // Adaptation of "content_multiple_value_form" function form CCK
     $field_name = $field['field_name'];
     $hook_is_empty = $field['module'] .'_content_is_empty';
 
-    $deltas_items = $items;
+    $deltas_items = $filled_items;
     unset($deltas_items['item_count']);
     $deltas = array_keys($deltas_items);
 
@@ -721,7 +723,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
                           ? $form_state['item_count'][$field_name]
                           : $minimum_item_count;
 
-    if (count($deltas) > 1 || $current_item_count > 1) {
+    if (count($deltas) > 1 || $current_item_count >= 1) {
       $deltas[] = max($deltas) + 1;
     }
 
