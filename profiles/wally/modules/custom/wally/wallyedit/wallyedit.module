@@ -1046,10 +1046,12 @@ function wydit_subform_global_preview_form(&$form_state, $cache_name = NULL){
   $prenode = new Prenode($form_state['cache name']);
   if(!empty($prenode->form_state)) {
     $options = array('disabled' => 'Preview disabled', 'no_dest' => 'Node');
-    foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest) {
-      if($delta !== 'field_destinations_add_more'){
-        $dest_name = taxonomy_get_term($dest['tid'])->name;
-        $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
+    if (isset($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations)) {
+      foreach($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta=>$dest) {
+        if($delta !== 'field_destinations_add_more'){
+          $dest_name = taxonomy_get_term($dest['tid'])->name;
+          $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
+        }
       }
     }
     $form['select_preview'] = array(
