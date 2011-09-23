@@ -341,6 +341,16 @@ function wallyextra_refresh_block($infos, $settings) {
 
 /**
  * Get an object from cache or create it if it doesn't exists
+ *  
+ * @param $cid {integer} your contents' cache ID. It is also used to identify your block in a unique way, so, even if you don't use the cache system, find a way to give your block a unique ID.
+ * @param $callback {String} the name of the function defined in the first step (here : "wallyextra_MYPLUGIN_building_my_contents").
+ * @param $settings {Array} settings that will be passed to your callback.
+ * @param $subtype {String} given in the render function.
+ * @param $context {StdObject} given in the render function.
+ * @param $default_theme {String} the default theming function, if no override is set (or possible).
+ * @param $plugin {String} the path of the plugin's ".inc" file to include to be able to call the callback.
+ * @param $ajax {Boolean} telling whether or not to use AJAX load (default to FALSE, so you have to explicitely choose it).
+ * @return Datas
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
