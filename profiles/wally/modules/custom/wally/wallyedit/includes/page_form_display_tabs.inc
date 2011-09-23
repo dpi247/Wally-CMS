@@ -378,19 +378,65 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
     '#tree' => TRUE,
   );
 
-  foreach ($existing_fields as $field_name => $field) {
-    if (isset($flat_fields[$field_name])) {
-      $form['fields'][$field_name]['fid'] = array(
-        '#type' => 'value',
-        '#value' => $flat_fields[$field_name]['fid'],
+  foreach ($flat_fields as $field_name => $field) {
+    $form['fields'][$field_name]['fid'] = array(
+      '#type' => 'value',
+      '#value' => $flat_fields[$field_name]['fid'],
+    );
+    $default_field = $flat_fields[$field_name];
+
+    $form['fields'][$field_name]['label'] = array(
+      '#type' => 'markup',
+      '#value' => $default_field['label'],
+    );
+
+    $form['fields'][$field_name]['group'] = array(
+      '#type' => 'select',
+      '#options' => $groups_options,
+      '#default_value' => $default_field['gid'],
+    );
+
+    $form['fields'][$field_name]['weight'] = array(
+      "#type" => 'weight',
+      '#default_value' => $default_field['weight'],
+    );
+
+    if (isset($existing_fields[$field_name]['type']) && $existing_fields[$field_name]['type'] == 'nodereference') {
+      $form['fields'][$field_name]['wallyedit'] = array(
+        '#type' => 'select',
+        '#options' => array(0 => t("Exclude"), 1 => t("Normal")),
       );
-      $default_field = $flat_fields[$field_name];
-    } else {
-      $default_field = $field + array(
-        'gid' => 0,
-        'tid' => 0,
-      );
+      $hits = 0;
+      foreach ($existing_fields[$field_name]['referenceable_types'] as $key => $value) {
+        if ($key === $value){
+          $hits++;
+        }
+      }
+      if ($existing_fields[$field_name]['multiple'] == 0 && $hits == 1) {
+        $form['fields'][$field_name]["wallyedit"]["#options"][2] = t('Inline');
+        $form['fields'][$field_name]["wallyedit"]["#options"][3] = t('Select box');
+      }
+      else {
+        $form['fields'][$field_name]["wallyedit"]["#options"][3] = t('Select box');
+      }
+
+      $form['fields'][$field_name]['wallyedit']['#default_value'] = $default_field['display'];
     }
+
+    $form['fields'][$field_name]['tab'] = array(
+      "#type" => 'select',
+      "#options" => $tabs_options,
+      '#default_value' => $default_field['tid'],
+    );
+    
+    unset($existing_fields[$field_name]);
+  }
+  
+  foreach ($existing_fields as $field_name => $field) {
+    $default_field = $field + array(
+      'gid' => 0,
+      'tid' => 0,
+    );
 
     $form['fields'][$field_name]['label'] = array(
       '#type' => 'markup',
