@@ -1948,18 +1948,19 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
 
   $type_name=$form_state['type'];
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
-  $fields = wyditadmin_get_existing_fields($type);
+  $fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
 
   foreach($fields as $field){
     if($field['display']>1){
-      if(isset($form_state[$form_state['type']][$field['field_name']])){
-        foreach($form_state[$form_state['type']][$field['field_name']] as $key=>$value){
-          $nid=wydit_publish_prenode($form_state[$form_state['type']][$field['field_name']][$key],TRUE);
-          unset($form_state[$form_state['type']][$field['field_name']][$key]);
-          $form_state[$form_state['type']][$field['field_name']][$key]['nid']=$nid;
+      $field_name = $field['name'];
+      if(isset($form_state[$form_state['type']][$field_name])){
+        foreach($form_state[$form_state['type']][$field_name] as $key=>$value){
+          $nid=wydit_publish_prenode($form_state[$form_state['type']][$field_name][$key],TRUE);
+          unset($form_state[$form_state['type']][$field_name][$key]);
+          $form_state[$form_state['type']][$field_name][$key]['nid']=$nid;
         }
       }
-      $form_state[$form_state['type']]['#node']->{$field['field_name']}= $form_state[$form_state['type']][$field['field_name']];
+      $form_state[$form_state['type']]['#node']->$field_name= $form_state[$form_state['type']][$field_name];
     }
 
   }
