@@ -426,8 +426,8 @@ dsm($form);
                     <div class="group_content">
                       <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
                            <?php 
-                  dsm($cck_fields[$element_name],'cck_'.$element_name);
-                  dsm($onglets_struct[$onglet]['elements']['no_group']['fields'][$element_name],'cck_'.$element_name);
+                //  dsm($cck_fields[$element_name],'cck_'.$element_name);
+                //  dsm($onglets_struct[$onglet]['elements']['no_group']['fields'][$element_name],'cck_'.$element_name);
                 ?>
                         <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
                           <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
