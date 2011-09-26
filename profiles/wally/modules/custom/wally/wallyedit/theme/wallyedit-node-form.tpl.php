@@ -153,6 +153,9 @@ padding:5px;
     margin:auto;
 }
 -->
+table.sticky-header{
+position:relative !important;
+}
 </style>
 
 
@@ -373,8 +376,8 @@ $(document).ready(function() {
 	$('#accordion_container .accordion-tab-title').click(function() {
 		$(this).next().toggle('slow');
 		return false;
-	}).next().hide();
-	
+	});
+	$('#accordion_container .accordion-tab-title.hide').next().hide();
     //Get all the links with rel as onglet
 	$('a[rel=onglet]:first').addClass('selected');
     $('a[rel=onglet]').click(function () {
@@ -420,7 +423,6 @@ $no_tab_name="no_tab";
              
                 <?php if(count($onglets_struct[$onglet]['elements']['no_group']['fields'])>0):?>
                   <div class="group">
-                    <h2 class="title title-group  "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
                     <div class="group_content">
                       <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
                            <?php 
