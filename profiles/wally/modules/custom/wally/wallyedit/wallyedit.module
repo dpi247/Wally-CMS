@@ -1323,7 +1323,7 @@ function wallyedit_form_editmode_add_form(&$form_state) {
 function wydit_subform_global_add_form(&$form_state){
   $node->type = $form_state['type'];
   $type_name = $node->type;
-dsm($form_state, 'form state');
+
   //@todo: target should be parents ?
   $target=array_merge($form_state['parents'],array("#node"));
   $form['target']=array('#type'=>'value','#value'=>$target);
