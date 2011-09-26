@@ -1642,7 +1642,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $form_element=array($form);
 }
 
-function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$element,$fields,$parents){
+function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$element,$fields,$parents){
   $form=array(
   	'#type' => 'fieldset',
     "#theme" => 'wydit_selector_theme',
