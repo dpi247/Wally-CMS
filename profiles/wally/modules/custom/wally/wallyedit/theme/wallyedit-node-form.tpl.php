@@ -451,6 +451,8 @@ $no_tab_name="no_tab";
                       <?php print drupal_render($form[$node_type][$element_name]); ?>
                     <?php endif; ?>
                   <?php endforeach; ?>
+                  <div class="clear"></div>
+                  
                   </div>
                   </div>
                   <?php endif; ?>
@@ -489,6 +491,7 @@ $no_tab_name="no_tab";
             <?php print drupal_render($form[$node_type][$element_name])?>
           <?php endif;?>
         <?php endforeach;?>
+        <div class="clear"></div>
       </div>
     </div>
   <?php endif;?>
