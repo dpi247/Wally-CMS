@@ -19,6 +19,7 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   $form_state=array(
     'parents'=>$parents,
     'cache name'=>$prenode->cache_name,
+    'profile_id'=>$prenode->profile_id,
   );
 
   $form = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state);

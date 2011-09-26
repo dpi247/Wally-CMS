@@ -10,7 +10,6 @@ function wallyedit_callback_add_new($prenode, $js = FALSE, $current_profile = 0)
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   
-  $prenode->profile_id = $current_profile;
   $form_state=$prenode->getFormState();
   $form = ctools_build_form('wallyedit_form_editmode_add_form', $form_state, $current_profile);
   
