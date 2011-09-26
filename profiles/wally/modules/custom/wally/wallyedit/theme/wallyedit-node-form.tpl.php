@@ -480,7 +480,7 @@ $no_tab_name="no_tab";
                 <?php if($group_id!='no_group'):?>
                  
                  <div class="group">
-                  <h2 class="title title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
+                  <h2 class="title title-group "><span><?php print $onglets_struct[$meta_tab_name]['elements'][$group_id]["label"]?></span></h2>
                    <div class="group_content">
                    <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
