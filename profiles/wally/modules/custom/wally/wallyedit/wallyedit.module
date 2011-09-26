@@ -996,7 +996,7 @@ function wydit_subform_global_page_form(&$form_state){
   }
   
   $temp_b = $form[$form_state['type']];
-
+dsm($a, 'a');
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name), $temp_b);
   wydit_remove_form_infos($form[$type_name]);
 
