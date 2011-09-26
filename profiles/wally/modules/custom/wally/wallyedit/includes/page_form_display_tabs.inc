@@ -748,7 +748,7 @@ function wallyedit_page_set_default_profile ($profile_id) {
  * Form to edit a tab label
  */
 function wallyedit_form_edit_label_tab_form (&$form_state, $tab_id) {
-  $tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id));
+  $tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs} WHERE tid = %d', $tab_id));
 
   $form = array();
 
@@ -788,7 +788,7 @@ function wallyedit_form_edit_label_tab_form_validate ($form, &$form_state) {
 function wallyedit_form_edit_label_tab_form_submit ($form, $form_state) {
   $values = $form_state['values'];
   if ($values['op'] == $values['submit']) {
-    db_query('UPDATE {wallyedit_tabs_config} SET label = "%s" WHERE tid = %d', $values['new_label'], $values['tab_id']);
+    db_query('UPDATE {wallyedit_tabs} SET label = "%s" WHERE tid = %d', $values['new_label'], $values['tab_id']);
   }
   if (!isset($_GET['destination'])) {
     drupal_goto('admin/content');
@@ -801,7 +801,7 @@ function wallyedit_form_edit_label_tab_form_submit ($form, $form_state) {
 function wallyedit_form_delete_tab_form (&$form_state, $tab_id) {
   $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/content';
   
-  if ($tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id))) {
+  if ($tab = db_fetch_array(db_query('SELECT label FROM {wallyedit_tabs} WHERE tid = %d', $tab_id))) {
     
   } else {
     drupal_set_message(t('Tab not found!'), 'error');
@@ -825,9 +825,9 @@ function wallyedit_form_delete_tab_form_submit(&$form, &$form_state) {
   $values = $form_state['values'];
   $tab_id = $values['tab_id'];
 
-  if ($erasable = db_result(db_query('SELECT erasable FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id))) {
+  if ($erasable = db_result(db_query('SELECT erasable FROM {wallyedit_tabs} WHERE tid = %d', $tab_id))) {
     if ($erasable) {
-      db_query('DELETE FROM {wallyedit_tabs_config} WHERE tid = %d', $tab_id);
+      db_query('DELETE FROM {wallyedit_tabs} WHERE tid = %d', $tab_id);
       drupal_set_message(t('Tab deleted.'));
     } else {
       drupal_set_message(t('This tab can\'t be deleted.'), 'warning');
