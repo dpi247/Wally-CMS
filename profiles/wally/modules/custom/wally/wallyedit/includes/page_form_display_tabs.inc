@@ -963,6 +963,7 @@ function wyditadmin_get_existing_fields($type_name) {
         'name' => $content_field['field_name'],
         'label' => $content_field['widget']['label'],
         'multiple' => $content_field['multiple'],
+        'module' => $content_field['module'],
       );
       if ($content_field['type'] ==  'nodereference') {
         $existing_fields[$type_name][$content_field['field_name']]['referenceable_types'] = $content_field['referenceable_types'];
