@@ -1681,7 +1681,7 @@ dsm($form_state, 'form state');
       );
     }
   }
-  
+dsm($form, 'form');
   $form['add_existing_action']=array(
     "#type"=>"submit",
     "#value"=>'add existing one',
