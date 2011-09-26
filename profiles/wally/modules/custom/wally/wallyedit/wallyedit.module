@@ -818,7 +818,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
-  $form['#action'] = '/node/'.$form_state['cache name'].'/edit/1/'.$form_state['profile_id'];
+  $form['#action'] = '/node/'.$form_state['cache name'].'/edit/'.$form_state['profile_id'];
   
   return $form;
 }
@@ -996,7 +996,7 @@ function wydit_subform_global_page_form(&$form_state){
   }
   
   $temp_b = $form[$form_state['type']];
-dsm($a, 'a');
+
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name), $temp_b);
   wydit_remove_form_infos($form[$type_name]);
 
