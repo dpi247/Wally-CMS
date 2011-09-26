@@ -662,6 +662,7 @@ function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
   $values = $form_state['values'];
   if ($values['op'] == $values['confirm_profile'] && $values['choose_profile'] != $form_state['profile_id']) {
     drupal_get_messages();
+    dsm($form_state, 'form state');
     if (strstr($form_state['action'], 'add')) {
       drupal_goto('node/add/'.str_replace('_', '-', $values['type']).'/'.$values['choose_profile']);
     } else {
