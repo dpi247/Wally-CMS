@@ -477,7 +477,7 @@ $no_tab_name="no_tab";
                     <?php endif;?>
                 <?php endforeach;?>
                 </div>
-                <?php endif;?>
+<?php endif;?>
               <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
                 <?php if($group_id!='no_group'):?>
                  
