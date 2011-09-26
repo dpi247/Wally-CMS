@@ -1680,6 +1680,8 @@ dsm($form_state, 'form state');
         '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
         "#parents"=>array_merge($parents,array("$key")),
       );
+    } else {
+      unset($form_state[$key]);
     }
   }
 dsm($form, 'form');
