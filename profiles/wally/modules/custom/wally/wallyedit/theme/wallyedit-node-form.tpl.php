@@ -156,6 +156,9 @@ padding:5px;
 table.sticky-header{
 position:relative !important;
 }
+ #column-side-right .form-item{
+position: static;
+}
 </style>
 
 
