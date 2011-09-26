@@ -36,13 +36,13 @@ a.selected {
     color:#4b412f !important;
 }
  
-#scroller-header {
+#scroller-header, #meta-header{
     /*width:277px;*/
     height:24px;
     padding:35px 0 0 15px;
     font-weight:700;
 }
-#scroller-header{
+#scroller-header, #meta-header{
 	height:36px;
 	padding:0px;
 	line-height:20px;
@@ -62,6 +62,20 @@ a.selected {
     text-shadow: 0 1px 0 white;
 	margin: 0 10px 0 0;
 }
+#meta-header span{
+    background: -moz-linear-gradient(center top , #FFFFFF, #EEEEEE) repeat scroll 0 0 transparent;
+    border: 1px solid #CCCCCC;
+    /* border-radius: 15px 15px 15px 15px; */
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+    color: #666666;
+    display: block;
+    float: left;
+    margin: 0 10px 0 0;
+    padding: 4px 15px 6px;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: 0 1px 0 white;
+ }
 #scroller-header .selected {
     background: -moz-linear-gradient(center top , #FFC039, #FF920D) repeat scroll 0 0 transparent;
     border: 1px solid #FF920D;
@@ -118,14 +132,26 @@ html.js .resizable-textarea textarea {
 	background: #ECF8F4;
 	color: black;
 }
+.group {
+margin-bottom:10px;
+}
+.group_content {
+border:1px solid #CCCCCC;
+padding:5px;
+}
 .group .title span {
 	display: block;
 	float: left;
-	background: #f3f3f3;
-	padding: 10px;
+	background: #E1E1E1;
+	padding: 5px;
+	border-radius: 5px 5px 0 0;
+	margin-left:10px;
 }
 .group .title {clear: both; float: left; width: 100%; border-bottom: 1px solid #ccc;}
-
+.container-inline-date {
+    
+    margin:auto;
+}
 -->
 </style>
 
@@ -396,7 +422,9 @@ $no_tab_name="no_tab";
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
               <div class="content-tabs" id="onglet-<?php print $onglet; ?>">
                   <div class="group">
-                  <h2 class="title title-group  margin"><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
+                  <h2 class="title title-group  "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
+                  <div class="group_content">
+                  
                     <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
                       <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
                        <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
@@ -405,11 +433,13 @@ $no_tab_name="no_tab";
                       <?php endif;?>
                   
                 <?php endforeach;?>
+                </div>
              </div>
               <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
                 <?php if($group_id!='no_group'): ?>
                 <div class="group">
                   <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]; ?></span></h2>
+                  <div class="group_content">
                   <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
                       <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
@@ -417,6 +447,7 @@ $no_tab_name="no_tab";
                       <?php print drupal_render($form[$node_type][$element_name]); ?>
                     <?php endif; ?>
                   <?php endforeach; ?>
+                  </div>
                   </div>
                   <?php endif; ?>
                 <?php endforeach; ?>
@@ -428,6 +459,9 @@ $no_tab_name="no_tab";
   </div>
 </div>
 <div id="column-side-right">
+<div id="meta-header">
+  <span>Meta</span>
+</div>
 <div class="group">
                   <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
                   <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
@@ -443,12 +477,14 @@ $no_tab_name="no_tab";
                  
                  <div class="group">
                   <h2 class="title title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]?></span></h2>
+                   <div class="group_content">
                    <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
                     <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
                       <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
                     <?php else:?>
                       <?php print drupal_render($form[$node_type][$element_name])?>
                     <?php endif;?>
+                    </div>
                   <?php endforeach;?>
                   
                   </div>
