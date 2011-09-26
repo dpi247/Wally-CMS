@@ -5,14 +5,14 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'title' => t('Plugin OPML'),
+  'title' => t('Plugin OPML blog Spirit'),
   'description' => t('Fetch an OPML feed.'),
   'types' => array('OPML'),
-  'defaults' => wallytoolbox_opml_flow_settings_default(),
+  'defaults' => wallytoolbox_opml_blogspirit_flow_settings_default(),
 );
 
-function wallytoolbox_opml_flow_settings_form(&$form, &$form_state) {
-  $conf = wallytoolbox_opml_flow_settings_default($form_state);
+function wallytoolbox_opml_blogspirit_flow_settings_form(&$form, &$form_state) {
+  $conf = wallytoolbox_opml_blogspirit_flow_settings_default($form_state);
   
   $form['uri'] = array(
     '#type' => 'textfield',
@@ -29,15 +29,27 @@ function wallytoolbox_opml_flow_settings_form(&$form, &$form_state) {
     '#title'            => t('Max item to fetch for this feed'),
     '#default_value'    => $conf['maxitem'],
   );
+
+  $form['embed_img'] = array(
+    '#title'            => t('Use the first image embeded in the text if no media image found.'),
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['embed_img'],
+  );
   
   $form['channel_img'] = array(
     '#title'            => t('Use of default image.'),
     '#type'             => 'checkbox',
     '#default_value'    => $conf['channel_img'],
   );
+
+  $form['get_distant_img'] = array (
+    '#type'             => 'checkbox',
+    '#default_value'    => $conf['get_distant_img'],
+    '#title'            => t('Copy RSS feeds images to locale folder.'),
+  );  
 }
 
-function wallytoolbox_opml_flow_settings_default($form_state = array()) {
+function wallytoolbox_opml_blogspirit_flow_settings_default($form_state = array()) {
   if (isset($form_state) && !empty($form_state)) {
     return $form_state;
   }
@@ -51,7 +63,7 @@ function wallytoolbox_opml_flow_settings_default($form_state = array()) {
   return $defaults;
 }
 
-function wallytoolbox_opml_flow_build(&$feed_infos) {
+function wallytoolbox_opml_blogspirit_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
   
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
@@ -78,7 +90,7 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
         $temp_struct_array = array();
         
         foreach ($body->item(0)->getElementsByTagName('outline') as $item) {
-          $temp_struct_array = wallytoolbox_opml_item_to_array($head->item(0), $item, $feed_infos);
+          $temp_struct_array = wallytoolbox_opml_blogspirit_item_to_array($head->item(0), $item, $feed_infos);
           
           $elem_package = $temp_struct_array;
           $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
@@ -91,17 +103,17 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
         }
         
         if (empty($struct_array['Packages']['Package']))
-          _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
+          _wallytoolbox_opml_blogspirit_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
         
         $feed_infos['feeds_md5'] = $new_feeds_md5;
       } else {
-        _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
+        _wallytoolbox_opml_blogspirit_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
       }
     } else {
-      _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
+      _wallytoolbox_opml_blogspirit_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
     }
   } else {
-    _wallytoolbox_opml_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.check_plain($feed_infos['name']));
+    _wallytoolbox_opml_blogspirit_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.check_plain($feed_infos['name']));
   }
   
   return $struct_array;
@@ -130,19 +142,19 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
  * @return
  *   The array-restructured item.
  */
-function wallytoolbox_opml_item_to_array($head, $item, $feed_infos = array('name'=>'opml', 'destination'=>'0///', 'channel_img'=>0, 'prefix'=>'')) {
+function wallytoolbox_opml_blogspirit_item_to_array($head, $item, $feed_infos = array('name'=>'opml', 'destination'=>'0///', 'channel_img'=>0, 'prefix'=>'')) {
   $array_package = wallytoolbox_flow_to_array_new_package();
   
   // Get package informations
-  list($feed_name, $prefix) = wallytoolbox_opml_item_to_array_set_package($array_package, $item, $feed_infos);
+  list($feed_name, $prefix) = wallytoolbox_opml_blogspirit_item_to_array_set_package($array_package, $item, $feed_infos);
   // Get main story
-  wallytoolbox_opml_item_to_array_set_mainstory($array_package, $item, $feed_name, $prefix);
+  wallytoolbox_opml_blogspirit_item_to_array_set_mainstory($array_package, $item, $feed_name, $prefix);
   // Get Embeded Contents
-  wallytoolbox_opml_item_to_array_set_medias($array_package, $item, $feed_name, $prefix);
+  wallytoolbox_opml_blogspirit_item_to_array_set_medias($array_package, $item, $feed_name, $prefix);
 
   // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && !isset($array_package['EmbeddedContent'])) {
-    wallytoolbox_opml_item_to_array_set_embeded_image($array_package, $item);
+    wallytoolbox_opml_blogspirit_item_to_array_set_embeded_image($array_package, $item);
   }
   
   // Copy distant images to local
@@ -175,20 +187,20 @@ function wallytoolbox_opml_item_to_array($head, $item, $feed_infos = array('name
  * @param array $feed_infos
  *   General informations about the feed being analyzed.
  */
-function wallytoolbox_opml_item_to_array_set_package(&$array_item, $item, $feed_infos) {
+function wallytoolbox_opml_blogspirit_item_to_array_set_package(&$array_item, $item, $feed_infos) {
   $feed_name = $feed_infos['name'];
   $prefix = ($feed_infos['prefix'] != '') ? $feed_infos['prefix'] : $feed_name;
   $feed_destination = explode('/',$feed_infos['destination']);
-  $item_id = _wallytoolbox_get_dom_element_attribute($item, 'blog_id').'_'._wallytoolbox_get_dom_element_attribute($item, 'post_id');
-  $item_id = ($item_id == '_') ? _wallytoolbox_get_dom_element_attribute($item, 'post_permalink') : $item_id;
+  $item_id = _wallytoolbox_get_dom_element_attribute_opml($item, 'blog_id').'_'._wallytoolbox_get_dom_element_attribute_opml($item, 'post_id');
+  $item_id = ($item_id == '_') ? _wallytoolbox_get_dom_element_attribute_opml($item, 'post_permalink') : $item_id;
   $item_id = $prefix.':::'.$item_id;
   $array_item['PackageID'] = $item_id;
-  $item_pubDate = strtotime(_wallytoolbox_get_dom_element_attribute($item, 'post_pubdate'));
+  $item_pubDate = strtotime(_wallytoolbox_get_dom_element_attribute_opml($item, 'post_pubdate'));
   $item_pubDate = ($item_pubDate == '') ? time() : $item_pubDate;
   $pubDate = date('Y-m-d', $item_pubDate).'T'.date('H:i:sP', $item_pubDate);
   $array_item['PublicationDate'] = $pubDate;
   $array_item['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
-  $array_item['PackageTitle']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_title');
+  $array_item['PackageTitle']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $array_item['ExternalReference']['value'] = $item_id;
   $array_item['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
   $term = taxonomy_get_term($feed_destination[0]);
@@ -196,7 +208,7 @@ function wallytoolbox_opml_item_to_array_set_package(&$array_item, $item, $feed_
   $array_item['Destinations']['Destination']['Position'] = $feed_destination[1];
   $array_item['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
   $array_item['Destinations']['Destination']['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
-  $array_item['ExternalURI']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_permalink');
+  $array_item['ExternalURI']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_permalink');
 
   return array($feed_name, $prefix);
 }
@@ -213,15 +225,15 @@ function wallytoolbox_opml_item_to_array_set_package(&$array_item, $item, $feed_
  * @param string $feed_name
  *   The name of the feed being analyzed.
  */
-function wallytoolbox_opml_item_to_array_set_mainstory(&$array_item, $item, $feed_name, $prefix) {
-  $story_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute($item, 'post_id');
+function wallytoolbox_opml_blogspirit_item_to_array_set_mainstory(&$array_item, $item, $feed_name, $prefix) {
+  $story_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute_opml($item, 'post_id');
   $array_item['MainStory'] = wallytoolbox_flow_to_array_new_textobject();
-  $array_item['MainStory']['ObjectID'] = _wallytoolbox_get_dom_element_attribute($item, 'post_id');
+  $array_item['MainStory']['ObjectID'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_id');
   $array_item['MainStory']['PublicationDate'] = $array_item['PublicationDate'];
   $array_item['MainStory']['CreationDate'] = $array_item['CreationDate'];
-  $array_item['MainStory']['Title']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_title');
+  $array_item['MainStory']['Title']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $array_item['MainStory']['ExternalReference']['value'] =  $story_id;
-  $categories = _wallytoolbox_get_dom_element_attribute($item, 'post_tags');
+  $categories = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_tags');
   if ($categories != '') {
     $array_item['MainStory']['Taxonomy']['Vocabulary']['VocabularyName'] = 'OPML feeds';
     $categories = explode(',', $categories);
@@ -232,9 +244,13 @@ function wallytoolbox_opml_item_to_array_set_mainstory(&$array_item, $item, $fee
   } else {
     unset($array_item['MainStory']['Taxonomy']);
   }
-  $array_item['MainStory']['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'user_username');
-  $array_item['MainStory']['TextTitle']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_title');
-  $array_item['MainStory']['TextBody']['value'] = str_replace('&nbsp', ' ', _wallytoolbox_get_dom_element_attribute($item, 'post_source'));
+  $array_item['MainStory']['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'user_username');
+  $array_item['MainStory']['TextTitle']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
+  $array_item['MainStory']['Section']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'blog_title');
+  $array_item['MainStory']['SectionUrl']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'blog_url');
+  $array_item['MainStory']['PostDate']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_pubdate');
+  $array_item['MainStory']['TextBody']['value'] = str_replace('&nbsp', ' ', _wallytoolbox_get_dom_element_attribute_opml($item, 'post_source'));
+  
 }
 
 /**
@@ -249,9 +265,9 @@ function wallytoolbox_opml_item_to_array_set_mainstory(&$array_item, $item, $fee
  * @param string $feed_name
  *   The name of the feed being analyzed.
  */
-function wallytoolbox_opml_item_to_array_set_medias(&$array_item, $item, $feed_name, $prefix) {
-  $media_type = _wallytoolbox_get_dom_element_attribute($item, 'media_type');
-  $media_url = _wallytoolbox_get_dom_element_attribute($item, 'media_url');
+function wallytoolbox_opml_blogspirit_item_to_array_set_medias(&$array_item, $item, $feed_name, $prefix) {
+  $media_type = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_type');
+  $media_url = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_url');
   if ($media_type != '') {
     if (strstr($media_type, 'image')) {
       if (@getimagesize($media_url))
@@ -266,7 +282,7 @@ function wallytoolbox_opml_item_to_array_set_medias(&$array_item, $item, $feed_n
   }
 
   if ($media_type != '')
-    wallytoolbox_opml_item_to_array_set_media($array_item, $item, $feed_name, $media_type, $prefix);
+    wallytoolbox_opml_blogspirit_item_to_array_set_media($array_item, $item, $feed_name, $media_type, $prefix);
 }
 
 /**
@@ -281,7 +297,7 @@ function wallytoolbox_opml_item_to_array_set_medias(&$array_item, $item, $feed_n
  * @param string $feed_name
  *   The name of the feed being analyzed.
  */
-function wallytoolbox_opml_item_to_array_set_media(&$array_item, $item, $feed_name, $media_type, $prefix) {
+function wallytoolbox_opml_blogspirit_item_to_array_set_media(&$array_item, $item, $feed_name, $media_type, $prefix) {
   static $media_num = 0;
 
   $array_item['EmbeddedContent'] = array();
@@ -289,38 +305,38 @@ function wallytoolbox_opml_item_to_array_set_media(&$array_item, $item, $feed_na
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
 
   $tempobject = call_user_func('wallytoolbox_flow_to_array_new_'.$media_type);
-  call_user_func_array('wallytoolbox_opml_item_to_array_set_'.$media_type, array(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix));
+  call_user_func_array('wallytoolbox_opml_blogspirit_item_to_array_set_'.$media_type, array(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix));
   $media_num++;
   
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
 
-function wallytoolbox_opml_item_to_array_set_photoobject(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix) {
-  $photo_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute($item, 'post_media_id');
+function wallytoolbox_opml_blogspirit_item_to_array_set_photoobject(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix) {
+  $photo_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute_opml($item, 'post_media_id');
   $tempobject['type'] = 'PhotoObjectType';
   $tempobject['ObjectID'] = $photo_id;
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
-  $tempobject['MimeType'] = _wallytoolbox_get_dom_element_attribute($item, 'media_type');
-  $tempobject['Title']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_title');
+  $tempobject['MimeType'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_type');
+  $tempobject['Title']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $tempobject['ExternalReference']['value'] = $photo_id;
-  $tempobject['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'user_username');
-  $tempobject['FileURI']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'media_url');
+  $tempobject['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'user_username');
+  $tempobject['FileURI']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_url');
   $tempobject['FileSize']['value'] = 0;
-  $tempobject['Thumbnail']['URI'] = _wallytoolbox_get_dom_element_attribute($item, 'media_thumbnail');
+  $tempobject['Thumbnail']['URI'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_thumbnail');
 }
 
-function wallytoolbox_opml_item_to_array_set_videoobject(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix) {
-  $video_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute($item, 'post_media_id');
+function wallytoolbox_opml_blogspirit_item_to_array_set_videoobject(&$tempobject, &$array_item, $item, $feed_name, $media_type, $prefix) {
+  $video_id = $prefix.':::'._wallytoolbox_get_dom_element_attribute_opml($item, 'post_media_id');
   $tempobject['type'] = 'VideoObjectType';
   $tempobject['ObjectID'] = $video_id;
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
-  $tempobject['MimeType'] = _wallytoolbox_get_dom_element_attribute($item, 'media_type');
-  $tempobject['Title']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'post_title');
+  $tempobject['MimeType'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_type');
+  $tempobject['Title']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $tempobject['ExternalReference']['value'] = $video_id;
-  $tempobject['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'user_username');
-  $tempobject['FileURI']['value'] = _wallytoolbox_get_dom_element_attribute($item, 'media_url');
+  $tempobject['Copyright']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'user_username');
+  $tempobject['FileURI']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_url');
   $tempobject['FileSize']['value'] = 0;
-  $tempobject['Thumbnail']['URI'] = _wallytoolbox_get_dom_element_attribute($item, 'media_thumbnail');
+  $tempobject['Thumbnail']['URI'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'media_thumbnail');
 }
 
 /**
@@ -333,7 +349,7 @@ function wallytoolbox_opml_item_to_array_set_videoobject(&$tempobject, &$array_i
  * @param domElement $item
  *   The XML RSS feed item domElement.
  */
-function wallytoolbox_opml_item_to_array_set_embeded_image(&$array_item, $item) {
+function wallytoolbox_opml_blogspirit_item_to_array_set_embeded_image(&$array_item, $item) {
   $text_body = $array_item['MainStory']['TextBody']['value'];
   $substr = strstr($text_body, '<img');
   $substr = $substr ? $substr : strstr($text_body, rawurlencode('<img'));
@@ -391,7 +407,7 @@ function wallytoolbox_opml_item_to_array_set_embeded_image(&$array_item, $item) 
  * @return
  *   The attribute value or default value.
  */
-function _wallytoolbox_get_dom_element_attribute($dom_item, $name, $default = '') {
+function _wallytoolbox_get_dom_element_attribute_opml($dom_item, $name, $default = '') {
   $return = '';
   if (is_object($dom_item)) {
     $return = $dom_item->hasAttribute($name) ? $dom_item->getAttribute($name) : $default;
@@ -399,7 +415,7 @@ function _wallytoolbox_get_dom_element_attribute($dom_item, $name, $default = ''
   return $return;
 }
 
-function _wallytoolbox_opml_set_log(&$item, $success, $msg, $severity = 'notice') {
+function _wallytoolbox_opml_blogspirit_set_log(&$item, $success, $msg, $severity = 'notice') {
   drupal_set_message($msg, $severity);
   $item['__log']['success'] = $success;
   $item['__log']['msg'] = $msg;
