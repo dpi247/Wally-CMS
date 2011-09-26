@@ -2194,6 +2194,7 @@ function wydit_save_form_state($clean_form_state){
 
 // here we sync the internal values of the main #node object
 function wydit_clean_form_state($form_state){
+  return $form_state;
   $a[$form_state['type']]=$form_state[$form_state['type']];
   $a['type']=$form_state['type'];
   $a['cache name']=$form_state['cache name'];
