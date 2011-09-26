@@ -1650,7 +1650,7 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
 dsm($form_state, 'form state');
   foreach($form_state as $key=>$embed){
     $embed_node=$embed["#node"];
-    if (!isset($embed_node->title) || !empty($embed_node->title)) {
+    if (isset($embed_node->title) && !empty($embed_node->title)) {
       $form[$key]['title']=array(
         "#type"=>"markup",
         "#value"=> $embed_node->title,
