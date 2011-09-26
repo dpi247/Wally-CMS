@@ -468,7 +468,6 @@ $no_tab_name="no_tab";
   </div>
   <?php  if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
   <div class="group">
-    <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
     <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
     <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
       <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
