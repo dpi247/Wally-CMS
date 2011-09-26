@@ -818,7 +818,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
-  $form['#action'] = '/node/'.$form_state['cache name'].'/edit/'.$form_state['profile_id'];
+  $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/ajax/'.$form_state['profile_id'];
   
   return $form;
 }
