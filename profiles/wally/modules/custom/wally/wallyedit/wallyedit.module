@@ -1254,12 +1254,13 @@ function wydit_subform_global_page_submit(&$form_state){
   //clean empty multiple values (cfr hook_content_is_empty)
   foreach($fields as $field){
     if($field['multiple']==1){
+      $field_name = $field['name'];
       $function_is_empty=$field['module'].'_content_is_empty';
-      if(function_exists($function_is_empty) && is_array($form_state['values'][$form_state['type']][$field['field_name']])){
-        foreach($form_state['values'][$form_state['type']][$field['field_name']] as $key=>$value){
+      if(function_exists($function_is_empty) && is_array($form_state['values'][$form_state['type']][$field_name])){
+        foreach($form_state['values'][$form_state['type']][$field_name] as $key=>$value){
           if(is_numeric($key)){
-            if($function_is_empty($form_state['values'][$form_state['type']][$field['field_name']][$key],$field)){
-              unset($form_state['values'][$form_state['type']][$field['field_name']][$key]);
+            if($function_is_empty($form_state['values'][$form_state['type']][$field_name][$key],$field)){
+              unset($form_state['values'][$form_state['type']][$field_name][$key]);
             }
           }
         }
