@@ -22,4 +22,7 @@ table tbody tr.tab-populated {
 	display: none;
 }
 
-
+#autocomplete {
+	z-index: 999;
+	position: static;
+}
