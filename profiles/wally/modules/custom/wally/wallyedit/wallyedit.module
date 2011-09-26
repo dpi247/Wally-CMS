@@ -237,22 +237,25 @@ function wallyedit_menu(){
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/callback_edit.inc',
+    'load arguments' => array('%map'),
   );
   
-  $items['node/%prenode/wydit_selectbox/%ctools_js'] = array(
+  $items['node/%prenode/wydit_selectbox/%ctools_js/%'] = array(
     'page callback'=>'wallyedit_callback_selectbox',
     'page arguments'=>array(1,3),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/callback_selectbox.inc',
+    'load arguments' => array('%map'),
   );
   
-  $items['node/%prenode/wydit_typeselector/%ctools_js'] = array(
+  $items['node/%prenode/wydit_typeselector/%ctools_js/%'] = array(
     'page callback'=>'wallyedit_callback_typeselector',
     'page arguments'=>array(1,3),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/callback_typeselector.inc',
+    'load arguments' => array('%map'),
   );
   
   $items['node/%prenode/wydit_add_new/%ctools_js/%'] = array(
@@ -261,6 +264,7 @@ function wallyedit_menu(){
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'file'=>'includes/callback_add_new.inc',
+    'load arguments' => array('%map'),
   );
   
   $items['node/%prenode/preview2/%'] = array(
@@ -292,12 +296,16 @@ function wallyedit_menu(){
  * Simulate redirection to edition interface instead of classical node form
  */
 function wallyedit_menu_alter(&$items) {
+  // Node alter to allow the redirect to our edition interface
   foreach (node_get_types('types', NULL, TRUE) as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
     $items['node/add/' . $type_url_str]['page callback'] = 'wallyedit_page_add_selection';
   }
 
   $items['node/%node/edit']['page callback'] = 'wallyedit_page_edit_selection';
+  
+  // FileField alter to use our callback for the upload or remove of a file
+  $items['filefield/ahah/%/%/%']['page callback'] = 'wydit_filefield_js';
 }
 
 /**
@@ -725,6 +733,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
         $form_state_type_selector['parents']=$form_state['clicked_button']["#parents"];
         $form_state_type_selector[$form_state['type']]=$form_state[$form_state['type']];
         $form_state_type_selector['type']=$form_state['type'];
+        $form_state_type_selector['profile_id'] = $form_state['profile_id'];
 
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector, $current_profile);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
@@ -882,6 +891,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         $form_state_type_selector['parents']=$form_state['clicked_button']["#parents"];
         $form_state_type_selector[$form_state['type']]=$form_state[$form_state['type']];
         $form_state_type_selector['type']=$form_state['type'];
+        $form_state_type_selector['profile_id'] = $form_state['profile_id'];
 
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector, $current_profile);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
@@ -979,7 +989,7 @@ function wydit_subform_global_page_form(&$form_state){
   }
   
   $temp_b = $form[$form_state['type']];
-  
+
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name), $temp_b);
   wydit_remove_form_infos($form[$type_name]);
 
@@ -1282,7 +1292,9 @@ function wydit_subform_global_page_submit(&$form_state){
     }
   }
   
-  cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
+  if (isset($a[$a['type']]['#node']->field_destinations)) {
+    cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
+  }
   
   wydit_clean_and_save_form_state($a);
 }
@@ -1474,7 +1486,7 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
   $type_name=$form_state['type'];
 
   $form=array('#tree'=>true);
-  $form['#action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax';
+  $form['#action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$form_state['profile_id'];
   $field_infos=$form_state['fields_infos'];
   $parents=$form_state['parents'];
   $form['parents33']=array('#type'=>'value','#value'=>$form_state['parents']);
@@ -1494,6 +1506,11 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
   $form['cache name']=array(
     "#type"=>'hidden',
     "#value"=>$form_state['cache name'],
+  );
+  
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['profile_id'],
   );
   
   $form['type'] = array(
@@ -1542,6 +1559,7 @@ function wallyedit_form_nodetypeselector_form_submit($form, &$form_state){
   $new_form_state['parents']=$form_state["parents"];
 
   $new_form_state['cache name']=$form_state["cache name"];
+  $new_form_state['profile_id']=$form_state['values']['profile_id'];
 
   $new_form = ctools_build_form('wallyedit_form_editmode_add_form', $new_form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $new_form);
@@ -1605,7 +1623,6 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
 }
 
 function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$element,$fields,$parents){
-
   $form=array(
   	'#type' => 'fieldset',
     "#theme" => 'wydit_selector_theme',
@@ -1614,35 +1631,36 @@ function wydit_prepare_selectbox_form_element(&$form_element,$form_state,$elemen
 
   foreach($form_state as $key=>$embed){
     $embed_node=$embed["#node"];
-
-    $form[$key]['title']=array(
-      "#type"=>"markup",
-      "#value"=> $embed_node->title,
-    );
-    $form[$key]['type']=array(
-      "#type"=>"markup",
-      "#value"=> $embed_node->type,
-    );
-    $form[$key]['weight_'.$key]=array(
-      '#type'=>'weight',
-      "#default_value"=> $key,
-      '#attributes' => array('class'=>'order_weightss'),
-      "#parents"=>array_merge($parents,array("weight_".$key)),
-    );
-    $form[$key]['edit_action']=array(
-      "#type"=>"submit",
-      "#value"=>'edit',
-      "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
-      '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-      "#parents"=>array_merge($parents,array("$key")),
-    );
-    $form[$key]['delete_action']=array(
-      "#type"=>"submit",
-      "#value"=>'remove',
-      "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
-      '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-      "#parents"=>array_merge($parents,array("$key")),
-    );
+    if (!isset($embed_node->title) || !empty($embed_node->title)) {
+      $form[$key]['title']=array(
+        "#type"=>"markup",
+        "#value"=> $embed_node->title,
+      );
+      $form[$key]['type']=array(
+        "#type"=>"markup",
+        "#value"=> $embed_node->type,
+      );
+      $form[$key]['weight_'.$key]=array(
+        '#type'=>'weight',
+        "#default_value"=> $key,
+        '#attributes' => array('class'=>'order_weightss'),
+        "#parents"=>array_merge($parents,array("weight_".$key)),
+      );
+      $form[$key]['edit_action']=array(
+        "#type"=>"submit",
+        "#value"=>'edit',
+        "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
+        '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+        "#parents"=>array_merge($parents,array("$key")),
+      );
+      $form[$key]['delete_action']=array(
+        "#type"=>"submit",
+        "#value"=>'remove',
+        "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
+        '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+        "#parents"=>array_merge($parents,array("$key")),
+      );
+    }
   }
   
   $form['add_existing_action']=array(
@@ -2262,6 +2280,117 @@ function wallyedit_node_operations(){
     ),
   );
   return $operations;
+}
+
+/**
+ * Menu callback; Shared AHAH callback for uploads and deletions.
+ *
+ * This rebuilds the form element for a particular field item. As long as the
+ * form processing is properly encapsulated in the widget element the form
+ * should rebuild correctly using FAPI without the need for additional callbacks
+ * or processing.
+ * 
+ * This a adaptation of filefield_js which handle the "tree" property of a form
+ */
+function wydit_filefield_js($type_name, $field_name, $delta) {
+  $field = content_fields($field_name, $type_name);
+
+  // Immediately disable devel shutdown functions so that it doesn't botch our
+  // JSON output.
+  $GLOBALS['devel_shutdown'] = FALSE;
+
+  if (empty($field) || empty($_POST['form_build_id'])) {
+    // Invalid request.
+    drupal_set_message(t('An unrecoverable error occurred. The uploaded file likely exceeded the maximum file size (@size) that this server supports.', array('@size' => format_size(file_upload_max_size()))), 'error');
+    print drupal_to_js(array('data' => theme('status_messages')));
+    exit;
+  }
+
+  // Build the new form.
+  $form_state = array('submitted' => FALSE);
+  $form_build_id = $_POST['form_build_id'];
+  $form = form_get_cache($form_build_id, $form_state);
+
+  if (!$form) {
+    // Invalid form_build_id.
+    drupal_set_message(t('An unrecoverable error occurred. This form was missing from the server cache. Try reloading the page and submitting again.'), 'error');
+    print drupal_to_js(array('data' => theme('status_messages')));
+    exit;
+  }
+
+  // Build the form. This calls the file field's #value_callback function and
+  // saves the uploaded file. Since this form is already marked as cached
+  // (the #cache property is TRUE), the cache is updated automatically and we
+  // don't need to call form_set_cache().
+  $args = $form['#parameters'];
+  $form_id = array_shift($args);
+  $form['#post'] = $_POST;
+  $form = form_builder($form_id, $form, $form_state);
+
+  // Update the cached form with the new element at the right place in the form.
+  if (module_exists('fieldgroup') && ($group_name = _fieldgroup_field_get_group($type_name, $field_name))) {
+    if (isset($form['#multigroups']) && isset($form['#multigroups'][$group_name][$field_name])) {
+      $form_element = $form[$group_name][$delta][$field_name];
+    }
+    else {
+      $form_element = $form[$group_name][$field_name][$delta];
+    }
+  }
+
+  if (!isset($form_element)) {
+    $form_element = $form[$field_name][$delta];
+  }
+  
+  if(!isset($form_element)){
+    if (module_exists('fieldgroup') && ($group_name = _fieldgroup_field_get_group($type_name, $field_name))) {
+      if (isset($form['#multigroups']) && isset($form['#multigroups'][$group_name][$field_name])) {
+        $form_element = $form[$type_name][$group_name][$delta][$field_name];
+      }
+      else {
+        $form_element = $form[$type_name][$group_name][$field_name][$delta];
+      }
+    }
+    else {
+      $form_element = $form[$type_name][$field_name][$delta];
+    }
+  }
+
+  if (isset($form_element['_weight'])) {
+    unset($form_element['_weight']);
+  }
+
+  $output = drupal_render($form_element);
+
+  // AHAH is not being nice to us and doesn't know the "other" button (that is,
+  // either "Upload" or "Delete") yet. Which in turn causes it not to attach
+  // AHAH behaviours after replacing the element. So we need to tell it first.
+
+  // Loop through the JS settings and find the settings needed for our buttons.
+  $javascript = drupal_add_js(NULL, NULL);
+  $filefield_ahah_settings = array();
+  if (isset($javascript['setting'])) {
+    foreach ($javascript['setting'] as $settings) {
+      if (isset($settings['ahah'])) {
+        foreach ($settings['ahah'] as $id => $ahah_settings) {
+          if (strpos($id, 'filefield-upload') || strpos($id, 'filefield-remove')) {
+            $filefield_ahah_settings[$id] = $ahah_settings;
+          }
+        }
+      }
+    }
+  }
+
+  // Add the AHAH settings needed for our new buttons.
+  if (!empty($filefield_ahah_settings)) {
+    $output .= '<script type="text/javascript">jQuery.extend(Drupal.settings.ahah, '. drupal_to_js($filefield_ahah_settings) .');</script>';
+  }
+
+  $output = theme('status_messages') . $output;
+
+  // For some reason, file uploads don't like drupal_json() with its manual
+  // setting of the text/javascript HTTP header. So use this one instead.
+  print drupal_to_js(array('status' => TRUE, 'data' => $output));
+  exit;
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
