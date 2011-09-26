@@ -431,7 +431,7 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
     
     unset($existing_fields[$field_name]);
   }
-  
+
   foreach ($existing_fields as $field_name => $field) {
     $default_field = $field + array(
       'gid' => 0,
@@ -532,6 +532,7 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
       'weight' => $field_value['weight'],
       'display' => $display_value,
     );
+
     $field_to_save = array_merge($field_to_save, $existing_fields[$field_name]);
     if (isset($field_value['fid'])) {
       $field_to_save['fid'] = $field_value['fid'];
@@ -1011,7 +1012,7 @@ function wyditadmin_get_existing_fields($type_name) {
       'name' => 'date',
       'label' => $form['author']['date']['#title'],
     );
-    $existing_fields[$type_name]['options'] = array(
+    $existing_fields[$type_name]['status'] = array(
       'type' => $form['options']['status']['#type'],
       'widget' => $form['options']['status']['#type'],
       'name' => 'status',
