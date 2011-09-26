@@ -1273,7 +1273,7 @@ dsm($form_state, 'ofrm state sumbit');
   $a['type']=$form_state['type'];
   $a['cache name']=$form_state['cache name'];
   $a['profile_id']=$form_state['profile_id'];
-
+dsm($form_state, 'after clean');
   $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
   foreach($flat_fields as $field){
     $field_name = $field['name'];
