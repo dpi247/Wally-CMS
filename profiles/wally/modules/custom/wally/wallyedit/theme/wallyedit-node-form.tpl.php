@@ -153,7 +153,7 @@ padding:5px;
     margin:auto;
 }
 -->
-table.sticky-header{
+table.sticky-header, #column-side-right .form-item{
 position:relative !important;
 }
 </style>
