@@ -1350,6 +1350,11 @@ function wydit_subform_global_add_form(&$form_state){
   wydit_remove_form_infos($form[$type_name]);
 
   $form['#tree']=true;
+  
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['profile_id'],
+  );
 
   $form["save_global"]=array(
     '#type'=>'submit',
@@ -1359,7 +1364,7 @@ function wydit_subform_global_add_form(&$form_state){
   );
   
   $form['#tree']=true;
-$form['#theme'][] = "wallyedit_node_form";
+  $form['#theme'][] = "wallyedit_node_form";
   
   return $form;
 }
@@ -1443,6 +1448,11 @@ function wydit_subform_global_edit_form(&$form_state){
   wydit_remove_form_infos($form[$type_name]);
 
   $form['#tree']=true;
+  
+  $form['profile_id'] = array(
+    '#type' => 'value',
+    '#value' => $form_state['profile_id'],
+  );
 
   $form["save_global"]=array(
     '#type'=>'submit',
