@@ -344,7 +344,7 @@ function wallyextra_refresh_block($infos, $settings) {
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin, $ajax = FALSE) {
   $cached_datas = cache_get($cid, 'cache');
-
+dsm($cached_datas, $cid);
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
     // This cache doesn't exists, create it
     if ($ajax) {
@@ -362,7 +362,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
                 subtype: "'.$subtype.'",
                 context: \''.serialize($context).'\',
                 default_theme: "'.$default_theme.'",
-                plugin: "'.$plugin.'"
+                plugin: "'.$plugin.'",
+                cid: \''.$cid.'\',
               },
               complete: function(data) {
                 $("div.loading_'.$cid.'_'.$default_theme.'").html(data.responseText);
@@ -378,14 +379,16 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
     } else {
       // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
-      if (is_string($datas))
+      if (is_string($datas)) {
         $datas = array('content' => $datas);
+      }
     }
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;
-    if (is_string($datas))
+    if (is_string($datas)) {
       $datas = array('content' => $datas);
+    }
   }
   
   return $datas;
@@ -398,25 +401,36 @@ function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
   // Get POSTed values
+  $cid = $_POST['cid'];
   $callback = $_POST['callback'];
   $settings = str_replace('|@@@|', '\n', unserialize($_POST['settings']));
   $subtype = $_POST['subtype'];
   $context = unserialize($_POST['context']);
   $default_theme = $_POST['default_theme'];
   $plugin = $_POST['plugin'];
-  
-  // Load plugin if necessary
-  if ($plugin != '')
-    require_once $plugin;
-  
-  // Get contents to be passed to theming function
-  $datas = call_user_func_array($callback, array($settings));
+
+  // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
+  $cached_datas = cache_get($cid, 'cache');
+
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+    // Load plugin if necessary
+    if ($plugin != '') {
+      require_once $plugin;
+    }
+
+    // Get contents to be passed to theming function
+    $datas = call_user_func_array($callback, array($settings));
+  } else {
+    // The object exists in cache
+    $datas = $cached_datas->data;
+  }
 
   // Usual theming
-  if ($settings['override_theme'] && $settings['override_theme_text'] != '')
+  if ($settings['override_theme'] && $settings['override_theme_text'] != '') {
     $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
-  else
+  } else {
     $content = theme($default_theme, $subtype, $context, $datas, $settings);
+  }
   
   print $content;
 }
