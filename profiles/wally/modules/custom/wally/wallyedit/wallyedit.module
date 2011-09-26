@@ -1247,6 +1247,7 @@ function wydit_subform_global_page_submit(&$form_state){
   //*********
   //Prepare form_state for input element
   //*********
+  dsm($form_state, 'submit');
   $type_name=$form_state['type'];
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type_name);
