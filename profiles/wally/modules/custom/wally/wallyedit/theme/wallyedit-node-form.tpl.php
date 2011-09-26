@@ -463,39 +463,37 @@ $no_tab_name="no_tab";
   </div>
 </div>
 <div id="column-side-right">
-<div id="meta-header">
-  <span>Meta</span>
-</div>
-<?php dsm($onglets_struct[$meta_tab_name]['elements']['no_group']['fields']); if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
-<div class="group">
-                  <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
-                  <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-                    <?php else:?>
-                      <?php print drupal_render($form[$node_type][$element_name])?>
-                    <?php endif;?>
-                <?php endforeach;?>
-                </div>
-<?php endif;?>
-              <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
-                <?php if($group_id!='no_group'):?>
-                 
-                 <div class="group">
-                  <h2 class="title title-group "><span><?php print $onglets_struct[$meta_tab_name]['elements'][$group_id]["label"]?></span></h2>
-                   <div class="group_content">
-                   <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-                    <?php else:?>
-                      <?php print drupal_render($form[$node_type][$element_name])?>
-                    <?php endif;?>
-                    </div>
-                  <?php endforeach;?>
-                  
-                  </div>
-                  <?php endif;?>
-                <?php endforeach;?>
+  <div id="meta-header">
+    <span>Meta</span>
+  </div>
+  <?php  if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
+  <div class="group">
+    <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]?></span></h2>
+    <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
+    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+    <?php else:?>
+      <?php print drupal_render($form[$node_type][$element_name])?>
+    <?php endif;?>
+    <?php endforeach;?>
+  </div>
+  <?php endif;?>
+  <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
+  <?php if($group_id!='no_group'):?>
+    <div class="group">
+      <h2 class="title title-group "><span><?php print $onglets_struct[$meta_tab_name]['elements'][$group_id]["label"]?></span></h2>
+      <div class="group_content">
+        <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
+          <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+            <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
+          <?php else:?>
+            <?php print drupal_render($form[$node_type][$element_name])?>
+          <?php endif;?>
+        <?php endforeach;?>
+      </div>
+    </div>
+  <?php endif;?>
+  <?php endforeach;?>
 </div>
 
 <div id="buttons">
