@@ -83,7 +83,6 @@ function wallymport_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  
   return $items;
 }
 
