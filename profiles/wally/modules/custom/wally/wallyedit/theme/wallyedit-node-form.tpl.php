@@ -402,7 +402,7 @@ $(document).ready(function() {
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
 
-dsm($form);
+//dsm($form);
 ?>
 </script>
 <div id="column-main-left">
