@@ -391,6 +391,10 @@ function wallyedit_theme(){
       'arguments' => array('form' => array()),
       'template' => 'wallyedit-node-form',
     ),
+    'wallyedit_node_form'=>$base+array(
+      'arguments' => array('form' => array()),
+      'template' => 'wallyedit-node-form',
+    ),
     'wallyedit_admin'=>$base+array(
       'arguments' => array('rows' => array()),
     ),
@@ -1355,7 +1359,8 @@ function wydit_subform_global_add_form(&$form_state){
   );
   
   $form['#tree']=true;
-
+$form['#theme'][] = "wallyedit_node_form";
+  
   return $form;
 }
 
@@ -1447,7 +1452,8 @@ function wydit_subform_global_edit_form(&$form_state){
   );
   $form['#tree']=true;
   unset($form["#validate"]);
-   
+   $form['#theme'][] = "wallyedit_node_form";
+  
   return $form;
 }
 
