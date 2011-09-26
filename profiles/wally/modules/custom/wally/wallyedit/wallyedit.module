@@ -637,7 +637,6 @@ function wallyedit_get_available_profiles() {
 function wallyedit_form_page_createmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
   $form['#action'] = '/node/add2/'.str_replace('_', '-', $form_state['type']).'/1/'.$form_state['profile_id'].'/'.$form_state['cache name'];
-  $form['#after_build'][]='wally_edit_clean_after_build';
   
   return $form;
 }

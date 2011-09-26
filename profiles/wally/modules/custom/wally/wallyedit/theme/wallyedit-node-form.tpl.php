@@ -401,12 +401,10 @@ $(document).ready(function() {
 <?php 
 $meta_tab_name="meta_".$profile_id.'_'.$node_type;
 $no_tab_name="no_tab";
+
+dsm($form);
 ?>
 </script>
-<div id="profile_selector">
-<?php print drupal_render($form['choose_profile']); ?>
-<?php print drupal_render($form['confirm_profile']); ?>
-</div>
 <div id="column-main-left">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
@@ -421,21 +419,27 @@ $no_tab_name="no_tab";
           <?php  foreach($onglets_struct as $onglet=>$onglet_content): ?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
               <div class="content-tabs" id="onglet-<?php print $onglet; ?>">
+             
+                <?php if(count($onglets_struct[$onglet]['elements']['no_group']['fields'])>0):?>
                   <div class="group">
-                  <h2 class="title title-group  "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
-                  <div class="group_content">
-                  
-                    <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
-                      <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-                       <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
-                      <?php else:?>
-                        <?php print drupal_render($form[$node_type][$element_name]); ?>
-                      <?php endif;?>
-                  
-                <?php endforeach;?>
-                </div>
-             </div>
-              <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
+                    <h2 class="title title-group  "><span><?php print $onglets_struct[$onglet]['elements']['no_group']["label"]; ?></span></h2>
+                    <div class="group_content">
+                      <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
+                           <?php 
+                  dsm($cck_fields[$element_name],'cck_'.$element_name);
+                  dsm($onglets_struct[$onglet]['elements']['no_group']['fields'][$element_name],'cck_'.$element_name);
+                ?>
+                        <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
+                          <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
+                        <?php else:?>
+                          <?php print drupal_render($form[$node_type][$element_name]); ?>
+                        <?php endif;?>
+                      <?php endforeach;?>
+                    </div>
+                  </div>
+                <?php endif;?>
+             
+             <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
                 <?php if($group_id!='no_group'): ?>
                 <div class="group">
                   <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]; ?></span></h2>
@@ -496,6 +500,11 @@ $no_tab_name="no_tab";
   <?php print drupal_render($form['save_global']);?>
   <?php print drupal_render($form['reset_global']);?>
   <?php print drupal_render($form['publish_global']);?>
+</div>
+
+<div id="profile_selector">
+<?php print drupal_render($form['choose_profile']); ?>
+<?php print drupal_render($form['confirm_profile']); ?>
 </div>
 
 <div style="display:none">
