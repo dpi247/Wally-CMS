@@ -1247,7 +1247,6 @@ function wydit_subform_global_page_submit(&$form_state){
   //*********
   //Prepare form_state for input element
   //*********
-  dsm($form_state, 'submit');
   $type_name=$form_state['type'];
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type_name);
@@ -1648,7 +1647,7 @@ function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$eleme
     "#theme" => 'wydit_selector_theme',
     '#title' => $form_element['#title'],
   );
-dsm($form_state, 'form state');
+
   foreach($form_state as $key=>$embed){
     $embed_node=$embed["#node"];
     if (isset($embed_node->title) && !empty($embed_node->title)) {
@@ -1684,7 +1683,7 @@ dsm($form_state, 'form state');
       unset($form_state[$key]);
     }
   }
-dsm($form, 'form');
+
   $form['add_existing_action']=array(
     "#type"=>"submit",
     "#value"=>'add existing one',
