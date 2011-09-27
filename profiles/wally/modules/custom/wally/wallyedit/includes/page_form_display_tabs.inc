@@ -40,6 +40,11 @@ function wallyedit_form_tabs_content_types_overview_form (&$form_state, $profile
 
   if (is_numeric($profile_id)) {
     $interface_types = variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+    
+    if (empty($interface_types)) {
+      drupal_set_message(t('Edition types not saved, the classical Drupal node edition will always be used.'), 'notice');
+    }
+    
     $types = node_get_types();
     $names = node_get_types('names');
     $editions = array(
@@ -61,7 +66,7 @@ function wallyedit_form_tabs_content_types_overview_form (&$form_state, $profile
 
         $form['rows'][$key]['name'] = array(
           '#type' => 'value',
-          '#value' => l($name, 'admin/content/node-type/'. $type_url_str),
+          '#value' => $name,
         );
 
         $form['rows'][$key]['type'] = array(
