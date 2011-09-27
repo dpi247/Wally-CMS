@@ -206,6 +206,7 @@ function content_multiple_value_form(&$form, &$form_state, $field, $items) {
     '#required' => $field['required'],
     '#description' => $description,
   );
+
   $function = $field['widget']['module'] .'_widget';
 
   for ($delta = 0; $delta <= $max; $delta++) {
