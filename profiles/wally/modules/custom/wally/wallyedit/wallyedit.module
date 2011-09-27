@@ -99,22 +99,11 @@ function wallyedit_menu(){
   
   $items['admin/content/wallydisplaytabs/displaytabs/%/%'] = array(
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyedit_form_groups_overview_form', 4, 5),
+    'page arguments' => array('wallyedit_form_tabs_overview_form', 4, 5),
     'access callback' => 'wallyedit_access',
     'access arguments' => array(4),
     'file' => 'includes/page_form_display_tabs.inc',
     'title' => t('Organise fields into tabs'),
-  );
-  
-  $items['admin/content/wallydisplaytabs/displaytabs/%/%/groups'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyedit_form_groups_overview_form', 4, 5),
-    'access callback' => 'wallyedit_access',
-    'access arguments' => array(4),
-    'file' => 'includes/page_form_display_tabs.inc',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'title' => t('Groups'),
-    'weight' => 1,
   );
   
   $items['admin/content/wallydisplaytabs/displaytabs/%/%/tabs'] = array(
@@ -123,8 +112,19 @@ function wallyedit_menu(){
     'access callback' => 'wallyedit_access',
     'access arguments' => array(4),
     'file' => 'includes/page_form_display_tabs.inc',
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
     'title' => t('Tabs'),
+    'weight' => 0,
+  );
+  
+  $items['admin/content/wallydisplaytabs/displaytabs/%/%/groups'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_groups_overview_form', 4, 5),
+    'access callback' => 'wallyedit_access',
+    'access arguments' => array(4),
+    'file' => 'includes/page_form_display_tabs.inc',
+    'type' => MENU_LOCAL_TASK,
+    'title' => t('Groups'),
     'weight' => 1,
   );
   
