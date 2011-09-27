@@ -18,18 +18,21 @@ function theme_wallyedit_inline_form($form) {
 }
 function theme_wallyedit_admin($rows=array(),$headers){
   drupal_set_title("Wallyedit Admin");
+  $output = '';
 
-  foreach($rows as $row){
-    $data = array();
-    foreach($row as $elem){
-      $data[] = $elem;
+  if (!empty($rows)) {
+    foreach($rows as $row){
+      $data = array();
+      foreach($row as $elem){
+        $data[] = $elem;
+      }
+      $collumn = array('data'=> $data);
+      $collumns[] = $collumn;
     }
-    $collumn = array('data'=> $data);
-    $collumns[] = $collumn;
+    
+    $output = theme('table',$headers, $collumns);
+    $output .= theme('pager');
   }
-  
-  $output = theme('table',$headers, $collumns);
-  $output .= theme('pager');
   
   return $output;
 }
