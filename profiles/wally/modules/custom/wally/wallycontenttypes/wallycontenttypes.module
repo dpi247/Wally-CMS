@@ -1034,7 +1034,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
 
   _wallycontenttypes_update_crop_state_value($form, $form_state);
 dsm($form, 'form photo');
-  if ($form['group_photo']['field_photofile'][0]['fid']['#value'] || (isset($form['group_photo']['field_photofile'][0]['#default_value']['fid']) && $form['group_photo']['field_photofile'][0]['#default_value']['fid'] != 0)) {
+  if (isset($form['#node']->field_photofile)) {
     $form['group_photo']['field_photofile'][0]['edit_croping']=array(
       '#weight' => $form['group_photo']['field_photofile'][0]['preview']['#weight']*1.1,
     	'#type' => 'markup',
