@@ -1031,42 +1031,50 @@ function wyditadmin_get_existing_fields($type_name) {
       'name' => 'sticky',
       'label' => $form['options']['sticky']['#title'],
     );
-    $existing_fields[$type_name]['comment'] = array(
-      'type' => $form['comment_settings']['comment']['#type'],
-      'widget' => $form['comment_settings']['comment']['#type'],
-      'name' => 'comment',
-      'label' => $form['comment_settings']['#title'],
-    );
-    $existing_fields[$type_name]['link_title'] = array(
-      'type' => $form['menu']['link_title']['#type'],
-      'widget' => $form['menu']['link_title']['#type'],
-      'name' => 'link_title',
-      'label' => $form['menu']['link_title']['#title'],
-    );
-    $existing_fields[$type_name]['parent'] = array(
-      'type' => $form['menu']['parent']['#type'],
-      'widget' => $form['menu']['parent']['#type'],
-      'name' => 'parent',
-      'label' => $form['menu']['parent']['#title'],
-    );
-    $existing_fields[$type_name]['weight'] = array(
-      'type' => $form['menu']['weight']['#type'],
-      'widget' => $form['menu']['weight']['#type'],
-      'name' => 'weight',
-      'label' => $form['menu']['weight']['#title'],
-    );
-    $existing_fields[$type_name]['path'] = array(
-      'type' => $form['path']['path']['#type'],
-      'widget' => $form['path']['path']['#type'],
-      'name' => 'path',
-      'label' => $form['path']['#title'],
-    );
-    $existing_fields[$type_name]['upload'] = array(
-      'type' => $form['attachments']['wrapper']['new']['upload']['#type'],
-      'widget' => $form['attachments']['wrapper']['new']['upload']['#type'],
-      'name' => 'upload',
-      'label' => $form['attachments']['wrapper']['new']['upload']['#title'],
-    );
+    if (module_exists('comment')) {
+      $existing_fields[$type_name]['comment'] = array(
+        'type' => $form['comment_settings']['comment']['#type'],
+        'widget' => $form['comment_settings']['comment']['#type'],
+        'name' => 'comment',
+        'label' => $form['comment_settings']['#title'],
+      );
+    }
+    if (module_exists('menu')) {
+      $existing_fields[$type_name]['link_title'] = array(
+        'type' => $form['menu']['link_title']['#type'],
+        'widget' => $form['menu']['link_title']['#type'],
+        'name' => 'link_title',
+        'label' => $form['menu']['link_title']['#title'],
+      );
+      $existing_fields[$type_name]['parent'] = array(
+        'type' => $form['menu']['parent']['#type'],
+        'widget' => $form['menu']['parent']['#type'],
+        'name' => 'parent',
+        'label' => $form['menu']['parent']['#title'],
+      );
+      $existing_fields[$type_name]['weight'] = array(
+        'type' => $form['menu']['weight']['#type'],
+        'widget' => $form['menu']['weight']['#type'],
+        'name' => 'weight',
+        'label' => $form['menu']['weight']['#title'],
+      );
+    }
+    if (module_exists('path')) {
+      $existing_fields[$type_name]['path'] = array(
+        'type' => $form['path']['path']['#type'],
+        'widget' => $form['path']['path']['#type'],
+        'name' => 'path',
+        'label' => $form['path']['#title'],
+      );
+    }
+    if (module_exists('upload')) {
+      $existing_fields[$type_name]['upload'] = array(
+        'type' => $form['attachments']['wrapper']['new']['upload']['#type'],
+        'widget' => $form['attachments']['wrapper']['new']['upload']['#type'],
+        'name' => 'upload',
+        'label' => $form['attachments']['wrapper']['new']['upload']['#title'],
+      );
+    }
   }
   return $existing_fields[$type_name];
 }
