@@ -691,9 +691,10 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   }
 
   //This is the important line !!!
+  
   wydit_subform_global_page_submit($form_state);
-
-  if($form_state["clicked_button"]['#name'] == 'publish_global'){
+  
+  if($form_state["clicked_button"]['#name']=='publish_global' ){
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
     ctools_object_cache_clear('prenode', $form_state['cache name']);
@@ -709,7 +710,6 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
   $action = split('__',$form_state['clicked_button']['#name']);
   $action = $action[0];
-
   switch($action){
     case 'edit':
       $new_form_state=array();
@@ -1250,7 +1250,7 @@ function wydit_subform_global_page_submit(&$form_state){
   $type_name=$form_state['type'];
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type_name);
-
+  
   //clean empty multiple values (cfr hook_content_is_empty)
   foreach($fields as $field){
     if($field['multiple']==1){
@@ -1299,12 +1299,12 @@ function wydit_subform_global_page_submit(&$form_state){
       }
     }
   }
-  
   if (isset($a[$a['type']]['#node']->field_destinations)) {
     cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
   }
   
   wydit_clean_and_save_form_state($a);
+  $form_state[$form_state['type']]=$a[$form_state['type']];
 }
 
 function wallyedit_form_createmode_add_form(&$form_state){
@@ -2223,6 +2223,7 @@ function wydit_clean_form_state($form_state){
 function wydit_clean_and_save_form_state(&$form_state){
   $form_state=wydit_clean_form_state($form_state);
   wydit_save_form_state($form_state);
+  
 }
 
 function wydit_get_infos_groups($type_name){
@@ -2273,7 +2274,6 @@ function wydit_get_url_action($action, $nid){
 }
 
 /**
- * Return the unique cart_id of the user.
  */
 function wydit_get_cache_name($nid = NULL) {
   global $user;
