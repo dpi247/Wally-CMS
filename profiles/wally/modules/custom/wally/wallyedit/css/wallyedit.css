@@ -1,10 +1,28 @@
 @CHARSET "UTF-8";
-.wallyedit_level1{
-  margin:15px;
-  border: 1px solid ;
-  padding:10px;
-}
-#field_destinations_values .form-item{
-	float:left;
 
+.wallyedit_level1 {
+	margin: 15px;
+	border: 1px solid;
+	padding: 10px;
+}
+
+#field_destinations_values .form-item {
+	float: left;
+}
+
+table table {
+	width: 80%;
+}
+
+table table tbody {
+	border: none;
+}
+
+table tbody tr.tab-populated {
+	display: none;
+}
+
+#autocomplete {
+	z-index: 999;
+	position: static;
 }
