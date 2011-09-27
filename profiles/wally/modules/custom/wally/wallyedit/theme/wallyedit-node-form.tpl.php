@@ -353,7 +353,9 @@ return typeof val == 'object' ? val : { top:val, left:val };
 
 <?php
   module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
-
+dsm($node_type);
+dsm($form);
+dsm($profile_id);
   $tabs=wyditadmin_get_fields_tree($profile_id, $node_type);
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($node_type);
