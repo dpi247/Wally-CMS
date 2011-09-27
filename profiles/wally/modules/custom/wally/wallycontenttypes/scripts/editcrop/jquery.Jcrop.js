@@ -106,8 +106,9 @@ $.Jcrop = function(obj,opt)
 
 	var $origimg = $(obj);
 	var $img = $origimg.clone().removeAttr('id').css({ position: 'absolute' });
-
+alert($origimg.widht());
 	$img.width($origimg.width());
+alert($img.widht);
 	$img.height($origimg.height());
 	$origimg.after($img).hide();
 
