@@ -402,12 +402,13 @@ $(document).ready(function() {
     });
      
 });
-
-<?php 
-$meta_tab_name="meta_".$profile_id.'_'.$node_type;
-$no_tab_name="no_tab";
-?>
 </script>
+
+<?php
+  $meta_tab_name="meta_".$profile_id.'_'.$node_type;
+  $no_tab_name="no_tab";
+?>
+
 <div id="column-main-left">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
@@ -467,8 +468,9 @@ $no_tab_name="no_tab";
   </div>
 </div>
 <div id="column-side-right">
+<?php if (isset($onglets_struct[$meta_tab_name])) : ?>
   <div id="meta-header">
-    <span>Meta</span>
+    <span><?php print $onglets_struct[$meta_tab_name]['label']; ?></span>
   </div>
   <?php  if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
   <div class="group">
@@ -498,6 +500,7 @@ $no_tab_name="no_tab";
     </div>
   <?php endif;?>
   <?php endforeach;?>
+<?php endif; ?>
 </div>
 
 <div id="buttons">
