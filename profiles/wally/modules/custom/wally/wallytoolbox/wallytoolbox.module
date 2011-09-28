@@ -985,7 +985,7 @@ function wallytoolbox_refresh_cache_list() {
         $config = $handler->configuration;
         $block['cid'] = $page_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
         
-        $check_existing = db_result(db_query('SELECT cid FROM {wallytoolbox_content_types_cache} WHERE cid = %s', $block['cid']));
+        $check_existing = db_result(db_query('SELECT cid FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $block['cid']));
         if (!$check_existing) {
           if (isset($blocks_list[$block['cid']])) {
             $block['output'] = $blocks_list[$block['cid']]['output'];
