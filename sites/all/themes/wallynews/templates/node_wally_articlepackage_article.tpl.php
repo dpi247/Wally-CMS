@@ -3,7 +3,6 @@
 * Template for rendering a articlepackage-article node type.
 */
 $mainstory = $node->field_mainstory_nodes[0];
-dsm($node);
 ?>
 
 <div class="content">
