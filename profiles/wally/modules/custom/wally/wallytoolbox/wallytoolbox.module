@@ -985,21 +985,24 @@ function wallytoolbox_refresh_cache_list() {
         $config = $handler->configuration;
         $block['cid'] = $page_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
         
-        if (isset($blocks_list[$block['cid']])) {
-          $block['output'] = $blocks_list[$block['cid']]['output'];
-          $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
-          $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
-          $block['weight'] = $blocks_list[$block['cid']]['weight'];
-          $block['rule'] = $blocks_list[$block['cid']]['rule'];
-        } else {
-          $block['rule'] = isset($config['wally_rule']) ? 60*$config['wally_rule'] : 0;
+        $check_existing = db_result(db_query('SELECT cid FROM {wallytoolbox_content_types_cache} WHERE cid = %s', $block['cid']));
+        if (!$check_existing) {
+          if (isset($blocks_list[$block['cid']])) {
+            $block['output'] = $blocks_list[$block['cid']]['output'];
+            $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
+            $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
+            $block['weight'] = $blocks_list[$block['cid']]['weight'];
+            $block['rule'] = $blocks_list[$block['cid']]['rule'];
+          } else {
+            $block['rule'] = isset($config['wally_rule']) ? 60*$config['wally_rule'] : 0;
+          }
+          
+          $config['wally_rule'] = 0; // Just to be sure the rule parameter is setted before unset it
+          unset($config['wally_rule']);
+          $block['settings'] = $config;
+          
+          drupal_write_record('wallytoolbox_content_types_cache', $block);
         }
-        
-        $config['wally_rule'] = 0; // Just to be sure the rule parameter is setted before unset it
-        unset($config['wally_rule']);
-        $block['settings'] = $config;
-        
-        drupal_write_record('wallytoolbox_content_types_cache', $block);
       }
     }
   }
