@@ -80,7 +80,7 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
 function wallyflowpublish_views_pre_execute(&$view) {
   $current_display = $view->current_display;
   if ($view->display[$current_display]->display_plugin == 'feed') {
-    foreach ($view->args as $arg) {
+    /*foreach ($view->args as $arg) {
       $name .= '/'.$arg;
     }
     $tax = wallytoolbox_taxonomy_get_term_by_path($name);
@@ -88,7 +88,8 @@ function wallyflowpublish_views_pre_execute(&$view) {
     $old_tid = $view->build_info['query_args'][3];
     $view->build_info['query'] = str_replace('\''.$old_tid.'\'', '\''.$tid.'\'', $view->build_info['query']);
     $view->build_info['count_query'] = str_replace('\''.$old_tid.'\'', '\''.$tid.'\'', $view->build_info['count_query']);
-    $view->build_info['query_args'][3] = $tid;
+    $view->build_info['query_args'][3] = $tid;*/
+    $tid = $view->args[0];
 
     $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
     while (is_string($data['mediafed']))
@@ -107,6 +108,21 @@ function wallyflowpublish_views_pre_execute(&$view) {
         }
       }
     }
+  }
+}
+
+/**
+ * Implementation of hook_views_pre_view()
+ * Get the destination hierarchy and replace it by the right tid
+ */
+function wallyflowpublish_views_pre_view($view, $display_id, &$args) {
+  if ($view->display[$display_id]->display_plugin == 'feed') {
+    foreach ($args as $arg) {
+      $name .= '/'.$arg;
+    }
+    $tax = wallytoolbox_taxonomy_get_term_by_path($name);
+    $tid = $tax[0]->tid;
+    $args = array($tid);
   }
 }
 
