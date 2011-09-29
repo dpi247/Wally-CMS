@@ -88,7 +88,7 @@ function wallyextra_views_default_views() {
         '8' => 0,
         '9' => 0,
       ),
-      'validate_argument_type' => 'convert',
+      'validate_argument_type' => 'tid',
       'validate_argument_transform' => 0,
       'validate_user_restrict_roles' => 0,
       'validate_argument_php' => '',
