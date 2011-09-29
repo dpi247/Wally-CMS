@@ -81,12 +81,6 @@ function cckdestinations_subdomain_ctools_access_check($conf, $context) {
  * Provide a summary description based upon the checked subdomains.
  */
 function cckdestinations_subdomain_ctools_access_summary($conf, $context) {
-  return t('"@term" has an associated topic term', array('@term' => $context->identifier,));
-  
-  if (empty($names)) {
-    return t('@identifier is any node type', array('@identifier' => $context->identifier));
-  }
-
-  return format_plural(count($names), '@identifier is type "@types"', '@identifier type is one of "@types"', array('@types' => implode(', ', $names), '@identifier' => $context->identifier));
+  return t('Subdomain match "@token" with method "@method"', array('@token' => $conf['token'], '@method' => $conf['method']));
 }
 
