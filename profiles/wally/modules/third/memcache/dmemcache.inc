@@ -287,6 +287,8 @@ function dmemcache_object($bin = NULL, $flush = FALSE) {
       $memcache_servers = variable_get('memcache_servers', array('127.0.0.1:11211' => 'default'));
       $memcache_bins    = variable_get('memcache_bins', array('cache' => 'default'));
     }
+    variable_set('memcache_servers', $memcache_servers);
+    variable_set('memcache_bins', $memcache_bins);
 
     // If there is no cluster for this bin in $memcache_bins, cluster is 'default'.
     $cluster = empty($memcache_bins[$bin]) ? 'default' : $memcache_bins[$bin];
