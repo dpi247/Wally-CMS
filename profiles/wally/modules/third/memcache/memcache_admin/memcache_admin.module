@@ -246,6 +246,18 @@ function memcache_admin_stats($bin = 'cache') {
       drupal_set_message(t('Failed to detect the memcache PECL extension.'), 'error');
     }
 
+    $data['server_overview'] = array();
+    $data['server_pecl'] = array();
+    $data['server_time'] = array();
+    $data['server_connections'] = array();
+    $data['cache_sets'] = array();
+    $data['cache_gets'] = array();
+    $data['cache_counters'] = array();
+    $data['cache_transfer'] = array();
+    $data['cache_average'] = array();
+    $data['memory_available'] = array();
+    $data['memory_evictions'] = array();
+
     // Building per-server stats for the current memcache bin.
     $servers = array();
     foreach ($memcache_servers as $server => $b) {
