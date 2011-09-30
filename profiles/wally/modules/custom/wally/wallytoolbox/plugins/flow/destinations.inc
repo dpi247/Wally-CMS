@@ -150,6 +150,10 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 }
 
 function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
+  dsm('line');
+dsm('line');
+dsm('line');
+  dsm($feed_infos, 'feed infos');
   $conf = $feed_infos['conf'];
   $tid = $conf['destination']['tid'];
   $target = $conf['destination']['target'];
