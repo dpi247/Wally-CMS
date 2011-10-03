@@ -14,7 +14,7 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
   $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
   $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
 }
-
+/*
 function wallyctools_views_admin_links_alter(&$vars,$view){
   $handlers=$view->display_handler->handlers;
   foreach($handlers['argument'] as $key=>$value){
@@ -46,7 +46,7 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
   }
 }
 
-
+*/
 /**
 * Theme preprocess function for views-view-row-unformatted.tpl.php
 */
