@@ -131,7 +131,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 
   $view = wallytoolbox_destinations_flow_get_view_results($feed_infos);
   $view_results = $view->result;
-  
+  dsm($view_results, 'view result');
   $transformed_nodes = wallytoolbox_flow_to_array_init_array();
   foreach ($view_results as $node_result) {
     $node = node_load($node_result->nid);
@@ -150,10 +150,10 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
 }
 
 function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
-  dsm('line');
 dsm('line');
 dsm('line');
-  dsm($feed_infos, 'feed infos');
+dsm('line');
+dsm($feed_infos, 'feed infos');
   $conf = $feed_infos['conf'];
   $tid = $conf['destination']['tid'];
   $target = $conf['destination']['target'];
