@@ -54,11 +54,6 @@ function pub_theme() {
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
-    'analytic_content' => array(
-      'arguments' => array('html_code' => NULL),
-      'template' => 'analytic-content',
-      'path' => drupal_get_path('module', 'pub') . '/templates',
-    ),
     'xiti_content' => array(
       'arguments' => array('html_code' => NULL),
       'template' => 'xiti-content',
@@ -242,7 +237,8 @@ function _pub_getanalyticcontent() {
     $analytic_content = $cached_pub->data;
   }
   
-  return theme('analytic_content', $analytic_content);
+  drupal_add_js($analytic_content, 'inline');
+  return '';
 }
 
 /**
