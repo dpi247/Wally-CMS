@@ -145,7 +145,7 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
       $transformed_nodes['Packages']['Package'][] = $package;
     }
   }
-
+dsm($transformed_nodes, 'res');
   return $transformed_nodes;
 }
 
