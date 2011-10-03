@@ -553,10 +553,10 @@ function wallymport_page_process_file($path_to_file, $preview = FALSE){
   
   $dom = new DomDocument();
   $dom->LoadXML($contents);
-  if (!$dom->schemaValidate($xsd_file))
+  if (!$dom->schemaValidate($xsd_file)){
     dsm('XML not VALIDATED');
     return t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
-
+  }
   $log = array();
   $return = wimprt_process_packages($dom, $log, $preview);
   return $return;
