@@ -726,6 +726,10 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
     if (count($deltas) > 1 || $current_item_count >= 1) {
       $deltas[] = max($deltas) + 1;
     }
+    
+    if (count($deltas) < $current_item_count) {
+      $deltas[] = max($deltas) + 1;
+    }
 
     $title = check_plain(t($field['widget']['label']));
     $description = content_filter_xss(t($field['widget']['description']));
