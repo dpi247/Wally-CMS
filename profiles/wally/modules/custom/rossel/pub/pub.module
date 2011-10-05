@@ -206,7 +206,8 @@ function _pub_getpubcontent($delta) {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getcontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $script_type = variable_get('pub_provider', 'AdTech');
+    $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
     
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
@@ -241,7 +242,8 @@ function _pub_getheadercontent() {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getheadercontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $script_type = variable_get('pub_provider', 'AdTech');
+    $content_from_webservice = _pub_getheadercontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
     
     if ($content_from_webservice) {
       $header_content = $content_from_webservice;
