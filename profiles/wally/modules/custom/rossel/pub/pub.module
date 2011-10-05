@@ -54,6 +54,21 @@ function pub_theme() {
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
+    'analytic_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'analytic-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'xiti_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'xiti-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'metriweb_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriweb-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
   );
 }
 
@@ -70,6 +85,11 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
           'cache' => BLOCK_CACHE_PER_PAGE,
         );
       }
+      
+      $blocks['pub_header'] = array(
+        'info' => t('Pub Header'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
       
       $blocks['analytic_block'] = array(
         'info' => t('Analytic'),
@@ -114,6 +134,9 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       return $form;
     case 'save':
       switch ($delta) {
+        case 'pub_header':
+          variable_set('header_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
         case 'analytic_block':
           variable_set('analytic_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
           break;
@@ -129,6 +152,12 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       break;
     case 'view':
       switch ($delta) {
+        case 'pub_header':
+          $block = array(
+            'subject' => t('Pub Header.'), 
+            'content' => _pub_getheadercontent(),
+          );
+          break;
         case 'analytic_block':
           $block = array(
             'subject' => t('Analytic block.'), 
@@ -193,6 +222,42 @@ function _pub_getpubcontent($delta) {
   }
 
   return theme('pub_content', $pub_content, $delta);;
+}
+
+/**
+ * Get content for the pub header block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getheadercontent() {
+  $orig_url = $_GET['q'];
+  $cached_pub = cache_get('header_temp-'.$orig_url);
+  $cache_time = variable_get('header_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $content_from_webservice = _pub_getheadercontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    if ($content_from_webservice) {
+      $header_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('header_perm-'.$orig_url);
+      $header_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('header_temp-'.$orig_url, $header_content, 'cache', time() + 3600*$cache_time);
+    cache_set('header_perm-'.$orig_url, $header_content);
+  } else {
+    $header_content = $cached_pub->data;
+  }
+  
+  drupal_add_js($header_content, 'inline');
+  return '';
 }
 
 /**
@@ -302,6 +367,28 @@ function _pub_getmetriwebcontent() {
   
   drupal_add_js($metriweb_content, 'inline');
   return '';
+}
+
+/**
+ * Get header content from a webservice.
+ * 
+ * @return
+ *   HTML content.
+ */
+function _pub_getheadercontentfromwebservice($script_type, $website, $page_type, $context, $position) {
+  $expl_website = explode('_', $website);
+  $domain = $_SERVER['HTTP_HOST'];
+  $params = array(
+    'site='.rawurlencode($expl_website[0]),
+    'pageType='.rawurlencode($page_type),
+    'context='.rawurlencode($context),
+    'position='.rawurlencode($position),
+    'domain='.$domain,
+  );
+  $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
+  
+  $content = drupal_http_request(variable_get('pub_header', '').$req_url);
+  return ($content->code == '200') ? $content->data : FALSE;
 }
 
 /**
