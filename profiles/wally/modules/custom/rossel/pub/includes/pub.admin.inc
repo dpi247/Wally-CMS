@@ -42,6 +42,15 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['header'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL of the webservice returning the header javascript content'),
+    '#default_value' => variable_get('pub_header', ''),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
   $form['pub_submit'] = array(
     '#type' => 'submit',
     '#title' => t('Save'),
@@ -55,9 +64,11 @@ function pub_page_admin_form($form_state) {
  * Submit function for the settings form.
  */
 function pub_page_admin_form_submit($form, &$form_state) {
-  variable_set('pub_website', $form['website']['#value']);
-  variable_set('pub_get_xml', $form['get_xml']['#value']);
-  variable_set('pub_webserv', $form['webserv']['#value']);
+  $values = $form_state['values'];
+  variable_set('pub_website', $values['website']);
+  variable_set('pub_get_xml', $values['get_xml']);
+  variable_set('pub_webserv', $values['webserv']);
+  variable_set('pub_header', $values['webserv']);
   drupal_set_message('Configuration saved', 'notice');
 }
 
