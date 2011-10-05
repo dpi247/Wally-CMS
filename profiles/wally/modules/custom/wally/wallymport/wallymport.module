@@ -579,6 +579,7 @@ function wallymport_convertEntities($str)
     $str = str_ireplace($html,$xml,$str);
     return $str;
 } 
+
 /**
  * Process the packages element of a wally DomDocument object.
  * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
