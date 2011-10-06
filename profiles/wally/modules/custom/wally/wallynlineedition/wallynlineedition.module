@@ -81,5 +81,5 @@ function wallynlineedition_form_inline_edit_form_submit ($form, $form_state) {
     node_save($node);
   }
   
-  drupal_goto($form['#redirection']);
+  drupal_goto($form['#redirect']);
 }
