@@ -15,8 +15,10 @@ function wallynlineedition_menu() {
 }
 
 function wallynlineedition_preprocess_node() {
-  drupal_add_js(array('getQ' => str_replace('/', '_', $_GET['q'])), 'setting');
-  drupal_add_js(drupal_get_path('module', 'wallynlineedition').'/scripts/inline_edit.js');
+  if (user_access('edit content')) {
+    drupal_add_js(array('getQ' => str_replace('/', '_', $_GET['q'])), 'setting');
+    drupal_add_js(drupal_get_path('module', 'wallynlineedition').'/scripts/inline_edit.js');
+  }
 }
 
 function wallynlineedition_page_inline_edit_form ($parents, $redirect) {

@@ -10,9 +10,6 @@ Drupal.behaviors.wallycontenttypes = function (context) {
 				type: "GET",
 				url: "/inlineedit/"+cur_id+"/"+Drupal.settings.getQ,
 				cache: false,
-				//data: {
-				//	goto_redirect: "/"+Drupal.settings.getQ
-				//},
 				complete: function(data) {
 					$("#" + cur_id).removeClass("not_clicked");
 					$("#" + cur_id).addClass("clicked");
