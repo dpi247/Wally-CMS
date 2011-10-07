@@ -1,0 +1,6 @@
+core = "6.x"
+description = "Inline editor for specific contents"
+name = "WallyNlineEdition"
+package = "Wally"
+project = "wallynlineedition"
+version = "6.x-1.0-rc1"
