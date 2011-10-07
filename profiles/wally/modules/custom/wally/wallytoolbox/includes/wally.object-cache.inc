@@ -25,12 +25,14 @@
  *   The data that was cached.
  */
 function wallytoolbox_object_cache_get($nid, $revision, $view_name, $display) {
-  $data = db_fetch_object(db_query("SELECT * FROM {wallytoolbox_object_cache} WHERE nid = '%s'", $nid.'_'.$revision.'_'.$view_name.'_'.$display));
-  $data = $data ? unserialize($data->data) : FALSE;
+  $cid = $nid.'_'.$revision.'_'.$view_name.'_'.$display;
+  $cached_datas = cache_get($cid, 'cache_wally_object');
+  
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas)) {
+    return FALSE;
+  }
 
-  //watchdog('WallyToolbox', 'Node %nid get from cache with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
-
-  return $data;
+  return $cached_datas->data;
 }
 
 /**
@@ -48,18 +50,9 @@ function wallytoolbox_object_cache_set($node) {
   $view_name = $node->view->name;
   $display = $node->view->current_display;
   
-  wallytoolbox_object_cache_clear($nid.'_'.$revision.'_'.$view_name.'_'.$display);
-
-  $object = array(
-    'nid'           => $nid.'_'.$revision.'_'.$view_name.'_'.$display,
-    'type'          => $node->type,
-    'updated'       => time(),
-    'data'          => $node,
-  );
+  $cid = $nid.'_'.$revision.'_'.$view_name.'_'.$display;
   
-  //watchdog('WallyToolbox', 'Node %nid cached with revision %revision.', array('%nid' => $nid, '%revision' => $revision), WATCHDOG_INFO);
-  
-  return drupal_write_record('wallytoolbox_object_cache', $object);
+  return cache_set($cid, $node, 'cache_wally_object');
 }
 
 /**
@@ -72,9 +65,7 @@ function wallytoolbox_object_cache_set($node) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear($nid) {
-  //watchdog('WallyToolbox', 'Node %nid removed from cache.', array('%nid' => $nid), WATCHDOG_INFO);
-
-  return db_query("DELETE FROM {wallytoolbox_object_cache} WHERE nid LIKE '%s'", $nid.'%');
+  return cache_clear_all($nid, 'cache_wally_object', TRUE);
 }
 
 /**
@@ -97,7 +88,5 @@ function wallytoolbox_object_referencer_cache_clear($node) {
  *   Result of the database query.
  */
 function wallytoolbox_object_cache_clear_all() {
-  //watchdog('WallyToolbox', 'All cache cleared.', array(), WATCHDOG_INFO);
-  
-  return db_query("TRUNCATE TABLE {wallytoolbox_object_cache}");
+  return cache_clear_all('*', 'cache_wally_object', TRUE);
 }
