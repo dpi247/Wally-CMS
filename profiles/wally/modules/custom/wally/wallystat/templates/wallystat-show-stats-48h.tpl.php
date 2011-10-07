@@ -6,6 +6,7 @@ $expl_path = explode('/', $node_path);
 
 if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
   $nid = $expl_path[1];
+  
   $temp_node_hours_stats = array();
   $node_hours_stats_db = db_query('SELECT timestamp, SUM(count) FROM {wallystat_node_hourly_counter} WHERE nid = "%s" GROUP BY timestamp ORDER BY timestamp ASC', $nid);
   while ($stat = db_fetch_array($node_hours_stats_db))
