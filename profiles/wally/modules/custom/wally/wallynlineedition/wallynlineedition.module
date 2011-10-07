@@ -16,6 +16,7 @@ function wallynlineedition_menu() {
 
 function wallynlineedition_preprocess_node() {
   if (user_access('edit content')) {
+    dsm($_GET, 'get');
     drupal_add_js(array('getQ' => str_replace('/', '_', $_GET['q'])), 'setting');
     drupal_add_js(drupal_get_path('module', 'wallynlineedition').'/scripts/inline_edit.js');
   }
@@ -80,6 +81,4 @@ function wallynlineedition_form_inline_edit_form_submit ($form, $form_state) {
     $field = $values['new_value'];
     node_save($node);
   }
-  
-  drupal_goto($form['#redirect']);
 }
