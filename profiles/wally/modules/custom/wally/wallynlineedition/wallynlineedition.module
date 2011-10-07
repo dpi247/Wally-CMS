@@ -1,0 +1,87 @@
+<?php
+
+function wallynlineedition_menu() {
+  $items = array();
+  
+  $items['inlineedit/%/%'] = array(
+    'title' => t('Inline edition'), 
+    'page callback' => 'wallynlineedition_page_inline_edit_form',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('edit content'), 
+    'type' => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+function wallynlineedition_preprocess_node() {
+  if (user_access('edit content')) {
+    static $complete = FALSE;
+    if (!$complete) {
+      drupal_add_js(array('getQ' => str_replace('/', '_', $_GET['q'])), 'setting');
+      drupal_add_js(drupal_get_path('module', 'wallynlineedition').'/scripts/inline_edit.js');
+      $complete = TRUE;
+    }
+  }
+}
+
+function wallynlineedition_page_inline_edit_form ($parents, $redirect) {
+  print drupal_get_form('wallynlineedition_form_inline_edit_form', $parents, $redirect);
+}
+
+function wallynlineedition_form_inline_edit_form ($form_state, $orig_parents, $redirect) {
+  $form = array();
+  
+  $parents = $orig_parents;
+  $parents = explode('-', $parents);
+  $nid = array_shift($parents);
+  $node = node_load($nid);
+  $field = (array)$node;
+  $parent = array_shift($parents);
+  while ($parent !== NULL) {
+    $field = $field[$parent];
+    $parent = array_shift($parents);
+  }
+  
+  $form['#redirect'] = str_replace('_', '/', $redirect);
+
+  $form['parents'] = array(
+    '#type'             => 'value',
+    '#value'            => $orig_parents,
+  );
+  
+  $form['new_value'] = array(
+    '#type'             => 'textarea',
+    '#title'            => '',
+    '#default_value'    => $field,
+  );
+  
+  $form['submit'] = array(
+    '#type'             => 'submit',
+    '#value'            => t('Save'),
+    '#weight'           => 10,
+  );
+  
+  $form['#submit'][] = 'wallynlineedition_form_inline_edit_form_submit';
+
+  return $form;
+}
+
+function wallynlineedition_form_inline_edit_form_submit ($form, $form_state) {
+  $values = $form_state['values'];
+  $parents = $values['parents'];
+  $parents = explode('-', $parents);
+  $nid = array_shift($parents);
+
+  if ($node = node_load($nid)) {
+    $first_parent = array_shift($parents);
+    $field = &$node->$first_parent;
+    $parent = array_shift($parents);
+    while ($parent !== NULL) {
+      $field = &$field[$parent];
+      $parent = array_shift($parents);
+    }
+    $field = $values['new_value'];
+    node_save($node);
+  }
+}
