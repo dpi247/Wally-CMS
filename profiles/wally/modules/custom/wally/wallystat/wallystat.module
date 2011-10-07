@@ -273,6 +273,32 @@ function wallystat_show_stats() {
   
   print $content;
 }
+/**
+ * Return the HTML of the stats for a node
+ */
+function wallystat_show_stats_with_return() {
+  $href_value = $_GET['hrefvalue'];
+  $cached_content = cache_get('wallystat_stats_content_'.$href_value);
+  $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
+  
+  if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
+    // This cache doesn't exists or is too old, create it
+    $last_48h = theme('wallystat_show_stats_48h');
+    $params = array();
+    for ($i=1; $i<=10; $i++) {
+      if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
+        $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
+    }
+    
+    $content = $last_48h.implode('', $params);
+    cache_set('wallystat_stats_content_'.$href_value, $content, 'cache');
+  } else {
+    // The object exists in cache and is not too old
+    $content = $cached_content->data;
+  }
+  
+  return $content;
+}
 
 /**
  * Return the list of all available functions which return a statistic's parameter.
