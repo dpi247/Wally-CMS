@@ -14,22 +14,7 @@ $plugin = array(
 function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   $conf = wallytoolbox_destinations_flow_settings_default($form_state);
   
-  /*module_load_include("inc", 'content', 'includes/content.node_form');
-  $wallyrsstonode_destinations = content_fields('field_destinations');
-  $form['destination'] = (array) content_field_form($form, $form_state, $wallyrsstonode_destinations);
-  unset($form['destination']['#weight']);
-  unset($form['destination']['field_destinations']['#theme']);
-  unset($form['destination']['field_destinations']['#weight']);
-  unset($form['destination']['field_destinations']['field_destinations_add_more']);
-  unset($form['destination']['field_destinations'][0]['_weight']);
-  unset($form['destination']['field_destinations'][0]['#columns'][2]);
-  unset($form['destination']['field_destinations'][0]['#columns'][3]);
-  unset($form['destination']['field_destinations'][0]['#columns'][4]);
-  unset($form['destination']['field_destinations'][0]['#default_value']['layout']);
-  unset($form['destination']['field_destinations'][0]['#default_value']['rank']);
-  unset($form['destination']['field_destinations'][0]['#default_value']['time_rank']);
-  unset($form['destination']['field_destinations'][1]);
-  $form['destination']['field_destinations']['#type'] = 'fieldset';*/
+  drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
   
   $options_and_classe = cckdestinations_get_classes_and_options();
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
