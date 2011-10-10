@@ -670,7 +670,8 @@ function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
     if (strstr($form['#action'], 'add')) {
       drupal_goto('node/add/'.str_replace('_', '-', $values['type']).'/'.$values['choose_profile']);
     } else {
-      drupal_goto('node/'.$form_state['cache name'].'/edit/'.$values['choose_profile']);
+      $redirect_id = isset($form_state['cache name']) ? $form_state['cache name'] : $form['#node']->nid;
+      drupal_goto('node/'.$redirect_id.'/edit/'.$values['choose_profile']);
     }
   }
 }
