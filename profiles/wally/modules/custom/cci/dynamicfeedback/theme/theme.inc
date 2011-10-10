@@ -16,7 +16,8 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
         overflow:hidden;
       }
      
-      a { color: #FFFFFF; text-decoration: none;}
+      a { color: #FFFFFF; text-decoration: none;         vertical-align:top;
+}
       a:hover { text-decoration: underline; }
    </style>
    <script type="text/javascript">
