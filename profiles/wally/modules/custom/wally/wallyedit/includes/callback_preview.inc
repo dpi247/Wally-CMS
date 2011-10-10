@@ -1,7 +1,6 @@
 <?php
 
 function wallyedit_callback_preview($prenode, $dest = 'disabled'){
-	dsm('rr');
   if ($prenode->form_state['DoNotPopulate'] === TRUE) {
     $node = $prenode->form_state[$prenode->form_state['type']]['#node'];
   } else {
@@ -127,6 +126,7 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
           return;
         }
         else {
+        	drupal_set_message('callback_preview variable $page not set');
           return $info['content'];
         }
       }
