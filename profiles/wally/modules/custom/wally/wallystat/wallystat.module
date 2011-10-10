@@ -282,7 +282,7 @@ function wallystat_show_stats_with_return() {
   $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
   
     // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h',100,35, false);
+    $last_48h = theme('wallystat_show_stats_48h',70,35, false);
      
     $content = $last_48h.implode('', $params);
   
