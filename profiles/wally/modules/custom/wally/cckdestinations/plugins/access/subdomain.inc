@@ -57,6 +57,7 @@ function cckdestinations_subdomain_ctools_access_check($conf, $context) {
   
   switch ($conf['method']){
     case'strstr':
+    	watchdog('wallyedit','<pre>'.print_r(strstr($domain, $conf['token']),1).'</pre>' );
     	dsm($domain,domain);
     	dsm( $conf['token'],token);
     	var_dump(strstr($domain, $conf['token']));
