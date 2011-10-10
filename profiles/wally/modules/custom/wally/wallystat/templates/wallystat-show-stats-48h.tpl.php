@@ -32,7 +32,7 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
           chart_mixed_axis_range_label(0, max($node_hours_stats)),
         ),
         array(
-          chart_mixed_axis_label(t('Views'), 90),
+         // chart_mixed_axis_label(t('Views'), 90),
         ),
       ),
       CHART_AXIS_X_BOTTOM => array(
