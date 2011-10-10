@@ -14,9 +14,7 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
       html {
         overflow:hidden;
       }
-      #dynamic_preview{
-      width:450px;
-		}
+     
       a { color: #FFFFFF; text-decoration: none;}
       a:hover { text-decoration: underline; }
    </style>
