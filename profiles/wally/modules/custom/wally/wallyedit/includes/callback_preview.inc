@@ -65,7 +65,6 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
         else {
           $task_name = $task['name'];
         }
-		dsm($task);
         page_manager_get_current_page(array(
           'name' => $task_name,
           'task' => $task,
@@ -74,6 +73,9 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
           'arguments' => $args,
           'handler' => $handler,
         ));
+dsm($task);
+dsm($handler);
+dsm($contexts);
 
         if (!empty($info['response code']) && $info['response code'] != 200) {
           switch ($info['response code']) {
