@@ -66,7 +66,7 @@ function cckdestinations_subdomain_ctools_access_check($conf, $context) {
       return preg_match($conf['token'], $domain) > 0;
     break;
   }
-  
+  dsm('rr');
   return false;
 }
 
