@@ -14,7 +14,8 @@ function wallyedit_callback_edit($prenode, $js = FALSE, $current_profile = 0){
   $form = ctools_build_form('wallyedit_form_editmode_edit_form', $form_state, $current_profile);
   
   if($js) {
-    
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+    ctools_ajax_render($commands);
   } else{
     return '';
   }

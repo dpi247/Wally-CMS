@@ -704,6 +704,10 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
       '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
     );
   } else {
+    if (isset($items['field_destinations_add_more'])) {
+      unset($items['field_destinations_add_more']);
+    }
+    
     $filled_items = content_set_empty($field, $items);
 
     // Adaptation of "content_multiple_value_form" function form CCK
