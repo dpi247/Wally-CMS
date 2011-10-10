@@ -65,6 +65,7 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
         else {
           $task_name = $task['name'];
         }
+
         page_manager_get_current_page(array(
           'name' => $task_name,
           'task' => $task,
@@ -73,9 +74,6 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
           'arguments' => $args,
           'handler' => $handler,
         ));
-dsm($task);
-dsm($handler);
-dsm($contexts);
 
         if (!empty($info['response code']) && $info['response code'] != 200) {
           switch ($info['response code']) {
@@ -124,13 +122,10 @@ dsm($contexts);
 
         // Only directly output if $page was set to true.
         if (!empty($info['no_blocks'])) {
-          drupal_set_message('no blocks');
-        	
           print theme('page', $info['content'], FALSE);
           return;
         }
         else {
-        	drupal_set_message('callback_preview variable $page not set');
           return $info['content'];
         }
       }
