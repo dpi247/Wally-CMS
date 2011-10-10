@@ -494,8 +494,31 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
       '#weight'           => 6,
     );
   }
+  
+  $element['#after_build'][] = 'cckdestinations_cckdestinations_widget_after_build';
 
   return $element;
+}
+
+function cckdestinations_cckdestinations_widget_after_build ($form, $form_state) {
+  $field_name = $form['#field_name'];
+  $pack_type = $form['#type_name'];
+  $delta = $form['#delta'];
+  $field = content_fields($field_name, $pack_type);
+
+  $values = $form_state['values'];
+  $field_values = $form['#tree'] ? $values[$pack_type][$field_name] : $values[$field_name];
+  if (isset($field_values[$delta]) && !empty($field_values[$delta])) {
+    $hook_is_empty = $field['module'].'_content_is_empty';
+    if ($hook_is_empty($field_values[$delta], $field)) {
+      foreach (element_children($form) as $key) {
+        if (isset($form[$key]['#needs_validation'])) {
+          unset($form[$key]['#needs_validation']);
+        }
+      }
+    }
+  }
+  return $form;
 }
 
 function cckdestinations_batch_dest_change_form($context) {
@@ -1138,16 +1161,28 @@ function cckdestinations_autocomplete_value($element, $edit = FALSE) {
   if (count($element['#default_value']) && !empty($element['#default_value'])) {
     if ($element['#multiple']) {
       foreach ($element['#default_value'] as $delta => $entry) {
+        $extracted_tid = cckdestinations_autocomplete_tags_get_tids($entry, $element['#vid'], $element['#multiple']);
+        if (!empty($extracted_tid) && isset($extracted_tid['existing_tids'])) {
+          $entry = $extracted_tid['existing_tids'];
+        }
         $terms[] = taxonomy_get_term($entry);
       }
     } else {
-      $terms[] = taxonomy_get_term($element['#default_value']);
+      $entry = $element['#default_value'];
+      $extracted_tid = cckdestinations_autocomplete_tags_get_tids($entry, $element['#vid'], $element['#multiple']);
+      if (!empty($extracted_tid) && isset($extracted_tid['existing_tids'])) {
+        $entry = $extracted_tid['existing_tids'];
+      }
+      $terms[] = taxonomy_get_term($entry);
     }
   }
   $value = cckdestinations_autocomplete_merge_tags($terms, $element['#vid'], $element['#multiple']);
-  $value = !empty($value) ? $value : NULL;
-
-  return array($field_key => $value);
+  
+  if (!empty($value)) {
+    return array($field_key => $value);
+  } else {
+    return NULL;
+  }
 }
 
 function cckdestinations_select_process($element, $edit, $form_state, $form) {
