@@ -57,6 +57,8 @@ function cckdestinations_subdomain_ctools_access_check($conf, $context) {
   
   switch ($conf['method']){
     case'strstr':
+    	dsm($domain,domain);
+    	dsm( $conf['token'],token);
     	var_dump(strstr($domain, $conf['token']));
       return strstr($domain, $conf['token']);
     break;
