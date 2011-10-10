@@ -122,6 +122,8 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
 
         // Only directly output if $page was set to true.
         if (!empty($info['no_blocks'])) {
+          drupal_set_message('no blocks');
+        	
           print theme('page', $info['content'], FALSE);
           return;
         }
