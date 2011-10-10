@@ -283,7 +283,7 @@ function wallystat_show_stats_with_return() {
   
   if (true||!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
     // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h',150,25);
+    $last_48h = theme('wallystat_show_stats_48h',150,45);
     $params = array();
     for ($i=1; $i<=10; $i++) {
       if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
