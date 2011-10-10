@@ -708,13 +708,13 @@ function _form_validate($elements, &$form_state, $form_id = NULL) {
           foreach ($value as $v) {
             if (!isset($options[$v])) {
               form_error($elements, $t('An illegal choice has been detected. Please contact the site administrator.'));
-              watchdog('form', 'Coucou Illegal choice %choice in !name element.', array('%choice' => $v, '!name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']), WATCHDOG_ERROR);
+              watchdog('form', 'Illegal choice %choice in !name element.', array('%choice' => $v, '!name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']), WATCHDOG_ERROR);
             }
           }
         }
         elseif (!isset($options[$elements['#value']])) {
           form_error($elements, $t('An illegal choice has been detected. Please contact the site administrator.'));
-          watchdog('form', 'Hello Illegal choice %choice in %name element.', array('%choice' => $elements['#value'], '%name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']), WATCHDOG_ERROR);
+          watchdog('form', 'Illegal choice %choice in %name element.', array('%choice' => $elements['#value'], '%name' => empty($elements['#title']) ? $elements['#parents'][0] : $elements['#title']), WATCHDOG_ERROR);
         }
       }
     }
