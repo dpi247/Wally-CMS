@@ -1308,6 +1308,7 @@ function wydit_subform_global_page_submit(&$form_state){
 }
 
 function wallyedit_form_createmode_add_form(&$form_state){
+  dsm($form_state, 'form state');
   $form = wydit_subform_global_add_form(&$form_state);
   $form['#action'] = '/node/'.$form_state['cache name'].'/wydit_add_new/ajax/'.$form_state['profile_id'];
 
@@ -1974,6 +1975,7 @@ function wydit_get_inline_type($referencable_types){
 //______________________________
 
 function prenode_load($nid, $args) {
+  dsm(debug_backtrace(), 'back');
   $prenode = new Prenode($nid, FALSE, $args[4]);
   $prenode->setCurrentProfile($args[4]);
   return $prenode;
