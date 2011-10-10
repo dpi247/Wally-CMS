@@ -37,8 +37,8 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
       ),
       CHART_AXIS_X_BOTTOM => array(
         array(
-          chart_mixed_axis_range_label(-48, 0),
-          '#font_size' =>7,
+  //        chart_mixed_axis_range_label(-48, 0),
+    //      '#font_size' =>7,
           
         ),
       ),
