@@ -65,7 +65,7 @@ function wallyedit_callback_preview_ctools_context_handler_render($prenode, $nod
         else {
           $task_name = $task['name'];
         }
-
+		dsm($task);
         page_manager_get_current_page(array(
           'name' => $task_name,
           'task' => $task,
