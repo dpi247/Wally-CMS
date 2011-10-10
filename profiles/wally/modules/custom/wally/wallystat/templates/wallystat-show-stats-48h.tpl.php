@@ -45,7 +45,7 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
   );
   
   if($display_title==FALSE){
-  	unset($chart['title']);
+  	unset($chart['#title']);
   	
   }
   
