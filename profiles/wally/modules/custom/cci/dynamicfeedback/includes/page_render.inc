@@ -9,8 +9,6 @@ function dynamicfeedback_page_render($package_id){
   }
   else{
     $node=$array_of_nodes[0];
-  }
-
   $full_node=node_load($node->nid);
 
   $comment_count=$full_node->comment;
@@ -26,4 +24,6 @@ function dynamicfeedback_page_render($package_id){
   );
 
   print theme('dynamicfeedback_page_render',$array);
+  }
+  
 }
