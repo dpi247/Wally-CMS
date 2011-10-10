@@ -77,7 +77,7 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
 ';
 
 // background-color: #497CC9;
-$content.='<div><span>, <a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">'.$array_of_informations['title'].'</a> Comments: '.$array_of_informations['comment_count'].' '.$array_of_informations['stat_graph'].'</span></div>';
+$content.='<div><span> <a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">,'.$array_of_informations['title'].'</a> <a>Comments: '.$array_of_informations['comment_count'].'</a> '.$array_of_informations['stat_graph'].'</span></div>';
 
 //$content.='<div>, title: '.$array_of_informations['title'].' ';
 //$content.='<script>
