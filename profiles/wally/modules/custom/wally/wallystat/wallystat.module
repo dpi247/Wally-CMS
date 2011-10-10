@@ -30,7 +30,7 @@ function wallystat_menu() {
 function wallystat_theme() {
  return array(
     'wallystat_show_stats_48h' => array(
-      'arguments' => array(),
+      'arguments' => array('width'=>240,'height'=>150),
       'template' => 'wallystat-show-stats-48h',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
@@ -283,7 +283,7 @@ function wallystat_show_stats_with_return() {
   
   if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
     // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h');
+    $last_48h = theme('wallystat_show_stats_48h',150,10);
     $params = array();
     for ($i=1; $i<=10; $i++) {
       if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))

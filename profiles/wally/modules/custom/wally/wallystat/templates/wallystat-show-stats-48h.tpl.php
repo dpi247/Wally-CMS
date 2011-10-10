@@ -23,7 +23,7 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
     '#chart_id' => 'node_views_48h',
     '#title' => t('Node views in the last 48h'),
     '#type' => CHART_TYPE_LINE,
-    '#size' => chart_size(240, 150),
+    '#size' => chart_size($width, $height),
     '#data' => array('node_views' => $node_hours_stats),
     '#adjust_resolution' => TRUE,
     '#mixed_axis_labels' => array(
