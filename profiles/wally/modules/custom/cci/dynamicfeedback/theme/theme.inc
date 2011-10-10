@@ -11,6 +11,10 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
          font: bold 10px sans-serif;
          vertical-align:top;
       }
+      body div{
+         vertical-align:top;
+      
+}
       
       html {
         overflow:hidden;
