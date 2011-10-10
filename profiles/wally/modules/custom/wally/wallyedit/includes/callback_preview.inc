@@ -28,7 +28,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     if (empty($contexts)) {
       return drupal_not_found();
     }
-dsm($prenode, 'prenode');
+    //@todo: remove wallyedit_callback_preview_ctools_context_handler_render and all the other bullshit
     //$output = wallyedit_callback_preview_ctools_context_handler_render($prenode, $node, $dest, $task, '', $contexts, array($node->field_destinations[$dest]['tid'], 0, 'page'));
     $output = ctools_context_handler_render($task, '', $contexts, array(array($node->field_destinations[$dest]['tid']), 0, 'page'));
     
