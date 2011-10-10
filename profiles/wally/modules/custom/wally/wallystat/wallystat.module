@@ -37,7 +37,7 @@ function wallystat_theme() {
     ),
     
     'wallystat_show_stats_param' => array(
-      'arguments' => array('param_i' => 0, 'params_callback' => array()),
+      'arguments' => array('param_i' => 0, 'params_callback' => array(),'width'=>240,'height'=>150),
       'template' => 'wallystat-show-stats-param',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
