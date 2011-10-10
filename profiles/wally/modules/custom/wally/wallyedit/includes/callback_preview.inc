@@ -1,6 +1,7 @@
 <?php
 
 function wallyedit_callback_preview($prenode, $dest = 'disabled'){
+	dsm('rr');
   if ($prenode->form_state['DoNotPopulate'] === TRUE) {
     $node = $prenode->form_state[$prenode->form_state['type']]['#node'];
   } else {
