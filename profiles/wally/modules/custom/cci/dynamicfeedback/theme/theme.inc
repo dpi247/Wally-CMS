@@ -8,7 +8,7 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
       body {
          margin:0;
          color: #FFFFFF;
-         font: bold 11px sans-serif;
+         font: bold 10px sans-serif;
       }
       
       html {
