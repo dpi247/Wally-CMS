@@ -54,7 +54,8 @@ function cckdestinations_subdomain_ctools_access_check($conf, $context) {
   // As far as I know there should always be a context at this point, but this
   // is safe.
   $domain = $_SERVER['HTTP_HOST'];
-  
+  dsm($conf);
+    	watchdog('wallyedit','<pre>'.print_r($conf,1).'</pre>' );
   switch ($conf['method']){
     case'strstr':
     	watchdog('wallyedit','<pre>'.print_r(strstr($domain, $conf['token']),1).'</pre>' );
