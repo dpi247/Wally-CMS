@@ -1,6 +1,6 @@
 <?php
 function dynamicfeedback_page_render($package_id){
-
+  $GLOBALS['conf']['cache'] = FALSE;
   $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
   
   if(count($array_of_nodes)!=1){
