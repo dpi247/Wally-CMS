@@ -706,6 +706,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
   } else {
     dsm($field, 'field');
     dsm($items, 'items');
+    dsm($form_state, 'form state');
     $filled_items = content_set_empty($field, $items);
 
     // Adaptation of "content_multiple_value_form" function form CCK
