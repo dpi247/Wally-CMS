@@ -8,10 +8,10 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
   }
   
   if ($dest == 'disabled') {
-    return null;
-  } elseif($dest == 'no_dest') {
+    return NULL;
+  } elseif ($dest == 'no_dest') {
     module_load_include('inc', 'ctools', 'page_manager/plugins/tasks/node_view');
-    $node->DoNotPopulate = true;
+    $node->DoNotPopulate = TRUE;
     return page_manager_node_view($node);
   } else {
     // While we ordinarily should never actually get feeds through here,
@@ -27,7 +27,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     if (empty($contexts)) {
       return drupal_not_found();
     }
-
+dsm($node, 'node');
     $output = wallyedit_callback_preview_ctools_context_handler_render($prenode, $node, $dest, $task, '', $contexts, array($node->field_destinations[$dest]['tid'], 0, 'page'));
     
     // Hide messages before return
