@@ -289,10 +289,11 @@ function wallytoolbox_content_type_form_validate(&$form, &$form_state) {
 function wallytoolbox_content_type_form_submit(&$form, &$form_state) {
   $conf = $form_state['conf'];
   $conf_keys = array_keys($conf);
-  if (is_object($conf[$conf_keys[0]]))
+  if (is_object($conf[$conf_keys[0]])) {
     $form_state['conf'][$conf_keys[0]]->wally_rule = $form_state['values']['wally_rule'];
-  else
+  } else {
     $form_state['conf']['wally_rule'] = $form_state['values']['wally_rule'];
+  }
 }
 
 /**
@@ -940,14 +941,16 @@ function wallytoolbox_cron(){
   
   // Check if the table is not empty, and build it if necessary
   $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
-  if ($count['COUNT(*)'] == '0')
+  if ($count['COUNT(*)'] == '0') {
     wallytoolbox_refresh_cache_list();
+  }
   
   // Select blocks where last run is too old according to their refresh time
-  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
+  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
-    while (is_string($block['settings']))
+    while (is_string($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
+    }
     $block_infos = explode(':', $block['cid']);
     // Invoke hook_refresh_block
     $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
@@ -994,13 +997,17 @@ function wallytoolbox_refresh_cache_list() {
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
             $block['rule'] = $blocks_list[$block['cid']]['rule'];
           } else {
-            $block['rule'] = isset($config['wally_rule']) ? 60*$config['wally_rule'] : 0;
+            $conf_keys = array_keys($config);
+            if (is_object($config[$conf_keys[0]])) {
+              $wally_rule = isset($config[$conf_keys[0]]->wally_rule) ? $config[$conf_keys[0]]->wally_rule : 0;
+            } else {
+              $wally_rule = isset($config['wally_rule']) ? $config['wally_rule'] : 0;
+            }
+            $block['rule'] = 60*$wally_rule;
           }
-          
-          $config['wally_rule'] = 0; // Just to be sure the rule parameter is setted before unset it
-          unset($config['wally_rule']);
+
           $block['settings'] = $config;
-          
+
           drupal_write_record('wallytoolbox_content_types_cache', $block);
         }
       }
