@@ -19,7 +19,7 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
     '#chart_id' => 'node_views_'.$param_name_id,
     '#title' => t($params_callback[$params_callback['current_callback']]['name']),
     '#type' => CHART_TYPE_PIE,
-    '#size' => chart_size(240, 150),
+    '#size' => chart_size($width, $height),
     '#data' => $node_stats,
     '#labels' => $labels,
   );
