@@ -281,10 +281,10 @@ function wallystat_show_stats_with_return() {
   $cached_content = cache_get('wallystat_stats_content_'.$href_value);
   $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
   
-    // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h',60,25, false);
-     
-    $content = $last_48h.implode('', $params);
+  // This cache doesn't exists or is too old, create it
+  $last_48h = theme('wallystat_show_stats_48h',60,25, false);
+  
+  $content = $last_48h.implode('', $params);
   
   return $content;
 }

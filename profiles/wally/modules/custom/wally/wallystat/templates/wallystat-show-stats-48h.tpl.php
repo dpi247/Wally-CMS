@@ -32,14 +32,12 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
           chart_mixed_axis_range_label(0, max($node_hours_stats)),
         ),
         array(
-         // chart_mixed_axis_label(t('Views'), 90),
+          chart_mixed_axis_label(t('Views'), 90),
         ),
       ),
       CHART_AXIS_X_BOTTOM => array(
         array(
-  //        chart_mixed_axis_range_label(-48, 0),
-    //      '#font_size' =>7,
-          
+          chart_mixed_axis_range_label(-48, 0),
         ),
       ),
     ),
@@ -47,8 +45,9 @@ if ($expl_path[0] == 'node' && is_numeric($expl_path[1])) {
   );
   
   if($display_title==FALSE){
-  	unset($chart['#title']);
-  	
+    unset($chart['#title']);
+    $chart['#mixed_axis_labels'][CHART_AXIS_Y_LEFT][0]=array();
+    $chart['#mixed_axis_labels'][CHART_AXIS__X_BOTTOM][0]=array();
   }
   
   $rendered_chart = chart_render($chart);
