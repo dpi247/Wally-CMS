@@ -194,7 +194,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
       $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
 
       if ($valid_dom) {
-        $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'_'.time().'.tmp';
+        $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'_'.time().'.xml';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
         //file_delete($tempFile);
