@@ -8,12 +8,24 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
       body {
          margin:0;
          color: #FFFFFF;
-         font: bold 11px sans-serif;
+         font: bold 10px sans-serif;
+         vertical-align:top;
       }
+
+      body span{
+        vertical-align:top;
+      }
+      
       html {
         overflow:hidden;
       }
-      a { color: #FFFFFF; text-decoration: none;}
+     
+      a {
+        color: #FFFFFF;
+        text-decoration: none;
+        vertical-align:super;
+      }
+
       a:hover { text-decoration: underline; }
    </style>
    <script type="text/javascript">
@@ -69,7 +81,7 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
 ';
 
 // background-color: #497CC9;
-$content.='<div>, Title: <a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">'.$array_of_informations['title'].'</a> Comments: '.$array_of_informations['comment_count'].'<br/> Stat Graph: '.$array_of_informations['stat_graph'].'</div>';
+$content.='<div><span><a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">,'.$array_of_informations['title'].'</a> <a>Comments: '.$array_of_informations['comment_count'].'</a> '.$array_of_informations['stat_graph'].'</span></div>';
 
 //$content.='<div>, title: '.$array_of_informations['title'].' ';
 //$content.='<script>
