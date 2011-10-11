@@ -50,8 +50,9 @@ function wallytoolbox_supercron_settings ($form_state) {
       '#description'   => t('It will be called every minute if set between 0 and 1.'),
     );
     
-    while (is_string($block['settings']))
+    while (is_string($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
+    }
     $form['rows'][$block['cid']]['settings'] = array(
       '#type' => 'hidden',
       '#value' => $block['settings'],
