@@ -78,7 +78,7 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   
   $vars['destination'] = $view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
   $vars['target'] = $view->display_handler->handlers['filter']['field_destinations_target']->value;
-    $vars['target']=$vars['target'][0];
+  $vars['target']=$vars['target'][0];
   
   $vars['layout'] = wallyctools_api_getlayoutfromdestinationandtarget($node, $vars['destination'], $vars['target']);
 
