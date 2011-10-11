@@ -263,6 +263,35 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
         $form['field_destinations'][$temp_elem[$i]['#delta']] = $temp_elem[$i];
       }
     }
+  } elseif (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    $type = content_types($form['#node']->type);
+    if (!empty($type['fields'])) {
+      if (isset($form['field_destinations'])) {
+        $form['field_destinations']['#element_validate'][] = 'cckdestinations_form_field_destinations_validate';
+      }
+    }
+  }
+}
+
+function cckdestinations_form_field_destinations_validate ($element, $form_state, $form) {
+  $values = $form_state['values'];
+  $field_name = $element['#field_name'];
+  $pack_type = $element['#type_name'];
+  $field = content_fields($field_name, $pack_type);
+  $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+  unset($field_values['field_destinations_add_more']);
+
+  $empty = TRUE;
+  $hook_is_empty = $field['module'].'_content_is_empty';
+  foreach ($field_values as $delta => $field_value) {
+    if (!$hook_is_empty($field_value, $field)) {
+      $empty = FALSE;
+      break;
+    }
+  }
+
+  if ($empty) {
+    form_error($element, t('Destination field is required.'));
   }
 }
 
@@ -507,7 +536,7 @@ function cckdestinations_cckdestinations_widget_after_build ($form, $form_state)
   $field = content_fields($field_name, $pack_type);
 
   $values = $form_state['values'];
-  $field_values = $form['#tree'] ? $values[$pack_type][$field_name] : $values[$field_name];
+  $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
   if (isset($field_values[$delta]) && !empty($field_values[$delta])) {
     $hook_is_empty = $field['module'].'_content_is_empty';
     if ($hook_is_empty($field_values[$delta], $field)) {
@@ -697,17 +726,6 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
     }
   }
   return $options;
-}
-
-/**
- * Validate callback for widget
- *
- * @return Nothing
- */
-function cckdestinations_widget_validate(&$element, &$form_state) {
-/**
- * @todo validate link between tid, target and display. 
- */
 }
 
 /**
