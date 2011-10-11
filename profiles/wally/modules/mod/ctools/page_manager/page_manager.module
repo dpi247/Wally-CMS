@@ -155,7 +155,7 @@ function page_manager_menu_alter(&$items) {
       }
     }
   }
-  dsm($items);
+
   return $items;
 }
 
