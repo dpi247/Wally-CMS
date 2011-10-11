@@ -30,14 +30,14 @@ function wallystat_menu() {
 function wallystat_theme() {
  return array(
     'wallystat_show_stats_48h' => array(
-      'arguments' => array(),
+      'arguments' => array('width'=>240,'height'=>150,'display_title'=>true),
       'template' => 'wallystat-show-stats-48h',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
     ),
     
     'wallystat_show_stats_param' => array(
-      'arguments' => array('param_i' => 0, 'params_callback' => array()),
+      'arguments' => array('param_i' => 0, 'params_callback' => array(),'width'=>240,'height'=>150),
       'template' => 'wallystat-show-stats-param',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
@@ -281,21 +281,10 @@ function wallystat_show_stats_with_return() {
   $cached_content = cache_get('wallystat_stats_content_'.$href_value);
   $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
   
-  if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
-    // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h');
-    $params = array();
-    for ($i=1; $i<=10; $i++) {
-      if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
-        $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
-    }
-    
-    $content = $last_48h.implode('', $params);
-    cache_set('wallystat_stats_content_'.$href_value, $content, 'cache');
-  } else {
-    // The object exists in cache and is not too old
-    $content = $cached_content->data;
-  }
+  // This cache doesn't exists or is too old, create it
+  $last_48h = theme('wallystat_show_stats_48h',60,25, false);
+  
+  $content = $last_48h.implode('', $params);
   
   return $content;
 }
