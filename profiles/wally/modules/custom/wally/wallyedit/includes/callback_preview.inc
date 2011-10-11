@@ -13,8 +13,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     module_load_include('inc', 'ctools', 'page_manager/plugins/tasks/node_view');
     $node->DoNotPopulate = TRUE;
     return page_manager_node_view($node);
-  }
-  else {
+  } else {
     // While we ordinarily should never actually get feeds through here,
     // just in case
     // Load my task plugin
@@ -31,7 +30,6 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
     //@todo: remove wallyedit_callback_preview_ctools_context_handler_render and all the other bullshit
     //$output = wallyedit_callback_preview_ctools_context_handler_render($prenode, $node, $dest, $task, '', $contexts, array($node->field_destinations[$dest]['tid'], 0, 'page'));
     $output = ctools_context_handler_render($task, '', $contexts, array(array($node->field_destinations[$dest]['tid']), 0, 'page'));
-    
     
     // Hide messages before return
     //drupal_get_messages();
