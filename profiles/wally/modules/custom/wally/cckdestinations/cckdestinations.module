@@ -263,6 +263,35 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
         $form['field_destinations'][$temp_elem[$i]['#delta']] = $temp_elem[$i];
       }
     }
+  } elseif (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    $type = content_types($form['#node']->type);
+    if (!empty($type['fields'])) {
+      if (isset($form['field_destinations'])) {
+        $form['field_destinations']['#element_validate'][] = 'cckdestinations_form_field_destinations_validate';
+      }
+    }
+  }
+}
+
+function cckdestinations_form_field_destinations_validate ($element, $form_state, $form) {
+  $values = $form_state['values'];
+  $field_name = $element['#field_name'];
+  $pack_type = $element['#type_name'];
+  $field = content_fields($field_name, $pack_type);
+  $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+  unset($field_values['field_destinations_add_more']);
+
+  $empty = TRUE;
+  $hook_is_empty = $field['module'].'_content_is_empty';
+  foreach ($field_values as $delta => $field_value) {
+    if (!$hook_is_empty($field_value, $field)) {
+      $empty = FALSE;
+      break;
+    }
+  }
+
+  if ($empty) {
+    form_error($element, t('Destination field is required.'));
   }
 }
 
@@ -494,8 +523,31 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
       '#weight'           => 6,
     );
   }
+  
+  $element['#after_build'][] = 'cckdestinations_cckdestinations_widget_after_build';
 
   return $element;
+}
+
+function cckdestinations_cckdestinations_widget_after_build ($form, $form_state) {
+  $field_name = $form['#field_name'];
+  $pack_type = $form['#type_name'];
+  $delta = $form['#delta'];
+  $field = content_fields($field_name, $pack_type);
+
+  $values = $form_state['values'];
+  $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+  if (isset($field_values[$delta]) && !empty($field_values[$delta])) {
+    $hook_is_empty = $field['module'].'_content_is_empty';
+    if ($hook_is_empty($field_values[$delta], $field)) {
+      foreach (element_children($form) as $key) {
+        if (isset($form[$key]['#needs_validation'])) {
+          unset($form[$key]['#needs_validation']);
+        }
+      }
+    }
+  }
+  return $form;
 }
 
 function cckdestinations_batch_dest_change_form($context) {
@@ -674,17 +726,6 @@ function cckdestinations_cascading_select_options($element, $choices = NULL) {
     }
   }
   return $options;
-}
-
-/**
- * Validate callback for widget
- *
- * @return Nothing
- */
-function cckdestinations_widget_validate(&$element, &$form_state) {
-/**
- * @todo validate link between tid, target and display. 
- */
 }
 
 /**
@@ -1138,16 +1179,28 @@ function cckdestinations_autocomplete_value($element, $edit = FALSE) {
   if (count($element['#default_value']) && !empty($element['#default_value'])) {
     if ($element['#multiple']) {
       foreach ($element['#default_value'] as $delta => $entry) {
+        $extracted_tid = cckdestinations_autocomplete_tags_get_tids($entry, $element['#vid'], $element['#multiple']);
+        if (!empty($extracted_tid) && isset($extracted_tid['existing_tids'])) {
+          $entry = $extracted_tid['existing_tids'];
+        }
         $terms[] = taxonomy_get_term($entry);
       }
     } else {
-      $terms[] = taxonomy_get_term($element['#default_value']);
+      $entry = $element['#default_value'];
+      $extracted_tid = cckdestinations_autocomplete_tags_get_tids($entry, $element['#vid'], $element['#multiple']);
+      if (!empty($extracted_tid) && isset($extracted_tid['existing_tids'])) {
+        $entry = $extracted_tid['existing_tids'];
+      }
+      $terms[] = taxonomy_get_term($entry);
     }
   }
   $value = cckdestinations_autocomplete_merge_tags($terms, $element['#vid'], $element['#multiple']);
-  $value = !empty($value) ? $value : NULL;
-
-  return array($field_key => $value);
+  
+  if (!empty($value)) {
+    return array($field_key => $value);
+  } else {
+    return NULL;
+  }
 }
 
 function cckdestinations_select_process($element, $edit, $form_state, $form) {

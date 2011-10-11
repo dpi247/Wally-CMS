@@ -115,7 +115,7 @@ function wallyflowtonode_cron($flow_key = NULL) {
 
     // Call the function calling the flows
     $return = _wallyflowtonode_callallfeeds($flow_key);
-dsm($return,'rrrr');
+
     // Record cron time
     variable_set('wallyflowtonode_cron_last', time());
 
@@ -184,23 +184,20 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
 function _wallyflowtonode_callonefeed(&$feed_infos) {
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
-    dsm($function);
     while(is_string($feed_infos['conf']))
       $feed_infos['conf'] = unserialize($feed_infos['conf']);
     while(is_string($feed_infos['feeds_md5']))
       $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
     $struct_array = $function($feed_infos);
-  dsm($struct_array);
+
     if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
       $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
-        
+
       if ($valid_dom) {
-        dsm(cocuouc);
         $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'_'.time().'.xml';
         $valid_dom->save($tempFile);
         $temp_return = wallymport_page_process_file($tempFile);
-        dsm($temp_return,tmp_retr);
-       // file_delete($tempFile);
+        //file_delete($tempFile);
 
         if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {
           $object = $feed_infos;
