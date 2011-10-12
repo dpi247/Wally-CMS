@@ -936,12 +936,6 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
 
-      $view->display[$view->current_display]->handler->options['filters']=array_merge($view->display[$view->current_display]->handler->options['filters'],$handler_type_filter);
-      $view->display[$view->current_display]->handler->display_options['filters']=array_merge($view->display[$view->current_display]->handler->display_options['filters'],$handler_type_filter);
-
-      // set the view arguments here, if needed : SET the cache name and the target
-      $view->set_arguments( array( $form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])) );
-
       // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
       $view->override_path = 'views/ajax';
       $output = $view->preview();
