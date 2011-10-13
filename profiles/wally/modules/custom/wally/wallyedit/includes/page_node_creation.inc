@@ -21,6 +21,7 @@ function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
 
   //Cuz we set the node after the build we need to rebuild the form_state
   $form_state = $prenode->getFormState(TRUE);
+
   if ($_POST['form_id']=='views_bulk_operations_form__1') {
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
