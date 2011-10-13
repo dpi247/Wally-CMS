@@ -1282,23 +1282,37 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     $new_struct['Vocabulary'][] = $temp_tax;
   }
 
-  /*if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
+  if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
+    $free_voc = variable_get('wallymport_freetagtaxonomy', 0);
+    $cat_voc = variable_get('wallymport_classifiedtagtaxonomy', 0);
     foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
       $temp_tax = array();
-      $tid = $vocabulary['Term']['value'];
-      $parents = taxonomy_get_parents_all($tid);
-      $parents = array_reverse($parents);
-      $temp_tax['VocabularyName'] = $parents[0]->name;
-      $temp_tax['VocabularyDescription'] = $parents[0]->description;
-      $temp_tax['VocabularyType'] = 'categorized';
-      $temp_tax['Term'] = array(
-        array(
-          'Name' => $vocabulary['VocabularyName'],
-        ),
-      );
-      $new_struct['Vocabulary'][] = $temp_tax;
+      if ($vocabulary['VocabularyType'] == $free_voc) {
+        $temp_tax['VocabularyName'] = 'Tags';
+        $temp_tax['VocabularyDescription'] = '';
+        $temp_tax['VocabularyType'] = 'free';
+        $temp_tax['Term'] = array(
+          array(
+            'Name' => $vocabulary['VocabularyName'],
+          ),
+        );
+        $new_struct['Vocabulary'][] = $temp_tax;
+      } elseif ($vocabulary['VocabularyType'] == $cat_voc) {
+        $tid = $vocabulary['Term']['value'];
+        $parents = taxonomy_get_parents_all($tid);
+        $parents = array_reverse($parents);
+        $temp_tax['VocabularyName'] = $parents[0]->name;
+        $temp_tax['VocabularyDescription'] = $parents[0]->description;
+        $temp_tax['VocabularyType'] = 'categorized';
+        $temp_tax['Term'] = array(
+          array(
+            'Name' => $vocabulary['VocabularyName'],
+          ),
+        );
+        $new_struct['Vocabulary'][] = $temp_tax;
+      }
     }
-  }*/
+  }
   
   if (isset($struct_array['Entities']['Entity']) && !empty($struct_array['Entities']['Entity'])) {
     $ent_voc = $vocabularies[variable_get('wallymport_entity', 0)];
