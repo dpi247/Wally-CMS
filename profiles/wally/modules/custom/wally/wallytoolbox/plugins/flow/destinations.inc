@@ -194,7 +194,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   return $ret_view;
 }
 
-function wallytoolbox_destinations_flow_transform_node($node, $feed_infos) {
+function wallytoolbox_destinations_flow_transform_node($node, $feed_infos = array()) {
   $transformed_node = wallytoolbox_destinations_flow_set_package($node, $feed_infos);
 
   // Package MainStory/MainObject
