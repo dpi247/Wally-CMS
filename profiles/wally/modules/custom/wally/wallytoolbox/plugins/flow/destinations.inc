@@ -429,7 +429,9 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
   $temp_object['Markers']['Location'] = array();
   if ($object->field_markers && is_array($object->field_markers)) {
     foreach ($object->field_markers as $marker) {
-      $temp_object['Markers']['Location'][] = wallytoolbox_destinations_flow_set_locationtax($marker);
+      if ($marker['lid'] != 0) {
+        $temp_object['Markers']['Location'][] = wallytoolbox_destinations_flow_set_locationtax($marker);
+      }
     }
   }
   $temp_object['Locations']['Location'] = array();
