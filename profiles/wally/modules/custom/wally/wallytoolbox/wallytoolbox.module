@@ -1277,7 +1277,8 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
 
 function wallytoolbox_node_to_array($node) {
   require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/destinations.inc';
-  return wallytoolbox_destinations_flow_transform_node($node);
+  $transformed_node['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node);
+  return $transformed_node;
 }
 
 /**
