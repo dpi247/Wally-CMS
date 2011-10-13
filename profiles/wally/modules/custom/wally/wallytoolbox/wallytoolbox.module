@@ -1282,7 +1282,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     $new_struct['Vocabulary'][] = $temp_tax;
   }
 
-  if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
+  /*if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
     foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
       $temp_tax = array();
       $tid = $vocabulary['Term']['value'];
@@ -1298,7 +1298,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
       );
       $new_struct['Vocabulary'][] = $temp_tax;
     }
-  }
+  }*/
   
   if (isset($struct_array['Entities']['Entity']) && !empty($struct_array['Entities']['Entity'])) {
     $ent_voc = $vocabularies[variable_get('wallymport_entity', 0)];
