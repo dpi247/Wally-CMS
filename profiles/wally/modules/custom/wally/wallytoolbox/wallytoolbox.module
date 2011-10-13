@@ -370,8 +370,12 @@ function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
 	while ($term = db_fetch_object($db_result)) {
 		$ppath = "";
 		$parents = taxonomy_get_parents_all($term->tid);
-		foreach ($parents as $parent) $ppath = strtolower($parent->name)."/".$ppath;
-		if (trim($ppath,"/")==strtolower(trim($path,"/"))) $result[] = $term;
+		foreach ($parents as $parent){ 
+		  $ppath = strtolower($parent->name)."/".$ppath;
+		}
+		if (trim($ppath,"/") == strtolower(trim($path,"/"))){ 
+		  $result[] = $term;
+		}
 	}
 	return ($result ? $result : null);
 }
@@ -420,7 +424,79 @@ function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_vo
   
   return substr($return, 0, strlen($return)-1);
 }
+/**
+ * Get vocabulary vid from vocabulary name 
+ *
+ * @param $name
+ *   That's the taxonomy vocabulary name.
+ *   
+ * @return
+ *   Taxonomy TID of the created term. 
+ */
 
+function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
+  $result = db_query("SELECT v.vid 
+  					  FROM {vocabulary} v 
+  					  WHERE v.name = '%s'",$name);
+  $vid = NULL;
+  while ($vocabulary = db_fetch_object($result)){
+    $vid = $vocabulary->vid;
+  }
+  return $vid;
+}
+/**
+ * Unbind all terms of a vocabulary to the node 
+ *
+ * @param $name
+ *   That's the taxonomy vocabulary name.
+ * @param $nid
+ *   nid of the node
+ */
+
+function wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($name,&$node,$vid = NULL){
+   
+  if ($vid == NULL){
+    switch ($name){ 
+      case 'Persons' : $vid = variable_get('wallymport_person', NULL);break;
+      case 'Authors' : $vid = variable_get('wallymport_author', NULL);break;
+      case 'Entities' : $vid = variable_get('wallymport_entity', NULL);break;
+      case 'Locations' : $vid = variable_get('wallymport_location', NULL);break;
+    }
+  }
+  if ($vid != variable_get('wallymport_classifiedtagtaxonomy', NULL) ){
+    $terms_of_voc = taxonomy_node_get_terms_by_vocabulary($node, $vid);
+    foreach($terms_of_voc as $term_key => $term_value){
+      db_query("DELETE FROM {term_node} WHERE nid = %d AND tid = %d", $node->nid,$term_key);
+      unset($node->taxonomy[$term_key]);
+    }
+  } else {
+    $terms_of_voc = taxonomy_node_get_terms_by_vocabulary($node, $vid);
+    foreach($terms_of_voc as $term_key => $term_value){
+      if ($name == $term_value->name){
+        $children = taxonomy_get_children($term_value->tid,$term_value->vid);
+        foreach ($children as $children_key => $children_value){
+          if (isset($terms_of_voc[$children_key])){
+            db_query("DELETE FROM {term_node} WHERE nid = %d AND tid = %d",$node->nid,$children_key);
+            foreach($node->field_tags as $node_key => $node_value){
+              if ($node_value['value'] == $children_key){
+                unset($node->field_tags[$node_key]);
+              }
+            }
+          }
+        }
+        db_query("DELETE FROM {term_node} WHERE nid = %d AND tid = %d",$node->nid,$term_key);
+        foreach($node->field_tags as $node_key => $node_value){
+          if ($node_value['value'] == $term_key){
+            unset($node->field_tags[$node_key]);
+          }
+        }
+      }
+    }
+  }
+  if ($name == 'Tags'){
+    $node->field_free_tags = array();
+  }
+}
 /**
  * Add a taxonomy term into a vocabulary without 
  * need to store a node.
@@ -445,7 +521,9 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
   $form_values['description'] = $description;
   $form_values['vid'] = $vid;
   $form_values['weight'] = $weight;
-  if ($parent) $form_values['parent'] = $parent;
+  if ($parent){ 
+    $form_values['parent'] = $parent;
+  }
   @taxonomy_save_term($form_values);
   return $form_values['tid'];
 }
@@ -603,7 +681,29 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 		return null;
 	}
 }
-
+/**
+ * Get all nodes where taxonomy tid and node type match value. 
+ *
+ * @param $tid
+ *   tid of the taxonomy term
+ * @param $node_type
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
+ * 
+ * @return
+ *   An array of nodes
+ */
+function wallytoolbox_get_node_by_tid($tid,$type){
+   $result = db_query("SELECT n.nid
+  					  FROM {node} n
+  					  LEFT OUTER JOIN {term_node} t ON t.nid = n.nid
+  					  WHERE n.type = '%s'
+  					  AND t.tid = %d",$type,$tid);
+  $nodes = NULL;
+  while ($obj = db_fetch_object($result)){
+    $nodes[] = node_load(array('nid' => $obj->nid));
+  }
+  return $nodes;
+}
 /**
  * Get nid from packages who reference the current node.
  *
@@ -1141,7 +1241,7 @@ function wallytoolbox_flow_to_array_new_videoobject() {
 }
 
 function wallytoolbox_flow_to_array_struct_term($struct_array) {
-  $new_struct = array('Vocabulary');
+  $new_struct = array('Vocabulary' => array());
   
   $vocabularies = taxonomy_get_vocabularies();
   
@@ -1181,7 +1281,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     }
     $new_struct['Vocabulary'][] = $temp_tax;
   }
-  
+
   if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
     foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
       $temp_tax = array();
@@ -1254,7 +1354,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     foreach ($struct_array['Authors']['Person'] as $author) {
       $temp_term = array();
       $temp_term['type'] = 'PersonType';
-      $temp_term['Name'] = $author['PersonName']['value'];
+      $temp_term['Name'] = $author['PersonName'];
       $temp_term['PersonLastName'] = $author['PersonLastName'];
       $temp_term['PersonFirstName'] = $author['PersonFirstName'];
       $temp_term['PersonNickName'] = $author['PersonNickName'];
@@ -1277,7 +1377,21 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
 
 function wallytoolbox_node_to_array($node) {
   require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/destinations.inc';
-  $transformed_node['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node);
+  $transformed_node['Packages']['Package'][0] = wallytoolbox_destinations_flow_transform_node($node);
+  
+  switch ($node->type){
+    case 'wally_articlepackage' : $transformed_node['Packages']['Package'][0]['type'] = 'ArticlePackageType';break;
+    case 'wally_gallerypackage' : $transformed_node['Packages']['Package'][0]['type'] = 'GalleryPackageType';break;
+    case 'wally_pollpackage'    : $transformed_node['Packages']['Package'][0]['type'] = 'PollPackageType';break;
+  }
+  switch($node->comment){
+    case 0 : $transformed_node['Packages']['Package'][0]['CommentsAllowed']['value'] = 'Disabled';break;
+    case 1 : $transformed_node['Packages']['Package'][0]['CommentsAllowed']['value'] = 'Read Only';break;
+    default :
+      $transformed_node['Packages']['Package'][0]['CommentsAllowed']['value'] = 'Read-Write';
+  }
+  $packagelayout = taxonomy_get_term($node->field_packagelayout[0]['value']);
+  $transformed_node['Packages']['Package'][0]['PackageLayout']['value'] = $packagelayout->name;
   return $transformed_node;
 }
 

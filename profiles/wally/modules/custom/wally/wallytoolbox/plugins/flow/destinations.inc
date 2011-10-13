@@ -270,7 +270,11 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   $transformed_node['PackageDescription']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_summary', '');
   $transformed_node['InternalReference']['value'] = 'Drupal_NID:'.$node->nid;
   $transformed_node['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externalreference', 'wally_'.$node->nid);
-  $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  if (isset($node->field_productid) & $node->field_productid[0]['value'] != NULL & $node->field_productid[0]['value'] != '' ){
+    $transformed_node['ProductID']['value'] = $node->field_productid[0]['value'];
+  } else{
+    $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  }
   if (!$meta_pack) {
     $transformed_node['Destinations']['Destination'] = array();
     foreach ($node->field_destinations as $dest) {
@@ -292,10 +296,9 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
       $transformed_node['Editions']['Edition'][] = $temp_edition;
     }*/
     $transformed_node['Channels']['Channel'] = array();
-    foreach ($node->field_channels as $channel) {
-      $temp_edition = array();
-      $temp_edition['value'] = $channel['value'];
-      $transformed_node['Channels']['Channel'][] = $temp_edition;
+    $channels = unserialize($node->field_channels[0]['value']);
+    foreach ($channels as $channel) {
+      $transformed_node['Channels']['Channel'][]['Name'] = $channel;
     }
     $transformed_node['CommentsAllowed']['value'] = $node->comment;
     $transformed_node['FreeAccess']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
@@ -421,7 +424,7 @@ function wallytoolbox_destinations_flow_set_audioobject($audioobject) {
 }
 
 function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node) {
-  $temp_taxonomy = array();
+  $temp_object = array();
   
   $temp_object['Markers']['Location'] = array();
   if ($object->field_markers && is_array($object->field_markers)) {
@@ -446,7 +449,7 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
   $temp_object['Taxonomy']['Vocabulary'] = array();
   if ($object->taxonomy && is_array($object->taxonomy)) {
     foreach ($object->taxonomy as $taxonomy) {
-      $temp_object['Taxonomy']['Vocabulary'] = wallytoolbox_destinations_flow_set_taxonomytax($taxonomy);
+      $temp_object['Taxonomy']['Vocabulary'][] = wallytoolbox_destinations_flow_set_taxonomytax($taxonomy);
     }
   }
   $temp_object['Entities']['Entity'] = array();
@@ -492,7 +495,7 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
     }
   }
 
-  $temp_taxonomy = wallytoolbox_flow_to_array_struct_term($temp_taxonomy);
+  $temp_taxonomy = wallytoolbox_flow_to_array_struct_term($temp_object);
 
   return $temp_taxonomy;
 }
