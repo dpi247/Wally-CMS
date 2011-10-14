@@ -98,10 +98,10 @@ function _wimprthelp_array_to_ccklocation($location) {
  */
 function _wimprthelp_date_to_ccktime($date) {
   //@todo: handle timezone
-  $result['value']=str_replace('T', ' ', $date);
-  $result['timezone']=variable_get('date_default_timezone_name', 'UTC');
-  $result['timezone_db']='UTC';
-  $result['date_type']='datetime';
+  $result['value'] = str_replace('T', ' ', $date);
+  $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
+  $result['timezone_db'] = 'UTC';
+  $result['date_type'] = 'datetime';
   return $result;
 }
 /**
@@ -115,11 +115,11 @@ function _wimprthelp_date_to_ccktime($date) {
  */
 function _wimprthelp_polldate_to_ccktime($date1,$date2) {
   //@todo: handle timezone
-  $result['value']=str_replace('T', ' ', $date1);
-  $result['value2']=str_replace('T', ' ', $date2);
-  $result['timezone']=variable_get('date_default_timezone_name', 'UTC');
-  $result['timezone_db']='UTC';
-  $result['date_type']='datetime';
+  $result['value'] = str_replace('T', ' ', $date1);
+  $result['value2'] = str_replace('T', ' ', $date2);
+  $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
+  $result['timezone_db'] = 'UTC';
+  $result['date_type'] = 'datetime';
   return $result;
 }
 /**
