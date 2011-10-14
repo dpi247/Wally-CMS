@@ -1242,7 +1242,6 @@ function wallytoolbox_flow_to_array_new_videoobject() {
 
 function wallytoolbox_flow_to_array_struct_term($struct_array) {
   $new_struct = array('Vocabulary' => array());
-  
   $vocabularies = taxonomy_get_vocabularies();
   
   if (isset($struct_array['Markers']['Location']) && !empty($struct_array['Markers']['Location'])) {
@@ -1256,9 +1255,15 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     foreach ($struct_array['Markers']['Location'] as $marker) {
       $temp_term = array();
       $temp_term['type'] = 'LocationType';
-      $temp_term['Name'] = $marker['LocationName']['value'];
-      $temp_term['Address'] = $marker['Address'];
-      $temp_term['LocationGeo'] = $marker['LocationGeo'];
+      if (is_numeric($marker)) {
+        if ($term = taxonomy_get_term($marker)) {
+          $temp_term['Name'] = $term->name;
+        }
+      } else {
+        $temp_term['Name'] = $marker['LocationName']['value'];
+        $temp_term['Address'] = $marker['Address'];
+        $temp_term['LocationGeo'] = $marker['LocationGeo'];
+      }
       $temp_tax['Term'][] = $temp_term;
     }
     $new_struct['Vocabulary'][] = $temp_tax;
@@ -1274,60 +1279,40 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     foreach ($struct_array['Locations']['Location'] as $location) {
       $temp_term = array();
       $temp_term['type'] = 'LocationType';
-      $temp_term['Name'] = $marker['LocationName']['value'];
-      $temp_term['Address'] = $marker['Address'];
-      $temp_term['LocationGeo'] = $marker['LocationGeo'];
+      if (is_numeric($location)) {
+        if ($term = taxonomy_get_term($location)) {
+          $temp_term['Name'] = $term->name;
+        }
+      } else {
+        $temp_term['Name'] = $location['LocationName']['value'];
+        $temp_term['Address'] = $location['Address'];
+        $temp_term['LocationGeo'] = $location['LocationGeo'];
+      }
       $temp_tax['Term'][] = $temp_term;
     }
     $new_struct['Vocabulary'][] = $temp_tax;
-  }
-
-  if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
-    $free_voc = variable_get('wallymport_freetagtaxonomy', 0);
-    $cat_voc = variable_get('wallymport_classifiedtagtaxonomy', 0);
-    foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
-      $temp_tax = array();
-      if ($vocabulary['VocabularyType'] == $free_voc) {
-        $temp_tax['VocabularyName'] = 'Tags';
-        $temp_tax['VocabularyDescription'] = '';
-        $temp_tax['VocabularyType'] = 'free';
-        $temp_tax['Term'] = array(
-          array(
-            'Name' => $vocabulary['VocabularyName'],
-          ),
-        );
-        $new_struct['Vocabulary'][] = $temp_tax;
-      } elseif ($vocabulary['VocabularyType'] == $cat_voc) {
-        $tid = $vocabulary['Term']['value'];
-        $parents = taxonomy_get_parents_all($tid);
-        $parents = array_reverse($parents);
-        $temp_tax['VocabularyName'] = $parents[0]->name;
-        $temp_tax['VocabularyDescription'] = $parents[0]->description;
-        $temp_tax['VocabularyType'] = 'categorized';
-        $temp_tax['Term'] = array(
-          array(
-            'Name' => $vocabulary['VocabularyName'],
-          ),
-        );
-        $new_struct['Vocabulary'][] = $temp_tax;
-      }
-    }
   }
   
   if (isset($struct_array['Entities']['Entity']) && !empty($struct_array['Entities']['Entity'])) {
     $ent_voc = $vocabularies[variable_get('wallymport_entity', 0)];
     $temp_tax = array(
       'VocabularyName' => 'Entities',
-      'VocabularyDescription' => $loc_voc->description,
+      'VocabularyDescription' => $ent_voc->description,
       'VocabularyType' => 'categorized',
       'Term' => array(),
     );
     foreach ($struct_array['Entities']['Entity'] as $entity) {
       $temp_term = array();
       $temp_term['type'] = 'EntityType';
-      $temp_term['Name'] = $entity['EntityTitle']['value'];
-      $temp_term['EntityDescription'] = $entity['EntityDescription'];
-      $temp_term['EntityServices'] = $entity['EntityServices'];
+      if (is_numeric($entity)) {
+        if ($term = taxonomy_get_term($entity)) {
+          $temp_term['Name'] = $term->name;
+        }
+      } else {
+        $temp_term['Name'] = $entity['EntityTitle']['value'];
+        $temp_term['EntityDescription'] = $entity['EntityDescription'];
+        $temp_term['EntityServices'] = $entity['EntityServices'];
+      }
       $temp_tax['Term'][] = $temp_term;
     }
     $new_struct['Vocabulary'][] = $temp_tax;
@@ -1337,22 +1322,28 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     $per_voc = $vocabularies[variable_get('wallymport_person', 0)];
     $temp_tax = array(
       'VocabularyName' => 'Persons',
-      'VocabularyDescription' => $loc_voc->description,
+      'VocabularyDescription' => $per_voc->description,
       'VocabularyType' => 'categorized',
       'Term' => array(),
     );
     foreach ($struct_array['Persons']['Person'] as $person) {
       $temp_term = array();
       $temp_term['type'] = 'PersonType';
-      $temp_term['Name'] = $person['PersonName']['value'];
-      $temp_term['PersonLastName'] = $person['PersonLastName'];
-      $temp_term['PersonFirstName'] = $person['PersonFirstName'];
-      $temp_term['PersonNickName'] = $person['PersonNickName'];
-      $temp_term['PersonBirthDate'] = $person['PersonBirthDate'];
-      $temp_term['PersonSex'] = $person['PersonSex'];
-      $temp_term['PersonEmail'] = $person['PersonEmail'];
-      $temp_term['PersonWebSite'] = $person['PersonWebSite'];
-      $temp_term['PersonPhoneNumber'] = $person['PersonPhoneNumber'];
+      if (is_numeric($person)) {
+        if ($term = taxonomy_get_term($person)) {
+          $temp_term['Name'] = $term->name;
+        }
+      } else {
+        $temp_term['Name'] = $person['PersonName']['value'];
+        $temp_term['PersonLastName'] = $person['PersonLastName'];
+        $temp_term['PersonFirstName'] = $person['PersonFirstName'];
+        $temp_term['PersonNickName'] = $person['PersonNickName'];
+        $temp_term['PersonBirthDate'] = $person['PersonBirthDate'];
+        $temp_term['PersonSex'] = $person['PersonSex'];
+        $temp_term['PersonEmail'] = $person['PersonEmail'];
+        $temp_term['PersonWebSite'] = $person['PersonWebSite'];
+        $temp_term['PersonPhoneNumber'] = $person['PersonPhoneNumber'];
+      }
       $temp_tax['Term'][] = $temp_term;
     }
     $new_struct['Vocabulary'][] = $temp_tax;
@@ -1361,25 +1352,74 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
   if (isset($struct_array['Authors']['Person']) && !empty($struct_array['Authors']['Person'])) {
     $temp_tax = array(
       'VocabularyName' => 'Authors',
-      'VocabularyDescription' => $loc_voc->description,
+      'VocabularyDescription' => $per_voc->description,
       'VocabularyType' => 'categorized',
       'Term' => array(),
     );
     foreach ($struct_array['Authors']['Person'] as $author) {
       $temp_term = array();
       $temp_term['type'] = 'PersonType';
-      $temp_term['Name'] = $author['PersonName'];
-      $temp_term['PersonLastName'] = $author['PersonLastName'];
-      $temp_term['PersonFirstName'] = $author['PersonFirstName'];
-      $temp_term['PersonNickName'] = $author['PersonNickName'];
-      $temp_term['PersonBirthDate'] = $author['PersonBirthDate'];
-      $temp_term['PersonSex'] = $author['PersonSex'];
-      $temp_term['PersonEmail'] = $author['PersonEmail'];
-      $temp_term['PersonWebSite'] = $author['PersonWebSite'];
-      $temp_term['PersonPhoneNumber'] = $author['PersonPhoneNumber'];
+      if (is_numeric($author)) {
+        if ($term = taxonomy_get_term($author)) {
+          $temp_term['Name'] = $term->name;
+        }
+      } else {
+        $temp_term['Name'] = $author['PersonName'];
+        $temp_term['PersonLastName'] = $author['PersonLastName'];
+        $temp_term['PersonFirstName'] = $author['PersonFirstName'];
+        $temp_term['PersonNickName'] = $author['PersonNickName'];
+        $temp_term['PersonBirthDate'] = $author['PersonBirthDate'];
+        $temp_term['PersonSex'] = $author['PersonSex'];
+        $temp_term['PersonEmail'] = $author['PersonEmail'];
+        $temp_term['PersonWebSite'] = $author['PersonWebSite'];
+        $temp_term['PersonPhoneNumber'] = $author['PersonPhoneNumber'];
+      }
       $temp_tax['Term'][] = $temp_term;
     }
     $new_struct['Vocabulary'][] = $temp_tax;
+  }
+  
+  // Free tags and categorized keywords
+  if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
+    $free_voc = variable_get('wallymport_freetagtaxonomy', 0);
+    $cat_voc = variable_get('wallymport_classifiedtagtaxonomy', 0);
+    $setted_cat_tid = array();
+    
+    $free_temp_tax = array();
+    $free_temp_tax['VocabularyName'] = 'Tags';
+    $free_temp_tax['VocabularyDescription'] = '';
+    $free_temp_tax['VocabularyType'] = 'free';
+    $free_temp_tax['Term'] = array();
+    
+    foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
+      if ($vocabulary['VocabularyType'] == $free_voc) {
+        $free_temp_tax['Term'][$vocabulary['Term']['value']] = array(
+          'Name' => $vocabulary['VocabularyName'],
+        );
+      } elseif ($vocabulary['VocabularyType'] == $cat_voc) {
+        $temp_tax = array();
+        $tid = $vocabulary['Term']['value'];
+        if (!in_array($tid, $setted_cat_tid)) {
+          $parents = taxonomy_get_parents_all($tid);
+          $parents = array_reverse($parents);
+          $temp_tax['VocabularyName'] = $parents[0]->name;
+          $temp_tax['VocabularyDescription'] = $parents[0]->description;
+          $temp_tax['VocabularyType'] = 'categorized';
+          $temp_tax['Term'] = array(
+            array(
+              'Name' => $vocabulary['VocabularyName'],
+            ),
+          );
+          $new_struct['Vocabulary'][] = $temp_tax;
+          $setted_cat_tid[] = $tid;
+          $setted_cat_tid[] = $parents[0]->tid;
+        }
+      }
+    }
+    
+    if (!empty($free_temp_tax['Term'])) {
+      $new_struct['Vocabulary'][] = $free_temp_tax;
+    }
   }
   
   if (empty($new_struct['Vocabulary'])) {
