@@ -1391,29 +1391,36 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
     $free_temp_tax['VocabularyType'] = 'free';
     $free_temp_tax['Term'] = array();
     
+    $cat_temp_tax = array();
+    
     foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
       if ($vocabulary['VocabularyType'] == $free_voc) {
         $free_temp_tax['Term'][$vocabulary['Term']['value']] = array(
           'Name' => $vocabulary['VocabularyName'],
         );
       } elseif ($vocabulary['VocabularyType'] == $cat_voc) {
-        $temp_tax = array();
         $tid = $vocabulary['Term']['value'];
         if (!in_array($tid, $setted_cat_tid)) {
           $parents = taxonomy_get_parents_all($tid);
           $parents = array_reverse($parents);
-          $temp_tax['VocabularyName'] = $parents[0]->name;
-          $temp_tax['VocabularyDescription'] = $parents[0]->description;
-          $temp_tax['VocabularyType'] = 'categorized';
-          $temp_tax['Term'] = array(
-            array(
-              'Name' => $vocabulary['VocabularyName'],
-            ),
-          );
-          $new_struct['Vocabulary'][] = $temp_tax;
+          if (!isset($temp_tax[$parents[0]->name])) {
+            $cat_temp_tax[$parents[0]->name] = array(
+              'VocabularyName' => $parents[0]->name,
+              'VocabularyDescription' => $parents[0]->description,
+              'VocabularyType' => 'categorized',
+              'Term' => array(),
+            );
+          }
+          $cat_temp_tax[$parents[0]->name]['Term'][$tid] = $vocabulary['VocabularyName'];
           $setted_cat_tid[] = $tid;
           $setted_cat_tid[] = $parents[0]->tid;
         }
+      }
+    }
+    
+    if (!empty($cat_temp_tax)) {
+      foreach ($cat_temp_tax as $sub_voc) {
+        $new_struct['Vocabulary'][] = $sub_voc;
       }
     }
     
