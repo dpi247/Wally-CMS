@@ -124,7 +124,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom){
           $object_node = $embeddedobjects_node->appendChild($valid_dom->createElement('Object'));
           $object_node->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $object_array['type']);
           _wallytoolbox_arraytowallyxml_fillObjectType($valid_dom, $object_node, $object_array);
-          switch ($objec_array['type']){
+          switch ($object_array['type']){
             case 'TextObjectType' :
               _wallytoolbox_arraytowallyxml_fillTextObjectType($valid_dom, $object_node, $object_array);
               break;
@@ -369,15 +369,14 @@ function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node
     $object_node->appendChild($valid_dom->createElement('InternalReference', $object_array['InternalReference']['value']));
   }
 
-
-  if (isset($object_array['Taxonomy'])){
+  if (isset($object_array['Taxonomy']) & count($object_array['Taxonomy']) != 0){
     _wallytoolbox_arraytowallyxml_createVocItems($valid_dom, $object_node, $object_array['Taxonomy']);
   }
 
-  if (isset($object_array['Copyright']) & $object_array['Copyright'] != NULL & $object_array['Copyright'] != ''){
+  if (isset($object_array['Copyright']) & $object_array['Copyright']['value'] != NULL & $object_array['Copyright']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('Copyright', $object_array['Copyright']['value']));
   }
-  if (isset($object_array['ByLine']) & $object_array['ByLine'] != NULL & $object_array['ByLine'] != ''){
+  if (isset($object_array['ByLine']) & $object_array['ByLine']['value'] != NULL & $object_array['ByLine']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('ByLine', $object_array['ByLine']['value']));
   }
   if (isset($object_array['EmbeddedObjectsOrder']) & $object_array['EmbeddedObjectsOrder'] != NULL & $object_array['EmbeddedObjectsOrder'] != ''){
@@ -433,10 +432,22 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
 function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$object_node, $object_array){
   if (isset($object_array['Caption']) & $object_array['Caption']['value'] != NULL & $object_array['Caption']['value'] != '')
     $object_node->appendChild($valid_dom->createElement('Caption',$object_array['Caption']['value']));
+
   $object_node->appendChild($valid_dom->createElement('FileURI',$object_array['FileURI']['value']));
   $object_node->appendChild($valid_dom->createElement('FileSize',$object_array['FileSize']['value']));
-  if (isset($object_array['Thumbnail']) & $object_array['Thumbnail']['value'] != NULL & $object_array['Thumbnail']['value'] != '')
-    $object_node->appendChild($valid_dom->createElement('Thumbnail',$object_array['Thumbnail']['value']));
+  if (isset($object_array['Thumbnail']) & $object_array['Thumbnail']['value'] != NULL & $object_array['Thumbnail']['value'] != ''){
+    $thumbnail_node = $object_node->appendChild($valid_dom->createElement('Thumbnail'));
+    $thumbnail_node->setAttribute('URI', $object_array['Thumbnail']['URI']);
+    if (isset($object_array['Thumbnail']['Type']) & $object_array['Thumbnail']['Type'] != NULL & $object_array['Thumbnail']['Type'] != '')
+      $thumbnail_node->setAttribute('Type',$object_array['Thumbnail']['Type']);
+    if (isset($object_array['Thumbnail']['Title']) & $object_array['Thumbnail']['Title'] != NULL & $object_array['Thumbnail']['Title'] != '')
+      $thumbnail_node->setAttribute('Title',$object_array['Thumbnail']['Title']);
+    if (isset($object_array['Thumbnail']['W']) & $object_array['Thumbnail']['W'] != NULL & $object_array['Thumbnail']['W'] != '')
+      $thumbnail_node->setAttribute('W',$object_array['Thumbnail']['W']);
+    if (isset($object_array['Thumbnail']['H']) & $object_array['Thumbnail']['H'] != NULL & $object_array['Thumbnail']['H'] != '')
+      $thumbnail_node->setAttribute('H',$object_array['Thumbnail']['H']);
+    
+  }
   if (isset($object_array['Rating']) & $object_array['Rating']['value'] != NULL & $object_array['Rating']['value'] != '')
     $object_node->appendChild($valid_dom->createElement('Rating',$object_array['Rating']['value']));
   if (isset($object_array['MimeType']) & $object_array['MimeType'] != NULL & $object_array['MimeType'] != '')
@@ -579,6 +590,7 @@ function _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom, $object_no
  */
 function _wallytoolbox_arraytowallyxml_createVocItems(&$valid_dom, &$object_node, $taxonomy_array){
   $taxonomy_node = $object_node->appendChild($valid_dom->createElement('Taxonomy'));
+  
   foreach ($taxonomy_array['Vocabulary'] as $vocabulary_array){
     $vocabulary_node = $taxonomy_node->appendChild($valid_dom->createElement('Vocabulary'));
     $vocabulary_node->setAttribute('VocabularyName',$vocabulary_array['VocabularyName']);
