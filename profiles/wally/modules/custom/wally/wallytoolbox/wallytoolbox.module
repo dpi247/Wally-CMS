@@ -1411,7 +1411,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
               'Term' => array(),
             );
           }
-          $cat_temp_tax[$parents[0]->name]['Term'][$tid] = $vocabulary['VocabularyName'];
+          $cat_temp_tax[$parents[0]->name]['Term'][$tid]['Name'] = $vocabulary['VocabularyName'];
           $setted_cat_tid[] = $tid;
           $setted_cat_tid[] = $parents[0]->tid;
         }
