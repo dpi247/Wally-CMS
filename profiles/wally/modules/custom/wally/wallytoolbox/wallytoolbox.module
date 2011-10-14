@@ -1453,6 +1453,19 @@ function wallytoolbox_node_to_array($node) {
   }
   $packagelayout = taxonomy_get_term($node->field_packagelayout[0]['value']);
   $transformed_node['Packages']['Package'][0]['PackageLayout']['value'] = $packagelayout->name;
+  
+  if (isset($transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'])){
+    foreach ($transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object_value){
+      switch ($object_value['type']){
+        case 'wally_audioobject' : $transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['type'] = 'AudioObjectType';break;
+        case 'wally_photoobject' : $transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['type'] = 'PhotoObjectType';break;
+        case 'wally_pollobject'  : $transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['type'] = 'PollObjectType';break;
+        case 'wally_textobject'  : $transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['type'] = 'TextObjectType';break;
+        case 'wally_videoobject' : $transformed_node['Packages']['Package'][0]['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['type'] = 'VideoObjectType';break;
+      }
+    }
+  }
+  
   return $transformed_node;
 }
 
