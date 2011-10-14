@@ -427,7 +427,7 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
   $temp_object = array();
   
   $temp_object['Markers']['Location'] = array();
-  if ($object->field_markers && is_array($object->field_markers)) {
+  if ($object->field_markers && is_array($object->field_markers) && !empty($object->field_markers)) {
     foreach ($object->field_markers as $marker) {
       if ($marker['lid'] != 0) {
         $temp_object['Markers']['Location'][] = wallytoolbox_destinations_flow_set_locationtax($marker);
@@ -435,13 +435,15 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
     }
   }
   $temp_object['Locations']['Location'] = array();
-  if ($object->field_locations && is_array($object->field_locations)) {
+  if ($object->field_locations && is_array($object->field_locations) && !empty($object->field_locations)) {
     foreach ($object->field_locations as $location) {
-      $temp_object['Locations']['Location'][$location['value']] = $location['value'];
-      unset($object->taxonomy[$location['value']]);
+      if ($location['value']) {
+        $temp_object['Locations']['Location'][$location['value']] = $location['value'];
+        unset($object->taxonomy[$location['value']]);
+      }
     }
   }
-  if ($object->field_locations_nodes && is_array($object->field_locations_nodes)) {
+  if ($object->field_locations_nodes && is_array($object->field_locations_nodes) && !empty($object->field_locations_nodes)) {
     foreach ($object->field_locations_nodes as $location) {
       if (in_array($location->field_locationtaxonomy[0]['value'], $temp_object['Locations']['Location']))
         $temp_object['Locations']['Location'][$location->field_locationtaxonomy[0]['value']] = wallytoolbox_destinations_flow_set_locationtax($location);
@@ -450,13 +452,15 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
     }
   }
   $temp_object['Entities']['Entity'] = array();
-  if ($object->field_entities && is_array($object->field_entities)) {
+  if ($object->field_entities && is_array($object->field_entities) && !empty($object->field_entities)) {
     foreach ($object->field_entities as $entity) {
-      $temp_object['Entities']['Entity'][$entity['value']] = $entity['value'];
-      unset($object->taxonomy[$entity['value']]);
+      if ($entity['value']) {
+        $temp_object['Entities']['Entity'][$entity['value']] = $entity['value'];
+        unset($object->taxonomy[$entity['value']]);
+      }
     }
   }
-  if ($object->field_entities_nodes && is_array($object->field_entities_nodes)) {
+  if ($object->field_entities_nodes && is_array($object->field_entities_nodes) && !empty($object->field_entities_nodes)) {
     foreach ($object->field_entities_nodes as $entity) {
       if (in_array($entity->field_entity[0]['value'], $temp_object['Entities']['Entity']))
         $temp_object['Entities']['Entity'][$entity->field_entity[0]['value']] = wallytoolbox_destinations_flow_set_entitytax($entity);
@@ -465,13 +469,15 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
     }
   }
   $temp_object['Persons']['Person'] = array();
-  if ($object->field_persons && is_array($object->field_persons)) {
+  if ($object->field_persons && is_array($object->field_persons) && !empty($object->field_persons)) {
     foreach ($object->field_persons as $person) {
-      $temp_object['Persons']['Person'][$person['value']] = $person['value'];
-      unset($object->taxonomy[$person['value']]);
+      if ($person['value']) {
+        $temp_object['Persons']['Person'][$person['value']] = $person['value'];
+        unset($object->taxonomy[$person['value']]);
+      }
     }
   }
-  if ($object->field_persons_nodes && is_array($object->field_persons_nodes)) {
+  if ($object->field_persons_nodes && is_array($object->field_persons_nodes) && !empty($object->field_persons_nodes)) {
     foreach ($object->field_persons_nodes as $person) {
       if (in_array($person->field_persontaxonomy[0]['value'], $temp_object['Persons']['Person']))
         $temp_object['Persons']['Person'][$person->field_persontaxonomy[0]['value']] = wallytoolbox_destinations_flow_set_persontax($person);
@@ -480,13 +486,15 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
     }
   }
   $temp_object['Authors']['Person'] = array();
-  if ($object->field_authors && is_array($object->field_authors)) {
+  if ($object->field_authors && is_array($object->field_authors) && !empty($object->field_authors)) {
     foreach ($object->field_authors as $author) {
-      $temp_object['Authors']['Person'][$author['value']] = $author['value'];
-      unset($object->taxonomy[$author['value']]);
+      if ($author['value']) {
+        $temp_object['Authors']['Person'][$author['value']] = $author['value'];
+        unset($object->taxonomy[$author['value']]);
+      }
     }
   }
-  if ($object->field_authors_nodes && is_array($object->field_authors_nodes)) {
+  if ($object->field_authors_nodes && is_array($object->field_authors_nodes) && !empty($object->field_authors_nodes)) {
     foreach ($object->field_authors_nodes as $author) {
       if (in_array($author->field_persontaxonomy[0]['value'], $temp_object['Authors']['Person']))
         $temp_object['Authors']['Person'][$author->field_persontaxonomy[0]['value']] = wallytoolbox_destinations_flow_set_persontax($author);
