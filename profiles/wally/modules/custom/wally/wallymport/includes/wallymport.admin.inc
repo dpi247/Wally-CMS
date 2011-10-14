@@ -58,11 +58,20 @@ function wallymport_page_admin_form($form_state) {
     '#required' => FALSE,
   );
   
-  $form['wallymport_import']['wallymport_definition'] = array(
+  $form['wallymport_import']['wallymport_definition_packages'] = array(
     '#type' => 'textfield',
-    '#title' => t('Import Data Structure Definition file'),
+    '#title' => t('Import Data Structure Definition file For Packages'),
     '#description' => t('XSD (schema) file name, with the path.'),
-    '#default_value' => variable_get('wallymport_definition', $path.'/definitions/packages.xsd'),
+    '#default_value' => variable_get('wallymport_definition_packages', $path.'/definitions/packages.xsd'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $form['wallymport_import']['wallymport_definition_messages'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import Data Structure Definition file For Messages'),
+    '#description' => t('XSD (schema) file name, with the path.'),
+    '#default_value' => variable_get('wallymport_definition_messages', $path.'/definitions/packages.xsd'),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
@@ -141,13 +150,20 @@ function wallymport_page_admin_form($form_state) {
   
   $form['wallymport_documenttype'] = array(
     '#type' => 'select',
-    '#title' => t('Taxonomy "Destination Type"'),
+    '#title' => t('Taxonomy "Document Type"'),
     '#description' => t('Choose the vocabulary corresponding to the document type. Import module will use this vocabulary to match the PackageLayout element.'),
     '#default_value' => variable_get('wallymport_documenttype', 0),
     '#options' => $vocab_list,
     '#required' => TRUE,
   );
-
+  $form['wallymport_author'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Authors"'),
+    '#description' => t('Choose the vocabulary corresponding to the available Authors. Import module will use this vocabulary to match the AuthorID element.'),
+    '#default_value' => variable_get('wallymport_author', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );  
   $form['wallymport_edition'] = array(
     '#type' => 'select',
     '#title' => t('Taxonomy "Editions"'),
@@ -272,10 +288,15 @@ function wallymport_page_admin_form_validate($form, &$form_state) {
     form_set_error('wallymport_preview_temp', t('The path provided is not an existing writable directory.'));
   }
   
-  $file = $form_state['values']['wallymport_definition'];
-  $file_readable=is_readable($file);
+  $file = $form_state['values']['wallymport_definition_packages'];
+  $file_readable = is_readable($file);
   if (!$file_readable) {
-    form_set_error('wallymport_definition', t('The filename provided is not an existing readable file.'));
+    form_set_error('wallymport_definition_packages', t('The filename provided is not an existing readable file.'));
+  }
+  $file = $form_state['values']['wallymport_definition_messages'];
+  $file_readable = is_readable($file);
+  if (!$file_readable) {
+    form_set_error('wallymport_definition_messages', t('The filename provided is not an existing readable file.'));
   }
 }
 
