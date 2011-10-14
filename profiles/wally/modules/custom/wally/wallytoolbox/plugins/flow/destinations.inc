@@ -375,7 +375,7 @@ function wallytoolbox_destinations_flow_set_textobject($textobject, $transformed
   return $temp_text;
 }
 
-function wallytoolbox_destinations_flow_set_photoobject($photoobject) {
+function wallytoolbox_destinations_flow_set_photoobject($photoobject, $transformed_node) {
   $temp_photo = wallytoolbox_destinations_flow_set_multimediaobject($photoobject, $transformed_node);
 
   // PhotoObject Elements
@@ -399,7 +399,7 @@ function wallytoolbox_destinations_flow_set_photoobject($photoobject) {
   return $temp_photo;
 }
 
-function wallytoolbox_destinations_flow_set_videoobject($videoobject) {
+function wallytoolbox_destinations_flow_set_videoobject($videoobject, $transformed_node) {
   $temp_video = wallytoolbox_destinations_flow_set_multimediaobject($videoobject, $transformed_node);
   
   // VideoObject Elements
@@ -410,7 +410,7 @@ function wallytoolbox_destinations_flow_set_videoobject($videoobject) {
   return $temp_video;
 }
 
-function wallytoolbox_destinations_flow_set_audioobject($audioobject) {
+function wallytoolbox_destinations_flow_set_audioobject($audioobject, $transformed_node) {
   $temp_audio = wallytoolbox_destinations_flow_set_multimediaobject($audioobject, $transformed_node);
   
   // AudioObject Elements
@@ -546,7 +546,7 @@ function wallytoolbox_destinations_flow_set_locationtax($location) {
 
 function wallytoolbox_destinations_flow_set_entitytax($entity) {
   $temp_entity = array();
-  
+
   $temp_entity['EntityID'] = wallytoolbox_destinations_flow_node_get_field($entity, 'field_entity', '');
   $temp_entity['EntityTitle']['value'] = $entity->title;
   $temp_entity['EntityDescription']['value'] = wallytoolbox_destinations_flow_node_get_field($entity, 'field_objectdescription', '');
