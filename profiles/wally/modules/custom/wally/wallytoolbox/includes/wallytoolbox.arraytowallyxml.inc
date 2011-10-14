@@ -95,7 +95,7 @@ function wallytoolbox_arraytowallyxml_createfalsearray(){
  *   $valid_dom
  */
 
-function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom){
+function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip){
   $packages_node = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages_node->setAttribute('xmlns', 'http://rossel.audaxis.com');
   dsm($wally_array);
@@ -111,7 +111,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom){
         _wallytoolbox_arraytowallyxml_fillArticlePackageType($valid_dom, $package_node, $package_array);
         break;
       case 'GalleryPackageType' :
-        _wallytoolbox_arraytowallyxml_fillGalleryPackageType($valid_dom, $package_node, $package_array);
+        _wallytoolbox_arraytowallyxml_fillGalleryPackageType($valid_dom, $package_node, $package_array, $files_to_zip);
         break;
       case 'PollPackageType' :
         _wallytoolbox_arraytowallyxml_fillPollPackageType($valid_dom,$package_node, $package_array);
@@ -129,13 +129,13 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom){
               _wallytoolbox_arraytowallyxml_fillTextObjectType($valid_dom, $object_node, $object_array);
               break;
             case 'AudioObjectType':
-              _wallytoolbox_arraytowallyxml_fillAudioObjectType($valid_dom, $object_node, $object_array);
+              _wallytoolbox_arraytowallyxml_fillAudioObjectType($valid_dom, $object_node, $object_array, $files_to_zip);
               break;
             case 'VideoObjectType':
-              _wallytoolbox_arraytowallyxml_fillVideoObjectType($valid_dom, $object_node, $object_array);
+              _wallytoolbox_arraytowallyxml_fillVideoObjectType($valid_dom, $object_node, $object_array, $files_to_zip);
               break;
             case 'PhotoObjectType':
-              _wallytoolbox_arraytowallyxml_fillPhotoObjectType($valid_dom, $object_node, $object_array);
+              _wallytoolbox_arraytowallyxml_fillPhotoObjectType($valid_dom, $object_node, $object_array, $files_to_zip);
               break;
             case 'PollObjectType':
               _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom, $object_node, $object_array);
@@ -265,18 +265,18 @@ function _wallytoolbox_arraytowallyxml_fillArticlePackageType(&$valid_dom, &$pac
  * @return
  *   $valid_dom
  */
-function _wallytoolbox_arraytowallyxml_fillGalleryPackageType(&$valid_dom, &$package_node, $package_array){
+function _wallytoolbox_arraytowallyxml_fillGalleryPackageType(&$valid_dom, &$package_node, $package_array, &$files_to_zip){
   $mainobject_node = $package_node->appendChild($valid_dom->createElement('MainObject'));
   _wallytoolbox_arraytowallyxml_fillObjectType($valid_dom,$mainobject_node,$package_array['MainObject']);
   switch ($package_array['MainObject']['type']){
     case 'AudioObjectType':
-      _wallytoolbox_arraytowallyxml_fillAudioObjectType($valid_dom, $mainobject_node, $package_array['MainObject']);
+      _wallytoolbox_arraytowallyxml_fillAudioObjectType($valid_dom, $mainobject_node, $package_array['MainObject'], $files_to_zip);
       break;
     case 'VideoObjectType':
-      _wallytoolbox_arraytowallyxml_fillVideoObjectType($valid_dom, $mainobject_node, $package_array['MainObject']);
+      _wallytoolbox_arraytowallyxml_fillVideoObjectType($valid_dom, $mainobject_node, $package_array['MainObject'], $files_to_zip);
       break;
     case 'PhotoObjectType':
-      _wallytoolbox_arraytowallyxml_fillPhotoObjectType($valid_dom, $mainobject_node, $package_array['MainObject']);
+      _wallytoolbox_arraytowallyxml_fillPhotoObjectType($valid_dom, $mainobject_node, $package_array['MainObject'], $files_to_zip);
       break;
   }
 }
@@ -467,8 +467,11 @@ function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$o
  * @return
  *   $valid_dom
  */
-function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object_node, $object_array){
+function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object_node, $object_array, &$files_to_zip){
   _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom,$object_node, $object_array);
+  if (isset($object_array['PhotoFile'])){
+    $files_to_zip[] = $object_array['PhotoFile'];
+  }
   if (isset($object_array['Crops'])){
     $crops_node = $object_node->appendChild($valid_dom->createElement('Crops'));
     foreach ($object_array['Crops']['Crop'] as $crop_array){
@@ -507,9 +510,11 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
  * @return
  *   $valid_dom
  */
-function _wallytoolbox_arraytowallyxml_fillAudioObjectType(&$valid_dom, &$object_node, $object_array){
+function _wallytoolbox_arraytowallyxml_fillAudioObjectType(&$valid_dom, &$object_node, $object_array, &$files_to_zip){
   _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom,$object_node, $object_array);
-  
+  if (isset($object_array['AudioFile'])){
+    $files_to_zip[] = $object_array['AudioFile'];
+  }
   if (isset($object_array['AudioLength']) & $object_array['AudioLength']['value'] != NULL & $object_array['AudioLength']['value'] != '')
     $object_node->appendChild($valid_dom->createElement('AudioLength',$object_array['AudioLength']['value']));
   if (isset($object_array['LinkTitle']) & $object_array['LinkTitle']['value'] != NULL & $object_array['LinkTitle']['value'] != '')
@@ -530,9 +535,11 @@ function _wallytoolbox_arraytowallyxml_fillAudioObjectType(&$valid_dom, &$object
  * @return
  *   $valid_dom
  */
-function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object_node, $object_array){
+function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object_node, $object_array, &$files_to_zip){
   _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom,$object_node, $object_array);
-  
+  if (isset($object_array['VideoFile'])){
+    $files_to_zip[] = $object_array['VideoFile'];
+  }
   if (isset($object_array['VideoLength']) & $object_array['VideoLength']['value'] != NULL & $object_array['VideoLength']['value'] != '')
     $object_node->appendChild($valid_dom->createElement('VideoLength',$object_array['VideoLength']['value']));
   if (isset($object_array['LinkTitle']) & $object_array['LinkTitle']['value'] != NULL & $object_array['LinkTitle']['value'] != '')
