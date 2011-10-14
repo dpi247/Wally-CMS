@@ -494,9 +494,8 @@ function wallycontenttypes_fieldTIDload($field, $values, $type = NULL) {
     }
   }
   $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
-  foreach ($results as $value=>$node2load) {
+  foreach ($results as $value => $node2load) {
     $r[$value] = node_load($node2load);
-    
     if (empty($r[$value])) {
       unset($r[$value]); 
     }

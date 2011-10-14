@@ -366,6 +366,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
+      '2' => 'field_byline',
     ),
   );
 
@@ -554,6 +555,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '4' => 'field_entity',
       '5' => 'field_persons',
       '6' => 'field_copyright',
+      '7' => 'field_byline',
     ),
   );
 
@@ -1132,6 +1134,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
+      '2' => 'field_byline',
     ),
   );
 
@@ -1314,6 +1317,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
+      '2' => 'field_byline',
     ),
   );
 
@@ -1850,6 +1854,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_textforetitle',
       '2' => 'field_textsubtitle',
       '3' => 'field_copyright',
+      '4' => 'field_byline',
     ),
   );
 
@@ -1938,6 +1943,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
+      '2' => 'field_byline',
     ),
   );
 
