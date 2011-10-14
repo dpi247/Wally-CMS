@@ -1403,7 +1403,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
         if (!in_array($tid, $setted_cat_tid)) {
           $parents = taxonomy_get_parents_all($tid);
           $parents = array_reverse($parents);
-          if (!isset($temp_tax[$parents[0]->name])) {
+          if (!isset($cat_temp_tax[$parents[0]->name])) {
             $cat_temp_tax[$parents[0]->name] = array(
               'VocabularyName' => $parents[0]->name,
               'VocabularyDescription' => $parents[0]->description,
