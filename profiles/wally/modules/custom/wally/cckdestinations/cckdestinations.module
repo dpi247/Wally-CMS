@@ -1606,6 +1606,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   // Form plugin handles file uploads in a way that is not compatible with
   // 'text/javascript' response type.
   $GLOBALS['devel_shutdown'] =  FALSE;
+  return $output;
   print drupal_to_js(array('status' => TRUE, 'data' => $output));
   exit;
 }
