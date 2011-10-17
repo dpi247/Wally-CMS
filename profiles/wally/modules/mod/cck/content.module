@@ -695,8 +695,10 @@ function content_field($op, &$node, $field, &$items, $teaser, $page) {
       break;
 
     case 'presave':
-      if ($field['field_name']=='field_destinations')
-      dsm('coucou', 'backtrace');
+      if ($field['field_name']=='field_destinations'){
+        $b = debug_backtrace();
+        dsm($b[0], 'backtrace');
+      }
       if (!empty($node->devel_generate)) {
         include_once('./'. drupal_get_path('module', 'content') .'/includes/content.devel.inc');
         content_generate_fields($node, $field);
