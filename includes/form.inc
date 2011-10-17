@@ -768,6 +768,7 @@ function form_execute_handlers($type, &$form, &$form_state) {
 
   foreach ($handlers as $function) {
     if (function_exists($function))  {
+      dsm($function, $type);
       // Check to see if a previous _submit handler has set a batch, but 
       // make sure we do not react to a batch that is already being processed 
       // (for instance if a batch operation performs a drupal_execute()).
