@@ -924,7 +924,7 @@ function content_set_empty($field, $items) {
  * user drag-n-drop reordering.
  */
 function _content_sort_items($field, $items) {
-  dsm('cocou');
+  dsm($field);
   if ($field['multiple'] >= 1 && isset($items[0]['_weight'])) {
     usort($items, '_content_sort_items_helper');
     foreach ($items as $delta => $item) {
