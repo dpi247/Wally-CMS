@@ -338,7 +338,7 @@ function get_memory() {
 
 function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
 	
-	echo("j utilise ".get_memory()."Mb"); 
+//	echo("j utilise ".get_memory()."Mb"); 
 		
   if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
     require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
