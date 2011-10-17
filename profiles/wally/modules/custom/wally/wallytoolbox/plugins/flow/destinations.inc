@@ -314,6 +314,9 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
 
 function wallytoolbox_destinations_flow_set_object($object, $transformed_node) {
   $temp_object = array();
+  
+  $temp_object['type'] = $object->type;
+  $temp_object['nid'] = $object->nid;
 
   // Object Attributes
   $temp_object['ObjectID'] = wallytoolbox_destinations_flow_node_get_field($object, 'field_objectid', '');
@@ -514,7 +517,7 @@ function wallytoolbox_destinations_flow_set_taxonomy($object, $transformed_node)
 
 function wallytoolbox_destinations_flow_set_persontax($person) {
   $temp_person = array();
-  
+
   $temp_person['PersonID'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_persontaxonomy', '');
   $temp_person['PersonName']['value'] = $person->title;
   $temp_person['PersonLastName']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personlastname', '');
@@ -522,8 +525,8 @@ function wallytoolbox_destinations_flow_set_persontax($person) {
   $temp_person['PersonNickName']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personnickname', '');
   $temp_person['PersonBirthDate']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personbirthdate', '');
   $temp_person['PersonSex']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personsex', '');
-  $temp_person['PersonEmail']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personemail', '');
-  $temp_person['PersonWebSite']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personwebsite', '');
+  $temp_person['PersonEmail']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personemail', '', 'email');
+  $temp_person['PersonWebSite']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personwebsite', '', 'url');
   $temp_person['PersonPhoneNumber']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_phonenumber', '');
   
   return $temp_person;
@@ -531,16 +534,16 @@ function wallytoolbox_destinations_flow_set_persontax($person) {
 
 function wallytoolbox_destinations_flow_set_locationtax($location) {
   $temp_location = array();
-  
+
   $temp_location['LocationID'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_locationtaxonomy', '');
   $temp_location['LocationName']['value'] = $location->title;
   $temp_location['Address'] = array();
-  $temp_location['Address']['AddressLine']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'street').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'additional');
-  $temp_location['Address']['City']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'city');
-  $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'postal_code');
-  $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'country');
-  $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'latitude').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'longitude');
-  
+  $temp_location['Address']['AddressLine']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'street').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'additional');
+  $temp_location['Address']['City']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'city');
+  $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'postal_code');
+  $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'country');
+  $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'latitude').','.wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'longitude');
+
   return $temp_location;
 }
 
@@ -582,13 +585,16 @@ function wallytoolbox_destinations_flow_set_taxonomytax($taxonomy) {
 function wallytoolbox_destinations_flow_set_linklist($linked) {
   $temp_linklist = array();
   
+  $temp_object['type'] = $linked->type;
+  $temp_object['nid'] = $linked->nid;
+  
   // LinkList Elements
-  $temp_linklist['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_internalreference', '');
-  $temp_linklist['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_externalreference', '');
+  $temp_linklist['InternalReference']['value'] = 'Drupal_NID:'.$linked->nid;
+  $temp_linklist['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_externalreference', 'wally_'.$linked->nid);
   $temp_linklist['Title']['value'] = $linked->title;
   $temp_linklist['Summary']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_objectdescription', '');
   $temp_linklist['Links']['Link'] = array();
-  foreach ($linked->field_links_list_nodes[0] as $link) {
+  foreach ($linked->field_links_list_nodes as $link) {
     $temp_linklist['Links']['Link'][] = wallytoolbox_destinations_flow_set_linktax($link);
   }
   
