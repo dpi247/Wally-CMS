@@ -281,7 +281,6 @@ Drupal.ACDB.prototype.search = function (searchString) {
         }
       },
       error: function (xmlhttp) {
-    	  alert('autoc');
         alert(Drupal.ahahError(xmlhttp, db.uri));
       }
     });
