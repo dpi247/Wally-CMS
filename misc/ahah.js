@@ -207,8 +207,7 @@ Drupal.ahah.prototype.success = function (response, status) {
  * Handler for the form redirection error.
  */
 Drupal.ahah.prototype.error = function (response, uri) {
- alert('ahaha coucou');
-  alert(Drupal.ahahError(response, 'haha'+uri));
+  alert(Drupal.ahahError(response, uri));
   // Resore the previous action and target to the form.
   $(this.element).parent('form').attr( { action: this.form_action, target: this.form_target} );
   // Remove the progress element.

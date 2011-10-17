@@ -249,7 +249,6 @@ Drupal.getSelection = function (element) {
  * Build an error message from ahah response.
  */
 Drupal.ahahError = function(xmlhttp, uri) {
-	alert('coucou '+uri);
   if (xmlhttp.status == 200) {
     if (jQuery.trim(xmlhttp.responseText)) {
       var message = Drupal.t("An error occurred. \n@uri\n@text", {'@uri': uri, '@text': xmlhttp.responseText });
