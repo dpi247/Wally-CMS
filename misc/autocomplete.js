@@ -282,7 +282,7 @@ Drupal.ACDB.prototype.search = function (searchString) {
       },
       error: function (xmlhttp) {
     	  alert('autoc coucou');
-        alert(Drupal.ahahError(xmlhttp, db.uri));
+        alert(Drupal.ahahError(xmlhttp, 'autocccc'+db.uri));
       }
     });
   }, this.delay);
