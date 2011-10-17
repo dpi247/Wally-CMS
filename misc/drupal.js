@@ -258,6 +258,7 @@ Drupal.ahahError = function(xmlhttp, uri) {
     }
   }
   else {
+	  alert('coucou');
     var message = Drupal.t("An HTTP error @status occurred. \n@uri", {'@uri': uri, '@status': xmlhttp.status });
   }
   return message.replace(/\n/g, '<br />');
