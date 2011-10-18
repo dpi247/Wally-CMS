@@ -1256,6 +1256,7 @@ function _content_field_invoke($op, &$node, $teaser = NULL, $page = NULL) {
     $module = $field_types[$field['type']]['module'];
     $function = $module .'_field';
     if (function_exists($function)) {
+      dsm($function, $field['field_name']);
       $result = $function($op, $node, $field, $items, $teaser, $page);
       if (is_array($result)) {
         $return = array_merge($return, $result);
