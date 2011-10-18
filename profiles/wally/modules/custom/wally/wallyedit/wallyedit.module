@@ -1017,23 +1017,23 @@ function wydit_subform_global_page_form(&$form_state){
   );
 
   $form["save_global"]=array(
-    '#type'=>'submit',
-    '#name'=>'save_global',
-    "#value"=> 'Save',
-  	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+    '#type' => 'submit',
+    '#name' => 'save_global',
+    "#value"=> t('Save'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   
   $form["reset_global"]=array(
-    '#type'=>'submit',
-    '#name'=>'reset_global',
-    "#value"=> 'Reset',
-    '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+    '#type' => 'submit',
+    '#name' => 'reset_global',
+    "#value"=> t('Reset'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
 
   $form["publish_global"]=array(
-    '#type'=>'submit',
-    '#name'=>'publish_global',
-    "#value"=> 'Publish',
+    '#type' => 'submit',
+    '#name' => 'publish_global',
+    "#value" => t('Save and Publish'),
   );
   return $form;
 }
@@ -1352,22 +1352,20 @@ function wydit_subform_global_add_form(&$form_state){
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name));
 
   wydit_remove_form_infos($form[$type_name]);
-
-  $form['#tree']=true;
   
   $form['profile_id'] = array(
     '#type' => 'value',
     '#value' => $form_state['profile_id'],
   );
 
-  $form["save_global"]=array(
-    '#type'=>'submit',
-    '#name'=>'save_global',
-    "#value"=> 'Save AJAX',
-  	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+  $form["save_global"] = array(
+    '#type' => 'submit',
+    '#name' => 'save_global',
+    "#value" => t('Save'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   
-  $form['#tree']=true;
+  $form['#tree'] = TRUE;
   $form['#theme'][] = "wallyedit_node_form";
   
   return $form;
