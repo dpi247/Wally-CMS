@@ -289,6 +289,7 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
 
   return $node;
 }
+
 /**
  * Process article package from DOM.
  * 
@@ -455,7 +456,6 @@ function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $pr
  *   Nothing
  */
 function wimprt_set_field_sourcexml(&$node,$dom,&$log){
-  
   $dom_sourcexml = new DOMDocument();
   $node_sourcexml = $dom_sourcexml->importNode($dom,TRUE);
   $dom_sourcexml->appendChild($node_sourcexml);
@@ -543,8 +543,9 @@ function wimprt_set_field_externalreference(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->field_externalreference[0]['value'] = _wimprthelp_plain_text($value);
 }
+
 /**
- * Process field External Reference from DOM element.
+ * Process field Embeded Objects Order from DOM element.
  * 
  * MAP field from the a DOM (XML) element or attributes. 
  * 
@@ -562,6 +563,7 @@ function wimprt_set_field_embeddedobjectsorder(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->embeddedobjectsorder = _wimprthelp_plain_text($value);
 }
+
 /**
  * Process field ProductID from DOM element.
  * 
@@ -1967,6 +1969,7 @@ function wimprt_set_field_copyright(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->field_copyright[0]['value'] = $value;
 }
+
 /**
  * Process field Copyright from DOM element.
  * 
@@ -1986,6 +1989,7 @@ function wimprt_set_field_byline(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->field_byline[0]['value'] = $value;
 }
+
 /**
  * Create or load a location type depending of external reference.
  * 
