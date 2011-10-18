@@ -424,6 +424,7 @@ function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_vo
   
   return substr($return, 0, strlen($return)-1);
 }
+
 /**
  * Get vocabulary vid from vocabulary name 
  *
@@ -433,7 +434,6 @@ function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_vo
  * @return
  *   Taxonomy TID of the created term. 
  */
-
 function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
   $result = db_query("SELECT v.vid 
   					  FROM {vocabulary} v 
@@ -444,6 +444,7 @@ function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
   }
   return $vid;
 }
+
 /**
  * Unbind all terms of a vocabulary to the node 
  *
@@ -452,7 +453,6 @@ function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
  * @param $nid
  *   nid of the node
  */
-
 function wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($name,&$node,$vid = NULL){
    
   if ($vid == NULL){
@@ -497,6 +497,7 @@ function wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($name,&$node,$
     $node->field_free_tags = array();
   }
 }
+
 /**
  * Add a taxonomy term into a vocabulary without 
  * need to store a node.
@@ -681,6 +682,7 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 		return null;
 	}
 }
+
 /**
  * Get all nodes where taxonomy tid and node type match value. 
  *
@@ -704,6 +706,7 @@ function wallytoolbox_get_node_by_tid($tid,$type){
   }
   return $nodes;
 }
+
 /**
  * Get nid from packages who reference the current node.
  *

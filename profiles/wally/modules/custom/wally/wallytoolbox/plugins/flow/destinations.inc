@@ -138,7 +138,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $conf = $feed_infos['conf'];
   $tid = $conf['destination']['tid'];
   $target = $conf['destination']['target'];
-  //$target='default_destination_block';
+
   $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
   while (is_string($redacblock['settings']))
     $redacblock['settings'] = unserialize($redacblock['settings']);

@@ -138,6 +138,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       }
       break;
     case 'presave':
+      _cckdestinations_reorder_values($field, $items);
       _cckdestinations_set_new_time_ranks($node, $items);
       break;
   }
@@ -1451,7 +1452,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
 
   if (empty($_POST['form_build_id'])) {
     // Invalid request.
-    drupal_json(array('data' => ''));
+    print drupal_to_js(array('status' => FALSE, 'data' => ''));
     exit;
   }
   
@@ -1461,7 +1462,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $form = form_get_cache($form_build_id, $form_state);
   if (!$form) {
     // Invalid form_build_id.
-    drupal_json(array('data' => ''));
+    print drupal_to_js(array('status' => FALSE, 'data' => ''));
     exit;
   }
   
@@ -1659,6 +1660,17 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
         }
         $items[$delta]['time_rank'] = $temp_time_rank;
       }
+    }
+  }
+}
+
+/**
+ * Reorder the elements of the destination field
+ */
+function _cckdestinations_reorder_values($field, &$items) {
+  if (isset($items) && !empty($items)) {
+    if (isset($items[0]['_weight'])) {
+      $items = _content_sort_items($field, $items);
     }
   }
 }
