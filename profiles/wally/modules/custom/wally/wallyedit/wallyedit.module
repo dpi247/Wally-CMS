@@ -1999,8 +1999,14 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
       }
       $form_state[$form_state['type']]['#node']->$field_name= $form_state[$form_state['type']][$field_name];
     }
-
   }
+  
+  if (isset($fields['field_publicationdate']) && $fields['field_publicationdate']['display'] == 0) {
+    $cck_fields = content_types($form_state['type']);
+    $format = $cck_fields['fields']['field_publicationdate']['widget']['input_format'];
+    $form_state[$form_state['type']]['#node']->field_publicationdate[0]['value'] = date($format);
+  }
+  
   return wydit_publish_prenode_save($form_state, $sub_level);
 }
 
