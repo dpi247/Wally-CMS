@@ -1147,7 +1147,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
       if (!isset($form[$element]['#title'])) {
-dsm($global_form, $element);
+dsm($form, $element);
 dsm($parents_new);
       }
       if($fields[$element]['multiple'] == 1){
@@ -1161,7 +1161,7 @@ dsm($parents_new);
       $parents_new[]='0';
       $form[$element]['#parents']=array($element);
       $form_state[$type][$element][0]['profile_id'] = $form_state['profile_id'];
-      wydit_prepare_inline_form_element($form[$element], $form_state[$type][$element][0], $element, $fields, $parents_new, $global_path.'/'.$element.'/0'  );
+      wydit_prepare_inline_form_element($form[$element], $form_state[$type][$element][0], $element, $fields, $parents_new, $global_path.'/'.$element.'/0');
       $form[$element]['#theme']='wallyedit_inline_form';
     }
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 3) {
