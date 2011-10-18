@@ -716,13 +716,7 @@ function content_field($op, &$node, $field, &$items, $teaser, $page) {
       // If there was an AHAH add more button in this field, don't save it.
       // TODO: is it still needed ?
       unset($items[$field['field_name'] .'_add_more']);
-      if ($field['field_name'] ==  'field_destinations') {
-        $a = debug_backtrace();
-dsm($a[0], 'backtrace');
-dsm($a[1], 'backtrace');
-dsm($a[2], 'backtrace');
-dsm($a[3], 'backtrace');
-      }
+
       if (content_handle('widget', 'multiple values', $field) == CONTENT_HANDLE_CORE) {
         // Reorder items to account for drag-n-drop reordering.
         $items = _content_sort_items($field, $items);
@@ -1256,7 +1250,6 @@ function _content_field_invoke($op, &$node, $teaser = NULL, $page = NULL) {
     $module = $field_types[$field['type']]['module'];
     $function = $module .'_field';
     if (function_exists($function)) {
-      dsm($function, $field['field_name']);
       $result = $function($op, $node, $field, $items, $teaser, $page);
       if (is_array($result)) {
         $return = array_merge($return, $result);
