@@ -1457,10 +1457,10 @@ function wydit_subform_global_edit_form(&$form_state){
   );
 
   $form["save_global"]=array(
-    '#type'=>'submit',
-    '#name'=>'save_global',
-    "#value"=> 'Save AJAX',
-  	'#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+    '#type' => 'submit',
+    '#name' => 'save_global',
+    "#value" => t('Save'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   $form['#tree']=true;
   unset($form["#validate"]);
