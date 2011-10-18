@@ -746,7 +746,6 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
       '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
     );
   } else {
-    dsm($items, 'items');
     if (isset($items['field_destinations_add_more'])) {
       unset($items['field_destinations_add_more']);
     }
