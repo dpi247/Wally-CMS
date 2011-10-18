@@ -21,21 +21,20 @@
  *   A node object
  */
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
-  $node=new stdClass;
-  $node->type='wally_articlepackage';
-
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-
+  $node = new stdClass;
+  $node->type = 'wally_articlepackage';
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  
   //watchdog('ext ref', $ext_ref);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_articlepackage")){
-    $node=$node_temp[0];
+  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_articlepackage")){
+    $node = $node_temp[0];
   }
   //watchdog('Wallymport pack creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
   //watchdog('Wallymport create articlepackage', 'Node : '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
   //watchdog('Wallymport create articlepackage', 'Dom : '.print_r(dom2array($dom), TRUE), array(), WATCHDOG_NOTICE);
   
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -54,16 +53,16 @@ function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
  *   A node object
  */
 function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_gallerypackage';
+  $node = new stdClass;
+  $node->type = 'wally_gallerypackage';
 
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_gallerypackage")){
-    $node=$node_temp[0];
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_gallerypackage")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -82,16 +81,16 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
  *   A node object
  */
 function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_pollpackage';
+  $node = new stdClass;
+  $node->type = 'wally_pollpackage';
 
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_pollpackage")){
-    $node=$node_temp[0];
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_pollpackage")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -115,13 +114,12 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
 function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
-  
   if($dom_element->hasAttribute("CreationDate"))
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   if($dom_element->hasAttribute("LastUpdateDate"))
@@ -135,16 +133,17 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
   }
   if($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+    if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
+    }
   }
   $node->language = $dom_element->getAttributeNode("Language")->value;
   
   //Map XML element
   wimprt_process_package_default($node, $dom_element, $log, $preview);
-  
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')){
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
+  }
 }
 
 /**
@@ -166,7 +165,7 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
 function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
@@ -215,7 +214,7 @@ function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, 
 function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $preview = FALSE){
   
   //Map XML Attributes 
-  $node->field_packageid[0]['value']= $dom_element->getAttributeNode("PackageID")->value;
+  $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
@@ -262,8 +261,12 @@ function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $pr
  *   Nothing
  */
 function wimprt_set_field_sourcexml(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_sourcexml[0]['value']= _wimprthelp_plain_text($value);
+  $dom_sourcexml = new DOMDocument();
+  $node_sourcexml = $dom_sourcexml->importNode($dom,TRUE);
+  $dom_sourcexml->appendChild($node_sourcexml);
+  $value = $dom_sourcexml->saveXML($dom_sourcexml);
+
+  $node->field_sourcexml[0]['value'] = $value;
 }
 
 /**
@@ -282,7 +285,7 @@ function wimprt_set_field_sourcexml(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_packagetitle(&$node,$dom,&$log){
-  $text=$dom->nodeValue;
+  $text = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($text);
 }
 
@@ -302,8 +305,8 @@ function wimprt_set_field_packagetitle(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_packagedescription(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
+  $value = $dom->nodeValue;
+  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
 }
 
 /**
@@ -322,8 +325,8 @@ function wimprt_set_field_packagedescription(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_internalreference(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_internalreference[0]['value']= _wimprthelp_plain_text($value);
+  $value = $dom->nodeValue;
+  $node->field_internalreference[0]['value'] = _wimprthelp_plain_text($value);
 }
 
 /**
@@ -342,8 +345,28 @@ function wimprt_set_field_internalreference(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_externalreference(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_externalreference[0]['value']= _wimprthelp_plain_text($value);
+  $value = $dom->nodeValue;
+  $node->field_externalreference[0]['value'] = _wimprthelp_plain_text($value);
+}
+
+/**
+ * Process field Embeded Objects Order from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_set_field_embeddedobjectsorder(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->embeddedobjectsorder = _wimprthelp_plain_text($value);
 }
 
 /**
@@ -362,8 +385,8 @@ function wimprt_set_field_externalreference(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_productid(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_productid[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_productid[0]['value'] = $value;
 }
 
 /**
@@ -382,49 +405,49 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_destinations(&$node,$dom,$log) {
-  if(variable_get('wallymport_debug',0) or true){
-    $log['log'][]='process Destinations: '.$dom->nodeName;
+  if (variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process Destinations: '.$dom->nodeName;
   }
   $term = array();
   $result = array(); 
-  $vid=variable_get('wallymport_destinationpath',null);
+  $vid = variable_get('wallymport_destinationpath',NULL);
   if ($vid) {
-		$i=0;
-		foreach($dom->getElementsByTagName('Destination') as $destination) {
-			$path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
-			$terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
-			if ($terms) {
-				// As we check the taxonomy full path and specify a vocabulary
-				// we can only have one result.
-				$result[$i]['tid']=$terms[0]->tid;
-				$result[$i]['target']=$destination->getAttributeNode("Position")->value;
-				$result[$i]['layout']=$destination->getAttributeNode("DocumentLayout")->value;
-				$result[$i]['rank']=$destination->getAttributeNode("DestinationRank")->value;
-				
-				$actual_dest = isset($node->field_destinations[$i]) ? $node->field_destinations[$i] : array('tid' => '', 'target' => '', 'layout' => '', 'rank' => '');
-				if ($result[$i]['tid'] == $actual_dest['tid'] && $result[$i]['target'] == $actual_dest['target'] && $result[$i]['layout'] == $actual_dest['layout'] && $result[$i]['rank'] == $actual_dest['rank']) {
-				  $result[$i]['rank'] = 'DNC'.$result[$i]['rank'];
-				  $result[$i]['time_rank'] = $actual_dest['time_rank'];
-				}
-			} else {
-				drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
-			}
-		$i++;
+	$i = 0;
+	foreach($dom->getElementsByTagName('Destination') as $destination) {
+	  $path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
+	  $terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
+	  if ($terms) {
+	    // As we check the taxonomy full path and specify a vocabulary
+		// we can only have one result.
+		$result[$i]['tid'] = $terms[0]->tid;
+		$result[$i]['target'] = $destination->getAttributeNode("Position")->value;
+		$result[$i]['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
+		$result[$i]['rank'] = $destination->getAttributeNode("DestinationRank")->value;
+			
+		$actual_dest = isset($node->field_destinations[$i]) ? $node->field_destinations[$i] : array('tid' => '', 'target' => '', 'layout' => '', 'rank' => '');
+		if ($result[$i]['tid'] == $actual_dest['tid'] && $result[$i]['target'] == $actual_dest['target'] && $result[$i]['layout'] == $actual_dest['layout'] && $result[$i]['rank'] == $actual_dest['rank']) {
+		  $result[$i]['rank'] = 'DNC'.$result[$i]['rank'];
+		  $result[$i]['time_rank'] = $actual_dest['time_rank'];
 		}
-
-		// If no destinations at all > Package can't be created.
-		if (count($result)) {
-			$node->field_destinations=$result;
-		} else {
-			// @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
-      $node->rejected = '';
-			drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
-			return '';
-		}
-	} else {
-		drupal_set_message('Destination Path vocabulary not set. See settings.','error');
-		return '';
+	  } else {
+		drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
+	  }
+	  $i++;
 	}
+
+	// If no destinations at all > Package can't be created.
+	if (count($result)) {
+	  $node->field_destinations = $result;
+	} else {
+	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
+      $node->rejected = '';
+	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
+	  return '';
+	}
+  } else {
+	drupal_set_message('Destination Path vocabulary not set. See settings.','error');
+	return '';
+  }
 }
 
 /**
@@ -509,12 +532,10 @@ function wimprt_set_field_editions(&$node,$dom,$log) {
  */
 function wimprt_set_field_channels(&$node,$dom,$log) {
 
-	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][] = 'process Channels: '.$dom->nodeName;
+  if(variable_get('wallymport_debug',0) or true){
+	$log['log'][] = 'process Channels: '.$dom->nodeName;
   }
-
-	$result = array();
-
+  $result = array();
   // Get edition from DOM & update array.
   foreach($dom->getElementsByTagName('Channel') as $channel) {
     $channelName = $channel->getAttributeNode("Name")->value;
@@ -522,7 +543,7 @@ function wimprt_set_field_channels(&$node,$dom,$log) {
   }
 
   if (!empty($result)) { 
-    $node->field_channels=array(array("value"=>serialize($result)));
+    $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
     drupal_set_message('No channels found. Package rejected','error');
@@ -585,7 +606,7 @@ function wimprt_set_field_commentsallowed(&$node,$dom,&$log){
 function wimprt_set_field_freeaccess(&$node,$dom,&$log){
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
-    $node->field_freeaccess[0]['value'] = null; 
+    $node->field_freeaccess[0]['value'] = NULL; 
 }
 
 /**
@@ -663,11 +684,11 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
   $value = $dom->nodeValue;
   $node->field_packagelayout = array();
 
-	if(variable_get('wallymport_debug',0) or true) {
-		$log['log'][]='process PackageLayout: '.$dom->nodeName;
+  if (variable_get('wallymport_debug',0) or TRUE) {
+	$log['log'][] = 'process PackageLayout: '.$dom->nodeName;
   }
 
-	if (is_numeric($value)) {
+  if (is_numeric($value)) {
     $node->field_packagelayout[]['value'] = $value;
   } elseif($tax_term = taxonomy_get_term_by_name($value)) {
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
@@ -675,7 +696,7 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
     if ($tax_term = taxonomy_get_term_by_name('Article')) {
       $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
     } else {
-		  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
+	  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
     }
   }
 }
@@ -696,7 +717,7 @@ function wimprt_set_field_packagelayout(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_summary(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
 }
 
@@ -772,11 +793,11 @@ function wimprt_set_field_packagecopyright(&$node,$dom,&$log){
  */
 function wimprt_set_field_mainstory(&$node, $dom, &$log, $preview = FALSE) {
   // Process the object & getting NID
-	$object=wimprt_process_object($dom, $log, 'TextObject', $preview);
-	$node->field_mainstory[0]['nid']=$object->nid;
-	if ($preview) {
-	  $node->field_mainstory_nodes[0] = $object;
-	}
+  $object = wimprt_process_object($dom, $log, 'TextObject', $preview);
+  $node->field_mainstory[0]['nid'] = $object->nid;
+  if ($preview) {
+    $node->field_mainstory_nodes[0] = $object;
+  }
 }
 
 /**
@@ -862,30 +883,39 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE)
   $results = array(); 
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
-	$embedobjects=$dom->getElementsByTagName('EmbeddedObjects')->item(0);
-	foreach(wimprt_process_list($embedobjects, $log, 'object', $preview) as $result){
+  $arraytemporaire = array();
+  $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
+  foreach(wimprt_process_list($embedobjects, $log, 'object', $preview) as $result){
     if (!array_key_exists($result->nid, $results) || $preview) {
-      $results[$result->nid]=$result->nid;
-      $node->field_embededobjects[]['nid']=$result->nid;
-      if ($preview)
-        $node->field_embededobjects_nodes[]=$result;
+      $results[$result->nid] = $result->nid;
+      $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
+      if ($preview){
+        $node->field_embededobjects_nodes[] = $result;
+      }
     }
   }
-
+  //Place object in the correct order (depend of the embeddedobjectorder)
+  foreach ($arraytemporaire as $array_key => $array_value){
+    foreach ($array_value as $array_valuee){
+      array_push($node->field_embededobjects,$array_valuee);
+    }
+  }
+  
   // Linkslists objects
   $links = array(); 
   $node->field_linkedobjects = array();
   $node->field_linkedobjects_nodes = array();
-	$linklists=$dom->getElementsByTagName('LinksLists')->item(0);
-  $linklist=$dom->getElementsByTagName('LinksList')->item(0);
-  if($dom->getElementsByTagName('LinksList')->item(0)){
-    if($linklist->getElementsByTagName('Links')->item(0)->nodeValue!=NULL){
-      foreach(wimprt_process_list($linklists, $log, 'object', $preview) as $result){
+  $linklists = $dom->getElementsByTagName('LinksLists')->item(0);
+  $linklist = $dom->getElementsByTagName('LinksList')->item(0);
+  if ($dom->getElementsByTagName('LinksList')->item(0)){
+    if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
+      foreach (wimprt_process_list($linklists, $log, 'object', $preview) as $result){
         if (!array_key_exists($result->nid, $links) || $preview) {
-          $links[$result->nid]=$result->nid;
-          $node->field_linkedobjects[]['nid']=$result->nid;
-          if ($preview)
-            $node->field_linkedobjects_nodes[]=$result;
+          $links[$result->nid] = $result->nid;
+          $node->field_linkedobjects[]['nid'] = $result->nid;
+          if ($preview){
+            $node->field_linkedobjects_nodes[] = $result;
+          }
         }
       }
     } else {
@@ -908,16 +938,18 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE)
  *   Nothing
  */
 function wimprt_objecttype_preprocess(&$node,$dom,$preview){
-  $node->object_id= $dom->getAttributeNode("ObjectID")->value;
-  if($dom->hasAttribute("ObjectDescription"))
-    $node->object_description= $dom->getAttributeNode("ObjectDescription")->value;
-  $node->field_publicationdate[0]= _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
-  $node->created= _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
-  if($dom->hasAttribute("LastUpdateDate"))
-    $node->changed= _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
-    
-  if ($preview)
+  $node->field_objectid[0]['value'] = $dom->getAttributeNode("ObjectID")->value;
+  if ($dom->hasAttribute("ObjectDescription")){
+    $node->object_description = $dom->getAttributeNode("ObjectDescription")->value;
+  }
+  $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom->getAttributeNode("PublicationDate")->value);
+  $node->created = _wimprthelp_date_to_timestamp($dom->getAttributeNode("CreationDate")->value);
+  if ($dom->hasAttribute("LastUpdateDate")){
+    $node->changed = _wimprthelp_date_to_timestamp($dom->getAttributeNode("LastUpdateDate")->value);
+  }
+  if ($preview){
     $node->rejected = TRUE;
+  }
 }
 
 /**
@@ -934,16 +966,16 @@ function wimprt_objecttype_preprocess(&$node,$dom,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_textobject($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_textobject';
+  $node = new stdClass;
+  $node->type = 'wally_textobject';
   
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_textobject')){
-    $node=$node_temp[0];
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),'wally_textobject')){
+    $node = $node_temp[0];
   }
   
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
   
   return $node;
 }
@@ -967,17 +999,15 @@ function wimprt_create_or_load_object_textobject($dom,&$log){
 function wimprt_process_object_textobject (&$node, $dom_element, &$log, $preview){
   //Map XML Attributes 
   //put common attributes
-  wimprt_objecttype_preprocess($node,$dom_element,$preview);
-  
-  wimprt_process_object_default($node,$dom_element,$log);
-  
+  wimprt_objecttype_preprocess($node, $dom_element, $preview);
+  wimprt_process_object_default($node, $dom_element, $log);
   //Exception for TextObject
   if ($dom_element->getElementsByTagName("TextTitle")->length) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
   
   if ($dom_element->getElementsByTagName("Title")->length) {
-    $node->field_objecttitle = array(array("value"=>$dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+    $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
   } 
 }
 
@@ -997,32 +1027,34 @@ function wimprt_process_object_textobject (&$node, $dom_element, &$log, $preview
  *   Nothing
  */
 function wimprt_set_field_pollquestions(&$node,$dom,&$log){
-  $i=0;
+  $i = 0;
     
   foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
-    $node->field_poll[$i]['active']=1;
-    $feature=array();
-    $choice=1;
-    if($pollquestion->hasAttribute("Choice")){
-    if($pollquestion->getAttributeNode("Choice")->value==="radioButton")
-      $choice=0;
+    $node->field_poll[$i]['active'] = 1;
+    $feature = array();
+    $choice = 1;
+    if ($pollquestion->hasAttribute("Choice")){
+      if($pollquestion->getAttributeNode("Choice")->value === "radioButton"){
+        $choice = 0;
+      }
     }
-    $feature['CancelVote_Allow']=1;
-    $feature['ResultsAllow']=0;
-    $feature['PollType']=$choice;
+    $feature['CancelVote_Allow'] = 1;
+    $feature['ResultsAllow'] = 0;
+    $feature['PollType'] = $choice;
     $node->field_poll[$i]['poll_features']=serialize($feature);
-    foreach($pollquestion->getElementsByTagName("Question") as $question)
-      $node->field_poll[$i]['question']=$pollquestion->nodeValue;
-      $j=0;
+    foreach($pollquestion->getElementsByTagName("Question") as $question){
+      $node->field_poll[$i]['question'] = $pollquestion->nodeValue;
+    }
+    $j = 0;
     foreach($pollquestion->getElementsByTagName("Answer") as $answer){
-      $answers[$j]['choice']=$answer->nodeValue;
-      $answers[$j]['votes']=null;
-      $j+=1;
-      }
-      if($j>0) {
-        $node->field_poll[$i]['choice']=serialize($answers);
-      }
-    $i+=1;
+      $answers[$j]['choice'] = $answer->nodeValue;
+      $answers[$j]['votes'] = NULL;
+      $j += 1;
+    }
+    if($j > 0) {
+      $node->field_poll[$i]['choice'] = serialize($answers);
+    }
+    $i += 1;
   }
 }
 
@@ -1108,13 +1140,13 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
   $node=new stdClass;
   $node->type='wally_photoobject';
 
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
-    $node=$node_temp[0];
+  $ext_ref =_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -1140,18 +1172,17 @@ function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
  */
 function wimprt_process_object_photoobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
-  
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
   	if ($crop->hasAttribute("Type")) {
-  		$type_name = $crop->getAttributeNode("Type")->value;
-  		$type_array = imagecache_preset_by_name($type_name);
-  		if (!empty($type_array)){
+  	  $type_name = $crop->getAttributeNode("Type")->value;
+  	  $type_array = imagecache_preset_by_name($type_name);
+  	  if (!empty($type_array)){
 	    $c[$type_name][0] = $crop->getAttributeNode("X")->value;
 	    $c[$type_name][1] = $crop->getAttributeNode("Y")->value;
 	    $c[$type_name][2] = $crop->getAttributeNode("W")->value;
 	    $c[$type_name][3] = $crop->getAttributeNode("H")->value;
-      $c[$type_name]["type"] = $type_array["presetid"];
+        $c[$type_name]["type"] = $type_array["presetid"];
       }
   	}
   }
@@ -1159,36 +1190,40 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log,$preview){
   $presets = (json_encode($c));
   $node->field_croping[0]['value'] = $presets; 
   
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom,$preview);
 
   //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
-    $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
+  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
   
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-  $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumb_uri);
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri);
     
     
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
-  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emimage');  
-  if(empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_photofile[0]=_wimprthelp_create_file_from_uri($file_uri);
-  }else{//Is a 3rd party
-    $node->field_photo3rdparty[0]['embed']=$file_uri;
+  $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emimage');  
+  if (empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+  } else {//Is a 3rd party
+    $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
-    
-  
-  wimprt_process_object_default($node,$dom,$log);
+  wimprt_process_object_default($node, $dom, $log);
 
   if ($dom->getElementsByTagName("Caption")->length) {
     $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
   }
-
+  //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
   return $node;
 }
 
@@ -1238,21 +1273,28 @@ function wimprt_create_or_load_object_audioobjecttype($dom,&$log){
  */
 function wimprt_process_object_audioobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom,$preview);
 
   
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
 
-  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emaudio');  
-  if(empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_audiofile[0]=_wimprthelp_create_file_from_uri($file_uri);
-  }else{//Is a 3rd party
+  $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emaudio');  
+  if (empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+  } else {//Is a 3rd party
     $node->field_audio3rdparty[0]['embed']=$file_uri;
   }
- 
+
+  //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
   wimprt_process_object_default($node,$dom,$log);
   
   return $node;
@@ -1273,16 +1315,16 @@ function wimprt_process_object_audioobjecttype(&$node,$dom,&$log,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_videoobject';
+  $node = new stdClass;
+  $node->type = 'wally_videoobject';
 
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_videoobject")){
-    $node=$node_temp[0];
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),"wally_videoobject")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -1305,24 +1347,32 @@ function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
  */
 function wimprt_process_object_videoobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom,$preview);
 
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
-  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emvideo');  
-  if(empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_videofile[0]=_wimprthelp_create_file_from_uri($file_uri);
-  }else{//Is a 3rd party
-    $node->field_video3rdparty[0]['embed']=$file_uri;
+  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
+  $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emvideo');  
+  if (empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+  } else {//Is a 3rd party
+    $node->field_video3rdparty[0]['embed'] = $file_uri;
   }
   
-  $node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
-  $node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $node->field_link[0]['url'] = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  $node->field_link[0]['title'] = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
   wimprt_process_object_default($node,$dom,$log);
   //$node->field_video3rdparty[0]['embed']=$dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_video3rdparty[0]['title']=$dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  
+ //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
   return $node;
 
 }
@@ -1341,16 +1391,16 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_digitalobjecttype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_digitalobject';
+  $node = new stdClass;
+  $node->type = 'wally_digitalobject';
 
-  $ext_ref=$dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_digitalobject")){
-    $node=$node_temp[0];
+  $ext_ref = $dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_digitalobject")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -1373,18 +1423,18 @@ function wimprt_create_or_load_object_digitalobjecttype($dom,&$log){
  */
 function wimprt_process_object_digitalobjecttype(&$node,$dom,&$log,$preview){
   static $procced_file_path;
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   
   //put common attributes
   wimprt_objecttype_preprocess($node,$dom,$preview);
 
 
-  $file_uri=$dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  $rdpartyMatch =emfield_parse_embed(null,$file_uri, 'emother');  
-  if(empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_objectfile[0]=_wimprthelp_create_file_from_uri($file_uri);
-  }else{//Is a 3rd party
-    $node->field_object3rdparty[0]['embed']=$file_uri;
+  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emother');  
+  if (empty($rdpartyMatch)){//No a 3rdparty
+    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri);
+  } else {//Is a 3rd party
+    $node->field_object3rdparty[0]['embed'] = $file_uri;
   }
   
  
@@ -1412,8 +1462,8 @@ function wimprt_process_object_digitalobjecttype(&$node,$dom,&$log,$preview){
  *   Nothing
  */
 function wimprt_set_field_thumbnail(&$node,$dom,&$log){
-  $thumbnail=$dom->nodeValue;
-   $node->field_thumbnail[0]=_wimprthelp_create_file_from_uri($thumbnail);
+  $thumbnail = $dom->nodeValue;
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail);
 }
 
 /**
@@ -1596,8 +1646,8 @@ function wimprt_set_field_rating(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_textbarette(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_textarette[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_textarette[0]['value'] = $value;
 }
 
 /**
@@ -1616,8 +1666,8 @@ function wimprt_set_field_textbarette(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_textforetitle(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_textforetitle[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_textforetitle[0]['value'] = $value;
 }
 
 /**
@@ -1636,8 +1686,8 @@ function wimprt_set_field_textforetitle(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_texttitle(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->title=$value;
+  $value = $dom->nodeValue;
+  $node->title = $value;
 }
 
 /**
@@ -1655,9 +1705,9 @@ function wimprt_set_field_texttitle(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_subtitle(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_textsubtitle[0]['value']=$value;
+function wimprt_set_field_textsubtitle(&$node,$dom,&$log){
+  $value = $dom->nodeValue;
+  $node->field_textsubtitle[0]['value'] = $value;
 }
 
 /**
@@ -1676,8 +1726,8 @@ function wimprt_set_field_subtitle(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_textchapo(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_textchapo[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_textchapo[0]['value'] = $value;
 }
 
 /**
@@ -1696,8 +1746,8 @@ function wimprt_set_field_textchapo(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_textbody(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_textbody[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_textbody[0]['value'] = $value;
 }
 
 /**
@@ -1716,8 +1766,8 @@ function wimprt_set_field_textbody(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_extractmedium(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_extractmedium[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_extractmedium[0]['value'] = $value;
 }
 
 /**
@@ -1736,8 +1786,8 @@ function wimprt_set_field_extractmedium(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_extractshort(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
-  $node->field_extractshort[0]['value']=$value;
+  $value = $dom->nodeValue;
+  $node->field_extractshort[0]['value'] = $value;
 }
 
 /**
@@ -1911,23 +1961,23 @@ function wimprt_process_type_location(&$node,$dom,&$log,$preview){
  */
 function wimprt_set_field_markers(&$node,$dom,&$log){
 
-	$node->field_markers = array(); 
+  $node->field_markers = array(); 
 
-	if(variable_get('wallymport_debug',0) or true){
-		$log['log'][]='process Markers: '.$dom->nodeName;
+  if(variable_get('wallymport_debug',0) or true){
+	$log['log'][]='process Markers: '.$dom->nodeName;
+  }
+
+  $results = wimprt_process_list($dom,$log,'type');
+
+  // Get Location Taxonomy for all nodes.
+  foreach($results as $result) {
+	if (isset($result->field_locationtaxonomy)) {
+	  if ($result->field_locationtaxonomy[0]) {
+		$node->field_markers[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
+		$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
 	  }
-
-	$results=wimprt_process_list($dom,$log,'type');
-
-	// Get Location Taxonomy for all nodes.
-	foreach($results as $result) {
-		if (isset($result->field_locationtaxonomy)) {
-			if ($result->field_locationtaxonomy[0]) {
-				$node->field_markers[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
-				$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
-			}
-		}
 	}
+  }
 
   return $results; 
 }
@@ -2048,14 +2098,14 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
  *   Nothing but modify $result
  */
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
-	$freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',null);
-	$classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',null);
-	$taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', true));
+  $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
+  $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
+  $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
 
-	$vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
-	if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
-		$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
-	}
+  $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
+  if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
+	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+  }
 
 	if (isset($vocabulary->getAttributeNode("VocabularyType")->value)) {
 		$VocabularyType = $vocabulary->getAttributeNode("VocabularyType")->value;
@@ -2168,8 +2218,9 @@ function wimprt_set_field_entities(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_typetype_preprocess(&$node,$dom,$preview){
-  if ($preview)
+  if ($preview){
     $node->rejected = TRUE;
+  }
 }
 
 /**
@@ -2509,58 +2560,54 @@ function wimprt_process_type_person(&$node,$dom,&$log,$preview){
  * @return
  *   Array of cck_location element.
  */
-function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name=null) {
+function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name = NULL) {
 
-	$address_line = array(); 
-	$array_node = array(); 
+  $address_line = array(); 
+  $array_node = array(); 
+
+  foreach ($addresses as $address) {
 	
-	foreach ($addresses as $address) {
-		
-		$adress_item = array();
-		
-		$address_line_cpt = 0; 
-		$address_lines = $address->getElementsByTagName("AddressLine");
-		if ($address_lines->length) {
-			foreach($address_lines as $address_line) {
-				switch ($address_line_cpt) {
-					case 0:
-		
-						$adress_item["street"] = $address_line->nodeValue;
-						break; 
-					case 1:
-						$adress_item["additional"] = $address_line->nodeValue;
-						break;
-					default:
-						drupal_set_message('More than 2 adress lines into xml. Ignoring: "'.$address_line->nodeValue.'".','error');
-				}
-			$address_line_cpt++;
-			}
+    $adress_item = array();	
+	$address_line_cpt = 0; 
+	$address_lines = $address->getElementsByTagName("AddressLine");
+	if ($address_lines->length) {
+	  foreach($address_lines as $address_line) {
+		switch ($address_line_cpt) {
+		  case 0:
+			$adress_item["street"] = $address_line->nodeValue;
+			break; 
+		  case 1:
+			$adress_item["additional"] = $address_line->nodeValue;
+			break;
+		  default:
+			drupal_set_message('More than 2 adress lines into xml. Ignoring: "'.$address_line->nodeValue.'".','error');
 		}
-		
-		if ($address->getElementsByTagName("City")->length) {
-			$adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
-		}
-		
-		if ($location_name) {
-			$adress_item["name"] = $location_name;
-		} else {
-			$adress_item["name"] = $adress_item["city"];
-		}
-
-		if ($address->getElementsByTagName("Zip")->length) {
-			$adress_item["postal_code"] = $address->getElementsByTagName("Zip")->item(0)->nodeValue;
-		}
-
-		if ($address->getElementsByTagName("State")->length) {
-			$adress_item["province_name"] = $address->getElementsByTagName("State")->item(0)->nodeValue;
-		}
-
-		if ($address->getElementsByTagName("Country")->length) {
-			$adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
-		}
-		$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
+		$address_line_cpt++;
+	  }
 	}
-	return $array_node;
+    if ($address->getElementsByTagName("City")->length) {
+	  $adress_item["city"] = $address->getElementsByTagName("City")->item(0)->nodeValue;
+	}	
+	if ($location_name) {
+	  $adress_item["name"] = $location_name;
+	} else {
+	  $adress_item["name"] = $adress_item["city"];
+	}
+
+    if ($address->getElementsByTagName("Zip")->length) {
+	  $adress_item["postal_code"] = $address->getElementsByTagName("Zip")->item(0)->nodeValue;
+	}
+
+	if ($address->getElementsByTagName("State")->length) {
+	  $adress_item["province_name"] = $address->getElementsByTagName("State")->item(0)->nodeValue;
+	}
+
+	if ($address->getElementsByTagName("Country")->length) {
+	  $adress_item["country_name"] = $address->getElementsByTagName("Country")->item(0)->nodeValue;
+	}
+	$array_node[] = _wimprthelp_array_to_ccklocation($adress_item);
+  }
+  return $array_node;
 }
 
 /**

@@ -141,7 +141,7 @@ function wallymport_page_admin_form($form_state) {
   
   $form['wallymport_documenttype'] = array(
     '#type' => 'select',
-    '#title' => t('Taxonomy "Destination Type"'),
+    '#title' => t('Taxonomy "Document Type"'),
     '#description' => t('Choose the vocabulary corresponding to the document type. Import module will use this vocabulary to match the PackageLayout element.'),
     '#default_value' => variable_get('wallymport_documenttype', 0),
     '#options' => $vocab_list,
