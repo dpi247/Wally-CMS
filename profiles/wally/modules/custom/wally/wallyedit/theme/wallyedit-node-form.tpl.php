@@ -158,6 +158,10 @@ position:relative !important;
  #column-side-right .form-item{
 position: static;
 }
+
+.page-content .form-item div.description {
+  position: relative;
+}
 </style>
 
 
