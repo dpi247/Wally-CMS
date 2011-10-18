@@ -100,7 +100,6 @@ a.selected {
 }
 #onglet div {
 	float: none;
-	overflow: hidden;
 	clear: both;
 }
 #onglet .content-tabs { 
@@ -158,6 +157,10 @@ position:relative !important;
 }
  #column-side-right .form-item{
 position: static;
+}
+
+.page-content .form-item div.description {
+  position: relative;
 }
 </style>
 
@@ -356,7 +359,9 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $tabs=wyditadmin_get_fields_tree($profile_id, $node_type);
   $onglets_struct=$tabs;
   $type=wydit_get_infos_type($node_type);
-  $cck_fields = $type['fields'];
+  $extra_fields = array();
+  wallyedit_get_extra_fields($extra_fields, $form[$node_type], array_keys($type['fields']));
+  $cck_fields = $type['fields'] + $extra_fields;
 ?>
 $(document).ready(function() { 
  
