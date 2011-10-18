@@ -1667,7 +1667,10 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
 
 function _cckdestinations_reorder_values(&$items) {
   dsm($items, 'items');
-  dsm(debug_backtrace(), 'backtraced');
+  $a = debug_backtrace();
+  dsm($a[0], 'backtraced');
+  dsm($a[1], 'backtraced');
+  dsm($a[2], 'backtraced');
 }
 
 /**
