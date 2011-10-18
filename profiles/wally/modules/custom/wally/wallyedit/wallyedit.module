@@ -2126,6 +2126,19 @@ function wallyedit_get_onglets( $profile_id, $type_name,$form_state=array()) {
   return $onglets;
 }
 
+function wallyedit_get_extra_fields(&$extra_fields, $form, $cck_fields, $parent = '') {
+  foreach (element_children($form) as $element_key) {
+    if (empty($parent) && $form[$element_key]['#type'] == 'fieldset') {
+      $element = $form[$element_key];
+      wallyedit_get_extra_fields($extra_fields, $element, $cck_fields, $element_key);
+    } elseif (!empty($parent)) {
+      if (!in_array($element_key, $cck_fields)) {
+        $extra_fields[$element_key]['display_settings']['parent'] = $parent;
+      }
+    }
+  }
+}
+
 function wallyedit_add_new_group_to_fields(&$fields, $node_fields, $field_name) {
   $fields[$field_name]['group']['group_name'] = $field_name;
   $fields[$field_name]['group']['group_type'] = 'Standard group';
