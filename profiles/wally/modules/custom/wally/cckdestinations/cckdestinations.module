@@ -138,6 +138,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       }
       break;
     case 'presave':
+      _cckdestinations_reorder_values($items);
       _cckdestinations_set_new_time_ranks($node, $items);
       break;
   }
@@ -1662,6 +1663,10 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
       }
     }
   }
+}
+
+function _cckdestinations_reorder_values(&$items) {
+  dsm($items, 'items');
 }
 
 /**
