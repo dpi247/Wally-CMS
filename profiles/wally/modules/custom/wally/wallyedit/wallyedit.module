@@ -1147,8 +1147,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
       if (!isset($form[$element]['#title'])) {
-dsm($form, $element);
-dsm($parents_new);
+        $form[$element]['#title'] = $form['#title'];
       }
       if($fields[$element]['multiple'] == 1){
         $form[$element][$fields[$element]['name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
