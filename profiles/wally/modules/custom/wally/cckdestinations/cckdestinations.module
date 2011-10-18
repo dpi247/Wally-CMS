@@ -138,7 +138,7 @@ function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
       }
       break;
     case 'presave':
-      _cckdestinations_reorder_values($items);
+      _cckdestinations_reorder_values($field, $items);
       _cckdestinations_set_new_time_ranks($node, $items);
       break;
   }
@@ -1665,12 +1665,12 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   }
 }
 
-function _cckdestinations_reorder_values(&$items) {
-  dsm($items, 'items');
-  $a = debug_backtrace();
-  dsm($a[0], 'backtraced');
-  dsm($a[1], 'backtraced');
-  dsm($a[2], 'backtraced');
+function _cckdestinations_reorder_values($field, &$items) {
+  if (isset($items) && !empty($items)) {
+    if (isset($items[0]['_weight'])) {
+      $items = _content_sort_items($field, $items);
+    }
+  }
 }
 
 /**
