@@ -1665,6 +1665,9 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   }
 }
 
+/**
+ * Reorder the elements of the destination field
+ */
 function _cckdestinations_reorder_values($field, &$items) {
   if (isset($items) && !empty($items)) {
     if (isset($items[0]['_weight'])) {
