@@ -18,12 +18,15 @@ function wallyextra_views_default_views() {
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('sorts', array(
-    'field_destinations_rank' => array(
+    'field_destinations_time_rank' => array(
       'order' => 'DESC',
       'delta' => '-1',
-      'id' => 'field_destinations_rank',
+      'id' => 'field_destinations_time_rank',
       'table' => 'node_data_field_destinations',
-      'field' => 'field_destinations_rank',
+      'field' => 'field_destinations_time_rank',
+      'override' => array(
+        'button' => 'Remplacer',
+      ),
       'relationship' => 'none',
     ),
   ));

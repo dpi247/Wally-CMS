@@ -138,9 +138,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   $conf = $feed_infos['conf'];
   $tid = $conf['destination']['tid'];
   $target = $conf['destination']['target'];
-  //dsm($feed_infos);
-  //$target='default_destination_block';
-  //dsm($target,target);
+
   $redacblock = db_fetch_array(db_query('SELECT * FROM {wallyctools} WHERE name = "%s"', $target));
   while (is_string($redacblock['settings']))
     $redacblock['settings'] = unserialize($redacblock['settings']);
@@ -268,9 +266,13 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   $transformed_node['SourceXML']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_sourcexml', '');
   $transformed_node['PackageTitle']['value'] = $node->title;
   $transformed_node['PackageDescription']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_summary', '');
-  $transformed_node['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_internalreference', '');
-  $transformed_node['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externalreference', '');
-  $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  $transformed_node['InternalReference']['value'] = 'Drupal_NID:'.$node->nid;
+  $transformed_node['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externalreference', 'wally_'.$node->nid);
+  if (isset($node->field_productid) & $node->field_productid[0]['value'] != NULL & $node->field_productid[0]['value'] != '' ){
+    $transformed_node['ProductID']['value'] = $node->field_productid[0]['value'];
+  } else{
+    $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  }
   if (!$meta_pack) {
     $transformed_node['Destinations']['Destination'] = array();
     foreach ($node->field_destinations as $dest) {
@@ -292,10 +294,9 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
       $transformed_node['Editions']['Edition'][] = $temp_edition;
     }
     $transformed_node['Channels']['Channel'] = array();
-    foreach ($node->field_channels as $channel) {
-      $temp_edition = array();
-      $temp_edition['value'] = $channel['value'];
-      $transformed_node['Channels']['Channel'][] = $temp_edition;
+    $channels = unserialize($node->field_channels[0]['value']);
+    foreach ($channels as $channel) {
+      $transformed_node['Channels']['Channel'][]['Name'] = $channel;
     }
     $transformed_node['CommentsAllowed']['value'] = $node->comment;
     $transformed_node['FreeAccess']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
@@ -313,6 +314,9 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
 
 function wallytoolbox_destinations_flow_set_object($object, $transformed_node) {
   $temp_object = array();
+  
+  $temp_object['type'] = $object->type;
+  $temp_object['nid'] = $object->nid;
 
   // Object Attributes
   $temp_object['ObjectID'] = wallytoolbox_destinations_flow_node_get_field($object, 'field_objectid', '');
@@ -441,7 +445,7 @@ function wallytoolbox_destinations_flow_set_textobject($textobject, $transformed
   return $temp_text;
 }
 
-function wallytoolbox_destinations_flow_set_photoobject($photoobject) {
+function wallytoolbox_destinations_flow_set_photoobject($photoobject, $transformed_node) {
   $temp_photo = wallytoolbox_destinations_flow_set_multimediaobject($photoobject, $transformed_node);
 
   // PhotoObject Elements
@@ -459,11 +463,13 @@ function wallytoolbox_destinations_flow_set_photoobject($photoobject) {
   }
   $temp_photo['LinkTitle']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_link', '', 'title');
   $temp_photo['LinkURI']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_link', '', 'url');
+  $temp_photo['Width']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_photofile', '', 'filesize');
+  $temp_photo['Height']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_photofile', '', 'url');
   
   return $temp_photo;
 }
 
-function wallytoolbox_destinations_flow_set_videoobject($videoobject) {
+function wallytoolbox_destinations_flow_set_videoobject($videoobject, $transformed_node) {
   $temp_video = wallytoolbox_destinations_flow_set_multimediaobject($videoobject, $transformed_node);
   
   // VideoObject Elements
@@ -474,7 +480,7 @@ function wallytoolbox_destinations_flow_set_videoobject($videoobject) {
   return $temp_video;
 }
 
-function wallytoolbox_destinations_flow_set_audioobject($audioobject) {
+function wallytoolbox_destinations_flow_set_audioobject($audioobject, $transformed_node) {
   $temp_audio = wallytoolbox_destinations_flow_set_multimediaobject($audioobject, $transformed_node);
   
   // AudioObject Elements
@@ -487,7 +493,7 @@ function wallytoolbox_destinations_flow_set_audioobject($audioobject) {
 
 function wallytoolbox_destinations_flow_set_persontax($person) {
   $temp_person = array();
-  
+
   $temp_person['PersonID'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_persontaxonomy', '');
   $temp_person['PersonName']['value'] = $person->title;
   $temp_person['PersonLastName']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personlastname', '');
@@ -495,8 +501,8 @@ function wallytoolbox_destinations_flow_set_persontax($person) {
   $temp_person['PersonNickName']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personnickname', '');
   $temp_person['PersonBirthDate']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personbirthdate', '');
   $temp_person['PersonSex']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personsex', '');
-  $temp_person['PersonEmail']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personemail', '');
-  $temp_person['PersonWebSite']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personwebsite', '');
+  $temp_person['PersonEmail']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personemail', '', 'email');
+  $temp_person['PersonWebSite']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_personwebsite', '', 'url');
   $temp_person['PersonPhoneNumber']['value'] = wallytoolbox_destinations_flow_node_get_field($person, 'field_phonenumber', '');
   
   return $temp_person;
@@ -504,22 +510,22 @@ function wallytoolbox_destinations_flow_set_persontax($person) {
 
 function wallytoolbox_destinations_flow_set_locationtax($location) {
   $temp_location = array();
-  
+
   $temp_location['LocationID'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_locationtaxonomy', '');
   $temp_location['LocationName']['value'] = $location->title;
   $temp_location['Address'] = array();
-  $temp_location['Address']['AddressLine']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'street').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'additional');
-  $temp_location['Address']['City']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'city');
-  $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'postal_code');
-  $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'country');
-  $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'latitude').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'longitude');
-  
+  $temp_location['Address']['AddressLine']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'street').' '.wallytoolbox_destinations_flow_node_get_field($location, 'field_adress', '', 'additional');
+  $temp_location['Address']['City']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'city');
+  $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'postal_code');
+  $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'country');
+  $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'latitude').','.wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'longitude');
+
   return $temp_location;
 }
 
 function wallytoolbox_destinations_flow_set_entitytax($entity) {
   $temp_entity = array();
-  
+
   $temp_entity['EntityID'] = wallytoolbox_destinations_flow_node_get_field($entity, 'field_entity', '');
   $temp_entity['EntityTitle']['value'] = $entity->title;
   $temp_entity['EntityDescription']['value'] = wallytoolbox_destinations_flow_node_get_field($entity, 'field_objectdescription', '');
@@ -555,13 +561,16 @@ function wallytoolbox_destinations_flow_set_taxonomy($taxonomy) {
 function wallytoolbox_destinations_flow_set_linklist($linked) {
   $temp_linklist = array();
   
+  $temp_object['type'] = $linked->type;
+  $temp_object['nid'] = $linked->nid;
+  
   // LinkList Elements
-  $temp_linklist['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_internalreference', '');
-  $temp_linklist['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_externalreference', '');
+  $temp_linklist['InternalReference']['value'] = 'Drupal_NID:'.$linked->nid;
+  $temp_linklist['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_externalreference', 'wally_'.$linked->nid);
   $temp_linklist['Title']['value'] = $linked->title;
   $temp_linklist['Summary']['value'] = wallytoolbox_destinations_flow_node_get_field($linked, 'field_objectdescription', '');
   $temp_linklist['Links']['Link'] = array();
-  foreach ($linked->field_links_list_nodes[0] as $link) {
+  foreach ($linked->field_links_list_nodes as $link) {
     $temp_linklist['Links']['Link'][] = wallytoolbox_destinations_flow_set_linktax($link);
   }
   

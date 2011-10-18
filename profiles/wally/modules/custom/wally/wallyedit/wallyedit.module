@@ -890,10 +890,8 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       //@todo: remove hard coding of parents
       $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
       if(count($field_infos['referenceable_types'])==1){
-
       }
       else{
-
         $form_state_type_selector['fields_infos']=$field_infos;
         $form_state_type_selector['action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$current_profile;
 
@@ -903,7 +901,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         $form_state_type_selector['type']=$form_state['type'];
         $form_state_type_selector['profile_id'] = $form_state['profile_id'];
 
-        $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector, $current_profile);
+        $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
       }
       break;
@@ -1524,9 +1522,9 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
     "#value"=>serialize($parents),
   );
   
-  $form['cache name']=array(
-    "#type"=>'hidden',
-    "#value"=>$form_state['cache name'],
+  $form['cache name'] = array(
+    "#type" => 'value',
+    "#value" => $form_state['cache name'],
   );
   
   $form['profile_id'] = array(
@@ -1538,7 +1536,6 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
     '#type' => 'radios',
     '#title' => t('Select the type of node to add'),
     '#options' => $options,
-    "#required"=>true,
   );
 
   $form['back'] = array(
@@ -1578,13 +1575,11 @@ function wallyedit_form_nodetypeselector_form_submit($form, &$form_state){
   $new_form_state[$type]['type']=$type;
   $new_form_state['target']=$form_state["parents"];
   $new_form_state['parents']=$form_state["parents"];
-
   $new_form_state['cache name']=$form_state["cache name"];
   $new_form_state['profile_id']=$form_state['values']['profile_id'];
 
   $new_form = ctools_build_form('wallyedit_form_editmode_add_form', $new_form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $new_form);
-
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
