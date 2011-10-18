@@ -100,7 +100,6 @@ a.selected {
 }
 #onglet div {
 	float: none;
-	overflow: hidden;
 	clear: both;
 }
 #onglet .content-tabs { 
