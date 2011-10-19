@@ -1554,7 +1554,7 @@ function wallyedit_form_nodetypeselector_form(&$form_state){
     '#value'=>"next",
     '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
   );
-  
+  dsm($form, 'form');
   return $form;
 }
 
@@ -2441,13 +2441,11 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
 
   $prenode=new Prenode($cache_name);
   $form_state=$prenode->getFormState();
-dsm($form_state, 'form state');
+
   foreach($nodes as $nid){
     $node=node_load($nid);
     $element['#node']=$node;
     $element['type']=$node->type;
-    dsm($element, 'element');
-    dsm($target, 'target');
     wydit_add_to_form_state($form_state,$element,$target,TRUE);
   }
   
