@@ -16,7 +16,7 @@ function wallyedit_callback_selectbox($prenode,$js=FALSE){
   
   $view = views_get_view('prenode_selectbox_vbo');
   $view->set_display('default');
-
+dsm($_GET, 'get');
   // Override the view path, otherwise the path will be 'ACTION_URL'
   $view->override_path = 'views/ajax';
   $output = $view->preview();
