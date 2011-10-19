@@ -2435,14 +2435,14 @@ function wydit_filefield_js($type_name, $field_name, $delta) {
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
-  dsm(pirlouit);
-  dsm($b);
-  dsm($c);
-  $cache_name=$context['arguments'][0];
-  $target=explode('/',$context['arguments'][1]);
+  $cache_name = array_shift($context['arguments']);
+  if (count($context['arguments']) == 1) {
+    $target = explode('/', $context['arguments'][1]);
+  } else {
+    $target = $context['arguments'];
+  }
   array_pop($target);
-dsm($context, 'context');
-dsm($nodes, 'nodes');
+
   $prenode=new Prenode($cache_name);
   $form_state=$prenode->getFormState();
 
