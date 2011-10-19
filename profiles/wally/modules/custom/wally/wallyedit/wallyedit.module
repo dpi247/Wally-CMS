@@ -2441,7 +2441,7 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
   // and sometimes the parents are already explosed.. don't ask me why..
   dsm(count($context['arguments']), 'count');
   if (count($context['arguments']) == 1) {
-    $target = explode('/', $context['arguments'][1]);
+    $target = explode('/', $context['arguments'][0]);
   } else {
     $target = $context['arguments'];
   }
