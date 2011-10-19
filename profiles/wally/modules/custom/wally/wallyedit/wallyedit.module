@@ -2439,11 +2439,13 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
   $cache_name = array_shift($context['arguments']);
   // Sometimes we get the target under a "serialized" form (parent1/parent2/...)
   // and sometimes the parents are already explosed.. don't ask me why..
+  dsm(count($context['arguments']), 'count');
   if (count($context['arguments']) == 1) {
     $target = explode('/', $context['arguments'][1]);
   } else {
     $target = $context['arguments'];
   }
+  dsm($target, 'traget bef poo');
   array_pop($target);
 
   $prenode=new Prenode($cache_name);
