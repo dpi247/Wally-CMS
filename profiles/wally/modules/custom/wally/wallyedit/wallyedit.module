@@ -2435,6 +2435,9 @@ function wydit_filefield_js($type_name, $field_name, $delta) {
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
+  dsm(pirlouit);
+  dsm($b);
+  dsm($c);
   $cache_name=$context['arguments'][0];
   $target=explode('/',$context['arguments'][1]);
   array_pop($target);
@@ -2451,30 +2454,6 @@ dsm($nodes, 'nodes');
   }
   
   wydit_clean_and_save_form_state($form_state);
-}
-
-function wallyedit_selector_action($node, $context, $a, $b, $c) {
-  /*
-   $roles = $user->roles;
-   $selected = (is_array($context['add_roles']) ? $context['add_roles'] : array()) +
-   (is_array($context['remove_roles']) ? $context['remove_roles'] : array());
-   $result = db_query("SELECT rid, name FROM {role} WHERE rid IN (%s)", implode(',', array_keys($selected)));
-   while ($role = db_fetch_object($result)) {
-   if (isset($context['add_roles'][$role->rid])) {
-   $add_roles[$role->rid] = $role->name;
-   }
-   if (isset($context['remove_roles'][$role->rid])) {
-   $remove_roles[$role->rid] = $role->name;
-   }
-   }
-   if (!empty($add_roles)) {
-   $roles += $add_roles;
-   }
-   if (!empty($remove_roles)) {
-   $roles = array_diff($roles, $remove_roles);
-   }
-   user_save($user, array('roles' => $roles));
-   */
 }
 
 /**
