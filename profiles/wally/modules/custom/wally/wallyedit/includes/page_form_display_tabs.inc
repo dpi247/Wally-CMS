@@ -1080,6 +1080,14 @@ function wyditadmin_get_existing_fields($type_name) {
         'label' => $form['attachments']['wrapper']['new']['upload']['#title'],
       );
     }
+    if (module_exists('pathauto')) {
+      $existing_fields[$type_name]['pathauto_perform_alias'] = array(
+        'type' => $form['pathauto_perform_alias']['#type'],
+        'widget' => $form['pathauto_perform_alias']['#type'],
+        'name' => 'pathauto_perform_alias',
+        'label' => $form['pathauto_perform_alias']['#title'],
+      );
+    }
   }
   return $existing_fields[$type_name];
 }
