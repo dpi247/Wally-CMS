@@ -981,7 +981,7 @@ function wyditadmin_get_existing_fields($type_name) {
     $node->name = '';
     module_load_include('inc', 'node', 'node.pages');
     $form = node_form($form_state, $node);
-    $modules = array('comment', 'menu', 'path', 'upload');
+    $modules = array('comment', 'menu', 'path', 'upload', 'pathauto');
     foreach ($modules as $module) {
       if (module_exists($module)) {
         $function = $module.'_form_alter';
@@ -1082,10 +1082,10 @@ function wyditadmin_get_existing_fields($type_name) {
     }
     if (module_exists('pathauto')) {
       $existing_fields[$type_name]['pathauto_perform_alias'] = array(
-        'type' => $form['pathauto_perform_alias']['#type'],
-        'widget' => $form['pathauto_perform_alias']['#type'],
+        'type' => $form['path']['pathauto_perform_alias']['#type'],
+        'widget' => $form['path']['pathauto_perform_alias']['#type'],
         'name' => 'pathauto_perform_alias',
-        'label' => $form['pathauto_perform_alias']['#title'],
+        'label' => $form['path']['pathauto_perform_alias']['#title'],
       );
     }
   }
