@@ -48,10 +48,19 @@ class Prenode{
           watchdog("error","WallyEdit: node not found");
         }
       }
-      else {
+      else {        
+        ctools_include('object-cache');
         //Case of a prenode in edition mode
-        $this->setNode($node);
-        $this->getFormState();
+       if($cache = ctools_object_cache_get('prenode', $cache_name,true)){
+        //Case of a prenode in creation mode
+          $this->form_state=$cache;
+          $this->setNode($node);
+          $this->form_state['cache name']= $cache_name;
+        } else {
+          dsm(toto);
+          $this->setNode($node);
+          $this->getFormState();
+        }
       }
     }
     
@@ -125,17 +134,37 @@ class Prenode{
           }
 
           if ($this->node->{$field_name}) {
+            dsm($this->node->{$field_name},fieldanme);
             foreach($this->node->{$field_name} as $key=>$value){
-              $temp_node=node_load($value['nid']);
+             
+              if( $temp_node=node_load($value['nid'])){
               $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
               $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+              }
+             
+              /*
+              $subfields = wyditadmin_get_fields_flat($this->profile_id, $temp_node->type);
+          
+          foreach($subfields as $subfield){
+            $subfield_name = $subfield['name'];
+            if($subfield['display']>1){
+                foreach($temp_node->{$subfield['name']} as $subkey=>$subvalue) {
+                  $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]=$form_state[$form_state['type']][$field_name][$key][$subfield_name][$subkey];
+                
+              }
+              
+              
             }
+            */
+            }
+            
           }
         }
       }
     }
     wydit_clean_and_save_form_state($form_state);
     $this->form_state=$form_state;
+    dsm($form_state,prenode_form_state);
     return $form_state;
   }
   

@@ -413,7 +413,6 @@ $(document).ready(function() {
   $meta_tab_name="meta_".$profile_id.'_'.$node_type;
   $no_tab_name="no_tab";
 ?>
-
 <div id="column-main-left">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
