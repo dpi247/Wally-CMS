@@ -1837,38 +1837,40 @@ function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$eleme
   );
 
   foreach($form_state as $key=>$embed){
-    $embed_node=$embed["#node"];
-    if (isset($embed_node->title) && !empty($embed_node->title)) {
-      $form[$key]['title']=array(
-        "#type"=>"markup",
-        "#value"=> $embed_node->title,
-      );
-      $form[$key]['type']=array(
-        "#type"=>"markup",
-        "#value"=> $embed_node->type,
-      );
-      $form[$key]['weight_'.$key]=array(
-        '#type'=>'weight',
-        "#default_value"=> $key,
-        '#attributes' => array('class'=>'order_weightss'),
-        "#parents"=>array_merge($parents,array("weight_".$key)),
-      );
-      $form[$key]['edit_action']=array(
-        "#type"=>"submit",
-        "#value"=>'edit',
-        "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
-        '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-        "#parents"=>array_merge($parents,array("$key")),
-      );
-      $form[$key]['delete_action']=array(
-        "#type"=>"submit",
-        "#value"=>'remove',
-        "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
-        '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
-        "#parents"=>array_merge($parents,array("$key")),
-      );
-    } else {
-      unset($form_state[$key]);
+    if(isset($embed["#node"])){
+      $embed_node=$embed["#node"];
+      if (isset($embed_node->title) && !empty($embed_node->title)) {
+        $form[$key]['title']=array(
+          "#type"=>"markup",
+          "#value"=> $embed_node->title,
+        );
+        $form[$key]['type']=array(
+          "#type"=>"markup",
+          "#value"=> $embed_node->type,
+        );
+        $form[$key]['weight_'.$key]=array(
+          '#type'=>'weight',
+          "#default_value"=> $key,
+          '#attributes' => array('class'=>'order_weightss'),
+          "#parents"=>array_merge($parents,array("weight_".$key)),
+        );
+        $form[$key]['edit_action']=array(
+          "#type"=>"submit",
+          "#value"=>'edit',
+          "#name"=>'edit__'.$parents[count($parents)-1].'_'.$key,
+          '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+          "#parents"=>array_merge($parents,array("$key")),
+        );
+        $form[$key]['delete_action']=array(
+          "#type"=>"submit",
+          "#value"=>'remove',
+          "#name"=>'remove__'.$parents[count($parents)-1].'_'.$key,
+          '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
+          "#parents"=>array_merge($parents,array("$key")),
+        );
+      } else {
+        unset($form_state[$key]);
+      }
     }
   }
 
