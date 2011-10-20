@@ -260,6 +260,7 @@ function pathauto_clean_alias($alias) {
  * @see pathauto_get_placeholders()
  */
 function pathauto_create_alias($module, $op, $placeholders, $source, $entity_id, $type = NULL, $language = '') {
+  dsm(func_get_args(), 'args');
   // Retrieve and apply the pattern for this content type
   if (!empty($type)) {
     $pattern = trim(variable_get("pathauto_{$module}_{$type}_{$language}_pattern", ''));
