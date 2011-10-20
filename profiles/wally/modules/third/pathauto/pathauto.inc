@@ -543,6 +543,7 @@ function pathauto_get_placeholders($type, $object) {
     watchdog('Pathauto', 'It appears that you have installed Pathauto, which depends on token, but token is either not installed or not installed properly.');
     return array('tokens' => array(), 'values' => array());
   }
+dsm('couco');
 dsm(debug_backtrace(), 'backtract');
   $options = array('pathauto' => TRUE);
   $full = token_get_values($type, $object, TRUE, $options);
