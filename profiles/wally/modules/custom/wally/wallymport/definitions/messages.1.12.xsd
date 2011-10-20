@@ -34,16 +34,17 @@
  <xsd:complexType name="ObjectType">
 	 <xsd:sequence>
 		<xsd:element name="Title" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="ExternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="ExternalReference" type="xsd:string" />
 		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="Taxonomy" minOccurs="0" maxOccurs="1" type="TaxonomyType" />
 		<xsd:element name="Copyright" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 		<xsd:element name="EmbeddedObjectsOrder" minOccurs="0" maxOccurs="1" type="xsd:short" />
 		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
+		<xsd:element name="Marker" minOccurs="0" maxOccurs="1" type="LocationType" />
  	 </xsd:sequence>
 	<!-- META-DATA OBJECT ATTRIBUTES -->
-	<xsd:attribute name="ObjectID" type="xsd:string" use="required" />
+	<xsd:attribute name="ObjectID" type="xsd:string" />
 	<xsd:attribute name="ObjectDescription" type="xsd:string" />
 	<xsd:attribute name="PublicationDate" type="xsd:dateTime" />
 	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />

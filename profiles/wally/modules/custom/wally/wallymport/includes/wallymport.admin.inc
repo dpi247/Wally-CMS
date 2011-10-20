@@ -57,7 +57,6 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => FALSE,
   );
-  
   $form['wallymport_import']['wallymport_definition_packages'] = array(
     '#type' => 'textfield',
     '#title' => t('Import Data Structure Definition file For Packages'),
@@ -123,7 +122,24 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
-  
+  $form['wallymport_updateurl'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL to send the informations of the node'),
+    '#description' => t('URL to send the information of the node.'),
+    '#default_value' => variable_get('wallymport_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $form['wallymport_wallyprefix'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Wally Prefix'),
+    '#description' => t('Used in Pandam to identified de source web site'),
+    '#default_value' => variable_get('wallymport_wallyprefix', ''),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
   $form['wallymport_debug'] = array(
     '#type' => 'radios',
     '#title' => t('Import debug level'),
@@ -133,10 +149,10 @@ function wallymport_page_admin_form($form_state) {
     '#required' => TRUE,
   );
 
-  $vocab_list=array();
-  $vocabularies=taxonomy_get_vocabularies();
+  $vocab_list = array();
+  $vocabularies = taxonomy_get_vocabularies();
   foreach($vocabularies as $key => $vocabulary) {
-	  $vocab_list[$key]=$vocabulary->name;
+	  $vocab_list[$key] = $vocabulary->name;
   }
 
   $form['wallymport_destinationpath'] = array(
@@ -208,7 +224,7 @@ function wallymport_page_admin_form($form_state) {
     '#options' => $vocab_list,
     '#required' => TRUE,
   );  
-
+/*
   $form['wallymport_classifiedtagtaxonomy'] = array(
     '#type' => 'select',
     '#title' => t('Taxonomy "Classified terms"'),
@@ -217,12 +233,28 @@ function wallymport_page_admin_form($form_state) {
     '#options' => $vocab_list,
     '#required' => TRUE,
   );  
-
+*/
+  $form['wallymport_concept'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "Concept"'),
+    '#description' => t('Choose the vocabulary corresponding to the concept tagging taxonomy.'),
+    '#default_value' => variable_get('wallymport_concept', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  );
+  $form['wallymport_iptc'] = array(
+    '#type' => 'select',
+    '#title' => t('Taxonomy "IPTC"'),
+    '#description' => t('Choose the vocabulary corresponding to the IPTC tagging taxonomy.'),
+    '#default_value' => variable_get('wallymport_iptc', 0),
+    '#options' => $vocab_list,
+    '#required' => TRUE,
+  ); 
   $form['wallymport_taxonomy_recusive'] = array(
     '#type' => 'select',
     '#title' => t('Is the Taxonomies recusive?'),
     '#description' => t('If TRUE, node will be associated with all the term in taxonomy PATH /term1/term2/term3. Else only to the last term (term3).'),
-    '#default_value' => variable_get('wallymport_taxonomy_recusive', TRUE),
+    '#default_value' => variable_get('wallymport_taxonomy_recusive', FALSE),
     '#options' => array("true"=>"true", "false"=>"false"),
     '#required' => TRUE,
   );  

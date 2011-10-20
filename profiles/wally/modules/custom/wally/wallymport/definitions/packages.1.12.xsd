@@ -28,13 +28,13 @@
 		</xsd:element>
 		<xsd:element name="Desk1" type="xsd:string" />
 		<xsd:element name="Desk2" type="xsd:string" minOccurs="0" maxOccurs="1" />
+		<xsd:element name="Theme" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		<xsd:element name="SourceXML" type="xsd:anyType" minOccurs="0" maxOccurs="1"/>
 		<xsd:element name="PackageTitle" type="xsd:string" />
 		<xsd:element name="PackageDescription" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ExternalReference" type="xsd:string" />
 		<xsd:element name="Destinations" type="DestinationsType" />
-
 		<xsd:element name="Channels" type="ChannelsType" />
 		<xsd:element name="CommentsAllowed" minOccurs="0" maxOccurs="1">
 		  <xsd:simpleType>
@@ -127,9 +127,10 @@
 		<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 		<xsd:element name="EmbeddedObjectsOrder" minOccurs="0" maxOccurs="1" type="xsd:short" />
 		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
+		<xsd:element name="Marker" minOccurs="0" maxOccurs="1" type="LocationType" />
  	 </xsd:sequence>
 	<!-- META-DATA OBJECT ATTRIBUTES -->
-	<xsd:attribute name="ObjectID" type="xsd:string" use="required" />
+	<xsd:attribute name="ObjectID" type="xsd:string" />
 	<xsd:attribute name="ObjectDescription" type="xsd:string" />
 	<xsd:attribute name="PublicationDate" type="xsd:dateTime" />
 	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
@@ -146,8 +147,6 @@
 				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="FileURI" type="xsd:anyURI" />
 				<xsd:element name="FileSize" type="xsd:decimal" />
-				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
-				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
 				<xsd:element name="Rating" minOccurs="0" maxOccurs="1">
 					<xsd:simpleType>
@@ -177,6 +176,8 @@
 				<xsd:element name="Crops" minOccurs="0" maxOccurs="1" type="CropsType" />
 				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
+				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -421,6 +422,7 @@
 	</xsd:sequence>
 	<xsd:attribute name="VocabularyName" type="xsd:string" use="required" />
 	<xsd:attribute name="VocabularyDescription" type="xsd:string" />
+	<xsd:attribute name="VocabularyManualValidation" type="xsd:boolean" />
 	<xsd:attribute name="VocabularyType" use="optional">
 		<xsd:simpleType>
 			<xsd:restriction base="xsd:NMTOKEN"> 
