@@ -1,0 +1,36 @@
+<?php 
+
+/*
+ * Implementation of hook_nodeapi().
+ */
+function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+  switch ($op){
+    case 'presave':
+      if ($node->type == 'wally_articlepackage'){
+        wallydam_posturl($node);
+      }
+      break;
+  }
+}
+/**
+ * GET of informations of the node.
+ * 
+ * Send the informations of the node (nodeid, packageid and url) to pandam 
+ * 
+ * @param $node
+ *   Node 
+ */
+function wallydam_posturl($node){
+  
+  if (!isset($node->path)){
+    $node->path = 'node/'.$node->nid;
+  }
+  $node_url = url($node->path, array('absolute' => TRUE));
+  $node_id = variable_get('wallymport_wallyprefix', NULL).$node->nid;
+  $package_id = $node->field_packageid[0]['value'];
+  $request = variable_get('wallymport_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
+  $postargs = 'nodeId='.$node_id.'&packageId='.$package_id.'&url='.$node_url;
+  //GET
+  drupal_http_request($request.'?'.$postargs);
+  
+}
