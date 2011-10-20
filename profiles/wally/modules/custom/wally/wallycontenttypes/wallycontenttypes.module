@@ -579,8 +579,9 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
     $packagenode->field_locations = $node->field_locations;
     $packagenode->field_entities = $node->field_entities;
     $packagenode->field_persons = $node->field_persons;
-    $packagenode->field_tags = $node->field_tags;
-    $packagenode->field_free_tags = $node->field_free_tags;	
+    $packagenode->field_free_tags = $node->field_free_tags;
+    $packagenode->field_concepts = $node->field_concepts;
+    $packagenode->field_iptc = $node->field_iptc;	
     $r = node_save($packagenode);
   }
 }
@@ -612,23 +613,23 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
   if (!$node->no_taxonomy_update) { 
     switch ($node->type){
       case 'wally_articlepackage':
-        $objectnode=node_load($node->field_mainstory[0]['nid'], $revision, $reset);
+        $objectnode = node_load($node->field_mainstory[0]['nid'], $revision, $reset);
       break;
       case 'wally_gallerypackage':
-        $objectnode=node_load($node->field_mainobject[0]['nid'], $revision, $reset);
+        $objectnode = node_load($node->field_mainobject[0]['nid'], $revision, $reset);
       break;
       case 'wally_pollpackage':
-        $objectnode=node_load($node->field_mainpoll[0]['nid'], $revision, $reset);
+        $objectnode = node_load($node->field_mainpoll[0]['nid'], $revision, $reset);
       break;
     }
     if($objectnode){
-      $node->taxonomy=$objectnode->taxonomy;
-      $node->field_markers=$objectnode->field_markers;
-      $node->field_locations=$objectnode->field_locations;
-      $node->field_entities=$objectnode->field_entities;
-      $node->field_persons=$objectnode->field_persons;
-      $node->field_tags=$objectnode->field_tags;
-      $node->field_free_tags=$objectnode->field_free_tags;
+      $node->taxonomy = $objectnode->taxonomy;
+      $node->field_markers = $objectnode->field_markers;
+      $node->field_locations = $objectnode->field_locations;
+      $node->field_entities = $objectnode->field_entities;
+      $node->field_persons = $objectnode->field_persons;
+      $node->field_free_tags = $objectnode->field_free_tags;
+      $node->field_concepts = $objectnode->field_concepts;
     }
   }
 }
