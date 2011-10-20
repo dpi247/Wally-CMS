@@ -490,6 +490,20 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
 
       $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
     }
+    
+    if (module_exists('pathauto')) {
+      // Override path.module's vertical tabs summary.
+      $form['pathauto_perform_alias']['#attached']['js']['vertical-tabs'] = drupal_get_path('module', 'pathauto') . '/pathauto.js';
+      unset($form['path']['#attached']['js']['vertical-tabs']);
+
+      $form['pathauto_perform_alias'] = $form['path']['pathauto_perform_alias'];
+      unset($form['path']['pathauto_perform_alias']);
+      
+      if (isset($form['path']['old_alias'])) {
+        $form['old_alias'] = $form['path']['old_alias'];
+        unset($form['path']['old_alias']);
+      }
+    }
   }
 }
 
@@ -1538,7 +1552,7 @@ function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
   ctools_include('object-cache');
-dsm(func_get_args(), 'args');
+
   $type_name=$form_state['type'];
 
   $form=array('#tree'=>true);
@@ -1555,8 +1569,8 @@ dsm(func_get_args(), 'args');
   }
   
   $form['parents']=array(
-    "#type"=>'hidden',
-    "#value"=>serialize($parents),
+    "#type" => 'hidden',
+    "#value" => serialize($parents),
   );
   
   $form['cache name'] = array(
@@ -1568,9 +1582,9 @@ dsm(func_get_args(), 'args');
     '#type' => 'value',
     '#value' => $form_state['profile_id'],
   );
-  dsm($coming_form);
+
   $form['coming_form'] = array(
-    '#type' => 'value',
+    '#type' => 'hidden',
     '#value' => $coming_form,
   );
   
@@ -1601,11 +1615,10 @@ dsm(func_get_args(), 'args');
 }
 
 function wallyedit_form_nodetypeselector_form_back_submit($form, &$form_state) {
-  dsm($form_state);
-  $values = $form_state['values'];
-  $goto_form = ($values['coming_form'] == 'edit') ? 'wallyedit_form_page_editmode_form' : 'wallyedit_form_page_createmode_form';
-  dsm($goto_form);
-  wallyedit_form_nodetypeselector_form_submit($form, $form_state, $goto_form);
+  module_load_include('inc','wallyedit','includes/page_node_edition');
+  $prenode = new Prenode($form_state['cache name'], FALSE, $form_state['profile_id']);
+  $prenode->setCurrentProfile($form_state['profile_id']);
+  wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
 }
 
 function wallyedit_form_nodetypeselector_form_next_validate(&$form, $form_state) {
@@ -1616,10 +1629,8 @@ function wallyedit_form_nodetypeselector_form_next_validate(&$form, $form_state)
 }
 
 function wallyedit_form_nodetypeselector_form_next_submit($form, $form_state) {
-  wallyedit_form_nodetypeselector_form_submit($form, $form_state, 'wallyedit_form_editmode_add_form');
-}
-
-function wallyedit_form_nodetypeselector_form_submit($form, &$form_state, $goto_form) {
+  $values = $form_state['values'];
+  
   ctools_include('form');
   ctools_include('modal');
   ctools_include('ajax');
@@ -1628,9 +1639,7 @@ function wallyedit_form_nodetypeselector_form_submit($form, &$form_state, $goto_
   ctools_include('object-cache');
 
   $commands=array();
-  $values=$form_state['values'];
-  $type=$values['type'];
-
+  $type = $values['type'];
   $node=new stdClass;
   $node->type=$type;
 
@@ -1642,7 +1651,7 @@ function wallyedit_form_nodetypeselector_form_submit($form, &$form_state, $goto_
   $new_form_state['cache name']=$form_state["cache name"];
   $new_form_state['profile_id']=$form_state['values']['profile_id'];
 
-  $new_form = ctools_build_form($goto_form, $new_form_state);
+  $new_form = ctools_build_form('wallyedit_form_editmode_add_form', $new_form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $new_form);
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
@@ -2071,6 +2080,11 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
     $form_state[$form_state['type']]['#node']->field_publicationdate[0]['value'] = date($format);
   }
   
+  if (isset($form_state[$form_state['type']]['#node']->path['pathauto_perform_alias'])) {
+    $form_state[$form_state['type']]['#node']->pathauto_perform_alias = $form_state[$form_state['type']]['#node']->path['pathauto_perform_alias'];
+    unset($form_state[$form_state['type']]['#node']->path);
+  }
+  
   return wydit_publish_prenode_save($form_state, $sub_level);
 }
 
@@ -2303,7 +2317,6 @@ function wydit_clean_form_state($form_state){
 function wydit_clean_and_save_form_state(&$form_state){
   $form_state=wydit_clean_form_state($form_state);
   wydit_save_form_state($form_state);
-  
 }
 
 function wydit_get_infos_groups($type_name){
@@ -2496,45 +2509,26 @@ function wydit_filefield_js($type_name, $field_name, $delta) {
 }
 
 function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
-  $cache_name=$context['arguments'][0];
-  $target=explode('/',$context['arguments'][1]);
+  $cache_name = array_shift($context['arguments']);
+  // Sometimes we get the target under a "serialized" form (parent1/parent2/...)
+  // and sometimes the parents are already explosed.. don't ask me why..
+  if (count($context['arguments']) == 1) {
+    $target = explode('/', $context['arguments'][0]);
+  } else {
+    $target = $context['arguments'];
+  }
   array_pop($target);
 
   $prenode=new Prenode($cache_name);
   $form_state=$prenode->getFormState();
-
   foreach($nodes as $nid){
     $node=node_load($nid);
     $element['#node']=$node;
     $element['type']=$node->type;
     wydit_add_to_form_state($form_state,$element,$target,TRUE);
   }
-  
-  wydit_clean_and_save_form_state($form_state);
-}
 
-function wallyedit_selector_action($node, $context, $a, $b, $c) {
-  /*
-   $roles = $user->roles;
-   $selected = (is_array($context['add_roles']) ? $context['add_roles'] : array()) +
-   (is_array($context['remove_roles']) ? $context['remove_roles'] : array());
-   $result = db_query("SELECT rid, name FROM {role} WHERE rid IN (%s)", implode(',', array_keys($selected)));
-   while ($role = db_fetch_object($result)) {
-   if (isset($context['add_roles'][$role->rid])) {
-   $add_roles[$role->rid] = $role->name;
-   }
-   if (isset($context['remove_roles'][$role->rid])) {
-   $remove_roles[$role->rid] = $role->name;
-   }
-   }
-   if (!empty($add_roles)) {
-   $roles += $add_roles;
-   }
-   if (!empty($remove_roles)) {
-   $roles = array_diff($roles, $remove_roles);
-   }
-   user_save($user, array('roles' => $roles));
-   */
+  wydit_clean_and_save_form_state($form_state);
 }
 
 /**
