@@ -538,12 +538,13 @@ function _pathauto_verbose($message = NULL, $op = NULL) {
  *   Pathauto expects to see them.
  */
 function pathauto_get_placeholders($type, $object) {
+  dsm(debug_backtrace(), 'backtract');
   if (!function_exists('token_get_values')) {
     // TODO at some point try removing this and see if install profiles have problems again.
     watchdog('Pathauto', 'It appears that you have installed Pathauto, which depends on token, but token is either not installed or not installed properly.');
     return array('tokens' => array(), 'values' => array());
   }
-dsm(debug_backtrace(), 'backtract');
+
   $options = array('pathauto' => TRUE);
   $full = token_get_values($type, $object, TRUE, $options);
   $tokens = token_prepare_tokens($full->tokens);
