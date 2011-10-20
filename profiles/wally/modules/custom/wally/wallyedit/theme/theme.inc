@@ -12,8 +12,7 @@ function theme_wallyedit_fieldset($variables) {
 }
 
 function theme_wallyedit_inline_form($form) {
-  dsm('fffffoooooo');
-  $output='rrrrrr'.drupal_render($form);
+  $output=drupal_render($form);
   return $output;
 }
 function theme_wallyedit_admin($rows=array(),$headers){
@@ -350,6 +349,7 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
 
 function wallyedit_preprocess_wallyedit_node_form(&$vars){
   $vars['profile_id']=$vars['form']['profile_id']['#value'];
+  dsm($vars['form']);
   $vars['node_type']=$vars['form']['type']['#value'];
 }
 
