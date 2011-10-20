@@ -1331,7 +1331,7 @@ function wydit_subform_global_page_submit(&$form_state){
   }
   
   $a=array();
-  $a[$form_state['type']]['#node']=(object)(wydit_merge_arrays((array)node_submit($form_state['values'][$form_state['type']]),(array)$form_state[$form_state['type']]['#node']));
+  $a[$form_state['type']]['#node']=(object)(wydit_merge_arrays((array)$form_state[$form_state['type']]['#node'], (array)node_submit($form_state['values'][$form_state['type']])));
   $a['type']=$form_state['type'];
   $a['cache name']=$form_state['cache name'];
   $a['profile_id']=$form_state['profile_id'];
@@ -1350,7 +1350,7 @@ function wydit_subform_global_page_submit(&$form_state){
             } else {
               $index=$key;
             }
-            $a[$form_state['type']][$field_name][$index]['#node']=(object)(wydit_merge_arrays((array)node_submit($form_state['values'][$form_state['type']][$field_name][$key]),(array)$form_state[$form_state['type']][$field_name][$key]['#node']));
+            $a[$form_state['type']][$field_name][$index]['#node']=(object)(wydit_merge_arrays((array)$form_state[$form_state['type']][$field_name][$key]['#node'], (array)node_submit($form_state['values'][$form_state['type']][$field_name][$key])));
             $subtype=$a[$form_state['type']][$field_name][$index]['#node']->type;
             $a[$form_state['type']][$field_name][$index]['type']=$subtype;
 
@@ -1724,7 +1724,7 @@ function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
   $b = $form_state['values'][$form_state['values']['type']];
   
   //$node = (object)((array)$b+(array) $node);
-  $node=(object)(wydit_merge_arrays((array)$b,(array)$node));
+  $node=(object)(wydit_merge_arrays((array)$node,(array)$b));
   $element["#node"]=$node;
   $element["type"]=$node->type;
   $target_type=$target_node=$target;
@@ -2535,7 +2535,7 @@ function wydit_clean_form_state($form_state){
         foreach($form_state[$form_state['type']][$field_name] as $key=>$value) {
           if(is_numeric($key)){
             if(isset($form_state[$form_state['type']][$field_name][$key]['#node']) and isset($form_state['values'][$form_state['type']][$field_name][$key])){
-              $a[$form_state['type']][$field_name][$key]['#node']=(object)(wydit_merge_arrays((array) node_submit($form_state['values'][$form_state['type']][$field_name][$key]),(array)$form_state[$form_state['type']][$field_name][$key]['#node']));
+              $a[$form_state['type']][$field_name][$key]['#node']=(object)(wydit_merge_arrays((array)$form_state[$form_state['type']][$field_name][$key]['#node'], (array)node_submit($form_state['values'][$form_state['type']][$field_name][$key])));
               $a[$form_state['type']][$field_name][$key]['type']=$a[$form_state['type']][$field_name][$key]['#node']->type;
             }
             else{
@@ -2784,7 +2784,6 @@ function wydit_merge_arrays() {
     return;
   }
   $arrays = func_get_args();
-  rsort($arrays);
   $merged = array();
   while ($arrays) {
     $array = array_shift($arrays);
@@ -2796,7 +2795,7 @@ function wydit_merge_arrays() {
       continue;
     }
     foreach ($array as $key => $value) {
-      if (is_string($key)) {
+      if (is_string($key) || is_numeric($key)) {
         if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
           $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value);
         } else {
