@@ -1,0 +1,5 @@
+core = "6.x"
+name = "Wally Dam Functions"
+package = "Wally"
+project = "Wally"
+version = "6.x-1.0-rc1"
