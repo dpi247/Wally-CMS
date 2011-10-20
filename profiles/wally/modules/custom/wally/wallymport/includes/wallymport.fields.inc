@@ -52,37 +52,43 @@ function wimprt_process_packages($dom, &$log, $preview = FALSE){
 function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL) {
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, 'package', $callback, $log);
-
+  if (isset($node->wallymport_preview)){
+    $preview = TRUE;
+    unset($node->wallymport_preview);
+  }
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or TRUE){
-    $log['log'][]='process package: '.$dom->nodeName;
+    $log['log'][] = 'process package: '.$dom->nodeName;
   }
-
-  module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
-
-  // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
-  if (function_exists("wimprt_process_package_".$callback)){
-    call_user_func("wimprt_process_package_".$callback, &$node, $dom, &$log, $preview);
+  
+  if (!isset($node->rejected) & !isset($node->wallymport_delete)){
+    module_invoke_all('wimprt_process_package',$node,$dom,$log,'before_process');
+  
+    // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+    if (function_exists("wimprt_process_package_".$callback)){
+      call_user_func("wimprt_process_package_".$callback, &$node, $dom, &$log, $preview);
+    }
+  
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
   }
-
-  module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
+  
   if (!empty($node) && !isset($node->rejected)) {
     if ($preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       
-      //require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = true;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       return $prenode->cache_name;
+    } elseif (isset($node->wallymport_delete)){
+      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
-      //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
       node_save($node);
     }
-  } else {
+  } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
     wallycontenttypes_delete_orphans_objects($node);
   }
 
@@ -203,6 +209,69 @@ function wimprt_create_or_load_message_tme($dom, &$log, $callback){
   return $node;
 }
 /**
+ * Preprocess Create or load package
+ * 
+ * The node is created/deleted/updated/replaced depending on the action
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $node
+ *   The node
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_preprocesspackage($dom,&$node){
+  
+  $node_temporary = NULL;
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
+    $node_temporary = $node_temp[0];
+  }
+  
+  if ($dom->hasAttribute('Action')){
+    $action = $dom->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'Delete':
+      if ($node_temporary != NULL){
+        node_delete($node_temporary->nid);
+        $node->ext_ref = $ext_ref;
+      } else {
+        drupal_set_message('The package doesn\'t exist. It can be deleted. Package rejected.','error');
+        $node->rejected = TRUE;
+      }
+      $node->wallymport_delete = TRUE;
+      break;
+    case 'CreateReplace':
+      if ($node_temporary != NULL){
+        $node->nid = $node_temporary->nid;
+      }
+      break;
+    case 'CreateUpdate':
+      if ($node_temporary != NULL){
+        $node = $node_temporary;
+      }
+      break;
+    case 'Update':
+      if ($node_temporary != NULL){
+        $node = $node_temporary;    
+      } else {
+        $node->rejected = TRUE;
+        $node->wallymport_delete = TRUE;
+        drupal_set_message('The package doesn\'t exist. It can ben updated. Package rejected.','error');
+      }
+      break;
+    case 'Preview':
+      $node->wallymport_preview = TRUE;
+      break;
+  }
+  
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
+}
+/**
  * Create or load a article package depending of external reference.
  * 
  * If no node match the external reference, a new node is created.
@@ -218,19 +287,8 @@ function wimprt_create_or_load_message_tme($dom, &$log, $callback){
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
   $node = new stdClass;
   $node->type = 'wally_articlepackage';
-  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   
-  //watchdog('ext ref', $ext_ref);
-  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_articlepackage")){
-    $node = $node_temp[0];
-  }
-  //watchdog('Wallymport pack creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
-  //watchdog('Wallymport create articlepackage', 'Node : '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
-  //watchdog('Wallymport create articlepackage', 'Dom : '.print_r(dom2array($dom), TRUE), array(), WATCHDOG_NOTICE);
-  
-  $uid = variable_get('wallymport_defaultuser',1);
-  $node->uid = $uid;
-
+  wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
 
@@ -251,14 +309,7 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_gallerypackage';
 
-  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_gallerypackage")){
-    $node = $node_temp[0];
-  }
-
-  $uid = variable_get('wallymport_defaultuser',1);
-  $node->uid = $uid;
-
+  wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
 
@@ -279,13 +330,7 @@ function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_pollpackage';
 
-  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_pollpackage")){
-    $node = $node_temp[0];
-  }
-
-  $uid = variable_get('wallymport_defaultuser',1);
-  $node->uid = $uid;
+  wimprt_create_or_load_preprocesspackage($dom,$node);
 
   return $node;
 }

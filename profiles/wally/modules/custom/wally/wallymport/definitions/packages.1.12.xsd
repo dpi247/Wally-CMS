@@ -66,8 +66,9 @@
 		<xsd:simpleType>
 			<xsd:restriction base="xsd:NMTOKEN">
 				<xsd:enumeration value="Delete"/>
-				<xsd:enumeration value="Create"/><!--create or replace-->
-				<xsd:enumeration value="Update"/><!--only existing fields are replaced-->
+				<xsd:enumeration value="CreateReplace"/><!--create or replace-->
+				<xsd:enumeration value="CreateUpdate"/><!--only existing fields are replaced-->
+        <xsd:enumeration value="Update"/>
 				<xsd:enumeration value="Preview"/>
       </xsd:restriction>
 		</xsd:simpleType>
