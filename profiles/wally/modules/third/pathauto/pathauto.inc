@@ -260,7 +260,6 @@ function pathauto_clean_alias($alias) {
  * @see pathauto_get_placeholders()
  */
 function pathauto_create_alias($module, $op, $placeholders, $source, $entity_id, $type = NULL, $language = '') {
-  dsm(func_get_args(), 'args');
   // Retrieve and apply the pattern for this content type
   if (!empty($type)) {
     $pattern = trim(variable_get("pathauto_{$module}_{$type}_{$language}_pattern", ''));
@@ -544,10 +543,9 @@ function pathauto_get_placeholders($type, $object) {
     watchdog('Pathauto', 'It appears that you have installed Pathauto, which depends on token, but token is either not installed or not installed properly.');
     return array('tokens' => array(), 'values' => array());
   }
-dsm($object, 'object');
+dsm(debug_backtrace(), 'backtract');
   $options = array('pathauto' => TRUE);
   $full = token_get_values($type, $object, TRUE, $options);
-  dsm($full, 'full');
   $tokens = token_prepare_tokens($full->tokens);
   $values = pathauto_clean_token_values($full, $options);
   return array('tokens' => $tokens, 'values' => $values);
