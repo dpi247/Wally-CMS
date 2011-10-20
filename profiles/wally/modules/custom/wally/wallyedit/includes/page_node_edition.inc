@@ -27,7 +27,10 @@ function wallyedit_page_node_edition($prenode, $js = FALSE, $current_profile = 0
   $form_prev = drupal_get_form('wydit_subform_global_preview_form', $form_state['cache name']);
 
   if($js){
-    //AJAX rendering int the submit function   
+    //AJAX rendering int the submit function
+    $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+    ctools_ajax_render($commands);
   } else{
     return theme('wallyedit_page_editmode', $form, $form_prev, $form_state['cache name']);
   }
