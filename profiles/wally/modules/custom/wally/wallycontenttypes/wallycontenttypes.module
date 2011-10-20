@@ -207,7 +207,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     
     case 'delete' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      if($node->type == 'wally_articlepackage' || 
+      if ($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
           wallycontenttypes_delete_orphans_objects($node); 
@@ -1426,7 +1426,7 @@ function wallycontenttypes_delete_orphans_objects($node){
     foreach($parents as &$parent) {
       $parent = $parent['nid'];
     }
-    if(count($parents) == 1 && in_array($node->nid, $parents)){
+    if (count($parents) == 1 && in_array($node->nid, $parents)){
       node_delete($nid);
     }
   }
