@@ -57,7 +57,6 @@ class Prenode{
           $this->setNode($node);
           $this->form_state['cache name']= $cache_name;
         } else {
-          dsm(toto);
           $this->setNode($node);
           $this->getFormState();
         }
@@ -134,7 +133,6 @@ class Prenode{
           }
 
           if ($this->node->{$field_name}) {
-            dsm($this->node->{$field_name},fieldanme);
             foreach($this->node->{$field_name} as $key=>$value){
              
               if( $temp_node=node_load($value['nid'])){
@@ -164,7 +162,6 @@ class Prenode{
     }
     wydit_clean_and_save_form_state($form_state);
     $this->form_state=$form_state;
-    dsm($form_state,prenode_form_state);
     return $form_state;
   }
   
