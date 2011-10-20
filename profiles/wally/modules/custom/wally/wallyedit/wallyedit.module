@@ -1465,7 +1465,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
   if($type_name=="wally_linktype"){
     $number_of_items_in_target=wydit_get_number_of_elements_of_target($form_state,array("wally_articlepackage","field_linkedobjects"))-1;
     $target=array("wally_articlepackage","field_linkedobjects",$number_of_items_in_target,"field_links_list");
-}
+  }
   wydit_subform_global_add_form_submit($form,$form_state,$target);
 
    $action_temp =split('__',$old_form_state['clicked_button']['#name']);
@@ -1494,28 +1494,27 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector, $current_profile);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
       }
-    break;
+      break;
     case 'save_global':
-          if($old_form_state['values']['type']=='wally_linktype'){
-          $new_form_state=array();
-          $new_form_state['parents']= $target;
-            array_pop($new_form_state['parents']);        
-          $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-          $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
-          $new_form_state['cache name']=$old_form_state['cache name'];
-          $new_form_state['profile_id'] = $old_form_state['profile_id'];
-              
-          $new_form_state['type']='wally_linkslistobject';
-          
-          //Need that to avoid re-processing of the form (infinite loop)
-          $new_form_state['input']=NULL;
-          
-          $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-          $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
-          
+      if($old_form_state['values']['type']=='wally_linktype'){
+        $new_form_state=array();
+        $new_form_state['parents']= $target;
+        array_pop($new_form_state['parents']);        
+        $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
+        $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
+        $new_form_state['cache name']=$old_form_state['cache name'];
+        $new_form_state['profile_id'] = $old_form_state['profile_id'];
+        
+        $new_form_state['type']='wally_linkslistobject';
+        
+        //Need that to avoid re-processing of the form (infinite loop)
+        $new_form_state['input']=NULL;
+        
+        $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
       }
       else{
-       $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
+        $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
       }
        
@@ -1663,7 +1662,6 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       break;
         case 'save_global':
           if($old_form_state['values']['type']=='wally_linktype'){
-          
             $new_form_state=array();
             $new_form_state['parents']= $old_form_state['values']['parents'];
             array_pop($new_form_state['parents']);
@@ -1698,8 +1696,6 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
            $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
                 
           }
-
-       
       break;
   }
 
