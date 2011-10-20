@@ -130,6 +130,64 @@ function wallycontenttypes_content_default_fields() {
     ),
   );
 
+  // Exported field: field_concepts
+  $fields['wally_articlepackage-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '6',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_destinations
   $fields['wally_articlepackage-field_destinations'] = array(
     'field_name' => 'field_destinations',
@@ -626,7 +684,7 @@ function wallycontenttypes_content_default_fields() {
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '6',
+      'weight' => '5',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -691,6 +749,64 @@ Free',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_articlepackage-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '7',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -1702,72 +1818,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_articlepackage-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_articlepackage',
-    'display_settings' => array(
-      'weight' => '',
-      'parent' => 'group_taxonomy',
-      'prev_parent' => 'group_taxonomy',
-      'hidden_name' => 'field_tags',
-      'wallyedit' => '1',
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '5',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_unpublishdate
   $fields['wally_articlepackage-field_unpublishdate'] = array(
     'field_name' => 'field_unpublishdate',
@@ -2027,6 +2077,123 @@ Free',
     ),
   );
 
+  // Exported field: field_byline
+  $fields['wally_audioobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_audioobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '26',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_audioobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_audioobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'expand_all' => 0,
+      'label' => 'Concepts',
+      'weight' => '15',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_copyright
   $fields['wally_audioobject-field_copyright'] = array(
     'field_name' => 'field_copyright',
@@ -2253,6 +2420,65 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_audioobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_audioobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'expand_all' => 0,
+      'label' => 'IPTC',
+      'weight' => '16',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -3131,67 +3357,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_audioobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_audioobject',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '11',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_thumbnail
   $fields['wally_audioobject-field_thumbnail'] = array(
     'field_name' => 'field_thumbnail',
@@ -3254,6 +3419,122 @@ Free',
     ),
   );
 
+  // Exported field: field_byline
+  $fields['wally_digitalobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_digitalobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '13',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_digitalobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_digitalobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '10',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_copyright
   $fields['wally_digitalobject-field_copyright'] = array(
     'field_name' => 'field_copyright',
@@ -3306,7 +3587,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Copyright',
-      'weight' => '10',
+      'weight' => '12',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -3484,6 +3765,64 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_digitalobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_digitalobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '11',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -4421,68 +4760,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_digitalobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_digitalobject',
-    'display_settings' => array(
-      'weight' => '6',
-      'parent' => 'group_taxonomy',
-      'label' => array(
-        'format' => 'above',
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '6',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_thumbnail
   $fields['wally_digitalobject-field_thumbnail'] = array(
     'field_name' => 'field_thumbnail',
@@ -5005,6 +5282,64 @@ Free',
     ),
   );
 
+  // Exported field: field_concepts
+  $fields['wally_gallerypackage-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '53',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_destinations
   $fields['wally_gallerypackage-field_destinations'] = array(
     'field_name' => 'field_destinations',
@@ -5413,7 +5748,7 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '54',
+      'weight' => '55',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -5469,10 +5804,68 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Free Access',
-      'weight' => '55',
+      'weight' => '56',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_gallerypackage-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '54',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -6659,67 +7052,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_gallerypackage-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_gallerypackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '53',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_unpublishdate
   $fields['wally_gallerypackage-field_unpublishdate'] = array(
     'field_name' => 'field_unpublishdate',
@@ -6781,7 +7113,7 @@ Free',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'UnpublishDate',
-      'weight' => '54',
+      'weight' => '55',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -8651,6 +8983,122 @@ character',
     ),
   );
 
+  // Exported field: field_byline
+  $fields['wally_photoobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_photoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '26',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_photoobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_photoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '17',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_copyright
   $fields['wally_photoobject-field_copyright'] = array(
     'field_name' => 'field_copyright',
@@ -8960,6 +9408,64 @@ character',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_photoobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_photoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '18',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -10102,72 +10608,6 @@ character',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_photoobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_photoobject',
-    'display_settings' => array(
-      'weight' => '',
-      'parent' => 'group_taxonomy',
-      'prev_parent' => 'group_taxonomy',
-      'hidden_name' => 'field_tags',
-      'wallyedit' => '1',
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '13',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_thumbnail
   $fields['wally_photoobject-field_thumbnail'] = array(
     'field_name' => 'field_thumbnail',
@@ -10291,6 +10731,122 @@ character',
     ),
   );
 
+  // Exported field: field_byline
+  $fields['wally_pollobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_pollobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '59',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_pollobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_pollobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '44',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_copyright
   $fields['wally_pollobject-field_copyright'] = array(
     'field_name' => 'field_copyright',
@@ -10399,7 +10955,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Entities',
-      'weight' => '43',
+      'weight' => '42',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
@@ -10513,10 +11069,68 @@ character',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '42',
+      'weight' => '41',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_pollobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_pollobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '45',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -11206,7 +11820,7 @@ character',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Persons',
-      'weight' => '44',
+      'weight' => '43',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -11410,67 +12024,6 @@ character',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_pollobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_pollobject',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '41',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_authors
   $fields['wally_pollpackage-field_authors'] = array(
     'field_name' => 'field_authors',
@@ -11582,6 +12135,64 @@ character',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_pollpackage-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_pollpackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '15',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -11993,7 +12604,7 @@ character',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '15',
+      'weight' => '14',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -12053,6 +12664,64 @@ Free',
       'description' => '',
       'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_pollpackage-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_pollpackage',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '16',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -13186,67 +13855,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_pollpackage-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_pollpackage',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '14',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_unpublishdate
   $fields['wally_pollpackage-field_unpublishdate'] = array(
     'field_name' => 'field_unpublishdate',
@@ -13373,6 +13981,122 @@ Free',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_byline
+  $fields['wally_textobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_textobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '68',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_textobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_textobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '61',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -13744,10 +14468,68 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '61',
+      'weight' => '60',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_textobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_textobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '62',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -14532,72 +15314,6 @@ Free',
     ),
   );
 
-  // Exported field: field_tags
-  $fields['wally_textobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_textobject',
-    'display_settings' => array(
-      'weight' => '',
-      'parent' => 'group_taxonomy',
-      'prev_parent' => 'group_taxonomy',
-      'hidden_name' => 'field_tags',
-      'wallyedit' => '1',
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '60',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
-    ),
-  );
-
   // Exported field: field_textbarette
   $fields['wally_textobject-field_textbarette'] = array(
     'field_name' => 'field_textbarette',
@@ -14961,6 +15677,122 @@ Free',
     ),
   );
 
+  // Exported field: field_byline
+  $fields['wally_videoobject-field_byline'] = array(
+    'field_name' => 'field_byline',
+    'type_name' => 'wally_videoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '60',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_byline][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'ByLine',
+      'weight' => '59',
+      'description' => '',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_concepts
+  $fields['wally_videoobject-field_concepts'] = array(
+    'field_name' => 'field_concepts',
+    'type_name' => 'wally_videoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '13',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Concepts',
+      'weight' => '47',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
+    ),
+  );
+
   // Exported field: field_copyright
   $fields['wally_videoobject-field_copyright'] = array(
     'field_name' => 'field_copyright',
@@ -15069,7 +15901,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Entities',
-      'weight' => '46',
+      'weight' => '45',
       'description' => '',
       'type' => 'content_taxonomy_tree',
       'module' => 'content_taxonomy_tree',
@@ -15183,10 +16015,68 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Free Tags',
-      'weight' => '45',
+      'weight' => '44',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
+  // Exported field: field_iptc
+  $fields['wally_videoobject-field_iptc'] = array(
+    'field_name' => 'field_iptc',
+    'type_name' => 'wally_videoobject',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '14',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'group_parent' => '0',
+      'show_depth' => 1,
+      'default_value' => array(
+        '0' => array(
+          'value' => NULL,
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'IPTC',
+      'weight' => '48',
+      'description' => '',
+      'type' => 'content_taxonomy_tree',
+      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -15942,7 +16832,7 @@ Free',
       'default_value' => NULL,
       'default_value_php' => NULL,
       'label' => 'Persons',
-      'weight' => '47',
+      'weight' => '46',
       'description' => '',
       'type' => 'content_taxonomy_autocomplete',
       'module' => 'content_taxonomy_autocomplete',
@@ -16062,67 +16952,6 @@ Free',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
-    ),
-  );
-
-  // Exported field: field_tags
-  $fields['wally_videoobject-field_tags'] = array(
-    'field_name' => 'field_tags',
-    'type_name' => 'wally_videoobject',
-    'display_settings' => array(
-      'label' => array(
-        'format' => 'above',
-        'exclude' => 0,
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'content_taxonomy',
-    'required' => '0',
-    'multiple' => '1',
-    'module' => 'content_taxonomy',
-    'active' => '1',
-    'save_term_node' => 1,
-    'vid' => '10',
-    'parent' => '0',
-    'parent_php_code' => '',
-    'depth' => '',
-    'widget' => array(
-      'expand_all' => 0,
-      'new_terms' => 'insert',
-      'extra_parent' => '6',
-      'maxlength' => '255',
-      'active_tags' => NULL,
-      'default_value' => array(
-        '0' => array(
-          'value' => NULL,
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Keywords (categorized)',
-      'weight' => '44',
-      'description' => '',
-      'type' => 'content_taxonomy_tree',
-      'module' => 'content_taxonomy_tree',
     ),
   );
 
@@ -16313,7 +17142,9 @@ Free',
   t('Audio Summary');
   t('Authors');
   t('Barette');
+  t('ByLine');
   t('Channels');
+  t('Concepts');
   t('Copyright');
   t('Croping');
   t('Destinations');
@@ -16330,8 +17161,8 @@ Free',
   t('Extract Short');
   t('Free Access');
   t('Free Tags');
+  t('IPTC');
   t('Internal Link');
-  t('Keywords (categorized)');
   t('Link');
   t('Link Item');
   t('Link Summary');

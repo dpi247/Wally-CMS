@@ -329,17 +329,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * @return Nothing but modify the $node
  */
 
-function get_memory() {
-  foreach(file('/proc/meminfo') as $ri)
-    $m[strtok($ri, ':')] = strtok('');
-  return 100 - round(($m['MemFree'] + $m['Buffers'] + $m['Cached']) / $m['MemTotal'] * 100);
-}
-
-
 function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
-	
-//	echo("j utilise ".get_memory()."Mb"); 
-		
   if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
     require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
     if (!isset($node->view)) {
