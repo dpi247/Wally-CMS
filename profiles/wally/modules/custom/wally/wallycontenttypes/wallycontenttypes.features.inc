@@ -9,6 +9,10 @@ function wallycontenttypes_content_taxonomy_mapping() {
       'field_name' => 'field_authors',
       'vocabulary' => 'authors',
     ),
+    'field_concepts-concepts' => array(
+      'field_name' => 'field_concepts',
+      'vocabulary' => 'concepts',
+    ),
     'field_documenttype-documenttype' => array(
       'field_name' => 'field_documenttype',
       'vocabulary' => 'documenttype',
@@ -28,6 +32,10 @@ function wallycontenttypes_content_taxonomy_mapping() {
     'field_free_tags-keywords' => array(
       'field_name' => 'field_free_tags',
       'vocabulary' => 'keywords',
+    ),
+    'field_iptc-iptc' => array(
+      'field_name' => 'field_iptc',
+      'vocabulary' => 'iptc',
     ),
     'field_locations-locations' => array(
       'field_name' => 'field_locations',
