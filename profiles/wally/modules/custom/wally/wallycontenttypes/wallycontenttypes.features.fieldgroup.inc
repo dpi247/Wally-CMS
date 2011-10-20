@@ -230,8 +230,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_locations',
       '2' => 'field_entities',
       '3' => 'field_persons',
-      '4' => 'field_tags',
-      '5' => 'field_free_tags',
+      '4' => 'field_free_tags',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -410,10 +411,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
-      '2' => 'field_tags',
-      '3' => 'field_free_tags',
-      '4' => 'field_entities',
-      '5' => 'field_persons',
+      '2' => 'field_free_tags',
+      '3' => 'field_entities',
+      '4' => 'field_persons',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -550,12 +552,13 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
-      '2' => 'field_tags',
-      '3' => 'field_free_tags',
-      '4' => 'field_entity',
-      '5' => 'field_persons',
-      '6' => 'field_copyright',
-      '7' => 'field_byline',
+      '2' => 'field_free_tags',
+      '3' => 'field_entity',
+      '4' => 'field_persons',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
+      '7' => 'field_copyright',
+      '8' => 'field_byline',
     ),
   );
 
@@ -782,8 +785,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_locations',
       '2' => 'field_entities',
       '3' => 'field_persons',
-      '4' => 'field_tags',
-      '5' => 'field_free_tags',
+      '4' => 'field_concepts',
+      '5' => 'field_iptc',
+      '6' => 'field_free_tags',
     ),
   );
 
@@ -1226,10 +1230,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
-      '2' => 'field_tags',
-      '3' => 'field_free_tags',
-      '4' => 'field_entities',
-      '5' => 'field_persons',
+      '2' => 'field_free_tags',
+      '3' => 'field_entities',
+      '4' => 'field_persons',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -1445,10 +1450,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
-      '2' => 'field_tags',
-      '3' => 'field_free_tags',
-      '4' => 'field_entities',
-      '5' => 'field_persons',
+      '2' => 'field_free_tags',
+      '3' => 'field_entities',
+      '4' => 'field_persons',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -1675,8 +1681,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_locations',
       '2' => 'field_entities',
       '3' => 'field_persons',
-      '4' => 'field_tags',
-      '5' => 'field_free_tags',
+      '4' => 'field_free_tags',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -1807,8 +1814,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_locations',
       '2' => 'field_entities',
       '3' => 'field_persons',
-      '4' => 'field_tags',
-      '5' => 'field_free_tags',
+      '4' => 'field_free_tags',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
@@ -1987,10 +1995,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
-      '2' => 'field_tags',
-      '3' => 'field_free_tags',
-      '4' => 'field_entities',
-      '5' => 'field_persons',
+      '2' => 'field_free_tags',
+      '3' => 'field_entities',
+      '4' => 'field_persons',
+      '5' => 'field_concepts',
+      '6' => 'field_iptc',
     ),
   );
 
