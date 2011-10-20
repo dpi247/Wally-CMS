@@ -11,6 +11,7 @@ function wallyedit_callback_add_new($prenode, $js = FALSE, $current_profile = 0)
   ctools_modal_add_js();
   
   $form_state=$prenode->getFormState();
+  dsm('couc');
   $form = ctools_build_form('wallyedit_form_editmode_add_form', $form_state, $current_profile);
   
   if($js) {
