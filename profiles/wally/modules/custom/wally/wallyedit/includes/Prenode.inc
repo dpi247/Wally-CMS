@@ -48,10 +48,18 @@ class Prenode{
           watchdog("error","WallyEdit: node not found");
         }
       }
-      else {
+      else {        
+        ctools_include('object-cache');
         //Case of a prenode in edition mode
-        $this->setNode($node);
-        $this->getFormState();
+       if($cache = ctools_object_cache_get('prenode', $cache_name,true)){
+        //Case of a prenode in creation mode
+          $this->form_state=$cache;
+          $this->setNode($node);
+          $this->form_state['cache name']= $cache_name;
+        } else {
+          $this->setNode($node);
+          $this->getFormState();
+        }
       }
     }
     
@@ -126,9 +134,10 @@ class Prenode{
 
           if ($this->node->{$field_name}) {
             foreach($this->node->{$field_name} as $key=>$value){
-              $temp_node=node_load($value['nid']);
-              $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
-              $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+              if ($temp_node=node_load($value['nid'])) {
+                $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
+                $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+              }
             }
           }
         }
