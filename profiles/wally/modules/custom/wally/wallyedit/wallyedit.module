@@ -1867,9 +1867,9 @@ function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$eleme
     "#theme" => 'wydit_selector_theme',
     '#title' => $form_element['#title'],
   );
-foreach($form_state as $key=>$embed){
- watchdog($key,'<pre/>'.print_r($form_state,1).'</pre>');
-  if(isset($embed["#node"])){
+
+  foreach($form_state as $key=>$embed){
+    if(isset($embed["#node"])){
       $embed_node=$embed["#node"];
       if (isset($embed_node->title) && !empty($embed_node->title)) {
         $form[$key]['title']=array(
@@ -1903,7 +1903,7 @@ foreach($form_state as $key=>$embed){
       } else {
         unset($form_state[$key]);
       }
-  }
+    }
   }
 
   $form['add_existing_action']=array(
@@ -1921,6 +1921,7 @@ foreach($form_state as $key=>$embed){
     '#attributes'=>array('class' => 'form-submit ctools-use-ajax'),
     "#parents"=>array_merge($parents,array("add_new"))
   );
+  
   $form_element=$form;
 }
 
