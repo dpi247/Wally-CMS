@@ -86,7 +86,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     wallycontenttypes_delete_orphans_objects($node);
   }
 
-  $log['node'] = array('current'=>$node,'next'=>$log['node']);
+  $log['node'] = array('current' => $node,'next' => $log['node']);
   
   return;
 }
@@ -2126,26 +2126,23 @@ function wimprt_process_type_location(&$node,$dom,&$log,$preview){
  * @return
  *   Nothing
  */
-function wimprt_set_field_markers(&$node,$dom,&$log){
+function wimprt_set_field_marker(&$node,$dom,&$log){
 
   $node->field_markers = array(); 
 
   if(variable_get('wallymport_debug',0) or true){
-	$log['log'][]='process Markers: '.$dom->nodeName;
+	$log['log'][] = 'process Marker: '.$dom->nodeName;
   }
-
-  $results = wimprt_process_list($dom,$log,'type');
-
-  // Get Location Taxonomy for all nodes.
-  foreach($results as $result) {
-	if (isset($result->field_locationtaxonomy)) {
-	  if ($result->field_locationtaxonomy[0]) {
-		$node->field_markers[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
-		$node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
-	  }
-	}
+  $node->field_markers[0] = array();
+  $address = _wimprt_address_dom_to_ccklocation($dom->getElementsByTagName("Address"),$log);
+  $node->field_markers[0] = $address[0];
+  $node->field_markers[0]['name'] = $dom->getAttribute('Name');
+  
+  if($dom->getElementsByTagName("LocationGeo")->length){
+    list($longitude,$latitude,$zoom) = explode(',',$dom->getElementsByTagName('LocationGeo')->item(0)->nodeValue);
+    $node->field_markers[0]['locpick']['user_latitude'] = $latitude;
+    $node->field_markers[0]['locpick']['user_longitude'] = $longitude;
   }
-
   return $results; 
 }
 
@@ -2207,13 +2204,12 @@ function wimprt_set_field_locations(&$node,$dom,&$log){
  */
 function wimprt_set_field_taxonomy(&$node,$dom,$log) {
   
-  $result = array("field_tags"=>array(), "field_free_tags" => array());
+  $result = array();
   if (variable_get('wallymport_debug',0) or TRUE) {
 	$log['log'][] = 'process Taxonomy: '.$dom->nodeName;
   }
   $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy', NULL);
-  $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy', NULL);
-  if ($classifiedtagtaxonomy_vid && $freetagtaxonomy_vid) {
+  if ($freetagtaxonomy_vid) {
 	$vocabularies = $dom->getElementsByTagName("Vocabulary");
 	if ($vocabularies->length) {
 		
@@ -2221,45 +2217,54 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
 	     
 	    if (function_exists('wimprt_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
 	      if (isset($node->nid)){
-	        wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node);
+	        $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
+	        wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
 	      } 
 	      call_user_func('wimprt_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log);
-	    } else {
-	      $vid = NULL;
-	      if ($vocabulary->getAttributeNode("VocabularyName")->value == 'Tags'){
-	        $vid = $freetagtaxonomy_vid;
-	      } else {
-	        $vid = $classifiedtagtaxonomy_vid;
-	      } 
+	    } else { 
+	      $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
 	      if ($vid != NULL){
-  	        if (isset($node->nid)){
+	        if (isset($node->nid)){
   	          wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
-  	        } 
-  		    wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result);
-  		    if (!isset($node->nid)){
-  		      $node->field_tags = array();
-  		      $node->field_free_tags = array();
-  		    }
-  		    foreach($result["field_tags"] as $term) {
-  		      if (!in_array(array("value" => $term->tid), $node->field_tags)) {
-  			    $node->field_tags[] = array("value" => $term->tid);
-  			    $node->taxonomy[] = $term; 
-  		      }
-  		    }
-  		    foreach($result["field_free_tags"] as $term) {
-  		      if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {  
-  		        $node->field_free_tags[] = array("value" => $term->tid);
-  			    $node->taxonomy[] = $term; 
-  		      }
-  		    }
+  	        }
 	      }
+  		  wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+  		  if (!isset($node->nid)){
+  		    $node->field_free_tags = array();
+  		    $node->field_concepts = array();
+  		    $node->field_iptc = array();
+  		  }
+  		  if (isset($result['field_free_tags'])){
+  		    foreach($result['field_free_tags'] as $term) {
+  		      if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {  
+  		        $node->field_free_tags[] =  array("value" => $term->tid);
+  			    $node->taxonomy[] = $term; 
+  		      }
+  		    }
+  		  }
+  		  if (isset($result['field_concepts'])){
+	        foreach($result['field_concepts'] as $term) {
+  		      if (!in_array(array("value" => $term->tid), $node->field_concepts)) {  
+  		        $node->field_concepts[] =  array("value" => $term->tid);
+  			    $node->taxonomy[] = $term; 
+  		      }
+  		    }
+  		  }
+  		  if (isset($result['field_iptc'])){
+	        foreach($result['field_iptc'] as $term) {
+  		      if (!in_array(array("value" => $term->tid), $node->field_iptc)) {  
+  		        $node->field_iptc[] =  array("value" => $term->tid);
+  			    $node->taxonomy[] = $term; 
+  		      }
+  		    }
+  		  }
 	    }
 	  }
 	} else {
 	  drupal_set_message('WARNING: No vocabulary tag found in taxonomy element. Skipping taxonomy process.','notice');
 	}
   } else {
-	drupal_set_message('Free tag / classified tags taxonomy vocabularies not set. See wally/settings.','error');
+	drupal_set_message('Free tag taxonomy vocabulary not set. See wally/settings.','error');
 	return NULL;
   }
 }
@@ -2282,9 +2287,9 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
  * @return
  *   Nothing but modify $result
  */
-function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
-  $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
-  $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
+function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
+ // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
+ // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
   $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
 
   $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
@@ -2292,25 +2297,19 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
 
-  if ($vocabulary_name == 'Tags') {
-	$vocabularyType = "free";
+  if ($vid == NULL){
+    $result_set = NULL;
+    $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
+    if ($vid == NULL){
+      $vid = wallytoolbox_taxonomy_createvocabularybyname($vocabulary_name);
+    }
   } else {
-    $vocabularyType = 'categorized';
+    $result_set = _wimprthelp_getfieldnamefromvocabularyname($vocabulary_name);
   }
-
-  $vid = 0; 
-  if ($vocabularyType == "free") {
-	$vid = $freetagtaxonomy_vid;
-	$result_set = "field_free_tags";
-  } else {
-	$vid = $classifiedtagtaxonomy_vid;
-	$result_set = "field_tags";
-  } 
-
   $terms = $vocabulary->getElementsByTagName("Term");
   if ($terms->length) {
 	foreach($terms as $term) {
-	  $path = trim(trim($vocabulary_name),"/")."/".trim(trim($term->getAttribute('Name')),"/");
+	  $path = trim(trim($term->getAttribute('Name')),"/");
       if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
 		// Cool, we got a term for the correct VID.
 		if ($taxonomy_recursive) {
@@ -2318,33 +2317,35 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result) {
 		  foreach( explode("/",trim($path,"/")) as $t){
 			$recursive_path = $recursive_path."/".$t;
 			$t = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
-			$result[$result_set][] = $t[0];
+			if ($result_set != NULL)
+			  $result[$result_set][] = $t[0];
 		  }
 		} else {
-		  $result[$result_set][] = $t[0];
+		  if ($result_set != NULL)
+		    $result[$result_set][] = $t[0];
 		}
 	  } else {
-		$tid = null; 
+		$tid = NULL; 
 		$recursive_path = "";
 		foreach( explode("/",trim($path,"/")) as $t){
-		  if ($t != 'Tags'){
-    		  $recursive_path = $recursive_path."/".$t;
-    		  $t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
-    		  if ($t_parent) {
-    			$tid = $t_parent[0]->tid;
-    		  } else {
-    			if ($tid) {
-    			  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
-    			} else {
-    			  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
-    			}
-    		  }
-    		  // The node will be assigned to all the terms from PATH.
-    		  if ($taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
-		  }
+		  
+          $recursive_path = $recursive_path."/".$t;
+    	  $t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
+    	  if ($t_parent) {
+    	    $tid = $t_parent[0]->tid;
+    	  } else {
+    		if ($tid) {
+    		  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
+    		} else {
+    		  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, null);
+    		}
+    	  }
+    	   // The node will be assigned to all the terms from PATH.
+           if ($taxonomy_recursive & $result_set != NULL) $result[$result_set][] = taxonomy_get_term($tid);
+		  
 		}
 		// The node will only assigned to the last term from PATH.
-		if (!$taxonomy_recursive) $result[$result_set][] = taxonomy_get_term($tid);
+		if (!$taxonomy_recursive & $result_set != NULL) $result[$result_set][] = taxonomy_get_term($tid);
 	  }
 	}
   } 

@@ -5,6 +5,30 @@
  * 
  * 
  */
+function _wimprthelp_getfieldnamefromvocabularyname($name){
+  $result_set = NULL;
+  switch ($name){
+    case 'Tags' : $result_set = 'field_free_tags';break;
+    case 'Concepts' : $result_set = 'field_concepts';break;
+    case 'IPTC' : $result_set = 'field_iptc';break;
+  }
+  return $result_set;
+}
+
+function _wimprthelp_getTaxonomyVidFromDamName($damname){
+  $vid = NULL;
+  switch ($damname){
+    case 'Tags'      : $vid = variable_get('wallymport_freetagtaxonomy', NULL);break;
+    case 'Concepts'   : $vid = variable_get('wallymport_concept', NULL);break;
+    case 'IPTC'      : $vid = variable_get('wallymport_iptc', NULL);break;
+    case 'Persons'   : $vid = variable_get('wallymport_person', NULL);break;
+    case 'Authors'   : $vid = variable_get('wallymport_author', NULL);break;
+    case 'Entities'  : $vid = variable_get('wallymport_entity', NULL);break;
+    case 'Locations' : $vid = variable_get('wallymport_location', NULL);break;
+  }
+  return $vid;
+}
+
 function _wimprthelp_array_to_ccklocation($location) {
 	$node = array();
 
