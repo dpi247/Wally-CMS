@@ -12,8 +12,7 @@ function theme_wallyedit_fieldset($variables) {
 }
 
 function theme_wallyedit_inline_form($form) {
-  dsm('fffffoooooo');
-  $output='rrrrrr'.drupal_render($form);
+  $output=drupal_render($form);
   return $output;
 }
 function theme_wallyedit_admin($rows=array(),$headers){
