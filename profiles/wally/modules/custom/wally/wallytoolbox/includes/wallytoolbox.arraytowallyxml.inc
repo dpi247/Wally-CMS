@@ -144,7 +144,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
         }
       }  
       if (isset($package_array['EmbeddedContent']['LinksLists']['LinksList'])){
-        $linkslists_node = $package_node->appendChild('LinksLists');
+        $linkslists_node = $package_node->appendChild($valid_dom->createElement('LinksLists'));
         foreach ($package_array['EmbeddedContent']['LinksLists']['LinksList'] as $linkslist_array){
           $linkslist_node = $linkslists_node->appendChild($valid_dom->createElement('LinksList'));
           _wallytoolbox_arraytowallyxml_filllinkslist($valid_dom, $linkslist_node, $linkslist_array);
@@ -315,11 +315,11 @@ function _wallytoolbox_arraytowallyxml_fillPollPackageType(&$valid_dom, &$packag
  */
 function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_node, $linkslist_array){
   if (isset($linkslist_array['InternalReference']) & $linkslist_array['InternalReference'] != NULL & $linkslist_array['InternalReference'] != '')
-    $linkkslist_node->appendChild($valid_dom->createElement('InternalReference', $linkslist_array['InternalReference']['value']));
-  $linkkslist_node->appendChild($valid_dom->createElement('ExternalReference', $linkslist_array['ExternalReference']['value']));
-  $linkkslist_node->appendChild($valid_dom->createElement('Title', $linkslist_array['Title']['value']));
+    $linkslist_node->appendChild($valid_dom->createElement('InternalReference', $linkslist_array['InternalReference']['value']));
+  $linkslist_node->appendChild($valid_dom->createElement('ExternalReference', $linkslist_array['ExternalReference']['value']));
+  $linkslist_node->appendChild($valid_dom->createElement('Title', $linkslist_array['Title']['value']));
   if (isset($linkslist_array['Summary']) & $linkslist_array['Summary'] != NULL & $linkslist_array['Summary'] != '')
-    $linkkslist_node->appendChild($valid_dom->createElement('Summary', $linkslist_array['Summary']['value']));
+    $linkslist_node->appendChild($valid_dom->createElement('Summary', $linkslist_array['Summary']['value']));
   foreach ($linkslist_array['Links'] as $links_array){
     $links_node = $linkslist_node->appendChild($valid_dom->createElement('Links'));
     if (isset($links_array['Link'])){
