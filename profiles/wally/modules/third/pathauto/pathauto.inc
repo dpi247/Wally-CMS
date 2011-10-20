@@ -547,6 +547,7 @@ function pathauto_get_placeholders($type, $object) {
 
   $options = array('pathauto' => TRUE);
   $full = token_get_values($type, $object, TRUE, $options);
+  dsm($full, 'full');
   $tokens = token_prepare_tokens($full->tokens);
   $values = pathauto_clean_token_values($full, $options);
   return array('tokens' => $tokens, 'values' => $values);
