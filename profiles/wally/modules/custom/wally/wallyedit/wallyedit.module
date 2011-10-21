@@ -284,10 +284,10 @@ function wallyedit_menu(){
     'type' => MENU_CALLBACK,
   );
   
-  $items['wallyedit/views/ajax/%/%'] = array(
+  $items['wallyedit/views/ajax/%/%/%'] = array(
     'title' => 'WallyEdit Views AJAX',
     'page callback' => 'wallyedit_views_ajax',
-    'page arguments' => array(3, 4),
+    'page arguments' => array(3, 4, 5),
     'access callback' => TRUE,
     'description' => 'Ajax callback for view loading.',
     'file' => 'includes/views_ajax.inc',
@@ -822,11 +822,14 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
       $view->display[$view->current_display]->handler->options['filters']['type'] = $handler_type_filter['type'];
       $view->display[$view->current_display]->display_options['filters']['type'] = $handler_type_filter['type'];
 
+      // set the view arguments here, if needed : SET the cache name and the target
+      $view->set_arguments(array($form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])));
+      
       // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.str_replace('_', '-', $clicked_parent);
+      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent);
       $settings = array(
         'views' => array(
-          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.str_replace('_', '-', $clicked_parent),
+          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent),
         ),
       );
   
@@ -989,11 +992,14 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $view->display[$view->current_display]->handler->options['filters']['type'] = $handler_type_filter['type'];
       $view->display[$view->current_display]->display_options['filters']['type'] = $handler_type_filter['type'];
 
+      // set the view arguments here, if needed : SET the cache name and the target
+      $view->set_arguments(array($form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])));
+      
       // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.str_replace('_', '-', $clicked_parent);
+      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent);
       $settings = array(
         'views' => array(
-          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.str_replace('_', '-', $clicked_parent),
+          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent),
         ),
       );
   
