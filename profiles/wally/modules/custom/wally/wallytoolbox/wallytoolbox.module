@@ -1386,50 +1386,57 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
   // Free tags and categorized keywords
   if (isset($struct_array['Taxonomy']['Vocabulary']) && !empty($struct_array['Taxonomy']['Vocabulary'])) {
     $free_voc = variable_get('wallymport_freetagtaxonomy', 0);
-    $cat_voc = variable_get('wallymport_classifiedtagtaxonomy', 0);
-    $setted_cat_tid = array();
+    $conc_voc = variable_get('wallymport_concept', 0);
+    $iptc_voc = variable_get('wallymport_iptc', 0);
     
     $free_temp_tax = array();
     $free_temp_tax['VocabularyName'] = 'Tags';
-    $free_temp_tax['VocabularyDescription'] = '';
+    $free_temp_tax['VocabularyDescription'] = $vocabularies[$free_voc]->description;
     $free_temp_tax['VocabularyType'] = 'free';
     $free_temp_tax['Term'] = array();
     
-    $cat_temp_tax = array();
+    $conc_temp_tax = array();
+    $conc_temp_tax['VocabularyName'] = 'Concepts';
+    $conc_temp_tax['VocabularyDescription'] = $vocabularies[$conc_voc]->description;
+    $conc_temp_tax['VocabularyType'] = 'free';
+    $conc_temp_tax['Term'] = array();
+    
+    $iptc_temp_tax = array();
+    $iptc_temp_tax['VocabularyName'] = 'IPTC';
+    $iptc_temp_tax['VocabularyDescription'] = $vocabularies[$iptc_voc]->description;
+    $iptc_temp_tax['VocabularyType'] = 'categorized';
+    $iptc_temp_tax['Term'] = array();
     
     foreach ($struct_array['Taxonomy']['Vocabulary'] as $vocabulary) {
-      if ($vocabulary['VocabularyType'] == $free_voc) {
-        $free_temp_tax['Term'][$vocabulary['Term']['value']] = array(
-          'Name' => $vocabulary['VocabularyName'],
-        );
-      } elseif ($vocabulary['VocabularyType'] == $cat_voc) {
-        $tid = $vocabulary['Term']['value'];
-        if (!in_array($tid, $setted_cat_tid)) {
-          $parents = taxonomy_get_parents_all($tid);
-          $parents = array_reverse($parents);
-          if (!isset($cat_temp_tax[$parents[0]->name])) {
-            $cat_temp_tax[$parents[0]->name] = array(
-              'VocabularyName' => $parents[0]->name,
-              'VocabularyDescription' => $parents[0]->description,
-              'VocabularyType' => 'categorized',
-              'Term' => array(),
-            );
-          }
-          $cat_temp_tax[$parents[0]->name]['Term'][$tid]['Name'] = $vocabulary['VocabularyName'];
-          $setted_cat_tid[] = $tid;
-          $setted_cat_tid[] = $parents[0]->tid;
-        }
-      }
-    }
-    
-    if (!empty($cat_temp_tax)) {
-      foreach ($cat_temp_tax as $sub_voc) {
-        $new_struct['Vocabulary'][] = $sub_voc;
+      switch ($vocabulary['VocabularyType']) {
+        case $free_voc :
+          $free_temp_tax['Term'][$vocabulary['Term']['value']] = array(
+            'Name' => $vocabulary['VocabularyName'],
+          );
+          break;
+        case $conc_voc :
+          $conc_temp_tax['Term'][$vocabulary['Term']['value']] = array(
+            'Name' => $vocabulary['VocabularyName'],
+          );
+          break;
+        case $iptc_voc :
+          $iptc_temp_tax['Term'][$vocabulary['Term']['value']] = array(
+            'Name' => wallytoolbox_taxonomy_get_path_by_tid_or_term($vocabulary['Term']['value']),
+          );
+          break;
       }
     }
     
     if (!empty($free_temp_tax['Term'])) {
       $new_struct['Vocabulary'][] = $free_temp_tax;
+    }
+
+    if (!empty($conc_temp_tax['Term'])) {
+      $new_struct['Vocabulary'][] = $conc_temp_tax;
+    }
+
+    if (!empty($iptc_temp_tax['Term'])) {
+      $new_struct['Vocabulary'][] = $iptc_temp_tax;
     }
   }
   
