@@ -492,19 +492,19 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
 
       $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
     }
-    
-    if (module_exists('pathauto')) {
-      // Override path.module's vertical tabs summary.
-      $form['pathauto_perform_alias']['#attached']['js']['vertical-tabs'] = drupal_get_path('module', 'pathauto') . '/pathauto.js';
-      unset($form['path']['#attached']['js']['vertical-tabs']);
+  }
+  
+  if (module_exists('pathauto') && ($form_id == 'wallyedit_form_page_createmode_form' || $form_id == 'wallyedit_form_page_editmode_form')) {
+    // Override path.module's vertical tabs summary.
+    $form['pathauto_perform_alias']['#attached']['js']['vertical-tabs'] = drupal_get_path('module', 'pathauto') . '/pathauto.js';
+    unset($form['path']['#attached']['js']['vertical-tabs']);
 
-      $form['pathauto_perform_alias'] = $form['path']['pathauto_perform_alias'];
-      unset($form['path']['pathauto_perform_alias']);
-      
-      if (isset($form['path']['old_alias'])) {
-        $form['old_alias'] = $form['path']['old_alias'];
-        unset($form['path']['old_alias']);
-      }
+    $form['pathauto_perform_alias'] = $form['path']['pathauto_perform_alias'];
+    unset($form['path']['pathauto_perform_alias']);
+
+    if (isset($form['path']['old_alias'])) {
+      $form['old_alias'] = $form['path']['old_alias'];
+      unset($form['path']['old_alias']);
     }
   }
 }
