@@ -284,6 +284,16 @@ function wallyedit_menu(){
     'type' => MENU_CALLBACK,
   );
   
+  $items['wallyedit/views/ajax/%/%/%'] = array(
+    'title' => 'WallyEdit Views AJAX',
+    'page callback' => 'wallyedit_views_ajax',
+    'page arguments' => array(3, 4, 5),
+    'access callback' => TRUE,
+    'description' => 'Ajax callback for view loading.',
+    'file' => 'includes/views_ajax.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['wallyedit/test'] = array(
     'page callback' => 'wallyedit_test',
     'access arguments' => array('access content'),
@@ -768,12 +778,13 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
       break;
     case 'add_existing':
-      $type=wydit_get_infos_type($type_name);
+      $type_name=$form_state['type'];
       module_load_include('inc','wallyedit','includes/page_form_display_tabs');
       $fields = wyditadmin_get_existing_fields($type_name);
 
       //@todo: remove hard coding of parents
-      $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
+      $clicked_parent = $form_state['clicked_button']["#parents"][1];
+      $field_infos=$fields[$clicked_parent];
 
       $referencables=$field_infos['referenceable_types'];
       foreach($referencables as $value){
@@ -785,12 +796,18 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
       $handler_type_filter=array(
         'type' => array(
           'operator' => 'in',
-          'value' =>$allowed_types,
+          'value' => $allowed_types,
           'group' => '0',
-          'exposed' => FALSE,
+          'exposed' => TRUE,
           'expose' => array(
-            'operator' => FALSE,
-            'label' => '',
+            'use_operator' => 0,
+            'operator' => 'type_op',
+            'identifier' => 'type',
+            'label' => 'Node: Type',
+            'optional' => 1,
+            'single' => 0,
+            'remember' => 0,
+            'reduce' => 1,
           ),
           'id' => 'type',
           'table' => 'node',
@@ -802,14 +819,21 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
 
-      $view->display[$view->current_display]->handler->options['filters']=array_merge($view->display[$view->current_display]->handler->options['filters'],$handler_type_filter);
-      $view->display[$view->current_display]->handler->display_options['filters']=array_merge($view->display[$view->current_display]->handler->display_options['filters'],$handler_type_filter);
+      $view->display[$view->current_display]->handler->options['filters']['type'] = $handler_type_filter['type'];
+      $view->display[$view->current_display]->display_options['filters']['type'] = $handler_type_filter['type'];
 
       // set the view arguments here, if needed : SET the cache name and the target
-      $view->set_arguments( array( $form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])) );
-
+      $view->set_arguments(array($form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])));
+      
       // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-      $view->override_path = 'views/ajax';
+      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent);
+      $settings = array(
+        'views' => array(
+          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent),
+        ),
+      );
+  
+      drupal_add_js($settings, 'setting');
       $output = $view->preview();
 
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$output);
@@ -929,7 +953,8 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $fields = wyditadmin_get_existing_fields($type_name);
 
       //@todo: remove hard coding of parents
-      $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
+      $clicked_parent = $form_state['clicked_button']["#parents"][1];
+      $field_infos=$fields[$clicked_parent];
 
       $referencables=$field_infos['referenceable_types'];
       foreach($referencables as $value){
@@ -941,12 +966,18 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $handler_type_filter=array(
         'type' => array(
           'operator' => 'in',
-          'value' =>$allowed_types,
+          'value' => $allowed_types,
           'group' => '0',
-          'exposed' => FALSE,
+          'exposed' => TRUE,
           'expose' => array(
-            'operator' => FALSE,
-            'label' => '',
+            'use_operator' => 0,
+            'operator' => 'type_op',
+            'identifier' => 'type',
+            'label' => 'Node: Type',
+            'optional' => 1,
+            'single' => 0,
+            'remember' => 0,
+            'reduce' => 1,
           ),
           'id' => 'type',
           'table' => 'node',
@@ -958,14 +989,21 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
 
-      $view->display[$view->current_display]->handler->options['filters']=array_merge($view->display[$view->current_display]->handler->options['filters'],$handler_type_filter);
-      $view->display[$view->current_display]->handler->display_options['filters']=array_merge($view->display[$view->current_display]->handler->display_options['filters'],$handler_type_filter);
+      $view->display[$view->current_display]->handler->options['filters']['type'] = $handler_type_filter['type'];
+      $view->display[$view->current_display]->display_options['filters']['type'] = $handler_type_filter['type'];
 
       // set the view arguments here, if needed : SET the cache name and the target
-      $view->set_arguments( array( $form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])) );
-
+      $view->set_arguments(array($form_state['cache name'], implode('/',$form_state['clicked_button']["#parents"])));
+      
       // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-      $view->override_path = 'views/ajax';
+      $view->override_path = 'wallyedit/views/ajax/'.str_replace('_', '-', $type_name).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent);
+      $settings = array(
+        'views' => array(
+          'ajax_path' => url('wallyedit/views/ajax/'.str_replace('_', '-', $type_name)).'/'.$form_state['cache name'].'/'.str_replace('_', '-', $clicked_parent),
+        ),
+      );
+  
+      drupal_add_js($settings, 'setting');
       $output = $view->preview();
 
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$output);
@@ -1476,8 +1514,8 @@ function wallyedit_form_createmode_add_form_submit($form,&$form_state){
   }
 
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
-  
-  ctools_ajax_render($commands); 
+
+  ctools_ajax_render($commands);
 }
 
 function wallyedit_form_editmode_add_form_submit($form,&$form_state){
