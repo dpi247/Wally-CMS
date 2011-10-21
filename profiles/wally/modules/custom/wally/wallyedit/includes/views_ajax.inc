@@ -3,7 +3,7 @@
 /**
  * Menu callback to load a view via AJAX.
  */
-function wallyedit_views_ajax($url_type_name, $url_clicked_parent) {
+function wallyedit_views_ajax($url_type_name, $cache_name, $url_clicked_parent) {
   if (isset($_REQUEST['view_name']) && isset($_REQUEST['view_display_id'])) {
     $name = $_REQUEST['view_name'];
     $display_id = $_REQUEST['view_display_id'];
@@ -67,9 +67,12 @@ function wallyedit_views_ajax($url_type_name, $url_clicked_parent) {
 
         $view->display[$display_id]->handler->options['filters']['type'] = $handler_type_filter['type'];
         $view->display[$display_id]->display_options['filters']['type'] = $handler_type_filter['type'];
+        
+        // set the view arguments here, if needed : SET the cache name and the target
+        $view->set_arguments(array($cache_name, implode('/', $clicked_parent)));
 
         // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-        $view->override_path = 'wallyedit/views/ajax/'.$url_type_name.'/'.$url_clicked_parent;
+        $view->override_path = 'wallyedit/views/ajax/'.$url_type_name.'/'.$cache_name.'/'.$url_clicked_parent;
 
         // Fix 'q' for paging.
         if (!empty($path)) {
