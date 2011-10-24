@@ -1651,6 +1651,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
  *   The cckdestinations fields.
  */
 function _cckdestinations_set_new_time_ranks($node, &$items) {
+  dsm($items);
   $rank_limit = variable_get('cckdestinations_rank_limit', 10);
   $view = views_get_view('default_destination_view');
   $view->set_display('redacblock_1');
