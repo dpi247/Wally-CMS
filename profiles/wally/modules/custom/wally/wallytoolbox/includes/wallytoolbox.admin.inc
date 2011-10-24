@@ -164,9 +164,12 @@ function wallytoolbox_supercron_call($cid) {
     while (is_string($block['settings']))
       $block['settings'] = unserialize($block['settings']);
     $output = module_invoke_all('refresh_block', $block['cid'], $block['settings']);
-    $block['output'] .= serialize($output);
+    if (!empty($output)) {
+      $block['output'] .= serialize($output);
+      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
+    }
     $block['last_run'] = time();
-    drupal_write_record('wallytoolbox_content_types_cache', $block, 'cid');
+    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
   }
 
   drupal_goto('admin/wally/wallytoolbox/supercron');

@@ -1033,10 +1033,12 @@ function wallytoolbox_cron(){
     $block_infos = explode(':', $block['cid']);
     // Invoke hook_refresh_block
     $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
-    $block['output'] .= serialize($output);
+    if (!empty($output)) {
+      $block['output'] .= serialize($output);
+      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
+    }
     $block['last_run'] = time();
-    // Save modifications
-    drupal_write_record('wallytoolbox_content_types_cache', $block, 'cid');
+    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
     $return .= $block['cid'].'</br>';
   }
   
