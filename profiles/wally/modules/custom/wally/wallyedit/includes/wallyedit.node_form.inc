@@ -57,7 +57,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $form_copy = $form;
   $form_state_copy = $form_state;
 
-  $form_copy['#post'] = array();
+  $form_copy['#post'] = $_POST;
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
@@ -155,10 +155,14 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $field_form['#parents'] = $parents;
   $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
   $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
-  
-  // We add a div around the new content to receive the ahah effect.
-  $field_form[$delta]['#prefix'] = '<div class="ahah-new-content">'. (isset($field_form[$delta]['#prefix']) ? $field_form[$delta]['#prefix'] : '');
-  $field_form[$delta]['#suffix'] = (isset($field_form[$delta]['#suffix']) ? $field_form[$delta]['#suffix'] : '') .'</div>';
+
+  if (isset($field_form[$delta])) {
+    // We add a div around the new content to receive the ahah effect.
+    $field_form[$delta]['#prefix'] = '<div class="ahah-new-content">'. (isset($field_form[$delta]['#prefix']) ? $field_form[$delta]['#prefix'] : '');
+    $field_form[$delta]['#suffix'] = (isset($field_form[$delta]['#suffix']) ? $field_form[$delta]['#suffix'] : '') .'</div>';
+  } else {
+    drupal_set_message(t('Please fill in the current destination items before adding a new one.'));
+  }
   // Prevent duplicate wrapper.
   unset($field_form['#prefix'], $field_form['#suffix']);
 

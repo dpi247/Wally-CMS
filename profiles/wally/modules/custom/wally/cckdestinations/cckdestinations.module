@@ -750,7 +750,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
       unset($items['field_destinations_add_more']);
     }
     
-    $filled_items = content_set_empty($field, $items);
+    $filled_items = cckdestinations_content_set_empty($field, $items);
 
     // Adaptation of "content_multiple_value_form" function form CCK
     $field_name = $field['field_name'];
@@ -758,6 +758,7 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
 
     $deltas_items = $filled_items;
     unset($deltas_items['item_count']);
+    unset($items['item_count']);
     $deltas = array_keys($deltas_items);
 
     if (count($deltas) == 1 && $hook_is_empty($items[min(array_keys($items))], $field)) {
@@ -765,8 +766,8 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
     } else {
       $minimum_item_count = count($deltas);
     }
-    $current_item_count = isset($form_state['item_count'][$field_name])
-                          ? $form_state['item_count'][$field_name]
+    $current_item_count = isset($form_state['values']['field_destinations']['item_count'][$field_name])
+                          ? $form_state['values']['field_destinations']['item_count'][$field_name]
                           : $minimum_item_count;
 
     if (count($deltas) > 1 || $current_item_count >= 1) {
@@ -853,6 +854,38 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
   }
   
   return $element;
+}
+
+/**
+ * Helper function to filter out empty values.
+ *
+ * On order to keep marker rows in the database, the function ensures
+ * that the right number of 'all columns NULL' values is kept.
+ *
+ * @param array $field
+ * @param array $items
+ * @return array
+ *   returns filtered and adjusted item array
+ */
+function cckdestinations_content_set_empty($field, $items) {
+  // Filter out empty values.
+  $filtered = array();
+  $function = $field['module'] .'_content_is_empty';
+  foreach ((array) $items as $delta => $item) {
+    if (!$function($item, $field)) {
+      $filtered[$delta] = $item;
+    }
+  }
+
+  // Make sure we store the right number of 'empty' values.
+  $empty = array();
+  foreach (array_keys($field['columns']) as $column) {
+    $empty[$column] = NULL;
+  }
+  $pad = $field['multiple'] > 1 ? $field['multiple'] : 1;
+  $filtered = array_pad($filtered, $pad, $empty);
+
+  return $filtered;
 }
 
 /**
@@ -1523,15 +1556,13 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   
   unset($form_state_ref[$rem_delta]);
   unset($_POST_ref[$rem_delta]);
-  //$form_state_ref = _content_sort_items($field, $form_state_ref);
-  //$_POST_ref = _content_sort_items($field, $_POST_ref);
 
   // Build our new form element for the whole field, asking for one more element.
-  $form_state_ref['item_count'] = array($field_name => count($_POST_ref) + 1);
+  $form_state_ref['item_count'] = array($field_name => count($_POST_ref));
   
   $temp = array();
   $temp['values'][$field_name] = $form_state_ref;
-  $form_element = content_field_form($form_t, $form_state_ref, $field);
+  $form_element = content_field_form($form_t, $temp, $field);
   
   unset($form_state_ref['item_count']);
   $new_keys = array_keys($form_state_ref);
