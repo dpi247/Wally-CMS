@@ -211,11 +211,11 @@ function _pub_getpubcontent($delta) {
       'delta' => $delta,
     );
     $pub_content = wallyextra_get_cache_or_create('pub_'.$delta.'_temp-'.$orig_url, 'pub_set_pub_content_cache', $settings, array(), array(), 'pub_content', '', TRUE);
-dsm($pub_content, 'pub content');
+
     if (is_string($pub_content)) {
       $html_pub = $pub_content;
     } else {
-      $html_pub = theme('pub_content', $pub_content['content'], $delta);
+      $html_pub = theme('pub_content', array(), array(), $pub_content['content'], $settings);
     }
   } else {
     $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
