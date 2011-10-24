@@ -50,7 +50,7 @@ function pub_menu() {
 function pub_theme() {
   return array(
     'pub_content' => array(
-      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'arguments' => array('subtype' => array(), 'context' => array(), 'html_code' => '', 'settings' => array()),
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
@@ -240,7 +240,7 @@ dsm($pub_content, 'pub content');
       $pub_content = $cached_pub->data;
     }
 
-    $html_pub = theme('pub_content', $pub_content, $delta);
+    $html_pub = theme('pub_content', array(), array(), $pub_content, $settings);
   }
 
   return $html_pub;
