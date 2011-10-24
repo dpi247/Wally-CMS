@@ -37,7 +37,7 @@ function cckdestinations_page_admin_form($form_state) {
   foreach ($hierarchies as $tid => $hierarchy) {
     $form['cckdestinations_rank']['cckdestinations_destination_'.$tid] = array(
       '#type' => 'fieldset',
-      '#title' => $hierarchy['term_name'],
+      '#title' => $hierarchy['term_name'].' ('.wallytoolbox_taxonomy_get_path_by_tid_or_term($tid).')',
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
     );
