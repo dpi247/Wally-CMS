@@ -9,6 +9,10 @@ function wallycontenttypes_content_taxonomy_mapping() {
       'field_name' => 'field_authors',
       'vocabulary' => 'authors',
     ),
+    'field_authortaxonomy-authors' => array(
+      'field_name' => 'field_authortaxonomy',
+      'vocabulary' => 'authors',
+    ),
     'field_concepts-concepts' => array(
       'field_name' => 'field_concepts',
       'vocabulary' => 'concepts',

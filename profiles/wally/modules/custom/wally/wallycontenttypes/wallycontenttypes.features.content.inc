@@ -8215,6 +8215,62 @@ Free',
     ),
   );
 
+  // Exported field: field_authortaxonomy
+  $fields['wally_persontype-field_authortaxonomy'] = array(
+    'field_name' => 'field_authortaxonomy',
+    'type_name' => 'wally_persontype',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'content_taxonomy',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'content_taxonomy',
+    'active' => '1',
+    'save_term_node' => 1,
+    'vid' => '1',
+    'parent' => '0',
+    'parent_php_code' => '',
+    'depth' => '',
+    'widget' => array(
+      'new_terms' => 'insert',
+      'extra_parent' => '0',
+      'maxlength' => '255',
+      'active_tags' => NULL,
+      'default_value' => NULL,
+      'default_value_php' => NULL,
+      'label' => 'AuthorTaxonomy',
+      'weight' => '-2',
+      'description' => '',
+      'type' => 'content_taxonomy_autocomplete',
+      'module' => 'content_taxonomy_autocomplete',
+    ),
+  );
+
   // Exported field: field_externalreference
   $fields['wally_persontype-field_externalreference'] = array(
     'field_name' => 'field_externalreference',
@@ -8857,7 +8913,7 @@ character',
       'default_image' => NULL,
       'use_default_image' => 0,
       'label' => 'Photo File',
-      'weight' => '2',
+      'weight' => '3',
       'description' => '',
       'type' => 'imagefield_widget',
       'module' => 'imagefield',
@@ -8915,7 +8971,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Photo Summary',
-      'weight' => '-2',
+      'weight' => 0,
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -17140,6 +17196,7 @@ Free',
   t('Audio 3rd party');
   t('Audio File');
   t('Audio Summary');
+  t('AuthorTaxonomy');
   t('Authors');
   t('Barette');
   t('ByLine');
