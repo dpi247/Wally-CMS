@@ -1652,9 +1652,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
  */
 function _cckdestinations_set_new_time_ranks($node, &$items) {
   $rank_limit = variable_get('cckdestinations_rank_limit', 10);
-  $view = views_get_view('default_destination_view');
-  $view->set_display('redacblock_1');
-  $view->set_items_per_page('2');
+
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
   
   foreach ($items as $delta => $item) {
@@ -1665,6 +1663,11 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
       if ($sort_method == 'interval') {
         $items[$delta]['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_delta_t', 1));
       } else {
+        $view_infos = wallyctools_get_view_info_from_redacblock($item['target']);
+        $view = views_get_view($view_infos['view_name']);
+        $view->set_display($view_infos['view_id']);
+        $view->set_items_per_page('2');
+        
         // Set params for this destination
         $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_behavior', 'top');
         $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_reserved', 5);
