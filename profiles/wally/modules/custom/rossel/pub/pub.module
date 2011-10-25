@@ -210,7 +210,7 @@ function _pub_getpubcontent($delta) {
       'orig_url' => $orig_url,
       'delta' => $delta,
     );
-    $pub_content = wallyextra_get_cache_or_create('pub_'.$delta.'_temp-'.$orig_url, 'pub_set_pub_content_cache', $settings, array(), array(), 'pub_content', '', TRUE);
+    $pub_content = wallyextra_get_cache_or_create('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), 'pub_set_pub_content_cache', $settings, array(), array(), 'pub_content', '', TRUE);
 
     if (is_string($pub_content)) {
       $html_pub = $pub_content;
@@ -218,7 +218,7 @@ function _pub_getpubcontent($delta) {
       $html_pub = theme('pub_content', array(), array(), $pub_content['content'], $settings);
     }
   } else {
-    $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
+    $cached_pub = cache_get('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url));
     $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
     if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
@@ -230,12 +230,12 @@ function _pub_getpubcontent($delta) {
       if ($content_from_webservice) {
         $pub_content = $content_from_webservice;
       } else {
-        $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+        $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
         $pub_content = $cached_pub->data ? $cached_pub->data : '';
       }
 
-      cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
-      cache_set('pub_'.$delta.'_perm-'.$orig_url, $pub_content);
+      cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
+      cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
     } else {
       $pub_content = $cached_pub->data;
     }
@@ -262,12 +262,12 @@ function pub_set_pub_content_cache($settings) {
   if ($content_from_webservice) {
     $pub_content = $content_from_webservice;
   } else {
-    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
     $pub_content = $cached_pub->data ? $cached_pub->data : '';
   }
 
-  cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
-  cache_set('pub_'.$delta.'_perm-'.$orig_url, $pub_content);
+  cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
+  cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
   
   return $pub_content;
 }
