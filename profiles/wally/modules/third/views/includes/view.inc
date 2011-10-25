@@ -779,7 +779,7 @@ class view extends views_db_object {
         while ($item = db_fetch_object($result)) {
           $this->result[] = $item;
         }
-
+dsm($this);
         // If we already know how many items we have even if we did not run the
         // count query, go ahead and set that value:
         if (empty($this->pager['items_per_page'])) {
