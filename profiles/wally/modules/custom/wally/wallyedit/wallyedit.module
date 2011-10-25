@@ -2668,7 +2668,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
 function wydit_get_url_action($action, $nid){
   switch ($action){
     case 'edit':
-      return 'node/'.$nid.'/edit';
+      return 'node/'.$nid.'/edit2/1/'.wallyedit_get_default_profile();
       break;
     case 'delete':
       return 'node/'.$nid.'/delete2';
