@@ -474,6 +474,7 @@ function wallytoolbox_taxonomy_createvocabularybyname($name){
   }
   return $vid;
 }
+
 /**
  * Unbind all terms of a vocabulary to the node 
  *
