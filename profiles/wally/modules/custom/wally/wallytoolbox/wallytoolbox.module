@@ -1370,7 +1370,7 @@ function wallytoolbox_flow_to_array_struct_term($struct_array) {
           $temp_term['Name'] = $term->name;
         }
       } else {
-        $temp_term['Name'] = $author['PersonName'];
+        $temp_term['Name'] = $author['PersonName']['value'];
         $temp_term['PersonLastName'] = $author['PersonLastName'];
         $temp_term['PersonFirstName'] = $author['PersonFirstName'];
         $temp_term['PersonNickName'] = $author['PersonNickName'];
