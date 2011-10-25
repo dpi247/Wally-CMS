@@ -109,6 +109,7 @@ function wallyflowpublish_views_pre_execute(&$view) {
 function wallyflowpublish_views_pre_view($view, $display_id, &$args) {
   if ($view->display[$display_id]->display_plugin == 'feed') {
     print_r($args);
+    print_r($view->display[$display_id]);
     foreach ($args as $arg) {
       $name .= '/'.$arg;
     }
