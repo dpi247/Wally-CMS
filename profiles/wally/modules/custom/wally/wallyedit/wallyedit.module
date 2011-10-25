@@ -2315,18 +2315,16 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
   
-  if (!isset($form_state[$type_name]['#node']->title) || empty($form_state[$type_name]['#node']->title)) {
-    switch ($type_name) {
-      case 'wally_articlepackage':
-        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainstory'][0]['#node']->title;
-        break;
-      case 'wally_gallerypackage':
-        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainobject'][0]['#node']->title;
-        break;
-      case 'wally_pollpackage':
-        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainpoll'][0]['#node']->title;
-        break;
-    }
+  switch ($type_name) {
+    case 'wally_articlepackage':
+      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainstory'][0]['#node']->title;
+      break;
+    case 'wally_gallerypackage':
+      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainobject'][0]['#node']->title;
+      break;
+    case 'wally_pollpackage':
+      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainpoll'][0]['#node']->title;
+      break;
   }
 
   foreach($fields as $field){
@@ -2668,7 +2666,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
 function wydit_get_url_action($action, $nid){
   switch ($action){
     case 'edit':
-      return 'node/'.$nid.'/edit/1';
+      return 'node/'.$nid.'/edit2/1/'.wallyedit_get_default_profile();
       break;
     case 'delete':
       return 'node/'.$nid.'/delete2';
