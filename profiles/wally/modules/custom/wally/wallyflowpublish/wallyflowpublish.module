@@ -131,7 +131,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
   $presetname='flowpublish_preset';
-dsm(debug_backtrace());
+
   $name = '';
   foreach ($view->args as $arg) {
     $name .= '/'.$arg;
