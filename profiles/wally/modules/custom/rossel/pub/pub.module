@@ -269,6 +269,7 @@ function pub_set_pub_content_cache($settings) {
   cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
   cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
   
+  $pub_content = '++++++'.$delta.'------';
   return $pub_content;
 }
 
