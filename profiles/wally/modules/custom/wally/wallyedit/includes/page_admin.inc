@@ -7,18 +7,18 @@ function wallyedit_page_admin($limit = 25){
   $count_query = "SELECT count(*) from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'";
   $result = pager_query("SELECT * from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'", $limit, 0, $count_query);
   
-  while($obj=db_fetch_object($result)){
+  while($obj = db_fetch_object($result)) {
     //$row['sid']=$obj->sid;
     $temp_array = unserialize($obj->data);
     $row['title'] = $temp_array[$temp_array['type']]['#node']->title;
-    $row['name']=$obj->name;
-    $row['data']= $temp_array[$temp_array['type']]['#node']->type;
-    $row['action_urls']=l('edit', wydit_get_url_action('edit',$obj->name));
-    $row['action_urls'].=' '.l('delete', wydit_get_url_action('delete',$obj->name));
-    $rows[]=$row;
+    $row['name'] = $obj->name;
+    $row['data'] = $temp_array[$temp_array['type']]['#node']->type;
+    $row['action_urls'] = l(t('Edit'), wydit_get_url_action('edit',$obj->name));
+    $row['action_urls'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete',$obj->name));
+    $rows[] = $row;
   }
-  $headers=array('Title','Nid','Type','Action(s)');
-  return theme('wallyedit_admin',$rows,$headers);
+  $headers = array(t('Title'), 'nid', t('Type'), t('Action(s)'));
+  return theme('wallyedit_admin', $rows, $headers);
 }
 
 function wallyedit_page_admin_form(&$form_state){
