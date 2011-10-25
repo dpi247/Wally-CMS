@@ -186,7 +186,7 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
-  if (empty($item['tid']) || $item['tid']=='0') {
+  if (!isset($item['tid']) || empty($item['tid']) || $item['tid']=='0' || !is_numeric($item['tid'])) {
     return TRUE;
   }
   return FALSE;
