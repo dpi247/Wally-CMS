@@ -439,7 +439,10 @@ function _wallyextra_content_types_ajax_callback() {
     // The object exists in cache
     $datas = $cached_datas->data;
   }
-
+if (strstr($cid, 'pub')) {
+  dsm($_POST, 'post');
+  dsm($datas, 'datas');
+}
   // Usual theming
   if ($settings['override_theme'] && $settings['override_theme_text'] != '') {
     $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
