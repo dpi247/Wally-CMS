@@ -2,6 +2,7 @@
 /*
 * Template for rendering a articlepackage-article node type.
 */
+wallycontenttypes_packagepopulate($node, '');
 $mainstory = $node->field_mainstory_nodes[0];
 drupal_add_js(drupal_get_path('module', 'wallycontenttypes').'/scripts/inline_edit.js');
 ?>
