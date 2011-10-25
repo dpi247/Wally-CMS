@@ -536,6 +536,9 @@ function wallytoolbox_destinations_flow_set_locationtax($location) {
   $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'postal_code');
   $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'country');
   $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'latitude').','.wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'longitude');
+  if ($temp_location['LocationGeo']['value'] == ',') {
+    unset($temp_location['LocationGeo']['value']);
+  }
 
   return $temp_location;
 }
@@ -550,7 +553,9 @@ function wallytoolbox_destinations_flow_set_markertax($marker) {
   $temp_location['Address']['City']['value'] = $marker['city'];
   $temp_location['Address']['Zip']['value'] = $marker['postal_code'];
   $temp_location['Address']['Country']['value'] = $marker['country'];
-  $temp_location['LocationGeo']['value'] = $marker['latitude'].','.$marker['longitude'];
+  if (isset($marker['latitude']) && !empty($marker['latitude']) && isset($marker['longitude']) && !empty($marker['longitude'])) {
+    $temp_location['LocationGeo']['value'] = $marker['latitude'].','.$marker['longitude'];
+  }
 
   return $temp_location;
 }
