@@ -2630,35 +2630,24 @@ function wimprt_set_field_persons(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_authors(&$node,$dom,&$log){
-  
+  dsm('coucou');
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Persons: '.$dom->nodeName;
+	$log['log'][] = 'process Authors: '.$dom->nodeName;
   }
-  if (!($vid = variable_get('wallymport_author', NULL))) {
-    // TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Author Taxonomy Vocabulary not Found. See admin.','error');
-	$node->rejected = TRUE;
-  }
-
-  // Taxonomy TID (from vocabulary Locations).
-  
-  $terms = $dom->getElementsByTagName("Term");
-  $tids = array();
-  foreach ($terms as $term){
-    $term_name = $term->getAttributeNode("Name")->value;
-    if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term_name, $vid)) {
-	// Taxonomy term exist - fetch the tid.
-	  $taxonomy = $taxonomy[0]; 
-	  $tids[] = $taxonomy->tid;
-    } else {
-	  $tids[] = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term_name), $vid, _wimprthelp_plain_text($term_name), 0);
-    }
+  $termes = $dom->getElementsByTagName("Term");
+  $results = array();
+  foreach ($termes as $terme){
+    $results[] = wimprt_process_type($terme,$log,'author');
   }
   // Get Location Taxonomy for all nodes.
   $node->field_authors = array();
-  foreach($tids as $tid) {
-    $node->field_authors[] = array("value" => $tid);
-	$node->taxonomy[$tid] = taxonomy_get_term($tid);  
+  foreach($results as $result) {
+    if (isset($result->field_authortaxonomy)) {
+	  if ($result->field_authortaxonomy[0]) {
+	    $node->field_authors[] = array("value" => $result->field_authortaxonomy[0]["value"]);
+		$node->taxonomy[$result->field_authortaxonomy[0]["value"]] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);  
+      }
+    }
   }
 }
 /**
@@ -2712,7 +2701,57 @@ function wimprt_create_or_load_type_person($dom,$log){
   $result->taxonomy = array($tid => $taxonomy); 
   return $result;
 }
+/**
+ * Create or load an author type depending of term.
+ * 
+ * If no node match term, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wimprt_create_or_load_type_author($dom,$log){	
 
+  if (!($vid = variable_get('wallymport_author',NULL))) {
+	// TO DO FATAL :: No location taxonomy vocabulary
+	drupal_set_message('Author Taxonomy Vocabulary  not Found. See admin.','error');
+	$result->rejected = TRUE;
+	return NULL;
+  }
+  // Taxonomy TID (from vocabulary Locations).
+  $term = $dom->getAttributeNode("Name")->value;
+  if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
+    // Taxonomy term exist - fetch the tid.
+	$taxonomy = $taxonomy[0]; 
+	$tid = $taxonomy->tid;
+	$result = wallytoolbox_get_node_by_tid($tid,"wally_persontype");
+	if ($result == NULL){
+	  $taxonomy = taxonomy_get_term($tid);
+	  $result = new stdClass();
+	}
+	elseif (count($result) > 1){
+	  drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
+	  return NULL;
+	} else {
+      $result = $result[0];
+	}
+  } else {
+	// New taxonomy term. Create & get the tid.
+	$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+	$taxonomy = taxonomy_get_term($tid);
+	$result = new stdClass();
+  };
+  // Set the taxonomy field.
+  
+  $result->field_authortaxonomy = array( array("value" => $tid) );
+  // Set drupal node->taxonomy. 
+  $result->taxonomy = array($tid => $taxonomy); 
+  return $result;
+}
 /**
  * Process Person type from DOM.
  * 
@@ -2799,7 +2838,28 @@ function wimprt_process_type_person(&$node,$dom,&$log,$preview){
   return($node);
 
 }
+/**
+ * Process Author type from DOM.
+ * 
+ * MAP fields of the Person content type
+ * from the DOM (XML) element & attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wimprt_process_type_author(&$node,$dom,&$log,$preview){
+  wimprt_process_type_person($node,$dom,$log,$preview);
+  // Send back the node
+  return($node);
 
+}
 /**
  * Convert a adress DOM element to a CCK_location form element.
  * 
