@@ -376,6 +376,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
                 cid: \''.$cid.'\',
               },
               complete: function(data) {
+                alert('.$cid.');
                 $("div.loading_'.$cid.'_'.$default_theme.'").html(data.responseText);
               }
             });
