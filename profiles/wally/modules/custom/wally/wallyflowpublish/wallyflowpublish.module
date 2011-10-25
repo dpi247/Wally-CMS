@@ -79,8 +79,7 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
  */
 function wallyflowpublish_views_pre_execute(&$view) {
   $current_display = $view->current_display;
-  if ($view->display[$current_display]->display_plugin == 'feed') {
-    dsm($view->display[$current_display]);
+  if ($view->display[$current_display]->display_plugin == 'feed' && array_key_exists('field_destinations_tid', $view->display[$current_display]->handler->handlers['argument'])) {
     $tid = $view->args[0];
 
     $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
