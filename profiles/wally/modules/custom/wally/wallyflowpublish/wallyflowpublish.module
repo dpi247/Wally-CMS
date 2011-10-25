@@ -107,7 +107,7 @@ function wallyflowpublish_views_pre_execute(&$view) {
  * Get the destination hierarchy and replace it by the right tid
  */
 function wallyflowpublish_views_pre_view($view, $display_id, &$args) {
-  if ($view->display[$display_id]->display_plugin == 'feed') {
+  if (false && $view->display[$display_id]->display_plugin == 'feed') {
     foreach ($args as $arg) {
       $name .= '/'.$arg;
     }
