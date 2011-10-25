@@ -2630,7 +2630,7 @@ function wimprt_set_field_persons(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_authors(&$node,$dom,&$log){
-  dsm('coucou');
+
   if (variable_get('wallymport_debug',0) or TRUE){
 	$log['log'][] = 'process Authors: '.$dom->nodeName;
   }
