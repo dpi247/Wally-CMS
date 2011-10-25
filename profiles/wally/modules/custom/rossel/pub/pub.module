@@ -269,6 +269,8 @@ function pub_set_pub_content_cache($settings) {
   cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
   cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
   
+  drupal_set_header('Content-Type: application/javascript; charset=utf-8');
+  
   return $pub_content;
 }
 
@@ -340,7 +342,7 @@ function _pub_getanalyticcontent() {
     $analytic_content = $cached_pub->data;
   }
   
-  //drupal_add_js($analytic_content, 'inline');
+  drupal_add_js($analytic_content, 'inline');
   return '';
 }
 
