@@ -1012,7 +1012,7 @@ function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FAL
         }
       }
       if ($flush_type == 'varnish' || $flush_type == 'both') {
-        if ($url == '*') {
+        if ($url == '*' && module_exists('warnish')) {
           warnish_purge_all_pages();
         } else {
           $varnish_pages_to_flush[] = $url;
@@ -1032,7 +1032,7 @@ function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FAL
     }
   }
   
-  if (!empty($varnish_pages_to_flush))
+  if (!empty($varnish_pages_to_flush) && module_exists('warnish'))
     warnish_purge_page($varnish_pages_to_flush);
 }
 
