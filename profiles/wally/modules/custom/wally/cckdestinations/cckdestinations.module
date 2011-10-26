@@ -1157,6 +1157,11 @@ function cckdestinations_token_list($type = 'all') {
     $tokens['cckdest']['cckdest:destination_term'] = t("Main Destination Term");
     $tokens['cckdest']['cckdest:destination_term_path'] = t("Main Destination Term path");
     $tokens['cckdest']['cckdest:destination_term_id'] = t("Main Destination Term id");
+    if(module_exists('transliteration'))
+    {
+      $tokens['cckdest']['cckdest:destination_term_path-translit'] = t("Main Destination Term path - translitaration");
+    }
+    
   }
   return $tokens;
 }
@@ -1174,6 +1179,10 @@ function cckdestinations_token_values($type, $object = NULL, $options = array())
     $tokens['cckdest:destination_term'] = strtolower($term->name);
     $tokens['cckdest:destination_term_path'] = strtolower($path);
     $tokens['cckdest:destination_term_id'] = strtolower($term->tid);
+    if(module_exists('transliteration'))
+    {
+      $tokens['cckdest:destination_term_path-translit'] = transliteration_get(strtolower($path));
+    }
   }
   
   return $tokens;
