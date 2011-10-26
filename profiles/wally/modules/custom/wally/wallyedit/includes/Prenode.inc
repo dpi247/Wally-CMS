@@ -137,8 +137,33 @@ class Prenode{
               if ($temp_node=node_load($value['nid'])) {
                 $form_state[$type_name][$field_name][$key]["#node"]=$temp_node;
                 $form_state[$type_name][$field_name][$key]["type"]=$temp_node->type;
+                
+                 $subfields = wyditadmin_get_fields_flat($this->profile_id, $temp_node->type);
+          foreach($subfields as $subfield){
+            $subfield_name = $subfield['name'];
+            if($subfield['display']>1){
+                foreach($temp_node->{$subfield['name']} as $subkey=>$subvalue) {
+                  if($sub_node=node_load($temp_node->{$subfield['name']}[$subkey])){
+                    $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]['#node']=$sub_node;
+                    $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]['t']=$temp_node->type;
+                  }
+                  
               }
+              
+              
             }
+          } 
+                
+                
+              }
+              
+            }
+            
+                      
+              
+            
+            
+            
           }
         }
       }
