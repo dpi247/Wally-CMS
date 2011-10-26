@@ -279,7 +279,11 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
   $field_name = $element['#field_name'];
   $pack_type = $element['#type_name'];
   $field = content_fields($field_name, $pack_type);
-  $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+  if (isset($values['group_destinations'])) {
+    $field_values = $values['group_destinations'][$field_name];
+  } else {
+    $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+  }
   unset($field_values['field_destinations_add_more']);
 
   $empty = TRUE;
