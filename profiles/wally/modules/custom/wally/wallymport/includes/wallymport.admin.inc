@@ -122,24 +122,7 @@ function wallymport_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
-  $form['wallymport_updateurl'] = array(
-    '#type' => 'textfield',
-    '#title' => t('URL to send the informations of the node'),
-    '#description' => t('URL to send the information of the node.'),
-    '#default_value' => variable_get('wallymport_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
-  $form['wallymport_wallyprefix'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Wally Prefix'),
-    '#description' => t('Used in Pandam to identified de source web site'),
-    '#default_value' => variable_get('wallymport_wallyprefix', ''),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
+  
   $form['wallymport_debug'] = array(
     '#type' => 'radios',
     '#title' => t('Import debug level'),

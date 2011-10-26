@@ -16,8 +16,8 @@
 	<xsd:sequence minOccurs="0" maxOccurs="1">
 		<!-- COMMON ELEMS -->
 		<xsd:element name="ProductID" type="xsd:string" />
-		<xsd:element name="Newsroom" type="xsd:string" />
-		<xsd:element name="StoryFolder" >
+		<xsd:element name="Newsroom" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		<xsd:element name="StoryFolder" minOccurs="0" maxOccurs="1" nillable="true">
 			<xsd:complexType >
 				<xsd:simpleContent>
 	     				<xsd:extension base="xsd:string">
@@ -26,17 +26,17 @@
 				</xsd:simpleContent>
 			</xsd:complexType>
 		</xsd:element>
-		<xsd:element name="Desk1" type="xsd:string" />
+		<xsd:element name="Desk1" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 		<xsd:element name="Desk2" type="xsd:string" minOccurs="0" maxOccurs="1" />
 		<xsd:element name="Theme" type="xsd:string" minOccurs="0" maxOccurs="1" />
-		<xsd:element name="SourceXML" type="xsd:anyType" minOccurs="0" maxOccurs="1"/>
+		<xsd:element name="SourceXML" type="xsd:anyType" minOccurs="0" maxOccurs="1" nillable="true"/>
 		<xsd:element name="PackageTitle" type="xsd:string" />
 		<xsd:element name="PackageDescription" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ExternalReference" type="xsd:string" />
 		<xsd:element name="Destinations" type="DestinationsType" />
 		<xsd:element name="Channels" type="ChannelsType" />
-		<xsd:element name="CommentsAllowed" minOccurs="0" maxOccurs="1">
+		<xsd:element name="CommentsAllowed" minOccurs="0" maxOccurs="1" nillable="true">
 		  <xsd:simpleType>
 			<xsd:restriction base="xsd:string">
 			  <xsd:enumeration value="Disabled"/>
@@ -45,19 +45,18 @@
 			</xsd:restriction>
 		  </xsd:simpleType>
 		</xsd:element>
-		<xsd:element name="FreeAccess" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
-		<xsd:element name="AutoPublish" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
-		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
+		<xsd:element name="FreeAccess" minOccurs="0" maxOccurs="1" type="xsd:boolean" nillable="true"/>
+		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" nillable="true"/>
 		<xsd:element name="PackageLayout" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="Summary" type="xsd:anyType" />
-		<xsd:element name="ExternalURI" type="xsd:anyURI" minOccurs="0" maxOccurs="1" />
+		<xsd:element name="Summary" type="xsd:anyType"/>
+		<xsd:element name="ExternalURI" type="xsd:anyURI" minOccurs="0" maxOccurs="1" nillable="true"/>
 		<!-- /COMMON ELEMS -->
 	</xsd:sequence>
 	<!-- COMMON ATTRIBUTES -->
 	<xsd:attribute name="PackageID" type="xsd:string" use="required" />
 	<xsd:attribute name="PublicationDate" type="xsd:dateTime" use="required"/>
 	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
-	<xsd:attribute name="LastUpdateDate" type="xsd:dateTime" />
+	<xsd:attribute name="LastUpdateDate" type="xsd:dateTime"/>
 	<xsd:attribute name="EmbargoDate" type="xsd:dateTime" />
 	<xsd:attribute name="UnPublishDate" type="xsd:dateTime" />
 	<xsd:attribute name="Language" type="xsd:string" />
@@ -84,7 +83,7 @@
 		<xsd:extension base="PackageType"> 
 			<xsd:sequence>
 				<xsd:element name="MainStory" minOccurs="1" maxOccurs="1" type="TextObjectType" />
-				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="1" type="EmbeddedContentType" />
+				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="1" type="EmbeddedContentType"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -109,7 +108,7 @@
 	<xsd:complexContent>
 		<xsd:extension base="PackageType"> 
 			<xsd:sequence>
-				<xsd:element name="Poll" type="PollObjectType" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element name="Poll" type="PollObjectType" minOccurs="1" maxOccurs="unbounded" />
 				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="unbounded" type="EmbeddedContentType" />
 			</xsd:sequence>
 		</xsd:extension>
@@ -123,12 +122,12 @@
 		<xsd:element name="Title" type="xsd:string" />
 		<xsd:element name="ExternalReference" type="xsd:string" />
 		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="Taxonomy" minOccurs="0" maxOccurs="1" type="TaxonomyType" />
+		<xsd:element name="Taxonomy" minOccurs="0" maxOccurs="1" type="TaxonomyType"/>
 		<xsd:element name="Copyright" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
-		<xsd:element name="EmbeddedObjectsOrder" minOccurs="0" maxOccurs="1" type="xsd:short" />
-		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
-		<xsd:element name="Marker" minOccurs="0" maxOccurs="1" type="LocationType" />
+		<xsd:element name="EmbeddedObjectsOrder" minOccurs="0" maxOccurs="1" type="xsd:short" nillable="true"/>
+		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" nillable="true"/>
+		<xsd:element name="Marker" minOccurs="0" maxOccurs="1" type="LocationType" nillable="true"/>
  	 </xsd:sequence>
 	<!-- META-DATA OBJECT ATTRIBUTES -->
 	<xsd:attribute name="ObjectID" type="xsd:string" />
@@ -145,11 +144,11 @@
 	<xsd:complexContent>
 		<xsd:extension base="ObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
+				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType"/>
 				<xsd:element name="FileURI" type="xsd:anyURI" />
 				<xsd:element name="FileSize" type="xsd:decimal" />
-				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
-				<xsd:element name="Rating" minOccurs="0" maxOccurs="1">
+				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" nillable="true"/>
+				<xsd:element name="Rating" minOccurs="0" maxOccurs="1" nillable="true">
 					<xsd:simpleType>
 						<xsd:restriction base="xsd:token">
 							<xsd:enumeration value="G" />
@@ -174,11 +173,11 @@
 	<xsd:complexContent>
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="Crops" minOccurs="0" maxOccurs="1" type="CropsType" />
+				<xsd:element name="Crops" minOccurs="0" maxOccurs="1" type="CropsType" nillable="true"/>
 				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
-				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
-				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" nillable="true"/>
+				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1" nillable="true"/>
+				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1" nillable="true"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -190,9 +189,9 @@
 	<xsd:complexContent>
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="VideoLength" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
+				<xsd:element name="VideoLength" minOccurs="0" maxOccurs="1" type="xsd:dateTime" nillable="true"/>
 				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
+				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" nillable="true"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -204,9 +203,9 @@
 	<xsd:complexContent>
 		<xsd:extension base="MultiMediaObjectType"> 
 			<xsd:sequence>
-				<xsd:element name="AudioLength" minOccurs="0" maxOccurs="1" type="xsd:time" />
+				<xsd:element name="AudioLength" minOccurs="0" maxOccurs="1" type="xsd:time" nillable="true" />
 				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
+				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" nillable="true"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -243,7 +242,7 @@
 			<xsd:sequence>
 				<xsd:element name="Summary" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="DateOpen" type="xsd:dateTime" />
-				<xsd:element name="DateClose" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
+				<xsd:element name="DateClose" minOccurs="0" maxOccurs="1" type="xsd:dateTime" nillable="true"/>
 				<xsd:element name="PollQuestions" minOccurs="1" maxOccurs="1" type="PollQuestionsType" />
  			</xsd:sequence>
 		</xsd:extension>
@@ -254,8 +253,8 @@
  <!-- EMBEDDED OBJECT -->
  <xsd:complexType name="EmbeddedContentType">
 	<xsd:sequence>
-		<xsd:element name="EmbeddedObjects" minOccurs="0" maxOccurs="1" type="ObjectsType" />
-		<xsd:element name="LinksLists" minOccurs="0" maxOccurs="1" type="LinksListsType" />
+		<xsd:element name="EmbeddedObjects" minOccurs="0" maxOccurs="1" type="ObjectsType" nillable="true"/>
+		<xsd:element name="LinksLists" minOccurs="0" maxOccurs="1" type="LinksListsType" nillable="true"/>
 	</xsd:sequence>
  </xsd:complexType>
 
@@ -370,8 +369,8 @@
 				<xsd:element name="PersonLastName" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="PersonFirstName" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="PersonNickName" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="PersonBirthDate" minOccurs="0" maxOccurs="1" type="xsd:date" />
-				<xsd:element name="PersonSex" minOccurs="0" maxOccurs="1">
+				<xsd:element name="PersonBirthDate" minOccurs="0" maxOccurs="1" type="xsd:date" nillable="true"/>
+				<xsd:element name="PersonSex" minOccurs="0" maxOccurs="1" nillable="true">
 					<xsd:simpleType>
 						<xsd:restriction base="xsd:token">
 							<xsd:enumeration value="male" />
@@ -395,8 +394,8 @@
 	<xsd:complexContent>
 		<xsd:extension base="TermType"> 
 			<xsd:sequence>
-				<xsd:element name="Address" type="AddressType" minOccurs="0" maxOccurs="1" />
-				<xsd:element name="LocationGeo" minOccurs="0" maxOccurs="1">
+				<xsd:element name="Address" type="AddressType" minOccurs="0" maxOccurs="1" nillable="true"/>
+				<xsd:element name="LocationGeo" minOccurs="0" maxOccurs="1" nillable="true">
 					<xsd:simpleType>
 						<xsd:restriction base="xsd:string">
 							<!-- Long ,Lat [,Zoom factor] 50.321903,-1.388058,12-->
@@ -413,13 +412,13 @@
  <!-- TAXONOMY -->
 <xsd:complexType name="TaxonomyType">
 	<xsd:sequence minOccurs="1" maxOccurs="unbounded">
-		<xsd:element name="Vocabulary" type="VocabularyItem" minOccurs="0"/>
+		<xsd:element name="Vocabulary" type="VocabularyItem" minOccurs="0" />
 	</xsd:sequence>
  </xsd:complexType>
 
  <xsd:complexType name="VocabularyItem">
 	<xsd:sequence>
-		<xsd:element name="Term" minOccurs="0" maxOccurs="unbounded" type="TermType" />
+		<xsd:element name="Term" minOccurs="0" maxOccurs="unbounded" type="TermType"/>
 	</xsd:sequence>
 	<xsd:attribute name="VocabularyName" type="xsd:string" use="required" />
 	<xsd:attribute name="VocabularyDescription" type="xsd:string" />

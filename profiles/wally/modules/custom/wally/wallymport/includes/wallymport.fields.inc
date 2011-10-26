@@ -287,7 +287,7 @@ function wimprt_create_or_load_preprocesspackage($dom,&$node){
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
   $node = new stdClass;
   $node->type = 'wally_articlepackage';
-  
+  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
@@ -308,7 +308,7 @@ function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
 function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_gallerypackage';
-
+  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
@@ -329,7 +329,7 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
 function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_pollpackage';
-
+  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
 
   return $node;
@@ -360,22 +360,35 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
   } else {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
-  if($dom_element->hasAttribute("CreationDate"))
+  if($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("LastUpdateDate"))
+  } else {
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
+  if($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+  } else {
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
   if($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+    if (strtotime($node->field_embargodatetime[0]['value']) > time()){
       $node->status = 0;
-    else
+    } else {
       $node->status = 1;
+    }
+  } else {
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
   if($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
     if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
     }
+  } else {
+    //Actual date + 10 years
+    $timestamps_10years = mktime(date('H'),date('i'),date('s'),date('n'),date('j'),(date('Y') + 10));
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s", $timestamps_10years ));
   }
   $node->language = $dom_element->getAttributeNode("Language")->value;
   //jusque ici ok
@@ -406,27 +419,41 @@ function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, 
   
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
+  
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
-  
-  if($dom_element->hasAttribute("CreationDate"))
+  if($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("LastUpdateDate"))
+  } else {
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
+  if($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+  } else {
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
   if($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+    if (strtotime($node->field_embargodatetime[0]['value']) > time()){
       $node->status = 0;
-    else
+    } else {
       $node->status = 1;
+    }
+  } else {
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
   if($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+    if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
+    }
+  } else {
+    //Actual date + 10 years
+    $timestamps_10years = mktime(date('H'),date('i'),date('s'),date('n'),date('j'),(date('Y') + 10));
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s", $timestamps_10years ));
   }
   
   //Map XML element
@@ -460,22 +487,35 @@ function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $pr
   } else {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
-  
-  if($dom_element->hasAttribute("CreationDate"))
+  if($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
-  if($dom_element->hasAttribute("LastUpdateDate"))
+  } else {
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
+  if($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
+  } else {
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+  }
   if($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
-    if (strtotime($node->field_embargodatetime[0]['value']) > time())
+    if (strtotime($node->field_embargodatetime[0]['value']) > time()){
       $node->status = 0;
-    else
+    } else {
       $node->status = 1;
+    }
+  } else {
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
   }
   if($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
-    if (strtotime($node->field_unpublishdate[0]['value']) < time())
+    if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
+    }
+  } else {
+    //Actual date + 10 years
+    $timestamps_10years = mktime(date('H'),date('i'),date('s'),date('n'),date('j'),(date('Y') + 10));
+    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s", $timestamps_10years ));
   }
   
   //Map XML element
@@ -849,26 +889,6 @@ function wimprt_set_field_freeaccess(&$node,$dom,&$log){
     $node->field_freeaccess[0]['value'] = NULL; 
 }
 
-/**
- * Process field AutoPublish from DOM element.
- * 
- * MAP field from the a DOM (XML) element or attributes. 
- * Anything else then a booelan true value will 
- * 
- * @param $node
- *   Node currently processed.
- * @param $dom_element
- *   The DomDocument who is being proceed (A DomElement)
- * @param $log
- *   The log object build recursively in different operation. this could track error in the process and build nodes.
- *
- * @return
- *   Nothing
- */
-function wimprt_set_field_autopublish(&$node, $dom, &$log){
-  //@todo ???
-}
-
 
 /**
  * Process field PackageLayout from DOM element.
@@ -1057,10 +1077,10 @@ function wimprt_set_field_mainobject(&$node, $dom, &$log, $preview = FALSE) {
  */
 function wimprt_set_field_poll(&$node, $dom, &$log, $preview = FALSE){
   // Process the object & getting NID
-	$object=wimprt_process_object($dom, $log, 'pollobjecttype', $preview);
-	$node->field_mainpoll[0]['nid']=$object->nid;
+	$object = wimprt_process_object($dom, $log, 'pollobjecttype', $preview);
+	$node->field_mainpoll[0]['nid'] = $object->nid;
 	if ($preview)
-	  $node->field_mainpoll_nodes[0]=$object;
+	  $node->field_mainpoll_nodes[0] = $object;
 }
 /**
  * Process field Package Description from DOM element.
@@ -1173,7 +1193,7 @@ function wimprt_objecttype_preprocess(&$node,$dom,$preview){
 function wimprt_create_or_load_object_textobject($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_textobject';
-  
+  $node->wallymport_node = TRUE;
   $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),'wally_textobject')){
     $node = $node_temp[0];
@@ -1239,18 +1259,17 @@ function wimprt_set_field_pollquestions(&$node,$dom,&$log){
     $feature = array();
     $choice = 1;
     if ($pollquestion->hasAttribute("Choice")){
-      if($pollquestion->getAttributeNode("Choice")->value === "radioButton"){
+      if ($pollquestion->getAttributeNode("Choice")->value === "radioButton"){
         $choice = 0;
       }
     }
     $feature['CancelVote_Allow'] = 1;
     $feature['ResultsAllow'] = 0;
     $feature['PollType'] = $choice;
-    $node->field_poll[$i]['poll_features']=serialize($feature);
-    foreach($pollquestion->getElementsByTagName("Question") as $question){
-      $node->field_poll[$i]['question'] = $pollquestion->nodeValue;
-    }
+    $node->field_poll[$i]['poll_features'] = serialize($feature);
+    $node->field_poll[$i]['question'] = $pollquestion->getElementsbyTagName("Question")->item(0)->nodeValue;
     $j = 0;
+    $answers = array();
     foreach($pollquestion->getElementsByTagName("Answer") as $answer){
       $answers[$j]['choice'] = $answer->nodeValue;
       $answers[$j]['votes'] = NULL;
@@ -1277,15 +1296,16 @@ function wimprt_set_field_pollquestions(&$node,$dom,&$log){
  *   A node object
  */
 function wimprt_create_or_load_object_pollobjecttype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_pollobject';
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_pollobject')){
-    $node=$node_temp[0];
+  $node = new stdClass;
+  $node->type = 'wally_pollobject';
+  $node->wallymport_node = TRUE;
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),'wally_pollobject')){
+    $node = $node_temp[0];
   }
   
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
   
   return $node;
 }
@@ -1316,12 +1336,11 @@ function wimprt_process_object_pollobjecttype(&$node,$dom,&$log,$preview){
   wimprt_process_object_default($node,$dom,$log);
    
  ///Exception for TextObject
-  $date1=null;
-  $date2=null;
-  if ($dom->getElementsByTagName("DateOpen")->length) 
-    $date1=$dom->getElementsByTagName("DateOpen")->item(0)->nodeValue;
-  if($dom->getElementsByTagName("DateClose")->length) 
-    $date2=$dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
+  $date1 = null;
+  $date2 = null;
+  $date1 = $dom->getElementsByTagName("DateOpen")->item(0)->nodeValue;
+  if ($dom->getElementsByTagName("DateClose")->length) 
+    $date2 = $dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
   $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1,$date2);
 
   return $node;
@@ -1342,9 +1361,9 @@ function wimprt_process_object_pollobjecttype(&$node,$dom,&$log,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_photoobjecttype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_photoobject';
-
+  $node = new stdClass;
+  $node->type = 'wally_photoobject';
+  $node->wallymport_node = TRUE;
   $ext_ref =_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_photoobject")){
     $node = $node_temp[0];
@@ -1446,16 +1465,16 @@ function wimprt_process_object_photoobjecttype(&$node,$dom,&$log,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_audioobjecttype($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_audioobject';
-
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_audioobject")){
-    $node=$node_temp[0];
+  $node = new stdClass;
+  $node->type = 'wally_audioobject';
+  $node->wallymport_node = TRUE;
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_audioobject")){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -1522,7 +1541,7 @@ function wimprt_process_object_audioobjecttype(&$node,$dom,&$log,$preview){
 function wimprt_create_or_load_object_videoobjecttype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_videoobject';
-
+  $node->wallymport_node = TRUE;
   $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),"wally_videoobject")){
     $node = $node_temp[0];
@@ -1598,7 +1617,7 @@ function wimprt_process_object_videoobjecttype(&$node,$dom,&$log,$preview){
 function wimprt_create_or_load_object_digitalobjecttype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_digitalobject';
-
+  $node->wallymport_node = TRUE;
   $ext_ref = $dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue;
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_digitalobject")){
     $node = $node_temp[0];
@@ -1725,16 +1744,16 @@ function wimprt_process_type_link(&$node,$dom,&$log,$preview){
  *   A node object
  */
 function wimprt_create_or_load_object_linkslist($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_linkslistobject';
-
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
-    $node=$node_temp[0];
+  $node = new stdClass;
+  $node->type = 'wally_linkslistobject';
+  $node->wallymport_node = TRUE;
+  $ext_ref =_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),"wally_linkslistobject")){
+    $node = $node_temp[0];
   }
   
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -1753,16 +1772,16 @@ function wimprt_create_or_load_object_linkslist($dom,&$log){
  *   A node object
  */
 function wimprt_create_or_load_type_link($dom,&$log){
-  $node=new stdClass;
-  $node->type='wally_linktype';
+  $node = new stdClass;
+  $node->type = 'wally_linktype';
   //je pense qu'il faut enlever ca car les liens n'ont pas de tag ExternalReference
-  $ext_ref=_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
-  if($node_temp=wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
-    $node=$node_temp[0];
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference"=>$ext_ref),$node->type)){
+    $node = $node_temp[0];
   }
 
-  $uid=variable_get('wallymport_defaultuser',1);
-  $node->uid=$uid;
+  $uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $uid;
 
   return $node;
 }
@@ -2141,10 +2160,10 @@ function wimprt_process_type_location(&$node,$dom,&$log,$preview){
 	// BAD >>> ARRAY et en plus peut etre multiple ? 
 	if ($node->field_address) {
 	  foreach ($node->field_address as $address) {
-	    $address->latitude = $lat;
-	    $address->longitude = $lon;
-		$address->locpick["user_latitude"] = $lat;
-		$address->locpick["user_longitude"] = $lon;
+	    $address['latitude'] = $lat;
+	    $address['longitude'] = $lon;
+		$address['locpick']["user_latitude"] = $lat;
+		$address['locpick']["user_longitude"] = $lon;
 		$node->field_address[$address_cpt] = $address;
 		$address_cpt++;  
 	  }
