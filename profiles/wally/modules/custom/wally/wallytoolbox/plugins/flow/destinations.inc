@@ -519,6 +519,9 @@ function wallytoolbox_destinations_flow_set_locationtax($location) {
   $temp_location['Address']['Zip']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'postal_code');
   $temp_location['Address']['Country']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'country');
   $temp_location['LocationGeo']['value'] = wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'latitude').','.wallytoolbox_destinations_flow_node_get_field($location, 'field_address', '', 'longitude');
+  if ($temp_location['LocationGeo']['value'] == ',') {
+    unset($temp_location['LocationGeo']['value']);
+  }
 
   return $temp_location;
 }
@@ -537,9 +540,9 @@ function wallytoolbox_destinations_flow_set_entitytax($entity) {
 
 function wallytoolbox_destinations_flow_set_linktax($link) {
   $temp_link = array();
-  
-  $temp_link['InternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_internalreference', '');
-  $temp_link['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_externalreference', '');
+
+  $temp_link['InternalReference']['value'] = 'Drupal_NID:'.$link->nid;
+  $temp_link['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_externalreference', 'wally_'.$link->nid);
   $temp_link['Title']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_link_item', '', 'title');
   $temp_link['Description']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_objectdescription', '');
   $temp_link['URI']['value'] = wallytoolbox_destinations_flow_node_get_field($link, 'field_link_item', '', 'url');
