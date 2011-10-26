@@ -1952,7 +1952,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $form_state[$type_name]['node']=$node;
   
   $a=drupal_retrieve_form($type_name.'_node_form',$form_state,$form_state[$type_name]['node']);
-  $a['#after_build'][] = 'wysiwyg_process_form';
+
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   $a=form_builder($type_name.'_node_form', $a, $form_state) ;
   
