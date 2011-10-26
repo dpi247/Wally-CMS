@@ -1051,6 +1051,7 @@ function wydit_subform_global_page_form(&$form_state){
   $a['#tree'] = true;
   
   drupal_prepare_form($type_name.'_node_form', $a, $form_state);
+  $a=form_builder($type_name.'_node_form', $a, $form_state) ;
   
   unset($a["#type"]);
   unset($a["form_id"]);
@@ -1992,11 +1993,12 @@ function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$eleme
           "#type"=>"markup",
           "#value"=> $embed_node->type,
         );
-        $form[$key]['weight_'.$key]=array(
+        $form[$key]['weight']=array(
           '#type'=>'weight',
           "#default_value"=> $key,
-          '#attributes' => array('class'=>'order_weightss'),
+          '#attributes' => array('class'=>'order_weight'),
           "#parents"=>array_merge($parents,array("weight_".$key)),
+        
         );
         $form[$key]['edit_action']=array(
           "#type"=>"submit",
