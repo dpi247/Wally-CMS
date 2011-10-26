@@ -510,6 +510,7 @@ $(document).ready(function() {
 
 <div id="buttons">
   <?php print drupal_render($form['save_global']);?>
+  <?php print drupal_render($form['cancel_global']);?>
   <?php print drupal_render($form['reset_global']);?>
   <?php print drupal_render($form['publish_global']);?>
 </div>
