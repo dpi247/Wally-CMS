@@ -14,7 +14,6 @@
 function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip){
   $packages_node = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages_node->setAttribute('xmlns', 'http://rossel.audaxis.com');
-  dsm($wally_array);
   foreach ($wally_array['Packages']['Package'] as $package_array){
     $package_node = $packages_node->appendChild($valid_dom->createElement('Package'));
     //Package Type
