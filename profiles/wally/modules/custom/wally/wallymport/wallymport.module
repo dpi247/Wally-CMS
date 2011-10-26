@@ -490,10 +490,7 @@ function wallymport_process_zip_file($file, $temp, $format, &$returns, $preview 
     $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
     $returns[] = $error_msg;
   }
-  //a enlever
-  dsm(array('ne moublie pas'));
-  return;
-  //fin a enlever
+ 
   if ($preview) {
     if ($zip_error || empty($returns[0]['packages'])) {
       drupal_set_header('HTTP/1.1 517 '.$error_msg);
@@ -547,10 +544,6 @@ function wallymport_process_xml_file($file, $temp, $format_xml, &$returns, $prev
   $xml_file = $file->filename;
   $returns[] = wallymport_page_process_file($xml_file, $preview);
   
-  //a enlever
-  dsm(array('ne moublie pas'));
-  return;
-  //fin a enlever
   
   if ($preview) {
     if (empty($returns[0]['packages'])) {
