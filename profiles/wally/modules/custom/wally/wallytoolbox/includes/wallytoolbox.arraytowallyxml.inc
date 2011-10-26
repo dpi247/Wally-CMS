@@ -1,88 +1,4 @@
 <?php
-//to delete
-function wallytoolbox_arraytowallyxml_createfalsearray(){
-  $wally_array = array('Packages' => array ());
-  $wally_array['Packages'] = array('Package' => array());
-  $wally_array['Packages']['Package'][0] = array(
-    'PackageID' => 'pakageid',
-  	'CreationDate' => '2011-07-28T15:57:28',
-    'LastUpdateDate' => NULL,
-    'type' => 'ArticlePackageType',
-    'ProductID' => array('value' => 'productid'),
-    'Destinations' => array('Destination' => array(
-  0 => array(
-    	'DocumentLayout' => 'small',
-        'DestinationRank' => 0,
-        'Position' => 'default_destination_block',
-        'DestinationPath' => array('value' => 'ACTUALITé/MONDE'),
-  ),
-  1 => array(
-    	'DocumentLayout' => 'small',
-        'DestinationRank' => 0,
-        'Position' => 'default_destination_block',
-        'DestinationPath' => array('value' => 'ACCUEIL LAPROVINCE.BE')
-  ),
-  )),
-    'Channels' => array('Channel' => array(
-  0 => array( 'Name' => 'web'),
-  1 => array( 'Name' => 'autre'),
-  )),
-    'Summary' => array('value' => 'summary blabla'),
-    'Mainstory' => array(
-      'ObjectID' => 'objectid',
-      'CreationDate' => '2011-10-11T12:39:34',
-      'Title' => array('value' => 'title'),
-      'ExternalReference' => array('value' => 'externalreferece'),
-      'Taxonomy' => array('Vocabulary' => array(
-        0 => array (
-          'Term' => array(
-            0 => array(
-              'type' => 'PersonType',
-              'Name' => 'termname',
-              'ID' => 'idterm',  
-              'PersonLastName' => array('value' => 'Henin'),
-            ),
-          ),
-          'VocabularyName' => 'vocabularyname',
-          'VocabularyDescription' => 'vocabulardescr',
-          'VocabularyType' => 'categorized',  
-        ),
-        1 => array (
-          'Term' => array(
-            0 => array(
-              'Name' => 'termname',
-              'ID' => 'idterm',  
-            ),
-          ),
-          'VocabularyName' => 'Categories',
-          'VocabularyDescription' => 'vocabulardescr',
-          'VocabularyType' => 'categorized',  
-        ),
-        2 => array (
-          'Term' => array(
-            0 => array(
-              'type' => 'LocationType',
-              'Name' => 'termname',
-              'ID' => 'idterm',  
-              'Address' => array('AddressLine' => array( 0 => 'ruemacin'),'City' => 'ville'),
-            ),
-          ),
-          'VocabularyName' => 'vocabularyname',
-          'VocabularyDescription' => 'vocabulardescr',
-          'VocabularyType' => 'categorized',  
-        ),
-    )),
-  ),
-  'EmbeddedContent' => array(
-    'EmbeddedObjects' => array('Object' => array(
-      0 => array(),  
-  ))),
-  );
-  $valid_dom = new DomDocument('1.0', 'UTF-8');
-  wallytoolbox_arraytowallyxml($wally_array,$valid_dom);
-  $valid_dom->save('sites/default/files/export/test_xml.xml');
-}
-
 
 /**
  * Transform an array in to a wallyXml (use in wallyflowtonode and wallyexport).
@@ -144,7 +60,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
         }
       }  
       if (isset($package_array['EmbeddedContent']['LinksLists']['LinksList'])){
-        $linkslists_node = $package_node->appendChild($valid_dom->createElement('LinksLists'));
+        $linkslists_node = $embeddedcontent_node->appendChild($valid_dom->createElement('LinksLists'));
         foreach ($package_array['EmbeddedContent']['LinksLists']['LinksList'] as $linkslist_array){
           $linkslist_node = $linkslists_node->appendChild($valid_dom->createElement('LinksList'));
           _wallytoolbox_arraytowallyxml_filllinkslist($valid_dom, $linkslist_node, $linkslist_array);
@@ -170,28 +86,17 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
 function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_node, $package_array){
 
   $package_node->setAttribute('PackageID', $package_array['PackageID']);
-  $package_node->setAttribute('PublicationDate', str_replace(' ', 'T', $package_array['PublicationDate']));
-  $package_node->setAttribute('CreationDate', str_replace(' ', 'T', $package_array['CreationDate']));
-  if (isset($package_array['LastUpdateDate']) & $package_array['LastUpdateDate'] != NULL & $package_array['LastUpdateDate'] != ''){
-    $package_node->setAttribute('LastUpdateDate', str_replace(' ', 'T', $package_array['LastUpdateDate']));
-  }
-  if (isset($package_array['EmbargoDate']) & $package_array['EmbargoDate'] != NULL & $package_array['EmbargoDate'] != ''){
-    $package_node->setAttribute('EmbargoDate', str_replace(' ', 'T', $package_array['EmbargoDate']));
-  }
-  if (isset($package_array['UnPublishDate']) & $package_array['UnPublishDate'] != NULL & $package_array['UnPublishDate'] != ''){
-    $package_node->setAttribute('UnPublishDate', str_replace(' ', 'T', $package_array['UnPublishDate']));
-  }
-  if (isset($package_array['Language']) & $package_array['Language'] != NULL & $package_array['Language'] != ''){
-    $package_node->setAttribute('Language', $package_array['Language']);
-  }
-  if (isset($package_array['Version']) & $package_array['Version'] != NULL & $package_array['Version'] != ''){
-    $package_node->setAttribute('Version', $package_array['Version']);
-  }
+  $package_node->setAttribute('PublicationDate', str_replace(' ','T',$package_array['PublicationDate']));
+  $package_node->setAttribute('CreationDate', str_replace(' ','T',$package_array['CreationDate']));
+  $package_node->setAttribute('LastUpdateDate', str_replace(' ','T',$package_array['LastUpdateDate']));
+  $package_node->setAttribute('EmbargoDate', str_replace(' ','T',$package_array['EmbargoDate']));
+  $package_node->setAttribute('UnPublishDate', str_replace(' ','T',$package_array['UnPublishDate']));
+  $package_node->setAttribute('Language', $package_array['Language']);
+  $package_node->setAttribute('Version', $package_array['Version']);
+  $package_node->setAttribute('Action', 'CreateUpdate');
+  
   $package_node->appendChild($valid_dom->createElement('ProductID', $package_array['ProductID']['value']));
-  $package_node->appendChild($valid_dom->createElement('Newsroom', ''));//champs vide
-  $package_node->appendChild($valid_dom->createElement('StoryFolder', ''));//champs vide
-  $package_node->appendChild($valid_dom->createElement('Desk1', ''));//champs vide
-
+  
   $package_node->appendChild($valid_dom->createElement('PackageTitle', $package_array['PackageTitle']['value']));
   $package_node->appendChild($valid_dom->createElement('PackageDescription', $package_array['PackageDescription']['value']));
   $package_node->appendChild($valid_dom->createElement('InternalReference', $package_array['InternalReference']['value']));
@@ -210,22 +115,23 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $channel_node = $channels_node->appendChild($valid_dom->createElement('Channel'));
     $channel_node->setAttribute('Name', $channel_array['Name']);
   }
-  if (isset($package_array['CommentsAllowed']) & $package_array['CommentsAllowed']['value'] != NULL & $package_array['CommentsAllowed']['value'] != ''){
-    $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $package_array['CommentsAllowed']['value']));
-  }
+  $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $package_array['CommentsAllowed']['value']));
   if (isset($package_array['FreeAccess']) & $package_array['FreeAccess']['value'] != NULL & $package_array['FreeAccess']['value'] != ''){
     $package_node->appendChild($valid_dom->createElement('FreeAccess', $package_array['FreeAccess']['value']));
+  } else {
+    $freeaccess_node = $package_node->appendChild($valid_dom->createElement('FreeAccess'));
+    $freeaccess_node->setAttribute('xsi:nil', 'true');
   }
-  if (isset($package_array['AutoPublish']) & $package_array['AutoPublish']['value'] != NULL & $package_array['AutoPublish']['value'] != ''){
-    $package_node->appendChild($valid_dom->createElement('AutoPublish', $package_array['AutoPublish']['value']));
-  }
-  if (isset($package_array['PackageLayout']) & $package_array['PackageLayout']['value'] != NULL & $package_array['PackageLayout']['value'] != ''){
-    $package_node->appendChild($valid_dom->createElement('PackageLayout', $package_array['PackageLayout']['value']));
-  }
+  $package_node->appendChild($valid_dom->createElement('PackageLayout', $package_array['PackageLayout']['value']));
+  
   $package_node->appendChild($valid_dom->createElement('Summary', $package_array['Summary']['value']));
   if (isset($package_array['ExternalURI']) & $package_array['ExternalURI']['value'] != NULL & $package_array['ExternalURI']['value'] != ''){
     $package_node->appendChild($valid_dom->createElement('ExternalURI', $package_array['ExternalURI']['value']));
+  } else {
+    $externaluri_node = $package_node->appendChild($valid_dom->createElement('ExternalURI'));
+    $externaluri_node->setAttribute('xsi:nil', 'true');
   }
+  
 
 }
 /**
@@ -314,24 +220,19 @@ function _wallytoolbox_arraytowallyxml_fillPollPackageType(&$valid_dom, &$packag
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_node, $linkslist_array){
-  if (isset($linkslist_array['InternalReference']) & $linkslist_array['InternalReference'] != NULL & $linkslist_array['InternalReference'] != '')
-    $linkslist_node->appendChild($valid_dom->createElement('InternalReference', $linkslist_array['InternalReference']['value']));
+  $linkslist_node->appendChild($valid_dom->createElement('InternalReference', $linkslist_array['InternalReference']['value']));
   $linkslist_node->appendChild($valid_dom->createElement('ExternalReference', $linkslist_array['ExternalReference']['value']));
   $linkslist_node->appendChild($valid_dom->createElement('Title', $linkslist_array['Title']['value']));
-  if (isset($linkslist_array['Summary']) & $linkslist_array['Summary'] != NULL & $linkslist_array['Summary'] != '')
-    $linkslist_node->appendChild($valid_dom->createElement('Summary', $linkslist_array['Summary']['value']));
+  $linkslist_node->appendChild($valid_dom->createElement('Summary', $linkslist_array['Summary']['value']));
   foreach ($linkslist_array['Links'] as $links_array){
     $links_node = $linkslist_node->appendChild($valid_dom->createElement('Links'));
     if (isset($links_array['Link'])){
       foreach ($links_array['Link'] as $link_array){
         $link_node = $links_node->appendChild($valid_dom->createElement('Link'));
-        if (isset($link_array['InternalReference']) & $link_array['InternalReference']['value'] & $link_array['InternalReference']['value'] !=  '')
-          $link_node->appendChild($valid_dom->createElement('InternalReference', $link_array['InternalReference']['value']));
-        if (isset($link_array['ExternalReference']) & $link_array['ExternalReference']['value'] & $link_array['ExternalReference']['value'] !=  '')
-          $link_node->appendChild($valid_dom->createElement('ExternalReference', $link_array['ExternalReference']['value']));  
+        $link_node->appendChild($valid_dom->createElement('InternalReference', $link_array['InternalReference']['value']));
+        $link_node->appendChild($valid_dom->createElement('ExternalReference', $link_array['ExternalReference']['value']));  
         $link_node->appendChild($valid_dom->createElement('Title', $link_array['Title']['value']));  
-        if (isset($link_array['Description']) & $link_array['Description']['value'] & $link_array['Description']['value'] !=  '')
-          $link_node->appendChild($valid_dom->createElement('Description', $link_array['Description']['value']));  
+        $link_node->appendChild($valid_dom->createElement('Description', $link_array['Description']['value']));  
         $link_node->appendChild($valid_dom->createElement('URI', $link_array['URI']['value']));     
       }
     }
@@ -353,34 +254,28 @@ function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_no
 function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node, $object_array){
 
   $object_node->setAttribute('ObjectID', $object_array['ObjectID']);
-  if (isset($object_array['ObjectDescription']) & $object_array['ObjectDescription'] != NULL & $object_array['ObjectDescription'] != ''){
-    $object_node->setAttribute('ObjectDescription', $object_array['ObjectDescription']);
-  }
-  if (isset($object_array['PublicationDate']) & $object_array['PublicationDate'] != NULL & $object_array['PublicationDate'] != ''){
-    $object_node->setAttribute('PublicationDate', $object_array['PublicationDate']);
-  }
+  $object_node->setAttribute('ObjectDescription', $object_array['ObjectDescription']);
+  $object_node->setAttribute('PublicationDate', $object_array['PublicationDate']);
   $object_node->setAttribute('CreationDate', $object_array['CreationDate']);
-  if (isset($object_array['LastUpdateDate']) & $object_array['LastUpdateDate'] != NULL & $object_array['LastUpdateDate'] != ''){
-    $object_node->setAttribute('LastUpdateDate', $object_array['LastUpdateDate']);
-  }
+  $object_node->setAttribute('LastUpdateDate', $object_array['LastUpdateDate']);
+  
   $object_node->appendChild($valid_dom->createElement('Title', $object_array['Title']['value']));
   $object_node->appendChild($valid_dom->createElement('ExternalReference', $object_array['ExternalReference']['value']));
-  if (isset($object_array['InternalReference']) & $object_array['InternalReference'] != NULL & $object_array['InternalReference'] != ''){
-    $object_node->appendChild($valid_dom->createElement('InternalReference', $object_array['InternalReference']['value']));
-  }
+  $object_node->appendChild($valid_dom->createElement('InternalReference', $object_array['InternalReference']['value']));
+  
 
   if (isset($object_array['Taxonomy']) & count($object_array['Taxonomy']) != 0){
     _wallytoolbox_arraytowallyxml_createVocItems($valid_dom, $object_node, $object_array['Taxonomy']);
   }
 
-  if (isset($object_array['Copyright']) & $object_array['Copyright']['value'] != NULL & $object_array['Copyright']['value'] != ''){
-    $object_node->appendChild($valid_dom->createElement('Copyright', $object_array['Copyright']['value']));
-  }
-  if (isset($object_array['ByLine']) & $object_array['ByLine']['value'] != NULL & $object_array['ByLine']['value'] != ''){
-    $object_node->appendChild($valid_dom->createElement('ByLine', $object_array['ByLine']['value']));
-  }
+  $object_node->appendChild($valid_dom->createElement('Copyright', $object_array['Copyright']['value'])); 
+  $object_node->appendChild($valid_dom->createElement('ByLine', $object_array['ByLine']['value']));
+  
   if (isset($object_array['EmbeddedObjectsOrder']) & $object_array['EmbeddedObjectsOrder'] != NULL & $object_array['EmbeddedObjectsOrder'] != ''){
     $object_node->appendChild($valid_dom->createElement('EmbeddedObjectsOrder', $object_array['EmbeddedObjectsOrder']['value']));
+  } else {
+    $embeddedobjectorder = $object_node->appendChild($valid_dom->createElement('EmbeddedObjectsOrder'));
+    $embeddedobjectorder->setAttribute('xsi:nil','true');
   }
 }
 
@@ -430,14 +325,17 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$object_node, $object_array){
-  if (isset($object_array['Caption']) & $object_array['Caption']['value'] != NULL & $object_array['Caption']['value'] != '')
-    $object_node->appendChild($valid_dom->createElement('Caption',$object_array['Caption']['value']));
-
+  $object_node->appendChild($valid_dom->createElement('Caption',$object_array['Caption']['value']));
   $object_node->appendChild($valid_dom->createElement('FileURI',$object_array['FileURI']['value']));
+  
+  if ($object_array['FileSize']['value'] == '' | $object_array['FileSize']['value'] == NULL){
+    $object_array['FileSize']['value'] = 0;
+  }
   $object_node->appendChild($valid_dom->createElement('FileSize',$object_array['FileSize']['value']));
+  $thumbnail_node = $object_node->appendChild($valid_dom->createElement('Thumbnail'));
+  $thumbnail_node->setAttribute('URI', $object_array['Thumbnail']['URI']);
   if (isset($object_array['Thumbnail']) & $object_array['Thumbnail']['value'] != NULL & $object_array['Thumbnail']['value'] != ''){
-    $thumbnail_node = $object_node->appendChild($valid_dom->createElement('Thumbnail'));
-    $thumbnail_node->setAttribute('URI', $object_array['Thumbnail']['URI']);
+    
     if (isset($object_array['Thumbnail']['Type']) & $object_array['Thumbnail']['Type'] != NULL & $object_array['Thumbnail']['Type'] != '')
       $thumbnail_node->setAttribute('Type',$object_array['Thumbnail']['Type']);
     if (isset($object_array['Thumbnail']['Title']) & $object_array['Thumbnail']['Title'] != NULL & $object_array['Thumbnail']['Title'] != '')
@@ -446,10 +344,16 @@ function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$o
       $thumbnail_node->setAttribute('W',$object_array['Thumbnail']['W']);
     if (isset($object_array['Thumbnail']['H']) & $object_array['Thumbnail']['H'] != NULL & $object_array['Thumbnail']['H'] != '')
       $thumbnail_node->setAttribute('H',$object_array['Thumbnail']['H']);
-    
+  } else {
+    $thumbnail_node->setAttribute('xsi:nil', 'true');
   }
-  if (isset($object_array['Rating']) & $object_array['Rating']['value'] != NULL & $object_array['Rating']['value'] != '')
+  if (isset($object_array['Rating']) & $object_array['Rating']['value'] != NULL & $object_array['Rating']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('Rating',$object_array['Rating']['value']));
+  } else {
+    $rating_node = $object_node->appendChild($valid_dom->createElement('Rating'));
+    $rating_node->setAttribute('xsi:nil','true');
+  }
+    
   if (isset($object_array['MimeType']) & $object_array['MimeType'] != NULL & $object_array['MimeType'] != '')
     $object_node->setAttribute('MimeType',$object_array['MimeType']);
   
@@ -472,8 +376,8 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
   if (isset($object_array['PhotoFile'])){
     $files_to_zip[] = $object_array['PhotoFile'];
   }
+  $crops_node = $object_node->appendChild($valid_dom->createElement('Crops'));
   if (isset($object_array['Crops'])){
-    $crops_node = $object_node->appendChild($valid_dom->createElement('Crops'));
     foreach ($object_array['Crops']['Crop'] as $crop_array){
       $crop_node = $crops_node->appendChild($valid_dom->createElement('Crop'));
       if (isset($crop_array['Type']) & $crop_array['Type'] != '' & $crop_array['Type'] != NULL)
@@ -487,15 +391,28 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
       if (isset($crop_array['H']) & $crop_array['H'] != '' & $crop_array['H'] != NULL)
         $crop_node->setAttribute('H',$crop_array['H']);
     }
+  } else {
+    $crops_node->setAttribute('xsi:nil', 'true');
   }
-  if (isset($object_array['LinkTitle']) & $object_array['LinkTitle']['value'] != NULL & $object_array['LinkTitle']['value'] != '')
-    $object_node->appendChild($valid_dom->createElement('LinkTitle',$object_array['LinkTitle']['value']));
-  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != '')
+  $object_node->appendChild($valid_dom->createElement('LinkTitle',$object_array['LinkTitle']['value']));
+  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('LinkURI',$object_array['LinkURI']['value']));
-  if (isset($object_array['Width']) & $object_array['Width']['value'] != NULL & $object_array['Width']['value'] != '')
+  } else {
+    $linkuri_node = $object_node->appendChild($valid_dom->createElement('LinkURI'));
+    $linkuri_node->setAttribute('xsi:nil', 'true');
+  }
+  if (isset($object_array['Width']) & $object_array['Width']['value'] != NULL & $object_array['Width']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('Width',$object_array['Width']['value']));
-  if (isset($object_array['Height']) & $object_array['Height']['value'] != NULL & $object_array['Height']['value'] != '')
+  } else {
+    $width_node = $object_node->appendChild($valid_dom->createElement('Width'));
+    $width_node->setAttribute('xsi:nil', 'true');
+  }
+  if (isset($object_array['Height']) & $object_array['Height']['value'] != NULL & $object_array['Height']['value'] != ''){
     $object_node->appendChild('Height',$object_array['Height']['value']);
+  } else {
+    $height_node = $object_node->appendChild($valid_dom->createElement('Height'));
+    $height_node->setAttribute('xsi:nil', 'true');
+  }
 }
 /**
  * Set the Text AudioObject elements
@@ -515,12 +432,19 @@ function _wallytoolbox_arraytowallyxml_fillAudioObjectType(&$valid_dom, &$object
   if (isset($object_array['AudioFile'])){
     $files_to_zip[] = $object_array['AudioFile'];
   }
-  if (isset($object_array['AudioLength']) & $object_array['AudioLength']['value'] != NULL & $object_array['AudioLength']['value'] != '')
+  if (isset($object_array['AudioLength']) & $object_array['AudioLength']['value'] != NULL & $object_array['AudioLength']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('AudioLength',$object_array['AudioLength']['value']));
-  if (isset($object_array['LinkTitle']) & $object_array['LinkTitle']['value'] != NULL & $object_array['LinkTitle']['value'] != '')
-    $object_node->appendChild($valid_dom->createElement('LinkTitle',$object_array['LinkTitle']['value']));
-  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != '')
+  } else {
+    $audiolength_node = $object_node->appendChild($valid_dom->createElement('AudioLength'));
+    $audiolength_node->setAttribute('xsi:nil', 'true');
+  }
+  $object_node->appendChild($valid_dom->createElement('LinkTitle',$object_array['LinkTitle']['value']));
+  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('LinkURI',$object_array['LinkURI']['value']));
+  } else {
+    $linkuri_node = $object_node->appendChild($valid_dom->createElement('LinkURI'));
+    $linkuri_node->setAttribute('xsi:nil', 'true');
+  }
 }
 /**
  * Set the Text VideoObject elements
@@ -540,12 +464,20 @@ function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object
   if (isset($object_array['VideoFile'])){
     $files_to_zip[] = $object_array['VideoFile'];
   }
-  if (isset($object_array['VideoLength']) & $object_array['VideoLength']['value'] != NULL & $object_array['VideoLength']['value'] != '')
+  if (isset($object_array['VideoLength']) & $object_array['VideoLength']['value'] != NULL & $object_array['VideoLength']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('VideoLength',$object_array['VideoLength']['value']));
+  } else {
+    $videolength_node = $object_node->appendChild($valid_dom->createElement('VideoLength'));
+    $videolength_node->setAttribute('xsi:nil', 'true');
+  }
   if (isset($object_array['LinkTitle']) & $object_array['LinkTitle']['value'] != NULL & $object_array['LinkTitle']['value'] != '')
     $object_node->appendChild($valid_dom->createElement('LinkTitle',$object_array['LinkTitle']['value']));
-  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != '')
+  if (isset($object_array['LinkURI']) & $object_array['LinkURI']['value'] != NULL & $object_array['LinkURI']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('LinkURI',$object_array['LinkURI']['value']));
+  } else {
+    $linkuri_node = $object_node->appendChild($valid_dom->createElement('LinkURI'));
+    $linkuri_node->setAttribute('xsi:nil', 'true');
+  }
   
 }
 /**
@@ -562,17 +494,19 @@ function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom, $object_node, $object_array){
-  if (isset($object_array['Summary']) & $object_array['Summary']['value'] != NULL & $object_array['Summary']['value'] != '')
-    $object_node->appendChild($valid_dom->createElement('Summary',$object_array['Summary']['value']));
+  $object_node->appendChild($valid_dom->createElement('Summary',$object_array['Summary']['value']));
   $object_node->appendChild($valid_dom->createElement('DateOpen',$object_array['DateOpen']['value']));
-  if (isset($object_array['Summary']) & $object_array['DateClose']['value'] != NULL & $object_array['DateClose']['value'] != '')
+  if (isset($object_array['DateClose']) & $object_array['DateClose']['value'] != NULL & $object_array['DateClose']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('DateClose',$object_array['DateClose']['value']));
+  } else {
+    $dateclose_node = $object_node->appendChild($valid_dom->createElement('DateClose'));
+    $dateclose_node->setAttribute('xsi:nil', 'true');
+  }
   $pollquestions_node = $object_node->appendChild($valid_dom->createElement('PollQuestions'));
   foreach ($object_array['PollQuestions']['PollQuestion'] as $pollquestion){
     $pollquestion_node = $pollquestions_node->appendChild($valid_dom->createElement('PollQuestion'));
     $pollquestion_node->appendChild($valid_dom->createElement('Question',$pollquestion['Question']['value']));
-    if (isset($pollquestion['Description']) & $pollquestion['Description']['value'] != NULL & $pollquestion['Description']['value'] != '') 
-      $pollquestion_node->appendChild($valid_dom->createElement('Description',$pollquestion['Description']['value']));
+    $pollquestion_node->appendChild($valid_dom->createElement('Description',$pollquestion['Description']['value']));
     $answers_node = $pollquestion_node->appendChild($valid_dom->createElement('Answers'));
     foreach($pollquestion['Answers']['Answer'] as $answer){
       $answers_node->appendChild($valid_dom->createElement('Answer'), $answer['value']);
@@ -667,22 +601,25 @@ function _wallytoolbox_arraytowallyxml_createVocItems(&$valid_dom, &$object_node
  */
 function _wallytoolbox_arraytowallyxml_fillPersonType(&$valid_dom,&$term_node,$term_array){
 
-  if (isset($term_array['PersonLastName']) & $term_array['PersonLastName']['value'] != NULL & $term_array['PersonLastName']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonLastName',$term_array['PersonLastName']['value']));
-  if (isset($term_array['PersonFirstName']) & $term_array['PersonFirstName']['value'] != NULL & $term_array['PersonFirstName']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonFirstName',$term_array['PersonFirstName']['value']));
-  if (isset($term_array['PersonNickName']) & $term_array['PersonNickName']['value'] != NULL & $term_array['PersonNickName']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonNickName',$term_array['PersonNickName']['value']));
-  if (isset($term_array['PersonBirthDate']) & $term_array['PersonBirthDate']['value'] != NULL & $term_array['PersonBirthDate']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonBirthDate',$term_array['PersonBirthDate']['value']));
-  if (isset($term_array['PersonSex']) & $term_array['PersonSex']['value'] != NULL & $term_array['PersonSex']['value'] != NULL)
+  $term_node->appendChild($valid_dom->createElement('PersonLastName',$term_array['PersonLastName']['value']));
+  $term_node->appendChild($valid_dom->createElement('PersonFirstName',$term_array['PersonFirstName']['value']));
+  $term_node->appendChild($valid_dom->createElement('PersonNickName',$term_array['PersonNickName']['value']));
+  if (isset($term_array['PersonBirthDate']) & $term_array['PersonBirthDate']['value'] != NULL & $term_array['PersonBirthDate']['value'] != ''){
+    list($birthdate,$birthhour) = explode(' ',$term_array['PersonBirthDate']['value']);
+    $term_node->appendChild($valid_dom->createElement('PersonBirthDate',$birthdate));
+  } else {
+    $personbirthdate_node = $term_node->appendChild($valid_dom->createElement('PersonBirthDate'));
+    $personbirthdate_node->setAttribute('xsi:nil', 'true');
+  }
+  if (isset($term_array['PersonSex']) & $term_array['PersonSex']['value'] != NULL & $term_array['PersonSex']['value'] != ''){
     $term_node->appendChild($valid_dom->createElement('PersonSex',$term_array['PersonSex']['value']));
-  if (isset($term_array['PersonEmail']) & $term_array['PersonEmail']['value'] != NULL & $term_array['PersonEmail']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonEmail',$term_array['PersonEmail']['value']));
-  if (isset($term_array['PersonWebSite']) & $term_array['PersonWebSite']['value'] != NULL & $term_array['PersonWebSite']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonWebSite',$term_array['PersonWebSite']['value']));
-  if (isset($term_array['PersonPhoneNumber']) & $term_array['PersonPhoneNumber']['value'] != NULL & $term_array['PersonPhoneNumber']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('PersonPhoneNumber',$term_array['PersonPhoneNumber']['value']));
+  } else {
+    $personsex_node = $term_node->appendChild($valid_dom->createElement('PersonSex'));
+    $personsex_node->setAttribute('xsi:nil', 'true');
+  }
+  $term_node->appendChild($valid_dom->createElement('PersonEmail',$term_array['PersonEmail']['value']));
+  $term_node->appendChild($valid_dom->createElement('PersonWebSite',$term_array['PersonWebSite']['value']));
+  $term_node->appendChild($valid_dom->createElement('PersonPhoneNumber',$term_array['PersonPhoneNumber']['value']));
 
 }
 /**
@@ -700,10 +637,8 @@ function _wallytoolbox_arraytowallyxml_fillPersonType(&$valid_dom,&$term_node,$t
  */
 function _wallytoolbox_arraytowallyxml_fillEntityType(&$valid_dom,&$term_node,$term_array){
 
-  if (isset($term_array['EntityDescription']) & $term_array['EntityDescription']['value'] != NULL & $term_array['EntityDescription']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('EntityDescription',$term_array['EntityDescription']['value']));
-  if (isset($term_array['EntityServices']) & $term_array['EntityServices']['value'] != NULL & $term_array['EntityServices']['value'] != NULL)
-    $term_node->appendChild($valid_dom->createElement('EntityServices',$term_array['EntityServices']['value']));
+  $term_node->appendChild($valid_dom->createElement('EntityDescription',$term_array['EntityDescription']['value']));
+  $term_node->appendChild($valid_dom->createElement('EntityServices',$term_array['EntityServices']['value']));
  
 }
 /**
@@ -720,23 +655,22 @@ function _wallytoolbox_arraytowallyxml_fillEntityType(&$valid_dom,&$term_node,$t
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillLocationType(&$valid_dom,&$term_node,$term_array){
-
+  $address_node = $term_node->appendChild($valid_dom->createElement('Address'));
   if (isset($term_array['Address'])){
-    $address_node = $term_node->appendChild($valid_dom->createElement('Address'));
     foreach ($term_array['Address']['AddressLine'] as $addressline){
       $address_node->appendChild($valid_dom->createElement('AddressLine',$addressline));
     }
-    if (isset($term_array['Address']['City']) & $term_array['Address']['City']['value'] != NULL & $term_array['Address']['City']['value'] != NULL)
-      $address_node->appendChild($valid_dom->createElement('City',$term_array['Address']['City']));
-    if (isset($term_array['Address']['Zip']) & $term_array['Address']['Zip']['value'] != NULL & $term_array['Address']['Zip']['value'] != NULL)
-      $address_node->appendChild($valid_dom->createElement('Zip',$term_array['Address']['Zip']));
-    if (isset($term_array['Address']['State']) & $term_array['Address']['State']['value'] != NULL & $term_array['Address']['State']['value'] != NULL)
-      $address_node->appendChild($valid_dom->createElement('State',$term_array['Address']['State']));
-    if (isset($term_array['Address']['Country']) & $term_array['Address']['Country']['value'] != NULL & $term_array['Address']['Country']['value'] != NULL)
-      $address_node->appendChild($valid_dom->createElement('Country',$term_array['Address']['Country']));
-    
+    $address_node->appendChild($valid_dom->createElement('City',$term_array['Address']['City']['value']));
+    $address_node->appendChild($valid_dom->createElement('Zip',$term_array['Address']['Zip']['value']));
+    $address_node->appendChild($valid_dom->createElement('State',$term_array['Address']['State']['value']));
+    $address_node->appendChild($valid_dom->createElement('Country',$term_array['Address']['Country']['value']));
+  } else {
+    $address_node->setAttribute('xsi:nil','true');
   }
-  if (isset($term_array['LocationGeo']) & $term_array['LocationGeo']['value'] != NULL & $term_array['LocationGeo']['value'] != NULL)
+  if (isset($term_array['LocationGeo']) & $term_array['LocationGeo']['value'] != NULL & $term_array['LocationGeo']['value'] != NULL){
     $term_node->appendChild($valid_dom->createElement('LocationGeo',$term_array['LocationGeo']['value']));
- 
+  } else {
+    $locationgeo_node = $term_node->appendChild($valid_dom->createElement('LocationGeo'));
+    $locationgeo_node->setAttribute('xsi:nil','true');
+  } 
 }
