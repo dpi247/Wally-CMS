@@ -15,6 +15,13 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   $cache_name = $_POST['cache name'];
   $coming_form = $_POST['coming_form'];
 
+  $type_name = $parents[0];
+  module_load_include('inc','wallyedit','includes/page_form_display_tabs');
+  $fields = wyditadmin_get_existing_fields($type_name);
+
+  //@todo: remove hard coding of parents
+  $field_infos = $fields[$parents[1]];
+
   $form_state=array(
     'parents'=>$parents,
     'cache name'=>$prenode->cache_name,
@@ -22,8 +29,8 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
     'args' => array(
       'coming_form' => $coming_form,
     ),
-    'type' => $parents[0],
-    'fields_infos' => array('referenceable_types' => array()),
+    'type' => $type_name,
+    'fields_infos' => $field_infos,
   );
 
   $form = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state);

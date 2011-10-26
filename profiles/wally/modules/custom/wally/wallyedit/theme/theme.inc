@@ -81,22 +81,22 @@ function theme_wydit_selector_theme($form){
     if(is_integer($key)){
       $row = array();
       $row[] = drupal_render($element['title']);
-      $row[] =drupal_render($element['weight']);
+      $row[] = drupal_render($element['weight']);
       $row[] = drupal_render($element['type']);
       $row[] = drupal_render($element['edit_action']).' '.drupal_render($element['delete_action']);
-      
+
       $rows[] = array('data'=>$row, 'class'=>'draggable');
     }
   }
-  
+
   $table_id='table_order_'.$form['#parents'][count($form['#parents'])-1];
-  drupal_add_tabledrag($table_id,  'order', 'self', 'order_weight',NULL,NULL,TRUE);    
-  
+  drupal_add_tabledrag($table_id,  'order', 'self', 'order_weight',NULL,NULL,TRUE);
+
   $output = theme('table', $header, $rows,array('id'=>$table_id));
-  
+
   $output .= drupal_render($form['add_existing_action']);
   $output .= drupal_render($form["add_new_action"]);
-  
+
   return  $output;
 }
 
