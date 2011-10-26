@@ -757,9 +757,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
       $fields = wyditadmin_get_existing_fields($form_state['type']);
       //@todo: remove hard coding of parents
       $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
-      if(count($field_infos['referenceable_types'])==1) {
-
-      } else {
+      if(count($field_infos['referenceable_types']) > 1) {
         //fields_infos is set in wydit_subform_global_page_submit()
         $form_state_type_selector['fields_infos']=$field_infos;
 
@@ -921,6 +919,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       
       $edit_form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$edit_form);
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
 
       break;
     case 'add_new':
@@ -930,9 +929,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
 
       //@todo: remove hard coding of parents
       $field_infos=$fields[$form_state['clicked_button']["#parents"][1]];
-      if(count($field_infos['referenceable_types'])==1){
-      }
-      else{
+      if(count($field_infos['referenceable_types']) > 1){
         $form_state_type_selector['fields_infos']=$field_infos;
         $form_state_type_selector['action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$current_profile;
 
@@ -944,8 +941,10 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         $form_state_type_selector['args'][] = 'edit';
 
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector);
-        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form_type_selector);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
       }
+      
       break;
     case 'add_existing':
       $type_name=$form_state['type'];
@@ -1006,7 +1005,9 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       drupal_add_js($settings, 'setting');
       $output = $view->preview();
 
-      $commands[] = ctools_ajax_command_html('#wallyedit_container',$output);
+      $commands[] = ctools_ajax_command_html('#wallyedit_container', $output);
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+      
       break;
     case 'save_global':
       break;
@@ -1023,7 +1024,6 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $new_form = ctools_build_form('wallyedit_form_page_editmode_form', wydit_clean_form_state($new_form_state), $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$new_form);
 
-      //ctools_ajax_render($commands);
       break;
   }
    
@@ -1043,7 +1043,8 @@ function wydit_subform_global_page_form(&$form_state){
   
   $a['#tree'] = true;
   drupal_prepare_form($type_name.'_node_form', $a, $form_state);
-
+  $a=form_builder($type_name.'_node_form', $a, $form_state) ;
+  
   unset($a["#type"]);
   unset($a["form_id"]);
   unset($a["#parents"]);
@@ -1441,6 +1442,15 @@ function wydit_subform_global_add_form(&$form_state){
   	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   
+  $form["cancel_global"] = array(
+    '#type' => 'submit',
+    '#name' => 'cancel_global',
+    "#value" => t('Cancel'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#validate' => array('wallyedit_form_add_form_cancel_validate'),
+    '#submit' => array('wallyedit_form_add_form_cancel_submit'),
+  );
+  
   $form['#tree'] = TRUE;
   $form['#theme'][] = "wallyedit_node_form";
   
@@ -1472,9 +1482,7 @@ function wallyedit_form_createmode_add_form_submit($form,&$form_state){
 
       //@todo: remove hard coding of parents
       $field_infos=$fields[$field_name];
-      if(count($field_infos['referenceable_types'])==1){
-      }
-      else{
+      if(count($field_infos['referenceable_types']) > 1){
         $form_state_type_selector['fields_infos']=$field_infos;
         $form_state_type_selector['action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$current_profile;
 
@@ -1520,25 +1528,21 @@ function wallyedit_form_createmode_add_form_submit($form,&$form_state){
 
 function wallyedit_form_editmode_add_form_submit($form,&$form_state){
   $old_form_state=$form_state;
-  
+
   array_pop($form_state['values']["parents"]);
   $target=$form_state['values']["parents"];
   $type_name=$form_state['values']["type"];
-  if($type_name=="wally_linkslistobject"){
-  //  $target="wally_articlepackage/field_linkedobjects";
-   // $target=array("wally_articlepackage","field_linkedobjects","field_links_list");
-    
-  }
+
   if($type_name=="wally_linktype"){
     $number_of_items_in_target=wydit_get_number_of_elements_of_target($form_state,array("wally_articlepackage","field_linkedobjects"))-1;
     $target=array("wally_articlepackage","field_linkedobjects",$number_of_items_in_target,"field_links_list");
   }
   wydit_subform_global_add_form_submit($form,$form_state,$target);
 
-   $action_temp =split('__',$old_form_state['clicked_button']['#name']);
-   $action=$action_temp[0];
-   $field_name=$action_temp[1];
-   switch($action){
+  $action_temp = split('__',$old_form_state['clicked_button']['#name']);
+  $action=$action_temp[0];
+  $field_name=$action_temp[1];
+  switch($action){
     case 'add_new':
       $type_name=$old_form_state['values']['type'];
       module_load_include('inc','wallyedit','includes/page_form_display_tabs');
@@ -1546,9 +1550,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
 
       //@todo: remove hard coding of parents
       $field_infos=$fields[$field_name];
-      if(count($field_infos['referenceable_types'])==1){
-      }
-      else{
+      if(count($field_infos['referenceable_types']) > 1){
         $form_state_type_selector['fields_infos']=$field_infos;
         $form_state_type_selector['action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$current_profile;
 
@@ -1563,34 +1565,49 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
       }
       break;
     case 'save_global':
-      if($old_form_state['values']['type']=='wally_linktype'){
+      if($old_form_state['values']['type']=='wally_linktype') {
         $new_form_state=array();
         $new_form_state['parents']= $target;
-        array_pop($new_form_state['parents']);        
+        array_pop($new_form_state['parents']);
         $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
         $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
         $new_form_state['cache name']=$old_form_state['cache name'];
         $new_form_state['profile_id'] = $old_form_state['profile_id'];
-        
+
         $new_form_state['type']='wally_linkslistobject';
-        
+
         //Need that to avoid re-processing of the form (infinite loop)
         $new_form_state['input']=NULL;
-        
+
         $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
-      else{
+      else {
         $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
-        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $form_state);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
-       
       break;
   }
-        
+
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
+}
+
+function wallyedit_form_add_form_cancel_validate($form, $form_state) {
+  drupal_get_messages();
+  form_set_error(NULL, '', TRUE);
+}
+
+function wallyedit_form_add_form_cancel_submit($form, $form_state) {
+  module_load_include('inc','wallyedit','includes/page_node_edition');
+  $prenode = new Prenode($form_state['cache name'], FALSE, $form_state['profile_id']);
+  $prenode->setCurrentProfile($form_state['profile_id']);
+  wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
 }
 
 function wydit_subform_global_add_form_submit($form,&$form_state,$target){
@@ -1661,9 +1678,19 @@ function wydit_subform_global_edit_form(&$form_state){
     "#value" => t('Save'),
   	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
+  
+  $form["cancel_global"] = array(
+    '#type' => 'submit',
+    '#name' => 'cancel_global',
+    "#value" => t('Cancel'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#validate' => array('wallyedit_form_edit_form_cancel_validate'),
+    '#submit' => array('wallyedit_form_edit_form_cancel_submit'),
+  );
+  
   $form['#tree']=true;
   unset($form["#validate"]);
-   $form['#theme'][] = "wallyedit_node_form";
+  $form['#theme'][] = "wallyedit_node_form";
    
   return $form;
 }
@@ -1690,9 +1717,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
 
       //@todo: remove hard coding of parents
       $field_infos=$fields[$field_name];
-      if(count($field_infos['referenceable_types'])==1){
-      }
-      else{
+      if(count($field_infos['referenceable_types']) > 1){
         $form_state_type_selector['fields_infos']=$field_infos;
         $form_state_type_selector['action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$current_profile;
 
@@ -1727,52 +1752,50 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
 
       break;
-        case 'save_global':
-          if($old_form_state['values']['type']=='wally_linktype'){
-            $new_form_state=array();
-            $new_form_state['parents']= $old_form_state['values']['parents'];
-            array_pop($new_form_state['parents']);
-            array_pop($new_form_state['parents']);
-            $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-            $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
-            $new_form_state['cache name']=$old_form_state['cache name'];
-            $new_form_state['profile_id'] = $old_form_state['profile_id'];
-                
-            $new_form_state['type']='wally_linkslistobject';
-  
-            //Need that to avoid re-processing of the form (infinite loop)
-            $new_form_state['input']=NULL;
-            
-            $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-            $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
-            
-          }
-          else{
-            $new_form_state=array();
-            $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-            $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
-            $new_form_state['cache name']=$old_form_state['cache name'];
-            $new_form_state['profile_id'] = $old_form_state['profile_id'];
-                
-            $new_form_state['type']=$form_state['type'];
-            
-            //Need that to avoid re-processing of the form (infinite loop)
-            $new_form_state['input']=NULL;
-            
-           $form = ctools_build_form('wallyedit_form_page_editmode_form', $new_form_state, $new_form_state['values']['profile_id']);
-           $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
-                
-          }
+    case 'save_global':
+      $new_form_state=array();
+      $new_form_state['cache name']=$old_form_state['cache name'];
+      $new_form_state['profile_id'] = $old_form_state['profile_id'];
+      $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
+      $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
+      //Need that to avoid re-processing of the form (infinite loop)
+      $new_form_state['input']=NULL;
+      
+      if($old_form_state['values']['type']=='wally_linktype'){
+        $new_form_state['parents']= $old_form_state['values']['parents'];
+        array_pop($new_form_state['parents']);
+        array_pop($new_form_state['parents']);
+        $new_form_state['type']='wally_linkslistobject';
+
+        $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+      }
+      else{
+        $new_form_state['type']=$form_state['type'];
+
+        $form = ctools_build_form('wallyedit_form_page_editmode_form', $new_form_state, $new_form_state['values']['profile_id']);
+        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
+      }
       break;
   }
 
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
+}
 
-  $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+function wallyedit_form_edit_form_cancel_validate($form, $form_state) {
+  drupal_get_messages();
+  form_set_error(NULL, '', TRUE);
+}
 
-  ctools_ajax_render($commands);
+function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
+  module_load_include('inc','wallyedit','includes/page_node_edition');
+  $prenode = new Prenode($form_state['cache name'], FALSE, $form_state['profile_id']);
+  $prenode->setCurrentProfile($form_state['profile_id']);
+  wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
 }
 
 function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
@@ -1813,12 +1836,13 @@ function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
   $form['#action']='/node/'.$form_state['cache name'].'/wydit_typeselector/ajax/'.$form_state['profile_id'];
   $field_infos=$form_state['fields_infos'];
   $parents=$form_state['parents'];
-  
-  $content_types=_content_type_info();
 
-  foreach($field_infos['referenceable_types'] as $type_name=>$value){
-    if($value)
-      $options[$type_name]=$content_types["content types"][$type_name]['name'];
+  $content_types = _content_type_info();
+
+  foreach($field_infos['referenceable_types'] as $type_name => $value) {
+    if($value) {
+      $options[$type_name] = $content_types["content types"][$type_name]['name'];
+    }
   }
   
   $form['parents']=array(
@@ -1926,10 +1950,12 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $form_state['#node']=$form_state[$type_name]['#node'];
   //@todo: remove the node key prefere #node
   $form_state[$type_name]['node']=$node;
-
+  
   $a=drupal_retrieve_form($type_name.'_node_form',$form_state,$form_state[$type_name]['node']);
+  $a['#after_build'][] = 'wysiwyg_process_form';
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
-
+  $a=form_builder($type_name.'_node_form', $a, $form_state) ;
+  
   $form = array(
     '#title' => $form_element['#title'],
   	'#type' => 'fieldset',
@@ -1945,7 +1971,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
     $a["#parents"]=$parents;
     $form[$element_name]=$a[$element_name];
 
-    //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOUL BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
+    //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOULD BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
     //EDIT2: WTF ???
     if(isset($fields[$element_name]) and $flat_fields[$element_name]['display'] == 1){
       $form[$element_name]["#parents"] = $parents;
@@ -1983,10 +2009,10 @@ function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$eleme
           "#type"=>"markup",
           "#value"=> $embed_node->type,
         );
-        $form[$key]['weight_'.$key]=array(
+        $form[$key]['weight']=array(
           '#type'=>'weight',
           "#default_value"=> $key,
-          '#attributes' => array('class'=>'order_weightss'),
+          '#attributes' => array('class'=>'order_weight'),
           "#parents"=>array_merge($parents,array("weight_".$key)),
         );
         $form[$key]['edit_action']=array(
@@ -2315,16 +2341,18 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
   
-  switch ($type_name) {
-    case 'wally_articlepackage':
-      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainstory'][0]['#node']->title;
-      break;
-    case 'wally_gallerypackage':
-      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainobject'][0]['#node']->title;
-      break;
-    case 'wally_pollpackage':
-      $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainpoll'][0]['#node']->title;
-      break;
+  if ($fields['title']['display'] == 0) {
+    switch ($type_name) {
+      case 'wally_articlepackage':
+        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainstory'][0]['#node']->title;
+        break;
+      case 'wally_gallerypackage':
+        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainobject'][0]['#node']->title;
+        break;
+      case 'wally_pollpackage':
+        $form_state[$type_name]['#node']->title = $form_state[$type_name]['field_mainpoll'][0]['#node']->title;
+        break;
+    }
   }
 
   foreach($fields as $field){

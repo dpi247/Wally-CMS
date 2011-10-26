@@ -29,6 +29,7 @@ function wallyedit_page_node_edition($prenode, $js = FALSE, $current_profile = 0
   if($js){
     //AJAX rendering int the submit function
     $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
     ctools_ajax_render($commands);
   } else{
