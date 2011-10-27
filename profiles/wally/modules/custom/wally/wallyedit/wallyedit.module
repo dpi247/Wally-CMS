@@ -1791,7 +1791,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       $new_form_state['cache name']=$old_form_state['cache name'];
       $new_form_state['profile_id'] = $old_form_state['profile_id'];
       $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-      $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
+      $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
       //Need that to avoid re-processing of the form (infinite loop)
       $new_form_state['input']=NULL;
       
