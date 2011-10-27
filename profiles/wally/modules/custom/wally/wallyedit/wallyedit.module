@@ -490,7 +490,7 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
         '#weight' => -99,
       );
 
-      $form['#after_build'][] = 'wallyedit_after_build';
+      $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
     }
   }
   
@@ -680,10 +680,6 @@ function wallyedit_form_page_createmode_form_validate(&$form, &$form_state){
   }
 }
 
-function wallyedit_after_build ($form, &$form_state) {
-  wallyedit_form_change_profile_form_after_build ($form, &$form_state);
-  return $form;
-}
 /**
  * Add submit function during after build process to be sure to pass after cck
  */
@@ -928,6 +924,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       
       $edit_form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$edit_form);
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
 
       break;
     case 'add_new':
@@ -952,6 +949,8 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
 
         $form_type_selector = ctools_build_form('wallyedit_form_nodetypeselector_form', $form_state_type_selector);
         $commands[] = ctools_ajax_command_html('#wallyedit_container',$form_type_selector);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+        
       }
       break;
     case 'add_existing':
@@ -1014,6 +1013,8 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $output = $view->preview();
 
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$output);
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+      
       break;
     case 'save_global':
       break;
@@ -1030,7 +1031,6 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $new_form = ctools_build_form('wallyedit_form_page_editmode_form', wydit_clean_form_state($new_form_state), $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$new_form);
 
-      //ctools_ajax_render($commands);
       break;
   }
    
@@ -1049,7 +1049,6 @@ function wydit_subform_global_page_form(&$form_state){
   $a = drupal_retrieve_form($type_name.'_node_form', $a, $form_state[$type_name]['#node']);
   
   $a['#tree'] = true;
-  
   drupal_prepare_form($type_name.'_node_form', $a, $form_state);
   $a=form_builder($type_name.'_node_form', $a, $form_state) ;
   
@@ -1177,8 +1176,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     $parents_new = $parents;
     $parents_new[] = $element;
     $b = $parents;
-	if($form[$element]['#type'] == 'textarea'){
-	}
+
     if(isset($flat_fields[$element]) and $flat_fields[$element]['display'] == 0) {
       //@todo: DDU what happen if the element is required ?
       unset($form[$element]);
@@ -1449,7 +1447,14 @@ function wydit_subform_global_add_form(&$form_state){
     "#value" => t('Save'),
   	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
-  
+  $form["cancel_global"] = array(
+    '#type' => 'submit',
+    '#name' => 'cancel_global',
+    "#value" => t('Cancel'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#validate' => array('wallyedit_form_add_form_cancel_validate'),
+    '#submit' => array('wallyedit_form_add_form_cancel_submit'),
+  );
   $form['#tree'] = TRUE;
   $form['#theme'][] = "wallyedit_node_form";
   
@@ -1533,18 +1538,14 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
   array_pop($form_state['values']["parents"]);
   $target=$form_state['values']["parents"];
   $type_name=$form_state['values']["type"];
-  if($type_name=="wally_linkslistobject"){
-  //  $target="wally_articlepackage/field_linkedobjects";
-   // $target=array("wally_articlepackage","field_linkedobjects","field_links_list");
-    
-  }
+
   if($type_name=="wally_linktype"){
     $number_of_items_in_target=wydit_get_number_of_elements_of_target($form_state,array("wally_articlepackage","field_linkedobjects"))-1;
     $target=array("wally_articlepackage","field_linkedobjects",$number_of_items_in_target,"field_links_list");
   }
   wydit_subform_global_add_form_submit($form,$form_state,$target);
 
-   $action_temp =split('__',$old_form_state['clicked_button']['#name']);
+   $action_temp = split('__',$old_form_state['clicked_button']['#name']);
    $action=$action_temp[0];
    $field_name=$action_temp[1];
    switch($action){
@@ -1587,11 +1588,15 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         $new_form_state['input']=NULL;
         
         $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
       else{
         $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
-        $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
+         $form_prev = ctools_build_form('wydit_subform_global_preview_form', $form_state);
+        $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
        
       break;
@@ -1600,6 +1605,17 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
+}
+function wallyedit_form_add_form_cancel_validate($form, $form_state) {
+  drupal_get_messages();
+  form_set_error(NULL, '', TRUE);
+}
+
+function wallyedit_form_add_form_cancel_submit($form, $form_state) {
+  module_load_include('inc','wallyedit','includes/page_node_edition');
+  $prenode = new Prenode($form_state['cache name'], FALSE, $form_state['profile_id']);
+  $prenode->setCurrentProfile($form_state['profile_id']);
+  wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
 }
 
 function wydit_subform_global_add_form_submit($form,&$form_state,$target){
@@ -1668,6 +1684,14 @@ function wydit_subform_global_edit_form(&$form_state){
     '#name' => 'save_global',
     "#value" => t('Save'),
   	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+  );
+    $form["cancel_global"] = array(
+    '#type' => 'submit',
+    '#name' => 'cancel_global',
+    "#value" => t('Cancel'),
+  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#validate' => array('wallyedit_form_edit_form_cancel_validate'),
+    '#submit' => array('wallyedit_form_edit_form_cancel_submit'),
   );
   $form['#tree']=true;
   unset($form["#validate"]);
@@ -1793,8 +1817,10 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
             $new_form_state['input']=NULL;
             
            $form = ctools_build_form('wallyedit_form_page_editmode_form', $new_form_state, $new_form_state['values']['profile_id']);
-           $commands[] = ctools_ajax_command_html('#wallyedit_container',$form);
-                
+           $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
+           $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+           $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
+           
           }
       break;
   }
@@ -1808,6 +1834,17 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
   ctools_ajax_render($commands);
 }
 
+function wallyedit_form_edit_form_cancel_validate($form, $form_state) {
+  drupal_get_messages();
+  form_set_error(NULL, '', TRUE);
+}
+
+function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
+  module_load_include('inc','wallyedit','includes/page_node_edition');
+  $prenode = new Prenode($form_state['cache name'], FALSE, $form_state['profile_id']);
+  $prenode->setCurrentProfile($form_state['profile_id']);
+  wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
+}
 function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
   ctools_include('form');
   ctools_include('modal');
@@ -2401,18 +2438,15 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
       foreach($form_state['field_links_list'] as $key=>$link){
       	if(is_numeric($key)){
       		
-      	$link_node=$link["#node"];
-        node_save($link_node);
-        if(is_numeric($link_node->nid)){
-          $b->{field_links_list}[$key]['nid']=$link_node->nid;
-          $form_state['field_links_list'][$key]["#node"]=$link_node;
-        }
+      	  $link_node=$link["#node"];
+          node_save($link_node);
+          if(is_numeric($link_node->nid)){
+            $b->{field_links_list}[$key]['nid']=$link_node->nid;
+            $form_state['field_links_list'][$key]["#node"]=$link_node;
+          }
       	}
-      	
-      	
       }
-              $form_state['#node']=$b;
-      
+      $form_state['#node']=$b;
     }
   }
   else{
@@ -2917,105 +2951,6 @@ function wydit_merge_arrays() {
     }
   }
   return $merged;
-}
-
-function  wydit_wysiwyg_add(&$form,$type_name){
-if ($children = array_values(element_children($form))) {
-    foreach ($children as $index => $item) {
-      $element = &$form[$item];
-      // filter_form() always uses the key 'format'. We need a type-agnostic
-      // match to prevent false positives. Also, there must have been at least
-      // one element on this level.
-    //  dsm($element);
-      if ($element['#type'] === 'text_textarea' ) {
-      	// Make sure we either match a input format selector or input format
-        // guidelines (displayed if user has access to one input format only).
-        if ((isset($element['#type']) && $element['#type'] == 'text_textarea')) {
-          // The element before this element is the target form field.
-          $field = &$element;
-
-          // Allow modules to programmatically enforce no client-side editor by
-          // setting the #wysiwyg property to FALSE.
-          if (isset($field['#wysiwyg']) && !$field['#wysiwyg']) {
-            // A 'format' element should not have any child elements that may
-            // need processing, so it should be safe to skip the recursion that
-            // happens at the end of this function, and move on to the next
-            // element on the same level.
-            continue;
-          }
-          // If this textarea is #resizable and we will load at least one
-          // editor, then only load the behavior and let the 'none' editor
-          // attach/detach it to avoid hi-jacking the UI. Due to our CSS class
-          // parsing, we can add arbitrary parameters for each input format.
-          // The #resizable property will be removed below, if at least one
-          // profile has been loaded.
-          $extra_class = '';
-          if (!empty($field['#resizable'])) {
-            $extra_class = ' wysiwyg-resizable-1';
-            drupal_add_js('misc/textarea.js');
-          }
-
-          // Determine the available input formats. The last child element is a
-          // link to "More information about formatting options". When only one
-          // input format is displayed, we also have to remove formatting
-          // guidelines, stored in the child 'format'.
-          $type=content_types(str_replace('-','_', $type_name));
-          $formats =filter_formats();
-          foreach ($formats as $format) {
-            // Default to 'none' editor (Drupal's default behaviors).
-            $editor = 'none';
-            $status = 1;
-            $toggle = 1;
-            // Fetch the profile associated to this input format.
-            $profile = wysiwyg_get_profile($format);
-            if ($profile) {
-              $loaded = TRUE;
-              $editor = $profile->editor;
-              $status = (int) wysiwyg_user_get_status($profile);
-              if (isset($profile->settings['show_toggle'])) {
-                $toggle = (int) $profile->settings['show_toggle'];
-              }
-              // Check editor theme (and reset it if not/no longer available).
-              $theme = wysiwyg_get_editor_themes($profile, (isset($profile->settings['theme']) ? $profile->settings['theme'] : ''));
-
-              // Add plugin settings (first) for this input format.
-              wysiwyg_add_plugin_settings($profile);
-              // Add profile settings for this input format.
-              wysiwyg_add_editor_settings($profile, $theme);
-            }
-
-            // Use a prefix/suffix for a single input format, or attach to input
-            // format selector radio buttons.
-            if (isset($element['format']['guidelines'])) {
-              $element['format']['guidelines']['#prefix'] = '<div class="wysiwyg wysiwyg-format-' . $format . ' wysiwyg-editor-' . $editor . ' wysiwyg-field-' . $field['#id'] . ' wysiwyg-status-' . $status . ' wysiwyg-toggle-' . $toggle . $extra_class . '">';
-              $element['format']['guidelines']['#suffix'] = '</div>';
-              // Edge-case: Default format contains no input filters.
-              if (empty($element['format']['guidelines']['#value'])) {
-                $element['format']['guidelines']['#value'] = ' ';
-              }
-            }
-            else {
-              $element[$format]['#attributes']['class'] = (isset($element[$format->format]['#attributes']['class']) ? $element[$format]['#attributes']['class'] . ' ' : '');
-              $element[$format]['#attributes']['class'] .= 'wysiwyg wysiwyg-format-' . $format . ' wysiwyg-editor-' . $editor . ' wysiwyg-field-' . $field['#id'] . ' wysiwyg-status-' . $status . ' wysiwyg-toggle-' . $toggle . $extra_class;
-            }
-          }
-
-          // If we loaded at least one editor, then the 'none' editor will
-          // handle resizable textareas instead of core.
-          if (isset($loaded) && !empty($field['#resizable'])) {
-            $field['#resizable'] = FALSE;
-          }
-        }	
-        
-       
-
-      }
-        // Recurse into children.
-         // If this element is 'format', do not recurse further.
-              wydit_wysiwyg_add($form[$item],$type_name);
-    }
-  }
-  return $form;
 }
 
 /**
