@@ -292,8 +292,6 @@ class views_handler_filter_in_operator extends views_handler_filter {
     if (in_array($this->operator, $this->operator_values(1))) {
       // Remove every element which is not known.
       foreach ($this->value as $value) {
-        if (!is_string($value))
-        dsm(debug_backtrace(), 'backtrace');
         if (!isset($this->value_options[$value])) {
           unset($this->value[$value]);
         }
