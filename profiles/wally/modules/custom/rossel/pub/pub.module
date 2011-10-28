@@ -50,7 +50,7 @@ function pub_menu() {
 function pub_theme() {
   return array(
     'pub_content' => array(
-      'arguments' => array('subtype' => array(), 'context' => array(), 'html_code' => '', 'settings' => array()),
+      'arguments' => array('html_code' => '', 'delta' => array()),
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
@@ -205,73 +205,32 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
  */
 function _pub_getpubcontent($delta) {
   $orig_url = $_GET['q'];
-  if (module_exists('wallyextra')) {
-    $settings = array(
-      'orig_url' => $orig_url,
-      'delta' => $delta,
-    );
-    $pub_content = wallyextra_get_cache_or_create('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), 'pub_set_pub_content_cache', $settings, array(), array(), 'pub_content', '', TRUE);
 
-    if (is_string($pub_content)) {
-      $html_pub = $pub_content;
+  $cached_pub = cache_get('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url));
+  $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
+
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $website = variable_get('pub_website', '');
+    $script_type = variable_get('pub_provider', 'AdTech');
+    $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+
+    if ($content_from_webservice) {
+      $pub_content = $content_from_webservice;
     } else {
-      $html_pub = theme('pub_content', array(), array(), $pub_content['content'], $settings);
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
+      $pub_content = $cached_pub->data ? $cached_pub->data : '';
     }
+
+    cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
+    cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
   } else {
-    $cached_pub = cache_get('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url));
-    $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
-
-    if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-      $webserv_req = _pub_getwebservreq($orig_url);
-      $website = variable_get('pub_website', '');
-      $script_type = variable_get('pub_provider', 'AdTech');
-      $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
-
-      if ($content_from_webservice) {
-        $pub_content = $content_from_webservice;
-      } else {
-        $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
-        $pub_content = $cached_pub->data ? $cached_pub->data : '';
-      }
-
-      cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
-      cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
-    } else {
-      $pub_content = $cached_pub->data;
-    }
-
-    $html_pub = theme('pub_content', array(), array(), $pub_content, $settings);
+    $pub_content = $cached_pub->data;
   }
+
+  $html_pub = theme('pub_content', $pub_content, $delta);
 
   return $html_pub;
-}
-
-/**
- * Callback for the AJAX loading of the ads
- */
-function pub_set_pub_content_cache($settings) {
-  $delta = $settings['delta'];
-  $orig_url = $settings['orig_url'];
-
-  $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
-  $webserv_req = _pub_getwebservreq($orig_url);
-  $website = variable_get('pub_website', '');
-  $script_type = variable_get('pub_provider', 'AdTech');
-  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
-
-  if ($content_from_webservice) {
-    $pub_content = $content_from_webservice;
-  } else {
-    $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
-    $pub_content = $cached_pub->data ? $cached_pub->data : '';
-  }
-
-  cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
-  cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
-  
-  drupal_set_header('Content-Type: application/javascript; charset=utf-8');
-  
-  return $pub_content;
 }
 
 /**
