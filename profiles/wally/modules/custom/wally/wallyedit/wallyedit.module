@@ -620,6 +620,50 @@ function wallyedit_access($profile_id) {
 }
 
 /**
+ * Invoke a hook_prenodeapi() operation in all modules.
+ *
+ * @param &$prenode
+ *   A prenode object.
+ * @param $op
+ *   A string containing the name of the prenodeapi operation.
+ * @return
+ *   The returned value of the invoked hooks.
+ */
+function wallyedit_invoke_prenodeapi(&$prenode, $op) {
+  $return = array();
+  $args = func_get_args();
+  $args[0] = &$prenode;
+
+  foreach (module_implements('prenodeapi') as $name) {
+    $function = $name .'_prenodeapi';
+
+    $result = call_user_func_array($function, $args);
+    if (isset($result) && is_array($result)) {
+      $return = array_merge($return, $result);
+    }
+    else if (isset($result)) {
+      $return[] = $result;
+    }
+  }
+  return $return;
+}
+
+/**
+ * Implementation of hook_prenodeapi().
+ */
+function wallyedit_prenodeapi(&$prenode, $op){
+  switch ($op) {
+    case 'presave' :
+      if($prenode['type'] == 'wally_articlepackage' ||
+      $prenode['type'] == 'wally_gallerypackage' ||
+      $prenode['type'] == 'wally_pollpackage') {
+        _wallyedit_update_package_prenode_taxonomy($prenode);
+      }
+      break;
+  }
+}
+
+/**
  * Get the default profile for current user
  */
 function wallyedit_get_default_profile() {
@@ -713,8 +757,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
   if($form_state["clicked_button"]['#name'] == 'reset_global'){
     drupal_set_message('reset');
-    ctools_object_cache_clear('prenode', $form_state['cache name']);
-    drupal_set_message('PreNode has been cleared');
+    prenode_delete($form_state['cache name']);
     drupal_goto("admin/wallyedit/node");
   }
 
@@ -725,8 +768,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   if($form_state["clicked_button"]['#name']=='publish_global' ){
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
-    ctools_object_cache_clear('prenode', $form_state['cache name']);
-    drupal_set_message('PreNode has been cleared');
+    prenode_delete($form_state['cache name']);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -881,10 +923,10 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   ctools_modal_add_js();
   ctools_include('object-cache');
   $commands = array();
+  
   if($form_state["clicked_button"]['#name']=='reset_global'){
     drupal_set_message('reset');
-    ctools_object_cache_clear('prenode', $form_state['cache name']);
-    drupal_set_message('PreNode has been cleared');
+    prenode_delete($form_state['cache name']);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -894,8 +936,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   if($form_state["clicked_button"]['#name']=='publish_global'){
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
-    ctools_object_cache_clear('prenode', $form_state['cache name']);
-    drupal_set_message('PreNode has been cleared');
+    prenode_delete($form_state['cache name']);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -1167,7 +1208,8 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type);
   $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type);
-      $content_fields = content_types($type);
+  $content_fields = content_types($type);
+
   foreach(element_children($form) as $element) {
     $parents_new = $parents;
     $parents_new[] = $element;
@@ -1247,11 +1289,10 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       }
     }
   }
-  
+
   unset($form['buttons']);
   unset($form['#submit']);
   unset($form['#disabled']);
-  
 }
 
 function wally_edit_clean_after_build($form){
@@ -1673,8 +1714,8 @@ function wydit_subform_global_edit_form(&$form_state){
   $a['#tree']=true;
 
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
-		      wysiwyg_process_form($a);
-  
+  wysiwyg_process_form($a);
+
   unset($a["#type"]);
   unset($a["form_id"]);
   unset($a["#parents"]);
@@ -1805,7 +1846,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       $new_form_state['cache name']=$old_form_state['cache name'];
       $new_form_state['profile_id'] = $old_form_state['profile_id'];
       $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-      $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
+      $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
       //Need that to avoid re-processing of the form (infinite loop)
       $new_form_state['input']=NULL;
       
@@ -2018,8 +2059,6 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
     $a["#parents"]=$parents;
     $form[$element_name]=$a[$element_name];
 
-    
-    
     //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOULD BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
     //EDIT2: WTF ???
     if(isset($fields[$element_name]) and $flat_fields[$element_name]['display'] == 1){
@@ -2377,7 +2416,32 @@ function prenode_load($nid, $args) {
   $profile_arg = isset($args[4]) ? $args[4] : wallyedit_get_default_profile();
   $prenode = new Prenode($nid, FALSE, $profile_arg);
   $prenode->setCurrentProfile($profile_arg);
+  
+  // Let modules alter the prenode after it has been loaded from the database
+  wallyedit_invoke_prenodeapi($prenode->form_state, 'load');
+  
   return $prenode;
+}
+
+function prenode_save(&$prenode) {
+  // Let modules modify the prenode before it is saved to the database.
+  wallyedit_invoke_prenodeapi($prenode, 'presave');
+
+  ctools_include('object-cache');
+  ctools_object_cache_set('prenode', $prenode['cache name'], $prenode);
+  
+  // Let modules reacts after the prenode is saved to the database
+  wallyedit_invoke_prenodeapi($prenode, 'save');
+}
+
+function prenode_delete($prenode) {
+  // Let modules reacts after the prenode is saved to the database
+  wallyedit_invoke_prenodeapi($prenode, 'delete');
+
+  ctools_include('object-cache');
+  ctools_object_cache_clear('prenode', $prenode['cache name']);
+  
+  drupal_set_message(t('PreNode has been cleared'));
 }
 
 /**
@@ -2657,8 +2721,9 @@ function wydit_get_number_of_elements_of_target($form_state,$target) {
   }
 }
 
-function wydit_save_form_state($clean_form_state){
-  ctools_object_cache_set('prenode', $clean_form_state['cache name'], $clean_form_state);
+function wydit_clean_and_save_form_state(&$form_state){
+  $form_state=wydit_clean_form_state($form_state);
+  wydit_save_form_state($form_state);
 }
 
 // here we sync the internal values of the main #node object
@@ -2707,9 +2772,8 @@ function wydit_clean_form_state($form_state){
   return $a;
 }
 
-function wydit_clean_and_save_form_state(&$form_state){
-  $form_state=wydit_clean_form_state($form_state);
-  wydit_save_form_state($form_state);
+function wydit_save_form_state($clean_form_state){
+  prenode_save($clean_form_state);
 }
 
 function wydit_get_infos_groups($type_name){
@@ -2975,4 +3039,45 @@ function wallyedit_add_more_submit_proxy($form, &$form_state) {
   wallyedit_add_more_submit($form, $form_state);
 }
 
+/**
+ * Update a prenode (package) taxonomies with his objects
+ */
+function _wallyedit_update_package_prenode_taxonomy(&$prenode) {
+  $pack_type = $prenode['type'];
+  switch ($pack_type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+  }
 
+  $main_object = isset($prenode[$pack_type][$main_object_type][0]['#node']) ? $prenode[$pack_type][$main_object_type][0]['#node'] : FALSE;
+  $embed_objects = (isset($prenode[$pack_type]['field_embededobjects']) && !empty($prenode[$pack_type]['field_embededobjects'])) ? $prenode[$pack_type]['field_embededobjects'] : FALSE;
+  $prenode_node = &$prenode[$pack_type]['#node'];
+
+  if ($main_object){
+    _wallyedit_set_taxonomies_from_object_to_prenode($prenode_node, $main_object);
+  }
+  
+  if ($embed_objects) {
+    foreach($embed_objects as $embed_object) {
+      _wallyedit_set_taxonomies_from_object_to_prenode($prenode_node, $embed_object['#node']);
+    }
+  }
+}
+
+function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $object) {
+  $prenode_node->taxonomy = isset($prenode_node->taxonomy) ? array_merge_recursive($prenode_node->taxonomy, $object->taxonomy) : $object->taxonomy;
+  $prenode_node->field_markers = isset($object->field_markers) ? $object->field_markers : $prenode_node->field_markers;
+  $prenode_node->field_locations = isset($object->field_locations) ? $object->field_locations : $prenode_node->field_locations;
+  $prenode_node->field_entities = isset($prenode_node->field_entities) ? array_merge_recursive($prenode_node->field_entities, $object->field_entities) : $object->field_entities;
+  $prenode_node->field_persons = isset($object->field_persons) ? $object->field_persons : $prenode_node->field_persons;
+  $prenode_node->field_free_tags = isset($object->field_free_tags) ? $object->field_free_tags : $prenode_node->field_free_tags;
+  $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
+  $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
+}
