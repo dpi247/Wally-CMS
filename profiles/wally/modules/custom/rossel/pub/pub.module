@@ -50,7 +50,7 @@ function pub_menu() {
 function pub_theme() {
   return array(
     'pub_content' => array(
-      'arguments' => array('html_code' => '', 'delta' => array()),
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
@@ -205,8 +205,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
  */
 function _pub_getpubcontent($delta) {
   $orig_url = $_GET['q'];
-
-  $cached_pub = cache_get('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url));
+  $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
@@ -214,23 +213,21 @@ function _pub_getpubcontent($delta) {
     $website = variable_get('pub_website', '');
     $script_type = variable_get('pub_provider', 'AdTech');
     $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
-
+    
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url));
+      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
       $pub_content = $cached_pub->data ? $cached_pub->data : '';
     }
-
-    cache_set('pub_'.$delta.'_temp-'.str_replace('/', '_', $orig_url), $pub_content, 'cache', time() + 3600*$cache_time);
-    cache_set('pub_'.$delta.'_perm-'.str_replace('/', '_', $orig_url), $pub_content);
+    
+    cache_set('pub_'.$delta.'_temp-'.$orig_url, $pub_content, 'cache', time() + 3600*$cache_time);
+    cache_set('pub_'.$delta.'_perm-'.$orig_url, $pub_content);
   } else {
     $pub_content = $cached_pub->data;
   }
 
-  $html_pub = theme('pub_content', $pub_content, $delta);
-
-  return $html_pub;
+  return theme('pub_content', $pub_content, $delta);;
 }
 
 /**
