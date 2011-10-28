@@ -1262,6 +1262,7 @@ function _content_field_invoke($op, &$node, $teaser = NULL, $page = NULL) {
     if (isset($node->$field['field_name']) || count($items)) {
       $node->$field['field_name'] = $items;
     }
+    dsm($node->$field['field_name'], $field['field_name'].' '.$op);
   }
   return $return;
 }
