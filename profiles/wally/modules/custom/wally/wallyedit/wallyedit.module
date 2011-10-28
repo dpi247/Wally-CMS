@@ -2501,16 +2501,16 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
   if($sub_level){
     $b=$form_state['#node'];
     if($b->type=='wally_linkslistobject'){
-    $b->{field_links_list}=array();
+      $b->{field_links_list}=array();
       foreach($form_state['field_links_list'] as $key=>$link){
-      	if(is_numeric($key)){
-      	  $link_node=$link["#node"];
+        if(is_numeric($key)){
+          $link_node=$link["#node"];
           node_save($link_node);
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
           }
-      	}
+        }
       }
       $form_state['#node']=$b;
     }
@@ -2519,6 +2519,7 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
     $b=$form_state[$form_state['type']]['#node'];
   }
 
+  $b->doNotPullUp = TRUE;
   node_save($b);
   return $b->nid;
 }
