@@ -1083,8 +1083,7 @@ function wydit_subform_global_page_form(&$form_state){
   
   $a['#tree'] = true;
   drupal_prepare_form($type_name.'_node_form', $a, $form_state);
-  $a=form_builder($type_name.'_node_form', $a, $form_state) ;
-  
+
   unset($a["#type"]);
   unset($a["form_id"]);
   unset($a["#parents"]);
@@ -1096,7 +1095,8 @@ function wydit_subform_global_page_form(&$form_state){
   $temp_b = $form[$form_state['type']];
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name), $temp_b);
   wydit_remove_form_infos($form[$type_name]);
-
+  $form=wysiwyg_process_form($form, $form_state); 
+  
   $form['type'] = array(
     '#type' => 'value',
     '#value' => $form_state['type']
@@ -1204,7 +1204,8 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
   module_load_include('inc','wallyedit','includes/page_form_display_tabs');
   $fields = wyditadmin_get_existing_fields($type);
   $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type);
-  
+  $content_fields = content_types($type);
+
   foreach(element_children($form) as $element) {
     $parents_new = $parents;
     $parents_new[] = $element;
@@ -1217,6 +1218,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if($form[$element]['#type'] == 'value' && $form[$element]["#value"]){
       continue;
     }
+
     if($form[$element]['#type'] == 'fieldset'){
       if (!isset($form[$element]['#title'])){
         $form[$element]['#title'] = _wallyedit_convert_type_to_title($form[$element]['type']['#value']);
@@ -1241,6 +1243,19 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       }
       continue;
     }
+  
+    
+    if($fields[$element]['widget'] =='text_textarea'){
+	    foreach(element_children($form[$element]) as $key=>$index){
+	    	if(isset($form[$element][$index]['#parents'])){
+		    $filter_key  = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
+		    $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
+		    $parents = array_merge($form[$element][$index]['#parents'] , array($filter_key));
+		    $form[$element][$filter_key] = filter_form($format, 1,$parents);
+	    	}
+	    }
+    }
+                
 
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
@@ -1691,6 +1706,7 @@ function wydit_subform_global_edit_form(&$form_state){
   $a['#tree']=true;
 
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
+  wysiwyg_process_form($a);
 
   unset($a["#type"]);
   unset($a["form_id"]);
@@ -2017,7 +2033,6 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $a=drupal_retrieve_form($type_name.'_node_form',$form_state,$form_state[$type_name]['node']);
 
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
-  $a=form_builder($type_name.'_node_form', $a, $form_state) ;
   
   $form = array(
     '#title' => $form_element['#title'],
