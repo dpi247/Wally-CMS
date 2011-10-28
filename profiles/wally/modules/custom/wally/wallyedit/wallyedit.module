@@ -1437,7 +1437,7 @@ function wydit_subform_global_page_submit(&$form_state){
     }
   }
   if (isset($a[$a['type']]['#node']->field_destinations)) {
-    cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
+    _cckdestinations_reorder_values(NULL, $a[$a['type']]['#node']->field_destinations);
   }
   
   wydit_clean_and_save_form_state($a);
