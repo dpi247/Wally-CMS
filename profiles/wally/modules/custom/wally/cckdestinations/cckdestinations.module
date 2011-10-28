@@ -279,6 +279,7 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
   $field_name = $element['#field_name'];
   $pack_type = $element['#type_name'];
   $field = content_fields($field_name, $pack_type);
+
   if (isset($values['group_destinations'])) {
     $field_values = $values['group_destinations'][$field_name];
   } else {
@@ -1545,6 +1546,9 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
     $form_element = $form_element[$path_item];
   }
   $parents = isset($form_element['#parents']) ? $form_element['#parents'] : array($field_name);
+  if (!isset($form_state_ref[$parents[0]]['field_destinations'])) {
+    $parents[0] = 'group_destinations';
+  }
   
   $form_state_ref = $form_state['values'];
   $_POST_ref = $_POST;
