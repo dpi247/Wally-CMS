@@ -1641,9 +1641,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         $new_form_state['input']=NULL;
 
         $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
         $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
-        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
       else {
         $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
