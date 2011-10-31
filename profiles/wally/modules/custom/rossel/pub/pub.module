@@ -65,7 +65,7 @@ function pub_theme() {
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
     'xiti_content' => array(
-      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'arguments' => array('html_code' => NULL),
       'template' => 'xiti-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
@@ -413,8 +413,6 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  
-  //print (variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
   $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
 }

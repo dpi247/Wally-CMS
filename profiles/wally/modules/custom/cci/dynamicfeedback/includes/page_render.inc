@@ -3,12 +3,13 @@ function dynamicfeedback_page_render($package_id){
   $GLOBALS['conf']['cache'] = FALSE;
   $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
   
-  if(count($array_of_nodes)!=1){
-
+  if(count($array_of_nodes)!=1) {
     print '';
   }
-  else{
+  else {
     $node=$array_of_nodes[0];
+  }
+
   $full_node=node_load($node->nid);
 
   $comment_count=$full_node->comment;
@@ -24,6 +25,4 @@ function dynamicfeedback_page_render($package_id){
   );
 
   print theme('dynamicfeedback_page_render',$array);
-  }
-  
 }
