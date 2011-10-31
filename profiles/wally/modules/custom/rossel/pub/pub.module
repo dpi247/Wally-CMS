@@ -54,6 +54,11 @@ function pub_theme() {
       'template' => 'pub-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
+    'pub_header' => array(
+      'arguments' => array('header_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-header',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
     'analytic_content' => array(
       'arguments' => array('html_code' => NULL),
       'template' => 'analytic-content',
@@ -258,8 +263,7 @@ function _pub_getheadercontent() {
     $header_content = $cached_pub->data;
   }
   
-  drupal_add_js($header_content, 'inline');
-  return '';
+  return theme('pub_header', $header_content, $delta);
 }
 
 /**

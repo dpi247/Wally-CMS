@@ -3,11 +3,10 @@ function dynamicfeedback_page_render($package_id){
 
   $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
   
-  if(count($array_of_nodes)!=1){
-
+  if(count($array_of_nodes)!=1) {
     print '';
   }
-  else{
+  else {
     $node=$array_of_nodes[0];
   }
 
