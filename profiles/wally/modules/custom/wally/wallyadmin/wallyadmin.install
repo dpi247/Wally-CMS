@@ -1,0 +1,9 @@
+<?php
+
+function wallyadmin_install() {
+  
+}
+
+function wallyadmin_uninstall() {
+  wallytoolbox_variable_del_like('wallyadmin_');
+}
