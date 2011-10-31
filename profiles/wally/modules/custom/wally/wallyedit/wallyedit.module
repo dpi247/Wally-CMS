@@ -3060,18 +3060,18 @@ function _wallyedit_update_package_prenode_taxonomy(&$prenode) {
   }
 
   $main_object = isset($prenode[$pack_type][$main_object_type][0]['#node']) ? $prenode[$pack_type][$main_object_type][0]['#node'] : FALSE;
-  $embed_objects = (isset($prenode[$pack_type]['field_embededobjects']) && !empty($prenode[$pack_type]['field_embededobjects'])) ? $prenode[$pack_type]['field_embededobjects'] : FALSE;
+  //$embed_objects = (isset($prenode[$pack_type]['field_embededobjects']) && !empty($prenode[$pack_type]['field_embededobjects'])) ? $prenode[$pack_type]['field_embededobjects'] : FALSE;
   $prenode_node = &$prenode[$pack_type]['#node'];
 
   if ($main_object){
     _wallyedit_set_taxonomies_from_object_to_prenode($prenode_node, $main_object);
   }
   
-  if ($embed_objects) {
+  /*if ($embed_objects) {
     foreach($embed_objects as $embed_object) {
       _wallyedit_set_taxonomies_from_object_to_prenode($prenode_node, $embed_object['#node']);
     }
-  }
+  }*/
 }
 
 function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $object) {
