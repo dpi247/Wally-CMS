@@ -1433,7 +1433,7 @@ function wydit_subform_global_page_submit(&$form_state){
     }
   }
   if (isset($a[$a['type']]['#node']->field_destinations)) {
-    cckdestinations_field('presave', $fake_node, NULL, $a[$a['type']]['#node']->field_destinations, NULL, NULL);
+    _cckdestinations_reorder_values(NULL, $a[$a['type']]['#node']->field_destinations);
   }
   
   wydit_clean_and_save_form_state($a);
@@ -1633,9 +1633,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         $new_form_state['input']=NULL;
 
         $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
-        $form_prev = ctools_build_form('wydit_subform_global_preview_form', $new_form_state);
         $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
-        $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
       }
       else {
         $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
@@ -2491,16 +2489,16 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
   if($sub_level){
     $b=$form_state['#node'];
     if($b->type=='wally_linkslistobject'){
-    $b->{field_links_list}=array();
+      $b->{field_links_list}=array();
       foreach($form_state['field_links_list'] as $key=>$link){
-      	if(is_numeric($key)){
-      	  $link_node=$link["#node"];
+        if(is_numeric($key)){
+          $link_node=$link["#node"];
           node_save($link_node);
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
           }
-      	}
+        }
       }
       $form_state['#node']=$b;
     }
@@ -2509,6 +2507,7 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
     $b=$form_state[$form_state['type']]['#node'];
   }
 
+  $b->doNotPullUp = TRUE;
   node_save($b);
   return $b->nid;
 }
