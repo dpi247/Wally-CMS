@@ -176,7 +176,7 @@ function wallyadmin_user($op, &$edit, &$account, $category = NULL) {
       $roles = user_roles();
       $user_roles = array_keys($account->roles);
       $rid = array_shift($user_roles);
-      while (count($user_roles) && !array_key_exists($rid, $roles)) {
+      while (count($user_roles) && (!array_key_exists($rid, $roles) || $account->roles[$rid] == 'anonymous user' || $account->roles[$rid] == 'authenticated user')) {
         $rid = array_shift($user_roles);
       }
       $redirect_path = variable_get('wallyadmin_redirection_'.$rid, FALSE);
