@@ -14,17 +14,17 @@ function search_vars_admin() {
  * Form for the search vars admin page.
  */
 function search_vars_admin_form(&$form_state) {
-    $form['search_vars'] = array(
-      '#title' => t('Type the text to search'),
-      '#type' => 'textfield',
-    );
-    
-    $form['search_submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'Submit'
-    ); 
-    
-return $form;
+  $form['search_vars'] = array(
+    '#title' => t('Type the text to search'),
+    '#type' => 'textfield',
+  );
+
+  $form['search_submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Submit'
+  );
+
+  return $form;
 }
 
 function search_vars_admin_form_submit(&$form, &$form_state) {
@@ -55,9 +55,9 @@ function export_vars_admin_form(&$form_state, $key) {
     );
   }
     
-  if(!isset($form['blocks_vars'])){
+  if(!isset($form['blocks_vars'])) {
     drupal_set_message('No result for '.$key);
-  }else{
+  } else {
     $form['submit'] = array(
       '#type' => 'submit',
       '#title' => t('Export selected variables'),
@@ -66,7 +66,7 @@ function export_vars_admin_form(&$form_state, $key) {
   }
   $form['#prefix'] =  $form_state['storage']['output'];
   
-return $form;
+  return $form;
 }
 
 /**
@@ -115,6 +115,8 @@ function import_vars_admin(){
  * Form for the search cache admin page.
  */
 function import_vars_admin_form(&$form_state) {
+  $form = array();
+  
   $form['import_vars'] = array(
     '#title' => t('Import'),
     '#type' => 'textarea',
@@ -125,10 +127,11 @@ function import_vars_admin_form(&$form_state) {
     '#parents' => array('dummy'),
     '#required' => FALSE,
   );
+  
   $form['import_submit'] = array(
     '#type' => 'submit',
     '#value' => 'Submit'
-  ); 
+  );
   
   return $form;
 }
