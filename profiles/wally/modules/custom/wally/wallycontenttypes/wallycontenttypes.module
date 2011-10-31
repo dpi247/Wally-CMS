@@ -416,7 +416,7 @@ function wallycontenttypes_restore_node(&$node, $cleaned_node) {
  */
 function wallycontenttypes_fieldNID(&$node) {
 	foreach ($node as $field_name => $field) {
-    if (is_array($field) && $field['type'] == 'nodereference') {
+	  if (is_array($field) && $field['type'] == 'nodereference' && $field['name'] != 'field_internal_link') {
       $new_field_name = $field_name.'_nodes';
       $node->$new_field_name = wallycontenttypes_fieldnodeload($field_name, $field);
     }
