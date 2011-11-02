@@ -199,11 +199,13 @@ function _wallytoolbox_arraytowallyxml_fillGalleryPackageType(&$valid_dom, &$pac
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPollPackageType(&$valid_dom, &$package_node, $package_array){
-  foreach ($package_array['Poll'] as $poll_array){
-    $poll_node = $package_node->appendChild($valid_dom->createElement('Poll'));
-    _wallytoolbox_arraytowallyxml_fillObjectType($valid_dom,$poll_node,$poll_array);
-    _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom,$poll_node,$poll_array);
-  }  
+  if (isset($package_array['Poll'])){
+    foreach ($package_array['Poll'] as $poll_array){
+      $poll_node = $package_node->appendChild($valid_dom->createElement('Poll'));
+      _wallytoolbox_arraytowallyxml_fillObjectType($valid_dom,$poll_node,$poll_array);
+      _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom,$poll_node,$poll_array);
+    }  
+  }
 }
 /**
  * Set the LinksList elements
