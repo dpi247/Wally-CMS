@@ -97,9 +97,10 @@ function wallydam_posturl($node){
   $package_id = $node->field_packageid[0]['value'];
   $request = variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
   $postargs = 'nodeId='.$node_id.'&packageId='.$package_id.'&url='.$node_url;
+  dsm($postargs);
   //GET
   $result = drupal_http_request($request.'?'.$postargs);
-  dsm($result->code);
+  dsm($result);
   if ($result->code == 200){
     $sent = TRUE;
   }
