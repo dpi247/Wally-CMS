@@ -1253,13 +1253,11 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     
     if($fields[$element]['widget'] =='text_textarea'){
 	    foreach(element_children($form[$element]) as $key=>$index){
-	    	if(isset($form[$element][$index]['#parents'])){
-		    $filter_key  = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
+	    	$filter_key  = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
 		    $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
 		    $parents = array_merge($form[$element][$index]['#parents'] , array($filter_key));
 		    $form[$element][$filter_key] = filter_form($format, 1,$parents);
-	    	}
-	    }
+	   }
     }
                 
 
