@@ -1546,11 +1546,11 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
     $form_element = $form_element[$path_item];
   }
   $parents = isset($form_element['#parents']) ? $form_element['#parents'] : array($field_name);
+  $form_state_ref = $form_state['values'];
   if (!isset($form_state_ref[$parents[0]]['field_destinations'])) {
     $parents[0] = 'group_destinations';
   }
   
-  $form_state_ref = $form_state['values'];
   $_POST_ref = $_POST;
   foreach($parents as $path_item) {
     $form_state_array[] = $form_state_ref[$path_item];
