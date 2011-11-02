@@ -183,7 +183,7 @@ function _wimprthelp_html_text($text){
  *   An plain text
  */
 function _wimprthelp_plain_text($text){
-  return check_plain($text);
+  return $text;
 }
 
 

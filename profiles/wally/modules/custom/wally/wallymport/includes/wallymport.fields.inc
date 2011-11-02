@@ -71,7 +71,6 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
   }
-  
   if (!empty($node) && !isset($node->rejected)) {
     if ($preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
@@ -1828,7 +1827,7 @@ function wimprt_process_object_linkslist(&$node,$dom,&$log){
  *   Nothing
  */
 function wimprt_set_field_title(&$node,$dom,&$log){
-  $value=$dom->nodeValue;
+  $value = $dom->nodeValue;
   $node->title= _wimprthelp_plain_text($value);
 }
 
