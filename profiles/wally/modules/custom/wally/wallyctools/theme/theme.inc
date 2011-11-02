@@ -38,16 +38,15 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
         $vars['admin_links_raw'] = array(
           'title' => t('Reorder'),
           'alt' => t("Reorder the view"),
-          'href' => "admin/wallyctools/reorder/$destination_tid/$target",
-          'fragment' => 'views-tab-' . $view->current_display,
-          'query' => drupal_get_destination(),
+          'href' => "admin/wally/wallyctools/reorder/$destination_tid/$target",
+          //'fragment' => 'views-tab-' . $view->current_display,
+          //'query' => drupal_get_destination(),
         );
         break;
       }
     }
   }
 }
-
 
 /**
 * Theme preprocess function for views-view-row-unformatted.tpl.php
@@ -116,19 +115,25 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   }
 }
 
-
-function theme_wallyctools_form_reorderdestinationview_form($form){
+function theme_wallyctools_form_reorder_destination_form($form){
   if (!isset($form['rows']) || empty($form['rows'])) {
     drupal_set_message(t('No nodes to reorder.'));
     return;
   }
+  
+  $node_types = node_get_types('names');
 
   //loop through each "row" in the table array
   foreach($form['rows'] as $id => $row){
     //we are only interested in numeric keys
     if (intval($id)){ 
-      $this_row = $row['data']['#value'];
-      $this_row[] = $row['type']['#value'][0];
+      $this_row = array(
+        $row['data']['#value'],
+        $node_types[$row['type']['#value']],
+        $row['published']['#value'] ? t('Yes') : t('No'),
+        date('D, d/m/Y - H:i', $row['last_update']['#value']),
+        l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Delete'), 'node/'.$id.'/delete'),
+      );
 
       //Add the weight field to the row
       $this_row[] = drupal_render($form['rows'][$id]['weight']);
@@ -139,12 +144,13 @@ function theme_wallyctools_form_reorderdestinationview_form($form){
   }
  
   //Make sure the header count matches the column count
-  $header=array(
-    t("Title"), t("Type") , t('Order')
+  $header = array(
+    t('Title'), t('Type'), t('Published'), t('Last update'), t('Operations'), t('Order')
   );
-  drupal_add_tabledrag('example-table', 'order', 'self', 'weight',NULL,NULL,TRUE);     
+  drupal_add_tabledrag('example-table', 'order', 'self', 'weight', NULL, NULL, TRUE);     
   
-  $output = theme('table',$header,$table_rows,array('id'=>'example-table'));
+  $output = theme('table', $header, $table_rows, array('id' => 'example-table'));
+  $output .= theme('pager', NULL, $form['pager_limit']['#value'], 0);
   $output .= drupal_render($form);
 
   // Call add_tabledrag to add and setup the JS for us
