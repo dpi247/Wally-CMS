@@ -209,7 +209,7 @@ function wallyctools_view_batch_operations($destination_tid = NULL, $target = NU
   $view->pager['use_pager'] = TRUE;
   $view->pager['items_per_page'] = 20;
 
-  $return = $view->render();
+  $return = $view->preview();
   $return .= theme('pager', NULL, 20, 0);
   return $return;
 }
