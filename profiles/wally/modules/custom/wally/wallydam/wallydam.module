@@ -92,7 +92,7 @@ function wallydam_posturl($node){
   if (!isset($node->path)){
     $node->path = 'node/'.$node->nid;
   }
-  $node_url = $node->path;
+  $node_url = url($node->path);
   $node_id = variable_get('wallydam_wallyprefix', NULL).$node->nid;
   $package_id = $node->field_packageid[0]['value'];
   $request = variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
