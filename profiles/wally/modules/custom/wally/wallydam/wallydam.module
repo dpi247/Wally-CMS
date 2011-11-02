@@ -100,6 +100,7 @@ function wallydam_posturl($node){
 
   //GET
   $result = drupal_http_request($request.'?'.$postargs);
+  dsm($result);
   if ($result->code == 200){
     $sent = TRUE;
   }
