@@ -56,16 +56,7 @@ function wallydam_page_admin_form($form_state) {
  */
 function wallydam_page_admin_form_validate($form, &$form_state) {
   
-  $file = $form_state['values']['wallydam_updateurl'];
-  $file_readable = is_readable($file);
-  if (!$file_readable) {
-    form_set_error('wallydam_updateurl', t('The filename provided is not an existing readable file.'));
-  }
-  $file = $form_state['values']['wallydam_updatepackageurl'];
-  $file_readable = is_readable($file);
-  if (!$file_readable) {
-    form_set_error('wallydam_updatepackageurl', t('The filename provided is not an existing readable file.'));
-  }
+  
   if (!is_numeric($form_state['values']['wallydam_cronmaxnumber'])){
     form_set_error('wallydam_cronmaxnumber', t('The maximum number of packages must be a numeric value'));
   }
