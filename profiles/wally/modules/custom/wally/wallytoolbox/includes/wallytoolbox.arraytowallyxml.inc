@@ -30,6 +30,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
         break;
       case 'PollPackageType' :
         _wallytoolbox_arraytowallyxml_fillPollPackageType($valid_dom,$package_node, $package_array);
+        break;
     }
     if (isset($package_array['EmbeddedContent'])){
       $embeddedcontent_node = $package_node->appendChild($valid_dom->createElement('EmbeddedContent'));
