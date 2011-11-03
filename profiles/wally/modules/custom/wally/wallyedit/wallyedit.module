@@ -1256,7 +1256,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         //dsm($parents, 'parents');
         //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
 
-        $form[$element][0][$filter_key] = filter_form($format, 1, $parents);
+        $form[$element][][$filter_key] = filter_form($format, 1, $parents);
       }
       dsm($form[$element], $element);
     }
