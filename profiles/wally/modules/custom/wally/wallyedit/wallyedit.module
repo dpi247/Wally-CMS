@@ -1258,7 +1258,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
 
         $form[$element][0][$filter_key] = filter_form($format, 1, $parents);
       }
-      //dsm($form[$element], $element);
+      dsm($form[$element], $element);
     }
 
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
