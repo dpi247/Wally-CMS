@@ -2427,7 +2427,7 @@ function prenode_get($cache_name) {
   
   if(function_exists('memcache_variable_set')){
   	$prenode= cache_get($cache_name, 'prenode');
-  	$prenode=$prenode->cache;
+  	$prenode=$prenode->data->cache;
   	dsm($prenode,'prenode_get '.$cache_name);
   }
   else{
