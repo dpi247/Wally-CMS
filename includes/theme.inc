@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * The theme system, which controls the output of Drupal.
@@ -617,7 +618,7 @@ function theme() {
     init_theme();
     $hooks = theme_get_registry();
   }
-    
+
   if (is_array($hook)) {
     foreach ($hook as $candidate) {
       if (isset($hooks[$candidate])) {
@@ -631,8 +632,6 @@ function theme() {
     return;
   }
 
-  
-  
   $info = $hooks[$hook];
   global $theme_path;
   $temp = $theme_path;
@@ -724,7 +723,7 @@ function theme() {
     if (isset($variables['template_file'])) {
       $suggestions[] = $variables['template_file'];
     }
-    
+
     if ($suggestions) {
       $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
     }
