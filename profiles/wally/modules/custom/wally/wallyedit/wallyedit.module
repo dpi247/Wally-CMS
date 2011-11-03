@@ -1244,7 +1244,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     }
 
     if($fields[$element]['widget'] =='text_textarea'){
-      dsm($form[$element], $element);
+      //dsm($form[$element], $element);
       foreach(element_children($form[$element]) as $index){
         $filter_key = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
         $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
@@ -1255,10 +1255,10 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         //$parents = array_merge($form[$element] , array($filter_key));
         //dsm($parents, 'parents');
         //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
-
-        $form[$element][0][$filter_key] = filter_form($format, 1, $parents);
+dsm($parents);
+        //$form[$element][0][$filter_key] = filter_form($format, 1, $parents);
       }
-      dsm($form[$element], $element);
+      //dsm($form[$element], $element);
     }
 
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
