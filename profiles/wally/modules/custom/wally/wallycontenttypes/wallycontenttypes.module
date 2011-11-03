@@ -139,15 +139,11 @@ function wallycontenttypes_theme(&$var) {
       'template' => 'wallyct_editcrop',
       'preprocess functions' => array('wally_get_tpl_suggestions')
     ),
-
-/*
-    'wallyct_personslist' => $base + array(
-    'arguments' => array("persons" => NULL, "node" => NULL),
-    'template' => 'wallyct_personslist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-*/
   );
+}
+
+function wallycontenttypes_theme_registry_alter(&$theme_registry) {
+  $theme_registry['textfield']['function'] = 'wallycontenttypes_rubik_textfield';
 }
 
 /**
