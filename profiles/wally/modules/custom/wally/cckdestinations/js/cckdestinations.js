@@ -44,9 +44,9 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	}
 	
 	$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-	if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
-		$("#"+child).prepend("<option value=''> -- Select -- </option>");
-	}
+	//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
+		//$("#"+child).prepend("<option value=''> -- Select -- </option>");
+	//}
 	childVal = (typeof childVal == "undefined") ? "" : childVal ;
 	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 	
@@ -61,9 +61,9 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 		}
 
 		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-		if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
-			$("#"+child).prepend("<option value=''> -- Select -- </option>");
-		}
+		//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
+			//$("#"+child).prepend("<option value=''> -- Select -- </option>");
+		//}
 		childVal = (typeof childVal == "undefined") ? "" : childVal ;
 		$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 		$("#"+child).trigger("change");

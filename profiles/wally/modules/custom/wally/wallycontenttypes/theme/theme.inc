@@ -1,4 +1,55 @@
 <?php
 
+/**
+ * Override of theme('textfield').
+ */
+function wallycontenttypes_rubik_textfield($element) {
+  if ($element['#size'] >= 30) {
+    $element['#size'] = '';
+    $element['#attributes']['class'] = isset($element['#attributes']['class']) ? "{$element['#attributes']['class']} fluid" : "fluid";
+  }
+  return wallycontenttypes_theme_textfield($element);
+}
 
+/**
+ * Format a textfield.
+ *
+ * @param $element
+ *   An associative array containing the properties of the element.
+ *   Properties used:  title, value, description, size, maxlength, required, attributes autocomplete_path
+ * @return
+ *   A themed HTML string representing the textfield.
+ *
+ * @ingroup themeable
+ */
+function wallycontenttypes_theme_textfield($element) {
+  $size = empty($element['#size']) ? '' : ' size="'. $element['#size'] .'"';
+  $maxlength = empty($element['#maxlength']) ? '' : ' maxlength="'. $element['#maxlength'] .'"';
+  $class = array('form-text');
+  $extra = '';
+  $output = '';
 
+  if ($element['#autocomplete_path'] && menu_valid_path(array('link_path' => $element['#autocomplete_path']))) {
+    static $added_setting = FALSE;
+    if (!$added_setting) {
+      drupal_add_js(array('autocomplete_detect' => 2), 'setting');
+      $added_setting = TRUE;
+    }
+    drupal_add_js(drupal_get_path('module', 'wallycontenttypes').'/scripts/wally_autocomplete.js');
+    $class[] = 'form-autocomplete';
+    $extra =  '<input class="autocomplete" type="hidden" id="'. $element['#id'] .'-autocomplete" value="'. check_url(url($element['#autocomplete_path'], array('absolute' => TRUE))) .'" disabled="disabled" />';
+  }
+  _form_set_class($element, $class);
+
+  if (isset($element['#field_prefix'])) {
+    $output .= '<span class="field-prefix">'. $element['#field_prefix'] .'</span> ';
+  }
+
+  $output .= '<input type="text"'. $maxlength .' name="'. $element['#name'] .'" id="'. $element['#id'] .'"'. $size .' value="'. check_plain($element['#value']) .'"'. drupal_attributes($element['#attributes']) .' />';
+
+  if (isset($element['#field_suffix'])) {
+    $output .= ' <span class="field-suffix">'. $element['#field_suffix'] .'</span>';
+  }
+
+  return theme('form_element', $element, $output) . $extra;
+}

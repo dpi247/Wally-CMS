@@ -139,15 +139,11 @@ function wallycontenttypes_theme(&$var) {
       'template' => 'wallyct_editcrop',
       'preprocess functions' => array('wally_get_tpl_suggestions')
     ),
-
-/*
-    'wallyct_personslist' => $base + array(
-    'arguments' => array("persons" => NULL, "node" => NULL),
-    'template' => 'wallyct_personslist',
-    'preprocess functions' => array('wally_get_tpl_suggestions'),
-    ),
-*/
   );
+}
+
+function wallycontenttypes_theme_registry_alter(&$theme_registry) {
+  $theme_registry['textfield']['function'] = 'wallycontenttypes_rubik_textfield';
 }
 
 /**
@@ -177,6 +173,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)//DoNotPopulate is for wallyedit preview, since we give it a node already populated
         wallycontenttypes_packagepopulate($node, $op);
       break;
+      
     case 'presave' : 
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
@@ -208,7 +205,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     
     case 'delete' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      if($node->type == 'wally_articlepackage' || 
+      if ($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
           wallycontenttypes_delete_orphans_objects($node); 
@@ -416,7 +413,7 @@ function wallycontenttypes_restore_node(&$node, $cleaned_node) {
  */
 function wallycontenttypes_fieldNID(&$node) {
 	foreach ($node as $field_name => $field) {
-	  if (is_array($field) && $field['type'] == 'nodereference' && $field['name'] != 'field_internal_link') {
+    if (is_array($field) && $field['type'] == 'nodereference' && $field['name'] != 'field_internal_link') {
       $new_field_name = $field_name.'_nodes';
       $node->$new_field_name = wallycontenttypes_fieldnodeload($field_name, $field);
     }
@@ -582,7 +579,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
     $packagenode->field_persons = $node->field_persons;
     $packagenode->field_free_tags = $node->field_free_tags;
     $packagenode->field_concepts = $node->field_concepts;
-    $packagenode->field_iptc = $node->field_iptc;	
+    $packagenode->field_iptc = $node->field_iptc;
     $r = node_save($packagenode);
   }
 }
@@ -623,7 +620,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
         $objectnode = node_load($node->field_mainpoll[0]['nid'], $revision, $reset);
       break;
     }
-    if($objectnode){
+    if ($objectnode){
       $node->taxonomy = $objectnode->taxonomy;
       $node->field_markers = $objectnode->field_markers;
       $node->field_locations = $objectnode->field_locations;
@@ -631,6 +628,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
       $node->field_persons = $objectnode->field_persons;
       $node->field_free_tags = $objectnode->field_free_tags;
       $node->field_concepts = $objectnode->field_concepts;
+      $node->field_iptc = $objectnode->field_iptc;
     }
   }
 }
@@ -1426,7 +1424,7 @@ function wallycontenttypes_delete_orphans_objects($node){
     foreach($parents as &$parent) {
       $parent = $parent['nid'];
     }
-    if(count($parents) == 1 && in_array($node->nid, $parents)){
+    if (count($parents) == 1 && in_array($node->nid, $parents)){
       node_delete($nid);
     }
   }
