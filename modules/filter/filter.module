@@ -490,7 +490,7 @@ function filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NULL, $parents = 
   $formats = filter_formats();
 
   $extra = theme('filter_tips_more_info');
-return array();
+
   if (count($formats) > 1) {
     $form = array(
       '#type' => 'fieldset',
@@ -527,6 +527,7 @@ return array();
     );
   }
   $form[] = array('#value' => $extra);
+  return array();
   return $form;
 }
 
