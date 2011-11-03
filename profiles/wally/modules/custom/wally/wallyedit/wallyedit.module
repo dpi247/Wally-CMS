@@ -2391,7 +2391,6 @@ function prenode_load($nid, $args) {
 function prenode_save(&$prenode) {
   // Let modules modify the prenode before it is saved to the database.
   wallyedit_invoke_prenodeapi($prenode, 'presave');
-  dsm($prenode,save);
   if(function_exists('memcache_variable_set')){
   	$day_in_memecache=2;
   	$expire=$day_in_memecache*60*60*24;
@@ -2428,7 +2427,6 @@ function prenode_get($cache_name) {
   if(function_exists('memcache_variable_set')){
   	$prenode= cache_get($cache_name, 'prenode');
   	$prenode=$prenode->data->cache;
-  	dsm($prenode,'prenode_get '.$cache_name);
   }
   else{
     ctools_include('object-cache');
