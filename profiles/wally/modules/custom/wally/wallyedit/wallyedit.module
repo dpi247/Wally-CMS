@@ -1242,19 +1242,18 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       }
       continue;
     }
-  
-    
+
     if($fields[$element]['widget'] =='text_textarea'){
-	    foreach(element_children($form[$element]) as $key=>$index){
-	    	$filter_key  = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
-		    $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
-		    $parents = array_merge($form[$element] , array($filter_key));
-		    //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
-		    
-		    $form[$element][$filter_key] = filter_form($format, 1,$parents);
-	   }
+      foreach(element_children($form[$element]) as $key=>$index){
+        $filter_key = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
+        $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
+        $parents = array_merge($form[$element] , array($filter_key));
+        //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
+
+        $form[$element][$filter_key] = filter_form($format, 1,$parents);
+      }
     }
-                
+    dsm($form[$element]);
 
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 1) {
       $form[$element]['#parents'] = $parents_new;
@@ -1868,7 +1867,7 @@ function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
 }
 
 function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
-   _wydit_ctools_include();
+  _wydit_ctools_include();
   $node = &wydit_get_current_node_from_parents($form_state,$target);
 
   $b = $form_state['values'][$form_state['values']['type']];
@@ -1887,7 +1886,7 @@ function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
 }
 
 function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
-   _wydit_ctools_include();
+  _wydit_ctools_include();
 
   $type_name=$form_state['type'];
 
@@ -1967,7 +1966,7 @@ function wallyedit_form_nodetypeselector_form_next_validate(&$form, $form_state)
 function wallyedit_form_nodetypeselector_form_next_submit($form, $form_state) {
   $values = $form_state['values'];
   
-   _wydit_ctools_include();
+  _wydit_ctools_include();
 
   $commands=array();
   $type = $values['type'];
@@ -2421,9 +2420,7 @@ function prenode_delete($prenode) {
   drupal_set_message(t('PreNode has been cleared'));
 }
 
-
 function prenode_get($cache_name) {
-  
   if(function_exists('memcache_variable_set')){
   	$prenode= cache_get($cache_name, 'prenode');
   	$prenode=$prenode->data->cache;
@@ -2434,7 +2431,6 @@ function prenode_get($cache_name) {
   }
   return $prenode;
 }
-
 
 /**
  NODE PUBLICATION
@@ -3074,8 +3070,6 @@ function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $objec
   $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
   $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
 }
-
-
 
 function _wydit_ctools_include() {
   ctools_include('form');
