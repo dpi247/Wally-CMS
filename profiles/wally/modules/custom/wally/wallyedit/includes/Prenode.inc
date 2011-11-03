@@ -38,7 +38,7 @@ class Prenode{
       if(!$node) {
         //this not a node, maybe a prenode ?
         
-        if($cache = prenode_load($cache_name)){
+        if($cache = prenode_get($cache_name)){
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->form_state['cache name']= $cache_name;
@@ -49,7 +49,7 @@ class Prenode{
       }
       else {        
         //Case of a prenode in edition mode
-       if($cache =  prenode_load($cache_name)){
+       if($cache =  prenode_get($cache_name)){
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->setNode($node);
@@ -102,7 +102,7 @@ class Prenode{
       'profile_id' => $this->profile_id,
     );
     
-    if($cache =  prenode_load($cache_name)){
+    if($cache =  prenode_get($cache_name)){
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
@@ -169,7 +169,7 @@ class Prenode{
   }
 
   static function LoadPrenodeFromNid($nid){
-    return prenode_load($nid);
+    return prenode_get($nid);
   }
 }
 /**
