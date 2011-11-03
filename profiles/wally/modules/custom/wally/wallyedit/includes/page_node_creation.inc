@@ -9,11 +9,7 @@ function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
   global $custom_theme;
   $custom_theme=variable_get('admin_theme','rubik');
 
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
+  _wydit_ctools_include();
 
   $node->type = str_replace('-','_',$type);
   $prenode = new Prenode(arg(5), FALSE, $current_profile);
