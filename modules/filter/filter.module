@@ -528,7 +528,7 @@ function filter_form($value = FILTER_FORMAT_DEFAULT, $weight = NULL, $parents = 
   }
   $form[] = array('#value' => $extra);
   dsm($form);
-  //return array();
+  return array();
   return $form;
 }
 
