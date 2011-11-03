@@ -747,12 +747,7 @@ function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
 }
 
 function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
   $commands = array();
 
   if($form_state["clicked_button"]['#name'] == 'reset_global'){
@@ -916,12 +911,7 @@ function wallyedit_form_page_editmode_form_validate(&$form, &$form_state){
 }
 
 function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
   $commands = array();
   dsm($form_state);
   if($form_state["clicked_button"]['#name']=='reset_global'){
@@ -1317,12 +1307,7 @@ function wally_edit_clean_after_build($form){
 }
 
 function _wallyedit_form_page_ctools_validation() {
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
 
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
   ctools_ajax_render($commands);
@@ -1359,11 +1344,7 @@ function wallyedit_editmode_selectbox_form($form_state){
 
 function wallyedit_editmode_selectbox_form_submit($form,&$form_state){
   watchdog('wallyedit', 'rrrrrrrrrrrrrrrrrrrrrrrrrrr');
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
+  _wydit_ctools_include();
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
@@ -1672,12 +1653,7 @@ function wallyedit_form_add_form_cancel_submit($form, $form_state) {
 }
 
 function wydit_subform_global_add_form_submit($form,&$form_state,$target){
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
 
   $node = node_submit($form_state['values'][$form_state['values']['type']]);
 
@@ -1890,12 +1866,7 @@ function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
 }
 
 function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
   $node = &wydit_get_current_node_from_parents($form_state,$target);
 
   $b = $form_state['values'][$form_state['values']['type']];
@@ -1914,13 +1885,8 @@ function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
 }
 
 function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
-
+  _wydit_ctools_include();
+  
   $type_name=$form_state['type'];
 
   $form=array('#tree'=>true);
@@ -1999,12 +1965,7 @@ function wallyedit_form_nodetypeselector_form_next_validate(&$form, $form_state)
 function wallyedit_form_nodetypeselector_form_next_submit($form, $form_state) {
   $values = $form_state['values'];
   
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
-  ctools_include('object-cache');
+  _wydit_ctools_include();
 
   $commands=array();
   $type = $values['type'];
@@ -3115,4 +3076,13 @@ function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $objec
   $prenode_node->field_free_tags = isset($object->field_free_tags) ? $object->field_free_tags : $prenode_node->field_free_tags;
   $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
   $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
+}
+
+function _wydit_ctools_include() {
+  ctools_include('form');
+  //ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  //ctools_modal_add_js();
+  ctools_include('object-cache');
 }
