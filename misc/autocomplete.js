@@ -50,6 +50,8 @@ Drupal.jsAC.prototype.onkeydown = function (input, e) {
     e = window.event;
   }
   switch (e.keyCode) {
+    case 13: // enter
+  	  return false;
     case 40: // down arrow
       this.selectDown();
       return false;
@@ -82,15 +84,17 @@ Drupal.jsAC.prototype.onkeyup = function (input, e) {
     case 39: // right arrow
     case 40: // down arrow
       return true;
-
+    case 13:
+      this.hidePopup(e.keyCode);
+      return false;
     case 9:  // tab
-    case 13: // enter
+    //case 13: // enter
     case 27: // esc
       this.hidePopup(e.keyCode);
       return true;
 
     default: // all other keys
-      if (input.value.length > 0)
+      if (input.value.length > 2)
         this.populatePopup();
       else
         this.hidePopup(e.keyCode);
