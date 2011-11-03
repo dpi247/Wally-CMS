@@ -712,7 +712,7 @@ function wallyedit_get_available_profiles() {
 function wallyedit_form_page_createmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
   $form['#action'] = '/node/add2/'.str_replace('_', '-', $form_state['type']).'/1/'.$form_state['profile_id'].'/'.$form_state['cache name'];
-dsm($form);
+
   return $form;
 }
 
@@ -1250,7 +1250,6 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $filter_parents = $form[$element]['#parents'];
         $filter_parents[] = $element;
         $filter_parents[] = $filter_key;
-        //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
 
         $form[$element][$filter_key] = filter_form($format, 1, $filter_parents);
       }
