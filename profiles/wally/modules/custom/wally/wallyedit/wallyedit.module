@@ -1249,11 +1249,10 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
         $filter_parents = $form[$element]['#parents'];
         $filter_parents[] = $element;
-        $filter_parents[] = (string)$index;
         $filter_parents[] = $filter_key;
         //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
 
-        $form[$element][$index][$filter_key] = filter_form($format, 1, $filter_parents);
+        $form[$element][$filter_key] = filter_form($format, 1, $filter_parents);
       }
     }
 
