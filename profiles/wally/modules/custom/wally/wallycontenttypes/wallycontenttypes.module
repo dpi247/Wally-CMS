@@ -144,6 +144,8 @@ function wallycontenttypes_theme(&$var) {
 
 function wallycontenttypes_theme_registry_alter(&$theme_registry) {
   $theme_registry['textfield']['function'] = 'wallycontenttypes_rubik_textfield';
+  $theme_registry['textfield']['file'] = 'theme.inc';
+  $theme_registry['textfield']['path'] = drupal_get_path('module', 'wallycontenttypes').'/theme';
 }
 
 /**
