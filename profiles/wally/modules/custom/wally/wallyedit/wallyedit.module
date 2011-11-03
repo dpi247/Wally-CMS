@@ -1248,6 +1248,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $filter_key = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
         $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
         $filter_parents = $form[$element]['#parents'];
+        $filter_parents[] = $element;
         $filter_parents[] = $filter_key;
         //$parents=array_merge($form[$element]["#parents"] ,array($element,$index,$filter_key));
 
