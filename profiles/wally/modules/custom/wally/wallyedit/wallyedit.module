@@ -2468,6 +2468,7 @@ function prenode_get($cache_name) {
   
   if(function_exists('memcache_variable_set')){
   	$prenode=(array) cache_get($cache_name, 'prenode');
+  	var_dump($prenode);
   }
   else{
     ctools_include('object-cache');
