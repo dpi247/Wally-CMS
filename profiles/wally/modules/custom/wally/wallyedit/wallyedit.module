@@ -2393,7 +2393,7 @@ function prenode_save(&$prenode) {
   wallyedit_invoke_prenodeapi($prenode, 'presave');
 
   if(function_exists('memcache_variable_set')){
-  	$day_in_memecache=0;
+  	$day_in_memecache=2;
   	$expire=$day_in_memecache*60*60*24;
   	$prenode_object=new stdClass;
   	$prenode_object->cache=$prenode;
