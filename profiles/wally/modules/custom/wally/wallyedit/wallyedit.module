@@ -747,7 +747,12 @@ function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
 }
 
 function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
   $commands = array();
 
   if($form_state["clicked_button"]['#name'] == 'reset_global'){
@@ -911,7 +916,12 @@ function wallyedit_form_page_editmode_form_validate(&$form, &$form_state){
 }
 
 function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
   $commands = array();
   dsm($form_state);
   if($form_state["clicked_button"]['#name']=='reset_global'){
@@ -1307,7 +1317,12 @@ function wally_edit_clean_after_build($form){
 }
 
 function _wallyedit_form_page_ctools_validation() {
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
 
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
   ctools_ajax_render($commands);
@@ -1344,7 +1359,11 @@ function wallyedit_editmode_selectbox_form($form_state){
 
 function wallyedit_editmode_selectbox_form_submit($form,&$form_state){
   watchdog('wallyedit', 'rrrrrrrrrrrrrrrrrrrrrrrrrrr');
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
 
   ctools_ajax_render($commands);
@@ -1653,7 +1672,12 @@ function wallyedit_form_add_form_cancel_submit($form, $form_state) {
 }
 
 function wydit_subform_global_add_form_submit($form,&$form_state,$target){
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
 
   $node = node_submit($form_state['values'][$form_state['values']['type']]);
 
@@ -1866,7 +1890,12 @@ function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
 }
 
 function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
   $node = &wydit_get_current_node_from_parents($form_state,$target);
 
   $b = $form_state['values'][$form_state['values']['type']];
@@ -1885,8 +1914,13 @@ function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
 }
 
 function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
-  _wydit_ctools_include();
-  
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
+
   $type_name=$form_state['type'];
 
   $form=array('#tree'=>true);
@@ -1965,7 +1999,12 @@ function wallyedit_form_nodetypeselector_form_next_validate(&$form, $form_state)
 function wallyedit_form_nodetypeselector_form_next_submit($form, $form_state) {
   $values = $form_state['values'];
   
-  _wydit_ctools_include();
+  ctools_include('form');
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_add_js('ajax-responder');
+  ctools_modal_add_js();
+  ctools_include('object-cache');
 
   $commands=array();
   $type = $values['type'];
@@ -2395,9 +2434,11 @@ function prenode_save(&$prenode) {
   dsm('coucou');
   drupal_set_message('hello');
   if(function_exists('memcache_variable_set')){
-  	$day_in_memecache=10;
+  	$day_in_memecache=0;
   	$expire=$day_in_memecache*60*60*24;
-    cache_set($prenode['cache name'], $prenode, 'prenode', $expire );
+  	$prenode_object=new stdClass;
+  	$prenode_object->cache=$prenode;
+    cache_set($prenode['cache name'], $prenode_object, 'prenode', $expire );
   }
   else{
 	ctools_include('object-cache');
@@ -2412,9 +2453,7 @@ function prenode_delete($prenode) {
   wallyedit_invoke_prenodeapi($prenode, 'delete');
 
   if(function_exists('memcache_variable_set')){
-  	$day_in_memecache=10;
-  	$expire=$day_in_memecache*60*60*24;
-    cache_clear_all($prenode['cache name'], 'prenode');
+  	cache_clear_all($prenode['cache name'], 'prenode');
   }
   else{
     ctools_include('object-cache');
@@ -2428,8 +2467,8 @@ function prenode_delete($prenode) {
 function prenode_get($cache_name) {
   
   if(function_exists('memcache_variable_set')){
-  	$prenode=(array) cache_get($cache_name, 'prenode');
-  	var_dump($prenode);
+  	$prenode= cache_get($cache_name, 'prenode');
+  	$prenode=$prenode->cache;
   }
   else{
     ctools_include('object-cache');
@@ -3076,13 +3115,4 @@ function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $objec
   $prenode_node->field_free_tags = isset($object->field_free_tags) ? $object->field_free_tags : $prenode_node->field_free_tags;
   $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
   $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
-}
-
-function _wydit_ctools_include() {
-  ctools_include('form');
-  //ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  //ctools_modal_add_js();
-  ctools_include('object-cache');
 }

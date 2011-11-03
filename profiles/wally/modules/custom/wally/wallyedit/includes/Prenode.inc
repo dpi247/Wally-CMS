@@ -53,7 +53,6 @@ class Prenode{
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->setNode($node);
-          var_dump($cache_name);
           $this->form_state['cache name']= $cache_name;
         } else {
           $this->setNode($node);
