@@ -4,11 +4,7 @@ function wallyedit_callback_typeselector($prenode,$js=FALSE){
   global $custom_theme;
   $custom_theme=variable_get('admin_theme','rubik');
 
-  ctools_include('form');
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_add_js('ajax-responder');
-  ctools_modal_add_js();
+  _wydit_ctools_include();
 
   //@todo: DIRTY HACK TO REMOVE !!!
   $parents = unserialize($_POST['parents']);
