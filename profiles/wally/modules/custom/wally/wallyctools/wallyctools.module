@@ -30,18 +30,18 @@ function wallyctools_menu() {
     'type'                          => MENU_DEFAULT_LOCAL_TASK,
   );
   
-  $items['admin/wally/wallyctools/reorder/%/%'] = $base + array(
+  $items['admin/wally/wallyctools/reorder/%/%/%'] = $base + array(
     'title'                         => t('Reorder'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
-    'page arguments'                => array(4, 5),
+    'page arguments'                => array(4, 5, 6),
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 0,
   );
   
-  $items['admin/wally/wallyctools/batchoperations/%/%'] = $base + array(
+  $items['admin/wally/wallyctools/batchoperations/%/%/%'] = $base + array(
     'title'                         => t('Batch operations'),
     'page callback'                 => 'wallyctools_page_destination_batch_operations',
-    'page arguments'                => array(4, 5),
+    'page arguments'                => array(4, 5, 6),
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 1,
   );

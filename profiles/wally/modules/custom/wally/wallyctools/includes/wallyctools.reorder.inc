@@ -1,13 +1,12 @@
 <?php
 
-function wallyctools_page_reorder_destination($destination_tid = NULL, $target = NULL) {
-  $output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $destination_tid, $target);
-  $limit = 20;
+function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NULL, $target = NULL) {
+  $output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $limit, $destination_tid, $target);
   $output .= drupal_get_form('wallyctools_form_reorder_destination_form', $limit, $destination_tid, $target);
   return $output;
 }
 
-function wallyctools_form_change_destination_form($form_state, $redirect, $destination_tid = NULL, $target = NULL) {
+function wallyctools_form_change_destination_form($form_state, $redirect, $limit, $destination_tid = NULL, $target = NULL) {
   $form = array();
   
   drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
@@ -25,7 +24,7 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $desti
     '#type'             => 'select',
     '#default_value'    => $destination_tid,
     '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
-    '#required'         => FALSE,
+    '#required'         => TRUE,
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
@@ -38,10 +37,17 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $desti
     '#default_value'    => $target,
     '#options'          => $options_and_classe['target']['#options'],
     '#classes'          => $options_and_classe['target']['#classes'],
-    '#required'         => FALSE,
+    '#required'         => TRUE,
      // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'target'),
+  );
+  
+  $form['destination']['pager_limit'] = array(
+    '#title'            => t('Items per page'),
+    '#type'             => 'textfield',
+    '#default_value'    => $limit,
+    '#required'         => TRUE,
   );
   
   $form['destination']['submit'] = array(
@@ -59,10 +65,10 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $desti
 
 function wallyctools_form_change_destination_form_submit($form, $form_state) {
   $values = $form_state['values'];
-  drupal_goto('admin/wally/wallyctools/'.$values['redirect_path'].'/'.$values['tid'].'/'.$values['target']);
+  drupal_goto('admin/wally/wallyctools/'.$values['redirect_path'].'/'.$values['pager_limit'].'/'.$values['tid'].'/'.$values['target']);
 }
 
-function wallyctools_form_reorder_destination_form($form_state, $limit = 20, $destination_tid = NULL, $target = NULL){
+function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $destination_tid = NULL, $target = NULL){
   //fetch the data from the DB
   $count_query = 'SELECT COUNT(*)
                   FROM {node} n
@@ -194,23 +200,23 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   //optionally set the redirect value in form_submit ...
 }
 
-function wallyctools_page_destination_batch_operations($destination_tid = NULL, $target = NULL) {
-  $output = drupal_get_form('wallyctools_form_change_destination_form', 'batchoperations', $destination_tid, $target);
-  $output .= wallyctools_view_batch_operations($destination_tid, $target);
+function wallyctools_page_destination_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
+  $output = drupal_get_form('wallyctools_form_change_destination_form', 'batchoperations', $limit, $destination_tid, $target);
+  $output .= wallyctools_view_batch_operations($limit, $destination_tid, $target);
   $output .= drupal_get_form('wallyctools_form_batch_operations_form');
   return $output;
 }
 
-function wallyctools_view_batch_operations($destination_tid = NULL, $target = NULL) {
+function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
   $view = views_get_view('batch_destinations');
   $view->set_display('page_1');
   $view->override_path = $_GET['q'];
   $view->set_arguments(array($destination_tid, $target));
   $view->pager['use_pager'] = TRUE;
-  $view->pager['items_per_page'] = 20;
+  $view->pager['items_per_page'] = $limit;
 
-  $return = $view->preview();
-  $return .= theme('pager', NULL, 20, 0);
+  $return = $view->render();
+  $return .= theme('pager', NULL, $limit, 0);
   return $return;
 }
 

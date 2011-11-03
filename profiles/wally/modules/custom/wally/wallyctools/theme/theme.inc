@@ -38,7 +38,7 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
         $vars['admin_links_raw'] = array(
           'title' => t('Reorder'),
           'alt' => t("Reorder the view"),
-          'href' => "admin/wally/wallyctools/reorder/$destination_tid/$target",
+          'href' => "admin/wally/wallyctools/reorder/25/$destination_tid/$target",
           //'fragment' => 'views-tab-' . $view->current_display,
           //'query' => drupal_get_destination(),
         );
@@ -147,15 +147,15 @@ function theme_wallyctools_form_reorder_destination_form($form){
   $header = array(
     t('Title'), t('Type'), t('Published'), t('Last update'), t('Operations'), t('Order')
   );
-  drupal_add_tabledrag('example-table', 'order', 'self', 'weight', NULL, NULL, TRUE);     
   
-  $output = theme('table', $header, $table_rows, array('id' => 'example-table'));
-  $output .= theme('pager', NULL, $form['pager_limit']['#value'], 0);
-  $output .= drupal_render($form);
-
   // Call add_tabledrag to add and setup the JS for us
   // The key thing here is the first param - the table ID
   // and the 4th param, the class of the form item which holds the weight
+  drupal_add_tabledrag('example-table', 'order', 'self', 'weight');//, NULL, NULL, TRUE);     
+
+  $output = theme('table', $header, $table_rows, array('id' => 'example-table'));
+  //$output .= theme('pager', NULL, $form['pager_limit']['#value'], 0);
+  $output .= drupal_render($form);
 
   return $output;
 }
