@@ -122,12 +122,22 @@ function theme_wallyctools_form_reorder_destination_form($form){
   }
   
   $node_types = node_get_types('names');
+  
+  $i = 1;
 
   //loop through each "row" in the table array
-  foreach($form['rows'] as $id => $row){
+  foreach($form['rows'] as $id => $row){ 
     //we are only interested in numeric keys
-    if (intval($id)){ 
+    if (intval($id)){
+      $fake_weight = array(
+        '#type' => 'markup',
+        '#value' => $i++,
+        '#prefix' => '<div class="weight-id">',
+        '#suffix' => '</div>',
+      );
+      
       $this_row = array(
+        drupal_render($fake_weight),
         $row['data']['#value'],
         $node_types[$row['type']['#value']],
         $row['published']['#value'] ? t('Yes') : t('No'),
@@ -145,13 +155,15 @@ function theme_wallyctools_form_reorder_destination_form($form){
  
   //Make sure the header count matches the column count
   $header = array(
-    t('Title'), t('Type'), t('Published'), t('Last update'), t('Operations'), t('Order')
+    '', t('Title'), t('Type'), t('Published'), t('Last update'), t('Operations'), t('Order'),
   );
   
   // Call add_tabledrag to add and setup the JS for us
   // The key thing here is the first param - the table ID
   // and the 4th param, the class of the form item which holds the weight
-  drupal_add_tabledrag('example-table', 'order', 'self', 'weight');//, NULL, NULL, TRUE);     
+  drupal_add_tabledrag('example-table', 'order', 'self', 'weight');
+  
+  drupal_add_js(drupal_get_path('module', 'wallyctools').'/scripts/update_reorder_ids.js');
 
   $output = theme('table', $header, $table_rows, array('id' => 'example-table'));
   //$output .= theme('pager', NULL, $form['pager_limit']['#value'], 0);
