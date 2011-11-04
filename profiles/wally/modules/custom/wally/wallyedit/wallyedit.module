@@ -1689,8 +1689,8 @@ dsm($node);
   $a=array("#tree"=>true);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
   $a['#tree']=true;
-
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
+  dsm($a,a);
   if (module_exists('wysiwyg')) {
     wysiwyg_process_form($a); 
   }
