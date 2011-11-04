@@ -1694,7 +1694,7 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
   
   foreach ($items as $delta => $item) {
-dsm($item, 'item');
+variable_set('cckdestinations_debug_item_'.$delta, $item);
     if (!cckdestinations_content_is_empty($item, array())) {
 dsm('not empty');
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
