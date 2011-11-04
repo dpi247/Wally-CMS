@@ -221,7 +221,7 @@ function wallycontenttypes_update_6102(){
     $content_node_field = new stdClass();
     $content_node_field->field_name = 'field_iptc';
     $content_node_field->type = 'content_taxonomy';
-    $content_node_field->global_settings = 'a:5:{s:14:"save_term_node";i:1;s:3:"vid";s:2:"14";s:6:"parent";s:1:"0";s:15:"parent_php_code";s:0:"";s:5:"depth";s:0:"";}';
+    $content_node_field->global_settings = 'a:5:{s:14:"save_term_node";i:1;s:3:"vid";s:2:"'.$new_voc['vid'].'";s:6:"parent";s:1:"0";s:15:"parent_php_code";s:0:"";s:5:"depth";s:0:"";}';
     $content_node_field->required = 0;
     $content_node_field->multiple = 1;
     $content_node_field->db_storage = 0;
