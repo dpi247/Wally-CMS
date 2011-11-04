@@ -2785,7 +2785,7 @@ function wydit_get_infos_groups($type_name){
  * @return a node object if found. null instead.
  */
 function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
-
+dsm($form_state,ff);
   if($parents==NULL)
   $parents=$form_state['parents'];
 
