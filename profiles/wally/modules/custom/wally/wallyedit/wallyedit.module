@@ -752,7 +752,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
   if($form_state["clicked_button"]['#name'] == 'reset_global'){
     drupal_set_message('reset');
-    prenode_delete($form_state['cache name']);
+    prenode_delete($form_state);
     drupal_goto("admin/wallyedit/node");
   }
 
@@ -763,7 +763,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   if($form_state["clicked_button"]['#name']=='publish_global' ){
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
-    prenode_delete($form_state['cache name']);
+    prenode_delete($form_state);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -929,7 +929,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   
   if($form_state["clicked_button"]['#name']=='reset_global'){
     drupal_set_message('reset');
-    prenode_delete($form_state['cache name']);
+    prenode_delete($form_state);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -937,9 +937,10 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   wydit_subform_global_page_submit($form_state);
 
   if($form_state["clicked_button"]['#name']=='publish_global'){
+  	
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
-    prenode_delete($form_state['cache name']);
+    prenode_delete($form_state);
     drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
@@ -2442,7 +2443,7 @@ function prenode_delete($prenode) {
   }
   else{
     ctools_include('object-cache');
-    ctools_object_cache_clear('prenode', $prenode['cache name']);
+    ctools_object_cache_clear( 'prenode',$prenode['cache name']);
   }
   
   drupal_set_message(t('PreNode has been cleared'));
@@ -2522,21 +2523,24 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
         if(is_numeric($key)){
           $link_node=$link["#node"];
           node_save($link_node);
+//          $form_state['field_links_list'][$key]
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
           }
         }
       }
+  $b->doNotPullUp = TRUE;
+  node_save($b);
       $form_state['#node']=$b;
     }
   }
   else{
     $b=$form_state[$form_state['type']]['#node'];
-  }
-
   $b->doNotPullUp = TRUE;
   node_save($b);
+  }
+
   return $b->nid;
 }
 
