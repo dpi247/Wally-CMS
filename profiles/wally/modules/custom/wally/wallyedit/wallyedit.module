@@ -1675,7 +1675,7 @@ function wallyedit_form_editmode_edit_form(&$form_state){
 
 function wydit_subform_global_edit_form(&$form_state){
   $node=wydit_get_current_node_from_parents($form_state);
-dsm($node);
+  dsm($node,node);
   $type_name=$node->type;
 
   $form['#tree']=TRUE;
@@ -1687,6 +1687,7 @@ dsm($node);
   $form['type']=array('#type'=>'value','#value'=>$node->type);
 
   $a=array("#tree"=>true);
+  
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
     dsm($a,aretrieve);
   
