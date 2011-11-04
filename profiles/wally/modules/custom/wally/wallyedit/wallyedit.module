@@ -1687,7 +1687,9 @@ dsm($node);
   $form['type']=array('#type'=>'value','#value'=>$node->type);
 
   $a=array("#tree"=>true);
-  $a=drupal_retrieve_form($type_name.'_node_form',$a,$form_state);
+  $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
+    dsm($a,aretrieve);
+  
   $a['#tree']=true;
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   dsm($a,a);
