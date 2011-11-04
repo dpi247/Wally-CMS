@@ -161,3 +161,27 @@ function wallycontenttypes_update_6101(&$sandbox) {
   
   return $ret;
 }
+
+function wallycontenttypes_update_6102(){
+  
+  $ret = array();
+  
+  $new_voc = array();
+  $new_voc['tags'] = 0;
+  $new_voc['multiple'] = 0;
+  $new_voc['required'] = 0;
+  $new_voc['weight'] = 0;
+  $new_voc['hierarchy'] = 1;
+  $new_voc['relations'] = 1;
+ 
+  if (wallytoolbox_taxonomy_getvocabularyvidbyname('IPTC') == NULL){
+    $new_voc['name'] = 'IPTC';
+    taxonomy_save_vocabulary($new_voc);
+  }
+  if (wallytoolbox_taxonomy_getvocabularyvidbyname('Concepts') == NULL){
+    $new_voc['name'] = 'Concepts';
+    taxonomy_save_vocabulary($new_voc);
+  }
+  return $ret;
+  
+}
