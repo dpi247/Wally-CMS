@@ -1703,10 +1703,10 @@ dsm($node);
   foreach($a as $element_name=>$value){
     $form[$type_name][$element_name] = $value;
   }
-    dsm($form_state,fffBefore);
+    dsm($form,fffBefore);
   
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name));
-    dsm($form_state,fffAfter);
+    dsm($form,fffAfter);
   wydit_remove_form_infos($form[$type_name]);
   
   $form['#tree']=true;
