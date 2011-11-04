@@ -228,6 +228,31 @@ function wallycontenttypes_update_6102(){
     $content_node_field_instance->widget_module = 'content_taxonomy_tree';
     $content_node_field_instance->widget_active = 1;
     drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_audioobject';
+    $content_node_field_instance->weight = 16;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_digitalobject';
+    $content_node_field_instance->weight = 11;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_gallerypackage';
+    $content_node_field_instance->weight = 54;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_photoobject';
+    $content_node_field_instance->weight = 18;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_pollobject';
+    $content_node_field_instance->weight = 45;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_pollpackage';
+    $content_node_field_instance->weight = 16;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_textobject';
+    $content_node_field_instance->weight = 62;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    $content_node_field_instance->type_name = 'wally_videoobject';
+    $content_node_field_instance->weight = 48;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    
     
     $content_node_field = new stdClass();
     $content_node_field->field_name = 'field_iptc';
