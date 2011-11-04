@@ -76,12 +76,14 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
                   FROM {node} n
                   LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
                   WHERE dest.field_destinations_tid=%d
+                  AND n.status = 1
                   AND dest.field_destinations_target="%s"
                   ORDER BY dest.field_destinations_time_rank DESC';
   $query = 'SELECT DISTINCT(dest.nid), dest.field_destinations_time_rank, n.title, n.type, n.changed, n.status
             FROM {node} n
             LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
             WHERE dest.field_destinations_tid = %d
+            AND n.status = 1
             AND dest.field_destinations_target = "%s"
             ORDER BY dest.field_destinations_time_rank DESC';
             //LIMIT %d, %d';
