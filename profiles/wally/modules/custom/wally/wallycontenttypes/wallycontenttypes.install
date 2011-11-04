@@ -166,6 +166,7 @@ function wallycontenttypes_update_6102(){
   
   $ret = array();
   
+  //Add the vocabularies IPTC and Concepts if they do not exist.
   $new_voc = array();
   $new_voc['tags'] = 0;
   $new_voc['multiple'] = 0;
@@ -177,11 +178,98 @@ function wallycontenttypes_update_6102(){
   if (wallytoolbox_taxonomy_getvocabularyvidbyname('IPTC') == NULL){
     $new_voc['name'] = 'IPTC';
     taxonomy_save_vocabulary($new_voc);
+  
+    
+    //Add IPTC to Package and objects
+    $schema['content_field_iptc'] = array(
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'delta' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_iptc_value' => array(
+        'type' => 'int',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid','delta'),//primary key
+    'indexes' => array('nid'),
+  );
+    
+    
+    db_create_table($ret, 'content_field_iptc', $schema['content_field_iptc']);
+    
+    
+    
+    $content_node_field = new stdClass();
+    $content_node_field->field_name = 'field_iptc';
+    $content_node_field->type = 'content_taxonomy';
+    $content_node_field->global_settings = 'a:5:{s:14:"save_term_node";i:1;s:3:"vid";s:2:"14";s:6:"parent";s:1:"0";s:15:"parent_php_code";s:0:"";s:5:"depth";s:0:"";}';
+    $content_node_field->required = 0;
+    $content_node_field->multiple = 1;
+    $content_node_field->db_storage = 0;
+    $content_node_field->module = 'content_taxonomy';
+    $content_node_field->db_columns = 'a:1:{s:5:"value";a:3:{s:4:"type";s:3:"int";s:8:"not null";b:0;s:8:"sortable";b:0;}}';
+    $content_node_field->active = 1;
+    $content_node_field->locked = 0;
+    drupal_write_record('content_node_field', $content_node_field);
+    
+    $content_group_fields = new stdClass();
+    $content_group_fields->type_name = 'wally_articlepackage';
+    $content_group_fields->group_name = 'group_taxonomy';
+    $content_group_fields->field_name = 'field_iptc';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_gallerypackage';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_pollpackage';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_audioobject';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_digitalobject';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_photoobject';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_pollobject';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_textobject';
+    drupal_write_record('content_group_field', $content_group_fields);
+    $content_group_fields->type_name = 'wally_videoobject';
+    drupal_write_record('content_group_field', $content_group_fields);
   }
   if (wallytoolbox_taxonomy_getvocabularyvidbyname('Concepts') == NULL){
     $new_voc['name'] = 'Concepts';
     taxonomy_save_vocabulary($new_voc);
   }
+  
+  //Add IPTC to Package and objects
+  $content_node_field = new stdClass();
+  $content_node_field->field_name = 'field_iptc';
+  $content_node_field->type = 'content_taxonomy';
+  $content_node_field->global_settings = 'a:5:{s:14:"save_term_node";i:1;s:3:"vid";s:2:"14";s:6:"parent";s:1:"0";s:15:"parent_php_code";s:0:"";s:5:"depth";s:0:"";}';
+  $content_node_field->required = 0;
+  $content_node_field->multiple = 1;
+  $content_node_field->db_storage = 0;
+  $content_node_field->module = 'content_taxonomy';
+  $content_node_field->db_columns = 'a:1:{s:5:"value";a:3:{s:4:"type";s:3:"int";s:8:"not null";b:0;s:8:"sortable";b:0;}}';
+  $content_node_field->active = 1;
+  $content_node_field->locked = 0;
+  drupal_write_record('content_node_field', $content_node_field);
+  
   return $ret;
   
 }
