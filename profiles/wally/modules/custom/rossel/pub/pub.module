@@ -156,6 +156,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       }
       break;
     case 'view':
+      watchdog("pub", $delta.$_GET["q"]);
       switch ($delta) {
         case 'pub_header':
           $block = array(
