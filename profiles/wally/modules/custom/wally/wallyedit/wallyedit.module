@@ -829,7 +829,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
           $allowed_types[$value]=$value;
         }
       }
-
+      if(count($allowed_types)>1){
       $handler_type_filter=array(
         'type' => array(
           'operator' => 'in',
@@ -852,6 +852,20 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
           'relationship' => 'none',
         ),
       );
+            }else{
+      $handler_type_filter=array(
+        'type' => array(
+          'operator' => 'in',
+          'value' => $allowed_types,
+          'group' => '0',
+          
+          'id' => 'type',
+          'table' => 'node',
+          'field' => 'type',
+          'relationship' => 'none',
+        ),
+      );
+      }
 
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
@@ -995,6 +1009,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         }
       }
 
+  if(count($allowed_types)>1){
       $handler_type_filter=array(
         'type' => array(
           'operator' => 'in',
@@ -1017,6 +1032,20 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
           'relationship' => 'none',
         ),
       );
+            }else{
+      $handler_type_filter=array(
+        'type' => array(
+          'operator' => 'in',
+          'value' => $allowed_types,
+          'group' => '0',
+          
+          'id' => 'type',
+          'table' => 'node',
+          'field' => 'type',
+          'relationship' => 'none',
+        ),
+      );
+      }
 
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
