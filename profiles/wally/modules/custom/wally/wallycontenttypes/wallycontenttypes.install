@@ -216,7 +216,18 @@ function wallycontenttypes_update_6102(){
     
     db_create_table($ret, 'content_field_iptc', $schema['content_field_iptc']);
     
-    
+    $content_node_field_instance = new stdClass();
+    $content_node_field_instance->field_name = 'field_iptc';
+    $content_node_field_instance->type_name = 'wally_articlepackage';
+    $content_node_field_instance->weight = 7;
+    $content_node_field_instance->label = 'IPTC';
+    $content_node_field_instance->widget_type = 'content_taxonomy_tree';
+    $content_node_field_instance->widget_settings = 'a:4:{s:12:"group_parent";s:1:"0";s:10:"show_depth";i:1;s:13:"default_value";a:1:{i:0;a:1:{s:5:"value";N;}}s:17:"default_value_php";N;}';
+    $content_node_field_instance->display_settings = 'a:6:{s:5:"label";a:2:{s:6:"format";s:5:"above";s:7:"exclude";i:0;}s:6:"teaser";a:2:{s:6:"format";s:7:"default";s:7:"exclude";i:0;}s:4:"full";a:2:{s:6:"format";s:7:"default";s:7:"exclude";i:0;}i:4;a:2:{s:6:"format";s:7:"default";s:7:"exclude";i:0;}i:2;a:2:{s:6:"format";s:7:"default";s:7:"exclude";i:0;}i:3;a:2:{s:6:"format";s:7:"default";s:7:"exclude";i:0;}}';
+    $content_node_field_instance->description = '';
+    $content_node_field_instance->widget_module = 'content_taxonomy_tree';
+    $content_node_field_instance->widget_active = 1;
+    drupal_write_record('content_node_field_instance', $content_node_field_instance);
     
     $content_node_field = new stdClass();
     $content_node_field->field_name = 'field_iptc';
