@@ -8,57 +8,59 @@ function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NU
 
 function wallyctools_form_change_destination_form($form_state, $redirect, $limit, $destination_tid = NULL, $target = NULL) {
   $form = array();
-  
-  drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
-  
-  $options_and_classe = cckdestinations_get_classes_and_options();
-  $vocabulary_id = variable_get('wallymport_destinationpath', 0);
 
-  $form['destination'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Change destination path and target'),
-  );
-
-  $form['destination']['tid'] = array(
-    '#title'            => t('Destination Path'),
-    '#type'             => 'select',
-    '#default_value'    => $destination_tid,
-    '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
-    '#required'         => TRUE,
-     // specify theming callback & add a new #attribute to the element.
-    '#theme'            => 'cckdestinations_cascading_select',
-    '#attributes'       => array('class' => 'tid'),
-    '#vid'              => $vocabulary_id,
-  );
-
-  $form['destination']['target'] = array(
-    '#title'            => t('Target'),
-    '#type'             => 'select',
-    '#default_value'    => $target,
-    '#options'          => $options_and_classe['target']['#options'],
-    '#classes'          => $options_and_classe['target']['#classes'],
-    '#required'         => TRUE,
-     // specify theming callback & add a new #attribute to the element.
-    '#theme'            => 'cckdestinations_cascading_select',
-    '#attributes'       => array('class' => 'target'),
-  );
+  if (!isset($form_state['post']['operation']) && !isset($form_state['post']['time_rank'])) {
+    drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
+    
+    $options_and_classe = cckdestinations_get_classes_and_options();
+    $vocabulary_id = variable_get('wallymport_destinationpath', 0);
   
-  $form['destination']['pager_limit'] = array(
-    '#title'            => t('Items per page'),
-    '#type'             => 'textfield',
-    '#default_value'    => $limit,
-    '#required'         => TRUE,
-  );
+    $form['destination'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Change destination path and target'),
+    );
   
-  $form['destination']['submit'] = array(
-    '#type'             => 'submit',
-    '#value'            => t('Change'),
-  );
+    $form['destination']['tid'] = array(
+      '#title'            => t('Destination Path'),
+      '#type'             => 'select',
+      '#default_value'    => $destination_tid,
+      '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
+      '#required'         => TRUE,
+       // specify theming callback & add a new #attribute to the element.
+      '#theme'            => 'cckdestinations_cascading_select',
+      '#attributes'       => array('class' => 'tid'),
+      '#vid'              => $vocabulary_id,
+    );
   
-  $form['redirect_path'] = array(
-    '#type'             => 'value',
-    '#value'            => $redirect,
-  );
+    $form['destination']['target'] = array(
+      '#title'            => t('Target'),
+      '#type'             => 'select',
+      '#default_value'    => $target,
+      '#options'          => $options_and_classe['target']['#options'],
+      '#classes'          => $options_and_classe['target']['#classes'],
+      '#required'         => TRUE,
+       // specify theming callback & add a new #attribute to the element.
+      '#theme'            => 'cckdestinations_cascading_select',
+      '#attributes'       => array('class' => 'target'),
+    );
+    
+    $form['destination']['pager_limit'] = array(
+      '#title'            => t('Items per page'),
+      '#type'             => 'textfield',
+      '#default_value'    => $limit,
+      '#required'         => TRUE,
+    );
+    
+    $form['destination']['submit'] = array(
+      '#type'             => 'submit',
+      '#value'            => t('Change'),
+    );
+    
+    $form['redirect_path'] = array(
+      '#type'             => 'value',
+      '#value'            => $redirect,
+    );
+  }
   
   return $form;
 }
