@@ -208,7 +208,9 @@ function wallycontenttypes_update_6102(){
       ),
     ),
     'primary key' => array('vid','delta'),//primary key
-    'indexes' => array('nid' => array ('nid', 3)),
+    'indexes' => array(
+      'nid'    => array('nid'),
+    ),
   );
     
     
