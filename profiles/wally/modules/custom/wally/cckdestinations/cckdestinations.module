@@ -186,6 +186,11 @@ function cckdestinations_taxonomy($op, $type, $array = NULL) {
  * Implementation of hook_content_is_empty().
  */
 function cckdestinations_content_is_empty($item, $field) {
+  if (isset($item['tid']) && !empty($item['tid']) && !is_numeric($item['tid']) && is_string($item['tid'])) {
+    $extract_tid = cckdestinations_autocomplete_split_tags($item['tid']);
+    $item['tid'] = $extract_tid[0];
+  }
+  
   if (!isset($item['tid']) || empty($item['tid']) || $item['tid']=='0' || !is_numeric($item['tid'])) {
     return TRUE;
   }
@@ -252,15 +257,17 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
     if (isset($form['field_destinations'])) {
       $form_copy = $form['field_destinations'];
       unset($form_copy['field_destinations_add_more']);
-      $actual_keys = element_children($form_copy);
+      /*$actual_keys = element_children($form_copy);
       $min_actual_keys = min($actual_keys);
-      $max_actual_keys = max($actual_keys);
+      $max_actual_keys = max($actual_keys);*/
       $temp_elem = array();
-      for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      //for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      foreach (element_children($form_copy) as $i) {
         $temp_elem[$i] = $form['field_destinations'][$i];
         unset($form['field_destinations'][$i]);
       }
-      for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      //for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      foreach (element_children($form_copy) as $i) {
         $form['field_destinations'][$temp_elem[$i]['#delta']] = $temp_elem[$i];
       }
     }
@@ -473,7 +480,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $rank_classes = array();
   $rank_limit = variable_get('cckdestinations_rank_limit', '10');
   
-  if (isset($defaults['rank']) && $defaults['rank'] != '') {
+  if (!cckdestinations_content_is_empty($defaults, array()) && isset($defaults['rank']) && $defaults['rank'] != '') {
     //$defaults['rank'] = substr($defaults['rank'], strlen($defaults['rank']) - strlen($rank_limit));
     $default_value=current(explode('DNC',$defaults['rank']));
     $default_value=next(explode('DNC',$defaults['rank'])).$default_value;
@@ -1674,10 +1681,13 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   
   foreach ($items as $delta => $item) {
     if (!cckdestinations_content_is_empty($item, array())) {
-      if (strstr($item['rank'], 'DNC')) {
+      if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
         $items[$delta]['rank'] = substr($item['rank'], 3);
       } else {
         $sort_method = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_sort_method', 'absolute');
+        if (strstr($item['rank'], 'DNC')) {
+          $item['rank'] = substr($item['rank'], 3);
+        }
 
         if ($sort_method == 'interval') {
           $items[$delta]['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_delta_t', 1));
