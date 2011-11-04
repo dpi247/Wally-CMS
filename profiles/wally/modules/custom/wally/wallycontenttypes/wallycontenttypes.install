@@ -235,23 +235,23 @@ function wallycontenttypes_update_6102(){
     $content_group_fields->type_name = 'wally_articlepackage';
     $content_group_fields->group_name = 'group_taxonomy';
     $content_group_fields->field_name = 'field_iptc';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_gallerypackage';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_pollpackage';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_audioobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_digitalobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_photoobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_pollobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_textobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
     $content_group_fields->type_name = 'wally_videoobject';
-    drupal_write_record('content_group_field', $content_group_fields);
+    drupal_write_record('content_group_fields', $content_group_fields);
   }
   if (wallytoolbox_taxonomy_getvocabularyvidbyname('Concepts') == NULL){
     $new_voc['name'] = 'Concepts';
