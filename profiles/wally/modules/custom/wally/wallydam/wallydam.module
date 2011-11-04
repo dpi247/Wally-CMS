@@ -24,14 +24,16 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       //Publish : node save
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
         wallydam_addurltobuffer($node->nid);
-        wallydam_addpackagetobuffer($node->nid);
+        if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
+          wallydam_addpackagetobuffer($node->nid);
+        }
       } 
       break;
     case 'update':
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
         if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
-        } elseif ($node->field_externaluri[0]['value'] == NULL & isset($node->wallymport_node)){
+        } elseif ($node->field_externaluri[0]['value'] == NULL){
           wallydam_addurltobuffer($node->nid);
         }
       }
