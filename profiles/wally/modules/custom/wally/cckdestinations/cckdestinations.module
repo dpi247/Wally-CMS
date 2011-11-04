@@ -1737,7 +1737,8 @@ dsm($view, 'view');
             $current_results = $view->result;
             $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
           }
-
+dsm($view->result, 'resutls');
+dsm($temp_time_rank, 'temp teime rea');
           $items[$delta]['time_rank'] = $temp_time_rank;
         }
       }
