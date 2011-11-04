@@ -1710,7 +1710,8 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           $view = views_get_view($view_infos['view_name']);
           $view->set_display($view_infos['view_id']);
           $view->set_items_per_page('2');
-          
+dsm($item, 'item');
+dsm($view, 'view');
           // Set params for this destination
           $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_behavior', 'top');
           $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_reserved', 5);
