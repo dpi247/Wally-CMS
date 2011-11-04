@@ -1694,7 +1694,9 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
   
   foreach ($items as $delta => $item) {
+dsm($item, 'item');
     if (!cckdestinations_content_is_empty($item, array())) {
+dsm('not empty');
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
         $items[$delta]['rank'] = substr($item['rank'], 3);
       } else {
@@ -1710,7 +1712,6 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           $view = views_get_view($view_infos['view_name']);
           $view->set_display($view_infos['view_id']);
           $view->set_items_per_page('2');
-dsm($item, 'item');
 dsm($view, 'view');
           // Set params for this destination
           $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_behavior', 'top');
