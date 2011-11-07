@@ -2996,7 +2996,7 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
     $target = $context['arguments'];
   }
   array_pop($target);
-
+dsm($context);
   $prenode=new Prenode($cache_name);
   $form_state=$prenode->getFormState();
   foreach($nodes as $nid){
