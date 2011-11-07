@@ -169,7 +169,7 @@ function content_taxonomy_tree_data2form($element, $values, $field) {
   $terms = array();
   foreach ($values as $delta => $entry) {
     if ($entry['value']) {
-     $terms[$entry['value']] = $entry['value'];// $terms[] = $entry['value'];
+      $terms[] = $entry['value'];
     }
   }
   return $terms;
