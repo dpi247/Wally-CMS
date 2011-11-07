@@ -47,7 +47,7 @@ class Prenode{
           watchdog("error","WallyEdit: node not found");
         }
       }
-      else {        
+      else {
         //Case of a prenode in edition mode
        if($cache =  prenode_get($cache_name)){
         //Case of a prenode in creation mode
