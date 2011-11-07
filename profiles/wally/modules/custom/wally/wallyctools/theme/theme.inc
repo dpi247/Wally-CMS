@@ -140,7 +140,6 @@ function theme_wallyctools_form_reorder_destination_form($form){
         drupal_render($fake_weight),
         $row['data']['#value'],
         $node_types[$row['type']['#value']],
-        $row['published']['#value'] ? t('Yes') : t('No'),
         date('D, d/m/Y - H:i', $row['last_update']['#value']),
         l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Delete'), 'node/'.$id.'/delete'),
       );
@@ -155,7 +154,7 @@ function theme_wallyctools_form_reorder_destination_form($form){
  
   //Make sure the header count matches the column count
   $header = array(
-    '', t('Title'), t('Type'), t('Published'), t('Last update'), t('Operations'), t('Order'),
+    '', t('Title'), t('Type'), t('Last update'), t('Operations'), t('Order'),
   );
   
   // Call add_tabledrag to add and setup the JS for us
