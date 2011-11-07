@@ -71,27 +71,24 @@ function wallyctools_form_change_destination_form_submit($form, $form_state) {
 }
 
 function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $destination_tid = NULL, $target = NULL){
-  //fetch the data from the DB
-  $count_query = 'SELECT COUNT(*)
-                  FROM {node} n
-                  LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
-                  WHERE dest.field_destinations_tid=%d
-                  AND n.status = 1
-                  AND dest.field_destinations_target="%s"
-                  ORDER BY dest.field_destinations_time_rank DESC';
-  $query = 'SELECT DISTINCT(dest.nid), dest.field_destinations_time_rank, n.title, n.type, n.changed, n.status
-            FROM {node} n
-            LEFT JOIN {content_field_destinations} dest ON dest.nid=n.nid
-            WHERE dest.field_destinations_tid = %d
-            AND n.status = 1
-            AND dest.field_destinations_target = "%s"
-            ORDER BY dest.field_destinations_time_rank DESC';
-            //LIMIT %d, %d';
-  $result = pager_query($query, $limit, 0, $count_query, $destination_tid, $target);
+  $view_infos = wallyctools_get_view_info_from_redacblock($target);
+  $view = views_get_view($view_infos['view_name']);
+  $view->set_display($view_infos['view_id']);
+  $view->set_arguments(array($destination_tid));
+  $view->set_items_per_page($limit);
+  $view->execute();
+  $results = $view->result;
 
   $form = array("#tree" => true);
 
-  for ($j = 1; $row = db_fetch_object($result); $j++) {
+  foreach ($results as $j => $result) {
+    $db_row = db_query('SELECT n.title, n.type, n.changed
+                        FROM {node} n
+                        WHERE n.nid = %d', $result->nid);
+    $row = db_fetch_object($db_row);
+    $row->nid = $result->nid;
+    $row->field_destinations_time_rank = $result->node_data_field_destinations_field_destinations_time_rank;
+    
     //create a partial table row containing the data from the table
     //add our static "row" data into a form value
     $form['rows'][$row->nid]['data'] = array(
@@ -107,11 +104,6 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     $form['rows'][$row->nid]['last_update'] = array(
       '#type' => 'value',
       '#value' => $row->changed,
-    );
-    
-    $form['rows'][$row->nid]['published'] = array(
-      '#type' => 'value',
-      '#value' => $row->status,
     );
 
     //now create the weight form element.
@@ -160,8 +152,7 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     '#type' => 'submit',
     '#value' => t('Save changes'),
   );
-  
-  
+
   $form['back'] = array(
     '#type' => 'submit',
     '#value' => t('Return to front page'),
