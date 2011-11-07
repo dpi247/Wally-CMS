@@ -171,7 +171,6 @@ function wimprt_process_message($dom, &$log, $preview = FALSE, $callback = NULL)
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       return $prenode->cache_name;
     } else {
-      dsm($node);
       //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
       node_save($node);
     }
@@ -2360,7 +2359,8 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
 	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
-
+  dsm($vocabulary_name);
+  dsm($vid);
   if ($vid == NULL){
     $result_set = NULL;
     $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
