@@ -7,6 +7,9 @@ function wallyedit_views_default_views() {
   $views = array();
 
   // Exported view: prenode_selectbox_vbo
+  $views = array();
+
+  // Exported view: prenode_selectbox_vbo
   $view = new view;
   $view->name = 'prenode_selectbox_vbo';
   $view->description = '';
