@@ -5,7 +5,6 @@
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
 
 include_once 'includes/Prenode.inc';
-include_once 'wallyedit.features.inc';
 
 /**
  * @file
@@ -319,6 +318,15 @@ function wallyedit_menu_alter(&$items) {
   
   // FileField alter to use our callback for the upload or remove of a file
   $items['filefield/ahah/%/%/%']['page callback'] = 'wydit_filefield_js';
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function wallyedit_views_api() {
+  return array(
+    'api' => '2',
+  );
 }
 
 /**
@@ -830,41 +838,40 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
         }
       }
       if(count($allowed_types)>1){
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          'exposed' => TRUE,
-          'expose' => array(
-            'use_operator' => 0,
-            'operator' => 'type_op',
-            'identifier' => 'type',
-            'label' => 'Node: Type',
-            'optional' => 1,
-            'single' => 0,
-            'remember' => 0,
-            'reduce' => 1,
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'exposed' => TRUE,
+            'expose' => array(
+              'use_operator' => 0,
+              'operator' => 'type_op',
+              'identifier' => 'type',
+              'label' => 'Node: Type',
+              'optional' => 1,
+              'single' => 0,
+              'remember' => 0,
+              'reduce' => 1,
+            ),
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
           ),
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
-            }else{
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
+        );
+      }else{
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
+          ),
+        );
       }
 
       $view = views_get_view('prenode_selectbox_vbo');
@@ -937,7 +944,6 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   wydit_subform_global_page_submit($form_state);
 
   if($form_state["clicked_button"]['#name']=='publish_global'){
-  	
     wydit_publish_prenode($form_state);
     drupal_set_message('Node has been published');
     prenode_delete($form_state);
@@ -1010,42 +1016,41 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         }
       }
 
-  if(count($allowed_types)>1){
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          'exposed' => TRUE,
-          'expose' => array(
-            'use_operator' => 0,
-            'operator' => 'type_op',
-            'identifier' => 'type',
-            'label' => 'Node: Type',
-            'optional' => 1,
-            'single' => 0,
-            'remember' => 0,
-            'reduce' => 1,
+      if(count($allowed_types)>1){
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'exposed' => TRUE,
+            'expose' => array(
+              'use_operator' => 0,
+              'operator' => 'type_op',
+              'identifier' => 'type',
+              'label' => 'Node: Type',
+              'optional' => 1,
+              'single' => 0,
+              'remember' => 0,
+              'reduce' => 1,
+            ),
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
           ),
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
-            }else{
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
+        );
+      }else{
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
+          ),
+        );
       }
 
       $view = views_get_view('prenode_selectbox_vbo');
@@ -1636,7 +1641,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
       }
       break;
     case 'save_global':
-    	module_load_include('inc','node', 'node.pages');
+      module_load_include('inc', 'node', 'node.pages');
       if($old_form_state['values']['type']=='wally_linktype') {
       	$new_form_state=array();
         $new_form_state['parents']= $target;
@@ -1655,7 +1660,6 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
       }
       else {
-      	
         $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state);
         $form_prev = ctools_build_form('wydit_subform_global_preview_form', $form_state);
         $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
@@ -1714,10 +1718,8 @@ function wydit_subform_global_edit_form(&$form_state){
   $form['type']=array('#type'=>'value','#value'=>$node->type);
 
   $a=array("#tree"=>true);
-  //$a["node"]=$node;
-  
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
-  
+
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   if (module_exists('wysiwyg')) {
     wysiwyg_process_form($a); 
@@ -2443,7 +2445,7 @@ function prenode_delete($prenode) {
   }
   else{
     ctools_include('object-cache');
-    ctools_object_cache_clear( 'prenode',$prenode['cache name']);
+    ctools_object_cache_clear('prenode', $prenode['cache name']);
   }
   
   drupal_set_message(t('PreNode has been cleared'));
@@ -2509,7 +2511,7 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
   if (isset($form_state[$type_name]['#node']->path['pathauto_perform_alias'])) {
     $form_state[$type_name]['#node']->pathauto_perform_alias = $form_state[$type_name]['#node']->path['pathauto_perform_alias'];
     unset($form_state[$type_name]['#node']->path);
-  }	
+  }
   
   return wydit_publish_prenode_save($form_state, $sub_level);
 }
@@ -2523,7 +2525,6 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
         if(is_numeric($key)){
           $link_node=$link["#node"];
           node_save($link_node);
-//          $form_state['field_links_list'][$key]
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
@@ -2531,15 +2532,14 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
         }
       }
     }
-  $b->doNotPullUp = TRUE;
-  node_save($b);
-      $form_state['#node']=$b;
-  
+    $b->doNotPullUp = TRUE;
+    node_save($b);
+    $form_state['#node']=$b;
   }
   else{
     $b=$form_state[$form_state['type']]['#node'];
-  $b->doNotPullUp = TRUE;
-  node_save($b);
+    $b->doNotPullUp = TRUE;
+    node_save($b);
   }
 
   return $b->nid;
