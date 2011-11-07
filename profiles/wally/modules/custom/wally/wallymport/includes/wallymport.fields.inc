@@ -2359,8 +2359,6 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
 	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
-  dsm($vocabulary_name);
-  dsm($vid);
   if ($vid == NULL){
     $result_set = NULL;
     $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
