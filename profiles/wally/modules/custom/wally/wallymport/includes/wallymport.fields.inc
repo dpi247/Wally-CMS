@@ -2297,6 +2297,7 @@ function wimprt_set_field_taxonomy(&$node,$dom,$log) {
   		    $node->field_concepts = array();
   		    $node->field_iptc = array();
   		  }
+  		  dsm($result);
   		  if (isset($result['field_free_tags'])){
   		    foreach($result['field_free_tags'] as $term) {
   		      if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {  
