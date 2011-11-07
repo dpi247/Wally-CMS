@@ -5,7 +5,6 @@
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
 
 include_once 'includes/Prenode.inc';
-include_once 'wallyedit.features.inc';
 
 /**
  * @file
@@ -319,6 +318,15 @@ function wallyedit_menu_alter(&$items) {
   
   // FileField alter to use our callback for the upload or remove of a file
   $items['filefield/ahah/%/%/%']['page callback'] = 'wydit_filefield_js';
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function wallyedit_views_api() {
+  return array(
+    'api' => '2',
+  );
 }
 
 /**
@@ -827,29 +835,42 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
           $allowed_types[$value]=$value;
         }
       }
-
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          'exposed' => TRUE,
-          'expose' => array(
-            'use_operator' => 0,
-            'operator' => 'type_op',
-            'identifier' => 'type',
-            'label' => 'Node: Type',
-            'optional' => 1,
-            'single' => 0,
-            'remember' => 0,
-            'reduce' => 1,
+      if(count($allowed_types)>1){
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'exposed' => TRUE,
+            'expose' => array(
+              'use_operator' => 0,
+              'operator' => 'type_op',
+              'identifier' => 'type',
+              'label' => 'Node: Type',
+              'optional' => 1,
+              'single' => 0,
+              'remember' => 0,
+              'reduce' => 1,
+            ),
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
           ),
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
+        );
+      }else{
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
+          ),
+        );
+      }
 
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
@@ -991,28 +1012,42 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
         }
       }
 
-      $handler_type_filter=array(
-        'type' => array(
-          'operator' => 'in',
-          'value' => $allowed_types,
-          'group' => '0',
-          'exposed' => TRUE,
-          'expose' => array(
-            'use_operator' => 0,
-            'operator' => 'type_op',
-            'identifier' => 'type',
-            'label' => 'Node: Type',
-            'optional' => 1,
-            'single' => 0,
-            'remember' => 0,
-            'reduce' => 1,
+      if(count($allowed_types)>1){
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'exposed' => TRUE,
+            'expose' => array(
+              'use_operator' => 0,
+              'operator' => 'type_op',
+              'identifier' => 'type',
+              'label' => 'Node: Type',
+              'optional' => 1,
+              'single' => 0,
+              'remember' => 0,
+              'reduce' => 1,
+            ),
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
           ),
-          'id' => 'type',
-          'table' => 'node',
-          'field' => 'type',
-          'relationship' => 'none',
-        ),
-      );
+        );
+      }else{
+        $handler_type_filter=array(
+          'type' => array(
+            'operator' => 'in',
+            'value' => $allowed_types,
+            'group' => '0',
+            'id' => 'type',
+            'table' => 'node',
+            'field' => 'type',
+            'relationship' => 'none',
+          ),
+        );
+      }
 
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
@@ -1598,8 +1633,9 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
       }
       break;
     case 'save_global':
+      module_load_include('inc', 'node', 'node.pages');
       if($old_form_state['values']['type']=='wally_linktype') {
-        $new_form_state=array();
+      	$new_form_state=array();
         $new_form_state['parents']= $target;
         array_pop($new_form_state['parents']);
         $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
@@ -1612,7 +1648,7 @@ function wallyedit_form_editmode_add_form_submit($form,&$form_state){
         //Need that to avoid re-processing of the form (infinite loop)
         $new_form_state['input']=NULL;
 
-        $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $new_form_state['values']['profile_id']);
+        $form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $old_form_state['values']['profile_id']);
         $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
       }
       else {
@@ -1663,7 +1699,6 @@ function wallyedit_form_editmode_edit_form(&$form_state){
 
 function wydit_subform_global_edit_form(&$form_state){
   $node=wydit_get_current_node_from_parents($form_state);
-
   $type_name=$node->type;
 
   $form['#tree']=TRUE;
@@ -1676,7 +1711,6 @@ function wydit_subform_global_edit_form(&$form_state){
 
   $a=array("#tree"=>true);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
-  $a['#tree']=true;
 
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   if (module_exists('wysiwyg')) {
@@ -1691,6 +1725,7 @@ function wydit_subform_global_edit_form(&$form_state){
   foreach($a as $element_name=>$value){
     $form[$type_name][$element_name] = $value;
   }
+  
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name));
   wydit_remove_form_infos($form[$type_name]);
   
@@ -2486,15 +2521,17 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
           }
         }
       }
+      $b->doNotPullUp = TRUE;
+      node_save($b);
       $form_state['#node']=$b;
     }
   }
   else{
     $b=$form_state[$form_state['type']]['#node'];
+    $b->doNotPullUp = TRUE;
+    node_save($b);
   }
 
-  $b->doNotPullUp = TRUE;
-  node_save($b);
   return $b->nid;
 }
 
@@ -2771,7 +2808,6 @@ function wydit_get_infos_groups($type_name){
  * @return a node object if found. null instead.
  */
 function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
-
   if($parents==NULL)
   $parents=$form_state['parents'];
 

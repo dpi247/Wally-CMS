@@ -37,9 +37,8 @@ class Prenode{
       $node=node_load($cache_name);
       if(!$node) {
         //this not a node, maybe a prenode ?
-        ctools_include('object-cache');
         
-        if($cache = ctools_object_cache_get('prenode', $cache_name)){
+        if($cache = prenode_get($cache_name)){
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->form_state['cache name']= $cache_name;
@@ -48,10 +47,9 @@ class Prenode{
           watchdog("error","WallyEdit: node not found");
         }
       }
-      else {        
-        ctools_include('object-cache');
+      else {
         //Case of a prenode in edition mode
-       if($cache = ctools_object_cache_get('prenode', $cache_name,true)){
+       if($cache =  prenode_get($cache_name)){
         //Case of a prenode in creation mode
           $this->form_state=$cache;
           $this->setNode($node);
@@ -92,7 +90,6 @@ class Prenode{
   }
   
   function setFormState($reset=false){
-    ctools_include('object-cache');
     $type_name=$this->node->type;
     $form_state = array('ajax' => TRUE);
     $form_state += array(
@@ -105,7 +102,7 @@ class Prenode{
       'profile_id' => $this->profile_id,
     );
     
-    if($cache = ctools_object_cache_get('prenode', $form_state['cache name'])){
+    if($cache =  prenode_get($cache_name)){
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
@@ -172,8 +169,7 @@ class Prenode{
   }
 
   static function LoadPrenodeFromNid($nid){
-    ctools_include('object-cache');
-    return ctools_object_cache_get('prenode', $nid);
+    return prenode_get($nid);
   }
 }
 /**
