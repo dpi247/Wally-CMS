@@ -2834,18 +2834,6 @@ function wydit_get_url_action($action, $nid){
   }
 }
 
-/**
- */
-function wydit_get_cache_name($nid = NULL) {
-  global $user;
-
-  if ($nid) {
-    return $nid;
-  } else {
-    return md5(uniqid(rand(), TRUE));
-  }
-}
-
 function wallyedit_action_info() {
   return array('wallyedit_selector_action' => array(
     'type' => 'node',
