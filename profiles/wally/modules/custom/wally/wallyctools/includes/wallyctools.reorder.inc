@@ -89,12 +89,11 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     );
 
     $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
-    $view->is_cacheable = FALSE;
-    $view->init_handlers();
     $view->set_arguments(array($destination_tid, $target));
     $view->set_items_per_page($limit);
     $view->execute();
     $results = $view->result;
+    $view->destroy();
   
     $form = array("#tree" => true);
   
