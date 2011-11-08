@@ -88,7 +88,7 @@ class Prenode{
       return $this->setFormState();
     }
   }
-  
+
   function get_cache_name() {
     global $user;
 
