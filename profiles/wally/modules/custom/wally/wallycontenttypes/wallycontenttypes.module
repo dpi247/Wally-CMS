@@ -681,7 +681,7 @@ function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
 
   if ($nid_type == 'prenode') {
     ctools_include('object-cache');
-    if ($prenode = ctools_object_cache_get('prenode', $nid, TRUE)) {
+    if ($prenode = prenode_get($nid, TRUE)) {
       $args = func_get_args();
       array_shift($args);
       array_shift($args);
@@ -1128,7 +1128,7 @@ function _wallycontenttypes_update_crop_state_value($form, &$form_state) {
   // pour éviter de faire un node load à la construction du form
   if (isset($form_state['cache name'])) {
     ctools_include('object-cache');
-    if ($prenode = ctools_object_cache_get('prenode', $form_state['cache name'])) {
+    if ($prenode = prenode_get($form_state['cache name'])) {
       if ($form['#tree']) {
         $crop_value = &$values['wally_photoobject']['field_croping'][0]['value'];
       } else {

@@ -2441,14 +2441,14 @@ function prenode_delete($prenode) {
   drupal_set_message(t('PreNode has been cleared'));
 }
 
-function prenode_get($cache_name) {
+function prenode_get($cache_name, $skip_cache = FALSE) {
   if(function_exists('memcache_variable_set')){
   	$prenode= cache_get($cache_name, 'prenode');
   	$prenode=$prenode->data->cache;
   }
   else{
     ctools_include('object-cache');
-    $prenode=ctools_object_cache_get('prenode', $cache_name);
+    $prenode=ctools_object_cache_get('prenode', $cache_name, $skip_cache);
   }
   return $prenode;
 }
