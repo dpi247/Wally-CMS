@@ -23,14 +23,22 @@ function wallyctools_menu() {
     'access arguments' => array('reorder destination views'),
     'file' => 'includes/wallyctools.reorder.inc',
   );
-
+  
   $items['admin/wally/wallyctools'] = $base + array(
-    'title'                         => t('Reorder'),
+    'title'                         => t('Reorder and manipulate'),
+    'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
+  );
+
+  $items['admin/wally/wallyctools-operations'] = $base + array(
+    'title'                         => t('Reorder and manipulate'),
+    'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
+    'page callback'                 => 'wallyctools_page_reorder_destination',
+    'page arguments'                => array(),
     'type'                          => MENU_DEFAULT_LOCAL_TASK,
   );
   
-  $items['admin/wally/wallyctools/reorder/%/%/%'] = $base + array(
+  $items['admin/wally/wallyctools-operations/reorder/%/%/%'] = $base + array(
     'title'                         => t('Reorder'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
     'page arguments'                => array(4, 5, 6),
@@ -38,14 +46,14 @@ function wallyctools_menu() {
     'weight'                        => 0,
   );
   
-  $items['admin/wally/wallyctools/batchoperations/%/%/%'] = $base + array(
+  $items['admin/wally/wallyctools-operations/batchoperations/%/%/%'] = $base + array(
     'title'                         => t('Batch operations'),
     'page callback'                 => 'wallyctools_page_destination_batch_operations',
     'page arguments'                => array(4, 5, 6),
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 1,
   );
-  
+
   return $items;
 }
 
