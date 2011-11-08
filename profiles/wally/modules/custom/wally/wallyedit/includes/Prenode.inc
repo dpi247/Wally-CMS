@@ -89,8 +89,6 @@ class Prenode{
     }
   }
   
-  /**
-   */
   function get_cache_name() {
     global $user;
 

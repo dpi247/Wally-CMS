@@ -2454,10 +2454,7 @@ function prenode_delete($prenode) {
 function prenode_get($cache_name) {
   if(function_exists('memcache_variable_set')){
   	$prenode= cache_get($cache_name, 'prenode');
-  	  	dsm($prenode, 'getted prenode');
-  	
   	$prenode=$prenode->data->cache;
-  	dsm($prenode, 'getted prenode');
   }
   else{
     ctools_include('object-cache');
