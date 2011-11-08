@@ -71,7 +71,7 @@ function wallyctools_form_change_destination_form_submit($form, $form_state) {
 }
 
 function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $destination_tid = NULL, $target = NULL){
-  if ($target && $destination_tid) {
+  if (false&&$target && $destination_tid) {
     $view_infos = wallyctools_get_view_info_from_redacblock($target);
     $view = views_get_view($view_infos['view_name']);
     $view->set_display($view_infos['view_id']);
