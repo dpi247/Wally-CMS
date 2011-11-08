@@ -1,6 +1,6 @@
 <?php
 function dynamicfeedback_page_render($package_id){
-
+  $GLOBALS['conf']['cache'] = FALSE;
   $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
   
   if(count($array_of_nodes)!=1) {
@@ -15,7 +15,7 @@ function dynamicfeedback_page_render($package_id){
   $comment_count=$full_node->comment;
   $title=$full_node->title;
   $nodeId=$node->nid;
-  $_GET['hrefvalue']='node/'.$package_id;
+  $_GET['hrefvalue']='node/'.$full_node->nid;
   $array=array(
      'title' => $title,
      'comment_count' => $comment_count,
