@@ -71,14 +71,14 @@ function wallyctools_form_change_destination_form_submit($form, $form_state) {
 }
 
 function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $destination_tid = NULL, $target = NULL){
-  if (false&&$target && $destination_tid) {
+  if ($target && $destination_tid) {
     $view_infos = wallyctools_get_view_info_from_redacblock($target);
     $view = views_get_view($view_infos['view_name']);
     $view->set_display($view_infos['view_id']);
     
     $options = array(
       'operator' => 'in',
-      'value' => array($redacblock_name),
+      'value' => array($target),
       'group' => '0',
       'exposed' => FALSE,
       'expose' => array(
@@ -88,7 +88,7 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
       'relationship' => 'none',
     );
 
-    $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
+    $view->add_item($view_infos['view_id'], 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
     $view->set_arguments(array($destination_tid, $target));
     $view->set_items_per_page($limit);
     $view->execute();
