@@ -8,4 +8,3 @@ dependencies[] = "ctools"
 dependencies[] = "views_bulk_operations"
 dependencies[] = "wallytoolbox"
 dependencies[] = "location"
-
