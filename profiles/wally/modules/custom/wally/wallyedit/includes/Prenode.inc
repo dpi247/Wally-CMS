@@ -89,6 +89,18 @@ class Prenode{
     }
   }
   
+  /**
+   */
+  function get_cache_name() {
+    global $user;
+
+    if (!isset($this->cache_name)) {
+      $this->cache_name=md5(uniqid(rand(), TRUE));
+    }
+
+    return $this->cache_name;
+  }
+  
   function setFormState($reset=false){
     $type_name=$this->node->type;
     $form_state = array('ajax' => TRUE);
@@ -98,11 +110,11 @@ class Prenode{
     );
     
     $form_state = array(
-      'cache name' => wydit_get_cache_name($this->cache_name),
+      'cache name' => $this->get_cache_name(),
       'profile_id' => $this->profile_id,
     );
     
-    if($cache =  prenode_get($cache_name)){
+    if($cache =  prenode_get($this->cache_name)){
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
@@ -110,7 +122,7 @@ class Prenode{
       $form_state[$type_name]['#node'] = $this->node;
       $form_state[$type_name]['type'] = $type_name;
       
-      $type=wydit_get_infos_type( $type_name);
+      $type=wydit_get_infos_type($type_name);
 
       $fields = $type['fields'];
       module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
