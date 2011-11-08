@@ -670,10 +670,10 @@ function _wallycontenttypes_getpackagesid($node){
 
 function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   if ($js) {
-    ctools_include('modal');
-    ctools_include('ajax');
+    _wydit_ctools_include(TRUE);
+  } else {
+    ctools_include('form');
   }
-  ctools_include('form');
 
   $form_state = array(
     'ajax' => $js,

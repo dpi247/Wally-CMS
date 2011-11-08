@@ -3081,11 +3081,15 @@ function _wallyedit_set_taxonomies_from_object_to_prenode(&$prenode_node, $objec
   $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
 }
 
-function _wydit_ctools_include() {
+function _wydit_ctools_include($modal = FALSE) {
   ctools_include('form');
-  //ctools_include('modal');
+  if ($modal) {
+    ctools_include('modal');
+  }
   ctools_include('ajax');
   ctools_add_js('ajax-responder');
-  //ctools_modal_add_js();
+  if ($modal) {
+    ctools_modal_add_js();
+  }
   ctools_include('object-cache');
 }
