@@ -38,7 +38,7 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
         $vars['admin_links_raw'] = array(
           'title' => t('Reorder'),
           'alt' => t("Reorder the view"),
-          'href' => "admin/wally/wallyctools/reorder/25/$destination_tid/$target",
+          'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
           //'fragment' => 'views-tab-' . $view->current_display,
           //'query' => drupal_get_destination(),
         );
@@ -117,7 +117,9 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
 function theme_wallyctools_form_reorder_destination_form($form){
   if (!isset($form['rows']) || empty($form['rows'])) {
-    drupal_set_message(t('No nodes to reorder.'));
+    if (isset($form['submit'])) {
+      drupal_set_message(t('No nodes to reorder.'));
+    }
     return;
   }
   

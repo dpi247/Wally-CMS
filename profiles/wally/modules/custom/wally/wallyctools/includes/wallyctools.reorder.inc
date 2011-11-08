@@ -67,91 +67,93 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $limit
 
 function wallyctools_form_change_destination_form_submit($form, $form_state) {
   $values = $form_state['values'];
-  drupal_goto('admin/wally/wallyctools/'.$values['redirect_path'].'/'.$values['pager_limit'].'/'.$values['tid'].'/'.$values['target']);
+  drupal_goto('admin/wally/wallyctools-operations/'.$values['redirect_path'].'/'.$values['pager_limit'].'/'.$values['tid'].'/'.$values['target']);
 }
 
 function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $destination_tid = NULL, $target = NULL){
-  $view_infos = wallyctools_get_view_info_from_redacblock($target);
-  dsm($view_infos);
-  $view = views_get_view($view_infos['view_name']);
-  $view->set_display($view_infos['view_id']);
-  $view->set_arguments(array($destination_tid));
-  $view->set_items_per_page($limit);
-  $view->execute();
-  $results = $view->result;
-
-  $form = array("#tree" => true);
-
-  foreach ($results as $j => $result) {
-    $db_row = db_query('SELECT n.title, n.type, n.changed
-                        FROM {node} n
-                        WHERE n.nid = %d', $result->nid);
-    $row = db_fetch_object($db_row);
-    $row->nid = $result->nid;
-    $row->field_destinations_time_rank = $result->node_data_field_destinations_field_destinations_time_rank;
-    
-    //create a partial table row containing the data from the table
-    //add our static "row" data into a form value
-    $form['rows'][$row->nid]['data'] = array(
-      '#type' => 'value',
-      '#value' => $row->title,
-    );
-
-    $form['rows'][$row->nid]['type'] = array(
-      '#type' => 'value',
-      '#value' => $row->type,
-    );
-    
-    $form['rows'][$row->nid]['last_update'] = array(
-      '#type' => 'value',
-      '#value' => $row->changed,
-    );
-
-    //now create the weight form element.
-    //NOTE how we add the id into the element key
-    $form['rows'][$row->nid]['weight'] = array(
-      '#type' => 'weight',
-      '#default_value' => $j,
-      //add a specific class in here - we need this later
-      '#attributes' => array('class' => 'weight'),
-      '#delta' => $limit,
-    );
-
-    $form['rows'][$row->nid]['time_rank'] = array(
-      '#type' => 'value',
-      '#value' => $row->field_destinations_time_rank,
-    );
-
-    $form['rows'][$row->nid]['original_weight'] = array(
-      '#type' => 'value',
-      '#value' => $j,
-    );
-
-    $form['rows'][$row->nid]['nid'] = array(
-      '#type' => 'value',
-      '#value' => $row->nid,
-    );
-  }
-
-  $form['destination_tid'] = array(
-    '#type' => 'value',
-    '#value' => $destination_tid,
-  );
+  if ($target && $destination_tid) {
+    $view_infos = wallyctools_get_view_info_from_redacblock($target);
+    $view = views_get_view($view_infos['view_name']);
+    $view->set_display($view_infos['view_id']);
+    $view->set_arguments(array($destination_tid));
+    $view->set_items_per_page($limit);
+    $view->execute();
+    $results = $view->result;
   
-  $form['target'] = array(
-    '#type' => 'value',
-    '#value' => $target,
-  );
+    $form = array("#tree" => true);
+  
+    foreach ($results as $j => $result) {
+      $db_row = db_query('SELECT n.title, n.type, n.changed
+                          FROM {node} n
+                          WHERE n.nid = %d', $result->nid);
+      $row = db_fetch_object($db_row);
+      $row->nid = $result->nid;
+      $row->field_destinations_time_rank = $result->node_data_field_destinations_field_destinations_time_rank;
+      
+      //create a partial table row containing the data from the table
+      //add our static "row" data into a form value
+      $form['rows'][$row->nid]['data'] = array(
+        '#type' => 'value',
+        '#value' => $row->title,
+      );
+  
+      $form['rows'][$row->nid]['type'] = array(
+        '#type' => 'value',
+        '#value' => $row->type,
+      );
+      
+      $form['rows'][$row->nid]['last_update'] = array(
+        '#type' => 'value',
+        '#value' => $row->changed,
+      );
+  
+      //now create the weight form element.
+      //NOTE how we add the id into the element key
+      $form['rows'][$row->nid]['weight'] = array(
+        '#type' => 'weight',
+        '#default_value' => $j,
+        //add a specific class in here - we need this later
+        '#attributes' => array('class' => 'weight'),
+        '#delta' => $limit,
+      );
+  
+      $form['rows'][$row->nid]['time_rank'] = array(
+        '#type' => 'value',
+        '#value' => $row->field_destinations_time_rank,
+      );
+  
+      $form['rows'][$row->nid]['original_weight'] = array(
+        '#type' => 'value',
+        '#value' => $j,
+      );
+  
+      $form['rows'][$row->nid]['nid'] = array(
+        '#type' => 'value',
+        '#value' => $row->nid,
+      );
+    }
+  
+    $form['destination_tid'] = array(
+      '#type' => 'value',
+      '#value' => $destination_tid,
+    );
+    
+    $form['target'] = array(
+      '#type' => 'value',
+      '#value' => $target,
+    );
+    
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save changes'),
+    );
+  } else {
+    drupal_set_message(t('Please choose a destination path and a target.'));
+  }
   
   $form['pager_limit'] = array(
     '#type' => 'value',
     '#value' => $limit,
-  );
-
-  //Don't forget the submit button
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save changes'),
   );
 
   $form['back'] = array(
@@ -204,15 +206,22 @@ function wallyctools_page_destination_batch_operations($limit = 25, $destination
 }
 
 function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
-  $view = views_get_view('batch_destinations');
-  $view->set_display('page_1');
-  $view->override_path = $_GET['q'];
-  $view->set_arguments(array($destination_tid, $target));
-  $view->pager['use_pager'] = TRUE;
-  $view->pager['items_per_page'] = $limit;
-
-  $return = $view->render();
-  $return .= theme('pager', NULL, $limit, 0);
+  $return = '';
+  
+  if ($target && $destination_tid) {
+    $view = views_get_view('batch_destinations');
+    $view->set_display('page_1');
+    $view->override_path = $_GET['q'];
+    $view->set_arguments(array($destination_tid, $target));
+    $view->pager['use_pager'] = TRUE;
+    $view->pager['items_per_page'] = $limit;
+  
+    $return = $view->render();
+    $return .= theme('pager', NULL, $limit, 0);
+  } else {
+    drupal_set_message(t('Please choose a destination path and a target.'));
+  }
+  
   return $return;
 }
 
