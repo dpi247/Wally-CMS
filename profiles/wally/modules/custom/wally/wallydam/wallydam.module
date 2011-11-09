@@ -181,8 +181,8 @@ function wallydam_postpackage($nid){
   $result = wallyexport_export_packages(array($nid));
   if ($result[0] == 'Zip success : '.$nid){
     //Send package in POST
-    dsm('coucou');
     $target_url = variable_get('wallydam_updatepackageurl', '');
+    dsm($target_url);
     if ($target_url != ''){
       $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
