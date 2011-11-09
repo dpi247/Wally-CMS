@@ -513,6 +513,7 @@ $(document).ready(function() {
   <?php print drupal_render($form['cancel_global']);?>
   <?php print drupal_render($form['reset_global']);?>
   <?php print drupal_render($form['publish_global']);?>
+  <?php print drupal_render($form['delete_global']);?>
 </div>
 
 <div id="profile_selector">

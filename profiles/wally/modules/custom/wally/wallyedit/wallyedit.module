@@ -276,6 +276,14 @@ function wallyedit_menu(){
     'load arguments' => array('%map'),
   );
   
+  $items['node/%prenode/deleteglobal/%'] = array(
+    'page callback'=>'wallyedit_callback_delete',
+    'page arguments'=>array(1, 3),
+    'access arguments' => array('access content'),
+    'file'=>'includes/callback_delete.inc',
+    'load arguments' => array('%map'),
+  );
+  
   $items['wallyedit/js_add_more'] = array(
     'page callback' => 'wallyedit_add_more_js',
     'access arguments' => array('access content'),
@@ -758,21 +766,23 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
   _wydit_ctools_include();
   $commands = array();
 
-  if($form_state["clicked_button"]['#name'] == 'reset_global'){
-    drupal_set_message('reset');
+  if($form_state["clicked_button"]['#name']=='reset_global'){
     prenode_delete($form_state);
-    drupal_goto("admin/wallyedit/node");
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //This is the important line !!!
-  
   wydit_subform_global_page_submit($form_state);
-  
-  if($form_state["clicked_button"]['#name']=='publish_global' ){
+
+  if($form_state["clicked_button"]['#name']=='publish_global'){
     wydit_publish_prenode($form_state);
-    drupal_set_message('Node has been published');
+    drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //*********
@@ -918,7 +928,16 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
+  
+  $form["delete_global"]=array(
+    '#type' => 'submit',
+    '#name' => 'delete_global',
+    "#value"=> t('Delete node'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+  );
+  
   $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/1/'.$form_state['profile_id'];
+  
   return $form;
 }
 
@@ -931,11 +950,23 @@ function wallyedit_form_page_editmode_form_validate(&$form, &$form_state){
 function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
   _wydit_ctools_include();
   $commands = array();
-  
+
+  $current_profile = $form_state['profile_id'];
+
+  if($form_state["clicked_button"]['#name']=='delete_global') {
+    $confirm_form = ctools_build_form('wallyedit_form_delete_node_and_prenode_form', $form_state);
+    $commands[] = ctools_ajax_command_html('#wallyedit_container', $confirm_form);
+    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
+    ctools_ajax_render($commands);
+    return;
+  }
+
   if($form_state["clicked_button"]['#name']=='reset_global'){
-    drupal_set_message('reset');
     prenode_delete($form_state);
-    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //This is the important line !!!
@@ -943,16 +974,16 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
 
   if($form_state["clicked_button"]['#name']=='publish_global'){
     wydit_publish_prenode($form_state);
-    drupal_set_message('Node has been published');
+    drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //*********
   //DISPATCH
   //*********
-  
-  $current_profile = $form_state['profile_id'];
 
   $action =split('__',$form_state['clicked_button']['#name']);
   $action=$action[0];
@@ -1259,9 +1290,10 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       }
       else{
         $has_another_type_than_value=false;
-        foreach(element_children($form[$element]) as $subfield_key => $subfield)
-        if($form[$element][$subfield]["#type"]!="value"){
-          $has_another_type_than_value=TRUE;
+        foreach(element_children($form[$element]) as $subfield_key => $subfield) {
+          if($form[$element][$subfield]["#type"]!="value"){
+            $has_another_type_than_value=TRUE;
+          }
         }
         if(!$has_another_type_than_value){
           unset($form[$element]["#type"]);
@@ -1453,6 +1485,39 @@ function wydit_subform_global_page_submit(&$form_state){
   
   wydit_clean_and_save_form_state($a);
   $form_state[$form_state['type']]=$a[$form_state['type']];
+}
+
+/**
+ * Confirm form to delete a node
+ */
+function wallyedit_form_delete_node_and_prenode_form (&$form_state) {
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : '';
+  $question = t('Are you sure you want to delete node @nid?', array('@nid' => $form_state['cache name']));
+  
+  $form = array();
+  
+  $form['question'] = array(
+    '#type' => 'markup',
+    '#value' => $question.'</br>',
+  );
+  
+  $form['confirm_delete']=array(
+    '#type' => 'submit',
+    '#name' => 'confirm_delete',
+    '#value' => t('Confirm'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+  );
+  
+  $form['cancel']=array(
+    '#type' => 'submit',
+    '#name' => 'cancel',
+    '#value' => t('Cancel'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+  );
+  
+  $form['#action'] = '/node/'.$form_state['cache name'].'/deleteglobal/'.$form_state['profile_id'];
+
+  return $form;
 }
 
 function wallyedit_form_createmode_add_form(&$form_state){
