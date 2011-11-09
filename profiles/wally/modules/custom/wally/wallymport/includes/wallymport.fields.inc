@@ -85,6 +85,7 @@ function wimprt_process_package($dom, &$log, $preview = FALSE, $callback = NULL)
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
+      $node->wallymport_node = TRUE;
       node_save($node);
     }
   } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
@@ -286,7 +287,6 @@ function wimprt_create_or_load_preprocesspackage($dom,&$node){
 function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
   $node = new stdClass;
   $node->type = 'wally_articlepackage';
-  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
@@ -307,7 +307,6 @@ function wimprt_create_or_load_package_articlepackagetype($dom,&$log) {
 function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_gallerypackage';
-  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
   return $node;
 }
@@ -328,7 +327,6 @@ function wimprt_create_or_load_package_gallerypackagetype($dom,&$log){
 function wimprt_create_or_load_package_pollpackagetype($dom,&$log){
   $node = new stdClass;
   $node->type = 'wally_pollpackage';
-  $node->wallymport_node = TRUE;
   wimprt_create_or_load_preprocesspackage($dom,$node);
 
   return $node;

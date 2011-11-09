@@ -320,7 +320,7 @@ function wallymport_process_xml($path_to_zip, $absolute_path = FALSE){
   $temp = variable_get('wallymport_temp', file_directory_temp());
   $format = 'xml'; // input file extension
   
-  if($absolute_path){
+  if ($absolute_path){
     $file = $path_to_zip;
   } else {
     $file = variable_get('wallymport_source','')."/".$path_to_zip;
