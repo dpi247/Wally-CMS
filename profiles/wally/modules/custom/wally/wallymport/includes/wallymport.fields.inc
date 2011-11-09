@@ -1160,6 +1160,7 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $preview = FALSE)
  *   Nothing
  */
 function wimprt_objecttype_preprocess(&$node,$dom,$preview){
+  $node->wallymport_node = TRUE;
   $node->field_objectid[0]['value'] = $dom->getAttributeNode("ObjectID")->value;
   if ($dom->hasAttribute("ObjectDescription")){
     $node->object_description = $dom->getAttributeNode("ObjectDescription")->value;
