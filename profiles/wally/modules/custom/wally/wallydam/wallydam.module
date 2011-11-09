@@ -189,7 +189,6 @@ function wallydam_postpackage($nid){
       $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
       $file_length = filesize($path_to_file);
-      dsm($file_length);
       $sent = wallydam_post($postfields, $target_url, $file_length);
     } else {
       drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
