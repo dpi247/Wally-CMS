@@ -182,7 +182,6 @@ function wallydam_postpackage($nid){
   if ($result[0] == 'Zip success : '.$nid){
     //Send package in POST
     $target_url = variable_get('wallydam_updatepackageurl', '');
-    dsm($target_url);
     if ($target_url != ''){
       $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
@@ -216,8 +215,10 @@ function wallydam_post($postfields,$target_url){
   $result = curl_exec($ch);
   if ($result == FALSE){
    $return = FALSE;
+   dsm('coucou');
    drupal_set_message(curl_error($ch),'error'); 
   } else {
+    dsm('coco');
     $return = TRUE;
   }
   curl_close($ch);
