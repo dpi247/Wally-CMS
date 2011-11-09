@@ -920,6 +920,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
 
 function wallyedit_form_page_editmode_form(&$form_state) {
   $form = wydit_subform_global_page_form($form_state);
+  
   $form['#action'] = '/node/'.$form_state['cache name'].'/edit2/1/'.$form_state['profile_id'];
   return $form;
 }
@@ -968,7 +969,6 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
       $new_form_state['cache name'] = $form_state['cache name'];
       $new_form_state['profile_id'] = $current_profile;
       $new_form_state['type'] = $form_state['type'];
-      
       $edit_form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container',$edit_form);
       $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
@@ -1306,7 +1306,10 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       $form[$element]['#theme']='wallyedit_inline_form';
     }
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 3) {
-      if($type=="wally_linkslistobject"){
+    if($type=="wally_linkslistobject"){
+        $key=$form_state['parents'][2];
+        wydit_prepare_selectbox_form_element($form[$element], $form_state["wally_articlepackage"]['field_linkedobjects'][$key]['field_links_list'], $element, $fields, $parents_new);
+      }elseif($type=="wally_linktype"){
         $key=$form_state['parents'][2];
         wydit_prepare_selectbox_form_element($form[$element], $form_state["wally_articlepackage"]['field_linkedobjects'][$key]['field_links_list'], $element, $fields, $parents_new);
       }else{
@@ -1719,7 +1722,6 @@ function wydit_subform_global_edit_form(&$form_state){
 
   $a=array("#tree"=>true);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
-
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   if (module_exists('wysiwyg')) {
     wysiwyg_process_form($a); 
@@ -1831,6 +1833,8 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       }
       break;
     case 'edit':
+      module_load_include("inc",'node','node.pages');
+    
       $new_parents=$old_form_state['values']["parents"];
       $new_parents[]='field_links_list';
       $new_parents[]=$old_form_state['clicked_button']['#parents'][2];
@@ -1844,9 +1848,11 @@ dsm($old_form_state);
       $new_form_state['profile_id'] = $old_form_state['profile_id'];
 
       $new_form_state['type']=$form_state['type'];
+      
 
       //Need that to avoid re-processing of the form (infinite loop)
-      $new_form_state['input']=NULL;
+      $new_form_state['input']=array();
+      $new_form_state['values']=NULL;
       $edit_form = ctools_build_form('wallyedit_form_editmode_edit_form', $new_form_state, $current_profile);
       $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
 
@@ -2528,6 +2534,7 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
+            $form_state['field_links_list'][$key]["type"]=$link_node->type;
           }
         }
       }
@@ -2991,7 +2998,19 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
     $node=node_load($nid);
     $element['#node']=$node;
     $element['type']=$node->type;
+    
+      //TODO: clean this process to rebuild the form state in a clearer way
+    if($node->type=="wally_linkslistobject"){
+    	foreach($node->field_links_list as $key=>$link_nid){
+    	$link_node=node_load($link_nid['nid']);
+        $element['field_links_list'][$key]['#node']=$link_node;
+        $element['field_links_list'][$key]['type']=$link_node->type;
+    	}
+    }
+    
     wydit_add_to_form_state($form_state,$element,$target,TRUE);
+    
+    
   }
 
   wydit_clean_and_save_form_state($form_state);
