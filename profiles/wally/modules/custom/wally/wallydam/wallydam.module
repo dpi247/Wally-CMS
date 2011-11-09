@@ -188,7 +188,9 @@ function wallydam_postpackage($nid){
     if ($target_url != ''){
       $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
-      $sent = wallydam_post($postfields, $target_url);
+      $file_length = filesize($path_to_file);
+      dsm($file_length);
+      $sent = wallydam_post($postfields, $target_url, $file_length);
     } else {
       drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
     }
@@ -210,12 +212,12 @@ function wallydam_postpackage($nid){
  * @param  $result
  *   Le résultat du post. 
  */
-function wallydam_post($postfields,$target_url){
+function wallydam_post($postfields,$target_url, $file_length){
   //Envoi un fichier en post.
 
   $ch = curl_init($target_url);  
   $content_type = 'application/zip';
-  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type));
+  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type, "Content-Length: ".$file_length));
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   $result = curl_exec($ch);
