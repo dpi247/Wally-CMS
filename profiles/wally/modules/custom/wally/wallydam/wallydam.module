@@ -25,14 +25,14 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
         wallydam_addurltobuffer($node->nid);
         if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
-      //    wallydam_addpackagetobuffer($node->nid);
+          wallydam_addpackagetobuffer($node->nid);
         }
       } 
       break;
     case 'update':
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
         if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
-       //   wallydam_addpackagetobuffer($node->nid);
+          wallydam_addpackagetobuffer($node->nid);
         } elseif ($node->field_externaluri[0]['value'] == NULL){
           wallydam_addurltobuffer($node->nid);
         }
@@ -42,14 +42,14 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
           $node_package = node_load($array_nid['nid']);
           if ($node_package->field_externaluri[0]['value'] == NULL){
-       //     wallydam_addpackagetobuffer($array_nid['nid']);
+            wallydam_addpackagetobuffer($array_nid['nid']);
           }
         }       
       }
       break;
     case 'delete':
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
-    //    wallydam_removepackagefrombuffer($node->nid);
+        wallydam_removepackagefrombuffer($node->nid);
         wallydam_removeurlfrombuffer($node->nid);
       }
       break;
