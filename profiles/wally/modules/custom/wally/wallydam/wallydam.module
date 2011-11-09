@@ -219,6 +219,7 @@ function wallydam_post($postfields,$target_url){
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   $result = curl_exec($ch);
+  dsm($result);
   if ($result == FALSE){
     $return = FALSE;
     drupal_set_message(curl_error($ch),'error'); 
