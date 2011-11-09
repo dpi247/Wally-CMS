@@ -30,10 +30,13 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       } 
       break;
     case 'update':
+      dsm($node);
       if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
         if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
+          dsm('package');
           wallydam_addpackagetobuffer($node->nid);
         } elseif ($node->field_externaluri[0]['value'] == NULL){
+          dsm('url');
           wallydam_addurltobuffer($node->nid);
         }
       }
