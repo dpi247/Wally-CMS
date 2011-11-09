@@ -67,7 +67,6 @@ function wallydam_cron(){
   					  ORDER BY timestamp ASC LIMIT %d", $max_number);
   while ($obj = db_fetch_object($result)){
     if ( wallydam_postpackage($obj->nid)){
-      dsm('coucou');
       wallydam_removepackagefrombuffer($obj->nid);
     }
   }
@@ -182,7 +181,7 @@ function wallydam_postpackage($nid){
   $result = wallyexport_export_packages(array($nid));
   if ($result[0] == 'Zip success : '.$nid){
     //Send package in POST
-  
+    dsm('coucou');
     $target_url = variable_get('wallydam_updatepackageurl', '');
     if ($target_url != ''){
       $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
