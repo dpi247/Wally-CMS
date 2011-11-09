@@ -67,6 +67,7 @@ function wallydam_cron(){
   					  ORDER BY timestamp ASC LIMIT %d", $max_number);
   while ($obj = db_fetch_object($result)){
     if ( wallydam_postpackage($obj->nid)){
+      dsm('coucou');
       wallydam_removepackagefrombuffer($obj->nid);
     }
   }
@@ -210,7 +211,6 @@ function wallydam_postpackage($nid){
  */
 function wallydam_post($postfields,$target_url){
   //Envoi un fichier en post.
-     dsm('coicu');
   $ch = curl_init($target_url);  
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
