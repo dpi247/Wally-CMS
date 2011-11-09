@@ -72,6 +72,7 @@ function wallydam_cron(){
       wallydam_removepackagefrombuffer($obj->nid);
     }
   }
+  /*
   //URL
   $result = db_query("SELECT nid
   					  FROM {wallydam_urltosend} 
@@ -81,7 +82,7 @@ function wallydam_cron(){
     if ( wallydam_posturl($node)){
       wallydam_removeurlfrombuffer($obj->nid);
     }
-  }
+  }*/
 }
 /**
  * GET of informations of the node.
@@ -179,6 +180,7 @@ function wallydam_removeurlfrombuffer($nid){
 
 function wallydam_postpackage($nid){
   //Export package
+  dsm('package');
   $sent = FALSE;
   $result = wallyexport_export_packages(array($nid));
   if ($result[0] == 'Zip success : '.$nid){
@@ -211,7 +213,8 @@ function wallydam_postpackage($nid){
  */
 function wallydam_post($postfields,$target_url){
   //Envoi un fichier en post.
-  dsm('coucou');
+ dsm($postfields);
+ dsm('post');
   $ch = curl_init($target_url);  
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
