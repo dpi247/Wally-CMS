@@ -210,7 +210,7 @@ function wallydam_postpackage($nid){
  */
 function wallydam_post($postfields,$target_url){
   //Envoi un fichier en post.
-     
+     dsm('coicu');
   $ch = curl_init($target_url);  
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
