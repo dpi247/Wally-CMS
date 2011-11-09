@@ -96,7 +96,7 @@ function wallydam_posturl($node){
   }
   $node_url = url($node->path, array('absolute' => TRUE));
   $node_id = variable_get('wallydam_wallyprefix', NULL).$node->nid;
-  $package_id = $node->field_packageid[0]['value'];
+  $package_id = $node->field_externalreference[0]['value'];
   $request = variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
   $postargs = 'nodeId='.$node_id.'&packageId='.$package_id.'&url='.$node_url;
 
