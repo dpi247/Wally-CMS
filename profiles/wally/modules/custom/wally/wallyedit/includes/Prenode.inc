@@ -152,7 +152,7 @@ class Prenode{
                     foreach($temp_node->{$subfield['name']} as $subkey=>$subvalue) {
                       if($sub_node=node_load($temp_node->{$subfield['name']}[$subkey])){
                         $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]['#node']=$sub_node;
-                        $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]['t']=$temp_node->type;
+                        $form_state[$type_name][$field_name][$key][$subfield_name][$subkey]['type']=$temp_node->type;
                       }
                     }
                   }
