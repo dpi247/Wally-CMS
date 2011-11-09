@@ -216,6 +216,8 @@ function wallydam_post($postfields,$target_url){
  dsm($postfields);
  dsm('post');
   $ch = curl_init($target_url);  
+  $content_type = 'application/zip';
+  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type));
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   $result = curl_exec($ch);
