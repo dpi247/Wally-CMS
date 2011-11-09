@@ -40,12 +40,14 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       }
       elseif(($node->type == 'wally_audioobject' | $node->type == 'wally_photoobject' | $node->type == 'wally_pollobject' 
              | $node->type == 'wally_textobject'  | $node->type == 'wally_videoobject') & !isset($node->wallymport_node)){
-        foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
-          $node_package = node_load($array_nid['nid']);
-          if ($node_package->field_externaluri[0]['value'] == NULL){
-            wallydam_addpackagetobuffer($array_nid['nid']);
+        if (!isset($node->wallymport_node)){
+          foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
+            $node_package = node_load($array_nid['nid']);
+            if ($node_package->field_externaluri[0]['value'] == NULL){
+              wallydam_addpackagetobuffer($array_nid['nid']);
+            }
           }
-        }       
+        }
       }
       break;
     case 'delete':
