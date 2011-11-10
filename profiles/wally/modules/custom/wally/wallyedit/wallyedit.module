@@ -780,9 +780,7 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
     wydit_publish_prenode($form_state);
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
-    ctools_ajax_render($commands);
-    return;
+    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
   }
 
   //*********
@@ -976,9 +974,7 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
     wydit_publish_prenode($form_state);
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
-    ctools_ajax_render($commands);
-    return;
+    drupal_goto('node/'.$form_state[$form_state['type']]['#node']->nid);
   }
 
   //*********
@@ -1335,6 +1331,9 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     }
     if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 3) {
       if($type=="wally_linkslistobject"){
+        $key=$form_state['parents'][2];
+        wydit_prepare_selectbox_form_element($form[$element], $form_state["wally_articlepackage"]['field_linkedobjects'][$key]['field_links_list'], $element, $fields, $parents_new);
+      }elseif($type=="wally_linktype"){
         $key=$form_state['parents'][2];
         wydit_prepare_selectbox_form_element($form[$element], $form_state["wally_articlepackage"]['field_linkedobjects'][$key]['field_links_list'], $element, $fields, $parents_new);
       }else{
@@ -1774,9 +1773,9 @@ function wydit_subform_global_edit_form(&$form_state){
   $form['parents']=array('#type'=>'value','#value'=>$form_state['parents']);
   $form['type']=array('#type'=>'value','#value'=>$node->type);
 
-  $a=array("#tree"=>true);
+  $a = array("#tree" => TRUE);
   $a=drupal_retrieve_form($type_name.'_node_form',$a,$node);
-
+  $a['#tree'] = TRUE;
   drupal_prepare_form($type_name.'_node_form',$a,$form_state);
   if (module_exists('wysiwyg')) {
     wysiwyg_process_form($a); 
@@ -1794,8 +1793,6 @@ function wydit_subform_global_edit_form(&$form_state){
   wydit_prepare_primary_package_form($form[$type_name], $form_state, $type_name, array(0 => $type_name));
   wydit_remove_form_infos($form[$type_name]);
   
-  $form['#tree']=true;
-  
   $form['profile_id'] = array(
     '#type' => 'value',
     '#value' => $form_state['profile_id'],
@@ -1807,7 +1804,7 @@ function wydit_subform_global_edit_form(&$form_state){
     "#value" => t('Save'),
   	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
-  
+
   $form["cancel_global"] = array(
     '#type' => 'submit',
     '#name' => 'cancel_global',
@@ -1816,11 +1813,11 @@ function wydit_subform_global_edit_form(&$form_state){
     '#validate' => array('wallyedit_form_edit_form_cancel_validate'),
     '#submit' => array('wallyedit_form_edit_form_cancel_submit'),
   );
-  
+
   $form['#tree']=true;
   unset($form["#validate"]);
   $form['#theme'][] = "wallyedit_node_form";
-   
+
   return $form;
 }
 
@@ -1957,7 +1954,7 @@ function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
   $node = &wydit_get_current_node_from_parents($form_state,$target);
 
   $b = $form_state['values'][$form_state['values']['type']];
-  
+
   //$node = (object)((array)$b+(array) $node);
   $node=(object)(wydit_merge_arrays((array)$node,(array)$b));
   $element["#node"]=$node;
@@ -2484,8 +2481,8 @@ function prenode_save(&$prenode) {
     cache_set($prenode['cache name'], $prenode_object, 'prenode', $expire );
   }
   else{
-	ctools_include('object-cache');
-	ctools_object_cache_set('prenode', $prenode['cache name'], $prenode);
+  	ctools_include('object-cache');
+  	ctools_object_cache_set('prenode', $prenode['cache name'], $prenode);
   }
   // Let modules reacts after the prenode is saved to the database
   wallyedit_invoke_prenodeapi($prenode, 'save');
@@ -2583,6 +2580,7 @@ function wydit_publish_prenode_save(&$form_state, $sub_level){
           if(is_numeric($link_node->nid)){
             $b->{field_links_list}[$key]['nid']=$link_node->nid;
             $form_state['field_links_list'][$key]["#node"]=$link_node;
+            $form_state['field_links_list'][$key]["type"]=$link_node->type;
           }
         }
       }
@@ -2879,7 +2877,7 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
   $temp=$form_state;
   foreach($parents as $index=>$cursor_name){
     if(isset($temp[$cursor_name])){
-      $temp=& $temp[$cursor_name];
+      $temp=&$temp[$cursor_name];
     }
   }
   if($temp["#node"]){
