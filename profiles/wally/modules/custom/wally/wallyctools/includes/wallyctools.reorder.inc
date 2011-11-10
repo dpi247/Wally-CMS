@@ -162,6 +162,12 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
       '#type' => 'submit',
       '#value' => t('Save changes'),
     );
+
+    $form['goto_current'] = array(
+      '#type' => 'submit',
+      '#value' => t('Go to current destination'),
+      '#submit' => array('wallyctools_form_goto_current_submit'),
+    );
   } else {
     drupal_set_message(t('Please choose a destination path and a target.'));
   }
@@ -178,6 +184,11 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
   );
 
   return $form;
+}
+
+function wallyctools_form_goto_current_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  drupal_goto('taxonomy/term/'.$values['destination_tid']);
 }
 
 function wallyctools_form_back_to_front_submit($form, &$form_state) {
@@ -206,7 +217,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
 function wallyctools_page_destination_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
   $output = drupal_get_form('wallyctools_form_change_destination_form', 'batchoperations', $limit, $destination_tid, $target);
   $output .= wallyctools_view_batch_operations($limit, $destination_tid, $target);
-  $output .= drupal_get_form('wallyctools_form_batch_operations_form');
+  $output .= drupal_get_form('wallyctools_form_batch_operations_form', $destination_tid);
   return $output;
 }
 
@@ -230,8 +241,21 @@ function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL,
   return $return;
 }
 
-function wallyctools_form_batch_operations_form($form_state) {
+function wallyctools_form_batch_operations_form($form_state, $destination_tid = NULL) {
   $form = array();
+  
+  if ($destination_tid) {
+    $form['destination_tid'] = array(
+      '#type' => 'value',
+      '#value' => $destination_tid,
+    );
+    
+    $form['goto_current'] = array(
+      '#type' => 'submit',
+      '#value' => t('Go to current destination'),
+      '#submit' => array('wallyctools_form_goto_current_submit'),
+    );
+  }
   
   $form['back'] = array(
     '#type' => 'submit',
