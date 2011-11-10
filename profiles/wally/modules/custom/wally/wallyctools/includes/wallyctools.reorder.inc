@@ -185,32 +185,26 @@ function wallyctools_form_back_to_front_submit($form, &$form_state) {
 }
 
 function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
-  $order_by_weight=array();
+  $order_by_weight = array();
+  $current_time_ranks = array();
   foreach($form_state['values']['rows'] as $key=>$data){
     $order_by_weight[$data['weight']] = $data;
+    $current_time_ranks[$data['nid']] = $data['time_rank'];
   }
 
   $new_time_rank = array();
   $weights = array_keys($order_by_weight);
   $min_weight = min($weights);
   $max_weight = max($weights);
-  for($i=$min_weight; $i<=$max_weight; $i++) {
+  $min_current_time_rank = min($current_time_ranks);
+  $max_current_time_rank = max($current_time_ranks);
+  $order_by_weight[$max_weight+1]['time_rank'] = $order_by_weight[$max_weight]['time_rank'] - 30;
+  for($i=$max_weight; $i>=$min_weight; $i--) {
     $elem_nid = $order_by_weight[$i]['nid'];
-    if (isset($order_by_weight[$i+1]) && isset($order_by_weight[$i-1])) {
-      // This is a middle element of the list
-      $avg_time_rank = (int)(($order_by_weight[$i+1]['time_rank'] + $order_by_weight[$i-1]['time_rank'])/2);
-      $new_time_rank[$elem_nid] = max($order_by_weight[$i+1]['time_rank'], $avg_time_rank);
-    } elseif (!isset($order_by_weight[$i-1])) {
-      // This is the most recent element of the list
-      $new_time_rank[$elem_nid] = max($order_by_weight[$i]['time_rank'], $order_by_weight[$i+1]['time_rank'] + 30);
-    } elseif (!isset($order_by_weight[$i+1])) {
-      // This is the oldest element of the list
-      $new_time_rank[$elem_nid] = min($order_by_weight[$i]['time_rank'], $order_by_weight[$i-1]['time_rank'] - 30);
-    }
+    $new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
     $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
     db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'", $new_time_rank[$elem_nid], $elem_nid, $form_state['values']['destination_tid'], $form_state['values']['target']);
   }
-  //optionally set the redirect value in form_submit ...
 }
 
 function wallyctools_page_destination_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
