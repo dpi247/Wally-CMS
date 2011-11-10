@@ -2568,13 +2568,13 @@ function wydit_publish_prenode(&$form_state,$sub_level=false){
     }
   }
 
-  if (isset($fields['field_publicationdate']) && $fields['field_publicationdate']['display'] == 0) {
+  if (is_array($fields) && isset($fields['field_publicationdate']) && $fields['field_publicationdate']['display'] == 0) {
     $cck_fields = content_types($type_name);
     $format = $cck_fields['fields']['field_publicationdate']['widget']['input_format'];
     $form_state[$type_name]['#node']->field_publicationdate[0]['value'] = date($format);
   }
   
-  if (isset($form_state[$type_name]['#node']->path['pathauto_perform_alias'])) {
+  if (is_array($form_state[$type_name]['#node']->path) && isset($form_state[$type_name]['#node']->path['pathauto_perform_alias'])) {
     $form_state[$type_name]['#node']->pathauto_perform_alias = $form_state[$type_name]['#node']->path['pathauto_perform_alias'];
     unset($form_state[$type_name]['#node']->path);
   }
