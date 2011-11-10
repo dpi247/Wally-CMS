@@ -848,14 +848,27 @@ function wallycontenttypes_form_edit_crop_form_submit (&$form, &$form_state) {
   }
 
   $crops = array();
+  $modif = FALSE;
   foreach ($usablecrops as $presetname => $usablecrop) {
     $temp_crops = explode(',',$values[$presetname.'_serialCoord']);
     if (isset($temp_crops[4]) && $temp_crops[4] == '1') {
       // Le crop a été modifié pour ce preset
-      imagecache_image_flush($node->field_photofile[0]['filepath']);
+      $modif = TRUE;
     }
     $crops[$presetname] = $temp_crops;
     $crops[$presetname]['presetid'] = $usablecrop['presetid'];
+  }
+  
+  if ($modif) {
+    imagecache_image_flush($node->field_photofile[0]['filepath']);
+    // Also flush varnish cache
+    if (module_exists('warnish')) {
+      $imagecache_paths = array();
+      foreach (imagecache_presets() as $preset) {
+        $imagecache_paths[] = imagecache_create_path($preset['presetname'], $node->field_photofile[0]['filepath']);
+      }
+      warnish_purge_page($imagecache_paths);
+    }
   }
 
   $node->field_croping[0]['value'] = drupal_to_js($crops);
