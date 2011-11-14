@@ -347,12 +347,13 @@ function wallymport_check_process_file($importer_name, $file_name) {
     */
     
   }
-  dsm($returns);
   $content = '';
+  dsm($returns);
   foreach ($returns as $return){
     $return['date'] = time();
     $content .= theme('wallymport_logs', $return);
-  } 
+  }
+  dsm($content);
   return $content;
 }
 /**
@@ -400,7 +401,7 @@ function wallymport_process_folder($importer){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
-      dsm($file);
+   
       $xml_file = wallymport_preprocess_file($file->filename, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Process the file
@@ -596,7 +597,6 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     list($rest,$file_name_ext) = explode('/', $file);
     list($file_name, $rest) = explode('.zip', $file_name_ext);
     $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
-    dsm($temp_subdir);
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
@@ -636,7 +636,6 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     }
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
   }
-  dsm($returns);
   return $xml_file;
 }
 
