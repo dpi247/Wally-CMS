@@ -7,21 +7,21 @@ function wallyexport_menu() {
   $items = array();
   
   $items['admin/wally/wallyexport/settings'] = array(
-    'title' => 'Wally Export Settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyexport_page_admin_form'),
+    'title'            => 'Wally Export Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallyexport_page_admin_form'),
     'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
-    'file' => 'includes/wallyexport.admin.inc',
+    'description'      => 'Allows administrators to set paramaters for this module to function properly.',
+    'file'             => 'includes/wallyexport.admin.inc',
   );
   
   $items['admin/wally/wallyexport/export'] = array(
-    'title' => 'Export packages',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyexport_page_export_form'),
+    'title'            => 'Export packages',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallyexport_page_export_form'),
     'access arguments' => array('access administration pages'),
-    'description' => 'Export packages to zipped xml files.',
-    'file' => 'includes/wallyexport.admin.inc',
+    'description'      => 'Export packages to zipped xml files.',
+    'file'             => 'includes/wallyexport.admin.inc',
   );
   
   return $items;
@@ -70,19 +70,19 @@ function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
 }
 
 function _wallyexport_createzipfromdom($package_dom, $nid, $file_name, $files_to_zip = array()) {
+  
   $zip = new ZipArchive;
   $res = $zip->open(variable_get('wallyexport_admin_source', 'sites/default/files/export').'/'.$file_name.'.zip', ZipArchive::CREATE);
   if ($res === TRUE) {
     $zip->addFromString($file_name.'.xml', $package_dom->saveXML());
     foreach ($files_to_zip as $file_to_zip) {
-      $zip->addFile($file_to_zip['filepath'], $file_to_zip['filename']);
-      
+      $zip->addFile($file_to_zip['filepath'], $file_to_zip['filename']);  
     }
     $zip->close();
     $return = 'Zip success : '.$nid;
   } else {
     $return = 'Zip failure : '.$nid;
   }
-  
+
   return $return;
 }

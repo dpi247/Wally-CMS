@@ -11,13 +11,13 @@
  */
 function wallyexport_page_admin_form($form_state) {
   $form['wallyexport_admin_dest'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Export destination directory path'),
-    '#description' => t('This must be an existing and writable path where zipped data is written.'),
+    '#type'          => 'textfield',
+    '#title'         => t('Export destination directory path'),
+    '#description'   => t('This must be an existing and writable path where zipped data is written.'),
     '#default_value' => variable_get('wallyexport_admin_source', 'sites/default/files/export'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
+    '#size'          => 80,
+    '#maxlength'     => 512,
+    '#required'      => TRUE,
   );
   
   return system_settings_form($form);
@@ -28,7 +28,7 @@ function wallyexport_page_admin_form($form_state) {
  */
 function wallyexport_page_admin_form_validate($form, &$form_state) {
   $path = $form_state['values']['wallyexport_admin_dest'];
-  $dir_exist=file_check_directory($path,0);
+  $dir_exist = file_check_directory($path,0);
   if (!$dir_exist) {
     form_set_error('wallyexport_admin_dest', t('The path provided is not an existing writable directory.'));
   }
@@ -39,16 +39,16 @@ function wallyexport_page_admin_form_validate($form, &$form_state) {
  */
 function wallyexport_page_export_form($form_state) {
   $form['wallyexport_export_nids'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Packages\' nids to export'),
+    '#type'        => 'textfield',
+    '#title'       => t('Packages\' nids to export'),
     '#description' => t('Comma separated nids of the packages to be exported. The keyword "all" is accepted.'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
+    '#size'        => 80,
+    '#maxlength'   => 512,
+    '#required'    => TRUE,
   );
   
   $form['wallyexport_export_submit'] = array(
-    '#type' => 'submit',
+    '#type'  => 'submit',
     '#title' => t('Export'),
     '#value' => t('Export'),
   );
