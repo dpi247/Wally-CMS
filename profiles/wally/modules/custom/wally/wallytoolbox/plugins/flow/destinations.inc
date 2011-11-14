@@ -299,7 +299,11 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
       $transformed_node['Channels']['Channel'][]['Name'] = $channel;
     }
     $transformed_node['CommentsAllowed']['value'] = $node->comment;
-    $transformed_node['FreeAccess']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
+    $freeaccess = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
+    if (!is_bool($freeaccess)) {
+      $freeaccess = ($freeaccess == 'No') ? FALSE : TRUE;
+    }
+    $transformed_node['FreeAccess']['value'] = $freeaccess;
     /*$transformed_node['Authors']['Person'] = array();
     foreach ($node->field_authors_nodes as $author) {
       $transformed_node['Authors']['Person'][] = wallytoolbox_destinations_flow_set_persontax($author);
