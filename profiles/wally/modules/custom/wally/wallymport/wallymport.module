@@ -592,6 +592,7 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
   $res = $zip->open($file);
   if ($res === TRUE) {
     $temp_subdir = $importer->temp_directory_path.'/'.$file;
+    dsm($temp_subdir);
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
