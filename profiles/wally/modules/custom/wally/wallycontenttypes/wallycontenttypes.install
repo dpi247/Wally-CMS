@@ -161,4 +161,3 @@ function wallycontenttypes_update_6101(&$sandbox) {
   
   return $ret;
 }
-

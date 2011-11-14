@@ -742,7 +742,6 @@ function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   $commands = array();
   if ($output === FALSE || !empty($form_state['complete'])) {
     // Dismiss the modal.
-    $commands[] = ctools_ajax_command_html('#ctools-sample', $animal);
     $commands[] = ctools_modal_command_dismiss();
   }
   else if (!empty($form_state['cancel'])) {
