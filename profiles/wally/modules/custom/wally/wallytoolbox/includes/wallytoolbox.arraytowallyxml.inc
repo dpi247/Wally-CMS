@@ -15,7 +15,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
   $packages_node = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages_node->setAttribute('xmlns', 'http://rossel.audaxis.com');
   $packages_node->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');  
-  $packages_node->setAttribute('xsi:schemaLocation', 'http://rossel.audaxis.com/xsd/packages.1.12.xsd');
+  $packages_node->setAttribute('xsi:schemaLocation', 'http://rossel.audaxis.com http://rossel.audaxis.com/xsd/packages.1.12.xsd');
   
   foreach ($wally_array['Packages']['Package'] as $package_array){
     $package_node = $packages_node->appendChild($valid_dom->createElement('Package'));
