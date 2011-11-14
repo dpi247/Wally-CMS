@@ -429,7 +429,7 @@ function wallymport_process_file($importer, $file_name){
   $folder = $importer->source_directory_path;
 
   $file = $folder."/".$file_name;
-  dsm($file);
+
   if (!file_exists($file)) {
     $error_msg = t('Input file doesn\'t exists');
     $returns['error'] = TRUE;
@@ -588,7 +588,7 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
   $error_msg = FALSE;
   // Unzip input file to the temp directory
   $zip = new ZipArchive;
-  $res = $zip->open($file->filename);
+  $res = $zip->open($file);
   if ($res === TRUE) {
     $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
     file_check_directory($temp_subdir,1);
