@@ -400,7 +400,7 @@ function wallymport_process_folder($importer){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
-      $xml_file = wallymport_preprocess_file($file, $importer, $returns);
+      $xml_file = wallymport_preprocess_file($file->filename, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Process the file
         $returns[] = wallymport_page_process_file($xml_file, $importer);
@@ -589,7 +589,6 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
   $error_msg = FALSE;
   // Unzip input file to the temp directory
   $zip = new ZipArchive;
-  dsm($file);
   $res = $zip->open($file);
   if ($res === TRUE) {
     $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
