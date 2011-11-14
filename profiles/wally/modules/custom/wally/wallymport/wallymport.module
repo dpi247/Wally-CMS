@@ -256,7 +256,7 @@ function wallymport_check_process_folder($importer_name) {
       watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
     }
 
-    $returns = array('error' => TRUE, 'error_msg' => array('Process folder task has been running for more than an hour and is most likely stuck.'));
+    $returns[] = array('error' => TRUE, 'error_msg' => array('Process folder task has been running for more than an hour and is most likely stuck.'));
   } else {
     // Register shutdown callback
     register_shutdown_function('wallymport_process_folder_cleanup');
@@ -270,7 +270,7 @@ function wallymport_check_process_folder($importer_name) {
       $returns = wallymport_process_folder($importer);
     } else {
       //Unknown importer
-      $returns = array('error' => TRUE, 'error_msg' => array('Unknown imprter'));
+      $returns[] = array('error' => TRUE, 'error_msg' => array('Unknown imprter'));
     }
     // Record cron time
     variable_set('wallymport_process_folder_last', time());
@@ -348,7 +348,6 @@ function wallymport_check_process_file($importer_name, $file_name) {
     
   }
   $content = '';
-  dsm($returns);
   foreach ($returns as $return){
     $return['date'] = time();
     $content .= theme('wallymport_logs', $return);
@@ -433,8 +432,8 @@ function wallymport_process_file($importer, $file_name){
 
   if (!file_exists($file)) {
     $error_msg = t('Input file doesn\'t exists');
-    $returns['error'] = TRUE;
-    $returns['error_msg'][] = $error_msg;
+    $returns[]['error'] = TRUE;
+    $returns[]['error_msg'][] = $error_msg;
   }
   if (!$returns['error']){
     unset($returns['error']);
@@ -442,7 +441,7 @@ function wallymport_process_file($importer, $file_name){
     if ($xml_file != NULL & !$returns['error']){
       //Process the file
       $returns[] = wallymport_page_process_file($xml_file, $importer);
-      if (!file_move($file->filename, $importer->done_directory_path)) {
+      if (!file_move($file, $importer->done_directory_path)) {
         $error_msg = t('An error occured during file copy to done directory.');
         drupal_set_header('HTTP/1.1 517 '.$error_msg);
       }
@@ -597,7 +596,6 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
       $zip->extractTo($temp_subdir);
       // Search for XMLs
       $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
-      dsm($import_files);
       if (count($import_files) == 0) {
         $zip_error = TRUE;
         $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
@@ -667,8 +665,8 @@ function wallymport_page_process_file($xml_file, $importer){
  
   if (!$dom->schemaValidate($importer->xsd_path)){
     dsm('XML not VALIDATED');
-    $returns['error'] = TRUE;
-    $returns['error_msg'][] = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
+    $returns[]['error'] = TRUE;
+    $returns[]['error_msg'][] = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
   } else {
     foreach ($dom->childNodes as $child){
       $type = $child->nodeName;
