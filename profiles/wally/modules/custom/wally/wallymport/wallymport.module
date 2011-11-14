@@ -429,7 +429,7 @@ function wallymport_process_file($importer, $file_name){
   $folder = $importer->source_directory_path;
 
   $file = $folder."/".$file_name;
-  
+  dsm($file);
   if (!file_exists($file)) {
     $error_msg = t('Input file doesn\'t exists');
     $returns['error'] = TRUE;
