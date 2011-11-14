@@ -447,14 +447,7 @@ function wallymport_process_file($importer, $file_name){
       }
     }
   }
-  $temp_folder = $importer->temp_directory_path;
-  $temp_folder_open = opendir($temp_folder);
-  $files = readdir($temp_folder_open); // dossier "."
-  $files = readdir($temp_folder_open); // dossier ".."
-  while ($file = readdir($temp_folder_open)) {
-    unlink($temp_folder.'/'.$file);
-  }
-  closedir($temp_folder_open);
+  
   
   return $returns;
 }
