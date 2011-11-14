@@ -18,7 +18,7 @@ Drupal.behaviors.wallycontenttypes = function (context) {
 		var timer = setInterval(function() {
 			if (typeof $("#cropbox").attr("id") != "undefined" && $("#cropbox").width() > 0) {
 				clearInterval(timer);
-				
+
 				var api = $.Jcrop($("#cropbox"),{
 					onSelect: showCoordsAndSave,
 					bgColor: "black",
@@ -71,7 +71,7 @@ Drupal.behaviors.wallycontenttypes = function (context) {
 					}
 				}
 			}
-		}, 10);
+		}, 1);
 	});
 };
 
