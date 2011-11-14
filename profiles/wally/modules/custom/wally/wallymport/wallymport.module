@@ -280,7 +280,6 @@ function wallymport_check_process_folder($importer_name) {
     variable_del('wallymport_process_folder_semaphore');
     
   }
-  dsm($returns);
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
@@ -666,8 +665,8 @@ function wallymport_page_process_file($xml_file, $importer){
  
   if (!$dom->schemaValidate($importer->xsd_path)){
     dsm('XML not VALIDATED');
-    $returns[]['error'] = TRUE;
-    $returns[]['error_msg'][] = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
+    $return[]['error'] = TRUE;
+    $return[]['error_msg'][] = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
   } else {
     foreach ($dom->childNodes as $child){
       $type = $child->nodeName;
