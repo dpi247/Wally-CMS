@@ -535,7 +535,7 @@ function wallymport_post($importer_name){
       $returns['error'] = TRUE;
       $returns['error_msg'][] = 'There is no file in the POST';
     } else {
-      $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
+      $xml_file = wallymport_preprocess_file($object_file->filename, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Proccess xml
         $returns = wallymport_page_process_file($xml_file, $importer);
