@@ -11,24 +11,28 @@
 /**
  * Settings form.
  */
-function wallymport_page_links_form($form_state){
+function wallymport_page_links_form($form_state, $importer_name){
+  
+  $importer = wallymport_getimporterbyname($importer_name);
+
   $form = array();
-  $dirs[] = variable_get('wallymport_source', 'sites/default/files/import');
-  $dirs[] = variable_get('wallymport_import_error', 'sites/default/files/import/error');
-  $dirs[] = variable_get('wallymport_import_done', 'sites/default/files/import/done');
+  $dirs[] = $importer->source_directory_path;
+  $dirs[] = $importer->error_directory_path;
+  $dirs[] = $importer->done_directory_path;
+  
   foreach($dirs as $dir){
-    if(file_check_directory($dir, 0)){
+    if (file_check_directory($dir, 0)){
       $form[$dir] = array(
-        '#type' => 'fieldset',
-        '#title' => t($dir),
+        '#type'        => 'fieldset',
+        '#title'       => t($dir),
         '#collapsible' => TRUE,
-        '#collapsed' => FALSE,
+        '#collapsed'   => FALSE,
       );
       $files = file_scan_directory($dir, '.*\.zip', array('.', '..', 'CVS'), 0, FALSE);
       foreach($files as $file){
         $form[$dir][$file->basename]=array(
-          "#type"=>'markup',
-          "#value"=>'<a href="'.file_create_url($file->filename).'">'.$file->basename.'</a><br />',
+          "#type"  => 'markup',
+          "#value" => '<a href="'.file_create_url($file->filename).'">'.$file->basename.'</a><br/>',
         );
       }
     }
@@ -313,7 +317,7 @@ function wallymport_page_admin(){
     $yesno = array(t('No'), t('Yes'));
     
     if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('URL to process'), t('Operations'));
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process'), t('Operations'));
       $rows = array();
       foreach ($importers as $importer){
         $logs = '';
@@ -330,6 +334,7 @@ function wallymport_page_admin(){
           $importer->description, 
           $yesno[$importer->processed_by_post].$post,
           $yesno[$importer->processed_by_cron].$logs,
+          '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
           '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );

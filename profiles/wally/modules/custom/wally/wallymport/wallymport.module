@@ -63,14 +63,13 @@ function wallymport_menu() {
     'description'      => 'Allows administrators to delete an importer.',
     'file'             => 'includes/wallymport.admin.inc',
   );
-  $items['admin/wally/wallymport/settings/links'] = array(
+  $items['admin/wally/wallymport/settings/links/%'] = array(
     'title'            => 'Packages links',
     'page callback'    => 'drupal_get_form',
-    'page arguments'   => array('wallymport_page_links_form'),
+    'page arguments'   => array('wallymport_page_links_form', 5),
     'access arguments' => array('access administration pages'),
     'description'      => 'Display download links for imported packages.',
     'file'             => 'includes/wallymport.admin.inc',
-    'type'             => MENU_LOCAL_TASK,
   );
   
   $items['wallymport/process/%'] = array(
