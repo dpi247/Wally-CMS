@@ -6,314 +6,7 @@
  *   Import Press Content to Drupal structure Administration
  */
 
-/**
- * Settings form.
- */
-function wallymport_page_admin_form($form_state) {
-  $path = drupal_get_path('module', 'wallymport');
-  $form['wallymport_import'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Import directories'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  
-  $form['wallymport_import']['wallymport_source'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Import source directory path'),
-    '#description' => t('This must be an existing and writable path where input zipped data is received.'),
-    '#default_value' => variable_get('wallymport_source', 'sites/default/files/import'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_import']['wallymport_import_done'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Imported packages directory path'),
-    '#description' => t('This must be an existing and writable path where zipped processed packages are moved after import.'),
-    '#default_value' => variable_get('wallymport_import_done', 'sites/default/files/import/done'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_import']['wallymport_import_error'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Not imported packages (with errors) directory path'),
-    '#description' => t('This must be an existing and writable path where zipped packages which could not be imported are moved after import.'),
-    '#default_value' => variable_get('wallymport_import_error', 'sites/default/files/import/error'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_import']['wallymport_temp'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Import temporary directory path'),
-    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
-    '#default_value' => variable_get('wallymport_temp', file_directory_temp()),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  $form['wallymport_import']['wallymport_definition_packages'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Import Data Structure Definition file For Packages'),
-    '#description' => t('XSD (schema) file name, with the path.'),
-    '#default_value' => variable_get('wallymport_definition_packages', $path.'/definitions/packages.xsd'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
-  $form['wallymport_import']['wallymport_definition_messages'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Import Data Structure Definition file For Messages'),
-    '#description' => t('XSD (schema) file name, with the path.'),
-    '#default_value' => variable_get('wallymport_definition_messages', $path.'/definitions/packages.xsd'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
-  
-  $form['wallymport_preview'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Preview directories'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  
-  $form['wallymport_preview']['wallymport_preview_source'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Preview source directory path'),
-    '#description' => t('This must be an existing and writable path where input zipped data is received.'),
-    '#default_value' => variable_get('wallymport_preview_source', 'sites/default/files/preview'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_preview']['wallymport_preview_error'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Preview errors directory path'),
-    '#description' => t('This must be an existing and writable path where zipped packages which could not be previewed are moved.'),
-    '#default_value' => variable_get('wallymport_preview_error', 'sites/default/files/preview/error'),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_preview']['wallymport_preview_temp'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Preview temporary directory path'),
-    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
-    '#default_value' => variable_get('wallymport_temp', file_directory_temp()),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => FALSE,
-  );
-  
-  $form['wallymport_productID'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Product ID'),
-    '#description' => t('Product ID.'),
-    '#default_value' => variable_get('wallymport_productID', $_SERVER['HTTP_HOST']),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
-  
-  $form['wallymport_debug'] = array(
-    '#type' => 'radios',
-    '#title' => t('Import debug level'),
-    '#description' => t('When creating your own import definition file, if you set this value to <em>No data creation</em>, no nodes, files, or locations will be written to the database. If you set this value to <em>Verbose</em> or higher, check html source of the import result for debug info.'),
-    '#default_value' => variable_get('wallymport_debug', 0),
-	'#options' => array(t('No debug'), t('Verbose'), t('No data creation')),
-    '#required' => TRUE,
-  );
 
-  $vocab_list = array();
-  $vocabularies = taxonomy_get_vocabularies();
-  foreach($vocabularies as $key => $vocabulary) {
-	  $vocab_list[$key] = $vocabulary->name;
-  }
-
-  $form['wallymport_destinationpath'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Destination Path"'),
-    '#description' => t('Choose the vocabulary corresponding to the destination path. Import module will use this vocabulary to match the DestinationPath element.'),
-    '#default_value' => variable_get('wallymport_destinationpath', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );
-  
-  $form['wallymport_documenttype'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Document Type"'),
-    '#description' => t('Choose the vocabulary corresponding to the document type. Import module will use this vocabulary to match the PackageLayout element.'),
-    '#default_value' => variable_get('wallymport_documenttype', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );
-  $form['wallymport_author'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Authors"'),
-    '#description' => t('Choose the vocabulary corresponding to the available Authors. Import module will use this vocabulary to match the AuthorID element.'),
-    '#default_value' => variable_get('wallymport_author', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-  $form['wallymport_edition'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Editions"'),
-    '#description' => t('Choose the vocabulary corresponding to the available Editions. Import module will use this vocabulary to match the EditionID element.'),
-    '#default_value' => variable_get('wallymport_edition', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-
-  $form['wallymport_location'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "location"'),
-    '#description' => t('Choose the vocabulary corresponding to the taxonomy "location". Import module will use this vocabulary to match the "location" element.'),
-    '#default_value' => variable_get('wallymport_location', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-
-  $form['wallymport_person'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "person"'),
-    '#description' => t('Choose the vocabulary corresponding to the taxonomy "person". Import module will use this vocabulary to match the "person" element.'),
-    '#default_value' => variable_get('wallymport_person', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-
-  $form['wallymport_entity'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Entities"'),
-    '#description' => t('Choose the vocabulary corresponding to the taxonomy "entities". Import module will use this vocabulary to match the "entity" element.'),
-    '#default_value' => variable_get('wallymport_entity', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-
-  $form['wallymport_freetagtaxonomy'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Free Tags"'),
-    '#description' => t('Choose the vocabulary corresponding to the free tagging taxonomy.'),
-    '#default_value' => variable_get('wallymport_freetagtaxonomy', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-/*
-  $form['wallymport_classifiedtagtaxonomy'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Classified terms"'),
-    '#description' => t('Choose the vocabulary corresponding to the classified taxonomy root.'),
-    '#default_value' => variable_get('wallymport_classifiedtagtaxonomy', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );  
-*/
-  $form['wallymport_concept'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "Concept"'),
-    '#description' => t('Choose the vocabulary corresponding to the concept tagging taxonomy.'),
-    '#default_value' => variable_get('wallymport_concept', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  );
-  $form['wallymport_iptc'] = array(
-    '#type' => 'select',
-    '#title' => t('Taxonomy "IPTC"'),
-    '#description' => t('Choose the vocabulary corresponding to the IPTC tagging taxonomy.'),
-    '#default_value' => variable_get('wallymport_iptc', 0),
-    '#options' => $vocab_list,
-    '#required' => TRUE,
-  ); 
-  $form['wallymport_taxonomy_recusive'] = array(
-    '#type' => 'select',
-    '#title' => t('Is the Taxonomies recusive?'),
-    '#description' => t('If TRUE, node will be associated with all the term in taxonomy PATH /term1/term2/term3. Else only to the last term (term3).'),
-    '#default_value' => variable_get('wallymport_taxonomy_recusive', FALSE),
-    '#options' => array("true"=>"true", "false"=>"false"),
-    '#required' => TRUE,
-  );  
-
-
- $form['wallymport_defaultuser'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Drupal user used for imports.'),
-    '#description' => t('This user will be used as author for creating content.'),
-    '#default_value' => variable_get('wallymport_defaultuser', 1),
-    '#size' => 3,
-    '#maxlength' => 8,
-    '#required' => TRUE,
-  );
-  
-  return system_settings_form($form);
-}
-
-/**
- * Validate function for the settings form.
- */
-function wallymport_page_admin_form_validate($form, &$form_state) {
-  
-  $path = $form_state['values']['wallymport_source'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_source', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_import_done'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_import_done', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_import_error'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_import_error', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_temp'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_temp', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_preview_source'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_preview_source', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_preview_error'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_preview_error', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $path = $form_state['values']['wallymport_preview_temp'];
-  $dir_exist=file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
-  if (!$dir_exist) {
-    form_set_error('wallymport_preview_temp', t('The path provided is not an existing writable directory.'));
-  }
-  
-  $file = $form_state['values']['wallymport_definition_packages'];
-  $file_readable = is_readable($file);
-  if (!$file_readable) {
-    form_set_error('wallymport_definition_packages', t('The filename provided is not an existing readable file.'));
-  }
-  $file = $form_state['values']['wallymport_definition_messages'];
-  $file_readable = is_readable($file);
-  if (!$file_readable) {
-    form_set_error('wallymport_definition_messages', t('The filename provided is not an existing readable file.'));
-  }
-}
 
 /**
  * Settings form.
@@ -341,4 +34,329 @@ function wallymport_page_links_form($form_state){
     }
   }
   return $form;
+}
+/**
+ * Create/update importer form.
+ */
+function wallymport_page_importer_form($form_state, $edit_id = NULL){
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  if ($edit_id != NULL){
+    wallymport_getimporter($edit_id);
+  }
+  $form['wallymport']['#tree'] = TRUE;
+  
+  $modules = module_invoke_all('wallymport_importer');
+  $importers_name = array();
+  foreach ($modules as $importers){
+    foreach ($importers as $importer){
+      $importers_name[$importer['importer_type']] = $importer['importer_type'];
+    }
+  }
+  $form['wallymport']['importer_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Importer'),
+    '#description' => t('Select the importer'),
+    '#options' => $importers_name,
+    '#required' => TRUE,
+  );
+  $form['wallymport']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#description' => t('The unique Name of the importer.'),
+    '#size' => 80,
+    '#maxlength' => 100,
+    '#required' => TRUE,
+  );
+  $form['wallymport']['description'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Description'),
+    '#description' => t(''),
+    '#size' => 80,
+    '#maxlength' => 1000,
+  );
+  $form['wallymport']['source_directory_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import source directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data is received.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['wallymport']['done_directory_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Imported packages directory path'),
+    '#description' => t('This must be an existing and writable path where zipped processed packages are moved after import.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['wallymport']['error_directory_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Not imported packages (with errors) directory path'),
+    '#description' => t('This must be an existing and writable path where zipped packages which could not be imported are moved after import.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['wallymport']['temp_directory_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import temporary directory path'),
+    '#description' => t('This must be an existing and writable path where input zipped data will be unpacked.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $form['wallymport']['xsd_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Import Data Structure Definition file'),
+    '#description' => t('XSD (schema) file name, with the path.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  $form['wallymport']['zip'] = array(
+    '#type' => 'select',
+    '#title' => t('Are the data to import zipped?'),
+    '#description' => t('Indicates if the data to import are zipped'),
+    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required' => TRUE,
+  );
+  $form['wallymport']['processed_by_post'] = array(
+    '#type' => 'select',
+    '#title' => t('Are the data imported during POST?'),
+    '#description' => t('Indicates if the data are processed during the POST?'),
+    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required' => TRUE,
+  );
+   $form['wallymport']['processed_by_cron'] = array(
+    '#type' => 'select',
+    '#title' => t('Are the data imported by a CRON job?'),
+    '#description' => t('Indicates if the data are processed by a CRON job?'),
+    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required' => TRUE,
+  );
+  $form['wallymport']['cron_frequency'] = array (
+    '#type'             => 'textfield',
+    '#title'            => t('CRON frequency'),
+    '#description'      => t('CRON frequency (in minutes)'),
+    '#required'         => FALSE,
+    '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
+    '#process'          => array('ctools_dependent_process'),
+  );
+  $form['wallymport']['cron_keep_log'] = array (
+    '#type'             => 'select',
+    '#title'            => t('Keep CRON logs?'),
+    '#options' => array(t('No'),t('Yes')),
+    '#required'         => FALSE,
+    '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
+    '#process'          => array('ctools_dependent_process'),
+  );
+  $form['wallymport']['default_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Drupal user used for imports.'),
+    '#description' => t('This user will be used as author for creating content.'),
+    '#size' => 3,
+    '#maxlength' => 8,
+    '#required' => TRUE,
+  );
+  $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save') );
+  
+  if ($edit_id != NULL){
+    $importer = wallymport_getimporter($edit_id);
+    $form['wallymport']['iid'] = array('#type' => 'value',);
+    foreach ($form['wallymport'] as $key => $value){
+      if ($key != '#tree' & $key != 'cron_frequency') {
+        $form['wallymport'][$key]['#default_value'] = $importer->$key;
+      } elseif ($key = 'cron_frequency'){
+        $form['wallymport'][$key]['#default_value'] = $importer->$key / 60;
+      }
+    }
+    $form['delete'] = array(
+      '#type' => 'markup',
+      '#value' => '<a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('Delete').'</a>',
+    );
+    $form['wallymport']['name']['#disabled'] = TRUE;
+    $form['wallymport']['name']['#value'] = $importer->name;
+    $form['wallymport']['importer_name']['#disabled'] = TRUE;
+    $form['wallymport']['importer_name']['#value'] = $importer->importer_name;
+    
+  }
+  return $form;
+}
+/*
+ * Validation of createimporter_form 
+ */
+function wallymport_page_importer_form_validate($form, &$form_state){
+ 
+  $path = $form_state['values']['wallymport']['source_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport][source_directory_path', t('Source directory path : The path provided is not an existing writable directory.'));
+  }
+  $path = $form_state['values']['wallymport']['done_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport][done_directory_path', t('Done directory path : The path provided is not an existing writable directory.'));
+  }
+  $path = $form_state['values']['wallymport']['error_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport][error_directory_path', t('Error directory path : The path provided is not an existing writable directory.'));
+  }
+  $path = $form_state['values']['wallymport']['temp_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist) {
+    form_set_error('wallymport][temp_directory_path', t('Tempory directory path : The path provided is not an existing writable directory.'));
+  }
+  $file = $form_state['values']['wallymport']['xsd_path'];
+  $is_readable = is_readable($file);
+  if (!$is_readable) {
+    form_set_error('wallymport][xsd_path', t('XSD path : The path provided is not an existing writable directory.'));
+  }
+  if (!is_numeric($form_state['values']['wallymport']['cron_frequency']) & $form_state['values']['wallymport']['cron_frequency'] != ''){
+    form_set_error('wallymport][cron_frequency',t('The CRON frequency must be an integer'));
+  } else {
+    $form_state['values']['wallymport']['cron_frequency'] = $form_state['values']['wallymport']['cron_frequency'] * 60;
+    $form_state['values']['wallymport']['cron_timestamp'] = time();
+  }
+
+  if (!user_load($form_state['values']['wallymport']['default_user'])){
+    form_set_error('wallymport][default_user',t('The user id does not exist'));
+  }
+  $path = $form_state['values']['wallymport']['preview_source_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist & $form_state['values']['wallymport']['preview_source_directory_path'] != '') {
+    form_set_error('wallymport][preview_source_directory_path', t('Preview source directory path : The path provided is not an existing writable directory.'));
+  }
+  $path = $form_state['values']['wallymport']['preview_error_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist & $form_state['values']['wallymport']['preview_source_directory_path'] != '') {
+    form_set_error('wallymport][preview_error_directory_path', t('Preview error directory path : The path provided is not an existing writable directory.'));
+  }
+  $path = $form_state['values']['wallymport']['preview_temp_directory_path'];
+  $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
+  if (!$dir_exist & $form_state['values']['wallymport']['preview_source_directory_path'] != '') {
+    form_set_error('wallymport][preview_temp_directory_path', t('Preview temporary directory path : The path provided is not an existing writable directory.'));
+  }
+  $form_state['values']['wallymport']['name'] = check_plain($form_state['values']['wallymport']['name']);
+  $form_state['values']['wallymport']['description'] = check_plain($form_state['values']['wallymport']['description']); 
+  if (isset($form_state['values']['wallymport']['iid'])){
+    $form_state['values']['update'] = array('iid');
+  } else {
+    if (preg_match('/[^a-z0-9_]/', $form_state['values']['wallymport']['name'])) {
+      form_set_error('wallymport][name', t('Importer name must be alphanumeric or underscores only.'));
+    } elseif (wallymport_getimporterbyname($form_state['values']['wallymport']['name']) != NULL){
+      form_set_error('wallymport][name', t('You must use a unique name for this import.'));
+    }
+    $form_state['values']['update'] = array();
+  }
+}
+/*
+ * Submit of createimporter_form 
+ */
+function wallymport_page_importer_form_submit($form, &$form_state){
+  $result = drupal_write_record('wallymport_importer', $form_state['values']['wallymport'], $form_state['values']['update']);
+  
+  if ($result != FALSE){
+    $message = 'The importer as been created/updated';
+  } else {
+    $message = 'The importer as not been created/udpated';
+  }
+  drupal_set_message(t($message));
+  drupal_goto('/admin/wally/wallymport/settings/general');
+}
+/**
+ * Delete importer form.
+ */
+function wallymport_page_importerdelete_form($form_state,$delete_id = NULL){
+  
+  if ($delete_id != NULL){
+    $form['wallymport']['#tree'] = TRUE;
+    $form['wallymport']['iid'] = array(
+      '#type' => 'value',
+      '#value' => $delete_id,
+    );
+    $form['text'] = array(
+      '#type' => 'markup',
+      '#value' => t('Are you sure you want to delete this importer? '),
+    );
+    $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Delete') );
+  }
+  return $form;
+}
+/*
+ * Submit of the importer delete form
+ */
+function wallymport_page_importerdelete_form_submit($form,$form_state){
+
+  $result = db_query("DELETE FROM {wallymport_importer} WHERE iid = %d", $form_state['values']['wallymport']['iid']);
+  if ($result != FALSE){
+    $message = 'The importer as been deleted';
+  } else {
+    $message = 'The importer as not been deleted';
+  }
+  drupal_set_message(t($message));
+  drupal_goto('/admin/wally/wallymport/settings/general');
+  
+}
+/*
+ * administration page of wallymport
+ */
+function wallymport_page_admin(){
+  $content = '';
+  if (db_table_exists('wallymport_importer')){
+    $importers = wallymport_getimporters();
+    $yesno = array(t('No'), t('Yes'));
+    
+    if ($importers != NULL){
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('URL to process'), t('Operations'));
+      $rows = array();
+      foreach ($importers as $importer){
+        $logs = '';
+        $post = '';
+        if ($importer->processed_by_cron == 1){
+          $logs = ' (<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">logs</a>)';
+        }
+        if ($importer->processed_by_post == 1){
+          $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
+        }
+        $rows[] = array(
+          $importer->importer_type, 
+          $importer->name, 
+          $importer->description, 
+          $yesno[$importer->processed_by_post].$post,
+          $yesno[$importer->processed_by_cron].$logs,
+          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
+          '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
+        );
+      }
+      $content .= theme_table($header,$rows);
+    } else {
+      $content = t('There is no importer. To add one, click <a href = "/admin/wally/wallymport/settings/add">here</a>');
+    }
+  } else {
+    $content = t('This module needs to be updated');
+  }
+  return $content;
+}
+/**
+ * Importer logs
+ * @param $iid
+ * importer id 
+ * @return page content
+ */
+
+function wallymport_page_importer_logs($iid){
+  $importer = wallymport_getimporter($iid);
+  $logs = unserialize($importer->cron_log);
+  rsort($logs);
+  $content = '';
+  foreach ($logs as $log){
+    $content .= theme('wallymport_logs', $log);
+  }
+  return $content;
 }
