@@ -347,6 +347,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     */
     
   }
+  dsm($returns);
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
