@@ -633,6 +633,7 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     }
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
   }
+  dsm($returns);
   return $xml_file;
 }
 
