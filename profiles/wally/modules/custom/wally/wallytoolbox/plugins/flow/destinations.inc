@@ -350,7 +350,13 @@ function wallytoolbox_destinations_flow_set_multimediaobject($multimediaobject, 
   
   // MultiMediaObject Elements
   $temp_multimedia['Caption']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_summary', '');
-  $temp_multimedia['FileURI']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'3rdparty', '', 'embed');
+  $url_3rdparty = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'3rdparty', '', 'embed');
+  if (empty($url_3rdparty)) {
+    $file_uri = 'embed://'.wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'file', '', 'filename');
+  } else {
+    $file_uri = $url_3rdparty;
+  }
+  $temp_multimedia['FileURI']['value'] = $file_uri;
   $temp_multimedia['FileSize']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_'.$mediatype.'file', '', 'filesize');
   $temp_multimedia['Thumbnail']['value'] = $multimediaobject->field_thumbnail[0];
   $temp_multimedia['Rating']['value'] = wallytoolbox_destinations_flow_node_get_field($multimediaobject, 'field_rating', '');
