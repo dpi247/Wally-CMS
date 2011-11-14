@@ -348,7 +348,6 @@ function wallymport_check_process_file($importer_name, $file_name) {
     
   }
   $content = '';
-  dsm($returns);
   foreach ($returns as $return){
     $return['date'] = time();
     $content .= theme('wallymport_logs', $return);
@@ -600,13 +599,13 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
       if (count($import_files) == 0) {
         $zip_error = TRUE;
         $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
-        $returns['error'] = TRUE;
-        $returns['error_msg'][] = $error_msg;
+        $returns[]['error'] = TRUE;
+        $returns[]['error_msg'][] = $error_msg;
       } elseif (count($import_files) > 1) {
         $zip_error = TRUE;
         $error_msg = t('There is more than one XML file found in the import: !file', array('!file' => $file->basename));
-        $returns['error'] = TRUE;
-        $returns['error_msg'][] = $error_msg;
+        $returns[]['error'] = TRUE;
+        $returns[]['error_msg'][] = $error_msg;
       } else {
         // Yeah .. ready to ROCK & ROLL
         $import_file = reset($import_files);
@@ -616,14 +615,14 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     } else {
       $zip_error = TRUE;
       $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
-      $returns['error'] = TRUE;
-      $returns['error_msg'][] = $error_msg;
+      $returns[]['error'] = TRUE;
+      $returns[]['error_msg'][] = $error_msg;
     }
   } else {
     $zip_error = TRUE;
     $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
-    $returns['error'] = TRUE;
-    $returns['error_msg'][] = $error_msg;
+    $returns[]['error'] = TRUE;
+    $returns[]['error_msg'][] = $error_msg;
   }
   if ($zip_error) {
     if (!file_move($file->filename, $importer->error_directory_path)) {
