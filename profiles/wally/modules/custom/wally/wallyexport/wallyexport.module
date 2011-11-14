@@ -59,7 +59,9 @@ function wallyexport_export_packages($nids) {
 function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
   module_load_include('inc','wallytoolbox','includes/wallytoolbox.arraytowallyxml');
   $valid_dom = new DomDocument('1.0', 'UTF-8');
+  dsm($package_object);
   $package_array = wallytoolbox_node_to_array($package_object);
+  dsm($package_array);
   $files_to_zip = array();
   wallytoolbox_arraytowallyxml($package_array, $valid_dom, $files_to_zip);    
   
