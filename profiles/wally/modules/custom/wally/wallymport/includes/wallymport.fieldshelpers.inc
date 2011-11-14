@@ -5,84 +5,108 @@
  * 
  * 
  */
+function _wimprthelp_getfieldnamefromvocabularyname($name){
+  $result_set = NULL;
+  switch ($name){
+    case 'Tags' : $result_set = 'field_free_tags';break;
+    case 'Concepts' : $result_set = 'field_concepts';break;
+    case 'IPTC' : $result_set = 'field_iptc';break;
+  }
+  return $result_set;
+}
+
+function _wimprthelp_getTaxonomyVidFromDamName($damname){
+  $vid = NULL;
+  switch ($damname){
+    case 'Tags'      : $vid = variable_get('wallymport_freetagtaxonomy', NULL);break;
+    case 'Concepts'   : $vid = variable_get('wallymport_concept', NULL);break;
+    case 'IPTC'      : $vid = variable_get('wallymport_iptc', NULL);break;
+    case 'Persons'   : $vid = variable_get('wallymport_person', NULL);break;
+    case 'Authors'   : $vid = variable_get('wallymport_author', NULL);break;
+    case 'Entities'  : $vid = variable_get('wallymport_entity', NULL);break;
+    case 'Locations' : $vid = variable_get('wallymport_location', NULL);break;
+  }
+  return $vid;
+}
+
 function _wimprthelp_array_to_ccklocation($location) {
-	$node = array();
+  $node = array();
 
-	// Get all country list from location module
-	$countries = location_get_iso3166_list();
+  // Get all country list from location module
+  $countries = location_get_iso3166_list();
 
-	// Is it an existant location - get the LID?
-	if (isset($location["lid"])) {
-		$node['lid'] = $location["lid"];
-	} 
+  // Is it an existant location - get the LID?
+  if (isset($location["lid"])) {
+	$node['lid'] = $location["lid"];
+  } 
 
-	if ($location["name"]) {
-		$node['name'] = $location["name"];
-	} else {
-		// TO DO FATAL :: No location NAME - crital
-		drupal_set_message('No location NAME found.','error');
-		return null; 
-	}
+  if ($location["name"]) {
+	$node['name'] = $location["name"];
+  } else {
+	// TO DO FATAL :: No location NAME - crital
+	drupal_set_message('No location NAME found.','error');
+	return NULL; 
+  }
 		
-	// Street lines
-	if (isset($location["street"])) $node['street'] = $location["street"];
-	if (isset($location["additional"])) $node['additional'] = $location["additional"];
+  // Street lines
+  if (isset($location["street"])) $node['street'] = $location["street"];
+  if (isset($location["additional"])) $node['additional'] = $location["additional"];
 
-	// City
-	$node['city'] = $location["city"];
+  // City
+  $node['city'] = $location["city"];
 
-	// Province 
-	if (isset($location['province_name'])) {
-		if ($node['province']=location_province_code($location['country_name'],$location['province_name'])) {
-			$node['province_name'] = $location['province_name'];
-		} else {
-			drupal_set_message('Country PROVINCE not found for '.$location['country_name'].'/'.$location['province_name'].'.','error');
-		}
-	}
-
-	// Postal Code
-	$node['postal_code'] = $location["postal_code"];
-	
-	// Country 
-	if (isset($location['country'])) {
-		if (array_key_exists($location['country'],$countries)) {
-			$node['country'] = $location['country'];
-			$node['country_name'] = $countries[$location['country']];
-		} else {
-			drupal_set_message('Country ISO CODE not found for '.$location['country'].'.','error');
-		}
+  // Province 
+  if (isset($location['province_name'])) {
+	if ($node['province']=location_province_code($location['country_name'],$location['province_name'])) {
+      $node['province_name'] = $location['province_name'];
 	} else {
-		if (isset($location['country_name'])) {
-			if ($node['country']=array_search($location['country_name'],$countries)) {
-				$node['country_name'] = $location['country_name'];
-			} else {
-				drupal_set_message('Country ISO not found for '.$location['country_name'].'.','error');
-			}
-		}
+	  drupal_set_message('Country PROVINCE not found for '.$location['country_name'].'/'.$location['province_name'].'.','error');
 	}
-	location_standardize_country_code($node['country']); 
+  }
+
+  // Postal Code
+  $node['postal_code'] = $location["postal_code"];
+	
+  // Country 
+  if (isset($location['country'])) {
+	if (array_key_exists($location['country'],$countries)) {
+	  $node['country'] = $location['country'];
+	  $node['country_name'] = $countries[$location['country']];
+	} else {
+	  drupal_set_message('Country ISO CODE not found for '.$location['country'].'.','error');
+	}
+  } else {
+	if (isset($location['country_name'])) {
+	  if ($node['country']=array_search($location['country_name'],$countries)) {
+		$node['country_name'] = $location['country_name'];
+	  } else {
+		drupal_set_message('Country ISO not found for '.$location['country_name'].'.','error');
+	  }
+	}
+  }
+  location_standardize_country_code($node['country']); 
     
-	// Long-Lattitude
-	if (isset($location["latitude"]) && isset($location["longitude"])) {
-		if (is_numeric($location["latitude"]) && is_numeric($location["longitude"])) {
-			$node['latitude'] = $location["latitude"];
-			$node['longitude'] = $location["longitude"];
-			$node['locpick']["user_latitude"] = $location["latitude"];
-			$node['locpick']["user_longitude"] = $location["longitude"];
-		} else {
-			drupal_set_message('longitude & Lattitude not numeric.','error');
-		}
+  // Long-Lattitude
+  if (isset($location["latitude"]) && isset($location["longitude"])) {
+	if (is_numeric($location["latitude"]) && is_numeric($location["longitude"])) {
+	  $node['latitude'] = $location["latitude"];
+	  $node['longitude'] = $location["longitude"];
+	  $node['locpick']["user_latitude"] = $location["latitude"];
+	  $node['locpick']["user_longitude"] = $location["longitude"];
 	} else {
-		drupal_set_message('longitude & Lattitude not set.','error');
-	}   
+	  drupal_set_message('longitude & Lattitude not numeric.','error');
+	}
+  } else {
+	drupal_set_message('longitude & Lattitude not set.','error');
+  }   
 	
-	$settings = variable_get('location_settings_node_wally_locationtype', array());
-    $node['location_settings'] = $settings;
+  $settings = variable_get('location_settings_node_wally_locationtype', array());
+  $node['location_settings'] = $settings;
 
-	$node['source'] = 0;
-	$node['is_primary'] = 0;
-
-	return (array) $node; 
+  $node['source'] = 0;
+  $node['is_primary'] = 0;
+  
+  return (array) $node; 
 		
 }
 
@@ -132,7 +156,7 @@ function _wimprthelp_polldate_to_ccktime($date1,$date2) {
  *   timestamp
  */
 function _wimprthelp_date_to_timestamp($date) {
-  $result=strtotime($date);
+  $result = strtotime($date);
   return $result;
 }
 
@@ -187,8 +211,8 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
     case'embed':
       // "+" sign in filename is unsupported by imagecache.
       $good_uri_host = str_replace($badcar, "_", $uri['host']);
-      $file_temp_path=$proceed_folder_path.'/'.$uri['host'];
-      $file_dest_path=file_directory_path().'/'.rand().'_'.$good_uri_host;
+      $file_temp_path = $proceed_folder_path.'/'.$uri['host'];
+      $file_dest_path = file_directory_path().'/'.rand().'_'.$good_uri_host;
       if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
@@ -231,7 +255,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
 }
 
 function _wimprthelp_create_file($filepath){
-  $uid=variable_get('wallymport_defaultuser',1);
+  $uid = variable_get('wallymport_defaultuser',1);
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;

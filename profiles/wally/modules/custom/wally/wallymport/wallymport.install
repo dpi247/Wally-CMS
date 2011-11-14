@@ -4,6 +4,7 @@
  * Implementation of hook_uninstall().
  */
 function wallymport_uninstall(){
+  drupal_uninstall_schema('wallymport');
   wallytoolbox_variable_del_like('wallymport_');
 }
 
@@ -19,4 +20,140 @@ function wallymport_enable() {
  */
 function wallymport_disable() {
 	cache_clear_all('imagecache_actions', 'cache');
+}
+/**
+ * Implementation of hook_install().
+ */
+function wallymport_install() {
+  drupal_install_schema('wallymport');
+}
+/**
+ * Implementation of hook_schema().
+ */
+function wallymport_schema() {
+  $schema = array();
+
+  $schema['wallymport_importer'] = array(
+    'description' => 'Contains de informations of the importers',
+    'fields' => array(
+      'iid' => array(
+        'type' => 'serial',
+        'description' => 'Importer Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'importer_type' => array(
+        'description' => 'The type of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'source_directory_path' => array(
+        'description' => 'The path of the directory where are the data to be imported',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'done_directory_path' => array(
+        'description' => 'The path of the directory where are the successfully imported data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'error_directory_path' => array(
+        'description' => 'The path of the directory where are the not imported data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'temp_directory_path' => array(
+        'description' => 'The path of the directory where temporary data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'xsd_path' => array(
+        'description' => 'The path of the xsd file who validate the data to be imported',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'zip' => array(
+        'description' => '1 if the date to be imported are zipped',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'processed_by_post' => array(
+        'description' => '1 if the process is done during the POST',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'processed_by_cron' => array(
+        'description' => '1 if the process is done during a CRON job',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_frequency' => array(
+        'description' => 'Frequency of the cron (in minutes)',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_timestamp' => array(
+        'description' => 'Last CRON',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_keep_log' => array(
+        'description' => 'Keep CRON log',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_log' => array(
+        'description' => 'Logs of the CRON',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'default_user' => array(
+        'description' => 'Default user',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('iid'),//primary key
+  );
+  
+  return $schema;
+}
+/**
+ * Implementation of hook_update_N().
+ */
+function wallymport_update_6001(){
+
+  $schema = drupal_get_schema('wallymport_importer');
+  $ret = array();
+
+  if (!db_table_exists('wallymport_importer')) {
+    db_create_table($ret, 'wallymport_importer', $schema);
+  }
+  return $ret;
 }
