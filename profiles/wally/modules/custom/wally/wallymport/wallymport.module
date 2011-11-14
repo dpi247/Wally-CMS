@@ -280,6 +280,7 @@ function wallymport_check_process_folder($importer_name) {
     variable_del('wallymport_process_folder_semaphore');
     
   }
+  dsm($returns);
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
