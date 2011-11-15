@@ -329,7 +329,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * @return Nothing but modify the $node
  */
 
-function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
+function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = TRUE) {
   if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
     require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
     if (!isset($node->view)) {
