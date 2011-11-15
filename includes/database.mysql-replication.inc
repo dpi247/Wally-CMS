@@ -37,7 +37,6 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
   }
   if (isset($query_cache[$query])) {
     // We've already calculated for this table
-    print 'test';
     return $query_cache[$query];
   }
   if (count($query_cache) > 250) {
