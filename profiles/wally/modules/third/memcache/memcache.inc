@@ -31,9 +31,6 @@ define('MEMCACHE_CONTENT_FLUSH', 'MEMCACHE_CONTENT_FLUSH');
  *   'cache_menu', 'cache_page', or 'cache' for the default cache.
  */
 function cache_get($cid, $table = 'cache') {
- if(strstr($cid,"4422")){	
-	print "\n\n $cid - $table ";
- }
   // Handle excluded bins first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
