@@ -86,6 +86,17 @@ function wallyctools_preprocess_node(&$vars) {
       }
     }
   }
+
+  if (isset($vars['node_view_destination']) && $vars['node_view_destination'] <> "" && !empty($vars['node_view_destination'])) {
+		static $global_count = array();
+		if(!isset($global_count[$vars['node_view_destination']][$vars['node_view_target'][0]])) {
+			$global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]=0;
+	 	} else {
+	 		$global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]++;
+	 	}
+		$vars["global_index"] = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
+		$vars["node"]->global_index = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
+	}
 }
 
 /**
