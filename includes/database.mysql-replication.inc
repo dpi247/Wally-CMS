@@ -37,9 +37,10 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
   }
   if (isset($query_cache[$query])) {
     // We've already calculated for this table
+    print 'test';
     return $query_cache[$query];
   }
-  if (count($query_cache) > 100) {
+  if (count($query_cache) > 250) {
     // To avoid issues when the page is making lots of distinct queries, we flush the cache if it gets too big
     $query_cache = array();
   }
@@ -52,7 +53,6 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
     $srtm = TRUE; // force all queries to go to master after this for this request
     return FALSE;
   }
-
   if ($srtm === TRUE) {
     // we're locked to master for the rest of this request
     return FALSE;
@@ -60,10 +60,10 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
 
   // Find any mentioned tables
   $tables = array();
-  if (preg_match_all('/\{(.?)}/', $query, $m)) {
+  if (preg_match_all('/\{(.?)\}/', $query, $m)) {
     $tables = $m[1];
+    
   }
-
   // Default to master
   $force_slave = FALSE;
 
@@ -71,7 +71,7 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
   //  1) Must know the primary table
   //  2) Must not have that table marked in the "send request to master" $srtm array
   //  3) Must not be a write query of any kind
-  if (!empty($tables) && !array_intersect($tables, $srtm) && !_db_is_write_query($query)) {
+  if (!_db_is_write_query($query)) {
     // Allow this to run on the slave
     $force_slave = TRUE;
   }
