@@ -112,7 +112,7 @@ class Prenode{
       'profile_id' => $this->profile_id,
     );
     
-    if($cache =  prenode_get($this->cache_name)){
+    if($cache = prenode_get($this->cache_name)){
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
