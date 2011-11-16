@@ -352,6 +352,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     $return['date'] = time();
     $content .= theme('wallymport_logs', $return);
   }
+  dsm('cc'.$content);
   return $content;
 }
 /**
@@ -446,7 +447,6 @@ function wallymport_process_file($importer, $file_name){
       }
     }
   }
-  dsm($returns);
   
   return $returns;
 }
@@ -593,6 +593,7 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     list($rest,$file_name_ext) = explode('/', $file);
     list($file_name, $rest) = explode('.zip', $file_name_ext);
     $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
+    dsm($temp_subdir);
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
