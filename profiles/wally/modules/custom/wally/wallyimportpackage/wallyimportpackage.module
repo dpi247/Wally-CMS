@@ -1367,7 +1367,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
-  dsm($node);
+
   return $node;
 }
 
