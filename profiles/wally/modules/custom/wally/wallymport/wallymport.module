@@ -399,7 +399,6 @@ function wallymport_process_folder($importer){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
-   
       $xml_file = wallymport_preprocess_file($file->filename, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Process the file

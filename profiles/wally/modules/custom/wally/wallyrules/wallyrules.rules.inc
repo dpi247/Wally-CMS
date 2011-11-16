@@ -25,6 +25,14 @@ function wallyrules_rules_action_info() {
     'module' => 'Wally Rules',
   );
   
+  $actions['wallyrules_flush_content_cache'] = array(
+    'label' => t('Flush the content cache for this node'),
+    'arguments' => array(
+      'node' => array('type' => 'node', 'label' => t('Node')),
+    ),
+    'module' => 'Wally Rules',
+  );
+  
   $actions['wallyrules_flush_destinations_page_cache'] = array(
     'label' => t('Flush the destinations pages cache for this node'),
     'arguments' => array(
@@ -66,6 +74,13 @@ function wallyrules_flush_home_page_cache($settings) {
  */
 function wallyrules_flush_node_page_cache($node, $settings) {
   _wallyrules_flush_all_pages($settings, 'node/'.$node->nid);
+}
+
+/**
+ * Action to flush the page cache of the node page
+ */
+function wallyrules_flush_content_cache($node) {
+  cache_clear_all('content:'. $node->nid, content_cache_tablename(), TRUE);
 }
 
 /**
