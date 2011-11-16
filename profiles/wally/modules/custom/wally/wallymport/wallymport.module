@@ -565,7 +565,7 @@ function wallymport_post($importer_name){
  *   Results of the import.
  * @return $xml_file (name of the xml file to process)
  */
-function wallymport_preprocess_file($file, $importer, &$returns){
+function wallymport_preprocess_file($file, &$importer, &$returns){
   
   if ($importer->zip == 1){
     $xml_file = wallymport_preprocess_zip($file, $importer, $returns);
@@ -587,7 +587,7 @@ function wallymport_preprocess_file($file, $importer, &$returns){
  *   Results of the import.
  * @return $xml_file (name of the xml file to process)
  */
-function wallymport_preprocess_zip($file, $importer, &$returns){
+function wallymport_preprocess_zip($file, &$importer, &$returns){
   $xml_file = NULL;
   $zip_error = FALSE;
   $error_msg = FALSE;
@@ -600,6 +600,7 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
     $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
+      $importer->temp_subdir = $temp_subdir;
       $zip->extractTo($temp_subdir);
       // Search for XMLs
       $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
