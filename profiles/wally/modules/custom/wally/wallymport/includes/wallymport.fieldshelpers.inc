@@ -197,11 +197,8 @@ function _wimprthelp_plain_text($text){
  * @return
  *   A Drupal File Object
  */
-function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
-  global $proceed_file_path;
-  global $base_path;
-  global $proceed_folder_path;
-
+function _wimprthelp_create_file_from_uri($file_uri, $importer, $new_file_path = ''){
+ 
   $uri = parse_url($file_uri);
   $badcar = array("+"," ");
   $new_file_path = rtrim($new_file_path, '/');
@@ -211,7 +208,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = ''){
     case'embed':
       // "+" sign in filename is unsupported by imagecache.
       $good_uri_host = str_replace($badcar, "_", $uri['host']);
-      $file_temp_path = $proceed_folder_path.'/'.$uri['host'];
+      $file_temp_path = $importer->temp_subdir.'/'.$uri['host'];
       $file_dest_path = file_directory_path().'/'.rand().'_'.$good_uri_host;
       if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
