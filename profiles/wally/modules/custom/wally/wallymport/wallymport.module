@@ -437,7 +437,6 @@ function wallymport_process_file($importer, $file_name){
   if (!$returns['error']){
     unset($returns['error']);
     $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-    dsm($xml_file);
     if ($xml_file != NULL & !$returns['error']){
       //Process the file
       $returns[] = wallymport_page_process_file($xml_file, $importer);
@@ -447,7 +446,7 @@ function wallymport_process_file($importer, $file_name){
       }
     }
   }
-  
+  dsm($returns);
   
   return $returns;
 }
