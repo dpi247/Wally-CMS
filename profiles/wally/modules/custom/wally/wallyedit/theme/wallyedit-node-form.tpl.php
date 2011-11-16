@@ -162,6 +162,11 @@ position: static;
 .page-content .form-item div.description {
   position: relative;
 }
+
+#edit-wally-linktype-field-internal-link-0-nid-nid-wrapper {
+  margin-bottom: 200px;
+}
+
 </style>
 
 
