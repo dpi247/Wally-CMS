@@ -32,10 +32,10 @@ function wallyexport_export_packages($nids) {
   foreach ($nids as $nid) {
     $package_object = node_load($nid);
     wallycontenttypes_packagepopulate($package_object, '',TRUE);
-    /*
+    
     $zip_name = 'Wally_'.$package_object->nid;
     $package_dom_and_images = _wallyexport_createvaliddomfrompackage($package_object, $zip_name);
-    
+    /*
     if ($package_dom_and_images) {
       $package_dom = $package_dom_and_images[0];
       $files_to_zip = $package_dom_and_images[1];
