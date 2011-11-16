@@ -7,7 +7,7 @@ body {
 	width: 65%;
 	float: left;
 	padding-right: 10px;
-	overflow: hidden;
+	//overflow: hidden;
 }
 #column-side-right{
 	width: 33%;
@@ -91,7 +91,7 @@ a.selected {
 }
 #mask {
 	width: 100%;
-	overflow:hidden;
+	//overflow:hidden;
 	margin:0 auto;
 }
 #onglet {
@@ -162,6 +162,11 @@ position: static;
 .page-content .form-item div.description {
   position: relative;
 }
+
+.clearfix:before, .clearfix:after { content: "\0020"; display: block; height: 0; overflow: hidden; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }
+
 </style>
 
 
@@ -414,7 +419,7 @@ $(document).ready(function() {
   $no_tab_name="no_tab";
 ?>
 
-<div id="column-main-left">
+<div id="column-main-left" class="clearfix">
   <div id="scroller-header">
       <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
         <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
@@ -423,7 +428,7 @@ $(document).ready(function() {
       <?php endforeach;?>
   </div>
   <div id="scroller-body">
-      <div id="mask">
+      <div id="mask" class="clearfix">
           <div id="onglet">
           <?php  foreach($onglets_struct as $onglet=>$onglet_content): ?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
