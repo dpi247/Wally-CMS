@@ -399,7 +399,7 @@ function wallymport_process_folder($importer){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
-      $xml_file = wallymport_preprocess_file($file->filename, $importer, $returns);
+      $xml_file = wallymport_preprocess_file($file, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Process the file
         $returns[] = wallymport_page_process_file($xml_file, $importer);
@@ -428,9 +428,13 @@ function wallymport_process_file($importer, $file_name){
   
   $folder = $importer->source_directory_path;
 
-  $file = $folder."/".$file_name;
+  $file = new stdClass();
+  
+  $file->name = $file_name;
+  $file->filename = $folder."/".$file_name;
+  $file->basename = $file_name;
 
-  if (!file_exists($file)) {
+  if (!file_exists($file->filename)) {
     $error_msg = t('Input file doesn\'t exists');
     $returns[]['error'] = TRUE;
     $returns[]['error_msg'][] = $error_msg;
@@ -441,7 +445,7 @@ function wallymport_process_file($importer, $file_name){
     if ($xml_file != NULL & !$returns['error']){
       //Process the file
       $returns[] = wallymport_page_process_file($xml_file, $importer);
-      if (!file_move($file, $importer->done_directory_path)) {
+      if (!file_move($file->filename, $importer->done_directory_path)) {
         $error_msg = t('An error occured during file copy to done directory.');
         drupal_set_header('HTTP/1.1 517 '.$error_msg);
       }
@@ -535,7 +539,7 @@ function wallymport_post($importer_name){
       $returns['error'] = TRUE;
       $returns['error_msg'][] = 'There is no file in the POST';
     } else {
-      $xml_file = wallymport_preprocess_file($object_file->filename, $importer, $returns);
+      $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Proccess xml
         $returns = wallymport_page_process_file($xml_file, $importer);
@@ -589,11 +593,11 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
   $error_msg = FALSE;
   // Unzip input file to the temp directory
   $zip = new ZipArchive;
-  $res = $zip->open($file);
+
+  $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    list($rest,$file_name_ext) = explode('/', $file);
-    list($file_name, $rest) = explode('.zip', $file_name_ext);
-    $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
+    
+    $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
