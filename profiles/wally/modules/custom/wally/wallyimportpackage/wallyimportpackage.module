@@ -1344,14 +1344,14 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri);
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $importer);
     
     
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
@@ -1367,6 +1367,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
+
   return $node;
 }
 
@@ -1426,7 +1427,7 @@ function wallyimportpackage_process_object_audioobjecttype(&$node, $dom, &$log, 
 
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emaudio');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
   } else {//Is a 3rd party
     $node->field_audio3rdparty[0]['embed'] = $file_uri;
   }
@@ -1498,7 +1499,7 @@ function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, 
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emvideo');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri);
+    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
   } else {//Is a 3rd party
     $node->field_video3rdparty[0]['embed'] = $file_uri;
   }
@@ -1575,7 +1576,7 @@ function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emother');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri);
+    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
   } else {//Is a 3rd party
     $node->field_object3rdparty[0]['embed'] = $file_uri;
   }
@@ -1606,7 +1607,7 @@ function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log
  */
 function wallyimportpackage_set_field_thumbnail(&$node, $dom, &$log, $importer){
   $thumbnail = $dom->nodeValue;
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail);
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail, $importer);
 }
 
 /**
