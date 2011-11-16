@@ -196,6 +196,10 @@ function wallyctools_form_back_to_front_submit($form, &$form_state) {
 }
 
 function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  $tid = $values['destination_tid'];
+  $target = $values['target'];
+  
   $order_by_weight = array();
   foreach($form_state['values']['rows'] as $key=>$data){
     $order_by_weight[$data['weight']] = $data;
@@ -208,9 +212,19 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   $order_by_weight[$max_weight+1]['time_rank'] = $order_by_weight[$max_weight]['time_rank'] - 30;
   for($i=$max_weight; $i>=$min_weight; $i--) {
     $elem_nid = $order_by_weight[$i]['nid'];
+    $elem_node = node_load($elem_nid);
     $new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
     $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
-    db_query("UPDATE {content_field_destinations} SET field_destinations_time_rank=%d WHERE nid=%d and field_destinations_tid=%d and field_destinations_target='%s'", $new_time_rank[$elem_nid], $elem_nid, $form_state['values']['destination_tid'], $form_state['values']['target']);
+    
+    foreach ($elem_node->field_destinations as $delta => $dest) {
+      $dest['rank'] = 'DNC'.$dest['rank'];
+      if ($dest['tid'] == $tid && $dest['target'] == $target) {
+        $dest['time_rank'] = $new_time_rank[$elem_nid];
+      }
+      $elem_node->field_destinations[$delta] = $dest;
+    }
+    
+    node_save($elem_node);
   }
 }
 
