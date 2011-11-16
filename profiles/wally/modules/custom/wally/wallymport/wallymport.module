@@ -429,7 +429,6 @@ function wallymport_process_file($importer, $file_name){
   $folder = $importer->source_directory_path;
 
   $file = $folder."/".$file_name;
-  dsm($file);
   if (!file_exists($file)) {
     $error_msg = t('Input file doesn\'t exists');
     $returns[]['error'] = TRUE;
@@ -438,6 +437,7 @@ function wallymport_process_file($importer, $file_name){
   if (!$returns['error']){
     unset($returns['error']);
     $xml_file = wallymport_preprocess_file($file, $importer, $returns);
+    dsm($xml_file);
     if ($xml_file != NULL & !$returns['error']){
       //Process the file
       $returns[] = wallymport_page_process_file($xml_file, $importer);
