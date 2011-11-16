@@ -2,7 +2,8 @@
 // $Id: wallyctools.module,v 1.1.2.2 2010/07/23 21:47:20 merlinofchaos Exp $
 
 /**
- * @file wallyctools module
+ * @file
+ * wallyctools module
  *
  * This module allows styles to be created and managed on behalf of modules
  * that implement styles.
