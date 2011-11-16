@@ -347,6 +347,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     */
     
   }
+  dsm($returns);
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
@@ -590,10 +591,13 @@ function wallymport_preprocess_zip($file, $importer, &$returns){
   $zip = new ZipArchive;
   $res = $zip->open($file);
   if ($res === TRUE) {
+    dsm($file);
     list($rest,$file_name_ext) = explode('/', $file);
+    dsm($file_name_ext);
     list($file_name, $rest) = explode('.zip', $file_name_ext);
-    $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
     dsm($temp_subdir);
+    $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
+    
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $zip->extractTo($temp_subdir);
