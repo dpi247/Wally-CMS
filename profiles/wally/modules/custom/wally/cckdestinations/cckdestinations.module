@@ -1712,18 +1712,17 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_reserved', 5);
           $temp_time_rank = 0;
           $rank = $item['rank'];
-dsm($behavior, 'behavior');
-dsm($reserved, 'reserved');
+
           // Get destination view results without the current node
           $view_infos = wallyctools_get_view_info_from_redacblock($item['target']);
           $view = views_get_view($view_infos['view_name']);
           $view->set_display($view_infos['view_id']);
-          $view->set_arguments(array($item['tid'], $node->nid));
+          $view->set_arguments(array($item['tid']));
           $view->set_items_per_page($reserved + 2);
           $view->execute();
           $temp_results = $view->result;
           $current_results = array();
-dsm($view, 'view');
+
           foreach ($temp_results as $result) {
             if ($result->nid != $node->nid) {
               $current_results[] = $result;
