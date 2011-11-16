@@ -317,7 +317,7 @@ function wallymport_page_admin(){
     $yesno = array(t('No'), t('Yes'));
     
     if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process'), t('Operations'));
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Operations'));
       $rows = array();
       foreach ($importers as $importer){
         $logs = '';
@@ -336,6 +336,7 @@ function wallymport_page_admin(){
           $yesno[$importer->processed_by_cron].$logs,
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
           '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
+          '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext', array('absolute' => TRUE)).'</a>',
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );
       }
