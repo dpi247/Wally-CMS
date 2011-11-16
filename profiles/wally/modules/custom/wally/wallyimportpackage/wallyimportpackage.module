@@ -1052,7 +1052,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $linklist = $dom->getElementsByTagName('LinksList')->item(0);
   if ($dom->getElementsByTagName('LinksList')->item(0)){
     if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
-      foreach (wimprt_process_list($linklists, $log, 'object') as $result){
+      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result){
         if (!array_key_exists($result->nid, $links) || $importer->wallymport_preview) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
@@ -1724,9 +1724,9 @@ function wallyimportpackage_create_or_load_type_link($dom, &$log, $importer){
  */
 function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $importer){
   wimprt_process_node_default($node, $dom, $log, $importer);
-  
+
   $links = $dom->getElementsByTagName("Links")->item(0);
-  foreach(wimprt_process_list($links, $log, 'type') as $result){
+  foreach(wimprt_process_list($links, $log, $importer, 'type') as $result){
     $node->field_links_list[]['nid'] = $result->nid;
   }
 }
