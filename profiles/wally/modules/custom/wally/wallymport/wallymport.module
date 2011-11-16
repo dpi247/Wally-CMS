@@ -378,7 +378,7 @@ function wallymport_process_folder_cleanup() {
  */
 function wallymport_process_folder($importer){
 
-  $returns = array('error' => FALSE); 
+  $returns = NULL;
   
   $folder = $importer->source_directory_path;
   $format = 'xml';
@@ -390,17 +390,15 @@ function wallymport_process_folder($importer){
   if (count($files) == 0 ) {
     $error_msg = t('No input files found.');
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
-    $returns['error'] = TRUE;
-    $returns['error_msg'][] = $error_msg;
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   ksort($files);
-  if (!$returns['error']){
-    unset($returns['error']);
+  if ($returns == NULL){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
       $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-      if ($xml_file != NULL & !$returns['error']){
+      if ($xml_file != NULL & $returns == NULL){
         //Process the file
         $returns[] = wallymport_page_process_file($xml_file, $importer);
         if (!file_move($file->filename, $importer->done_directory_path)) {
@@ -424,7 +422,7 @@ function wallymport_process_folder($importer){
  */
 function wallymport_process_file($importer, $file_name){
   
-  $returns = array('error' => FALSE); 
+  $returns = NULL;
   
   $folder = $importer->source_directory_path;
 
@@ -436,13 +434,11 @@ function wallymport_process_file($importer, $file_name){
 
   if (!file_exists($file->filename)) {
     $error_msg = t('Input file doesn\'t exists');
-    $returns[]['error'] = TRUE;
-    $returns[]['error_msg'][] = $error_msg;
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
-  if (!$returns['error']){
-    unset($returns['error']);
+  if ($returns == NULL){
     $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-    if ($xml_file != NULL & !$returns['error']){
+    if ($xml_file != NULL & $returns == NULL){
       //Process the file
       $returns[] = wallymport_page_process_file($xml_file, $importer);
       if (!file_move($file->filename, $importer->done_directory_path)) {
@@ -451,8 +447,7 @@ function wallymport_process_file($importer, $file_name){
       }
     }
   }
-  
-  
+
   return $returns;
 }
 
@@ -516,10 +511,10 @@ function wallymport_post($importer_name){
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
     $returns['error'] = TRUE;
-    $returns['error_msg'][] = t('This importer does not exist');
+    $returns['error_msg'] = t('This importer does not exist');
   } elseif ($importer->processed_by_post != 1){
     $returns['error'] = TRUE;
-    $returns['error_msg'][] = t('This importer does not accept POST');
+    $returns['error_msg'] = t('This importer does not accept POST');
   } else {
     $nb_file = 0;
     $object_file = new stdClass();
@@ -534,10 +529,10 @@ function wallymport_post($importer_name){
     
     if ($nb_file > 1){
       $returns['error'] = TRUE;
-      $returns['error_msg'][] = 'There is more than one file in the POST';
+      $returns['error_msg'] = 'There is more than one file in the POST';
     } elseif ($nb_file == 0){
       $returns['error'] = TRUE;
-      $returns['error_msg'][] = 'There is no file in the POST';
+      $returns['error_msg'] = 'There is no file in the POST';
     } else {
       $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
@@ -607,13 +602,11 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
       if (count($import_files) == 0) {
         $zip_error = TRUE;
         $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
-        $returns[]['error'] = TRUE;
-        $returns[]['error_msg'][] = $error_msg;
+        $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
       } elseif (count($import_files) > 1) {
         $zip_error = TRUE;
         $error_msg = t('There is more than one XML file found in the import: !file', array('!file' => $file->basename));
-        $returns[]['error'] = TRUE;
-        $returns[]['error_msg'][] = $error_msg;
+        $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
       } else {
         // Yeah .. ready to ROCK & ROLL
         $import_file = reset($import_files);
@@ -623,14 +616,12 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
     } else {
       $zip_error = TRUE;
       $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
-      $returns[]['error'] = TRUE;
-      $returns[]['error_msg'][] = $error_msg;
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     }
   } else {
     $zip_error = TRUE;
     $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
-    $returns[]['error'] = TRUE;
-    $returns[]['error_msg'][] = $error_msg;
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   if ($zip_error) {
     if (!file_move($file->filename, $importer->error_directory_path)) {
@@ -673,8 +664,8 @@ function wallymport_page_process_file($xml_file, $importer){
  
   if (!$dom->schemaValidate($importer->xsd_path)){
     dsm('XML not VALIDATED');
-    $return[]['error'] = TRUE;
-    $return[]['error_msg'][] = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
+    $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg); 
   } else {
     foreach ($dom->childNodes as $child){
       $type = $child->nodeName;

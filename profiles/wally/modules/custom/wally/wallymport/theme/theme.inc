@@ -1,6 +1,7 @@
 <?php
 
 function theme_wallymport_logs($log){
+
   $content = '';
   $content .= '<h2>'.date ('d/m/Y H:i:s',$log['date']).'</h2>';
   $processed = t('Process succeed');
@@ -11,9 +12,7 @@ function theme_wallymport_logs($log){
   if (isset($log['error_msg'])){
     $content .= '<h3>'.t('Error messages').'</h3>';
     $content .= '<ul>';
-    foreach ($log['error_msg'] as $msg_error){
-      $content .= '<li> '.$msg_error.'</li>';
-    }
+    $content .= '<li> '.$log['error_msg'].'</li>';
     $content .= '</ul>';
   }
   if (isset($log[0]['log']['log'])){
