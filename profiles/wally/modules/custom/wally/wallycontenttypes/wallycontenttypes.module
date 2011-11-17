@@ -30,7 +30,7 @@ function wallycontenttypes_menu() {
     'title' => t('Edit croping'), 
     'description' => t('Edit croping'), 
     'page callback' => 'wallycontenttypes_ajax_editcrop',
-    'access arguments' => array('editing crop'), 
+    'access arguments' => array('administer nodes'), 
     'type' => MENU_CALLBACK,
   );
   
@@ -39,17 +39,17 @@ function wallycontenttypes_menu() {
       'title' => t('Edit croping for WallyEdit'), 
       'description' => t('Edit croping for WallyEdit'), 
       'page callback' => 'wallycontenttypes_editcropwallyedit', 
-      'access arguments' => array('editing crop'), 
+      'access arguments' => array('administer nodes'), 
       'type' => MENU_CALLBACK,
     );
   }
   
   $items['admin/wally/wallycontenttypes/settings'] = array(
-    'title' => 'Wally Content Types Settings',
+    'title' => t('Wally Content Types Settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallycontenttypes_page_admin_form'),
-    'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'access arguments' => array('administer wallycontenttypes'),
+    'description' => t('Allows administrators to set paramaters for this module to function properly.'),
     'file' => 'includes/wallycontenttypes.admin.inc',
   );
 

@@ -19,11 +19,11 @@ include_once('includes/media_kewego.variables.inc');
 function media_kewego_menu() {
   return array(
     'admin/settings/media_kewego' => array(
-      'title' => 'Media: Kewego',
-      'description' => 'Administer the Media: Kewego module.',
+      'title' => t('Media: Kewego'),
+      'description' => t('Administer the Media: Kewego module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_kewego_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_kewego.admin.inc',
     ),
   );

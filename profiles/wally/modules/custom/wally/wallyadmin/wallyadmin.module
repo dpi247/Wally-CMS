@@ -58,7 +58,7 @@ function wallyadmin_menu() {
     'position' => 'right',
     'weight' => 5,
     'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('administer wally'),
+    'access arguments' => array('access wally administration'),
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
@@ -67,7 +67,7 @@ function wallyadmin_menu() {
     'title' => t('Clear cache'),
     'page callback' => 'wallyadmin_clear_cache',
     'description' => t('Clear the CSS cache and all database cache tables which store page, node, theme and variable caches.'),
-    'access arguments' => array('clear all drupal cache'),
+    'access arguments' => array('manage cache'),
     'menu_name' => 'Clear Cache',
   );
   
@@ -75,7 +75,7 @@ function wallyadmin_menu() {
     'title' => t('Search and manage cache'),
     'page callback' => 'search_cache_admin',
     'page arguments' => array('search_cache_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage cache'),
     'description' => t('Allows administrators to search and manage cache.'),
     'file' => 'includes/searchcache.admin.inc',
   );
@@ -83,7 +83,7 @@ function wallyadmin_menu() {
   $items['admin/wally/searchcache/key/%'] = array(
     'page callback' => 'del_cache_admin',
     'page arguments' => array('del_cache_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage cache'),
     'page arguments' => array(4),
     'type' => MENU_CALLBACK,
     'file' => 'includes/searchcache.admin.inc',
@@ -92,23 +92,23 @@ function wallyadmin_menu() {
   $items['admin/wally/searchcache/viewkey/%'] = array(
     'page callback' => 'view_cache_admin',
     'page arguments' => array('view_cache_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage cache'),
     'page arguments' => array(4),
     'type' => MENU_CALLBACK,
     'file' => 'includes/searchcache.admin.inc',
   );
   
   $items['admin/wally/searchvars'] = array(
-    'title' => 'Search and export variables',
+    'title' => t('Search and export variables'),
     'page callback' => 'search_vars_admin',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage variables'),
     'description' => t('Allows administrators to search and export variables.'),
     'file' => 'includes/searchvars.admin.inc',
   );
   
   $items['admin/wally/searchvars/key/%'] = array(
     'page callback' => 'export_vars_admin',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage variables'),
     'page arguments' => array(4),
     'type' => MENU_CALLBACK,
     'file' => 'includes/searchvars.admin.inc',
@@ -117,7 +117,7 @@ function wallyadmin_menu() {
   $items['admin/wally/importvars'] = array(
     'title' => t('Import variables'),
     'page callback' => 'import_vars_admin',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage variables'),
     'description' => t('Allows administrators to search and export variables.'),
     'file' => 'includes/searchvars.admin.inc',
   );
@@ -126,7 +126,7 @@ function wallyadmin_menu() {
     'title' => t('Redirection at login'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallyadmin_page_form_login_redirection_form'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer users'),
     'description' => t('Configure redirection paths after login for existing roles.'),
     'file' => 'includes/wallyadmin.login_redirection.inc',
   );

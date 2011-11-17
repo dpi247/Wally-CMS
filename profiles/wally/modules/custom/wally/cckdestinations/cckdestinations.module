@@ -15,27 +15,27 @@ function cckdestinations_menu() {
   $items = array();
   
   $items['admin/wally/cckdestinations/settings'] = array(
-    'title' => 'CCKDestinations Settings',
+    'title' => t('CCKDestinations Settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cckdestinations_page_admin_form'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer destinations'),
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/cckdestinations.settings_admin.inc',
   );
   
   $items['admin/wally/cckdestinations/node'] = array(
-    'title' => 'Content by destinations',
+    'title' => t('Content by destinations'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('cckdestinations_node_admin_content'),
-    'access arguments' => array('administration pages'),
+    'access arguments' => array('administer nodes'),
     'description' => 'View, edit, and delete your site\'s content with a destination filter.',
     'file' => 'includes/cckdestinations.node_admin.inc',
   );
   
   $items['admin/wally/cckdestinations/batch'] = array(
-    'title' => 'Batch destinations change',
+    'title' => t('Batch destinations change'),
     'page callback' => 'cckdestinations_batch_destinations',
-    'access arguments' => array('administration pages'),
+    'access arguments' => array('administer nodes'),
     'description' => 'Change nodes destination in a batch process.',
     'file' => 'includes/cckdestinations.batch_dest.inc',
   );
@@ -50,7 +50,7 @@ function cckdestinations_menu() {
   $items['cckdestinations/remove'] = array(
     'title' => t('Remove destination'),
     'page callback' => 'cckdestinations_remove_ahah',
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer nodes'),
     'type' => MENU_CALLBACK
   );
   
@@ -1717,12 +1717,12 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           $view_infos = wallyctools_get_view_info_from_redacblock($item['target']);
           $view = views_get_view($view_infos['view_name']);
           $view->set_display($view_infos['view_id']);
-          $view->set_arguments(array($item['tid'], $node->nid));
+          $view->set_arguments(array($item['tid']));
           $view->set_items_per_page($reserved + 2);
           $view->execute();
           $temp_results = $view->result;
           $current_results = array();
-          
+
           foreach ($temp_results as $result) {
             if ($result->nid != $node->nid) {
               $current_results[] = $result;
