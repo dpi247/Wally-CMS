@@ -15,11 +15,11 @@ include_once('includes/media_googledoc.variables.inc');
 function media_googledoc_menu() {
   return array(
     'admin/settings/media_googledoc' => array(
-      'title' => 'Media: Google Doc',
-      'description' => 'Administer the Media: Google Doc module.',
+      'title' => t('Media: Google Doc'),
+      'description' => t('Administer the Media: Google Doc module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_googledoc_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_googledoc.admin.inc',
     ),
   );

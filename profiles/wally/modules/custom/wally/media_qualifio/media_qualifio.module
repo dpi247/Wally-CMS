@@ -15,11 +15,11 @@ include_once('includes/media_qualifio.variables.inc');
 function media_qualifio_menu() {
   return array(
     'admin/settings/media_qualifio' => array(
-      'title' => 'Media: Qualifio',
-      'description' => 'Administer the Media: Qualifio module.',
+      'title' => t('Media: Qualifio'),
+      'description' => t('Administer the Media: Qualifio module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_qualifio_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_qualifio.admin.inc',
     ),
   );

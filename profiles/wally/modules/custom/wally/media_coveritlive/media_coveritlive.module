@@ -15,11 +15,11 @@ include_once('includes/media_coveritlive.variables.inc');
 function media_coveritlive_menu() {
   return array(
     'admin/settings/media_coveritlive' => array(
-      'title' => 'Media: CoverItLive',
-      'description' => 'Administer the Media: CoverItLive module.',
+      'title' => t('Media: CoverItLive'),
+      'description' => t('Administer the Media: CoverItLive module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_coveritlive_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_coveritlive.admin.inc',
     ),
   );

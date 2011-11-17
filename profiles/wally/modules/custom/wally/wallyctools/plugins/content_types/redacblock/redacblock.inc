@@ -391,7 +391,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $stored_feeds = drupal_add_feed();
   $block->content = $view->preview();
   $block->title = $view->get_title();
-dsm($view);
+
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
     return;
   }

@@ -19,11 +19,11 @@ include_once('includes/media_videortl.variables.inc');
 function media_videortl_menu() {
   return array(
     'admin/settings/media_videortl' => array(
-      'title' => 'Media: videortl',
-      'description' => 'Administer the Media: videortl module.',
+      'title' => t('Media: videortl'),
+      'description' => t('Administer the Media: videortl module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_videortl_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_videortl.admin.inc',
     ),
   );

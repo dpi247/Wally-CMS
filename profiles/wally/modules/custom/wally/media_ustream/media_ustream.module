@@ -19,11 +19,11 @@ include_once('includes/media_ustream.variables.inc');
 function media_ustream_menu() {
   return array(
     'admin/settings/media_ustream' => array(
-      'title' => 'Media: Ustream',
-      'description' => 'Administer the Media: Ustream module.',
+      'title' => t('Media: Ustream'),
+      'description' => t('Administer the Media: Ustream module.'),
       'page callback' => 'drupal_get_form',
       'page arguments' => array('media_ustream_settings'),
-      'access arguments' => array('administer site configuration'),
+      'access arguments' => array('administer external medias'),
       'file' => 'includes/media_ustream.admin.inc',
     ),
   );

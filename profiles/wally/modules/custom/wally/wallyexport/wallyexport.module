@@ -7,20 +7,20 @@ function wallyexport_menu() {
   $items = array();
   
   $items['admin/wally/wallyexport/settings'] = array(
-    'title'            => 'Wally Export Settings',
+    'title'            => t('Wally Export Settings'),
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('wallyexport_page_admin_form'),
-    'access arguments' => array('access administration pages'),
-    'description'      => 'Allows administrators to set paramaters for this module to function properly.',
+    'access arguments' => array('administer wally export'),
+    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'             => 'includes/wallyexport.admin.inc',
   );
   
   $items['admin/wally/wallyexport/export'] = array(
-    'title'            => 'Export packages',
+    'title'            => t('Export packages'),
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('wallyexport_page_export_form'),
-    'access arguments' => array('access administration pages'),
-    'description'      => 'Export packages to zipped xml files.',
+    'access arguments' => array('export content'),
+    'description'      => t('Export packages to zipped xml files.'),
     'file'             => 'includes/wallyexport.admin.inc',
   );
   

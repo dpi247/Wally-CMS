@@ -7,17 +7,17 @@ function wallystat_menu() {
   $items = array();
   
   $items['admin/wally/wallystat/settings'] = array(
-    'title' => 'Wally Statistics Settings',
+    'title' => t('Wally Statistics Settings'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallystat_page_admin_form'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer statistics'),
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallystat.admin.inc',
   );
   
   $items['wallystat/showstats'] = array(
     'page callback' => 'wallystat_show_stats',
-    'access arguments' => array('access content'),
+    'access arguments' => array('access statistics'),
     'type' => MENU_CALLBACK,
   );
   
