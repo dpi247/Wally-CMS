@@ -3,9 +3,11 @@ var short_str_to_replace = "tid";
 Drupal.behaviors.destinationForm = function(context) {
 	$(document).ready(function() {
 		var one_taxo = $(".tid:first").attr("id");
-		var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
-		if (last_char.match('^(0|[1-9][0-9]*)$')) {
-			short_str_to_replace = "tid-"+last_char;
+		if (typeof one_taxo != "undefined") {
+			var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
+			if (last_char.match('^(0|[1-9][0-9]*)$')) {
+				short_str_to_replace = "tid-"+last_char;
+			}
 		}
 		shortUpdateList();
 	});

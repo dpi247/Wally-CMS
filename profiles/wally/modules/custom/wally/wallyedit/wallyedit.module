@@ -32,7 +32,7 @@ function wallyedit_menu(){
   // Original display fields admin
   $items['admin/content/wallydisplayfields'] = array(
     'page callback'=>'wallyedit_node_overview_page',
-    'access arguments' => array('administer content types'),
+    'access arguments' => array('administer edition interface'),
     'file'=>'includes/page_form_display_fields.inc',
     'title'=> t('WallyEdit - Display all fields'),
     'Description'=> t('Display all fields and not only CCK fields.'),
@@ -40,7 +40,7 @@ function wallyedit_menu(){
   
   $items['admin/content/wallydisplayfields/general'] = array(
     'page callback'=>'wallyedit_node_overview_page',
-    'access arguments' => array('administer content types'),
+    'access arguments' => array('administer edition interface'),
     'file'=>'includes/page_form_display_fields.inc',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title'=> t('General'),
@@ -51,7 +51,7 @@ function wallyedit_menu(){
   $items['admin/content/wallydisplayfields/exportvars'] = array(
     'title'=>t('Export Vars'),
     'page callback'=>'export_vars_admin',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer edition interface'),
     'page arguments' => array('wallyedit'),
     'type' => MENU_LOCAL_TASK,
     'file path' => drupal_get_path('module', 'wallyadmin'),
@@ -61,7 +61,7 @@ function wallyedit_menu(){
   $items['admin/content/wallydisplayfields/importvars'] = array(
     'title'=>t('Import Vars'),
     'page callback'=>'import_vars_admin',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer edition interface'),
     'type' => MENU_LOCAL_TASK,
     'file path' => drupal_get_path('module', 'wallyadmin'),
     'file' => 'includes/searchvars.admin.inc',
@@ -73,7 +73,7 @@ function wallyedit_menu(){
       'title' => $type->name,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('wallyedit_form_display_fields_form', $type),
-      'access arguments' => array('administer content types'),
+      'access arguments' => array('administer edition interface'),
       'file' => 'includes/page_form_display_fields.inc',
       'type' => MENU_CALLBACK,
     );
@@ -82,7 +82,7 @@ function wallyedit_menu(){
   // Tabs organisation admin
   $items['admin/content/wallydisplaytabs'] = array(
     'page callback'=>'wallyedit_page_profiles_overview',
-    'access arguments' => array('manage profiles'),
+    'access arguments' => array('manage profiles for edition interface'),
     'file'=>'includes/page_form_display_tabs.inc',
     'title'=> t('WallyEdit - Display all fields into tabs'),
     'Description'=> t('Display all fields and organise them into tabs.'),
@@ -279,14 +279,15 @@ function wallyedit_menu(){
   $items['node/%prenode/deleteglobal/%'] = array(
     'page callback'=>'wallyedit_callback_delete',
     'page arguments'=>array(1, 3),
-    'access arguments' => array('access content'),
+    'access callback' => 'node_access',
+    'access arguments' => array('delete', 1),
     'file'=>'includes/callback_delete.inc',
     'load arguments' => array('%map'),
   );
   
   $items['wallyedit/js_add_more'] = array(
     'page callback' => 'wallyedit_add_more_js',
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer nodes'),
     'file' => 'includes/wallyedit.node_form.inc',
     'type' => MENU_CALLBACK,
   );
@@ -295,7 +296,7 @@ function wallyedit_menu(){
     'title' => 'WallyEdit Views AJAX',
     'page callback' => 'wallyedit_views_ajax',
     'page arguments' => array(3, 4, 5),
-    'access callback' => TRUE,
+    'access callback' => array('administer nodes'),
     'description' => 'Ajax callback for view loading.',
     'file' => 'includes/views_ajax.inc',
     'type' => MENU_CALLBACK,
@@ -303,7 +304,7 @@ function wallyedit_menu(){
   
   $items['wallyedit/test'] = array(
     'page callback' => 'wallyedit_test',
-    'access arguments' => array('access content'),
+    'access arguments' => array('administer nodes'),
     'file' => 'includes/wallyedit.test.inc',
     'type' => MENU_CALLBACK,
   );
@@ -621,7 +622,7 @@ function wallyedit_access($profile_id) {
   // in a static variable.
   if (!isset($perm[$account->uid])) {
     $profile = db_fetch_array(db_query('SELECT * FROM {wallyedit_profiles} WHERE pid = %d', $profile_id));
-    $string = 'manage fields for profile '.$profile['label'];
+    $string = 'manage edition interface for profile '.$profile['label'];
     
     $result = db_query("SELECT p.perm FROM {role} r INNER JOIN {permission} p ON p.rid = r.rid WHERE r.rid IN (". db_placeholders($account->roles) .")", array_keys($account->roles));
 

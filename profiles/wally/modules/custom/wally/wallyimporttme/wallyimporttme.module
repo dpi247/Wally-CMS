@@ -1,5 +1,6 @@
 <?php 
-/*
+
+/**
  * Implementation of hook_wallymport_importer 
  */
 function wallyimporttme_wallymport_importer(){
@@ -41,6 +42,7 @@ function wallyimporttme_create_or_load_message_tme($dom, &$log, $importer, $call
   
   return $node;
 }
+
 /**
  * Process the messages element of a wally DomDocument object.
  * Initiate the node object Call an apropriate function to process the childs of the packages element (package)

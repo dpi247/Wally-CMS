@@ -27,26 +27,27 @@ function warnish_menu() {
   );
   
   $items['admin/wally/warnish'] = array(
-    'title' => 'Warnish settings',
-    'description' => 'Configure your warnish integration.',
+    'title' => t('Warnish settings'),
+    'description' => t('Configure your Varnish integration.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('warnish_admin_settings_form'),
-    'access arguments' => array('administer warnish'),
+    'access arguments' => array('manage cache'),
     'file' => 'includes/warnish.admin.inc',
   );
   
   $items['admin/wally/warnish/general'] = array(
-    'title' => 'General',
-    'description' => 'Configure Varnish servers and cache invalidation settings',
+    'title' => t('General'),
+    'description' => t('Configure Varnish servers and cache invalidation settings'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('manage cache'),
     'weight' => -5,
   );
   
   $items['admin/reports/varnish'] = array(
-    'title' => 'Varnish status',
-    'description' => 'Get the output of warnishstat.',
+    'title' => t('Varnish status'),
+    'description' => t('Get the output of warnishstat.'),
     'page callback' => 'warnish_admin_reports_page',
-    'access arguments' => array('administer warnish'),
+    'access arguments' => array('manage cache'),
     'file' => 'includes/warnish.admin.inc',
   );
 

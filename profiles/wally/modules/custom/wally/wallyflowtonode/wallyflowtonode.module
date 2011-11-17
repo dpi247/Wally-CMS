@@ -18,6 +18,7 @@ function wallyflowtonode_menu() {
   $base = array(
     'access arguments' => array('access administration pages'),
     'file' => 'includes/wallyflowtonode.admin.inc',
+    'access arguments' => array('administer wally flow to node'),
   );
 
   $items['admin/wally/wallyflowtonode'] = $base + array(
@@ -38,8 +39,8 @@ function wallyflowtonode_menu() {
     'title' => t('Add'),
     'description' => t('Add a new feed or edit an existing one.'),
     'page callback' => 'wallyflowtonode_page_admin_add_wizard',
+    'access arguments' => array('administer wally flow to node'),
     'type' => MENU_LOCAL_TASK,
-    'access arguments' => array('access administration pages'),
     'file' => 'includes/wallyflowtonode.add_wizard.inc',
   );
   

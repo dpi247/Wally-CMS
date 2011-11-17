@@ -10,7 +10,7 @@ function wallyflowpublish_menu() {
     'description'       => t('Administer Wally Flow Publish.'),
     'page callback'     => 'drupal_get_form',
     'page arguments'    => array('wallyflowpublish_settings_form'),
-    'access arguments'  => array('access administration pages'),
+    'access arguments'  => array('administer wally flow publish'),
     'file'              => 'includes/wallyflowpublish.admin.inc',
   );
   return $items;
