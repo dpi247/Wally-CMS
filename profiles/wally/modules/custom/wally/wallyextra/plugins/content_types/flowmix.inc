@@ -681,7 +681,7 @@ dsm($form_state, 'form state submit');
 
 function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
-
+dsm('coucou');
   if (!isset($flowmix_item->flows['temp_flow'])) {
     $flowmix_item->flows['temp_flow'] = new stdClass();
     if (isset($flowmix_item->flows[(int)$flowmix_item->index])) {
