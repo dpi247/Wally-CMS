@@ -176,7 +176,6 @@ function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
   cache_clear_all($form_state['values']['caid']);
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = ctools_export_crud_load('wallyextra_flowmix_content', $form_state['subtype']['name']);
-    dsm($content, 'loaded content');
     _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
   } elseif (!empty($form_state['values']['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
@@ -203,7 +202,7 @@ function _wallyextra_flowmix_content_type_edit_save(&$content, $values) {
       $content->settings->{$key} = $values->{$key};
     }
   }
-dsm($content, 'content before save');
+
   ctools_include('export');
   ctools_export_crud_save('wallyextra_flowmix_content', $content);
 }
@@ -629,7 +628,7 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
-dsm($form_state, 'form state submit');
+
   if ((isset($form_state['input']['save']) && !isset($form_state['input']['title']))) {
     // This means no values were posted so we must be in the case where we use a reusable
     $flowmix_item = $form_state['settings'];
@@ -681,7 +680,7 @@ dsm($form_state, 'form state submit');
 
 function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
-dsm('coucou');
+
   if (!isset($flowmix_item->flows['temp_flow'])) {
     $flowmix_item->flows['temp_flow'] = new stdClass();
     if (isset($flowmix_item->flows[(int)$flowmix_item->index])) {
