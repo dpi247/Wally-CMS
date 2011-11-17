@@ -22,6 +22,7 @@ function wallyctools_menu() {
   $base = array(
     'access arguments' => array('reorder destination views'),
     'file' => 'includes/wallyctools.reorder.inc',
+    'accesss arguments' => array('administer nodes'),
   );
   
   $items['admin/wally/wallyctools'] = $base + array(
