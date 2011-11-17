@@ -7,7 +7,7 @@ function wallynlineedition_menu() {
     'title' => t('Inline edition'), 
     'page callback' => 'wallynlineedition_page_inline_edit_form',
     'page arguments' => array(1, 2),
-    'access arguments' => array('edit content'), 
+    'access arguments' => array('administer nodes'), 
     'type' => MENU_CALLBACK,
   );
   

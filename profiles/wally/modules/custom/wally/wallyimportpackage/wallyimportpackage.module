@@ -1,6 +1,6 @@
 <?php 
 
-/*
+/**
  * Implementation of hook_wallymport_importer 
  */
 function wallyimportpackage_wallymport_importer(){
@@ -23,25 +23,26 @@ function wallyimportpackage_wallymport_importer(){
 function wallyimportpackage_menu() {
   $items = array();
   $items['admin/wally/wallyimportpackage/settings'] = array(
-    'title'            => 'Wally Import Package Settings',
+    'title'            => t('Wally Import Package Settings'),
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('wallyimportpackage_page_admin_form'),
-    'access arguments' => array('access administration pages'),
-    'description'      => 'Allows administrators to set paramaters for this module to function properly.',
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'             => 'includes/wallyimportpackage.admin.inc',
   );
   $items['admin/wally/wallyimportpackage/settings/general'] = array(
-    'title'            => 'General',
+    'title'            => t('General'),
     'page callback'    => 'drupal_get_form',
     'page_arguments'   => array('wallyimportpackage_page_admin_form'),
-    'access arguments' => array('access administration pages'),
-    'description'      => 'Allows administrators to set paramaters for this module to function properly.',
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'             => 'includes/wallyimportpackage.admin.inc',
     'weight'           => -3,
     'type'             => MENU_DEFAULT_LOCAL_TASK,
   );
   return $items;
 }
+
 /**
  * Process the packages element of a wally DomDocument object.
  * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
@@ -65,6 +66,7 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   $return['log'] = $log;
   return $return;
 }
+
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 
@@ -126,6 +128,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
   return $return;
 }
+
 /**
  * Create or load a article package depending of external reference.
  * 
@@ -210,7 +213,6 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
   $uid = $importer->default_user;
   $node->uid = $uid;
 }
-
 
 /**
  * Create or load a gallery package depending of external reference.
