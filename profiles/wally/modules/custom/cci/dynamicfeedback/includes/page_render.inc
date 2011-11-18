@@ -2,16 +2,16 @@
 function dynamicfeedback_page_render($package_id){
   $GLOBALS['conf']['cache'] = FALSE;
   $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
-  
+  var_dump($array_of_nodes);
   if(count($array_of_nodes)!=1) {
-    print '';
+    print 'Node doesn\'exist on the wally side';
   }
   else {
     $node=$array_of_nodes[0];
-  }
+  
 
   $full_node=node_load($node->nid);
-
+  
   $comment_count=$full_node->comment;
   $title=$full_node->title;
   $nodeId=$full_node->nid;
@@ -25,4 +25,5 @@ function dynamicfeedback_page_render($package_id){
   );
 
   print theme('dynamicfeedback_page_render',$array);
+  }
 }
