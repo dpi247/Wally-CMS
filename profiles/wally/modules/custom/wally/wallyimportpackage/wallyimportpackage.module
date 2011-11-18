@@ -120,7 +120,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     } else {
       $node->wallymport_node = TRUE;
       node_save($node);
-      dsm($node);
     }
   } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
     wallycontenttypes_delete_orphans_objects($node);
@@ -941,7 +940,6 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObject');
-  dsm($object);
   $node->field_mainstory[0]['nid'] = $object->nid;
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
@@ -1034,7 +1032,6 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $arraytemporaire = array();
   $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
   foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result){
-    dsm($result);
     if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
       $results[$result->nid] = $result->nid;
       $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
