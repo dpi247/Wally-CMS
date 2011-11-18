@@ -103,6 +103,11 @@ function wallymport_menu() {
     'page arguments'   => array(2),
     'type'             => MENU_CALLBACK,
   );
+    $items['wallymport/dynamic_preview_zip'] = array(
+    'page callback'    => 'wallymport_preview_zip',
+    'access callback'  => TRUE,
+    'type'             => MENU_CALLBACK,
+  );
 
   $items['wallymport/destinations_items'] = array(
     'title'            => t('Return a XML list of all available destinations'),
@@ -500,7 +505,9 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   return $form;
 }
 
-
+function wallymport_preview_zip(){
+  return wallymport_post('package');
+}
 
 /**
  * Import files receive by POST
