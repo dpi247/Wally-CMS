@@ -103,6 +103,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
   }
+  dsm($node);
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
@@ -939,6 +940,7 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObject');
+  dsm($object);
   $node->field_mainstory[0]['nid'] = $object->nid;
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
@@ -1031,6 +1033,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $arraytemporaire = array();
   $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
   foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result){
+    dsm($result);
     if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
       $results[$result->nid] = $result->nid;
       $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
