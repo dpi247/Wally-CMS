@@ -506,7 +506,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
 }
 
 function wallymport_preview_zip(){
-  return wallymport_post('package');
+  return wallymport_post('package'); 
 }
 
 /**
