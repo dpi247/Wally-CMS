@@ -781,7 +781,9 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
     wydit_publish_prenode($form_state);
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    drupal_goto("node/".$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //*********
@@ -977,7 +979,9 @@ function wallyedit_form_page_editmode_form_submit(&$form, &$form_state){
     wydit_publish_prenode($form_state);
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
-    drupal_goto('node/'.$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    ctools_ajax_render($commands);
+    return;
   }
 
   //*********
@@ -1186,6 +1190,7 @@ function wydit_subform_global_page_form(&$form_state){
     '#type' => 'submit',
     '#name' => 'publish_global',
     "#value" => t('Save and Publish'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   
   return $form;
@@ -1374,8 +1379,9 @@ function wally_edit_clean_after_build($form){
 
 function _wallyedit_form_page_ctools_validation() {
   _wydit_ctools_include();
-
-  $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+  
+  $commands = array();
+  $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
   ctools_ajax_render($commands);
 }
 
@@ -1907,9 +1913,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
       $new_form_state['cache name']=$old_form_state['cache name'];
       $new_form_state['profile_id'] = $old_form_state['profile_id'];
-
       $new_form_state['type']=$form_state['type'];
-      
 
       //Need that to avoid re-processing of the form (infinite loop)
       $new_form_state['input']=array();
@@ -1919,13 +1923,13 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
 
       break;
     case 'save_global':
-    	      module_load_include("inc",'node','node.pages');
+      module_load_include("inc",'node','node.pages');
     	
       $new_form_state=array();
       $new_form_state['cache name']=$old_form_state['cache name'];
       $new_form_state['profile_id'] = $old_form_state['profile_id'];
       $new_form_state['action']='/node/'.$old_form_state['cache name'].'/wydit_edit/ajax/'.$current_profile;
-      $new_form_state[$form_state['type']]=$form_state[$form_state['type']];
+      $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
       //Need that to avoid re-processing of the form (infinite loop)
       $new_form_state['input']=NULL;
       
@@ -3062,18 +3066,16 @@ function wallyedit_node_operations_selector_action($nodes,$context,$b,$c){
     $element['#node']=$node;
     $element['type']=$node->type;
     
-      //TODO: clean this process to rebuild the form state in a clearer way
+    //TODO: clean this process to rebuild the form state in a clearer way
     if($node->type=="wally_linkslistobject"){
-    	foreach($node->field_links_list as $key=>$link_nid){
-    	$link_node=node_load($link_nid['nid']);
+      foreach($node->field_links_list as $key=>$link_nid){
+        $link_node=node_load($link_nid['nid']);
         $element['field_links_list'][$key]['#node']=$link_node;
         $element['field_links_list'][$key]['type']=$link_node->type;
-    	}
+      }
     }
     
     wydit_add_to_form_state($form_state,$element,$target,TRUE);
-    
-    
   }
 
   wydit_clean_and_save_form_state($form_state);
