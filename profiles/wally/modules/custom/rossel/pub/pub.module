@@ -283,7 +283,7 @@ function _pub_getanalyticcontent() {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getcontentfromwebservice('GA', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
     
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
