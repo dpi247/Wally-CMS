@@ -143,7 +143,7 @@ function theme_wallyctools_form_reorder_destination_form($form){
         $row['data']['#value'],
         $node_types[$row['type']['#value']],
         date('D, d/m/Y - H:i', $row['last_update']['#value']),
-        l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Remove'), 'node/'.$id.'/delete'),
+        l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Delete node'), 'node/'.$id.'/delete'),
       );
 
       //Add the weight field to the row
