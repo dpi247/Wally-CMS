@@ -6,13 +6,28 @@
 function pub_menu() {
   $items = array();
   $items['admin/rossel/pub'] = array(
-    'title' => 'Pub general configuration',
+    'title' => 'Pub adTech configuration',
     'page callback' => 'pub_page_admin',
-    'page arguments' => array('pub_page_admin'),
     'access arguments' => array('access administration pages'),
     'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin.inc',
   );
+    $items['admin/rossel/pub/adtech'] = array(
+    'title' => 'Pub adTech configuration',
+    'page callback' => 'pub_page_admin',
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
+    'file' => 'includes/pub.admin.inc',
+  	'type'=>MENU_LOCAL_TASK,
+    );
+   $items['admin/rossel/pub/openx'] = array(
+    'title' => 'Pub OpenX configuration',
+    'page callback' => 'pub_page_admin_openx',
+    'access arguments' => array('access administration pages'),
+    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
+    'file' => 'includes/pub.admin_openx.inc',
+	'type'=>MENU_LOCAL_TASK,
+   );
   
   $items['admin/rossel/pubcron'] = array(
     'title' => 'Run pub cron',
@@ -208,11 +223,22 @@ function _pub_getpubcontent($delta) {
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
+  
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
-    $website = variable_get('pub_website', '');
-    $script_type = variable_get('pub_provider', 'AdTech');
-    $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    
+    dsm($delta,delta);
+    $block_settings=pub_load_block($delta);
+    
+    $builder="";
+    if($block_settings['builder']=="openx"){
+    $builder="_openx";
+    }
+    
+    $website = variable_get('pub'.$builder.'_website', '');
+    $script_type = variable_get("pub".$builder."_provider", 'AdTech');
+    $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
     
     if ($content_from_webservice) {
       $pub_content = $content_from_webservice;
@@ -283,7 +309,9 @@ function _pub_getanalyticcontent() {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
+    
     
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
@@ -319,7 +347,9 @@ function _pub_getxiticontent() {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getcontentfromwebservice('Xiti', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    
+    $content_from_webservice = _pub_getcontentfromwebservice('Xiti', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
     
     if ($content_from_webservice) {
       $xiti_content = $content_from_webservice;
@@ -355,7 +385,9 @@ function _pub_getmetriwebcontent() {
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    
+    $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
     
     if ($content_from_webservice) {
       $metriweb_content = $content_from_webservice;
@@ -402,7 +434,7 @@ function _pub_getheadercontentfromwebservice($script_type, $website, $page_type,
  * @return
  *   HTML content.
  */
-function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position) {
+function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position,$pub_webserv) {
   $expl_website = explode('_', $website);
   $domain = $_SERVER['HTTP_HOST'];
   $params = array(
@@ -413,7 +445,7 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  $content = drupal_http_request(variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail').$req_url);
+  $content = drupal_http_request($pub_webserv.$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
 }
 
@@ -502,4 +534,19 @@ function _pub_get_path_to_item($menu_step, $link_path) {
     }
   }
   return 'not found';
+}
+/*
+ * 
+ * Return an entry from the zz_pub_UMI
+ * @param string $delta
+ *   The block delta croorepsponding to the position column
+ *  
+ * @return
+ *   Return the database entry as an array or FALSE
+ * 
+ */
+function pub_load_block($delta){
+  $query='SELECT * FROM {zz_pub_UMI} where position = "%s"';
+  $result = db_fetch_array(db_query($query,$delta));
+  return $result;
 }

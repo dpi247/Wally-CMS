@@ -204,6 +204,13 @@ function pub_blocks_admin_form(&$form_state) {
     '#type' => 'radios',
     '#options' => array(),
   );
+  $form['new_block']['builder'] = array(
+    '#type' => 'select',
+    '#title' => t('Builder'),
+    '#default_value' => 'adtech',
+    '#options' => array('AdTech'=>"Ad Tech",'openx'=>"OpenX"),
+    '#required' => TRUE,
+  );
   
   $form['new_block']['page'] = array(
     '#type' => 'textfield',

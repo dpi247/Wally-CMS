@@ -36,6 +36,13 @@ function pub_schema() {
         'description' => 'A database primary key to ensure uniqueness',
         'not null' => TRUE,
       ),
+      'builder' => array(
+        'type' => 'varchar',
+        'length'=>255,
+        'description' => 'Builder such as OpenAd or AdTech',
+        'default' => 'adtech',
+      
+      ),
       'page' => array(
         'type' => 'text',
         'description' => 'Page name.',
@@ -79,4 +86,23 @@ function pub_schema() {
   );
   
   return $schema;
+}
+
+/**
+ * Implementation of hook_update_N().
+ * Add topic_destination field to term_data table
+ */
+function pub_update_6001() {
+  $ret = array();
+  $spec = array(
+    'type' => 'varchar',
+          'length' => 255,
+  
+    'description' => 'Tells if a term has been elected as destination and gives the related tid.',
+    'not null' => TRUE, 
+    'default' => "adtech",
+  );
+  db_add_field($ret, 'zz_pub_UMI', 'builder', $spec);
+  db_query("UPDATE {zz_pub_UMI} SET builder = 'adtech'");
+  return $ret;
 }
