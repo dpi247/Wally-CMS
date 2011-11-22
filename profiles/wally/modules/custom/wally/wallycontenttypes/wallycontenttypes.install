@@ -130,7 +130,7 @@ function wallycontenttypes_schema() {
 }
 
 function wallycontenttypes_update_6100(&$sandbox) {
-	$imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
+  $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
   $imagecacheaction = new stdClass ();
   $imagecacheaction->presetid = $imagecachepreset['presetid'];
   $imagecacheaction->module = 'wallycontenttypes';
