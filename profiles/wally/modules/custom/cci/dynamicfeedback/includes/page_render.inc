@@ -21,7 +21,7 @@ function dynamicfeedback_page_render($package_id){
      'comment_count' => $comment_count,
      'nodeId' => $nodeId,
      'base_url' => $_SERVER['HTTP_HOST'],
-     'stat_graph'=> wallystat_show_stats_with_return(),
+ //    'stat_graph'=> wallystat_show_stats_with_return(),
   );
 
   print theme('dynamicfeedback_page_render',$array);
