@@ -1,9 +1,0 @@
-core = "6.x"
-name = "Wally Import TME"
-description = "Importation of TME"
-package = "Wally"
-project = "Wally"
-version = "6.x-1.0-rc1"
-
-dependencies[] = "wallymport"
-dependencies[] = "wallyimportpackage"
