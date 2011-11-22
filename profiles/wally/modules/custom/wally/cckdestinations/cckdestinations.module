@@ -86,6 +86,12 @@ function cckdestinations_action_info() {
       'configurable' => TRUE,
       'hooks'=> array('any'=>TRUE),
     ),
+    'cckdestinations_batch_dest_remove' => array(
+      'type' => 'node',
+      'description' => t('Remove destination'),
+      'configurable' => FALSE,
+      'hooks'=> array('any'=>TRUE),
+    ),
   );
 }
 
@@ -612,14 +618,13 @@ function cckdestinations_batch_dest_submit($form, $form_state){
 }
 
 /**
- * Process of changing a destination to a list of nodes.
+ * Process of changing a destination from a list of nodes.
  * 
  * @param array $nodes
  *   Array of nid.
  */
 function cckdestinations_batch_dest_change($node, $context, $a, $b) {
   $node = node_load($node->nid);
-  
   $tid = $context['view']['arguments'][0];
   $target = $context['view']['arguments'][1];
   $posted_dest = $context['new_dest'];
@@ -633,8 +638,32 @@ function cckdestinations_batch_dest_change($node, $context, $a, $b) {
       break;
     }
   }
-  
+
   node_save($node);
+}
+
+/**
+ * Process of removing a destination from a list of nodes.
+ * 
+ * @param array $nodes
+ *   Array of nid.
+ */
+function cckdestinations_batch_dest_remove($node, $context, $a, $b) {
+  $node = node_load($node->nid);
+  $tid = $context['view']['arguments'][0];
+  $target = $context['view']['arguments'][1];
+  
+  if (count($node->field_destinations) > 1) {
+    foreach ($node->field_destinations as $delta => $dest) {
+      if ($dest['tid'] == $tid && $dest['target'] == $target) {
+        unset($node->field_destinations[$delta]);
+        break;
+      }
+    }
+    node_save($node);
+  } else {
+    drupal_set_message(t('Node "@title" (nid: @nid) has only this destination, impossible to remove!', array('@title' => $node->title, '@nid' => $node->nid)), 'error');
+  }
 }
 
 /**
