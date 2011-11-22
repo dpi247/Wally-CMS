@@ -469,8 +469,6 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
       '#name'          => 'save',
     );
     
-    $form_state['conf']['flow_obj'] = $settings;
-    
     return; // no form for this case.
   }
 
@@ -674,7 +672,6 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
     unset($flowmix_item->flows[str_replace('delete_', '', $form_state['clicked_button']['#name'])]);
     $form_state['clicked_button']['#next'] = 'step1';
     $form_state['rebuild'] = TRUE;
-    //unset($form_state['input']);
   }
   elseif (strpos($form_state['clicked_button']['#name'], 'edit') !== false) {
     if ($form_state['step'] == 'step1') {
