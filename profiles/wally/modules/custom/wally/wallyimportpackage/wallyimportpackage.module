@@ -103,6 +103,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
   }
+  
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
