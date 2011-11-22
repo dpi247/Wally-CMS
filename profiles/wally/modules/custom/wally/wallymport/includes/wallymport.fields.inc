@@ -1311,14 +1311,14 @@ function wimprt_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $importer);
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, '', $importer);
     
     
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emimage');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
@@ -1393,7 +1393,7 @@ function wimprt_process_object_audioobjecttype(&$node, $dom, &$log, $importer){
 
   $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emaudio');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
+    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri,'', $importer);
   } else {//Is a 3rd party
     $node->field_audio3rdparty[0]['embed']=$file_uri;
   }
@@ -1465,7 +1465,7 @@ function wimprt_process_object_videoobjecttype(&$node, $dom, &$log, $importer){
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
   $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emvideo');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
+    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri,'', $importer);
   } else {//Is a 3rd party
     $node->field_video3rdparty[0]['embed'] = $file_uri;
   }
@@ -1542,7 +1542,7 @@ function wimprt_process_object_digitalobjecttype(&$node, $dom, &$log, $importer)
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   $rdpartyMatch = emfield_parse_embed(null,$file_uri, 'emother');  
   if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri, $importer);
+    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri,'', $importer);
   } else {//Is a 3rd party
     $node->field_object3rdparty[0]['embed'] = $file_uri;
   }
@@ -1573,7 +1573,7 @@ function wimprt_process_object_digitalobjecttype(&$node, $dom, &$log, $importer)
  */
 function wimprt_set_field_thumbnail(&$node, $dom, &$log, $importer){
   $thumbnail = $dom->nodeValue;
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail, $importer);
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail,'', $importer);
 }
 
 /**
