@@ -12,22 +12,24 @@ function pub_menu() {
     'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin.inc',
   );
-    $items['admin/rossel/pub/adtech'] = array(
+
+  $items['admin/rossel/pub/adtech'] = array(
     'title' => 'Pub adTech configuration',
     'page callback' => 'pub_page_admin',
     'access arguments' => array('access administration pages'),
     'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin.inc',
   	'type'=>MENU_LOCAL_TASK,
-    );
-   $items['admin/rossel/pub/openx'] = array(
+  );
+
+  $items['admin/rossel/pub/openx'] = array(
     'title' => 'Pub OpenX configuration',
     'page callback' => 'pub_page_admin_openx',
     'access arguments' => array('access administration pages'),
     'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin_openx.inc',
 	'type'=>MENU_LOCAL_TASK,
-   );
+  );
   
   $items['admin/rossel/pubcron'] = array(
     'title' => 'Run pub cron',
@@ -223,16 +225,15 @@ function _pub_getpubcontent($delta) {
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$orig_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
-  
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     
-    dsm($delta,delta);
+    //@TODO: DDU : clean code
     $block_settings=pub_load_block($delta);
     
     $builder="";
     if($block_settings['builder']=="openx"){
-    $builder="_openx";
+      $builder="_openx";
     }
     
     $website = variable_get('pub'.$builder.'_website', '');
@@ -311,7 +312,6 @@ function _pub_getanalyticcontent() {
     $website = variable_get('pub_website', '');
     $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
     $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
-    
     
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
@@ -434,7 +434,7 @@ function _pub_getheadercontentfromwebservice($script_type, $website, $page_type,
  * @return
  *   HTML content.
  */
-function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position,$pub_webserv) {
+function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position, $pub_webserv) {
   $expl_website = explode('_', $website);
   $domain = $_SERVER['HTTP_HOST'];
   $params = array(
@@ -535,6 +535,7 @@ function _pub_get_path_to_item($menu_step, $link_path) {
   }
   return 'not found';
 }
+
 /*
  * 
  * Return an entry from the zz_pub_UMI

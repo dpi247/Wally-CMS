@@ -41,7 +41,6 @@ function pub_schema() {
         'length'=>255,
         'description' => 'Builder such as OpenAd or AdTech',
         'default' => 'adtech',
-      
       ),
       'page' => array(
         'type' => 'text',
@@ -96,8 +95,7 @@ function pub_update_6001() {
   $ret = array();
   $spec = array(
     'type' => 'varchar',
-          'length' => 255,
-  
+    'length' => 255,
     'description' => 'Tells if a term has been elected as destination and gives the related tid.',
     'not null' => TRUE, 
     'default' => "adtech",

@@ -82,13 +82,12 @@ $content='<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/T
 
 // background-color: #497CC9;
 
-if($array_of_informations['nodeId']==""){
+  if($array_of_informations['nodeId']==""){
 	$content.="<div><span>Package doesn't exist on the Wall-iMedia side</span></div>";
-	
-}
-else{
-$content.='<div><span><a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">,'.$array_of_informations['title'].'</a> <a>Comments: '.$array_of_informations['comment_count'].'</a> '.$array_of_informations['stat_graph'].'</span></div>';
-}
+  }
+  else{
+    $content.='<div><span><a href="http://'.$array_of_informations['base_url'].'/node/'.$array_of_informations['nodeId'].'" onClick="return popup(this, \'Wally_web_page\');">,'.$array_of_informations['title'].'</a> <a>Comments: '.$array_of_informations['comment_count'].'</a> '.$array_of_informations['stat_graph'].'</span></div>';
+  }
 //$content.='<div>, title: '.$array_of_informations['title'].' ';
 //$content.='<script>
 //var msg = \'Comments: '.$array_of_informations['comment_count'].'\'
@@ -101,7 +100,6 @@ $content.='<div><span><a href="http://'.$array_of_informations['base_url'].'/nod
 
 //  $content.='<div>'.$array_of_informations['title'].'</div>';
 //  $content.='<div>'.$array_of_informations['comment_count'].'</div>';
-$content.='</body></html>';
+  $content.='</body></html>';
   return $content;
-
 }

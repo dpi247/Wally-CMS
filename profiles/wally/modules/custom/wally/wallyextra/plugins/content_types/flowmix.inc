@@ -441,8 +441,20 @@ function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
 }
 
 function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state) {
-  if (isset($form_state['conf']['flow_obj']) && !empty($form_state['conf']['flow_obj']) && sizeof($form_state['input']) > 3 && isset($form_state['input']['conf']) && !isset($form_state['input']['save']))
-    $form_state['subtype']['content']->settings = $form_state['conf']['flow_obj'];
+  //@TODO: ODM : refactorisation
+  if (isset($form_state['conf']['flow_obj']) && !empty($form_state['conf']['flow_obj'])) {
+    // Il y qqchose dans le flow_obj
+    if (sizeof($form_state['input']) > 3) {
+      // L'input de taille 2 indique qu'on vient du choix du content type
+      if (isset($form_state['input']['conf']) || isset($form_state['input']['save']) || in_array('Add a new flow', $form_state['input']) || in_array('Remove', $form_state['input']) || in_array('Edit', $form_state['input'])) {
+        // On ne veut pas passer ici au save
+        if (!empty($form_state['conf']['flow_obj']->flows)) {
+          // Juste pour être sur que ce n'est pas les valeurs par défaut (cas de la réutilisation)
+          $form_state['subtype']['content']->settings = $form_state['conf']['flow_obj'];
+        }
+      }
+    }
+  }
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $form_state['settings'] = $settings;
 
@@ -474,7 +486,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
       '#value'         => t('Remove'),
       '#wizard type'   => 'next',
       '#name'          => 'delete_'.$key,
-      '#next'          => 'step2'
+      '#next'          => 'step1'
     );
 
     $form['flows'][$key]['title']=array(
@@ -659,6 +671,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
   if (strpos($form_state['clicked_button']['#name'], 'delete') !== false) {
     unset($flowmix_item->flows[str_replace('delete_', '', $form_state['clicked_button']['#name'])]);
     $form_state['clicked_button']['#next'] = 'step1';
+    $form_state['rebuild'] = TRUE;
   }
   elseif (strpos($form_state['clicked_button']['#name'], 'edit') !== false) {
     if ($form_state['step'] == 'step1') {
@@ -856,7 +869,7 @@ function wallyextra_flowmix_content_type_form_pluginspecific_form_submit(&$form,
 }
 
 function theme_wallyextra_flowmix_content_type_form_summary_form($form){
-  foreach(element_children($form['flows']) as $key=>$flow_form){
+  foreach(element_children($form['flows']) as $key){
     $rows[] = array(
       drupal_render($form['flows'][$key]['title']),
       drupal_render($form['flows'][$key]['edit_action']).drupal_render($form['flows'][$key]['delete_action']),

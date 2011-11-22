@@ -204,6 +204,7 @@ function pub_blocks_admin_form(&$form_state) {
     '#type' => 'radios',
     '#options' => array(),
   );
+
   $form['new_block']['builder'] = array(
     '#type' => 'select',
     '#title' => t('Builder'),
