@@ -296,7 +296,7 @@ function wallyedit_menu(){
     'title' => 'WallyEdit Views AJAX',
     'page callback' => 'wallyedit_views_ajax',
     'page arguments' => array(3, 4, 5),
-    'access callback' => array('administer nodes'),
+    'access arguments' => array('administer nodes'),
     'description' => 'Ajax callback for view loading.',
     'file' => 'includes/views_ajax.inc',
     'type' => MENU_CALLBACK,
