@@ -1,5 +1,6 @@
 <?php
 
+module_load_include('module','chart');
 $href_value = $_GET['hrefvalue'];
 $node_path = drupal_get_normal_path(trim($href_value, '/'));
 $expl_path = explode('/', $node_path);

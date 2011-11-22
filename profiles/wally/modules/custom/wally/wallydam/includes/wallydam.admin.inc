@@ -10,8 +10,8 @@
  * Settings form.
  */
 function wallydam_page_admin_form($form_state) {
- 
-  
+  $form = array();
+
   $form['wallydam_updateurl'] = array(
     '#type' => 'textfield',
     '#title' => t('URL to send the informations of the node'),
@@ -21,6 +21,7 @@ function wallydam_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+
   $form['wallydam_updatepackageurl'] = array(
     '#type' => 'textfield',
     '#title' => t('URL to send the updated packages'),
@@ -30,6 +31,7 @@ function wallydam_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+
   $form['wallydam_cronmaxnumber'] = array(
     '#type' => 'textfield',
     '#title' => t('Maximum number of packages sent in a post'),
@@ -39,6 +41,7 @@ function wallydam_page_admin_form($form_state) {
     '#maxlenght' => 512,
     '#required' => TRUE,
   );
+
   $form['wallydam_wallyprefix'] = array(
     '#type' => 'textfield',
     '#title' => t('Wally Prefix'),
@@ -48,6 +51,7 @@ function wallydam_page_admin_form($form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+
   return system_settings_form($form);
 }
 
@@ -55,8 +59,6 @@ function wallydam_page_admin_form($form_state) {
  * Validate function for the settings form.
  */
 function wallydam_page_admin_form_validate($form, &$form_state) {
-  
-  
   if (!is_numeric($form_state['values']['wallydam_cronmaxnumber'])){
     form_set_error('wallydam_cronmaxnumber', t('The maximum number of packages must be a numeric value'));
   }

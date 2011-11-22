@@ -7,12 +7,14 @@ function wallydam_uninstall(){
   drupal_uninstall_schema('wallydam');
   wallytoolbox_variable_del_like('wallydam_');
 }
+
 /**
  * Implementation of hook_install().
  */
 function wallydam_install() {
   drupal_install_schema('wallydam');
 }
+
 /**
  * Implementation of hook_schema().
  */
