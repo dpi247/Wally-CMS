@@ -88,7 +88,7 @@ function wallymport_menu() {
     'type'             => MENU_CALLBACK,
   );
   
-  $items['wallymport/process_file/%/%'] = array(
+  $items['wallymport/process_file/%/%/run'] = array(
     'title'            => t('Run one XML Import'),
     'description'      => t('Run one import'),
     'page callback'    => 'wallymport_check_process_file',
