@@ -1,0 +1,8 @@
+core = "6.x"
+name = "Wally Dam"
+description = "Export data to DAM"
+package = "Wally"
+project = "Wally"
+version = "6.x-1.0-rc1"
+
+dependencies[] = "wallytoolbox"
