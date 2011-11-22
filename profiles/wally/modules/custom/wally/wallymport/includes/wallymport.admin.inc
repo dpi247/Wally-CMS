@@ -328,6 +328,7 @@ function wallymport_page_admin(){
         if ($importer->processed_by_post == 1){
           $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
         }
+        
         $rows[] = array(
           $importer->importer_type, 
           $importer->name, 
