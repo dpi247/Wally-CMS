@@ -1,0 +1,32 @@
+<?php
+// $Id: media_dailymotion.install,v 1.0 2011/01/07 ODM $
+
+/**
+ * @file
+ * This is Media: dailymotion's installation, configuration, and removal file.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function media_dailymotion_install() {
+  // Ensure we have the required variable namespace.
+  drupal_load('module', 'media_dailymotion');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function media_dailymotion_uninstall() {
+  foreach (media_dailymotion_variable_default() as $variable => $value) {
+    media_dailymotion_variable_del($variable);
+  }
+  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: dailymotion namespace."));
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function media_dailymotion_disable() {
+  cache_clear_all('*', 'cache_media_dailymotion_status', TRUE);
+}
