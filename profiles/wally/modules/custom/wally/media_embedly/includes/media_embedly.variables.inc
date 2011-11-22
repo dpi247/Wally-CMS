@@ -134,14 +134,9 @@ function media_embedly_variable_default($name = NULL) {
       'allowed_video_url' => 'http://*justin.tv/*
 http://*justin.tv/*/b/*
 http://*justin.tv/*/w/*
-http://www.ustream.tv/recorded/*
-http://www.ustream.tv/channel/*
-http://www.ustream.tv/*
 http://qik.com/video/*
 http://qik.com/*
 http://qik.ly/*
-http://*.dailymotion.com/video/*
-http://*.dailymotion.com/*/video/*
 http://www.collegehumor.com/video:*
 http://vids.myspace.com/index.cfm?fuseaction=vids.individual&videoid*
 http://www.myspace.com/index.cfm?fuseaction=*&videoid*
@@ -518,7 +513,11 @@ http://www.saynow.com/playMsg.html*
 http://www.saynow.com/playMsg.html*
 http://listen.grooveshark.com/s/*', 
     );
-    
+    //http://www.ustream.tv/recorded/*
+//http://www.ustream.tv/channel/*
+//http://www.ustream.tv/*
+//http://*.dailymotion.com/video/*
+//http://*.dailymotion.com/*/video/*    
   }
 
   if (!isset($name)) {
