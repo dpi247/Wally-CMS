@@ -813,6 +813,24 @@ function rrmdir($dir) {
 }
 
 /**
+ * Transform a stdClass object to another class
+ */
+function dirty_cast($obj, $to_class, $require = FALSE) {
+  if ($require) {
+    require_once $require;
+  }
+  
+  if(class_exists($to_class)) {
+    $obj_in = serialize($obj);
+    $obj_out = 'O:' . strlen($to_class) . ':"' . $to_class . '":' . substr($obj_in, $obj_in[2] + 7);
+    return unserialize($obj_out);
+  }
+  else {
+    return false;
+  }
+}
+
+/**
  * Recursively compare two arrays.
  * For two arrays ($a and $b), arrayRecursiveDiff($a, $b) is not equal to arrayRecursiveDiff($b, $a)
  */
