@@ -97,6 +97,11 @@ function dmemcache_add($key, $value, $exp = 0, $bin = 'cache', $mc = NULL, $flag
 function dmemcache_get($key, $bin = 'cache') {
   global $_memcache_statistics;
   $full_key = dmemcache_key($key, $bin);
+  
+  // DLA
+  watchdog("memcache", "key:".$key);
+  watchdog("memcache", "full_key:".$full_key);
+  
   $statistics = array('get', $bin, $full_key);
   $success = '0';
   if ($mc = dmemcache_object($bin)) {
@@ -107,6 +112,7 @@ function dmemcache_get($key, $bin = 'cache') {
     return $result;
   }
 }
+
 
 /**
  * Retrieve multiple values from the cache.
