@@ -100,7 +100,7 @@ function dmemcache_get($key, $bin = 'cache') {
 
   if (function_exists("watchdog")) {  
 	// DLA
-  	watchdog("memcache", print_r("key:".$key,TRUE));
+  	//watchdog("memcache", print_r("key:".$key,TRUE));
   	//watchdog("memcache", "full_key:".$full_key);
   }
   
