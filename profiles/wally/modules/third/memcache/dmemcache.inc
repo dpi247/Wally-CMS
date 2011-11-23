@@ -97,10 +97,12 @@ function dmemcache_add($key, $value, $exp = 0, $bin = 'cache', $mc = NULL, $flag
 function dmemcache_get($key, $bin = 'cache') {
   global $_memcache_statistics;
   $full_key = dmemcache_key($key, $bin);
-  
-// DLA
-//watchdog("memcache", $_SERVER['SERVER_NAME']."key:".$key);
-//watchdog("memcache", $_SERVER['SERVER_NAME']."full_key:".$full_key);
+
+ if (function_exists("watchdog")) {
+	// DLA
+	watchdog("memcache", $_SERVER['SERVER_NAME']."key:".$key);
+	watchdog("memcache", $_SERVER['SERVER_NAME']."full_key:".$full_key);
+ }
   
   $statistics = array('get', $bin, $full_key);
   $success = '0';
