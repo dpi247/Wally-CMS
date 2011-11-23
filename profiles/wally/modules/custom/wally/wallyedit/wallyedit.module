@@ -1443,7 +1443,7 @@ function wydit_subform_global_page_submit(&$form_state){
       }
     }
   }
-  
+
   $a=array();
   $a[$form_state['type']]['#node']=(object)(wydit_merge_arrays((array)$form_state[$form_state['type']]['#node'], (array)node_submit($form_state['values'][$form_state['type']])));
   $a['type']=$form_state['type'];
@@ -1486,6 +1486,7 @@ function wydit_subform_global_page_submit(&$form_state){
       }
     }
   }
+
   if (isset($a[$a['type']]['#node']->field_destinations)) {
     _cckdestinations_reorder_values(NULL, $a[$a['type']]['#node']->field_destinations);
   }
@@ -3089,7 +3090,7 @@ function wydit_merge_arrays() {
     }
     foreach ($array as $key => $value) {
       if (is_string($key) || is_numeric($key)) {
-        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
+        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]) && !array_key_exists($key.'_add_more', $value)) {
           $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value);
         } else {
           $merged[$key] = $value;
