@@ -1700,6 +1700,9 @@ function menu_rebuild() {
     return FALSE;
   }
 
+  // DLA
+  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre>" );
+  
   // Encapsulate the rebuild in a transaction.
   db_query('BEGIN');
 
