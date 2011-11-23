@@ -99,8 +99,8 @@ function dmemcache_get($key, $bin = 'cache') {
   $full_key = dmemcache_key($key, $bin);
 
 	// DLA
-//	print("<!-- memcache:".$_SERVER['SERVER_NAME']."-key:".$key." -->);
-//	print("<!-- memcache:".$_SERVER['SERVER_NAME']."-full_key:".$full_key." -->");
+print("<!-- memcache:".$_SERVER['SERVER_NAME']."-key:".$key." -->");
+print("<!-- memcache:".$_SERVER['SERVER_NAME']."-full_key:".$full_key." -->");
   
   $statistics = array('get', $bin, $full_key);
   $success = '0';
