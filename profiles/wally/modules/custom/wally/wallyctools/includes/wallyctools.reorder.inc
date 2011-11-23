@@ -74,27 +74,22 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
   if ($target && $destination_tid) {
     $view_infos = wallyctools_get_view_info_from_redacblock($target);
     $view = views_get_view($view_infos['view_name']);
-    $view->set_display($view_infos['view_id']);
     
-    $options = array(
-      'operator' => 'in',
-      'value' => array($target),
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'relationship' => 'none',
+    $conf = array(
+      'override_pager_settings' => TRUE,
+      'nodes_per_page' => $limit,
+      'offset' => 0,
+      'use_pager' => FALSE,
+      'pager_id' => 0,
+      'more_link' => FALSE,
+      'url' => FALSE,
     );
-
-    $view->add_item($view_infos['view_id'], 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
-    $view->set_arguments(array($destination_tid, $target));
-    $view->set_items_per_page($limit);
+    wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $target, array($destination_tid), $conf);
+    
     $view->execute();
     $results = $view->result;
     $view->destroy();
-  
+
     $form = array("#tree" => true);
   
     foreach ($results as $j => $result) {
