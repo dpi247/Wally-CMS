@@ -444,8 +444,6 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
   $content = drupal_http_request($pub_webserv.$req_url);
-  echo ">data :".$content->data."****<br/>";
-
   return ($content->code == '200') ? $content->data : FALSE;
 }
 
