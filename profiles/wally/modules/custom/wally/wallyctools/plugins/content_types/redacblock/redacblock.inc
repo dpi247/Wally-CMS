@@ -246,58 +246,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
   $view = views_get_view($view_name);
 
-  $view->set_display($view_id);
-
-  $options = array(
-    'operator' => 'in',
-    'value' => array($redacblock_name),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'relationship' => 'none',
-  );
-
-  //$view->display_handler->get_handlers('argument')
-
-  $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
-  $view->is_cacheable = FALSE;
-  //init handler should be placed after add_item !!!
-  $view->init_handlers();
-
-  //$view->display[$view_id]->handler->handlers['filter']['t']=$options;
-  //$view->set_item($view_name, 'filter', $name, $item);
-
-  $block->delta  = $view_name .'-'.  $view_id;
-
-  /*$handler->override_option('filters', array(
-    'des_target' => array(
-      'operator' => '=',
-      'value' => 'primary_list',
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'id' => 'status',
-      'table' => 'node',
-      'field' => 'status',
-      'relationship' => 'none',
-      ),
-    )
-  );*/
-
-  if (empty($view) || !is_object($view) || empty($view->display_handler)) {
-    return;
-  }
-
-  if (!$view->display_handler->access($GLOBALS['user'])) {
-    return;
-  }
-
   $arguments = explode('/', $_GET['q']);
   $args = $conf['args'];
   foreach ($arguments as $id => $arg) {
@@ -334,79 +282,42 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-  
-  $view->set_arguments($args);
 
-  if ($conf['url']) {
-    $view->override_path = $conf['url'];
-  }
+  if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
+    $block = new stdClass();
+    $block->module = 'views';
+    $block->delta  = $view->name .'-'.  $view->current_display;
 
-  $block = new stdClass();
-  $block->module = 'views';
-  $block->delta  = $view->name .'-'.  $view->current_display;
+    if (!empty($conf['link_to_view'])) {
+      $block->title_link = $view->get_url();
+    }
 
-  if (!empty($conf['link_to_view'])) {
-    $block->title_link = $view->get_url();
-  }
+    if (!empty($conf['more_link'])) {
+      $block->more = array('href' => $view->get_url());
+    }
+    
+    $stored_feeds = drupal_add_feed();
+    $block->content = $view->preview();
+    $block->title = $view->get_title();
 
-  if (!empty($conf['more_link'])) {
-    $block->more = array('href' => $view->get_url());
-    $view->display_handler->set_option('use_more', FALSE);
-  }
+    if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
+      return;
+    }
 
-  // Only set use_pager if they differ, this way we can avoid overwriting the
-  // pager type that Views uses.
-  if ($conf['override_pager_settings']) {
-    if (method_exists($view, 'init_pager')) {
-      // Views 3 version
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->set_offset($conf['offset']);
-
-      $pager = $view->display_handler->get_option('pager');
-      if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
-        $pager['type'] = 'full';
-      }
-      elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
-        $pager['type'] = $view->get_items_per_page() ? 'some' : 'none';
-      }
-
-      if ($conf['use_pager']) {
-        if (!isset($pager['options']['id']) || $pager['options']['id'] != $conf['pager_id']) {
-          $pager['options']['id'] = $conf['pager_id'];
+    if (!empty($conf['feed_icons'])) {
+      $new_feeds = drupal_add_feed();
+      if ($diff = array_diff(array_keys($new_feeds), array_keys($stored_feeds))) {
+        foreach ($diff as $url) {
+          $block->feeds[$url] = $new_feeds[$url];
         }
       }
-
-      $view->display_handler->set_option('pager', $pager);
     }
-    else {
-      if (!$view->display_handler->get_option('use_pager') || empty($conf['use_pager'])) {
-        $view->display_handler->set_option('use_pager', $conf['use_pager']);
-      }
-      $view->display_handler->set_option('pager_element', $conf['pager_id']);
-      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
-      $view->display_handler->set_option('offset', $conf['offset']);
-    }
-  }
 
-  $stored_feeds = drupal_add_feed();
-  $block->content = $view->preview();
-  $block->title = $view->get_title();
-
-  if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
+    $view->destroy();
+    return $block;
+  } else {
     return;
   }
-
-  if (!empty($conf['feed_icons'])) {
-    $new_feeds = drupal_add_feed();
-    if ($diff = array_diff(array_keys($new_feeds), array_keys($stored_feeds))) {
-      foreach ($diff as $url) {
-        $block->feeds[$url] = $new_feeds[$url];
-      }
-    }
-  }
-
-  $view->destroy();
-  return $block;
 }
 
 /**
