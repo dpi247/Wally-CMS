@@ -312,7 +312,7 @@ function _pub_getanalyticcontent() {
     $website = variable_get('pub_website', '');
     $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
     $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
-    
+    echo ">>".$content_from_webservice."<br/>";
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
     } else {
@@ -445,7 +445,6 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
   echo ">".$pub_webserv.$req_url."<br/>";
   $content = drupal_http_request($pub_webserv.$req_url);
-  echo ">".$content."<br/>";
   return ($content->code == '200') ? $content->data : FALSE;
 }
 
