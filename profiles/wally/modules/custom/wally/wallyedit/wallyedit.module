@@ -3099,7 +3099,7 @@ function wydit_merge_arrays() {
     }
     foreach ($array as $key => $value) {
       if (is_string($key) || is_numeric($key)) {
-        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key])) {
+        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]) && !array_key_exists($key.'_add_more', $value)) {
           $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value);
         } else {
           $merged[$key] = $value;
