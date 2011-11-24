@@ -325,9 +325,7 @@ function _pub_getanalyticcontent() {
   } else {
     $analytic_content = $cached_pub->data;
   }
-  
-  drupal_add_js($analytic_content, 'inline');
-  return '';
+  return theme('analytic_content', $analytic_content);
 }
 
 /**
@@ -445,6 +443,7 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
+  echo ">".$pub_webserv.$req_url;
   $content = drupal_http_request($pub_webserv.$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
 }
