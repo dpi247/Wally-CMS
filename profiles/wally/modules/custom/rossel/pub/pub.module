@@ -443,7 +443,12 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
+  echo ">".$requ_url."<br/>";
   $content = drupal_http_request($pub_webserv.$req_url);
+  if ($content->code != '200')
+  	echo ">".$content->data."<br/>";
+  else
+  	echo ">".$content->code."<br/>";
   return ($content->code == '200') ? $content->data : FALSE;
 }
 
