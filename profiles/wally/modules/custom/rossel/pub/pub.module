@@ -311,7 +311,7 @@ function _pub_getanalyticcontent() {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
     $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
-    $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
+    $content_from_webservice = _pub_getcontentfromwebservice('GAVDN', $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
     
     if ($content_from_webservice) {
       $analytic_content = $content_from_webservice;
