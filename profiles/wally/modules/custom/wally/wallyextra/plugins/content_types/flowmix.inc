@@ -446,7 +446,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     // Il y qqchose dans le flow_obj
     if (sizeof($form_state['input']) > 3) {
       // L'input de taille 2 indique qu'on vient du choix du content type
-      if (isset($form_state['input']['conf']) || isset($form_state['input']['save']) || in_array('Add a new flow', $form_state['input']) || in_array('Remove', $form_state['input']) || in_array('Edit', $form_state['input'])) {
+      if (isset($form_state['input']['conf']) || isset($form_state['input']['save']) || in_array('Add a new flow', $form_state['input']) || in_array('Remove', $form_state['input']) || in_array('Edit', $form_state['input']) || $form_state['input']['op'] == 'Back') {
         // On ne veut pas passer ici au save
         if (!empty($form_state['conf']['flow_obj']->flows)) {
           // Juste pour être sur que ce n'est pas les valeurs par défaut (cas de la réutilisation)
@@ -605,6 +605,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
   }
 
   unset($form['buttons']['next']);
+  unset($form['buttons']['previous']);
   if(count($settings->flows)){
     $form['buttons']['save'] = array(
       '#type'=>'submit',
@@ -613,7 +614,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
       '#name'=>'save',
     );
   }
-  
+
   $form['buttons']['add_flow'] = array(
     '#type'=>'submit',
     '#value'=>t('Add a new flow'),
