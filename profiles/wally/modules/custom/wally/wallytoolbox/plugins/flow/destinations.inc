@@ -293,10 +293,12 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
       $temp_edition['value'] = TRUE;
       $transformed_node['Editions']['Edition'][] = $temp_edition;
     }*/
-    $transformed_node['Channels']['Channel'] = array();
-    $channels = unserialize($node->field_channels[0]['value']);
-    foreach ($channels as $channel) {
-      $transformed_node['Channels']['Channel'][]['Name'] = $channel;
+    if (isset($node->field_channels[0]['value'])) {
+      $transformed_node['Channels']['Channel'] = array();
+      $channels = unserialize($node->field_channels[0]['value']);
+      foreach ($channels as $channel) {
+        $transformed_node['Channels']['Channel'][]['Name'] = $channel;
+      }
     }
     $transformed_node['CommentsAllowed']['value'] = $node->comment;
     $freeaccess = wallytoolbox_destinations_flow_node_get_field($node, 'field_freeaccess', '');
@@ -393,17 +395,19 @@ function wallytoolbox_destinations_flow_set_photoobject($photoobject, $transform
   $temp_photo = wallytoolbox_destinations_flow_set_multimediaobject($photoobject, $transformed_node);
 
   // PhotoObject Elements
-  $temp_photo['Crops']['Crop'] = array();
-  while (!empty($photoobject->field_croping[0]['value']) && is_string($photoobject->field_croping[0]['value']))
-    $photoobject->field_croping[0]['value'] = json_decode($photoobject->field_croping[0]['value']);
-  foreach ($photoobject->field_croping[0]['value'] as $croping_name => $croping) {
-    $temp_crop = array();
-    $temp_crop['Type'] = $croping_name;
-    $temp_crop['X'] = $croping->{0};
-    $temp_crop['Y'] = $croping->{1};
-    $temp_crop['W'] = $croping->{2};
-    $temp_crop['H'] = $croping->{3};
-    $temp_photo['Crops']['Crop'][] = $temp_crop;
+  if (isset($photoobject->field_croping[0]['value']) && is_array($photoobject->field_croping[0]['value'])) {
+    $temp_photo['Crops']['Crop'] = array();
+    while (!empty($photoobject->field_croping[0]['value']) && is_string($photoobject->field_croping[0]['value']))
+      $photoobject->field_croping[0]['value'] = json_decode($photoobject->field_croping[0]['value']);
+    foreach ($photoobject->field_croping[0]['value'] as $croping_name => $croping) {
+      $temp_crop = array();
+      $temp_crop['Type'] = $croping_name;
+      $temp_crop['X'] = $croping->{0};
+      $temp_crop['Y'] = $croping->{1};
+      $temp_crop['W'] = $croping->{2};
+      $temp_crop['H'] = $croping->{3};
+      $temp_photo['Crops']['Crop'][] = $temp_crop;
+    }
   }
   $temp_photo['LinkTitle']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_link', '', 'title');
   $temp_photo['LinkURI']['value'] = wallytoolbox_destinations_flow_node_get_field($photoobject, 'field_link', '', 'url');
