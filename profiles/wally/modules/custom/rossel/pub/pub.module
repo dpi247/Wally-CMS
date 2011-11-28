@@ -493,7 +493,7 @@ function _pub_getwebservreq($orig_url) {
         break;
       default:
         $primary_links_tree = menu_tree_page_data('primary-links');
-        $webserv_req = _pub_get_path_to_item($primary_links_tree, $orig_url);
+        $webserv_req = _pub_get_path_to_item($primary_links_tree, $orig_url, TRUE);
         if (!is_array($webserv_req)) {
           $webserv_req = array();
           $webserv_req[] = $orig_url;
@@ -515,11 +515,17 @@ function _pub_getwebservreq($orig_url) {
  * @param $link_path
  *   The searched URL.
  */
-function _pub_get_path_to_item($menu_step, $link_path) {
+function _pub_get_path_to_item($menu_step, $link_path, $first_level = FALSE) {
   $temp_name = FALSE;
   foreach ($menu_step as $elem_name => $menu_elem) {
     if ($menu_elem['link']['link_path'] == $link_path) {
-      return 'found';
+      if ($first_level) {
+        $result = _pub_getwebservreq($menu_elem['link']['link_path']);
+        $result[0] = ($result[0] == '') ? $link_path : $result[0].'/'.$link_path;
+        return $result;
+      } else {
+        return 'found';
+      }
     } elseif ($menu_elem['below']) {
       $next_lev = _pub_get_path_to_item($menu_elem['below'], $link_path);
       if ($next_lev == 'found' && $menu_elem['link']['module'] == 'taxonomy_menu') {
