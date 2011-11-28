@@ -1077,6 +1077,13 @@ function wallytoolbox_cron(){
       $block['settings'] = unserialize($block['settings']);
     }
     $block_infos = explode(':', $block['cid']);
+    $block_infos = array(
+      'page' => $block_infos[0],
+      'type' => $block_infos[1],
+      'subtype' => $block_infos[2],
+      'panel' => $block_infos[3],
+      'pid' => $block_infos[4],
+    );
     // Invoke hook_refresh_block
     $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
     if (!empty($output)) {
