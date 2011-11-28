@@ -226,7 +226,6 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
 function wallyctools_page_destination_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
   $output = drupal_get_form('wallyctools_form_change_destination_form', 'batchoperations', $limit, $destination_tid, $target);
   $output .= wallyctools_view_batch_operations($limit, $destination_tid, $target);
-  $output .= drupal_get_form('wallyctools_form_batch_operations_form', $destination_tid);
   return $output;
 }
 
@@ -242,7 +241,10 @@ function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL,
     $view->pager['items_per_page'] = $limit;
   
     $return = $view->render();
-    $return .= theme('pager', NULL, $limit, 0);
+    $view->destroy();
+    if ($view->pager['use_pager']) {
+      $return .= theme('pager', NULL, $limit, 0);
+    }
   } else {
     drupal_set_message(t('Please choose a destination path and a target.'));
   }
@@ -252,7 +254,7 @@ function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL,
 
 function wallyctools_form_batch_operations_form($form_state, $destination_tid = NULL) {
   $form = array();
-  
+
   if ($destination_tid) {
     $form['destination_tid'] = array(
       '#type' => 'value',

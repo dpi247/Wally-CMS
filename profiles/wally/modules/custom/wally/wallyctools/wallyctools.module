@@ -13,7 +13,7 @@
  * styles directly to any panel display.
  */
 
-/*
+/**
  * Implementation du hook menu
  */
 function wallyctools_menu() {
@@ -56,6 +56,17 @@ function wallyctools_menu() {
   );
 
   return $items;
+}
+
+function wallyctools_form_alter($form, $form_state, $form_id) {
+  if (strstr($form_id, 'views_bulk_operations_form__')) {
+    if ($form['step']['#value'] == 1) {
+      $view = $form['#plugin']->view;
+      if ($view->name == 'batch_destinations' && $view->current_display == 'page_1') {
+        $form['#suffix'] = drupal_get_form('wallyctools_form_batch_operations_form', $view->args[0]);
+      }
+    }
+  }
 }
 
 /**
