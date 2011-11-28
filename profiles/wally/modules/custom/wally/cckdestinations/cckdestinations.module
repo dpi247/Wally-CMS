@@ -589,17 +589,17 @@ function cckdestinations_batch_dest_form($context) {
   $form = array();
 
   module_load_include("inc", 'content', 'includes/content.node_form');
-  $wallyrsstonode_destinations = content_fields('field_destinations');
-  $form['wallyrsstonode_destinations'] = (array) content_field_form($form, $form_state, $wallyrsstonode_destinations);
-  $form['wallyrsstonode_destinations']['#weight'] = 3;
-  unset($form['wallyrsstonode_destinations']['field_destinations'][1]);
-  unset($form['wallyrsstonode_destinations']['field_destinations']['field_destinations_add_more']);
-  unset($form['wallyrsstonode_destinations']['#weight']);
-  unset($form['wallyrsstonode_destinations']['field_destinations'][0]['_weight']);
-  unset($form['wallyrsstonode_destinations']['field_destinations']['#theme']);
-  $form['wallyrsstonode_destinations']['field_destinations']['#type'] = 'fieldset';
-  $form['wallyrsstonode_destinations']['field_destinations']['#title'] = t('New destination');
-  $form['wallyrsstonode_destinations']['field_destinations']['#tree'] = FALSE;
+  $destinations = content_fields('field_destinations');
+  $form['destinations'] = (array) content_field_form($form, $form_state, $destinations);
+  $form['destinations']['#weight'] = 3;
+  unset($form['destinations']['field_destinations'][1]);
+  unset($form['destinations']['field_destinations']['field_destinations_add_more']);
+  unset($form['destinations']['#weight']);
+  unset($form['destinations']['field_destinations'][0]['_weight']);
+  unset($form['destinations']['field_destinations']['#theme']);
+  $form['destinations']['field_destinations']['#type'] = 'fieldset';
+  $form['destinations']['field_destinations']['#title'] = t('New destination');
+  $form['destinations']['field_destinations']['#tree'] = FALSE;
   
   return $form;
 }
