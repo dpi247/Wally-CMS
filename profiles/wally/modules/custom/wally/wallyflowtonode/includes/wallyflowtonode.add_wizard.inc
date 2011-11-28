@@ -131,6 +131,7 @@ function wallyflowtonode_addnewflow_subtask_next(&$form_state) {
  */
 function wallyflowtonode_addnewflow_subtask_finish(&$form_state) {
   $flow_item = &$form_state['flow_obj'];
+
   //Some cleaning before save
   if (isset($flow_item->flow_key)) {
     drupal_set_message('The flow '.$flow_item->name.' has been edited');
@@ -254,6 +255,20 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   unset($form['destinations']['field_destinations'][1]);
   unset($form['destinations']['field_destinations']['field_destinations_add_more']);
   
+  $importers = wallymport_getimporters();
+  $importers_options = array();
+  foreach ($importers as $importer) {
+    $importers_options[$importer->name] = $importer->name;
+  }
+  $form['importer'] = array(
+    '#type' => 'select',
+    '#title' => t('Importer'),
+    '#description' => t('Choose importer used for Wallymport'),
+    '#options' => $importers_options,
+    '#default_value' => $flow_item->importer,
+    '#weight' => 20,
+  );
+  
   // probably important -- i'm continuing to investigate
   $form_state['no buttons'] = TRUE; 
 }
@@ -266,7 +281,7 @@ function wallyflowtonode_basicsettings_form_validate(&$form, &$form_state) {
 
 function wallyflowtonode_basicsettings_form_submit(&$form, &$form_state) {
   $submitted = $form_state['values'];
-  $save_values = array('name', 'prefix', 'publish', 'type', 'body_html', 'delta_t', 'package_layout'); 
+  $save_values = array('name', 'prefix', 'publish', 'type', 'body_html', 'delta_t', 'package_layout', 'importer'); 
   // maybe don't imitate this foreach
   foreach ($save_values as $value) {
     // set the values in the cache object -- it gets passed back to the next step
@@ -391,6 +406,7 @@ function _wallyflowtonode_get_default_form_values() {
   $default_form_values->destination = '0///0';
   $default_form_values->package_layout = '';
   $default_form_values->body_html = t('No HTML');
+  $default_form_values->importer = 0;
   
   return $default_form_values;
 }

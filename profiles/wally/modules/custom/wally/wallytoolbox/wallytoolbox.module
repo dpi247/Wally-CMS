@@ -1191,10 +1191,6 @@ function wallytoolbox_flow_to_array_new_package() {
   $array_item['ProductID']['value'] = '';
   $array_item['Destinations'] = array();
   $array_item['Destinations']['Destination'] = array();
-  $array_item['Destinations']['Destination']['DestinationRank'] = '';
-  $array_item['Destinations']['Destination']['Position'] = '';
-  $array_item['Destinations']['Destination']['DocumentLayout'] = '';
-  $array_item['Destinations']['Destination']['DestinationPath']['value'] = '';
   $array_item['Editions'] = array();
   $array_item['Editions']['Edition']['EditionID'] = 'all';
   $array_item['Editions']['Edition']['value'] = 'true';
@@ -1222,12 +1218,12 @@ function wallytoolbox_flow_to_array_new_textobject() {
   $textobject['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $textobject['Title']['value'] = '';
   $textobject['ExternalReference']['value'] =  '';
-  $textobject['Taxonomy'] = array();
+  /*$textobject['Taxonomy'] = array();
   $textobject['Taxonomy']['Vocabulary'] = array();
   $textobject['Taxonomy']['Vocabulary']['VocabularyName'] = 'Default';
   $textobject['Taxonomy']['Vocabulary']['VocabularyType'] = 'free';
   $textobject['Taxonomy']['Vocabulary']['Term'] = array();
-  $textobject['TextBody']['value'] = '';
+  $textobject['TextBody']['value'] = '';*/
   return $textobject;
 }
 
