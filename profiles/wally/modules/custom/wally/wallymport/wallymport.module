@@ -654,7 +654,6 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
  *   array with logs
  */
 function wallymport_page_process_file($xml_file, $importer){
-  
   $handle = fopen($xml_file, "r");
   $contents = fread($handle, filesize($xml_file));
   
@@ -707,7 +706,8 @@ function wallymport_convertEntities($str){
   $str = str_replace($html, $xml, $str);
   $str = str_ireplace($html, $xml, $str);
   return $str;
-} 
+}
+
 /**
  * Get importers info
  *
@@ -722,6 +722,7 @@ function wallymport_getimporters(){
   }
   return $importers;
 }
+
 /**
  * Get importer info
  *
@@ -738,6 +739,7 @@ function wallymport_getimporter($iid){
   }
   return $importer;
 }
+
 /**
  * Get importer info
  *
