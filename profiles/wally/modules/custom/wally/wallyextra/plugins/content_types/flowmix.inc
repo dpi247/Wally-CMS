@@ -446,7 +446,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     // Il y qqchose dans le flow_obj
     if (sizeof($form_state['input']) > 3) {
       // L'input de taille 2 indique qu'on vient du choix du content type
-      if (isset($form_state['input']['conf']) || isset($form_state['input']['save']) || in_array('Add a new flow', $form_state['input']) || in_array('Remove', $form_state['input']) || in_array('Edit', $form_state['input'])) {
+      if (isset($form_state['input']['conf']) || isset($form_state['input']['save']) || in_array('Add a new flow', $form_state['input']) || in_array('Remove', $form_state['input']) || in_array('Edit', $form_state['input']) || $form_state['input']['op'] == 'Back' || in_array('Confirm', $form_state['input'])) {
         // On ne veut pas passer ici au save
         if (!empty($form_state['conf']['flow_obj']->flows)) {
           // Juste pour être sur que ce n'est pas les valeurs par défaut (cas de la réutilisation)
@@ -486,7 +486,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
       '#value'         => t('Remove'),
       '#wizard type'   => 'next',
       '#name'          => 'delete_'.$key,
-      '#next'          => 'step1'
+      '#next'          => 'step2'
     );
 
     $form['flows'][$key]['title']=array(
@@ -605,6 +605,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
   }
 
   unset($form['buttons']['next']);
+  unset($form['buttons']['previous']);
   if(count($settings->flows)){
     $form['buttons']['save'] = array(
       '#type'=>'submit',
@@ -613,12 +614,13 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
       '#name'=>'save',
     );
   }
-  
+
+  $current_max_key = max(array_keys($settings->flows)) + 1;
   $form['buttons']['add_flow'] = array(
     '#type'=>'submit',
     '#value'=>t('Add a new flow'),
     '#wizard type'=>'next',
-    '#name'=>'next_'.count($settings->flows),
+    '#name'=>'next_'.$current_max_key,
     '#next'=>'step2'
   );
 }
@@ -669,9 +671,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
   $flowmix_item->flows = $form_state['settings']->flows;
 
   if (strpos($form_state['clicked_button']['#name'], 'delete') !== false) {
-    unset($flowmix_item->flows[str_replace('delete_', '', $form_state['clicked_button']['#name'])]);
-    $form_state['clicked_button']['#next'] = 'step1';
-    $form_state['rebuild'] = TRUE;
+    $form_state['flow_to_delete'] = str_replace('delete_', '', $form_state['clicked_button']['#name']);
   }
   elseif (strpos($form_state['clicked_button']['#name'], 'edit') !== false) {
     if ($form_state['step'] == 'step1') {
@@ -692,55 +692,87 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
 }
 
 function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form_state) {
-  $flowmix_item = &$form_state['conf']['flow_obj'];
-
-  if (!isset($flowmix_item->flows['temp_flow'])) {
-    $flowmix_item->flows['temp_flow'] = new stdClass();
-    if (isset($flowmix_item->flows[(int)$flowmix_item->index])) {
-      $flowmix_item->flows['temp_flow'] = $flowmix_item->flows[(int)$flowmix_item->index];
+  if ((isset($form_state['flow_to_delete']) && is_numeric($form_state['flow_to_delete'])) || in_array('Confirm', $form_state['input'])) {
+    $form['confirmation'] = array(
+      '#type' => 'markup',
+      '#value' => t('Are you sure you want to delete this flow?'),
+    );
+    
+    if (in_array('Confirm', $form_state['input'])) {
+      foreach ($form_state['input'] as $key => $value) {
+        if ($value == 'Confirm') {
+          $confirm_name = $key;
+          break;
+        }
+      }
+    } else {
+      $confirm_name = 'confirm_'.$form_state['flow_to_delete'];
     }
+    
+    $form['buttons']['confirm'] = array(
+      '#type' => 'submit',
+      '#value' => t('Confirm'),
+      '#next' => 'step1',
+      '#wizard type' => 'next',
+      '#weight' => -1000,
+      '#name' => $confirm_name,
+    );
+    
+    unset($form['buttons']['next']);
+    unset($form['buttons']['cancel']);
+  } else {
+    $flowmix_item = &$form_state['conf']['flow_obj'];
+  
+    if ($form_state['clicked_button']['#value'] != 'Back') {
+      if (!isset($flowmix_item->flows['temp_flow'])) {
+        $flowmix_item->flows['temp_flow'] = new stdClass();
+        if (isset($flowmix_item->flows[(int)$flowmix_item->index])) {
+          $flowmix_item->flows['temp_flow'] = drupal_clone($flowmix_item->flows[(int)$flowmix_item->index]);
+        }
+      }
+    }
+    $temp_flow = &$flowmix_item->flows['temp_flow'];
+    $flow_conf = _wallyextra_flowmix_content_type_form_basicsetttings_defaults($temp_flow);
+  
+    $form['name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Flow feed name'),
+      '#description' => t('The name you want to give to this flow.'),
+      '#default_value' => $flow_conf->name,
+      '#size' => 80,
+      '#maxlength' => 512,
+      '#required' => TRUE,
+      '#weight' => 0,
+    );
+  
+    $form['type'] = array(
+      '#type' => 'select',
+      '#title' => t('Type of flow'),
+      '#default_value' => $flow_conf->type,
+      '#required' => TRUE,
+      '#options' => wallytoolbox_get_available_flow_type(),
+      '#weight' => 0.1,
+    );
+  
+    $body_html_options = array();
+    $body_html_query = db_query("SELECT * FROM {filter_formats}");
+    $i = 0;
+    while ($body_html_element = db_fetch_array($body_html_query)) {
+      $body_html_options[] = $body_html_element['name'];
+      if ($body_html_element['name'] == $default_form_values['body_html'])
+      $default_body_html = $i;
+      $i++;
+    }
+  
+    $form['body_html'] = array(
+      '#type' => 'select',
+      '#title' => t('Use HTML in the text body'),
+      '#description' => t('Use HTML in the text body.'),
+      '#options' => $body_html_options,
+      '#default_value' => $flow_conf->body_html,
+      '#weight' => 0.2,
+    );
   }
-  $temp_flow = &$flowmix_item->flows['temp_flow'];
-  $flow_conf = _wallyextra_flowmix_content_type_form_basicsetttings_defaults($temp_flow);
-
-  $form['name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Flow feed name'),
-    '#description' => t('The name you want to give to this flow.'),
-    '#default_value' => $flow_conf->name,
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-    '#weight' => 0,
-  );
-
-  $form['type'] = array(
-    '#type' => 'select',
-    '#title' => t('Type of flow'),
-    '#default_value' => $flow_conf->type,
-    '#required' => TRUE,
-    '#options' => wallytoolbox_get_available_flow_type(),
-    '#weight' => 0.1,
-  );
-
-  $body_html_options = array();
-  $body_html_query = db_query("SELECT * FROM {filter_formats}");
-  $i = 0;
-  while ($body_html_element = db_fetch_array($body_html_query)) {
-    $body_html_options[] = $body_html_element['name'];
-    if ($body_html_element['name'] == $default_form_values['body_html'])
-    $default_body_html = $i;
-    $i++;
-  }
-
-  $form['body_html'] = array(
-    '#type' => 'select',
-    '#title' => t('Use HTML in the text body'),
-    '#description' => t('Use HTML in the text body.'),
-    '#options' => $body_html_options,
-    '#default_value' => $flow_conf->body_html,
-    '#weight' => 0.2,
-  );
   
   $form['buttons']['previous']['#submit'][] = 'wallyextra_flowmix_content_type_form_basicsetttings_form_back_submit';
 
@@ -751,6 +783,24 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form
 function wallyextra_flowmix_content_type_form_basicsetttings_form_back_submit($form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   unset($flowmix_item->flows['temp_flow']);
+}
+
+function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form, &$form_state) {
+  if (strpos($form_state['clicked_button']['#name'], 'confirm') !== FALSE) {
+    $flow_to_delete = str_replace('confirm_', '', $form_state['clicked_button']['#name']);
+    unset($form_state['conf']['flow_obj']->flows[$flow_to_delete]);
+  } else {
+    $edited_flow = &$form_state['conf']['flow_obj']->flows['temp_flow'];
+    $submitted = $form_state['values'];
+    
+    $save_values = array_keys((array)_wallyextra_flowmix_content_type_form_basicsetttings_defaults());
+    // maybe don't imitate this foreach
+    foreach ($save_values as $value) {
+      // Set the values in the cache object -- it gets passed back to the next step
+      // because of all that work we did in the form_info array
+      $edited_flow->$value = $submitted[$value];
+    }
+  }
 }
 
 function _wallyextra_flowmix_content_type_form_basicsetttings_defaults($flow_conf = NULL) {
@@ -764,19 +814,6 @@ function _wallyextra_flowmix_content_type_form_basicsetttings_defaults($flow_con
   $defaults->body_html = 0;
   
   return $defaults;
-}
-
-function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form, &$form_state) {
-  $edited_flow = &$form_state['conf']['flow_obj']->flows['temp_flow'];
-  $submitted = $form_state['values'];
-  
-  $save_values = array_keys((array)_wallyextra_flowmix_content_type_form_basicsetttings_defaults());
-  // maybe don't imitate this foreach
-  foreach ($save_values as $value) {
-    // Set the values in the cache object -- it gets passed back to the next step
-    // because of all that work we did in the form_info array
-    $edited_flow->$value = $submitted[$value];
-  }
 }
 
 function wallyextra_flowmix_content_type_form_pluginselector_form(&$form, &$form_state) {
