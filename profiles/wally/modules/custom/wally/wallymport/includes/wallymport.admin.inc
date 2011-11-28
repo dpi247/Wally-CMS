@@ -6,8 +6,6 @@
  *   Import Press Content to Drupal structure Administration
  */
 
-
-
 /**
  * Settings form.
  */
@@ -39,6 +37,7 @@ function wallymport_page_links_form($form_state, $importer_name){
   }
   return $form;
 }
+
 /**
  * Create/update importer form.
  */
@@ -64,6 +63,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#options' => $importers_name,
     '#required' => TRUE,
   );
+  
   $form['wallymport']['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -72,6 +72,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#maxlength' => 100,
     '#required' => TRUE,
   );
+  
   $form['wallymport']['description'] = array(
     '#type' => 'textfield',
     '#title' => t('Description'),
@@ -79,6 +80,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#size' => 80,
     '#maxlength' => 1000,
   );
+  
   $form['wallymport']['source_directory_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Import source directory path'),
@@ -114,6 +116,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+  
   $form['wallymport']['xsd_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Import Data Structure Definition file'),
@@ -122,6 +125,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#maxlength' => 512,
     '#required' => TRUE,
   );
+  
   $form['wallymport']['zip'] = array(
     '#type' => 'select',
     '#title' => t('Are the data to import zipped?'),
@@ -129,6 +133,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
     '#required' => TRUE,
   );
+  
   $form['wallymport']['processed_by_post'] = array(
     '#type' => 'select',
     '#title' => t('Are the data imported during POST?'),
@@ -136,6 +141,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
     '#required' => TRUE,
   );
+  
    $form['wallymport']['processed_by_cron'] = array(
     '#type' => 'select',
     '#title' => t('Are the data imported by a CRON job?'),
@@ -143,6 +149,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
     '#required' => TRUE,
   );
+  
   $form['wallymport']['cron_frequency'] = array (
     '#type'             => 'textfield',
     '#title'            => t('CRON frequency'),
@@ -151,6 +158,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
     '#process'          => array('ctools_dependent_process'),
   );
+  
   $form['wallymport']['cron_keep_log'] = array (
     '#type'             => 'select',
     '#title'            => t('Keep CRON logs?'),
@@ -159,6 +167,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
     '#process'          => array('ctools_dependent_process'),
   );
+  
   $form['wallymport']['default_user'] = array(
     '#type' => 'textfield',
     '#title' => t('Drupal user used for imports.'),
@@ -167,6 +176,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#maxlength' => 8,
     '#required' => TRUE,
   );
+  
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save') );
   
   if ($edit_id != NULL){
@@ -191,11 +201,11 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   }
   return $form;
 }
-/*
+
+/**
  * Validation of createimporter_form 
  */
 function wallymport_page_importer_form_validate($form, &$form_state){
- 
   $path = $form_state['values']['wallymport']['source_directory_path'];
   $dir_exist = file_check_directory($path,0);	// IN D7 this function becomes file_prepare_directory()
   if (!$dir_exist) {
@@ -259,7 +269,8 @@ function wallymport_page_importer_form_validate($form, &$form_state){
     $form_state['values']['update'] = array();
   }
 }
-/*
+
+/**
  * Submit of createimporter_form 
  */
 function wallymport_page_importer_form_submit($form, &$form_state){
@@ -271,8 +282,9 @@ function wallymport_page_importer_form_submit($form, &$form_state){
     $message = 'The importer as not been created/udpated';
   }
   drupal_set_message(t($message));
-  drupal_goto('/admin/wally/wallymport/settings/general');
+  drupal_goto('admin/wally/wallymport/settings/general');
 }
+
 /**
  * Delete importer form.
  */
@@ -292,7 +304,8 @@ function wallymport_page_importerdelete_form($form_state,$delete_id = NULL){
   }
   return $form;
 }
-/*
+
+/**
  * Submit of the importer delete form
  */
 function wallymport_page_importerdelete_form_submit($form,$form_state){
@@ -304,10 +317,10 @@ function wallymport_page_importerdelete_form_submit($form,$form_state){
     $message = 'The importer as not been deleted';
   }
   drupal_set_message(t($message));
-  drupal_goto('/admin/wally/wallymport/settings/general');
-  
+  drupal_goto('admin/wally/wallymport/settings/general');
 }
-/*
+
+/**
  * administration page of wallymport
  */
 function wallymport_page_admin(){
@@ -349,13 +362,13 @@ function wallymport_page_admin(){
   }
   return $content;
 }
+
 /**
  * Importer logs
  * @param $iid
  * importer id 
  * @return page content
  */
-
 function wallymport_page_importer_logs($iid){
   $importer = wallymport_getimporter($iid);
   $logs = unserialize($importer->cron_log);
