@@ -372,7 +372,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
                 callback: "'.$callback.'",
                 settings: \''.serialize(str_replace(array('\n', '\r\n'), '|@@@|', $settings)).'\',
                 subtype: "'.$subtype.'",
-                context: \''.serialize($context).'\',
+                context: \''.addslashes(serialize($context)).'\',
                 default_theme: "'.$default_theme.'",
                 plugin: "'.$plugin.'",
                 cid: \''.$cid.'\',
