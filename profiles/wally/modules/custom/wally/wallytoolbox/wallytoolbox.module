@@ -1072,7 +1072,6 @@ function wallytoolbox_cron(){
   
   // Select blocks where last run is too old according to their refresh time
   $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
-  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run < %d ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
     while (is_string($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
