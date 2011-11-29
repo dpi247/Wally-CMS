@@ -163,7 +163,9 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
 /**
  * Custom refresh action for flow mix blocks
  */
-function wallyextra_flowmix_refresh_block($settings) {
+function wallyextra_flowmix_refresh_block(&$settings) {
+  $time_start = time();
+  
   $settings = (array)$settings['flow_obj'];
   $old_feed = cache_get($settings['caid']);
   if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
@@ -171,6 +173,10 @@ function wallyextra_flowmix_refresh_block($settings) {
   } else {
     _wallyextra_flowmix_setcache($settings);
   }
+  
+  $time_stop = time();
+  $delta_t = $time_stop - $time_start;
+  return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t);
 }
 
 function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {

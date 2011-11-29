@@ -331,8 +331,10 @@ function wallyextra_refresh_block($infos, $settings) {
   if (in_array($plugin, $handled_plugins)) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
-    $refresh_function($settings);
-    $return[] = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
+    $plugin_return = $refresh_function($settings);
+    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
+    $output .= !empty($plugin_return) ? $plugin_return : '';
+    $return[] = $output;
     return $return;
   }
   
