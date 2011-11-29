@@ -76,19 +76,18 @@ function theme_wallycontenttypes_wallycrop($element) {
  *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_wallycrop_image(&$image, $data) {
-
-	$fid = db_fetch_object(db_query("SELECT `fid` FROM `files` WHERE `filepath` = '%s'", $image->source));
+	$fid = db_fetch_object(db_query("SELECT `fid` FROM {files} WHERE `filepath` = '%s'", $image->source));
   if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `field_photofile_fid` = '%s'", $fid->fid));
+    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `field_photofile_fid` = '%s'", $fid->fid));
   } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid')) {
-    $nid = db_fetch_object(db_query("SELECT `nid` FROM `content_field_photofile` WHERE `field_photofile_fid` = '%s'", $fid->fid));
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM `content_type_wally_photoobject` WHERE `nid` = '%s'", $nid->nid));
+    $nid = db_fetch_object(db_query("SELECT `nid` FROM {content_field_photofile} WHERE `field_photofile_fid` = '%s'", $fid->fid));
+    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `nid` = '%s'", $nid->nid));
   }
-    
+
   $preset = imagecache_preset($data['presetid']);
   $presetname = $preset['presetname'];
   $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-    
+
   if (isset($imgcropings[$presetname])) {
     $crop = array();
     $crop = $imgcropings[$presetname];
@@ -99,7 +98,6 @@ function wallycontenttypes_wallycrop_image(&$image, $data) {
   }
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
-  //
   if ($data["xoffset"]=="center_max" || $data["yoffset"] == "center_max") {
   	
 	  if (!imageapi_image_scale_and_crop($image, $data['width'], $data['height'])) {
