@@ -167,7 +167,6 @@ function wallyextra_flowmix_refresh_block(&$settings) {
   static $i = 0;
   $i++;
   if (TRUE) {
-    dsm($settings);
     $time_start = time();
     
     $settings = (array)$settings['flow_obj'];
