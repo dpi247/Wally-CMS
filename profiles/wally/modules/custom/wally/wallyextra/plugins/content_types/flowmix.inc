@@ -166,7 +166,7 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
 function wallyextra_flowmix_refresh_block(&$settings) {
   static $i = 0;
   $i++;
-  if ($i>50) {
+  if ($i>25 && $i<50) {
     $time_start = time();
     
     $settings = (array)$settings['flow_obj'];
