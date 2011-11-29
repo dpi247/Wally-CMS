@@ -339,6 +339,10 @@ function menu_execute_active_handler($path = NULL) {
   // Rebuild if we know it's needed, or if the menu masks are missing which
   // occurs rarely, likely due to a race condition of multiple rebuilds.
   if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', array())) {
+  	
+	  // DLA
+	  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre><pre> menu_rebuild_needed:".variable_get('menu_rebuild_needed', FALSE)."</pre><pre> menu_masks:".variable_get('menu_masks', FALSE)."</pre>" );
+	   	
     menu_rebuild();
   }
   if ($router_item = menu_get_item($path)) {
