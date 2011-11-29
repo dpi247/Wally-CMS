@@ -341,7 +341,7 @@ function menu_execute_active_handler($path = NULL) {
   if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', array())) {
   	
 	  // DLA
-	  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre><pre> menu_rebuild_needed:".variable_get('menu_rebuild_needed', FALSE)."</pre><pre> menu_masks:".variable_get('menu_masks', FALSE)."</pre>" );
+	  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre><pre> menu_rebuild_needed:".variable_get('menu_rebuild_needed', "par default")."</pre><pre> menu_masks:".variable_get('menu_masks', "par default")."</pre>" );
 	   	
     menu_rebuild();
   }
