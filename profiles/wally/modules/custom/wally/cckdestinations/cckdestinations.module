@@ -1223,23 +1223,34 @@ function cckdestinations_token_list($type = 'all') {
 
 function cckdestinations_token_values($type, $object = NULL, $options = array()) {
   $tokens=array();
-  $options['pathauto'] = TRUE;
   if ($type == 'node') {
-    $term=new StdClass;
-    $term->tid = $object->field_destinations[0]['tid'];
-    $term->vid = variable_get('wallymport_destinationpath', 0);
-    
-    $path = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
-    
-    $tokens['cckdest:destination_term'] = strtolower($term->name);
-    $tokens['cckdest:destination_term_path'] = explode('/',$path); // quand la clé contient "path" il faut retourner un array
-    $tokens['cckdest:destination_term_id'] = strtolower($term->tid);
-    if(module_exists('transliteration'))
-    {
-      $tokens['cckdest:destination_term_path-translit'] = explode('/',transliteration_get(strtolower($path))); // quand la clé contient "path" il faut retourner un array
+    // tokens par défaut :
+    $tokens['cckdest:destination_term'] = "";
+    $tokens['cckdest:destination_term_path'] = "";
+    $tokens['cckdest:destination_term_id'] = 0;
+    $tokens['cckdest:destination_term_path-translit'] = "";
+    if(is_null($object))
+      return $tokens;
+    // récupération de la destination principale
+    $term = null;
+    if(isset($object->field_destinations) && is_array($object->field_destinations) && isset($object->field_destinations[0]['tid']) && is_numeric($object->field_destinations[0]['tid'])){
+      $term_id = $object->field_destinations[0]['tid'];
+      //$term->vid = variable_get('wallymport_destinationpath', 0);
+      if(!intval($term_id))
+        return $tokens;
+      $term = taxonomy_get_term($term_id);
+      if(!$term)
+        return $tokens;
+      $path = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
+      // Remplissage des tokens.
+      $tokens['cckdest:destination_term'] = strtolower($term->name);
+      $tokens['cckdest:destination_term_path'] = explode('/',$path); // quand la clé contient "path" il faut retourner un array
+      $tokens['cckdest:destination_term_id'] = strtolower($term->tid);
+      if(module_exists('transliteration'))
+        $tokens['cckdest:destination_term_path-translit'] = explode('/',transliteration_get(strtolower($path))); // quand la clé contient "path" il faut retourner un array
     }
+
   }
-  
   return $tokens;
 }
 
