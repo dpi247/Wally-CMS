@@ -80,8 +80,10 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
+    set_error_handler('wallytoolbox_handle_errors');
+    
     $dom = new DomDocument();
-    @$dom->LoadXML($feed_xml->data);
+    $dom->LoadXML($feed_xml->data);
     $channels = $dom->getElementsByTagName('channel');
     $rss_tags = $dom->getElementsByTagName('rss');
     if ($rss_tags->item(0)) {
