@@ -84,45 +84,49 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
     @$dom->LoadXML($feed_xml->data);
     $channels = $dom->getElementsByTagName('channel');
     $rss_tags = $dom->getElementsByTagName('rss');
-    $media_namespace = $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media');
-    $channel_last_build = 0;
-
-    if ($channels->item(0)) {
-      $sql_last_build = $feed_infos['last_build'];
-      $feed_name = check_plain($feed_infos['name']);
-      $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
-
-      if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
-        $feed_infos['last_build'] = $channel_last_build;
-        
-        while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
-          $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
-        $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
-        $new_feeds_md5 = array();
-        $temp_struct_array = array();
-        
-        foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
-          $temp_struct_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $feed_infos);
+    if ($rss_tags->item(0)) {
+      $media_namespace = $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media');
+      $channel_last_build = 0;
+  
+      if ($channels->item(0)) {
+        $sql_last_build = $feed_infos['last_build'];
+        $feed_name = check_plain($feed_infos['name']);
+        $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
+  
+        if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
+          $feed_infos['last_build'] = $channel_last_build;
           
-          $elem_package = $temp_struct_array;
-          $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
-          if (!isset($feeds_md5[$elem_md5]))
-            $struct_array['Packages']['Package'][] = $temp_struct_array;
+          while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
+            $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+          $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
+          $new_feeds_md5 = array();
+          $temp_struct_array = array();
           
-          $new_feeds_md5[$elem_md5] = TRUE;
+          foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
+            $temp_struct_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $feed_infos);
+            
+            $elem_package = $temp_struct_array;
+            $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
+            if (!isset($feeds_md5[$elem_md5]))
+              $struct_array['Packages']['Package'][] = $temp_struct_array;
+            
+            $new_feeds_md5[$elem_md5] = TRUE;
+            
+            if (sizeof($struct_array['Packages']['Package']) >= $maxitem) break;
+          }
           
-          if (sizeof($struct_array['Packages']['Package']) >= $maxitem) break;
+          if (empty($struct_array['Packages']['Package']))
+            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
+          
+          $feed_infos['feeds_md5'] = $new_feeds_md5;
+        } else {
+          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
         }
-        
-        if (empty($struct_array['Packages']['Package']))
-          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
-        
-        $feed_infos['feeds_md5'] = $new_feeds_md5;
       } else {
-        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
+        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
       }
     } else {
-      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
+      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Your RSS feed (@feed_name) doesn\'t have a "rss" tag', array('@feed_name' => check_plain($feed_infos['name']))));
     }
   } else {
     _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.$feed_infos['name']);
