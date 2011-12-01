@@ -9,7 +9,7 @@ if (!function_exists('rss_feed')) {
     return $content; 
   }
 }
-variable_set('debug_flowmix', debug_backtrace());
+
 if (isset($options['override_title'])) {
   $title = t($options['override_title_text']);
 } else {

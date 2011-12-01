@@ -33,24 +33,31 @@ $plugin = array(
  * Rendering of the flow mix plugin.
  */
 function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = (array)wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
-
-  $feed = array();
+  $complete_subtype = wallyextra_flowmix_content_type_content_type($subtype);
+  
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'Flow mix.';
-  $cid = $settings['caid'];
-  $default_theme = 'wallyct_flowmix';
-  $ajax = TRUE;
-
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
-  if (is_string($feed))
-    $block->content = $feed;
-  elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
-    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
-  else
-    $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
+  if ($complete_subtype) {
+    $settings = (array)wallyextra_flowmix_content_type_get_conf($complete_subtype, $conf);
+  
+    $feed = array();
+    $cid = $settings['caid'];
+    $default_theme = 'wallyct_flowmix';
+    $ajax = TRUE;
+  
+    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
+    
+    if (is_string($feed))
+      $block->content = $feed;
+    elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
+      $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
+    else
+      $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
+  } else {
+   $block->content = ''; 
+  }
   
   return $block;
 }
@@ -74,7 +81,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
 function wallyextra_flowmix_content_type_get_conf($subtype, $conf) {
   $settings = new stdClass();
   $conf = $conf['flow_obj'];
-print_r($subtype);
+
   if ($subtype['name'] == 'flowmix') {
     $settings = (object)$conf;
     $settings->flowmix_type = 'local';
@@ -248,6 +255,7 @@ function wallyextra_flowmix_content_type_content_type($subtype_id) {
       return _wallyextra_flowmix_ctools_content_type($content);
     }
   }
+  return FALSE;
 }
 
 /**
