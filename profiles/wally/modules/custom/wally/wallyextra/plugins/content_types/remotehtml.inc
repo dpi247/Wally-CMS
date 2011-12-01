@@ -389,7 +389,7 @@ function _wallyextra_remotehtml_defaultformvalues() {
 function _wallyextra_remotehtml_setcache($settings) {
   $internal_url = drupal_get_normal_path(trim($_SERVER['REQUEST_URI'], '/'));
   wallytoolbox_flush_all_pages($internal_url, TRUE);
-dsm($settings);
+
   $block_uri = $settings['uri'];
   $htmlblock = file_get_contents($block_uri);
 
