@@ -180,6 +180,12 @@ function wallyextra_flowmix_refresh_block(&$settings) {
 }
 
 function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
+  $flows = $form_state['conf']['flow_obj']->flows;
+  $form_state['conf']['flow_obj']->flows = array();
+  foreach($flows as $flow) {
+    $form_state['conf']['flow_obj']->flows[] = $flow;
+  }
+  
   cache_clear_all($form_state['values']['caid']);
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = ctools_export_crud_load('wallyextra_flowmix_content', $form_state['subtype']['name']);
