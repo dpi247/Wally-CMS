@@ -175,7 +175,7 @@ function wallyextra_flowmix_refresh_block(&$settings) {
 
   $settings = (array)$settings['flow_obj'];
   $old_feed = cache_get($settings['caid']);
-  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
+  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed) && $old_feed->data) {
     _wallyextra_flowmix_setcache($settings, $old_feed->data);
   } else {
     _wallyextra_flowmix_setcache($settings);
@@ -183,7 +183,7 @@ function wallyextra_flowmix_refresh_block(&$settings) {
 
   $time_stop = time();
   $delta_t = $time_stop - $time_start;
-  return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t);
+  return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t - 3600);
 }
 
 function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
@@ -342,11 +342,20 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     }
   }
 
+  $feed_array = array();
+  $empty_feed = FALSE;
   foreach ($settings['flows'] as $flow) {
     $flow = (array)$flow;
     $temp_feed_array = _wallyextra_flowmix_create_array_from_uri($flow);
-    if ($temp_feed_array)
+    if ($temp_feed_array) {
       $feed_array[] = $temp_feed_array;
+    } else {
+      $empty_feed = TRUE;
+    }
+  }
+  
+  if ($empty_feed && !empty($old_feed)) {
+    return $old_feed;
   }
 
   $maxitem_global = $settings['maxitem_global'];
