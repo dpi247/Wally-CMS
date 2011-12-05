@@ -441,14 +441,13 @@ function cckdestinations_schema_alter (&$schema) {
  * @return A Forms API array that defines the widget's editing form.
  */
 function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_state, $form) {
-dsm('before process');
-wallytoolbox_set_microtime_step();
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
-  $options_and_classe = cckdestinations_get_classes_and_options();
-dsm('after process');
+dsm('before process');
 wallytoolbox_set_microtime_step();
+  $options_and_classe = cckdestinations_get_classes_and_options();
+
   $element['tid'] = array(
     '#title'            => t( 'Destination Path' ),
     '#type'             => 'select',
@@ -726,6 +725,8 @@ function cckdestinations_get_classes_and_options(){
         }
       }
     }
+    dsm('after process');
+wallytoolbox_set_microtime_step();
   }
   return $result;
 }
