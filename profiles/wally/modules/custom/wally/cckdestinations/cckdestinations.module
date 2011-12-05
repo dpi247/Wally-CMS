@@ -699,14 +699,13 @@ function cckdestinations_batch_dest_add($node, $context, $a, $b) {
  * @return an array with  "target" and "layout" key both are array with #options 
  * and #classes keys to put in the form definition
  */
- 
 function cckdestinations_get_classes_and_options(){
   $result['tid']['#options'] = array();
   $result['target']['#options'] = array();
   $result['target']['#classes'] = array();
   $result['layout']['#options'] = array();
   $result['layout']['#classes'] = array();
-  
+
   $hierarchies = wallyctools_get_hierarchies();
   foreach($hierarchies as $tid => $hierarchie){
     // Target
@@ -721,7 +720,8 @@ function cckdestinations_get_classes_and_options(){
       }
     }
   }
- return $result;
+
+  return $result;
 }
 
 /**
