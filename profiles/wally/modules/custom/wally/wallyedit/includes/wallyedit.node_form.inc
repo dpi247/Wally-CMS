@@ -36,6 +36,7 @@ $begin_time = microtime(TRUE);
   module_load_include('inc', 'content', 'includes/content.node_form');
   
   $type = content_types($type_name_url);
+wallyedit_set_microtime_step($begin_time);
   $field = content_fields($field_name, $type['type']);
 
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
@@ -43,7 +44,7 @@ $begin_time = microtime(TRUE);
     drupal_json(array('data' => ''));
     exit;
   }
-  
+wallyedit_set_microtime_step($begin_time);
   // Retrieve the cached form.
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
@@ -72,7 +73,7 @@ wallyedit_set_microtime_step($begin_time);
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
-wallyedit_set_microtime_step($begin_time);
+
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
@@ -124,10 +125,10 @@ wallyedit_set_microtime_step($begin_time);
 
   //$temp['values'][$field_name] = $form_state_ref;
   $form_element = content_field_form($form_t, $temp, $field);
-wallyedit_set_microtime_step($begin_time);
+
   // Let other modules alter it.
   drupal_alter('form', $form_element, array(), 'content_add_more_js');
-wallyedit_set_microtime_step($begin_time);
+
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
   $redirect_path = $path;
@@ -155,7 +156,7 @@ wallyedit_set_microtime_step($begin_time);
     '#programmed' => FALSE,
   );
   $form = form_builder($_POST['form_id'], $form, $form_state);
-wallyedit_set_microtime_step($begin_time);
+
   // Render the new output.
   $field_form = $form;
   foreach($path as $path_item){
@@ -184,7 +185,7 @@ wallyedit_set_microtime_step($begin_time);
   // by ourselves in order to let AHAH know about those new form elements.
   $javascript = drupal_add_js(NULL, NULL);
   $output_js = isset($javascript['setting']) ? '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', $javascript['setting'])) .');</script>' : '';
-wallyedit_set_microtime_step($begin_time);
+
   $output = theme('status_messages') . drupal_render($field_form) . $output_js;
 
   // Using drupal_json() breaks filefield's file upload, because the jQuery
