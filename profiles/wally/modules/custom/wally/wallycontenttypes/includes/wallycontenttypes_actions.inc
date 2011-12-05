@@ -202,18 +202,20 @@ function wallycontenttypes_cropcopy_image(&$image, $data) {
   $imgcropings = json_decode($cropings->field_croping_value, TRUE);
   $actions_ids = $data['actions_ids'];
   $data['action_id'] = $actions_ids[$data['copied_preset']];
-  
+
+  $crop = array();
   if (isset($imgcropings[$copied_presetname])) {
-    $copied_defaults = $copied_preset['actions'][$data['action_id']]['data'];
-    $crop = array();
     $crop = $imgcropings[$copied_presetname];
     $data['xoffset'] = $crop[0];
     $data['yoffset'] = $crop[1];
     $data['width'] = $crop[2];
     $data['height'] = $crop[3];
   } else {
-    watchdog('WallyContentTypes', 'CropCopy Action : copied preset not set. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
-    return FALSE;
+    $crop = $copied_preset['actions'][$data['action_id']]['data'];
+    $data['xoffset'] = $crop['xoffset'];
+    $data['yoffset'] = $crop['yoffset'];
+    $data['width'] = $crop['width'];
+    $data['height'] = $crop['height'];
   }
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
