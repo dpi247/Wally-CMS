@@ -1054,6 +1054,23 @@ function wallytoolbox_get_all_aliases($internal_url) {
 }
 
 /**
+ * Get the latest created alias for an internal URL
+ * @param $internal_url {String} Internal URL, it can't begin with "/" or "http://".
+ * @return {String} The alias if found, $internal_url if not.
+ */
+function wallytoolbox_get_main_alias($internal_url){
+  if(is_null($internal_url) || trim($internal_url) == "")
+    return $internal_url;
+  $db_aliases = @db_query('SELECT dst FROM {url_alias} WHERE src = "%s" ORDER BY pid DESC LIMIT 0,1', $internal_url);
+  if(!$db_aliases)
+    return $internal_url;
+  $db_alias = db_fetch_array($db_aliases);
+  if(!$db_alias)
+    return $internal_url;
+  return $db_alias['dst'];
+}
+
+/**
  * Delete the Drupal file and remove the physical file of a photo.
  * 
  * @param array $photofile
