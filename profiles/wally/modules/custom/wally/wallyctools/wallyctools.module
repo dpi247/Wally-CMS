@@ -297,11 +297,7 @@ function wallyctools_get_hierarchies(){
     $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
     $depth=0;
     $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
-dsm('after 1');
-wallytoolbox_set_microtime_step();
     $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
-dsm('after 2');
-wallytoolbox_set_microtime_step();
 
     foreach($tid_did_mapping as $tid=>$did_infos){
       $tid_did_mapping[$tid]['redacblocks']=array();
@@ -385,8 +381,11 @@ function wallyctools_get_redacblock_panes(){
   while($result=db_fetch_object($results)){
     $redacblocks[$result->name]=$result;
   }
+dsm('get redack');
+wallytoolbox_set_microtime_step();
   list($panels,$handlers)=wallytoolbox_get_panels_and_handlers();
-
+dsm('after get panels');
+wallytoolbox_set_microtime_step();
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
     if($term_view_handler->type=='redacblock'){
@@ -411,6 +410,8 @@ function wallyctools_get_redacblock_panes(){
       }
     }
   }
+dsm('after foreach');
+wallytoolbox_set_microtime_step();
   return $array_of_panes;
 }
 
