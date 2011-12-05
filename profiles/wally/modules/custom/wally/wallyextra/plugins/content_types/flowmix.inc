@@ -33,24 +33,31 @@ $plugin = array(
  * Rendering of the flow mix plugin.
  */
 function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $context) {
-  $settings = (array)wallyextra_flowmix_content_type_get_conf(wallyextra_flowmix_content_type_content_type($subtype), $conf);
-
-  $feed = array();
+  $complete_subtype = wallyextra_flowmix_content_type_content_type($subtype);
+  
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'Flow mix.';
-  $cid = $settings['caid'];
-  $default_theme = 'wallyct_flowmix';
-  $ajax = TRUE;
-
-  $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
   
-  if (is_string($feed))
-    $block->content = $feed;
-  elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
-    $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
-  else
-    $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
+  if ($complete_subtype) {
+    $settings = (array)wallyextra_flowmix_content_type_get_conf($complete_subtype, $conf);
+  
+    $feed = array();
+    $cid = $settings['caid'];
+    $default_theme = 'wallyct_flowmix';
+    $ajax = TRUE;
+  
+    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
+    
+    if (is_string($feed))
+      $block->content = $feed;
+    elseif ($settings['override_theme'] && $settings['override_theme_text'] != '')
+      $block->content = theme($settings['override_theme_text'], $subtype, $context, $feed, $settings);
+    else
+      $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
+  } else {
+   $block->content = ''; 
+  }
   
   return $block;
 }
@@ -168,7 +175,7 @@ function wallyextra_flowmix_refresh_block(&$settings) {
 
   $settings = (array)$settings['flow_obj'];
   $old_feed = cache_get($settings['caid']);
-  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
+  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed) && $old_feed->data) {
     _wallyextra_flowmix_setcache($settings, $old_feed->data);
   } else {
     _wallyextra_flowmix_setcache($settings);
@@ -176,10 +183,16 @@ function wallyextra_flowmix_refresh_block(&$settings) {
 
   $time_stop = time();
   $delta_t = $time_stop - $time_start;
-  return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t);
+  return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t - 3600);
 }
 
 function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
+  $flows = $form_state['conf']['flow_obj']->flows;
+  $form_state['conf']['flow_obj']->flows = array();
+  foreach($flows as $flow) {
+    $form_state['conf']['flow_obj']->flows[] = $flow;
+  }
+  
   cache_clear_all($form_state['values']['caid']);
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = ctools_export_crud_load('wallyextra_flowmix_content', $form_state['subtype']['name']);
@@ -242,6 +255,7 @@ function wallyextra_flowmix_content_type_content_type($subtype_id) {
       return _wallyextra_flowmix_ctools_content_type($content);
     }
   }
+  return FALSE;
 }
 
 /**
@@ -328,11 +342,20 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     }
   }
 
+  $feed_array = array();
+  $empty_feed = FALSE;
   foreach ($settings['flows'] as $flow) {
     $flow = (array)$flow;
     $temp_feed_array = _wallyextra_flowmix_create_array_from_uri($flow);
-    if ($temp_feed_array)
+    if ($temp_feed_array) {
       $feed_array[] = $temp_feed_array;
+    } else {
+      $empty_feed = TRUE;
+    }
+  }
+  
+  if ($empty_feed && !empty($old_feed)) {
+    return $old_feed;
   }
 
   $maxitem_global = $settings['maxitem_global'];
