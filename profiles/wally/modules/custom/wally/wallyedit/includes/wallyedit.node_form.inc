@@ -61,7 +61,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
- 
+
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
