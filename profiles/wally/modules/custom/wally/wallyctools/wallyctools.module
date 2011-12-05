@@ -375,14 +375,13 @@ function wallyctools_get_active_handler($term_tid,$depth){
 function wallyctools_get_redacblock_panes(){
   $array_of_panes=array();
 
-  $sql="Select name, view_name, view_id, admin_title FROM {wallyctools} ";
-  $results=(db_query($sql));
+  $sql = "Select name, view_name, view_id, admin_title FROM {wallyctools}";
+  $results = db_query($sql);
 
   while($result=db_fetch_object($results)){
     $redacblocks[$result->name]=$result;
   }
-dsm('get redack');
-wallytoolbox_set_microtime_step();
+
   list($panels,$handlers)=wallytoolbox_get_panels_and_handlers();
 
   $term_view_handlers=$handlers['term_view'];
@@ -409,8 +408,7 @@ wallytoolbox_set_microtime_step();
       }
     }
   }
-dsm('after foreach');
-wallytoolbox_set_microtime_step();
+
   return $array_of_panes;
 }
 
