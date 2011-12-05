@@ -382,7 +382,7 @@ function wallyctools_get_redacblock_panes(){
     $redacblocks[$result->name]=$result;
   }
 
-  list($panels,$handlers)=wallytoolbox_get_panels_and_handlers();
+  list($panels,$handlers)=wallytoolbox_get_panels_and_handlers('term_view');
 
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
