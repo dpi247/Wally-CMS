@@ -155,7 +155,12 @@ function wallycontenttypes_imagecache_actions() {
   $actions = array(
     'wallycontenttypes_wallycrop' => array(
       'name' => 'Wally crop',
-      'description' => 'Perform a wallycrop action.',
+      'description' => t('Perform a wallycrop action.'),
+      'file' => 'includes/wallycontenttypes_actions.inc',
+    ),
+    'wallycontenttypes_cropcopy' => array(
+      'name' => 'Copy of a Wally crop',
+      'description' => t('Reuse the settings of a Wally crop and adapt them to another scale.'),
       'file' => 'includes/wallycontenttypes_actions.inc',
     ),
   );
@@ -724,10 +729,7 @@ function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   }
   $photofile = $node->field_photofile;
   $filepath = $photofile[0]['filepath'];
-  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $filepath);
-
-  $defaultvalues = $usablecropsanddefaults[0];
-  $usablecrops = $usablecropsanddefaults[1];
+  list($defaultvalues, $usablecrops) = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $filepath);
 
   $form_state['nid'] = $nid;
   $form_state['prenode'] = $prenode;
@@ -1249,7 +1251,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
   $usablecrops = array();
   $presets = imagecache_presets();
   $img = imageapi_image_open($photo_path);
-  
+
   foreach ($presets as $preset) {
     if ($preset['actions']) {
       $datas = array();
@@ -1265,22 +1267,43 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
       if (!empty($datas)) {
         $temppresetcrop = array();
         
-        if (is_numeric($datas['xoffset'])) {
-	        $temppresetcrop[0] = $datas['xoffset'];
-        } else {
-        	if ($datas['xoffset']=="center_max") { $datas['xoffset']="center"; };
-        	$temppresetcrop[0] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+        $ratio = round($datas['width']/$datas['height'],2);
+        
+        if (!is_numeric($datas['xoffset'])) {
+        	if ($datas['xoffset'] == 'center_max') {
+        	  if ($img->info['width'] / $ratio <= $img->info['height']) {
+        	    $datas['width'] = $img->info['width'];
+        	    $datas['xoffset'] = 0;
+        	  } else {
+        	    $datas['width'] = $img->info['height'] * $ratio;
+        	    $datas['xoffset'] = 'center';
+        	    $datas['xoffset'] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+        	  }
+        	} else {
+        	  $datas['xoffset'] =  _imagecache_keyword_filter($datas['xoffset'], $img->info['width'], $datas['width']);
+        	}
 	      }
+	      $temppresetcrop[0] = $datas['xoffset'];
+	      
+	      if (!is_numeric($datas['yoffset'])) {
+        	if ($datas['yoffset'] == 'center_max') {
+        	  if ($img->info['height'] * $ratio <= $img->info['width']) {
+        	    $datas['height'] = $img->info['height'];
+        	    $datas['yoffset'] = 0;
+        	  } else {
+        	    $datas['height'] = $img->info['width'] / $ratio;
+        	    $datas['yoffset'] = 'center';
+        	    $datas['yoffset'] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
+        	  }
+        	} else {
+        	  $datas['yoffset'] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
+        	}
+	      }
+	      $temppresetcrop[1] = $datas['yoffset'];
 
-        if (is_numeric($datas['yoffset'])) {
-        	$temppresetcrop[1] = $datas['yoffset'];
-        } else {
-        	if ($datas['yoffset']=="center_max") { $datas['yoffset']="center"; };
-        	$temppresetcrop[1] =  _imagecache_keyword_filter($datas['yoffset'], $img->info['height'], $datas['height']);
-        }
-        $temppresetcrop[2] = $datas['width'] + 0;
-        $temppresetcrop[3] = $datas['height'] + 0;
-        $temppresetcrop[4] = round($datas['width']/$datas['height'],2);
+        $temppresetcrop[2] = $datas['width'];
+        $temppresetcrop[3] = $datas['height'];
+        $temppresetcrop[4] = $ratio;
         
         $tempusablecrop = array();
 
@@ -1296,7 +1319,7 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
             }
           }
         }
-        
+
         if (empty($tempusablecrop)) {
           $defaultvalues[$preset['presetname']] = _wallycontenttypes_getdefaultvaluesforthecroping($temppresetcrop, $img);
           $tempusablecrop = $temppresetcrop;
