@@ -883,7 +883,7 @@ function form_builder($form_id, $form, &$form_state) {
       $form_state['submitted'] = TRUE;
     }
   }
-
+wallyedit_set_microtime_step($begin_time);
   if (isset($form['#input']) && $form['#input']) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
