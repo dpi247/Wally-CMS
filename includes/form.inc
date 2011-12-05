@@ -864,18 +864,9 @@ function form_error(&$element, $message = '') {
  *   was clicked when the form was submitted, as well as the sanitized
  *   $_POST data.
  */
-function form_builder($form_id, $form, &$form_state, $step = FALSE) {
+function form_builder($form_id, $form, &$form_state) {
   static $complete_form, $cache;
-static $start = FALSE;
-if ($step) {
-  if ($form['#type'] == 'cckdestinations_widget') {
-    $start = TRUE;
-  }
-  if ($start) {
-    dsm($form['#type'], 'form');
-    wallytoolbox_set_microtime_step($start);
-  }
-}
+
   // Initialize as unprocessed.
   $form['#processed'] = FALSE;
 
@@ -894,7 +885,7 @@ if ($step) {
   }
 
   if (isset($form['#input']) && $form['#input']) {
-    _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form, $step, $start);
+    _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
   $form['#defaults_loaded'] = TRUE;
 
@@ -935,7 +926,7 @@ if ($step) {
       // later.
       unset($form['#sorted']);
     }
-    $form[$key] = form_builder($form_id, $form[$key], $form_state, $step);
+    $form[$key] = form_builder($form_id, $form[$key], $form_state);
     $count++;
   }
 
@@ -969,7 +960,6 @@ if ($step) {
   if (isset($form['#type']) && $form['#type'] == 'form' && isset($cache)) {
     $form['#cache'] = TRUE;
   }
-
   return $form;
 }
 
@@ -978,7 +968,7 @@ if ($step) {
  * can be processed and rendered. Also, execute any #process handlers
  * attached to a specific element.
  */
-function _form_builder_handle_input_element($form_id, &$form, &$form_state, $complete_form, $step = FALSE, $start = FALSE) {
+function _form_builder_handle_input_element($form_id, &$form, &$form_state, $complete_form) {
   if (!isset($form['#name'])) {
     $name = array_shift($form['#parents']);
     $form['#name'] = $name;
@@ -1064,24 +1054,16 @@ function _form_builder_handle_input_element($form_id, &$form, &$form_state, $com
       }
     }
   }
-
   // Allow for elements to expand to multiple elements, e.g., radios,
   // checkboxes and files.
   if (isset($form['#process']) && !$form['#processed']) {
     foreach ($form['#process'] as $process) {
       if (function_exists($process)) {
-        if ($step && $start) {
-          dsm($process);
-        }
         $form = $process($form, isset($edit) ? $edit : NULL, $form_state, $complete_form);
       }
     }
     $form['#processed'] = TRUE;
   }
-if ($step && $start) {
-  dsm('after process');
-  wallytoolbox_set_microtime_step($start);
-}
   form_set_value($form, $form['#value'], $form_state);
 }
 
