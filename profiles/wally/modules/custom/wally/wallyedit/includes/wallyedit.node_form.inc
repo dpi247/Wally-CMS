@@ -17,10 +17,10 @@ function wallyedit_form(&$form, &$form_state) {
   return $form;
 }
 
-function wallyedit_set_microtime_step($begin_time) {
+function wallyedit_set_microtime_step() {
+  global $begin_time;
   $end_time = microtime(TRUE);
   $t = $end_time - $begin_time;
-  dsm($t);
   $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
   $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
 
@@ -31,12 +31,13 @@ function wallyedit_set_microtime_step($begin_time) {
  * Menu callback for AHAH addition of new empty widgets.
  */
 function wallyedit_add_more_js($type_name_url, $field_name) {
-$begin_time = microtime(TRUE);
+ global $begin_time;
+ $begin_time = microtime(TRUE);
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
   
   $type = content_types($type_name_url);
-wallyedit_set_microtime_step($begin_time);
+
   $field = content_fields($field_name, $type['type']);
 
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
@@ -44,7 +45,7 @@ wallyedit_set_microtime_step($begin_time);
     drupal_json(array('data' => ''));
     exit;
   }
-wallyedit_set_microtime_step($begin_time);
+
   // Retrieve the cached form.
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
@@ -54,7 +55,7 @@ wallyedit_set_microtime_step($begin_time);
     drupal_json(array('data' => ''));
     exit;
   }
-wallyedit_set_microtime_step($begin_time);
+
   // We don't simply return a new empty widget to append to existing ones, because
   // - ahah.js won't simply let us add a new row to a table
   // - attaching the 'draggable' behavior won't be easy
@@ -73,7 +74,7 @@ wallyedit_set_microtime_step($begin_time);
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
-wallyedit_set_microtime_step($begin_time);
+
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
