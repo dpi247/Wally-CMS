@@ -267,7 +267,7 @@ function wallyextra_remotehtml_content_type_get_conf($subtype, $conf) {
  */
 function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args, $context) {
   $settings = wallyextra_remotehtml_content_type_get_conf(wallyextra_remotehtml_content_type_content_type($subtype), $conf);
-  
+ 
   $block = new stdClass();
   $block->module = 'wallyextra';
   $block->title = 'HTML Block';
