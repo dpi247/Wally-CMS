@@ -894,13 +894,10 @@ if ($step) {
   }
 
   if (isset($form['#input']) && $form['#input']) {
-    _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
+    _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form, $step, $start);
   }
   $form['#defaults_loaded'] = TRUE;
-if ($step && $start) {
-  dsm('after handle');
-  wallytoolbox_set_microtime_step($start);
-}
+
   // We start off assuming all form elements are in the correct order.
   $form['#sorted'] = TRUE;
 
@@ -981,7 +978,7 @@ if ($step && $start) {
  * can be processed and rendered. Also, execute any #process handlers
  * attached to a specific element.
  */
-function _form_builder_handle_input_element($form_id, &$form, &$form_state, $complete_form) {
+function _form_builder_handle_input_element($form_id, &$form, &$form_state, $complete_form, $step = FALSE, $start = FALSE) {
   if (!isset($form['#name'])) {
     $name = array_shift($form['#parents']);
     $form['#name'] = $name;
@@ -1067,6 +1064,10 @@ function _form_builder_handle_input_element($form_id, &$form, &$form_state, $com
       }
     }
   }
+if ($step && $start) {
+  dsm('before process');
+  wallytoolbox_set_microtime_step($start);
+}
   // Allow for elements to expand to multiple elements, e.g., radios,
   // checkboxes and files.
   if (isset($form['#process']) && !$form['#processed']) {
@@ -1077,6 +1078,10 @@ function _form_builder_handle_input_element($form_id, &$form, &$form_state, $com
     }
     $form['#processed'] = TRUE;
   }
+if ($step && $start) {
+  dsm('after process');
+  wallytoolbox_set_microtime_step($start);
+}
   form_set_value($form, $form['#value'], $form_state);
 }
 
