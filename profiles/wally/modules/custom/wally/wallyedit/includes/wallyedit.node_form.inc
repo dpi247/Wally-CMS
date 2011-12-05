@@ -21,12 +21,10 @@ function wallyedit_form(&$form, &$form_state) {
  * Menu callback for AHAH addition of new empty widgets.
  */
 function wallyedit_add_more_js($type_name_url, $field_name) {
-wallytoolbox_set_microtime_step();
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
   
   $type = content_types($type_name_url);
-
   $field = content_fields($field_name, $type['type']);
 
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
@@ -34,7 +32,7 @@ wallytoolbox_set_microtime_step();
     drupal_json(array('data' => ''));
     exit;
   }
-
+  
   // Retrieve the cached form.
   $form_state = array('submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
@@ -44,7 +42,7 @@ wallytoolbox_set_microtime_step();
     drupal_json(array('data' => ''));
     exit;
   }
-
+  
   // We don't simply return a new empty widget to append to existing ones, because
   // - ahah.js won't simply let us add a new row to a table
   // - attaching the 'draggable' behavior won't be easy
@@ -61,7 +59,7 @@ wallytoolbox_set_microtime_step();
 
   $form_copy['#post'] = $_POST;
   
-  form_builder($_POST['form_id'], $form_copy, $form_state_copy, TRUE);
+  form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
 
   $form_state['values'] = $form_state_copy['values'];
