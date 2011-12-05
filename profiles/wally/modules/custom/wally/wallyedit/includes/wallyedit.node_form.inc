@@ -61,7 +61,7 @@ wallytoolbox_set_microtime_step();
 
   $form_copy['#post'] = $_POST;
   
-  form_builder($_POST['form_id'], $form_copy, $form_state_copy);
+  form_builder($_POST['form_id'], $form_copy, $form_state_copy, TRUE);
   // Just grab the data we need.
 
   $form_state['values'] = $form_state_copy['values'];
