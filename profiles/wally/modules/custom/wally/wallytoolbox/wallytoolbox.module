@@ -1198,6 +1198,8 @@ function wallytoolbox_refresh_cache_list() {
  */
 function wallytoolbox_get_panels_and_handlers() {
   $pages = page_manager_get_tasks_by_type('page');
+dsm('after get task');
+wallytoolbox_set_microtime_step();
   $handlers = array();
   $panels = array();
   foreach ($pages as $page_name => $page) {
@@ -1210,6 +1212,8 @@ function wallytoolbox_get_panels_and_handlers() {
         $handlers[$page_name][] = $display_content;
     }
   }
+dsm('after foreach');
+wallytoolbox_set_microtime_step();
   
   return array($panels, $handlers);
 }

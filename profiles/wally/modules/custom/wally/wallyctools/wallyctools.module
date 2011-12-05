@@ -384,8 +384,7 @@ function wallyctools_get_redacblock_panes(){
 dsm('get redack');
 wallytoolbox_set_microtime_step();
   list($panels,$handlers)=wallytoolbox_get_panels_and_handlers();
-dsm('after get panels');
-wallytoolbox_set_microtime_step();
+
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
     if($term_view_handler->type=='redacblock'){
