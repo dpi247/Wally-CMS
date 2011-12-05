@@ -73,7 +73,7 @@ wallyedit_set_microtime_step($begin_time);
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
-
+wallyedit_set_microtime_step($begin_time);
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
