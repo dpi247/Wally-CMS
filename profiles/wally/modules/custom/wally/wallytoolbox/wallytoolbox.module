@@ -362,7 +362,7 @@ function wallytoolbox_set_microtime_step() {
     $end_time = microtime(TRUE);
     $t = $end_time - $begin_time;
     $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t - 3600));
 
     dsm($d->format('H:i:s.u'));
   }
