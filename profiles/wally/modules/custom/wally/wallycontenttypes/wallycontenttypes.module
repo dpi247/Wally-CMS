@@ -158,6 +158,11 @@ function wallycontenttypes_imagecache_actions() {
       'description' => t('Perform a wallycrop action.'),
       'file' => 'includes/wallycontenttypes_actions.inc',
     ),
+    'wallycontenttypes_cropcopy' => array(
+      'name' => 'Copy of a Wally crop',
+      'description' => t('Reuse the settings of a Wally crop and adapt them to another scale.'),
+      'file' => 'includes/wallycontenttypes_actions.inc',
+    ),
   );
 
   return $actions;
