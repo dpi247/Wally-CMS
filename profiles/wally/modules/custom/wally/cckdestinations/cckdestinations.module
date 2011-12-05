@@ -709,8 +709,6 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes'] = array();
 
   $hierarchies = wallyctools_get_hierarchies();
-dsm('after load');
-wallytoolbox_set_microtime_step();
   foreach($hierarchies as $tid => $hierarchie){
     // Target
     foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
@@ -724,8 +722,7 @@ wallytoolbox_set_microtime_step();
       }
     }
   }
-dsm('after process');
-wallytoolbox_set_microtime_step();
+
   return $result;
 }
 

@@ -297,7 +297,11 @@ function wallyctools_get_hierarchies(){
     $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
     $depth=0;
     $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+dsm('after 1');
+wallytoolbox_set_microtime_step();
     $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
+dsm('after 2');
+wallytoolbox_set_microtime_step();
 
     foreach($tid_did_mapping as $tid=>$did_infos){
       $tid_did_mapping[$tid]['redacblocks']=array();
