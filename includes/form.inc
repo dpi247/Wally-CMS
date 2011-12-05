@@ -883,11 +883,7 @@ function form_builder($form_id, $form, &$form_state, $step = FALSE) {
       $form_state['submitted'] = TRUE;
     }
   }
-if ($step) {
-  if (wallytoolbox_set_microtime_step()) {
-    dsm($form, 'form');
-  }
-}
+
   if (isset($form['#input']) && $form['#input']) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
@@ -964,6 +960,11 @@ if ($step) {
   if (isset($form['#type']) && $form['#type'] == 'form' && isset($cache)) {
     $form['#cache'] = TRUE;
   }
+if ($step) {
+  if (wallytoolbox_set_microtime_step()) {
+    dsm($form, 'form');
+  }
+}
   return $form;
 }
 
