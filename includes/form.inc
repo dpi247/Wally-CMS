@@ -866,11 +866,8 @@ function form_error(&$element, $message = '') {
  */
 function form_builder($form_id, $form, &$form_state, $step = FALSE) {
   static $complete_form, $cache;
-static $passage = TRUE;
 if ($step) {
-  if (wallytoolbox_set_microtime_step() && $passage) {
-    dsm($form, 'form');
-  }
+  dsm($form, 'form');
 }
   // Initialize as unprocessed.
   $form['#processed'] = FALSE;
@@ -966,10 +963,7 @@ if ($step) {
     $form['#cache'] = TRUE;
   }
 if ($step) {
-  if (wallytoolbox_set_microtime_step() && $passage) {
-    $passage = FALSE;
-    dsm($form, 'form');
-  }
+  dsm('after');
 }
   return $form;
 }
