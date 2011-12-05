@@ -447,7 +447,8 @@ wallytoolbox_set_microtime_step();
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
   $options_and_classe = cckdestinations_get_classes_and_options();
-
+dsm('after process');
+wallytoolbox_set_microtime_step();
   $element['tid'] = array(
     '#title'            => t( 'Destination Path' ),
     '#type'             => 'select',
@@ -553,8 +554,7 @@ wallytoolbox_set_microtime_step();
   }
   
   $element['#after_build'][] = 'cckdestinations_cckdestinations_widget_after_build';
-dsm('after process');
-wallytoolbox_set_microtime_step();
+
   return $element;
 }
 
