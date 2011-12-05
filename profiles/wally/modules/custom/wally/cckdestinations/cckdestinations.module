@@ -701,33 +701,29 @@ function cckdestinations_batch_dest_add($node, $context, $a, $b) {
  * @return an array with  "target" and "layout" key both are array with #options 
  * and #classes keys to put in the form definition
  */
- 
 function cckdestinations_get_classes_and_options(){
-  static $result = array();
-  if (empty($result)) {
-    $result['tid']['#options'] = array();
-    $result['target']['#options'] = array();
-    $result['target']['#classes'] = array();
-    $result['layout']['#options'] = array();
-    $result['layout']['#classes'] = array();
+  $result['tid']['#options'] = array();
+  $result['target']['#options'] = array();
+  $result['target']['#classes'] = array();
+  $result['layout']['#options'] = array();
+  $result['layout']['#classes'] = array();
 
-    $hierarchies = wallyctools_get_hierarchies();
-    foreach($hierarchies as $tid => $hierarchie){
-      // Target
-      foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
-        // Layout
-        foreach($redacblock['layouts'] as $layout_id => $name){
-          $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
-          $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
-          $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
-          $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id => $name['name']);
-          $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id => $tid.$redacblock_id);
-        }
+  $hierarchies = wallyctools_get_hierarchies();
+  foreach($hierarchies as $tid => $hierarchie){
+    // Target
+    foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
+      // Layout
+      foreach($redacblock['layouts'] as $layout_id => $name){
+        $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
+        $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
+        $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
+        $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id => $name['name']);
+        $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id => $tid.$redacblock_id);
       }
     }
-    dsm('after process');
-wallytoolbox_set_microtime_step();
   }
+dsm('after process');
+wallytoolbox_set_microtime_step();
   return $result;
 }
 
