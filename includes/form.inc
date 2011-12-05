@@ -866,9 +866,13 @@ function form_error(&$element, $message = '') {
  */
 function form_builder($form_id, $form, &$form_state, $step = FALSE) {
   static $complete_form, $cache;
+static $start = FALSE;
 if ($step) {
-  wallytoolbox_set_microtime_step();
+  if ($form['#type'] == 'cckdestinations_widget') {
+    $start = TRUE;
+  }
   dsm($form['#type'], 'form');
+  wallytoolbox_set_microtime_step($start);
 }
   // Initialize as unprocessed.
   $form['#processed'] = FALSE;
@@ -891,7 +895,10 @@ if ($step) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
   $form['#defaults_loaded'] = TRUE;
-
+if ($step) {
+  dsm('after handle');
+  wallytoolbox_set_microtime_step($start);
+}
   // We start off assuming all form elements are in the correct order.
   $form['#sorted'] = TRUE;
 
@@ -963,9 +970,7 @@ if ($step) {
   if (isset($form['#type']) && $form['#type'] == 'form' && isset($cache)) {
     $form['#cache'] = TRUE;
   }
-if ($step) {
-  dsm('after');
-}
+
   return $form;
 }
 
