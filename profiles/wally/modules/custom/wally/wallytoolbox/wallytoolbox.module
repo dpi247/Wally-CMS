@@ -354,7 +354,7 @@ function wallytoolbox_toboolean($v, $def=NULL) {
 function wallytoolbox_set_microtime_step() {
   static $begin_time = 0;
   static $first = TRUE;
-  static $first_form = TRUE;
+  static $first_form = 0;
 
   if ($first) {
     $begin_time = microtime(TRUE);
@@ -366,9 +366,9 @@ function wallytoolbox_set_microtime_step() {
     $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
 
     $formatted = $d->format('i:s.u');
-    if ($t > 5 && $first_form) {
+    if ($t > 5 && $first_form < 2) {
       dsm($formatted);
-      $first_form = FALSE;
+      $first_form++;
       return TRUE;
     }
   }
