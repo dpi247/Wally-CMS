@@ -217,7 +217,6 @@ function wallycontenttypes_cropcopy_image(&$image, $data) {
     $data['width'] = $crop['width'];
     $data['height'] = $crop['height'];
   }
-watchdog('Imagecache debug', print_r($data, TRUE));
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
   if ($data["xoffset"]=="center_max" || $data["yoffset"] == "center_max") {
