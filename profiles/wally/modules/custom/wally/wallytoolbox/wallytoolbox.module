@@ -351,6 +351,23 @@ function wallytoolbox_toboolean($v, $def=NULL) {
   return $def;
 }
 
+function wallytoolbox_set_microtime_step() {
+  static $begin_time = 0;
+  static $first = TRUE;
+
+  if ($first) {
+    $begin_time = microtime(TRUE);
+    $first = FALSE;
+  } else {
+    $end_time = microtime(TRUE);
+    $t = $end_time - $begin_time;
+    $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
+
+    dsm($d->format('H:i:s.u'));
+  }
+}
+
 /**
  * Search for taxonomy terms for a specific "path". 
  *

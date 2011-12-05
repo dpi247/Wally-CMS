@@ -17,22 +17,11 @@ function wallyedit_form(&$form, &$form_state) {
   return $form;
 }
 
-function wallyedit_set_microtime_step() {
-  global $begin_time;
-  $end_time = microtime(TRUE);
-  $t = $end_time - $begin_time;
-  $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
-  $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
-
-  dsm($d->format('i:s.u'));
-}
-
 /**
  * Menu callback for AHAH addition of new empty widgets.
  */
 function wallyedit_add_more_js($type_name_url, $field_name) {
- global $begin_time;
- $begin_time = microtime(TRUE);
+wallytoolbox_set_microtime_step();
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
   
