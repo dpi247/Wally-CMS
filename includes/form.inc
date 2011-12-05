@@ -864,7 +864,7 @@ function form_error(&$element, $message = '') {
  *   was clicked when the form was submitted, as well as the sanitized
  *   $_POST data.
  */
-function form_builder($form_id, $form, &$form_state) {
+function form_builder($form_id, $form, &$form_state, $step = FALSE) {
   static $complete_form, $cache;
 
   // Initialize as unprocessed.
@@ -883,7 +883,9 @@ function form_builder($form_id, $form, &$form_state) {
       $form_state['submitted'] = TRUE;
     }
   }
+if ($step) {
 wallyedit_set_microtime_step();
+}
   if (isset($form['#input']) && $form['#input']) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
@@ -926,7 +928,7 @@ wallyedit_set_microtime_step();
       // later.
       unset($form['#sorted']);
     }
-    $form[$key] = form_builder($form_id, $form[$key], $form_state);
+    $form[$key] = form_builder($form_id, $form[$key], $form_state, $step);
     $count++;
   }
 
