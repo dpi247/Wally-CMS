@@ -21,6 +21,7 @@ function wallyedit_form(&$form, &$form_state) {
  * Menu callback for AHAH addition of new empty widgets.
  */
 function wallyedit_add_more_js($type_name_url, $field_name) {
+  $begin_time = time();
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
   
@@ -173,7 +174,8 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   // by ourselves in order to let AHAH know about those new form elements.
   $javascript = drupal_add_js(NULL, NULL);
   $output_js = isset($javascript['setting']) ? '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', $javascript['setting'])) .');</script>' : '';
-
+$end_time = time();
+drupal_set_message(date('i:s', $end_time - $begin_time - 3600));
   $output = theme('status_messages') . drupal_render($field_form) . $output_js;
 
   // Using drupal_json() breaks filefield's file upload, because the jQuery
