@@ -364,7 +364,7 @@ function wallytoolbox_set_microtime_step() {
     $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
     $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
 
-    //dsm($d->format('H:i:s.u'));
+    dsm($d->format('H:i:s.u'));
   }
 }
 
