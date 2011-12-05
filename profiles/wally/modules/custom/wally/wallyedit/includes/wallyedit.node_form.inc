@@ -17,11 +17,21 @@ function wallyedit_form(&$form, &$form_state) {
   return $form;
 }
 
+function wallyedit_set_microtime_step($begin_time) {
+  $end_time = microtime(TRUE);
+  $t = $end_time - $begin_time;
+  dsm($t);
+  $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
+  $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
+
+  dsm($d->format('i:s.u'));
+}
+
 /**
  * Menu callback for AHAH addition of new empty widgets.
  */
 function wallyedit_add_more_js($type_name_url, $field_name) {
-  $begin_time = time();
+$begin_time = microtime(TRUE);
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
   
@@ -43,7 +53,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
     drupal_json(array('data' => ''));
     exit;
   }
-  
+wallyedit_set_microtime_step($begin_time);
   // We don't simply return a new empty widget to append to existing ones, because
   // - ahah.js won't simply let us add a new row to a table
   // - attaching the 'draggable' behavior won't be easy
@@ -62,7 +72,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
- 
+wallyedit_set_microtime_step($begin_time);
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
@@ -114,10 +124,10 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
 
   //$temp['values'][$field_name] = $form_state_ref;
   $form_element = content_field_form($form_t, $temp, $field);
-
+wallyedit_set_microtime_step($begin_time);
   // Let other modules alter it.
   drupal_alter('form', $form_element, array(), 'content_add_more_js');
-
+wallyedit_set_microtime_step($begin_time);
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
   $redirect_path = $path;
@@ -145,7 +155,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
     '#programmed' => FALSE,
   );
   $form = form_builder($_POST['form_id'], $form, $form_state);
-  
+wallyedit_set_microtime_step($begin_time);
   // Render the new output.
   $field_form = $form;
   foreach($path as $path_item){
@@ -174,8 +184,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   // by ourselves in order to let AHAH know about those new form elements.
   $javascript = drupal_add_js(NULL, NULL);
   $output_js = isset($javascript['setting']) ? '<script type="text/javascript">jQuery.extend(Drupal.settings, '. drupal_to_js(call_user_func_array('array_merge_recursive', $javascript['setting'])) .');</script>' : '';
-$end_time = time();
-drupal_set_message(date('i:s', $end_time - $begin_time - 3600));
+wallyedit_set_microtime_step($begin_time);
   $output = theme('status_messages') . drupal_render($field_form) . $output_js;
 
   // Using drupal_json() breaks filefield's file upload, because the jQuery
