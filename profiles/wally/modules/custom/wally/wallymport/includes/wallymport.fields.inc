@@ -404,7 +404,7 @@ function wimprt_set_field_productid(&$node,$dom,&$log){
  * @return
  *   Nothing
  */
-function wimprt_set_field_destinations(&$node,$dom,$log) {
+function wimprt_set_field_destinations(&$node, $dom, $log) {
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process Destinations: '.$dom->nodeName;
   }
@@ -412,41 +412,50 @@ function wimprt_set_field_destinations(&$node,$dom,$log) {
   $result = array(); 
   $vid = variable_get('wallymport_destinationpath',NULL);
   if ($vid) {
-	$i = 0;
-	foreach($dom->getElementsByTagName('Destination') as $destination) {
-	  $path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
-	  $terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
-	  if ($terms) {
-	    // As we check the taxonomy full path and specify a vocabulary
-		// we can only have one result.
-		$result[$i]['tid'] = $terms[0]->tid;
-		$result[$i]['target'] = $destination->getAttributeNode("Position")->value;
-		$result[$i]['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
-		$result[$i]['rank'] = $destination->getAttributeNode("DestinationRank")->value;
-			
-		$actual_dest = isset($node->field_destinations[$i]) ? $node->field_destinations[$i] : array('tid' => '', 'target' => '', 'layout' => '', 'rank' => '');
-		if ($result[$i]['tid'] == $actual_dest['tid'] && $result[$i]['target'] == $actual_dest['target'] && $result[$i]['layout'] == $actual_dest['layout'] && $result[$i]['rank'] == $actual_dest['rank']) {
-		  $result[$i]['rank'] = 'DNC'.$result[$i]['rank'];
-		  $result[$i]['time_rank'] = $actual_dest['time_rank'];
-		}
-	  } else {
-		drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');	
-	  }
-	  $i++;
-	}
+  	$i = 0;
+  	foreach($dom->getElementsByTagName('Destination') as $destination) {
+  	  $path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
+  	  $terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
+  	  if ($terms) {
+  	    $temp_dest = array();
+  	    
+  	    // As we check the taxonomy full path and specify a vocabulary
+    		// we can only have one result.
+    		$temp_dest['tid'] = $terms[0]->tid;
+    		$temp_dest['target'] = $destination->getAttributeNode("Position")->value;
+    		$temp_dest['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
+    		$temp_dest['rank'] = $destination->getAttributeNode("DestinationRank")->value;
+  
+    		$actual_dest = isset($node->field_destinations[$i]) ? $node->field_destinations[$i] : array('tid' => '', 'target' => '', 'layout' => '', 'rank' => '');
+    		if ($temp_dest['tid'] == $actual_dest['tid'] && $temp_dest['target'] == $actual_dest['target'] && $temp_dest['layout'] == $actual_dest['layout'] && $temp_dest['rank'] == $actual_dest['rank']) {
+    		  $temp_dest['rank'] = 'DNC'.$temp_dest['rank'];
+    		  $temp_dest['time_rank'] = $actual_dest['time_rank'];
+    		}
 
-	// If no destinations at all > Package can't be created.
-	if (count($result)) {
-	  $node->field_destinations = $result;
-	} else {
-	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
-      $node->rejected = '';
-	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
-	  return '';
-	}
+    		$items = array($temp_dest);
+    		if (cckdestinations_field('validate', $node, array(), $items, NULL, NULL)) {
+    		  $result[$i] = $temp_dest;
+    		  $i++;
+    		} else {
+    		  drupal_set_message(t('Path "@path" doesn\'t match the target "@target". Destination rejected.', array('@path' => $path, '@target' => $temp_dest['target'])), 'notice');
+    		}
+  	  } else {
+  		  drupal_set_message(t('Path "@path" not found in vocabulary (@vid). Destination rejected.', array('@path' => $path, '@vid' => $vid)), 'notice');
+  	  }
+  	}
+  
+  	// If no destinations at all > Package can't be created.
+  	if (count($result)) {
+  	  $node->field_destinations = $result;
+  	} else {
+  	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
+      $node->rejected = TRUE;
+  	  drupal_set_message(t('No destination AT ALL for current package. Package rejected.'), 'error');
+  	  return '';
+  	}
   } else {
-	drupal_set_message('Destination Path vocabulary not set. See settings.','error');
-	return '';
+	  drupal_set_message(t('Destination Path vocabulary not set. See settings.'), 'error');
+	  return '';
   }
 }
 
