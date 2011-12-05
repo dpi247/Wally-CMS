@@ -884,7 +884,9 @@ function form_builder($form_id, $form, &$form_state, $step = FALSE) {
     }
   }
 if ($step) {
-  wallytoolbox_set_microtime_step();
+  if (wallytoolbox_set_microtime_step()) {
+    dsm($form, 'form');
+  }
 }
   if (isset($form['#input']) && $form['#input']) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
