@@ -297,6 +297,15 @@ function wallytoolbox_content_type_form_submit(&$form, &$form_state) {
 }
 
 /**
+ * Error handler
+ */
+function wallytoolbox_handle_errors($errno, $errstr, $errfile, $errline, $args) {
+  if($errno == 1){
+    watchdog('php', 'Fatal error: @errstr in @errfile at line @errline', array('@errstr' => $errstr, '@errfile' => $errfile, '@errline' => $errline), WATCHDOG_ERROR);
+  }
+}
+
+/**
  * Unsets all persistent variables beginning with the given string.
  *
  * @param $name
