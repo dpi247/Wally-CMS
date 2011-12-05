@@ -1198,9 +1198,8 @@ function wallytoolbox_refresh_cache_list() {
  */
 function wallytoolbox_get_panels_and_handlers($page = NULL) {
   $pages = page_manager_get_tasks_by_type('page');
-
   if ($page) {
-    $pages = array($pages[$page]);
+    $pages = array($page => $pages[$page]);
   }
   
   $handlers = array();
