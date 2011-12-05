@@ -358,7 +358,6 @@ function wallytoolbox_set_microtime_step() {
   if ($first) {
     $begin_time = microtime(TRUE);
     $first = FALSE;
-    dsm('coucou');
   } else {
     $end_time = microtime(TRUE);
     $t = $end_time - $begin_time;
