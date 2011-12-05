@@ -1064,15 +1064,15 @@ function _form_builder_handle_input_element($form_id, &$form, &$form_state, $com
       }
     }
   }
-if ($step && $start) {
-  dsm('before process');
-  wallytoolbox_set_microtime_step($start);
-}
+
   // Allow for elements to expand to multiple elements, e.g., radios,
   // checkboxes and files.
   if (isset($form['#process']) && !$form['#processed']) {
     foreach ($form['#process'] as $process) {
       if (function_exists($process)) {
+        if ($step && $start) {
+          dsm($process);
+        }
         $form = $process($form, isset($edit) ? $edit : NULL, $form_state, $complete_form);
       }
     }
