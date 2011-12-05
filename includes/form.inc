@@ -871,8 +871,10 @@ if ($step) {
   if ($form['#type'] == 'cckdestinations_widget') {
     $start = TRUE;
   }
-  dsm($form['#type'], 'form');
-  wallytoolbox_set_microtime_step($start);
+  if ($start) {
+    dsm($form['#type'], 'form');
+    wallytoolbox_set_microtime_step($start);
+  }
 }
   // Initialize as unprocessed.
   $form['#processed'] = FALSE;
@@ -895,7 +897,7 @@ if ($step) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
   }
   $form['#defaults_loaded'] = TRUE;
-if ($step) {
+if ($step && $start) {
   dsm('after handle');
   wallytoolbox_set_microtime_step($start);
 }
