@@ -1205,6 +1205,8 @@ function wallytoolbox_get_panels_and_handlers() {
 dsm('start '.$page_name);
 wallytoolbox_set_microtime_step();
     $cached_page = page_manager_get_page_cache($page_name);
+dsm('middle '.$page_name);
+wallytoolbox_set_microtime_step();
     $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
     foreach ($cached_page->handlers as $handler_name => $handler) {
       $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
