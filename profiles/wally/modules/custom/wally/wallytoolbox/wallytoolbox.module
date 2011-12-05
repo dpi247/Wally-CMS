@@ -358,13 +358,14 @@ function wallytoolbox_set_microtime_step() {
   if ($first) {
     $begin_time = microtime(TRUE);
     $first = FALSE;
+    dsm('coucou');
   } else {
     $end_time = microtime(TRUE);
     $t = $end_time - $begin_time;
     $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
     $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
 
-    dsm($d->format('H:i:s.u'));
+    //dsm($d->format('H:i:s.u'));
   }
 }
 
