@@ -292,19 +292,22 @@ function wallyctools_get_view_info_from_redacblock ($redacblock) {
  * @return an array where term are key and the hierarchical structure of the redactional content.
  */
 function wallyctools_get_hierarchies(){
-  $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
-  $depth=0;
-  $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
-  $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
+  static $tid_did_mapping = array();
+  if (empty($tid_did_mapping)) {
+    $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
+    $depth=0;
+    $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+    $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
 
-  foreach($tid_did_mapping as $tid=>$did_infos){
-    $tid_did_mapping[$tid]['redacblocks']=array();
+    foreach($tid_did_mapping as $tid=>$did_infos){
+      $tid_did_mapping[$tid]['redacblocks']=array();
 
-    foreach($array_of_redacblock_panes as $pane){
-      if($did_infos['did']==$pane->did){
-        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
-        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
-        $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
+      foreach($array_of_redacblock_panes as $pane){
+        if($did_infos['did']==$pane->did){
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
+        }
       }
     }
   }
