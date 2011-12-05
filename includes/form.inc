@@ -867,7 +867,7 @@ function form_error(&$element, $message = '') {
 function form_builder($form_id, $form, &$form_state, $step = FALSE) {
   static $complete_form, $cache;
 if ($step) {
-  dsm($form, 'form');
+  dsm($form['#type'], 'form');
 }
   // Initialize as unprocessed.
   $form['#processed'] = FALSE;
