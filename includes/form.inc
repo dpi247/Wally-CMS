@@ -884,7 +884,7 @@ function form_builder($form_id, $form, &$form_state, $step = FALSE) {
     }
   }
 if ($step) {
-wallyedit_set_microtime_step();
+//wallyedit_set_microtime_step();
 }
   if (isset($form['#input']) && $form['#input']) {
     _form_builder_handle_input_element($form_id, $form, $form_state, $complete_form);
