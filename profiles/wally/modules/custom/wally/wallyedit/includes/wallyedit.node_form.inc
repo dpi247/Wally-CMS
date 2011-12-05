@@ -144,7 +144,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
     '#programmed' => FALSE,
   );
   $form = form_builder($_POST['form_id'], $form, $form_state);
-  
+
   // Render the new output.
   $field_form = $form;
   foreach($path as $path_item){
