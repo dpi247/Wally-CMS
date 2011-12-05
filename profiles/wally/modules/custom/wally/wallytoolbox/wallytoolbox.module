@@ -1196,37 +1196,25 @@ function wallytoolbox_refresh_cache_list() {
 /**
  * Get a list of all blocks set in all pages
  */
-function wallytoolbox_get_panels_and_handlers() {
+function wallytoolbox_get_panels_and_handlers($page = NULL) {
   $pages = page_manager_get_tasks_by_type('page');
 
+  if ($page) {
+    $pages = array($pages[$page]);
+  }
+  
   $handlers = array();
   $panels = array();
   foreach ($pages as $page_name => $page) {
-if ($page_name == 'page') {
-dsm('start '.$page_name);
-wallytoolbox_set_microtime_step();
-}
     $cached_page = page_manager_get_page_cache($page_name);
     $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
     foreach ($cached_page->handlers as $handler_name => $handler) {
-if ($page_name == 'page') {
-dsm('start '.$handler_name);
-wallytoolbox_set_microtime_step();
-}
       $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
       $panels[$handler_name][] = $cached_panels;
       foreach ($cached_panels->display->content as $display_content) {
         $handlers[$page_name][] = $display_content;
       }
-if ($page_name == 'page') {
-dsm('end '.$handler_name);
-wallytoolbox_set_microtime_step();
-}
     }
-if ($page_name == 'page') {
-dsm('end '.$page_name);
-wallytoolbox_set_microtime_step();
-}
   }
   
   return array($panels, $handlers);
