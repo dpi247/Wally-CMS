@@ -220,7 +220,7 @@ function wallycontenttypes_cropcopy_image(&$image, $data) {
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
   if ($data["xoffset"]=="center_max" || $data["yoffset"] == "center_max") {
-	  if (!imageapi_image_scale_and_crop($image, $data['width'], $data['height'])) {
+	  if (!imageapi_image_scale_and_crop($image, $image->info['width'], $image->info['height'])) {
 	    watchdog('WallyContentTypes', 'CropCopy Action : action failed. image: %image, data: %data.', array('%image' => $image->source, '%data' => print_r($data, TRUE)), WATCHDOG_ERROR);
 	    return FALSE;
 	  }
