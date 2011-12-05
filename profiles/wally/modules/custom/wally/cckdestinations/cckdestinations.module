@@ -135,6 +135,13 @@ function cckdestinations_field_settings( $op, $field ){
 function cckdestinations_field($op, &$node, $field, &$items, $teaser, $page) {
   switch ($op) {
     case 'validate':
+      $hierarchies = wallyctools_get_hierarchies();
+      foreach ($items as $item) {
+        if (!isset($hierarchies[$item['tid']]['redacblocks'][$item['target']])) {
+          return FALSE;
+        }
+      }
+      return TRUE;
       break;
     case 'sanitize':
       foreach ($items as $delta => $item) {
