@@ -104,3 +104,22 @@ function pub_update_6001() {
   db_query("UPDATE {zz_pub_UMI} SET builder = 'adtech'");
   return $ret;
 }
+
+
+/**
+ * Implementation of hook_update_N().
+ * Remove duplicate entry from table
+ */
+function pub_update_6002() {
+  $ret = array();
+  $positions= db_query("select DISTINCT(position) from {zz_pub_UMI}");
+  while($position = db_fetch_object($positions)){
+    dsm($position);
+    $position_name=$position->position;
+
+    $pid= db_result(db_query("select max(pid) from {zz_pub_UMI} WHERE position='%s'",$position_name));
+    db_query("DELETE  from {zz_pub_UMI} WHERE position='%s' and pid < %d",$position_name,$pid);
+  }
+  return $ret;
+  
+}

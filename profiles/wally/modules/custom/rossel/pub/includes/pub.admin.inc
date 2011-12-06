@@ -197,6 +197,8 @@ function pub_blocks_admin_form(&$form_state) {
     '#type' => 'submit',
     '#title' => t('Delete'),
     '#value' => t('Delete'),
+    	'#name'=>'delete',
+  
   );
   
   $form['new_block'] = array(
@@ -281,6 +283,7 @@ function pub_blocks_admin_form(&$form_state) {
     '#type' => 'submit',
     '#title' => t('Create new block'),
     '#value' => t('Create new block'),
+  	'#name'=>'create',
   );
   
   return $form;
@@ -290,16 +293,24 @@ function pub_blocks_admin_form(&$form_state) {
  * Validation for the form for the pub blocks admin page.
  */
 function pub_blocks_admin_form_validate($form, &$form_state) {
-  switch ($form_state['values']['op']) {
-    case 'Delete':
+  $op=$form_state['clicked_button']['#name'];
+  switch ($op) {
+    case 'delete':
       foreach ($form['blocks'] as $name => $value) {
         if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
           return;
       }
       form_set_error('blocks', t('Select at least one block.'));
       break;
-    case 'Create new block':
-      break;
+    case 'create':
+      $existing_position = db_result(db_query('SELECT count(pid) FROM {zz_pub_UMI} where position="%s"',$form_state["values"]["position"]));
+      if($existing_position){
+        form_set_error('position', t('This position already exist.'));
+      }
+    	
+    	
+    	
+    break;
     default:
   }
 }
@@ -308,8 +319,10 @@ function pub_blocks_admin_form_validate($form, &$form_state) {
  * Submit actions for the form for the pub blocks admin page.
  */
 function pub_blocks_admin_form_submit($form, &$form_state) {
-  switch ($form_state['values']['op']) {
-    case 'Delete':
+  $op=$form_state['clicked_button']['#name'];
+  
+  switch ($op) {
+    case 'delete':
   
   /*switch ($form['action_choice']['#value']) {
     case 'edit':
@@ -329,7 +342,7 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
     default:
   }*/
       break;
-    case 'Create new block':
+    case 'create':
       $new_block = array();
       foreach ($form['new_block'] as $name => $value) {
         if (substr($name, 0, 1) != '#') {
