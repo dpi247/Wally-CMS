@@ -6,6 +6,17 @@ define('WALLY_ADMIN_PATH', 'admin/wally');
  */
 
 /**
+ * Implementation of hook_perm()
+ */
+function wallyadmin_perm() {
+  return array(
+    'access wally administration',
+    'manage cache',
+    'manage variables',
+  );
+}
+
+/**
  * Implementation of hook_form_alter().
  */
 function wallyadmin_form_alter(&$form, $form_state, $form_id) {

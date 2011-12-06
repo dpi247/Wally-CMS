@@ -9,6 +9,16 @@
 
 // An include of the variable management file.
 include_once('includes/media_qualifio.variables.inc');
+
+/**
+ * Implementation of hook_perm()
+ */
+function media_qualifio_perm() {
+  return array(
+    'administer external medias',
+  );
+}
+
 /**
  * Implementation of hook_menu().
  */

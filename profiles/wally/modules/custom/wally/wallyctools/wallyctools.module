@@ -111,16 +111,6 @@ function wallyctools_preprocess_node(&$vars) {
 	}
 }
 
-/**
- * Implementation of hook_perm()
- */
-function wallyctools_perm() {
-  return array(
-    'administer wallyctools',
-    'reorder destination views'
-  );
-}
-
 function wallyctools_ctools_plugin_api($owner, $api) {
   if ($owner == 'wallyctools' && $api == 'wallyctools_redacblock') {
     return array('version' => 1);

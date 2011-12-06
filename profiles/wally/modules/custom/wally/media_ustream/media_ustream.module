@@ -14,6 +14,15 @@
 include_once('includes/media_ustream.variables.inc');
 
 /**
+ * Implementation of hook_perm()
+ */
+function media_ustream_perm() {
+  return array(
+    'administer external medias',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function media_ustream_menu() {

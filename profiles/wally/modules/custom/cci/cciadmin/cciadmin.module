@@ -7,6 +7,15 @@ define('CCI_ADMIN_PATH', 'admin/cci');
  */
 
 /**
+ * Implementation of hook_perm()
+ */
+function cciadmin_perm() {
+  return array(
+    'administer cci',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function cciadmin_menu() {
