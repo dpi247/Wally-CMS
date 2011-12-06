@@ -7,6 +7,15 @@ define('ROSSEL_ADMIN_PATH', 'admin/rossel');
  */
 
 /**
+ * Implementation of hook_perm()
+ */
+function rosseladmin_perm() {
+  return array(
+    'administer rossel',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function rosseladmin_menu() {

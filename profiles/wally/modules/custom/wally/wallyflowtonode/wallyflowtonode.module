@@ -10,6 +10,15 @@ include_once('wallyflowtonode.features.inc');
 include_once('wallyflowtonode.views_default.inc');
 
 /**
+ * Implementation of hook_perm().
+ */
+function wallyflowtonode_perm() {
+  return array(
+    'administer wallyflowtonode',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function wallyflowtonode_menu() {
@@ -18,7 +27,7 @@ function wallyflowtonode_menu() {
   $base = array(
     'access arguments' => array('access administration pages'),
     'file' => 'includes/wallyflowtonode.admin.inc',
-    'access arguments' => array('administer wally flow to node'),
+    'access arguments' => array('administer wallyflowtonode'),
   );
 
   $items['admin/wally/wallyflowtonode'] = $base + array(
@@ -39,7 +48,7 @@ function wallyflowtonode_menu() {
     'title' => t('Add'),
     'description' => t('Add a new feed or edit an existing one.'),
     'page callback' => 'wallyflowtonode_page_admin_add_wizard',
-    'access arguments' => array('administer wally flow to node'),
+    'access arguments' => array('administer wallyflowtonode'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/wallyflowtonode.add_wizard.inc',
   );

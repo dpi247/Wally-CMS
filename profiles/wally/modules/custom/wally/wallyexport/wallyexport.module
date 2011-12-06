@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Implementation of hook_perm().
+ */
+function wallyexport_perm() {
+  return array(
+    'administer wally export',
+    'export content',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function wallyexport_menu() {
