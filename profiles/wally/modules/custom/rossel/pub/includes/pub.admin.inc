@@ -228,7 +228,8 @@ function pub_blocks_admin_form(&$form_state) {
     '#default_value' => '',
     '#size' => 80,
     '#maxlength' => 512,
-    '#required' => FALSE,
+    '#required' => TRUE,
+  
   );
   
   $form['new_block']['_PlacementID'] = array(
