@@ -230,7 +230,7 @@ function pub_blocks_admin_form(&$form_state) {
     '#default_value' => '',
     '#size' => 80,
     '#maxlength' => 512,
-    '#required' => TRUE,
+    '#required' => FALSE,
   
   );
   
@@ -304,7 +304,11 @@ function pub_blocks_admin_form_validate($form, &$form_state) {
       break;
     case 'create':
       $existing_position = db_result(db_query('SELECT count(pid) FROM {zz_pub_UMI} where position="%s"',$form_state["values"]["position"]));
-      if($existing_position){
+      
+      if($form_state['values']['position']==""){
+        form_set_error('position', t('The position field could not be empty.'));
+      }
+    	elseif($existing_position){
         form_set_error('position', t('This position already exist.'));
       }
     	
