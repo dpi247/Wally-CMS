@@ -329,6 +329,13 @@ function wallyedit_menu_alter(&$items) {
   $items['filefield/ahah/%/%/%']['page callback'] = 'wydit_filefield_js';
 }
 
+function wallyedit_init(){
+  global $custom_theme;
+  if(arg(0)=='batch' & arg(1)==''){
+	$custom_theme= variable_get('admin_theme', '0');
+  }
+}
+
 /**
  * Implementation of hook_views_api().
  */
