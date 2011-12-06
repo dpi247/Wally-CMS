@@ -14,6 +14,15 @@
 include_once('includes/media_kewego.variables.inc');
 
 /**
+ * Implementation of hook_perm()
+ */
+function media_kewego_perm() {
+  return array(
+    'administer external medias',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function media_kewego_menu() {

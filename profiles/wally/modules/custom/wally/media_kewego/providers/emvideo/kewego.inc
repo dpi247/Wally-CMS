@@ -93,16 +93,6 @@ function emvideo_kewego_extract($video_id = '') {
         }
       }
     }
-    /*$temp_return = '';
-    $parsed_url = parse_url($allowed_url);
-    if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
-      $temp_return = '@'.$parsed_url['host'];
-      if (isset($parsed_url['path']) && !empty($parsed_url['path'])) {
-        $temp_return .= $parsed_url['path'];
-      }
-      $temp_return .= '([^"\& ]+)@i';
-      $return[] = $temp_return;
-    }*/
   }
 
   return $return;
@@ -128,15 +118,26 @@ function emvideo_kewego_video($video_id, $width, $height, $field, $item, $node, 
   $options['video_id'] = isset($options['video_id']) ? $options['video_id'] : $video_id;
   $options['video_id'] = explode('.', $options['video_id']);
   $options['video_id'] = $options['video_id'][0];
-  $options['width'] = isset($options['width']) ? $options['width'] : media_kewego_variable_get('width') ? media_kewego_variable_get('width') : $width;
-  $options['height'] = isset($options['height']) ? $options['height'] : media_kewego_variable_get('height') ? media_kewego_variable_get('height') : $height;
+  
+  global $language;
+  $options['language'] = $language->language;
+  
+  $options['player_key'] = media_kewego_variable_get('player_key', '');
+  $options['skin_key'] = media_kewego_variable_get('skin_key', '');
+  $options['videoformat'] = media_kewego_variable_get('videoformat', 'old');
+  $options['width'] = isset($options['width']) ? $options['width'] : media_kewego_variable_get('width', $width);
+  $options['height'] = isset($options['height']) ? $options['height'] : media_kewego_variable_get('height', $height);
+  $options['autostart'] = isset($options['autostart']) ? $options['autostart'] : media_kewego_variable_get('autostart') == 1 ? 'true' : $autoplay;
+  $options['fullscreen'] = media_kewego_variable_get('fullscreen', 0) == 1 ? 'true' : 'false';
+  $options['wmode'] = media_kewego_variable_get('wmode', 'opaque');
+  $options['advertise'] = media_kewego_variable_get('advertise', 0) == 1 ? 'true' : 'false';
+  $options['preload'] = media_kewego_variable_get('preload', 'none');
+  $options['allow_script_access'] = media_kewego_variable_get('allow_script_access', 'always');
+  
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
   $options['item'] = isset($options['item']) ? $options['item'] : $item;
   $options['node'] = isset($options['node']) ? $options['node'] : $node;
-  $options['autoplay'] = isset($options['autoplay']) ? $options['autoplay'] : media_kewego_variable_get('autostart') == 1 ? 'true' : $autoplay;
-  $options['fullscreen'] = media_kewego_variable_get('fullscreen') == 1 ? 'true' : 'false';
-  $options['videoformat'] = media_kewego_variable_get('videoformat') ? media_kewego_variable_get('videoformat') : 'old';
-  $options['language'] = media_kewego_variable_get('language') ? media_kewego_variable_get('language') : 'en';
+  
   $output = theme('media_kewego_default', $options);
   return $output;
 }
