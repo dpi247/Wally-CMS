@@ -15,6 +15,24 @@ include_once 'includes/Prenode.inc';
  */
 
 /**
+ * Implementation of hook_perm()
+ */
+function wallyedit_perm() {
+  $perms = array();
+  
+  $perms[] = 'administer edition interface';
+  
+  require_once drupal_get_path('module', 'wallyedit').'/includes/page_form_display_tabs.inc';
+  $profiles = wyditadmin_get_profiles();
+  $perms[] = 'manage profiles';
+  foreach ($profiles as $profile) {
+    $perms[] = 'manage fields for profile '.$profile['label'];
+  }
+  
+  return $perms;
+}
+
+/**
  * Implementation du hook menu
  */
 function wallyedit_menu(){
@@ -30,7 +48,7 @@ function wallyedit_menu(){
   );
   
   // Original display fields admin
-  $items['admin/content/wallydisplayfields'] = array(
+  /*$items['admin/content/wallydisplayfields'] = array(
     'page callback'=>'wallyedit_node_overview_page',
     'access arguments' => array('administer edition interface'),
     'file'=>'includes/page_form_display_fields.inc',
@@ -77,12 +95,12 @@ function wallyedit_menu(){
       'file' => 'includes/page_form_display_fields.inc',
       'type' => MENU_CALLBACK,
     );
-  }
+  }*/
   
   // Tabs organisation admin
   $items['admin/content/wallydisplaytabs'] = array(
     'page callback'=>'wallyedit_page_profiles_overview',
-    'access arguments' => array('manage profiles for edition interface'),
+    'access arguments' => array('manage profiles'),
     'file'=>'includes/page_form_display_tabs.inc',
     'title'=> t('WallyEdit - Display all fields into tabs'),
     'Description'=> t('Display all fields and organise them into tabs.'),
@@ -550,20 +568,6 @@ function wallyedit_elements() {
       '#process' => array('wydit_elements_process'),
       ),
     );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallyedit_perm() {
-  require_once drupal_get_path('module', 'wallyedit').'/includes/page_form_display_tabs.inc';
-  $profiles = wyditadmin_get_profiles();
-  $perms = array();
-  $perms[] = 'manage profiles';
-  foreach ($profiles as $profile) {
-    $perms[] = 'manage fields for profile '.$profile['label'];
-  }
-  return $perms;
 }
 
 /**

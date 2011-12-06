@@ -14,6 +14,15 @@
 include_once('includes/media_videortl.variables.inc');
 
 /**
+ * Implementation of hook_perm()
+ */
+function media_videortl_perm() {
+  return array(
+    'administer external medias',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function media_videortl_menu() {

@@ -10,6 +10,15 @@ module_load_include('inc', 'wallymport', 'includes/wallymport.fields');
 module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
 
 /**
+ * Implementation of hook_perm().
+ */
+function wallymport_perm() {
+  return array(
+    'administer wallymport',
+  );
+}
+
+/**
  * Implementation of hook_menu().
  */
 function wallymport_menu() {

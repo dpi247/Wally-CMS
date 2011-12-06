@@ -16,13 +16,14 @@ include_once('wallycontenttypes.features.inc');
  * Implementation of hook_perm().
  */
 function wallycontenttypes_perm() {
-  return array('editing crop');
+  return array(
+    'administer wallycontenttypes',
+  );
 }
 
 /**
  *  Implémentation du hook_menu(); 
  */
-
 function wallycontenttypes_menu() {
   $items = array();
   
