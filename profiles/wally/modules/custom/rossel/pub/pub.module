@@ -72,7 +72,7 @@ function pub_theme() {
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
     'pub_header' => array(
-      'arguments' => array('header_code' => NULL, 'delta' => NULL),
+      'arguments' => array('header_code' => NULL),
       'template' => 'pub-header',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
@@ -290,7 +290,7 @@ function _pub_getheadercontent() {
     $header_content = $cached_pub->data;
   }
   
-  return theme('pub_header', $header_content, $delta);
+  return theme('pub_header', $header_content);
 }
 
 /**
@@ -362,7 +362,7 @@ function _pub_getxiticontent() {
     $xiti_content = $cached_pub->data;
   }
   
-  return theme('xiti_content', $xiti_content, $delta);
+  return theme('xiti_content', $xiti_content);
 }
 
 /**
@@ -400,8 +400,7 @@ function _pub_getmetriwebcontent() {
     $metriweb_content = $cached_pub->data;
   }
   
-  drupal_add_js($metriweb_content, 'inline');
-  return '';
+  return theme('metriweb_content', $metriweb_content);
 }
 
 /**
