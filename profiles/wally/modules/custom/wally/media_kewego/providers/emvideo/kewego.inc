@@ -125,8 +125,8 @@ function emvideo_kewego_video($video_id, $width, $height, $field, $item, $node, 
   $options['player_key'] = media_kewego_variable_get('player_key', '');
   $options['skin_key'] = media_kewego_variable_get('skin_key', '');
   $options['videoformat'] = media_kewego_variable_get('videoformat', 'old');
-  $options['width'] = isset($options['width']) ? $options['width'] : media_kewego_variable_get('width', $width);
-  $options['height'] = isset($options['height']) ? $options['height'] : media_kewego_variable_get('height', $height);
+  $options['width'] = media_kewego_variable_get('width', 400);
+  $options['height'] = media_kewego_variable_get('height', 300);
   $options['autostart'] = isset($options['autostart']) ? $options['autostart'] : media_kewego_variable_get('autostart') == 1 ? 'true' : $autoplay;
   $options['fullscreen'] = media_kewego_variable_get('fullscreen', 0) == 1 ? 'true' : 'false';
   $options['wmode'] = media_kewego_variable_get('wmode', 'opaque');
