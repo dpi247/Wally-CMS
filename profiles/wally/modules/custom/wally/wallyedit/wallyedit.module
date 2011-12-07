@@ -2562,10 +2562,10 @@ function prenode_delete($prenode) {
   // Let modules reacts after the prenode is saved to the database
   wallyedit_invoke_prenodeapi($prenode, 'delete');
 
-  if(function_exists('memcache_variable_set')){
+  if(function_exists('memcache_variable_set')) {
   	cache_clear_all($prenode['cache name'], 'prenode');
   }
-  else{
+  else {
     ctools_include('object-cache');
     ctools_object_cache_clear('prenode', $prenode['cache name']);
   }
@@ -2574,13 +2574,13 @@ function prenode_delete($prenode) {
 }
 
 function prenode_get($cache_name, $skip_cache = FALSE) {
-  if(function_exists('memcache_variable_set')){
-  	$prenode= cache_get($cache_name, 'prenode');
-  	$prenode=$prenode->data->cache;
+  if(function_exists('memcache_variable_set')) {
+  	$prenode = cache_get($cache_name, 'prenode');
+  	$prenode = $prenode->data->cache;
   }
-  else{
+  else {
     ctools_include('object-cache');
-    $prenode=ctools_object_cache_get('prenode', $cache_name, $skip_cache);
+    $prenode = ctools_object_cache_get('prenode', $cache_name, $skip_cache);
   }
   return $prenode;
 }
