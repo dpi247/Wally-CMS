@@ -51,7 +51,7 @@ function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL){
 
 function wallyedit_prenode_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
-    ctools_object_cache_clear('prenode', $form_state['cache name']);
+    prenode_delete($form_state);
     drupal_set_message(t('The item has been deleted.'));
   }
   $form_state['redirect'] = 'admin/content/wallyedit';
