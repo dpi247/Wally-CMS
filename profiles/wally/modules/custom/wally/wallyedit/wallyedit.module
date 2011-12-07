@@ -347,6 +347,13 @@ function wallyedit_menu_alter(&$items) {
   $items['filefield/ahah/%/%/%']['page callback'] = 'wydit_filefield_js';
 }
 
+function wallyedit_init(){
+  global $custom_theme;
+  if(arg(0)=='batch' & arg(1)==''){
+	$custom_theme = variable_get('admin_theme', '0');
+  }
+}
+
 /**
  * Implementation of hook_views_api().
  */
@@ -1493,7 +1500,7 @@ function wydit_subform_global_page_submit(&$form_state){
   if (isset($a[$a['type']]['#node']->field_destinations)) {
     _cckdestinations_reorder_values(NULL, $a[$a['type']]['#node']->field_destinations);
   }
-  
+
   wydit_clean_and_save_form_state($a);
   $form_state[$form_state['type']]=$a[$form_state['type']];
 }
@@ -1926,7 +1933,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
       $new_form_state[$form_state['type']]=$old_form_state[$form_state['type']];
       //Need that to avoid re-processing of the form (infinite loop)
       $new_form_state['input']=NULL;
-      
+
       if($old_form_state['values']['type']=='wally_linktype'){
         $new_form_state['parents']= $old_form_state['values']['parents'];
         array_pop($new_form_state['parents']);
@@ -1964,23 +1971,71 @@ function wallyedit_form_edit_form_cancel_submit($form, $form_state) {
   wallyedit_page_node_edition($prenode, 'ajax', $form_state['profile_id']);
 }
 
-function wydit_subform_global_edit_form_submit(&$form,&$form_state,$target){
-  _wydit_ctools_include();
-  $node = &wydit_get_current_node_from_parents($form_state,$target);
-
-  $b = $form_state['values'][$form_state['values']['type']];
-
-  //$node = (object)((array)$b+(array) $node);
-  $node=(object)(wydit_merge_arrays((array)$node,(array)$b));
-  $element["#node"]=$node;
-  $element["type"]=$node->type;
-  $target_type=$target_node=$target;
-  $target_node[]="#node";
-  $target_type[]='type';
-  wydit_add_to_form_state($form_state,$node,$target_node);
-  wydit_add_to_form_state($form_state,$element["type"],$target_type);
+function wydit_subform_global_edit_form_submit(&$form, &$form_state, $target){
+  if ($form_state['clicked_button']['#name'] == 'save_global') {
+    _wydit_ctools_include();
+    $node = &wydit_get_current_node_from_parents($form_state, $target);
   
-  wydit_clean_and_save_form_state($form_state);
+    $b = $form_state['values'][$form_state['values']['type']];
+
+    $a = array();
+    $a[$form_state['values']['type']]['#node'] = (object)(wydit_merge_arrays((array)$node, (array)node_submit($b)));
+    $a['type'] = $form_state['values']['type'];
+    $a['cache name'] = $form_state['cache name'];
+    $a['profile_id'] = $form_state['profile_id'];
+    $type_name = $a['type'];
+    $sub_form_state = array();
+    $sub_form_state[$type_name] = wydit_get_target_from_parents($form_state, $target);
+    $sub_form_state['values'] = $form_state['values'];
+    
+    $node = (object)(wydit_merge_arrays((array)$node, (array)$b));
+  
+    module_load_include('inc','wallyedit','includes/page_form_display_tabs');
+    $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+    foreach($flat_fields as $field){
+      $field_name = $field['name'];
+      if($field['display']>1){
+        if(isset($sub_form_state[$type_name][$field_name])){
+          foreach($sub_form_state[$type_name][$field_name] as $key=>$value){
+            //avoid the weight_.$key element
+            if(is_numeric($key)){
+              //determine index, if no weight -inline element- use $key value
+              if(isset($sub_form_state['values'][$type_name][$field_name]["weight_".$key])) {
+                $index=$sub_form_state['values'][$type_name][$field_name]["weight_".$key];
+              } else {
+                $index=$key;
+              }
+              $a[$type_name][$field_name][$index]['#node']=(object)(wydit_merge_arrays((array)$sub_form_state[$type_name][$field_name][$key]['#node'], (array)node_submit($sub_form_state['values'][$type_name][$field_name][$key])));
+              $subtype=$a[$type_name][$field_name][$index]['#node']->type;
+              $a[$type_name][$field_name][$index]['type']=$subtype;
+  
+              $subfields = wyditadmin_get_fields_flat($form_state['profile_id'], $a[$type_name][$field_name][$key]['#node']->type);
+              
+              foreach($subfields as $subfield){
+                $subfield_name = $subfield['name'];
+                if($subfield['display']>1){
+                  foreach($sub_form_state[$type_name][$field_name][$key][$subfield_name] as $subkey=>$subvalue) {
+                    $a[$type_name][$field_name][$key][$subfield_name][$subkey]=$sub_form_state[$type_name][$field_name][$key][$subfield_name][$subkey];
+                  }
+                }
+              }
+            }
+            //ReOrder by index
+            ksort($a[$type_name][$field_name]);
+            $a[$type_name][$field_name]=array_values($a[$type_name][$field_name]);
+          }
+        }
+      }
+    }
+  
+    $target_type = $target_node = $target;
+    //$target_node[] = "#node";
+    $target_type[] = 'type';
+    wydit_add_to_form_state($form_state, $a[$type_name], $target_node);
+    wydit_add_to_form_state($form_state, $type_name, $target_type);
+  
+    wydit_clean_and_save_form_state($form_state);
+  }
 }
 
 function wallyedit_form_nodetypeselector_form(&$form_state, $coming_form){
@@ -2140,7 +2195,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
   $form_element=array($form);
 }
 
-function wydit_prepare_selectbox_form_element(&$form_element,&$form_state,$element,$fields,$parents){
+function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $element, $fields, $parents){
   $form=array(
   	'#type' => 'fieldset',
     "#theme" => 'wydit_selector_theme',
@@ -2897,6 +2952,30 @@ function wydit_get_current_node_from_parents(&$form_state,$parents=NULL){
   }
   if($temp["#node"]){
     return $temp["#node"];
+  }
+  else return NULL;
+}
+
+/**
+ * Return the target associated with the hierarchical structure of the form state based on the path formed by parents.
+ * 
+ * @param: $form_state
+ *   - the form_State of the preview object.
+ * @param: $parents
+ *   - the parents is an array representing the path in the form_state
+ */
+function wydit_get_target_from_parents(&$form_state,$parents=NULL){
+  if($parents==NULL)
+  $parents=$form_state['parents'];
+
+  $temp=$form_state;
+  foreach($parents as $index=>$cursor_name){
+    if(isset($temp[$cursor_name])){
+      $temp=&$temp[$cursor_name];
+    }
+  }
+  if($temp){
+    return $temp;
   }
   else return NULL;
 }
