@@ -7,8 +7,9 @@
  *  - $delta : the delta of the block
  */
 ?>
-
+<!--  PURL  -->
 <?php
   print $content['content'];
   wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
 ?>
+<!--  /PURL  -->
