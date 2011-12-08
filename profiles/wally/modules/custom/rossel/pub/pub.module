@@ -62,7 +62,7 @@ function pub_menu() {
     'title' => 'Manage cache',
     'page callback' => 'pub_cache_admin',
     'page arguments' => array('pub_cache_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('manage pub'),
     'description' => 'Allows administrators to manage pub blocks cache.',
     'file' => 'includes/pub.admin.inc',
   );

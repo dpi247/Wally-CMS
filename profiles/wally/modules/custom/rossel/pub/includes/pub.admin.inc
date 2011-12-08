@@ -197,8 +197,7 @@ function pub_blocks_admin_form(&$form_state) {
     '#type' => 'submit',
     '#title' => t('Delete'),
     '#value' => t('Delete'),
-    	'#name'=>'delete',
-  
+    '#name'=>'delete',
   );
   
   $form['new_block'] = array(
@@ -231,7 +230,6 @@ function pub_blocks_admin_form(&$form_state) {
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => FALSE,
-  
   );
   
   $form['new_block']['_PlacementID'] = array(
@@ -308,13 +306,10 @@ function pub_blocks_admin_form_validate($form, &$form_state) {
       if($form_state['values']['position']==""){
         form_set_error('position', t('The position field could not be empty.'));
       }
-    	elseif($existing_position){
+      elseif($existing_position){
         form_set_error('position', t('This position already exist.'));
       }
-    	
-    	
-    	
-    break;
+      break;
     default:
   }
 }
@@ -327,7 +322,6 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
   
   switch ($op) {
     case 'delete':
-  
   /*switch ($form['action_choice']['#value']) {
     case 'edit':
       foreach ($form['blocks'] as $name => $value) {
