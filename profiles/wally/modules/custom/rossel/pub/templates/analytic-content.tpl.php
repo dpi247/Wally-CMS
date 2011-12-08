@@ -6,6 +6,4 @@
  *  - $html_code : contents the code returned by the webservice
  */
  
-?>
-
-<?php print $html_code; ?>
+drupal_add_js($html_code, 'inline');
