@@ -266,15 +266,15 @@ function _pub_getpubcontent($delta, $cache_url) {
     
     switch ($block_settings['builder']) {
       case 'purl':
-        $pub_content = _pub_generate_purl_pub_content($block_settings, 'purl');
+        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, 'purl', $cache_url);
         $builder = 'purl';
         break;
       case 'openx':
-        $pub_content = _pub_generate_default_pub_content($block_settings, 'openx');
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, 'openx', $cache_url);
         $builder = 'openx';
         break;
       default:
-        $pub_content = _pub_generate_default_pub_content($block_settings, '');
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '', $cache_url);
         $builder = '';
     }
     
@@ -287,7 +287,7 @@ function _pub_getpubcontent($delta, $cache_url) {
   return theme('pub'.$builder.'_content', $pub_content, $delta);
 }
 
-function _pub_generate_default_pub_content($block_settings, $builder) {
+function _pub_generate_default_pub_content($block_settings, $delta, $builder, $cache_url) {
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
   $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
@@ -296,14 +296,14 @@ function _pub_generate_default_pub_content($block_settings, $builder) {
   if ($content_from_webservice) {
     $pub_content = $content_from_webservice;
   } else {
-    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
     $pub_content = $cached_pub->data ? $cached_pub->data : '';
   }
   
   return $pub_content;
 }
 
-function _pub_generate_purl_pub_content($block_settings, $builder) {
+function _pub_generate_purl_pub_content($block_settings, $delta, $builder, $cache_url) {
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
   $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
@@ -319,7 +319,7 @@ function _pub_generate_purl_pub_content($block_settings, $builder) {
       //'id' => variable_get('pub'.$builder.'_meta_id', 'adpurl-keywords'),
     );
   } else {
-    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
     $pub_content = $cached_pub->data ? $cached_pub->data : '';
   }
   
