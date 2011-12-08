@@ -7,15 +7,6 @@ define('CCI_ADMIN_PATH', 'admin/cci');
  */
 
 /**
- * Implementation of hook_perm()
- */
-function cciadmin_perm() {
-  return array(
-    'administer cci',
-  );
-}
-
-/**
  * Implementation of hook_menu().
  */
 function cciadmin_menu() {
@@ -26,7 +17,7 @@ function cciadmin_menu() {
     'position' => 'right',
     'weight' => 6,
     'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('administer cci'),
+    'access arguments' => TRUE,
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
