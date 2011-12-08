@@ -7,15 +7,6 @@ define('ROSSEL_ADMIN_PATH', 'admin/rossel');
  */
 
 /**
- * Implementation of hook_perm()
- */
-function rosseladmin_perm() {
-  return array(
-    'administer rossel',
-  );
-}
-
-/**
  * Implementation of hook_menu().
  */
 function rosseladmin_menu() {
@@ -26,7 +17,7 @@ function rosseladmin_menu() {
     'position' => 'right',
     'weight' => 6,
     'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('administer rossel'),
+    'access arguments' => TRUE,
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
   );
