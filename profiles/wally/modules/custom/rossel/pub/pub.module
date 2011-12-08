@@ -284,6 +284,7 @@ function _pub_getpubcontent($delta, $cache_url) {
     $pub_content = $cached_pub->data;
   }
 
+  wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
   return theme('pub'.$builder.'_content', $pub_content, $delta);
 }
 

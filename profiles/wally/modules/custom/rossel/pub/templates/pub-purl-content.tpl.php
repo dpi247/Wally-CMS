@@ -1,5 +1,5 @@
 <?php
-// $Id: pub-content.tpl.php,v 1.0 2011/02/18 ODM $
+// $Id: pub-purl-content.tpl.php,v 1.0 2011/02/18 ODM $
 
 /**
  * Available variables:
@@ -10,6 +10,5 @@
 <!--  PURL  -->
 <?php
   print $content['content'];
-  wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
 ?>
 <!--  /PURL  -->
