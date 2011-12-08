@@ -15,55 +15,67 @@ function pub_perm() {
 function pub_menu() {
   $items = array();
   $items['admin/rossel/pub'] = array(
-    'title' => 'Pub configuration',
-    'page callback' => 'pub_page_admin',
+    'title' => t('Pub configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_form'),
     'access arguments' => array('manage pub'),
-    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
+    'description' => t('Configure availables ads providers.'),
     'file' => 'includes/pub.admin.inc',
   );
 
   $items['admin/rossel/pub/adtech'] = array(
-    'title' => 'Pub adTech configuration',
-    'page callback' => 'pub_page_admin',
+    'title' => t('Pub adTech configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_form'),
     'access arguments' => array('manage pub'),
-    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin.inc',
-  	'type'=>MENU_LOCAL_TASK,
+  	'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/rossel/pub/purl'] = array(
+    'title' => t('Pub Purl configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_purl_form'),
+    'access arguments' => array('manage pub'),
+    'file' => 'includes/pub.admin_purl.inc',
+  	'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
   );
 
   $items['admin/rossel/pub/openx'] = array(
-    'title' => 'Pub OpenX configuration',
-    'page callback' => 'pub_page_admin_openx',
+    'title' => t('Pub OpenX configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_openx_form'),
     'access arguments' => array('manage pub'),
-    'description' => 'Allows administrators to set paramaters for the pub to function properly.',
     'file' => 'includes/pub.admin_openx.inc',
-	'type'=>MENU_LOCAL_TASK,
+	  'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
   );
   
   $items['admin/rossel/pubcron'] = array(
-    'title' => 'Run pub cron',
+    'title' => t('Run pub "cron"'),
     'page callback' => 'pub_cron_run',
-    'page arguments' => array('pub_cron_run'),
     'access arguments' => array('manage pub'),
-    'description' => 'Run pub cron.',
+    'description' => t('Run ads cron.'),
   	'file' => 'includes/pub.admin.inc',
   );
   
   $items['admin/rossel/pubblocks'] = array(
-    'title' => 'Manage blocks',
-    'page callback' => 'pub_blocks_admin',
-    'page arguments' => array('pub_blocks_admin'),
+    'title' => t('Manage blocks'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_blocks_admin_form'),
     'access arguments' => array('manage pub'),
-    'description' => 'Allows administrators to manage pub blocks.',
+    'description' => t('Manage existing ads blocks and create new ones.'),
     'file' => 'includes/pub.admin.inc',
   );
   
   $items['admin/rossel/pubcache'] = array(
-    'title' => 'Manage cache',
-    'page callback' => 'pub_cache_admin',
-    'page arguments' => array('pub_cache_admin'),
+    'title' => t('Manage cache'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_cache_admin_form'),
     'access arguments' => array('manage pub'),
-    'description' => 'Allows administrators to manage pub blocks cache.',
+    'description' => t('View and delete existing cached ads.'),
     'file' => 'includes/pub.admin.inc',
   );
 
@@ -78,6 +90,16 @@ function pub_theme() {
     'pub_content' => array(
       'arguments' => array('html_code' => NULL, 'delta' => NULL),
       'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pub_openx_content' => array(
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pub_purl_content' => array(
+      'arguments' => array('content' => NULL, 'delta' => NULL),
+      'template' => 'pub-purl-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
     'pub_header' => array(
@@ -109,7 +131,7 @@ function pub_theme() {
 function pub_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      $pub_list = db_query('SELECT * FROM `zz_pub_UMI`');
+      $pub_list = db_query('SELECT * FROM {zz_pub_UMI}');
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
           'info' => t('Pub '.$pub_elem['position']),
@@ -242,21 +264,18 @@ function _pub_getpubcontent($delta, $cache_url) {
     //@TODO: DDU : clean code
     $block_settings=pub_load_block($delta);
     
-    $builder="";
-    if($block_settings['builder']=="openx"){
-      $builder="_openx";
-    }
-    
-    $website = variable_get('pub'.$builder.'_website', '');
-    $script_type = variable_get("pub".$builder."_provider", 'AdTech');
-    $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
-    $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
-    
-    if ($content_from_webservice) {
-      $pub_content = $content_from_webservice;
-    } else {
-      $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
-      $pub_content = $cached_pub->data ? $cached_pub->data : '';
+    switch ($block_settings['builder']) {
+      case 'purl':
+        $pub_content = _pub_generate_purl_pub_content($block_settings, 'purl');
+        $builder = 'purl';
+        break;
+      case 'openx':
+        $pub_content = _pub_generate_default_pub_content($block_settings, 'openx');
+        $builder = 'openx';
+        break;
+      default:
+        $pub_content = _pub_generate_default_pub_content($block_settings, '');
+        $builder = '';
     }
     
     cache_set('pub_'.$delta.'_temp-'.$cache_url, $pub_content, 'cache', time() + 3600*$cache_time);
@@ -265,7 +284,46 @@ function _pub_getpubcontent($delta, $cache_url) {
     $pub_content = $cached_pub->data;
   }
 
-  return theme('pub_content', $pub_content, $delta);;
+  return theme('pub'.$builder.'_content', $pub_content, $delta);
+}
+
+function _pub_generate_default_pub_content($block_settings, $builder) {
+  $website = variable_get('pub'.$builder.'_website', '');
+  $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
+  $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
+
+  if ($content_from_webservice) {
+    $pub_content = $content_from_webservice;
+  } else {
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+    $pub_content = $cached_pub->data ? $cached_pub->data : '';
+  }
+  
+  return $pub_content;
+}
+
+function _pub_generate_purl_pub_content($block_settings, $builder) {
+  $website = variable_get('pub'.$builder.'_website', '');
+  $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
+  $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  $header_adress=variable_get('pub'.$builder.'_header', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/header');
+  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
+  $header_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $header_adress);
+  
+  if ($content_from_webservice && !empty($content_from_webservice) && $header_from_webservice && !empty($header_from_webservice)) {
+    $pub_content['content'] = $content_from_webservice;
+    $pub_content['meta']['content'] = $header_from_webservice;
+    $pub_content['meta']['attributes'] = array(
+      'name' => variable_get('pub'.$builder.'_meta_name', 'adpurl-keywords'),
+      //'id' => variable_get('pub'.$builder.'_meta_id', 'adpurl-keywords'),
+    );
+  } else {
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$orig_url);
+    $pub_content = $cached_pub->data ? $cached_pub->data : '';
+  }
+  
+  return $pub_content;
 }
 
 /**

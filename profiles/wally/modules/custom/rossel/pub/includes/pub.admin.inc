@@ -1,12 +1,5 @@
 <?php
 // $Id: pub.admin.inc,v 1.0 2011/02/10 ODM $
- 
-function pub_page_admin() {
-  $return = '';
-  $return .= drupal_get_form('pub_page_admin_form');
-  
-  return $return;
-}
 
 /**
  * Settings form.
@@ -15,7 +8,7 @@ function pub_page_admin_form($form_state) {
   $form['website'] = array(
     '#type' => 'textfield',
     '#title' => t('Website name'),
-    '#description' => t('The website name used to the pub requests.'),
+    '#description' => t('The website name used to the ads requests.'),
     '#default_value' => variable_get('pub_website', ''),
     '#size' => 80,
     '#maxlength' => 512,
@@ -35,7 +28,6 @@ function pub_page_admin_form($form_state) {
   $form['get_xml'] = array(
     '#type' => 'textfield',
     '#title' => t('URL used for getting blocks informations'),
-    '#description' => t('The URL used for getting blocks informations.'),
     '#default_value' => variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'),
     '#size' => 80,
     '#maxlength' => 512,
@@ -44,8 +36,7 @@ function pub_page_admin_form($form_state) {
   
   $form['webserv'] = array(
     '#type' => 'textfield',
-    '#title' => t('URL of the webservice returning the pubs'),
-    '#description' => t('The URL of the webservice returning the pubs.'),
+    '#title' => t('URL of the webservice returning the ads'),
     '#default_value' => variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
     '#size' => 80,
     '#maxlength' => 512,
@@ -149,16 +140,6 @@ function pub_cron_cleanup() {
 }
 
 /**
- * HTML code for the pub blocks admin page.
- */
-function pub_blocks_admin() {
-  $return = '';
-  $return .= drupal_get_form('pub_blocks_admin_form');
-  
-  return $return;
-}
-
-/**
  * Form for the pub blocks admin page.
  */
 function pub_blocks_admin_form(&$form_state) {
@@ -206,11 +187,16 @@ function pub_blocks_admin_form(&$form_state) {
     '#options' => array(),
   );
 
+  $options_builder = array(
+    'adtech' => 'AdTech',
+    'purl' => 'Purl',
+    'openx' => 'OpenX',
+  );
   $form['new_block']['builder'] = array(
     '#type' => 'select',
     '#title' => t('Builder'),
     '#default_value' => 'adtech',
-    '#options' => array('AdTech'=>"Ad Tech",'openx'=>"OpenX"),
+    '#options' => $options_builder,
     '#required' => TRUE,
   );
   
@@ -331,10 +317,8 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
       }
       break;
     case 'delete':*/
-      foreach ($form['blocks'] as $name => $value) {
-        if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
-          db_query('DELETE FROM `zz_pub_UMI` WHERE `position` = "%s"', $name);
-        }
+      foreach (element_children($form['blocks']) as $name) {
+        db_query('DELETE FROM {zz_pub_UMI} WHERE `position` = "%s"', $name);
       }
       /*break;
     default:
@@ -342,25 +326,13 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
       break;
     case 'create':
       $new_block = array();
-      foreach ($form['new_block'] as $name => $value) {
-        if (substr($name, 0, 1) != '#') {
-          $new_block[$name] = $value['#value'];
-        }
+      foreach (element_children($form['new_block']) as $name) {
+        $new_block[$name] = $form['new_block'][$name]['#value'];
       }
       drupal_write_record('zz_pub_UMI', $new_block);
       break;
     default:
   }
-}
-
-/**
- * HTML code for the pub blocks cache admin page.
- */
-function pub_cache_admin() {
-  $return = '';
-  $return .= drupal_get_form('pub_cache_admin_form');
-  
-  return $return;
 }
 
 /**
@@ -373,7 +345,7 @@ function pub_cache_admin_form(&$form_state) {
     '#options' => array(),
   );
   
-  $pub_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
+  $pub_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
   while ($pub_elem = db_fetch_array($pub_list)) {
     $expl_id = explode('-', $pub_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -383,7 +355,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $analytic_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "analytic_%" ORDER BY `cid`');
+  $analytic_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "analytic_%" ORDER BY `cid`');
   while ($analytic_elem = db_fetch_array($analytic_list)) {
     $expl_id = explode('-', $analytic_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -393,7 +365,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $xiti_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "xiti_%" ORDER BY `cid`');
+  $xiti_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "xiti_%" ORDER BY `cid`');
   while ($xiti_elem = db_fetch_array($xiti_list)) {
     $expl_id = explode('-', $xiti_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -403,7 +375,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $metriweb_list = db_query('SELECT * FROM `cache` WHERE `cid` LIKE "metriweb_%" ORDER BY `cid`');
+  $metriweb_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "metriweb_%" ORDER BY `cid`');
   while ($metriweb_elem = db_fetch_array($metriweb_list)) {
     $expl_id = explode('-', $metriweb_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -455,7 +427,7 @@ function _pub_callalltags() {
   //$xml_list->data = XML_LIST_DATA;
   //$xml_list->code = 200;
   $website = variable_get('pub_website', '');
-  
+
   if ($xml_list->code == 200) {
     $dom = new DomDocument();
     $dom->LoadXML($xml_list->data);
@@ -474,6 +446,11 @@ function _pub_callalltags() {
           $tag_elem[$attrName] = $attrValue->value;
         }
         unset($tag_elem['website']);
+        
+        if (strstr($tag_elem['position'], '_PURL')) {
+          $tag_elem['builder'] = 'purl';
+        }
+        
         foreach($pub_array as $pub_elem) {
           if ($tag_elem['position'] == $pub_elem['position']) {
             drupal_write_record('zz_pub_UMI', $tag_elem, array('position'));
