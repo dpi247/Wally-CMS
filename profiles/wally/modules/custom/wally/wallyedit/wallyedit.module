@@ -1,11 +1,11 @@
 <?php
-      module_load_include('inc', 'node', 'node.pages');
 
 //NOTE: les sommes d'array devraient toutes �tre des arry_merge_recusrice
 
 //@todo: DDU initialiser correctement les valeurs de settings des fields lors de l'install du module
 
 include_once 'includes/Prenode.inc';
+module_load_include('inc', 'node', 'node.pages');
 
 /**
  * @file
