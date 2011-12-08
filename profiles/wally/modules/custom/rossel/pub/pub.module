@@ -266,12 +266,12 @@ function _pub_getpubcontent($delta, $cache_url) {
     
     switch ($block_settings['builder']) {
       case 'purl':
-        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, 'purl', $cache_url);
-        $builder = 'purl';
+        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, '_purl', $cache_url);
+        $builder = '_purl';
         break;
       case 'openx':
-        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, 'openx', $cache_url);
-        $builder = 'openx';
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '_openx', $cache_url);
+        $builder = '_openx';
         break;
       default:
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '', $cache_url);
