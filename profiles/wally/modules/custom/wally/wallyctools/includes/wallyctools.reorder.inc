@@ -1,8 +1,9 @@
 <?php
 
 function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NULL, $target = NULL) {
-  $output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $limit, $destination_tid, $target);
-  $output .= drupal_get_form('wallyctools_form_reorder_destination_form', $limit, $destination_tid, $target);
+  $output='HEllo J ai access';
+  //$output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $limit, $destination_tid, $target);
+  //$output .= drupal_get_form('wallyctools_form_reorder_destination_form', $limit, $destination_tid, $target);
   return $output;
 }
 
