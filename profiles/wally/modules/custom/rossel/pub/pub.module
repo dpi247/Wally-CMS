@@ -266,16 +266,16 @@ function _pub_getpubcontent($delta, $cache_url) {
     
     switch ($block_settings['builder']) {
       case 'purl':
-        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, '_purl', $cache_url);
+        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
         $builder = '_purl';
         wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
         break;
       case 'openx':
-        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '_openx', $cache_url);
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '_openx', $cache_url);
         $builder = '_openx';
         break;
       default:
-        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '', $cache_url);
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '', $cache_url);
         $builder = '';
     }
     
@@ -288,7 +288,7 @@ function _pub_getpubcontent($delta, $cache_url) {
   return theme('pub'.$builder.'_content', $pub_content, $delta);
 }
 
-function _pub_generate_default_pub_content($block_settings, $delta, $builder, $cache_url) {
+function _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
   $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
@@ -304,7 +304,7 @@ function _pub_generate_default_pub_content($block_settings, $delta, $builder, $c
   return $pub_content;
 }
 
-function _pub_generate_purl_pub_content($block_settings, $delta, $builder, $cache_url) {
+function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
   $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
