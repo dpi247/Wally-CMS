@@ -726,6 +726,7 @@ function theme() {
     }
     
     if ($suggestions) {
+      dsm($hook, 'hook');
       if (strstr($hook, 'views_view')) {
         dsm($suggestions);
       }
