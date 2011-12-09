@@ -4,7 +4,6 @@
 /**
  * Available variables:
  *  - $content : contents the code returned by the webservice (content and header)
- *  - $delta : the delta of the block
  */
 ?>
 <!--  PURL  -->
