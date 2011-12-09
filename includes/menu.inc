@@ -442,7 +442,9 @@ function _menu_check_access(&$item, $map) {
   // Determine access callback, which will decide whether or not the current
   // user has access to this path.
   $callback = empty($item['access_callback']) ? 0 : trim($item['access_callback']);
-  //watchdog('menu debug', print_r($item, TRUE));
+  global $user;
+  if ($user->uid == 12)
+  watchdog('menu debug', print_r($item, TRUE));
   // Check for a TRUE or FALSE value.
   if (is_numeric($callback)) {
     $item['access'] = (bool)$callback;
