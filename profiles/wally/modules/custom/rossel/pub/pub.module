@@ -258,7 +258,7 @@ function _pub_getpubcontent($delta, $cache_url) {
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
-  if (TRUE || !is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     
     //@TODO: DDU : clean code
