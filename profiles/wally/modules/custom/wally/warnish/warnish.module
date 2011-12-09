@@ -345,69 +345,73 @@ function _warnish_terminal_run($command) {
   foreach ($terminals as $terminal) {
     list($server, $port) = explode(':', $terminal);
     $client = socket_create(AF_INET, SOCK_STREAM, getprotobyname('tcp'));
-    socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
-    socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
-    if (@!socket_connect($client, $server, $port)) {
-      watchdog('Warnish', 'Unable to connect to server socket !server:!port: %error', array(
-        '!server' => $server,
-        '!port' => $port,
-        '%error' => socket_strerror(socket_last_error($client))
-        ), WATCHDOG_ERROR);
-      $ret[] = FALSE;
-      // If a Varnish server is unavailable, move on to the next in the list.
-      continue;
-    }
-    // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
-    if(variable_get('warnish_legacy', 0) != 1) {
-      $status = _warnish_read_socket($client);
-      // Do we need to authenticate?
-      if ($status['code'] == 107) { // Require authentication
-        $secret = variable_get('warnish_control_key', '');
-        $challenge = substr($status['msg'], 0, 32);
-        $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
-        $key = hash('sha256', $pack);
-        socket_write($client, "auth $key\n");
+    if ($client) {
+      socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+      socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+      if (@!socket_connect($client, $server, $port)) {
+        watchdog('Warnish', 'Unable to connect to server socket !server:!port: %error', array(
+          '!server' => $server,
+          '!port' => $port,
+          '%error' => socket_strerror(socket_last_error($client))
+          ), WATCHDOG_ERROR);
+        $ret[] = FALSE;
+        // If a Varnish server is unavailable, move on to the next in the list.
+        continue;
+      }
+      // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
+      if(variable_get('warnish_legacy', 0) != 1) {
         $status = _warnish_read_socket($client);
-        if ($status['code'] != 200) {
-          watchdog('Warnish', 'Authentication to server failed!', array(), WATCHDOG_ERROR);
+        // Do we need to authenticate?
+        if ($status['code'] == 107) { // Require authentication
+          $secret = variable_get('warnish_control_key', '');
+          $challenge = substr($status['msg'], 0, 32);
+          $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
+          $key = hash('sha256', $pack);
+          socket_write($client, "auth $key\n");
+          $status = _warnish_read_socket($client);
+          if ($status['code'] != 200) {
+            watchdog('Warnish', 'Authentication to server failed!', array(), WATCHDOG_ERROR);
+          }
         }
       }
-    }
-
-    if (is_array($command)) {
-      $temp_ret = array();
+  
+      if (is_array($command)) {
+        $temp_ret = array();
+        
+        foreach ($command as $com) {
+          // Send command and get response.
+          $result = socket_write($client, "$com\n");
+          $status = _warnish_read_socket($client);
       
-      foreach ($command as $com) {
+          if ($status['code'] != 200) {
+            watchdog('Warnish', 'Recieved status code !code running %command from command list. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
+            $temp_ret[] = FALSE;
+          }
+          else {
+            // successful connection
+            $temp_ret[] = $status;
+          }
+        }
+        
+        $ret[] = $temp_ret;
+      } else {
         // Send command and get response.
-        $result = socket_write($client, "$com\n");
+        $result = socket_write($client, "$command\n");
         $status = _warnish_read_socket($client);
     
         if ($status['code'] != 200) {
-          watchdog('Warnish', 'Recieved status code !code running %command from command list. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
-          $temp_ret[] = FALSE;
+          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
+          $ret[] = FALSE;
         }
         else {
           // successful connection
-          $temp_ret[] = $status;
+          $ret[] = $status;
         }
       }
-      
-      $ret[] = $temp_ret;
+      socket_close($client);
     } else {
-      // Send command and get response.
-      $result = socket_write($client, "$command\n");
-      $status = _warnish_read_socket($client);
-  
-      if ($status['code'] != 200) {
-        watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
-        $ret[] = FALSE;
-      }
-      else {
-        // successful connection
-        $ret[] = $status;
-      }
+      watchdog('Warnish', 'Couldn\'t create client for terminal: !terminal', array('!terminal' => $terminal), WATCHDOG_ERROR);
     }
-    socket_close($client);
   }
   
   return $ret;
