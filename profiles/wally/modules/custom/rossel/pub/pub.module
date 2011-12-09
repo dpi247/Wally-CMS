@@ -258,7 +258,7 @@ function _pub_getpubcontent($delta, $cache_url) {
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+  if (TRUE || !is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     
     //@TODO: DDU : clean code
@@ -268,6 +268,7 @@ function _pub_getpubcontent($delta, $cache_url) {
       case 'purl':
         $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, '_purl', $cache_url);
         $builder = '_purl';
+        wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
         break;
       case 'openx':
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, '_openx', $cache_url);
@@ -284,7 +285,6 @@ function _pub_getpubcontent($delta, $cache_url) {
     $pub_content = $cached_pub->data;
   }
 
-  wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
   return theme('pub'.$builder.'_content', $pub_content, $delta);
 }
 
@@ -292,7 +292,7 @@ function _pub_generate_default_pub_content($block_settings, $delta, $builder, $c
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
   $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
-  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta,$webserv_adress);
+  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
 
   if ($content_from_webservice) {
     $pub_content = $content_from_webservice;
