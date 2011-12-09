@@ -307,9 +307,9 @@ function _pub_generate_default_pub_content($block_settings, $delta, $webserv_req
 function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
   $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
-  $webserv_adress=variable_get('pub'.''.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  $webserv_adress=variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
   $header_adress=variable_get('pub'.$builder.'_header', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/header');
-  $content_from_webservice = _pub_getcontentfromwebservice('AdTech', $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
+  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
   $header_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $header_adress);
   
   if ($content_from_webservice && !empty($content_from_webservice) && $header_from_webservice && !empty($header_from_webservice)) {
