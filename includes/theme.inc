@@ -726,6 +726,9 @@ function theme() {
     }
     
     if ($suggestions) {
+      if (strstr($hook, 'views-view')) {
+        print_r($suggestions);
+      }
       $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
     }
 
