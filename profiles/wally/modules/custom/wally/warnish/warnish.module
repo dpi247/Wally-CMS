@@ -345,7 +345,7 @@ function _warnish_terminal_run($command) {
   foreach ($terminals as $terminal) {
     list($server, $port) = explode(':', $terminal);
     $client = socket_create(AF_INET, SOCK_STREAM, getprotobyname('tcp'));
-    if ($client) {
+    if ($client && !empty($client)) {
       socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
       socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
       if (@!socket_connect($client, $server, $port)) {
