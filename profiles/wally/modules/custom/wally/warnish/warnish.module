@@ -384,7 +384,7 @@ function _warnish_terminal_run($command) {
           $status = _warnish_read_socket($client);
       
           if ($status['code'] != 200) {
-            watchdog('Warnish', 'Recieved status code !code running %command from command list. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
+            watchdog('Warnish', 'Recieved status code !code running %command from command list. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg'], '!client' => $client), WATCHDOG_ERROR);
             $temp_ret[] = FALSE;
           }
           else {
@@ -400,7 +400,7 @@ function _warnish_terminal_run($command) {
         $status = _warnish_read_socket($client);
     
         if ($status['code'] != 200) {
-          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg'], '!client' => serialize((array)$client)), WATCHDOG_ERROR);
+          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg'], '!client' => $client), WATCHDOG_ERROR);
           $ret[] = FALSE;
         }
         else {
@@ -422,7 +422,7 @@ function _warnish_read_socket($client) {
   $header = socket_read($client, 13, PHP_BINARY_READ);
   if ($header == FALSE) {
     $error = socket_last_error();
-    watchdog('Warnish', 'Socket error: !error. Client: !client', array('!error' => socket_strerror($error), '!client' => serialize((array)$client)), WATCHDOG_ERROR);
+    watchdog('Warnish', 'Socket error: !error. Client: !client', array('!error' => socket_strerror($error), '!client' => $client), WATCHDOG_ERROR);
   }
   $msg_len = (int) substr($header, 4, 6) + 1;
   $status = array(
