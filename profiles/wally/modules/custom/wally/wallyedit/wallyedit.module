@@ -1753,20 +1753,16 @@ function wydit_subform_global_add_form_submit($form,&$form_state,$target){
 }
 
 function wallyedit_form_editmode_edit_form(&$form_state){
-	dsm($form_state,form_state_new);
   $form = wydit_subform_global_edit_form($form_state);
   $form['#action'] = '/node/'.$form_state['cache name'].'/wydit_edit/ajax/'.$form_state['profile_id'];
-  
-  dsm($form_state,form_state);
-  
-  dsm($form,form_);
+
   return $form;
 }
 
 function wydit_subform_global_edit_form(&$form_state){
   $node = wydit_get_current_node_from_parents($form_state);
   $type_name = $node->type;
-   dsm($node,node);
+
   $form['#tree'] = TRUE;
 
   //@todo: target should be parents ?
@@ -1828,7 +1824,7 @@ function wallyedit_form_editmode_edit_form_submit(&$form,&$form_state){
   $old_form_state=$form_state;
   $target=$form_state['values']["parents"];
   $type_name=$form_state['values']["type"];
-  dsm($type_name,'ttt');
+
   if($type_name=="wally_linktype"){
     $number_of_items_in_target=wydit_get_number_of_elements_of_target($form_state,array("wally_articlepackage","field_linkedobjects"))-1;
   }
