@@ -113,7 +113,7 @@ DirectoryIndex index.php
   # RewriteBase /
 
   #RewriteCond %{REQUEST_FILENAME} -f
-  RewriteCond %{REQUEST_URI} \.(gif|jpg|jpeg|png)$ [NC]
+  RewriteCond %{REQUEST_URI} \.(gif|jpg|jpeg|css|js|png)$ [NC]
   RewriteCond %{REQUEST_URI} !^.*imagecache.*$
   RewriteRule .* - [L]
 
