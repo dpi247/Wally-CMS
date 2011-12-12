@@ -6,11 +6,18 @@ class wallyctools_views_plugin_row_redacblock extends views_plugin_row {
   function theme_functions() {
     $suggestions=views_theme_functions($this->definition['theme'], $this->view, $this->display);
     $vars['destination']=$this->view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
-    $vars['target']=$this->view->display_handler->handlers['filter']['field_destinations_target']->value;
+    $vars['target']=$this->view->display_handler->handlers['filter']['field_destinations_target']->value[0];
     foreach($suggestions as $sugestion){
       $suggestions[]=$sugestion.'___'.$vars['destination'];
       $suggestions[]=$sugestion.'___'.$vars['target'];
       $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'];
+      $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'];
+      if($this->view->split_index_count){
+        $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'].'____'.$this->view->split_index_count;
+        if($this->view->split_index_count==$this->view->split_total_count){
+          $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'].'____'.$this->view->split_index_count.'_____last';
+        } 
+      }
     }
     
     return $suggestions;

@@ -21,6 +21,8 @@ $plugin = array(
     'use_pager' => FALSE,
     'nodes_per_page' => 10,
     'total_nodes_per_page' => NULL,
+    'split_index_count' => NULL,
+    'split_total_count' => NULL,
     'hide_pager'=>"",
     'pager_id' => 0,
     'offset' => 0,
@@ -288,10 +290,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
+  
   if($conf['hide_pager']){
-  $view->hide_pager=TRUE;
+    $view->hide_pager=TRUE;
   }
-
+  $view->split_index_count=$conf['split_index_count'];
+  $view->split_total_count=$conf['split_total_count'];
+ 
   if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
     $block = new stdClass();
     $block->module = 'views';
@@ -458,6 +463,23 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#type' => 'checkbox',
       '#default_value' => $conf['hide_pager'],
     '#title' => t('Hide pager'),
+    '#size' => 4,
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+    $form['pager_settings']['split_index_count'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['split_index_count'],
+    '#title' => t('Split index'),
+    '#size' => 4,
+    '#description' => t('The total number of nodes on the page (Only if the redac block is splitted across the page).'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+    $form['pager_settings']['split_total_count'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['split_total_count'],
+    '#title' => t('# of splited blocks'),
     '#size' => 4,
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
