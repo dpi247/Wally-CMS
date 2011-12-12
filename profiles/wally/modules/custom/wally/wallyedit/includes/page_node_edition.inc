@@ -17,6 +17,8 @@ function wallyedit_page_node_edition($prenode, $js = FALSE, $current_profile = 0
   if($_POST['form_id']=='views_bulk_operations_form__1'){
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
+      
+    
   }
 
   $form = ctools_build_form('wallyedit_form_page_editmode_form', $form_state, $current_profile);

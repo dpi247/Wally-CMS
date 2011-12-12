@@ -366,8 +366,6 @@ return typeof val == 'object' ? val : { top:val, left:val };
   $type=wydit_get_infos_type($node_type);
   $extra_fields = array();
   wallyedit_get_extra_fields($extra_fields, $form[$node_type], array_keys($type['fields']));
-  dsm($type,type);
-  dsm($node_type,type);
   $cck_fields = $type['fields'] + $extra_fields;
 ?>
 $(document).ready(function() { 

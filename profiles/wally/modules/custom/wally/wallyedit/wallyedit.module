@@ -853,52 +853,29 @@ function wallyedit_form_page_createmode_form_submit(&$form, &$form_state){
       //@todo: remove hard coding of parents
       $clicked_parent = $form_state['clicked_button']["#parents"][1];
       $field_infos=$fields[$clicked_parent];
-
+      dsm('rrr');
+      dsm($field_infos,fieldsinfos);
       $referencables=$field_infos['referenceable_types'];
       foreach($referencables as $value){
         if($value){
           $allowed_types[$value]=$value;
         }
       }
-      if(count($allowed_types)>1){
-        $handler_type_filter=array(
-          'type' => array(
-            'operator' => 'in',
-            'value' => $allowed_types,
-            'group' => '0',
-            'exposed' => TRUE,
-            'expose' => array(
-              'use_operator' => 0,
-              'operator' => 'type_op',
-              'identifier' => 'type',
-              'label' => 'Node: Type',
-              'optional' => 1,
-              'single' => 0,
-              'remember' => 0,
-              'reduce' => 1,
-            ),
-            'id' => 'type',
-            'table' => 'node',
-            'field' => 'type',
-            'relationship' => 'none',
-          ),
-        );
-      }else{
-        $handler_type_filter=array(
-          'type' => array(
-            'operator' => 'in',
-            'value' => $allowed_types,
-            'group' => '0',
-            'id' => 'type',
-            'table' => 'node',
-            'field' => 'type',
-            'relationship' => 'none',
-          ),
-        );
-      }
+      
 
       $view = views_get_view('prenode_selectbox_vbo');
       $view->set_display('default');
+
+      
+
+
+      if(count($allowed_types)>1){
+        $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => TRUE,));
+
+      }else{
+        $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => FALSE,));
+      }
+      //      dsm($view);
 
       $view->display[$view->current_display]->handler->options['filters']['type'] = $handler_type_filter['type'];
       $view->display[$view->current_display]->display_options['filters']['type'] = $handler_type_filter['type'];
