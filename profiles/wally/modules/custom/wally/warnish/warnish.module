@@ -422,13 +422,17 @@ function _warnish_read_socket($client) {
   $header = socket_read($client, 13, PHP_BINARY_READ);
   if ($header == FALSE) {
     $error = socket_last_error();
-    watchdog('Warnish', 'Socket error: !error. Client: !client', array('!error' => socket_strerror($error), '!client' => $client), WATCHDOG_ERROR);
+    $status = array(
+      'code' => 0,
+      'msg' => 'Socket error: '.socket_strerror($error),
+    );
+  } else {
+    $msg_len = (int) substr($header, 4, 6) + 1;
+    $status = array(
+      'code' => substr($header, 0, 3),
+      'msg' => socket_read($client, $msg_len, PHP_BINARY_READ),
+    );
   }
-  $msg_len = (int) substr($header, 4, 6) + 1;
-  $status = array(
-    'code' => substr($header, 0, 3),
-    'msg' => socket_read($client, $msg_len, PHP_BINARY_READ)
-  );
   
   return $status;
 }
