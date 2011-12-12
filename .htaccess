@@ -115,7 +115,6 @@ DirectoryIndex index.php
   #RewriteCond %{REQUEST_FILENAME} -f
   RewriteCond %{REQUEST_URI} \.(gif|jpg|jpeg|png)$ [NC]
   RewriteCond %{REQUEST_URI} !^.*imagecache.*$
-  RewriteCond %{REQUEST_URI} !^.*system\/test.*$
   RewriteRule .* - [L]
 
   # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
