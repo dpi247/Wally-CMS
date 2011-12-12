@@ -423,7 +423,7 @@ function _warnish_read_socket($client) {
   if ($header == FALSE) {
     $error = socket_last_error();
     $status = array(
-      'code' => 0,
+      'code' => $error,
       'msg' => 'Socket error: '.socket_strerror($error),
     );
   } else {
