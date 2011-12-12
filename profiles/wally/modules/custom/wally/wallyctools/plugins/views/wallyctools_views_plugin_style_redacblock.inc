@@ -1,4 +1,5 @@
 <?php
+
 /* 
 * Implementation of views_plugin_style
 *
