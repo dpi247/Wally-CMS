@@ -32,7 +32,7 @@
 
 // Include functions for automatic master/slave replication
 
-//require_once './includes/database.mysql-replication.inc';
+require_once './includes/database.mysql-replication.inc';
 
 function db_query($query) {
 	
@@ -49,7 +49,7 @@ function db_query($query) {
   
   
   $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
-  return _db_query($query);
+ // return _db_query($query);
 
 	
    $run_on_slave = _db_is_slave_query($unprefixed_query, $query, $args);
