@@ -512,7 +512,6 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
           $pager['options']['id'] = $conf['pager_id'];
         }
       }
-
       $view->display_handler->set_option('pager', $pager);
       $view->pager = $pager;
     }
@@ -521,13 +520,66 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
         $view->display_handler->set_option('use_pager', $conf['use_pager']);
         $view->set_use_pager(TRUE);
       }
+      if(isset($_GET['page'])){
+        $page=(int) $_GET['page'];
+      }
+      else{
+        $page=0;
+      }
+      
+      
+      
       $view->display_handler->set_option('pager_element', $conf['pager_id']);
       $view->set_pager_element($conf['pager_id']);
       $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
       $view->set_items_per_page($conf['nodes_per_page']);
       $view->display_handler->set_option('offset', $conf['offset']);
-      $view->set_offset($conf['offset']);
+      $view->set_offset($conf['offset']+$page*$conf['nodes_per_page']);
+      
+      
+       $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
+       
     }
+          dsm($view);
+    
   }
   return TRUE;
+}
+
+/**
+ * Get a view from the database or from default views.
+ *
+ * This function is just a static wrapper around views::load(). This function
+ * isn't called 'views_load()' primarily because it might get a view
+ * from the default views which aren't technically loaded from the database.
+ *
+ * @param $name
+ *   The name of the view.
+ * @param $reset
+ *   If TRUE, reset this entry in the load cache.
+ * @return $view
+ *   A reference to the $view object. Use $reset if you're sure you want
+ *   a fresh one.
+ */
+function wallyctools_get_redac_view($name, $reset = FALSE) {
+  views_include('view');
+  $view = redac_view::load($name, $reset);
+  $default_view = views_get_default_view($name);
+
+  if (empty($view) && empty($default_view)) {
+    return;
+  }
+  elseif (empty($view) && !empty($default_view)) {
+    $status = variable_get('views_defaults', array());
+    if (isset($status[$default_view->name])) {
+      $default_view->disabled = $status[$default_view->name];
+    }
+    $default_view->type = t('Default');
+    return $default_view->clone_view();
+  }
+  elseif (!empty($view) && !empty($default_view)) {
+    $view->type = t('Overridden');
+  }
+
+  return $view->clone_view();
 }
