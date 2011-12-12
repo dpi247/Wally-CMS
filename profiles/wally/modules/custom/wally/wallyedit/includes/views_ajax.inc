@@ -41,12 +41,11 @@ function wallyedit_views_ajax($url_type_name, $cache_name, $url_clicked_parent) 
           }
         }
          
-  if(count($allowed_types)>1){
-    $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => TRUE,));
-    
-   }else{
-    $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => FALSE,));
-           }
+        if(count($allowed_types)>1) {
+          $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => TRUE,));
+        } else {
+          $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => FALSE,));
+        }
         
         // set the view arguments here, if needed : SET the cache name and the target
         $view->set_arguments(array($cache_name, $clicked_parent));
