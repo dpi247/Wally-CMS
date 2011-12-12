@@ -237,6 +237,7 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * based on the module and delta supplied in the configuration.
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
+    views_include('view');
   
    ctools_include('redac_view','wallyctools','includes');
    ctools_include('view','views','includes');
