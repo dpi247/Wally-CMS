@@ -16,13 +16,13 @@ class wallyctools_views_plugin_row_redacblock extends views_plugin_row {
         $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'].'____split';
         if($this->view->split_index_count==$this->view->split_total_count){
           $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-last';;
-        } 
+                  } 
         if($this->view->split_index_count=="1"){
           $suggestions[]=$sugestion.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-first';
         } 
       }
     }
-    
+    dsm($suggestions);
     return $suggestions;
   }
   
