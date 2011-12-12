@@ -22,7 +22,6 @@ class wallyctools_views_plugin_row_redacblock extends views_plugin_row {
         } 
       }
     }
-    dsm($suggestions);
     return $suggestions;
   }
   
