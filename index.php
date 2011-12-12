@@ -21,7 +21,7 @@ if (is_int($return)) {
   switch ($return) {
     case MENU_NOT_FOUND:
       
-      header("Location: /404.html");
+      header("Location: /404.html"); 
       //drupal_not_found();
       break;
     case MENU_ACCESS_DENIED:
