@@ -118,9 +118,7 @@ DirectoryIndex index.php
   RewriteCond %{REQUEST_URI} !^.*imagecache.*$
   RewriteRule .* - [L]
 
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule .* 404.php [L]
-
+ 
 
   # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
   RewriteCond %{REQUEST_FILENAME} !-f
