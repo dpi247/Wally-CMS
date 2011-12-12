@@ -17,7 +17,7 @@ Options +FollowSymLinks
 
 # Make Drupal handle any 404 errors.
 #ErrorDocument 404 /index.php
-ErrorDocument 404 "Ce fichier n'existe pas..."
+ErrorDocument 404 /404.php
 
 # Force simple error message for requests for non-existent favicon.ico.
 <Files favicon.ico>
@@ -117,6 +117,10 @@ DirectoryIndex index.php
   RewriteCond %{REQUEST_URI} \.(gif|jpg|jpeg|css|js|txt|xml|png)$ [NC]
   RewriteCond %{REQUEST_URI} !^.*imagecache.*$
   RewriteRule .* - [L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule .* 404.php [L]
+
 
   # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
   RewriteCond %{REQUEST_FILENAME} !-f
