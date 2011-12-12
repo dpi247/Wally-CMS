@@ -454,7 +454,10 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
   $options_and_classe = cckdestinations_get_classes_and_options();
-
+global $user;
+  if ($user->uid == 1) {
+    watchdog('debug wallyedit', print_r($defaults, TRUE));
+  }
   $element['tid'] = array(
     '#title'            => t( 'Destination Path' ),
     '#type'             => 'select',
