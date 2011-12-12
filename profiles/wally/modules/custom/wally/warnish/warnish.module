@@ -10,7 +10,7 @@
 define('WARNISH_NO_CLEAR', 0);
 define('WARNISH_DEFAULT_CLEAR', 1);
 define('WARNISH_SELECTIVE_CLEAR', 2); // Requires Expire.module to be enabled.
-define('WARNISH_DEFAULT_TIMETOUT', 100); // 100ms
+define('WARNISH_DEFAULT_TIMETOUT', 200); // 200ms
 define('WARNISH_SERVER_STATUS_DOWN', 0);
 define('WARNISH_SERVER_STATUS_UP', 1);
 
@@ -332,10 +332,14 @@ function _warnish_get_host() {
  * @param $command
  *   Can be a single string or an array of strings
  */
-function _warnish_terminal_run($command) {
+function _warnish_terminal_run($commands) {
   if (!extension_loaded('sockets')) {
     // Prevent fatal errors if people don't have requirements.
     return FALSE;
+  }
+  // Convert single commands to an array so we can handle everything in the same way.
+  if (!is_array($commands)) {
+    $commands = array($commands);
   }
   $ret = array();
   $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
@@ -374,40 +378,13 @@ function _warnish_terminal_run($command) {
           }
         }
       }
-  
-      if (is_array($command)) {
-        $temp_ret = array();
-        
-        foreach ($command as $com) {
-          // Send command and get response.
-          $result = socket_write($client, "$com\n");
-          $status = _warnish_read_socket($client);
-      
-          if ($status['code'] != 200) {
-            watchdog('Warnish', 'Recieved status code !code running %command from command list. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg'], '!client' => $client), WATCHDOG_ERROR);
-            $temp_ret[] = FALSE;
-          }
-          else {
-            // successful connection
-            $temp_ret[] = $status;
-          }
-        }
-        
-        $ret[] = $temp_ret;
-      } else {
-        // Send command and get response.
-        $result = socket_write($client, "$command\n");
-        $status = _warnish_read_socket($client);
-    
-        if ($status['code'] != 200) {
-          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error. Client: !client', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg'], '!client' => $client), WATCHDOG_ERROR);
-          $ret[] = FALSE;
-        }
-        else {
-          // successful connection
-          $ret[] = $status;
+
+      foreach ($commands as $command) {
+        if ($status = _warnish_execute_command($client, $command)) {
+          $ret[$terminal][$command] = $status;
         }
       }
+
       socket_close($client);
     } else {
       watchdog('Warnish', 'Couldn\'t create client for terminal: !terminal', array('!terminal' => $terminal), WATCHDOG_ERROR);
@@ -417,20 +394,48 @@ function _warnish_terminal_run($command) {
   return $ret;
 }
 
-function _warnish_read_socket($client) {
+function _warnish_execute_command($client, $command) {
+  // Send command and get response.
+  $result = socket_write($client, "$command\n");
+  $status = _warnish_read_socket($client);
+  if ($status['code'] != 200) {
+     watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg']), WATCHDOG_ERROR);
+     return FALSE;
+  }
+  else {
+    // successful connection
+    return $status;
+  }
+}
+
+/**
+ * Low-level socket read function.
+ *
+ * @params
+ *   $client an initialized socket client
+ *
+ *   $retty how many times to retry on "temporarily unavalble" errors
+ */
+function _warnish_read_socket($client, $retry = 2) {
   // status and length info is always 13 characters. 
   $header = socket_read($client, 13, PHP_BINARY_READ);
   if ($header == FALSE) {
     $error = socket_last_error();
-    $status = array(
-      'code' => $error,
-      'msg' => 'Socket error: '.socket_strerror($error),
-    );
+    // 35 = socket-unavailable, so it might be blocked from our write.
+    // This is an acceptable place to retry.
+    if ($error == 35 && $retry > 0) {
+      $status = _warnish_read_socket($client, $retry-1);
+    } else {
+      $status = array(
+        'code' => $error,
+        'msg' => 'Socket error: '.socket_strerror($error),
+      );
+    }
   } else {
     $msg_len = (int) substr($header, 4, 6) + 1;
     $status = array(
       'code' => substr($header, 0, 3),
-      'msg' => socket_read($client, $msg_len, PHP_BINARY_READ),
+      'msg' => socket_read($client, $msg_len, PHP_BINARY_READ)
     );
   }
   
