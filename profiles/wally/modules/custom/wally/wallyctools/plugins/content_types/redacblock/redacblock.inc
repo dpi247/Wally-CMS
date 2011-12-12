@@ -21,6 +21,7 @@ $plugin = array(
     'use_pager' => FALSE,
     'nodes_per_page' => 10,
     'total_nodes_per_page' => NULL,
+    'hide_pager'=>"",
     'pager_id' => 0,
     'offset' => 0,
     'more_link' => FALSE,
@@ -287,6 +288,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
+  if($conf['hide_pager']){
+  $view->hide_pager=TRUE;
+  }
 
   if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
     $block = new stdClass();
@@ -446,7 +450,15 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#default_value' => $conf['total_nodes_per_page'],
     '#title' => t('Total nodes per pages'),
     '#size' => 4,
-    '#description' => t('The total number of nodes on the page.'),
+    '#description' => t('The total number of nodes on the page (Only if the redac block is splitted across the page).'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+  $form['pager_settings']['hide_pager'] = array(
+    '#type' => 'checkbox',
+      '#default_value' => $conf['hide_pager'],
+    '#title' => t('Hide pager'),
+    '#size' => 4,
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
