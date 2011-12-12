@@ -239,7 +239,8 @@ function _wallyctools_views_conf(&$conf, $subtype) {
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
   
    ctools_include('redac_view','wallyctools','includes');
-  
+   ctools_include('view','views','includes');
+   
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
   if (!is_array($contexts)) {
