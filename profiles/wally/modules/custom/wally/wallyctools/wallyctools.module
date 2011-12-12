@@ -540,7 +540,6 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
        $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
        
     }
-          dsm($view);
     
   }
   return TRUE;
