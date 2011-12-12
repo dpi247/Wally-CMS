@@ -454,10 +454,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
   $options_and_classe = cckdestinations_get_classes_and_options();
-/*global $user;
-  if ($user->uid == 1) {
-    watchdog('debug wallyedit', print_r($defaults, TRUE));
-  }*/
+
   $element['tid'] = array(
     '#title'            => t( 'Destination Path' ),
     '#type'             => 'select',
@@ -504,7 +501,10 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $rank_values = array();
   $rank_classes = array();
   $rank_limit = variable_get('cckdestinations_rank_limit', '10');
-  
+  global $user;
+  if ($user->uid == 1) {
+    dsm($defaults);
+  }
   if (!cckdestinations_content_is_empty($defaults, array()) && isset($defaults['rank']) && !empty($defaults['rank'])) {// && isset($defaults['time_rank']) && !empty($defaults['time_rank'])) {
     //$defaults['rank'] = substr($defaults['rank'], strlen($defaults['rank']) - strlen($rank_limit));
     $default_value=current(explode('DNC',$defaults['rank']));
