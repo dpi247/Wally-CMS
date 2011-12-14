@@ -34,39 +34,18 @@ function wallyedit_views_ajax($url_type_name, $cache_name, $url_clicked_parent) 
   
         //@todo: remove hard coding of parents
         $field_infos=$fields[$clicked_parent];
-  
         $referencables=$field_infos['referenceable_types'];
         foreach($referencables as $value){
           if($value){
             $allowed_types[$value]=$value;
           }
         }
-  
-        $handler_type_filter=array(
-          'type' => array(
-            'operator' => 'in',
-            'value' => $allowed_types,
-            'group' => '0',
-            'exposed' => TRUE,
-            'expose' => array(
-              'use_operator' => 0,
-              'operator' => 'type_op',
-              'identifier' => 'type',
-              'label' => 'Node: Type',
-              'optional' => 1,
-              'single' => 0,
-              'remember' => 0,
-              'reduce' => 1,
-            ),
-            'id' => 'type',
-            'table' => 'node',
-            'field' => 'type',
-            'relationship' => 'none',
-          ),
-        );
-
-        $view->display[$display_id]->handler->options['filters']['type'] = $handler_type_filter['type'];
-        $view->display[$display_id]->display_options['filters']['type'] = $handler_type_filter['type'];
+         
+        if(count($allowed_types)>1) {
+          $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => TRUE,));
+        } else {
+          $view->add_item('default','filter','node','type',array('operator' => 'in','value' => $allowed_types, 'exposed' => FALSE,));
+        }
         
         // set the view arguments here, if needed : SET the cache name and the target
         $view->set_arguments(array($cache_name, $clicked_parent));
