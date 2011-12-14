@@ -1,12 +1,5 @@
 <?php
 // $Id: pub.admin.inc,v 1.0 2011/02/10 ODM $
- 
-function pub_page_admin_openx() {
-  $return = '';
-  $return .= drupal_get_form('pub_page_admin_openx_form');
-  
-  return $return;
-}
 
 /**
  * Settings form.
@@ -15,7 +8,6 @@ function pub_page_admin_openx_form($form_state) {
   $form['openx_website'] = array(
     '#type' => 'textfield',
     '#title' => t('Website name'),
-    '#description' => t('The website name used to the pub requests.'),
     '#default_value' => variable_get('pub_openx_website', ''),
     '#size' => 80,
     '#maxlength' => 512,
@@ -35,7 +27,6 @@ function pub_page_admin_openx_form($form_state) {
   $form['openx_get_xml'] = array(
     '#type' => 'textfield',
     '#title' => t('URL used for getting blocks informations'),
-    '#description' => t('The URL used for getting blocks informations.'),
     '#default_value' => variable_get('pub_openx_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'),
     '#size' => 80,
     '#maxlength' => 512,
@@ -44,9 +35,8 @@ function pub_page_admin_openx_form($form_state) {
   
   $form['openx_webserv'] = array(
     '#type' => 'textfield',
-    '#title' => t('URL of the webservice returning the pubs'),
-    '#description' => t('The URL of the webservice returning the pubs.'),
-    '#default_value' => variable_get('openx_pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
+    '#title' => t('URL of the webservice returning the ads'),
+    '#default_value' => variable_get('pub_openx_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
@@ -79,15 +69,6 @@ function pub_page_admin_openx_form_submit($form, &$form_state) {
   variable_set('pub_openx_get_xml', $values['openx_get_xml']);
   variable_set('pub_openx_webserv', $values['openx_webserv']);
   variable_set('pub_openx_header', $values['openx_header']);
-  drupal_set_message('Configuration saved', 'openx_notice');
+  drupal_set_message(t('Configuration saved'), 'openx_notice');
 }
 
-/**
- * HTML code for the pub blocks admin page.
- */
-function pub_blocks_admin_openx() {
-  $return = '';
-  $return .= drupal_get_form('pub_blocks_admin_openx_form');
-  
-  return $return;
-}

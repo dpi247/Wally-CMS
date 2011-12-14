@@ -1,13 +1,13 @@
 <?php
 
-/*
+/**
  * Implementation of the hook module _install();
  */
 function pub_install() {
   drupal_install_schema('pub');
 }
 
-/*
+/**
  * Implementation of the hook module _uninstall();
  */
 function pub_uninstall() {
