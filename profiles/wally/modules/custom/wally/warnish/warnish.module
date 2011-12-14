@@ -10,7 +10,7 @@
 define('WARNISH_NO_CLEAR', 0);
 define('WARNISH_DEFAULT_CLEAR', 1);
 define('WARNISH_SELECTIVE_CLEAR', 2); // Requires Expire.module to be enabled.
-define('WARNISH_DEFAULT_TIMETOUT', 100); // 100ms
+define('WARNISH_DEFAULT_TIMETOUT', 200); // 200ms
 define('WARNISH_SERVER_STATUS_DOWN', 0);
 define('WARNISH_SERVER_STATUS_UP', 1);
 
@@ -332,10 +332,14 @@ function _warnish_get_host() {
  * @param $command
  *   Can be a single string or an array of strings
  */
-function _warnish_terminal_run($command) {
+function _warnish_terminal_run($commands) {
   if (!extension_loaded('sockets')) {
     // Prevent fatal errors if people don't have requirements.
     return FALSE;
+  }
+  // Convert single commands to an array so we can handle everything in the same way.
+  if (!is_array($commands)) {
+    $commands = array($commands);
   }
   $ret = array();
   $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
@@ -345,86 +349,95 @@ function _warnish_terminal_run($command) {
   foreach ($terminals as $terminal) {
     list($server, $port) = explode(':', $terminal);
     $client = socket_create(AF_INET, SOCK_STREAM, getprotobyname('tcp'));
-    socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
-    socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
-    if (@!socket_connect($client, $server, $port)) {
-      watchdog('Warnish', 'Unable to connect to server socket !server:!port: %error', array(
-        '!server' => $server,
-        '!port' => $port,
-        '%error' => socket_strerror(socket_last_error($client))
-        ), WATCHDOG_ERROR);
-      $ret[] = FALSE;
-      // If a Varnish server is unavailable, move on to the next in the list.
-      continue;
-    }
-    // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
-    if(variable_get('warnish_legacy', 0) != 1) {
-      $status = _warnish_read_socket($client);
-      // Do we need to authenticate?
-      if ($status['code'] == 107) { // Require authentication
-        $secret = variable_get('warnish_control_key', '');
-        $challenge = substr($status['msg'], 0, 32);
-        $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
-        $key = hash('sha256', $pack);
-        socket_write($client, "auth $key\n");
-        $status = _warnish_read_socket($client);
-        if ($status['code'] != 200) {
-          watchdog('Warnish', 'Authentication to server failed!', array(), WATCHDOG_ERROR);
-        }
-      }
-    }
-
-    if (is_array($command)) {
-      $temp_ret = array();
-      
-      foreach ($command as $com) {
-        // Send command and get response.
-        $result = socket_write($client, "$com\n");
-        $status = _warnish_read_socket($client);
-    
-        if ($status['code'] != 200) {
-          watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $com, '!error' => $status['msg']), WATCHDOG_ERROR);
-          $temp_ret[] = FALSE;
-        }
-        else {
-          // successful connection
-          $temp_ret[] = $status;
-        }
-      }
-      
-      $ret[] = $temp_ret;
-    } else {
-      // Send command and get response.
-      $result = socket_write($client, "$command\n");
-      $status = _warnish_read_socket($client);
-  
-      if ($status['code'] != 200) {
-        watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg']), WATCHDOG_ERROR);
+    if ($client && !empty($client)) {
+      socket_set_option($client, SOL_SOCKET, SO_SNDTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+      socket_set_option($client, SOL_SOCKET, SO_RCVTIMEO, array('sec' => $seconds, 'usec' => $milliseconds));
+      if (@!socket_connect($client, $server, $port)) {
+        watchdog('Warnish', 'Unable to connect to server socket !server:!port: %error', array(
+          '!server' => $server,
+          '!port' => $port,
+          '%error' => socket_strerror(socket_last_error($client))
+          ), WATCHDOG_ERROR);
         $ret[] = FALSE;
+        // If a Varnish server is unavailable, move on to the next in the list.
+        continue;
       }
-      else {
-        // successful connection
-        $ret[] = $status;
+      // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
+      if(variable_get('warnish_legacy', 0) != 1) {
+        $status = _warnish_read_socket($client);
+        // Do we need to authenticate?
+        if ($status['code'] == 107) { // Require authentication
+          $secret = variable_get('warnish_control_key', '');
+          $challenge = substr($status['msg'], 0, 32);
+          $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
+          $key = hash('sha256', $pack);
+          socket_write($client, "auth $key\n");
+          $status = _warnish_read_socket($client);
+          if ($status['code'] != 200) {
+            watchdog('Warnish', 'Authentication to server failed!', array(), WATCHDOG_ERROR);
+          }
+        }
       }
+
+      foreach ($commands as $command) {
+        if ($status = _warnish_execute_command($client, $command)) {
+          $ret[$terminal][$command] = $status;
+        }
+      }
+
+      socket_close($client);
+    } else {
+      watchdog('Warnish', 'Couldn\'t create client for terminal: !terminal', array('!terminal' => $terminal), WATCHDOG_ERROR);
     }
-    socket_close($client);
   }
   
   return $ret;
 }
 
-function _warnish_read_socket($client) {
+function _warnish_execute_command($client, $command) {
+  // Send command and get response.
+  $result = socket_write($client, "$command\n");
+  $status = _warnish_read_socket($client);
+  if ($status['code'] != 200) {
+     watchdog('Warnish', 'Recieved status code !code running %command. Full response text: !error', array('!code' => $status['code'], '%command' => $command, '!error' => $status['msg']), WATCHDOG_ERROR);
+     return FALSE;
+  }
+  else {
+    // successful connection
+    return $status;
+  }
+}
+
+/**
+ * Low-level socket read function.
+ *
+ * @params
+ *   $client an initialized socket client
+ *
+ *   $retty how many times to retry on "temporarily unavalble" errors
+ */
+function _warnish_read_socket($client, $retry = 2) {
   // status and length info is always 13 characters. 
   $header = socket_read($client, 13, PHP_BINARY_READ);
   if ($header == FALSE) {
     $error = socket_last_error();
-    watchdog('Warnish', 'Socket error: !error', array('!error' => socket_strerror($error)), WATCHDOG_ERROR);
+    // 35 = socket-unavailable, so it might be blocked from our write.
+    // This is an acceptable place to retry.
+    if ($error == 35 && $retry > 0) {
+      $status = _warnish_read_socket($client, $retry-1);
+    } else {
+      $status = array(
+        'code' => $error,
+        'msg' => 'Socket error: '.socket_strerror($error),
+      );
+    }
+  } else {
+    $msg_len = (int) substr($header, 4, 6) + 1;
+    $status = array(
+      'code' => substr($header, 0, 3),
+      'msg' => socket_read($client, $msg_len, PHP_BINARY_READ)
+    );
   }
-  $msg_len = (int) substr($header, 4, 6) + 1;
-  $status = array(
-    'code' => substr($header, 0, 3),
-    'msg' => socket_read($client, $msg_len, PHP_BINARY_READ)
-  );
   
   return $status;
 }
