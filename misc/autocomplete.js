@@ -82,7 +82,6 @@ Drupal.jsAC.prototype.onkeyup = function (input, e) {
     case 39: // right arrow
     case 40: // down arrow
       return true;
-
     case 9:  // tab
     case 13: // enter
     case 27: // esc
