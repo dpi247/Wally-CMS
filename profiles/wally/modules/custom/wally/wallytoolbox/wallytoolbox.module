@@ -947,19 +947,21 @@ function wallytoolbox_add_meta($attributes = array(), $content = NULL) {
 	static $wally_meta = array();
 	$meta_key = NULL; 
 
-	// Supported "Meta Keys" are : http-equiv, name, property. 
-	foreach ($attributes as $attribute_name => $attribute_value) {
-		switch (strtolower($attribute_name)) {
-			case "name":
-			case "http-equiv":
-			case "property":
-				$meta_key = strtolower($attribute_name)."_".$attribute_value;
-				$wally_meta[$meta_key] = array( $attribute_name => $attribute_value, "content" => $content); 
-				break;
-			default:
-				$wally_meta[] = array( $attribute_name => $attribute_value, "content" => $content); 
-				break; 
-		}
+	// Supported "Meta Keys" are : http-equiv, name, property.
+	if (is_array($attributes)) {
+	  foreach ($attributes as $attribute_name => $attribute_value) {
+	    switch (strtolower($attribute_name)) {
+	      case "name":
+	      case "http-equiv":
+	      case "property":
+	        $meta_key = strtolower($attribute_name)."_".$attribute_value;
+	        $wally_meta[$meta_key] = array( $attribute_name => $attribute_value, "content" => $content);
+	        break;
+	      default:
+	        $wally_meta[] = array( $attribute_name => $attribute_value, "content" => $content);
+	        break;
+	    }
+	  }
 	}
 	return $wally_meta;
 }
