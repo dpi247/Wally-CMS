@@ -20,8 +20,9 @@ $return = menu_execute_active_handler();
 if (is_int($return)) {
   switch ($return) {
     case MENU_NOT_FOUND:
-      drupal_not_found();
-      break;
+      header("Location: /404.html"); 
+      //drupal_not_found();
+     break;
     case MENU_ACCESS_DENIED:
       drupal_access_denied();
       break;
