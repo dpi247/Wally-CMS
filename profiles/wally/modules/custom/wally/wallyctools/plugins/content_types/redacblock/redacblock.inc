@@ -20,6 +20,10 @@ $plugin = array(
     'override_pager_settings' => FALSE,
     'use_pager' => FALSE,
     'nodes_per_page' => 10,
+    'total_nodes_per_page' => NULL,
+    'split_index_count' => NULL,
+    'split_total_count' => NULL,
+    'hide_pager'=>"",
     'pager_id' => 0,
     'offset' => 0,
     'more_link' => FALSE,
@@ -235,6 +239,9 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * based on the module and delta supplied in the configuration.
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
+  views_include('view');
+  ctools_include('redac_view','wallyctools','includes');
+   
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
   if (!is_array($contexts)) {
@@ -244,7 +251,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $view_name = $conf['content']->view_name;
   $view_id = $conf['content']->view_id;
 
-  $view = views_get_view($view_name);
+  $view = wallyctools_get_redac_view($view_name);
 
   $arguments = explode('/', $_GET['q']);
   $args = $conf['args'];
@@ -282,7 +289,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-
+  
+  if($conf['hide_pager']){
+    $view->hide_pager=TRUE;
+  }
+  $view->split_index_count=$conf['split_index_count'];
+  $view->split_total_count=$conf['split_total_count'];
+ 
   if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
     $block = new stdClass();
     $block->module = 'views';
@@ -331,7 +344,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   $view = views_get_view($view_name);
   $view->set_display($view_id);
   $form_state['settings'] = $conf;
-
   if (!user_access('administer redacblock content')) {
     return;
   }
@@ -434,6 +446,44 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#title' => t('Offset'),
     '#size' => 4,
     '#description' => t('The number of items to skip and not display.'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+
+  $form['pager_settings']['total_nodes_per_page'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['total_nodes_per_page'],
+    '#title' => t('Total nodes per pages'),
+    '#size' => 4,
+    '#description' => t('The total number of nodes on the page (Only if the redac block is splitted across the page).'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+
+  $form['pager_settings']['hide_pager'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => $conf['hide_pager'],
+    '#title' => t('Hide pager'),
+    '#size' => 4,
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+
+  $form['pager_settings']['split_index_count'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['split_index_count'],
+    '#title' => t('Split index'),
+    '#size' => 4,
+    '#description' => t('The total number of nodes on the page (Only if the redac block is splitted across the page).'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
+
+  $form['pager_settings']['split_total_count'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['split_total_count'],
+    '#title' => t('# of splited blocks'),
+    '#size' => 4,
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
