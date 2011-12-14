@@ -229,7 +229,6 @@ function _wallyctools_views_conf(&$conf, $subtype) {
       $conf['pager_id'] = $view->display_handler->get_option('element_id');
       $conf['nodes_per_page'] = $view->display_handler->get_option('items_per_page');
       $conf['offset'] = $view->display_handler->get_option('offset');
-      
     }
   }
   return $view;
@@ -240,8 +239,8 @@ function _wallyctools_views_conf(&$conf, $subtype) {
  * based on the module and delta supplied in the configuration.
  */
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
-   views_include('view');
-   ctools_include('redac_view','wallyctools','includes');
+  views_include('view');
+  ctools_include('redac_view','wallyctools','includes');
    
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
@@ -450,7 +449,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
-    $form['pager_settings']['total_nodes_per_page'] = array(
+
+  $form['pager_settings']['total_nodes_per_page'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['total_nodes_per_page'],
     '#title' => t('Total nodes per pages'),
@@ -459,15 +459,17 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
+
   $form['pager_settings']['hide_pager'] = array(
     '#type' => 'checkbox',
-      '#default_value' => $conf['hide_pager'],
+    '#default_value' => $conf['hide_pager'],
     '#title' => t('Hide pager'),
     '#size' => 4,
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
-    $form['pager_settings']['split_index_count'] = array(
+
+  $form['pager_settings']['split_index_count'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['split_index_count'],
     '#title' => t('Split index'),
@@ -476,7 +478,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
-    $form['pager_settings']['split_total_count'] = array(
+
+  $form['pager_settings']['split_total_count'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['split_total_count'],
     '#title' => t('# of splited blocks'),
