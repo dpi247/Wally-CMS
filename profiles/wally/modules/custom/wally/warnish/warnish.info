@@ -3,6 +3,6 @@ description = "Varnish server interface and specific cases to be bypassed by Var
 name = "Warnish"
 package = "Wally"
 project = "warnish"
-version = "6.x-1.0-rc1"
+version = "6.x-1.0"
 
 dependencies[] = "wallytoolbox"
