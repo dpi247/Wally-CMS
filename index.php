@@ -17,7 +17,6 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 if(arg(0)=='taxonomy' and arg(1)=='term'){
 
   $menu_item=menu_get_item($path);
-  dsm($menu_item);
   if($menu_item['page_callback']!='page_manager_term_view'){
   variable_set('site_offline',TRUE);
   }
