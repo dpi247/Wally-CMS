@@ -2857,7 +2857,6 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
  *   in $data (see above)
  */
 function drupal_alter($type, &$data) {
-  watchdog('DEBUGIMPLEMENTS','aaa-'.$type);
   
 if($type=='menu'){
   watchdog('DEBUGIMPLEMENTS-MENU',print_r(module_implements($type .'_alter')));
