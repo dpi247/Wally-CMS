@@ -2857,11 +2857,10 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
  *   in $data (see above)
  */
 function drupal_alter($type, &$data) {
-  watchdog('DEBUGIMPLEMENTS','aaa');
+  watchdog('DEBUGIMPLEMENTS','aaa-'.$type);
   
 if($type=='menu'){
-  watchdog('DEBUGIMPLEMENTS',print_r(module_implements($type .'_alter')));
-  watchdog('DEBUGIMPLEMENTS','tttt');
+  watchdog('DEBUGIMPLEMENTS-MENU',print_r(module_implements($type .'_alter')));
 }
   // PHP's func_get_args() always returns copies of params, not references, so
   // drupal_alter() can only manipulate data that comes in via the required first
