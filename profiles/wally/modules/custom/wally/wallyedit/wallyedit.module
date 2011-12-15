@@ -336,6 +336,8 @@ function wallyedit_menu(){
  * Simulate redirection to edition interface instead of classical node form
  */
 function wallyedit_menu_alter(&$items) {
+    watchdog('DEBUG ALTER WAZLLY','<pre>'.print_r($items,1).'</pre>');
+  
   // Node alter to allow the redirect to our edition interface
   foreach (node_get_types('types', NULL, TRUE) as $type) {
     $type_url_str = str_replace('_', '-', $type->type);
