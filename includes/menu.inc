@@ -1748,8 +1748,11 @@ function menu_router_build($reset = FALSE) {
       }
     }
     // Alter the menu as defined in modules, keys are like user/%user.
+    watchdog('REBUILD1',print_r($callbacks,1));
     drupal_alter('menu', $callbacks);
+    watchdog('REBUILD2',print_r($callbacks,1));
     $menu = _menu_router_build($callbacks);
+    watchdog('REBUILD3',print_r($menu,1));
     _menu_router_cache($menu);
   }
   return $menu;
