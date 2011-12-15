@@ -13,16 +13,14 @@
 
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
-
+/*
 if(arg(0)=='taxonomy' and arg(1)=='term'){
-
-  $menu_item=menu_get_item($path);
+  $menu_item=menu_get_item();
   if($menu_item['page_callback']!='page_manager_term_view'){
   variable_set('site_offline',TRUE);
   }
-  
-  ;
 }
+*/
 $return = menu_execute_active_handler();
 
 // Menu status constants are integers; page content is a string.
