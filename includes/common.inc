@@ -2859,8 +2859,7 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
 function drupal_alter($type, &$data) {
   
 if($type=='menu'){
-  watchdog('DEBUGIMPLEMENTS-MENU','<pre>'.print_r(module_implements($type .'_alter')).'</pre>');
-    watchdog('DEBUGIMPLEMENTS-MENU','toto');
+  watchdog('DEBUGIMPLEMENTS-MENU','<pre>'.print_r(module_implements($type .'_alter'),1).'</pre>');
 }
   // PHP's func_get_args() always returns copies of params, not references, so
   // drupal_alter() can only manipulate data that comes in via the required first
