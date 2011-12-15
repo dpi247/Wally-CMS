@@ -340,8 +340,6 @@ function menu_execute_active_handler($path = NULL) {
   // occurs rarely, likely due to a race condition of multiple rebuilds.
   if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', array())) {
   	
-	  // DLA
-	  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre><pre> menu_rebuild_needed:".variable_get('menu_rebuild_needed', "par default")."</pre><pre> menu_masks:".variable_get('menu_masks', "par default")."</pre>" );
 	   	
     menu_rebuild();
   }
@@ -1696,6 +1694,9 @@ function menu_cache_clear_all() {
  * is different and leaves stale data in the menu tables.
  */
 function menu_rebuild() {
+  // DLA
+  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre>" );
+  
   if (!lock_acquire('menu_rebuild')) {
     // Wait for another request that is already doing this work.
     // We choose to block here since otherwise the router item may not 
@@ -1704,8 +1705,6 @@ function menu_rebuild() {
     return FALSE;
   }
 
-  // DLA
-  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre>" );
   
   // Encapsulate the rebuild in a transaction.
   db_query('BEGIN');
