@@ -2857,6 +2857,12 @@ function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1)
  *   in $data (see above)
  */
 function drupal_alter($type, &$data) {
+  watchdog('DEBUGIMPLEMENTS','aaa');
+  
+if($type=='menu'){
+  watchdog('DEBUGIMPLEMENTS',print_r(module_implements($type .'_alter')));
+  watchdog('DEBUGIMPLEMENTS','tttt');
+}
   // PHP's func_get_args() always returns copies of params, not references, so
   // drupal_alter() can only manipulate data that comes in via the required first
   // param. For the edge case functions that must pass in an arbitrary number of
@@ -2884,6 +2890,7 @@ function drupal_alter($type, &$data) {
   array_shift($additional_args);
   $args = array_merge($args, $additional_args);
 
+    
   foreach (module_implements($type .'_alter') as $module) {
     $function = $module .'_'. $type .'_alter';
     call_user_func_array($function, $args);
