@@ -767,11 +767,11 @@ function taxonomy_get_related($tid, $key = 'tid') {
  */
 function taxonomy_get_parents($tid, $key = 'tid') {
   static $terms;
-  if($terms[$tid]){
-  return $terms[$tid];
-  }
  
   if ($tid) {
+   if($terms[$tid]){
+  return $terms[$tid];
+  }else{
     $result = db_query(db_rewrite_sql('SELECT t.tid, t.* FROM {term_data} t INNER JOIN {term_hierarchy} h ON h.parent = t.tid WHERE h.tid = %d ORDER BY weight, name', 't', 'tid'), $tid);
     $parents = array();
     while ($parent = db_fetch_object($result)) {
@@ -780,8 +780,8 @@ function taxonomy_get_parents($tid, $key = 'tid') {
      $terms[$tid]=$parents;
     return $parents;
   }
+  }
   else {
-    $terms[$tid]=array();
     return array();
   }
 }
