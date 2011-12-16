@@ -26,9 +26,9 @@ div.devel-querylog { display:none; }
 #admin-toolbar #block-admin-devel { padding-bottom:10px; }
 
 /**
- * Query list =========================================================
+ * Query list ORIGIN =========================================================
  */
-div.devel-querylog {
+div.DLA.devel-querylog {
   border-bottom:1px solid #181818;
   background:#080808;
   color:#999;
@@ -37,6 +37,21 @@ div.devel-querylog {
   position:relative;
   display:none;
   }
+
+/**
+ * Query list DLA =========================================================
+ */
+div.devel-querylog {
+  border-bottom:1px solid #181818;
+  background:#080808;
+  color:#999;
+  font-size:11px;
+  line-height:15px;
+  position:relative;
+  }
+
+
+
 
 div.devel-querylog-header {
   border:0px;
