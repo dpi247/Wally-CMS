@@ -1,7 +1,13 @@
+/** 
 div.dev-query,
 div.dev-timer,
 div.dev-memory-usage,
 div.devel-querylog { display:none; }
+**/
+
+div.dev-timer,
+div.dev-memory-usage { display:none; }
+
 
 .devel-hide { display:none !important; }
 
