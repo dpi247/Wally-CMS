@@ -1753,18 +1753,25 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
         $items[$delta]['rank'] = substr($item['rank'], 3);
       } else {
-        $sort_method = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_sort_method', 'absolute');
+        $defaults = array(
+          'sort_method' => 'absolute',
+          'behavior' => 'bottom',
+          'reserved' => 5,
+          'delta_t' => 1,
+        );
+        $dest_settings = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
+        $sort_method = $dest_settings['sort_method'];
         
         if (strstr($item['rank'], 'DNC')) {
           $item['rank'] = substr($item['rank'], 3);
         }
 
         if ($sort_method == 'interval') {
-          $items[$delta]['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_delta_t', 1));
+          $items[$delta]['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * $dest_settings['delta_t']);
         } else {
           // Set params for this destination
-          $behavior = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_behavior', 'top');
-          $reserved = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_reserved', 5);
+          $behavior = $dest_settings['behavior'];
+          $reserved = $dest_settings['reserved'];
           $temp_time_rank = 0;
           $rank = $item['rank'];
 

@@ -43,6 +43,14 @@ function cckdestinations_page_admin_form($form_state) {
     );
     
     foreach ($hierarchy['redacblocks'] as $redacblock) {
+      $defaults = array(
+        'sort_method' => 'absolute',
+        'behavior' => 'bottom',
+        'reserved' => 5,
+        'delta_t' => 1,
+      );
+      $dest_settings = variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'], $defaults);
+
       $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']] = array(
         '#type' => 'fieldset',
         '#title' => $redacblock['title'],
@@ -55,7 +63,7 @@ function cckdestinations_page_admin_form($form_state) {
         '#title' => t('Sorting method'),
         '#description' => t('Based on the rank, two sorting methods can be applied : the rank is an absolute position (a rank of 2 means the second place) or the rank represent an time interval added to the node publication date.'),
         '#options' => array('absolute' => t('Absolute'),'interval' => t('Time interval')),
-        '#default_value' => variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'].'_sort_method', 'absolute'),
+        '#default_value' => $dest_settings['sort_method'],
       );
       
       $radio_name = 'cckdestinations_rank[cckdestinations_destination_'.$tid.']['.$redacblock['name'].'][cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_sort_method]';
@@ -63,7 +71,7 @@ function cckdestinations_page_admin_form($form_state) {
       $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']]['cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior'] = array(
         '#type' => 'select',
         '#title' => t('Behavior'),
-        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_behavior', 'bottom'),
+        '#default_value' => $dest_settings['behavior'],
         '#options' => $behavior_options,
         '#process' => array('ctools_dependent_process'),
         '#dependency' => array('radio:'.$radio_name => array('absolute')),
@@ -73,7 +81,7 @@ function cckdestinations_page_admin_form($form_state) {
         '#type' => 'textfield',
         '#title' => t('Reserved positions'),
         '#description' => t('Must be smaller than the global rank\'s range'),
-        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_reserved', 5),
+        '#default_value' => $dest_settings['reserved'],
         '#size' => 80,
         '#maxlength' => 512,
         '#required' => TRUE,
@@ -85,7 +93,7 @@ function cckdestinations_page_admin_form($form_state) {
         '#type' => 'textfield',
         '#title' => t('Time interval "between" two ranks'),
         '#description' => t('The step of time, in hours, that will be set between two rank.'),
-        '#default_value' => variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_delta_t', 1),
+        '#default_value' => $dest_settings['delta_t'],
         '#size' => 80,
         '#maxlength' => 512,
         '#required' => TRUE,
@@ -196,12 +204,17 @@ function cckdestinations_page_admin_form_submit($form, &$form_state) {
     variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
     variable_set('cckdestinations_taxonomy_limit', $values['cckdestinations_select_to_auto']['cckdestinations_taxonomy_limit']);
     variable_set('cckdestinations_display_limit', $values['cckdestinations_select_to_auto']['cckdestinations_display_limit']);
-
-    foreach ($values['cckdestinations_rank'] as $dest) {
+    
+    foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
       if (is_array($dest)) {
-        foreach ($dest as $block) {
-          foreach ($block as $name => $value)
-            variable_set($name, $value);
+        foreach ($dest as $block_name => $block) {
+          $temp_dest = array(
+            'sort_method' => $block[$dest_name.'_'.$block_name.'_sort_method'],
+            'behavior' => $block[$dest_name.'_'.$block_name.'_behavior'],
+            'reserved' => $block[$dest_name.'_'.$block_name.'_reserved'],
+            'delta_t' => $block[$dest_name.'_'.$block_name.'_delta_t'],
+          );
+          variable_set($dest_name.'_'.$block_name, $temp_dest);
         }
       }
     }
