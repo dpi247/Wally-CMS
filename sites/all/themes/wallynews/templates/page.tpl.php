@@ -1,3 +1,7 @@
+<?php 
+  global $base_url;
+?>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -46,7 +50,7 @@
             <div class="topsearch">
                 <form action="#" method="get">
                 <input value="Search..." name="s" id="ls" class="searchfield" onfocus="if (this.value == 'Search...') {this.value = '';}" onblur="if (this.value == '') {this.value = 'Search...';}" type="text">
-                <input src="<?php print $theme_path ?>/mediastore/search.png" value="submit" style="vertical-align: middle;" type="image">
+                <input src="<?php print $base_url.$theme_path ?>/mediastore/search.png" value="submit" style="vertical-align: middle;" type="image">
                 </form>
             </div>
             <!--topsearch -->
