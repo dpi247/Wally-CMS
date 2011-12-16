@@ -340,6 +340,28 @@ function wallytoolbox_variable_del_like($name) {
 }
 
 /**
+ * Get all persistent variables beginning with the given string.
+ *
+ * @param $name
+ *   The name of the variable to get.
+ *
+ * @see variable_get(), variable_set(), variable_del()
+ */
+function wallytoolbox_variable_get_like($get_name) {
+  global $conf;
+
+  $return = array();
+
+  foreach ($conf as $name => $value) {
+    if (strpos($name, $get_name) === 0) {
+      $return[$name] = $value;
+    }
+  }
+
+  return empty($return) ? FALSE : $return;
+}
+
+/**
  * A true boolean conversion function.
  * 
  * @param $v
