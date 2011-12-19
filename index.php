@@ -16,11 +16,10 @@ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 $return = menu_execute_active_handler();
 
-
 if(arg(0)=='taxonomy' and arg(1)=='term'){
   $menu_item=menu_get_item();
   if($menu_item['page_callback']!='page_manager_term_view'){
-  menu_rebuild();
+    menu_rebuild();
     //variable_set('site_offline',TRUE);
   }
 }
