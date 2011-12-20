@@ -78,3 +78,36 @@ function cckdestinations_update_6002() {
   }
   return $ret;
 }
+
+/**
+ * Implementation of hook_update_N().
+ * Refactoring of variables
+ */
+function cckdestinations_update_6003() {
+  $cckdest_variables = wallytoolbox_variable_get_like('cckdestinations_destination_', TRUE);
+  $hierarchies = wallyctools_get_hierarchies();
+  foreach ($hierarchies as $tid => $hierarchy) {
+    foreach ($hierarchy['redacblocks'] as $redacblock) {
+      $temp_dest = array(
+        'sort_method' => isset($cckdest_variables[$tid.'_'.$redacblock['name'].'_sort_method']) ? $cckdest_variables[$tid.'_'.$redacblock['name'].'_sort_method'] : 'absolute',
+        'behavior' => isset($cckdest_variables[$tid.'_'.$redacblock['name'].'_behavior']) ? $cckdest_variables[$tid.'_'.$redacblock['name'].'_behavior'] : 'bottom',
+        'reserved' => isset($cckdest_variables[$tid.'_'.$redacblock['name'].'_reserved']) ? $cckdest_variables[$tid.'_'.$redacblock['name'].'_reserved'] : 5,
+        'delta_t' => isset($cckdest_variables[$tid.'_'.$redacblock['name'].'_delta_t']) ? $cckdest_variables[$tid.'_'.$redacblock['name'].'_delta_t'] : 1,
+      );
+      unset($cckdest_variables[$tid.'_'.$redacblock['name'].'_sort_method']);
+      unset($cckdest_variables[$tid.'_'.$redacblock['name'].'_behavior']);
+      unset($cckdest_variables[$tid.'_'.$redacblock['name'].'_reserved']);
+      unset($cckdest_variables[$tid.'_'.$redacblock['name'].'_delta_t']);
+      wallytoolbox_variable_del_like('cckdestinations_destination_'.$tid.'_'.$redacblock['name'].'_');
+      variable_set('cckdestinations_destination_'.$tid.'_'.$redacblock['name'], $temp_dest);
+    }
+  }
+  
+  if (!empty($cckdest_variables)) {
+    foreach ($cckdest_variables as $name => $value) {
+      variable_del('cckdestinations_destination_'.$name);
+    }
+  }
+  
+  return array();
+}
