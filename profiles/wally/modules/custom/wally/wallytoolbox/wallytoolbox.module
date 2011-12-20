@@ -56,6 +56,14 @@ function wallytoolbox_menu() {
     'type'             => MENU_CALLBACK,
   );
   
+  $items['devel/flush/memcached'] = array(
+    'title'            => t('Flush Memcached bins'),
+    'page callback'    => 'wallytoolbox_flush_memcached',
+    'description'      => t('Clear one of all Memcached bin(s) according to parameter, default to "cache" bin.'),
+    'access arguments' => array('access devel information'),
+    'menu_name'        => 'devel',
+  );
+  
   return $items;
 }
 
@@ -315,6 +323,26 @@ function wallytoolbox_handle_errors($errno, $errstr, $errfile, $errline, $args) 
 }
 
 /**
+ * Menu callback; clears memcached bin(s), then redirects to the previous page.
+ */
+function wallytoolbox_flush_memcached($bins = NULL) {
+  module_load_include('inc', 'memcache', 'dmemcache');
+  
+  if ($bins) {
+    dmemcache_flush($bins);
+    drupal_set_message(t('Memcached bin "@bin" cleared.', array('@bin' => $bins)));
+  } else {
+    $bins = variable_get('memcache_bins', array('cache' => 'default'));
+    foreach ($bins as $bin => $value) {
+      dmemcache_flush($bin);
+      drupal_set_message(t('Memcached bin "@bin" cleared.', array('@bin' => $bin)));
+    }
+  }
+
+  drupal_goto();
+}
+
+/**
  * Unsets all persistent variables beginning with the given string.
  *
  * @param $name
@@ -347,13 +375,16 @@ function wallytoolbox_variable_del_like($name) {
  *
  * @see variable_get(), variable_set(), variable_del()
  */
-function wallytoolbox_variable_get_like($get_name) {
+function wallytoolbox_variable_get_like($get_name, $remove_common = FALSE) {
   global $conf;
 
   $return = array();
 
   foreach ($conf as $name => $value) {
     if (strpos($name, $get_name) === 0) {
+      if ($remove_common) {
+        $name = str_replace($get_name, '', $name);
+      }
       $return[$name] = $value;
     }
   }
@@ -1102,6 +1133,23 @@ function wallytoolbox_get_all_aliases($internal_url) {
   }
 
   return $return_aliases;
+}
+
+/**
+ * Get the latest created alias for an internal URL
+ * @param $internal_url {String} Internal URL, it can't begin with "/" or "http://".
+ * @return {String} The alias if found, $internal_url if not.
+ */
+function wallytoolbox_get_main_alias($internal_url){
+  if(is_null($internal_url) || trim($internal_url) == "")
+    return $internal_url;
+  $db_aliases = @db_query('SELECT dst FROM {url_alias} WHERE src = "%s" ORDER BY pid DESC LIMIT 0,1', $internal_url);
+  if(!$db_aliases)
+    return $internal_url;
+  $db_alias = db_fetch_array($db_aliases);
+  if(!$db_alias)
+    return $internal_url;
+  return $db_alias['dst'];
 }
 
 /**
