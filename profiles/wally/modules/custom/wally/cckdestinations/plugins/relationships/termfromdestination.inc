@@ -33,12 +33,11 @@ function cckdestinations_termfromdestination_context($context, $conf) {
   if (isset($context->data->field_destinations)) {
     if (isset($context->data->field_destinations[0])) {
       $term=taxonomy_get_term($context->data->field_destinations[0]['tid']);
-        return ctools_context_create('term', $term);
+      return ctools_context_create('term', $term);
     }
   }
   else{
-        return ctools_context_create_empty('term', NULL);
-    
+    return ctools_context_create_empty('term', NULL);
   }
 }
 
@@ -46,20 +45,7 @@ function cckdestinations_termfromdestination_context($context, $conf) {
  * Settings form for the relationship.
  */
 function cckdestinations_termfromdestination_settings_form($conf) {
-  $options = array();
-  $form=array();
-  /*
-  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-    $options[$vid] = $vocabulary->name;
-  }
-  $form['vid'] = array(
-    '#title' => t('Vocabulary'),
-    '#type' => 'select',
-    '#options' => $options,
-    '#default_value' => $conf['vid'],
-    '#prefix' => '<div class="clear-block">',
-    '#suffix' => '</div>',
-  );
-  */
+  $form = array();
+
   return $form;
 }
