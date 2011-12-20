@@ -56,6 +56,14 @@ function wallytoolbox_menu() {
     'type'             => MENU_CALLBACK,
   );
   
+  $items['devel/flush/memcached'] = array(
+    'title'            => t('Flush Memcached bins'),
+    'page callback'    => 'wallytoolbox_flush_memcached',
+    'description'      => t('Clear one of all Memcached bin(s) according to parameter, default to "cache" bin.'),
+    'access arguments' => array('access devel information'),
+    'menu_name'        => 'devel',
+  );
+  
   return $items;
 }
 
@@ -312,6 +320,26 @@ function wallytoolbox_handle_errors($errno, $errstr, $errfile, $errline, $args) 
   if($errno == 1){
     watchdog('php', 'Fatal error: @errstr in @errfile at line @errline', array('@errstr' => $errstr, '@errfile' => $errfile, '@errline' => $errline), WATCHDOG_ERROR);
   }
+}
+
+/**
+ * Menu callback; clears memcached bin(s), then redirects to the previous page.
+ */
+function wallytoolbox_flush_memcached($bins = NULL) {
+  module_load_include('inc', 'memcache', 'dmemcache');
+  
+  if ($bins) {
+    dmemcache_flush($bins);
+    drupal_set_message(t('Memcached bin "@bin" cleared.', array('@bin' => $bins)));
+  } else {
+    $bins = variable_get('memcache_bins', array('cache' => 'default'));
+    foreach ($bins as $bin => $value) {
+      dmemcache_flush($bin);
+      drupal_set_message(t('Memcached bin "@bin" cleared.', array('@bin' => $bin)));
+    }
+  }
+
+  drupal_goto();
 }
 
 /**
