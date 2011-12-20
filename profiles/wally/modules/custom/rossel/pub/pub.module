@@ -132,10 +132,9 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
       //DLA
-      static $pub_list;
-      dsm($pub_list);
-      if (!is_object($pub_list)) {
-        $pub_list = db_query('SELECT position FROM {zz_pub_UMI}');
+      static $blocks;
+      if (isset($blocks)) {
+        return $blocks;
       }
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
