@@ -14,7 +14,7 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
       '#weight'=>9,
       '#value' => $type,
     );
-        $form['fieldset']=array(
+    $form['fieldset']=array(
       '#type'=>'fieldset',
       '#title'=>t("XML actuel"),
      '#collapsible' => TRUE,
@@ -74,13 +74,14 @@ function ccimap_get_productinfo_fromWS(){
   $wsdl_uri=variable_get('ccimapping_ws_wsdluri','');
   $newsroom=variable_get('ccimapping_newsroom','');
   $product_name=variable_get('ccimapping_product_name','');
-    
+   
+  
   $client = new SoapClient($wsdl_uri,array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
         
   $parameters_array=array("newsroom"=>$newsroom,'productname'=>$product_name,'xml'=>$form_state['values']['xml']);
+  
   try {
-    
-    $result = $client->getProductTemplate( array("newsroom"=>'CciNewsRoom','productname'=>'Wally News'));
+    $result = $client->getProductTemplate( array("newsroom"=> $newsroom,'productname'=>$product_name));
     
   }catch (SoapFault $exception) {
     drupal_set_message("WebService Errror: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
