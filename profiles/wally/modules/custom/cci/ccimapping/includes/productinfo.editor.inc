@@ -54,7 +54,7 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
     
     
   } catch (SoapFault $exception) {
-    drupal_set_message("WebService Errror: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+    drupal_set_message("WebService Errror when sending the XML: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
     dsm($exception);
   }
   }
@@ -78,7 +78,7 @@ function ccimap_get_productinfo_fromWS(){
   
   $client = new SoapClient($wsdl_uri,array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
         
-  $parameters_array=array("newsroom"=>$newsroom,'productname'=>$product_name,'xml'=>$form_state['values']['xml']);
+  //$parameters_array=array("newsroom"=>$newsroom,'productname'=>$product_name,'xml'=>$form_state['values']['xml']);
   
   try {
     $result = $client->getProductTemplate( array("newsroom"=> $newsroom,'productname'=>$product_name));
