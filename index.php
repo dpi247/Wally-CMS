@@ -15,7 +15,7 @@ require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 $return = menu_execute_active_handler();
-
+dsm(arg(0), 'arg 0');
 if(arg(0)=='taxonomy' and arg(1)=='term'){
   $menu_item=menu_get_item();
   if($menu_item['page_callback']!='page_manager_term_view'){
