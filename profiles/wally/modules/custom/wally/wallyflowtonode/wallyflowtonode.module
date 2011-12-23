@@ -170,8 +170,6 @@ function wallyflowtonode_reject_nodes($nodes) {
 }
 
 function _wallyflowtonode_callallfeeds($flow_key = NULL) {
-  $begin_time = microtime(TRUE);
-  watchdog('FlowToNode_debug', 'Start: from '.$_SERVER['HTTP_HOST']);
   $db_query = 'SELECT * FROM {wallyflowtonode_flows}';
   if ($flow_key) {
     $db_query .= ' WHERE flow_key = %d';
@@ -189,13 +187,7 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
   foreach ($feeds_infos as $feed_infos) {
     $return[] = _wallyflowtonode_callonefeed($feed_infos);
   }
-
-  $end_time = microtime(TRUE);
-  $t = $end_time - $begin_time;
-  $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
-  $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
-  $formatted = $d->format('i:s.u');
-  watchdog('FlowToNode_debug', 'End: from '.$_SERVER['HTTP_HOST'].' duration : '.$formatted);
+  
   return $return;
 }
 
@@ -209,12 +201,19 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
     $struct_array = $function($feed_infos);
 
     if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
-      $valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
+      //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
+      $file_name = $feed_infos['flow_key'].'_'.time();
+      $files_to_zip = array();
+      $valid_dom = new DomDocument('1.0', 'UTF-8');
+      wallytoolbox_arraytowallyxml($struct_array, $valid_dom, $files_to_zip);
 
       if ($valid_dom) {
-        $tempFile = variable_get('wallymport_temp','').'/'.$feed_infos['flow_key'].'_'.time().'.xml';
+        $importer = wallymport_getimporterbyname($feed_infos['importer']);
+        
+        $tempFile = variable_get('wallymport_temp','').'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
-        $temp_return = wallymport_page_process_file($tempFile);
+        $temp_return = wallymport_page_process_file($tempFile, $importer);
         //file_delete($tempFile);
 
         if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {

@@ -1,0 +1,10 @@
+<?php 
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallyimportpackage_uninstall(){
+  $importers = wallyimportpackage_wallymport_importer();
+  foreach ($importers['wallyimportpackage'] as $importer){
+    db_query("DELETE FROM {wallymport_importer} WHERE importer_type = '%s'",$importer['importer_type']);
+  }
+}

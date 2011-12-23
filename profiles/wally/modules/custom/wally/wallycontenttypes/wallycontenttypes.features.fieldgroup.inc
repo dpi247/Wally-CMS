@@ -46,10 +46,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
-      '2' => 'field_embargodatetime',
-      '3' => 'field_unpublishdate',
-      '4' => 'field_publicationdate',
-      '5' => 'field_freeaccess',
+      '2' => 'field_creationdate',
+      '3' => 'field_embargodatetime',
+      '4' => 'field_unpublishdate',
+      '5' => 'field_publicationdate',
+      '6' => 'field_freeaccess',
     ),
   );
 
@@ -602,10 +603,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
-      '2' => 'field_publicationdate',
-      '3' => 'field_embargodatetime',
-      '4' => 'field_unpublishdate',
-      '5' => 'field_freeaccess',
+      '2' => 'field_creationdate',
+      '3' => 'field_publicationdate',
+      '4' => 'field_embargodatetime',
+      '5' => 'field_unpublishdate',
+      '6' => 'field_freeaccess',
     ),
   );
 
@@ -1044,7 +1046,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_personfirstname',
       '1' => 'field_personlastname',
@@ -1088,7 +1090,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '1',
+    'weight' => '2',
     'fields' => array(
       '0' => 'field_personbirthdate',
       '1' => 'field_personsex',
@@ -1498,10 +1500,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
-      '2' => 'field_publicationdate',
-      '3' => 'field_embargodatetime',
-      '4' => 'field_unpublishdate',
-      '5' => 'field_freeaccess',
+      '2' => 'field_creationdate',
+      '3' => 'field_publicationdate',
+      '4' => 'field_embargodatetime',
+      '5' => 'field_unpublishdate',
+      '6' => 'field_freeaccess',
     ),
   );
 

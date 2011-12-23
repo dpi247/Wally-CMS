@@ -268,19 +268,25 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $feed_name = $feed_infos['name'];
   $prefix = ($feed_infos['prefix'] != '') ? $feed_infos['prefix'] : $feed_name;
   $feed_destination = explode('/',$feed_infos['destination']);
+  $array_item['type'] = 'ArticlePackageType';
   $array_item['PackageID'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
   $channel_pubDate = strtotime(_wallytoolbox_checkifelementexists($item, 'pubDate'));
   $pubDate = date('Y-m-d', $channel_pubDate).'T'.date('H:i:sP', $channel_pubDate);
   $array_item['PublicationDate'] = $pubDate;
-  $array_item['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
+  $array_item['LastUpdateDate'] = date('Y-m-d').'T'.date('H:i:s');
+  $array_item['UnPublishDate'] = date('Y-m-d', strtotime('+10 years')).'T'.date('H:i:s');
+  $array_item['CreationDate'] = date('Y-m-d').'T'.date('H:i:s');
   $array_item['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
   $array_item['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  $array_item['CommentsAllowed']['value'] = 'Disabled';
   $term = taxonomy_get_term($feed_destination[0]);
-  $array_item['Destinations']['Destination']['DestinationRank'] = $feed_destination[3];
-  $array_item['Destinations']['Destination']['Position'] = $feed_destination[1];
-  $array_item['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
-  $array_item['Destinations']['Destination']['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
+  $temp_dest = array();
+  $temp_dest['DestinationRank'] = $feed_destination[3];
+  $temp_dest['Position'] = $feed_destination[1];
+  $temp_dest['DocumentLayout'] = $feed_destination[2];
+  $temp_dest['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
+  $array_item['Destinations']['Destination'][] = $temp_dest;
   $array_item['PackageLayout']['value'] = isset($feed_infos['package_layout']) ? $feed_infos['package_layout'] : '';
   $array_item['ExternalURI']['value'] = _wallytoolbox_checkifelementexists($item, 'link');
 
@@ -303,16 +309,18 @@ function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed
   $array_item['MainStory'] = wallytoolbox_flow_to_array_new_textobject();
   $array_item['MainStory']['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['MainStory']['PublicationDate'] = $array_item['PublicationDate'];
+  $array_item['MainStory']['LastUpdateDate'] = $array_item['LastUpdateDate'];
+  $array_item['MainStory']['UnPublishDate'] = $array_item['UnPublishDate'];
   $array_item['MainStory']['CreationDate'] = $array_item['CreationDate'];
   $array_item['MainStory']['Title']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['MainStory']['ExternalReference']['value'] =  _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
-  $array_item['MainStory']['Taxonomy']['Vocabulary']['VocabularyName'] = 'RSS feeds';
+  /*$array_item['MainStory']['Taxonomy']['Vocabulary']['VocabularyName'] = 'RSS feeds';
   $categories = $item->getElementsByTagName('category');
   if ($categories->item(0)) {
     foreach ($categories as $category) {
       $array_item['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $category->firstChild->wholeText);
     }
-  }
+  }*/
   $array_item['MainStory']['Copyright']['value'] = _wallytoolbox_checkifelementexists($item, 'author');
   $array_item['MainStory']['TextTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['MainStory']['TextBody']['value'] = _wallytoolbox_checkifelementexists($item, 'description');
@@ -339,6 +347,8 @@ function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, 
   $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+  $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+  $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
   $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
   $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
   $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
@@ -435,6 +445,8 @@ function wallytoolbox_rss_item_to_array_set_photoobject(&$tempobject, &$array_it
   $tempobject['type'] = 'PhotoObjectType';
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+  $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+  $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
   $tempobject['MimeType'] = $media_content->getAttribute('type');
   $media_title = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
@@ -444,7 +456,7 @@ function wallytoolbox_rss_item_to_array_set_photoobject(&$tempobject, &$array_it
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
   $tempobject['FileSize']['value'] = $object_filesize;
-  $keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
+  /*$keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
   if ($keywords != '') {
     $keywords = explode(',',$keywords);
     foreach ($keywords as $keyword) {
@@ -457,7 +469,7 @@ function wallytoolbox_rss_item_to_array_set_photoobject(&$tempobject, &$array_it
     foreach ($media_categories as $media_category) {
       $array_item['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
     }
-  }
+  }*/
   $media_thumbnails = $media_content->getElementsByTagNameNS($media_namespace, 'thumbnail');
   if ($media_thumbnails->item(0)) {
     $media_thumbnail = $media_thumbnails->item(0);
@@ -488,6 +500,8 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   $tempobject['type'] = 'VideoObjectType';
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+  $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+  $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
   $tempobject['MimeType'] = $media_content->getAttribute('type');
   $media_title = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'title');
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$media_num : $media_title;
@@ -497,7 +511,7 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
   $object_filesize = $media_content->getAttribute('fileSize');
   if (!$object_filesize) $object_filesize = 0;
   $tempobject['FileSize']['value'] = $object_filesize;
-  $keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
+  /*$keywords = _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $media_namespace, 'keywords');
   if ($keywords != '') {
     $keywords = explode(',',$keywords);
     foreach ($keywords as $keyword) {
@@ -510,7 +524,7 @@ function wallytoolbox_rss_item_to_array_set_videoobject(&$tempobject, &$array_it
     foreach ($media_categories as $media_category) {
       $array_item['MainStory']['Taxonomy']['Vocabulary']['Term'][] = $feed_name.'/'.str_replace('/', '-', $media_category);
     }
-  }
+  }*/
   $media_thumbnails = $item->getElementsByTagNameNS($media_namespace, 'thumbnail');
   if ($media_thumbnails->item(0)) {
     $media_thumbnail = $media_thumbnails->item(0);
@@ -581,6 +595,8 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
       $tempobject = wallytoolbox_flow_to_array_new_photoobject();
       $tempobject['ObjectID'] = $img_url;
       $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+      $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+      $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
       $tempobject['MimeType'] = 'image';
       $media_title = $img_alt;
       $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
@@ -615,6 +631,8 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject = wallytoolbox_flow_to_array_new_photoobject();
   $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+  $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+  $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
   $tempobject['MimeType'] = 'image';
   $media_title = $channel_img->getAttribute('title');
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
