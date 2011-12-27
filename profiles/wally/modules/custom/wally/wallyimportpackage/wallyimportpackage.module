@@ -107,6 +107,8 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
+      ctools_include('object-cache');
+      
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
