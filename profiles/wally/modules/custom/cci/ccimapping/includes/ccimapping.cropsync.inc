@@ -25,6 +25,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,
+    //'xml' => '<![CDATA['.$form_state['values']['xml'].']]>',
     'xml' => '<![CDATA['.$form_state['values']['xml'].']]>',
   );
 
