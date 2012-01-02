@@ -25,7 +25,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,
-    'xml' => $form_state['values']['xml'],
+    'xml' => '<![CDATA['.$form_state['values']['xml'].']]>',
   );
 
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
@@ -34,7 +34,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
     $result = $client->setImageSettings($parameters_array);
     drupal_set_message(t('The cropings have been sent to CCI'));
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: FaultString:'.$exception->faultstring.'. FaultCode:'.$exception->faultcode, 'error');
+    drupal_set_message('WebService Error: FaultString: '.$exception->faultstring.'. FaultCode: '.$exception->faultcode, 'error');
     dsm($exception);
   }
 }
@@ -58,7 +58,7 @@ function ccimapping_cropsync_get_cropings_fromWS() {
   try {
     $result = $client->getImageSettings($parameters_array);
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: FaultString:'.$exception->faultstring.'. FaultCode:'.$exception->faultcode, 'error');
+    drupal_set_message('WebService Error: FaultString: '.$exception->faultstring.'. FaultCode: '.$exception->faultcode, 'error');
     dsm($exception);
   }
 
