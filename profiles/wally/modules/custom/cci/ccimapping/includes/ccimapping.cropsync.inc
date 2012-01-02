@@ -20,14 +20,14 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
 
 function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
   $wsdl_uri = variable_get('ccimapping_ws_wsdluri', '');
-  $newsroom=variable_get('ccimapping_newsroom', '');
-  $product_name=variable_get('ccimapping_product_name', '');
+  $newsroom = variable_get('ccimapping_newsroom', '');
+  $product_name = variable_get('ccimapping_product_name', '');
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,
     'xml' => $form_state['values']['xml'],
   );
-  
+
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
@@ -46,8 +46,8 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
  */
 function ccimapping_cropsync_get_cropings_fromWS() {
   $wsdl_uri = variable_get('ccimapping_ws_wsdluri', '');
-  $newsroom=variable_get('ccimapping_newsroom', '');
-  $product_name=variable_get('ccimapping_product_name', '');
+  $newsroom = variable_get('ccimapping_newsroom', '');
+  $product_name = variable_get('ccimapping_product_name', '');
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,
