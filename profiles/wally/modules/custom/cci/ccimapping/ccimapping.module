@@ -5,7 +5,7 @@
  */
 function ccimapping_menu(){
   $items = array();
-  
+
   $items['admin/cci/ccimapping/configuration'] = array(
     'title' => t('CCI Newsgate - Mapping configuration & settings'),
     'page callback' => 'drupal_get_form',
@@ -13,23 +13,31 @@ function ccimapping_menu(){
     'access arguments' => array('administer cci'),
     'file' => 'includes/ccimapping.admin.inc',
   );
-  
+
   $items['admin/cci/ccimapping/packagetype/editor'] = array(
-    'title' => 'Packagetype Editor',
+    'title' => t('Packagetype Editor'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_packagetype_editor_form', 5),
     'access arguments' => array('administer cci'),
     'file' => 'includes/packagetype.editor.inc',
   );
-  
+
   $items['admin/cci/ccimapping/productinfo/editor'] = array(
-    'title' => 'Product Info editor',
+    'title' => t('Product Info editor'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('ccimapping_form_productinfo_editor_form', 5),
     'access arguments' => array('administer cci'),
     'file' => 'includes/productinfo.editor.inc',
   );
   
+  $items['admin/cci/ccimapping/cropsync'] = array(
+    'title' => t('Cropings Synchronisation'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_cropsync_form_cropings_editor_form'),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/ccimapping.cropsync.inc',
+  );
+
   return $items;
 }
 
@@ -40,7 +48,7 @@ function ccimapping_theme(){
   $path = drupal_get_path('module', 'ccimapping');
   $base = array(
     'file' => 'theme.inc',
-    'path' => "$path/theme",
+    'path' => $path.'/theme',
   );
   return array(
     'ccimapping_typeselector'=>$base + array(

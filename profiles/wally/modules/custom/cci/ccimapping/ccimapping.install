@@ -1,67 +1,34 @@
 <?php
-// $Id: ctools_custom_content.install,v 1.1.2.1 2010/07/14 01:57:42 merlinofchaos Exp $
 
 /**
- * Schema for CTools custom content.
+ * Implementation of hook_requirements().
+ * Checks PHP SOAP library existence
  */
-function ccimapping_schema() {
-  return ccimapping_schema_1();
-}
+function ccimapping_requirements($phase) {
+  $requirements = array();
 
-function ccimapping_schema_1() {
-  $schema = array();
-/*
-  $schema['cci_ccimapping'] = array(
-    'description' => 'Contains mapping between wally and CCI foreach type of content',
-  
-   
-    'fields' => array(
-       'id' => array(
-        'type' => 'serial',
-        'description' => 'A database primary key to ensure uniqueness',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-      'type' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'the machine name of the content type',
-      ),
-      'xml' => array(
-        'type' => 'text',
-        'size'=>'medium',
-        'description' => 'the XML mapping',
-      ),),
-     
-    'primary key' => array('id'),
-  );
-  */
-  return $schema;
-}
+  if ($phase == 'runtime') {
+    // Check cURL library.
+    if (class_exists('SoapClient')) {
+      $requirements['soap']['severity'] = REQUIREMENT_OK;
+      $requirements['soap']['value'] = t('Enabled');
+    }
+    else {
+      $requirements['soap'] = array(
+        'value' => t('Disabled'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t('The SOAP extension for PHP is disabled. Please check the <a href="@url">PHP SOAP documentation</a> for information on how to correct this.', array('@url' => 'http://www.php.net/manual/en/soap.setup.php')),
+      );
+    }
+    $requirements['soap']['title'] = t('SOAP extension');
+  }
 
-/**
- * Implementation of hook_install().
- */
-function ccimapping_install() {
-    drupal_install_schema('ccimapping');
- 
+  return $requirements;
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function ccimapping_uninstall() {
-  drupal_uninstall_schema('ccimapping');
-  
-  variable_del('ccimapping_ws_wsdluri'); 
-  variable_del('ccimapping_newsroom');
-  variable_del('ccimapping_product_name'); 
+  wallytoolbox_variable_del_like('ccimapping_');
 }
-
-/**
- * Implementation of hook_enable().
- */
-function ccimapping_enable() {
-  
-}
-
