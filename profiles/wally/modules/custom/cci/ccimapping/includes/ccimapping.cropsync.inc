@@ -34,7 +34,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form_state) {
     $result = $client->setImageSettings($parameters_array);
     drupal_set_message(t('The cropings have been sent to CCI'));
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: \n FaultString:'.$exception->faultstring.'\n FaultCode:'.$exception->faultcode, 'error');
+    drupal_set_message('WebService Error: FaultString:'.$exception->faultstring.'. FaultCode:'.$exception->faultcode, 'error');
     dsm($exception);
   }
 }
@@ -58,7 +58,7 @@ function ccimapping_cropsync_get_cropings_fromWS() {
   try {
     $result = $client->getImageSettings($parameters_array);
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: \n FaultString:'.$exception->faultstring.'\n FaultCode:'.$exception->faultcode, 'error');
+    drupal_set_message('WebService Error: FaultString:'.$exception->faultstring.'. FaultCode:'.$exception->faultcode, 'error');
     dsm($exception);
   }
 
