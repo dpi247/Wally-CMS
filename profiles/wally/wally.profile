@@ -102,7 +102,7 @@ function wally_profile_modules() {
   $custom = array(
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
     'wallyctools', 'wallytoolbox', 'wallymport', 'wallyflowtonode',
-    'wallyedit', 'wallyfeaturessynchronizer',
+    //'wallyedit', 'wallyfeaturessynchronizer',
   );
 
   return array_merge($core_modules, $mod, $third, $custom);
