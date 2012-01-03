@@ -279,16 +279,13 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
     if (isset($form['field_destinations'])) {
       $form_copy = $form['field_destinations'];
       unset($form_copy['field_destinations_add_more']);
-      /*$actual_keys = element_children($form_copy);
-      $min_actual_keys = min($actual_keys);
-      $max_actual_keys = max($actual_keys);*/
       $temp_elem = array();
-      //for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      
       foreach (element_children($form_copy) as $i) {
         $temp_elem[$i] = $form['field_destinations'][$i];
         unset($form['field_destinations'][$i]);
       }
-      //for ($i = $min_actual_keys; $i <= $max_actual_keys; $i++) {
+      
       foreach (element_children($form_copy) as $i) {
         $form['field_destinations'][$temp_elem[$i]['#delta']] = $temp_elem[$i];
       }
