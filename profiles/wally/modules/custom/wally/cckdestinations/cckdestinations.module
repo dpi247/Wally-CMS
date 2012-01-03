@@ -459,7 +459,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
     '#required'         => FALSE,
     '#weight'           => 1,
-     // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
     '#vid'              => $vocabulary_id,
@@ -477,7 +476,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#classes'          => $options_and_classe['target']['#classes'],
     '#required'         => FALSE,
     '#weight'           => 3,
-     // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'target'),
   );
@@ -490,7 +488,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#classes'          => $options_and_classe['layout']['#classes'],
     '#required'         => FALSE,
     '#weight'           => 4,
-     // specify theming callback & add a new #attribute to the element.
     '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'layout'),
   );
@@ -549,8 +546,6 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
         'method'          => 'replace',
         'effect'          => 'fade',
       ),
-      //'#prefix'           => '<a id="edit-'.str_replace('_', '-', implode('-', $element['#parents'])).'-delete" style="cursor:pointer;">',
-      //'#suffix'           => '</a>',
       '#weight'           => 6,
     );
   }
@@ -1213,7 +1208,7 @@ function theme_cckdestinations_formatter_time_rank($element = NULL) {
  */
 function cckdestinations_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && !empty($plugin)) {
-    return "plugins/$plugin";
+    return 'plugins/'.$plugin;
   }
 }
 
