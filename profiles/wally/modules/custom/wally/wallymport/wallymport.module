@@ -447,6 +447,16 @@ function wallymport_process_folder($importer){
   }
   return $returns;
 }
+/**
+* Save log in db
+*
+* @param: $importer_name
+*   Importer choose to process file
+* @param $date
+* @param $file_location
+* @param $log
+* @return errors, logs
+*/
 function wallymport_save_log($importer_name, $date, $file_location, $log){
   
   $logs = new stdClass();
