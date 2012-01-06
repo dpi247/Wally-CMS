@@ -142,42 +142,41 @@ function wallymport_schema() {
     'primary key' => array('iid'),//primary key
   );
   $schema['wallymport_logs'] = array(
-      'description' => 'Containes the logs',
-      'fields' => array(
-        'lid' => array(
-          'type' => 'serial',
-          'description' => 'log Id',
-          'unsigned' => TRUE,
-          'not null' => TRUE,
-        ),
-        'importer_name' => array(
-          'description' => 'The name of the importer.',
-          'type' => 'text',
-          'size' => 'medium',
-          'not null' => TRUE,
-        ),
-  		'date' => array(
-          'description' => 'Date',
-          'type' => 'int',
-          'unsigned' => TRUE,
-          'not null' => TRUE,
-        ),
-    	'location' => array(
-            'description' => 'File location.',
-            'type' => 'text',
-            'size' => 'medium',
-            'not null' => TRUE,
-        ),
-        'log' => array(
-          'description' => 'Logs of the CRON',
-          'type' => 'text',
-          'size' => 'big',
-          'not null' => TRUE,
-        ),
-        
+    'description' => 'Containes the logs',
+    'fields' => array(
+      'lid' => array(
+        'type' => 'serial',
+        'description' => 'log Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
       ),
-      'primary key' => array('lid'),//primary key
-    );
+      'importer_name' => array(
+        'description' => 'The name of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+   	  'date' => array(
+        'description' => 'Date',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location' => array(
+        'description' => 'File location.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'log' => array(
+        'description' => 'Logs of the CRON',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('lid'),//primary key
+  );
   return $schema;
 }
 /**
@@ -197,7 +196,7 @@ function wallymport_update_6001(){
 * Implementation of hook_update_N().
 */
 function wallymport_update_6002(){
-  
+
   $schema = drupal_get_schema('wallymport_logs');
   $ret = array();
 

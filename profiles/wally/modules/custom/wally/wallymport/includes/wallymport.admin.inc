@@ -324,7 +324,7 @@ function wallymport_page_importerdelete_form_submit($form,$form_state){
  * administration page of wallymport
  */
 function wallymport_page_admin(){
-  $content = '';
+ $content = '';
   if (db_table_exists('wallymport_importer')){
     $importers = wallymport_getimporters();
     $yesno = array(t('No'), t('Yes'));
@@ -336,7 +336,7 @@ function wallymport_page_admin(){
         $logs = '';
         $post = '';
         if ($importer->processed_by_cron == 1){
-          $logs = ' (<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">logs</a>)';
+          $logs = ' (<a href = "/admin/wally/wallymport/settings/cronlog/'.$importer->iid.'">logs</a>)';
         }
         if ($importer->processed_by_post == 1){
           $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
@@ -350,7 +350,7 @@ function wallymport_page_admin(){
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
           '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
-          '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
+          '<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">Logs</a>',          
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );
       }
@@ -370,13 +370,17 @@ function wallymport_page_admin(){
  * importer id 
  * @return page content
  */
-function wallymport_page_importer_logs($iid){
+function wallymport_page_importer_cron_logs($iid){
   $importer = wallymport_getimporter($iid);
   $logs = unserialize($importer->cron_log);
-  rsort($logs);
   $content = '';
-  foreach ($logs as $log){
-    $content .= theme('wallymport_logs', $log);
+  if ($logs != NULL){
+    rsort($logs);
+    foreach ($logs as $log){
+      $content .= theme('wallymport_logs', $log);
+    }
+  } else {
+    $content .= 'There is no log';
   }
   return $content;
 }
@@ -386,7 +390,7 @@ function wallymport_page_importer_logs($iid){
 * importer id
 * @return page content
 */
-function wallymport_page_importerlogs($iid){
+function wallymport_page_importer_logs($iid){
   $importer = wallymport_getimporter($iid);
   $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
   $header = array('Date','Filename', 'Filelocation', 'Success', 'Message');
