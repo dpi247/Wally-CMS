@@ -43,9 +43,16 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
     // To avoid issues when the page is making lots of distinct queries, we flush the cache if it gets too big
     $query_cache = array();
   }
+  
+  $mastered_queries = array(
+    "SELECT LAST_INSERT_ID()",
+    "SELECT u.*, s.* FROM {users} u INNER JOIN {sessions} s ON u.uid = s.uid WHERE s.sid = '%s'",
+    "SELECT r.rid, r.name FROM {role} r INNER JOIN {users_roles} ur ON ur.rid = r.rid WHERE ur.uid = %d",
+    "SELECT * FROM {users} u WHERE uid = %d",
+  );
 
   // Short-circuit these special cases
-  if ($query == 'SELECT LAST_INSERT_ID()') {
+  if (in_array($query, $mastered_queries)) {
     return FALSE;
   }
   else if ($query == 'BEGIN' || $query == 'START TRANSACTION') {
@@ -59,10 +66,21 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
 
   // Find any mentioned tables
   $tables = array();
-  if (preg_match_all('/\{(.?)\}/', $query, $m)) {
+  if (preg_match_all('/\{(.+)\}/U', $query, $m)) {
     $tables = $m[1];
-    
   }
+  print $query.'<br>';
+  $mastered_tables = array(
+    'role',
+    'sessions',
+    'users',
+    'users_roles',
+  );
+  // Short-circuit these special tables
+  if (array_intersect($mastered_tables, $tables)) {
+    return FALSE;
+  }
+
   // Default to master
   $force_slave = FALSE;
 
