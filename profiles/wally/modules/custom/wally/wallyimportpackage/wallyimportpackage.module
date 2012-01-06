@@ -67,6 +67,17 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   return $return;
 }
 
+/*
+ * hook_wimprt_process_package 
+ */
+function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $importer){
+  if ($type == 'before_process'){
+    if ($_SERVER['REQUEST_URI'] == '/wallymport/post/package/preview'){
+      $importer->wallymport_preview = TRUE;
+    }
+  }
+}
+
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 
@@ -94,16 +105,15 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   }
   
   if (!isset($node->rejected) & !isset($node->wallymport_delete)){
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process');
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process',$importer);
   
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
     if (function_exists("wallyimportpackage_process_package_".$callback)){
       call_user_func("wallyimportpackage_process_package_".$callback, &$node, $dom, &$log, $importer);
     }
   
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
-  
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
@@ -645,6 +655,8 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
 	} else {
 	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
       $node->rejected = '';
+      $log['error'] = TRUE;
+      $log['error_msg'] = t('No destination AT ALL for current package. Package rejected.');
 	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
 	  return '';
 	}
@@ -750,6 +762,8 @@ function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
     $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
+    $log['error'] = TRUE;
+    $log['error_msg'] = t('No channels found. Package rejected');
     drupal_set_message('No channels found. Package rejected','error');
     // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
   }
