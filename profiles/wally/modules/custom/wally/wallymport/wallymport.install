@@ -141,7 +141,43 @@ function wallymport_schema() {
     ),
     'primary key' => array('iid'),//primary key
   );
-  
+  $schema['wallymport_logs'] = array(
+      'description' => 'Containes the logs',
+      'fields' => array(
+        'lid' => array(
+          'type' => 'serial',
+          'description' => 'log Id',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+        'importer_name' => array(
+          'description' => 'The name of the importer.',
+          'type' => 'text',
+          'size' => 'medium',
+          'not null' => TRUE,
+        ),
+  		'date' => array(
+          'description' => 'Date',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ),
+    	'location' => array(
+            'description' => 'File location.',
+            'type' => 'text',
+            'size' => 'medium',
+            'not null' => TRUE,
+        ),
+        'log' => array(
+          'description' => 'Logs of the CRON',
+          'type' => 'text',
+          'size' => 'big',
+          'not null' => TRUE,
+        ),
+        
+      ),
+      'primary key' => array('lid'),//primary key
+    );
   return $schema;
 }
 /**
@@ -154,6 +190,19 @@ function wallymport_update_6001(){
 
   if (!db_table_exists('wallymport_importer')) {
     db_create_table($ret, 'wallymport_importer', $schema);
+  }
+  return $ret;
+}
+/**
+* Implementation of hook_update_N().
+*/
+function wallymport_update_6002(){
+  
+  $schema = drupal_get_schema('wallymport_logs');
+  $ret = array();
+
+  if (!db_table_exists('wallymport_logs')) {
+    db_create_table($ret, 'wallymport_logs', $schema);
   }
   return $ret;
 }

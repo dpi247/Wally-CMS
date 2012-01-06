@@ -69,7 +69,14 @@ function wallymport_menu() {
     'description'      => t('Allows administrators to see importer logs.'),
     'file'             => 'includes/wallymport.admin.inc',
   );
-  
+  $items['admin/wally/wallymport/settings/logs/%'] = array(
+      'title'            => t('Importer logs'),
+      'page callback'    => 'wallymport_page_importerlogs',
+      'page arguments'   => array(5),
+      'access arguments' => array('administer wallymport'),
+      'description'      => t('Allows administrators to see importer logs.'),
+      'file'             => 'includes/wallymport.admin.inc',
+  );
   $items['admin/wally/wallymport/settings/delete/%'] = array(
     'title'            => t('Delete importer'),
     'page callback'    => 'drupal_get_form',
@@ -421,19 +428,34 @@ function wallymport_process_folder($importer){
           if (!file_move($file->filename, $importer->done_directory_path)) {
             $error_msg = t('An error occured during file copy to done directory.');
             drupal_set_header('HTTP/1.1 517 '.$error_msg);
+          } else {
+            $file_location = $importer->done_directory_path.'/'.$file->name;
           }
         } else {
           if (!file_move($file->filename, $importer->error_directory_path)) {
             $error_msg = t('An error occured during file copy to error directory.');
             drupal_set_header('HTTP/1.1 517 '.$error_msg);
+          } else {
+            $file_location = $importer->error_directory_path.'/'.$file->name;
           }
         }
         $returns[] = $return;
+        unset($return[0]['log']['node']);dsm($return);
+        wallymport_save_log($importer->name, time(), $file_location, serialize($return));
       }
     }
   }
   return $returns;
 }
+function wallymport_save_log($importer_name, $date, $file_location, $log){
+  
+  $logs = new stdClass();
+  $logs->importer_name = $importer_name;
+  $logs->date = $date;
+  $logs->location = $file_location;
+  $logs->log = $log;
+  drupal_write_record('wallymport_logs', $logs);
+} 
 /**
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
@@ -469,14 +491,20 @@ function wallymport_process_file($importer, $file_name){
         if (!file_move($file->filename, $importer->done_directory_path)) {
           $error_msg = t('An error occured during file copy to done directory.');
           drupal_set_header('HTTP/1.1 517 '.$error_msg);
+        } else {
+          $file_location = $importer->done_directory_path;
         }
       } else {
         if (!file_move($file->filename, $importer->error_directory_path)) {
           $error_msg = t('An error occured during file copy to error directory.');
           drupal_set_header('HTTP/1.1 517 '.$error_msg);
+        } else {
+          $file_location = $importer->error_directory_path;
         }
       }
       $returns[] = $return;
+      unset($return[0]['log']['node']);
+      wallymport_save_log($importer->name, time(), $file_location, serialize($return));
     }
   }
 
@@ -709,13 +737,17 @@ function wallymport_page_process_file($xml_file, $importer){
       $function_exist = FALSE;
       foreach ($importer->importer_functions as $importer_function){
         if (function_exists($importer_function.'_process_'.$type)){
-          $return = call_user_func($importer_function."_process_".$type, $dom, &$log, $importer);
+          $return[] = call_user_func($importer_function."_process_".$type, $dom, &$log, $importer);
           $function_exist = TRUE;
           break;
         } 
       }
       if ($function_exist == FALSE & function_exists('wimprt_process_'.$type)){
-        $return = call_user_func("wimprt_process_".$type, $dom, &$log, $importer);
+        $return[] = call_user_func("wimprt_process_".$type, $dom, &$log, $importer);
+      }
+      if ($return[0]['log']['error'] == TRUE){
+        $return['error'] = TRUE;
+        $return['error_msg'] = $return[0]['log']['error_msg'];
       }
     }
   }

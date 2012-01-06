@@ -330,7 +330,7 @@ function wallymport_page_admin(){
     $yesno = array(t('No'), t('Yes'));
     
     if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Operations'));
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Logs'),t('Operations'));
       $rows = array();
       foreach ($importers as $importer){
         $logs = '';
@@ -350,6 +350,7 @@ function wallymport_page_admin(){
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
           '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
+          '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );
       }
@@ -378,4 +379,19 @@ function wallymport_page_importer_logs($iid){
     $content .= theme('wallymport_logs', $log);
   }
   return $content;
+}
+function wallymport_page_importerlogs($iid){
+  $importer = wallymport_getimporter($iid);
+  $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
+  $header = array('Date','Filename', 'Filelocation', 'Success', 'Message');
+  while ($obj = db_fetch_object($result)){
+    list($f1,$f2,$f3,$f4,$done,$filename) = explode('/', $obj->location);
+    $logs = unserialize($obj->log);
+    $success = 'TRUE';
+    if ($logs['error']){
+      $success = 'FALSE';
+    }
+    $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg']);
+  }
+  return theme_table($header,$rows);
 }
