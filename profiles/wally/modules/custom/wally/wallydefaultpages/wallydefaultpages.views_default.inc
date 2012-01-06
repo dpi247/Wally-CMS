@@ -120,7 +120,7 @@ function wallydefaultpages_views_default_views() {
   $handler->override_option('arguments', array(
     'tid' => array(
       'default_action' => 'ignore',
-      'style_plugin' => 'default_summary',
+      'style_plugin' => 'redacblock_style',
       'style_options' => array(),
       'wildcard' => 'all',
       'wildcard_substitution' => 'All',
