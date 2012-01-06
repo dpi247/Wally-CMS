@@ -380,6 +380,12 @@ function wallymport_page_importer_logs($iid){
   }
   return $content;
 }
+/**
+* Importer logs
+* @param $iid
+* importer id
+* @return page content
+*/
 function wallymport_page_importerlogs($iid){
   $importer = wallymport_getimporter($iid);
   $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
