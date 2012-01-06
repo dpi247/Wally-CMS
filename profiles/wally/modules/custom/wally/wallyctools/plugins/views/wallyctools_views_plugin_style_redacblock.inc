@@ -11,30 +11,28 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
   *  Set default options
   */
   function additional_theme_functions() {
-  $funcs = array();
-  if (!empty($this->definition['additional themes'])) {
-    foreach ($this->definition['additional themes'] as $theme => $type) {
-      $funcs[] = views_theme_functions($theme, $this->view, $this->display);
+    $funcs = array();
+    if (!empty($this->definition['additional themes'])) {
+      foreach ($this->definition['additional themes'] as $theme => $type) {
+        $funcs[] = views_theme_functions($theme, $this->view, $this->display);
+      }
     }
-  }
-  if($this->view->split_index_count){
-    $vars['destination']=$this->view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
-    $vars['target']=$this->view->display_handler->handlers['filter']['field_destinations_target']->value[0];
-    
-    foreach($funcs as $func){
-     $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split';
-     if($this->view->split_index_count==$this->view->split_total_count){
-       $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-last';;
-     } 
-     if($this->view->split_index_count=="1"){
-       $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-first';
-     } 
+
+    if($this->view->split_index_count){
+      $vars['destination']=$this->view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
+      $vars['target']=$this->view->display_handler->handlers['filter']['field_destinations_target']->value[0];
+
+      foreach($funcs as $func){
+       $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split';
+       if($this->view->split_index_count==$this->view->split_total_count){
+         $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-last';;
+       }
+       if($this->view->split_index_count=="1"){
+         $funcs[]=$func.'___'.$vars['destination'].'___'.$vars['target'].'____split_____split-first';
+       }
+      }
     }
-  }
-  
-       
-  
-  
+
     return $funcs;
   }
   
