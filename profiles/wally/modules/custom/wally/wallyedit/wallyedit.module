@@ -304,13 +304,6 @@ function wallyedit_menu(){
     'load arguments' => array('%map'),
   );
   
-  $items['wallyedit/js_add_more'] = array(
-    'page callback' => 'wallyedit_add_more_js',
-    'access arguments' => array('administer nodes'),
-    'file' => 'includes/wallyedit.node_form.inc',
-    'type' => MENU_CALLBACK,
-  );
-  
   $items['wallyedit/views/ajax/%/%/%'] = array(
     'title' => 'WallyEdit Views AJAX',
     'page callback' => 'wallyedit_views_ajax',
@@ -1322,8 +1315,8 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $form[$element]['#title'] = $form['#title'];
       }
       if($fields[$element]['multiple'] == 1){
-        $form[$element][$fields[$element]['name'].'_add_more']['#submit'][0]='wallyedit_add_more_submit_proxy';
-        $form[$element][$fields[$element]['name'].'_add_more']['#ahah']['path']=str_replace('//','/','wallyedit/js_add_more/'.$type.'/'.$element.'/'.$global_path.'/'.$element);
+        $form[$element][$fields[$element]['name'].'_add_more']['#submit'][0]='cckdestinations_add_more_submit_proxy';
+        $form[$element][$fields[$element]['name'].'_add_more']['#ahah']['path']=str_replace('//','/','cckdestinations/js_add_more/'.$type.'/'.$element.'/'.$global_path.'/'.$element);
       }
       //@todo: DDU what happen if the element is required ?
     }
@@ -2823,27 +2816,7 @@ function wallyedit_add_new_group_to_fields(&$fields, $node_fields, $field_name) 
  * @return nothing, the form_state is passed by reference.
  */
 function wydit_add_to_form_state(&$form_state,$element,$target,$append=FALSE){
-  if(count($target)>0){
-    if(isset($form_state[$target[0]])){
-      $key=$target[0];
-      array_shift($target);
-      wydit_add_to_form_state($form_state[$key],$element,$target,$append);
-    }
-    else{
-      $key=$target[0];
-      $form_state[$target[0]]=array();
-      array_shift($target);
-      wydit_add_to_form_state($form_state[$key],$element,$target,$append);
-    }
-  }
-  else{
-    if($append===TRUE){
-      $form_state[]=$element;
-    }
-    else{
-      $form_state=$element;
-    }
-  }
+  wallytoolbox_add_elem_at_target($form_state, $element, $target, $append);
 }
 
 function wydit_get_number_of_elements_of_target($form_state,$target) {
@@ -3194,11 +3167,6 @@ function _wallyedit_convert_type_to_title($type) {
   $expl_type = explode('_', $type);
   $expl_type = explode('object', $expl_type[1]);
   return ucfirst($expl_type[0]);
-}
-
-function wallyedit_add_more_submit_proxy($form, &$form_state) {
-  module_load_include('inc', 'wallyedit', 'includes/wallyedit.node_form');
-  wallyedit_add_more_submit($form, $form_state);
 }
 
 /**
