@@ -653,6 +653,8 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
 	} else {
 	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
       $node->rejected = '';
+      $log['error'] = TRUE;
+      $log['error_msg'] = t('No destination AT ALL for current package. Package rejected.');
 	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
 	  return '';
 	}
@@ -758,6 +760,8 @@ function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
     $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
+    $log['error'] = TRUE;
+    $log['error_msg'] = t('No channels found. Package rejected');
     drupal_set_message('No channels found. Package rejected','error');
     // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
   }
