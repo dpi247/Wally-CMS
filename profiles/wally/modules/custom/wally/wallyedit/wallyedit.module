@@ -525,7 +525,7 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
         '#type' => 'select',
         '#title' => t('Choose profile'),
         '#options' => $options_profiles,
-        '#default_value' => $form_state['profile_id'],
+        '#default_value' => isset($form_state['profile_id']) ? $form_state['profile_id'] : arg(3),
         '#weight' => -100,
       );
 
