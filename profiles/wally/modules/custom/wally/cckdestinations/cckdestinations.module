@@ -56,6 +56,13 @@ function cckdestinations_menu() {
     'type' => MENU_CALLBACK
   );
   
+  $items['cckdestinations/js_add_more'] = array(
+    'page callback' => 'cckdestinations_add_more_js',
+    'access arguments' => array('administer nodes'),
+    'file' => 'includes/cckdestinations.node_form.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['cckdestinations/remove'] = array(
     'title' => t('Remove destination'),
     'page callback' => 'cckdestinations_remove_ahah',
@@ -280,7 +287,7 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
       $form_copy = $form['field_destinations'];
       unset($form_copy['field_destinations_add_more']);
       $temp_elem = array();
-      
+
       foreach (element_children($form_copy) as $i) {
         $temp_elem[$i] = $form['field_destinations'][$i];
         unset($form['field_destinations'][$i]);
@@ -295,6 +302,9 @@ function cckdestinations_form_alter(&$form, $form_state, $form_id) {
     if (!empty($type['fields'])) {
       if (isset($form['field_destinations'])) {
         $form['field_destinations']['#element_validate'][] = 'cckdestinations_form_field_destinations_validate';
+        $form['field_destinations']['field_destinations_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+        $form['field_destinations']['field_destinations_add_more']['#ahah']['path'] = str_replace('//', '/', 'cckdestinations/js_add_more/'.$form['type']['#value'].'/field_destinations/'.$type['fields']['field_destinations']['display_settings']['parent'].'/field_destinations');
+        $form['field_destinations']['#parents'] = array('field_destinations');
       }
     }
   }
@@ -439,6 +449,11 @@ function cckdestinations_schema_alter (&$schema) {
       'default' => 0,
     );
   }
+}
+
+function cckdestinations_add_more_submit_proxy($form, &$form_state) {
+  module_load_include('inc', 'cckdestinations', 'includes/cckdestinations.node_form');
+  cckdestinations_add_more_submit($form, $form_state);
 }
 
 /**
@@ -811,8 +826,15 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
     if (isset($items['field_destinations_add_more'])) {
       unset($items['field_destinations_add_more']);
     }
-    
-    $filled_items = cckdestinations_content_set_empty($field, $items);
+
+    //$filled_items = cckdestinations_content_set_empty($field, $items);
+    $filled_items = array();
+    $function = $field['module'] .'_content_is_empty';
+    foreach ((array)$items as $delta => $item) {
+      if (!$function($item, $field)) {
+        $filled_items[$delta] = $item;
+      }
+    }
 
     // Adaptation of "content_multiple_value_form" function form CCK
     $field_name = $field['field_name'];
@@ -835,9 +857,13 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
     if (count($deltas) > 1 || $current_item_count >= 1) {
       $deltas[] = max($deltas) + 1;
     }
-    
+
     if (count($deltas) < $current_item_count) {
       $deltas[] = max($deltas) + 1;
+    }
+    
+    if (count($deltas) == 0) {
+      $deltas[] = 0;
     }
 
     $title = check_plain(t($field['widget']['label']));
@@ -1615,7 +1641,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   }
   $parents = isset($form_element['#parents']) ? $form_element['#parents'] : array($field_name);
   $form_state_ref = $form_state['values'];
-  if (!isset($form_state_ref[$parents[0]]['field_destinations'])) {
+  if (!isset($form_state_ref[$parents[0]]['field_destinations']) && $parents[0] != 'field_destinations') {
     $parents[0] = 'group_destinations';
   }
   
@@ -1672,14 +1698,14 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
+  $redirect_path = $path;
   if (strstr($form['form_id']['#value'], 'wallyedit')) {
-    $redirect_path = $path;
     unset($redirect_path[0]);
-    $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-    $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   }
+  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
-  wydit_add_to_form_state($form, $form_element[$field_name], $path);
+  wallytoolbox_add_elem_at_target($form, $form_element[$field_name], $path);
 
   /**********************/
   // Save the new definition of the form.
@@ -1699,12 +1725,9 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
     $field_form = $field_form[$path_item];
   }
 
-  if (strstr($form['form_id']['#value'], 'wallyedit')) {
-    //$field_form[$field_name]['#parents']=$parents;
-    $field_form['#parents'] = $parents;
-    $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-    $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
-  }
+  $field_form['#parents'] = $parents;
+  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
   
   // Prevent duplicate wrapper.
   unset($field_form['#prefix'], $field_form['#suffix']);
@@ -1802,28 +1825,30 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           }
 
           $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
-          $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
-
-          for ($i = ($rank - 1); $i > 0; $i--) {
-            if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
-              $elem_nid = $current_results[$i - 1]->nid;
-              $elem_node = node_load($elem_nid);
-              $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-              $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
-
-              foreach ($elem_node->field_destinations as $elem_delta => $dest) {
-                $dest['rank'] = 'DNC'.$dest['rank'];
-                if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
-                  $dest['time_rank'] = $new_time_rank[$elem_nid];
+          if (sizeof($current_results) >= $reserved) {
+            $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
+  
+            for ($i = ($rank - 1); $i > 0; $i--) {
+              if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
+                $elem_nid = $current_results[$i - 1]->nid;
+                $elem_node = node_load($elem_nid);
+                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
+                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
+  
+                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
+                  $dest['rank'] = 'DNC'.$dest['rank'];
+                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+                    $dest['time_rank'] = $new_time_rank[$elem_nid];
+                  }
+                  $elem_node->field_destinations[$elem_delta] = $dest;
                 }
-                $elem_node->field_destinations[$elem_delta] = $dest;
+                
+                node_save($elem_node);
               }
-              
-              node_save($elem_node);
+              /*$new_time_rank = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
+              $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank;
+              db_query('UPDATE {content_field_destinations} SET field_destinations_time_rank = %d WHERE nid = %d AND field_destinations_tid = %d AND field_destinations_target = "%s"', $new_time_rank, $current_results[$i - 1]->nid, $item['tid'], $item['target']);*/
             }
-            /*$new_time_rank = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-            $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank;
-            db_query('UPDATE {content_field_destinations} SET field_destinations_time_rank = %d WHERE nid = %d AND field_destinations_tid = %d AND field_destinations_target = "%s"', $new_time_rank, $current_results[$i - 1]->nid, $item['tid'], $item['target']);*/
           }
 
           // Determination of the time rank following the behavior and the rank

@@ -2,28 +2,12 @@
 // $Id: content.node_form.inc,v 1.7.2.21 2009/07/18 00:40:20 markuspetrux Exp $
 
 /**
- * @file
- * Create fields' form for a content type.
- *
- * Each field defines its own component of the content entry form, via its
- * chosen widget.
- */
-function wallyedit_form(&$form, &$form_state) {
-  $type = content_types($form['type']['#value']);
-  foreach ($type['fields'] as $field_name => $field) {
-    $form['#field_info'][$field['field_name']] = $field;
-    $form += (array) content_field_form($form, $form_state, $field);
-  }
-  return $form;
-}
-
-/**
  * Menu callback for AHAH addition of new empty widgets.
  */
-function wallyedit_add_more_js($type_name_url, $field_name) {
+function cckdestinations_add_more_js($type_name_url, $field_name) {
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
-  
+
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
 
@@ -69,14 +53,16 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
 
   $q = $_GET['q'];
   $path = array_slice(explode('/', $q), 4);
-  $path = array_merge(array($type_name_url), $path);
+  if ($form['#tree']) {
+    $path = array_merge(array($type_name_url), $path);
+  }
   
   $form_element = $form;
   foreach($path as $path_item){
     $form_element = $form_element[$path_item];
   }
   $parents = $form_element['#parents'];
-  
+
   $form_state_ref = $form_state['values'];
   $_POST_ref = $_POST;
   foreach($parents as $path_item) {
@@ -120,11 +106,13 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
   $redirect_path = $path;
-  unset($redirect_path[0]);
-  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
+  if ($form['#tree']) {
+    unset($redirect_path[0]);
+  }
+  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
-  wydit_add_to_form_state($form, $form_element[$field_name], $path);
+  wallytoolbox_add_elem_at_target($form, $form_element[$field_name], $path);
   
   /**********************/
   // Save the new definition of the form.
@@ -136,7 +124,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $delta = max(array_keys($_POST_ref)) + 1;
   $_POST_ref[$delta]['_weight'] = $delta;
   
-  wydit_add_to_form_state($_POST, $_POST_ref, $path, 1);
+  wallytoolbox_add_elem_at_target($_POST, $_POST_ref, $path, 1);
   
   $form_state = array('submitted' => FALSE);
   $form += array(
@@ -153,8 +141,8 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
 
   //$field_form[$field_name]['#parents']=$parents;
   $field_form['#parents'] = $parents;
-  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
-  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wallyedit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
+  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
 
   if (isset($field_form[$delta])) {
     // We add a div around the new content to receive the ahah effect.

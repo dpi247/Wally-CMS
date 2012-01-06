@@ -857,6 +857,36 @@ function wallytoolbox_get_node_by_reference($node) {
 }
 
 /**
+ *  Add "$element" in the structure of the $array based on the path of target 
+ * 
+ * @param: $array
+ *   - the targeted array.
+ * @param: $element
+ *   - the element to add to the array.
+ * @param: $target
+ *   - the place where add element in the array structure.
+ * @param: $append
+ *   - a boolean to indicate if the element should replace or added next the element specified by target
+ * 
+ * @return nothing, the form_state is passed by reference.
+ */
+function wallytoolbox_add_elem_at_target(&$array, $element, $target, $append = FALSE){
+  if (count($target) > 0) {
+    $key = array_shift($target);
+    if (!isset($array[$key])) {
+      $array[$key] = array();
+    }
+    wallytoolbox_add_elem_at_target($array[$key], $element, $target, $append);
+  } else {
+    if($append === TRUE){
+      $array[] = $element;
+    } else {
+      $array = $element;
+    }
+  }
+}
+
+/**
  * Transform a DOMDocument, DOMNode, DOMElement, wathever, in an array.
  */
 function dom2array($node) {
