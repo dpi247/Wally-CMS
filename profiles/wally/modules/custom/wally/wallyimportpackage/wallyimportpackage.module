@@ -67,6 +67,13 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   return $return;
 }
 
+function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $importer){
+  if ($type == 'before_process'){
+    if ($_SERVER['REQUEST_URI'] == '/wallymport/post/package/preview'){
+      $importer->wallymport_preview = TRUE;
+    }
+  }
+}
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 
@@ -94,16 +101,15 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   }
   
   if (!isset($node->rejected) & !isset($node->wallymport_delete)){
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process');
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process',$importer);
   
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
     if (function_exists("wallyimportpackage_process_package_".$callback)){
       call_user_func("wallyimportpackage_process_package_".$callback, &$node, $dom, &$log, $importer);
     }
   
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process');
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
-  
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
