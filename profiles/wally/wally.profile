@@ -193,12 +193,8 @@ function wally_profile_tasks(&$task, $url) {
         $batch['operations'][] = array('features_flush_caches', array()); 
       }
       $batch['operations'][] = array('_wally_install_menus', array());
-    }
-    
-    $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
-    
-    if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
+      $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
       $batch['operations'][] = array('_wally_placeholder_content', array());
     }
     
@@ -346,7 +342,6 @@ function _wally_set_permissions(&$context){
  * Set default taxonomy terms
  */
 function _wally_initialize_taxonomy_terms(&$context){
-       
   // Destination taxonomy (vocabulary created by wallycontenttype feature).
   $vid = install_taxonomy_get_vid("Destination Path");
   if ($vid) {
@@ -382,7 +377,6 @@ function _wally_initialize_taxonomy_terms(&$context){
  * Set misc settings
  */
 function _wally_initialize_settings(&$context){
-  
    // Wally Import Settings
    // Doing here because we need features to be
    // activated before
@@ -431,7 +425,6 @@ function _wally_initialize_settings(&$context){
  * Return an array of terms for default destinations taxonomy.
  */
 function _wally_destinationtaxonomy_terms($vid) {
-
   $terms = array();
 
   //tid-1
@@ -476,7 +469,6 @@ function _wally_destinationtaxonomy_terms($vid) {
 
   return $terms; 
 }
-
 
 function _wally_documenttypetaxonomy_terms($vid) {
 
@@ -562,7 +554,6 @@ function _wally_ratingtaxonomy_terms($vid) {
   return $terms; 
 }
 
-
 /**
  * Create some content of type "page" as placeholders for content
  * and so menu items can be created
@@ -629,20 +620,18 @@ function _wally_enable_view_popular(&$context) {
   $context['message'] = $msg;
 } 
 
-
 /**
  * Enable page_system_node_view
  */
 function _wally_enable_page_system_node_view(&$context) {
- variable_set('page_manager_node_view_disabled', FALSE);
-  
+  variable_set('page_manager_node_view_disabled', FALSE);
 } 
 
 /**
  * Enable page_system_term_view
  */
 function _wally_enable_page_system_term_view(&$context) {
- variable_set('page_manager_term_view_disabled', FALSE);
+  variable_set('page_manager_term_view_disabled', FALSE);
 }
 
 /**
@@ -694,19 +683,12 @@ function _wally_install_menus(&$context) {
  * Setup taxonomy settings for the menus and primary links.
  */
 function _wally_install_taxonomysettingsmenus(&$context) {
-
-  $menu_name = "primary-links";
+  $menu_name = 'primary-links';
   
   // Settings about taxonomy menu
   // Be aware that "Menu Setup" need called after 
   // populate taxonomies ( @see: _wally_initialize_settings ); 
-  $vocabularies = taxonomy_get_vocabularies();
-  foreach ($vocabularies as $vocabulary) {
-    if ($vocabulary->name == "Destination Path") {
-      $vid = $vocabulary->vid;
-      break; 
-    }
-  }
+  $vid = install_taxonomy_get_vid('Destination Path');
   variable_set('taxonomy_menu_expanded_'.$vid, 0);
   variable_set('taxonomy_menu_voc_name_'.$vid, "");
   variable_set('taxonomy_menu_display_descendants_'.$vid, O);
@@ -727,21 +709,12 @@ function _wally_install_taxonomysettingsmenus(&$context) {
   $context['message'] = $msg;
 } 
 
-/*
+/**
  * Reset "Taxonomy Menu" items (normaly empty)
  * and ADD terms from "Destination Path" (Voc 2) to it.
  */ 
 function _wally_setup_taxonomymenu($vid, $menu_name) {
-
   _taxonomy_menu_delete_all($vid);
-
-/*
-  $args = array(
-    'vid' => $vid,
-    'menu_name' => $menu_name,
-  );
-  $mlid = taxonomy_menu_handler('insert', $args);
-  */
 
   $terms = taxonomy_get_tree($vid);
   foreach ($terms as $term) {
@@ -749,7 +722,11 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
       'term' => $term,
       'menu_name' => $menu_name,
     );
-    $mlid = taxonomy_menu_handler('insert', $args);
+    $item = _taxonomy_menu_create_item($args) + array('updated' => 1);
+    $mlid = taxonomy_menu_handler('insert', array(), $item);
+    $menu_link = menu_link_load($mlid);
+    $menu_link['hidden'] = 0;
+    menu_link_save($menu_link);
   }
 }
 
@@ -757,7 +734,6 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
  * Cleanup after the install
  */
 function _wally_cleanup() {
-
   // DO NOT call drupal_flush_all_caches(), it disables all themes
   $functions = array(
     'drupal_rebuild_theme_registry',
@@ -779,7 +755,6 @@ function _wally_cleanup() {
   $msg = st('Cleanup');
   _wally_log($msg);
   $context['message'] = $msg;
-
 }
 
 /**
@@ -802,7 +777,7 @@ function system_form_install_select_profile_form_alter(&$form, $form_state) {
  */
 function _wally_log($msg) {
   error_log('Wally install : '.$msg);
-  drupal_set_message($msg,"wally profile");
+  drupal_set_message($msg, 'wally profile');
 }
 
 /**
@@ -812,7 +787,6 @@ function _wally_language_selected() {
   global $install_locale;
   return !empty($install_locale) && ($install_locale != 'en');
 }
-
 
 /**
  * Reimplementation of system_theme_data(). The core function's static cache
@@ -905,7 +879,6 @@ function _wally_system_theme_data() {
  * Alter the install profile configuration form and provide option to install demo content
  */
 function system_form_install_configure_form_alter(&$form, $form_state) {
-
   // Populate some fields.
   $form['site_information']['site_name']['#default_value'] = 'Wally News';
   $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
