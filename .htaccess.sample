@@ -85,8 +85,7 @@ DirectoryIndex index.php
 # Various rewrite rules.
 <IfModule mod_rewrite.c>
   RewriteEngine on
-  RewriteRule ^(.*?)/[0-9a-zA-Z\-]*-(\d{6,7}).shtml /archives?id=$2&path=$1 [NC]
-
+ 
   # If your site can be accessed both with and without the 'www.' prefix, you
   # can use one of the following settings to redirect users to your preferred
   # URL, either WITH or WITHOUT the 'www.' prefix. Choose ONLY one option:
