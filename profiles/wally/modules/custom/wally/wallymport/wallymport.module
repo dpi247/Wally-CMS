@@ -69,14 +69,16 @@ function wallymport_menu() {
     'description'      => t('Allows administrators to see importer logs.'),
     'file'             => 'includes/wallymport.admin.inc',
   );
+
   $items['admin/wally/wallymport/settings/logs/%'] = array(
-      'title'            => t('Importer logs'),
-      'page callback'    => 'wallymport_page_importerlogs',
-      'page arguments'   => array(5),
-      'access arguments' => array('administer wallymport'),
-      'description'      => t('Allows administrators to see importer logs.'),
-      'file'             => 'includes/wallymport.admin.inc',
+    'title'            => t('Importer logs'),
+    'page callback'    => 'wallymport_page_importerlogs',
+    'page arguments'   => array(5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to see importer logs.'),
+    'file'             => 'includes/wallymport.admin.inc',
   );
+
   $items['admin/wally/wallymport/settings/delete/%'] = array(
     'title'            => t('Delete importer'),
     'page callback'    => 'drupal_get_form',
@@ -137,6 +139,7 @@ function wallymport_menu() {
   
   return $items;
 }
+
 /**
  * Implementation of hook_cron().
  */ 
@@ -182,7 +185,7 @@ function wallymport_cron(){
   }
 }
 
-/*
+/**
  * Implementation of hook_theme().
  */
 function wallymport_theme(){
@@ -199,6 +202,7 @@ function wallymport_theme(){
   );
   return $theme_functions;
 }
+
 /**
  * Create a XML document containing all available destinations.
  * The structure of the XML follows packages.xsd.
@@ -310,6 +314,7 @@ function wallymport_check_process_folder($importer_name) {
   } 
   return $content;
 }
+
 /**
  * Check if Wallymport can process folder.
  * 
@@ -377,6 +382,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
   }
   return $content;
 }
+
 /**
  * Shutdown function for Wallymport process folder cleanup.
  */
@@ -440,32 +446,33 @@ function wallymport_process_folder($importer){
           }
         }
         $returns[] = $return;
-        unset($return[0]['log']['node']);dsm($return);
+        unset($return[0]['log']['node']);
         wallymport_save_log($importer->name, time(), $file_location, serialize($return));
       }
     }
   }
   return $returns;
 }
+
 /**
-* Save log in db
-*
-* @param: $importer_name
-*   Importer choose to process file
-* @param $date
-* @param $file_location
-* @param $log
-* @return errors, logs
-*/
+ * Save log in db
+ *
+ * @param: $importer_name
+ *   Importer choose to process file
+ * @param $date
+ * @param $file_location
+ * @param $log
+ * @return errors, logs
+ */
 function wallymport_save_log($importer_name, $date, $file_location, $log){
-  
   $logs = new stdClass();
   $logs->importer_name = $importer_name;
   $logs->date = $date;
   $logs->location = $file_location;
   $logs->log = $log;
   drupal_write_record('wallymport_logs', $logs);
-} 
+}
+
 /**
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
@@ -563,8 +570,6 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   return $form;
 }
 
-
-
 /**
  * Import files receive by POST
  * 
@@ -637,7 +642,6 @@ function wallymport_post($importer_name){
  * @return $xml_file (name of the xml file to process)
  */
 function wallymport_preprocess_file($file, &$importer, &$returns){
-  
   if ($importer->zip == 1){
     $xml_file = wallymport_preprocess_zip($file, $importer, $returns);
   } else {
@@ -645,8 +649,8 @@ function wallymport_preprocess_file($file, &$importer, &$returns){
   }
   
   return $xml_file;
-  
 }
+
 /**
  * Process one zip file.
  * 
@@ -707,8 +711,6 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
   }
   return $xml_file;
 }
-
-
 
 /**
  * Process a xml file or a folder containg an xml file.
@@ -872,8 +874,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   }
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
-  
-  
+ 
   $function_exist = FALSE;
   foreach ($importer->importer_functions as $importer_function){
     if (function_exists($importer_function.'_process_object_'.$callback)){
@@ -930,7 +931,7 @@ function wimprt_process_type($dom, &$log, $importer, $callback = NULL){
       call_user_func($importer_function.'_process_type_'.$callback, &$node, $dom, &$log, $importer);
       $function_exist = TRUE;
       break;
-    } 
+    }
   }
   if ($function_exist == FALSE & function_exists("wimprt_process_type_$callback")){
     call_user_func("wimprt_process_type_".$callback, &$node, $dom, &$log, $importer);
@@ -942,10 +943,9 @@ function wimprt_process_type($dom, &$log, $importer, $callback = NULL){
   }
 
   $log['node'] = array('current' => $node,'next' => $log['node']);
-  
+
   return $node;
 }
-
 
 /**
  * Call an apropriate function to process an list of elements depending the attribute type of the child element.
@@ -1014,7 +1014,7 @@ function wimprt_process_node_default(&$node, $dom, &$log, $importer){
   //Beware of namespace colision
   foreach($dom->childNodes as $element){
     $name = strtolower($element->nodeName);
-    
+
     if ($name != '#text'){
       $function_exist = FALSE;
       foreach ($importer->importer_functions as $importer_function){
@@ -1022,7 +1022,7 @@ function wimprt_process_node_default(&$node, $dom, &$log, $importer){
           call_user_func($importer_function."_set_field_".$name, &$node, $element, &$log, $importer);
           $function_exist = TRUE;
           break;
-        } 
+        }
       }
       if (!$function_exist & function_exists('wimprt_set_field_'.$name)){
         call_user_func('wimprt_set_field_'.$name, &$node, $element, &$log, $importer);
@@ -1031,8 +1031,6 @@ function wimprt_process_node_default(&$node, $dom, &$log, $importer){
   }
   return $node;
 }
-
-
 
 /**
  * The default Callback function for processing a type
@@ -1120,7 +1118,7 @@ function wimprt_create_or_load($dom, $importer, $objecttype, $callback,&$log){
       $node = call_user_func($importer_function."_create_or_load_".$objecttype."_".$callback, $dom, &$log, $importer);
       $function_exist = TRUE;
       break;
-    } 
+    }
   }
   if ($function_exist == FALSE & function_exists("wimprt_create_or_load_".$objecttype."_".$callback)){
     $node = call_user_func("wimprt_create_or_load_".$objecttype."_".$callback, $dom, &$log, $importer);
@@ -1130,8 +1128,6 @@ function wimprt_create_or_load($dom, $importer, $objecttype, $callback,&$log){
 
 function wallymport_page_test(){
   $content .= '<form enctype="multipart/form-data" action="/wallymport/post/package/preview" method="POST">
-       
-		
         Choose a file to upload: <input name="uploadedfile" type="file" /><br />
         <input type="submit" value="Upload File" />
       </form>';
