@@ -24,8 +24,6 @@ if(arg(0)=='taxonomy' and arg(1)=='term'){
 
 $return = menu_execute_active_handler();
 
-
-
 // Menu status constants are integers; page content is a string.
 if (is_int($return)) {
   switch ($return) {
