@@ -66,6 +66,7 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   $return['log'] = $log;
   return $return;
 }
+
 /*
  * hook_wimprt_process_package 
  */
@@ -76,6 +77,7 @@ function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $im
     }
   }
 }
+
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 

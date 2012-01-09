@@ -399,5 +399,6 @@ function wallymport_page_importerlogs($iid){
     }
     $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg']);
   }
+  drupal_set_message(t('@num_rows packages in the logs', array('@num_rows' => sizeof($rows))));
   return theme_table($header,$rows);
 }
