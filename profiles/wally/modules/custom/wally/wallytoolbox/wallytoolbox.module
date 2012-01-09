@@ -27,7 +27,7 @@ function wallytoolbox_menu() {
   $items['admin/wally/wallytoolbox/supercron'] = array(
     'title'             => t('Wally Toolbox "Supercon" Settings'),
     'page callback'     => 'drupal_get_form',
-    'page arguments'		=> array('wallytoolbox_supercron_settings'),
+    'page arguments'		=> array('wallytoolbox_supercron_settings_form'),
     'access arguments'  => array('manage cache'),
     'description'       => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'              => 'includes/wallytoolbox.admin.inc',
@@ -72,7 +72,7 @@ function wallytoolbox_menu() {
  */
 function wallytoolbox_theme(&$var) {
  return array(
-    'wallytoolbox_supercron_settings' => array(
+    'wallytoolbox_supercron_settings_form' => array(
       'arguments' => array('form' => NULL),
     ),
   );
