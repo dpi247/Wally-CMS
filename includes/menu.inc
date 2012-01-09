@@ -339,8 +339,6 @@ function menu_execute_active_handler($path = NULL) {
   // Rebuild if we know it's needed, or if the menu masks are missing which
   // occurs rarely, likely due to a race condition of multiple rebuilds.
   if (variable_get('menu_rebuild_needed', FALSE) || !variable_get('menu_masks', array())) {
-  	
-	   	
     menu_rebuild();
   }
   if ($router_item = menu_get_item($path)) {
@@ -1694,9 +1692,6 @@ function menu_cache_clear_all() {
  * is different and leaves stale data in the menu tables.
  */
 function menu_rebuild() {
-  // DLA
-  watchdog("DEBUG", "<pre>".print_r(debug_backtrace(),1)."</pre>" );
-  
   if (!lock_acquire('menu_rebuild')) {
     // Wait for another request that is already doing this work.
     // We choose to block here since otherwise the router item may not 
@@ -1705,7 +1700,6 @@ function menu_rebuild() {
     return FALSE;
   }
 
-  
   // Encapsulate the rebuild in a transaction.
   db_query('BEGIN');
 
@@ -1748,11 +1742,8 @@ function menu_router_build($reset = FALSE) {
       }
     }
     // Alter the menu as defined in modules, keys are like user/%user.
-    watchdog('REBUILD1',print_r($callbacks,1));
     drupal_alter('menu', $callbacks);
-    watchdog('REBUILD2',print_r($callbacks,1));
     $menu = _menu_router_build($callbacks);
-    watchdog('REBUILD3',print_r($menu,1));
     _menu_router_cache($menu);
   }
   return $menu;
