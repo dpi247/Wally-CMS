@@ -349,12 +349,13 @@ function wallyedit_preprocess_wallyedit_form_display_fields_form(&$vars){
 }
 
 function wallyedit_preprocess_wallyedit_node_form(&$vars){
+  global $user;
   $vars['profile_id']=$vars['form']['profile_id']['#value'];
   $vars['node_type']=$vars['form']['type']['#value'];
   
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/tab_slider.js');
-  drupal_add_js(array('profile_id' => $vars['profile_id'], 'current_tab' => variable_get('wallyedit_current_tab_'.$vars['profile_id'], 0)), 'setting');
+  drupal_add_js(array('user_id' => $user->uid, 'current_tab' => variable_get('wallyedit_current_tab_'.$user->uid, 0)), 'setting');
 }
 
 function wallyedit_preprocess_wallyedit_inline_form(&$vars){
