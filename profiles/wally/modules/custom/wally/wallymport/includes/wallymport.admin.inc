@@ -389,9 +389,9 @@ function wallymport_page_importer_logs($iid){
 function wallymport_page_importerlogs($iid){
   $importer = wallymport_getimporter($iid);
   $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
-  $header = array('Date','Filename', 'Filelocation', 'Success', 'Message');
+  $header = array(t('Date'), t('Filename'), t('Filelocation'), t('Success'), t('Message'));
   while ($obj = db_fetch_object($result)){
-    list($f1,$f2,$f3,$f4,$done,$filename) = explode('/', $obj->location);
+    list($f1, $f2, $f3, $f4, $filename) = explode('/', $obj->location, 5);
     $logs = unserialize($obj->log);
     $success = 'TRUE';
     if ($logs['error']){
