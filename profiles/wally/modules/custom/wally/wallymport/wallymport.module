@@ -509,14 +509,14 @@ function wallymport_process_file($importer, $file_name){
           $error_msg = t('An error occured during file copy to done directory.');
           drupal_set_header('HTTP/1.1 517 '.$error_msg);
         } else {
-          $file_location = $importer->done_directory_path.'/'.$file->filename;
+          $file_location = $importer->done_directory_path.'/'.$file->name;
         }
       } else {
         if (!file_move($file->filename, $importer->error_directory_path)) {
           $error_msg = t('An error occured during file copy to error directory.');
           drupal_set_header('HTTP/1.1 517 '.$error_msg);
         } else {
-          $file_location = $importer->error_directory_path.'/'.$file->filename;
+          $file_location = $importer->error_directory_path.'/'.$file->name;
         }
       }
       $returns[] = $return;
