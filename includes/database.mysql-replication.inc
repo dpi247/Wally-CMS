@@ -69,12 +69,9 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
   if (preg_match_all('/\{(.+)\}/U', $query, $m)) {
     $tables = $m[1];
   }
-  print $query.'<br>';
+
   $mastered_tables = array(
-    'role',
-    'sessions',
-    'users',
-    'users_roles',
+    'menu_router',
   );
   // Short-circuit these special tables
   if (array_intersect($mastered_tables, $tables)) {
