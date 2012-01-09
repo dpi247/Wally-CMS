@@ -142,7 +142,7 @@ function wallymport_schema() {
     'primary key' => array('iid'),//primary key
   );
   $schema['wallymport_logs'] = array(
-    'description' => 'Containes the logs',
+    'description' => 'Contains the logs',
     'fields' => array(
       'lid' => array(
         'type' => 'serial',
