@@ -633,14 +633,8 @@ function variable_get($name, $default) {
  * @see variable_del(), variable_get()
  */
 function variable_set($name, $value) {
-  
   global $conf, $db_prefix;
 
-  if($name=='menu_rebuild_needed'){
-    watchdog("DEBUG SET", "<pre>".print_r(debug_backtrace(),1)."</pre>" );
-    
-  }
-  
   $serialized_value = serialize($value);
   db_query("UPDATE {variable} SET value = '%s' WHERE name = '%s'", $serialized_value, $name);
   if (!db_affected_rows()) {
