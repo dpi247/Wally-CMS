@@ -338,16 +338,22 @@ function wallymport_page_admin(){
     $yesno = array(t('No'), t('Yes'));
     
     if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Operations'));
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Logs'), t('Operations'));
       $rows = array();
       foreach ($importers as $importer){
         $logs = '';
         $post = '';
         if ($importer->processed_by_cron == 1){
-          $logs = ' (<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">logs</a>)';
+          $logs = ' (<a href = "/admin/wally/wallymport/settings/cronlog/'.$importer->iid.'">logs</a>)';
         }
         if ($importer->processed_by_post == 1){
           $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
+        }
+        $logs_path = "/admin/wally/wallymport/settings/log/".$importer->iid;
+        if (module_exists('views')){
+          if (views_get_view('wallymport_logs') != NULL){
+            $logs_path = "/admin/wally/wallymport/settings/logs/".$importer->name;  
+          }
         }
         $rows[] = array(
           $importer->importer_type, 
@@ -356,8 +362,9 @@ function wallymport_page_admin(){
           $yesno[$importer->processed_by_post].$post,
           $yesno[$importer->processed_by_cron].$logs,
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
-          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
+          '<a href = "/wallymport/process_folder/'.$importer->name.'">'.url('wallymport/process_folder/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
+          '<a href = "'.$logs_path.'">Logs</a>',
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );
       }
@@ -377,7 +384,7 @@ function wallymport_page_admin(){
  * importer id 
  * @return page content
  */
-function wallymport_page_importer_logs($iid){
+function wallymport_page_importer_cron_logs($iid){
   $importer = wallymport_getimporter($iid);
   $logs = unserialize($importer->cron_log);
   $content = '';
@@ -390,4 +397,27 @@ function wallymport_page_importer_logs($iid){
     $content .= 'There is no log';
   }
   return $content;
+}
+/**
+* Importer logs
+* @param $iid
+* importer id
+* @return page content
+*/
+function wallymport_page_importer_logs($iid){
+  $importer = wallymport_getimporter($iid);
+  $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
+  $header = array(t('Date'), t('Filename'), t('Filelocation'), t('Success'), t('Message'));
+  while ($obj = db_fetch_object($result)){
+    $filepath = explode('/', $obj->location);
+    $filename = array_pop($filepath);
+    $logs = unserialize($obj->log);
+    $success = 'TRUE';
+    if ($logs['error']){
+      $success = 'FALSE';
+    }
+    $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg']);
+  }
+  drupal_set_message(t('@num_rows packages in the logs', array('@num_rows' => sizeof($rows))));
+  return theme_table($header,$rows);
 }

@@ -207,6 +207,15 @@ function wallymport_theme(){
   );
   return $theme_functions;
 }
+/*
+* Implementation of hook_views_api().
+*/
+function wallymport_views_api() {
+  return array(
+    'api'  => 2.0,
+	'path' => drupal_get_path('module', 'wallymport') . '/plugins/views',
+  );
+}
 /**
  * Create a XML document containing all available destinations.
  * The structure of the XML follows packages.xsd.
