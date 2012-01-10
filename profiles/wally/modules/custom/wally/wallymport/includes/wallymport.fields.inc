@@ -1,11 +1,12 @@
 <?php 
+
 /**
  * @defgroup wallymport.field Wally fields specifics Callback functions
  * @{
  * This file contain all fields specific functions of wally xml.   
  * These functions will be called by the wimprt_process_package(), 
  * wimprt_process_object() or wimprt_process_type() functions.
- */
+ *//*
 
 /**
  * Process the packages element of a wally DomDocument object.
@@ -18,7 +19,7 @@
  *
  * @return
  *   the log object
- */
+ *//*/*
 function wimprt_process_packages($dom, &$log, $importer){
   $return = array();
   module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
@@ -47,7 +48,7 @@ function wimprt_process_packages($dom, &$log, $importer){
  *  the importer
  * @return
  *   the node object that has been build
- */
+ *//*/*
 function wimprt_process_package($dom, &$log, $importer, $callback = NULL) {
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, $importer, 'package', $callback, $log);
@@ -106,7 +107,7 @@ function wimprt_process_package($dom, &$log, $importer, $callback = NULL) {
  *   The node
  * @return
  *   A node object
- */
+ *//*/*
 function wimprt_create_or_load_preprocesspackage($dom, &$node, $importer){
   
   $node_temporary = NULL;
@@ -170,7 +171,7 @@ function wimprt_create_or_load_preprocesspackage($dom, &$node, $importer){
  *
  * @return
  *   A node object
- */
+ *//*/*
 function wimprt_create_or_load_package_articlepackagetype($dom, &$log, $importer) {
   $node = new stdClass;
   $node->type = 'wally_articlepackage';
@@ -191,7 +192,7 @@ function wimprt_create_or_load_package_articlepackagetype($dom, &$log, $importer
  *
  * @return
  *   A node object
- */
+ *//*/*
 function wimprt_create_or_load_package_gallerypackagetype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_gallerypackage';
@@ -212,7 +213,7 @@ function wimprt_create_or_load_package_gallerypackagetype($dom, &$log, $importer
  *
  * @return
  *   A node object
- */
+ *//*/*
 function wimprt_create_or_load_package_pollpackagetype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_pollpackage';
@@ -236,7 +237,7 @@ function wimprt_create_or_load_package_pollpackagetype($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
@@ -300,7 +301,7 @@ function wimprt_process_package_articlepackagetype(&$node, $dom_element, &$log, 
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
@@ -363,7 +364,7 @@ function wimprt_process_package_galleryPackageType(&$node, $dom_element, &$log, 
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
@@ -425,7 +426,7 @@ function wimprt_process_package_pollpackagetype(&$node, $dom_element, &$log, $im
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_sourcexml(&$node, $dom, &$log, $importer){
   $dom_sourcexml = new DOMDocument();
   $node_sourcexml = $dom_sourcexml->importNode($dom,TRUE);
@@ -449,7 +450,7 @@ function wimprt_set_field_sourcexml(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_packagetitle(&$node, $dom, &$log, $importer){
   $text = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($text);
@@ -469,7 +470,7 @@ function wimprt_set_field_packagetitle(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_packagedescription(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_objectdescription[0]['value'] = _wimprthelp_plain_text($value);
@@ -489,7 +490,7 @@ function wimprt_set_field_packagedescription(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_internalreference(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_internalreference[0]['value'] = _wimprthelp_plain_text($value);
@@ -509,7 +510,7 @@ function wimprt_set_field_internalreference(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_externalreference(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_externalreference[0]['value'] = _wimprthelp_plain_text($value);
@@ -529,7 +530,7 @@ function wimprt_set_field_externalreference(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_embeddedobjectsorder(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->embeddedobjectsorder = _wimprthelp_plain_text($value);
@@ -549,7 +550,7 @@ function wimprt_set_field_embeddedobjectsorder(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_productid(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_productid[0]['value'] = $value;
@@ -569,7 +570,7 @@ function wimprt_set_field_productid(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_destinations(&$node, $dom, $log, $importer) {
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process Destinations: '.$dom->nodeName;
@@ -630,7 +631,7 @@ function wimprt_set_field_destinations(&$node, $dom, $log, $importer) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_editions(&$node, $dom, $log, $importer) {
   if(variable_get('wallymport_debug',0) or true){
 	$log['log'][] = 'process Editions: '.$dom->nodeName;
@@ -695,7 +696,7 @@ function wimprt_set_field_editions(&$node, $dom, $log, $importer) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_channels(&$node, $dom, $log, $importer) {
 
   if(variable_get('wallymport_debug',0) or true){
@@ -731,7 +732,7 @@ function wimprt_set_field_channels(&$node, $dom, $log, $importer) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_commentsallowed(&$node, $dom, &$log, $importer){
   $result = COMMENT_NODE_DISABLED;
 
@@ -768,7 +769,7 @@ function wimprt_set_field_commentsallowed(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_freeaccess(&$node, $dom, &$log, $importer){
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
@@ -790,7 +791,7 @@ function wimprt_set_field_freeaccess(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_packagelayout(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_packagelayout = array();
@@ -826,7 +827,7 @@ function wimprt_set_field_packagelayout(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_summary(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_summary[0]['value']= _wimprthelp_plain_text($value);
@@ -846,7 +847,7 @@ function wimprt_set_field_summary(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_externaluri(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_externaluri = array();
@@ -875,7 +876,7 @@ function wimprt_set_field_externaluri(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_packagecopyright(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_packagecopyright = array();
@@ -901,7 +902,7 @@ function wimprt_set_field_packagecopyright(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObject');
@@ -925,7 +926,7 @@ function wimprt_set_field_mainstory(&$node, $dom, &$log, $importer) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_mainobject(&$node, $dom, &$log, $importer) {
   if ($dom->hasAttribute('xsi:type')){
     $object = new stdClass;
@@ -960,7 +961,7 @@ function wimprt_set_field_mainobject(&$node, $dom, &$log, $importer) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
 	$object = wimprt_process_object($dom, $log, $importer, 'pollobjecttype');
@@ -988,7 +989,7 @@ function wimprt_set_field_poll(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
   // Embeded objects
   $results = array(); 
@@ -1047,7 +1048,7 @@ function wimprt_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_objecttype_preprocess(&$node, $dom, $importer){
   $node->field_objectid[0]['value'] = $dom->getAttributeNode("ObjectID")->value;
   if ($dom->hasAttribute("ObjectDescription")){
@@ -1075,7 +1076,7 @@ function wimprt_objecttype_preprocess(&$node, $dom, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_textobject($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_textobject';
@@ -1106,7 +1107,7 @@ function wimprt_create_or_load_object_textobject($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_textobject (&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
@@ -1136,7 +1137,7 @@ function wimprt_process_object_textobject (&$node, $dom_element, &$log, $importe
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_pollquestions(&$node, $dom, &$log, $importer){
   $i = 0;
     
@@ -1180,7 +1181,7 @@ function wimprt_set_field_pollquestions(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_pollobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_pollobject';
@@ -1212,7 +1213,7 @@ function wimprt_create_or_load_object_pollobjecttype($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_pollobjecttype(&$node, $dom, &$log, $importer){
   
   static $proceed_file_path;
@@ -1245,7 +1246,7 @@ function wimprt_process_object_pollobjecttype(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_photoobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_photoobject';
@@ -1279,7 +1280,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom, &$log, $importer){
  * 
  * @todo
  *   Check variable name line 575, procced or proceed?
- */
+ *//*
 function wimprt_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $c = array();
@@ -1349,7 +1350,7 @@ function wimprt_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_audioobjecttype($dom,&$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_audioobject';
@@ -1380,7 +1381,7 @@ function wimprt_create_or_load_object_audioobjecttype($dom,&$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_audioobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $value = $dom->nodeValue;
@@ -1423,7 +1424,7 @@ function wimprt_process_object_audioobjecttype(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_videoobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_videoobject';
@@ -1454,7 +1455,7 @@ function wimprt_create_or_load_object_videoobjecttype($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_videoobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $value = $dom->nodeValue;
@@ -1499,7 +1500,7 @@ function wimprt_process_object_videoobjecttype(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_digitalobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_digitalobject';
@@ -1530,7 +1531,7 @@ function wimprt_create_or_load_object_digitalobjecttype($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_digitalobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $value = $dom->nodeValue;
@@ -1570,7 +1571,7 @@ function wimprt_process_object_digitalobjecttype(&$node, $dom, &$log, $importer)
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_thumbnail(&$node, $dom, &$log, $importer){
   $thumbnail = $dom->nodeValue;
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail,'', $importer);
@@ -1591,7 +1592,7 @@ function wimprt_set_field_thumbnail(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_type_link(&$node, $dom, &$log, $importer){
   wimprt_typetype_preprocess(&$node, $dom, $importer);
   
@@ -1628,7 +1629,7 @@ function wimprt_process_type_link(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_object_linkslist($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_linkslistobject';
@@ -1656,7 +1657,7 @@ function wimprt_create_or_load_object_linkslist($dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_type_link($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_linktype';
@@ -1687,7 +1688,7 @@ function wimprt_create_or_load_type_link($dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_object_linkslist(&$node, $dom, &$log, $importer){
   wimprt_process_node_default($node, $dom, $log, $importer);
   
@@ -1712,7 +1713,7 @@ function wimprt_process_object_linkslist(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_title(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($value);
@@ -1732,7 +1733,7 @@ function wimprt_set_field_title(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_rating(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $vid = variable_get('wallymport_rating', NULL);
@@ -1754,7 +1755,7 @@ function wimprt_set_field_rating(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textarette[0]['value'] = $value;
@@ -1774,7 +1775,7 @@ function wimprt_set_field_textbarette(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_textforetitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textforetitle[0]['value'] = $value;
@@ -1794,7 +1795,7 @@ function wimprt_set_field_textforetitle(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_texttitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = $value;
@@ -1814,7 +1815,7 @@ function wimprt_set_field_texttitle(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_textsubtitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textsubtitle[0]['value'] = $value;
@@ -1834,7 +1835,7 @@ function wimprt_set_field_textsubtitle(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_textchapo(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textchapo[0]['value'] = $value;
@@ -1854,7 +1855,7 @@ function wimprt_set_field_textchapo(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_textbody(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textbody[0]['value'] = $value;
@@ -1874,7 +1875,7 @@ function wimprt_set_field_textbody(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_extractmedium(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_extractmedium[0]['value'] = $value;
@@ -1894,7 +1895,7 @@ function wimprt_set_field_extractmedium(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_extractshort(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_extractshort[0]['value'] = $value;
@@ -1914,7 +1915,7 @@ function wimprt_set_field_extractshort(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_copyright(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_copyright[0]['value'] = $value;
@@ -1934,7 +1935,7 @@ function wimprt_set_field_copyright(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_byline(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_byline[0]['value'] = $value;
@@ -1952,7 +1953,7 @@ function wimprt_set_field_byline(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_type_location($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_location',NULL))) {
@@ -2007,7 +2008,7 @@ function wimprt_create_or_load_type_location($dom, $log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_type_location(&$node, $dom, &$log, $importer){
   wimprt_typetype_preprocess(&$node, $dom, $importer);
 
@@ -2075,7 +2076,7 @@ function wimprt_process_type_location(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_marker(&$node, $dom, &$log, $importer){
 
   $node->field_markers = array(); 
@@ -2110,7 +2111,7 @@ function wimprt_set_field_marker(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_locations(&$node, $dom, &$log, $importer){
 
   $node->field_locations = array(); 
@@ -2151,7 +2152,7 @@ function wimprt_set_field_locations(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_taxonomy(&$node, $dom, $log, $importer) {
   
   $result = array();
@@ -2236,7 +2237,7 @@ function wimprt_set_field_taxonomy(&$node, $dom, $log, $importer) {
  *
  * @return
  *   Nothing but modify $result
- */
+ *//*
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
  // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
  // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
@@ -2315,7 +2316,7 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_entities(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
@@ -2351,7 +2352,7 @@ function wimprt_set_field_entities(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_typetype_preprocess(&$node, $dom, $importer){
   if ($importer->wallymport_preview){
     $node->rejected = TRUE;
@@ -2370,7 +2371,7 @@ function wimprt_typetype_preprocess(&$node, $dom, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_type_entity($dom, $log, $importer){	
 	
   if (!($vid = variable_get('wallymport_entity', NULL))) {
@@ -2426,7 +2427,7 @@ function wimprt_create_or_load_type_entity($dom, $log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_type_entity(&$node, $dom, &$log, $importer){
  
   
@@ -2475,7 +2476,7 @@ function wimprt_process_type_entity(&$node, $dom, &$log, $importer){
 	  }
 	} 
   }
-*/
+*//*
   // Send back the node
   return($node);
 
@@ -2495,7 +2496,7 @@ function wimprt_process_type_entity(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_persons(&$node, $dom, &$log, $importer){
   
   $node->field_persons = array(); 
@@ -2533,7 +2534,7 @@ function wimprt_set_field_persons(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_set_field_authors(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
@@ -2567,7 +2568,7 @@ function wimprt_set_field_authors(&$node, $dom, &$log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_type_person($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_person',NULL))) {
@@ -2618,7 +2619,7 @@ function wimprt_create_or_load_type_person($dom, $log, $importer){
  *
  * @return
  *   A node object
- */
+ *//*
 function wimprt_create_or_load_type_author($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_author',NULL))) {
@@ -2672,7 +2673,7 @@ function wimprt_create_or_load_type_author($dom, $log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_type_person(&$node, $dom, &$log, $importer){
   wimprt_typetype_preprocess(&$node, $dom, $importer);
 
@@ -2758,7 +2759,7 @@ function wimprt_process_type_person(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Nothing
- */
+ *//*
 function wimprt_process_type_author(&$node, $dom, &$log, $importer){
   wimprt_process_type_person($node, $dom, $log, $importer);
   // Send back the node
@@ -2779,7 +2780,7 @@ function wimprt_process_type_author(&$node, $dom, &$log, $importer){
  *
  * @return
  *   Array of cck_location element.
- */
+ *//*
 function _wimprt_address_dom_to_ccklocation($addresses, &$log, $location_name = NULL) {
 
   $address_line = array(); 

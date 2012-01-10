@@ -57,14 +57,14 @@ function wallyimporttme_create_or_load_message_tme($dom, &$log, $importer, $call
  */
 function wallyimporttme_process_messages($dom, &$log, $importer){
   $return = array();
-  module_invoke_all('wimprt_process_messages', $dom, $log, 'before_process');
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_messages', 'before_process');
   foreach ($dom->getElementsByTagName('Message') as $message_element){
     $return['messages'] = wallyimporttme_process_message($message_element, $log, $importer);
   }
-  module_invoke_all('wimprt_process_messages',$dom,$log,'after_process');
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_messages', 'after_process');
 
-  $return['log'] = $log;
-  return $return;
+  //To not browse the DOM
+  return FALSE;
 }
 
 /**
@@ -98,21 +98,18 @@ function wallyimporttme_process_message($dom, &$log, $importer, $callback = NULL
     $log['log'][] = 'process message: '.$dom->nodeName;
   }
   if ($node != NULL){
-    module_invoke_all('wimprt_process_message',$node,$dom,$log,'before_process');
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_message', 'before_process');
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
    
     $function_exist = FALSE;
     foreach ($importer->importer_functions as $importer_function){
-      if (function_exists($importer_function.'_process_object_'.$callback)){
-        call_user_func($importer_function."_process_object_".$callback, &$node, $object, &$log, $importer);
+      if (function_exists($importer_function.'_node_process_'.$callback)){
+        call_user_func($importer_function."_node_process_".$callback, &$node, $object, &$log, $importer);
         $function_exist = TRUE;
         break;
       } 
     }
-    if (function_exists("wimprt_process_object_".$callback)){
-      call_user_func("wimprt_process_object_".$callback, &$node, $object, &$log, $importer);
-    }
-    module_invoke_all('wimprt_process_message', $node, $dom, $log, 'after_process');
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_message', 'after_process');
   }
   if (!empty($node) && !isset($node->rejected)) {
     if ($preview) {

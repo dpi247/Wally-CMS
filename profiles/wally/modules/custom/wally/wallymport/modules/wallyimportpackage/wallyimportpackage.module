@@ -51,33 +51,32 @@ function wallyimportpackage_menu() {
  *   The DomDocument who is being proceed
  * @param $log
  *   The log object build recursively in different operation. this could track error in the process and build nodes
- *
+ * @param $importer
+ *   The importer object used to import
  * @return
  *   the log object
  */
 function wallyimportpackage_process_packages($dom, &$log, $importer){
-  $return = array();
-  module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
+  
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'before_process');
   foreach($dom->getElementsByTagName('Package') as $package_element){
-    $return = wallyimportpackage_process_package($package_element, $log, $importer);
+    wallyimportpackage_process_package($package_element, $log, $importer);
   }
-  module_invoke_all('wimprt_process_packages', $dom, $log, 'after_process');
-
-  $return['log'] = $log;
-  return $return;
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'after_process');
+  
+  //To not browse the DOM
+  return FALSE;
 }
-
 /*
- * hook_wimprt_process_package 
- */
-function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $importer){
-  if ($type == 'before_process'){
+* hook_wallymport_process
+*/
+function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+  if ($location == 'process_package' & $type == 'before_process'){
     if ($_SERVER['REQUEST_URI'] == '/wallymport/post/package/preview'){
       $importer->wallymport_preview = TRUE;
     }
   }
 }
-
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 
@@ -96,29 +95,29 @@ function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $im
  */
 function wallyimportpackage_process_package($dom, &$log, $importer, $callback = NULL) {
 
-  $callback = wimprt_set_callback($dom, $callback);
-  $node = wimprt_create_or_load($dom, $importer, 'package', $callback, $log);
-  $return = array();
+  $callback = wimprt_set_callback($dom, $importer, $callback);
+  $node = wimprt_node_create_or_load($dom, $importer, $callback, $log);
   //@todo: place in walymportlog module
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process package: '.$dom->nodeName;
   }
   
   if (!isset($node->rejected) & !isset($node->wallymport_delete)){
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process',$importer);
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'before_process');
   
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
-    if (function_exists("wallyimportpackage_process_package_".$callback)){
-      call_user_func("wallyimportpackage_process_package_".$callback, &$node, $dom, &$log, $importer);
+    if (function_exists("wallyimportpackage_node_process_".$callback)){
+      call_user_func("wallyimportpackage_node_process_".$callback, &$node, $dom, &$log, $importer);
     }
   
-    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'after_process');
   }
+
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
       ctools_include('object-cache');
-      
+
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
@@ -126,7 +125,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $return['content'] =  $content;
+      $log['content'] =  $content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
@@ -138,8 +137,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   }
 
   $log['node'] = array('current' => $node,'next' => $log['node']);
-  
-  return $return;
 }
 
 /**
@@ -155,11 +152,11 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_package_articlepackagetype($dom, &$log, $importer) {
+function wallyimportpackage_node_create_or_load_articlepackagetype($dom, &$log, $importer) {
   $node = new stdClass;
   $node->type = 'wally_articlepackage';
   $node->wallymport_node = TRUE;
-  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $importer);
+  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $log, $importer);
   return $node;
 }
 
@@ -175,7 +172,7 @@ function wallyimportpackage_create_or_load_package_articlepackagetype($dom, &$lo
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $importer){
+function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, &$log, $importer){
   
   $node_temporary = NULL;
   $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
@@ -194,8 +191,11 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
         node_delete($node_temporary->nid);
         $node->ext_ref = $ext_ref;
       } else {
-        drupal_set_message('The package doesn\'t exist. It can be deleted. Package rejected.','error');
+        $errog_msg = t('The package doesn\'t exist. It can be deleted. Package rejected.');
+        drupal_set_message($error_msg,'error');
         $node->rejected = TRUE;
+        $log['error'] = TRUE;
+        $log['error_msg'] = $error_msg;
       }
       $node->wallymport_delete = TRUE;
       break;
@@ -215,7 +215,10 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
       } else {
         $node->rejected = TRUE;
         $node->wallymport_delete = TRUE;
-        drupal_set_message('The package doesn\'t exist. It can ben updated. Package rejected.','error');
+        $error_msg = t('The package doesn\'t exist. It can ben updated. Package rejected.');
+        drupal_set_message($error_msg, 'error');
+        $log['error'] = TRUE;
+        $log['error_msg'] = $error_msg;
       }
       break;
     case 'Preview':
@@ -240,11 +243,11 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_package_gallerypackagetype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_gallerypackagetype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_gallerypackage';
   $node->wallymport_node = TRUE;
-  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $importer);
+  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $log, $importer);
   return $node;
 }
 
@@ -261,11 +264,11 @@ function wallyimportpackage_create_or_load_package_gallerypackagetype($dom, &$lo
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_package_pollpackagetype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_pollpackagetype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_pollpackage';
   $node->wallymport_node = TRUE;
-  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $importer);
+  wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $log, $importer);
   return $node;
 }
 
@@ -285,7 +288,7 @@ function wallyimportpackage_create_or_load_package_pollpackagetype($dom, &$log, 
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
@@ -327,7 +330,7 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
   $node->language = $dom_element->getAttributeNode("Language")->value;
   //jusque ici ok
   //Map XML element
-  wimprt_process_node_default($node, $dom_element, $log, $importer);
+  wimprt_node_process_fields($node, $dom_element, $log, $importer);
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')){
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
   }
@@ -349,7 +352,7 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
@@ -412,7 +415,7 @@ function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_elem
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &$log, $importer){
   
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
@@ -453,7 +456,7 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
   }
   
   //Map XML element
-  wimprt_process_node_default($node, $dom_element, $log, $importer);
+  wimprt_node_process_fields($node, $dom_element, $log, $importer);
   
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
@@ -474,7 +477,7 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_sourcexml(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_sourcexml(&$node, $dom, &$log, $importer){
   $dom_sourcexml = new DOMDocument();
   $node_sourcexml = $dom_sourcexml->importNode($dom, TRUE);
   $dom_sourcexml->appendChild($node_sourcexml);
@@ -498,7 +501,7 @@ function wallyimportpackage_set_field_sourcexml(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_packagetitle(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_packagetitle(&$node, $dom, &$log, $importer){
   $text = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($text);
 }
@@ -518,7 +521,7 @@ function wallyimportpackage_set_field_packagetitle(&$node, $dom, &$log, $importe
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_packagedescription(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_packagedescription(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_objectdescription[0]['value'] = _wimprthelp_plain_text($value);
 }
@@ -538,7 +541,7 @@ function wallyimportpackage_set_field_packagedescription(&$node, $dom, &$log, $i
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_internalreference(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_internalreference(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_internalreference[0]['value'] = _wimprthelp_plain_text($value);
 }
@@ -558,7 +561,7 @@ function wallyimportpackage_set_field_internalreference(&$node, $dom, &$log, $im
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_externalreference(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_externalreference(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_externalreference[0]['value'] = _wimprthelp_plain_text($value);
 }
@@ -578,7 +581,7 @@ function wallyimportpackage_set_field_externalreference(&$node, $dom, &$log, $im
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_embeddedobjectsorder(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_embeddedobjectsorder(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->embeddedobjectsorder = _wimprthelp_plain_text($value);
 }
@@ -598,7 +601,7 @@ function wallyimportpackage_set_field_embeddedobjectsorder(&$node, $dom, &$log, 
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_productid(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_productid(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_productid[0]['value'] = $value;
 }
@@ -618,7 +621,7 @@ function wallyimportpackage_set_field_productid(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer) {
+function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $importer) {
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process Destinations: '.$dom->nodeName;
   }
@@ -655,9 +658,10 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
 	} else {
 	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
       $node->rejected = '';
-      $log['error'] = TRUE;
-      $log['error_msg'] = t('No destination AT ALL for current package. Package rejected.');
-	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
+      $error_msg = t('No destination AT ALL for current package. Package rejected.');
+	  drupal_set_message($error_msg,'error');
+	  $log['error'] = TRUE;
+	  $log['error_msg'] = $error_msg;
 	  return '';
 	}
   } else {
@@ -681,7 +685,7 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
+function wallyimportpackage_node_set_field_editions(&$node, $dom, $log, $importer) {
   if (variable_get('wallymport_debug',0) or TRUE){
 	$log['log'][] = 'process Editions: '.$dom->nodeName;
   }
@@ -721,7 +725,7 @@ function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
       $node->field_editions = array(array("value"=>serialize($result)));
 	} else {
     //$node->rejected = '';
-	drupal_set_message('ALL Edition set to false. Package rejected','error');
+	drupal_set_message(t('ALL Edition set to false.'),'error');
 	// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
 	}
 		
@@ -746,7 +750,7 @@ function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
+function wallyimportpackage_node_set_field_channels(&$node, $dom, $log, $importer) {
 
   if (variable_get('wallymport_debug',0) or TRUE){
 	$log['log'][] = 'process Channels: '.$dom->nodeName;
@@ -762,9 +766,10 @@ function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
     $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
+    $error_msg = t('No channels found. Package rejected');
+    drupal_set_message($error_msg, 'error');
     $log['error'] = TRUE;
-    $log['error_msg'] = t('No channels found. Package rejected');
-    drupal_set_message('No channels found. Package rejected','error');
+    $log['error_msg'] = $error_msg;
     // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
   }
 }
@@ -784,7 +789,7 @@ function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_commentsallowed(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_commentsallowed(&$node, $dom, &$log, $importer){
   $result = COMMENT_NODE_DISABLED;
 
   switch ($dom->nodeValue) {
@@ -820,7 +825,7 @@ function wallyimportpackage_set_field_commentsallowed(&$node, $dom, &$log, $impo
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_freeaccess(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_freeaccess(&$node, $dom, &$log, $importer){
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
     $node->field_freeaccess[0]['value'] = NULL; 
@@ -842,7 +847,7 @@ function wallyimportpackage_set_field_freeaccess(&$node, $dom, &$log, $importer)
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_packagelayout(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_packagelayout(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_packagelayout = array();
 
@@ -878,7 +883,7 @@ function wallyimportpackage_set_field_packagelayout(&$node, $dom, &$log, $import
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_summary(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_summary(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
 }
@@ -898,7 +903,7 @@ function wallyimportpackage_set_field_summary(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_externaluri(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_externaluri(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_externaluri = array();
 
@@ -927,7 +932,7 @@ function wallyimportpackage_set_field_externaluri(&$node, $dom, &$log, $importer
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_packagecopyright(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_packagecopyright = array();
 
@@ -953,9 +958,9 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
+function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
-  $object = wimprt_process_object($dom, $log, $importer, 'TextObject');
+  $object = wimprt_node_process($dom, $log, $importer, 'TextObject');
   $node->field_mainstory[0]['nid'] = $object->nid;
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
@@ -977,17 +982,17 @@ function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) 
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer) {
+function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $importer) {
   if ($dom->hasAttribute('xsi:type')){
     $object = new stdClass;
     if (strtolower($dom->getAttributeNode('xsi:type')->value) == 'photoobjecttype')
-      $object = wimprt_process_object($dom, $log, $importer, 'photoobjecttype');
+      $object = wimprt_node_process($dom, $log, $importer, 'photoobjecttype');
     elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'audioobjecttype')
-      $object = wimprt_process_object($dom, $log, $importer, 'audioobjecttype');
+      $object = wimprt_node_process($dom, $log, $importer, 'audioobjecttype');
     elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'MultimediaObjectType')
-      $object = wimprt_process_object($dom, $log, $importer, 'digitalobjecttype');
+      $object = wimprt_node_process($dom, $log, $importer, 'digitalobjecttype');
     elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'videoobjecttype')
-      $object = wimprt_process_object($dom, $log, $importer, 'videoobjecttype');
+      $object = wimprt_node_process($dom, $log, $importer, 'videoobjecttype');
         
     if ($object->nid) {
       $node->field_mainobject[0]['nid'] = $object->nid;
@@ -1012,9 +1017,9 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_poll(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
-	$object = wimprt_process_object($dom, $log, $importer, 'pollobjecttype');
+	$object = wimprt_node_process($dom, $log, $importer, 'pollobjecttype');
 	$node->field_mainpoll[0]['nid'] = $object->nid;
 	if ($importer->wallymport_preview)
 	  $node->field_mainpoll_nodes[0] = $object;
@@ -1040,14 +1045,14 @@ function wallyimportpackage_set_field_poll(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
   // Embeded objects
   $results = array(); 
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
   $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
-  foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result){
+  foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result){
     if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
       $results[$result->nid] = $result->nid;
       $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
@@ -1071,7 +1076,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $linklist = $dom->getElementsByTagName('LinksList')->item(0);
   if ($dom->getElementsByTagName('LinksList')->item(0)){
     if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
-      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result){
+      foreach (wimprt_node_process_list($linklists, $log, $importer) as $result){
         if (!array_key_exists($result->nid, $links) || $importer->wallymport_preview) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
@@ -1128,7 +1133,7 @@ function wallyimportpackage_objecttype_preprocess(&$node, $dom, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_textobject($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_textobject($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_textobject';
   $node->wallymport_node = TRUE;
@@ -1159,11 +1164,11 @@ function wallyimportpackage_create_or_load_object_textobject($dom, &$log, $impor
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_textobject (&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_node_process_textobject (&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
-  wimprt_process_node_default($node, $dom_element, $log, $importer);
+  wimprt_node_process_fields($node, $dom_element, $log, $importer);
   //Exception for TextObject
   if ($dom_element->getElementsByTagName("TextTitle")->length) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
@@ -1189,7 +1194,7 @@ function wallyimportpackage_process_object_textobject (&$node, $dom_element, &$l
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_pollquestions(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $importer){
   $i = 0;
     
   foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
@@ -1233,7 +1238,7 @@ function wallyimportpackage_set_field_pollquestions(&$node, $dom, &$log, $import
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_pollobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_pollobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_pollobject';
   $node->wallymport_node = TRUE;
@@ -1265,13 +1270,13 @@ function wallyimportpackage_create_or_load_object_pollobjecttype($dom, &$log, $i
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_pollobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_pollobjecttype(&$node, $dom, &$log, $importer){
   
   static $proceed_file_path;
   //put common attribute
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  wimprt_process_node_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
    
  ///Exception for TextObject
   $date1 = NULL;
@@ -1298,7 +1303,7 @@ function wallyimportpackage_process_object_pollobjecttype(&$node, $dom, &$log, $
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_photoobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_photoobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_photoobject';
   $node->wallymport_node = TRUE;
@@ -1332,7 +1337,7 @@ function wallyimportpackage_create_or_load_object_photoobjecttype($dom, &$log, $
  * @todo
  *   Check variable name line 575, procced or proceed?
  */
-function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
@@ -1374,7 +1379,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
-  wimprt_process_node_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
 
   if ($dom->getElementsByTagName("Caption")->length) {
     $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
@@ -1403,7 +1408,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_audioobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_audioobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_audioobject';
   $node->wallymport_node = TRUE;
@@ -1434,7 +1439,7 @@ function wallyimportpackage_create_or_load_object_audioobjecttype($dom, &$log, $
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_audioobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_audioobjecttype(&$node, $dom, &$log, $importer){
 
   $value = $dom->nodeValue;
   
@@ -1458,7 +1463,7 @@ function wallyimportpackage_process_object_audioobjecttype(&$node, $dom, &$log, 
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
-  wimprt_process_node_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
   
   return $node;
 
@@ -1477,7 +1482,7 @@ function wallyimportpackage_process_object_audioobjecttype(&$node, $dom, &$log, 
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_videoobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_videoobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_videoobject';
   $node->wallymport_node = TRUE;
@@ -1508,7 +1513,7 @@ function wallyimportpackage_create_or_load_object_videoobjecttype($dom, &$log, $
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_videoobjecttype(&$node, $dom, &$log, $importer){
   static $procced_file_path;
   $value = $dom->nodeValue;
   
@@ -1525,7 +1530,7 @@ function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, 
   
   $node->field_link[0]['url'] = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   $node->field_link[0]['title'] = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
-  wimprt_process_node_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
   //$node->field_video3rdparty[0]['embed']=$dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_video3rdparty[0]['title']=$dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
   
@@ -1553,7 +1558,7 @@ function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, 
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_digitalobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_digitalobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_digitalobject';
   $node->wallymport_node = TRUE;
@@ -1584,7 +1589,7 @@ function wallyimportpackage_create_or_load_object_digitalobjecttype($dom, &$log,
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_digitalobjecttype(&$node, $dom, &$log, $importer){
 
   $value = $dom->nodeValue;
   
@@ -1603,7 +1608,7 @@ function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log
  
   //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
-  wimprt_process_node_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
   
   return $node;
 
@@ -1624,7 +1629,7 @@ function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_thumbnail(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_thumbnail(&$node, $dom, &$log, $importer){
   $thumbnail = $dom->nodeValue;
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail, '', $importer);
 }
@@ -1645,11 +1650,11 @@ function wallyimportpackage_set_field_thumbnail(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_type_link(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
   
   //$node->type='wally_linktype';
-  wimprt_process_type_default($node, $dom, $log, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
 
   $uri = $dom->getElementsByTagName('URI')->item(0);
   $uri_value = $uri->nodeValue;
@@ -1682,7 +1687,7 @@ function wallyimportpackage_process_type_link(&$node, $dom, &$log, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_linkslist($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_linkslist($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_linkslistobject';
   $node->wallymport_node = TRUE;
@@ -1710,7 +1715,7 @@ function wallyimportpackage_create_or_load_object_linkslist($dom, &$log, $import
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_type_link($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_link($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_linktype';
   //je pense qu'il faut enlever ca car les liens n'ont pas de tag ExternalReference
@@ -1741,11 +1746,11 @@ function wallyimportpackage_create_or_load_type_link($dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $importer){
-  wimprt_process_node_default($node, $dom, $log, $importer);
+function wallyimportpackage_node_process_linkslist(&$node, $dom, &$log, $importer){
+  wimprt_node_process_fields($node, $dom, $log, $importer);
 
   $links = $dom->getElementsByTagName("Links")->item(0);
-  foreach(wimprt_process_list($links, $log, $importer, 'type') as $result){
+  foreach(wimprt_node_process_list($links, $log, $importer) as $result){
     $node->field_links_list[]['nid'] = $result->nid;
   }
 }
@@ -1766,7 +1771,7 @@ function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $impor
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_title(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_title(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($value);
 }
@@ -1786,7 +1791,7 @@ function wallyimportpackage_set_field_title(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_rating(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_rating(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $vid = variable_get('wallymport_rating', NULL);
   $item = wallytoolbox_taxonomy_get_term_by_path($value, $vid);
@@ -1808,7 +1813,7 @@ function wallyimportpackage_set_field_rating(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_textbarette(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textarette[0]['value'] = $value;
 }
@@ -1828,7 +1833,7 @@ function wallyimportpackage_set_field_textbarette(&$node, $dom, &$log, $importer
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_textforetitle(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_textforetitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textforetitle[0]['value'] = $value;
 }
@@ -1848,7 +1853,7 @@ function wallyimportpackage_set_field_textforetitle(&$node, $dom, &$log, $import
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_texttitle(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_texttitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = $value;
 }
@@ -1868,7 +1873,7 @@ function wallyimportpackage_set_field_texttitle(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_textsubtitle(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_textsubtitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textsubtitle[0]['value'] = $value;
 }
@@ -1888,7 +1893,7 @@ function wallyimportpackage_set_field_textsubtitle(&$node, $dom, &$log, $importe
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_textchapo(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textchapo[0]['value'] = $value;
 }
@@ -1908,7 +1913,7 @@ function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_textbody(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_textbody(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textbody[0]['value'] = $value;
 }
@@ -1928,7 +1933,7 @@ function wallyimportpackage_set_field_textbody(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_extractmedium(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_extractmedium(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_extractmedium[0]['value'] = $value;
 }
@@ -1948,7 +1953,7 @@ function wallyimportpackage_set_field_extractmedium(&$node, $dom, &$log, $import
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_extractshort(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_extractshort(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_extractshort[0]['value'] = $value;
 }
@@ -1968,7 +1973,7 @@ function wallyimportpackage_set_field_extractshort(&$node, $dom, &$log, $importe
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_copyright(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_copyright(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_copyright[0]['value'] = $value;
 }
@@ -1988,7 +1993,7 @@ function wallyimportpackage_set_field_copyright(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_byline(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_byline(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_byline[0]['value'] = $value;
 }
@@ -2006,7 +2011,7 @@ function wallyimportpackage_set_field_byline(&$node, $dom, &$log, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_type_location($dom, $log, $importer){	
+function wallyimportpackage_node_create_or_load_location($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_location',NULL))) {
 	// TO DO FATAL :: No location taxonomy vocabulary
@@ -2061,7 +2066,7 @@ function wallyimportpackage_create_or_load_type_location($dom, $log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_type_location(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer){
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
 
   // UID
@@ -2129,7 +2134,7 @@ function wallyimportpackage_process_type_location(&$node, $dom, &$log, $importer
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_marker(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_marker(&$node, $dom, &$log, $importer){
 
   $node->field_markers = array(); 
 
@@ -2164,7 +2169,7 @@ function wallyimportpackage_set_field_marker(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_locations(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_locations(&$node, $dom, &$log, $importer){
 
   $node->field_locations = array(); 
 
@@ -2174,7 +2179,7 @@ function wallyimportpackage_set_field_locations(&$node, $dom, &$log, $importer){
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
-    $results[] = wimprt_process_type($terme, $log, $importer, 'location');
+    $results[] = wimprt_node_process($terme, $log, $importer, 'location');
   }
  
   // Get Location Taxonomy for all nodes.
@@ -2205,7 +2210,7 @@ function wallyimportpackage_set_field_locations(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_taxonomy(&$node, $dom, $log, $importer) {
+function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importer) {
   $result = array();
   if (variable_get('wallymport_debug',0) or TRUE) {
 	$log['log'][] = 'process Taxonomy: '.$dom->nodeName;
@@ -2243,7 +2248,7 @@ function wallyimportpackage_set_field_taxonomy(&$node, $dom, $log, $importer) {
   	          wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
   	        }
 	      }
-  		  wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+  		  wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
   		  if (!isset($node->nid)){
   		    $node->field_free_tags = array();
   		    $node->field_concepts = array();
@@ -2302,7 +2307,7 @@ function wallyimportpackage_set_field_taxonomy(&$node, $dom, $log, $importer) {
  * @return
  *   Nothing but modify $result
  */
-function wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
+function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
  // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
  // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
   $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
@@ -2381,7 +2386,7 @@ function wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result,
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_entities(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_entities(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
 	$log['log'][] = 'process Entities: '.$dom->nodeName;
@@ -2389,7 +2394,7 @@ function wallyimportpackage_set_field_entities(&$node, $dom, &$log, $importer){
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
-    $results[] = wimprt_process_type($terme, $log, $importer, 'entity');
+    $results[] = wimprt_node_process($terme, $log, $importer, 'entity');
   }
  
   // Get Location Taxonomy for all nodes.
@@ -2436,12 +2441,15 @@ function wallyimportpackage_typetype_preprocess(&$node, $dom, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_type_entity($dom, $log, $importer){	
+function wallyimportpackage_node_create_or_load_entity($dom, $log, $importer){	
 	
   if (!($vid = variable_get('wallymport_entity', NULL))) {
     // TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Entity Taxonomy Vocabulary not Found. See admin.','error');
+	$error_msg = t('Entity Taxonomy Vocabulary not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$node->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
 
@@ -2492,7 +2500,7 @@ function wallyimportpackage_create_or_load_type_entity($dom, $log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_type_entity(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_entity(&$node, $dom, &$log, $importer){
  
   
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
@@ -2529,7 +2537,7 @@ function wallyimportpackage_process_type_entity(&$node, $dom, &$log, $importer){
     if (variable_get('wallymport_debug',0) or TRUE){
 	  $log['log'][] = 'process Locations: '.$t->nodeName;
 	}
-	$results = wimprt_process_list($t->item(0), $log, 'type');
+	$results = wimprt_node_process_list($t->item(0), $log);
 	// Get Location Taxonomy for all nodes.
 	foreach ($results as $result) {
 	  if (isset($result->field_locationtaxonomy)) {
@@ -2561,7 +2569,7 @@ function wallyimportpackage_process_type_entity(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_persons(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importer){
   
   $node->field_persons = array(); 
 
@@ -2571,7 +2579,7 @@ function wallyimportpackage_set_field_persons(&$node, $dom, &$log, $importer){
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
-    $results[] = wimprt_process_type($terme, $log, $importer, 'person');
+    $results[] = wimprt_node_process($terme, $log, $importer, 'person');
   }
   // Get Location Taxonomy for all nodes.
   $node->field_persons = array();
@@ -2599,7 +2607,7 @@ function wallyimportpackage_set_field_persons(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_authors(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
 	$log['log'][] = 'process Authors: '.$dom->nodeName;
@@ -2607,7 +2615,7 @@ function wallyimportpackage_set_field_authors(&$node, $dom, &$log, $importer){
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
-    $results[] = wimprt_process_type($terme, $log, $importer, 'author');
+    $results[] = wimprt_node_process($terme, $log, $importer, 'author');
   }
   // Get Location Taxonomy for all nodes.
   $node->field_authors = array();
@@ -2633,12 +2641,15 @@ function wallyimportpackage_set_field_authors(&$node, $dom, &$log, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_type_person($dom, $log, $importer){	
+function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_person',NULL))) {
 	// TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Person Taxonomy Vocabulary  not Found. See admin.','error');
+	$error_msg = t('Person Taxonomy Vocabulary  not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$result->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
@@ -2684,12 +2695,15 @@ function wallyimportpackage_create_or_load_type_person($dom, $log, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_type_author($dom, $log, $importer){	
+function wallyimportpackage_node_create_or_load_author($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_author',NULL))) {
 	// TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Author Taxonomy Vocabulary  not Found. See admin.','error');
+	$error_msg = t('Author Taxonomy Vocabulary  not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$result->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
@@ -2738,7 +2752,7 @@ function wallyimportpackage_create_or_load_type_author($dom, $log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_type_person(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_person(&$node, $dom, &$log, $importer){
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
 
   // Node type
@@ -2824,8 +2838,8 @@ function wallyimportpackage_process_type_person(&$node, $dom, &$log, $importer){
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_type_author(&$node, $dom, &$log, $importer){
-  wallyimportpackage_process_type_person($node, $dom, $log, $importer);
+function wallyimportpackage_node_process_author(&$node, $dom, &$log, $importer){
+  wallyimportpackage_node_process_person($node, $dom, $log, $importer);
   // Send back the node
   return($node);
 
@@ -2894,7 +2908,34 @@ function _wallyimportpackage_address_dom_to_ccklocation($addresses, &$log, $loca
   }
   return $array_node;
 }
-
+/**
+ * Determine the next callback function from the Dom element
+ *
+ * If a callback is passed don't change else try to determine the next callback:
+ * - first try callbak associated with the xsi:type attribute.
+ * - second try the tag name if the xsi:type attribute doesn't exist.
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $callback
+ *   The callback passing as argument to the caller function
+ *   
+ * @return
+ *   The next callback
+ */
+function wallyimportpackage_set_callback($dom, $callback = NULL){
+  if (get_class($dom) == 'DOMElement'){
+    if ($callback == NULL){
+      if ($dom->hasAttribute('xsi:type')){
+        $callback = $dom->getAttributeNode('xsi:type')->value;
+      }
+      else{
+        $callback = $dom->nodeName;
+      }
+    }
+  }
+  return strtolower($callback);
+}
 /**
  * @} End of "defgroup wallymport.field".
  */
