@@ -99,6 +99,11 @@ function wallyextra_views_default_views() {
         'button' => 'Override',
       ),
     ),
+    'field_destinations_target' => array(
+      'id' => 'field_destinations_target',
+      'table' => 'node_data_field_destinations',
+      'field' => 'field_destinations_target',
+    ),
   ));
   $handler->override_option('filters', array(
     'status' => array(
