@@ -15,10 +15,10 @@ function theme_wallymport_logs($log){
     $content .= '<li> '.$log['error_msg'].'</li>';
     $content .= '</ul>';
   }
-  if (isset($log[0]['log']['log'])){
+  if (isset($log['log']['log'])){
     $content .= '<h3>'.t('Logs').'</h3>';
     $content .= '<ul>';
-    foreach ($log[0]['log']['log'] as $msg_log){
+    foreach ($log['log']['log'] as $msg_log){
       $content .=  '<li> '.$msg_log.'</li>';
     }
     $content .= '<ul>';

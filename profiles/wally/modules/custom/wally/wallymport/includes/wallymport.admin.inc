@@ -135,19 +135,19 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   );
   
   $form['wallymport']['processed_by_post'] = array(
-    '#type' => 'select',
-    '#title' => t('Are the data imported during POST?'),
+    '#type'        => 'select',
+    '#title'       => t('Are the data imported during POST?'),
     '#description' => t('Indicates if the data are processed during the POST?'),
-    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
-    '#required' => TRUE,
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
    $form['wallymport']['processed_by_cron'] = array(
-    '#type' => 'select',
-    '#title' => t('Are the data imported by a CRON job?'),
+    '#type'        => 'select',
+    '#title'       => t('Are the data imported by a CRON job?'),
     '#description' => t('Indicates if the data are processed by a CRON job?'),
-    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
-    '#required' => TRUE,
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
   $form['wallymport']['cron_frequency'] = array (
@@ -162,19 +162,27 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   $form['wallymport']['cron_keep_log'] = array (
     '#type'             => 'select',
     '#title'            => t('Keep CRON logs?'),
-    '#options' => array(t('No'),t('Yes')),
+    '#options'          => array(t('No'),t('Yes')),
     '#required'         => FALSE,
     '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
     '#process'          => array('ctools_dependent_process'),
   );
   
   $form['wallymport']['default_user'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Drupal user used for imports.'),
+    '#type'        => 'textfield',
+    '#title'       => t('Drupal user used for imports.'),
     '#description' => t('This user will be used as author for creating content.'),
-    '#size' => 3,
-    '#maxlength' => 8,
-    '#required' => TRUE,
+    '#size'        => 3,
+    '#maxlength'   => 8,
+    '#required'    => TRUE,
+  );
+  
+  $form['wallymport']['keep_log'] = array(
+    '#type'        => 'select',
+    '#title'       => t('Keep logs?'),
+    '#description' => t('If checked, the logs are saved in db'),
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save') );
@@ -330,7 +338,7 @@ function wallymport_page_admin(){
     $yesno = array(t('No'), t('Yes'));
     
     if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Logs'),t('Operations'));
+      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Operations'));
       $rows = array();
       foreach ($importers as $importer){
         $logs = '';
@@ -350,7 +358,6 @@ function wallymport_page_admin(){
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
           '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
-          '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
         );
       }
@@ -373,32 +380,14 @@ function wallymport_page_admin(){
 function wallymport_page_importer_logs($iid){
   $importer = wallymport_getimporter($iid);
   $logs = unserialize($importer->cron_log);
-  rsort($logs);
   $content = '';
-  foreach ($logs as $log){
-    $content .= theme('wallymport_logs', $log);
+  if ($logs != NULL){
+    rsort($logs);
+    foreach ($logs as $log){
+      $content .= theme('wallymport_logs', $log);
+    }
+  } else {
+    $content .= 'There is no log';
   }
   return $content;
-}
-/**
-* Importer logs
-* @param $iid
-* importer id
-* @return page content
-*/
-function wallymport_page_importerlogs($iid){
-  $importer = wallymport_getimporter($iid);
-  $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
-  $header = array('Date','Filename', 'Filelocation', 'Success', 'Message');
-  while ($obj = db_fetch_object($result)){
-    list($f1,$f2,$f3,$f4,$done,$filename) = explode('/', $obj->location);
-    $logs = unserialize($obj->log);
-    $success = 'TRUE';
-    if ($logs['error']){
-      $success = 'FALSE';
-    }
-    $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg']);
-  }
-  drupal_set_message(t('@num_rows packages in the logs', array('@num_rows' => sizeof($rows))));
-  return theme_table($header,$rows);
 }
