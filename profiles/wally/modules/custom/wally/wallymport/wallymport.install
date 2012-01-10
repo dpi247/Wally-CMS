@@ -138,6 +138,12 @@ function wallymport_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
+      'keep_log' => array(
+        'description' => 'Keep log',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
     ),
     'primary key' => array('iid'),//primary key
   );
@@ -202,6 +208,18 @@ function wallymport_update_6002(){
 
   if (!db_table_exists('wallymport_logs')) {
     db_create_table($ret, 'wallymport_logs', $schema);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function wallymport_update_6003(){
+  $schema = drupal_get_schema('wallymport_importer', TRUE);
+  $ret = array();
+  if (!db_column_exists('wallymport_importer', 'keep_log')){
+    db_add_field($ret, 'wallymport_importer', 'keep_log', $schema['fields']['keep_log']);
   }
   return $ret;
 }
