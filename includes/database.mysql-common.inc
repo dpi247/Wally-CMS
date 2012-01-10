@@ -35,26 +35,24 @@
 require_once './includes/database.mysql-replication.inc';
 
 function db_query($query) {
-	
   $args = func_get_args();
   array_shift($args);
   $unprefixed_query = $query;
-  
+
   $query = db_prefix_tables($query);
   if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
     $args = $args[0];
   }
   _db_query_callback($args, TRUE);
-  
-  
-  
-  $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
- // return _db_query($query);
 
-	
-   $run_on_slave = _db_is_slave_query($unprefixed_query, $query, $args);
-   return _db_query($query, FALSE, $run_on_slave);
+  $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
+  // return _db_query($query);
+
+  $run_on_slave = _db_is_slave_query($unprefixed_query, $query, $args);
+
+  return _db_query($query, FALSE, $run_on_slave);
 }
+
 /*
 function db_query($query) {
   $args = func_get_args();
@@ -67,7 +65,6 @@ function db_query($query) {
   $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
   return _db_query($query);
 }
-
 */
 
 /**
