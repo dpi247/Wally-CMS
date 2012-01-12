@@ -459,6 +459,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
+
   $form['pager_settings']['total_nodes_per_page'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['total_nodes_per_page'],
@@ -486,8 +487,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#size' => 4,
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
-      '#description' => t('The total count of this kind of splitted redacblocks in the page.'),
-  
+    '#description' => t('The total count of this kind of splitted redacblocks in the page.'),
   );
 
   $form['link_to_view'] = array(
