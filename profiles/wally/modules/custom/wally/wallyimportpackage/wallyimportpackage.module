@@ -62,7 +62,6 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
     $return = wallyimportpackage_process_package($package_element, $log, $importer);
   }
   module_invoke_all('wimprt_process_packages', $dom, $log, 'after_process');
-
   $return['log'] = $log;
   return $return;
 }
@@ -72,7 +71,8 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
  */
 function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $importer){
   if ($type == 'before_process'){
-    if ($_SERVER['REQUEST_URI'] == '/wallymport/post/package/preview'){
+    $uri = explode('/', $_SERVER['REQUEST_URI']);
+    if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
     }
   }
@@ -126,7 +126,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $return['content'] =  $content;
+      $return['content'] = $content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {

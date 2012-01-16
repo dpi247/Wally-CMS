@@ -445,6 +445,7 @@ function wallymport_process_folder($importer){
             $file_location = $importer->error_directory_path.'/'.$file->name;
           }
         }
+        file_delete($xml_file);
         $returns[] = $return;
         unset($return[0]['log']['node']);
         wallymport_save_log($importer, time(), $file_location, serialize($return));
@@ -521,6 +522,7 @@ function wallymport_process_file($importer, $file_name){
           $file_location = $importer->error_directory_path.'/'.$file->name;
         }
       }
+      file_delete($xml_file);
       $returns[] = $return;
       unset($return[0]['log']['node']);
       wallymport_save_log($importer, time(), $file_location, serialize($return));
@@ -583,15 +585,14 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * */
 function wallymport_post($importer_name){
   
-  $returns = array('error' => FALSE);
-  
+  $returns = NULL;
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
-    $returns['error'] = TRUE;
-    $returns['error_msg'] = t('This importer does not exist');
+    $error_msg  = t('This importer does not exist');
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   } elseif ($importer->processed_by_post != 1){
-    $returns['error'] = TRUE;
-    $returns['error_msg'] = t('This importer does not accept POST');
+    $error_msg = t('This importer does not accept POST');
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   } else {
     $nb_file = 0;
     $object_file = new stdClass();
@@ -605,31 +606,37 @@ function wallymport_post($importer_name){
     }
     
     if ($nb_file > 1){
-      $returns['error'] = TRUE;
-      $returns['error_msg'] = 'There is more than one file in the POST';
+      $error_msg = 'There is more than one file in the POST';
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } elseif ($nb_file == 0){
-      $returns['error'] = TRUE;
-      $returns['error_msg'] = 'There is no file in the POST';
+      $error_msg = 'There is no file in the POST';
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
       $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
-      if ($xml_file != NULL & !$returns['error']){
+      if ($xml_file != NULL & $returns == NULL){
         //Proccess xml
-        $returns = wallymport_page_process_file($xml_file, $importer);
+        $returns[] = wallymport_page_process_file($xml_file, $importer);
         //Move file 
-        if (!$returns['error']){
+        if (!$returns[0]['error']){
           if (!file_move($object_file->filename, $importer->done_directory_path)) {
-            $returns['error_msg'][] = t('An error occured during file copy to done directory.');
+            $returns[0]['error_msg'][] = t('An error occured during file copy to done directory.');
           } 
         } else {
           if (!file_move($object_file->filename, $importer->error_directory_path)) {
-            $returns['error_msg'][] = t('An error occured during file copy to done directory.');
+            $returns[0]['error_msg'][] = t('An error occured during file copy to done directory.');
           }
         }
+        file_delete($xml_file);
       }
     }
   }
-  $returns['date'] = time();
-  return theme('wallymport_logs', $returns).$returns[0]['content'];
+  $content = '';
+  foreach ($returns as $return){
+    $return['date'] = time();
+    $content .= theme('wallymport_logs', $return).$return['content'];
+  }
+  return $content;
+  
 }
 
 /**
@@ -755,17 +762,16 @@ function wallymport_page_process_file($xml_file, $importer){
         $function_exist = FALSE;
         foreach ($importer->importer_functions as $importer_function){
           if (function_exists($importer_function.'_process_'.$type)){
-            $return[] = call_user_func($importer_function."_process_".$type, $dom, &$log, $importer);
+            $return = call_user_func($importer_function."_process_".$type, $dom, &$log, $importer);
             $function_exist = TRUE;
             break;
           }
         }
         if ($function_exist == FALSE & function_exists('wimprt_process_'.$type)){
-          $return[] = call_user_func("wimprt_process_".$type, $dom, &$log, $importer);
+          $return = call_user_func("wimprt_process_".$type, $dom, &$log, $importer);
         }
         if ($return[0]['log']['error'] == TRUE){
-          $return['error'] = TRUE;
-          $return['error_msg'] = $return[0]['log']['error_msg'];
+          $return = array('error' => TRUE, 'error_msg' => $return[0]['log']['error_msg']);
         }
       }
     }
