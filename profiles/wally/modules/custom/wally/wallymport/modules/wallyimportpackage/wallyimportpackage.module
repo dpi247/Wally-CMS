@@ -72,7 +72,8 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
 */
 function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
   if ($location == 'process_package' & $type == 'before_process'){
-    if ($_SERVER['REQUEST_URI'] == '/wallymport/post/package/preview'){
+    $uri = explode('/', $_SERVER['REQUEST_URI']);
+    if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
     }
   }

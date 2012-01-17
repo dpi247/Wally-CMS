@@ -500,7 +500,7 @@ function wallymport_process_file($importer, $file_name){
     if ($xml_file != NULL & $returns == NULL){
       //Process the file
       $return = wallymport_process_xmlfile($xml_file, $importer);
-      wallymport_movefile($importer, $file, $xml_file, $return);
+      wallymport_movefiles($importer, $file, $xml_file, $return);
       $returns[] = $return;
     } else {
       wallymport_save_log($importer, time(), $importer->error_directory_path.'/'.$file->name, serialize($returns[0]));
@@ -566,11 +566,11 @@ function wallymport_post($importer_name){
   
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
-    $returns['error'] = TRUE;
-    $returns['error_msg'] = t('This importer does not exist');
+    $error_msg  = t('This importer does not exist');
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   } elseif ($importer->processed_by_post != 1){
-    $returns['error'] = TRUE;
-    $returns['error_msg'] = t('This importer does not accept POST');
+    $error_msg = t('This importer does not accept POST');
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   } else {
     $nb_file = 0;
     $object_file = new stdClass();
@@ -584,25 +584,29 @@ function wallymport_post($importer_name){
     }
     
     if ($nb_file > 1){
-      $returns['error'] = TRUE;
-      $returns['error_msg'] = 'There is more than one file in the POST';
+      $error_msg = 'There is more than one file in the POST';
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } elseif ($nb_file == 0){
-      $returns['error'] = TRUE;
-      $returns['error_msg'] = 'There is no file in the POST';
+      $error_msg = 'There is no file in the POST';
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
       $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
       if ($xml_file != NULL & !$returns['error']){
         //Proccess xml
         $return = wallymport_process_xmlfile($xml_file, $importer);
-        wallymport_movefile($importer, $file, $xml_file, $return);
+        wallymport_movefiles($importer, $file, $xml_file, $return);
         $returns[] = $return;
       } else {
         wallymport_save_log($importer, time(), $importer->error_directory_path.'/'.$file->name, serialize($returns[0]));
       }
     }
   }
-  $returns['date'] = time();
-  return theme('wallymport_logs', $returns).$returns[0]['log']['content'];
+  $content = '';
+  foreach ($returns as $return){
+    $return['date'] = time();
+    $content .= theme('wallymport_logs', $return).$return['content'];
+  }
+  return $content;
 }
 /**
 * Move files to their new directory and delete tmp files
