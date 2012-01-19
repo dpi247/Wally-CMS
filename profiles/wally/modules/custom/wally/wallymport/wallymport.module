@@ -604,7 +604,30 @@ function wallymport_post($importer_name){
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
-    
+    if($nb_file==0){
+      $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+      $file_name = 'wally_curl_input_'.rand();
+      $file_path = $temp.'/'.$file_name.'.'.$format;
+      $fwrite = TRUE;
+
+      $input = fopen('php://input', 'r');
+      $file = fopen($file_path, 'w');
+      while (!feof($input)) {
+        $fwrite = fwrite($file, fread($input, 1024));
+        if (!fwrite)
+        break;
+      }
+      fclose($input);
+      //$object_file=$file;
+      $object_file->name = $file_name;
+      $object_file->filename = $file_path;
+      $object_file->basename = $file_path;
+
+      fclose($file);
+
+      $nb_file=1;
+    }
+
     if ($nb_file > 1){
       $error_msg = 'There is more than one file in the POST';
       $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
