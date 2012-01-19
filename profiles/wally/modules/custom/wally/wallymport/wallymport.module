@@ -1163,7 +1163,7 @@ function wimprt_create_or_load($dom, $importer, $objecttype, $callback,&$log){
 }
 
 function wallymport_page_test(){
-  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/package/preview" method="POST">
+  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/packages/preview" method="POST">
         Choose a file to upload: <input name="uploadedfile" type="file" /><br />
         <input type="submit" value="Upload File" />
       </form>';
