@@ -131,7 +131,7 @@ function cckdestinations_action_info() {
 function cckdestinations_field_settings( $op, $field ){
   switch( $op ) {
     case 'database columns':
-      $columns['tid'] = array('type' => 'int', 'length' => 10, 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
+      $columns['tid'] = array('type' => 'int', 'length' => 10, 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0, 'index' => TRUE);
       $columns['target'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
       $columns['layout'] = array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'default' => '');
       $columns['rank'] = array('type' => 'int', 'size' => 'normal', 'not null' => FALSE, 'sortable' => TRUE, 'default' => 0);
