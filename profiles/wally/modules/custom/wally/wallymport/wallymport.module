@@ -507,6 +507,7 @@ function wallymport_process_file($importer, $file_name){
     if ($xml_file != NULL & $returns == NULL){
       //Process the file
       $return = wallymport_page_process_file($xml_file, $importer);
+      /*
       if ($return['error'] == FALSE){
         if (!file_move($file->filename, $importer->done_directory_path)) {
           $error_msg = t('An error occured during file copy to done directory.');
@@ -521,7 +522,7 @@ function wallymport_process_file($importer, $file_name){
         } else {
           $file_location = $importer->error_directory_path.'/'.$file->name;
         }
-      }
+      }*/
       file_delete($xml_file);
       $returns[] = $return;
       unset($return[0]['log']['node']);
@@ -899,6 +900,7 @@ function wallymport_getimporterbyname($name){
  *   The node object that has been build
  */
 function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
+
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, $importer, 'object', $callback, $log);
 /**
@@ -909,7 +911,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   }
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'before_process');
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
- 
+
   $function_exist = FALSE;
   foreach ($importer->importer_functions as $importer_function){
     if (function_exists($importer_function.'_process_object_'.$callback)){
@@ -924,7 +926,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   }
   
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'after_process');
-  
+
   if (!empty($node) && !$node->rejected){
     node_save($node);
   }

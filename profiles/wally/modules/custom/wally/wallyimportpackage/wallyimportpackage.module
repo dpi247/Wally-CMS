@@ -955,7 +955,7 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
  */
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
-  $object = wimprt_process_object($dom, $log, $importer, 'TextObject');
+  $object = wimprt_process_object($dom, $log, $importer, 'TextObjectType');
   $node->field_mainstory[0]['nid'] = $object->nid;
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
@@ -1128,7 +1128,7 @@ function wallyimportpackage_objecttype_preprocess(&$node, $dom, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_textobject($dom, &$log, $importer){
+function wallyimportpackage_create_or_load_object_textobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_textobject';
   $node->wallymport_node = TRUE;
@@ -1159,7 +1159,7 @@ function wallyimportpackage_create_or_load_object_textobject($dom, &$log, $impor
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_textobject (&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
