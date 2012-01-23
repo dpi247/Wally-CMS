@@ -3224,3 +3224,32 @@ function _wydit_ctools_include($modal = FALSE) {
   }
   ctools_include('object-cache');
 }
+
+function wallyedit_install_default_config() {
+  include_once './'.drupal_get_path('module', 'wallyedit').'/includes/install_default_config.inc';
+  global $wallyedit_fields, $wallyedit_groups, $wallyedit_profiles, $wallyedit_tabs, $wallyedit_variables;
+  drupal_get_schema('wallyedit_fields', TRUE);
+  wydit_install_default_table($wallyedit_fields, 'wallyedit_fields');
+  wydit_install_default_table($wallyedit_groups, 'wallyedit_groups');
+  wydit_install_default_table($wallyedit_profiles, 'wallyedit_profiles');
+  wydit_install_default_table($wallyedit_tabs, 'wallyedit_tabs');
+  foreach ($wallyedit_variables as $elem) {
+    drupal_write_record('variable', $elem);
+  }
+}
+
+function wydit_install_default_table($fields, $table) {
+  $field_placeholders = array();
+  foreach ($fields[0] as $field) {
+    if (is_numeric($field)) {
+      $field_placeholders[] = '%d';
+    } else {
+      $field_placeholders[] = '"%s"';
+    }
+  }
+  $field_placeholders = implode(', ', $field_placeholders);
+  $keys = implode(', ', array_keys($fields[0]));
+  foreach ($fields as $elem) {
+    db_query('INSERT INTO {'.$table.'} ('.$keys.') VALUES ('.$field_placeholders.')', array_values($elem));
+  }
+}
