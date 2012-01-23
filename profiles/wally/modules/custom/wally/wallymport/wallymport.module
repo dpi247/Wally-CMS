@@ -437,7 +437,7 @@ function wallymport_process_folder($importer){
     foreach ($files as $file) {
       //Unzip the file if its zipped
       $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-      if ($xml_file != NULL & $returns == NULL){
+      if ($xml_file != NULL){
         //Process the file
         $return = wallymport_process_xmlfile($xml_file, $importer);
         wallymport_movefiles($importer, $file, $xml_file, $return);
