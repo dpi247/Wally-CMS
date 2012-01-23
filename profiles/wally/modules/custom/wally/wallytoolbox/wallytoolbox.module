@@ -114,8 +114,9 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
         }
       }
 
-      if (in_array($form_id, $edit_forms))
+      if (in_array($form_id, $edit_forms)) {
         $form_to_alter = TRUE;
+      }
     }
     
     if ($form_to_alter) {
