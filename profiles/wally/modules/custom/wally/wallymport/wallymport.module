@@ -400,7 +400,7 @@ function wallymport_process_folder_cleanup() {
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
  * 
- * @param: $importer
+ * @param $importer
  *   Importer choose to process file
  * 
  * @return errors, logs
@@ -427,7 +427,7 @@ function wallymport_process_folder($importer){
     foreach ($files as $file) {
       //Unzip the file if its zipped
       $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-      if ($xml_file != NULL & $returns == NULL){
+      if ($xml_file != NULL){
         //Process the file
         $return = wallymport_page_process_file($xml_file, $importer);
         if ($return['error'] == FALSE){
@@ -480,7 +480,7 @@ function wallymport_save_log($importer, $date, $file_location, $log) {
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_page_process_file().
  * 
- * @param: $importer_name
+ * @param $importer_name
  *   Importer_name of the importer choose to process file
  * @param $file_name
  *   File name
@@ -774,7 +774,6 @@ function wallymport_page_process_file($xml_file, $importer){
     $dom->LoadXML($contents);
     $log = array();
     $return = array('error' => FALSE);
-
     if (!$dom->schemaValidate($importer->xsd_path)){
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
@@ -793,7 +792,7 @@ function wallymport_page_process_file($xml_file, $importer){
         if ($function_exist == FALSE & function_exists('wimprt_process_'.$type)){
           $return = call_user_func("wimprt_process_".$type, $dom, &$log, $importer);
         }
-        if ($return[0]['log']['error'] == TRUE){
+        if ($return['log']['error'] == TRUE){
           $return = array('error' => TRUE, 'error_msg' => $return[0]['log']['error_msg']);
         }
       }
