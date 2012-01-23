@@ -1333,6 +1333,7 @@ function wallyimportpackage_create_or_load_object_photoobjecttype($dom, &$log, $
  *   Check variable name line 575, procced or proceed?
  */
 function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
+
   static $procced_file_path;
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
@@ -1365,15 +1366,17 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, '', $importer);
     
-    
+  
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
+  
   if (empty($rdpartyMatch)){//No a 3rdparty
     $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
+
   wimprt_process_node_default($node, $dom, $log, $importer);
 
   if ($dom->getElementsByTagName("Caption")->length) {
@@ -1386,7 +1389,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
-
+  
   return $node;
 }
 
