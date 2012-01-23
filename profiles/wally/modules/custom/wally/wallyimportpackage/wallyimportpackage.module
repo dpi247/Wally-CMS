@@ -2140,7 +2140,7 @@ function wallyimportpackage_set_field_marker(&$node, $dom, &$log, $importer){
 	$log['log'][] = 'process Marker: '.$dom->nodeName;
   }
   $node->field_markers[0] = array();
-  $address = _wimprt_address_dom_to_ccklocation($dom->getElementsByTagName("Address"), $log);
+  $address = _wallyimportpackage_address_dom_to_ccklocation($dom->getElementsByTagName("Address"), $log);
   $node->field_markers[0] = $address[0];
   $node->field_markers[0]['name'] = $dom->getAttribute('Name');
   
