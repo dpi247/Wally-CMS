@@ -90,9 +90,9 @@ function wallyimporttme_process_message($dom, &$log, $importer, $callback = NULL
   list($callback,$rest) = explode('type', $callback);
   
   $node = wallyimporttme_create_or_load_message_tme($object, $log, $importer, $callback);
-  if ($callback != 'textobject'){
-    $callback .= 'type';
-  }
+
+  $callback .= 'type';
+  
   //@todo: place in walymportlog module
   if(variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process message: '.$dom->nodeName;

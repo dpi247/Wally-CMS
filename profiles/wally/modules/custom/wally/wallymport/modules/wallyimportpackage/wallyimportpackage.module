@@ -4,7 +4,16 @@
  * Implementation of hook_wallymport_importer 
  */
 function wallyimportpackage_wallymport_importer(){
-  return 
+  $importers = array();
+  $importers['wallyimportpackage'][] = array(
+    'importer_type'      => 'packages',
+    'importer_functions' => array(
+      'wallyimportpackage',
+    ),
+  );
+  
+  return $importers; 
+    /*
     array('wallyimportpackage' => array( 
       array(
   	    'importer_type' => 'packages',
@@ -14,7 +23,7 @@ function wallyimportpackage_wallymport_importer(){
         ),
       ),
     ),
-  );
+  );*/
 }
 
 /**
@@ -961,7 +970,7 @@ function wallyimportpackage_node_set_field_packagecopyright(&$node, $dom, &$log,
  */
 function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
-  $object = wimprt_node_process($dom, $log, $importer, 'TextObject');
+  $object = wimprt_node_process($dom, $log, $importer, 'textobjecttype');
   $node->field_mainstory[0]['nid'] = $object->nid;
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
@@ -1134,7 +1143,7 @@ function wallyimportpackage_objecttype_preprocess(&$node, $dom, $importer){
  * @return
  *   A node object
  */
-function wallyimportpackage_node_create_or_load_textobject($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_textobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_textobject';
   $node->wallymport_node = TRUE;
@@ -1165,7 +1174,7 @@ function wallyimportpackage_node_create_or_load_textobject($dom, &$log, $importe
  * @return
  *   Nothing
  */
-function wallyimportpackage_node_process_textobject (&$node, $dom_element, &$log, $importer){
+function wallyimportpackage_node_process_textobjecttype(&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
