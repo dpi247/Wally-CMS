@@ -295,6 +295,24 @@ function wallycontentypes_update_poll_cache (&$form, &$form_state) {
 }
 
 /**
+ * Implementation of hook_schema_alter()
+ * Add some indexes in tables
+ */
+function wallycontenttypes_schema_alter(&$schema) {
+  if (isset($schema['content_field_externalreference'])) {
+    $schema['content_field_externalreference']['indexes']['field_externalreference_value'] = array('field_externalreference_value');
+  }
+  if (isset($schema['files'])) {
+    $schema['files']['indexes']['Idx_filepath'] = array('filepath');
+  }
+}
+
+function wallycontenttypes_add_indexes(&$ret = array()) {
+  db_add_index($ret, 'content_field_externalreference', 'field_externalreference_value', array('field_externalreference_value'));
+  db_add_index($ret, 'files', 'Idx_filepath', array('filepath'));
+}
+
+/**
  * Insert additional template suggestions to wally specific theme functions.
  * This preprocess function could be set by any hook_theme.
  *
