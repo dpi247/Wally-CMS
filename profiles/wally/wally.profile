@@ -184,13 +184,22 @@ function wally_profile_tasks(&$task, $url) {
     // in the end, to avoid php execution timeout.
     foreach ( wally_feature_modules() as $feature ) {   
       $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
-      $batch['operations'][] = array('features_flush_caches', array()); 
+      $batch['operations'][] = array('features_flush_caches', array());
     }
+    
+    $batch['operations'][] = array('wallycontenttypes_add_indexes', array());
     
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       foreach ( wally_demo_feature_modules() as $feature ) {   
-        $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
-        $batch['operations'][] = array('features_flush_caches', array()); 
+        $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));
+        $batch['operations'][] = array('features_flush_caches', array());
+      }
+      if (isset($wally_install_config['wallyedit']) && $wally_install_config['wallyedit']) {
+        $batch['operations'][] = array('_install_module_batch', array('wallyedit', $files['wallyedit']->info['name']));
+        $batch['operations'][] = array('features_flush_caches', array());
+        if (isset($wally_install_config['wallyedit_config']) && $wally_install_config['wallyedit_config']) {
+          $batch['operations'][] = array('wallyedit_install_default_config', array());
+        }
       }
       $batch['operations'][] = array('_wally_install_menus', array());
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
@@ -893,10 +902,29 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#collapsed' => FALSE,
   );
   
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  
   $form['wally']['demo_content'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Install Demo content?'),
+    '#title' => t('Install demo content?'),
     '#description' => t('Do you want some demo content items?'),
+  );
+  
+  $form['wally']['wallyedit'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Install WallyEdit?'),
+    '#description' => t('Do you want to use WallyEdit as default node edition interface?'),
+    '#dependency' => array('edit-demo-content' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+  );
+  
+  $form['wally']['wallyedit_config'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Install WallyEdit demo configuration?'),
+    '#description' => t('This will create some edition profiles, organize your fields into tabs and groups, ...	'),
+    '#dependency' => array('edit-wallyedit' => array(1)),
+    '#process' => array('ctools_dependent_process'),
   );
   
   $form['#submit'][] = '_wally_install_form_submit';
