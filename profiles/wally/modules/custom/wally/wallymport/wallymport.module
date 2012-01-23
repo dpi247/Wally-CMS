@@ -507,7 +507,6 @@ function wallymport_process_file($importer, $file_name){
     if ($xml_file != NULL & $returns == NULL){
       //Process the file
       $return = wallymport_page_process_file($xml_file, $importer);
-      /*
       if ($return['error'] == FALSE){
         if (!file_move($file->filename, $importer->done_directory_path)) {
           $error_msg = t('An error occured during file copy to done directory.');
@@ -522,7 +521,7 @@ function wallymport_process_file($importer, $file_name){
         } else {
           $file_location = $importer->error_directory_path.'/'.$file->name;
         }
-      }*/
+      }
       file_delete($xml_file);
       $returns[] = $return;
       unset($return[0]['log']['node']);
