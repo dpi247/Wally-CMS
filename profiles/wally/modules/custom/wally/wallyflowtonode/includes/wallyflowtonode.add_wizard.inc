@@ -255,10 +255,13 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   unset($form['destinations']['field_destinations'][1]);
   unset($form['destinations']['field_destinations']['field_destinations_add_more']);
   
-  $importers = wallymport_getimporters();
   $importers_options = array();
-  foreach ($importers as $importer) {
-    $importers_options[$importer->name] = $importer->name;
+  if ($importers = wallymport_getimporters()) {
+    foreach ($importers as $importer) {
+      $importers_options[$importer->name] = $importer->name;
+    }
+  } else {
+    drupal_set_message(t('No importer defined, click !here to add a new one.', array('!here' => l(t('here'), 'admin/wally/wallymport/settings/add', array('query' => 'destination='.$_GET['q'])))), 'error');
   }
   $form['importer'] = array(
     '#type' => 'select',
@@ -267,6 +270,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
     '#options' => $importers_options,
     '#default_value' => $flow_item->importer,
     '#weight' => 20,
+    '#required' => TRUE,
   );
   
   // probably important -- i'm continuing to investigate
