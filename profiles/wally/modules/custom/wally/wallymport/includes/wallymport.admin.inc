@@ -158,7 +158,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
     '#process'          => array('ctools_dependent_process'),
   );
-  
+ 
   $form['wallymport']['cron_keep_log'] = array (
     '#type'             => 'select',
     '#title'            => t('Keep CRON logs?'),
@@ -179,7 +179,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   
   $form['wallymport']['keep_log'] = array (
     '#type'             => 'select',
-    '#title'            => t('Keep CRON logs?'),
+    '#title'            => t('Keep logs?'),
     '#options'          => array(t('No'), t('Yes')),
     '#required'         => TRUE,
   );
