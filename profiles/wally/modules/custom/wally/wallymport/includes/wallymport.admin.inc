@@ -159,15 +159,6 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#process'          => array('ctools_dependent_process'),
   );
   
-  $form['wallymport']['cron_keep_log'] = array (
-    '#type'             => 'select',
-    '#title'            => t('Keep CRON logs?'),
-    '#options'          => array(t('No'),t('Yes')),
-    '#required'         => FALSE,
-    '#dependency'       => array('edit-wallymport-processed-by-cron' => array(1)),
-    '#process'          => array('ctools_dependent_process'),
-  );
-  
   $form['wallymport']['default_user'] = array(
     '#type'        => 'textfield',
     '#title'       => t('Drupal user used for imports.'),
