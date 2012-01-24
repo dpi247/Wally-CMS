@@ -213,7 +213,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
         
         $tempFile = variable_get('wallymport_temp','').'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
-        $temp_return = wallymport_page_process_file($tempFile, $importer);
+        $temp_return = wallymport_process_xmlfile($tempFile, $importer);
         //file_delete($tempFile);
 
         if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {
@@ -221,7 +221,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
 
-        $text_to_return = !empty($temp_return) ? 'Import done' : 'Import error';
+        $text_to_return = $temp_return['error'] ? 'Import error ('.$temp_return['error_msg'].')' : 'Import done';
         $text_to_return .= ' for file : '.$tempFile;
         $return = $text_to_return;
       } else {
