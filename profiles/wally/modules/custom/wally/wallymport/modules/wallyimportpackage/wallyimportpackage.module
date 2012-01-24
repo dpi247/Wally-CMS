@@ -11,19 +11,15 @@ function wallyimportpackage_wallymport_importer(){
       'wallyimportpackage',
     ),
   );
-  
-  return $importers; 
-    /*
-    array('wallyimportpackage' => array( 
-      array(
-  	    'importer_type' => 'packages',
-  	    'importer_functions' => array(
-  		  'wallyimportpackage',
-          'autre',
-        ),
-      ),
+  $importers['wallyimportpackage'][] = array(
+    'importer_type'      => 'packagesV13',
+    'importer_functions' => array(
+      'wallyimportpackagev13',
+      'wallyimportpackage',
     ),
-  );*/
+  );
+  return $importers; 
+    
 }
 
 /**
@@ -1684,7 +1680,6 @@ function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
   }
 }
 
-
 /**
  * Create or load a links list object depending of external reference.
  * 
@@ -2946,6 +2941,219 @@ function wallyimportpackage_set_callback($dom, $callback = NULL){
     }
   }
   return strtolower($callback);
+}
+/**
+ * Wallymport V13
+ */
+/**
+* Process audio object from DOM.
+*
+* MAP fields of the audio object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportpackagev13_node_process_audioobjecttype(&$node, $dom, &$log, $importer){
+
+  $value = $dom->nodeValue;
+
+  //put common attributes
+  wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
+
+
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
+
+  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emaudio');
+  if (empty($rdpartyMatch)){
+    //No a 3rdparty
+    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
+  } else {//Is a 3rd party
+    $node->field_audio3rdparty[0]['embed'] = $file_uri;
+  }
+
+  //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+
+  return $node;
+
+}
+/**
+* Process digital object from DOM.
+*
+* MAP fields of the video object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportpackagev13_node_process_digitalobjecttype(&$node, $dom, &$log, $importer){
+
+  $value = $dom->nodeValue;
+
+  //put common attributes
+  wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
+
+
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
+  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emother');
+  if (empty($rdpartyMatch)){
+    //No a 3rdparty
+    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
+  } else {//Is a 3rd party
+    $node->field_object3rdparty[0]['embed'] = $file_uri;
+  }
+
+
+  //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+
+  return $node;
+
+}
+/**
+* Process photo object from DOM.
+*
+* MAP fields of the photo object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*
+*/
+function wallyimportpackagev13_node_process_photoobjecttype(&$node, $dom, &$log, $importer){
+
+  static $procced_file_path;
+  $c = array();
+  foreach($dom->getElementsByTagName('Crop') as $crop) {
+    if ($crop->hasAttribute("Type")) {
+      $type_name = $crop->getAttributeNode("Type")->value;
+      $type_array = imagecache_preset_by_name($type_name);
+      if (!empty($type_array)){
+        $c[$type_name][0] = $crop->getAttributeNode("X")->value;
+        $c[$type_name][1] = $crop->getAttributeNode("Y")->value;
+        $c[$type_name][2] = $crop->getAttributeNode("W")->value;
+        $c[$type_name][3] = $crop->getAttributeNode("H")->value;
+        $c[$type_name]["type"] = $type_array["presetid"];
+      }
+    }
+  }
+
+  $presets = (json_encode($c));
+  $node->field_croping[0]['value'] = $presets;
+
+  $value = $dom->nodeValue;
+
+  //put common attributes
+  wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
+
+  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
+
+  $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
+  $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
+
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, '', $importer);
+
+
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
+  
+  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');
+  if (empty($rdpartyMatch)){
+    //No a 3rdparty
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
+  } else {//Is a 3rd party
+    $node->field_photo3rdparty[0]['embed'] = $file_uri;
+  }
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+
+  if ($dom->getElementsByTagName("Caption")->length) {
+    $node->field_summary[0]["value"] = $dom->getElementsByTagName("Caption")->item(0)->nodeValue;
+  }
+  //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
+
+  return $node;
+}
+/**
+* Process video object from DOM.
+*
+* MAP fields of the video object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportpackagev13_node_process_videoobjecttype(&$node, $dom, &$log, $importer){
+  static $procced_file_path;
+  $value = $dom->nodeValue;
+
+  //put common attributes
+  wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
+
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
+  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emvideo');
+  if (empty($rdpartyMatch)){
+    //No a 3rdparty
+    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
+  } else {//Is a 3rd party
+    $node->field_video3rdparty[0]['embed'] = $file_uri;
+  }
+
+  $node->field_link[0]['url'] = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  $node->field_link[0]['title'] = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+  //$node->field_video3rdparty[0]['embed']=$dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  //$node->field_video3rdparty[0]['title']=$dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+
+  //Link
+  $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
+  $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
+  if ($link_title != NULL | $link_uri != NULL){
+    $node->field_link[0]['url'] = $link_uri;
+    $node->field_link[0]['title'] = $link_title;
+  }
+  return $node;
+
 }
 /**
  * @} End of "defgroup wallymport.field".

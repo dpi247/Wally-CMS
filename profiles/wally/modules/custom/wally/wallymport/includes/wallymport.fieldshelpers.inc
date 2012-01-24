@@ -220,6 +220,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
       $good_uri_host = str_replace($badcar, "_", $uri['host']);
       $file_temp_path = $temp_folder.'/'.$uri['host'];
       $file_dest_path = file_directory_path().'/'.rand().'_'.$good_uri_host;
+
       if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));

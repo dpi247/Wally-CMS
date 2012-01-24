@@ -179,7 +179,6 @@ function wallymport_cron(){
       if (!$return['error']){
         $importer->cron_timestamp = time();
       }
-      $return['date'] = time();
       drupal_write_record('wallymport_importer', $importer, array('iid'));
     }
   }
@@ -431,15 +430,19 @@ function wallymport_process_folder($importer){
     // Process each files from folder.
     foreach ($files as $file) {
       //Unzip the file if its zipped
-      $xml_file = wallymport_preprocess_file($file, $importer, $returns);
+      $return = NULL;
+      $xml_file = wallymport_preprocess_file($file, $importer, $return);
+      $file_location = '';
       if ($xml_file != NULL){
         //Process the file
         $return = wallymport_process_xmlfile($xml_file, $importer);
-        wallymport_movefiles($importer, $file, $xml_file, $return);
-        $returns[] = $return;
+        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        unset($return['log']['node']);
       } else {
-        wallymport_save_log($importer, time(), $importer->error_directory_path.'/'.$file->name, serialize($returns[0]));
+        $file_location = $importer->error_directory_path.'/'.$file->name;
       }
+      $returns[] = $return;
+      wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
   }
   return $returns;
@@ -491,15 +494,19 @@ function wallymport_process_file($importer, $file_name){
     $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   if ($returns == NULL){
-    $xml_file = wallymport_preprocess_file($file, $importer, $returns);
-    if ($xml_file != NULL & $returns == NULL){
+    $return = NULL;
+    $xml_file = wallymport_preprocess_file($file, $importer, $return);
+    $file_location = '';
+    if ($xml_file != NULL){
       //Process the file
       $return = wallymport_process_xmlfile($xml_file, $importer);
-      wallymport_movefiles($importer, $file, $xml_file, $return);
-      $returns[] = $return;
+      $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+      unset($return['log']['node']);
     } else {
-      wallymport_save_log($importer, time(), $importer->error_directory_path.'/'.$file->name, serialize($returns[0]));
+      $file_location = $importer->error_directory_path.'/'.$file->name;
     }
+    $returns[] = $return;
+    wallymport_save_log($importer, time(), $file_location, serialize($return));
   }
   return $returns;
 }
@@ -585,15 +592,19 @@ function wallymport_post($importer_name){
       $error_msg = 'There is no file in the POST';
       $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
-      $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
-      if ($xml_file != NULL & !$returns['error']){
+      $return = NULL;
+      $xml_file = wallymport_preprocess_file($object_file, $importer, $return);
+      $file_location = '';
+      if ($xml_file != NULL & $return == NULL){
         //Proccess xml
         $return = wallymport_process_xmlfile($xml_file, $importer);
-        wallymport_movefiles($importer, $file, $xml_file, $return);
-        $returns[] = $return;
+        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        unset($return['log']['node']);
       } else {
-        wallymport_save_log($importer, time(), $importer->error_directory_path.'/'.$file->name, serialize($returns[0]));
+        $file_location = $importer->error_directory_path.'/'.$file->name;
       }
+      $returns[] = $return;
+      wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
   }
   $content = '';
@@ -618,6 +629,7 @@ function wallymport_post($importer_name){
 *
 * */
 function wallymport_movefiles($importer, $file, $xml_file, $return){
+  $file_location = $importer->source_directory_path.'/'.$file->name;
   if ($return['error'] == FALSE){
     if (!file_move($file->filename, $importer->done_directory_path)) {
       $error_msg = t('An error occured during file copy to done directory.');
@@ -634,9 +646,8 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
     }
   }
   //save log in db
-  unset($return['log']['node']);
-  wallymport_save_log($importer, time(), $file_location, serialize($return));
   file_delete($xml_file);
+  return $file_location;
 }
 /**
  * Process one file.
@@ -649,10 +660,10 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
  *   Results of the import.
  * @return $xml_file (name of the xml file to process)
  */
-function wallymport_preprocess_file($file, &$importer, &$returns){
+function wallymport_preprocess_file($file, &$importer, &$return){
   
   if ($importer->zip == 1){
-    $xml_file = wallymport_preprocess_zip($file, $importer, $returns);
+    $xml_file = wallymport_preprocess_zip($file, $importer, $return);
   } else {
     $xml_file = $file->filename;
   }
@@ -671,7 +682,7 @@ function wallymport_preprocess_file($file, &$importer, &$returns){
  *   Results of the import.
  * @return $xml_file (name of the xml file to process)
  */
-function wallymport_preprocess_zip($file, &$importer, &$returns){
+function wallymport_preprocess_zip($file, &$importer, &$return){
   $xml_file = NULL;
   $zip_error = FALSE;
   $error_msg = FALSE;
@@ -691,11 +702,11 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
       if (count($import_files) == 0) {
         $zip_error = TRUE;
         $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
-        $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+        $return = array('error' => TRUE, 'error_msg' => $error_msg);
       } elseif (count($import_files) > 1) {
         $zip_error = TRUE;
         $error_msg = t('There is more than one XML file found in the import: !file', array('!file' => $file->basename));
-        $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+        $return = array('error' => TRUE, 'error_msg' => $error_msg);
       } else {
         // Yeah .. ready to ROCK & ROLL
         $import_file = reset($import_files);
@@ -705,12 +716,12 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
     } else {
       $zip_error = TRUE;
       $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
-      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+      $return = array('error' => TRUE, 'error_msg' => $error_msg);
     }
   } else {
     $zip_error = TRUE;
     $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
-    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+    $return = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   if ($zip_error) {
     if (!file_move($file->filename, $importer->error_directory_path)) {
