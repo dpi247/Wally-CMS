@@ -141,6 +141,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     } else {
       $node->wallymport_node = TRUE;
       node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'postsave');
     }
   } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
     wallycontenttypes_delete_orphans_objects($node);
