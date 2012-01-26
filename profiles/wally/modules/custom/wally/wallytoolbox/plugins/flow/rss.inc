@@ -98,8 +98,9 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
           
-          while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5']))
+          while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5'])) {
             $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+          }
           $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
           $new_feeds_md5 = array();
           $temp_struct_array = array();
@@ -206,7 +207,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
     $new_file_path = 'Flows/';
     $file_temp_dir = file_directory_path().'/'.$new_file_path;
     file_check_directory($file_temp_dir, 1);
-    $new_file_path .= $settings['caid'];
+    $new_file_path .= $feed_infos['caid'];
     $new_file_path .= '_'.date('Ymd', time());
     foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
       if ($object['type'] == 'PhotoObjectType') {

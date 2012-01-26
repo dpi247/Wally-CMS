@@ -194,10 +194,13 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
 function _wallyflowtonode_callonefeed(&$feed_infos) {
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
-    while(is_string($feed_infos['conf']))
+    while(is_string($feed_infos['conf'])) {
       $feed_infos['conf'] = unserialize($feed_infos['conf']);
-    while(is_string($feed_infos['feeds_md5']))
+    }
+    while(is_string($feed_infos['feeds_md5'])) {
       $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
+    }
+    $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
     $struct_array = $function($feed_infos);
 
     if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
