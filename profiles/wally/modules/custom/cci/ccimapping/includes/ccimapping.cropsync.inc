@@ -6,13 +6,26 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
   $form['xml'] = array(
     '#type' => 'textarea',
     '#title' => t('XML Cropings'),
-    '#default_value' => ccimapping_cropsync_get_cropings_fromWS(),
+    '#default_value' => ''//ccimapping_cropsync_get_cropings_fromWS(),
   );
 
   $form['send'] = array(
     '#type' => 'submit',
-    '#name'=>'send',
+    '#name' => 'send',
     '#value' => t('Save & Send to CCI'),
+  );
+  
+  $form['fyi'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('FYI, these are the current croping values'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#weight' => 999,
+  );
+  
+  $form['fyi']['markup'] = array(
+    '#type' => 'markup',
+    '#value' => '<pre>'.htmlentities(formatXmlString(ccimapping_cropsync_get_cropings_xml())).'</pre>',
   );
 
   return $form;
@@ -66,13 +79,13 @@ function ccimapping_cropsync_get_cropings_fromWS() {
   return $result->return;
 }
 
-/*function ccimapping_cropsync_get_cropings_xml() {
+function ccimapping_cropsync_get_cropings_xml() {
   $dom = new DOMDocument('1.0', 'UTF-8');
   $imageSettings = $dom->appendChild($dom->createElement('imageSettings'));
   $imageSettings->setAttribute('xmlns:cci', 'http://cci/extension/integration');
   
   $crops = ccimapping_cropsync_get_crops();
-  
+
   foreach ($crops as $crop) {
     $cropSetting = $imageSettings->appendChild($dom->createElement('cropSetting'));
     $cropSetting->setAttribute('id', $crop['id']);
@@ -115,7 +128,7 @@ function ccimapping_cropsync_get_crops() {
   return $crops;
 }
 
-function ccimapping_cropsync_set_cropings_xml($req_xml) {
+/*function ccimapping_cropsync_set_cropings_xml($req_xml) {
   $dom = new DOMDocument();
   $dom->loadXML($req_xml);
   $crops_settings = $dom->getElementsByTagName('cropSetting');
