@@ -1878,9 +1878,7 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
  */
 function _cckdestinations_reorder_values($field, &$items) {
   if (isset($items) && !empty($items)) {
-    if (isset($items[0]['_weight'])) {
-      $items = _content_sort_items($field, $items);
-    }
+    $items = _content_sort_items($field, $items);
   }
 }
 
