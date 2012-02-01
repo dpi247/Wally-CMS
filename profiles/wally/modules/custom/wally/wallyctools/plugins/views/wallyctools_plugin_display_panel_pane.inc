@@ -10,9 +10,57 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
    */
   var $panel_pane_display = TRUE;
   var $has_pane_conf = NULL;
-
+  function additional_theme_functions() {
+    $funcs = array();
+    if (!empty($this->definition['additional themes'])) {
+      foreach ($this->definition['additional themes'] as $theme => $type) {
+        $funcs[] = views_theme_functions($theme, $this->view, $this->display);
+      }
+    }
+    return $funcs;
+  }
+  /*
+  function theme_functions() {
+    $funcs=parent::theme_functions();
+    dsm($funcs);
+    $new_funcs=array();
+    foreach($funcs as $func){
+      //dsm($func);
+      if($func!='views_view__' and isset($this->view->split_index_count)){
+        $needle=str_replace('views_view','',$func);
+        if($needle==''){
+          $new_funcs[]='views_view__splitted_redacblock';
+          if($this->view->split_index_count==1);
+            $new_funcs[]='views_view__splitted_redacblock__first';
+          if($this->view->split_index_count==$this->view->split_total_count);
+            $new_funcs[]='views_view__splitted_redacblock__last';
+          
+        }
+        else{
+          
+           $new_funcs[]='views_view__splitted_redacblock'.$needle;
+          if($this->view->split_index_count==1);
+            $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
+          if($this->view->split_index_count==$this->view->split_total_count);
+            $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
+          
+        }
+        
+        
+      }
+    }
+    $result= array_merge($new_funcs,parent::theme_functions());
+    dsm($result);
+    return $result;
+  }
+  */
+  
   //set default options for this dispalay
   function option_definition() {
+    
+    
+    
+    
     $options = parent::option_definition();
     
     $options['row_plugin']['default'] = 'node';

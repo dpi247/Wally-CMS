@@ -10,6 +10,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
  /*
   *  Set default options
   */
+          
   function additional_theme_functions() {
     $funcs = array();
     if (!empty($this->definition['additional themes'])) {
@@ -32,7 +33,6 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
         } 
       }
     }
-
     return $funcs;
   }
   
@@ -127,9 +127,10 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       }
     }
     foreach ($this->view->result as $row) {
-      $rows.= $this->row_plugin->render($row);
+      $rows[]= $this->row_plugin->render($row);
     }
-    return $rows;
+    $output .= theme($this->theme_functions(), $this->view, $this->options, $rows, $title);
+    return $output;
     //return theme($this->theme_functions(), $this->view, $this->options, $rows);
   }
 }

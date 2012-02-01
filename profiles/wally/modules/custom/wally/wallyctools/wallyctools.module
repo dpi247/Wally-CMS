@@ -1,6 +1,7 @@
 <?php
 // $Id: wallyctools.module,v 1.1.2.2 2010/07/23 21:47:20 merlinofchaos Exp $
 
+
 /**
  * @file
  * wallyctools module
@@ -18,12 +19,12 @@
  */
 function wallyctools_menu() {
   $items = array();
-  
+
   $base = array(
     'file' => 'includes/wallyctools.reorder.inc',
     'access arguments' => array('administer nodes'),
   );
-  
+
   $items['admin/wally/wallyctools'] = $base + array(
     'title'                         => t('Reorder and manipulate'),
     'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
@@ -37,7 +38,7 @@ function wallyctools_menu() {
     'page arguments'                => array(),
     'type'                          => MENU_DEFAULT_LOCAL_TASK,
   );
-  
+
   $items['admin/wally/wallyctools-operations/reorder/%/%/%'] = $base + array(
     'title'                         => t('Reorder'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
@@ -45,7 +46,7 @@ function wallyctools_menu() {
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 0,
   );
-  
+
   $items['admin/wally/wallyctools-operations/batchoperations/%/%/%'] = $base + array(
     'title'                         => t('Batch operations'),
     'page callback'                 => 'wallyctools_page_destination_batch_operations',
@@ -76,6 +77,51 @@ function wallyctools_form_alter($form, $form_state, $form_id) {
  * we haven't got a chance to load that file before Drupal builds the
  * node portion of the theme registry.
  */
+function wallyctools_preprocess_views_view(&$vars){
+  $funcs=_views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
+
+  $new_funcs=array();
+  if($vars['view']->split_index_count){
+
+    foreach($funcs as $func){
+      if($func!='views_view__' and isset($vars['view']->split_index_count) and $vars['view']->split_index_count!=''and $vars['view']->split_index_count!=NULL){
+
+        $needle=str_replace('views_view','',$func);
+        if($needle==''){
+
+          $new_funcs[]='views_view__splitted_redacblock';
+          if($vars['view']->split_index_count==1){
+            $new_funcs[]='views_view__splitted_redacblock__first';
+          }
+          if($vars['view']->split_index_count==$vars['view']->split_total_count){
+            $new_funcs[]='views_view__splitted_redacblock__last';
+          }
+        }
+        else{
+          $new_funcs[]='views_view__splitted_redacblock'.$needle;
+          if($vars['view']->split_index_count==1){
+            $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
+          }
+          if($vars['view']->split_index_count==$vars['view']->split_total_count){
+            $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
+          }
+
+
+        }
+
+
+      }
+    }
+  }
+  $result= array_merge($new_funcs,$funcs);
+  $vars['template_files']= array_merge($result,$vars['template_files']);
+
+   
+
+
+
+
+}
 function wallyctools_preprocess_node(&$vars) {
   if (isset($vars['node']->node_view_destination)) {
     $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination);
@@ -99,15 +145,15 @@ function wallyctools_preprocess_node(&$vars) {
   }
 
   if (isset($vars['node_view_destination']) && $vars['node_view_destination'] <> "" && !empty($vars['node_view_destination'])) {
-		static $global_count = array();
-		if(!isset($global_count[$vars['node_view_destination']][$vars['node_view_target'][0]])) {
-			$global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]=0;
-	 	} else {
-	 		$global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]++;
-	 	}
-		$vars["global_index"] = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
-		$vars["node"]->global_index = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
-	}
+    static $global_count = array();
+    if(!isset($global_count[$vars['node_view_destination']][$vars['node_view_target'][0]])) {
+      $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]=0;
+    } else {
+      $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]]++;
+    }
+    $vars["global_index"] = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
+    $vars["node"]->global_index = $global_count[$vars['node_view_destination']][$vars['node_view_target'][0]];
+  }
 }
 
 function wallyctools_ctools_plugin_api($owner, $api) {
@@ -161,11 +207,11 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
 
   foreach ($items as $item) {
     $rows[] = array(
-      check_plain($item->admin_title),
-      array(
+    check_plain($item->admin_title),
+    array(
         'data' => l(t('Edit'), "admin/build/wallyctools/list/$item->name/edit"),
         'class' => 'links',
-      ),
+    ),
     );
 
     // Only show 10.
@@ -412,7 +458,7 @@ function wallyctools_theme() {
   return array(
     'wallyctools_form_reorder_destination_form' => $base + array(
       'arguments' => array('form' => array()),
-    ),
+  ),
   );
 }
 
@@ -449,7 +495,7 @@ function wallyctools_initial_setup(){
 
 /**
  * Prepare a view to be used in a redacblock.
- * 
+ *
  * This also allow other modules to get node results just like a redacblock would get.
  */
 function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_name, $args, $conf) {
@@ -464,7 +510,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
     'expose' => array(
       'operator' => FALSE,
       'label' => '',
-    ),
+  ),
     'relationship' => 'none',
   );
 
@@ -480,9 +526,9 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
   if (!$view->display_handler->access($GLOBALS['user'])) {
     return FALSE;
   }
-  
+
   $view->set_arguments($args);
-  
+
   if ($conf['url']) {
     $view->override_path = $conf['url'];
   }
@@ -526,7 +572,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
       else{
         $page=0;
       }
-      
+
       $view->display_handler->set_option('pager_element', $conf['pager_id']);
       $view->set_pager_element($conf['pager_id']);
       $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
@@ -534,6 +580,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
       $view->display_handler->set_option('offset', $conf['offset']);
       $view->set_offset($conf['offset']+$page*$conf['nodes_per_page']);
       $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
+      $view->coco='toto';
     }
   }
   return TRUE;

@@ -33,7 +33,7 @@ $plugin = array(
     'args' => '',
     'url' => '',
     'required context' => new ctools_context_required(t('Term'), 'term'),
-  ),
+),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   'edit text' => t('Edit'),
   'all contexts' => TRUE,
@@ -88,10 +88,10 @@ function _wallyctools_default_content_type() {
       'wallyctools_redacblock_content_type_edit_form' => array(
         'default' => TRUE, // put wrapper here, not on the previous form.
         'title' => t('Override settings of the redacblock'),
-      ),
-    ),
+  ),
+  ),
   );
-  
+
   return $plugin;
 }
 
@@ -167,15 +167,8 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
       $settings = $conf;
       $settings['redacblock_type'] = 'local';
     }
+
   }
-
-  /*
-   //SET GLOBAL SETTINGS
-   $settings['item'] = $conf['item'];
-   $settings['offset'] = $conf['offset'];
-   $settings['title_override'] = $conf['title_override'];
-   */
-
   return $settings;
 }
 
@@ -231,6 +224,7 @@ function _wallyctools_views_conf(&$conf, $subtype) {
       $conf['offset'] = $view->display_handler->get_option('offset');
     }
   }
+
   return $view;
 }
 
@@ -241,7 +235,6 @@ function _wallyctools_views_conf(&$conf, $subtype) {
 function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args, $contexts) {
   views_include('view');
   ctools_include('redac_view','wallyctools','includes');
-   
   $conf = wallyctools_redacblock_content_type_get_conf(wallyctools_redacblock_content_type_content_type($subtype), $conf);
   $redacblock_name = $conf['content']->name;
   if (!is_array($contexts)) {
@@ -260,11 +253,11 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   }
 
   // if (isset($panel_args)) {
-    foreach ($panel_args as $id => $arg) {
-      if (is_string($arg)) {
-        $args = str_replace("@$id", $arg, $args);
-      }
+  foreach ($panel_args as $id => $arg) {
+    if (is_string($arg)) {
+      $args = str_replace("@$id", $arg, $args);
     }
+  }
   //}
   $args = preg_replace(',/?(%\d|@\d),', '', $args);
   $args = $args ? explode('/', $args) : array();
@@ -289,13 +282,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-  
+
   if($conf['hide_pager']){
     $view->hide_pager=TRUE;
   }
   $view->split_index_count=$conf['split_index_count'];
   $view->split_total_count=$conf['split_total_count'];
- 
+
   if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
     $block = new stdClass();
     $block->module = 'views';
@@ -308,7 +301,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     if (!empty($conf['more_link'])) {
       $block->more = array('href' => $view->get_url());
     }
-    
+
     $stored_feeds = drupal_add_feed();
     $block->content = $view->preview();
     $block->title = $view->get_title();
@@ -364,8 +357,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   foreach ($form_state['contexts'] as $context) {
     foreach (ctools_context_get_converters('%' . check_plain($context->keyword) . ':', $context) as $keyword => $title) {
       $rows[] = array(
-        check_plain($keyword),
-        t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
+      check_plain($keyword),
+      t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
       );
     }
   }
@@ -408,7 +401,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
       '#value' => '<div>' . t('<strong>Warning: </strong> This view has AJAX enabled. Overriding the pager settings will work initially, but when the view is updated via AJAX, the original settings will be used. You should not override pager settings on Views with the AJAX setting enabled.') . '</div>',
     );
   }
-  
+
   $form['pager_settings']['use_pager'] = array(
     '#prefix' => '<div class="container-inline">',
     '#type' => 'checkbox',
@@ -418,7 +411,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
-  
+
   $form['pager_settings']['pager_id'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['pager_id'],
@@ -435,7 +428,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#type' => 'textfield',
     '#default_value' => $conf['nodes_per_page'],
     '#size' => 4,
-    '#title' => t('Num posts'),
+    '#title' => t('Number of posts displayed on this block'),
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
@@ -469,7 +462,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
   );
-  
+
   $form['pager_settings']['split_index_count'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['split_index_count'],
@@ -544,7 +537,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
       '#default_value' => $conf['title'],
       '#title' => t('Title'),
     );
-    
+
     $form['block']['view'] = array(
       '#type' => 'select',
       '#options'=> wallyctools_get_redac_view_options(),
@@ -640,7 +633,7 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
   $form_state['conf']['context'] = $form_state['values']['context'];
-  
+
   //CASE 1: Adding an existing redac block.
   if ($form_state['settings']['redacblock_type'] == 'fixed') {
     _wallyctools_redacblock_content_type_edit_save($form_state['settings']['content'], $form_state);
@@ -667,6 +660,8 @@ function wallyctools_redacblock_content_type_edit_form_submit(&$form, &$form_sta
       }
     }
   }
+  $form_state['conf']['split_index_count'] = $form_state['values']['split_index_count'];
+  $form_state['conf']['split_total_count'] = $form_state['values']['split_total_count'];
 
   foreach (array_keys($form_state['plugin']['defaults']) as $key) {
     if (isset($form_state['values'][$key])) {
@@ -693,24 +688,24 @@ function redacblock_new_redacblock_form($form,$form_state){
     '#type' => 'textfield',
     '#title' => t('Title'),
   );
-  
-  /*$form['block']['view'] = array(
-    '#type' => 'select',
-    '#options'=> wallyctools_get_redac_view_options(),
-    '#title' => t('view associated with the block'),
-    '#required'=>true,
-  );
 
-  $form['substitute'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Use context keywords'),
-    '#description' => t('If checked, context keywords will be substituted in this content.'),
-  );*/
+  /*$form['block']['view'] = array(
+   '#type' => 'select',
+   '#options'=> wallyctools_get_redac_view_options(),
+   '#title' => t('view associated with the block'),
+   '#required'=>true,
+   );
+
+   $form['substitute'] = array(
+   '#type' => 'checkbox',
+   '#title' => t('Use context keywords'),
+   '#description' => t('If checked, context keywords will be substituted in this content.'),
+   );*/
 
   return $form;
 }
 
 /*function redacblock_new_redacblock_form_submit($form,$form_state){
-   $redacblock_export=new wallyctools_ui();
-   $redacblock_export->edit_form_submit(&$form, &$form_state);
-}*/
+ $redacblock_export=new wallyctools_ui();
+ $redacblock_export->edit_form_submit(&$form, &$form_state);
+ }*/
