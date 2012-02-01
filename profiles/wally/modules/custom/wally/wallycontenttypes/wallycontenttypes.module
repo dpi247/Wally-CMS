@@ -265,12 +265,12 @@ function wallycontenttypes_preprocess_node(&$variables) {
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
   if (isset($form['type']) && isset($form['#node'])) {
     switch ($form_id) {
-      case "wally_photoobject_node_form":
+      case 'wally_photoobject_node_form':
         _wallycontenttypes_addcroppinglink($form, $form_state, $form_id);
         break;
-      case "wally_articlepackage_node_form":
-      case "wally_gallerypackage_node_form" :
-      case "wally_pollpackage_node_form":
+      case 'wally_articlepackage_node_form':
+      case 'wally_gallerypackage_node_form' :
+      case 'wally_pollpackage_node_form':
         _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
         break;
     }
