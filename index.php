@@ -14,9 +14,9 @@
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
-if(arg(0)=='taxonomy' and arg(1)=='term'){
-  $menu_item=menu_get_item();
-  if($menu_item['page_callback']!='page_manager_term_view'){
+if(arg(0) == 'taxonomy' && arg(1) == 'term') {
+  $menu_item = menu_get_item();
+  if($menu_item['page_callback'] != 'page_manager_term_view') {
     menu_rebuild();
     //variable_set('site_offline',TRUE);
   }
@@ -28,9 +28,8 @@ $return = menu_execute_active_handler();
 if (is_int($return)) {
   switch ($return) {
     case MENU_NOT_FOUND:
-      header("Location: /404.html"); 
-      //drupal_not_found();
-     break;
+      drupal_not_found();
+      break;
     case MENU_ACCESS_DENIED:
       drupal_access_denied();
       break;
