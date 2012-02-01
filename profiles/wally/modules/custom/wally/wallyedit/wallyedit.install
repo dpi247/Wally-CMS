@@ -4,7 +4,7 @@
  * Implementation of hook_enable()
  */
 function wallyedit_enable(){
-  drupal_rebuild_theme_registry();
+  //drupal_rebuild_theme_registry();
 }
 
 /**
@@ -16,7 +16,7 @@ function wallyedit_install() {
   db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
   db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
   drupal_install_schema('wallyedit');
-  drupal_rebuild_theme_registry();
+  //drupal_rebuild_theme_registry();
 }
 
 /**
@@ -24,7 +24,10 @@ function wallyedit_install() {
  */
 function wallyedit_uninstall() {
   drupal_uninstall_schema('wallyedit');
-  wallytoolbox_variable_del_like('wallyedit_');
+
+  // Delete all variables beginning with "wallyedit_"
+  db_query("DELETE FROM {variable} WHERE name LIKE '%s%'", 'wallyedit_');
+  variable_cache_rebuild();
   
   $ret = array();
   db_drop_field($ret, 'users', 'wydit_default_profile');

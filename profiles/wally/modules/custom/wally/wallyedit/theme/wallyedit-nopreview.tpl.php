@@ -1,6 +1,2 @@
-<?php
-// $Id
-?>
-
 <br />
-<h1>Pas de preview disponible.</h1>
+<h1><?php print t('No preview available'); ?></h1>
