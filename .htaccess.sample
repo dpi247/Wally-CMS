@@ -76,16 +76,13 @@ DirectoryIndex index.php
     # fail if an error occurs early in the bootstrap process, and it may cause
     # problems if a non-Drupal PHP file is installed in a subdirectory.
     ExpiresActive Off
-    
-     # On optimise le chargement des images. On ne passe pas par PHP pour chercher des images...
-
   </FilesMatch>
 </IfModule>
 
 # Various rewrite rules.
 <IfModule mod_rewrite.c>
   RewriteEngine on
- 
+
   # If your site can be accessed both with and without the 'www.' prefix, you
   # can use one of the following settings to redirect users to your preferred
   # URL, either WITH or WITHOUT the 'www.' prefix. Choose ONLY one option:
@@ -116,8 +113,6 @@ DirectoryIndex index.php
   RewriteCond %{REQUEST_URI} \.(gif|jpg|jpeg|css|js|txt|xml|png)$ [NC]
   RewriteCond %{REQUEST_URI} !^.*imagecache.*$
   RewriteRule .* - [L]
-
-
 
   # Rewrite URLs of the form 'x' to the form 'index.php?q=x'.
   RewriteCond %{REQUEST_FILENAME} !-f
