@@ -219,8 +219,8 @@ function cckdestinations_content_is_empty($item, $field) {
     $extract_tid = cckdestinations_autocomplete_split_tags($item['tid']);
     $item['tid'] = $extract_tid[0];
   }
-  
-  if (!isset($item['tid']) || empty($item['tid']) || $item['tid']=='0' || !is_numeric($item['tid'])) {
+
+  if (!isset($item['tid']) || empty($item['tid']) || $item['tid'] == '0' || !is_numeric($item['tid'])) {
     return TRUE;
   }
   return FALSE;
@@ -316,10 +316,16 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
   $pack_type = $element['#type_name'];
   $field = content_fields($field_name, $pack_type);
 
-  if (isset($values['group_destinations'])) {
-    $field_values = $values['group_destinations'][$field_name];
+  if (isset($form_state['parents'])) {
+    $values = wallytoolbox_get_target_from_parents($values, $form_state['parents']);
+  }
+
+  if (isset($values[$field_name])) {
+    $field_values = $values[$field_name];
+  } elseif (isset($field['display_settings']['parent']) && isset($values[$field['display_settings']['parent']][$field_name])) {
+    $field_values = $values[$field['display_settings']['parent']][$field_name];
   } else {
-    $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
+    $field_values = $values[$pack_type][$field_name];
   }
   unset($field_values['field_destinations_add_more']);
 
