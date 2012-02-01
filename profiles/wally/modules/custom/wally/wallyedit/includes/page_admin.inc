@@ -1,8 +1,8 @@
 <?php
 
-function wallyedit_page_admin($limit = 25){
+function wallyedit_page_admin($limit = 25) {
   global $custom_theme;
-  $custom_theme=variable_get('admin_theme','rubik');
+  $custom_theme = variable_get('admin_theme','rubik');
   
   $count_query = "SELECT count(*) from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'";
   $result = pager_query("SELECT * from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'", $limit, 0, $count_query);
@@ -21,7 +21,7 @@ function wallyedit_page_admin($limit = 25){
   return theme('wallyedit_admin', $rows, $headers);
 }
 
-function wallyedit_page_admin_form(&$form_state){
+function wallyedit_page_admin_form(&$form_state) {
   $form = array();
   $form['limit'] = array(
     '#type' => 'select',
@@ -37,9 +37,9 @@ function wallyedit_page_admin_form(&$form_state){
   return $form;
 }
 
-function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL){
+function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL) {
   global $custom_theme;
-  $custom_theme=variable_get('admin_theme','rubik');
+  $custom_theme = variable_get('admin_theme','rubik');
   if(!empty($prenode)){
     $form_state['cache name'] = $prenode->cache_name;
     return confirm_form($form,

@@ -11,10 +11,9 @@ function wallyedit_views_default_views() {
   $view->name = 'prenode_selectbox_vbo';
   $view->description = '';
   $view->tag = 'Allow to select node in the wallyedit interface';
-  $view->view_php = '';
   $view->base_table = 'node';
-  $view->is_cacheable = FALSE;
-  $view->api_version = 2;
+  $view->core = 0;
+  $view->api_version = '2';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('fields', array(
@@ -122,7 +121,7 @@ function wallyedit_views_default_views() {
   ));
   $handler->override_option('use_ajax', TRUE);
   $handler->override_option('items_per_page', 20);
-  $handler->override_option('use_pager', '1');
+  $handler->override_option('use_pager', '0');
   $handler->override_option('style_plugin', 'bulk');
   $handler->override_option('style_options', array(
     'grouping' => '',

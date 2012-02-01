@@ -187,7 +187,7 @@
 
 Drupal.behaviors.addSliderEffect = function(context) {
 	var current_tab = Drupal.settings.current_tab;
-	var user_id = Drupal.settings.user_id;
+	var profile_id = Drupal.settings.profile_id;
 	
 	//calcul idoine des tailles utiles
 	var mainColumnWidth = $('#column-main-left').innerWidth() - 32;
@@ -216,7 +216,7 @@ Drupal.behaviors.addSliderEffect = function(context) {
 		
 		var href_to_save = ($(this).attr('href')).substring(1);
 		$.ajax({
-		      url: "/wallyedit/change_current_tab/"+user_id+"/"+href_to_save,
+		      url: "/wallyedit/change_current_tab/"+profile_id+"/"+href_to_save,
 		      cache: false,
 		      async: false
 		    });
