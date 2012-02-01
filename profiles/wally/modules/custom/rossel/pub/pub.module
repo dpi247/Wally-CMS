@@ -131,8 +131,12 @@ function pub_theme() {
 function pub_block($op = 'list', $delta = 0, $edit = array()) {
   switch ($op) {
     case 'list':
-      //DLA & DIM
-        $pub_list = db_query('SELECT position FROM {zz_pub_UMI}');
+      //DLA
+      static $blocks;
+      if (isset($blocks)) {
+        return $blocks;
+      }
+      $pub_list = db_query('SELECT position FROM {zz_pub_UMI}');
       while ($pub_elem = db_fetch_array($pub_list)) {
         $blocks[$pub_elem['position']] = array(
           'info' => t('Pub '.$pub_elem['position']),
