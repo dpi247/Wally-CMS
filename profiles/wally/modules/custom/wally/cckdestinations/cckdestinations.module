@@ -1352,7 +1352,7 @@ function cckdestinations_autocomplete_value($element, $edit = FALSE) {
 }
 
 function cckdestinations_select_process($element, $edit, $form_state, $form) {
-  if (isset($element['#theme']) && $element['#theme'] == 'taxonomy_term_select' || strstr($element['#id'], '-tid')) {
+  if (isset($element['#theme']) && ($element['#theme'] == 'taxonomy_term_select' || strstr($element['#id'], '-tid'))) {
     if (sizeof($element['#options']) > variable_get('cckdestinations_taxonomy_limit', 10)) {
       $element['#type'] = 'cckdestinations_autocomplete';
       $element['#value_callback'] = 'cckdestinations_autocomplete_value';
