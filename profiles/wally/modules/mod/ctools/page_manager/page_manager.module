@@ -138,8 +138,6 @@ function page_manager_menu_alter(&$items) {
   // For some reason, some things can activate modules without satisfying
   // dependencies. I don't know how, but this helps prevent things from
   // whitescreening when this happens.
-      watchdog('DEBUG APMBEFORE','<pre>'.print_r($items,1).'</pre>');
-  
   if (!module_exists('ctools')) {
     return;
   }
@@ -157,8 +155,7 @@ function page_manager_menu_alter(&$items) {
       }
     }
   }
-      watchdog('DEBUG APM AFTER','<pre>'.print_r($items,1).'</pre>');
-  
+
   return $items;
 }
 
