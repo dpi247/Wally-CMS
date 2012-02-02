@@ -55,56 +55,58 @@ function wallyedit_form_node_edition_form(&$form_state) {
     $form = wysiwyg_process_form($form, $current_form_state); 
   }
 
-  $form['save_global'] = array(
-    '#type' => 'submit',
-    '#wydit_op_type' => 'action',
-    '#name' => 'save_global',
-    '#value'=> t('Save'),
-  	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-    '#next_parents' => (sizeof($parents) == 1) ? $parents : array_slice($parents, 0, sizeof($parents) - 2),
-  );
-
-  if (sizeof($parents) == 1) {
-    $form['publish_global'] = array(
+  if (!$form_state['locked']) {
+    $form['save_global'] = array(
       '#type' => 'submit',
       '#wydit_op_type' => 'action',
-      '#name' => 'publish_global',
-      '#value' => t('Save and Publish'),
-      '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-      '#next_parents' => $parents,
+      '#name' => 'save_global',
+      '#value'=> t('Save'),
+    	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+      '#next_parents' => (sizeof($parents) == 1) ? $parents : array_slice($parents, 0, sizeof($parents) - 2),
     );
-    
-    if (isset($current_form_state[$type_name]['#node']->nid) && $current_form_state[$type_name]['#node']->nid == $cache_name) {
-      $form['reset_global'] = array(
+  
+    if (sizeof($parents) == 1) {
+      $form['publish_global'] = array(
         '#type' => 'submit',
-        '#wydit_op_type' => 'pre_treat',
-        '#name' => 'reset_global',
-        '#value'=> t('Reset'),
+        '#wydit_op_type' => 'action',
+        '#name' => 'publish_global',
+        '#value' => t('Save and Publish'),
         '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
         '#next_parents' => $parents,
-        '#skip validation' => TRUE,
       );
-
-      $form['delete_global'] = array(
+      
+      if (isset($current_form_state[$type_name]['#node']->nid) && $current_form_state[$type_name]['#node']->nid == $cache_name) {
+        $form['reset_global'] = array(
+          '#type' => 'submit',
+          '#wydit_op_type' => 'pre_treat',
+          '#name' => 'reset_global',
+          '#value'=> t('Reset'),
+          '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+          '#next_parents' => $parents,
+          '#skip validation' => TRUE,
+        );
+  
+        $form['delete_global'] = array(
+          '#type' => 'submit',
+          '#wydit_op_type' => 'pre_treat',
+          '#name' => 'delete_global',
+          '#value'=> t('Delete node'),
+          '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+          '#next_parents' => $parents,
+          '#skip validation' => TRUE,
+        );
+      }
+    } else {
+      $form['cancel_global'] = array(
         '#type' => 'submit',
         '#wydit_op_type' => 'pre_treat',
-        '#name' => 'delete_global',
-        '#value'=> t('Delete node'),
-        '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-        '#next_parents' => $parents,
+        '#name' => 'cancel_global',
+        '#value' => t('Cancel'),
+      	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+        '#next_parents' => array_slice($parents, 0, sizeof($parents) - 2),
         '#skip validation' => TRUE,
       );
     }
-  } else {
-    $form['cancel_global'] = array(
-      '#type' => 'submit',
-      '#wydit_op_type' => 'pre_treat',
-      '#name' => 'cancel_global',
-      '#value' => t('Cancel'),
-    	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-      '#next_parents' => array_slice($parents, 0, sizeof($parents) - 2),
-      '#skip validation' => TRUE,
-    );
   }
 
   $form['profile_id'] = array('#value' => $current_profile);
@@ -116,6 +118,10 @@ function wallyedit_form_node_edition_form(&$form_state) {
   $form['#submit'] = array('wallyedit_form_node_form_submit');
   if ($current_form_state['action']) {
     $form['#action'] = $current_form_state['action'];
+  }
+  
+  if (!empty($prenode->locked)) {
+    $form['#prefix'] = theme('wallyedit_lock', $prenode);
   }
 
   return $form;
@@ -768,10 +774,15 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
 
-  wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id']);
-  drupal_set_message(t('Node has been published'));
-  prenode_delete($form_state);
-  $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+  if (!$form_state['locked']) {
+    wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id']);
+    drupal_set_message(t('Node has been published'));
+    prenode_delete($form_state);
+  } else {
+    drupal_set_message(t('Node not published'), 'error');
+  }
+
+  $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
 
   return $commands;
 }
@@ -1092,6 +1103,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
   $new_form_state['profile_id'] = $form_state['profile_id'];
   $new_form_state['type'] = $type_name;
   $new_form_state['parents'] = $form_state['parents'];
+  $new_form_state['locked'] = $form_state['locked'];
   $new_form_state['current_tab'] = $form_state['current_tab'];
   $new_form_state[$type_name] = $form_state[$type_name];
   if ($reset_input) {

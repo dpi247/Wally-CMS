@@ -50,11 +50,20 @@ function wallyedit_menu(){
   
   $items['admin/content/wallyedit'] = array(
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyedit_page_admin_form',),
+    'page arguments' => array('wallyedit_page_list_prenodes_form'),
     'access arguments' => array('administer nodes'),
     'file' => 'includes/page_admin.inc',
     'title' => t('WallyEdit Admin'),
     'description' => t('View and manage temporary nodes (prenodes)'),
+  );
+  
+  $items['admin/content/wallyedit-cron-config'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_page_cron_config_form'),
+    'access arguments' => array('administer nodes'),
+    'file' => 'includes/page_admin.inc',
+    'title' => t('WallyEdit cron configuration'),
+    'description' => t('Settings related to the cron job for WallyEdit.'),
   );
   
   // Tabs organisation admin
@@ -184,13 +193,21 @@ function wallyedit_menu(){
     'description' => t('Set default profile'),
   );
   
+  $items['admin/content/wallyedit-delete-all'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_prenode_delete_all_confirm'),
+    'access arguments' => array('administer nodes'),
+    'file' => 'includes/page_admin.inc',
+  );
+  
   $items['node/%prenode/delete2'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallyedit_prenode_delete_confirm', 1),
     'access callback' => 'node_access',
     'access arguments' => array('delete', 1),
     'file' => 'includes/page_admin.inc',
-  );//!! For now users can only delete their own prenodes
+    'load arguments' => array('%map'),
+  );
   
   // Edition interface callbacks
   $items['node/%prenode/edit2/%ctools_js/%'] = array(
@@ -367,7 +384,7 @@ function wallyedit_theme(){
       'arguments' => array('rows' => array()),
     ),
     'wallyedit_page_editmode' => $base + array(
-      'arguments' => array('form' => array(), 'form_prev' => array()),
+      'arguments' => array('locked' => '', 'form' => '', 'form_prev' => ''),
     ),
     'wallyedit_nopreview' => array(
       'template' => 'wallyedit-nopreview',
@@ -383,6 +400,9 @@ function wallyedit_theme(){
     ),
     'wydit_selector_theme' => $base + array(
       'arguments' => array('form' => array()),
+    ),
+    'wallyedit_lock' => $base + array(
+      'arguments' => array('prenode' => NULL),
     ),
     'wallyedit_form_tabs_content_types_overview_form' => $base + array(
       'arguments' => array('form' => array()),
@@ -404,11 +424,16 @@ function wallyedit_theme(){
       'arguments' => array('form' => array()),
       'template' => 'wallyedit-node-accordion-form',
     ),
-    'wallyedit_test_form' => $base + array(
-      'arguments' => array('form' => array()),
-      'template' => 'wallyedit-admin-display-form2',
-    ),
   );
+}
+
+/**
+ * Implementation of hook_cron()
+ * Clean oldest PreNodes
+ */
+function wallyedit_cron() {
+  module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  wallyedit_object_cache_clean();
 }
 
 /**
@@ -974,30 +999,37 @@ function wydit_get_inline_type($referencable_types) {
 
 function prenode_load($nid, $args) {
   $profile_arg = isset($args[4]) ? $args[4] : wallyedit_get_default_profile();
-  $prenode = new Prenode($nid, FALSE, $profile_arg);
+
+  $prenode = new Prenode($nid, FALSE, $profile_arg, $_GET['break']);
   $prenode->setCurrentProfile($profile_arg);
-  
+
   // Let modules alter the prenode after it has been loaded from the database
   wallyedit_invoke_prenodeapi($prenode->form_state, 'load');
-  
+
   return $prenode;
 }
 
-function prenode_save(&$prenode) {
+function prenode_save(&$form_state) {
+  global $user;
+  $form_state['locked'] = array(
+    'uid' => $user->uid,
+    'updated' => time(),
+  );
+
   // Let modules modify the prenode before it is saved to the database.
-  wallyedit_invoke_prenodeapi($prenode, 'presave');
+  wallyedit_invoke_prenodeapi($form_state, 'presave');
   if(function_exists('memcache_variable_set')) {
   	$day_in_memecache = 2;
   	$expire = $day_in_memecache*60*60*24;
-  	$prenode_object = new stdClass;
-  	$prenode_object->cache = $prenode;
-    cache_set($prenode['cache name'], $prenode_object, 'prenode', $expire);
+  	$prenode = new stdClass;
+  	$prenode->cache = $form_state;
+    cache_set($form_state['cache name'], $prenode_object, 'prenode', $expire);
   } else {
-  	ctools_include('object-cache');
-  	ctools_object_cache_set('prenode', $prenode['cache name'], $prenode);
+  	module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  	wallyedit_object_cache_set($form_state['cache name'], $form_state);
   }
   // Let modules reacts after the prenode is saved to the database
-  wallyedit_invoke_prenodeapi($prenode, 'save');
+  wallyedit_invoke_prenodeapi($form_state, 'save');
 }
 
 function prenode_delete($prenode) {
@@ -1006,24 +1038,44 @@ function prenode_delete($prenode) {
 
   if(function_exists('memcache_variable_set')) {
   	cache_clear_all($prenode['cache name'], 'prenode');
-  }
-  else {
-    ctools_include('object-cache');
-    ctools_object_cache_clear('prenode', $prenode['cache name']);
+  } else {
+    module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  	wallyedit_object_cache_clear($prenode['cache name']);
   }
   
   drupal_set_message(t('PreNode has been cleared'));
 }
 
+function prenode_delete_all() {
+  // Let modules reacts after the prenode is saved to the database
+  $fake_prenode = new stdClass();
+  wallyedit_invoke_prenodeapi($fake_prenode, 'delete_all');
+
+  if(function_exists('memcache_variable_set')) {
+  	cache_clear_all('*', 'prenode');
+  } else {
+    module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  	wallyedit_object_cache_clear_all();
+  }
+  
+  drupal_set_message(t('All PreNodes have been cleared'));
+}
+
 function prenode_get($cache_name, $skip_cache = FALSE) {
+  global $user;
+  
   if(function_exists('memcache_variable_set')) {
   	$prenode = cache_get($cache_name, 'prenode');
   	$prenode = $prenode->data->cache;
+  } else {
+    module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  	$prenode = wallyedit_object_cache_get($cache_name, $skip_cache);
   }
-  else {
-    ctools_include('object-cache');
-    $prenode = ctools_object_cache_get('prenode', $cache_name, $skip_cache);
+
+  if ($prenode['locked'] && $prenode['locked']['uid'] == $user->uid) {
+    $prenode['locked'] = FALSE;
   }
+  
   return $prenode;
 }
 
@@ -1266,15 +1318,20 @@ function wydit_filefield_js($type_name, $field_name, $delta) {
   exit;
 }
 
-function wydit_get_url_action($action, $nid) {
+function wydit_get_url_action($action, $nid = '', $trail = array()) {
   switch ($action){
     case 'edit':
-      return 'node/'.$nid.'/edit2/0/'.wallyedit_get_default_profile();
+      $url = 'node/'.$nid.'/edit';
       break;
     case 'delete':
-      return 'node/'.$nid.'/delete2';
+      $url = 'node/'.$nid.'/delete2';
+      break;
+    case 'delete_all':
+      $url = 'admin/content/wallyedit-delete-all';
       break;
   }
+  
+  return $url.implode('/', $trail);
 }
 
 function wydit_ctools_include() {
@@ -1283,7 +1340,6 @@ function wydit_ctools_include() {
   ctools_include('ajax');
   ctools_add_js('ajax-responder');
   ctools_modal_add_js();
-  ctools_include('object-cache');
 }
 
 function wallyedit_install_default_config() {
