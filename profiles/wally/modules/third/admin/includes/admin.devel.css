@@ -1,13 +1,7 @@
-/** 
 div.dev-query,
 div.dev-timer,
 div.dev-memory-usage,
 div.devel-querylog { display:none; }
-**/
-
-div.dev-timer,
-div.dev-memory-usage { display:none; }
-
 
 .devel-hide { display:none !important; }
 
@@ -32,20 +26,7 @@ div.dev-memory-usage { display:none; }
 #admin-toolbar #block-admin-devel { padding-bottom:10px; }
 
 /**
- * Query list ORIGIN =========================================================
- */
-div.DLA.devel-querylog {
-  border-bottom:1px solid #181818;
-  background:#080808;
-  color:#999;
-  font-size:11px;
-  line-height:15px;
-  position:relative;
-  display:none;
-  }
-
-/**
- * Query list DLA =========================================================
+ * Query list =========================================================
  */
 div.devel-querylog {
   border-bottom:1px solid #181818;
@@ -54,10 +35,8 @@ div.devel-querylog {
   font-size:11px;
   line-height:15px;
   position:relative;
+  display:none;
   }
-
-
-
 
 div.devel-querylog-header {
   border:0px;
