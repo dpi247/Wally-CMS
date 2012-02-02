@@ -236,13 +236,13 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 /**
  * Implementation of hook_prenodeapi().
  */
-function wallycontenttypes_prenodeapi(&$prenode, $op){
+function wallycontenttypes_prenodeapi(&$form_state, $op){
   switch ($op) {
     case 'presave' :
-      if($prenode['type'] == 'wally_articlepackage' ||
-        $prenode['type'] == 'wally_gallerypackage' ||
-        $prenode['type'] == 'wally_pollpackage') {
-        _wallycontenttypes_update_package_prenode_taxonomy_recursive($prenode[$prenode['type']], $prenode['profile_id']);
+      if($form_state['type'] == 'wally_articlepackage' ||
+        $form_state['type'] == 'wally_gallerypackage' ||
+        $form_state['type'] == 'wally_pollpackage') {
+        _wallycontenttypes_update_package_prenode_taxonomy_recursive($form_state[$form_state['type']], $form_state['profile_id']);
       }
       break;
   }
