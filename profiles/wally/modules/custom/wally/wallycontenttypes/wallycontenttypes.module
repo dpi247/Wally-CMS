@@ -234,6 +234,21 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 }
 
 /**
+ * Implementation of hook_prenodeapi().
+ */
+function wallycontenttypes_prenodeapi(&$prenode, $op){
+  switch ($op) {
+    case 'presave' :
+      if($prenode['type'] == 'wally_articlepackage' ||
+        $prenode['type'] == 'wally_gallerypackage' ||
+        $prenode['type'] == 'wally_pollpackage') {
+        _wallycontenttypes_update_package_prenode_taxonomy_recursive($prenode[$prenode['type']], $prenode['profile_id']);
+      }
+      break;
+  }
+}
+
+/**
  *  Implémentation du hook_preprocess_page(); 
  */
 function wallycontenttypes_preprocess_page(&$variables) {
@@ -292,6 +307,35 @@ function wallycontentypes_update_poll_cache (&$form, &$form_state) {
   $nid = $node->nid;
   wallytoolbox_object_cache_clear($nid, $node->revision_uid);
   wallytoolbox_object_referencer_cache_clear($node);
+}
+
+function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  if (in_array($form_state['type'], $pack_types)) {
+    array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
+  }
+}
+
+function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, &$form_state) {
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  if (in_array($form_state['type'], $pack_types)) {
+    $type_name = $form_state['type'];
+    $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+    if ($flat_fields['title']['display'] == 0) {
+      switch ($type_name){
+        case 'wally_articlepackage':
+          $main_object_type = 'field_mainstory';
+          break;
+        case 'wally_gallerypackage':
+          $main_object_type = 'field_mainobject';
+          break;
+        case 'wally_pollpackage':
+          $main_object_type = 'field_mainpoll';
+          break;
+      }
+      $form_state['values'][$type_name]['title'] = $form_state['values'][$type_name][$main_object_type][0]['title'];
+    }
+  }
 }
 
 /**
@@ -632,6 +676,55 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
       $node->field_iptc = $objectnode->field_iptc;
     }
   }
+}
+
+/**
+ * Update a prenode (package) taxonomies with his objects
+ */
+function _wallycontenttypes_update_package_prenode_taxonomy_recursive(&$prenode, $current_profile) {
+  $pack_type = $prenode['type'];
+  $fields = wyditadmin_get_existing_fields($pack_type);
+  
+  switch ($pack_type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+  }
+
+  $main_object = isset($prenode[$main_object_type][0]['#node']) ? $prenode[$main_object_type][0]['#node'] : FALSE;
+  $prenode_node = &$prenode['#node'];
+
+  if ($main_object){
+    _wallycontenttypes_set_taxonomies_from_object_to_prenode($prenode_node, $main_object);
+  }
+
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  foreach ($fields as $field) {
+    if (isset($field['referenceable_types']) && is_array($field['referenceable_types']) && array_intersect($pack_types, $field['referenceable_types']) && isset($prenode[$field['name']]) && is_array($prenode[$field['name']])) {
+      foreach ($prenode[$field['name']] as &$sub_prenode) {
+        if (in_array($sub_prenode['type'], $pack_types)) {
+          _wallycontenttypes_update_package_prenode_taxonomy_recursive($sub_prenode, $current_profile);
+        }
+      }
+    }
+  }
+}
+
+function _wallycontenttypes_set_taxonomies_from_object_to_prenode(&$prenode_node, $object) {
+  $prenode_node->taxonomy = isset($prenode_node->taxonomy) ? array_merge_recursive($prenode_node->taxonomy, $object->taxonomy) : $object->taxonomy;
+  $prenode_node->field_markers = isset($object->field_markers) ? $object->field_markers : $prenode_node->field_markers;
+  $prenode_node->field_locations = isset($object->field_locations) ? $object->field_locations : $prenode_node->field_locations;
+  $prenode_node->field_entities = isset($prenode_node->field_entities) ? array_merge_recursive($prenode_node->field_entities, $object->field_entities) : $object->field_entities;
+  $prenode_node->field_persons = isset($object->field_persons) ? $object->field_persons : $prenode_node->field_persons;
+  $prenode_node->field_free_tags = isset($object->field_free_tags) ? $object->field_free_tags : $prenode_node->field_free_tags;
+  $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
+  $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
 }
    
 /**

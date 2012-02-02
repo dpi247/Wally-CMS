@@ -394,6 +394,41 @@ function wallytoolbox_variable_get_like($get_name, $remove_common = FALSE) {
 }
 
 /**
+ * Replace arguments in a string by their value (like the "t" function does)
+ * 
+ * @param $string
+ *   A string containing the string to convert.
+ * @param $args
+ *   An associative array of replacements to make. Incidences
+ *   of any key in this array are replaced with the corresponding value. Based
+ *   on the first character of the key, the value is escaped and/or themed:
+ *    - !variable: inserted as is
+ *    - @variable: escape plain text to HTML (check_plain)
+ *    - %variable: escape text and theme as a placeholder for user-submitted
+ *      content (check_plain + theme_placeholder)
+ */
+function wallytoolbox_string_args_translate($string, $args) {
+  foreach ($args as $key => $value) {
+    switch ($key[0]) {
+      case '@':
+        // Escaped only.
+        $args[$key] = check_plain($value);
+        break;
+
+      case '%':
+      default:
+        // Escaped and placeholder.
+        $args[$key] = theme('placeholder', $value);
+        break;
+
+      case '!':
+        // Pass-through.
+    }
+  }
+  return strtr($string, $args);
+}
+
+/**
  * A true boolean conversion function.
  * 
  * @param $v
@@ -885,6 +920,85 @@ function wallytoolbox_add_elem_at_target(&$array, $element, $target, $append = F
       $array = $element;
     }
   }
+}
+
+/**
+ * Return the target associated with the hierarchical structure of the array based on the path formed by parents.
+ * 
+ * @param: $array
+ *   - the array
+ * @param: $parents
+ *   - the parents is an array representing the path in the array
+ */
+function wallytoolbox_get_target_from_parents(&$array, $parents = NULL) {
+  if($parents == NULL) {
+    $parents = $array['parents'];
+  }
+
+  $return = NULL;
+  $temp = $array;
+  foreach($parents as $index => $cursor_name) {
+    if(isset($temp[$cursor_name])) {
+      $temp = &$temp[$cursor_name];
+    } else {
+      return $return;
+    }
+  }
+
+  if ($temp) {
+    $return = $temp;
+  }
+  return $return;
+}
+
+/**
+ * Remove an element from an array. The element to remove is found following the given path
+ * Thx to JDE
+ */
+function wallytoolbox_remove_element($array, $path, $level = 0) {
+  foreach($array as $key => $value) {
+    if($key == $path[$level]) { // On atteint l'elem de $a correspondant au $path dans $b pour ce niveau de traitement
+      if($level != (count($path) - 1)) { // On est pas encore au dernier niveau de traitement
+        if(is_array($value)) { // Logique car il y a encore des niveaux à traiter dans $b;
+          $array[$key] = wallytoolbox_remove_element($value, $path, $level+1);
+        }
+      } else {
+        unset($array[$path[$level]]);
+      }
+    }
+  }
+  return $array;
+}
+
+function wallytoolbox_merge_arrays() {
+  if (func_num_args() < 2) {
+    trigger_error(__FUNCTION__ .' needs two or more array arguments', E_USER_WARNING);
+    return;
+  }
+  $arrays = func_get_args();
+  $merged = array();
+  while ($arrays) {
+    $array = array_shift($arrays);
+    if (!is_array($array)) {
+      trigger_error(__FUNCTION__ .' encountered a non array argument', E_USER_WARNING);
+      return;
+    }
+    if (!$array) {
+      continue;
+    }
+    foreach ($array as $key => $value) {
+      if (is_string($key) || is_numeric($key)) {
+        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]) && !array_key_exists($key.'_add_more', $value)) {
+          $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value);
+        } else {
+          $merged[$key] = $value;
+        }
+      } else {
+        $merged[] = $value;
+      }
+    }
+  }
+  return $merged;
 }
 
 /**
