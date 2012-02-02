@@ -41,7 +41,7 @@ function wallyctools_views_plugins() {
         'theme file' => 'theme.inc',
         'theme path' => drupal_get_path('module', 'wallyctools') . "/theme",
         'uses row plugin' => TRUE,
-        //'uses fields' => TRUE,
+        'uses fields' => FALSE,
         'uses options' => TRUE,
         'type' => 'normal',
       ),
