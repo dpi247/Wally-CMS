@@ -1,25 +1,18 @@
 <?php
 
-
 /**
  * Theme preprocess function for views-view-json.tpl.php
  *
  * @param array $vars
  */
 function template_preprocess_wallyctools_style_redacblock(&$vars) {
-
-  //  $vars['rows']       = !empty($view->result) || !empty($view->style_plugin->definition['even empty']) ? $view->style_plugin->render($view->result) : '';
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
   $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
   $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value[0];
   $vars['template_files'][]= 'wallyctools_style_redacblock';
-
-
   $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'];
-
-
   $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'];
 
   if($view->split_index_count){
@@ -37,8 +30,6 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
       $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'].'_split-first';
     }
   }
-
-
 }
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
@@ -65,8 +56,6 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
           'title' => t('Reorder'),
           'alt' => t("Reorder the view"),
           'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
-        //'fragment' => 'views-tab-' . $view->current_display,
-        //'query' => drupal_get_destination(),
         );
         break;
       }
@@ -105,8 +94,7 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
 
   $vars['destination'] = $view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
   $vars['target'] = $view->display_handler->handlers['filter']['field_destinations_target']->value;
-  $vars['target']=$vars['target'][0];
-
+  $vars['target'] = $vars['target'][0];
   $vars['layout'] = wallyctools_api_getlayoutfromdestinationandtarget($node, $vars['destination'], $vars['target']);
 
   if (empty($node)) {
@@ -165,11 +153,11 @@ function theme_wallyctools_form_reorder_destination_form($form){
       );
 
       $this_row = array(
-      drupal_render($fake_weight),
-      $row['data']['#value'],
-      $node_types[$row['type']['#value']],
-      date('D, d/m/Y - H:i', $row['last_update']['#value']),
-      l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Delete node'), 'node/'.$id.'/delete'),
+        drupal_render($fake_weight),
+        $row['data']['#value'],
+        $node_types[$row['type']['#value']],
+        date('D, d/m/Y - H:i', $row['last_update']['#value']),
+        l(t('Edit'), 'node/'.$id.'/edit').' · '.l(t('Delete node'), 'node/'.$id.'/delete'),
       );
 
       //Add the weight field to the row

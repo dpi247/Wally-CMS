@@ -1,7 +1,6 @@
 <?php
 // $Id: wallyctools.module,v 1.1.2.2 2010/07/23 21:47:20 merlinofchaos Exp $
 
-
 /**
  * @file
  * wallyctools module
@@ -105,23 +104,14 @@ function wallyctools_preprocess_views_view(&$vars){
           if($vars['view']->split_index_count==$vars['view']->split_total_count){
             $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
           }
-
-
         }
-
-
       }
     }
   }
   $result= array_merge($new_funcs,$funcs);
   $vars['template_files']= array_merge($result,$vars['template_files']);
-
-   
-
-
-
-
 }
+
 function wallyctools_preprocess_node(&$vars) {
   if (isset($vars['node']->node_view_destination)) {
     $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination);
@@ -207,11 +197,11 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
 
   foreach ($items as $item) {
     $rows[] = array(
-    check_plain($item->admin_title),
-    array(
+      check_plain($item->admin_title),
+      array(
         'data' => l(t('Edit'), "admin/build/wallyctools/list/$item->name/edit"),
         'class' => 'links',
-    ),
+      ),
     );
 
     // Only show 10.
@@ -458,7 +448,7 @@ function wallyctools_theme() {
   return array(
     'wallyctools_form_reorder_destination_form' => $base + array(
       'arguments' => array('form' => array()),
-  ),
+    ),
   );
 }
 
@@ -495,7 +485,7 @@ function wallyctools_initial_setup(){
 
 /**
  * Prepare a view to be used in a redacblock.
- *
+ * 
  * This also allow other modules to get node results just like a redacblock would get.
  */
 function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_name, $args, $conf) {
@@ -510,7 +500,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
     'expose' => array(
       'operator' => FALSE,
       'label' => '',
-  ),
+    ),
     'relationship' => 'none',
   );
 
@@ -580,7 +570,6 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
       $view->display_handler->set_option('offset', $conf['offset']);
       $view->set_offset($conf['offset']+$page*$conf['nodes_per_page']);
       $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
-      $view->coco='toto';
     }
   }
   return TRUE;

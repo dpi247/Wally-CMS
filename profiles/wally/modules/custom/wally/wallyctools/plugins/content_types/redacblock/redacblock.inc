@@ -33,7 +33,7 @@ $plugin = array(
     'args' => '',
     'url' => '',
     'required context' => new ctools_context_required(t('Term'), 'term'),
-),
+  ),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   'edit text' => t('Edit'),
   'all contexts' => TRUE,
@@ -88,8 +88,8 @@ function _wallyctools_default_content_type() {
       'wallyctools_redacblock_content_type_edit_form' => array(
         'default' => TRUE, // put wrapper here, not on the previous form.
         'title' => t('Override settings of the redacblock'),
-  ),
-  ),
+      ),
+    ),
   );
 
   return $plugin;
@@ -167,8 +167,8 @@ function wallyctools_redacblock_content_type_get_conf($subtype, $conf) {
       $settings = $conf;
       $settings['redacblock_type'] = 'local';
     }
-
   }
+
   return $settings;
 }
 
@@ -252,13 +252,12 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     $args = str_replace("%$id", $arg, $args);
   }
 
-  // if (isset($panel_args)) {
   foreach ($panel_args as $id => $arg) {
     if (is_string($arg)) {
       $args = str_replace("@$id", $arg, $args);
     }
   }
-  //}
+
   $args = preg_replace(',/?(%\d|@\d),', '', $args);
   $args = $args ? explode('/', $args) : array();
 
@@ -357,8 +356,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   foreach ($form_state['contexts'] as $context) {
     foreach (ctools_context_get_converters('%' . check_plain($context->keyword) . ':', $context) as $keyword => $title) {
       $rows[] = array(
-      check_plain($keyword),
-      t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
+        check_plain($keyword),
+        t('@identifier: @title', array('@title' => $title, '@identifier' => $context->identifier)),
       );
     }
   }
@@ -689,23 +688,6 @@ function redacblock_new_redacblock_form($form,$form_state){
     '#title' => t('Title'),
   );
 
-  /*$form['block']['view'] = array(
-   '#type' => 'select',
-   '#options'=> wallyctools_get_redac_view_options(),
-   '#title' => t('view associated with the block'),
-   '#required'=>true,
-   );
-
-   $form['substitute'] = array(
-   '#type' => 'checkbox',
-   '#title' => t('Use context keywords'),
-   '#description' => t('If checked, context keywords will be substituted in this content.'),
-   );*/
-
   return $form;
 }
 
-/*function redacblock_new_redacblock_form_submit($form,$form_state){
- $redacblock_export=new wallyctools_ui();
- $redacblock_export->edit_form_submit(&$form, &$form_state);
- }*/
