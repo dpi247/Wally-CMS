@@ -19,12 +19,11 @@ class Prenode{
   var $node;
   var $form_state;
   var $profile_id;
-  var $base_table = 'node';
   
   /**
    * Constructor
    */
-  function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = NULL){
+  function Prenode($cache_name = NULL, $reload = FALSE, $profile_id = NULL, $break = FALSE){
     if($profile_id == NULL){
       $profile_id = 0;
     } else {
@@ -41,23 +40,25 @@ class Prenode{
           //Case of a prenode in edition mode
           $this->form_state = $cache;
           $this->form_state['cache name'] = $cache_name;
+          $this->form_state['locked'] = FALSE;
         } else {
           drupal_set_message(t('WallyEdit: node not found'), 'error');
           watchdog('WallyEdit', t('Node not found (nid : @nid) while constructing Prenode', array('@nid' => $cache_name)));
         }
       } else {
        //Case of a prenode in edition mode
-       if($cache = prenode_get($cache_name)) {
+       if(!$break && $cache = prenode_get($cache_name)) {
           $this->form_state = $cache;
           $this->setNode($node);
           $this->form_state['cache name'] = $cache_name;
+          $this->form_state['locked'] = $break ? FALSE : $this->form_state['locked'];
         } else {
           $this->setNode($node);
-          $this->getFormState();
+          $this->getFormState($break);
         }
       }
     }
-    
+
     return $this;
   }
   
@@ -83,7 +84,7 @@ class Prenode{
     if(isset($this->form_state) && $reset == FALSE) {
       return $this->form_state;
     } else {
-      return $this->setFormState();
+      return $this->setFormState($reset);
     }
   }
 
@@ -99,28 +100,24 @@ class Prenode{
   
   function setFormState($reset = FALSE){
     $type_name = $this->node->type;
-    $form_state = array('ajax' => TRUE);
-    $form_state += array(
-      're_render' => FALSE,
-      'no_redirect' => TRUE,
-    );
     
-    $form_state = array(
-      'cache name' => $this->get_cache_name(),
-      'profile_id' => $this->profile_id,
-    );
-    
-    if($cache = prenode_get($this->cache_name)) {
+    if(!$reset && $cache = prenode_get($this->cache_name)) {
       $form_state = $cache;
       $form_state['type'] = $type_name;
     } else {
       global $user;
-      $form_state['parents'] = array($type_name);
-      $form_state['current_tab'] = NULL;
-      $form_state['type'] = $type_name;
-      
-      module_load_include('inc', 'wallyedit', 'includes/page_form_display_tabs');
-      
+      $form_state = array(
+        'ajax' => TRUE,
+        're_render' => FALSE,
+        'no_redirect' => TRUE,
+        'cache name' => $this->get_cache_name(),
+        'profile_id' => $this->profile_id,
+        'parents' => array($type_name),
+        'current_tab' => NULL,
+        'type' => $type_name,
+        'locked' => FALSE,
+      );
+
       wydit_populate_form_state($form_state[$type_name], $this->node, $this->profile_id);
     }
 
