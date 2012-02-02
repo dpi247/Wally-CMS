@@ -11,6 +11,16 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
   var $panel_pane_display = TRUE;
   var $has_pane_conf = NULL;
 
+  function additional_theme_functions() {
+    $funcs = array();
+    if (!empty($this->definition['additional themes'])) {
+      foreach ($this->definition['additional themes'] as $theme => $type) {
+        $funcs[] = views_theme_functions($theme, $this->view, $this->display);
+      }
+    }
+    return $funcs;
+  }
+  
   //set default options for this dispalay
   function option_definition() {
     $options = parent::option_definition();

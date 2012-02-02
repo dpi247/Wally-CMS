@@ -1,18 +1,35 @@
 <?php
 
-
 /**
  * Theme preprocess function for views-view-json.tpl.php
  *
  * @param array $vars
  */
 function template_preprocess_wallyctools_style_redacblock(&$vars) {
-  //  $vars['rows']       = !empty($view->result) || !empty($view->style_plugin->definition['even empty']) ? $view->style_plugin->render($view->result) : '';
   $view     = &$vars['view'];
   $options  = $view->style_handler->options;
   $handler  = $view->style_handler;
   $vars['destination']=$view->display_handler->handlers['argument']['field_destinations_tid']->value[0]  ;
-  $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value;
+  $vars['target']=$view->display_handler->handlers['filter']['field_destinations_target']->value[0];
+  $vars['template_files'][]= 'wallyctools_style_redacblock';
+  $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'];
+  $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'];
+
+  if($view->split_index_count){
+    $vars['template_files'][]= 'wallyctools_style_redacblock_split';
+    $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_split';
+    $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'].'_split';
+    if($view->split_index_count==$view->split_total_count){
+      $vars['template_files'][]= 'wallyctools_style_redacblock_split-last';
+      $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_split-last';
+      $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'].'_last';
+    }
+    if($view->split_index_count=="1"){
+      $vars['template_files'][]= 'wallyctools_style_redacblock_split-first';
+      $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_split-first';
+      $vars['template_files'][]= 'wallyctools_style_redacblock'.'_'.$vars['destination'].'_'.$vars['target'].'_split-first';
+    }
+  }
 }
 
 function wallyctools_views_admin_links_alter(&$vars,$view){
@@ -39,8 +56,6 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
           'title' => t('Reorder'),
           'alt' => t("Reorder the view"),
           'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
-          //'fragment' => 'views-tab-' . $view->current_display,
-          //'query' => drupal_get_destination(),
         );
         break;
       }
@@ -49,8 +64,8 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
 }
 
 /**
-* Theme preprocess function for views-view-row-unformatted.tpl.php
-*/
+ * Theme preprocess function for views-view-row-unformatted.tpl.php
+ */
 function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $view = &$vars['view'];
   $options = $vars['options'];
@@ -76,11 +91,10 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
     }
     $node = node_load($nid);
   }
-  
+
   $vars['destination'] = $view->display_handler->handlers['argument']['field_destinations_tid']->value[0];
   $vars['target'] = $view->display_handler->handlers['filter']['field_destinations_target']->value;
-  $vars['target']=$vars['target'][0];
-  
+  $vars['target'] = $vars['target'][0];
   $vars['layout'] = wallyctools_api_getlayoutfromdestinationandtarget($node, $vars['destination'], $vars['target']);
 
   if (empty($node)) {
@@ -91,25 +105,25 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $node->node_view_layout=str_replace('_','-',$vars['layout']);
   $node->node_view_target=$vars['target'];
   $node->node_view_destination=$vars['destination'];
-  
+
   if (isset($options['build_mode'])) {
-		if ($options['build_mode'] == 'teaser') {
-  		$teaser = TRUE; 
-		} else {
-  		$teaser = FALSE; 
-		}
+    if ($options['build_mode'] == 'teaser') {
+      $teaser = TRUE;
+    } else {
+      $teaser = FALSE;
+    }
   } else {
-  	$teaser = FALSE; 
+    $teaser = FALSE;
   }
 
   if (!isset($options['links'])) {
-  	$links = TRUE; 
+    $links = TRUE;
   } else {
-  	$links = $options['links']; 
+    $links = $options['links'];
   }
-  
-	$vars['node'] = node_view($node, $teaser, FALSE, $links);
-    
+
+  $vars['node'] = node_view($node, $teaser, FALSE, $links);
+
   if (!empty($options['comments']) && function_exists('comment_render')) {
     $vars['comments'] = comment_render($node);
   }
@@ -122,13 +136,13 @@ function theme_wallyctools_form_reorder_destination_form($form){
     }
     return;
   }
-  
+
   $node_types = node_get_types('names');
-  
+
   $i = 1;
 
   //loop through each "row" in the table array
-  foreach($form['rows'] as $id => $row){ 
+  foreach($form['rows'] as $id => $row){
     //we are only interested in numeric keys
     if (intval($id)){
       $fake_weight = array(
@@ -137,7 +151,7 @@ function theme_wallyctools_form_reorder_destination_form($form){
         '#prefix' => '<div class="weight-id">',
         '#suffix' => '</div>',
       );
-      
+
       $this_row = array(
         drupal_render($fake_weight),
         $row['data']['#value'],
@@ -153,17 +167,17 @@ function theme_wallyctools_form_reorder_destination_form($form){
       $table_rows[] = array('data'=>$this_row, 'class'=>'draggable');
     }
   }
- 
+
   //Make sure the header count matches the column count
   $header = array(
     '', t('Title'), t('Type'), t('Last update'), t('Operations'), t('Order'),
   );
-  
+
   // Call add_tabledrag to add and setup the JS for us
   // The key thing here is the first param - the table ID
   // and the 4th param, the class of the form item which holds the weight
   drupal_add_tabledrag('example-table', 'order', 'self', 'weight');
-  
+
   drupal_add_js(drupal_get_path('module', 'wallyctools').'/scripts/update_reorder_ids.js');
 
   $output = theme('table', $header, $table_rows, array('id' => 'example-table'));
