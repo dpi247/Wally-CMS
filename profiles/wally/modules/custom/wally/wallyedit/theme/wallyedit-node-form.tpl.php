@@ -1,14 +1,13 @@
 <?php
-  module_load_include("inc",'wallyedit','includes/page_form_display_tabs');
-  $tabs=wyditadmin_get_fields_tree($profile_id, $node_type);
-  $onglets_struct=$tabs;
-  $type=wydit_get_infos_type($node_type);
+  module_load_include('inc', 'wallyedit', 'includes/page_form_display_tabs');
+  $onglets_struct = wyditadmin_get_fields_tree($profile_id, $node_type);
+  $type = wydit_get_infos_type($node_type);
   $extra_fields = array();
   wallyedit_get_extra_fields($extra_fields, $form[$node_type], array_keys($type['fields']));
   $cck_fields = $type['fields'] + $extra_fields;
 
-  $meta_tab_name="meta_".$profile_id.'_'.$node_type;
-  $no_tab_name="no_tab";
+  $meta_tab_name = 'meta_'.$profile_id.'_'.$node_type;
+  $no_tab_name = 'no_tab';
 ?>
 
 <div id="column-main-left">
@@ -104,9 +103,9 @@
 
 <div id="buttons">
   <?php print drupal_render($form['save_global']);?>
+  <?php print drupal_render($form['publish_global']);?>
   <?php print drupal_render($form['cancel_global']);?>
   <?php print drupal_render($form['reset_global']);?>
-  <?php print drupal_render($form['publish_global']);?>
   <?php print drupal_render($form['delete_global']);?>
 </div>
 

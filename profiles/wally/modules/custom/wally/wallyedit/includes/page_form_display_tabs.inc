@@ -24,7 +24,7 @@ function wallyedit_page_profiles_overview () {
     $profiles_rows[] = $row;
   }
 
-  $output = theme('table', $profiles_header, $profiles_rows, array(), $profiles_caption);
+  $output = !empty($profiles_rows) ? theme('table', $profiles_header, $profiles_rows, array(), $profiles_caption) : '';
   $output .= drupal_get_form('wallyedit_form_add_new_profile_form');
 
   return $output;
@@ -507,6 +507,26 @@ function wallyedit_form_fields_overview_form (&$form_state, $profile_id, $conten
   return $form;
 }
 
+function wallyedit_form_fields_overview_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  $type_name = $values['type'];
+  $profile_id = $values['profile_id'];
+  $fields = $values['fields'];
+  $existing_fields = wyditadmin_get_existing_fields($type_name);
+
+  $required_fields = array();
+  foreach ($values['fields'] as $field_name => $field) {
+    if (!$field['tab'] && $existing_fields[$field_name]['required']) {
+      $required_fields[] = $existing_fields[$field_name]['label'];
+    }
+  }
+  
+  if (!empty($required_fields)) {
+    //form_set_error('', t('The following fields are required and are not placed in a tab : @fields', array('@fields' => implode(', ', $required_fields))));
+    drupal_set_message(t('The following fields are required and are not placed in a tab : @fields. Default values (if set) will be used for these fields.', array('@fields' => implode(', ', $required_fields))), 'error');
+  }
+}
+
 function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
   $values = $form_state['values'];
   $type_name = $values['type'];
@@ -538,7 +558,7 @@ function wallyedit_form_fields_overview_form_submit ($form, &$form_state) {
       'display' => $display_value,
     );
 
-    $field_to_save = array_merge($field_to_save, $existing_fields[$field_name]);
+    $field_to_save = array_merge($field_to_save, isset($existing_fields[$field_name]) ? $existing_fields[$field_name] : array());
     if (isset($field_value['fid'])) {
       $field_to_save['fid'] = $field_value['fid'];
       drupal_write_record('wallyedit_fields', $field_to_save, 'fid');
@@ -957,11 +977,12 @@ function wyditadmin_get_fields_tree($profile_id, $type_name) {
 /**
  * Return list of existing fields for a content type
  */
-function wyditadmin_get_existing_fields($type_name) {
+function wyditadmin_get_existing_fields($type_name, $field = NULL) {
   static $existing_fields = array();
   if (!isset($existing_fields[$type_name])) {
-    $content_fields = content_types($type_name);
-    foreach ($content_fields['fields'] as $content_field) {
+    module_load_include('inc', 'content', 'includes/content.crud');
+    $content_fields = content_field_instance_read(array('type_name' => $type_name));
+    foreach ($content_fields as $content_field) {
       $existing_fields[$type_name][$content_field['field_name']] = array(
         'type' => $content_field['type'],
         'widget' => $content_field['widget']['type'],
@@ -969,6 +990,7 @@ function wyditadmin_get_existing_fields($type_name) {
         'label' => $content_field['widget']['label'],
         'multiple' => $content_field['multiple'],
         'module' => $content_field['module'],
+        'required' => $content_field['required'],
       );
       if ($content_field['type'] ==  'nodereference') {
         $existing_fields[$type_name][$content_field['field_name']]['referenceable_types'] = $content_field['referenceable_types'];
@@ -1089,7 +1111,7 @@ function wyditadmin_get_existing_fields($type_name) {
       );
     }
   }
-  return $existing_fields[$type_name];
+  return $field ? $existing_fields[$type_name][$field] : $existing_fields[$type_name];
 }
 
 /**

@@ -1,13 +1,6 @@
 <?php
 
 /**
- * Implementation of hook_enable()
- */
-function wallyedit_enable(){
-  drupal_rebuild_theme_registry();
-}
-
-/**
  * Implementation of hook_install()
  */
 function wallyedit_install() {
@@ -16,7 +9,6 @@ function wallyedit_install() {
   db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
   db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
   drupal_install_schema('wallyedit');
-  drupal_rebuild_theme_registry();
 }
 
 /**
@@ -24,7 +16,10 @@ function wallyedit_install() {
  */
 function wallyedit_uninstall() {
   drupal_uninstall_schema('wallyedit');
-  wallytoolbox_variable_del_like('wallyedit_');
+
+  // Delete all variables beginning with "wallyedit_"
+  db_query("DELETE FROM {variable} WHERE name LIKE '%s%'", 'wallyedit_');
+  variable_cache_rebuild();
   
   $ret = array();
   db_drop_field($ret, 'users', 'wydit_default_profile');
@@ -198,6 +193,32 @@ function wallyedit_schema(){
     ),
     'primary key' => array('fid'),
   );
+  
+  $schema['wallyedit_object_cache'] = array(
+    'description' => t('A special cache used to store prenodes that are being edited; it serves to save state in an ordinarily stateless environment.'),
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'not null' => TRUE,
+        'description' => 'The name of the object this cache is attached to.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created or updated.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('name'),
+  );
 
   return $schema;
 }
@@ -218,5 +239,16 @@ function wallyedit_update_6001() {
     'description' => 'Profile ID used as default in the Wally edition interface.',
   );
   db_add_field($ret, 'users', 'wydit_default_profile', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the prenodes cache table.
+ */
+function wallyedit_update_6002() {
+  $schemas = wallyedit_schema();
+  $ret = array();
+  db_create_table($ret, 'wallyedit_object_cache', $schemas['wallyedit_object_cache']);
   return $ret;
 }

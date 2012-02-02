@@ -5,6 +5,7 @@ project = "Wally"
 version = "6.x-1.0-rc1"
 
 dependencies[] = "ctools"
+dependencies[] = "content"
+dependencies[] = "views"
 dependencies[] = "views_bulk_operations"
-dependencies[] = "wallytoolbox"
 dependencies[] = "location"
