@@ -1016,15 +1016,6 @@ function cckdestinations_field_formatter_info() {
   );
 }
 
-/*function cckdestinations_cron(){
-  echo 'cckdest cron'.date("H:i:s")."\n";;
-  cckdestinations_api_decrement_rank();
-}
-
-function cckdestinations_api_decrement_rank(){
-  db_query("UPDATE {content_field_destinations} SET field_destination_rank=field_destination_rank-1 WHERE field_destination_rank>1");
-}*/
-
 /**
  * Implementation of hook_theme().
  *
@@ -1414,17 +1405,8 @@ function cckdestinations_autocomplete_process($element, $edit, $form_state, $for
  */
 function cckdestinations_autocomplete_validate($element, &$form_state) {
   $field_key  = $element['#columns'][0];
-  //if the element parents array contains the field key, we have to remove it
-  //because otherwise form_set_value won't work. (still the question why is it in)
-  /*if ($element['#parents'][count($element['#parents'])-1] == $field_key) {
-    array_pop($element['#parents']);
-    array_pop($element['#array_parents']);
-  }*/
-  
   $value = $element['#value'];
-
   $extracted_ids = cckdestinations_autocomplete_tags_get_tids($value, $element['#vid'], $element['#multiple']);
-
   form_set_value($element, $extracted_ids['existing_tids'], $form_state);
 }
 
@@ -1851,22 +1833,8 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
                 
                 node_save($elem_node);
               }
-              /*$new_time_rank = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-              $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank;
-              db_query('UPDATE {content_field_destinations} SET field_destinations_time_rank = %d WHERE nid = %d AND field_destinations_tid = %d AND field_destinations_target = "%s"', $new_time_rank, $current_results[$i - 1]->nid, $item['tid'], $item['target']);*/
             }
           }
-
-          // Determination of the time rank following the behavior and the rank
-          /*if ($behavior == 'top' || ($item['rank'] <= $reserved && $item['rank'] > 0)) {
-            if ($item['rank'] == '0' || $item['rank'] == '1') {
-              $temp_time_rank = max($current_results[0]->node_data_field_destinations_field_destinations_time_rank + 30, $temp_time_rank);
-            } else {
-              $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
-            }
-          } elseif (($item['rank'] == 0 && $behavior == 'bottom') || $item['rank'] > $reserved) {
-            $temp_time_rank = (int)(($current_results[0]->node_data_field_destinations_field_destinations_time_rank + $current_results[1]->node_data_field_destinations_field_destinations_time_rank)/2);
-          }*/
         }
       }
     }
