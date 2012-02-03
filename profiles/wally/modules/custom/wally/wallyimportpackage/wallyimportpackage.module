@@ -392,7 +392,7 @@ function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_elem
   }
   
   //Map XML element
-  wimprt_process_package_default($node, $dom_element, $log, $importer);
+  wimprt_process_node_default($node, $dom_element, $log, $importer);
   
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
