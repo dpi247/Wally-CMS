@@ -90,7 +90,6 @@ function ccimap_build_productinfo(){
   $hierarchies_array=wallyctools_get_hierarchies();
   $taxonomy_tree=taxonomy_get_tree(variable_get('wallymport_destinationpath',null));
   $nested_taxonomy_tree=wallytoolbox_convert_taxonomy_flat_to_tree($taxonomy_tree);
-  dsm(wallytoolbox_convert_taxonomy_flat_to_tree($taxonomy_tree),cvt);
   return theme('ccimapping_hierarchies',$hierarchies_array,$nested_taxonomy_tree);
 }
 
