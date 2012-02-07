@@ -1,3 +1,8 @@
-<?php dsm($variables);?>
-BLOCK		
-<esi:include srsc="http://example.com/1.html" alt="http://bak.example.com/2.html" onerror="continue" timeout="20" onerror="continue"/>
+<?php 
+$attributes_string='';
+foreach ($variables["esi"]['attributes'] as $key=>$value){
+  
+  $attributes_string.="$key =\"$value\" ";
+}
+?>
+<esi:<?php print$variables['esi']['action']?> <?php print $attributes_string?> />
