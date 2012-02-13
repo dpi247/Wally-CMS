@@ -1848,7 +1848,6 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
 
 //the return array will simply contain an array of pointers rather then physical objects
 
-
 /**
  * this function will take a flat vocabulary tree and turn it into a multi-tiered array
  * 
