@@ -401,7 +401,7 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
   }
   
   //Map XML element
-  wimprt_process_package_default($node, $dom_element, $log, $importer);
+  wimprt_node_process_fields($node, $dom_element, $log, $importer);
   
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
@@ -1345,7 +1345,7 @@ function wallyimportpackage_node_create_or_load_photoobjecttype($dom, &$log, $im
  *   Check variable name line 575, procced or proceed?
  */
 function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $importer){
-  static $procced_file_path;
+  
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
   	if ($crop->hasAttribute("Type")) {
@@ -1381,7 +1381,7 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
-  if (empty($rdpartyMatch)){//No a 3rdparty
+  if (empty($rdpartyMatch)){//Not a 3rdparty
     $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
@@ -1667,7 +1667,7 @@ function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri->nodeValue);
   if ($uri['scheme'] == "externalRef"){
-    $ext_ref = $uri['path'];
+    $ext_ref = $uri['host'];
     if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
@@ -1755,9 +1755,21 @@ function wallyimportpackage_node_create_or_load_link($dom, &$log, $importer){
 function wallyimportpackage_node_process_linkslist(&$node, $dom, &$log, $importer){
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
+  $results = array();
   $links = $dom->getElementsByTagName("Links")->item(0);
-  foreach(wimprt_node_process_list($links, $log, $importer) as $result){
-    $node->field_links_list[]['nid'] = $result->nid;
+  
+  //DDU: We need to reset the field first see: http://rossel.audaxis.com/jira/browse/WALLY-237
+  $node->field_links_list = array();
+  $node->field_links_list_nodes = array();
+  
+  foreach (wimprt_node_process_list($links, $log, $importer) as $result){
+    if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
+      $link_item[$result->nid] = $result->nid;
+      $node->field_links_list[]['nid'] = $result->nid;
+      if ($importer->wallymport_preview){
+        $node->field_links_list_nodes[] = $result;
+      }
+    }
   }
 }
 
@@ -1822,6 +1834,7 @@ function wallyimportpackage_node_set_field_rating(&$node, $dom, &$log, $importer
 function wallyimportpackage_node_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textarette[0]['value'] = $value;
+  $node->field_textarette[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1842,6 +1855,7 @@ function wallyimportpackage_node_set_field_textbarette(&$node, $dom, &$log, $imp
 function wallyimportpackage_node_set_field_textforetitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textforetitle[0]['value'] = $value;
+  $node->field_textforetitle[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1902,6 +1916,7 @@ function wallyimportpackage_node_set_field_textsubtitle(&$node, $dom, &$log, $im
 function wallyimportpackage_node_set_field_textchapo(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textchapo[0]['value'] = $value;
+  $node->field_textchapo[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1922,8 +1937,12 @@ function wallyimportpackage_node_set_field_textchapo(&$node, $dom, &$log, $impor
 function wallyimportpackage_node_set_field_textbody(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textbody[0]['value'] = $value;
+  $node->field_textbody[0]['format'] = wallyimportpackage_get_default_format();
 }
 
+function wallyimportpackage_get_default_format(){
+  return "2";
+}
 /**
  * Process field Text Extract Medium from DOM element.
  * 
