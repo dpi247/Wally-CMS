@@ -206,8 +206,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   if ($importer == NULL){
     $temp_folder = $proceed_folder_path;
   } else {
-    $temp_folder = $importer->temp_subdir;
-    
+    $temp_folder = $importer->temp_subdir; 
   }
   
   $uri = parse_url($file_uri);

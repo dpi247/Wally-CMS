@@ -698,10 +698,10 @@ function wallymport_preprocess_zip($file, &$importer, &$return){
       $importer->temp_subdir = $temp_subdir;
       $zip->extractTo($temp_subdir);
       // Search for XMLs
-      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
       if (count($import_files) == 0) {
         $zip_error = TRUE;
-        $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
+        $error_msg = t('No XML file found in the import: !file. The ZIP must contains only files, no folder.', array('!file' => $file->basename));
         $return = array('error' => TRUE, 'error_msg' => $error_msg);
       } elseif (count($import_files) > 1) {
         $zip_error = TRUE;
