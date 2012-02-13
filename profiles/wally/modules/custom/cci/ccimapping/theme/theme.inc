@@ -11,8 +11,6 @@ function theme_ccimapping_typeselector($type){
 }
 
 function theme_ccimapping_hierarchies($hierarchies,$nested_taxonomy_tree){
-  
-  
   $output='<?xml version="1.0" encoding="UTF-8" standalone="no"?>'."\n";
   $output.='<exportproductinformation newsroom = "CciNewsRoom" publicationchannel = "sudpresse.be" subtype = "Online">'."\n";
   $output.=' <pubdatestring name = "%d-%m-%Y"/>'."\n";
@@ -39,18 +37,15 @@ function theme_ccimapping_hierarchies($hierarchies,$nested_taxonomy_tree){
 
 function theme_ccimapping_hierarchies_items($hierarchies,$nested_taxonomy_tree){
   foreach ($nested_taxonomy_tree as $key=>$values){
-  
-  $term=$values['term'];
-  $level=$term->depth+1;
+    $term=$values['term'];
+    $level=$term->depth+1;
     $output.='    <level'.$level.' name="'.$hierarchies[ $term->tid]['term_name'].'">'."\n";
     foreach ($hierarchies[$term->tid]['redacblocks'] as $redack_machine_name=>$redacblock){
       $output.='      <leaf name="'.$redack_machine_name.'"/>'."\n";
     }
-    
     $output.=theme('ccimapping_hierarchies_items',$hierarchies,$values['childrens']);
-    
     $output.='    </level'.$level.'>'."\n";
   }
-  
+
   return $output;
 }
