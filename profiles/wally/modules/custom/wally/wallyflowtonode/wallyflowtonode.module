@@ -216,7 +216,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
         
         $tempFile = variable_get('wallymport_temp','').'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
-        $temp_return = wallymport_process_xmlfile($tempFile, $importer);
+        $temp_return = wallymport_page_process_file($tempFile, $importer);
         //file_delete($tempFile);
 
         if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {

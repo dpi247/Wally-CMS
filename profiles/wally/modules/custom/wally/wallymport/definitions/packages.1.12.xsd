@@ -46,7 +46,7 @@
 		  </xsd:simpleType>
 		</xsd:element>
 		<xsd:element name="FreeAccess" minOccurs="0" maxOccurs="1" type="xsd:boolean" nillable="true"/>
-		<xsd:element name="AutoPublish" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
+		<xsd:element name="AutoPublish" minOccurs="0" maxOccurs="1" type="xsd:boolean" nillable="true"/>
 		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" nillable="true"/>
 		<xsd:element name="PackageLayout" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="Summary" type="xsd:anyType"/>
