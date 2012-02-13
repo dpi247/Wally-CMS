@@ -14,14 +14,9 @@ define('ESI__BLOCK_CONFIG_DEFAULT__IS_ENABLED', FALSE);
 define('ESI__BLOCK_CONFIG_DEFAULT__TTL', 300);
 
 function wallyesi_form_alter($form,$form_state,$form_id){
-  //dsm($form);
-  //dsm($form_id,formid);
-  //dsm($form_state,fs);
-  //watchdog( $form_id,'<pre>'.print_r($form_state,1).'</pre>');
-
+  
   ctools_include('dependent');
   ctools_add_js('dependent');
-  
   //TODO: DDU ARGhhhh .... get_class() .... really ? ... find something better...
   if(isset($form_state['display']) and get_class($form_state['display'])=='panels_display'){
     // TODO: describe how the cache configs can be configured as defaults in code.
@@ -30,21 +25,24 @@ function wallyesi_form_alter($form,$form_state,$form_id){
     module_load_include('inc', 'wallyesi', 'includes/wallyesi_ctoolscontenttype');
 
     $type = $form_state['pane']->type;
-    $subtype  = $form_state['pane']->subtype;
-    $config = _wallyesi__ctoolscontenttype_settings($type, $subtype,$form_state['pane']->pid);
+    if($type!=""){
+      $subtype  = $form_state['pane']->subtype;
+       
+      $config = _wallyesi__ctoolscontenttype_settings($type, $subtype,$form_state['pane']->pid);
 
-    $element['esi_config']['#tree']=TRUE;
+      $element['esi_config']['#tree']=TRUE;
 
-    $element['esi_config']['enabled'] = array(
+      $element['esi_config']['enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable ESI for this pane'),
     '#default_value' => $config->enabled,
         '#id'               => 'esi-config-enabled-checkbox',
-    
-    );
 
-    $options = _wallyesi__ttl_options($config->ttl);
-    $element['esi_config']['ttl'] = array(
+      );
+
+
+      $options = _wallyesi__ttl_options($config->ttl);
+      $element['esi_config']['ttl'] = array(
     '#type' => 'select',
     '#title' => t('TTL'),
     '#description' => t('Time-to-live on the proxy-cache.'),
@@ -52,26 +50,26 @@ function wallyesi_form_alter($form,$form_state,$form_id){
     '#default_value' => $config->ttl,
         '#dependency'       => array('esi-config-enabled-checkbox' => array('1')),
     '#process'          => array('ctools_dependent_process'),
-    
-    );
 
-    // inject our ESI config-fieldset onto the form,
-    // just after the 'block_settings' fieldset.
-    $i = 1;
-    foreach($form as $key => $value) {
-      if($key == 'aligner_stop') {
-        break;
+      );
+
+      // inject our ESI config-fieldset onto the form,
+      // just after the 'block_settings' fieldset.
+      $i = 1;
+      foreach($form as $key => $value) {
+        if($key == 'aligner_stop') {
+          break;
+        }
+        $i++;
       }
-      $i++;
+      $f = array_slice($form, 0, $i);
+      $f += $element;
+      $f += array_slice($form, $i);
+      $form = $f;
+
+      // add a submit-handler to save our config.
+      $form['#submit'][] = 'wallyesi__ctoolscontenttype_config_save';
     }
-    $f = array_slice($form, 0, $i);
-    $f += $element;
-    $f += array_slice($form, $i);
-    $form = $f;
-
-    // add a submit-handler to save our config.
-    $form['#submit'][] = 'wallyesi__ctoolscontenttype_config_save';
-
 
   }
 
@@ -163,11 +161,10 @@ function wallyesi_content_callback($type, $identifier,$delta, $variables_hash = 
   //use Plugin instead
   $func='wesi_render_'.$type;
   if(function_exists($func)){
+  	
     $result = $func($identifier, $delta);
    // cache_set($cid, $result, 'cache_esi');
-    //return $result;
   }
-  
   // prevent use of page.tpl.php 
   return NULL;
 }
@@ -196,7 +193,7 @@ function wesi_render_blockcore($module,$delta){
   
   $block_content=(object) module_invoke($module, 'block', 'view', $delta);
   $block_content->enabled = TRUE;
-  return theme('block', $block_content);
+  print theme('block', $block_content);
 }
 
 
@@ -204,6 +201,7 @@ function wesi_render_blockcore($module,$delta){
 function wesi_render_ctoolscontenttype($module,$identifier,$subtype){
   $esi_api_variables = wallyesi_api_variables();
   $menu_item=menu_get_item($esi_api_variables['drupal_path']);
+ // dsm($menu_item);
   switch($menu_item['page_callback']){
     case 'page_manager_term_view':
       ctools_include('context');
@@ -232,27 +230,61 @@ function wesi_render_ctoolscontenttype($module,$identifier,$subtype){
       $task = page_manager_get_task('node_view');
 
       // Load the node into a context.
-  	  ctools_include('context');
-      ctools_include('context-task-handler');
-      //dsm($menu_item['page_arguments']);
-      $contexts = ctools_context_handler_get_task_contexts($task, '', array(current($menu_item['page_arguments'])));
+  	  $contexts = ctools_context_handler_get_task_contexts($task, '', array(current($menu_item['page_arguments'])));
       $pane_type=$module;
       $pane_subtype=$identifier;
-      //dsm($contexts);
-      //dsm($task);
       print esi_content_node_view($task,$contexts,$pane_type,$pane_subtype);
-    
+    case "page_manager_page_execute":
+      ctools_include('page', 'page_manager', 'plugins/tasks');
+      ctools_include('context');
+      ctools_include('context-task-handler');
+      ctools_include('display-render', 'panels');
+      ctools_include('plugins', 'panels');
+
+            ctools_get_plugins('page_manager','task_handlers', 'panel_context');
+      $subtask_id=$menu_item['page_arguments'][0];
+      $page = page_manager_page_load($subtask_id);
+      $task = page_manager_get_task($page->task);
+      $subtask = page_manager_get_task_subtask($task, $subtask_id);
+
+      // Turn the contexts into a properly keyed array.
+      $contexts = array();
+      $args = array();
+      
+      foreach ($menu_item['page_arguments'] as $count => $arg) {
+        if (is_object($arg) && get_class($arg) == 'ctools_context') {
+          $contexts[$arg->id] = $arg;
+          $args[] = $arg->original_argument;
+        }
+        else if ($count) {
+          $args[] = $arg;
+        }
+      }
+
+      $count = 0;
+      $names = page_manager_page_get_named_arguments($page->path);
+      $bits = explode('/', $page->path);
+
+      $pane_type=$module;
+      $pane_subtype=$identifier;
+      //$output = ctools_context_handler_render($task, $subtask, $contexts, $args);
+      
+     esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype);
+     
+   
     break;
   }
   
 }
 function esi_content_node_view($task,$contexts,$pane_type,$pane_subtype){
-  esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype);
- // return 'r';
+esi_content_page_manager_render($task,'',$contexts,$pane_type,$pane_subtype);
 }
 function esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype){
+esi_content_page_manager_render($task,'',$contexts,$pane_type,$pane_subtype);   
+}
 
-  $handlers = page_manager_load_sorted_handlers($task, $subtask ? $subtask['name'] : '', TRUE);
+function esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype){
+ $handlers = page_manager_load_sorted_handlers($task, $subtask ? $subtask['name'] : '', TRUE);
   foreach ($handlers as $handler_suggestion) {
     if(ctools_context_handler_select($handler_suggestion, $contexts)){
       $handler=$handler_suggestion;
@@ -270,7 +302,7 @@ function esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype){
   $display->args = $args;
   $display->css_id = $handler->conf['css_id'];
   
-    panels_get_current_page_display($display);
+ panels_get_current_page_display($display);
   
   
   //small hard code value to bypass logic (there is only one standard rendering in panels implemented see Drupal 8 for more rendrer solutions)
@@ -282,21 +314,15 @@ function esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype){
    $renderer->prepare_panes( $renderer->display->content);
    
    $renderer->render_panes();
+   
+   
    foreach($renderer->prepared['panes'] as $pane_suggestion){
      if($pane_suggestion->type==$pane_type && $pane_suggestion->subtype==$pane_subtype){
        $pane=$pane_suggestion;
        break;
      }
    }
-   /*
-   dsm($task,task);
-   dsm($contexts,contexts);
-   dsm($renderer,rendered);
-   dsm($display,display);
-   dsm($pane_type,paneType);;
-   dsm($pane_subtype,paneSubType);
-   dsm($pane,"pane $pane_type $pane_subtype ");
-   */ 
+
    
    
    //FOUND THE CORRECT PANE AND THE FOR THIS PANE
@@ -304,9 +330,7 @@ function esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype){
    
    echo $content;
    //return $content;
-   
 }
-
 
 
 
@@ -486,7 +510,8 @@ function wallyesi_preprocess_block(&$variables) {
   module_load_include('inc', 'wallyesi', 'includes/wallyesi_block');
   
   $esi_config=_wallyesi__block_settings($variables['block']->module, $variables['block']->delta);
-  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE  and $esi_api_variables['esi_context']!=TRUE){
+  $esi_enabled=variable_get('local_esi_enabled',true);
+  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE  and $esi_api_variables['esi_context']!=TRUE and $esi_enabled){
     $variables['template_file']='wallyesi_esitag_block';
         $esi=array(
       'action'=>'include',
@@ -505,12 +530,10 @@ function wallyesi_preprocess_panels_pane(&$variables) {
   global $base_url;
   global $esi_api_variables;
   module_load_include('inc', 'wallyesi', 'includes/wallyesi_ctoolscontenttype');
-  
-  $esi_config=_wallyesi__ctoolscontenttype_settings($variables['pane']->type, $variables['pane']->subtype);
-  
-  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE and $esi_api_variables['esi_context']!=TRUE){
+  $esi_config=_wallyesi__ctoolscontenttype_settings($variables['pane']->type, $variables['pane']->subtype,$variables['pane']->pid);
+  $esi_enabled=variable_get('local_esi_enabled',true);
+  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE and $esi_api_variables['esi_context']!=TRUE  and $esi_enabled){
     $variables['template_file']='wallyesi_esitag_ctoolscontenttype';
-    //dsm($variables['pane']->type);
     $esi=array(
       'action'=>'include',
       'attributes'=> array(
@@ -527,7 +550,5 @@ function wallyesi_preprocess_panels_pane(&$variables) {
 function  wallyesi_theme_registry_alter(&$theme_registry) {
   array_unshift($theme_registry['block']['theme paths'],  drupal_get_path('module', 'wallyesi').'/theme');
   array_unshift($theme_registry['panels_pane']['theme paths'],  drupal_get_path('module', 'wallyesi').'/theme');
-  //dsm($theme_registry['block'],registry_block);
-  //dsm($theme_registry['panels_pane'],registry_ppane);
-  
+
 }

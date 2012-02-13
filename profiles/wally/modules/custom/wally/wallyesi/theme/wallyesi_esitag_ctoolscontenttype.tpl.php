@@ -1,5 +1,4 @@
 <?php 
-dsm($variables);
 $attributes_string='';
 foreach ($variables["esi"]['attributes'] as $key=>$value){
   
