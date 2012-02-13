@@ -1,138 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://rossel.audaxis.com" elementFormDefault="qualified">
+<xsd:schema xmlns="http://rossel.audaxis.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://rossel.audaxis.com" elementFormDefault="qualified" >
 
- <xsd:element name="Packages" type="PackagesType" />
 
- <!-- PACKAGES -->
- <xsd:complexType name="PackagesType">
- <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-	<xsd:element name="Package" type="PackageType" />
- </xsd:sequence>
- </xsd:complexType>
- <!-- /PACKAGES -->
+ <xsd:element name="Messages" type="MessagesType" />
 
- <!-- PACKAGE TYPE (generic) -->
- <xsd:complexType name="PackageType">
-	<xsd:sequence minOccurs="0" maxOccurs="1">
-		<!-- COMMON ELEMS -->
-		<xsd:element name="ProductID" type="xsd:string" />
-		<xsd:element name="Newsroom" type="xsd:string" />
-		<xsd:element name="StoryFolder" >
-			<xsd:complexType >
-				<xsd:simpleContent>
-	     				<xsd:extension base="xsd:string">
-						<xsd:attribute name="date" type="xsd:dateTime" /> 
-					</xsd:extension>
-				</xsd:simpleContent>
-			</xsd:complexType>
-		</xsd:element>
-		<xsd:element name="Desk1" type="xsd:string" />
-		<xsd:element name="Desk2" type="xsd:string" minOccurs="0" maxOccurs="1" />
-		<xsd:element name="SourceXML" type="xsd:anyType" minOccurs="0" maxOccurs="1"/>
-		<xsd:element name="PackageTitle" type="xsd:string" />
-		<xsd:element name="PackageDescription" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="ExternalReference" type="xsd:string" />
-		<xsd:element name="Destinations" type="DestinationsType" />
-		<xsd:element name="Editions" type="EditionsType" />
-		<xsd:element name="Channels" type="ChannelsType" />
-		<xsd:element name="CommentsAllowed" minOccurs="0" maxOccurs="1">
-		  <xsd:simpleType>
-			<xsd:restriction base="xsd:string">
-			  <xsd:enumeration value="Disabled"/>
-			  <xsd:enumeration value="Read Only"/>
-			  <xsd:enumeration value="Read-Write"/>
-			</xsd:restriction>
-		  </xsd:simpleType>
-		</xsd:element>
-		<xsd:element name="FreeAccess" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
-		<xsd:element name="AutoPublish" minOccurs="0" maxOccurs="1" type="xsd:boolean" />
-		<xsd:element name="Authors" minOccurs="0" maxOccurs="1" type="PersonsType" />
-		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
-		<xsd:element name="PackageLayout" minOccurs="0" maxOccurs="1" type="xsd:string" />
-		<xsd:element name="Summary" type="xsd:anyType" />
-		<xsd:element name="ExternalURI" type="xsd:anyURI" minOccurs="0" maxOccurs="1" />
-		<!-- /COMMON ELEMS -->
+ <!-- MESSAGES -->
+<xsd:complexType name="MessagesType">
+	<xsd:sequence>
+		<xsd:element name="Message" type="MessageType" />
 	</xsd:sequence>
-	<!-- COMMON ATTRIBUTES -->
-	<xsd:attribute name="PackageID" type="xsd:string" use="required" />
-	<xsd:attribute name="PublicationDate" type="xsd:dateTime" use="required"/>
-	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
-	<xsd:attribute name="LastUpdateDate" type="xsd:dateTime" />
-	<xsd:attribute name="EmbargoDate" type="xsd:dateTime" />
-	<xsd:attribute name="UnPublishDate" type="xsd:dateTime" />
-	<xsd:attribute name="Language" type="xsd:string" />
-	<xsd:attribute name="Version" type="xsd:string" use="optional"/>
-	<xsd:attribute name="Action" use="optional">
+</xsd:complexType>
+ <!-- /MESSAGES -->
+ 
+ <!-- MESSAGE -->
+<xsd:complexType name="MessageType">
+	<xsd:sequence>
+		<xsd:element name="ProductID" type="xsd:string" />
+		<xsd:element name="Object" type="ObjectType" />
+	</xsd:sequence>
+	<xsd:attribute name="Date" type="xsd:dateTime" use="required" />
+	<xsd:attribute name="Action" use="required" >
 		<xsd:simpleType>
-			<xsd:restriction base="xsd:NMTOKEN">
-				<xsd:enumeration value="Delete"/>
-				<xsd:enumeration value="Preview"/>
-      </xsd:restriction>
+			<xsd:restriction base="xsd:token">
+				<xsd:enumeration value="update" />
+				<xsd:enumeration value="delete" />
+			</xsd:restriction>
 		</xsd:simpleType>
 	</xsd:attribute>
+</xsd:complexType>
+<!-- MESSAGE -->
 
-	<!-- /COMMON ATTRIBUTES -->
- </xsd:complexType>
- <!-- /PACKAGE TYPE -->
-
- <!-- ARTICLE PACKAGE -->
- <xsd:complexType name="ArticlePackageType">
-	<xsd:complexContent>
-		<xsd:extension base="PackageType"> 
-			<xsd:sequence>
-				<xsd:element name="MainStory" minOccurs="1" maxOccurs="1" type="TextObjectType" />
-				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="1" type="EmbeddedContentType" />
-			</xsd:sequence>
-		</xsd:extension>
-	</xsd:complexContent>
- </xsd:complexType>
- <!-- /ARTICLE PACKAGE -->
-
- <!-- MULTIMEDIA GALLERY PACKAGE -->
- <xsd:complexType name="GalleryPackageType">
-	<xsd:complexContent>
-		<xsd:extension base="PackageType"> 
-			<xsd:sequence>
-				<xsd:element name="MainObject" minOccurs="1" maxOccurs="1"  type="MultiMediaObjectType" />
-				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="1" type="EmbeddedContentType" />
-			</xsd:sequence>
-		</xsd:extension>
-	</xsd:complexContent>
- </xsd:complexType>
- <!-- /MULTIMEDIA GALLERY PACKAGE -->
-
- <!-- POLL PACKAGE -->
- <xsd:complexType name="PollPackageType">
-	<xsd:complexContent>
-		<xsd:extension base="PackageType"> 
-			<xsd:sequence>
-				<xsd:element name="Poll" type="PollObjectType" minOccurs="1" maxOccurs="unbounded"/>
-				<xsd:element name="EmbeddedContent" minOccurs="0" maxOccurs="unbounded" type="EmbeddedContentType" />
-			</xsd:sequence>
-		</xsd:extension>
-	</xsd:complexContent>
- </xsd:complexType>
- <!-- /POLL PACKAGE -->
- 
  <!-- META-DATA OBJECT (generic) -->
  <xsd:complexType name="ObjectType">
 	 <xsd:sequence>
-		<xsd:element name="Title" type="xsd:string" />
-		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
+		<xsd:element name="Title" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ExternalReference" type="xsd:string" />
-		<xsd:element name="Markers" minOccurs="0" maxOccurs="1" type="LocationsType" />
+		<xsd:element name="InternalReference" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="Taxonomy" minOccurs="0" maxOccurs="1" type="TaxonomyType" />
-		<xsd:element name="Locations" minOccurs="0" maxOccurs="1" type="LocationsType" />
-		<xsd:element name="Entities" minOccurs="0" maxOccurs="1" type="EntitiesType" />
-		<xsd:element name="Persons" minOccurs="0" maxOccurs="1" type="PersonsType" />
-		<xsd:element name="Authors" minOccurs="0" maxOccurs="1" type="PersonsType" />
 		<xsd:element name="Copyright" minOccurs="0" maxOccurs="1" type="xsd:string" />
 		<xsd:element name="ByLine" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 		<xsd:element name="EmbeddedObjectsOrder" minOccurs="0" maxOccurs="1" type="xsd:short" />
+		<xsd:element name="CustomFields" minOccurs="0" maxOccurs="1" type="CustomFieldsType" />
+		<xsd:element name="Marker" minOccurs="0" maxOccurs="1" type="LocationType" />
  	 </xsd:sequence>
 	<!-- META-DATA OBJECT ATTRIBUTES -->
-	<xsd:attribute name="ObjectID" type="xsd:string" use="required" />
+	<xsd:attribute name="ObjectID" type="xsd:string" />
 	<xsd:attribute name="ObjectDescription" type="xsd:string" />
 	<xsd:attribute name="PublicationDate" type="xsd:dateTime" />
 	<xsd:attribute name="CreationDate" type="xsd:dateTime" use="required" />
@@ -147,10 +59,6 @@
 		<xsd:extension base="ObjectType"> 
 			<xsd:sequence>
 				<xsd:element name="Caption" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
-				<xsd:element name="FileURI" type="xsd:anyURI" />
-				<xsd:element name="FileSize" type="xsd:decimal" />
-				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
-				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
 				<xsd:element name="Thumbnail" minOccurs="0" maxOccurs="1" type="ThumbnailType" />
 				<xsd:element name="Rating" minOccurs="0" maxOccurs="1">
 					<xsd:simpleType>
@@ -180,6 +88,8 @@
 				<xsd:element name="Crops" minOccurs="0" maxOccurs="1" type="CropsType" />
 				<xsd:element name="LinkTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="LinkURI" minOccurs="0" maxOccurs="1" type="xsd:anyURI" />
+				<xsd:element name="Width" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="Height" type="xsd:decimal" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
@@ -221,10 +131,8 @@
 			<xsd:sequence>
 				<xsd:element name="TextBarette" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="TextForeTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="TextTitle" type="xsd:string" />
 				<xsd:element name="TextSubTitle" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="TextChapo" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
-				<xsd:element name="TextBody" type="xsd:anyType" />
 				<xsd:element name="ExtractMedium" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
 				<xsd:element name="ExtractShort" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
  			</xsd:sequence>
@@ -243,7 +151,7 @@
 		<xsd:extension base="ObjectType"> 
 			<xsd:sequence>
 				<xsd:element name="Summary" minOccurs="0" maxOccurs="1" type="xsd:anyType" />
-				<xsd:element name="DateOpen" type="xsd:dateTime" />
+				<xsd:element name="DateOpen" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
 				<xsd:element name="DateClose" minOccurs="0" maxOccurs="1" type="xsd:dateTime" />
 				<xsd:element name="PollQuestions" minOccurs="1" maxOccurs="1" type="PollQuestionsType" />
  			</xsd:sequence>
@@ -287,22 +195,6 @@
 	<xsd:attribute name="DocumentLayout" use="required" type="xsd:string" />
  </xsd:complexType>
  <!-- /DESTINATIONS -->
-
- <!-- EDITIONS -->
- <xsd:complexType name="EditionsType">
-	 <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-		<xsd:element name="Edition">
-			<xsd:complexType>
-				<xsd:simpleContent>
-					<xsd:extension base="xsd:boolean">
-						<xsd:attribute name="EditionID" type="xsd:string" />
-					</xsd:extension>
-				</xsd:simpleContent>
-			</xsd:complexType>
-		</xsd:element>
- 	 </xsd:sequence>
- </xsd:complexType>
- <!-- /EDITIONS -->
 
  <!-- CHANNELS -->
  <xsd:complexType name="ChannelsType">
@@ -366,14 +258,6 @@
  </xsd:complexType>
  <!-- /ADDRESS -->
 
-			 <!-- ENTITIES -->
-			 <xsd:complexType name="EntitiesType">
-				<xsd:sequence minOccurs="1" maxOccurs="unbounded">
-					<xsd:element name="Entity" minOccurs="0" maxOccurs="1" type="EntityType" />
-			 	</xsd:sequence>
-			 </xsd:complexType>
-			 <!-- /ENTITIES -->
-
  <!-- ENTITY -->
  <xsd:complexType name="EntityType">
 	<xsd:complexContent>
@@ -381,20 +265,11 @@
 			<xsd:sequence>
 				<xsd:element name="EntityDescription" minOccurs="0" maxOccurs="1" type="xsd:string" />
 				<xsd:element name="EntityServices" minOccurs="0" maxOccurs="1" type="xsd:string" />
-				<xsd:element name="Locations" minOccurs="0" maxOccurs="1" type="LocationsType" />
 			</xsd:sequence>
 		</xsd:extension>
 	</xsd:complexContent>
  </xsd:complexType>
  <!-- /ENTITY -->
-
-		 <!-- PERSONS -->
-		 <xsd:complexType name="PersonsType">
-			<xsd:sequence minOccurs="1" maxOccurs="unbounded">
-				<xsd:element name="Person" minOccurs="0" maxOccurs="1" type="PersonType" />
-		 	</xsd:sequence>
-		 </xsd:complexType>
-		 <!-- /PERSONS -->
 
 <!-- PERSON -->
 <xsd:complexType name="PersonType">
@@ -423,14 +298,6 @@
  </xsd:complexType>
  <!-- /PERSON -->
 
-
-		 <!-- LOCATIONS -->
-		 <xsd:complexType name="LocationsType">
-			 <xsd:sequence minOccurs="1" maxOccurs="unbounded">
-				<xsd:element name="Location" minOccurs="0" maxOccurs="unbounded" type="LocationType" />
-		 	 </xsd:sequence>
-		 </xsd:complexType>
-		 <!-- /LOCATIONS -->
 
 <!--LOCATIONITEM -->
  <xsd:complexType name="LocationType">
@@ -461,7 +328,7 @@
 
  <xsd:complexType name="VocabularyItem">
 	<xsd:sequence>
-		<xsd:element name="Term" minOccurs="1" maxOccurs="unbounded" type="TermType" />
+		<xsd:element name="Term" minOccurs="0" maxOccurs="unbounded" type="TermType" />
 	</xsd:sequence>
 	<xsd:attribute name="VocabularyName" type="xsd:string" use="required" />
 	<xsd:attribute name="VocabularyDescription" type="xsd:string" />
@@ -482,9 +349,11 @@
 		<xsd:element name="Variations"  minOccurs="0" maxOccurs="1">
 			<xsd:complexType>
 				<xsd:sequence>
-					<xsd:element name="Variation" type="xsd:string" minOccurs="1" maxOccurs="unbounded"/>
+					<xsd:element name="Variation" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 			</xsd:complexType>
+		</xsd:element>
+		<xsd:element name="Extras"  minOccurs="0" maxOccurs="1" type="ExtraType">
 		</xsd:element>
 	</xsd:sequence>
 	<xsd:attribute name="Name" type="xsd:string"/>	
@@ -558,8 +427,7 @@
 			<xsd:complexType>
 				<xsd:simpleContent>
 					<xsd:extension base="xsd:string">
-            <xsd:attribute name="Type" type="xsd:string" />
-            <xsd:attribute name="FieldName" type="xsd:string" />
+            					<xsd:attribute name="FieldName" type="xsd:string" />
 					</xsd:extension>
 				</xsd:simpleContent>
 			</xsd:complexType>
@@ -568,4 +436,20 @@
  </xsd:complexType>
  <!-- /CUSTOM FIELDS -->
 
+<!-- EXTRATYPE -->
+<xsd:complexType name="ExtraType">
+	<xsd:sequence>
+		<xsd:element name="Extra" minOccurs="0" maxOccurs="unbounded">
+			<xsd:complexType>
+				<xsd:simpleContent>
+					<xsd:extension base="xsd:string">
+            					<xsd:attribute name="name" type="xsd:string" />
+					</xsd:extension>
+				</xsd:simpleContent>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:sequence>
+</xsd:complexType>
+
+<!-- /EXTRATYPE -->
 </xsd:schema>
