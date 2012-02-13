@@ -1334,8 +1334,6 @@ function wallyimportpackage_create_or_load_object_photoobjecttype($dom, &$log, $
  *   Check variable name line 575, procced or proceed?
  */
 function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
-
-  static $procced_file_path;
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
   	if ($crop->hasAttribute("Type")) {
@@ -1372,7 +1370,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
   
-  if (empty($rdpartyMatch)){//No a 3rdparty
+  if (empty($rdpartyMatch)){ //Not a 3rdparty
     $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
@@ -1658,8 +1656,10 @@ function wallyimportpackage_process_type_link(&$node, $dom, &$log, $importer){
   $uri = $dom->getElementsByTagName('URI')->item(0);
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri->nodeValue);
+    
   if ($uri['scheme'] == "externalRef"){
-    $ext_ref = $uri['path'];
+    $ext_ref = $uri['host'];
+    
     if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
@@ -1747,10 +1747,21 @@ function wallyimportpackage_create_or_load_type_link($dom, &$log, $importer){
  */
 function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $importer){
   wimprt_process_node_default($node, $dom, $log, $importer);
-
+  $results = array();
   $links = $dom->getElementsByTagName("Links")->item(0);
+  
+  //DDU: We need to reset the field first see: http://rossel.audaxis.com/jira/browse/WALLY-237
+  $node->field_links_list=array();
+  $node->field_links_list_nodes=array();
+  
   foreach(wimprt_process_list($links, $log, $importer, 'type') as $result){
-    $node->field_links_list[]['nid'] = $result->nid;
+    if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
+      $link_item[$result->nid] = $result->nid;
+      $node->field_links_list[]['nid'] = $result->nid;
+      if ($importer->wallymport_preview){
+        $node->field_links_list_nodes[] = $result;
+      }
+    }
   }
 }
 
@@ -1815,6 +1826,7 @@ function wallyimportpackage_set_field_rating(&$node, $dom, &$log, $importer){
 function wallyimportpackage_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textarette[0]['value'] = $value;
+  $node->field_textarette[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1835,6 +1847,7 @@ function wallyimportpackage_set_field_textbarette(&$node, $dom, &$log, $importer
 function wallyimportpackage_set_field_textforetitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textforetitle[0]['value'] = $value;
+  $node->field_textforetitle[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1895,6 +1908,7 @@ function wallyimportpackage_set_field_textsubtitle(&$node, $dom, &$log, $importe
 function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textchapo[0]['value'] = $value;
+  $node->field_textchapo[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
@@ -1915,6 +1929,11 @@ function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
 function wallyimportpackage_set_field_textbody(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_textbody[0]['value'] = $value;
+  $node->field_textbody[0]['format'] = wallyimportpackage_get_default_format();
+}
+
+function wallyimportpackage_get_default_format(){
+  return "2";
 }
 
 /**

@@ -199,16 +199,12 @@ function _wimprthelp_plain_text($text){
  */
 function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $importer = NULL ){
  
-  global $proceed_file_path;
-  global $base_path;
-  global $proceed_folder_path;
-  
   if ($importer == NULL){
     $temp_folder = $proceed_folder_path;
   } else {
-    $temp_folder = $importer->temp_subdir;
+    $temp_folder = $importer->temp_subdir; 
   }
-  
+
   $uri = parse_url($file_uri);
   $badcar = array("+"," ");
   $new_file_path = rtrim($new_file_path, '/');
@@ -224,7 +220,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
-      	watchdog('Wallymport file', "copie du fichier ".$file_temp_path." vers ".$file_dest_path." a échoué", array(), WATCHDOG_ERROR);
+      	watchdog('Wallymport file', "copie du fichier ".$file_temp_path." vers ".$file_dest_path." a ̩chou̩", array(), WATCHDOG_ERROR);
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
         return $return;

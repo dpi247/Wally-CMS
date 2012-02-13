@@ -130,9 +130,10 @@ function wallymport_menu() {
     'type'             => MENU_CALLBACK,
   );
   
-  $items['wallymport/test'] = array(
+  $items['wallymport/test/%'] = array(
   	'title'           => 'test',
     'page callback'   => 'wallymport_page_test',
+    'page arguments'  => array(2),
     'access arguments' => array('administer wallymport'),
     'type'            => MENU_NORMAL_ITEM,
   );
@@ -679,7 +680,6 @@ function wallymport_preprocess_file($file, &$importer, &$returns){
   } else {
     $xml_file = $file->filename;
   }
-  
   return $xml_file;
 }
 
@@ -703,21 +703,21 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
 
   $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    
     $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
     file_check_directory($temp_subdir,1);
     if (is_dir($temp_subdir)) {
       $importer->temp_subdir = $temp_subdir;
       $zip->extractTo($temp_subdir);
       // Search for XMLs
-      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, TRUE, 'name', 0);
+      $import_files = file_scan_directory($temp_subdir, '.*\.xml$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
+      
       if (count($import_files) == 0) {
         $zip_error = TRUE;
-        $error_msg = t('No XML file found in the import: !file', array('!file' => $file->basename));
+        $error_msg = t('No XML file found in the import: !file. The ZIP must contains only files, no folder.', array('!file' => $file->basename));
         $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
       } elseif (count($import_files) > 1) {
         $zip_error = TRUE;
-        $error_msg = t('There is more than one XML file found in the import: !file', array('!file' => $file->basename));
+        $error_msg = t('There is more than one XML file found in the import: !file CODE X9', array('!file' => $file->basename));
         $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
       } else {
         // Yeah .. ready to ROCK & ROLL
@@ -727,17 +727,17 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
       $zip->close();
     } else {
       $zip_error = TRUE;
-      $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
+      $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res CODE X10', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
       $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     }
   } else {
     $zip_error = TRUE;
-    $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
+    $error_msg = t('Cant UnZip file: !file CODE X11', array('!file' => $file->filename));
     $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   if ($zip_error) {
     if (!file_move($file->filename, $importer->error_directory_path)) {
-      $error_msg .= ' '.t('An error occured during file copy to error directory.');
+      $error_msg .= ' '.t('An error occured during file copy to error directory CODE X12.');
     }
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
   }
@@ -1162,8 +1162,8 @@ function wimprt_create_or_load($dom, $importer, $objecttype, $callback,&$log){
   return $node;
 }
 
-function wallymport_page_test(){
-  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/packages/preview" method="POST">
+function wallymport_page_test($importeur){
+  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/'.$importeur.'/preview" method="POST">
         Choose a file to upload: <input name="uploadedfile" type="file" /><br />
         <input type="submit" value="Upload File" />
       </form>';
