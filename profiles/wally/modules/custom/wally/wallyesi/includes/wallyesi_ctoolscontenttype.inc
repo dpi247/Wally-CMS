@@ -12,8 +12,8 @@ function _wallyesi__ctoolscontenttype_settings($type, $subtype, $pid,$config = N
   }
   else {
     $config = new stdClass;
-    $config->enabled = ESI__BLOCK_CONFIG_DEFAULT__IS_ENABLED;
-    $config->ttl     = ESI__BLOCK_CONFIG_DEFAULT__TTL;
+    $config->enabled = 0;
+    $config->ttl     = 300;
   }
   return $config;
 }
@@ -22,7 +22,7 @@ function _wallyesi__ctoolscontenttype_settings($type, $subtype, $pid,$config = N
  * Form-submit handler for ESI settings in block-config
  */
 function wallyesi__ctoolscontenttype_config_save($form, $form_state) {
-  drupal_set_message('ESI settings saved');
+  //drupal_set_message('ESI settings saved');
   $type = $form_state['pane']->type;
   $subtype  = $form_state['pane']->subtype;
 
@@ -30,7 +30,7 @@ function wallyesi__ctoolscontenttype_config_save($form, $form_state) {
   $config->enabled = $form_state['values']['esi_config']['enabled'];
   $config->ttl     = $form_state['values']['esi_config']['ttl'];
 
-  _wallyesi__ctoolscontenttype_settings($type, $subtype, $config);
+  _wallyesi__ctoolscontenttype_settings($type, $subtype,$form_state['pane']->pid, $config);
 }
 
 
