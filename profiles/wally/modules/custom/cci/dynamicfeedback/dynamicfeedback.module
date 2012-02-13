@@ -10,7 +10,7 @@ function dynamicfeedback_menu(){
     'title' => t('Dynamic feedback'),
     'page callback' => 'dynamicfeedback_page_render',
     'page arguments' => array(1),
-    'access arguments' => array('administer cci'),
+    'access callback' => TRUE,
     'file' => 'includes/page_render.inc',
   );
 
