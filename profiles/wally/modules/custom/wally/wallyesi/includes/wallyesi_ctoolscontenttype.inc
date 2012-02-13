@@ -1,6 +1,5 @@
 <?php
 function _wallyesi__ctoolscontenttype_settings($type, $subtype, $pid,$config = NULL) {
-  $subtype="r";
   $key = "ctoolscontenttype_{$type}_{$subtype}_{$pid}";
   
   $global = variable_get('esi_ctoolscontenttype_config', array());
