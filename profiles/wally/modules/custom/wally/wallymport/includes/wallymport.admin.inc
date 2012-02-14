@@ -49,12 +49,15 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   }
   $form['wallymport']['#tree'] = TRUE;
   
-  $modules = module_invoke_all('wallymport_importer');
   $importers_name = array();
-  foreach ($modules as $importers){
-    foreach ($importers as $importer){
-      $importers_name[$importer['importer_type']] = $importer['importer_type'];
+  if ($modules = module_invoke_all('wallymport_importer')) {
+    foreach ($modules as $importers){
+      foreach ($importers as $importer){
+        $importers_name[$importer['importer_type']] = $importer['importer_type'];
+      }
     }
+  } else {
+    drupal_set_message(t('No importer installed, click !here to install one.', array('!here' => l(t('here'), 'admin/build/modules'))), 'error');
   }
   $form['wallymport']['importer_type'] = array(
     '#type' => 'select',
