@@ -1846,6 +1846,70 @@ function _wallytoolbox_checkifelementexists($dom_item, $name, $namespace = 'none
   return $return;
 }
 
+//the return array will simply contain an array of pointers rather then physical objects
+
+/**
+ * this function will take a flat vocabulary tree and turn it into a multi-tiered array
+ * 
+ * @see taxonomy_tree()
+ * 
+ * @param $array_of_terms_flat
+ *   A flat array of taxonomy_term -tipicaly the return of taxonomy_tree() -
+ * 
+ * @return
+ *   the return array will simply contain an array of pointers rather then physical objects
+ */
+function wallytoolbox_convert_taxonomy_flat_to_tree(& $array_of_terms_flat) {
+ 
+  $map = array();
+
+  //go through the tree and find the lowest depth aswell as all available depth levels to scan
+  $startdepth = false;
+  $depthlist = array();
+  foreach($array_of_terms_flat as $vocindex => &$vocitem) {
+    if ($startdepth === false || $startdepth > $vocitem->depth) {
+      //new start depth found
+      $startdepth = $vocitem->depth;
+    }
+
+    //add this item to the speciffic depth level
+    $depthlist[$vocitem->depth][$vocitem->tid] = &$vocitem;
+  }
+
+  //sort the depthlist so lowest is first
+  ksort($depthlist);
+
+  //scan all depth levels found
+  $lastdepth = null;
+  foreach($depthlist as $depthlevel => &$depths) {
+    //check for first depth (root) level
+    $currentdepthdata = array();
+
+    if ($depthlevel == $startdepth) {
+      //add root items to the map
+      foreach($depths as $itemindex => &$item) {
+        $mapindex = count($map);
+        $map[$mapindex] = array("term" => &$item,"childrens" => array());
+        $currentdepthdata[$itemindex] = &$map[$mapindex];
+      }
+    } else {
+      //scan through all items within this depth
+      foreach($depths as $itemindex => &$item) {
+        //find a matching "map" in teh last depth to assign the item too
+        foreach($item->parents as $parentindex) {
+          $mapindex = count($lastdepthdata[$parentindex]["childrens"]);
+          $lastdepthdata[$parentindex]["childrens"][$mapindex] = array("term" => &$item,"childrens" => array());
+          $currentdepthdata[$itemindex] = &$lastdepthdata[$parentindex]["childrens"][$mapindex];
+        }
+      }
+    }
+
+    $lastdepthdata = $currentdepthdata;
+  }
+
+  return $map;
+}
+
 /**
  * @} End of "defgroup wallytoolbox".
  */
