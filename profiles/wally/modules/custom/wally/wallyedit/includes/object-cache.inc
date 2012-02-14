@@ -58,7 +58,7 @@ function wallyedit_object_cache_set($name, $cache) {
  * @param $name
  *   The name of the object being removed.
  */
-function wallyeidt_object_cache_clear($name) {
+function wallyedit_object_cache_clear($name) {
   db_query("DELETE FROM {wallyedit_object_cache} WHERE name = '%s'", $name);
   // Ensure the static cache is emptied of this name set.
   $cache = &ctools_static('wallyedit_object_cache_get', array());

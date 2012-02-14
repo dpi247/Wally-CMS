@@ -34,6 +34,10 @@ body {
 	float: left;
 }
 
+#wallyedit_container {
+  padding-top: 10px;
+}
+
 #wallyedit_preview_container {
 	clear: both;
 }

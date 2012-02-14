@@ -19,7 +19,6 @@ class Prenode{
   var $node;
   var $form_state;
   var $profile_id;
-  var $base_table = 'node';
   
   /**
    * Constructor
@@ -57,7 +56,7 @@ class Prenode{
         }
       }
     }
-    
+
     return $this;
   }
   

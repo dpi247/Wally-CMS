@@ -186,28 +186,17 @@ function theme_wallyedit_admin($rows = array(), $headers) {
   return $output;
 }
 
-function theme_wallyedit_page_createmode($form) {
-  drupal_add_css(drupal_get_path('module', 'wallyedit') . '/css/wallyedit.css');
-  $output='<div id="wallyedit_messages">';
-  $output.='</div>';
-  
-  $output.='<div id="wallyedit_container">';
-  $output.=$form;
-  $output.='</div>';
-  return $output;
-}
-
 function theme_wallyedit_page_editmode($form, $form_prev) {
-  drupal_add_css(drupal_get_path('module', 'wallyedit') . '/css/wallyedit.css');
-  $output='<div id="wallyedit_messages">';
-  $output.='</div>';
+  drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   
-  $output.='<div id="wallyedit_container">';
-  $output.=$form;
-  $output.='</div>';
-  $output.='<div id="wallyedit_preview_container">';
-  $output.= $form_prev;
-  $output.='</div>';
+  $output = '<div id="wallyedit_messages">';
+  $output .= '</div>';
+  $output .= '<div id="wallyedit_container">';
+  $output .= $form;
+  $output .= '</div>';
+  $output .= '<div id="wallyedit_preview_container">';
+  $output .= $form_prev;
+  $output .=' </div>';
 
   return $output;
 }
