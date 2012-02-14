@@ -1,0 +1,34 @@
+@CHARSET "UTF-8";
+
+fieldset {
+	border: 1px solid lightgray;
+	border-radius: 3px;
+}
+
+div.date-clear-block {
+	display: inline-block;
+}
+
+div.form-item label {
+  display: inline-block;
+}
+
+div.form-radios {
+	margin: 0;
+  display: inline-block;
+}
+
+div.form-radios .form-item {
+	margin: 0;
+	display: inline-block;
+}
+
+div.form-checkboxes {
+	margin: 0;
+  display: inline-block;
+}
+
+div.form-checkboxes .form-item {
+	margin: 0;
+  display: inline-block;
+}

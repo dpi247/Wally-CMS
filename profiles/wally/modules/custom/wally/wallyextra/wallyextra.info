@@ -1,6 +1,7 @@
 core = "6.x"
 dependencies[] = "content"
 dependencies[] = "location"
+dependencies[] = "date_popup"
 dependencies[] = "statistics"
 dependencies[] = "views_content"
 dependencies[] = "wallyctools"

@@ -163,6 +163,16 @@ function wallyextra_ctools_plugin_api($module, $api) {
   }
 }
 
+function wallyextra_form_alter(&$form, $form_state, $form_id) {
+  $access_forms = array('panels_edit_configure_access_test_form', 'ctools_access_ajax_edit_item');
+  if (in_array($form_id, $access_forms)) {
+    if ($form['#parameters'][1]['plugin']['name'] == 'planification') {
+      unset($form['not']);
+      $form['#after_build'][] = 'wallyextra_planification_ctools_access_settings_after_build';
+    }
+  }
+}
+
 /**
  * Insert additional template suggestions to wally specific theme functions.
  * This preprocess function could be set by any hook_theme but for content type CTolls only.
