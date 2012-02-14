@@ -55,8 +55,8 @@ function wallyflowpublish_theme() {
 }
 
 function wallyflowpublish_theme_registry_alter(&$theme_registry) {
-  $theme_registry['views_view_rss']['theme paths'][] = drupal_get_path('module', 'wallyflowpublish').'/theme';
-  $theme_registry['views_view_row_rss']['theme paths'][] = drupal_get_path('module', 'wallyflowpublish').'/theme';
+  array_unshift($theme_registry['views_view_rss']['theme paths'], drupal_get_path('module', 'wallyflowpublish').'/theme');
+  array_unshift($theme_registry['views_view_row_rss']['theme paths'], drupal_get_path('module', 'wallyflowpublish').'/theme');
 }
 
 function wallyflowpublish_block($op = 'list', $delta = 0) {
@@ -142,7 +142,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   if(isset($_GET['format'])) {
     $vars['template_file'] = 'views-view-rss-'.$_GET['format'];
   }
-  $vars['template_files'][] = 'views-view-rss';
+
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
@@ -203,7 +203,7 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
   if(isset($_GET['format'])) {
     $vars['template_file'] = 'views-view-row-rss-'.$_GET['format'];
   }
-  $vars['template_files'][] = 'views-view-row-rss';
+
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $item     = &$vars['row'];
