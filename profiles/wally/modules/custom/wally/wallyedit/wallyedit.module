@@ -198,6 +198,7 @@ function wallyedit_menu(){
     'page arguments' => array('wallyedit_prenode_delete_all_confirm'),
     'access arguments' => array('administer nodes'),
     'file' => 'includes/page_admin.inc',
+    'type' => MENU_CALLBACK,
   );
   
   $items['node/%prenode/delete2'] = array(
