@@ -100,7 +100,6 @@ function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer,
  *   the node object that has been build
  */
 function wallyimportpackage_process_package($dom, &$log, $importer, $callback = NULL) {
-
   $callback = wimprt_set_callback($dom, $importer, $callback);
   $node = wimprt_node_create_or_load($dom, $importer, $callback, $log);
   //@todo: place in walymportlog module
@@ -122,14 +121,15 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
-      ctools_include('object-cache');
-
+     
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
-      ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
+      prenode_save($form_state_prenode);
+
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
       $log['content'] =  $content;
     } elseif (isset($node->wallymport_delete)){

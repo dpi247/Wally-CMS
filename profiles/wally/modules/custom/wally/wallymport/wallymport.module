@@ -136,9 +136,10 @@ function wallymport_menu() {
     'type'             => MENU_CALLBACK,
   );
   
-  $items['wallymport/test'] = array(
+  $items['wallymport/test/%'] = array(
   	'title'           => 'test',
     'page callback'   => 'wallymport_page_test',
+    'page arguments'  => array(2),
     'access arguments' => array('administer wallymport'),
     'type'            => MENU_NORMAL_ITEM,
   );
@@ -549,7 +550,6 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   } else {
     $form['#suffix'] = theme('wallyedit_nopreview');
   }
-
   return $form;
 }
 
@@ -610,7 +610,7 @@ function wallymport_post($importer_name){
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= theme('wallymport_logs', $return).$return['content'];
+    $content .= theme('wallymport_logs', $return).$return['log']['content'];
   }
   return $content;
 }
@@ -1089,10 +1089,8 @@ function wimprt_node_create_or_load($dom, $importer, $callback, &$log){
   }
   return $node;
 }
-function wallymport_page_test(){
-  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/package/preview" method="POST">
-       
-		
+function wallymport_page_test($importeur){
+  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/'.$importeur.'/preview" method="POST">
         Choose a file to upload: <input name="uploadedfile" type="file" /><br />
         <input type="submit" value="Upload File" />
       </form>';
