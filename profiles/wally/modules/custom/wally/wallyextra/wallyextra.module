@@ -209,11 +209,8 @@ function wallyextra_form_alter(&$form, $form_state, $form_id) {
     unset($form['category']);
     unset($form['admin_description']);
     unset($form['wally_rule']);
-  
-    $form['warning'] = array(
-        '#type'  => 'markup',
-        '#value' => t('Please use the "New custom content Versionable" content type instead of this one'),
-    );
+    drupal_set_message(t('Please use the "New custom content Versionable" content type instead of this one'), 'warning');
+    
   }
 }
 
