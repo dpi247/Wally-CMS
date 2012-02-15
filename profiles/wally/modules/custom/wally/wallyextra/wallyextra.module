@@ -186,7 +186,9 @@ function wallyextra_ctools_plugin_api($module, $api) {
     return array('version' => 1);
   }
 }
-
+/*
+* Implementation of hook_form_alter
+*/
 function wallyextra_form_alter(&$form, $form_state, $form_id) {
   $access_forms = array('panels_edit_configure_access_test_form', 'ctools_access_ajax_edit_item');
   if (in_array($form_id, $access_forms)) {
@@ -194,6 +196,24 @@ function wallyextra_form_alter(&$form, $form_state, $form_id) {
       unset($form['not']);
       $form['#after_build'][] = 'wallyextra_planification_ctools_access_settings_after_build';
     }
+  }
+  
+  if ($form_id == 'ctools_custom_content_type_edit_form' & db_table_exists('wallyextra_custom_content_version')){
+     
+    unset($form['buttons']['return']);
+    unset($form['admin_title']);
+    unset($form['title']);
+    unset($form['body_field']);
+    unset($form['reusable']);
+    unset($form['name']);
+    unset($form['category']);
+    unset($form['admin_description']);
+    unset($form['wally_rule']);
+  
+    $form['warning'] = array(
+        '#type'  => 'markup',
+        '#value' => t('Please use the "New custom content Versionable" content type instead of this one'),
+    );
   }
 }
 
@@ -564,29 +584,7 @@ function wallyextra_ajax_customcontentformreplace($version_id){
   
   ctools_ajax_render($commands);
 }
-/*
- * Implementation of hook_form_alter 
- */
-function wallyextra_form_alter(&$form, &$form_state, $form_id){
- 
-  if ($form_id == 'ctools_custom_content_type_edit_form' & db_table_exists('wallyextra_custom_content_version')){
-   
-    unset($form['buttons']['return']);
-    unset($form['admin_title']);
-    unset($form['title']);
-    unset($form['body_field']);
-    unset($form['reusable']);
-    unset($form['name']);
-    unset($form['category']);
-    unset($form['admin_description']);
-    unset($form['wally_rule']);
-      
-    $form['warning'] = array(
-      '#type'  => 'markup',
-      '#value' => t('Please use the "New custom content Versionable" content type instead of this one'),
-    );
-  } 
-}
+
 /**
  * Get all the versions of a custom content type
  * 
