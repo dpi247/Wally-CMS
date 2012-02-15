@@ -489,90 +489,94 @@ function wallyctools_initial_setup(){
  * This also allow other modules to get node results just like a redacblock would get.
  */
 function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_name, $args, $conf) {
-  $view_name = $view->name;
-  $view->set_display($view_id);
-
-  $options = array(
-    'operator' => 'in',
-    'value' => array($redacblock_name),
-    'group' => '0',
-    'exposed' => FALSE,
-    'expose' => array(
-      'operator' => FALSE,
-      'label' => '',
-    ),
-    'relationship' => 'none',
-  );
-
-  $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
-  $view->is_cacheable = FALSE;
-  //init handler should be placed after add_item !!!
-  $view->init_handlers();
-
-  if (empty($view) || !is_object($view) || empty($view->display_handler)) {
-    return FALSE;
-  }
-
-  if (!$view->display_handler->access($GLOBALS['user'])) {
-    return FALSE;
-  }
-
-  $view->set_arguments($args);
-
-  if ($conf['url']) {
-    $view->override_path = $conf['url'];
-  }
-
-  if (!empty($conf['more_link'])) {
-    $view->display_handler->set_option('use_more', FALSE);
-  }
-
-  // Only set use_pager if they differ, this way we can avoid overwriting the
-  // pager type that Views uses.
-  if ($conf['override_pager_settings']) {
-    if (method_exists($view, 'init_pager')) {
-      // Views 3 version
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->set_offset($conf['offset']);
-
-      $pager = $view->display_handler->get_option('pager');
-      if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
-        $pager['type'] = 'full';
-      }
-      elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
-        $pager['type'] = $view->get_items_per_page() ? 'some' : 'none';
-      }
-
-      if ($conf['use_pager']) {
-        if (!isset($pager['options']['id']) || $pager['options']['id'] != $conf['pager_id']) {
-          $pager['options']['id'] = $conf['pager_id'];
+  $success = FALSE;
+  if ($view != NULL){
+    $view_name = $view->name;
+    $view->set_display($view_id);
+  
+    $options = array(
+      'operator' => 'in',
+      'value' => array($redacblock_name),
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'relationship' => 'none',
+    );
+  
+    $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
+    $view->is_cacheable = FALSE;
+    //init handler should be placed after add_item !!!
+    $view->init_handlers();
+  
+    if (empty($view) || !is_object($view) || empty($view->display_handler)) {
+      return FALSE;
+    }
+  
+    if (!$view->display_handler->access($GLOBALS['user'])) {
+      return FALSE;
+    }
+  
+    $view->set_arguments($args);
+  
+    if ($conf['url']) {
+      $view->override_path = $conf['url'];
+    }
+  
+    if (!empty($conf['more_link'])) {
+      $view->display_handler->set_option('use_more', FALSE);
+    }
+  
+    // Only set use_pager if they differ, this way we can avoid overwriting the
+    // pager type that Views uses.
+    if ($conf['override_pager_settings']) {
+      if (method_exists($view, 'init_pager')) {
+        // Views 3 version
+        $view->set_items_per_page($conf['nodes_per_page']);
+        $view->set_offset($conf['offset']);
+  
+        $pager = $view->display_handler->get_option('pager');
+        if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
+          $pager['type'] = 'full';
         }
+        elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
+          $pager['type'] = $view->get_items_per_page() ? 'some' : 'none';
+        }
+  
+        if ($conf['use_pager']) {
+          if (!isset($pager['options']['id']) || $pager['options']['id'] != $conf['pager_id']) {
+            $pager['options']['id'] = $conf['pager_id'];
+          }
+        }
+        $view->display_handler->set_option('pager', $pager);
+        $view->pager = $pager;
       }
-      $view->display_handler->set_option('pager', $pager);
-      $view->pager = $pager;
+      else {
+        if (!$view->display_handler->get_option('use_pager') || empty($conf['use_pager'])) {
+          $view->display_handler->set_option('use_pager', $conf['use_pager']);
+          $view->set_use_pager(TRUE);
+        }
+        if(isset($_GET['page'])){
+          $page=(int) $_GET['page'];
+        }
+        else{
+          $page=0;
+        }
+  
+        $view->display_handler->set_option('pager_element', $conf['pager_id']);
+        $view->set_pager_element($conf['pager_id']);
+        $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
+        $view->set_items_per_page($conf['nodes_per_page']);
+        $view->display_handler->set_option('offset', $conf['offset']);
+        $view->set_offset($conf['offset']+$page*$conf['nodes_per_page']);
+        $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
+      }
     }
-    else {
-      if (!$view->display_handler->get_option('use_pager') || empty($conf['use_pager'])) {
-        $view->display_handler->set_option('use_pager', $conf['use_pager']);
-        $view->set_use_pager(TRUE);
-      }
-      if(isset($_GET['page'])){
-        $page=(int) $_GET['page'];
-      }
-      else{
-        $page=0;
-      }
-
-      $view->display_handler->set_option('pager_element', $conf['pager_id']);
-      $view->set_pager_element($conf['pager_id']);
-      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->display_handler->set_option('offset', $conf['offset']);
-      $view->set_offset($conf['offset']+$page*$conf['nodes_per_page']);
-      $view->pager['total_items_per_page']=$conf['total_nodes_per_page'];
-    }
+    $success = TRUE;
   }
-  return TRUE;
+  return $success;
 }
 
 /**
