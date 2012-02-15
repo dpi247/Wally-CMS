@@ -1790,10 +1790,13 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
             'more_link' => FALSE,
             'url' => FALSE,
           );
-          wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $item['target'], array($item['tid']), $conf);
-          $view->execute();
-          $temp_results = $view->result;
-          $view->destroy();
+          $temp_results = array();
+          if ( wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $item['target'], array($item['tid']), $conf)){
+          
+            $view->execute();
+            $temp_results = $view->result;
+            $view->destroy();
+          }
           $current_results = array();
 
           foreach ($temp_results as $result) {
