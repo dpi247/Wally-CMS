@@ -118,7 +118,8 @@ function wallyflowpublish_views_pre_execute(&$view) {
 function wallyflowpublish_views_pre_view($view, $display_id, &$args) {
   $current_display = $view->display[$display_id];
   if ($current_display->display_plugin == 'feed') {
-    $expected_args = $current_display->display_options['arguments'];
+    $args_display = isset($current_display->display_options['arguments']) ? $current_display : $view->display['default'];
+    $expected_args = $args_display->display_options['arguments'];
     $args_types = array_keys($expected_args);
 
     if (!is_numeric($args[0]) && $args_types[0] == 'field_destinations_tid') {
