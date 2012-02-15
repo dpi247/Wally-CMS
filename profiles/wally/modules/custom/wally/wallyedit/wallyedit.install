@@ -199,7 +199,7 @@ function wallyedit_schema(){
     'fields' => array(
       'name' => array(
         'type' => 'varchar',
-        'length' => '32',
+        'length' => '128',
         'not null' => TRUE,
         'description' => 'The name of the object this cache is attached to.',
       ),
