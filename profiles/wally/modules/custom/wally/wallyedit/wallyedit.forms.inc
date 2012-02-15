@@ -206,11 +206,17 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     if(isset($flat_fields[$element]) and $flat_fields[$element]['display'] == 0) {
       if ($children = element_children($form[$element])) {
         foreach ($children as $child) {
+          if ($form[$element][$child]['#type'] == 'textarea') {
+            $form[$element][$child]['#wysiwyg'] = FALSE;
+          }
           $form[$element][$child]['#type'] = 'value';
           $form[$element][$child]['#required'] = FALSE;
           $form[$element][$child]['#value'] = $form[$element][$child]['#default_value'];
         }
       } else {
+        if ($form[$element]['#type'] == 'textarea') {
+          $form[$element]['#wysiwyg'] = FALSE;
+        }
         $form[$element]['#type'] = 'value';
         $form[$element]['#required'] = FALSE;
         $form[$element]['#value'] = $form[$element]['#default_value'];
