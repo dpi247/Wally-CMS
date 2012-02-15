@@ -190,7 +190,7 @@ function wallymport_schema() {
  */
 function wallymport_update_6001(){
 
-  $schema = drupal_get_schema('wallymport_importer');
+  $schema = drupal_get_schema('wallymport_importer', TRUE);
   $ret = array();
 
   if (!db_table_exists('wallymport_importer')) {
@@ -203,7 +203,7 @@ function wallymport_update_6001(){
 */
 function wallymport_update_6002(){
 
-  $schema = drupal_get_schema('wallymport_logs');
+  $schema = drupal_get_schema('wallymport_logs', TRUE);
   $ret = array();
 
   if (!db_table_exists('wallymport_logs')) {
