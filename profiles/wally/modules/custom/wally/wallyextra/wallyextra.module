@@ -467,6 +467,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
+  ctools_include('context');
+  
   // Get POSTed values
   $cid = $_POST['cid'];
   $callback = $_POST['callback'];
