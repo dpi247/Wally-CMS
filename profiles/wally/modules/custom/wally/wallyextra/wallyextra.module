@@ -13,6 +13,24 @@ function wallyextra_menu() {
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
   );
+  $items['wallyextra/customcontent/form/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentform',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+  $items['wallyextra/customcontent/getversion/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentgetversion',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+  $items['wallyextra/customcontent/formreplace/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentformreplace',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
   
   return $items;
 }
@@ -28,9 +46,9 @@ function wallyextra_theme(&$var) {
     'path' => "$path/theme",
   );
   
- return array(
+  return array(
  
-		'wallyct_mainmenu' => $base + array(
+    'wallyct_mainmenu' => $base + array(
       'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
       'template' => 'wallyct_mainmenu',
       'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
@@ -103,7 +121,13 @@ function wallyextra_theme(&$var) {
       'arguments' => array(),
       'template' => 'wallyextra-loading-content-type',
     ),
-  );
+    'wallyextra_custom_version_content_type_edit_form' => $base + array(
+      'arguments' => array('form' => NULL),
+    ),
+    'wallyextra_custom_content_type_listversion' => $base + array(
+      'arguments' => array('versions' => NULL),
+    ),
+   );
 }
 
 /**
@@ -308,7 +332,6 @@ function wallyextra_content_type_new($plugin_name, $set_defaults) {
   $item->settings = ctools_content_get_defaults($plugin, array());
   return $item;
 }
-
 /**
  * Implementation of hook_rate_templates().
  */ 
@@ -461,7 +484,146 @@ function _wallyextra_content_types_ajax_callback() {
   
   print $content;
 }
-
+/**
+ * Callback en ajax, renvoyant le formulaire voulu pour le custom content
+ *  @param $type_form
+ *  Le type de formulaire à renvoyer
+ */
+function wallyextra_ajax_customcontentform($type_form){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  if ($type_form == 'custom'){
+    $untype = 'version';
+  } elseif ($type_form == 'version'){
+    $untype = 'custom';
+  }
+  $commands[] = ctools_ajax_command_attr('#'.$untype.'_form', 'style', 'display:none;');
+  $commands[] = ctools_ajax_command_attr('#'.$type_form.'_form', 'style', 'display:block;');
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_attr('#'.$type_form, 'class', 'active');
+  $commands[] = ctools_ajax_command_attr('#'.$untype, 'class', '');
+  ctools_ajax_render($commands);
+ 
+}
+/**
+* Callback en ajax, affichant le contenu d'une version
+*  @param $version_id
+*  Version à afficher
+*/
+function wallyextra_ajax_customcontentgetversion($version_id){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  $version = wallyextra_custom_content_type_getversion($version_id);
+  $settings = unserialize($version->settings);
+  $content  = '<textarea class = "form-textarea resizable textarea-processed" rows="5" cols = "60">'.$settings['body'].'</textarea>';
+  $content .= '<div>'.ctools_ajax_text_button(t('Switch back to this version'), 'wallyextra/customcontent/formreplace/'.$version_id.'/ajax', t('Switch')).'</div>'; 
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_html('#wallyextra_version', $content);
+  $commands[] = ctools_ajax_command_attr('.wallyextra_version_list', 'style', 'font-weight:none');
+  $commands[] = ctools_ajax_command_attr('#wallyextra_version_'.$version_id, 'style', 'font-weight:bold');
+  
+  ctools_ajax_render($commands);
+  
+}
+/**
+*  Met le contenu de la version dans le formulaire
+*  @param $version_id
+*  Version remplacer
+*/
+function wallyextra_ajax_customcontentformreplace($version_id){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  $version = wallyextra_custom_content_type_getversion($version_id);
+  $settings = unserialize($version->settings);
+  $body = $settings['body'];
+  $body = str_replace('<','&lt', $body);
+  $body = str_replace('>','&gt', $body);
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_html('textarea#edit-body', $body);
+  
+  //Change tab
+  $commands[] = ctools_ajax_command_attr('#version_form', 'style', 'display:none;');
+  $commands[] = ctools_ajax_command_attr('#custom_form', 'style', 'display:block;');
+  $commands[] = ctools_ajax_command_attr('#custom', 'class', 'active');
+  $commands[] = ctools_ajax_command_attr('#version', 'class', '');
+  
+  ctools_ajax_render($commands);
+}
+/*
+ * Implementation of hook_form_alter 
+ */
+function wallyextra_form_alter(&$form, &$form_state, $form_id){
+ 
+  if ($form_id == 'ctools_custom_content_type_edit_form' & db_table_exists('wallyextra_custom_content_version')){
+   
+    unset($form['buttons']['return']);
+    unset($form['admin_title']);
+    unset($form['title']);
+    unset($form['body_field']);
+    unset($form['reusable']);
+    unset($form['name']);
+    unset($form['category']);
+    unset($form['admin_description']);
+    unset($form['wally_rule']);
+      
+    $form['warning'] = array(
+      '#type'  => 'markup',
+      '#value' => t('Please use the "New custom content Versionable" content type instead of this one'),
+    );
+  } 
+}
+/**
+ * Get all the versions of a custom content type
+ * 
+ * @param $id
+ * the id of the custom content type
+ * 
+ * @return
+ * an array whith all the versions of the custom content type
+ */
+function wallyextra_custom_content_type_getversions($id){
+  $items = array();
+  if ($id !== NULL){
+    $result = db_query("SELECT v.vid, v.date, v.version
+    					  FROM {wallyextra_custom_content_version} v
+    				      WHERE v.cid = %d", $id);
+    while ($version = db_fetch_object($result)){
+      $items[] = $version;
+    }
+  }
+  return $items;
+}
+/**
+* Load a version of a custom content type from a vid
+*
+* @param $vid
+* the vid of the version to load
+*
+* @return
+* a version object
+*/
+function wallyextra_custom_content_type_getversion($vid){
+  $result = db_query("SELECT v.*
+  					  FROM {wallyextra_custom_content_version} v
+  				      WHERE v.vid = %d", $vid);
+  $version = db_fetch_object($result);
+  return $version;
+}
 /**
  * @} End of "defgroup wallyextra".
  */
