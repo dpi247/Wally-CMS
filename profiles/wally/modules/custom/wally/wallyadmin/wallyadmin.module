@@ -36,7 +36,7 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
     }    
   }
   //Aloud to set <none> for the menu link
-  if ($form_id == 'menu_edit_item'){dsm($form);
+  if ($form_id == 'menu_edit_item'){
     $form['menu']['link_path']['#required'] = FALSE;
     $form['menu']['link_path']['#description'] .= t(' Enter <i>&lt;none&gt;</i> to add no link.');
     $form['#validate'] = array('wallyadmin_menu_edit_item_validate');
