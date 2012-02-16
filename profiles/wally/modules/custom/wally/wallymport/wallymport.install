@@ -221,7 +221,6 @@ function wallymport_update_6003(){
   if (!db_column_exists('wallymport_importer', 'keep_log')){
     db_add_field($ret, 'wallymport_importer', 'keep_log', $schema['fields']['keep_log']);
   }
-  dsm($ret);
   return $ret;
 }
 /**
