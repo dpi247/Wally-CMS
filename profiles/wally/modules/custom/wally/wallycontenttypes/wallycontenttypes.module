@@ -762,7 +762,7 @@ function _wallycontenttypes_getpackagesid($node){
 
 function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   if ($js) {
-    wydit_ctools_include(TRUE);
+    wydit_ctools_include();
   } else {
     ctools_include('form');
   }
@@ -1126,7 +1126,7 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
   $nid_type = isset($form_state['cache name']) ? 'prenode' : 'node';
 
   $callback = 'admin/content/editcrop/'.$nid_type.'/'.$pseudo_nid.'/1';
-  $callback .= isset($form_state['values']['parents']) ? '/'.implode('/', $form_state['values']['parents']) : '';
+  $callback .= isset($form_state['parents']) ? '/'.implode('/', $form_state['parents']) : '';
 
   $edit_crop_link = ctools_modal_text_button(t('Click here to edit croping informations'), $callback, '');
   
