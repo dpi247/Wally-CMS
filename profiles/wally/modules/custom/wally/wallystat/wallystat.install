@@ -360,7 +360,8 @@ function wallystat_schema() {
       'timestamp' => array('timestamp'),
     ),
   );
-  
+  $schema['cache_wallystat_tempdata'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_wallystat_tempdata']['description'] = 'Cache table for wallystat.';
   return $schema;
 }
 
@@ -650,5 +651,19 @@ function wallystat_update_6001() {
   db_create_table($ret, 'wallystat_node_hourly_counter', $schema['wallystat_node_hourly_counter']);
   db_create_table($ret, 'wallystat_node_counter', $schema['wallystat_node_counter']);
   db_create_table($ret, 'wallystat_term_counter', $schema['wallystat_term_counter']);
+  return $ret;
+}
+/*
+ * Implementation of hook_update_N
+ */
+function wallystat_update_6002(){
+  $schema = drupal_get_schema('cache_wallystat_tempdata', TRUE);
+  $ret = array();
+  if (!db_table_exists('cache_wallystat_tempdata')){
+    db_create_table($ret, 'cache_wallystat_tempdata', $schema);
+  }
+  if (db_table_exists('wallystat_tempdata')){
+    db_drop_table($ret, 'wallystat_tempdata');
+  }
   return $ret;
 }
