@@ -263,25 +263,33 @@ function _pub_getpubcontent($delta, $cache_url) {
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
+  $block_settings = pub_load_block($delta);
+  switch ($block_settings['builder']) {
+    case 'purl':
+      $builder = '_purl';
+      break;
+    case 'openx':
+      $builder = '_openx';
+      break;
+    default:
+      $builder = '';
+  }
+
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
     $webserv_req = _pub_getwebservreq($orig_url);
     
     //@TODO: DDU : clean code
-    $block_settings = pub_load_block($delta);
     
     switch ($block_settings['builder']) {
       case 'purl':
         $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
-        $builder = '_purl';
         wallytoolbox_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
         break;
       case 'openx':
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '_openx', $cache_url);
-        $builder = '_openx';
         break;
       default:
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '', $cache_url);
-        $builder = '';
     }
     
     cache_set('pub_'.$delta.'_temp-'.$cache_url, $pub_content, 'cache', time() + 3600*$cache_time);
