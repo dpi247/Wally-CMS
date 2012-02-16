@@ -273,7 +273,7 @@ function _pub_getpubcontent($delta, $cache_url) {
       case 'purl':
         $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
         $builder = '_purl';
-        wallytoolbox_add_meta($content['meta']['attributes'], $content['meta']['content']);
+        wallytoolbox_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
         break;
       case 'openx':
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '_openx', $cache_url);
