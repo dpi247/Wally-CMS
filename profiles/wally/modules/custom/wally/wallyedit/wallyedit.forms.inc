@@ -155,7 +155,7 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
   } elseif ($form_state['clicked_button']['#wydit_op_type'] == 'action') {
     //This is the important line !!!
     wydit_form_node_main_treatment_submit($form_state);
-    
+
     $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
     $action = split('__', $form_state['clicked_button']['#name']);
     $action = $action[0];
@@ -712,7 +712,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
             unset($tmp_items[$field_name.'_add_more']);
           }
           $sorted_items = _content_sort_items($field, $tmp_items);
-          if (isset($tmp_items[$field_name.'_add_more'])) {
+          if ($add_more) {
             $sorted_items = array_merge($sorted_items, array($field_name.'_add_more' => $add_more));
           }
           wydit_add_elem_at_target($form_state['values'], $sorted_items, array_merge($parents, array($field_name)));
