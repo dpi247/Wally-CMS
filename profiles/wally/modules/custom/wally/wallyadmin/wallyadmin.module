@@ -26,7 +26,7 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
     $form['path']['#collapsed'] = TRUE;
     
     if (isset($form['flag'])) {
-      $form['flag']['#collapsed'] = TRUE;      
+      $form['flag']['#collapsed'] = TRUE;
     }
     
     // Hide the split summary button
@@ -35,8 +35,52 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
       $form['body_field']['teaser_include']['#type'] = 'hidden';
     }    
   }
+  //Aloud to set <none> for the menu link
+  if ($form_id == 'menu_edit_item'){dsm($form);
+    $form['menu']['link_path']['#required'] = FALSE;
+    $form['menu']['link_path']['#description'] .= t(' Enter <i>&lt;none&gt;</i> to add no link.');
+    $form['#validate'] = array('wallyadmin_menu_edit_item_validate');
+  }
 }
 
+/*
+ * Modification de la validation de l'ajout d'un menu 
+ */
+function wallyadmin_menu_edit_item_validate($form, &$form_state){
+  $item = &$form_state['values']['menu'];
+  $normal_path = drupal_get_normal_path($item['link_path']);
+  if ($item['link_path'] != $normal_path) {
+    drupal_set_message(t('The menu system stores system paths only, but will use the URL alias for display. %link_path has been stored as %normal_path', array('%link_path' => $item['link_path'], '%normal_path' => $normal_path)));
+    $item['link_path'] = $normal_path;
+  }
+  if (!menu_path_is_external($item['link_path'])) {
+    $parsed_link = parse_url($item['link_path']);
+    if (isset($parsed_link['query'])) {
+      $item['options']['query'] = $parsed_link['query'];
+    }
+    else {
+      // Use unset() rather than setting to empty string
+      // to avoid redundant serialized data being stored.
+      unset($item['options']['query']);
+    }
+    if (isset($parsed_link['fragment'])) {
+      $item['options']['fragment'] = $parsed_link['fragment'];
+    }
+    else {
+      unset($item['options']['fragment']);
+    }
+    if ($item['link_path'] != $parsed_link['path']) {
+      $item['link_path'] = $parsed_link['path'];
+    }
+  }
+  if ($item['link_path'] == '<none>'){
+    $item['link_path'] = 'http://#';
+    //La fonction qui permet de ne pas afficher d'url si l'url est http://# est wallyct_mainmenu (wallyextra/theme/wallyct_mainmenu)
+  }
+  elseif ((!trim($item['link_path']) || !menu_valid_path($item))) {
+    form_set_error('link_path', t("The path '@link_path' is either invalid or you do not have access to it.", array('@link_path' => $item['link_path'])));
+  }
+}
 /**
  * Implementation of hook_node_form_sidebar().
  *
