@@ -762,7 +762,7 @@ function _wallycontenttypes_getpackagesid($node){
 
 function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   if ($js) {
-    _wydit_ctools_include(TRUE);
+    wydit_ctools_include(TRUE);
   } else {
     ctools_include('form');
   }
