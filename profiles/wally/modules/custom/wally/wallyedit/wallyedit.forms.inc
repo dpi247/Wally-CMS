@@ -421,7 +421,7 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
     '#skip validation' => TRUE,
   );
   
-  $form_element = $form;
+  $form_element = array_merge(array('#parents' => $form_element['#parents']), $form);
 }
 
 function wydit_form_preview_form(&$form_state, $cache_name = NULL) {
@@ -1007,7 +1007,8 @@ function wydit_remove_element($array, $path, $level = 0) {
     if($key == $path[$level]) { // On atteint l'elem de $a correspondant au $path dans $b pour ce niveau de traitement
       if($level != (count($path) - 1)) { // On est pas encore au dernier niveau de traitement
         if(is_array($value)) { // Logique car il y a encore des niveaux à traiter dans $b;
-          $array[$key] = wydit_remove_element($value, $path, $level+1);
+          $tmp_val = wydit_remove_element($value, $path, $level+1);
+          $array[$key] = $tmp_val ? $tmp_val : array();
         }
       } else {
         unset($array[$path[$level]]);
@@ -1133,7 +1134,7 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
           $form_state[$field_name][$key]['nid'] = $nid;
         }
       }
-      $form_state['#node']->$field_name = $form_state[$field_name];
+      $form_state['#node']->$field_name = $form_state[$field_name] ? $form_state[$field_name] : array();
     }
   }
 
