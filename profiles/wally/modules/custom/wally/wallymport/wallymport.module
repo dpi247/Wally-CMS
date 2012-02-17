@@ -605,7 +605,7 @@ function wallymport_post($importer_name){
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
-    if($nb_file==0){
+    if ($nb_file == 0){
       $temp = variable_get('wallymport_preview_temp', file_directory_temp());
       $file_name = 'wally_curl_input_'.rand();
       $file_path = $temp.'/'.$file_name.'.'.$format;
@@ -626,7 +626,7 @@ function wallymport_post($importer_name){
 
       fclose($file);
 
-      $nb_file=1;
+      $nb_file = 1;
     }
 
     if ($nb_file > 1){
@@ -654,12 +654,20 @@ function wallymport_post($importer_name){
       }
     }
   }
+  $js = '<script>
+			$("div.wallymport_result ul").hide();
+			$("div#wallyedit_preview h1").hide();
+			$("div.wallymport_result .logs").click(function(){
+  				$("div.wallymport_result ul").toggle();
+			});
+		</script>';
+  
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= theme('wallymport_logs', $return).$return['content'];
+    $content .= theme('wallymport_logs', $return).$return['log']['content'].$js;
   }
-  return $content;
+  print $content;
   
 }
 
