@@ -564,8 +564,6 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * */
 function wallymport_post($importer_name){
   
-  $returns = array('error' => FALSE);
-  
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
     $error_msg  = t('This importer does not exist');
@@ -607,12 +605,19 @@ function wallymport_post($importer_name){
       wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
   }
+  $js = '<script>
+$("div.wallymport_result ul").hide();
+$("div#wallyedit_preview h1").hide();
+$("div.wallymport_result .logs").click(function(){
+  $("div.wallymport_result ul").toggle();
+});
+</script>';
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= theme('wallymport_logs', $return).$return['log']['content'];
+    $content .= theme('wallymport_logs', $return).$return['log']['content'].$js;
   }
-  return $content;
+  print $content;
 }
 /**
 * Move files to their new directory and delete tmp files

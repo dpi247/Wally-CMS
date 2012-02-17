@@ -2,26 +2,27 @@
 
 function theme_wallymport_logs($log){
 
-  $content = '';
-  $content .= '<h2>'.date ('d/m/Y H:i:s',$log['date']).'</h2>';
+  $content = '<div class = "wallymport_result">';
+  $content .= '<h5 style = "margin:0px;">'.date ('d/m/Y H:i:s',$log['date']).'</h5>';
   $processed = t('Process succeed');
   if ($log['error']){
     $processed = t('Process failed');
   }
   $content .= '<div>'.$processed.'</div>';
   if (isset($log['error_msg'])){
-    $content .= '<h3>'.t('Error messages').'</h3>';
+    $content .= '<h5 class = "logs">'.t('Error messages').'</h5>';
     $content .= '<ul>';
     $content .= '<li> '.$log['error_msg'].'</li>';
     $content .= '</ul>';
   }
   if (isset($log['log']['log'])){
-    $content .= '<h3>'.t('Logs').'</h3>';
+    $content .= '<h5 class = "logs" style = "margin:0px;">'.t('Logs').'</h5>';
     $content .= '<ul>';
     foreach ($log['log']['log'] as $msg_log){
       $content .=  '<li> '.$msg_log.'</li>';
     }
     $content .= '<ul>';
   }
+  $content .= '</div>';
   return $content;
 }
