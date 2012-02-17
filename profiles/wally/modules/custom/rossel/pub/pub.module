@@ -283,7 +283,9 @@ function _pub_getpubcontent($delta, $cache_url) {
     switch ($block_settings['builder']) {
       case 'purl':
         $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
-        wallytoolbox_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+        if ($pub_content['meta'] && !empty($pub_content['meta']['content'])) {
+          wallytoolbox_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+        }
         break;
       case 'openx':
         $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '_openx', $cache_url);
@@ -326,7 +328,7 @@ function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $
   $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
   $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress, $edition);
   $header_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $header_adress, $edition);
-  
+
   if ($content_from_webservice && !empty($content_from_webservice) && $header_from_webservice && !empty($header_from_webservice)) {
     $pub_content['content'] = $content_from_webservice;
     $pub_content['meta']['content'] = $header_from_webservice;
