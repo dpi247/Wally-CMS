@@ -64,7 +64,7 @@ function wallyimportpackage_menu() {
 function wallyimportpackage_process_packages($dom, &$log, $importer){
   
   module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'before_process');
-  foreach($dom->getElementsByTagName('Package') as $package_element){
+  foreach ($dom->getElementsByTagName('Package') as $package_element){
     wallyimportpackage_process_package($package_element, $log, $importer);
   }
   module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'after_process');
