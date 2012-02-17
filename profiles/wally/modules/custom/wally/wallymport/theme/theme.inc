@@ -10,7 +10,7 @@ function theme_wallymport_logs($log){
   }
   $content .= '<div>'.$processed.'</div>';
   if (isset($log['error_msg'])){
-    $content .= '<h5 class = "logs">'.t('Error messages').'</h5>';
+    $content .= '<h5 style = "margin:0px;">'.t('Error messages').'</h5>';
     $content .= '<ul>';
     $content .= '<li> '.$log['error_msg'].'</li>';
     $content .= '</ul>';
