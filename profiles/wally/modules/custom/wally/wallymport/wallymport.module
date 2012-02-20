@@ -176,7 +176,7 @@ function wallymport_cron(){
         $importer->cron_timestamp = time();
       }
       $return['date'] = time();
-      if ($importer->cron_keep_long == 1){
+      if ($importer->cron_keep_log == 1){
         $cron_log = unserialize($importer->cron_log);
         $cron_log[] = $return;
         $importer->cron_log = serialize($cron_log);
