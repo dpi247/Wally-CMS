@@ -438,6 +438,7 @@ function wallymport_process_folder($importer){
         //Process the file
         $return = wallymport_process_xmlfile($xml_file, $importer);
         $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
         $file_location = $importer->error_directory_path.'/'.$file->name;
@@ -502,6 +503,7 @@ function wallymport_process_file($importer, $file_name){
       //Process the file
       $return = wallymport_process_xmlfile($xml_file, $importer);
       $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+      $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
       unset($return['log']['node']);
     } else {
       $file_location = $importer->error_directory_path.'/'.$file->name;
@@ -597,6 +599,7 @@ function wallymport_post($importer_name){
         //Proccess xml
         $return = wallymport_process_xmlfile($xml_file, $importer);
         $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
         $file_location = $importer->error_directory_path.'/'.$file->name;
