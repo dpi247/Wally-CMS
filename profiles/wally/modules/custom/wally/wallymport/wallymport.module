@@ -416,7 +416,7 @@ function wallymport_process_folder($importer){
     $format = 'zip';
   }
   $files = file_scan_directory($folder, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all files
-  
+
   if (count($files) == 0 ) {
     $error_msg = t('No input files found.');
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
@@ -448,6 +448,7 @@ function wallymport_process_folder($importer){
         }
         file_delete($xml_file);
         $returns[] = $return;
+        $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return[0]['log']['node']);
         wallymport_save_log($importer, time(), $file_location, serialize($return));
       }
@@ -525,6 +526,7 @@ function wallymport_process_file($importer, $file_name){
       }
       file_delete($xml_file);
       $returns[] = $return;
+      $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
       unset($return[0]['log']['node']);
       wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
@@ -1182,3 +1184,27 @@ function wallymport_page_test($importeur){
 /**
  * @} End of "defgroup wallymport_process_default".
  */
+/*
+function wallymport_deletedoublenode(){
+  $result = db_query("SELECT n.nid, extref.field_externalreference_value, n.created
+  					  FROM {node} n
+  					  LEFT JOIN {content_field_externalreference} extref ON extref.nid = n.nid
+  					  WHERE extref.field_externalreference_value 
+  					  IN (SELECT field_externalreference_value 
+  						  FROM {content_field_externalreference}
+  						  WHERE nid <> n.nid)
+  					  GROUP BY n.nid
+  					  ORDER BY extref.field_externalreference_value");
+  $nids = array();
+  while ($obj = db_fetch_object($result)){
+    dsm($obj->nid.' '.$obj->field_externalreference_value.' '.$obj->created);
+    
+    /*
+    if (array_key_exists($obj->field_externalreference_value, $nids)){
+      node_delete($obj->nid);
+    } else {
+      $nids[$obj->field_externalreference_value] = $obj->nid;
+    }
+  }
+}
+*/
