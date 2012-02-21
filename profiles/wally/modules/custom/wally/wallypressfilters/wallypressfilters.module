@@ -53,7 +53,14 @@ function wallypressfilters_menu() {
     'description'      => t('Allows administrators to create custom press filter.'),
     'file'             => 'includes/wallypressfilters.admin.inc',
   );
-  
+  $items['admin/wally/wallypressfilters/settings/delete/%'] = array(
+      'title'            => t('Delete filter'),
+      'page callback'    => 'drupal_get_form',
+      'page arguments'   => array('wallypressfilters_form_deletefilter_form', 5),
+      'access arguments' => array('administer custom press filter'),
+      'description'      => t('Allows administrators to create custom press filter.'),
+      'file'             => 'includes/wallypressfilters.admin.inc',
+  );
   return $items;
 }
 /**
