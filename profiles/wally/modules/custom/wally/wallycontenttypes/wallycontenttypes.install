@@ -126,6 +126,10 @@ function _wallycontenttypes_uninstall_presets() {
 function wallycontenttypes_schema() {
   $schema = array();
   
+  //content_field_embargodatetime => field_embargodatetime_value
+  // content_field_unpublishdate => field_unpublishdate_value	  
+  // content_field_publicationdate => field_publicationdate_value	
+  
   return $schema;
 }
 
