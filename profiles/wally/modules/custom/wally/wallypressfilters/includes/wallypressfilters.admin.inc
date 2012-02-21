@@ -14,7 +14,7 @@ function wallypressfilters_page_admin(){
       $rows[] = array(
         $filter->name,
         $filter->description,
-        '<a href = "/admin/wally/wallypressfilters/settings/edit/'.$filter->fid.'">'.t('Edit').'</a>',
+        '<a href = "/admin/wally/wallypressfilters/settings/edit/'.$filter->fid.'">'.t('Edit').'</a>, <a href = "/admin/wally/wallypressfilters/settings/delete/'.$filter->fid.'">'.t('Delete').'</a>',
       );
     }
     $content .= theme_table($header,$rows);
@@ -103,7 +103,7 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
   foreach ($tags as $tag){
     //Check if the tag is correct
     if (preg_match('/[^a-z0-9_-]/', $tag)) {
-      form_set_error('wallypressfilters][tags', t('Tag name must be alphanumeric or underscores only.'));
+      form_set_error('wallypressfilters][tags', t('Tag name must be alphanumeric, with lowercase letter and underscores only.'));
     } 
     //Ignore space
     elseif ($tag == ''){
@@ -157,5 +157,38 @@ function wallypressfilters_form_addfilter_form_submit($form, &$form_state){
     $message = 'The filter as not been created/udpated';
   }
   drupal_set_message(t($message));
+  drupal_goto('admin/wally/wallypressfilters/settings/general');
+}
+/**
+ * Form to delete a filter
+ */
+function wallypressfilters_form_deletefilter_form($form_state, $fid){
+  $filter = wallypressfilters_getfilterbyid($fid);
+  $form['filter']['text'] = array(
+    '#type'  => 'markup',
+    '#value' => t('Are you sure you want to delete '.$filter->name.' filter? '),
+  );
+  $form['filter']['fid'] = array(
+    '#type'  => 'value',
+    '#value' => $fid,
+  );
+  $form['sumbit'] = array(
+    '#type'  => 'submit',
+    '#value' => t('Delete'),
+  );
+  return $form;
+}
+/**
+ * Submit of the wallypressfilters_form_deletefilter_form
+ */
+function wallypressfilters_form_deletefilter_form_submit($form, &$form_state){
+  $filter = wallypressfilters_getfilterbyid($form_state['values']['fid']);
+  $result = db_query("DELETE FROM {wallypressfilters} WHERE fid = %d", $filter->fid);
+  $result2 = db_query("DELETE FROM {wallypressfilters_tags} WHERE filter = '%s'", $filter->name);
+  if ($result & $result2){
+    drupal_set_message(t('The filter as correctly been deleted'));
+  } else {
+    drupal_set_message(t('The filter couldn\'t be correctly deleted'));
+  }
   drupal_goto('admin/wally/wallypressfilters/settings/general');
 }
