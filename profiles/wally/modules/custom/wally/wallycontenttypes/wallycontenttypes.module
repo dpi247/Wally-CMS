@@ -420,6 +420,48 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
   }
 }
 
+/*Implementation of hook_cron
+ *Check once a day(at midnight) if the temporary table is build
+ *if not build it
+ *Publish or Unpublish node based on information in temporary table. 
+ */
+function wallycontenttypes_cron(){
+  
+  $today=strtotime(date("d-m-y"));
+  $last_run_date=variable_get("wallycontenttypes_embargo_last_run",date("d-m-y"));
+  $last_run_timestamp=strtotime($last_run_date);
+  
+  if($last_run_timestamp<<$today){
+    //We need to build the table
+    
+    
+ // SELECT n.nid, n.status, DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-0') FROM node n LEFT JOIN content_field_embargodatetime cfe ON cfe.nid=n.nid LEFT JOIN content_field_unpublishdate cfu ON cfu.nid =n.nid;
+
+//SELECT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value FROM node n LEFT JOIN content_field_embargodatetime cfe ON cfe.nid=n.nid LEFT JOIN content_field_unpublishdate cfu ON cfu.nid =n.nid WHERE ( DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-0')= CURDATE() OR DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-0')= CURDATE() )
+    
+    
+    $results=db_query("SELECT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value 
+    FROM {node} n 
+    LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid=n.nid 
+    LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid =n.nid
+    WHERE 
+    
+      (  DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() OR (DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d')= CURDATE())
+      
+    
+    " ); 
+
+    while($result=db_fetch_object($results)){
+
+    }
+    //content_field_embargodatetime => field_embargodatetime_value
+    //content_field_unpublishdate => field_unpublishdate_value	  
+    //content_field_publicationdate => field_publicationdate_value	
+    
+    //variable_set("wallycontenttypes_embargo_last_run",date("d-m-y"));
+  }
+}
+
 /**
  * Remove all unnecessery fields from the node before it is
  * populated.
