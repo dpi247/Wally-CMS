@@ -32,6 +32,7 @@ function wallymport_menu() {
     'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'             => 'includes/wallymport.admin.inc',
   );
+  
   $items['admin/wally/wallymport/settings/general'] = array(
     'title'            => t('General'),
     'page callback'    => 'wallymport_page_admin',
@@ -146,6 +147,7 @@ function wallymport_menu() {
   
   return $items;
 }
+
 /**
  * Implementation of hook_cron().
  */ 
@@ -185,7 +187,7 @@ function wallymport_cron(){
   }
 }
 
-/*
+/**
  * Implementation of hook_theme().
  */
 function wallymport_theme(){
