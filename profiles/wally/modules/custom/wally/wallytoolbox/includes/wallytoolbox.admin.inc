@@ -158,8 +158,8 @@ function wallytoolbox_supercron_settings_form_validate($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
     if (isset($row['rule']) && !is_numeric($row['rule'])) {
       form_set_error('rows]['.$row['cid'].'][rule', t('The refresh time isn\'t a numeric value'));
-    } elseif (isset($row['rule']) && ($row['rule'] < 0 || $row['rule'] >= 60)) {
-      form_set_error('rows]['.$row['cid'].'][rule', t('The refresh time must be greater or equal to 0 and smaller than 60 minutes'));
+    } elseif (isset($row['rule']) && $row['rule'] < 0) {
+      form_set_error('rows]['.$row['cid'].'][rule', t('The refresh time must be greater or equal to 0'));
     }
   }
 }
