@@ -323,6 +323,7 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
     }
   } else {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->status = 0;
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -838,6 +839,30 @@ function wallyimportpackage_node_set_field_freeaccess(&$node, $dom, &$log, $impo
     $node->field_freeaccess[0]['value'] = NULL; 
 }
 
+/**
+* Process field Auto Publish from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+* Anything else then a booelan true value will
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportpackage_node_set_field_autopublish(&$node, $dom, &$log, $importer){
+  if (wallytoolbox_toboolean($dom->nodeValue)){ 
+    $node->field_autopublish[0]['value'] = "Autopublish";
+  } else {
+    $node->field_autopublish[0]['value'] = "No";
+    $node->status = 0;
+  }
+}
 
 /**
  * Process field PackageLayout from DOM element.

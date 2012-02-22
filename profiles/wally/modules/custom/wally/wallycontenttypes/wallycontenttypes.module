@@ -176,14 +176,20 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op) {
 
     case 'view':
-      if(($node->type == 'wally_articlepackage' || 
-        $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)//DoNotPopulate is for wallyedit preview, since we give it a node already populated
+      if (($node->type == 'wally_articlepackage' || 
+           $node->type == 'wally_gallerypackage' ||
+           $node->type == 'wally_pollpackage') && 
+           !$node->DoNotPopulate) //DoNotPopulate is for wallyedit preview, since we give it a node already populated
+      { 
         wallycontenttypes_packagepopulate($node, $op);
+      }
       break;
-      
+    case 'insert':
+      if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage'){
+        _wallycontenttypes_checkautopublish($node);
+      }
     case 'presave' : 
-      if($node->type == 'wally_articlepackage' || 
+      if ($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
           _wallycontenttypes_addtaxonomywheninserted($node);
@@ -192,21 +198,24 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 
     case 'update' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-      if($node->type == 'wally_articlepackage' || 
-        $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage') {
-          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      if ($node->type == 'wally_articlepackage' || 
+          $node->type == 'wally_gallerypackage' ||
+          $node->type == 'wally_pollpackage') 
+      {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        _wallycontenttypes_checkautopublish($node);
       } elseif(($node->type == 'wally_textobject' ||
-              $node->type == 'wally_audioobject' ||
-              $node->type == 'wally_digitalobject' || 
-              $node->type == 'wally_photoobject' || 
-              $node->type == 'wally_videoobject' ||
-              $node->type == 'wally_linkslistobject' ||
-              $node->type == 'wally_pollobject' ||
-              $node->type == 'poll') && 
-              !$node->doNotPullUp) {
-                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
-                _wallycontenttypes_addtaxonomywhenupdated($node);
+                $node->type == 'wally_audioobject' ||
+                $node->type == 'wally_digitalobject' || 
+                $node->type == 'wally_photoobject' || 
+                $node->type == 'wally_videoobject' ||
+                $node->type == 'wally_linkslistobject' ||
+                $node->type == 'wally_pollobject' ||
+                $node->type == 'poll') && 
+                !$node->doNotPullUp) 
+      {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        _wallycontenttypes_addtaxonomywhenupdated($node);
       }
       wallytoolbox_object_referencer_cache_clear($node);
       break;
@@ -214,19 +223,21 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'delete' :
       require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
       if ($node->type == 'wally_articlepackage' || 
-        $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage') {
-          wallycontenttypes_delete_orphans_objects($node); 
-          wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+          $node->type == 'wally_gallerypackage' ||
+          $node->type == 'wally_pollpackage') 
+      {
+        wallycontenttypes_delete_orphans_objects($node); 
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
       } elseif( $node->type == 'wally_textobject' ||
-              $node->type == 'wally_audioobject' ||
-              $node->type == 'wally_digitalobject' || 
-              $node->type == 'wally_photoobject' || 
-              $node->type == 'wally_videoobject' ||
-              $node->type == 'wally_linkslistobject' ||
-              $node->type == 'wally_pollobject' ||
-              $node->type == 'poll') {
-                wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+                $node->type == 'wally_audioobject' ||
+                $node->type == 'wally_digitalobject' || 
+                $node->type == 'wally_photoobject' || 
+                $node->type == 'wally_videoobject' ||
+                $node->type == 'wally_linkslistobject' ||
+                $node->type == 'wally_pollobject' ||
+                $node->type == 'poll') 
+      {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
       }
       wallytoolbox_object_referencer_cache_clear($node);
       break;
@@ -426,39 +437,67 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
  *Publish or Unpublish node based on information in temporary table. 
  */
 function wallycontenttypes_cron(){
-  
-  $today=strtotime(date("d-m-y"));
-  $last_run_date=variable_get("wallycontenttypes_embargo_last_run",date("d-m-y"));
-  $last_run_timestamp=strtotime($last_run_date);
-  
-  if($last_run_timestamp<<$today){
-    //We need to build the table
-    
-    
- // SELECT n.nid, n.status, DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-0') FROM node n LEFT JOIN content_field_embargodatetime cfe ON cfe.nid=n.nid LEFT JOIN content_field_unpublishdate cfu ON cfu.nid =n.nid;
 
-//SELECT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value FROM node n LEFT JOIN content_field_embargodatetime cfe ON cfe.nid=n.nid LEFT JOIN content_field_unpublishdate cfu ON cfu.nid =n.nid WHERE ( DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-0')= CURDATE() OR DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-0')= CURDATE() )
+  if (db_table_exists('wallycontenttypes_temp_nodetopublish')){ 
+    //Reset the temp table once a day
+    $today = strtotime(date("d-m-y"));
+    $last_run_timestamp = variable_get("wallycontenttypes_embargo_last_run", time() - 86400);
     
-    
-    $results=db_query("SELECT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value 
-    FROM {node} n 
-    LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid=n.nid 
-    LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid =n.nid
-    WHERE 
-    
-      (  DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() OR (DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d')= CURDATE())
+    if ($last_run_timestamp < $today){
+      variable_set("wallycontenttypes_embargo_last_run", $today);
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
+      //We need to build the table
       
-    
-    " ); 
-
-    while($result=db_fetch_object($results)){
-
+      $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value 
+      					   FROM {node} n 
+      					   LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid 
+      					   LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
+      					   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+      					   WHERE (
+      					     (DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() 
+      					   OR 
+      					     (DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE())
+      					   )
+      					   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
+      					   AND auto.field_autopublish_value = 'Autopublish' 
+      					   "); 
+  
+      while ($obj = db_fetch_object($results)){
+        drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+      }
     }
-    //content_field_embargodatetime => field_embargodatetime_value
-    //content_field_unpublishdate => field_unpublishdate_value	  
-    //content_field_publicationdate => field_publicationdate_value	
     
-    //variable_set("wallycontenttypes_embargo_last_run",date("d-m-y"));
+    //look at the node who their umbargo date or unpublish date are lower than current time
+    $result = db_query("SELECT *
+    					FROM {wallycontenttypes_temp_nodetopublish}
+    					WHERE (
+    				      (field_embargodatetime_value < NOW() AND field_embargodatetime_value IS NOT NULL)
+    					OR
+    					  (field_unpublishdate_value < NOW() ANd field_unpublishdate_value IS NOT NULL) 
+    					)");
+    while ($obj = db_fetch_object($result)){
+      
+      //node to publish
+      if (strtotime($obj->field_embargodatetime_value) < time()){
+        if ($obj->status != 1){dsm('ccooc');
+          $node = node_load(array('nid' => $obj->nid));
+          node_publish_action($node);
+          node_save($node);
+        }
+      }
+      
+      //node to unpublish
+      if ($obj->field_unpublishdate_value < date("Y-m-d H:i:s")){
+        if ($obj->status != 0){
+          $node = node_load($obj->nid);
+          node_unpublish_action($node);
+          node_save($node);
+        }
+      }
+      
+      //delete node from the temp table
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
+    }
   }
 }
 
@@ -1594,7 +1633,20 @@ function wallycontenttypes_delete_orphans_objects($node){
     }
   }
 }
-
+function _wallycontenttypes_checkautopublish($node){
+  if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
+    db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
+      
+    if ($node->field_autopublish[0]['value'] == 'Autopublish'){
+      $node_temp = new stdClass();
+      $node_temp->nid = $node->nid;
+      $node_temp->status = $node->status;
+      $node_temp->field_embargodatetime_value = $node->field_embargodatetime[0]['value'];
+      $node_temp->field_unpublishdate_value = $node->field_unpublishdate[0]['value'];
+      drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+    }
+  }
+}
 /**
  * @} End of "defgroup wallycontenttypes".
  */
