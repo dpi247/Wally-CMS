@@ -14,7 +14,7 @@ function wallyedit_form_node_edition_form(&$form_state) {
 
   $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
-  $parents = $form_state['parents'];
+  $form_state['parents'] = $parents = wydit_get_parents_from_form_state($form_state);
   if (($tmp_fs = wydit_get_target_from_parents($form_state, $parents)) && wydit_get_target_from_parents($form_state, array_merge($parents, array('type')))) {
     $type_name = $tmp_fs['type'];
   } elseif ($parents) {
@@ -486,7 +486,7 @@ function wydit_form_preview_form_submit($form, &$form_state) {
 function wydit_form_nodetypeselector_form(&$form_state) {
   wydit_ctools_include();
 
-  $parents = $form_state['parents'];
+  $parents = wydit_get_parents_from_form_state($form_state);
   if (sizeof($parents) > 3) {
     $tmp_parents = array_slice($parents, 0, sizeof($parents) - 1);
     $tmp_parents[sizeof($tmp_parents) - 1] = 'type';
@@ -674,7 +674,7 @@ function wydit_form_submit_action_reset_global(&$form_state) {
 // important: add fields infos to form_state
 function wydit_form_node_main_treatment_submit(&$form_state) {
   wydit_ctools_include();
-  $parents = $form_state['parents'];
+  $parents = wydit_get_parents_from_form_state($form_state);
 
   //*********
   //Prepare form_state for input element
@@ -784,7 +784,7 @@ function wydit_form_submit_action_publish_global($form_state) {
 
 function wydit_form_submit_action_edit($form_state) {
   $commands = array();
-  
+
   $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
   wydit_clean_and_save_form_state($form_state);
 
@@ -1098,7 +1098,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
   $new_form_state['cache name'] = $form_state['cache name'];
   $new_form_state['profile_id'] = $form_state['profile_id'];
   $new_form_state['type'] = $type_name;
-  $new_form_state['parents'] = $form_state['parents'];
+  $new_form_state['parents'] = wydit_get_parents_from_form_state($form_state);
   $new_form_state['current_tab'] = $form_state['current_tab'];
   $new_form_state[$type_name] = $form_state[$type_name];
   if ($reset_input) {
@@ -1169,7 +1169,7 @@ function wydit_get_fil_ariane($form_state) {
   $delimiter = ' > ';
 
   $types = node_get_types();
-  $parents = $form_state['parents'];
+  $parents = wydit_get_parents_from_form_state($form_state);
   $pack_type = $parents[0];
 
   $array_title[] = $types[$pack_type]->name.' : '.$form_state[$pack_type]['#node']->title;
@@ -1227,6 +1227,10 @@ function wydit_populate_form_state(&$form_state, $node, $current_profile) {
       }
     }
   }
+}
+
+function wydit_get_parents_from_form_state ($form_state) {
+  return empty($form_state['parents']) ? array($form_state['type']) : $form_state['parents'];
 }
 
 /**
