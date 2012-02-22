@@ -266,7 +266,7 @@ function warnish_get_status() {
     $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
     foreach ($terminals as $terminal) {
       $stat = array_shift($status);
-      $results[$terminal] = ($stat['code'] == 200) ? WARNISH_SERVER_STATUS_UP : WARNISH_SERVER_STATUS_DOWN;
+      $results[$terminal] = ($stat['status']['code'] == 200) ? WARNISH_SERVER_STATUS_UP : WARNISH_SERVER_STATUS_DOWN;
     }
   }
   return $results;
