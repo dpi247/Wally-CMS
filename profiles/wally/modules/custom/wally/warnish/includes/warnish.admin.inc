@@ -107,7 +107,7 @@ function warnish_admin_reports_page() {
   $status = _warnish_terminal_run('stats');
   $output = '';
   foreach ($status as $stat) {
-    $output .= '<pre>'. $stat['msg'] .'</pre>';
+    $output .= '<pre>'. $stat['stats']['msg'] .'</pre>';
   }
   return $output;
 }
