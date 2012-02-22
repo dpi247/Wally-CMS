@@ -360,6 +360,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // This cache doesn't exists, create it
     if ($ajax) {
+      module_invoke_all('ajax_loading', $cid, $settings, $subtype, $context, $default_theme);
+
       // Adding the AJAX call
       drupal_add_js('
         $(document).ready(function() {
