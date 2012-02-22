@@ -107,15 +107,14 @@ function wallyflowtonode_cron($flow_key = NULL) {
       // was not reset due to a database error.
       // Release cron semaphore
       variable_del('wallyflowtonode_cron_semaphore');
-    } else {
-      // Cron is still running normally.
     }
 
-    // Return FALSE and set error message;
-    if (strstr($_GET['q'], '/wally/'))
+    // Set error message;
+    if (strstr($_GET['q'], '/wally/')) {
       return array(t('The cron didn\'t run successfully because the semaphore wasn\'t free.'));
-    else
+    } else {
       print t('The cron didn\'t run successfully because the semaphore wasn\'t free.');
+    }
   } else {
     // Register shutdown callback
     register_shutdown_function('wallyflowtonode_cron_cleanup');
@@ -132,18 +131,12 @@ function wallyflowtonode_cron($flow_key = NULL) {
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
 
-    if (strstr($_GET['q'], '/wally/'))
+    if (strstr($_GET['q'], '/wally/')) {
       return $return;
-    else
+    } else {
       print_r($return);
+    }
   }
-}
-
-function flowid_to_arg($flow_id, $default){
-  if(!isset($flow_id))
-    return $default;
-  else 
-    return $flow_id;
 }
 
 /**
@@ -155,6 +148,13 @@ function wallyflowtonode_cron_cleanup() {
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
   }
+}
+
+function flowid_to_arg($flow_id, $default){
+  if(!isset($flow_id))
+    return $default;
+  else 
+    return $flow_id;
 }
 
 /**
