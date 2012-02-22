@@ -1797,6 +1797,7 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
             $temp_results = $view->result;
             $view->destroy();
           }
+          
           $current_results = array();
 
           foreach ($temp_results as $result) {
