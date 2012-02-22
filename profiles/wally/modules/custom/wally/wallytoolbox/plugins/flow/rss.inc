@@ -280,7 +280,7 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $array_item['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
   $array_item['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
-  $array_item['CommentsAllowed']['value'] = 'Disabled';
+  $array_item['CommentsAllowed']['value'] = variable_get('comment_wally_articlepackage', 0);
   $term = taxonomy_get_term($feed_destination[0]);
   $temp_dest = array();
   $temp_dest['DestinationRank'] = $feed_destination[3];

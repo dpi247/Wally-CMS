@@ -119,7 +119,16 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $channel_node = $channels_node->appendChild($valid_dom->createElement('Channel'));
     $channel_node->setAttribute('Name', $channel_array['Name']);
   }
-  $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $package_array['CommentsAllowed']['value']));
+  if (is_numeric($package_array['CommentsAllowed']['value'])) {
+    $comments_translate = array(
+      0 => 'Disabled',
+      1 => 'Read Only',
+      2 => 'Read-Write',
+    );
+    $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $comments_translate[$array_valid_dom['Package']['CommentsAllowed'] ? $array_valid_dom['Package']['CommentsAllowed']['value'] : variable_get('comment_wally_articlepackage', 0)]));
+  } else {
+    $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $package_array['CommentsAllowed']['value']));
+  }
   if (isset($package_array['FreeAccess']) & $package_array['FreeAccess']['value'] != NULL & $package_array['FreeAccess']['value'] != ''){
     $package_node->appendChild($valid_dom->createElement('FreeAccess', $package_array['FreeAccess']['value']));
   } else {
