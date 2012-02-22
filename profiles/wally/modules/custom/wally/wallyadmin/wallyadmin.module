@@ -186,6 +186,15 @@ function wallyadmin_menu() {
     'file' => 'includes/wallyadmin.login_redirection.inc',
   );
   
+  $items['admin/wally/menurestore'] = array(
+    'title' => t('Restore menus'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_menu_restore_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Backup the menus tables or restore them.'),
+    'file' => 'includes/wallyadmin.menu_restore.inc',
+  );
+  
   return $items;
 }
 
