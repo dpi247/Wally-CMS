@@ -277,6 +277,12 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
     $editions = $package->appendChild($valid_dom->createElement('Editions'));
     $chans = $package->appendChild($valid_dom->createElement('Channels'));
+    $comments_translate = array(
+      0 => 'Disabled',
+      1 => 'Read Only',
+      2 => 'Read-Write',
+    );
+    $package->appendChild($valid_dom->createElement('CommentsAllowed', $comments_translate[$array_valid_dom['Package']['CommentsAllowed'] ? $array_valid_dom['Package']['CommentsAllowed']['value'] : variable_get('comment_wally_articlepackage', 0)]));
     $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
     $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
     $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
