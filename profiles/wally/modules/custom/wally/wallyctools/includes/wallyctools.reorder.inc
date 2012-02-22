@@ -93,9 +93,12 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     $form = array("#tree" => true);
   
     foreach ($results as $j => $result) {
-      $db_row = db_query('SELECT n.title, n.type, n.changed
+      $db_row = db_query('SELECT n.title, n.type, n.changed, p.field_publicationdate_value
                           FROM {node} n
-                          WHERE n.nid = %d', $result->nid);
+                          INNER JOIN {content_field_publicationdate} p
+                          WHERE n.nid = %d
+                          AND p.nid = n.nid
+                          ', $result->nid);
       $row = db_fetch_object($db_row);
       $row->nid = $result->nid;
       $row->field_destinations_time_rank = $result->node_data_field_destinations_field_destinations_time_rank;
@@ -110,6 +113,11 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
       $form['rows'][$row->nid]['type'] = array(
         '#type' => 'value',
         '#value' => $row->type,
+      );
+      
+      $form['rows'][$row->nid]['publication'] = array(
+        '#type' => 'value',
+        '#value' => strtotime($row->field_publicationdate_value),
       );
       
       $form['rows'][$row->nid]['last_update'] = array(
