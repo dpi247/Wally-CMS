@@ -416,7 +416,7 @@ function wallymport_process_folder($importer){
     $format = 'zip';
   }
   $files = file_scan_directory($folder, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all files
-
+  
   if (count($files) == 0 ) {
     $error_msg = t('No input files found.');
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
@@ -446,6 +446,12 @@ function wallymport_process_folder($importer){
             $file_location = $importer->error_directory_path.'/'.$file->name;
           }
         }
+        
+        if ($error_msg) {
+          $return['error'] = TRUE;
+          $return[0]['log'][] = $error_msg;
+        }
+        
         file_delete($xml_file);
         $returns[] = $return;
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
