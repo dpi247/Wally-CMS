@@ -67,7 +67,6 @@ if (!function_exists('wallyct_mainmenu_menu_item_link')) {
  * the menu "links" rendered.
  */
   function wallyct_mainmenu_menu_item_link($link) {
-
     if ($link['link_path'] == 'http://#') {
       $attributes['title'] = $link['description'];
       $link_html = '<a'. drupal_attributes($attributes) .'>'. $link['title'] .'</a>';
