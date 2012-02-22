@@ -226,6 +226,6 @@ table.sticky-header {
 	position: relative;
 }
 
-#edit-wally-linktype-field-internal-link-0-nid-nid-wrapper {
-	margin-bottom: 200px;
+.group_content {
+	padding-bottom: 200px;
 }
