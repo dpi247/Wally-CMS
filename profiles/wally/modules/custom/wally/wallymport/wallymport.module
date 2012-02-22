@@ -24,6 +24,7 @@ function wallymport_perm() {
 function wallymport_menu() {
   $items = array();
   
+  //Admin settings Page
   $items['admin/wally/wallymport/settings'] = array(
     'title'            => t('Wally Import Settings'),
     'page callback'    => 'wallymport_page_admin',
@@ -42,6 +43,7 @@ function wallymport_menu() {
     'type'             => MENU_DEFAULT_LOCAL_TASK,
   );
   
+  //Page to create an importer
   $items['admin/wally/wallymport/settings/add'] = array(
     'title'            => t('Create importer'),
     'page callback'    => 'drupal_get_form',
@@ -52,6 +54,7 @@ function wallymport_menu() {
     'type'             => MENU_LOCAL_TASK,
   );
   
+  //Page to edit an importer
   $items['admin/wally/wallymport/settings/edit/%'] = array(
     'title'            => t('Edit importer'),
     'page callback'    => 'drupal_get_form',
@@ -78,7 +81,8 @@ function wallymport_menu() {
     'description'      => t('Allows administrators to see importer logs.'),
     'file'             => 'includes/wallymport.admin.inc',
   );
-
+  
+  //Page to delete an importer
   $items['admin/wally/wallymport/settings/delete/%'] = array(
     'title'            => t('Delete importer'),
     'page callback'    => 'drupal_get_form',
@@ -88,6 +92,7 @@ function wallymport_menu() {
     'file'             => 'includes/wallymport.admin.inc',
   );
   
+  //Page with the links to the folders of the importer 
   $items['admin/wally/wallymport/settings/links/%'] = array(
     'title'            => t('Packages links'),
     'page callback'    => 'drupal_get_form',
