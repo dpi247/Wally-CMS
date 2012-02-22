@@ -28,9 +28,9 @@ function wallyextra_theme(&$var) {
     'path' => "$path/theme",
   );
   
- return array(
+  return array(
  
-		'wallyct_mainmenu' => $base + array(
+    'wallyct_mainmenu' => $base + array(
       'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
       'template' => 'wallyct_mainmenu',
       'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
@@ -418,6 +418,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
  */
 function _wallyextra_content_types_ajax_callback() {
   $content = '';
+  
+  ctools_include('context');
   
   // Get POSTed values
   $cid = $_POST['cid'];
