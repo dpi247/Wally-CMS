@@ -33,8 +33,9 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
     if (!empty($form['body_field'])) {
       $form['body_field']['teaser_js']['#type'] = 'hidden';
       $form['body_field']['teaser_include']['#type'] = 'hidden';
-    }    
+    }
   }
+  
   //Aloud to set <none> for the menu link
   if ($form_id == 'menu_edit_item'){
     $form['menu']['link_path']['#required'] = FALSE;
@@ -183,6 +184,15 @@ function wallyadmin_menu() {
     'access arguments' => array('administer users'),
     'description' => t('Configure redirection paths after login for existing roles.'),
     'file' => 'includes/wallyadmin.login_redirection.inc',
+  );
+  
+  $items['admin/wally/menurestore'] = array(
+    'title' => t('Restore menus'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_menu_restore_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Backup the menus tables or restore them.'),
+    'file' => 'includes/wallyadmin.menu_restore.inc',
   );
   
   return $items;
