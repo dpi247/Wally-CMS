@@ -228,6 +228,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       {
         wallycontenttypes_delete_orphans_objects($node); 
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        _wallycontenttypes_deletefromtempautopublish($node);
       } elseif( $node->type == 'wally_textobject' ||
                 $node->type == 'wally_audioobject' ||
                 $node->type == 'wally_digitalobject' || 
@@ -1646,6 +1647,9 @@ function _wallycontenttypes_checkautopublish($node){
       drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
     }
   }
+}
+function _wallycontenttypes_deletefromtempautopublish($node){
+  db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
 }
 /**
  * @} End of "defgroup wallycontenttypes".
