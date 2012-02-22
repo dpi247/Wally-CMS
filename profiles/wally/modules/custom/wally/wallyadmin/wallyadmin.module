@@ -26,7 +26,7 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
     $form['path']['#collapsed'] = TRUE;
     
     if (isset($form['flag'])) {
-      $form['flag']['#collapsed'] = TRUE;      
+      $form['flag']['#collapsed'] = TRUE;
     }
     
     // Hide the split summary button
@@ -45,8 +45,8 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
 }
 
 /*
- * Modification de la validation de l'ajout d'un menu
-*/
+ * Modification de la validation de l'ajout d'un menu 
+ */
 function wallyadmin_menu_edit_item_validate($form, &$form_state){
   $item = &$form_state['values']['menu'];
   $normal_path = drupal_get_normal_path($item['link_path']);
