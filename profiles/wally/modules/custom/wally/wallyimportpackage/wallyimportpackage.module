@@ -1166,7 +1166,7 @@ function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element,
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
   wimprt_process_node_default($node, $dom_element, $log, $importer);
   //Exception for TextObject
-  if ($dom_element->getElementsByTagName("TextTitle")->length) {
+  if ($dom_element->getElementsByTagName("TextTitle")->item(0)->length) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
   
@@ -1867,7 +1867,7 @@ function wallyimportpackage_set_field_textforetitle(&$node, $dom, &$log, $import
  */
 function wallyimportpackage_set_field_texttitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->title = $value;
+   $node->field_objecttitle = array(array("value" => $value));
 }
 
 /**
