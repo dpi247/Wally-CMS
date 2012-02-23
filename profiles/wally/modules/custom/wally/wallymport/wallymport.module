@@ -1028,18 +1028,19 @@ function wimprt_node_process_list($dom_element, &$log, $importer){
 */
 function wimprt_node_process_fields(&$node, $dom, &$log, $importer){
   //Beware of namespace colision
+  
   foreach($dom->childNodes as $element){
     $name = strtolower($element->nodeName);
-
     if ($name != '#text'){
       foreach ($importer->importer_functions as $importer_function){
         if (function_exists($importer_function.'_node_set_field_'.$name)){
-          call_user_func($importer_function."_node_set_field_".$name, &$node, $element, &$log, $importer);
+          call_user_func($importer_function."_node_set_field_".$name, &$node, $element, &$log, $importer);        
           break;
         }
       }
     }
   }
+  
   return $node;
 }
 
