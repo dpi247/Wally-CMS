@@ -2340,6 +2340,8 @@ function wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result,
     $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
     if ($vid == NULL){
       $vid = wallytoolbox_taxonomy_createvocabularybyname($vocabulary_name);
+    } else {
+      $result_set = _wimprthelp_getfieldnamefromvocabularyname($vocabulary_name);
     }
   } else {
     $result_set = _wimprthelp_getfieldnamefromvocabularyname($vocabulary_name);
