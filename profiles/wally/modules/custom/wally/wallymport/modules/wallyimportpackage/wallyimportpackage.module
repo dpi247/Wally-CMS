@@ -997,6 +997,9 @@ function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $impor
   if ($importer->wallymport_preview) {
     $node->field_mainstory_nodes[0] = $object;
   }
+  if (isset($object->node_term_to_save)){
+    $node->node_term_to_save = $object->node_term_to_save;
+  }
 }
 
 /**
@@ -2238,7 +2241,8 @@ function wallyimportpackage_node_set_field_locations(&$node, $dom, &$log, $impor
     if (isset($result->field_locationtaxonomy)) {
 	  if ($result->field_locationtaxonomy[0]) {
 	    $node->field_locations[] = array("value" => $result->field_locationtaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_locationtaxonomy[0]["value"]] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
+		$node->taxonomy[$result->field_locationtaxonomy[0]["value"]] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
+		$node->node_term_to_save[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
       }
     }
   }
@@ -2299,6 +2303,7 @@ function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importe
   	        }
 	      }
   		  wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+  	
   		  if (!isset($node->nid)){
   		    $node->field_free_tags = array();
   		    $node->field_concepts = array();
@@ -2310,6 +2315,7 @@ function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importe
   		        $node->field_free_tags[] =  array("value" => $term->tid);
   			    $node->taxonomy[] = $term; 
   		      }
+  		      $node->node_term_to_save[] = $term;
   		    }
   		  }
   		  if (isset($result['field_concepts'])){
@@ -2318,14 +2324,16 @@ function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importe
   		        $node->field_concepts[] =  array("value" => $term->tid);
   			    $node->taxonomy[] = $term; 
   		      }
+  		      $node->node_term_to_save[] = $term;
   		    }
   		  }
   		  if (isset($result['field_iptc'])){
 	        foreach($result['field_iptc'] as $term) {
   		      if (!in_array(array("value" => $term->tid), $node->field_iptc)) {  
   		        $node->field_iptc[] =  array("value" => $term->tid);
-  			    $node->taxonomy[] = $term; 
+  		        $node->taxonomy[$term->tid] = $term;
   		      }
+  		      $node->node_term_to_save[] = $term;
   		    }
   		  }
 	    }
@@ -2366,12 +2374,13 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
 	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
-
   if ($vid == NULL){
     $result_set = NULL;
     $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
     if ($vid == NULL){
       $vid = wallytoolbox_taxonomy_createvocabularybyname($vocabulary_name);
+    } else {
+      $result_set = _wimprthelp_getfieldnamefromvocabularyname($vocabulary_name);
     }
   } else {
     $result_set = _wimprthelp_getfieldnamefromvocabularyname($vocabulary_name);
@@ -2387,12 +2396,21 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
 		  foreach( explode("/",trim($path,"/")) as $t){
 			$recursive_path = $recursive_path."/".$t;
 			$t = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
-			if ($result_set != NULL)
-			  $result[$result_set][] = $t[0];
+			if ($result_set != NULL){
+			  $term_object = $t[0];
+			  $term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
+			  $term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
+			  $result[$result_set][] = $term_object;
+			}
 		  }
 		} else {
-		  if ($result_set != NULL)
-		    $result[$result_set][] = $t[0];
+		  if ($result_set != NULL){
+			$term_object = $t[0];
+			$term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
+			$term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
+			$result[$result_set][] = $term_object;
+		
+		  }
 		}
 	  } else {
 		$tid = NULL; 
@@ -2411,11 +2429,17 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
     		}
     	  }
     	   // The node will be assigned to all the terms from PATH.
-           if ($taxonomy_recursive & $result_set != NULL) $result[$result_set][] = taxonomy_get_term($tid);
+    	   $term_object = taxonomy_get_term($tid);
+    	   $term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
+    	   $term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
+           if ($taxonomy_recursive & $result_set != NULL) $result[$result_set][] = $term_object;
 		  
 		}
 		// The node will only assigned to the last term from PATH.
-		if (!$taxonomy_recursive & $result_set != NULL) $result[$result_set][] = taxonomy_get_term($tid);
+		$term_object = taxonomy_get_term($tid);
+		$term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
+		$term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
+		if (!$taxonomy_recursive & $result_set != NULL) $result[$result_set][] = $term_object;
 	  }
 	}
   } 
@@ -2453,7 +2477,8 @@ function wallyimportpackage_node_set_field_entities(&$node, $dom, &$log, $import
     if (isset($result->field_entity)) {
 	  if ($result->field_entity[0]) {
 	    $node->field_entities[] = array("value" => $result->field_entity[0]["value"]);
-	    $node->taxonomy[$result->field_entity[0]["value"]] = taxonomy_get_term($result->field_entity[0]["value"]);  
+	    $node->taxonomy[$result->field_entity[0]["value"]] = taxonomy_get_term($result->field_entity[0]["value"]);
+	    $node->node_term_to_save[] = taxonomy_get_term($result->field_entity[0]["value"]);
       }
     }
   }
@@ -2637,7 +2662,8 @@ function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importe
     if (isset($result->field_persontaxonomy)) {
 	  if ($result->field_persontaxonomy[0]) {
 	    $node->field_persons[] = array("value" => $result->field_persontaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_persontaxonomy[0]["value"]] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);  
+		$node->taxonomy[$result->field_persontaxonomy[0]["value"]] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);
+		$node->node_term_to_save[] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);
       }
     }
   }
@@ -2673,7 +2699,8 @@ function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importe
     if (isset($result->field_authortaxonomy)) {
 	  if ($result->field_authortaxonomy[0]) {
 	    $node->field_authors[] = array("value" => $result->field_authortaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_authortaxonomy[0]["value"]] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);  
+		$node->taxonomy[$result->field_authortaxonomy[0]["value"]] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);
+		$node->node_term_to_save[] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);
       }
     }
   }
