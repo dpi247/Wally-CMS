@@ -923,9 +923,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
 
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, $importer, 'object', $callback, $log);
-/**
- * @todo Put into walymportlog module
- */
+
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process object: '.$dom->nodeName;
   }
