@@ -303,7 +303,7 @@ function wallymport_check_process_folder($importer_name) {
       $returns = wallymport_process_folder($importer);
     } else {
       //Unknown importer
-      $returns[] = array('error' => TRUE, 'error_msg' => array('Unknown importer'));
+      $returns[] = array('error' => TRUE, 'error_msg' => t('Unknown importer'));
     }
     // Record cron time
     variable_set('wallymport_process_folder_last', time());
