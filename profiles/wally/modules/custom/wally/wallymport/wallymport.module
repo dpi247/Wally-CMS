@@ -758,17 +758,14 @@ function wallymport_preprocess_zip($file, &$importer, &$return){
  */
 function wallymport_process_xmlfile($xml_file, $importer){
   $handle = fopen($xml_file, "r");
-  $contents = fread($handle, filesize($xml_file));
   
-  $contents = wallymport_convertEntities($contents);
-  fclose($handle);
-  //Need to rewrite the file to convert entites
-  $handle = fopen($xml_file, "w");
   if (!$handle){
     $return = array('error' => TRUE, 'error_msg' => t('Can\'t read the xml file (Permission denied)'));
   } else {
-    fwrite($handle, $contents);
-  
+    //Convert entities
+    $contents = fread($handle, filesize($xml_file));  
+    $contents = wallymport_convertEntities($contents);
+    
     $dom = new DomDocument();
     $dom->LoadXML($contents);
     $log = array();
