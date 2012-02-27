@@ -779,7 +779,7 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
  */
 function wallymport_page_process_file($xml_file, $importer){
   $handle = fopen($xml_file, "r");
-  //Need to rewrite the file to convert entites
+  
   if (!$handle) {
     $error_msg = t('The XML file (!xml_file) isn\'t readable', array('!xml_file' => $xml_file));
     $return = array('error' => TRUE, 'error_msg' => $error_msg);
