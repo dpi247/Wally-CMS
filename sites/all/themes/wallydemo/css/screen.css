@@ -1,0 +1,2127 @@
+﻿/* Digest
+
+------------------------------
+
+1. General
+	1.1 Layout
+
+2. Content 
+	2.1 Largeurs des colonnes
+	2.2 blocs
+		2.2.1 bloc-01
+		2.2.2 inner-bloc
+		2.2.3 bloc-02
+	2.3 Colonne 01 gauche
+		2.3.1 Article super event 
+		2.3.2 Article en Une et Unes bis 
+		2.3.3 Buzz et dossiers
+	2.4 Colonne 02 milieu
+		2.4.01 Bloc régionaux
+		2.4.02 Bloc medias
+		2.4.03 Galeries
+		2.4.04 Dernieres videos
+		2.4.05 Sondages
+		2.4.06 Footlive
+		2.4.07 Quickembed concours footlive régional
+		2.4.08 Imu Nos Clubs
+		2.4.09 Bloc Facebook
+		2.4.10 Widget en mémoire
+	2.5 Colonne 03 droite
+		2.5.1 Promos
+		2.5.2 Sudtop
+		2.5.3 Callbox 
+		2.5.4 pdf
+		2.5.5 Fil info
+		2.5.6 Je m'abonne
+
+3. Bottom
+	3.1 One more thing 
+	3.2 Sites du Groupe Rossel 
+	3.3 Boutique 
+		3.3.1 Header
+		3.3.2 Articles
+	
+4. Autres pages
+	4.1 Concours
+	4.2 Politique
+	4.3 Toutes les régions (ex: http://www.sudpresse.be/regions/)
+	4.4 Unes Bis
+	4.5 Unes régionales 
+		4.5.1 Articles 
+			4.5.1.1 Les 3 articles du haut
+			4.5.1.2 Articles du bas
+	4.6 Unes avec banner 
+	4.7 Page recherche sans résultat 
+	4.8 Page admin user 
+	4.9 Page 404
+
+/* -----------------------------------------------------------------------------------*/
+/* ----------------------------------- 1. General ----------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+body {
+	background: white url('../images/bg_body.gif') repeat-y center top;
+	color: #4d4c45;
+	font: normal .75em/1.4em Arial, FreeSans, Helvetica, 'Trebuchet MS', Tahoma, verdana, sans-serif;
+}
+a, a.novisited:visited, .novisited a:visited, #rubriques a:visited {
+	color: #003366;
+}
+a.underl {
+	text-decoration:underline;
+}
+a.arrow {
+	background: url('../images/ico_arrow_transparent.gif') no-repeat 0 5px;
+	padding-left: 8px;
+}
+.footer a:visited,
+#sudtop h3 a:visited,
+#foot_d .unordered_list a:visited,
+#modalContent .form-item a:visited,
+#content #wiki ul.right a:visited, 
+#wiki ul.bas a:visited, 
+#article ul.bas a:visited, 
+#content .pagination a:visited,  
+#content .return_top a:visited,
+#content #article ul.right a:visited, 
+#content #formulaire a:visited,
+.bloc_section h2 a:visited {
+	color:#003366 !important;
+}
+a:visited {
+	color: #1f5c99;
+}
+
+/* --------------------------------- 1.1 Layout --------------------------------------*/
+
+#global {
+	margin: 0 auto;
+	width: 960px;
+	padding: 10px;
+	position: relative;
+	clear: both;
+	background-color:#fff;
+	padding: 35px 10px 10px;
+}
+#content {
+	padding: 4px 0 0 0;
+}
+.limit {
+	background: transparent url('../images/separator_vertical1.gif') repeat-y top right;
+}
+div.wrap-columns .limit {
+	background: none
+}
+div.wrap-columns .last {
+	background: transparent url('../images/separator_vertical1.gif') repeat-y top left;
+}
+div.wrap-columns .fil_ariane .last {
+	background: none;
+}
+div.wrap-columns .intern-col {
+	float: left;
+	display: inline;
+}
+.wrap-columns {
+	border-bottom: 1px dotted #ccc;
+	padding: 10px 0;
+}
+.intern-col.first {
+	width:224px;
+	padding-right: 10px;
+}
+.intern-col.last {
+	width: 224px;
+	padding-left: 12px;
+}
+.intern-col .article {
+	padding: 0 0 11px 0;
+	margin: 0 0 10px 0;
+}
+.intern-col .noborder {
+	padding: 0;
+	margin: 0;
+}
+.phptemplate #content {
+	font-size: 16px;
+}
+
+/* -----------------------------------------------------------------------------------*/
+/* ----------------------------------- 2. Content ----------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+#content {
+	clear: both;
+	background: white;
+}
+.pane-pub-rectangle-top {
+	padding-bottom: 10px;
+	text-align:center;
+}
+.pane-pub-large-rectangle-middle {
+    padding: 10px 0;
+    text-align: center;
+}
+.right {
+	float:right;
+}
+.left {
+	float:left;
+}
+
+/* -------------------------- 2.1 Largeurs des colonnes ------------------------------ */
+
+.column {
+	float: left;
+	display: inline;
+}
+.w470-300-160 .col-01 {
+	width: 470px;
+	margin: 0 10px;
+}
+.w470-300-160 .col-02 {
+	width: 300px;
+}
+.w470-300-160 .col-03 {
+	margin-left: 10px;
+	width: 160px;
+}
+.w630-300 .col-01 {
+	width: 630px;
+    margin: 0 20px 0 10px;
+}
+.w630-300 .col-02 {
+	width: 300px;
+}
+
+/* ------------------------------------ 2.2 blocs ------------------------------------ */
+
+/* --------------------------------- 2.2.1 bloc-01 ----------------------------------- */
+
+.bloc-01 {
+	padding-bottom: 10px;
+	background: transparent url('../images/bg_shadow2.gif') no-repeat center bottom;
+}
+#global .bloc-01 h2 {
+	background: #196dab url('../images/bg_title_blue3.gif') no-repeat 0 0;
+	font-size: 12px;
+	font-weight: 400;
+	padding: 3px 10px;
+	color: white;
+}
+#global .bloc-01 h2 a {
+	color: white;
+}
+
+/* -------------------------------- 2.2.2 inner-bloc --------------------------------- */
+
+.bloc-01 .inner-bloc {
+	padding: 10px 10px 5px 10px;
+	border: 1px solid #ccc;
+	border-top: none;
+}
+.bloc-01 li.inner-bloc {
+	background:none;
+}
+.bloc-01 li {
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 5px;
+	padding: 0 0 4px 8px;
+	line-height:14px;
+}
+
+/* --------------------------------- 2.2.3 bloc-02 ----------------------------------- */
+
+.bloc-02 h3 {
+	width:200px;
+}
+.bloc-02 h3, .bloc-02 h3 a {
+	font-family: Tahoma, Geneva, sans-serif;
+	color: #000;
+	text-transform: uppercase;
+	font-size: 9px;
+	font-weight: bold;
+	padding-bottom:4px;
+}
+.bloc-02 p.titre_bloc-02 {
+	padding-left:88px;
+}
+#global .bloc-02 .inner-bloc li {
+	background:none;
+	clear: both;
+	margin-bottom: 10px;
+	padding: 0 0 11px 0;
+	min-height:52px;
+	border-bottom: 1px dotted #CCCCCC;
+}
+#global .bloc-02 .inner-bloc li.last {
+	margin-bottom: 0;
+	padding: 0 0 5px 0;
+	border-bottom: 0 none;
+}
+.bloc-02 img {
+	float: left;
+	margin-right: 7px;
+}
+.bloc-02 .time {
+	margin-top:-2px;
+}
+
+/* ----------------------------- 2.3 Colonne 01 gauche ------------------------------ */
+
+.insert-pub {
+	padding: 10px 0;
+}
+.insert-pub div {
+	float: left;
+}
+.insert-pub .first-pub {
+	padding-right: 20px;
+}
+
+/* ------------------------------ 2.3.1 Article en Une et Unes bis ------------------------------ */
+
+.article {
+	clear: left;
+	padding: 10px 0 11px 0;
+	border-bottom: 1px dotted #ccc;
+}
+.noborder {
+	border-bottom: none 0;
+}
+.time {
+	color: #b3b3b3;
+}
+.time_une, .ariane_une {
+	font-size: 11px;
+	line-height: 1;
+}
+.time_une {
+	float: right;
+}
+.time abbr {
+	border: 0;
+}
+.article h2 {
+	clear: both;
+	padding: 5px 0;
+}
+.gd {
+	padding: 0 0 11px 0;
+}
+.gd h2 {
+	font-size: 27px;
+	line-height: 30px;
+}
+.md h2 {
+	font-size: 18px;
+	line-height: 20px;
+}
+.lt h2 {
+	font-size: 14px;
+	line-height: 20px;
+}
+.article a img {
+	display: block;
+	float: left;
+	padding-right: 10px;
+}
+.article .text {
+	line-height: 17px;
+}
+.comment {
+	text-align: right;
+}
+.comment a {
+	background: transparent url('../images/ico_reagir_transparent.gif') no-repeat 0 3px;
+	padding-left: 15px;
+}
+.article ul {
+	clear: both;
+	padding-top: 5px;
+}
+li.media-video, li.media-press, li.media-audio, li.media-folder {
+	padding: 0 0 4px 17px;
+	line-height:14px;
+}
+li.media-video {
+	background: transparent url('../images/ico_video_transparent.gif') no-repeat 0 2px;
+}
+li.media-press {
+	background: transparent url('../images/ico_article_transparent.gif') no-repeat 0 2px;
+}
+li.media-audio {
+	background: transparent url('../images/ico_audio_transparent.gif') no-repeat 0 2px;
+}
+li.media-folder {
+	background: transparent url('../images/ico_galerie_transparent.gif') no-repeat 0 2px;
+}
+li.arrow {
+	background: url('../images/ico_arrow_transparent.gif') no-repeat 0 5px;
+	padding: 0 0 4px 8px;
+	line-height:14px;
+}
+li.media-dossier {
+    background: url("../images/ico_dossier.png") no-repeat scroll 0 1px transparent;
+    font-weight: bold;
+    height: 16px;
+	padding: 2px 0 4px 23px;
+	line-height:14px;
+}
+.article li.media-live {
+	background: transparent url('../images/ico_live.png') no-repeat 0 0;
+	line-height:14px;
+	padding: 0 0 4px 27px;
+}
+#une_bis .fil_ariane {
+	float:left;
+}
+
+/* --------------------------- 2.3.2 Buzz et dossiers ------------------------------- */
+
+.exergue {
+	border-top: 1px solid #cd0044;
+	border-bottom: 1px solid #cd0044;
+	border-right: 1px solid #cd0044;
+}
+.exergue a {
+	font-weight: 900;
+}
+.exergue .comment a {
+	font-weight: 400;
+}
+.exergue h1 {
+	display: block;
+	float: left;
+	width: 26px;
+	margin-right: 10px;
+}
+.exergue h1 a {
+	display: block;
+	float: left;
+	width: 26px;
+	height: 100px;
+	text-indent: -999em;
+}
+.exergue h1 a:focus {
+	outline: 0;
+}
+.exergue h2 {
+	font-size: 12px;
+}
+.exergue .item {
+	width: 127px;
+	margin: 10px 0;
+	padding: 0 11px 0 0;
+}
+.exergue .item img {
+	display: block;
+	padding-bottom: 10px;
+}
+.exergue .coince {
+	padding: 0 10px 0 10px;
+	background: transparent url('../images/separator_vertical3.gif') repeat-y top left;
+}
+.exergue .dernier {
+	padding: 0 10px 0 10px;
+	background: transparent url('../images/separator_vertical3.gif') repeat-y top left;
+}
+.buzz ul, .others {
+	float: left;
+	padding-top: 10px;
+	margin: 0 10px 0 36px;
+	width:422px;
+	background: transparent url('../images/separator_horizontal1.gif') repeat-x top left;
+	display: inline;
+}
+.others {
+	margin: 0 10px 8px 36px;
+}
+.buzz li, .item li {
+	padding-left: 7px;
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 7px;
+	zoom: 1;
+}
+.buzz li, .others li {
+	padding-bottom: 5px;
+}
+.buzz {
+	background: transparent url('../images/title_buzz.gif') no-repeat top left;
+}
+.folder {
+	background: transparent url('../images/title_dossiers.gif') no-repeat top left;
+}
+.folder .item li a {
+	font-weight: 400;
+}
+.folder .item img {
+	padding-top: 10px;
+}
+.others li {
+	padding-left: 78px;
+	padding-bottom: 2px;
+	padding-top: 0;
+	zoom: 1;
+}
+.ed-meuse {
+	background: transparent url('../images/title_lameuse.gif') no-repeat 0 0
+}
+.ed-province {
+	background: transparent url('../images/title_laprovince.gif') no-repeat 0 0
+}
+.ed-gazette {
+	background: transparent url('../images/title_lagazette.gif') no-repeat 0 0
+}
+.ed-capitale {
+	background: transparent url('../images/title_lacapitale.gif') no-repeat 0 0
+}
+.ed-nordeclair {
+	background: transparent url('../images/title_nordeclair.gif') no-repeat 0 0
+}
+
+/* -------------------------- 2.3.2 Article super event ----------------------------- */
+
+.super_event {
+    height: 320px;
+    margin-bottom: 20px;
+    position: relative;
+}
+.super_event a {
+	color:#FFF;
+}
+.super_event h2, .super_event img, .super_event .cadre_super_event {
+	position:absolute;
+}
+.super_event h2 {
+	z-index:98;
+	top:0;
+	font-size:27px;
+	line-height:27px;
+	padding:6px 10px;
+	background: transparent url('../images/bg_noir_50pc.png');
+}
+.super_event .cadre_super_event {
+	z-index:97;
+	bottom:0;
+	background: transparent url('../images/bg_noir_50pc.png');
+	padding:10px;
+	right:0;
+	text-align:left;
+	width:400px;
+}
+.super_event a_photo_event {
+	z-index:96;
+	top:0
+}
+.super_event .time_super_event {
+	color:#999;
+}
+.super_event .comment a {
+	background: transparent url('../images/ico_reagir_super_event.gif') no-repeat 0 3px;
+	padding-left: 15px;
+}
+.super_event li.media-video {
+	background: transparent url('../images/ico_video_super_event.gif') no-repeat 0 2px;
+}
+.super_event li.media-press {
+	background: transparent url('../images/ico_article_super_event.gif') no-repeat 0 2px;
+}
+.super_event li.media-audio {
+	background: transparent url('../images/ico_audio_super_event.gif') no-repeat 0 2px;
+}
+.super_event li.media-folder {
+	background: transparent url('../images/ico_galerie_super_event.gif') no-repeat 0 2px;
+}
+
+/* ---------------------------- 2.4 Colonne 02 milieu ------------------------------- */
+
+.separator {
+	background: transparent url('../images/separator_horizontal1.gif') repeat-x center center;
+	height: 11px;
+	clear: both;
+	line-height: 1;
+}
+.separator2 {
+	height: 10px;
+	clear: both;
+}
+#consult {
+	margin-top: 0px;
+}
+
+/* --------------------------------- 2.4.01 Bloc régionaux ---------------------------------- */
+
+.info-region .item h1 a {
+	display: block;
+	float: left;
+	width: 21px;
+	height: 85px;
+	text-indent: -999em;
+}
+.info-region .item span {
+    color: #B3B3B3;
+    display: block;
+    line-height: 12px;
+    padding: 1px 0 2px;
+}
+.info-region .item img {
+	display: block;
+	float: left;
+	padding-right: 8px;
+}
+.info-region .item h2, .info-region .item p {
+	line-height: 14px;
+}
+.info-region .item h2 {
+	font-size: 12px;
+}
+.info-region .item h2 a {
+	font-weight: 900;
+}
+
+/* en page d'accueil */ 
+
+.info-region .lameuse {
+	background: transparent url('../images/tab_lameuse.gif') no-repeat top left;
+}
+.info-region .lacapitale {
+	background: transparent url('../images/tab_lacapitale.gif') no-repeat top left;
+}
+.info-region .laprovince {
+	background: transparent url('../images/tab_laprovince.gif') no-repeat top left;
+}
+.info-region .nordeclair {
+	background: transparent url('../images/tab_nordeclair.gif') no-repeat top left;
+}
+.info-region .lanouvellegazette {
+	background: transparent url('../images/tab_lagazette.gif') no-repeat top left;
+}
+
+/* pages titres */ 
+
+.info-region .basse-meuse {
+	background: transparent url('../images/tab_basse-meuse.gif') no-repeat top left;
+}
+.info-region .brabantwallon {
+	background: transparent url('../images/tab_bw.gif') no-repeat top left;
+}
+.info-region .bruxelles {
+	background: transparent url('../images/tab_bruxelles.gif') no-repeat top left;
+}
+.info-region .centre {
+	background: transparent url('../images/tab_centre.gif') no-repeat top left;
+}
+.info-region .charleroi {
+	background: transparent url('../images/tab_charleroi.gif') no-repeat top left;
+}
+.info-region .huy-waremme {
+	background: transparent url('../images/tab_huy-waremme.gif') no-repeat top left;
+}
+.info-region .liege {
+	background: transparent url('../images/tab_liege.gif') no-repeat top left;
+}
+.info-region .luxembourg {
+	background: transparent url('../images/tab_luxembourg.gif') no-repeat top left;
+}
+.info-region .mouscron {
+	background: transparent url('../images/tab_mouscron.gif') no-repeat top left;
+}
+.info-region .namur {
+	background: transparent url('../images/tab_namur.gif') no-repeat top left;
+}
+.info-region .sambre-meuse {
+	background: transparent url('../images/tab_sambre-meuse.gif') no-repeat top left;
+}
+.info-region .tournai {
+	background: transparent url('../images/tab_tournai.gif') no-repeat top left;
+}
+.info-region .verviers {
+	background: transparent url('../images/tab_verviers.gif') no-repeat top left;
+}
+
+/* pages éditions */ 
+
+.edition {
+	background: url("../images/separator_vertical1.gif") repeat-y scroll left center transparent;
+	padding-left: 10px;
+}
+.edition h1 a {
+	display:block;
+	background: url("../images/title_mons.gif") no-repeat scroll 0 0 transparent;
+	width:290px;
+	height:23px;
+	text-indent:-999px;
+}
+
+/* ------------------------------ 2.4.02 Bloc medias ------------------------------- */
+
+.en-media {
+	zoom: 1;
+	position: relative;
+}
+.en-media img {
+	display: block;
+}
+.en-media span {
+	position: absolute;
+	background: transparent url('../images/bg_blanc_75pc.png');
+	color: black;
+	padding: 1px 5px;
+	bottom: 10px;
+	left: 0;
+	display: block;
+}
+* html .en-media span {
+	bottom: 9px;
+}
+
+/* -------------------------------- 2.4.03 Galeries -------------------------------- */
+
+.galerie .gal-inner {
+	background: black;
+}
+.galerie .gal-inner li {
+	display: block;
+	float: left;
+	padding: 0 10px;
+	margin: 12px 0;
+	width: 78px;
+	background: transparent url('../images/separator_vertical2.gif') repeat-y left center;
+}
+.galerie .gal-inner .first {
+	background: none;
+	padding-left:12px;
+}
+.galerie .gal-inner .last {
+	padding-left:12px;
+}
+.galerie h3 {
+	color: white;
+	font-weight: 400;
+	font-size: 12px;
+	line-height: 1;
+}
+.galerie h3 a {
+	color: white;
+}
+.galerie img {
+	display: block;
+	padding-bottom: 5px;
+}
+.galerie .inner-bloc li {
+    display: inline;
+}
+.galerie .inner-bloc {
+    padding: 3px 10px;
+}
+
+/* --------------------------- 2.4.04 Dernieres videos ----------------------------- */
+
+.last-vids li.item {
+	background: black url('../images/bg_video.gif') no-repeat bottom center;
+	height: 66px;
+	border-bottom: 1px dotted #4d4d4d;
+	padding:0;
+}
+.last-vids li.no {
+	border-bottom:0 none;	
+	height: 65px;
+}
+.last-vids .item img {
+	display: block;
+	float: left;
+	padding: 10px 8px 11px 11px;
+}
+.last-vids .item h3 {
+	float: left;
+	color: white;
+	line-height: 1;
+	font-size: 12px;
+	font-weight: 400;
+	width: 185px;
+	padding-right: 8px;
+	padding-top: 8px;
+}
+.last-vids .item h3 a {
+	color: white;
+}
+.last-vids .inner-bloc {
+	padding: 3px 10px;
+}
+.last-vids .inner-bloc li {
+	display: inline;
+	padding-right: 8px;
+}
+
+/* -------------------------------- 2.4.05 Sondages -------------------------------- */
+
+#sondages h1 {
+    color: #000000;
+    font-size: 18px;
+}
+#sondages .bloc_sondage_results, #sondages .bloc_sondage_form {
+    margin-bottom: 6px;
+    padding: 10px;
+	border-top: 1px solid #dce0e5;
+}
+.bloc_sondage_results, .bloc_sondage_form {
+    background-color: #FFFFFF;
+}
+.bloc_sondage_form .vote-form {
+    text-align: center;
+}
+.bloc_sondage_form .vote-form .form-item {
+    margin: 0 0 5px;
+    text-align: left;
+}
+.bloc_sondage_form .form-checkboxes .form-item, .bloc_sondage_form .form-radios .form-item {
+    margin: 0;
+}
+.bloc_sondage.bloc-01 h3, .bloc_sondage.bloc-01 label {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+h3.sondage_title {
+    color: black;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+.bloc_sondage_form .form-radios, .bloc_sondage_form .form-checkboxes {
+    margin: 0;
+    border-bottom: 1px dotted #CCC;
+    border-top: 1px dotted #CCC;
+	padding: 4px 0 6px;
+}
+#sondages .bloc_sondage_form .form-radios label, #sondages .bloc_sondage_form .form-checkboxes label, .bloc_sondage_form label {
+    color: black;
+    font-size: 12px;
+    padding-bottom: 5px;
+}
+.bloc_sondage_results ul li {
+    background: none repeat scroll 0 0 transparent;
+    list-style: none outside none;
+    padding: 0 0 8px;
+}
+.bloc_sondage_results ul li input {
+    margin: 0 5px 0 0;
+}
+.bloc_sondage_results #btn_voter {
+    display: block;
+    margin: 8px auto 0;
+}
+.bloc_sondage_results #btn_voter, .bloc_sondage_results .total, #sondages #btn_voter, #sondages .total {
+    padding: 5px 0 0 5px;
+    clear: both;
+    border-top: 1px dotted #CCC;
+}
+.bloc_sondage_results .inner-bloc {
+    padding: 10px;
+}
+.bloc_sondage_results .bar, .bloc_sondage_results .percent {
+    float: left;
+    padding: 4px 0;
+}
+.bloc_sondage_results .text {
+    border-top: 1px dotted #CCC;
+    clear: both;
+    color: #000;
+	padding: 3px 0 0 7px;
+}
+.bloc_sondage_results .percent {
+    padding-left: 7px;
+}
+.bloc_sondage_results .bar {
+    background: url("../images/bg_pool_bar.gif") repeat-x scroll 0 0 transparent;
+    height: 15px;
+    margin: 3px 0 0 7px;
+    padding: 1px;
+    width: 155px;
+}
+.foreground {
+    background: url("../images/bg_pool_bar2.gif") repeat-x scroll 0 0 transparent;
+    height: 13px;
+}
+.liste_sondage {
+    background-color: #EDEDED;
+    margin-top: 10px;
+    padding: 6px 7px 1px;
+}
+.bloc_sondage .allpolllink {
+    border-top: 1px dotted #CCC;
+	margin-top:5px;
+	padding-top:5px;
+}
+.bloc_sondage_form input {
+	vertical-align: text-bottom;
+}
+
+/* -------------------------------- 2.4.06 Footlive -------------------------------- */
+
+#foot_dl {
+	font-size:12px !important;
+}
+#foot_d {
+	overflow: hidden;
+}
+#foot_d .onglet, #foot_d .inner-bloc {
+	float: left;
+}
+#foot_d .foot td.fancy, #foot_s .foot td.fancy {
+	color:black;
+	font-weight:900;
+}
+.foot tr td a {
+	text-decoration: none;
+}
+table.foot {
+	border-spacing: 0;
+	border-collapse: collapse;
+	background: white;
+}
+#foot_d h2 {
+	float: left;
+	width: 280px;
+}
+#foot_d .fil h3, #foot_s .fil h3 {
+	background: #E20031;
+	color: orange;
+	font-size: 1em;
+	padding: .2em 0 .2em .3em;
+	font-family: arial, FreeSans, sans-serif;
+	text-align: left;
+}
+#foot_d .fil h3 a:link, #foot_d .fil h3 a:visited, #foot_s .fil h3 a:link, #foot_s .fil h3 a:visited {
+	color: white;
+	text-decoration: none;
+}
+#foot_d .fil h3 a:active, #foot_d .fil h3 a:hover, #foot_s .fil h3 a:active, #foot_s .fil h3 a:hover {
+	color: white;
+	text-decoration: underline;
+}
+#li_BE_D1, #li_BE_D2, #li_BE_D3A, #li_BE_D3B, #li_BE_PRA, #li_BE_PRB, #li_BE_PRC, #li_BE_PRD {
+	background: transparent url('../mediastore/home_foot/be.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_FRA_L1, #li_D1_FR {
+	background: transparent url('../mediastore/home_foot/fr.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_XNG_L1 {
+	background: transparent url('../mediastore/home_foot/england.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_ESP_L1 {
+	background: transparent url('../mediastore/home_foot/es.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_NLD_L1 {
+	background: transparent url('../mediastore/home_foot/nl.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_DEU_L1 {
+	background: transparent url('../mediastore/home_foot/de.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_C_IT, #li_ITA_L1 {
+	background: transparent url('../mediastore/home_foot/it.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_EUR_CL {
+	background: transparent url('http://football.lesoir.be/mediastore/elements/flags/EUR_CL.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_EUR_C3 {
+	background: transparent url('http://football.lesoir.be/mediastore/elements/flags/EUR_C3.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#li_CM {
+	background: transparent url('../mediastore/home_foot/CM2010.gif') no-repeat center left;
+	padding-left: 20px;
+}
+#foot_d #live_multi, #foot_s #live_multi {
+	text-align: center;
+}
+#foot_d .onglets_live, #foot_s .onglets_live {
+	color: black;
+	margin: 0;
+	padding: 0;
+	float: left;
+	width: 278px;
+}
+#foot_d .onglets_live li, #foot_s .onglets_live li {
+	display: block;
+	float: left !important;
+	text-transform: uppercase;
+	padding: 2px 0;
+	margin: 0 2px;
+	font-size:10px;
+}
+#foot_d .onglets_live a, #foot_s .onglets_live a {
+	color: black;
+	text-decoration: none;
+	font-weight: 900;
+	display: block;
+	float: left;
+}
+#foot_d .foot, #foot_s .foot {
+	caption-side: top;
+	margin: 0 auto;
+	width: 100%;
+	font-size:11px;
+}
+#foot_d .foot caption, #foot_s .foot caption {
+	background: #666;
+	color: white;
+	font-weight: 900;
+	text-align: center;
+	padding: 0;
+	margin-bottom: .3em;
+}
+#foot_d .foot thead, #foot_s .foot thead {
+	display: none;
+}
+#foot_d .foot td, #foot_s .foot td {
+	text-align: center;
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+.foot td {
+	background-color:#FFF;
+	border-bottom: solid 1px #e5e5e5;
+}
+#foot_d .foot td div, #foot_s .foot td div {
+	height: 16px;
+	overflow: hidden;
+}
+#foot_d .foot td.dom, #foot_s .foot td.dom {
+	text-align: right !important;
+}
+#foot_d .foot td.ext, #foot_s .foot td.ext {
+	text-align: left !important;
+}
+#foot_d .foot td.score #foot_s .foot td.score {
+	text-align: center;
+	font-weight: 900;
+	color: red;
+	width: 50px;
+}
+.encours {
+	text-align: center;
+	font-weight: 900;
+	color: red;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.encours a:link, .encours a:visited, .encours a:active, .encours a:hover {
+	text-align: center !important;
+	font-weight: 900 !important;
+	color: red !important;
+	padding-left: 5px !important;
+	padding-right: 5px !important;
+}
+.score_termine, .mitemps {
+	text-align: center;
+	font-weight: 900;
+	color: black;
+}
+.score_termine a, .mitemps a {
+	text-align: center;
+	font-weight: 900 !important;
+	color: red !important;
+}
+.score_heure {
+	text-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+	width: 54px;
+}
+.score_infos {
+	background: #E53209 !important;
+	color: white;
+	font-weight: 900;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+.score_minute {
+	background: #e50000 !important;
+	color: #FFF !important;
+	font-weight: 900;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+#foot_d #live_multi .wrap_inner, #foot_s #live_multi .wrap_inner {
+	background: white;
+	border: 1px solid #E20031;
+	width: 298px;
+	border-top: 0;
+	padding: 0;
+}
+#foot_d .onglet {
+	background: white !important;
+	width: 278px
+}
+#foot_d .onglets_live {
+	position: relative;
+	top: -7px;
+	float: left;
+}
+#foot_d .onglets_live li.selected, #foot_s .onglets_live li.selected {
+	background-color: #999 !important;
+	background-image: none;
+	font-weight: 900;
+	margin: 0 5px 0 0;
+	padding: 2px 5px;
+}
+#foot_d .onglets_live li.selected a, #foot_s .onglets_live li.selected a {
+	color: white !important;
+}
+.over {
+	background: black;
+}
+.even td.dom, .even td.ext, .even td.score, .even td.score_heure {
+	background: white !important;
+}
+.score_infos {
+	background: #E53209 !important;
+	color: white;
+	font-weight: 900;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+.score_minute {
+	background: #e50000 !important;
+	color: #FFF !important;
+	font-weight: 900;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+#foot_d .unordered_list {
+	float: left;
+	clear: left;
+	padding-top: 10px;
+}
+#evenement {
+	float: left;
+}
+#foot_s div#selected, #foot_s div.onglet {
+	background: white !important;
+}
+
+/* ------------------ 2.4.07 Quickembed concours footlive régional ----------------- */
+
+.column #quickembed {
+	background:none;
+}
+
+/* ----------------------------- 2.4.08 Imu Nos Clubs ------------------------------- */
+
+div#imu_nosclubs {
+    float: left;
+    height: 254px;
+    margin-bottom: 10px;
+    width: 300px;
+}
+/*div#imu_nosclubs {
+	width:300px;
+	height:260px; pour 4 clubs */
+}
+div#imu_nosclubs img {
+    float: left;
+}
+
+/* ----------------------------- 2.4.09 Bloc Facebook ------------------------------- */
+
+.bloc-fb {
+	padding-bottom: 10px;
+	background: transparent url('../images/bg_shadow2.gif') no-repeat center bottom;
+}
+.bloc-fb iframe {
+	display:block;
+}
+
+/* -------------------------- 2.4.10 Widget en mémoire ------------------------------ */
+
+#en_memoire {
+	font-family:Arial, Helvetica, sans-serif;
+	padding: 0 0 10px 10px;
+	border: 1px solid #88a3b4;
+	float: left;
+	width: 288px;
+	font-size: 12px;
+	color:#57595e;
+}
+#en_memoire h2 a {
+	text-decoration:none;
+	display:block;
+	font-size: 12px;
+	color: #193d50 !important;
+	background-color:#88a3b4;
+	padding: 4px 0 4px 10px;
+	width: 268px;
+	margin-top: 10px;
+	clear: both;
+	float: left;
+}
+.box_em {
+	margin-top: 10px;
+	border: 1px solid #dfe2e9;
+	padding: 6px;
+	float: left;
+	background:url(img/bg_box_em.png) repeat-x 0 0 #c4d5df;
+}
+.box_em a, .box_em a:visited, .region_em p a, .region_em p a:visited {
+	font-size: 12px;
+	color: #5b6681 !important;
+	font-weight:bold;
+}
+.box_em img {
+	float: left;
+	border: 3px solid #5e6d89;
+	margin-right: 6px;
+}
+/* Les décès dans l'actualité */
+
+.actualite_em {
+	float: left;
+}
+.actualite_em .box_em {
+	overflow:hidden;
+	width: 120px;
+	margin-right: 10px;
+}
+.actualite_em h3 {
+	line-height:14px;
+	margin-bottom:4px;
+	white-space:nowrap;
+}
+.actualite_em p {
+    font-size: 11px;
+    line-height: 15px;
+    margin-top: 7px;
+}
+/* Les anniversaires de leur départ */
+
+.anniversaire_em .box_em {
+	width: 72px;
+	margin-right: 10px;
+	text-align:center;
+}
+.anniversaire_em .box_em img {
+    height: 84px;
+    margin-bottom: 5px;
+}
+
+/* Dans votre région */
+
+.region_em .box_em {
+	width:264px;
+	background:none transparent;
+	padding: 4px 6px;
+}
+.region_em li {
+	margin:5px 0;
+}
+.region_em p {
+	float: left;
+	margin-top: 6px;
+	padding-left: 7px;
+	width: 258px;
+}
+
+/* ----------------------------- 2.5 Colonne 03 droite ------------------------------ */
+
+.col-03 .bloc-01 {
+	background: transparent url('../images/bg_shadow1.gif') no-repeat center bottom;
+}
+
+/* --------------------------------- 2.5.1 Promos ----------------------------------- */
+
+#content .highlight2 {
+	border-bottom: 5px solid #EBEAE8;
+	border-top: 5px solid #EBEAE8;
+	padding-top: 10px;
+	margin-bottom: 10px;
+}
+#content .highlight {
+	margin-bottom: 10px;
+}
+#content .highlight .octet h3 {
+	font-weight: 400;
+	font-size: 1em;
+	padding-bottom: 5px;
+	line-height: 1;
+}
+#content .highlight .octet img {
+	display: block;
+	width:160px;
+	height:100px;
+}
+#content .highlight .octet {
+	width:160px;
+	margin-bottom: 10px;
+}
+#content .highlight2 .octet h3 {
+	font-weight: 400;
+	font-size: 1em;
+	padding-bottom: 5px;
+	line-height: 1;
+}
+#content .highlight2 .octet img {
+	display: block;
+	width:160px;
+}
+#content .highlight2 .octet {
+	width:160px;
+	margin-bottom: 10px;
+}
+#content .highlight .octetFun h3 {
+	font-weight: 400;
+	font-size: 1em;
+	padding-bottom: 5px;
+	line-height: 1;
+}
+#content .highlight .octetFun img {
+	display: block;
+}
+#content .highlight .octetFun {
+	margin-bottom: 10px;
+	padding-bottom:12px;
+	background: transparent url('../images/separator_horizontal1.gif') repeat-x scroll left bottom;
+}
+#content .highlight .noborder {
+	padding: 0;
+}
+
+/* -------------------------------- 2.5.2 Sudtop ------------------------------------ */
+
+#sudtop img {
+	display: block;
+	margin: 0 auto;
+	padding-bottom: 10px;
+}
+#sudtop h3 {
+	text-align: center;
+	font-size: 12px;
+	font-weight: 400;
+	padding-bottom:5px;
+}
+
+/* ---------------------------------- 2.5.3 Callbox --------------------------------- */
+
+/* 300px de large */
+
+.col-02 #callbox .pub {
+	background: url('../images/bg_shadow2.gif') no-repeat bottom;
+}
+.col-02 #callbox p {
+	background: url('../images/bg_callbox_300.gif') left center;
+	text-align: left;
+	padding: 0 10px 0 130px;
+}
+.col-02 #callbox p.logo {
+	background: url('../images/bg_callbox_300.gif');
+	padding: 10px 0 0;
+}
+.col-02 #callbox img {
+	margin-left: 10px;
+	float: left;
+}
+.col-02 #callbox a.rappel_gratuit {
+	background: url('../images/bg_callbox_300.gif') 0px -462px;
+	height: 38px;
+	display: block;
+}
+
+/* 160px de large */
+
+.col-03 #callbox .pub {
+	background: url('../images/bg_shadow1.gif') no-repeat bottom;
+}
+.col-03 #callbox p {
+	background: url('../images/bg_callbox_160.gif') left center;
+	padding: 0 10px;
+}
+.col-03 #callbox p.logo {
+	background: url('../images/bg_callbox_160.gif');
+	padding: 12px 0 3px;
+}
+.col-03 #callbox a.rappel_gratuit {
+	background: url('../images/bg_callbox_160.gif') 0px -437px;
+	height: 63px;
+	display: block;
+}
+
+/* 300px + 160px */
+
+#callbox p {
+	color: #000;
+	line-height:14px;
+}
+#callbox .rappel_gratuit p {
+	text-indent: -9999px;
+	background: none;
+}
+
+/* ----------------------------------- 2.5.4 pdf ------------------------------------ */
+
+#pdf img {
+	display: block;
+	margin: 0 auto;
+	padding-bottom: 10px;
+}
+#pdf h3 {
+	text-align: center;
+	font-size: 12px;
+	font-weight: 400;
+	color: #393939;
+	padding-bottom:5px;
+}
+
+/* -------------------------------- 2.5.5 Fil info ----------------------------------- */
+
+
+#global .breaking h2 {
+	background: #9B0000 url('../images/bg_title_red.gif') no-repeat 0 0;
+}
+#infos-continu {
+	zoom: 1;
+	position: relative;
+}
+#infos-continu .inner-bloc {
+	padding-bottom: 10px;
+}
+#infos-continu li {
+	padding-left: 0;
+	background: none;
+}
+#infos-continu li span {
+	font-weight: 900;
+	color:black;
+	padding-right: 4px;
+}
+#infos-continu li.infoc {
+	margin: 4px 0 0;
+	padding-top: 8px;
+	padding-bottom:0;
+	background: url("../images/separator_horizontal1.gif") repeat-x scroll left top transparent;
+}
+
+/* ------------------------------- 2.5.6 Je m'abonne -------------------------------- */
+
+.pane-pub-je-m-abonne {
+	background: url("../images/je-m-abonne.gif") no-repeat scroll left top transparent;
+	padding-top:22px;
+}
+.pub, .pane-pub-rectangle-purl {
+	padding-bottom:10px;
+}
+.pub img {
+	display:block;
+}
+
+
+
+/* ----------------------------------- 3. Bottom ------------------------------------ */
+
+/* ------------------------------ 3.1 One more thing -------------------------------- */
+
+.onemorething {
+	margin: 0 10px;
+	background: transparent url('../images/bg-end.gif') no-repeat 0 0;
+}
+.onemoreisaid {
+	float: left;
+	width: 223px;
+	height: 200px;
+	margin: 0 8px;
+	padding: 10px 0;
+	background: transparent url('../images/separator_horizontal1.gif') repeat-x center bottom;
+	overflow: hidden;
+	display: inline;
+	zoom: 1;
+}
+.onemorething .first {
+	margin: 0 8px 0 0;
+}
+.onemorething .last {
+	margin: 0 0 0 8px;
+}
+.onemoreisaid img {
+	display: block;
+	float: left;
+	padding-right: 8px;
+}
+.onemoreisaid h2 {
+	font-size: 18px;
+	font-weight: bold;
+	padding-bottom: 10px;
+}
+.onemoreisaid h3 {
+	font-size: 1em;
+	line-height: 1;
+}
+.onemoreisaid ul {
+	clear: both;
+	padding-top: 10px;
+}
+.onemoreisaid li {
+	line-height:1;
+	padding: 0 0 8px 7px;
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 4px;
+	zoom: 1;
+}
+
+/* -------------------------- 3.2 Sites du Groupe Rossel ---------------------------- */
+
+.sitesrossel {
+	float: left;
+	width: 223px;
+	margin: 10px 8px 0;
+	overflow: hidden;
+	display: inline;
+	zoom: 1;
+	padding:0;
+}
+.sitesrossel img {
+	display: block;
+}
+.sitesrossel h2 a {
+	text-indent: -999em;
+	display: block;
+	height: 23px;
+	width: 223px;
+}
+.sitesrossel.lesoir h2 a {
+	background:url('../images/lesoir.gif') no-repeat;
+}
+.sitesrossel.soirmag h2 a {
+	background:url('../images/soirmag.gif') no-repeat;
+}
+.sitesrossel.cinenews h2 a {
+	background:url('../images/cinenews.gif') no-repeat;
+}
+.sitesrossel.references h2 a {
+	background:url('../images/references.gif') no-repeat;
+}
+.sitesrossel.standard h2 a {
+	background:url('../images/standard.gif') no-repeat;
+}
+.sitesrossel.passion h2 a {
+	background:url('../images/passionsante.gif') no-repeat;
+}
+.sitesrossel.saveur h2 a {
+	background:url('../images/saveur.gif') no-repeat;
+}
+.sitesrossel.starnews h2 a {
+	background:url('../images/starnews.gif') no-repeat;
+}
+.sitesrossel.regionsjobs h2 a {
+	background:url('../images/regionsjob.gif') no-repeat;
+}
+.sitesrossel ul {
+	background: url('../images/bg_sitesrossel.gif') bottom;
+	clear: both;
+	padding: 10px 11px 0;
+	height:265px;
+}
+.sitesrossel li {
+	line-height:1;
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 4px;
+	padding-left:8px;
+	margin-top:5px;
+	zoom: 1;
+}
+.sitesrossel li.avecphoto {
+	background: url('../images/separator_horizontal1.gif') repeat-x bottom;
+	padding: 0px 0px 8px 0px;
+	margin-top:0px;
+}
+.sitesrossel li.avecphoto img {
+	margin-bottom:5px;
+}
+
+/* --------------------------------- 3.3 Boutique ----------------------------------- */
+
+#widget_boutique {
+	margin: 20px 10px;
+	padding: 14px 0px 24px 0px;
+	clear: both;
+	border-top: 5px solid #ebeae8;
+	border-bottom: 5px solid #ebeae8;
+	float:left;
+}
+
+/* --------------------------------- 3.3.1 Header ----------------------------------- */
+
+#boutique_header {
+	height:56px;
+}
+.boutique_logo {
+	float: left;
+}
+#widget_boutique ul.boutique_nav {
+	border-bottom: 1px solid #bfbfbf;
+	margin-top:6px;
+	width:723px;
+	padding-right:15px;
+	float: right;
+}
+#widget_boutique .boutique_nav li {
+	float:right;
+	background:url('../images/boutique/boutique_bg_nav_off.png') no-repeat right 0 transparent;
+	margin-right:5px;
+}
+#widget_boutique .boutique_nav li a, 
+#widget_boutique .boutique_nav li a:visited {
+	color:#FFF !important;
+	height:28px;
+	line-height:27px;
+	display:inline-block;
+}
+#widget_boutique .boutique_nav li:hover,
+#widget_boutique .boutique_nav li a:hover,
+#widget_boutique .boutique_nav li.current,
+#widget_boutique .boutique_nav li.current a{
+	background:url('../images/boutique/boutique_bg_nav_on.png') no-repeat right 0 transparent;
+	text-decoration:none;
+	cursor:pointer;
+}
+#widget_boutique .boutique_nav li a span {
+	background:url('../images/boutique/boutique_bg_nav_corner.png') no-repeat 0 0 transparent;
+	padding: 6px 8px 0;
+}
+
+/* -------------------------------- 3.3.2 Articles ---------------------------------- */
+
+.boutique_articles {
+	clear: both;
+}
+.boutique_articles_repeat {
+	background: url('../images/boutique/boutique_bg_article_repeat.png') 0 repeat-y transparent;
+	float:left;
+}
+.boutique_articles_bottom {
+	background: url('../images/boutique/boutique_bg_article_bottom.png') no-repeat 0 bottom transparent;
+	float:left;
+}
+.boutique_articles_detail, .boutique_articles_detail_last {
+	padding-top: 10px;
+	background: url('../images/boutique/boutique_bg_article_top.png') no-repeat 0 0 transparent;
+	width: 226px;
+	margin-right:12px;
+	float:left;
+    min-height: 166px;
+}
+.boutique_articles_detail_last {
+	margin-right: 0;
+}
+.boutique_articles_bottom {
+	background: url('../images/boutique/boutique_bg_article_bottom.png') no-repeat 0 bottom transparent;
+	float:left;
+}
+#widget_boutique h3 {
+	padding:0 12px 5px;
+	font-size:12px;
+}
+.boutique_articles img {
+	margin:0 10px 11px 12px;
+	float:left;
+}
+.boutique_articles .prix1, .boutique_articles .prix2 {
+	color:#F00;
+	text-align:center;
+}
+.boutique_articles .prix {
+	float:left;
+	width:93px;
+}
+.boutique_articles .prix1 {
+	text-decoration:line-through;
+	margin-top:7px;
+}
+.boutique_articles .prix2 {
+	font-size:21px;
+	font-weight:bold;
+	margin-top:9px;
+}
+.boutique_articles .details {
+	text-align:center;
+	margin-top:10px;
+	background: url('../images/boutique/boutique_bg_detail.png') no-repeat center 0 transparent;
+	height:29px;
+}
+.boutique_articles .details a {
+	color:#FFF;
+	line-height:29px;
+}
+
+/* -------------------------------- 4. Autres pages --------------------------------- */
+
+/* ---------------------------------- 4.1 Concours ---------------------------------- */
+
+#concours {
+	padding-bottom:30px;
+}
+.Con_QuestAlert {
+	color:red;
+	border: 1px solid #F00;
+	padding:10px;
+	margin: 10px 0;
+}
+.Title_Con_QuestAlert {
+	font-weight:bold;
+	text-decoration:underline;
+	margin-bottom: 5px;
+}
+#concours h1 {
+    color: #999999;
+    font-size: 19px;
+	margin-bottom: 15px;
+}
+.concours.even {
+	padding-bottom:20px;
+}
+#concours h2, h1.title_Con_EntryTitles {
+	font-size:13px;
+	color: white;
+	text-align: center;
+	padding : 4px 10px 18px;
+	font-weight: 400;
+	background: #333 url('../images/bg_conc_h3.gif') no-repeat center bottom;
+	line-height: 15px;
+}
+h3.title_Con_EntryTitles {
+	margin-top: 10px;
+}
+.concours .img_concours {
+	float: right;
+	padding: 0 10px;
+}
+.concours .Con_EntryShortDesc {
+	line-height: 1.4em;
+	font-weight: 900;
+	font-size:14px;
+}
+.concours .Con_EntryTitle {
+	line-height: 1.5em;
+	margin: 10px 0;
+}
+.concours .Con_EntryShortDesc, .concours .Con_EntryTitle {
+	padding-left: 10px;
+}
+.concours .Con_ContestZone p {
+	margin: 1em 0;
+}
+.concours .Con_EntryClose {
+	color: #999;
+	margin: 10px 0 10px 10px;
+	display: block;
+}
+.concours span.participer a {
+	display:block;
+	height: 19px;
+	width: 102px;
+	text-decoration: none;
+	text-align: center;
+	margin-left: 10px;
+	padding-bottom: 7px;
+	padding-top: 3px;
+	font-weight: 900;
+}
+.concours span.participer a:link, .concours span.participer a:visited {
+	background: url('../images/bg_conc_participez.gif') no-repeat left top;
+	color: #FFF !important;
+}
+.concours span.participer a:active, .concours span.participer a:hover {
+	background: url('../images/bg_conc_participez_on.gif') no-repeat left top;
+	color:#FFF !important;
+	text-decoration: none;
+}
+input.Con_QuestSubmit {
+	background: url('../images/bg_conc_participez.gif') no-repeat left top;
+	display:block;
+	height: 30px;
+	line-height:21px;
+	width: 102px;
+	text-decoration: none;
+	text-align: center;
+	margin-left: 210px;
+	padding-bottom: 11px;
+	color: #FFF !important;
+	border: 0 none;
+	cursor:pointer;
+}
+.concours .Con_QuestText {
+	margin-bottom: 1em;
+}
+.concours .Con_ContestZone form {
+	padding: .625em;
+}
+.concours .Con_ContestZone form fieldset {
+	border: 0;
+	margin-bottom: 1em;
+}
+.concours .Con_ContestZone form label {
+	color: white;
+	font-weight: 900;
+}
+.concours .Con_ContestZone form input {
+	font-weight: 900;
+	border: 0;
+	background: white;
+	color: #00A6EB;
+	padding: .2em;
+}
+.Con_ContestZone {
+	line-height: 1.5em;
+}
+.Con_ContestZone fieldset {
+	border: 1px dotted #CCC;
+	padding:10px;
+	margin:10px 0;
+}
+h3.Con_QuestText {
+	font-size:13px;
+	color:#000;
+	margin: 10px 0 5px;;
+}
+.Con_ContestZone fieldset.Con_QuestUserForm label {
+	display: block;
+	float: left;
+	margin-right: 10px;
+	text-align: right;
+	width: 200px;
+}
+.Con_ContestZone fieldset.Con_QuestUserForm p {
+	padding-bottom: 10px;
+}
+.Con_ContestZone p {
+	margin-left: 10px;
+}
+
+/* ---------------------------------- 4.2 Politique ---------------------------------- */
+
+#pol_indiscretions h2 {
+    background: url("../images/bg_title_indiscretions.gif") no-repeat scroll 0 0 #000;
+}
+#pol_opinions h2 {
+    background: url("../images/bg_title_opinions.gif") no-repeat scroll 0 0 #000;
+}
+.couleurs_pol h2 {
+	text-indent: -999em;
+	height:23px;
+	padding:0;
+}
+
+/* ---------------------------- 4.3 Toutes les régions ------------------------------- */
+
+.bloc_section {
+	margin-bottom: 10px;
+}
+.bloc_section li {
+	font-size:13px;
+	font-weight:normal;
+	padding: 0 0 3px 17px;
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 10px 7px;
+	width:490px;
+	margin-left:100px;
+}
+.bloc_section li.first {
+	padding: 0 0 5px 7px;
+	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 7px;
+	width:520px;
+	border-bottom: 1px dotted #ccc;
+	margin-bottom:10px;
+}
+.bloc_section img {
+	float:left;
+	margin: 0 10px;
+}
+.bloc_section h2 {
+	background: transparent url('../images/bg_bloc_section_h2.gif') no-repeat 0 0;
+	font-size:13px;
+	padding: 0 10px;
+	margin-bottom:5px;
+	height:26px;
+	line-height:24px;
+	width:100%;
+}
+.bloc_section .feed img {
+	float:right;
+	background:none;
+	margin:0;
+	padding: 7px 9px 0 0;
+}
+
+/* ---------------------------------- 4.4 Unes Bis ------------------------------------ */
+
+.titre_une_bis {
+	clear:both;
+	margin: 0 0 5px;
+	background: transparent url('../images/bg_bloc_section_h2.gif') no-repeat 0 0;
+	font-size:13px;
+	padding: 4px 10px 0 10px;
+	height:26px;
+	font-weight:normal;
+	color:#000;
+}
+#une_bis .feed {
+	padding: 1px 0 0 20px;
+}
+#une_bis .pagin {
+	margin-top: 10px;
+	height:15px;
+	padding: 0 10px;
+}
+#une_bis h1 {
+	position:absolute;
+	left:-2000px;
+}
+#une_bis .article {
+	width:610px;
+	margin-left:10px;
+	padding: 2px 0 11px;
+	text-align:justify;
+}
+
+/* ----------------------------- 4.5 Unes régionales --------------------------------- */
+
+.w300-480-160 .first-content {
+	clear:both;
+}
+.w300-480-160 .col-01 {
+	width: 300px;
+	margin-left:10px;
+}
+.w300-480-160 .col-02 {
+	width: 480px;
+}
+.w300-480-160 .col-03 {
+	width: 160px;
+}
+
+/* -------------------------------- 4.5.1 Articles ----------------------------------- */
+
+.article2 h2 {
+	font-size:17px;
+	line-height: normal;
+	padding: 5px 0;
+}
+.article2 ul {
+	background:url('../images/bg_art2_toolbar.png') no-repeat right top;
+	height:26px;
+	clear:both;
+	top:-3px;
+	position:relative;
+}
+.article2 li {
+	float:left;
+	margin: 6px 0 0 3px;
+	padding:0;
+	height:17px;
+}
+.article2 li.time {
+	margin:7px 0 0 5px;
+	color: #999;
+}
+.article2 li.media-press {
+	background: url('../images/bg_art2_ico_article.png') no-repeat right center;
+}
+.article2 li.media-video, .article2 li.media-audio, .article2 li.media-dossier, .article2 li.media-photo {
+	background: url('../images/bg_art2_ico.png') no-repeat right center;
+}
+.article2 li.media-video a, .article2 li.media-audio a, .article2 li.media-dossier a, .article2 li.media-photo a, .article2 li.media-press a {
+	display:block;
+	padding: 0 5px 0 20px;
+	color:#FFF !important;
+	text-decoration:none;
+	height:18px;
+	line-height:18px;
+}
+.article2 li.media-press a {
+	background: url('../images/ico_art2_article.png') no-repeat left center;
+}
+.article2 li.media-video a {
+	background: url('../images/ico_art2_video.png') no-repeat left center;
+}
+.article2 li.media-audio a {
+	background: url('../images/ico_art2_audio.png') no-repeat left center;
+}
+.article2 li.media-dossier a {
+	background: url('../images/ico_art2_dossier.png') no-repeat left center;
+}
+.article2 li.media-photo a {
+	background: url('../images/ico_art2_photo.png') no-repeat left center;
+}
+.article2 li.media-live a {
+	background: url('../images/ico_art2_live.png') no-repeat left top;
+	display:block;
+	width:27px;
+	height:23px;
+}
+.article2 li.comment {
+	float:right;
+	padding-right:5px;
+	margin:0;
+}
+.article2 li.comment a {
+	height: 16px;
+	width: 27px;
+	display:block;
+	background-image: none;
+	padding:0;
+	text-align:center;
+	text-decoration:none;
+	font-size:13px
+}
+.article2 li.comment img {
+	margin: 4px 0 0;
+	float:none;
+}
+
+/* ------------------------ 4.5.1.1 Les 3 articles du haut --------------------------- */
+
+.w300-480-160 .top-content {
+	float:left;
+	background:url('../images/separator_horizontal5.gif') repeat-x left bottom;
+	margin: 4px 0 18px;
+}
+.article2.gd2 {
+	width:300px;
+	float: left;
+	padding: 4px 10px 18px;
+}
+
+/* --------------------------- 4.5.1.2 Articles du bas ------------------------------- */
+
+.article2.md2  h2 {
+	padding:0;
+}
+.article2.md2 {
+	margin-bottom:17px;
+	background:url('../images/shadow_art2_md2.png') no-repeat 110px top;
+	padding: 0 20px;
+}
+.article2.md2 img {
+	float:left;
+	margin-right:10px;
+}
+
+/* ------------------------------ 4.6 Unes avec banner ------------------------------- */
+
+.banner_section {
+	margin-bottom:10px;
+	float:left;
+}
+.banner_section img {
+	display:block; 
+}
+
+/* ----------------------- 4.7 Page recherche sans résultat -------------------------- */
+
+#edit-keys-wrapper input#edit-keys {
+	width:300px !important;
+}
+.pane-apachesolr-form label {
+	font-weight:400;
+}
+.pane-apachesolr-form .form-item {
+	margin:0;
+}
+
+/* ------------------------------ 4.8 Page admin user -------------------------------- */
+
+#global ul.primary, #global .messages {
+	clear: both;
+}
+ul.primary {
+	padding-top: 10px;
+}
+.bloc_admin_sp, .views-admin-links, div.panel-pane div.panel-hide {
+	border: 2px solid #e50000;
+	margin-bottom:10px;
+	background:url('../images/bg_admin.png') no-repeat right top;
+}
+.bloc_admin_sp {
+	padding: 10px;
+}
+.views-admin-links, div.panel-pane div.panel-hide {
+	padding: 4px 5px;
+}
+.bloc_admin_sp h2 {
+	font-size:13px;
+	border-bottom: 1px dotted #000;
+	padding-bottom:5px;
+	margin-bottom:5px;
+}
+.bloc_admin_sp ul{
+	padding-left:15px;
+}
+.bloc_admin_sp li {
+	color:#e50000;
+	list-style:circle;
+}
+#global div.panel-pane div.panel-hide {
+    display: block;
+}
+#global div.panel-pane div.admin-links, #global div.view div.views-admin-links {
+    font-size: 13px;
+    margin: 0;
+}
+#global div.admin-links li {
+    background: transparent;
+}
+div.admin-links ul.links li {
+    display:block;
+    padding: 0;
+}
+/* edit node */
+
+#global div.panel-pane div.admin-links a:after, #global div.panel-pane div.admin-links a:before, #global div.view div.views-admin-links a:before, #global div.view div.views-admin-links a:after {
+    content: "";
+}
+.bloc_admin_sp a,
+.bloc_admin_sp a:visited,
+.views-admin-links a, 
+.views-admin-links a:visited,
+#global div.panel-pane div.admin-links li a, 
+#global div.panel-pane div.admin-links li a:visited, 
+#global div.view div.views-admin-links li a, 
+#global div.view div.views-admin-links li a:visited,
+div.panel-pane div.panel-hide a,
+div.panel-pane div.panel-hide a:visited {
+	color: #E50000;
+	text-decoration: underline;
+}
+#global div.panel-pane div.panel-hide-hover,
+#global div.panel-pane:hover div.panel-hide,
+#global div.view div.views-hide-hover,
+#global div.view:hover div.views-hide  {
+  position: static;
+  margin-top: 0;
+}
+.w300-480-160 .col-02 .views-admin-links {
+    margin: 0 20px 20px;
+}
+#global div.view div.views-hide {
+    display: block;
+}
+.view-SP-rubriques-blocs .views-admin-links {
+	float:left;
+}
+
+/* ---------------------------------- 4.9 Page 404 ----------------------------------- */
+
+#erreur404a {
+	height: 350px; 
+	background: url('../images/bg_404.png') no-repeat scroll left 10px transparent;"
+}
+#erreur404b {
+	font-size: 14px; 
+	padding: 137px 0 0 281px; 
+	text-align: center;  
+	width: 260px;"
+}
+#erreur404a #h1_taxonomy {
+	display:none;
+}
+
