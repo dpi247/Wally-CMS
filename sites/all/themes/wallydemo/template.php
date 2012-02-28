@@ -1361,52 +1361,51 @@ function _wallydemo_get_trimmed_string($string){
 
 function _wallydemo_get_sorted_links($node){
 
-	$allLinks = array();
-	$listLinks = $node->field_linkedobjects_nodes;	
-	foreach ($listLinks as $ll) {
-		$lLinks = array();
-		$lLinks["title"] = $ll->title;
-		$i = 0;   
-		if(isset($ll->field_links_list_nodes)){
-			foreach ($ll->field_links_list_nodes as $l) {			
-			    
-	            if($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
-	              $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
-	              $package_layout = taxonomy_get_term($package_layout);
-	              $package_layout_name = $package_layout->name;
-	            }
-				// teste s'il s'agit d'un lien interne
-				if($l->field_internal_link[0]["nid"] != NULL) {
-					$nodeTarget = node_load($l->field_internal_link[0]["nid"]);
-	        $lLinks["links"][$i]["internal"] = 1;
-					$lLinks["links"][$i]["title"] = $nodeTarget->title;
-	        $lLinks["links"][$i]["target"] = NULL;
-	        $lLinks["links"][$i]["status"] = $l->status;				
-					$lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
-					if($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
-				} else {
-					if($l->files) {
-						$att = array_pop($l->files);
-						$lLinks["links"][$i]["url"] = "/".$att->filepath;
-						$lLinks["links"][$i]["title"] = $l->title;
-					} else {
-						$lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
-						if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
-							$lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
-						} else {
-							$lLinks["links"][$i]["title"] = $l->title;
-						}
-					  $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
-					} 
-					$lLinks["links"][$i]["status"] = $l->status;
-				}
-				$lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);			
-				$i++;
-			}
-			array_push($allLinks,$lLinks);
-		}
-	}
-	return $allLinks;
+  $allLinks = array();
+  $listLinks = $node->field_linkedobjects_nodes;	
+  foreach ($listLinks as $ll) {
+	$lLinks = array();
+	$lLinks["title"] = $ll->title;
+	$i = 0;   
+	if (isset($ll->field_links_list_nodes)){
+  	  foreach ($ll->field_links_list_nodes as $l) {			
+  	    if ($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
+	      $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
+	      $package_layout = taxonomy_get_term($package_layout);
+	      $package_layout_name = $package_layout->name;
+	    }
+		// teste s'il s'agit d'un lien interne
+		if ($l->field_internal_link[0]["nid"] != NULL) {
+		  $nodeTarget = node_load($l->field_internal_link[0]["nid"]);
+	      $lLinks["links"][$i]["internal"] = 1;
+		  $lLinks["links"][$i]["title"] = $nodeTarget->title;
+	      $lLinks["links"][$i]["target"] = NULL;
+	      $lLinks["links"][$i]["status"] = $l->status;				
+		  $lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
+		  if ($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
+		} else {
+		  if ($l->files) {
+			$att = array_pop($l->files);
+			$lLinks["links"][$i]["url"] = "/".$att->filepath;
+			$lLinks["links"][$i]["title"] = $l->title;
+		  } else {
+		    $lLinks["links"][$i]["url"] = "/".$l->field_link_item[0]["url"];
+		    if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
+			  $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
+		    } else {
+			  $lLinks["links"][$i]["title"] = $l->title;
+		    }
+		    $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
+		  } 
+		  $lLinks["links"][$i]["status"] = $l->status;
+	    }
+	    $lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);			
+	    $i++;
+	  }
+	  array_push($allLinks,$lLinks);
+    }
+  }
+  return $allLinks;
 }
 
 /**
