@@ -1,0 +1,1 @@
+<div class="leaderboard"><img src="http://placekitten.com/728/90" /></div>

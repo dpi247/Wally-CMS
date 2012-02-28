@@ -1,0 +1,107 @@
+@charset "utf-8";
+/* CSS Document */
+
+@page {
+	size: portrait;
+}
+* {
+	list-style:none;
+	padding:0;
+	margin:0;
+}
+html {
+	background: #FFF;
+}
+body {
+	width: 100%;
+	font-size: 13pt;
+	background: none;
+	font-family:Arial, Helvetica, sans-serif;
+}
+a {
+	color: #000;
+	text-decoration:none;
+}
+p, h1 {
+	margin: 10px 0;
+}
+img {
+	border: 0 none;
+}
+
+#topmenu, 
+#block-pub-horizontal_top, 
+#s_titre, 
+.services, 
+#navcontainer,
+#special-nav, 
+.liensutiles, 
+#picture .bloc-01,
+.pub, 
+#commentaires, 
+.col-02, 
+#rubriques, 
+#liste_logos,
+.rossel,
+#banner_section,
+.return_top,
+.video_article,
+.cim,
+object,
+#bottomVideos,
+.digital-wally_digitalobject,
+.tabs.primary,
+#qualifioBox {
+	display: none;
+}
+#global {
+    padding: 0;
+    width: 100%;
+}
+.w630-300 .col-01 {
+    margin: 0;
+    width: 100%;
+}
+.fil_ariane, .date, .credit, .publiele, .auteur {
+	font-size:10pt;
+}
+.date {
+	padding-bottom:10pt;
+	float:right;
+	margin-top:-20px;
+}
+#top_header li {
+    float: none;
+}
+.ariane img {
+	margin: 0 5px;
+}
+#article p {
+	text-align:justify;
+}
+p.auteur, p.credit, p.publiele, #article h1 {
+	text-align: left;
+}
+#picture {
+    float: left;
+    padding: 0 10px 10px 0;
+    width: 300px;
+}
+#picture .pic_description, #picture .credit {
+	font-size: 10pt;
+	border-bottom: 1pt solid #999;
+	width:300px;
+	padding: 4px 0;
+}
+#article #picture .allMedias, #article #picture .wrappAllMedia, #article #picture .wrappAllMedia .item_media {
+	height: auto;
+}
+
+p.footer {
+	font-size:10pt;
+	color:#333;
+	border-top: 1pt solid #999;
+	margin-top: 20px;
+	padding-top: 20px;
+	text-align:center;
+}

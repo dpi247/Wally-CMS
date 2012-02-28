@@ -1,0 +1,148 @@
+@charset "utf-8";
+/* CSS Document */
+
+html body, body .sidebar h2 {
+	font-family:Arial, Helvetica, sans-serif;
+}
+#container a:hover {
+    color: #003366;
+    text-decoration: underline;
+}
+a img, :link img, :visited img {
+    border: none 0;
+}
+#rubriques a, .footer a {
+    color: #003366;
+    text-decoration: none;
+}
+#rubriques a:hover, .footer a:hover {
+    color: #003366;
+    text-decoration: underline;
+}
+#rubriques a:visited, .footer a:visited {
+    color: #1F5C99;
+}
+
+/* -------------------------------------------------------------------------------------------- X.1 Nos rubriques <<<-----------*/
+
+#rubriques {
+	background: transparent url(/images/SPV3/bg_shadow3.gif) no-repeat center bottom;
+	margin: 0 auto;
+	width:940px;
+	text-align:left;
+}
+.bloc-01 {
+    padding-bottom: 10px;
+}
+#rubriques h2 {
+	background: #196dab url(/images/SPV3/bg_title_blue3.gif) no-repeat 0 0;
+	color: white;
+	font-size: 12px;
+	font-weight: 400;
+	padding: 3px 10px;
+}
+#rubriques .inner-bloc {
+	padding: 10px 10px 5px 10px;
+	border: 1px solid #ccc;
+	border-top: none;
+	width:918px;
+}
+.clearfix {
+    display: inline-block;
+}
+#rubriques .inner-bloc ul {
+	padding: 0;
+	margin:0;
+}
+#rubriques .inner-bloc li {
+	list-style:none;
+	background: transparent url("/images/SPV3/ico_arrow_transparent.gif") 0 4px no-repeat;
+	padding: 0 0 5px 7px;
+	margin:0;
+    font-size:12px;
+	line-height:1em;
+}
+#rubriques .first {
+	padding: 0 10px 0 0;
+}
+#rubriques .noborder {
+	padding: 0 0 0 10px;
+	background: none; 
+}
+.supra {
+	float: left;
+	width: 136px;
+	height: 325px;
+	padding: 0 10px;
+	margin: 0 0 10px 0;
+	background: transparent url(/images/SPV3/separator_vertical1.gif) repeat-y top right;
+}
+.supra h3 {
+	line-height: 1;
+	padding: 5px 0;
+	font-size: 18px;
+	font-weight: bold;
+}
+.supra h4 {
+    color: black;
+    font-size: 13px;
+    font-weight: normal;
+    padding: 5px 0;
+	margin:0;
+}
+
+/* -------------------------------------------------------------------------------------------- X.2 Logos <<<-----------*/
+
+#liste_logos li {
+	display: inline-block;
+	margin: 0 5px;
+}
+* html #liste_logos li {
+	display: inline;
+}
+*+html #liste_logos li {
+	display: inline;
+}
+
+/* -------------------------------------------------------------------------------------------- X.3 Copyright <<<-----------*/
+
+.footer {
+	clear: left;
+	color: #5a5a5a;
+	text-align: justify;
+	margin: 10px auto;
+	width:940px;
+    font-size:12px;
+}
+div#liste_logos.clearfix {
+    text-align: center;
+	display:block;
+}
+.cim {
+	clear: left;
+	padding-top: 10px;
+	text-align: center;
+}
+.cim big {
+	color: #4a4a4a;
+}
+.cim img {
+	padding-top: .3em;
+}
+
+/* ----------------------- Correction du bug IE sur la taille des fontes des blogs -------------------------*/
+
+.container-decorator1 .content,
+.container-decorator1 .sidebar,
+.container-decorator1 .sidebar a {
+    font-size: 13px;
+}
+.container-decorator1 .sidebar h2 a {
+    font-size: 18px;
+}
+.content h2.date span {
+    font-size: 12px;
+}
+.container-decorator1 .content h3 {
+    font-size: 24px;
+}
