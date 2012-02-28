@@ -66,28 +66,27 @@ function wallydemo_displaypollresult($node){
  * 
  */
 function wallydemo_preprocess_views_view(&$vars){
- $funcs = _views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
- $new_funcs = array();
- foreach ($funcs as $func){
-   if ($func != 'views_view__' and isset($vars['view']->split_index_count)){
-     $needle = str_replace('views_view','',$func);
-     if ($needle == ''){
-       $new_funcs[] = 'views_view__splitted_redacblock';
-       if ($vars['view']->split_index_count == 1);
-         $new_funcs[] = 'views_view__splitted_redacblock__first';
-       if ($vars['view']->split_index_count==$vars['view']->split_total_count);
-         $new_funcs[]='views_view__splitted_redacblock__last';
-       }
-       else { 
-         $new_funcs[]='views_view__splitted_redacblock'.$needle;
-         if ($vars['view']->split_index_count == 1);
-           $new_funcs[] = 'views_view__splitted_redacblock__first'.$needle;
-         if ($vars['view']->split_index_count == $vars['view']->split_total_count);
-           $new_funcs[] = 'views_view__splitted_redacblock__last'.$needle;
-         
-       }
-     }
-   }
+  $funcs = _views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
+  $new_funcs = array();
+  foreach ($funcs as $func){
+    if ($func != 'views_view__' and isset($vars['view']->split_index_count)){
+      $needle = str_replace('views_view','',$func);
+      if ($needle == ''){
+        $new_funcs[] = 'views_view__splitted_redacblock';
+      if ($vars['view']->split_index_count == 1);
+        $new_funcs[] = 'views_view__splitted_redacblock__first';
+      if ($vars['view']->split_index_count==$vars['view']->split_total_count);
+        $new_funcs[]='views_view__splitted_redacblock__last';
+      }
+      else { 
+        $new_funcs[]='views_view__splitted_redacblock'.$needle;
+        if ($vars['view']->split_index_count == 1);
+          $new_funcs[] = 'views_view__splitted_redacblock__first'.$needle;
+        if ($vars['view']->split_index_count == $vars['view']->split_total_count);
+          $new_funcs[] = 'views_view__splitted_redacblock__last'.$needle;   
+      }
+    }
+  }
   $result = array_merge($new_funcs,$funcs);
   $vars['template_files'] = array_merge($result, $vars['template_files']);
 }
@@ -124,16 +123,16 @@ function wallydemo_preprocess_page(&$vars){
   $current_path_alias = wallytoolbox_get_all_aliases($current_path);  
   $vars['head'] = _set_meta_general($site_name, $site_url, $associated_brand, $domain);  
 	$args = arg();
-	if($args[0] == 'node'){
+	if ($args[0] == 'node'){
 		$default_site_name = variable_get('site_name','Wally Sudpresse');
 		$vars['head_title'] = str_replace(" | ".$default_site_name," - ".$site_url,$vars['head_title']);		
 		$vars['head'] .= _set_meta_fornode($vars["node"], $site_name, $site_url, $associated_brand, $domain, $current_path_alias);
 
-	} else if($args[0] == 'meteo') {  
+	} else if ($args[0] == 'meteo') {  
 	  $page = page_manager_get_current_page();
 		$default_site_name = variable_get('site_name','Wally Sudpresse');
 		$vars['head'] .= _set_meta_formeteo($vars, $args, $page, $site_name, $site_url, $associated_brand, $domain, $current_path_alias);
-	} else if($args[1] == 'carburant') {  
+	} else if ($args[1] == 'carburant') {  
 	  $page = page_manager_get_current_page();
 		$default_site_name = variable_get('site_name','Wally Sudpresse');
 		$vars['head'] .= _set_meta_forcarburant($vars, $args, $page, $site_name, $site_url, $associated_brand, $domain, $current_path_alias);			  
@@ -162,20 +161,20 @@ function wallydemo_preprocess_sp_block_foot_regional(&$vars) {
 
 function _set_meta_general($site_name=NULL,$site_url=NULL,$associated_brand=NULL,$domain=NULL){
   
-  $site_robots = variable_get('general_site_default_robots',NULL);
-  $pattern_owner = variable_get('general_site_default_owner',NULL);
-  $pattern_author = variable_get('general_site_default_author',NULL);   
+  $site_robots = variable_get('general_site_default_robots', NULL);
+  $pattern_owner = variable_get('general_site_default_owner', NULL);
+  $pattern_author = variable_get('general_site_default_author', NULL);   
   $html = ""; 
-  if($pattern_author){
-    $site_author = str_replace("[site-name]",$site_name,$pattern_author);
-    $site_author = str_replace("[site-url]",$site_url,$site_author);
-    $site_author = str_replace("[associated-brand]",$associated_brand,$site_author);
+  if ($pattern_author){
+    $site_author = str_replace("[site-name]", $site_name, $pattern_author);
+    $site_author = str_replace("[site-url]", $site_url, $site_author);
+    $site_author = str_replace("[associated-brand]", $associated_brand, $site_author);
     $html .= "<meta name=\"author\" content=\"".$site_author."\" />\n";
   } 
-  if($pattern_owner){    
-    $site_owner = str_replace("[site-name]",$site_name,$pattern_owner);
-    $site_owner = str_replace("[site-url]",$site_url,$site_owner);
-    $site_owner = str_replace("[associated-brand]",$associated_brand,$site_owner);
+  if ($pattern_owner){    
+    $site_owner = str_replace("[site-name]", $site_name, $pattern_owner);
+    $site_owner = str_replace("[site-url]", $site_url, $site_owner);
+    $site_owner = str_replace("[associated-brand]", $associated_brand, $site_owner);
     $html .= "<meta name=\"owner\" content=\"".$site_owner."\" />\n";
   }
   
@@ -191,10 +190,10 @@ function _set_meta_general($site_name=NULL,$site_url=NULL,$associated_brand=NULL
   $uneAlias4 = "/".drupal_get_path_alias('taxonomy/term/4');
   $uneAlias5 = "/".drupal_get_path_alias('taxonomy/term/5');
   $uneAlias6 = "/".drupal_get_path_alias('taxonomy/term/6'); 
-  if($current_path == $uneAlias1 || $current_path == $uneAlias2 || $current_path == $uneAlias3 || $current_path == $uneAlias4 || $current_path == $uneAlias5 || $current_path == $uneAlias6 ){
+  if ($current_path == $uneAlias1 || $current_path == $uneAlias2 || $current_path == $uneAlias3 || $current_path == $uneAlias4 || $current_path == $uneAlias5 || $current_path == $uneAlias6 ){
       $html .= "<meta name=\"robots\" content=\"noindex, follow, noarchive\" />\n";
-  }else{
-    if($site_robots){
+  } else {
+    if ($site_robots){
       $html .= "<meta name=\"robots\" content=\"".$site_robots."\" />\n";
     }
   }
@@ -209,7 +208,7 @@ function _set_meta_general($site_name=NULL,$site_url=NULL,$associated_brand=NULL
 /*
  * 
  */
-function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_brand=NULL,$domain=NULL,$current_path=NULL) {
+function _set_meta_fornode($node, $site_name=NULL, $site_url=NULL, $associated_brand=NULL, $domain=NULL, $current_path=NULL) {
 
   $html = "";
   $node_destination_name = "";
@@ -221,7 +220,7 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
   }
   $photo = FALSE;
   if (isset($node->field_mainstory) || isset($node->field_mainobject)){
-	if($node->type == "wally_articlepackage"){	
+	if ($node->type == "wally_articlepackage"){	
 	  $mainstory = $node->field_mainstory[0];  
 	  $mainstory = node_load($mainstory);
 	} else {  
@@ -241,7 +240,7 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
   if (!isset($photoObject_path)){
 	if (isset($node->field_embededobjects)){
       $embeded_nid_array = $node->field_embededobjects;
-	  foreach($embeded_nid_array as $nid){
+	  foreach ($embeded_nid_array as $nid){
 		$embededObject = node_load($nid);
 		if ($embededObject->type == "wally_photoobject"){
 		  $photoObject = $embededObject;
@@ -250,113 +249,113 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
 	  }
 	  if ($photoObject) {
 		$photoObject_path = $photoObject->field_photofile[0]['filepath'];
-		    $explfilepath = explode('/', $photoObject_path);
-		    $photoObject_size = $photoObject->field_photofile[0]['filesize'];
-		    if (isset($photoObject_path) && $photoObject_size > 0) {
-		      $photo = TRUE;
-		    }    
-		  }
-		}
-		if($node->type == "wally_photoobject"){
+		$explfilepath = explode('/', $photoObject_path);
+		$photoObject_size = $photoObject->field_photofile[0]['filesize'];
+		if (isset($photoObject_path) && $photoObject_size > 0) {
+		  $photo = TRUE;
+		}    
+	  }
+	}
+	if ($node->type == "wally_photoobject"){
       $photoObject_path = $node->field_photofile[0]['filepath'];
       $explfilepath = explode('/', $photoObject_path);
       $photoObject_size = $node->field_photofile[0]['filesize'];
       if (isset($photoObject_path) && $photoObject_size > 0) {
         $photo = TRUE;
       }  		
-		}
-		if($node->type == "wally_videoobject"){
-		  if(isset($node->field_video3rdparty[0]['data']['thumbnail']["url"])){
-		    if($node->field_video3rdparty[0]['data']['thumbnail']["url"] != ""){
-			    $photoObject_path = $node->field_video3rdparty[0]['data']['thumbnail']["url"];
-			    if(isset($photoObject_path)){
-			      $photo = TRUE;
-			    }
-		    }
+	}
+	if ($node->type == "wally_videoobject"){
+	  if (isset($node->field_video3rdparty[0]['data']['thumbnail']["url"])){
+		if ($node->field_video3rdparty[0]['data']['thumbnail']["url"] != ""){
+		  $photoObject_path = $node->field_video3rdparty[0]['data']['thumbnail']["url"];
+		  if (isset($photoObject_path)){
+			$photo = TRUE;
 		  }
 		}
+	  }
 	}
+  }
 	
- if($isPackage == FALSE){
-   $node_title = $node->title ;
-   $mainstory = $node;
-   $strapline_length = 200;
-   $node_description = _wallydemo_get_strapline($mainstory,$node,$strapline_length); 
-  }else{
-	 $node_destination_tid = $node->field_destinations[0]['tid'];
-	 $node_destination = taxonomy_get_term($node_destination_tid);
-	 $node_destination_name = $node_destination->name;
-	 $node_title = $mainstory->title;
-	 $strapline_length = 200;
-	 $node_description = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
+  if ($isPackage == FALSE){
+    $node_title = $node->title ;
+    $mainstory = $node;
+    $strapline_length = 200;
+    $node_description = _wallydemo_get_strapline($mainstory,$node,$strapline_length); 
+  } else {
+	$node_destination_tid = $node->field_destinations[0]['tid'];
+	$node_destination = taxonomy_get_term($node_destination_tid);
+	$node_destination_name = $node_destination->name;
+	$node_title = $mainstory->title;
+	$strapline_length = 200;
+	$node_description = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
   }
   
   //$aliases = wallytoolbox_get_path_aliases("node/".$node->nid);
   $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
-	$node_path = $aliases[0];
+  $node_path = $aliases[0];
 	
-	$server_name = $_SERVER['SERVER_NAME'];
-	if($node_destination_tid == "20" || strstr($server_name, "mobile")){
-	 $server_name = "www.sudinfo.be";
-	}
+  $server_name = $_SERVER['SERVER_NAME'];
+  if ($node_destination_tid == "20" || strstr($server_name, "mobile")){
+    $server_name = "www.sudinfo.be";
+  }
 
   if ($photo == TRUE){
-    if(strstr($photoObject_path, "http://")){
+    if (strstr($photoObject_path, "http://")){
       $photo_src = $photoObject_path;
     } else {
       $photo_src = "http://".$server_name."/".$photoObject_path ;
     }
-  }else{
-   $photo_default = variable_get($domain.'_og_default_image',NULL);
-   $logo_src = variable_get('logo_'.$domain,NULL);
-   $photo_src = str_replace('[site-logo]',$logo_src,$photo_default);
-  } 	
+  } else {
+    $photo_default = variable_get($domain.'_og_default_image',NULL);
+    $logo_src = variable_get('logo_'.$domain,NULL);
+    $photo_src = str_replace('[site-logo]',$logo_src,$photo_default);
+  }
 	
-	$html .= "<link rel=\"canonical\" href=\"http://".$server_name."/".$node_path."\"/>\n";
+  $html .= "<link rel=\"canonical\" href=\"http://".$server_name."/".$node_path."\"/>\n";
 	
-	if($node_destination_name != ""){
+  if ($node_destination_name != ""){
 	$node_destination_name = strip_tags(str_replace('"', '', $node_destination_name));
 	$html .= "<link rel=\"alternate\" title=\"".$node_destination_name."\" href=\"http://".$server_name."/feed/".$node_destination_tid."?format=rss\" type=\"application/rss+xml\" />\n";
-	}
-	$node_description = strip_tags(str_replace('"', '', $node_description));
+  }
+  $node_description = strip_tags(str_replace('"', '', $node_description));
   $html .= "<meta name=\"description\" content=\"".$node_description."\" />\n";
   $node_keywords = wallydemo_taxonomy_text_tags_particle($mainstory);
   
   //todo: jeter ça à la poubelle dés que TME est arrivé!
-  if($node_keywords == ""){
+  if ($node_keywords == ""){
   	$title_words = preg_split("+ +", $node_title);
   	$size = count($title_words);
   	$cpt = 1;
   	$keywords = array();
-  	foreach($title_words as $word){
-  	 if(strlen($word) > 4){
-  	 	 $replace_paterns = array("l'","l’","c'","c’","d'","d’","qu'","qu’","parcequ’","parcequ'","lorsqu'","lorsqu’",":",",",".","'",'"',"’");
-  	 	 $word = str_replace($replace_paterns, "", $word);
-  	   if(strlen($word) > 4){
-  	     $node_keywords .= $word;
-         if ($cpt < $size){
-          $node_keywords .= ", ";
-         }
-  	   }
-  	 }
-  	 $cpt++;
-  	}
+  	foreach ($title_words as $word){
+  	  if (strlen($word) > 4){
+  	    $replace_paterns = array("l'","l’","c'","c’","d'","d’","qu'","qu’","parcequ’","parcequ'","lorsqu'","lorsqu’",":",",",".","'",'"',"’");
+  	    $word = str_replace($replace_paterns, "", $word);
+  	    if (strlen($word) > 4){
+  	      $node_keywords .= $word;
+          if ($cpt < $size){
+            $node_keywords .= ", ";
+          }
+  	    }
+  	  }
+  	  $cpt++;
+    }
   }
   
-  if($node_keywords != ""){
+  if ($node_keywords != ""){
   	$node_keywords = strip_tags(str_replace('"', '', $node_keywords));
     $html .= "  <meta name=\"keywords\" content=\"".$node_keywords."\" />\n";
   }
   $pattern_published = variable_get('general_site_default_published',NULL); 
-  if($pattern_published){
-  	if($isPackage == FALSE){
-  	 $unix = $node->changed;
-  	}else{
-  	 $unix = strtotime($node->field_publicationdate[0]['value']);
+  if ($pattern_published){
+  	if ($isPackage == FALSE){
+  	  $unix = $node->changed;
+  	} else {
+  	  $unix = strtotime($node->field_publicationdate[0]['value']);
   	}
     $site_published = date($pattern_published,$unix);
     $html .= "<meta name=\"published\" content=\"".$site_published."\" />\n";
-  }   
+  }  
   $html .= "<meta name=\"story_id\" content=\"".$node->nid."\" />\n";
   $html .= "<!-- <meta name=\"archi_id\" content=\"t-20110710-H37CPE\" /> -->\n";
   $node_title = strip_tags(str_replace('"', '', $node_title));
@@ -364,26 +363,22 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
   $html .= "<meta property=\"og:type\" content=\"article\"/>\n";
   $html .= "<meta property=\"og:site_name\" content=\"".$site_name."\"/>\n";
   
-	$url = "http://".$server_name."/".$node_path;
+  $url = "http://".$server_name."/".$node_path;
   
   $html .= "<meta property=\"og:url\" content=\"".$url."\"/>\n";
   $html .= "<meta property=\"og:image\" content=\"".imagecache_create_url("article_300x200", $photoObject_path,FALSE,TRUE)."\"/>\n";
   $html .= "<meta property=\"og:description\" content=\"".$node_description."\"/>\n";
   $facebook_api = variable_get($domain.'_og_facebook_api',NULL);
   $facebook_admins = variable_get($domain.'_og_facebook_administrators',NULL);
-  if($facebook_api){
+  if ($facebook_api){
     $html .= "<meta property=\"fb:app_id\" content=\"".$facebook_api."\" />\n";
   }
-  if($facebook_admins){
+  if ($facebook_admins){
     $html .= "<meta property=\"fb:admins\" content=\"".$facebook_admins."\" />\n";
   }
   
-  
-  
   return $html;
 }
-
-
 /**
  * Build meta tags for meteo page
  *  
@@ -402,18 +397,18 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
 function _set_meta_formeteo($vars, $args,$page,$site_name=NULL,$site_url=NULL,$associated_brand=NULL,$domain=NULL,$current_path=NULL) {
 
   $page_handler = $page['handler']->name; 
-  $pattern_description = variable_get($page_handler.'_description',NULL);
-  if($pattern_description == NULL){
-   $pattern_description = variable_get('general_site_default_description',NULL);
+  $pattern_description = variable_get($page_handler.'_description', NULL);
+  if ($pattern_description == NULL){
+    $pattern_description = variable_get('general_site_default_description', NULL);
   }
   
-  $pattern_keywords = variable_get($page_handler.'_keyword',NULL);
-  if($pattern_keywords == NULL){
-   $pattern_keywords = variable_get('general_site_default_keywords',NULL);
+  $pattern_keywords = variable_get($page_handler.'_keyword', NULL);
+  if ($pattern_keywords == NULL){
+   $pattern_keywords = variable_get('general_site_default_keywords', NULL);
   } 
   
-  $pattern_published = variable_get('general_site_default_published',NULL);  
-  if($pattern_description){
+  $pattern_published = variable_get('general_site_default_published', NULL);  
+  if ($pattern_description){
     $page_description = str_replace('[site-name]', $site_name, $pattern_description);
     $page_description = str_replace('[site-url]', $site_url, $page_description);
     $page_description = str_replace('[page-name]', $page_name, $page_description);
@@ -422,7 +417,7 @@ function _set_meta_formeteo($vars, $args,$page,$site_name=NULL,$site_url=NULL,$a
     $page_description = strip_tags(str_replace('"', '', $page_description));
     $html .= "<meta name=\"description\" content=\"".$page_description."\">\n";   
   } 
-  if($pattern_keywords){   
+  if ($pattern_keywords){   
     $page_keywords = str_replace('[site-name]', $site_name, $pattern_keywords);
     $page_keywords = str_replace('[site-url]', $site_url, $page_keywords);
     $page_keywords = str_replace('[page-name]', $page_name, $page_keywords);
@@ -431,13 +426,13 @@ function _set_meta_formeteo($vars, $args,$page,$site_name=NULL,$site_url=NULL,$a
     $page_keywords = strip_tags(str_replace('"', '', $page_keywords));
     $html .= "<meta name=\"keywords\" content=\"".$page_keywords."\">\n";   
   }
-  if($pattern_published){
+  if ($pattern_published){
     $unix = time();
     $site_published = date($pattern_published,$unix);   
     $html .= "<meta name=\"published\" content=\"".$site_published."\" />\n";
   }  
   
-  if($args[1] == '') {
+  if ($args[1] == '') {
     $vars['head_title'] = "La météo du jour en belgique - ".$site_url; 
   } elseif ($args[1] == 'demain') {
     $vars['head_title'] = "La météo de demain en belgique - ".$site_url;
@@ -448,7 +443,7 @@ function _set_meta_formeteo($vars, $args,$page,$site_name=NULL,$site_url=NULL,$a
   }
 
   $server_name = $_SERVER['SERVER_NAME'];
-  if(strstr($server_name, "mobile")){
+  if (strstr($server_name, "mobile")){
    $server_name = "www.sudinfo.be";
   }
   
@@ -465,10 +460,10 @@ function _set_meta_formeteo($vars, $args,$page,$site_name=NULL,$site_url=NULL,$a
   $html .= "<meta property=\"og:image\" content=\"http://".$server_name."/".$photo_src."\"/>\n";
   $page_description = strip_tags(str_replace('"', '', $page_description));
   $html .= "<meta property=\"og:description\" content=\"".$page_description."\"/>\n";
-  if($facebook_api){
+  if ($facebook_api){
     $html .= "<meta property=\"fb:app_id\" content=\"".$facebook_api."\" />\n";
   }
-  if($facebook_admins){
+  if ($facebook_admins){
     $html .= "<meta property=\"fb:admins\" content=\"".$facebook_admins."\" />\n";
   }    
     
@@ -495,17 +490,17 @@ function _set_meta_forcarburant($vars, $args,$page,$site_name=NULL,$site_url=NUL
   
   $page_handler = $page['handler']->name; 
   $pattern_description = variable_get($page_handler.'_description',NULL);
-  if($pattern_description == NULL){
-   $pattern_description = variable_get('general_site_default_description',NULL);
+  if ($pattern_description == NULL){
+    $pattern_description = variable_get('general_site_default_description',NULL);
   }
   
   $pattern_keywords = variable_get($page_handler.'_keyword',NULL);
-  if($pattern_keywords == NULL){
-   $pattern_keywords = variable_get('general_site_default_keywords',NULL);
+  if ($pattern_keywords == NULL){
+    $pattern_keywords = variable_get('general_site_default_keywords',NULL);
   } 
   
   $pattern_published = variable_get('general_site_default_published',NULL);  
-  if($pattern_description){
+  if ($pattern_description){
     $page_description = str_replace('[site-name]', $site_name, $pattern_description);
     $page_description = str_replace('[site-url]', $site_url, $page_description);
     $page_description = str_replace('[page-name]', $page_name, $page_description);
@@ -514,7 +509,7 @@ function _set_meta_forcarburant($vars, $args,$page,$site_name=NULL,$site_url=NUL
     $page_description = strip_tags(str_replace('"', '', $page_description));
     $html .= "<meta name=\"description\" content=\"".$page_description."\">\n";   
   } 
-  if($pattern_keywords){   
+  if ($pattern_keywords){   
     $page_keywords = str_replace('[site-name]', $site_name, $pattern_keywords);
     $page_keywords = str_replace('[site-url]', $site_url, $page_keywords);
     $page_keywords = str_replace('[page-name]', $page_name, $page_keywords);
@@ -523,7 +518,7 @@ function _set_meta_forcarburant($vars, $args,$page,$site_name=NULL,$site_url=NUL
     $page_keywords = strip_tags(str_replace('"', '', $page_keywords));
     $html .= "<meta name=\"keywords\" content=\"".$page_keywords."\">\n";   
   }
-  if($pattern_published){
+  if ($pattern_published){
     $unix = time();
     $site_published = date($pattern_published,$unix);   
     $html .= "<meta name=\"published\" content=\"".$site_published."\" />\n";
@@ -531,8 +526,8 @@ function _set_meta_forcarburant($vars, $args,$page,$site_name=NULL,$site_url=NUL
   $vars['head_title'] = "Tous les carburants et leurs meilleurs prix - ".$site_url; 
 
   $server_name = $_SERVER['SERVER_NAME'];
-  if(strstr($server_name, "mobile")){
-   $server_name = "www.sudinfo.be";
+  if (strstr($server_name, "mobile")){
+    $server_name = "www.sudinfo.be";
   }  
   
   $photo_default = variable_get($domain.'_og_default_image',NULL);
@@ -546,12 +541,12 @@ function _set_meta_forcarburant($vars, $args,$page,$site_name=NULL,$site_url=NUL
   $html .= "<meta property=\"og:site_name\" content=\"".$site_name."\"/>\n";
   $html .= "<meta property=\"og:url\" content=\"http://".$site_url."/".$current_path[0]."\"/>\n";
   $html .= "<meta property=\"og:image\" content=\"http://".$server_name."/".$photo_src."\"/>\n";
- 	$page_description = strip_tags(str_replace('"', '', $page_description));
+  $page_description = strip_tags(str_replace('"', '', $page_description));
   $html .= "<meta property=\"og:description\" content=\"".$page_description."\"/>\n";
-  if($facebook_api){
+  if ($facebook_api){
     $html .= "<meta property=\"fb:app_id\" content=\"".$facebook_api."\" />\n";
   }
-  if($facebook_admins){
+  if ($facebook_admins){
     $html .= "<meta property=\"fb:admins\" content=\"".$facebook_admins."\" />\n";
   }    
   
@@ -572,7 +567,7 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
   $term_description = $term->description;  
   
   $server_name = $_SERVER['SERVER_NAME'];
-  if(strstr($server_name, "mobile")){
+  if (strstr($server_name, "mobile")){
    $server_name = "www.sudinfo.be";
   }
   
@@ -581,15 +576,15 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
   $html .= "<link rel=\"alternate\" title=\"".$term_name."\" href=\"http://".$server_name."/feed/".$term_tid."?format=rss\" type=\"application/rss+xml\" />\n";
   
   $pattern_description = variable_get($page_handler.'_description',NULL);
-  if($pattern_description == NULL){
-   $pattern_description = variable_get('general_site_default_description',NULL);
+  if ($pattern_description == NULL){
+    $pattern_description = variable_get('general_site_default_description',NULL);
   }
   $pattern_keywords = variable_get($page_handler.'_keywords',NULL);
-  if($pattern_keywords == NULL){
-   $pattern_keywords = variable_get('general_site_default_keywords',NULL);
+  if ($pattern_keywords == NULL){
+    $pattern_keywords = variable_get('general_site_default_keywords',NULL);
   }  
   $pattern_published = variable_get('general_site_default_published',NULL);  
-  if($pattern_description){
+  if ($pattern_description){
     $page_description = str_replace('[site-name]', $site_name, $pattern_description);
     $page_description = str_replace('[site-url]', $site_url, $page_description);
     $page_description = str_replace('[page-name]', $page_name, $page_description);
@@ -599,7 +594,7 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
     $page_description = strip_tags(str_replace('"', '', $page_description));
     $html .= "<meta name=\"description\" content=\"".$page_description."\">\n";   
   }
-  if($pattern_keywords){
+  if ($pattern_keywords){
     $page_keywords = str_replace('[site-name]', $site_name, $pattern_keywords);
     $page_keywords = str_replace('[site-url]', $site_url, $page_keywords);
     $page_keywords = str_replace('[page-name]', $page_name, $page_keywords);
@@ -609,7 +604,7 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
     $page_keywords = strip_tags(str_replace('"', '', $page_keywords));
     $html .= "<meta name=\"keywords\" content=\"".$page_keywords."\">\n";   
   }
-  if($pattern_published){
+  if ($pattern_published){
     $unix = time();
     $site_published = date($pattern_published,$unix);
     $html .= "<meta name=\"published\" content=\"".$site_published."\" />\n";
@@ -618,7 +613,7 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
   $og_page_type = "article";
   if ($tid == 1 || $tid == 2 || $tid == 3 || $tid == 4 || $tid == 5 || $tid == 6){
     $site_refresh = variable_get('general_site_default_refresh',NULL);
-    if($site_refresh){
+    if ($site_refresh){
       $html .= "<meta http-equiv=\"refresh\" content=\"".$site_refresh."\" />\n";
       $og_page_type = "website"; 
     } 
@@ -636,10 +631,10 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
   $html .= "<meta property=\"og:image\" content=\"http://".$server_name."/".$photo_src."\"/>\n";
   $page_description = strip_tags(str_replace('"', '', $page_description));
   $html .= "<meta property=\"og:description\" content=\"".$page_description."\"/>\n";
-  if($facebook_api){
+  if ($facebook_api){
     $html .= "<meta property=\"fb:app_id\" content=\"".$facebook_api."\" />\n";
   }
-  if($facebook_admins){
+  if ($facebook_admins){
     $html .= "<meta property=\"fb:admins\" content=\"".$facebook_admins."\" />\n";
   }    
   
@@ -650,19 +645,19 @@ function _set_meta_fortaxonomies($page,$term,$site_name=NULL,$site_url=NULL,$ass
 
 function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_brand=NULL,$domain=NULL,$current_path=NULL){
 
-	$page_name = $page['subtask']['admin title'];
+  $page_name = $page['subtask']['admin title'];
   $html = "";
   $page_handler = $page['handler']->name; 
   $pattern_description = variable_get($page_handler.'_description',NULL);
-  if($pattern_description == NULL){
-   $pattern_description = variable_get('general_site_default_description',NULL);
+  if ($pattern_description == NULL){
+    $pattern_description = variable_get('general_site_default_description',NULL);
   }
   $pattern_keywords = variable_get($page_handler.'_keyword',NULL);
-  if($pattern_keywords == NULL){
-   $pattern_keywords = variable_get('general_site_default_keywords',NULL);
+  if ($pattern_keywords == NULL){
+    $pattern_keywords = variable_get('general_site_default_keywords',NULL);
   } 
   $pattern_published = variable_get('general_site_default_published',NULL);  
-  if($pattern_description){
+  if ($pattern_description){
     $page_description = str_replace('[site-name]', $site_name, $pattern_description);
     $page_description = str_replace('[site-url]', $site_url, $page_description);
     $page_description = str_replace('[page-name]', $page_name, $page_description);
@@ -670,7 +665,7 @@ function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_bra
     $page_description =  strip_tags(str_replace('"', '', $page_description));
     $html .= "<meta name=\"description\" content=\"".$page_description."\">\n";   
   } 
-  if($pattern_keywords){
+  if ($pattern_keywords){
     $page_keywords = str_replace('[site-name]', $site_name, $pattern_keywords);
     $page_keywords = str_replace('[site-url]', $site_url, $page_keywords);
     $page_keywords = str_replace('[page-name]', $page_name, $page_keywords);
@@ -678,7 +673,7 @@ function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_bra
     $page_keywords =  strip_tags(str_replace('"', '', $page_keywords));
     $html .= "<meta name=\"keywords\" content=\"".$page_keywords."\">\n";   
   }
-  if($pattern_published){
+  if ($pattern_published){
     $unix = time();
     $site_published = date($pattern_published,$unix);   
     $html .= "<meta name=\"published\" content=\"".$site_published."\" />\n";
@@ -687,7 +682,7 @@ function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_bra
   $html .= "<meta name=\"google-site-verification\" content=\"D9bx_DMB7JV6j259foRzkilqRdQONm1vAv5qiTgmlnA\" />\n";
   
   $server_name = $_SERVER['SERVER_NAME'];
-  if(strstr($server_name, "mobile")){
+  if (strstr($server_name, "mobile")){
    $server_name = "www.sudinfo.be";
   }
   
@@ -706,10 +701,10 @@ function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_bra
   $html .= "<meta property=\"og:image\" content=\"http://".$server_name."/".$photo_src."\"/>\n";
   $page_description = strip_tags(str_replace('"', '', $page_description));
   $html .= "<meta property=\"og:description\" content=\"".$page_description."\"/>\n";
-  if($facebook_api){
+  if ($facebook_api){
     $html .= "<meta property=\"fb:app_id\" content=\"".$facebook_api."\" />\n";
   }
-  if($facebook_admins){
+  if ($facebook_admins){
     $html .= "<meta property=\"fb:admins\" content=\"".$facebook_admins."\" />\n";
   }     
   
@@ -730,37 +725,37 @@ function _set_meta_forpages($page,$site_name=NULL,$site_url=NULL,$associated_bra
  */
 function forward_modal_link($path, $title, $text) {
 
-	$class = 'forward-page';
-	$url = 'forward';
-	if (module_exists('ctools')) {
-		ctools_include('modal');
-	  ctools_modal_add_js();
-	  $class .= ' ctools-use-modal ctools-modal-forward-modal-style';
-	  $url .= '/ajax';
+  $class = 'forward-page';
+  $url = 'forward';
+  if (module_exists('ctools')) {
+	ctools_include('modal');
+	ctools_modal_add_js();
+	$class .= ' ctools-use-modal ctools-modal-forward-modal-style';
+	$url .= '/ajax';
 	
-		drupal_add_js(array(
-	  	'forward-modal-style' => array(
-	    'modalSize' => array(
-		    'type' => 'fixed',
-		    'width' => 640,
-	 			'height' => 550,
-			),
-			'modalOptions' => array(
-	    	'opacity' => .85,
+	drupal_add_js(array(
+	  'forward-modal-style' => array(
+	  	'modalSize' => array(
+		  'type' => 'fixed',
+		  'width' => 640,
+	 	  'height' => 550,
+		),
+		'modalOptions' => array(
+	      'opacity' => .85,
 	      'background' => '#444',
-	     ),
 	    ),
-	    ), 'setting');
-	}
+	  ),
+	), 'setting');
+  }
   
-	$content = l($text, $url, array(
+  $content = l($text, $url, array(
                 'title'      => $title,
                 'html'       => TRUE,
                 'attributes' => array('title' => urlencode($title), 'class' => $class),
                 'query'      => array('path' => $path, 'title' => urlencode($title),
               )));
               
-	return $content; 
+  return $content; 
 }
 
 /**
@@ -969,7 +964,7 @@ function wallydemo_check_plain($text){
  * 
  */
 function _wallydemo_breadcrumb_display($main_destination_tid, $type = NULL){
-  if($type == 'une') {
+  if ($type == 'une') {
     $countLevel = 1;
   } else {
     $countLevel = 10;
@@ -983,13 +978,13 @@ function _wallydemo_breadcrumb_display($main_destination_tid, $type = NULL){
   $i = 0;
   $html = "";
   //trouver a quel item de menu correspond l'url
-  while($main_destination_tid != 0 && $i < $countLevel) {
+  while ($main_destination_tid != 0 && $i < $countLevel) {
     $res = db_query('SELECT * FROM {term_hierarchy} WHERE tid = %d', $main_destination_tid);
     $d = db_fetch_array($res);
     $url = 'taxonomy/term/'.$d["tid"];
     $url_alias = drupal_get_path_alias($url);
     $name = taxonomy_get_term($d["tid"]);
-    if($nameF->name != $name->name) {
+    if ($nameF->name != $name->name) {
       $html = '<a href="/'.$url_alias.'"><span>'.$name->name.'</span></a> <img width="3" height="5" alt="&gt;" src="/sites/all/themes/wallydemo/images/ico_arrow_transparent.gif"> '.$html;
       $i++;
     }
@@ -1041,22 +1036,22 @@ function _wallydemo_breadcrumbStaticPage_display(){
  */
 function getItem($tab,$name) {
   $html = '';
-  if(is_array($tab)){
-	  foreach ($tab as $t) {
-	    if(isset($t["link"]["link_path"]) && $name == $t["link"]["link_path"]) {
-	      if($t["link"]["link_path"] && $t["link"]["link_path"] != '<front>') $html = '<a href="'.drupal_get_path_alias($t["link"]["link_path"]).'">'.$t["link"]["link_title"].'</a>'.$html;
-	      else $html = $t["link"]["link_title"].$html;
-	    } else {
-	      if(count($t["below"] > 0)) {
-	        $html .= getItem($t["below"], $name);
-	        if($html) {
-	          if($t["link"]["link_path"] && $t["link"]["link_path"] != '<front>') $html = '<a href="'.drupal_get_path_alias($t["link"]["link_path"]).'">'.$t["link"]["link_title"].'</a> &gt; '.$html;
-	          else $html = $t["link"]["link_title"].' &gt; '.$html;
-	        }
+  if (is_array($tab)){
+	foreach ($tab as $t) {
+	  if (isset($t["link"]["link_path"]) && $name == $t["link"]["link_path"]) {
+	    if ($t["link"]["link_path"] && $t["link"]["link_path"] != '<front>') $html = '<a href="'.drupal_get_path_alias($t["link"]["link_path"]).'">'.$t["link"]["link_title"].'</a>'.$html;
+	    else $html = $t["link"]["link_title"].$html;
+	  } else {
+	    if (count($t["below"] > 0)) {
+	      $html .= getItem($t["below"], $name);
+	      if ($html) {
+	        if ($t["link"]["link_path"] && $t["link"]["link_path"] != '<front>') $html = '<a href="'.drupal_get_path_alias($t["link"]["link_path"]).'">'.$t["link"]["link_title"].'</a> &gt; '.$html;
+	        else $html = $t["link"]["link_title"].' &gt; '.$html;
 	      }
 	    }
-	    if($html) break;
 	  }
+	  if ($html) break;
+	}
   }
   return $html;
 }
@@ -1079,16 +1074,16 @@ function getItem($tab,$name) {
 
 function _wallydemo_get_strapline($textObject=NULL, $node, $size){
   
-	$strapline = "";
-	if($textObject == NULL){
-	 $mainstory = $node;
-	} else {
-    $mainstory = $textObject;
-	}
-  if ($mainstory->type == "wally_textobject"){
-   $strapline = $mainstory->field_textchapo[0]['value'];
+  $strapline = "";
+  if ($textObject == NULL){
+	$mainstory = $node;
   } else {
-   $strapline = $mainstory->field_summary[0]['value'];
+    $mainstory = $textObject;
+  }
+  if ($mainstory->type == "wally_textobject"){
+    $strapline = $mainstory->field_textchapo[0]['value'];
+  } else {
+    $strapline = $mainstory->field_summary[0]['value'];
   }
     
   if ($strapline != "" && $size == 0){
@@ -1105,9 +1100,9 @@ function _wallydemo_get_strapline($textObject=NULL, $node, $size){
     $teaser_length = $size;
     $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
     $strapline = $teaser;
-    if($size > 0 && drupal_strlen($mainstory->field_textbody[0]['value']) > $size) $strapline .=" [...]";
+    if ($size > 0 && drupal_strlen($mainstory->field_textbody[0]['value']) > $size) $strapline .=" [...]";
   }
-   return $strapline;
+  return $strapline;
 }
 
 
@@ -1177,7 +1172,7 @@ function _wallydemo_cut_string($str,$size) {
   }
   // If a strapline was not found, still return a teaser.
     
- if($strapline) $strapline .=" [...]";
+ if ($strapline) $strapline .=" [...]";
    
   return $strapline;
 }
@@ -1232,11 +1227,11 @@ function _wallydemo_date_edition_diplay($unix_time, $display='default'){
  * 
  */
 function _wallydemo_get_package_signature($signature_field){
-	if($signature_field->field_copyright[0]["value"] != ""){
-	 $package_signature =  $signature_field->field_copyright[0]["value"];
-	} else {
-	 $package_signature = variable_get("default_package_signature",NULL);
-	}
+  if ($signature_field->field_copyright[0]["value"] != ""){
+	$package_signature =  $signature_field->field_copyright[0]["value"];
+  } else {
+	$package_signature = variable_get("default_package_signature",NULL);
+  }
   return $package_signature;
 }
 
@@ -1256,7 +1251,7 @@ function _wallydemo_rss_crossmedia_gen($feed) {
   $cpt = 0;
   foreach ($feed as $k=>$item) {
     if ($cpt == 0){
-    	if(isset($item['EmbeddedContent']['EmbeddedObjects']['Object'][0]['LocaleImage']['filepath'])){
+    	if (isset($item['EmbeddedContent']['EmbeddedObjects']['Object'][0]['LocaleImage']['filepath'])){
         $item['image_path'] = $item['EmbeddedContent']['EmbeddedObjects']['Object'][0]['LocaleImage']['filepath'];
 	      $content .= "<li class=\"avecphoto\">";
 	      if ($item['image_path'] != ""){
@@ -1264,15 +1259,15 @@ function _wallydemo_rss_crossmedia_gen($feed) {
 	        $content .="<a href='".$item['ExternalURI']['value']."' target=\"_blank\">
 	               ".$item['img']."
 	              </a>";
-	      }else{
+	      } else {
         $content .="<li>";
 	      }
-    	}else{
+    	} else {
     	 $content .="<li>";
     	}
       $content .="<a href='".$item['ExternalURI']['value']."'>".wallydemo_check_plain($item['MainStory']['Title']['value'])."</a>
              </li>";
-    }else{
+    } else {
       $content .= "<li><a href='".$item['ExternalURI']['value']."'>".wallydemo_check_plain($item['MainStory']['Title']['value'])."</a></li>";        
     }
     $cpt++;
@@ -1291,68 +1286,68 @@ function _wallydemo_rss_crossmedia_gen($feed) {
  *  html 
  */
 function _wallydemo_pager($tags = array(), $limit = 10, $element = 0, $parameters = array(), $quantity = 9) {
-	global $pager_page_array, $pager_total;
-	
-	$path = drupal_get_path_alias('taxonomy/term/'.$parameters['tid']);
-  	// Calculate various markers within this pager piece:
-  	//Middle is used to "center" pages around the current page.
-  	$pager_middle = ceil($quantity / 2);
-	// current is the page we are currently paged to
-  	$pager_current = $pager_page_array[$element] + 1;
-  	// first is the first page listed by this pager piece (re quantity)
-  	$pager_first = $pager_current - $pager_middle + 1;
-  	// last is the last page listed by this pager piece (re quantity)
-  	$pager_last = $pager_current + $quantity - $pager_middle;
-  	// max is the maximum page number
-  	$pager_max = $pager_total[$element];
-  	// End of marker calculations.
+  global $pager_page_array, $pager_total;
 
-  	// Prepare for generation loop.
-  	$i = $pager_first;
-  	if ($pager_last > $pager_max) {
-    	// Adjust "center" if at end of query.
-    	$i = $i + ($pager_max - $pager_last);
-    	$pager_last = $pager_max;
+  $path = drupal_get_path_alias('taxonomy/term/'.$parameters['tid']);
+  // Calculate various markers within this pager piece:
+  //Middle is used to "center" pages around the current page.
+  $pager_middle = ceil($quantity / 2);
+  // current is the page we are currently paged to
+  $pager_current = $pager_page_array[$element] + 1;
+  // first is the first page listed by this pager piece (re quantity)
+  $pager_first = $pager_current - $pager_middle + 1;
+  // last is the last page listed by this pager piece (re quantity)
+  $pager_last = $pager_current + $quantity - $pager_middle;
+  // max is the maximum page number
+  $pager_max = $pager_total[$element];
+  // End of marker calculations.
+
+  // Prepare for generation loop.
+  $i = $pager_first;
+  if ($pager_last > $pager_max) {
+    // Adjust "center" if at end of query.
+    $i = $i + ($pager_max - $pager_last);
+    $pager_last = $pager_max;
+  }
+  if ($i <= 0) {
+    // Adjust "center" if at start of query.
+    $pager_last = $pager_last + (1 - $i);
+    $i = 1;
+  }
+  // End of generation loop preparation.
+   
+  // Display the number of current page
+  $items[] = array('data' => 'Page '.$pager_current.'/'.$pager_total[$element].' : <span>');
+  if ($pager_total[$element] > 1) {
+
+    // Display PREVIOUS page button
+  	if ($pager_current > 1) {
+  	  $items[] = array('data' => '<a href="'.$path.'?page='.($pager_current-2).'">< </a>');
   	}
-  	if ($i <= 0) {
-    	// Adjust "center" if at start of query.
-    	$pager_last = $pager_last + (1 - $i);
-    	$i = 1;
+  		 
+  	// Now generate the actual pager piece.
+  	for (; $i <= $pager_last && $i <= $pager_max; $i++) {
+  	  if ($i < $pager_current) {
+  	    $items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'">'.$i.' </a>');
+  	  }
+  	  if ($i == $pager_current) {
+  	    $items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'"><strong>'.$i.' </strong></a>');
+  	  }
+  	  if ($i > $pager_current) {
+  	    $items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'">'.$i.' </a>');
+  	  }
   	}
-  	// End of generation loop preparation.
-  	
-  	// Display the number of current page
-  	$items[] = array('data' => 'Page '.$pager_current.'/'.$pager_total[$element].' : <span>');
-  	if ($pager_total[$element] > 1) {
-  		
-		// Display PREVIOUS page button
-  		if ($pager_current > 1) {
-      		$items[] = array('data' => '<a href="'.$path.'?page='.($pager_current-2).'">< </a>');
-    	}
-      	
-		// Now generate the actual pager piece.
-      	for (; $i <= $pager_last && $i <= $pager_max; $i++) {
-        	if ($i < $pager_current) {
-          		$items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'">'.$i.' </a>');
-        	}
-        	if ($i == $pager_current) {
-          		$items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'"><strong>'.$i.' </strong></a>');
-        	}
-        	if ($i > $pager_current) {
-        		$items[] = array('data' => '<a href="'.$path.'?page='.($i-1).'">'.$i.' </a>');
-        	}
-      	}
 
-		// Display NEXT page button 
-      	if ($pager_current < $pager_total[$element]) {
-        	$items[] = array('data' => '<a href="'.$path.'?page='.($pager_current).'">> </a>');
-      	}
-    }
-    $items[] = array('data' => '<span>');
+  	// Display NEXT page button
+  	if ($pager_current < $pager_total[$element]) {
+  	  $items[] = array('data' => '<a href="'.$path.'?page='.($pager_current).'">> </a>');
+  	}
+  }
+  $items[] = array('data' => '<span>');
 
-    
-    return theme('sp_pagersimple', $items);
-  }	
+
+  return theme('sp_pagersimple', $items);
+}
 
 function _wallydemo_get_trimmed_string($string){
   $trimmed_string = preg_replace("+</?[^>]*?>+","",$string);
@@ -1413,8 +1408,8 @@ function _wallydemo_get_sorted_links($node){
  */
 function _wallydemo_get_link_type(&$link){
   
-	if (strstr($link["url"], "videos.sudpresse")){
-	  $link["type"] = "media-video";
+  if (strstr($link["url"], "videos.sudpresse")){
+    $link["type"] = "media-video";
   } else if (strstr($link["url"], "http://www.youtube.com/")){
     $link["type"] = "media-video";
   } else if (strstr($link["url"], "dailymotion.com/")){
@@ -1447,18 +1442,18 @@ function _wallydemo_get_link_type(&$link){
  * 
  */
 function wallydemo_get_first_photoEmbededObject_from_package($embededObjects_array){ 
-  if(is_array($embededObjects_array)){
-		foreach($embededObjects_array as $embededObject){  
-	   if ($embededObject->type == "wally_photoobject"){
-	     $photoObject = $embededObject;
-	     break;
-	   }
+  if (is_array($embededObjects_array)){
+	foreach ($embededObjects_array as $embededObject){  
+	  if ($embededObject->type == "wally_photoobject"){
+	    $photoObject = $embededObject;
+	    break;
 	  }
+	}
   }
   if (isset($photoObject)){
     return $photoObject; 
-  }else{
-    return false;
+  } else {
+    return FALSE;
   }
 }
 
@@ -1479,26 +1474,26 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
   $videos = array();
   $audios = array();
   $digital = array();
-	$embeddedObjects = $node->field_embededobjects_nodes;
-	if($node->type == "wally_articlepackage"){
-  $data["mainObject"] = $embeddedObjects[0];
-	}else{
+  $embeddedObjects = $node->field_embededobjects_nodes;
+  if ($node->type == "wally_articlepackage"){
+    $data["mainObject"] = $embeddedObjects[0];
+  } else {
 	$data["mainObject"] = $node->field_mainobject_nodes[0];
-	}
-  foreach($embeddedObjects as $embeddedObject){
+  }
+  foreach ($embeddedObjects as $embeddedObject){
     switch($embeddedObject->type){
-    	case "wally_photoobject":
-    		array_push($photos, $embeddedObject);
-    		break;
-    	case "wally_videoobject":
-    		array_push($videos, $embeddedObject);
-    		break;
-    	case "wally_audioobject":
+      case "wally_photoobject":
+    	array_push($photos, $embeddedObject);
+    	break;
+      case "wally_videoobject":
+    	array_push($videos, $embeddedObject);
+   		break;
+      case "wally_audioobject":
         array_push($audios, $embeddedObject);
-    		break;
-    	case "wally_digitalobject":
-         array_push($digital, $embeddedObject);
-    		break;   	  
+    	break;
+      case "wally_digitalobject":
+        array_push($digital, $embeddedObject);
+    	break;   	  
     }    
   }
   $data["photos"] = $photos;
@@ -1524,22 +1519,20 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
   $photo['filename'] = $photoObject->field_photofile[0]["filename"];
   $photo['filepath'] = $photoObject->field_photofile[0]["filepath"];
   
-	switch ($template){
-		case "default":
+  switch ($template){
+	case "default":
       $photo['main_size'] = "";
       $photo['main_url'] = "";
       $photo['mini'] = "";			
-		  if($photo['size'] > 0){
+	  if ($photo['size'] > 0){
 		    
-		    $photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']); 
-		    $photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
-		    $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
-		  }
+		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']); 
+		$photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
+		$photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
+	  }
 	  break;	
-	}
-	
-	return $photo;
-	
+  }
+  return $photo;
 } 
 
 /**
@@ -1553,7 +1546,7 @@ function wallydemo_get_digitalobject_infos_and_display($digitalObject){
   $emcode = $digitalObject->content['group_digitalobject']['group']['field_object3rdparty']['field']['items']['#children'];
   
   // USE FOR GOOGLE DOC BECAUSE IFRAME IS IN THE SUMMARY
-  if($emcode) $digital['emcode'] = $emcode;
+  if ($emcode) $digital['emcode'] = $emcode;
   else $digital['emcode'] = $digitalObject->field_summary[0]['value'];
   ////////////////////////
   
@@ -1638,45 +1631,43 @@ function wallydemo_comment_form($form) {
  */
 function wallydemo_taxonomy_tags_particle($main_story){
 
-          $vocabulary = taxonomy_get_vocabularies();
-          $voclass = array();
-          foreach ($vocabulary as $key => $value){
-            $voclass[$key] = preg_replace('/[^a-z0-9]+/', '_', strtolower($value->name));
-          }
-          $cpt = 1;
-          $htmltags = "";
-          foreach($main_story->taxonomy as $termclass){
-            if($cpt != 1){
-              
-              $htmltags .= ", ";
-            }
+  $vocabulary = taxonomy_get_vocabularies();
+  $voclass = array();
+  foreach ($vocabulary as $key => $value){
+    $voclass[$key] = preg_replace('/[^a-z0-9]+/', '_', strtolower($value->name));
+  }
+  $cpt = 1;
+  $htmltags = "";
+  foreach ($main_story->taxonomy as $termclass){
+    if ($cpt != 1){          
+      $htmltags .= ", ";
+    }
           
-            $htmltags .= "<a href=\"".url(taxonomy_term_path(taxonomy_get_term($termclass->tid)))."\" class=\"".$voclass[$termclass->vid]."\">".$termclass->name."</a>";
-            $cpt++;         
-          }
-          return $htmltags;
+    $htmltags .= "<a href=\"".url(taxonomy_term_path(taxonomy_get_term($termclass->tid)))."\" class=\"".$voclass[$termclass->vid]."\">".$termclass->name."</a>";
+    $cpt++;         
+  }
+  return $htmltags;
 }
 
 function wallydemo_taxonomy_text_tags_particle($main_story){
 
-          $vocabulary = taxonomy_get_vocabularies();
-          $voclass = array();
-          foreach ($vocabulary as $key => $value){
-            $voclass[$key] = preg_replace('/[^a-z0-9]+/', '_', strtolower($value->name));
-          }
-          $cpt = 1;
-          $htmltags = "";
-          if (is_array($main_story->taxonomy)) {
-	          foreach($main_story->taxonomy as $termclass){
-	            if($cpt != 1){
-	              $htmltags .= ", ";
-	            }
-	          
-	            $htmltags .= $termclass->name;
-	            $cpt++;         
-	          }
-					}
-          return $htmltags;
+  $vocabulary = taxonomy_get_vocabularies();
+  $voclass = array();
+  foreach ($vocabulary as $key => $value){
+    $voclass[$key] = preg_replace('/[^a-z0-9]+/', '_', strtolower($value->name));
+  }
+  $cpt = 1;
+  $htmltags = "";
+  if (is_array($main_story->taxonomy)) {
+    foreach ($main_story->taxonomy as $termclass){
+      if ($cpt != 1){
+        $htmltags .= ", ";
+      }
+      $htmltags .= $termclass->name;
+      $cpt++;
+    }
+  }
+  return $htmltags;
 }
 /**
  * Set and get cached data for a menu
@@ -1687,13 +1678,13 @@ function wallydemo_taxonomy_text_tags_particle($main_story){
  */
 
 function wallydemo_menu_get_cache($menu_name){
-	$cid = $menu_name;
-	$cached_block = cache_get($cid);
+  $cid = $menu_name;
+  $cached_block = cache_get($cid);
   if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || ($cached_block->expire < time()) || ($cached_block->expire == -1)) {
     $data = menu_tree_all_data($menu_name);
     cache_set($cid, $data, 'cache', time() + 60*30 + 1);
   } else {
-	 $data = $cached_block->data;
+	$data = $cached_block->data;
   }
   return $data;
 }
@@ -1713,19 +1704,19 @@ function _wallydemo_get_logo_data(){
   $data = array();
   switch ($domain){
     case "lameuse":
-    	if(isset($settings["logo_lameuse_default"])){
-    	 $data["default"] = $settings["logo_lameuse_default"];
-    	} else {
-    	 $data["default"] = 1;
-    	}
-    	$data["default_path"] = variable_get('logo_lameuse',$theme_path.'/images/logos/logo_lameuse.gif');
-    	$data["eve_path"] = $settings["logo_lameuse_eve_path"];
-    	$data["html_id"] = "la_meuse";
-    	$data["html_alt"] = "Lameuse";
-    	$data["html_target"] = "http://www.lameuse.be";
+      if (isset($settings["logo_lameuse_default"])){
+    	$data["default"] = $settings["logo_lameuse_default"];
+      } else {
+    	$data["default"] = 1;
+      }
+      $data["default_path"] = variable_get('logo_lameuse',$theme_path.'/images/logos/logo_lameuse.gif');
+      $data["eve_path"] = $settings["logo_lameuse_eve_path"];
+      $data["html_id"] = "la_meuse";
+      $data["html_alt"] = "Lameuse";
+      $data["html_target"] = "http://www.lameuse.be";
       break;
     case "lacapitale":
-      if(isset($settings["logo_lacapitale_default"])){
+      if (isset($settings["logo_lacapitale_default"])){
        $data["default"] = $settings["logo_lacapitale_default"];
       } else {
        $data["default"] = 1;
@@ -1737,7 +1728,7 @@ function _wallydemo_get_logo_data(){
       $data["html_target"] = "http://www.lacapitale.be";      
       break;
     case "lanouvellegazette":
-      if(isset($settings["logo_lanouvellegazette_default"])){
+      if (isset($settings["logo_lanouvellegazette_default"])){
        $data["default"] = $settings["logo_lanouvellegazette_default"];
       } else {
        $data["default"] = 1;
@@ -1749,7 +1740,7 @@ function _wallydemo_get_logo_data(){
       $data["html_target"] = "http://www.lanouvellegazette.be";      
       break;
     case "laprovince":
-      if(isset($settings["logo_laprovince_default"])){
+      if (isset($settings["logo_laprovince_default"])){
        $data["default"] = $settings["logo_laprovince_default"];
       } else {
        $data["default"] = 1;
@@ -1761,7 +1752,7 @@ function _wallydemo_get_logo_data(){
       $data["html_target"] = "http://www.laprovince.be";      
       break;
     case "nordeclair":
-      if(isset($settings["logo_nordeclair_default"])){
+      if (isset($settings["logo_nordeclair_default"])){
        $data["default"] = $settings["logo_nordeclair_default"];
       } else {
        $data["default"] = 1;
@@ -1773,7 +1764,7 @@ function _wallydemo_get_logo_data(){
       $data["html_target"] = "http://www.nordeclair.be";      
       break;
     default:
-      if(isset($settings["logo_sudinfo_default"])){
+      if (isset($settings["logo_sudinfo_default"])){
        $data["default"] = $settings["logo_sudinfo_default"];
       } else {
        $data["default"] = 1;
@@ -1793,7 +1784,7 @@ function _wallydemo_get_logo_data(){
 
 function wallydemo_get_fixed_domain_url($domain){
   $domain_url = "";
-	switch($domain){
+  switch($domain){
     case 'lameuse':
       $domain_url = "http://www.lameuse.be";
       break;
@@ -1815,7 +1806,7 @@ function wallydemo_get_fixed_domain_url($domain){
     default:
     	$domain_url = "http://www.sudinfo.be";
   }
-	return $domain_url;
+  return $domain_url;
 }
 
 /** Retourne l'url de base pour les outils sociaux en fonction d'un term id et d'un domaine 
@@ -1883,22 +1874,19 @@ function wallydemo_get_social_sharing_base_url($tid,$domain){
 
 
 function wallydemo_get_current_path(){
-$current_path = explode('=', drupal_get_destination());
+  $current_path = explode('=', drupal_get_destination());
   // Extracting URL from $current_path
-  if(is_array($current_path) && count($current_path) >= 2) {
-    if(trim($current_path[1]) != ''){
+  if (is_array($current_path) && count($current_path) >= 2) {
+    if (trim($current_path[1]) != ''){
       $current_url_full = htmlspecialchars( urldecode($current_path[1]) );
       // Removing query string
       $current_url_elements = explode('?', $current_url_full);
-      if(is_array($current_url_elements)) {
+      if (is_array($current_url_elements)) {
         return trim($current_url_elements[0]);
-      }
-      else{
+      } else {
         return trim($current_url_elements);
       }
-     
-    }     
-    else {
+    } else {
       return $_REQUEST['q'];
     }  
   }	
@@ -1979,8 +1967,8 @@ function string_to_numericentities_mod($str) {
 }
 
 function wallydemo_get_data_facebook_reactions_for_nid($nid){
-	$cid = 'spreactions_facebook_'.$nid;
-	$cached_data = cache_get($cid);
+  $cid = 'spreactions_facebook_'.$nid;
+  $cached_data = cache_get($cid);
   return $cached_data;
 }
 
