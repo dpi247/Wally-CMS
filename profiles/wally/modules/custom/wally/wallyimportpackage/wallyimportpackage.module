@@ -194,9 +194,7 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
       if ($node_temporary != NULL){
         node_delete($node_temporary->nid);
         $node->ext_ref = $ext_ref;
-        dsm('hehe');
       } else {
-        dsm('coucou');
         drupal_set_message('The package doesn\'t exist. It can be deleted. Package rejected.','error');
         $node->rejected = TRUE;
       }
