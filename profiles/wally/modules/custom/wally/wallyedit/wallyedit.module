@@ -12,6 +12,9 @@ function wallyedit_init(){
   global $custom_theme;
   if(arg(0) == 'batch' & arg(1) == '') {
     $custom_theme = variable_get('admin_theme', 'rubik');
+    if (!variable_get('site_offline', 0)) {
+      init_theme();
+    }
   }
 }
 
@@ -454,10 +457,15 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
 
 function wallyedit_form_views_bulk_operations_form__1_alter(&$form, &$form_state) {
   if($form['#plugin']->view->name == 'prenode_selectbox_vbo') {
+    if (!array_key_exists('type', $form['#plugin']->view->filter)) {
+      unset($form['select']);
+      unset($form['objects']);
+    }
+    
     array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form__1_validate');
     $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form__1_submit';
 
-    $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[1]));
+    $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[2]));
     $form['cancel_global'] = array(
       '#type' => 'submit',
       '#wydit_op_type' => 'pre_treat',
@@ -1313,40 +1321,46 @@ function wydit_install_default_table($fields, $table) {
   }
 }
 
-function wydit_process_node_selector_view(&$view, $type_name, $cache_name, $parents) {
-  $fields = wyditadmin_get_existing_fields($type_name);
-  $clicked_parent = $parents[sizeof($parents) - 1];
-  $field_infos = $fields[$clicked_parent];
-
+function wydit_process_node_selector_view(&$view, $ref_parents, $cache_name, $parents) {
+  $field_infos = wyditadmin_get_existing_fields($ref_parents[0], $ref_parents[1]);
   $referencables = $field_infos['referenceable_types'];
   foreach($referencables as $value) {
     if($value) {
       $allowed_types[$value] = $value;
     }
   }
-  
-  $type_filter_args = array(
-    'operator' => 'in',
-    'value' => $allowed_types,
-    'exposed' => (count($allowed_types) > 1) ? TRUE : FALSE,
-    'group' => 0,
-    'relationship' => 'none',
-    'expose' => array(
-      'use_operator' => 0,
-      'operator' => 'type_op',
-      'identifier' => 'type',
-      'label' => 'Node:type',
-      'optional' => 0,
-      'single' => 0,
-      'remember' => 0,
-      'reduce' => 1,
-    ),
-  );
-  $view->add_item('default', 'filter', 'node', 'type', $type_filter_args);
+
+  if (!empty($allowed_types)) {
+    $type_filter_args = array(
+      'operator' => 'in',
+      'value' => $allowed_types,
+      'exposed' => (count($allowed_types) > 1) ? TRUE : FALSE,
+      'group' => 0,
+      'relationship' => 'none',
+      'expose' => array(
+        'use_operator' => 0,
+        'operator' => 'type_op',
+        'identifier' => 'type',
+        'label' => 'Node:type',
+        'optional' => 0,
+        'single' => 0,
+        'remember' => 0,
+        'reduce' => 1,
+      ),
+    );
+    $view->add_item('default', 'filter', 'node', 'type', $type_filter_args);
+  } else {
+    drupal_set_message(t('An error occured'), 'error');
+  }
 
   // set the view arguments here, if needed : SET the cache name and the target
-  $view->set_arguments(array($cache_name, str_replace('_', '-', implode('--', $parents))));
-  
+  $arguments = array(
+    $cache_name,
+    str_replace('_', '-', implode('--', $ref_parents)),
+    str_replace('_', '-', implode('--', $parents)),
+  );
+  $view->set_arguments($arguments);
+
   $callback_url = 'wallyedit/views/ajax';
   // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
   $view->override_path = $callback_url;

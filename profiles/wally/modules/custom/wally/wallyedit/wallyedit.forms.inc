@@ -14,18 +14,10 @@ function wallyedit_form_node_edition_form(&$form_state) {
 
   $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
-  $form_state['parents'] = $parents = wydit_get_parents_from_form_state($form_state);
-  if (($tmp_fs = wydit_get_target_from_parents($form_state, $parents)) && wydit_get_target_from_parents($form_state, array_merge($parents, array('type')))) {
-    $type_name = $tmp_fs['type'];
-  } elseif ($parents) {
-    $type_name = $parents[0];
-    $parents = array_slice($parents, 0, 1);
-    $tmp_fs = wydit_get_target_from_parents($form_state, $parents);
-  } else {
-    drupal_set_message(t('An error occured'), 'error');
-    drupal_goto();
-  }
+  
+  list($tmp_fs, $type_name) = wydit_get_tmp_fs_from_form_state($form_state);
 
+  $parents = $form_state['parents'];
   $current_form_state = $form_state;
   $current_form_state[$type_name] = $tmp_fs;
   $current_form_state['type'] = $type_name;
@@ -348,7 +340,7 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
   );
 
   foreach($form_state as $key => $embed) {
-    if(isset($embed['#node'])) {
+    if(is_array($embed) && isset($embed['#node'])) {
       $embed_node = $embed['#node'];
       if (isset($embed_node->title) && !empty($embed_node->title)) {
         $form[$key]['title'] = array(
@@ -643,18 +635,20 @@ function wydit_form_submit_action_delete_global(&$form_state) {
 
 function wydit_form_submit_action_cancel_global($form_state) {
   $commands = array();
-  
+
   $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
   unset($form_state['values'][$form_state['type']]);
   wydit_clean_and_save_form_state($form_state);
 
+  $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
+  $new_form_state['action'] = '/node/'.$cache_name.'/edit/ajax/'.$current_profile;
 
   $edit_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
   if (sizeof($form_state['parents']) == 1) {
-    $form_prev = drupal_get_form('wydit_form_preview_form', $form_state['cache name']);
+    $form_prev = drupal_get_form('wydit_form_preview_form', $cache_name);
   } else {
     $form_prev = '';
   }
@@ -819,7 +813,7 @@ function wydit_form_submit_action_add_new($form_state) {
 
 function wydit_form_submit_action_add_existing($form_state) {
   $commands = array();
-  
+
   $form_state['parents'] = $parents = $form_state['clicked_button']['#next_parents'];
   $form_state_copy = $form_state;
   wydit_clean_and_save_form_state($form_state_copy);
@@ -827,13 +821,21 @@ function wydit_form_submit_action_add_existing($form_state) {
   $current_profile = $form_state['profile_id'];
   $type_name = $form_state['type'];
   $cache_name = $form_state['cache name'];
-  
+  if (sizeof($parents) > 3) {
+    $tmp_parents = array_slice($parents, 0, sizeof($parents) - 1);
+    $tmp_parents[sizeof($tmp_parents)] = 'type';
+    $field_type = wydit_get_target_from_parents($form_state, $tmp_parents);
+    $ref_parents = array_merge(array($field_type), array_slice($parents, sizeof($parents) - 1));
+  } else {
+    $ref_parents = $parents;
+  }
+
   $view = views_get_view('prenode_selectbox_vbo');
   $view->set_display('default');
-  wydit_process_node_selector_view($view, $type_name, $cache_name, $parents);
+  wydit_process_node_selector_view($view, $ref_parents, $cache_name, $parents);
 
   $output = $view->preview();
-  
+
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $output);
   $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
 
@@ -1229,8 +1231,41 @@ function wydit_populate_form_state(&$form_state, $node, $current_profile) {
   }
 }
 
+function wydit_get_tmp_fs_from_form_state(&$form_state) {
+  $i = 5;
+
+  $parents = wydit_get_parents_from_form_state($form_state);
+  while ($i) {
+    while (sizeof($parents) > 1 && !is_numeric($parents[sizeof($parents) - 1])) {
+      array_pop($parents);
+    }
+
+    if (($tmp_fs = wydit_get_target_from_parents($form_state, $parents)) && wydit_get_target_from_parents($form_state, array_merge($parents, array('type')))) {
+      $type_name = $tmp_fs['type'];
+    }
+
+    if ($tmp_fs && $type_name) {
+      $form_state['parents'] = $parents;
+      return array($tmp_fs, $type_name);
+    } else {
+      array_pop($parents);
+      $i--;
+    }
+  }
+  
+  if (isset($form_state['type']) && isset($form_state[$form_state['type']])) {
+    $type_name = $form_state['type'];
+    $form_state['parents'] = array($type_name);
+    $tmp_fs = $form_state[$type_name];
+    return array($tmp_fs, $type_name);
+  }
+
+  drupal_set_message(t('An error occured'), 'error');
+  drupal_goto('node/'.$form_state['cache name']);
+}
+
 function wydit_get_parents_from_form_state ($form_state) {
-  return empty($form_state['parents']) ? array($form_state['type']) : $form_state['parents'];
+  return (empty($form_state['parents']) || empty($form_state['parents'][0])) ? array($form_state['type']) : $form_state['parents'];
 }
 
 /**
