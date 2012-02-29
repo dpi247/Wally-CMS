@@ -134,6 +134,13 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
   }
 }
 
+/*
+ * Implementation of hook_flush_caches
+ */
+function wallytoolbox_flush_caches() {
+  return array('cache_wally_object');
+}
+
 function wallytoolbox_page_callback(){
   ctools_include('plugins');
   
