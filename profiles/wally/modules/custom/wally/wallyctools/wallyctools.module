@@ -321,7 +321,11 @@ function wallyctools_get_hierarchies(){
   if (empty($tid_did_mapping)) {
     $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
     $depth=0;
+
+    //@todo : 1second lost here
     $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+
+    //@todo : 1second lost here
     $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
 
     foreach($tid_did_mapping as $tid=>$did_infos){
@@ -371,23 +375,23 @@ function wallyctools_get_term_handler_mapping($terms,$depth){
  *   depth to take into account default = 0
  * @return the active handler
  */
-function wallyctools_get_active_handler($term_tid,$depth){
-  $task=page_manager_get_task('term_view');
+function wallyctools_get_active_handler($term_tid, $depth) {
+  $task = page_manager_get_task('term_view');
   ctools_include('context');
   ctools_include('context-task-handler');
 
-  $contexts=ctools_context_handler_get_task_contexts($task,'',array($term_tid,$depth));
-
-  $handlers= page_manager_load_sorted_handlers($task,NULL,TRUE);
-  foreach($handlers as $handler){
+  $contexts = ctools_context_handler_get_task_contexts($task, '', array($term_tid, $depth));
+  $handlers = page_manager_load_sorted_handlers($task, NULL, TRUE);
+  foreach ($handlers as $handler) {
     //add my contexts
-    $contexts= ctools_context_handler_get_handler_contexts($contexts, $handler);
+    $contexts = ctools_context_handler_get_handler_contexts($contexts, $handler);
 
     //Test if a handler match the context (ie: the term)
-    if(ctools_context_handler_select($handler, $contexts)){
+    if (ctools_context_handler_select($handler, $contexts)) {
       return $handler;
     }
   }
+
   //No Handlers match
   return NULL;
 }
