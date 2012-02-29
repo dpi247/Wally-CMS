@@ -28,10 +28,9 @@ function wallyedit_views_ajax() {
     if ($view = views_get_view($name)) {
       if ($view->access($display_id)) {
         $cache_name = $args[0];
-        $parents = explode('__', str_replace('-', '_', $args[1]));
-        $type_name = $parents[sizeof($parents) - 2];
-
-        wydit_process_node_selector_view($view, $type_name, $cache_name, $parents);
+        $ref_parents = explode('__', str_replace('-', '_', $args[1]));
+        $parents = explode('__', str_replace('-', '_', $args[2]));
+        wydit_process_node_selector_view($view, $ref_parents, $cache_name, $parents);
 
         // Fix 'q' for paging.
         if (!empty($path)) {
