@@ -402,7 +402,8 @@ function wallymport_page_importerlogs($iid){
   $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC LIMIT 0,500", $importer->name);
   $header = array(t('Date'), t('Filename'), t('Filelocation'), t('Success'), t('Message'));
   while ($obj = db_fetch_object($result)){
-    list($f1, $f2, $f3, $f4, $filename) = explode('/', $obj->location, 5);
+    $filepath = explode('/', $obj->location);
+    $filename = array_pop($filepath);
     $logs = unserialize($obj->log);
     $success = 'TRUE';
     if ($logs['error']){
