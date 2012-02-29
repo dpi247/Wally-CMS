@@ -226,34 +226,6 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
 }
 
 /**
- * Perform a recursive search in a media item for a desired element.
- * 
- * @param $media_content
- *   The item in which the first step search is performed.
- * @param $item
- *   The item in which the second step search is performed.
- * @param $channel
- *   The channel in which the third and last step search is performed.
- * @param $namespace
- *   Value of the namespace if used.
- * @param $name
- *   The name of the searched element.
- * 
- * @return
- *   The element value or ''.
- */
-function _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $namespace, $name) {
-  $return = _wallytoolbox_checkifelementexists($media_content, $name, $namespace);
-  if ($return == '') {
-    $return = _wallytoolbox_checkifelementexists($item, $name, $namespace);
-    if ($return == '') {
-      $return = _wallytoolbox_checkifelementexists($channel, $name, $namespace);
-    }
-  }
-  return $return;
-}
-
-/**
  * Get package available parameters from an RSS feed item domElement
  * and set an array item according to the structure defined in
  * Wallymport.
@@ -382,10 +354,11 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
   $first_media = TRUE;
   foreach ($media_contents as $media_content) {
     $media_type = NULL;
-    if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
-      if (@getimagesize($media_content->getAttribute('url')))
+    if (_wallytoolbox_rss_flow_check_is_image($media_content)) {
+      if (@getimagesize($media_content->getAttribute('url'))) {
         $media_type = 'photoobject';
-    } elseif (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'video')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'video'))) {
+      }
+    } elseif (_wallytoolbox_rss_flow_check_is_video($media_content)) {
       if ($media_content->hasAttribute('url')) {
         $third_party_url = $media_content->getAttribute('url');
       } else {
@@ -646,6 +619,60 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
   $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+}
+
+/**
+ * Perform a recursive search in a media item for a desired element.
+ * 
+ * @param $media_content
+ *   The item in which the first step search is performed.
+ * @param $item
+ *   The item in which the second step search is performed.
+ * @param $channel
+ *   The channel in which the third and last step search is performed.
+ * @param $namespace
+ *   Value of the namespace if used.
+ * @param $name
+ *   The name of the searched element.
+ * 
+ * @return
+ *   The element value or ''.
+ */
+function _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $namespace, $name) {
+  $return = _wallytoolbox_checkifelementexists($media_content, $name, $namespace);
+  if ($return == '') {
+    $return = _wallytoolbox_checkifelementexists($item, $name, $namespace);
+    if ($return == '') {
+      $return = _wallytoolbox_checkifelementexists($channel, $name, $namespace);
+    }
+  }
+  return $return;
+}
+
+function _wallytoolbox_rss_flow_check_is_image($media_content) {
+  if ($media_content->getAttribute('type') && stristr($media_content->getAttribute('type'), 'image')) {
+    return TRUE;
+  } elseif ($media_content->getAttribute('medium') && stristr($media_content->getAttribute('medium'), 'image')) {
+    return TRUE;
+  } elseif ($media_url = $media_content->getAttribute('url')) {
+    if (stristr($media_url,'.jpg') || stristr($media_url,'.jpeg') || stristr($media_url,'.gif') || stristr($media_url,'.png')) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+function _wallytoolbox_rss_flow_check_is_video($media_content) {
+  if ($media_content->getAttribute('type') && stristr($media_content->getAttribute('type'), 'video')) {
+    return TRUE;
+  } elseif ($media_content->getAttribute('medium') && stristr($media_content->getAttribute('medium'), 'video')) {
+    return TRUE;
+  } elseif ($media_url = $media_content->getAttribute('url')) {
+    //@todo : ajouter un check sur le format de la video, comme pour les images
+  }
+
+  return FALSE;
 }
 
 function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {
