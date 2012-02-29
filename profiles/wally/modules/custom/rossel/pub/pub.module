@@ -362,7 +362,8 @@ function _pub_getheadercontent($cache_url) {
     $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
     $script_type = variable_get('pub_provider', 'AdTech');
-    $content_from_webservice = _pub_getheadercontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta);
+    $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
+    $content_from_webservice = _pub_getheadercontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $edition);
     
     if ($content_from_webservice) {
       $header_content = $content_from_webservice;
@@ -497,7 +498,7 @@ function _pub_getmetriwebcontent($cache_url) {
  * @return
  *   HTML content.
  */
-function _pub_getheadercontentfromwebservice($script_type, $website, $page_type, $context, $position) {
+function _pub_getheadercontentfromwebservice($script_type, $website, $page_type, $context, $position, $edition = NULL) {
   $expl_website = explode('_', $website);
   $domain = $_SERVER['HTTP_HOST'];
   $params = array(
@@ -507,8 +508,10 @@ function _pub_getheadercontentfromwebservice($script_type, $website, $page_type,
     'position='.rawurlencode($position),
     'domain='.$domain,
   );
+  if ($edition) {
+    $params[] = 'edition='.rawurlencode($edition);
+  }
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  
   $content = drupal_http_request(variable_get('pub_header', '').$req_url);
   return ($content->code == '200') ? $content->data : FALSE;
 }
@@ -530,7 +533,7 @@ function _pub_getcontentfromwebservice($script_type, $website, $page_type, $cont
     'domain='.$domain,
   );
   if ($edition) {
-    $params[] = 'edition='.$edition;
+    $params[] = 'edition='.rawurlencode($edition);
   }
   $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
   $content = drupal_http_request($pub_webserv.$req_url);
