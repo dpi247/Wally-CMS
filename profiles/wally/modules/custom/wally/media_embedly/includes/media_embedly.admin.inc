@@ -11,11 +11,13 @@
  */
 function media_embedly_settings() {
   $form = media_embedly_admin_form();
+
   $form['settings_info'] = array(
     '#type' => 'item',
     '#value' => t('These settings specifically affect embed displayed from !Embedly. You can also read more about its !api.', array('!Embedly' => l(t('embed.ly'), MEDIA_EMBEDLY_MAIN_URL, array('attributes' => array('target' => '_blank'))), '!api' => l(t("developer's API"), MEDIA_EMBEDLY_API_INFO, array('attributes' => array('target' => '_blank'))))),
     '#weight' => -10,
-  );  
+  );
+
   return system_settings_form($form);
 }
 
@@ -33,20 +35,27 @@ function media_embedly_admin_form() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+
   $form['settings'][media_embedly_variable_name('cache_time')] = array(
     '#type' => 'textfield',
     '#title' => t('Cache time'),
     '#default_value' => media_embedly_variable_get('cache_time'),
     '#description' => t('The time for which the cached info is considered valid (in minutes).'),
   );
+
+  $form['settings'][media_embedly_variable_name('api_key')] = array(
+    '#type' => 'textfield',
+    '#title' => t('API Key'),
+    '#default_value' => media_embedly_variable_get('api_key'),
+    '#description' => t('Key to connect to EmbedLy API'),
+  );
+
   return $form;
 };
-
 
 /**
  * This forms will be displayed at admin/content/emfield/mediaType.
  */
-
 function media_embedly_video_admin_form() {
   $form = array();
   
@@ -57,6 +66,7 @@ function media_embedly_video_admin_form() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+
   $form['settings'][media_embedly_variable_name('allowed_video_url')] = array(
     '#type' => 'textarea',
     '#title' => t('Allowed URLs'),
@@ -64,12 +74,14 @@ function media_embedly_video_admin_form() {
     '#description' => t('Enter here the URL from which the videos may come. One URL by line.'),
     '#required' => TRUE,
   );
+
   $form['settings'][media_embedly_variable_name('video_width')] = array(
     '#type' => 'textfield',
     '#title' => t('Width'),
     '#default_value' => media_embedly_variable_get('video_width'),
     '#description' => t('The Player width.'),
   );
+
   //$form['settings'][media_embedly_variable_name('height')] = array(
     //'#type' => 'textfield',
     //'#title' => t('Height'),
@@ -79,7 +91,6 @@ function media_embedly_video_admin_form() {
 
   return $form;
 }
-
 
 function media_embedly_audio_admin_form() {
   $form = array();
@@ -91,6 +102,7 @@ function media_embedly_audio_admin_form() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+
   $form['settings'][media_embedly_variable_name('allowed_audio_url')] = array(
     '#type' => 'textarea',
     '#title' => t('Allowed URLs'),
@@ -98,12 +110,14 @@ function media_embedly_audio_admin_form() {
     '#description' => t('Enter here the URL from which the audios may come. One URL by line.'),
     '#required' => TRUE,
   );
+
   $form['settings'][media_embedly_variable_name('audio_width')] = array(
     '#type' => 'textfield',
     '#title' => t('Width'),
     '#default_value' => media_embedly_variable_get('audio_width'),
     '#description' => t('The Player width.'),
   );
+
   //$form['settings'][media_embedly_variable_name('height')] = array(
     //'#type' => 'textfield',
     //'#title' => t('Height'),
