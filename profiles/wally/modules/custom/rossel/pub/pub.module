@@ -151,7 +151,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       
       $blocks['analytic_block'] = array(
         'info' => t('Analytic'),
-        'cache' => BLOCK_CACHE_PER_PAGE,
+        'cache' => BLOCK_NO_CACHE,
       );
       
       $blocks['xiti_block'] = array(
