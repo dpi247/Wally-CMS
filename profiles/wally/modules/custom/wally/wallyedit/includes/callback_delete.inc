@@ -8,9 +8,11 @@ function wallyedit_callback_delete($prenode, $js = FALSE, $current_profile = 0){
 
   $js = $js ? 'ajax' : 0;
   if ($_POST['confirm_delete']) {
+    $form_state = $prenode->getFormState();
     prenode_delete($form_state);
     node_delete($form_state['cache name']);
     if ($js) {
+      wydit_ctools_include();
       $commands[] = ctools_ajax_command_redirect('');
       ctools_ajax_render($commands);
     } else {

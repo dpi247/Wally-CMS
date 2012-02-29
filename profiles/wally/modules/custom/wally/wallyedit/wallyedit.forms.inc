@@ -568,7 +568,7 @@ function wydit_form_delete_node_and_prenode_form (&$form_state) {
     '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
   );
   
-  $form['#action'] = '/node/'.$form_state['cache name'].'/deleteglobal/'.$form_state['profile_id'];
+  $form['#action'] = '/node/'.$form_state['cache name'].'/deleteglobal/ajax/'.$form_state['profile_id'];
 
   return $form;
 }
