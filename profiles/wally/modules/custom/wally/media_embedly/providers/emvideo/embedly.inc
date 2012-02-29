@@ -68,7 +68,7 @@ function emvideo_embedly_data_version() {
 function emvideo_embedly_data($field, $item) {
   $data = array();
   $emdata = _emvideo_embedly_request($item['embed']);
-  $data['thumbnail']['url'] = $emdata['thumbnail_url'];
+  $data['thumbnail']['url'] = $emdata['thumbnail_url'] ? $emdata['thumbnail_url'] : '';
   return $data;
 }
 
@@ -114,31 +114,43 @@ function emvideo_embedly_extract($video_id = '') {
  *  
  *  @param $return
  *    array with the casted as string simplexml objects
- *  
  */
 function  _emvideo_embedly_request($src_url){
 	$embedly_result = array();
   $url = "http://api.embed.ly/1/oembed";
-  $data = "?url=".$src_url."&maxwidth=600&format=xml";
+  $params = array(
+    'url='.$src_url,
+    'maxwidth=600',
+    'format=xml',
+  );
+  if ($api_key = media_embedly_variable_get('api_key')) {
+    array_unshift($params, 'key='.$api_key);
+  }
+  $data = '?'.implode('&', $params);
   $data = str_replace(":","%3A",$data);
   $data = str_replace("/","%2F",$data);
-  $xml = simplexml_load_file($url.$data);
-  $embedly_result = array(
-   'version' => (string)$xml->version,
-   'type' => (string)$xml->type, 
-   'provider_url' => (string)$xml->provider_url,
-   'provider_name' => (string)$xml->provider_name,
-   'description' => (string)$xml->description,
-   'title' => (string)$xml->title,
-   'author' => (string)$xml->author_name,
-   'author_url' => (string)$xml->author_url,
-   'height' => (string)$xml->height,
-   'width' => (string)$xml->width,
-   'html' => (string)$xml->html,
-   'thumbnail_url' => (string)$xml->thumbnail_url,
-   'thumbnail_width' => (string)$xml->thumbnail_width,   
-   'thumbnail_height' => (string)$xml->thumbnail_height
-  );
+  if ($xml = simplexml_load_file($url.$data)) {
+    $embedly_result = array(
+     'version' => (string)$xml->version,
+     'type' => (string)$xml->type, 
+     'provider_url' => (string)$xml->provider_url,
+     'provider_name' => (string)$xml->provider_name,
+     'description' => (string)$xml->description,
+     'title' => (string)$xml->title,
+     'author' => (string)$xml->author_name,
+     'author_url' => (string)$xml->author_url,
+     'height' => (string)$xml->height,
+     'width' => (string)$xml->width,
+     'html' => (string)$xml->html,
+     'thumbnail_url' => (string)$xml->thumbnail_url,
+     'thumbnail_width' => (string)$xml->thumbnail_width,   
+     'thumbnail_height' => (string)$xml->thumbnail_height
+    );
+  } else {
+    $embedly_result = array(
+      'html' => '',
+    );
+  }
 	return $embedly_result;
 }
 

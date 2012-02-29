@@ -106,7 +106,15 @@ function _media_embedly_cached_request($src_url, $type){
   $delta_t = media_embedly_variable_get('cache_time');
   $embedly_result = array();
   $url = "http://api.embed.ly/1/oembed";
-  $data = "?url=".$src_url."&maxwidth=".$width_adm."&format=xml";
+  $params = array(
+    'url='.$src_url,
+    'maxwidth='.$width_adm,
+    'format=xml',
+  );
+  if ($api_key = media_embedly_variable_get('api_key')) {
+    array_unshift($params, 'key='.$api_key);
+  }
+  $data = '?'.implode('&', $params);
   $data = str_replace(":","%3A",$data);
   $data = str_replace("/","%2F",$data);
   $data = str_replace("#","%23",$data);
@@ -114,37 +122,41 @@ function _media_embedly_cached_request($src_url, $type){
   $cached_xml = cache_get($cid);
   if (!is_object($cached_xml) || !isset($cached_xml) || empty($cached_xml)) {
 		//watchdog('Embedly', 'Non existant cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
-    $xml = simplexml_load_file($url.$data);
-    if($xml!='FALSE'){
+    if ($xml = simplexml_load_file($url.$data)) {
       cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
     }
-  }elseif($cached_xml->created <= time()){ 
+  } elseif ($cached_xml->created <= time()) { 
     //watchdog('Embedly', 'Too old cache, new embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
-    $xml = simplexml_load_file($url.$data);
-    if($xml!='FALSE'){
+    if ($xml = simplexml_load_file($url.$data)) {
       cache_set($cid, $xml->asXML(), 'cache', time() + $delta_t*60);
-    }else{
+    } else {
       $xml = simplexml_load_string($cached_xml->data);
     }
-  }else{
-    //watchdog('Embedly', 'Good cache, serving cached embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
+  } else {
     $xml = simplexml_load_string($cached_xml->data);
+    //watchdog('Embedly', 'Good cache, serving cached embedly xml. Plugin ID : %id.', array('%id' => $src_url), WATCHDOG_INFO);
   }
-  $embedly_result = array(
-   'version' => (string)$xml->version,
-   'type' => (string)$xml->type, 
-   'provider_url' => (string)$xml->provider_url,
-   'provider_name' => (string)$xml->provider_name,
-   'description' => (string)$xml->description,
-   'title' => (string)$xml->title,
-   'author' => (string)$xml->author_name,
-   'author_url' => (string)$xml->author_url,
-   'height' => (string)$xml->height,
-   'width' => (string)$xml->width,
-   'html' => (string)$xml->html,
-   'thumbnail_url' => (string)$xml->thumbnail_url,
-   'thumbnail_width' => (string)$xml->thumbnail_width,   
-   'thumbnail_height' => (string)$xml->thumbnail_height
-  );
+  if ($xml) {
+    $embedly_result = array(
+     'version' => (string)$xml->version,
+     'type' => (string)$xml->type, 
+     'provider_url' => (string)$xml->provider_url,
+     'provider_name' => (string)$xml->provider_name,
+     'description' => (string)$xml->description,
+     'title' => (string)$xml->title,
+     'author' => (string)$xml->author_name,
+     'author_url' => (string)$xml->author_url,
+     'height' => (string)$xml->height,
+     'width' => (string)$xml->width,
+     'html' => (string)$xml->html,
+     'thumbnail_url' => (string)$xml->thumbnail_url,
+     'thumbnail_width' => (string)$xml->thumbnail_width,   
+     'thumbnail_height' => (string)$xml->thumbnail_height
+    );
+  } else {
+    $embedly_result = array(
+      'html' => '',
+    );
+  }
   return $embedly_result;
 }

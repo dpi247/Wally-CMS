@@ -20,10 +20,9 @@ function emaudio_embedly_info() {
 }
 
 function emaudio_embedly_settings() {
-	module_load_include('inc', 'media_embedly', 'includes/media_embedly.admin');
+  module_load_include('inc', 'media_embedly', 'includes/media_embedly.admin');
   return media_embedly_audio_admin_form();
 }
-
 
 function emaudio_embedly_extract($embed = '') {
   $return = array();
@@ -46,11 +45,11 @@ function emaudio_embedly_extract($embed = '') {
 }
 
 function emaudio_embedly_error_check($url) {
-    global $user;
-    $error = t('This url ('.$url.') seems to be not supported by the Embedly API. Please retry or chose an other one.');
-    if (user_access('administer site configuration')) {
-      drupal_set_message($error, 'error');
-    }
+  global $user;
+  $error = t('This url ('.$url.') seems to be not supported by the Embedly API. Please retry or chose an other one.');
+  if (user_access('administer site configuration')) {
+    drupal_set_message($error, 'error');
+  }
 }
 
 /**
@@ -70,7 +69,7 @@ function emaudio_embedly_error_check($url) {
  *    the html of the embedded audio
  */
 function emaudio_embedly_audio($url = NULL, $width = 0, $height = 0, $field = NULL, $data = array(), $node = NULL, $autoplay = FALSE) {
-	$data_url = $data['embed'];
+  $data_url = $data['embed'];
   $embedly_result = _media_embedly_audio_request($data_url);
   IF ($embedly_result["html"] == ""){
     $output = emaudio_embedly_error_check($item_url);
