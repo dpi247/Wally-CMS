@@ -21,7 +21,13 @@ function warnish_menu() {
   $items = array();
   
   $items['content/pollajax'] = array(
-    'page callback' => 'warnish_poll_ajax_content',
+    'page callback' => 'warnish_poll_html_content',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['content/pollajax-views'] = array(
+    'page callback' => 'warnish_poll_html_views_content',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -59,17 +65,23 @@ function warnish_menu() {
  */
 function warnish_theme() {
   $items = array();
-  
-  $items['poll_html_content'] = array(
+
+  $items['poll_ajax_content'] = array(
     'arguments' => array(),
-    'template' => 'poll-html-content',
+    'template' => 'poll-ajax-content',
     'path' => drupal_get_path('module', 'warnish') . '/templates',
   );
   
+  $items['poll_views_ajax_content'] = array(
+    'arguments' => array(),
+    'template' => 'poll-views-ajax-content',
+    'path' => drupal_get_path('module', 'warnish') . '/templates',
+  );
+
   $items['warnish_status'] = array(
     'arguments' => array('status' => array()),
   );
-  
+
   return $items;
 }
 
@@ -105,6 +117,11 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
           'info' => t('Poll AJAX'),
           'cache' => BLOCK_NO_CACHE,
         );
+        
+        $blocks['poll_views_ajax'] = array(
+          'info' => t('Poll Views AJAX (SP ONLY)'),
+          'cache' => BLOCK_NO_CACHE,
+        );
       }
       
       return $blocks;
@@ -123,18 +140,21 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
       
       return $form;
     case 'save':
-      switch ($delta) {
-        case 'poll_ajax':
-          variable_set('warnish_poll_ajax_block_refresh_time', $edit['refresh_time_minutes']);
-          break;
-      }
+      variable_set('warnish_'.$delta.'_block_refresh_time', $edit['refresh_time_minutes']);
       break;
     case 'view':
       switch ($delta) {
         case 'poll_ajax':
           $block = array(
             'subject' => t('Poll AJAX block.'),
-            'content' => warnish_get_poll_html_content(),
+            'content' => warnish_get_poll_ajax_content(),
+          );
+          break;
+          
+        case 'poll_views_ajax':
+          $block = array(
+            'subject' => t('Poll Views AJAX block.'),
+            'content' => warnish_get_poll_views_ajax_content(),
           );
           break;
       }
@@ -281,7 +301,7 @@ function warnish_get_status() {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function warnish_get_poll_html_content() {
+function warnish_get_poll_ajax_content() {
   $refresh_ms = variable_get('warnish_poll_ajax_block_refresh_time', 5) * 60 * 1000;
 
   drupal_add_js('
@@ -299,7 +319,37 @@ function warnish_get_poll_html_content() {
     	$("div#poll_ajax_content").html(poll_content);
     };
   ', 'inline');
-  return theme('poll_html_content');
+  return theme('poll_ajax_content');
+}
+
+/**
+ * Get content for the poll views AJAX block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function warnish_get_poll_views_ajax_content() {
+  $refresh_ms = variable_get('warnish_poll_views_ajax_block_refresh_time', 5) * 60 * 1000;
+
+  drupal_add_js('
+    $(document).ready(function(){
+    	getPoll();
+    	setInterval("getPoll()", '.$refresh_ms.');
+    });
+    
+    function getPoll() {
+      var poll_content = $.ajax({
+                						      url: "/content/pollajax-views?destination='.rawurlencode($_GET['q']).'",
+                						      cache: false,
+                						      async: false
+                						    }).responseText;
+    	$("div#poll_views_ajax_content").html(poll_content);
+    };
+  ', 'inline');
+  return theme('poll_views_ajax_content');
 }
 
 /**
@@ -308,11 +358,28 @@ function warnish_get_poll_html_content() {
  * @return
  *   HTML content.
  */
-function warnish_poll_ajax_content() {
+function warnish_poll_html_content() {
   $poll = array();
-  $poll = poll_block('view');
+  $poll = (object)poll_block('view');
+  $poll->module = 'warnish';
+  $poll->delta = 'poll_ajax';
+  $poll->cache = BLOCK_NO_CACHE;
 
-  print $poll['content'];
+  print theme('block', $poll);
+}
+
+/**
+ * Call a poll view and render it
+ */
+function warnish_poll_html_views_content() {
+  //@todo : clean this hardcoding
+  $view = views_get_view('spPollView');
+  $view->set_display('panel_pane_1');
+  $view->init_handlers();
+  $view->set_items_per_page(1);
+  $return = $view->render('panel_pane_1');
+  $view->destroy();
+  print $return;
 }
 
 /**
