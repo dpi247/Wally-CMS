@@ -81,7 +81,7 @@ class Prenode{
   }
   
   function getFormState($reset = FALSE) {
-    if(isset($this->form_state) && $reset == FALSE) {
+    if(isset($this->form_state) && $reset == FALSE && isset($this->form_state['type']) && !empty($this->form_state['type'])) {
       return $this->form_state;
     } else {
       return $this->setFormState($reset);
