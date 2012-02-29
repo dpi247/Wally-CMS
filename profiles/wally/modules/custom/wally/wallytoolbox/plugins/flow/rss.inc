@@ -75,13 +75,15 @@ function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
 }
 
 function wallytoolbox_rss_flow_build(&$feed_infos) {
+  $return_msg = 'RSS feed "@feed_name": ';
+  $return_substion = array('@feed_name' => $feed_infos['name']);
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
     set_error_handler('wallytoolbox_handle_errors');
-    
+
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
     $channels = $dom->getElementsByTagName('channel');
@@ -89,52 +91,54 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
     if ($rss_tags->item(0)) {
       $media_namespace = $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media');
       $channel_last_build = 0;
-  
+
       if ($channels->item(0)) {
         $sql_last_build = $feed_infos['last_build'];
         $feed_name = check_plain($feed_infos['name']);
         $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
-  
+
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
-          
+
           while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5'])) {
             $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
           }
           $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
           $new_feeds_md5 = array();
           $temp_struct_array = array();
-          
+
           foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
             $temp_struct_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $feed_infos);
-            
+
             $elem_package = $temp_struct_array;
             $elem_md5 = md5($elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'].$elem_package['MainStory']['TextBody']['value']);
-            if (!isset($feeds_md5[$elem_md5]))
+            if (!isset($feeds_md5[$elem_md5])) {
               $struct_array['Packages']['Package'][] = $temp_struct_array;
-            
+            }
+
             $new_feeds_md5[$elem_md5] = TRUE;
-            
+
             if (sizeof($struct_array['Packages']['Package']) >= $maxitem) break;
           }
-          
-          if (empty($struct_array['Packages']['Package']))
-            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No modifications for feed').' : '.check_plain($feed_infos['name']));
-          
+
+          if (empty($struct_array['Packages']['Package'])) {
+            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'No modifications', $return_substion));
+          }
+
           $feed_infos['feeds_md5'] = $new_feeds_md5;
         } else {
-          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Channel not rebuild for feed').' : '.check_plain($feed_infos['name']));
+          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'Channel not rebuild', $return_substion));
         }
       } else {
-        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No channel in the feed').' : '.check_plain($feed_infos['name']));
+        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No channel', $return_substion));
       }
     } else {
-      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('Your RSS feed (@feed_name) doesn\'t have a "rss" tag', array('@feed_name' => check_plain($feed_infos['name']))));
+      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No "rss" tag', $return_substion));
     }
   } else {
-    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t('No HTTP response for feed').' : '.$feed_infos['name']);
+    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No HTTP response', $return_substion));
   }
-  
+
   return $struct_array;
 }
 
@@ -226,34 +230,6 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
 }
 
 /**
- * Perform a recursive search in a media item for a desired element.
- * 
- * @param $media_content
- *   The item in which the first step search is performed.
- * @param $item
- *   The item in which the second step search is performed.
- * @param $channel
- *   The channel in which the third and last step search is performed.
- * @param $namespace
- *   Value of the namespace if used.
- * @param $name
- *   The name of the searched element.
- * 
- * @return
- *   The element value or ''.
- */
-function _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $namespace, $name) {
-  $return = _wallytoolbox_checkifelementexists($media_content, $name, $namespace);
-  if ($return == '') {
-    $return = _wallytoolbox_checkifelementexists($item, $name, $namespace);
-    if ($return == '') {
-      $return = _wallytoolbox_checkifelementexists($channel, $name, $namespace);
-    }
-  }
-  return $return;
-}
-
-/**
  * Get package available parameters from an RSS feed item domElement
  * and set an array item according to the structure defined in
  * Wallymport.
@@ -280,7 +256,7 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $array_item['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
   $array_item['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
-  $array_item['CommentsAllowed']['value'] = 'Disabled';
+  $array_item['CommentsAllowed']['value'] = variable_get('comment_wally_articlepackage', 0);
   $term = taxonomy_get_term($feed_destination[0]);
   $temp_dest = array();
   $temp_dest['DestinationRank'] = $feed_destination[3];
@@ -382,10 +358,11 @@ function wallytoolbox_rss_item_to_array_set_medias(&$array_item, $channel, $item
   $first_media = TRUE;
   foreach ($media_contents as $media_content) {
     $media_type = NULL;
-    if (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'image')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'image'))) {
-      if (@getimagesize($media_content->getAttribute('url')))
+    if (_wallytoolbox_rss_flow_check_is_image($media_content)) {
+      if (@getimagesize($media_content->getAttribute('url'))) {
         $media_type = 'photoobject';
-    } elseif (($media_content->getAttribute('type') && strstr($media_content->getAttribute('type'), 'video')) || ($media_content->getAttribute('medium') && strstr($media_content->getAttribute('medium'), 'video'))) {
+      }
+    } elseif (_wallytoolbox_rss_flow_check_is_video($media_content)) {
       if ($media_content->hasAttribute('url')) {
         $third_party_url = $media_content->getAttribute('url');
       } else {
@@ -646,6 +623,60 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
   $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+}
+
+/**
+ * Perform a recursive search in a media item for a desired element.
+ * 
+ * @param $media_content
+ *   The item in which the first step search is performed.
+ * @param $item
+ *   The item in which the second step search is performed.
+ * @param $channel
+ *   The channel in which the third and last step search is performed.
+ * @param $namespace
+ *   Value of the namespace if used.
+ * @param $name
+ *   The name of the searched element.
+ * 
+ * @return
+ *   The element value or ''.
+ */
+function _wallytoolbox_checkifmediaelementexists($media_content, $item, $channel, $namespace, $name) {
+  $return = _wallytoolbox_checkifelementexists($media_content, $name, $namespace);
+  if ($return == '') {
+    $return = _wallytoolbox_checkifelementexists($item, $name, $namespace);
+    if ($return == '') {
+      $return = _wallytoolbox_checkifelementexists($channel, $name, $namespace);
+    }
+  }
+  return $return;
+}
+
+function _wallytoolbox_rss_flow_check_is_image($media_content) {
+  if ($media_content->getAttribute('type') && stristr($media_content->getAttribute('type'), 'image')) {
+    return TRUE;
+  } elseif ($media_content->getAttribute('medium') && stristr($media_content->getAttribute('medium'), 'image')) {
+    return TRUE;
+  } elseif ($media_url = $media_content->getAttribute('url')) {
+    if (stristr($media_url,'.jpg') || stristr($media_url,'.jpeg') || stristr($media_url,'.gif') || stristr($media_url,'.png')) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+function _wallytoolbox_rss_flow_check_is_video($media_content) {
+  if ($media_content->getAttribute('type') && stristr($media_content->getAttribute('type'), 'video')) {
+    return TRUE;
+  } elseif ($media_content->getAttribute('medium') && stristr($media_content->getAttribute('medium'), 'video')) {
+    return TRUE;
+  } elseif ($media_url = $media_content->getAttribute('url')) {
+    //@todo : ajouter un check sur le format de la video, comme pour les images
+  }
+
+  return FALSE;
 }
 
 function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {

@@ -107,15 +107,14 @@ function wallyflowtonode_cron($flow_key = NULL) {
       // was not reset due to a database error.
       // Release cron semaphore
       variable_del('wallyflowtonode_cron_semaphore');
-    } else {
-      // Cron is still running normally.
     }
 
-    // Return FALSE and set error message;
-    if (strstr($_GET['q'], '/wally/'))
+    // Set error message;
+    if (strstr($_GET['q'], '/wally/')) {
       return array(t('The cron didn\'t run successfully because the semaphore wasn\'t free.'));
-    else
+    } else {
       print t('The cron didn\'t run successfully because the semaphore wasn\'t free.');
+    }
   } else {
     // Register shutdown callback
     register_shutdown_function('wallyflowtonode_cron_cleanup');
@@ -132,18 +131,12 @@ function wallyflowtonode_cron($flow_key = NULL) {
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
 
-    if (strstr($_GET['q'], '/wally/'))
+    if (strstr($_GET['q'], '/wally/')) {
       return $return;
-    else
+    } else {
       print_r($return);
+    }
   }
-}
-
-function flowid_to_arg($flow_id, $default){
-  if(!isset($flow_id))
-    return $default;
-  else 
-    return $flow_id;
 }
 
 /**
@@ -155,6 +148,13 @@ function wallyflowtonode_cron_cleanup() {
     // Release cron semaphore
     variable_del('wallyflowtonode_cron_semaphore');
   }
+}
+
+function flowid_to_arg($flow_id, $default){
+  if(!isset($flow_id))
+    return $default;
+  else 
+    return $flow_id;
 }
 
 /**
@@ -192,6 +192,9 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
 }
 
 function _wallyflowtonode_callonefeed(&$feed_infos) {
+  $return = 'Flow "@flow_name": ';
+  $return_substion = array('@flow_name' => $feed_infos['name']);
+  
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
     while(is_string($feed_infos['conf'])) {
@@ -203,7 +206,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
     $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
     $struct_array = $function($feed_infos);
 
-    if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
+    if (!empty($struct_array['Packages']['Package'])) {
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
       $file_name = $feed_infos['flow_key'].'_'.time();
@@ -224,19 +227,28 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
 
-        $text_to_return = $temp_return['error'] ? 'Import error ('.$temp_return['error_msg'].')' : 'Import done';
-        $text_to_return .= ' for file : '.$tempFile;
-        $return = $text_to_return;
+        $return .= $temp_return['error'] ? 'Import error (@error_msg)' : 'Import done';
+        $return .= ' for file : "@tmp_file"';
+        $return_substion['@tmp_file'] = $tempFile;
+        $return_substion['@msg'] = $temp_return['error_msg'];
       } else {
-        $return = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
+        if (is_string($valid_dom)) {
+          return $valid_dom;
+        } else {
+          $return .= 'Channel not rebuild';
+        }
       }
+    } elseif ($struct_array['Packages']['__log']['success']) {
+      $return .= 'Process succeed but no packages to import (@msg)';
+      $return_substion['@msg'] = $struct_array['Packages']['__log']['msg'];
     } else {
-      $return = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' : '.$struct_array['Packages']['__log']['msg'];
+      $return .= 'Packages building error (@msg)';
+      $return_substion['@msg'] = $struct_array['Packages']['__log']['msg'];
     }
   } else {
-    $return = t('No plugin for the flow').' : '.$feed_infos['name'];
+    $return .= 'No matching plugin';
   }
-  return $return;
+  return t($return, $return_substion);
 }
 
 /**
@@ -277,6 +289,12 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $destinations = $package->appendChild($valid_dom->createElement('Destinations'));
     $editions = $package->appendChild($valid_dom->createElement('Editions'));
     $chans = $package->appendChild($valid_dom->createElement('Channels'));
+    $comments_translate = array(
+      0 => 'Disabled',
+      1 => 'Read Only',
+      2 => 'Read-Write',
+    );
+    $package->appendChild($valid_dom->createElement('CommentsAllowed', $comments_translate[$array_valid_dom['Package']['CommentsAllowed'] ? $array_valid_dom['Package']['CommentsAllowed']['value'] : variable_get('comment_wally_articlepackage', 0)]));
     $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
     $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
     $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
