@@ -331,10 +331,17 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
 
   $empty = TRUE;
   $hook_is_empty = $field['module'].'_content_is_empty';
+  $check_double = array();
   foreach ($field_values as $delta => $field_value) {
     if (!$hook_is_empty($field_value, $field)) {
       $empty = FALSE;
-      break;
+      
+      if (!in_array($field_value['tid'].':'.$field_value['target'], $check_double)) {
+        $check_double[] = $field_value['tid'].':'.$field_value['target'];
+      } else {
+        $doubled_term = taxonomy_get_term($field_value['tid']);
+        form_error($element, t('Destinations error : the same destination path (@term_name) has been used more than once with the same target.', array('@term_name' => $doubled_term->name)));
+      }
     }
   }
 
@@ -1758,7 +1765,7 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
       } else {
         $defaults = array(
           'sort_method' => 'absolute',
-          'behavior' => 'bottom',
+          'behavior' => 'top',
           'reserved' => 5,
           'delta_t' => 1,
         );
@@ -1791,13 +1798,12 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
             'url' => FALSE,
           );
           $temp_results = array();
-          if ( wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $item['target'], array($item['tid']), $conf)){
-          
+          if (wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $item['target'], array($item['tid']), $conf)) {
             $view->execute();
             $temp_results = $view->result;
             $view->destroy();
           }
-          
+
           $current_results = array();
 
           foreach ($temp_results as $result) {

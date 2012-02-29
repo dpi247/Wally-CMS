@@ -45,7 +45,7 @@ function cckdestinations_page_admin_form($form_state) {
     foreach ($hierarchy['redacblocks'] as $redacblock) {
       $defaults = array(
         'sort_method' => 'absolute',
-        'behavior' => 'bottom',
+        'behavior' => 'top',
         'reserved' => 5,
         'delta_t' => 1,
       );
