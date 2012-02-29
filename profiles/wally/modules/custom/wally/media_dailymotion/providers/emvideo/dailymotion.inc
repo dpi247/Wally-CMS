@@ -80,7 +80,6 @@ function emvideo_dailymotion_data($field, $item) {
  *   otherwise, the calling function will handle testing the embed code against each regex string in the returned array.
  */
 function emvideo_dailymotion_extract($video_id = '') {
-
   $return = array();
   $allowed_urls = media_dailymotion_variable_get('allowed_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
@@ -89,15 +88,18 @@ function emvideo_dailymotion_extract($video_id = '') {
     if ($allowed_url && $allowed_url != '') {
       foreach ($delimiters as $delim) {
         if (!strstr($allowed_url, $delim)) {
+          $orig_allowed_url = $allowed_url;
           if (!strstr($allowed_url, 'http')) $allowed_url = 'http://'.$allowed_url;
-          $return[] = $delim.$allowed_url.'(.*)'.$delim.'i';
+          $allowed_url = addcslashes($allowed_url, '/.');
+          $allowed_url = str_replace('*', '(.*)', $allowed_url);
+          $return[] = $delim.'('.$allowed_url.')'.$delim.'i';
           break;
         }
       }
     }
     //print_r($return); exit();
     $temp_return = '';
-    $parsed_url = parse_url($allowed_url);
+    $parsed_url = parse_url($orig_allowed_url);
     if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
       $temp_return = '@'.$parsed_url['host'];
       if (isset($parsed_url['path']) && !empty($parsed_url['path'])) {
@@ -165,10 +167,9 @@ function emvideo_dailymotion_video($video_id, $width, $height, $field, $item, $n
  *  
  */
 function _emvideo_dailymotion_request($src_url){
-  preg_match('/\/video\/(.*)_/', $src_url,$urlT);
+  preg_match('/\/video\/(.*)/', $src_url, $urlT);
   $id = $urlT[1]; 
 
-  
   $embedly_result = array();
   $url = "http://www.dailymotion.com/services/oembed?url=$src_url&format=xml";
   $xml = simplexml_load_file($url);  
@@ -176,7 +177,7 @@ function _emvideo_dailymotion_request($src_url){
   $embedly_result = array(
    'version' => (string)$xml->version,
    'type' => (string)$xml->type, 
-   'video_id' =>$id,
+   'video_id' => $id,
    'provider_url' => (string)$xml->provider_url,
    'provider_name' => (string)$xml->provider_name,
    'title' => (string)$xml->title,
