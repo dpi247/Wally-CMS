@@ -400,7 +400,8 @@ function wallymport_page_importer_cron_logs($iid){
 */
 function wallymport_page_importer_logs($iid){
   $importer = wallymport_getimporter($iid);
-  $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC", $importer->name);
+  $count_tot = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs}"));
+  $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC LIMIT 0,500", $importer->name);
   $header = array(t('Date'), t('Filename'), t('Filelocation'), t('Success'), t('Message'));
   while ($obj = db_fetch_object($result)){
     $filepath = explode('/', $obj->location);
@@ -410,8 +411,12 @@ function wallymport_page_importer_logs($iid){
     if ($logs['error']){
       $success = 'FALSE';
     }
-    $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg']);
+    $extref = '';
+    if (isset ($logs['log']['extref'])){
+      $extref = ' External Rerefence : '.$logs['log']['extref'];
+    }
+    $rows[] = array(date('d/m/Y H:i:s', $obj->date), $filename, $obj->location, $success, $logs['error_msg'].$extref);
   }
-  drupal_set_message(t('@num_rows packages in the logs', array('@num_rows' => sizeof($rows))));
+  drupal_set_message(t('@num_rows packages in the logs (500 visible)', array('@num_rows' => $count_tot['COUNT(*)'])));
   return theme_table($header,$rows);
 }
