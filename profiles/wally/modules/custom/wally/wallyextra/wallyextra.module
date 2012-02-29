@@ -503,8 +503,11 @@ function _wallyextra_content_types_ajax_callback() {
   } else {
     $content = theme($default_theme, $subtype, $context, $datas, $settings);
   }
+
+  $styles = drupal_get_css();
+  $scripts = drupal_get_js();
   
-  print $content;
+  print $styles.$scripts.$content;
 }
 /**
  * Callback en ajax, renvoyant le formulaire voulu pour le custom content
