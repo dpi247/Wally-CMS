@@ -39,7 +39,7 @@ $my_dataS = spmeteo_getCachedData("meteo_saint");
     <td style="height:5px;" height="5"></td>
   </tr>
   <tr>
-    <td><a href="http://www1.actito.be/Actito4Media/res.action?c=&ms=Sudpresse_SPQuotidienne_LEADERBOARD&ep=##email##"> <img src="http://www1.actito.be/Actito4Media/res.action?v=&ms=Sudpresse_SPQuotidienne_LEADERBOARD&ep=##email##"/ border="0"></a></td>
+    <td><a href="http://www1.actito.be/Actito4Media/res.action?c=&ms=Sudpresse_SPQuotidienne_LEADERBOARD&ep=##email##"> <img src="http://www1.actito.be/Actito4Media/res.action?v=&ms=Sudpresse_SPQuotidienne_LEADERBOARD&ep=##email##" border="0"/></a></td>
   </tr>
   <tr>
     <td style="height:10px;" height="10"></td>
@@ -63,9 +63,9 @@ $my_dataS = spmeteo_getCachedData("meteo_saint");
                           </tr>
                         </table></td>
                       <td style="width:15px;">&nbsp;</td>
-                      <td style="width:160px;"><a href='http://ads.sudpresse.be/adclick.php?n=ada9251f' target='_blank'><img src='http://ads.sudpresse.be/adview.php?what=zone:435&amp;n=ada9251f' border='0' alt=''></a></td>
+                      <td style="width:160px;"><a href='http://ads.sudpresse.be/adclick.php?n=ada9251f' target='_blank'><img src='http://ads.sudpresse.be/adview.php?what=zone:435&amp;n=ada9251f' border='0' alt=''/></a></td>
                       <td style="width:15px;">&nbsp;</td>
-                      <td style="width:160px;"><a href='http://ads.sudpresse.be/adclick.php?n=a5dca502' target='_blank'><img src='http://ads.sudpresse.be/adview.php?what=zone:436&amp;n=a5dca502' border='0' alt=''></a></td>
+                      <td style="width:160px;"><a href='http://ads.sudpresse.be/adclick.php?n=a5dca502' target='_blank'><img src='http://ads.sudpresse.be/adview.php?what=zone:436&amp;n=a5dca502' border='0' alt=''/></a></td>
                     </tr>
                   </table></td>
               </tr>
