@@ -1038,6 +1038,7 @@ function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cr
  */
 function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
   $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
+  $form['#no_cache'] = TRUE;
 }
 
 /**
@@ -1229,20 +1230,8 @@ function _wallycontenttypes_update_crop_state_value($form, &$form_state) {
   // pour éviter de faire un node load à la construction du form
   if (isset($form_state['cache name'])) {
     if ($prenode = prenode_get($form_state['cache name'])) {
-      if ($form['#tree']) {
-        $crop_value = &$values['wally_photoobject']['field_croping'][0]['value'];
-      } else {
-        $crop_value = &$values['field_croping'][0]['value'];
-      }
-      if (isset($form_state['values']['parents'])) {
-        $parents = $form_state['values']['parents'];
-        foreach ($parents as $parent) {
-          $prenode = $prenode[$parent];
-        }
-      } else {
-        $prenode = $prenode['wally_photoobject'];
-      }
-      $crop_value = $prenode['#node']->field_croping[0]['value'];
+      $photo_prenode = wydit_get_target_from_parents($prenode, $form_state['parents']);
+      wydit_add_elem_at_target($values, $photo_prenode['#node']->field_croping[0]['value'], array_merge($form_state['parents'], array('field_croping', 0, 'value')));
     }
   } else {
     if ($node = node_load($values['nid'])) {
