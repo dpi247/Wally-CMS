@@ -111,9 +111,6 @@ function wallyedit_form_node_edition_form(&$form_state) {
   if ($current_form_state['action']) {
     $form['#action'] = $current_form_state['action'];
   }
-  if ($form[$type_name]['#no_cache']) {
-    $form['#no_cache'] = TRUE;
-  }
   
   if (!empty($prenode->locked)) {
     $form['#prefix'] = theme('wallyedit_lock', $prenode);

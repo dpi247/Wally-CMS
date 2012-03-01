@@ -35,16 +35,6 @@ function wallycontenttypes_menu() {
     'type' => MENU_CALLBACK,
   );
   
-  if (module_exists('wallyedit')) {
-    $items['admin/content/editcropwallyedit'] = array(
-      'title' => t('Edit croping for WallyEdit'), 
-      'description' => t('Edit croping for WallyEdit'), 
-      'page callback' => 'wallycontenttypes_editcropwallyedit', 
-      'access arguments' => array('administer nodes'), 
-      'type' => MENU_CALLBACK,
-    );
-  }
-  
   $items['admin/wally/wallycontenttypes/settings'] = array(
     'title' => t('Wally Content Types Settings'),
     'page callback' => 'drupal_get_form',
@@ -912,10 +902,12 @@ function wallycontenttypes_ajax_editcrop($nid_type, $nid, $js = NULL) {
   // If javascript is active, we have to use a render array.
   $commands = array();
   if ($output === FALSE || !empty($form_state['complete'])) {
+    drupal_get_messages();
     // Dismiss the modal.
     $commands[] = ctools_modal_command_dismiss();
   }
   else if (!empty($form_state['cancel'])) {
+    drupal_get_messages();
     // If cancelling, return to the activity.
     $commands[] = ctools_modal_command_dismiss();
   }
@@ -1052,57 +1044,6 @@ function wallycontenttypes_form_edit_crop_form_submit (&$form, &$form_state) {
 }
 
 /**
- * Edition of the cropings of a photo for the WallyEdit edition page.
- * 
- * @param string $temp_nid
- *   Temp ID of the node containing the photo being edited.
- * @param string $photo_path
- *   Drupal path of the photo being edited.
- * @param string $current_cropings
- *   Actual values of the cropings of this photo. Serialized with
- * json_encode().
- * 
- * @see http://deepliquid.com/blog/archives/category/jcrop
- *   Jcrop homepage.
- * 
- * @return
- *   HTML code of the image and the form containing the new values.
- */
-function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cropings = '') {
-  $node = node_load($nid);
-  $imgcropings = json_decode($current_cropings, TRUE);
-  $explimgcrops = array();
-  $defaultvalues = array();
-  
-  if ($imgcropings && !empty($imgcropings) && $imgcropings!="") {
-    foreach ($imgcropings as $presetname => $imgcroping) {
-      $tempexplcrop = array();
-      $tempexplcrop = $imgcroping;
-      $tempexplcrop[0] = $tempexplcrop[0];
-      $tempexplcrop[1] = $tempexplcrop[1];
-      $tempexplcrop[2] = $tempexplcrop[2];
-      $tempexplcrop[3] = $tempexplcrop[3];
-      $tempexplcrop[4] = round($tempexplcrop[2]/$tempexplcrop[3],2);
-      $explimgcrops[$presetname] = $tempexplcrop;
-    }
-  } else {
-    if (!empty($imgcropings)) drupal_set_message('Bad JSON encoding.',"error");
-  }
-
-  $usablecropsanddefaults = _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path);
-
-  $defaultvalues = $usablecropsanddefaults[0];
-  $usablecrops = $usablecropsanddefaults[1];
-  //_wallycontenttypes_savevaluesandredirect($node, $usablecrops);
-  $module_path = drupal_get_path('module', 'wallycontenttypes') .'/';
-  drupal_add_js($module_path .'scripts/editcrop/jquery.Jcrop.js');
-  drupal_add_css($module_path . 'css/editcrop/jquery.Jcrop.css', 'theme');
-  //drupal_add_js(_wallycontenttypes_jscodeforthecroping($usablecrops), 'inline');
-
-  return theme('wallyct_editcrop', $node->field_photofile[0]['filepath'], $defaultvalues);
-}
-
-/**
  * Add a Edit Crop link to form.
  * 
  * In case of Photo Object editing, we need to show a "edit crop"
@@ -1120,7 +1061,6 @@ function wallycontenttypes_editcropwallyedit($temp_nid, $photo_path, $current_cr
  */
 function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
   $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
-  $form['#no_cache'] = TRUE;
 }
 
 /**
