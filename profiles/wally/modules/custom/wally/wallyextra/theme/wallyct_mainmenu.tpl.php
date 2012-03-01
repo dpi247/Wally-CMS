@@ -67,15 +67,10 @@ if (!function_exists('wallyct_mainmenu_menu_item_link')) {
  * the menu "links" rendered.
  */
   function wallyct_mainmenu_menu_item_link($link) {
-    if ($link['link_path'] == 'http://#') {
-      $attributes['title'] = $link['description'];
-      $link_html = '<a'. drupal_attributes($attributes) .'>'. $link['title'] .'</a>';
-    }
-    else { 
-      // Omit alias lookups.
-      $link['localized_options']['alias'] = TRUE;
-      $link_html = '<a href="'. check_url(url($link['href'], $link['localized_options'])) .'">'. (!empty($link['localized_options']['html']) ? $link['title'] : check_plain($link['title'])) .'</a>'; 
-    }
+    
+    // Omit alias lookups.
+    $link['localized_options']['alias'] = TRUE;
+    $link_html = '<a href="'. check_url(url($link['href'], $link['localized_options'])) .'">'. (!empty($link['localized_options']['html']) ? $link['title'] : check_plain($link['title'])) .'</a>'; 
     return $link_html;
   }
 }
