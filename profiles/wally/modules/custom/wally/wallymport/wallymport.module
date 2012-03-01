@@ -678,7 +678,7 @@ function wallymport_post($importer_name){
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= theme('wallymport_logs', $return).$return['log']['content'].$js;
+    $content .= $js.theme('wallymport_logs', $return).$return['log']['content'];
   }
   print $content;
   
