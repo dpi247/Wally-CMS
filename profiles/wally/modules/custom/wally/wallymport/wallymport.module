@@ -668,20 +668,18 @@ function wallymport_post($importer_name){
     }
   }
   $js = '<script>
-			$("div.wallymport_result ul").hide();
-			$("div#wallyedit_preview h1").hide();
-			$("div.wallymport_result .logs").click(function(){
-  				$("div.wallymport_result ul").toggle();
-			});
-		</script>';
-  
+$("div.wallymport_result ul").hide();
+$("div#wallyedit_preview h1").hide();
+$("div.wallymport_result .logs").click(function(){
+  $("div.wallymport_result ul").toggle();
+});
+</script>';
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= $js.theme('wallymport_logs', $return).$return['log']['content'];
+    $content .= theme('wallymport_logs', $return).$return['content'].$js;
   }
   print $content;
-  
 }
 
 /**
