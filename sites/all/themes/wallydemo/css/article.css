@@ -539,3 +539,16 @@ blockquote.chapeau, /*archives*/
 #page_object.embed_text h1 {
 	line-height:27px;
 }
+#embedded_package{
+	padding: 10px;
+	background-color: #EDEDED;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	box-shadow: 0 2px 2px #858585;
+}
+#embedded_package div.bloc_sondage_results{
+	background-color: #EDEDED;
+}
+.clear{
+	clear: both;
+}

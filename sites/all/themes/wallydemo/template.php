@@ -109,7 +109,7 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
 function wallydemo_preprocess_page(&$vars){
 
   $domain_url = $_SERVER["SERVER_NAME"];
-  $domain = spdatastructure_getdomain($domain_url);
+  $domain = 'sudinfo';
   
   //ajoute un candidat template utilisé pour le contexte mobile
   if ($domain == "mobile"){
@@ -1474,9 +1474,13 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
   $videos = array();
   $audios = array();
   $digital = array();
+  $link = array();
+  $text = array();
   $embeddedObjects = $node->field_embededobjects_nodes;
   if ($node->type == "wally_articlepackage"){
     $data["mainObject"] = $embeddedObjects[0];
+  } elseif($node->type == 'wally_pollpackage'){
+    $data['mainObject'] = $node->field_embededobjects_nodes[0];
   } else {
 	$data["mainObject"] = $node->field_mainobject_nodes[0];
   }
@@ -1493,13 +1497,22 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
     	break;
       case "wally_digitalobject":
         array_push($digital, $embeddedObject);
-    	break;   	  
-    }    
+    	break;
+      case "wally_linktype":
+    	array_push($link, $embeddedObject);
+    	break;
+      case "wally_textobject":
+    	array_push($text, $embeddedObject);
+    	break;
+    	   
+    }
   }
   $data["photos"] = $photos;
   $data["videos"] = $videos;
   $data["audios"] = $audios;
   $data["digital"] = $digital;
+  $data['link'] = $link;
+  $data['text'] = $text;
   return $data;
 }
 
@@ -1698,7 +1711,7 @@ function wallydemo_menu_get_cache($menu_name){
 
 function _wallydemo_get_logo_data(){
   $domain_url = $_SERVER["SERVER_NAME"];
-  $domain = spdatastructure_getdomain($domain_url);
+  $domain = 'sudinfo';
   $settings = variable_get('theme_wallydemo_settings','theme_settings');
   $theme_path = drupal_get_path('theme','wallydemo');
   $data = array();

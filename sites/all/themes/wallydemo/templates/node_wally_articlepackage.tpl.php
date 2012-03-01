@@ -42,17 +42,17 @@
  * @see template_preprocess_node()
  */
 
+
 //drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/article.css','file','screen');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-article.js');
 
 $nodes = array();
-foreach ( $node->field_embededobjects_nodes as $n)
-{
-	node_build_content($n);
+foreach ( $node->field_embededobjects_nodes as $n){
+  node_build_content($n);
   drupal_render($n->content);
-	$nodes[] = $n; 
+  $nodes[] = $n; 
 }
 $node->field_embededobjects_nodes = $nodes;
 unset($nodes); 
@@ -62,7 +62,7 @@ $themeroot = drupal_get_path('theme', 'wallydemo');
 
 // Get the string name of the current domain
 $domain_url = $_SERVER["SERVER_NAME"];
-$domain = spdatastructure_getdomain($domain_url);
+$domain = 'sudinfo';
 
 // Get the node's main destination
 $mainDestination = $node->field_destinations[0]["tid"];
@@ -105,12 +105,12 @@ $theme_path = drupal_get_path('theme', 'wallydemo');
  */
 $photo = FALSE;
 $photoObject_path = "";
-if($node->type == "wally_articlepackage"){
+if ($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
 } else {  
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
-  if($mainstory_type == "wally_photoobject"){ 
+  if ($mainstory_type == "wally_photoobject"){ 
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $explfilepath = explode('/', $photoObject_path);
     $photoObject_size == $mainstory->field_photofile[0]['filesize'];
@@ -122,7 +122,7 @@ if($node->type == "wally_articlepackage"){
 if ($photoObject_path == ""){
   $embeded_objects = $node->field_embededobjects_nodes;
   $photoObject = wallydemo_get_first_photoEmbededObject_from_package($embeded_objects);
-  If ($photoObject) {
+  if ($photoObject) {
     $photoObject_path = $photoObject->field_photofile[0]['filepath'];
     $explfilepath = explode('/', $photoObject_path);
     $photoObject_size = $photoObject->field_photofile[0]['filesize'];
@@ -169,8 +169,8 @@ $package_signature = _wallydemo_get_package_signature($mainstory) ;
 
 $main_title = $mainstory->title;
 $chapeau = "";
-if(isset($strapline)){
-$chapeau = "<p class=\"chapeau\">" .$strapline ."</p>";
+if (isset($strapline)){
+  $chapeau = "<p class=\"chapeau\">" .$strapline ."</p>";
 }
 $texte_article = $mainstory->field_textbody[0]['value'];
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
@@ -183,36 +183,34 @@ drupal_add_css($themeroot . '/css/article.css');
 $nb_comment = $node->comment_count;
 //$nb_comment = $node->comment;
 if ($nb_comment == 0){
-	$reagir = "réagir";
+  $reagir = "réagir";
 }    
 else if ($nb_comment == 1){
-	$reagir = $nb_comment."&nbsp;réaction";
+  $reagir = $nb_comment."&nbsp;réaction";
 }    
 else {
-	$reagir = $nb_comment."&nbsp;réactions";
+  $reagir = $nb_comment."&nbsp;réactions";
 }
 
 
 $links = _wallydemo_get_sorted_links($node); 
 $links_html = "";
-foreach($links as $linksList){
-  if(isset($linksList["title"])){
+foreach ($links as $linksList){
+  if (isset($linksList["title"])){
     $list_titre = $linksList["title"];
     $links_html .= "<div class=\"bloc-01\"><h2>".$list_titre."</h2><div class=\"inner-bloc\"><ul>";
-    if(isset($linksList["links"])){
-	    foreach($linksList["links"] as $link){
-	//      dsm($link);
-	      $link_url = $link["url"];
-	      $link_title = $link["title"];
-	      $link_target = $link["target"];
-	      $link_type = $link["type"];
-	      if ($link["packagelayout"] == 'Article Wiki') {
+    if (isset($linksList["links"])){
+	  foreach($linksList["links"] as $link){
+	    $link_url = $link["url"];
+	    $link_title = $link["title"];
+	    $link_target = $link["target"];
+	    $link_type = $link["type"];
+	    if ($link["packagelayout"] == 'Article Wiki') {
 	      $links_html .= "<li class=\"media-dossier\">" ."<a class=\"novisited\" href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
-	      }
-	      else {
+	    } else {
 	      $links_html .= "<li class=\"media-press\">" ."<a href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
-	      }
 	    }
+	  }
     }
     $links_html .= "</ul></div></div>";
   }
@@ -222,187 +220,192 @@ $embeds = wallydemo_bracket_embeddedObjects_from_package($node);
 
 //print_r($embeds);
 //exit();
-if(is_array($embeds)){
-	$embeds_photos = array();
-	$embeds_videos = array();
-	$embeds_audios = array();
-	$embeds_digital = array();
+if (is_array($embeds)){
+  $embeds_photos = array();
+  $embeds_videos = array();
+  $embeds_audios = array();
+  $embeds_digital = array();
+  $embeds_link = array();
 	
-	foreach($embeds["photos"] as $photo){
-		$embed_photo = wallydemo_get_photo_infos_and_display($photo);
-		array_push($embeds_photos,$embed_photo);
-	}
-	foreach($embeds["videos"] as $video){
-	  $embed_video = wallydemo_get_video_infos_and_display($video);
-	  array_push($embeds_videos,$embed_video);
-	}
-	foreach($embeds["audios"] as $audio){
-	  $embed_audio = wallydemo_get_audio_infos_and_display($audio);
-	  array_push($embeds_audios,$embed_audio);
-	}
-	foreach($embeds["digital"] as $digital){
-	  $embed_digital = wallydemo_get_digitalobject_infos_and_display($digital);
-	  array_push($embeds_digital,$embed_digital);
-	}	
+  foreach ($embeds["photos"] as $photo){
+    $embed_photo = wallydemo_get_photo_infos_and_display($photo);
+    array_push($embeds_photos,$embed_photo);
+  }
+  foreach ($embeds["videos"] as $video){
+    $embed_video = wallydemo_get_video_infos_and_display($video);
+    array_push($embeds_videos,$embed_video);
+  }
+  foreach ($embeds["audios"] as $audio){
+    $embed_audio = wallydemo_get_audio_infos_and_display($audio);
+    array_push($embeds_audios,$embed_audio);
+  }
+  foreach ($embeds["digital"] as $digital){
+    $embed_digital = wallydemo_get_digitalobject_infos_and_display($digital);
+    array_push($embeds_digital,$embed_digital);
+  }
+  foreach ($embeds["link"] as $link){
+    array_push($embeds_link, $link);
+  }
+  //dsm($embeds_photos);
+  //dsm($embeds_videos);
+  //dsm($node);
+  //dsm($photoObject);
+  //dsm($links);
+
+  // Génération main bloc médias
+  // I -> on affiche l’image.
+  // V -> on affiche la vidéo top gauche et on place une image par défaut dans les flux.
+  // VI -> on affiche la vidéo top gauche, on place un navigateur media avec les vignettes VI.
+  // IV -> on affiche l’image top gauche et on place la vidéo en bas de l’article.
+  // VII -> on affiche la vidéo top gauche, on place un navigateur media avec les vignettes VII.
+  // IVV -> on affiche l’image top gauche et on place les vidéos l’une sur l’autre en bas de l’article.
 	
-	//dsm($embeds_photos);
-	//dsm($embeds_videos);	
-	//dsm($node);
-	//dsm($photoObject);
-	//dsm($links);
 	
-	// Génération main bloc médias	
-	// I -> on affiche l’image.
-	// V -> on affiche la vidéo top gauche et on place une image par défaut dans les flux.
-	// VI -> on affiche la vidéo top gauche, on place un navigateur media avec les vignettes VI.
-	// IV -> on affiche l’image top gauche et on place la vidéo en bas de l’article.
-	// VII -> on affiche la vidéo top gauche, on place un navigateur media avec les vignettes VII.
-	// IVV -> on affiche l’image top gauche et on place les vidéos l’une sur l’autre en bas de l’article.
+  //teste le besoin de créer une galerie medias
+  $galMedias = FALSE;
+  if (count($embeds_photos) > 1 || (count($embeds_photos) > 0 && $embeds["mainObject"]->type == 'wally_videoobject')){
+    $galMedias = TRUE;
+  }
 	
+  //calcul du nombre d'éléments affichés pour fixer la largeur de la div wrappAllMedia
+  $cpt = 0;
+  $widthMedias = 0;
+  if ($galMedias == TRUE){
+    if ($embeds["mainObject"]->type == 'wally_videoobject'){
+      $cpt++;
+    }
+    foreach($embeds_photos as $embed){
+      $cpt++;
+    }
+    $widthMedias = 300*$cpt;
+  }
 	
-	//teste le besoin de créer une galerie medias
-	$galMedias = FALSE;
-	if(count($embeds_photos) > 1 || (count($embeds_photos) > 0 && $embeds["mainObject"]->type == 'wally_videoobject')){
-		$galMedias = TRUE;
-	}
+  $mainObject_html = "";
+  $mainObject_html .= "<div class=\"allMedias\"><div class=\"wrappAllMedia\" style=\"width:".$widthMedias."px;\">";
 	
-	//calcul du nombre d'éléments affichés pour fixer la largeur de la div wrappAllMedia
-	$cpt = 0;
-	$widthMedias = 0;
-	if ($galMedias == TRUE){
-		if($embeds["mainObject"]->type == 'wally_videoobject'){ $cpt++; }
-		foreach($embeds_photos as $embed){ $cpt++; }
-		$widthMedias = 300*$cpt;
-	}
-	
-	$mainObject_html = "";
-	$mainObject_html .= "<div class=\"allMedias\"><div class=\"wrappAllMedia\" style=\"width:".$widthMedias."px;\">";
-	
-	switch($embeds["mainObject"]->type){
-		/*case "wally_digitalobject":
-			$mainObject_html .= $embeds_digital[0]["emcode"];
-			break;*/	    
-		case "wally_videoobject":
-					                       
-			
-		 if(stripos($embeds_videos[0]["emcode"], 'www.youtube.com') !== FALSE) {
-			 		$temp = 'height="350" width="425"';
-			 		$temp2 = 'width="425" height="350"';
-					$embeds_videos[0]["emcode"] = str_replace($temp, "height='200' width='300'", $embeds_videos[0]["emcode"]);
-					$embeds_videos[0]["emcode"] = str_replace($temp2, "height='200' width='300'", $embeds_videos[0]["emcode"]);
-			  } else {
-			   $embeds_videos[0]["emcode"] = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"',$embeds_videos[0]["emcode"]);
-			   $embeds_videos[0]["emcode"] = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"',$embeds_videos[0]["emcode"]);
-			  }
-			$mainObject_html .= "<a name=\"".$embeds_videos[0]['nid']."\" ></a>";
-			$mainObject_html .= "<div id=\"item".$embeds_videos[0]['nid']."\" class=\"item_media\">".$embeds_videos[0]["emcode"];
-			if($embeds_videos[0]["summary"] != ""){
-			$mainObject_html .= "<div class=\"pic_description\">".$embeds_videos[0]["summary"]."</div>";
-            }
-			$mainObject_html .= "</div>";
-			if(count($embeds_photos) > 0 ){
-			  foreach($embeds_photos as $embed){
+  switch($embeds["mainObject"]->type){
+     
+    case "wally_videoobject":
+      if (stripos($embeds_videos[0]["emcode"], 'www.youtube.com') !== FALSE) {
+        $temp = 'height="350" width="425"';
+        $temp2 = 'width="425" height="350"';
+        $embeds_videos[0]["emcode"] = str_replace($temp, "height='200' width='300'", $embeds_videos[0]["emcode"]);
+        $embeds_videos[0]["emcode"] = str_replace($temp2, "height='200' width='300'", $embeds_videos[0]["emcode"]);
+      } else {
+        $embeds_videos[0]["emcode"] = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"',$embeds_videos[0]["emcode"]);
+        $embeds_videos[0]["emcode"] = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"',$embeds_videos[0]["emcode"]);
+      }
+      $mainObject_html .= "<a name=\"".$embeds_videos[0]['nid']."\" ></a>";
+      $mainObject_html .= "<div id=\"item".$embeds_videos[0]['nid']."\" class=\"item_media\">".$embeds_videos[0]["emcode"];
+      if ($embeds_videos[0]["summary"] != ""){
+        $mainObject_html .= "<div class=\"pic_description\">".$embeds_videos[0]["summary"]."</div>";
+      }
+      $mainObject_html .= "</div>";
+      if (count($embeds_photos) > 0 ){
+        foreach ($embeds_photos as $embed){
           $mainObject_html .= "<div id=\"item".$embed['nid']."\" class=\"item_media\">".$embed["main_size"];
-          if($embeds_photos[0]["credit"] != ""){
+          if ($embeds_photos[0]["credit"] != ""){
             $mainObject_html .= "<p class=\"credit\">".$embed["credit"]."</p>";
           }
-          if(trim(strip_tags($embed["summary"])) != "") {
-          	
+          if (trim(strip_tags($embed["summary"])) != "") {
             $mainObject_html .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
           }
           $mainObject_html .= "</div>";
-        }	
-			}
-			break;
-			
-		/*	
-		case "wally_audioobject":
-      $mainObject_html .= "<div id=\"".$embeds_audio[0]['nid']."\">".$embeds_audios[0]["emcode"];
-      if($embeds_audios[0]["credit"] != ""){
-       $mainObject_html .= "<p class=\"credit\">".$embeds_audios[0]["credit"]."</p>";
+        }
       }
-		  $mainObject_html .= "</div>";
-			break;
-		*/
-				
-		case "wally_photoobject":
-			foreach($embeds_photos as $embed){
-//				$mainObject_html .= "<a name=\"".$embed['nid']."\" ></a>";
-				$mainObject_html .= "<div id=\"item".$embed['nid']."\" class=\"item_media\">".$embed["main_size"];
-				if($embed["credit"] != ""){
-				 $mainObject_html .= "<p class=\"credit\">".$embed["credit"]."</p>";
-				}
-				if(trim(strip_tags($embed["summary"])) != ""){
-				 $mainObject_html .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
-				}
-			  $mainObject_html .= "</div>";
-			}
-		  break;
-	}
-	
-	if(count($embeds_digital) > 0){
-		foreach($embeds_digital as $embed){
-		  //$mainObject_html .= "<div>".$embed['emcode']."</div>";
-		}
-	}	
-	/* 
-	//print_r($embeds_videos);
-	if(count($embeds_videos) > 0){
-		$mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Vidéos</h2><div class=\"inner-bloc\"><ul>";
-		foreach($embeds_videos as $embed){
-			$mainObject_html .="<li><a href=\"javascript:void(0)\"><img width=\"48\" height=\"32\" src=\"".$embeds_video[0]['thumbnail']."\"></a></li>";
-		}
-		$mainObject_html .= "</ul></div></div>";
-	}
-	*/
-	
-	// fin div wrappAllMedia et allMedias
-	$mainObject_html .= "</div></div>";
-	
-	if ($galMedias == TRUE){
-		$mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Médias</h2><div class=\"inner-bloc\"><ul class=\"mini-pagination\">";
-		if($embeds["mainObject"]->type == 'wally_videoobject'){
-			$mainObject_html .="<li><a href=\"#item".$embeds_videos[0]['nid']."\"><img width=\"48\" height=\"32\" src=\"".$embeds_videos[0]['thumbnail']."\"></a></li>";
-		}
-		foreach($embeds_photos as $embed){
-			$mainObject_html .="<li><a href=\"#item".$embed['nid']."\">\n\t".$embed['mini']."</a>\n</li>\n";
-		}
-		$mainObject_html .= "</ul></div></div>";
-	}
+      break;
+      	
+    case "wally_photoobject":
+      foreach ($embeds_photos as $embed){
+        //				$mainObject_html .= "<a name=\"".$embed['nid']."\" ></a>";
+        $mainObject_html .= "<div id=\"item".$embed['nid']."\" class=\"item_media\">".$embed["main_size"];
+        if ($embed["credit"] != ""){
+          $mainObject_html .= "<p class=\"credit\">".$embed["credit"]."</p>";
+        }
+        if (trim(strip_tags($embed["summary"])) != ""){
+          $mainObject_html .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
+        }
+        $mainObject_html .= "</div>";
+      }
+      break;
+  }
+
+  if (count($embeds_digital) > 0){
+    foreach($embeds_digital as $embed){
+      //$mainObject_html .= "<div>".$embed['emcode']."</div>";
+    }
+  }
+  /*
+   //print_r($embeds_videos);
+  if (count($embeds_videos) > 0){
+  $mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Vidéos</h2><div class=\"inner-bloc\"><ul>";
+  foreach($embeds_videos as $embed){
+  $mainObject_html .="<li><a href=\"javascript:void(0)\"><img width=\"48\" height=\"32\" src=\"".$embeds_video[0]['thumbnail']."\"></a></li>";
+  }
+  $mainObject_html .= "</ul></div></div>";
+  }
+  */
+
+  // fin div wrappAllMedia et allMedias
+  $mainObject_html .= "</div></div>";
+
+  if ($galMedias == TRUE){
+    $mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Médias</h2><div class=\"inner-bloc\"><ul class=\"mini-pagination\">";
+    if ($embeds["mainObject"]->type == 'wally_videoobject'){
+      $mainObject_html .="<li><a href=\"#item".$embeds_videos[0]['nid']."\"><img width=\"48\" height=\"32\" src=\"".$embeds_videos[0]['thumbnail']."\"></a></li>";
+    }
+    foreach ($embeds_photos as $embed){
+      $mainObject_html .="<li><a href=\"#item".$embed['nid']."\">\n\t".$embed['mini']."</a>\n</li>\n";
+    }
+    $mainObject_html .= "</ul></div></div>";
+  }
 	// Fin génération main bloc médias
 	
 	// Génération bloc médias vidéos affiché sous l'article
-	if(count($embeds_videos) > 0){
-    $cpt = 0;		
-		$bottomVideosBlock = "<div id=\"bottomVideos\">";
-		foreach ($embeds_videos as $embed){
+	if (count($embeds_videos) > 0){
+      $cpt = 0;		
+	  $bottomVideosBlock = "<div id=\"bottomVideos\">";
+	  foreach ($embeds_videos as $embed){
 		  // Si mainObject est une vidéo, il ne faut pas la réafficher ici
-		  if($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){ 
-		    $cpt++;
-		  	CONTINUE;
-		  }
-		  $bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
-		  $bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
-			if(trim(strip_tags($embed["summary"])) != ""){
-		  $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
-            }
-		  $bottomVideosBlock .= "</div>";
+		if ($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){ 
+		  $cpt++;
+		  CONTINUE;
 		}
+		$bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
+		$bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
+		if (trim(strip_tags($embed["summary"])) != ""){
+		  $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
+        }
+		$bottomVideosBlock .= "</div>";
+	  }
 	  $bottomVideosBlock .= "</div>";
 	}
-	// Fin génération bloc médias vidéos affiché sous l'article
+  // Fin génération bloc médias vidéos affiché sous l'article
 	
-	// Génération html médias digitaux affichés sous l'article
-	if(count($embeds_digital) > 0){
-		$bottomDigitalElements = "";
-		foreach ($embeds_digital as $embed){
-			$bottomDigitalElements .= "<a name=\"".$embed['nid']."\" ></a>";
-			$bottomDigitalElements .= "<div class=\"digital-".$embed["type"]."\">";
-			$bottomDigitalElements .= $embed["emcode"];
-			$bottomDigitalElements .= "</div>";
-		}
+  // Génération html médias digitaux affichés sous l'article
+  if (count($embeds_digital) > 0){
+	$bottomDigitalElements = "";
+	foreach ($embeds_digital as $embed){
+	  $bottomDigitalElements .= "<a name=\"".$embed['nid']."\" ></a>";
+      $bottomDigitalElements .= "<div class=\"digital-".$embed["type"]."\">";
+	  $bottomDigitalElements .= $embed["emcode"];
+  	  $bottomDigitalElements .= "</div>";
 	}
-	// Fin génération html médias digitaux affichés sous l'article
+  }
+  $html_embedpackages = '';
+  if (count($embeds_link) > 0){
+	foreach ($embeds_link as $emblink){
+	  if ($emblink->field_internal_link[0]['nid'] != NULL){
+	    //Package ours
+	    $package = node_load($emblink->field_internal_link[0]['nid']);
+	    $package = node_build_content($package);
+	    $html_embedpackages .= node_view($package);     
+	  } else {
+	    //lien embed
+	  }
+    }
+  }
+  // Fin génération html médias digitaux affichés sous l'article
 }	
 /*
  * Génération du breadcrumb
@@ -434,8 +437,7 @@ if ($htmltags != "" && $taxonomy != "20"){
 
 <div id="article"><?php echo $breadcrumb; ?>
   <ul class="liensutiles">
-    <li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?>
-</li>
+    <li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?></li>
     <li class="imprimer"><a href="javascript:window.print();"><img src="/<?php echo $theme_path; ?>/images/ico_imprimer2.gif" alt="Imprimer" title="Imprimer"  width="22" height="20" /></a></li>
     <li class="reagir"><a href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a> </li>
     <li class="facebook">
@@ -461,14 +463,30 @@ if ($htmltags != "" && $taxonomy != "20"){
     </li>
   </ul>
   <h1><?php print wallydemo_check_plain($main_title); ?></h1>
-  <div id="picture"> <?php print $mainObject_html; ?> <?php print $links_html; ?> </div>
-  <?php print $chapeau; ?> <?php print $signature; ?> <?php print $date_edition; ?> <?php print $texte_article; ?>
+  
+  <div id="picture">
+    <?php print $mainObject_html; ?>
+    <?php print $links_html; ?>
+  </div>
+  <?php 
+  print $chapeau; 
+  print $signature; 
+  print $date_edition; 
+  print $texte_article; 
+
+  if (isset($bottomVideosBlock)) print $bottomVideosBlock ; 
+  if (isset($bottomDigitalElements)) print $bottomDigitalElements ; 
+  
+  if ($html_embedpackages != ''):?>
+    <div class = "clear"></div>
+    <div id = "embedded_package">
+    <?php print $html_embedpackages;?>
+    </div>
+  <?php endif;?>
   <?php print $listTags; ?>
-  <?php if(isset($bottomVideosBlock)) print $bottomVideosBlock ; ?>
-  <?php if(isset($bottomDigitalElements)) print $bottomDigitalElements ; ?>
   <!-- FACEBOOK REACTIONS -->
-  <?php if($node->comment == 2) { ?>
-  <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>
+  <?php if ($node->comment == 2) { ?>
+    <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>
   <?php print theme("spreactions_facebook", $node_id, $socialSharingBaseUrl, $socialSharingDomainAndPathUrl, $socialSharingDomainAndPathUrl); ?>
   <?php } ?>
   <!-- Facebook social bar -->
