@@ -620,7 +620,7 @@ $("div.wallymport_result .logs").click(function(){
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
-    $content .= theme('wallymport_logs', $return).$return['log']['content'].$js;
+    $content .= theme('status_messages').theme('wallymport_logs', $return).$return['log']['content'].$js;
   }
   print $content;
 }
