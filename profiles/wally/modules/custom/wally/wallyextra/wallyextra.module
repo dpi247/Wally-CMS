@@ -190,6 +190,7 @@ function wallyextra_ctools_plugin_api($module, $api) {
 * Implementation of hook_form_alter
 */
 function wallyextra_form_alter(&$form, $form_state, $form_id) {
+  
   $access_forms = array('panels_edit_configure_access_test_form', 'ctools_access_ajax_edit_item');
   if (in_array($form_id, $access_forms)) {
     if ($form['#parameters'][1]['plugin']['name'] == 'planification') {
@@ -212,6 +213,7 @@ function wallyextra_form_alter(&$form, $form_state, $form_id) {
     drupal_set_message(t('Please use the "New custom content Versionable" content type instead of this one'), 'warning');
     
   }
+  
 }
 
 /**

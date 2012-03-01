@@ -240,6 +240,7 @@ function wallyextra_custom_version_content_type_admin_info($subtype, $conf) {
  * Returns an edit form for the custom type.
  */
 function wallyextra_custom_version_content_type_edit_form(&$form, &$form_state) {
+
   if (!db_table_exists('wallyextra_custom_content_version')){
     $form['warning'] = array(
       '#type'  => 'markup',
@@ -449,16 +450,14 @@ function wallyextra_custom_version_content_type_edit_form_submit(&$form, &$form_
       }
     }
   }
-  
   //Don't save version if it's a new reused content
-  if (!isset($form_state['values']['reusable'])){
-  
+  if (isset($form_state['values']['body'])){ 
     $row = new stdClass();
     $row->cid = $cid;
     $row->version = $version;
     $row->date = time();
     $row->settings = $form_state['conf'];
 
-  drupal_write_record('wallyextra_custom_content_version', $row);
+    drupal_write_record('wallyextra_custom_content_version', $row);
   }
 }
