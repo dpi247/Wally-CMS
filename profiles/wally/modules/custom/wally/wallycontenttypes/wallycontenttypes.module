@@ -178,6 +178,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage'){
         _wallycontenttypes_checkautopublish($node);
       }
+      break;
     case 'presave' : 
       if ($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
