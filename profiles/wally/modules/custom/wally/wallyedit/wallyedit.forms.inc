@@ -660,6 +660,10 @@ function wydit_form_submit_action_cancel_global($form_state) {
 }
 
 function wydit_form_submit_action_reset_global(&$form_state) {
+  // Store prenodes in a specific table so we can inspect them later
+  db_query("DELETE FROM {wallyedit_stored_prenodes} WHERE pid = '%s'", $form_state['cache name']);
+  db_query("INSERT INTO {wallyedit_stored_prenodes} (pid, created, data) VALUES ('%s', %d, %b)", $form_state['cache name'], time(), serialize($form_state));
+  // Clean the rest
   prenode_delete($form_state);
   $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   ctools_ajax_render($commands);

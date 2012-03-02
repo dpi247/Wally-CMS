@@ -992,6 +992,10 @@ function prenode_load($nid, $args) {
 function prenode_save(&$prenode) {
   // Let modules modify the prenode before it is saved to the database.
   wallyedit_invoke_prenodeapi($prenode, 'presave');
+
+  module_load_include('inc', drupal_get_path('module', 'wallyedit').'/includes/index_prenodes');
+  wallyedit_index_prenodes_set($prenode);
+
   if(function_exists('memcache_variable_set')) {
   	$day_in_memecache = 2;
   	$expire = $day_in_memecache*60*60*24;
@@ -1009,6 +1013,9 @@ function prenode_save(&$prenode) {
 function prenode_delete($prenode) {
   // Let modules reacts after the prenode is saved to the database
   wallyedit_invoke_prenodeapi($prenode, 'delete');
+  
+  module_load_include('inc', drupal_get_path('module', 'wallyedit').'/includes/index_prenodes');
+  wallyedit_index_prenodes_clear($prenode['cache name']);
 
   if(function_exists('memcache_variable_set')) {
   	cache_clear_all($prenode['cache name'], 'prenode');

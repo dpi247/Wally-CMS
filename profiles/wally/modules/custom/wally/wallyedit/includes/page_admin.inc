@@ -4,20 +4,19 @@ function wallyedit_page_admin($limit = 25) {
   global $custom_theme;
   $custom_theme = variable_get('admin_theme','rubik');
   
-  $count_query = "SELECT count(*) from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'";
-  $result = pager_query("SELECT * from {ctools_object_cache} where sid = '".session_id()."' AND obj = 'prenode'", $limit, 0, $count_query);
+  $count_query = "SELECT count(*) from {wallyedit_prenodes}";
+  $result = pager_query("SELECT * from {wallyedit_prenodes}", $limit, 0, $count_query);
   
   while($obj = db_fetch_object($result)) {
-    //$row['sid']=$obj->sid;
-    $temp_array = unserialize($obj->data);
-    $row['title'] = $temp_array[$temp_array['type']]['#node']->title;
-    $row['name'] = $obj->name;
-    $row['data'] = $temp_array[$temp_array['type']]['#node']->type;
-    $row['action_urls'] = l(t('Edit'), wydit_get_url_action('edit',$obj->name));
-    $row['action_urls'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete',$obj->name));
+    $row['title'] = $obj->title;
+    $row['id'] = $obj->pid;
+    $row['type'] = $obj->type;
+    $row['last_update'] = $obj->updated;
+    $row['action_urls'] = l(t('Edit'), wydit_get_url_action('edit', $obj->pid));
+    $row['action_urls'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete', $obj->pid));
     $rows[] = $row;
   }
-  $headers = array(t('Title'), 'nid', t('Type'), t('Action(s)'));
+  $headers = array(t('Title'), t('ID'), t('Type'), t('Last update'), t('Action(s)'));
   return theme('wallyedit_admin', $rows, $headers);
 }
 
