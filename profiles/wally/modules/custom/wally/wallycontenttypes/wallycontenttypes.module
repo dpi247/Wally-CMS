@@ -470,7 +470,7 @@ function wallycontenttypes_cron(){
       
       //node to publish
       if (strtotime($obj->field_embargodatetime_value) < time()){
-        if ($obj->status != 1){dsm('ccooc');
+        if ($obj->status != 1){
           $node = node_load(array('nid' => $obj->nid));
           node_publish_action($node);
           node_save($node);
