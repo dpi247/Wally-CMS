@@ -1483,7 +1483,6 @@ function wallydemo_displayembeddedlink($link, &$embeds_photo){
 }
 function wallydemo_getembeddedlinktype(&$embeddedObject){
   $type = 'link';
-  dsm($embeddedObject);
   if (preg_match('/www.youtube.com/i', $embeddedObject->field_link_item[0]['display_url']) != 0){
     $content ='<object style="height: 345px; width: 420px"><param name="movie" value="'.$link['display_url'].'" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="420" height="345"></object>';
     $type = 'video';
@@ -1517,6 +1516,7 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
   $digital = array();
   $link = array();
   $text = array();
+
   $embeddedObjects = $node->field_embededobjects_nodes;
   if ($node->type == "wally_articlepackage"){
     $data["mainObject"] = $embeddedObjects[0];
@@ -1527,6 +1527,7 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
   }
   foreach ($embeddedObjects as $embeddedObject){
     switch($embeddedObject->type){
+      
       case "wally_photoobject":
     	array_push($photos, $embeddedObject);
     	break;
@@ -1540,7 +1541,6 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
         array_push($digital, $embeddedObject);
     	break;
       case "wally_linktype":
-        
         $link_type = wallydemo_getembeddedlinktype($embeddedObject);
     	switch ($link_type){
     	  case 'link' : array_push($link, $embeddedObject);break;
@@ -1549,7 +1549,6 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
     	   
     	   
     	}
-        array_push($link, $embeddedObject);
     	break;
       case "wally_textobject":
     	array_push($text, $embeddedObject);
@@ -1571,7 +1570,7 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
  * 
  */
 function wallydemo_get_photo_infos_and_display($photoObject,$template="default"){
- dsm($photoObject);
+
   if ($photoObject->type == "wally_photoobject"){
     $photo = array();
     $photo["nid"] = $photoObject->nid;

@@ -246,7 +246,6 @@ if (is_array($embeds)){
   foreach ($embeds["link"] as $link){
     array_push($embeds_link, $link);
   }
-  dsm($embeds_photos);
   //dsm($embeds_photos);
   //dsm($embeds_videos);
   //dsm($node);
@@ -396,23 +395,19 @@ if (is_array($embeds)){
   	  $bottomDigitalElements .= "</div>";
 	}
   }
-  /*
   $html_embedpackages = '';
   if (count($embeds_link) > 0){
-  foreach ($embeds_link as $emblink){
-  if ($emblink->field_internal_link[0]['nid'] != NULL){
-  //Package ours
-  $package = node_load($emblink->field_internal_link[0]['nid']);
-  $package = node_build_content($package);
-  $html_embedpackages .= node_view($package);
-  } else {
-  //lien embed
-  $emblink->field_link_item[0]['nid'] = $emblink->nid;
-  $html_embedlink = wallydemo_displayembeddedlink($emblink->field_link_item[0], $embeds_photos);
+    
+    foreach ($embeds_link as $emblink){
+      if ($emblink->field_internal_link[0]['nid'] != NULL){
+        //Package ours
+        $package = node_load($emblink->field_internal_link[0]['nid']);
+        $package = node_build_content($package);
+        $html_embedpackages .= node_view($package);
+      } 
+    }
   }
-  }
-  }
-  */
+  
   // Fin génération html médias digitaux affichés sous l'article
 }	
 /*
