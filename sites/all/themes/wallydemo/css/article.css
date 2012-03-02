@@ -147,6 +147,7 @@ blockquote.chapeau, /*archives*/
 	float: left;
 	background: white;
 	overflow: hidden;
+	height: 200px;
 }
 #article #picture p {
 	margin: 0;

@@ -246,6 +246,7 @@ if (is_array($embeds)){
   foreach ($embeds["link"] as $link){
     array_push($embeds_link, $link);
   }
+  dsm($embeds_photos);
   //dsm($embeds_photos);
   //dsm($embeds_videos);
   //dsm($node);
@@ -259,14 +260,13 @@ if (is_array($embeds)){
   // IV -> on affiche l’image top gauche et on place la vidéo en bas de l’article.
   // VII -> on affiche la vidéo top gauche, on place un navigateur media avec les vignettes VII.
   // IVV -> on affiche l’image top gauche et on place les vidéos l’une sur l’autre en bas de l’article.
-	
-	
+
   //teste le besoin de créer une galerie medias
   $galMedias = FALSE;
   if (count($embeds_photos) > 1 || (count($embeds_photos) > 0 && $embeds["mainObject"]->type == 'wally_videoobject')){
     $galMedias = TRUE;
   }
-	
+
   //calcul du nombre d'éléments affichés pour fixer la largeur de la div wrappAllMedia
   $cpt = 0;
   $widthMedias = 0;
@@ -280,6 +280,8 @@ if (is_array($embeds)){
     $widthMedias = 300*$cpt;
   }
 	
+  
+  
   $mainObject_html = "";
   $mainObject_html .= "<div class=\"allMedias\"><div class=\"wrappAllMedia\" style=\"width:".$widthMedias."px;\">";
 	
@@ -345,7 +347,9 @@ if (is_array($embeds)){
   $mainObject_html .= "</ul></div></div>";
   }
   */
-
+  
+  
+  
   // fin div wrappAllMedia et allMedias
   $mainObject_html .= "</div></div>";
 
@@ -362,24 +366,24 @@ if (is_array($embeds)){
 	// Fin génération main bloc médias
 	
 	// Génération bloc médias vidéos affiché sous l'article
-	if (count($embeds_videos) > 0){
-      $cpt = 0;		
-	  $bottomVideosBlock = "<div id=\"bottomVideos\">";
-	  foreach ($embeds_videos as $embed){
+  if (count($embeds_videos) > 0){
+    $cpt = 0;		
+	$bottomVideosBlock = "<div id=\"bottomVideos\">";
+	foreach ($embeds_videos as $embed){
 		  // Si mainObject est une vidéo, il ne faut pas la réafficher ici
-		if ($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){ 
-		  $cpt++;
-		  CONTINUE;
-		}
-		$bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
-		$bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
-		if (trim(strip_tags($embed["summary"])) != ""){
-		  $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
-        }
-		$bottomVideosBlock .= "</div>";
+	  if ($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){ 
+		$cpt++;
+		CONTINUE;
 	  }
+	  $bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
+	  $bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
+	  if (trim(strip_tags($embed["summary"])) != ""){
+	    $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
+      }
 	  $bottomVideosBlock .= "</div>";
 	}
+	$bottomVideosBlock .= "</div>";
+  }
   // Fin génération bloc médias vidéos affiché sous l'article
 	
   // Génération html médias digitaux affichés sous l'article
@@ -392,19 +396,23 @@ if (is_array($embeds)){
   	  $bottomDigitalElements .= "</div>";
 	}
   }
+  /*
   $html_embedpackages = '';
   if (count($embeds_link) > 0){
-	foreach ($embeds_link as $emblink){
-	  if ($emblink->field_internal_link[0]['nid'] != NULL){
-	    //Package ours
-	    $package = node_load($emblink->field_internal_link[0]['nid']);
-	    $package = node_build_content($package);
-	    $html_embedpackages .= node_view($package);     
-	  } else {
-	    //lien embed
-	  }
-    }
+  foreach ($embeds_link as $emblink){
+  if ($emblink->field_internal_link[0]['nid'] != NULL){
+  //Package ours
+  $package = node_load($emblink->field_internal_link[0]['nid']);
+  $package = node_build_content($package);
+  $html_embedpackages .= node_view($package);
+  } else {
+  //lien embed
+  $emblink->field_link_item[0]['nid'] = $emblink->nid;
+  $html_embedlink = wallydemo_displayembeddedlink($emblink->field_link_item[0], $embeds_photos);
   }
+  }
+  }
+  */
   // Fin génération html médias digitaux affichés sous l'article
 }	
 /*
@@ -476,7 +484,9 @@ if ($htmltags != "" && $taxonomy != "20"){
 
   if (isset($bottomVideosBlock)) print $bottomVideosBlock ; 
   if (isset($bottomDigitalElements)) print $bottomDigitalElements ; 
-  
+  if ($html_embedlink != ''){
+    print $html_embedlink;
+  }
   if ($html_embedpackages != ''):?>
     <div class = "clear"></div>
     <div id = "embedded_package">
