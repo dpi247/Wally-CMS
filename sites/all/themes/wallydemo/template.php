@@ -1456,7 +1456,48 @@ function wallydemo_get_first_photoEmbededObject_from_package($embededObjects_arr
     return FALSE;
   }
 }
+/**
+ * Renvoi un lien embedd en html
+ * 
+ * @param $link
+ * L'objet lien
+ * 
+ * @return html
+ */
+function wallydemo_displayembeddedlink($link, &$embeds_photo){
+  $content = '';
 
+  
+  if (preg_match('/www.youtube.com/i', $link['display_url']) != 0){
+    $content ='<object style="height: 345px; width: 420px"><param name="movie" value="'.$link['display_url'].'" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="420" height="345"></object>';
+  }
+  if (preg_match('/(.jpeg|.jpg)/i', $link['display_url']) != 0){
+    $embeds_photo[] = array(
+      'mini' => '<img src="'.$link['display_url'].'" alt="" title="" class="" width="48" height="32" />', 
+      'nid' => $link['nid'],
+      'main_size' => '<img class = "imagecache imagecache-article_300x200" src="'.$link['display_url'].'" alt="" title="" class=""   width = "300"/>',
+    );
+  }
+  return $content;
+ 
+}
+function wallydemo_getembeddedlinktype(&$embeddedObject){
+  $type = 'link';
+  dsm($embeddedObject);
+  if (preg_match('/www.youtube.com/i', $embeddedObject->field_link_item[0]['display_url']) != 0){
+    $content ='<object style="height: 345px; width: 420px"><param name="movie" value="'.$link['display_url'].'" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="420" height="345"></object>';
+    $type = 'video';
+  }
+  if (preg_match('/(.jpeg|.jpg)/i', $embeddedObject->field_link_item[0]['display_url']) != 0){
+    $embeds_photo[] = array(
+        'mini' => '<img src="'.$link['display_url'].'" alt="" title="" class="" width="48" height="32" />', 
+        'nid' => $link['nid'],
+        'main_size' => '<img class = "imagecache imagecache-article_300x200" src="'.$link['display_url'].'" alt="" title="" class=""   width = "300"/>',
+    );
+    $type = 'photo';
+  }
+  return $type;
+}
 /**
  * 
  * Brackets the embeddedObjects to be displayed in the package template
@@ -1479,7 +1520,7 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
   $embeddedObjects = $node->field_embededobjects_nodes;
   if ($node->type == "wally_articlepackage"){
     $data["mainObject"] = $embeddedObjects[0];
-  } elseif($node->type == 'wally_pollpackage'){
+  } elseif ($node->type == 'wally_pollpackage'){
     $data['mainObject'] = $node->field_embededobjects_nodes[0];
   } else {
 	$data["mainObject"] = $node->field_mainobject_nodes[0];
@@ -1499,7 +1540,16 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
         array_push($digital, $embeddedObject);
     	break;
       case "wally_linktype":
-    	array_push($link, $embeddedObject);
+        
+        $link_type = wallydemo_getembeddedlinktype($embeddedObject);
+    	switch ($link_type){
+    	  case 'link' : array_push($link, $embeddedObject);break;
+    	  case 'video' : array_push($videos, $embeddedObject);break;
+    	  case 'photo' : array_push($photos, $embeddedObject);break;
+    	   
+    	   
+    	}
+        array_push($link, $embeddedObject);
     	break;
       case "wally_textobject":
     	array_push($text, $embeddedObject);
@@ -1521,29 +1571,37 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
  * 
  */
 function wallydemo_get_photo_infos_and_display($photoObject,$template="default"){
-  $photo = array();
-  $photo["nid"] = $photoObject->nid;
-  $photo["title"] = $photoObject->title;
-  $photo["type"] = $photoObject->type;
-  $photo['credit'] = $photoObject->field_copyright[0]['value'];
-  $photo['summary'] = $photoObject->field_summary[0]['value'];
-  $photo['fullpath'] = $photoObject->field_photofile[0]['filepath'];
-  $photo['size'] = $photoObject->field_photofile[0]['filesize'];
-  $photo['filename'] = $photoObject->field_photofile[0]["filename"];
-  $photo['filepath'] = $photoObject->field_photofile[0]["filepath"];
-  
-  switch ($template){
-	case "default":
-      $photo['main_size'] = "";
-      $photo['main_url'] = "";
-      $photo['mini'] = "";			
-	  if ($photo['size'] > 0){
-		    
-		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']); 
-		$photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
-		$photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
-	  }
-	  break;	
+ dsm($photoObject);
+  if ($photoObject->type == "wally_photoobject"){
+    $photo = array();
+    $photo["nid"] = $photoObject->nid;
+    $photo["title"] = $photoObject->title;
+    $photo["type"] = $photoObject->type;
+    $photo['credit'] = $photoObject->field_copyright[0]['value'];
+    $photo['summary'] = $photoObject->field_summary[0]['value'];
+    $photo['fullpath'] = $photoObject->field_photofile[0]['filepath'];
+    $photo['size'] = $photoObject->field_photofile[0]['filesize'];
+    $photo['filename'] = $photoObject->field_photofile[0]["filename"];
+    $photo['filepath'] = $photoObject->field_photofile[0]["filepath"];
+    
+    switch ($template){
+  	case "default":
+        $photo['main_size'] = "";
+        $photo['main_url'] = "";
+        $photo['mini'] = "";			
+  	  if ($photo['size'] > 0){
+  		    
+  		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']); 
+  		$photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
+  		$photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
+  	  }
+  	  break;	
+    }
+  } elseif ($photoObject->type == 'wally_linktype'){
+    $photo['nid'] = $photoObject->nid;
+    $photo['title'] = $photoObject->field_link_item[0]['title'];
+    $photo['type'] = $photoObject->type;
+    
   }
   return $photo;
 } 
