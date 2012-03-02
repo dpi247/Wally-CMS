@@ -1563,7 +1563,13 @@ function wallycontenttypes_delete_orphans_objects($node){
     }
   }
 }
-function _wallycontenttypes_checkautopublish($node){
+/**
+* Check if the node need to be publish or unpublish
+* @param: $node
+* The node
+* @return Nothing.
+*/
+function _wallycontenttypes_checkautopublish(&$node){
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
     db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
       
@@ -1574,6 +1580,9 @@ function _wallycontenttypes_checkautopublish($node){
       $node_temp->field_embargodatetime_value = $node->field_embargodatetime[0]['value'];
       $node_temp->field_unpublishdate_value = $node->field_unpublishdate[0]['value'];
       drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+    } elseif ($node->status == 1) {
+      $node->status = 0;
+      node_save($node);
     }
   }
 }
