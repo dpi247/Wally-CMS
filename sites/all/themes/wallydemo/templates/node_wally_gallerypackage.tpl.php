@@ -3,6 +3,8 @@
  *
  * 
  */
+$themeroot = drupal_get_path('theme', 'wallydemo');
+drupal_add_css($themeroot . '/css/gallery.css');
 $node_path = drupal_get_path_alias("/node/".$node->nid);
 $embededobjects = $node->field_embededobjects_nodes;
 array_unshift($embededobjects, $node->field_mainobject_nodes[0]);
@@ -72,14 +74,14 @@ drupal_add_js('
   	
   </ul>
   </div>
-  <div class="image_thumb">
-    <ul>
-      <?php foreach ($imgstory as $image) { ?>
-        <?php print theme('node', $image); ?>
-      <?php } ?>
-    </ul>
+  <div class="photos">
+    <?php foreach ($imgstory as $image):?>
+	  <div class="gallerie_photo">
+        <?php print theme('imagecache', 'divers_201x134',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
+  	  </div>
+    <?php endforeach;?>
   </div>
-  
+  <div class = "clear"></div>
   <div class="video_thumb">
     <ul>
       <?php foreach ($videostory as $video) { ?>
