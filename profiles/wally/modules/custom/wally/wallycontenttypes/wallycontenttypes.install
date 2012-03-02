@@ -162,3 +162,65 @@ function wallycontenttypes_update_6101(&$sandbox) {
   
   return $ret;
 }
+/**
+* Implementation of hook_update_N
+*/
+function wallycontenttypes_update_6102(){
+  $schema = drupal_get_schema('wallycontenttypes_temp_nodetopublish', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('wallycontenttypes_temp_nodetopublish')) {
+    db_create_table($ret, 'wallycontenttypes_temp_nodetopublish', $schema);
+  }
+
+  //Ajout du content field autopublish
+  $schema = drupal_get_schema('content_field_autopublish', TRUE);
+
+  if (!db_table_exists('content_field_autopublish')){
+    db_create_table($ret, 'content_field_autopublish', $schema);
+    $content = new stdClass();
+    $content->field_name = 'field_autopublish';
+    $content->type = 'text';
+    $content->global_settings = array('text_processing' => '0', 'max_length' => '255', 'allowed_values' => 'No
+Autopublish', 'allowed_values_php' => '');
+    $content->required = 1;
+    $content->multiple = 0;
+    $content->db_storage = 0;
+    $content->module = 'text';
+    $content->db_columns = array('value' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE));
+    $content->active = 1;
+    $content->locked = 0;
+    drupal_write_record('content_node_field', $content);
+
+    $content = new stdClass();
+    $content->field_name = 'field_autopublish';
+    $content->weight = 20;
+    $content->label = 'Autopublish';
+    $content->widget_type = 'optionwidgets_onoff';
+    $content->widget_settings = array('default_value' => array(0 => array('value' => 'No')), 'default_value_php' => NULL);
+    $content->display_settings = array(
+      'label' => array('format' => 'above', 'exclude' => 0), 
+      'teaser' => array('format' => 'default', 'exclude' => 0),
+      'full' => array('format' => 'default', 'exclude' => 0),
+    4 => array('format' => 'default', 'exclude' => 0),
+    2 => array('format' => 'default', 'exclude' => 0),
+    3 => array('format' => 'default', 'exclude' => 0),
+    );
+    $content->widget_module = 'optionwidgets';
+    $content->widget_active = 1;
+
+    $content->type_name = 'wally_articlepackage';
+    drupal_write_record('content_node_field_instance', $content);
+    $content->type_name = 'wally_gallerypackage';
+    drupal_write_record('content_node_field_instance', $content);
+
+    $result = db_query("SELECT n.nid, n.vid FROM {node} n WHERE (n.type = 'wally_articlepackage' OR n.type = 'wally_gallerypackage')");
+    while ($obj = db_fetch_object($result)){
+      $obj->field_autopublish_value = 'Autopublish';
+      drupal_write_record('content_field_autopublish', $obj);
+    }
+  }
+
+
+  return $ret;
+}
