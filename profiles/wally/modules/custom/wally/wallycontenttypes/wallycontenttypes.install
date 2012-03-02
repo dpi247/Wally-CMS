@@ -126,8 +126,65 @@ function _wallycontenttypes_uninstall_presets() {
 function wallycontenttypes_schema() {
   $schema = array();
   
+  $schema['wallycontenttypes_temp_nodetopublish'] = array(
+    'description' => 'Contains all the node where embargo date or unpublish date are the current date',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Nid',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'node status',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'field_embargodatetime_value' => array(
+        'description' => 'Embargo date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+  	  'field_unpublishdate_value' => array(
+        'description' => 'Unpublish date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('nid'),
+  );
+  $schema['content_field_autopublish'] = array(
+    'description' => 'Field autopublish',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'field_autopublish_value' => array(
+        'type' => 'varchar',
+        'length' => 255, 
+        'not null' => FALSE, 
+      ),
+    ),
+    'primary key' => array('vid'),
+  	'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
   return $schema;
 }
+
 
 function wallycontenttypes_update_6100(&$sandbox) {
   $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
