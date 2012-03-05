@@ -52,21 +52,10 @@ drupal_add_js('
 <h2><?php print $node->title ; ?></h2>
 <?php print $main_summary ; ?> <br/> 
 <?php print $main_desc ; ?>
-  <div class="main_image">
-    <?php print $file_img[0]; ?>
-      <div class="desc">
-        <a href="#" class="collapse">Close Me!</a>
-      </div>
-      <div class="block">
-            <h2><?php print $title_img[0]; ?></h2>
-				  <div class="date">
-					 Publié le <?php print date('d M Y', $imgstory[0]->created) ?>
-					 <span> // <?php print $destination_term; ?></span>
-				  </div>
-					<p> <?php print $summary[0] ?></p>
-          </div>
-  </div>
-  <div class="text_thumb">
+	
+	  <p><br/></p>
+	
+	<div class="text_thumb">
   <ul>
       <?php foreach ($textstory as $text) { ?>
         <?php print $text; ?>
@@ -74,6 +63,7 @@ drupal_add_js('
   	
   </ul>
   </div>
+  <p><br/><br/></p>
   <div class="photos">
     <?php foreach ($imgstory as $image):?>
 	  <div class="gallerie_photo">
