@@ -354,10 +354,6 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
     if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
     }
-  } else {
-    //Actual date + 10 years
-    $timestamps_10years = mktime(date('H'),date('i'),date('s'),date('n'),date('j'),(date('Y') + 10));
-    $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s", $timestamps_10years ));
   }
   $node->language = $dom_element->getAttributeNode("Language")->value;
   //jusque ici ok
