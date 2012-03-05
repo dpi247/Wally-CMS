@@ -1589,18 +1589,16 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
         $photo['main_url'] = "";
         $photo['mini'] = "";			
   	  if ($photo['size'] > 0){
-  		    
-  		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']); 
+  		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']);
   		$photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
   		$photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
   	  }
-  	  break;	
+  	  break;
     }
   } elseif ($photoObject->type == 'wally_linktype'){
     $photo['nid'] = $photoObject->nid;
     $photo['title'] = $photoObject->field_link_item[0]['title'];
     $photo['type'] = $photoObject->type;
-    
   }
   return $photo;
 } 
