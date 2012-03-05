@@ -396,17 +396,53 @@ if (is_array($embeds)){
 	}
   }
   $html_embedpackages = '';
-  if (count($embeds_link) > 0){
-    
-    foreach ($embeds_link as $emblink){
-      if ($emblink->field_internal_link[0]['nid'] != NULL){
-        //Package ours
-        $package = node_load($emblink->field_internal_link[0]['nid']);
-        $package = node_build_content($package);
-        $html_embedpackages .= node_view($package);
-      } 
+  if (count($node->embed_packages) > 0){
+    foreach ($node->embed_packages as $embpackage){
+      //Package ours
+      $html_embedpackages .= '<div class = "clear"></div><div id = "embedded_package">';
+      $html_embedpackages .= $embpackage;
+      $html_embedpackages .= '</div>';
+       
     }
   }
+  $html_embedlinks = '';
+  $link_picture = '';
+  $link_thumb = '';
+  $class_image = '';
+  $class_thumb = '';
+  if (count($node->embed_links) > 1){
+    foreach ($node->embed_links as $key => $emblink){
+      $link_picture .=  '<div id ="item'.$key.'" class = "item_media '.$class_image.'">';
+      $link_picture .= $emblink['image'];
+      $link_picture .= '</div>';
+      $link_thumb .= '<li class="'.$class_thumb.'">';
+      $link_thumb .= '<a href="#item'.$key.'">';
+      $link_thumb .= $emblink['thumb'];
+      $link_thumb .= '</a>';
+      $link_thumb .= '</li>';
+      $class_image = '';
+      $class_thumb = '';
+    }
+    $width = count($node->embed_links)*300;
+    $html_embedlinks .= '<div id="links">';
+    $html_embedlinks .= '<div class="allMedias">';
+    $html_embedlinks .= '<div class="wrappAllMedia" style="width:'.$width.'px;">';
+    $html_embedlinks .= $link_picture;
+    $html_embedlinks .= '</div>';
+    $html_embedlinks .= '</div>';
+    $html_embedlinks .= '<div class="bloc-01 pf_article">';
+    $html_embedlinks .= '<h2>Médias</h2>';
+    $html_embedlinks .= '<div class="inner-bloc">';
+    $html_embedlinks .= '<ul class="mini-pagination">';
+    $html_embedlinks .= $link_thumb;
+    $html_embedlinks .= '</ul>';
+    $html_embedlinks .= '</div>';
+    $html_embedlinks .= '</div>';
+    $html_embedlinks .= '</div>';
+   } elseif (count($node->embed_links) > 0){
+     $embed_link = array_pop($node->embed_links);
+     $html_embedlinks .= $embed_link['image'];
+   }
   
   // Fin génération html médias digitaux affichés sous l'article
 }	
@@ -479,16 +515,11 @@ if ($htmltags != "" && $taxonomy != "20"){
 
   if (isset($bottomVideosBlock)) print $bottomVideosBlock ; 
   if (isset($bottomDigitalElements)) print $bottomDigitalElements ; 
-  if ($html_embedlink != ''){
-    print $html_embedlink;
-  }
-  if ($html_embedpackages != ''):?>
-    <div class = "clear"></div>
-    <div id = "embedded_package">
-    <?php print $html_embedpackages;?>
-    </div>
-  <?php endif;?>
-  <?php print $listTags; ?>
+  
+  print $html_embedlinks;
+  
+  print $html_embedpackages;
+  print $listTags; ?>
   <!-- FACEBOOK REACTIONS -->
   <?php if ($node->comment == 2) { ?>
     <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>

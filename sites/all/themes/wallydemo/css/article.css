@@ -124,49 +124,60 @@ blockquote.chapeau, /*archives*/
 /* ------------------------ 1.3 Bloc Photo + articles liés ----------------------------*/
 
 .article_archive #wrap_illu, /*archives*/
-#article #picture {
+#article #picture,
+#article #links {
 	position:relative;
 	float: left;
 	padding-right: 10px;
 	width: 300px;
 }
+
 .article_archive #wrap_illu p { /*archives*/
 	margin:0;
 }
-#article #picture .allMedias {
+#article #picture .allMedias,
+#article #links .allMedias {
 	width: 300px;
 	background: white;
 	overflow: hidden;
 }
-#article #picture .wrappAllMedia object {
+#article #picture .wrappAllMedia object,
+#article #links .wrappAllMedia object {
 	width: 300px;
 	height: 200px;
 }
-#article #picture .wrappAllMedia .item_media {
+#article #picture .wrappAllMedia .item_media,
+#article #links .wrappAllMedia .item_media {
 	width: 300px;
 	float: left;
 	background: white;
 	overflow: hidden;
 	height: 200px;
 }
-#article #picture p {
+#article #picture p,
+#article #links p {
 	margin: 0;
 }
-#article #picture h2 {
+#article #picture h2,
+#article #links h2 {
 	color:#FFF;
 }
 .article_archive #wrap_illu img, /*archives*/
-#article #picture img {
+#article #picture img,
+#article #links img {
 	display: block;
 }
-#picture .bloc-01 ul, #picture .bloc-01{
+#picture .bloc-01 ul, #picture .bloc-01,
+#links .bloc-01 ul, #links .bloc-01{
 	padding-top: 0;
 	clear:both;
 }
-#picture .credit {
+#picture .credit,
+#links .credit {
 	display:none;
 }
-#picture .divCurrent .credit {
+#picture .divCurrent .credit,
+#links .divCurrent .credit {
 	display:block;
 	background: transparent url('../images/bg_noir_50pc.png');
 	color: #CCC;
@@ -180,7 +191,8 @@ blockquote.chapeau, /*archives*/
 	line-height:19px;
 }
 .article_archive #wrap_illu em.credit, /*archives*/
-#picture .pic_description, .article_archive #picture .credit {
+#picture .pic_description, .article_archive #picture .credit,
+#links .pic_description, .article_archive #links .credit {
 	padding: 3px 10px;
 	width: 280px;
 	background-color: #f0ecdf;
@@ -189,17 +201,21 @@ blockquote.chapeau, /*archives*/
 	display:block; /*archives*/
 	font-style:normal; /*archives*/
 }
-.article_archive #picture .credit {
+.article_archive #picture .credit
+.article_archive #links .credit {
 	display:block;
 }
-#picture .emvideo object {
+#picture .emvideo object,
+#links .emvideo object {
 	display:block;
 }
-#picture .pf_article {
+#picture .pf_article,
+#links .pf_article {
 	float:left;
 	margin-top:10px;
 }
-#picture .pf_article .inner-bloc {
+#picture .pf_article .inner-bloc,
+#links .pf_article .inner-bloc {
 	padding: 10px 0 0 10px;
 	clear:both;
 	float:left;
@@ -207,7 +223,8 @@ blockquote.chapeau, /*archives*/
 	width:290px;
 	background-color:#0F0F0F;
 }
-#picture .pf_article .inner-bloc li {
+#picture .pf_article .inner-bloc li,
+#links .pf_article .inner-bloc li {
 	padding: 0;
 	background:none;
 	margin: 0 9px 9px 0;

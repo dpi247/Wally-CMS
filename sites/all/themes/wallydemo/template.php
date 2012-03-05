@@ -110,6 +110,7 @@ function wallydemo_preprocess_node(&$vars) {
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
         if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
+          
           $item = array('embed' => $embed->field_link_item[0]['url']);
           $modules = array('emvideo', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
           foreach ($modules as $module) {
@@ -122,10 +123,28 @@ function wallydemo_preprocess_node(&$vars) {
               );
               $function = $module.'_field_formatter';
               $content = $function($field, $element['#item'], $element['#formatter'], $element['#node']);
+
+              //reduction de la taille
+              $content = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"', $content);
+              $content = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"', $content);
+              
+              if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
+                $thumb = '<img src= "'.$element['#item']['data']['thumbnail']['url'].'" width = "48" height = "32">';
+              } else {
+                $thumb = preg_replace('+width=("|\')([0-9]{3})?("|\')+','width="48"', $content);
+                $thumb = preg_replace('+height=("|\')([0-9]{3})?("|\')+','height="32"', $thumb);
+              }
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
+              $node->embed_links[$embed->nid] = array('image' => $content, 'thumb' => $thumb);
               break;
             }
           }
+        } elseif ($embed->field_internal_link[0]['nid'] != NULL){
+          $package = node_load($embed->field_internal_link[0]['nid']);
+          $package = node_build_content($package);
+          $content = node_view($package);
+          $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
+          $node->embed_packages[] = $content;
         }
       }
     }
@@ -1507,22 +1526,7 @@ function wallydemo_displayembeddedlink($link, &$embeds_photo){
   return $content;
  
 }
-function wallydemo_getembeddedlinktype(&$embeddedObject){
-  $type = 'link';
-  if (preg_match('/www.youtube.com/i', $embeddedObject->field_link_item[0]['display_url']) != 0){
-    $content ='<object style="height: 345px; width: 420px"><param name="movie" value="'.$link['display_url'].'" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="420" height="345"></object>';
-    $type = 'video';
-  }
-  if (preg_match('/(.jpeg|.jpg)/i', $embeddedObject->field_link_item[0]['display_url']) != 0){
-    $embeds_photo[] = array(
-        'mini' => '<img src="'.$link['display_url'].'" alt="" title="" class="" width="48" height="32" />', 
-        'nid' => $link['nid'],
-        'main_size' => '<img class = "imagecache imagecache-article_300x200" src="'.$link['display_url'].'" alt="" title="" class=""   width = "300"/>',
-    );
-    $type = 'photo';
-  }
-  return $type;
-}
+
 /**
  * 
  * Brackets the embeddedObjects to be displayed in the package template
@@ -1567,14 +1571,7 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
         array_push($digital, $embeddedObject);
     	break;
       case "wally_linktype":
-        $link_type = wallydemo_getembeddedlinktype($embeddedObject);
-    	switch ($link_type){
-    	  case 'link' : array_push($link, $embeddedObject);break;
-    	  case 'video' : array_push($videos, $embeddedObject);break;
-    	  case 'photo' : array_push($photos, $embeddedObject);break;
-    	   
-    	   
-    	}
+        array_push($link, $embeddedObjects);
     	break;
       case "wally_textobject":
     	array_push($text, $embeddedObject);
@@ -1610,21 +1607,17 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
     $photo['filepath'] = $photoObject->field_photofile[0]["filepath"];
     
     switch ($template){
-  	case "default":
+  	  case "default":
         $photo['main_size'] = "";
         $photo['main_url'] = "";
         $photo['mini'] = "";			
-  	  if ($photo['size'] > 0){
-  		$photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']);
-  		$photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
-  		$photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
-  	  }
-  	  break;
+  	    if ($photo['size'] > 0){
+  		  $photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],$photo['summary'],$photo['summary']);
+  		  $photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
+  		  $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],$photo['summary'],$photo['summary']); 
+  	    }
+  	    break;
     }
-  } elseif ($photoObject->type == 'wally_linktype'){
-    $photo['nid'] = $photoObject->nid;
-    $photo['title'] = $photoObject->field_link_item[0]['title'];
-    $photo['type'] = $photoObject->type;
   }
   return $photo;
 } 
