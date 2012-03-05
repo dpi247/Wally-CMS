@@ -149,32 +149,28 @@ function wallymport_menu() {
 /**
  * Implementation of hook_cron().
  */ 
-function wallymport_cron(){
-  $list = db_query('SELECT name, data FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%" AND updated < %d', time() - 3600);
-  $return = array();
-  while ($elem = db_fetch_array($list)) {
-    $data = unserialize($elem['data']);
-    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
-      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0]))
-        wallytoolbox_delete_photofile($embed->field_photofile[0]);
-    }
-    
-    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d', $elem['name']);
-    $return[] = 'Preview cache deleted for : '.$elem['name'].' on '.date('Y-m-d H:i:s', time());
+function wallymport_cron() {
+  $prev_cleanup_ret = wimprt_cron_previews_cleanup();
+  if (empty($prev_cleanup_ret)){
+    $prev_cleanup_ret[] = t('No preview prenodes deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
   }
-  if (empty($return)){
-    $return = 'No deletion done on '.date('Y-m-d H:i:s', time());
+  print_r($prev_cleanup_ret);
+  
+  $logs_cleanup_ret = wimprt_cron_logs_cleanup();
+  if (empty($logs_cleanup_ret)){
+    $logs_cleanup_ret[] = t('No logs deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
   }
-  print_r($return);
+  print_r($logs_cleanup_ret);
+
   //Run wallymport cron.
   if (db_table_exists('wallymport_importer')){
     //Sélectionne les importeurs dont leur exécutions remonte à plus longtemps par rapport à leur cron_frequency.
     $importer_to_process = db_query("SELECT wi.*
-    								 FROM {wallymport_importer} wi
-    								 WHERE wi.processed_by_cron = 1 
-    								 AND (SELECT ((wi2.cron_timestamp + wi2.cron_frequency))
-    								 	  FROM {wallymport_importer} wi2
-    								 	  WHERE wi.iid = wi2.iid) < %d", time());
+                                    FROM {wallymport_importer} wi
+                                    WHERE wi.processed_by_cron = 1 
+                                    AND (SELECT ((wi2.cron_timestamp + wi2.cron_frequency))
+                                    FROM {wallymport_importer} wi2
+                                    WHERE wi.iid = wi2.iid) < %d", time());
     while ($importer = db_fetch_object($importer_to_process)){
       $return = wallymport_check_process_folder($importer->name);
       if (!$return['error']){
@@ -889,6 +885,37 @@ function wallymport_getimporterbyname($name){
     }
   }
   return $importer;
+}
+
+/**
+ * Previews cleanup at cron
+ */
+function wimprt_cron_previews_cleanup() {
+  $list = db_query('SELECT name, data FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%" AND FROM_UNIXTIME(updated) < NOW( ) - INTERVAL 1 HOUR', time() - 3600);
+  $return = array();
+  while ($elem = db_fetch_array($list)) {
+    $data = unserialize($elem['data']);
+    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0]))
+      wallytoolbox_delete_photofile($embed->field_photofile[0]);
+    }
+
+    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d', $elem['name']);
+    $return[] = t('Preview cache deleted for : @elem_name on !date', array('@elem_name' => $elem['name'], '!date' => date('Y-m-d H:i:s', time())));
+  }
+  return $return;
+}
+
+/**
+ * Logs cleanup at cron
+ */
+function wimprt_cron_logs_cleanup() {
+  $return = array();
+  $removed_logs = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY"));
+  if (db_query("DELETE FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY") && $removed_logs['COUNT(*)'] > 0) {
+    $return[] = t('!num_logs logs removed.', array('!num_logs' => $removed_logs['COUNT(*)']));
+  }
+  return $return;
 }
 
 /**
