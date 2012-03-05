@@ -194,6 +194,25 @@ function wallytoolbox_ctools_plugin_api() {
 }
 
 /**
+ * Implementation of hook_emfield_providers().
+ */
+function wallytoolbox_emfield_providers($module, $provider = NULL) {
+  // We know this module only includes the main provider file, avoid needless
+  // PHP warnings.
+  if ($module == 'emimage' && (!isset($provider) || ($provider == 'custom_url'))) {
+    static $path;
+    // Cache the result for later.
+    if (!isset($path)) {
+      $found = drupal_system_listing("$provider\.inc$", drupal_get_path('module', 'emimage') ."/providers", 'name', 0);
+      if (is_array($found) && !empty($found)) {
+        $path = $found;
+      }
+    }
+    return $path;
+  }
+}
+
+/**
  * APPELLEE LORS DE ctools_plugin_load_includes()
  * pcq renseignée en tant que process dans wallytoolbox_ctools_plugin_flow()
  * qui elle même pour tous les plugins appelle ctools_plugin_process()
