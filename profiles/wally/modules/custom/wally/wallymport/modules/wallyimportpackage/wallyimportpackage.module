@@ -880,6 +880,7 @@ function wallyimportpackage_node_set_field_freeaccess(&$node, $dom, &$log, $impo
 *   Nothing
 */
 function wallyimportpackage_node_set_field_autopublish(&$node, $dom, &$log, $importer){
+
   if (wallytoolbox_toboolean($dom->nodeValue)){ 
     $node->field_autopublish[0]['value'] = "Autopublish";
   } else {
@@ -1663,7 +1664,7 @@ function wallyimportpackage_node_process_videoobjecttype(&$node, $dom, &$log, $i
  * @return
  *   A node object
  */
-function wallyimportpackage_node_create_or_load_digitalobjecttype($dom, &$log, $importer){
+function wallyimportpackage_node_create_or_load_multimediaobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_digitalobject';
   $node->wallymport_node = TRUE;
@@ -1694,7 +1695,7 @@ function wallyimportpackage_node_create_or_load_digitalobjecttype($dom, &$log, $
  * @return
  *   Nothing
  */
-function wallyimportpackage_node_process_digitalobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_node_process_multimediaobjecttype(&$node, $dom, &$log, $importer){
 
   $value = $dom->nodeValue;
   
