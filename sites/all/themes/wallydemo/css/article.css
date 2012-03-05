@@ -1,0 +1,572 @@
+/* Digest
+
+------------------------------
+
+1. Page article
+	1.1 Article
+	1.2 Breadcrumb + toolbar (aussi actif dans avec Page Wiki!)
+	1.3 Bloc Photo + articles liés
+	1.4 Termes associés
+	1.5 Bottom
+	1.6 Colonne 2
+	
+2. Page Wiki (dossiers)
+
+3. Info fiche
+
+4. Modal
+
+5. Pages object
+	5.1 Photo
+	5.2 Vidéo
+	5.3 Textes	
+	
+/* -----------------------------------------------------------------------------------*/
+/* -------------------------------- 1. Page article --------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+
+/* --------------------------------- 1.1 Article -------------------------------------*/
+
+.article_archive h3, /*archives*/
+#article h1 {
+	font-size: 27px;
+	clear: both;
+	margin: 10px 0 5px 0;
+}
+.article_archive h3, /*archives*/
+#article h1, #article h2, #commentaires h2 {
+	color: #000;
+	line-height: normal;
+}
+blockquote.chapeau, /*archives*/
+.article_archive p, /*archives*/
+#article p {
+	margin: 0 0 10px;
+	text-align: justify;
+}
+#content .plusdinfo {
+	background: url('../images/separator_horizontal4.gif') repeat-x top;
+	padding: 8px 0 0;
+	margin-top: 5px;
+}
+.pagearticle.col-01 {
+	width: 630px;
+	margin: 0 20px 0 10px;
+}
+blockquote.chapeau, /*archives*/
+.chapeau {
+	color: #000;
+	font-family:Arial, Helvetica, sans-serif; /*archives*/
+	font-size:12px; /*archives*/
+	font-style:normal; /*archives*/
+}
+.article_archive .st_signature, /*archives*/
+#article p.auteur {
+	color: #bfbfbf;
+	margin: 20px 0;
+}
+
+/* --------------------------- 1.2 Breadcrumb + toolbar -------------------------------*/
+
+#article p.fil_ariane {
+	margin-bottom:5px;
+}
+.liensutiles {
+    clear: both;
+    height: 20px;
+    padding: 5px 0;
+	background: url('../images/bg_liensutiles.gif') no-repeat left top;
+}
+.liensutiles li {
+	float:left;
+}
+.liensutiles .reagir {
+	background: url('../images/bg_reagir_left.png') no-repeat left top;
+	height: 20px;
+	margin: 0 10px 0 6px;
+}
+.liensutiles .reagir a {
+	display:block;
+	background: url('../images/bg_reagir_right.png') no-repeat right top;
+	line-height:14px;
+	margin-left:16px;
+	padding: 3px 7px 4px 4px;
+}
+.liensutiles .facebook {
+	margin-right:6px;
+}
+.facebook iframe {
+	min-width:160px !important;
+}
+.twitter {
+	margin: 0 7px 0 15px;
+}
+.twitter iframe {
+	width:112px !important;
+}
+#article .google #plusone, #article .google iframe, #article .google #___plusone_0, #wiki .google #plusone, #wiki .google iframe, #wiki .google #___plusone_0 {
+	width:70px !important; 
+}
+.liensutiles li.imprimer, .liensutiles li.envoyer {
+	float:right;
+}
+.liensutiles li.imprimer {
+	margin-right:10px;
+}
+.liensutiles li.envoyer {
+	margin:2px 7px 0 0;
+}
+.article_archive #sb  { /*archives*/
+	display:none;
+}
+
+/* ------------------------ 1.3 Bloc Photo + articles liés ----------------------------*/
+
+.article_archive #wrap_illu, /*archives*/
+#article #picture,
+#article #links {
+	position:relative;
+	float: left;
+	padding-right: 10px;
+	width: 300px;
+}
+
+.article_archive #wrap_illu p { /*archives*/
+	margin:0;
+}
+#article #picture .allMedias,
+#article #links .allMedias {
+	width: 300px;
+	background: white;
+	overflow: hidden;
+}
+#article #picture .wrappAllMedia object,
+#article #links .wrappAllMedia object {
+	width: 300px;
+	height: 200px;
+}
+#article #picture .wrappAllMedia .item_media,
+#article #links .wrappAllMedia .item_media {
+	width: 300px;
+	float: left;
+	background: white;
+	overflow: hidden;
+	height: 200px;
+}
+#article #picture p,
+#article #links p {
+	margin: 0;
+}
+#article #picture h2,
+#article #links h2 {
+	color:#FFF;
+}
+.article_archive #wrap_illu img, /*archives*/
+#article #picture img,
+#article #links img {
+	display: block;
+}
+#picture .bloc-01 ul, #picture .bloc-01,
+#links .bloc-01 ul, #links .bloc-01{
+	padding-top: 0;
+	clear:both;
+}
+#picture .credit,
+#links .credit {
+	display:none;
+}
+#picture .divCurrent .credit,
+#links .divCurrent .credit {
+	display:block;
+	background: transparent url('../images/bg_noir_50pc.png');
+	color: #CCC;
+	position: absolute;
+	top: 181px;
+	right:10px;
+	z-index: 99;
+	width: auto;
+	padding: 0 4px;
+	height:19px;
+	line-height:19px;
+}
+.article_archive #wrap_illu em.credit, /*archives*/
+#picture .pic_description, .article_archive #picture .credit,
+#links .pic_description, .article_archive #links .credit {
+	padding: 3px 10px;
+	width: 280px;
+	background-color: #f0ecdf;
+	color: #404040;
+	text-align:left;
+	display:block; /*archives*/
+	font-style:normal; /*archives*/
+}
+.article_archive #picture .credit
+.article_archive #links .credit {
+	display:block;
+}
+#picture .emvideo object,
+#links .emvideo object {
+	display:block;
+}
+#picture .pf_article,
+#links .pf_article {
+	float:left;
+	margin-top:10px;
+}
+#picture .pf_article .inner-bloc,
+#links .pf_article .inner-bloc {
+	padding: 10px 0 0 10px;
+	clear:both;
+	float:left;
+	border:0 none;
+	width:290px;
+	background-color:#0F0F0F;
+}
+#picture .pf_article .inner-bloc li,
+#links .pf_article .inner-bloc li {
+	padding: 0;
+	background:none;
+	margin: 0 9px 9px 0;
+	float:left;
+}
+	
+/* ------------------------------ 1.4 Termes associés ---------------------------------*/
+
+.tags {
+	border-bottom:1px dotted #CCC;
+	border-top:1px dotted #CCC;
+	padding: 3px 0;
+	margin-top:10px;
+}
+.tags h2 {
+	font-size:13px;
+	font-weight:normal;
+	display:inline;
+}
+
+
+/* --------------------------------- 1.5 Bottom ---------------------------------------*/
+
+.col-01.pagearticle .pub {
+	padding: 20px 0 0;
+}
+.bottomVideos, .digital-wally_digitalobject {
+	margin-top:20px;
+	border: 1px dotted #CCC;
+	padding:20px 0;
+	text-align:center;
+	clear:both;
+}
+#bottomVideos h2 {
+	font-size:18px;
+	padding-bottom: 5px;
+}
+#bottomVideos .pic_description {
+	text-align:center;
+	padding-top:5px;
+	margin:0;
+}
+#commentaires.bloc-01 {
+	background: transparent url('../images/bg_shadow4.gif') no-repeat center bottom;
+	margin-top: 20px;
+	clear:both;
+}
+#commentaires.bloc-01 .inner-bloc{
+	border: 1px solid #CCC;
+}
+#global #rubriques {
+	clear: both;
+}
+
+	
+/* ------------------------------- 1.6 Colonne 2 --------------------------------------*/
+
+.pagearticle.col-02 {
+	margin: 0;
+	padding: 0;
+}
+.recherche #recherche.text {
+	width: 230px;
+}
+.bloc-01 h2 a:link, .bloc-01 h2 a:visited {
+	color: white !important;
+}
+#standard .bloc-01.partenaire h2, #standard .bloc-01.partenaire h2 a {
+	padding:0;
+	height:46px;
+}
+#standard .bloc-01.partenaire h2 a {
+	background: #b6080c url('../images/bg_title_standard.gif') no-repeat 0 0;
+	display:block;
+}
+#standard .bloc-01.partenaire h2 span {
+	position:absolute;
+	top:-999px;
+}
+.bloc-01.partenaire .inner-bloc {
+	border: 1px solid #b6080c; 
+	border-top: none;
+}
+#elections_banniere, #banner_section {
+	padding-bottom: 10px;
+}
+
+/* -----------------------------------------------------------------------------------*/
+/* -------------------------------- 2. Wiki (dossiers) ------------------------------ */
+/* -----------------------------------------------------------------------------------*/
+
+#wiki {
+	width:940px;
+	margin: 0 0 20px 10px;
+}
+#wiki .publiele {
+	width:300px;
+	color:#999;
+	line-height:15px;
+}
+#wiki h1 {
+	font-size: 27px;
+	clear: both;
+	margin: 5px 0;
+	color: #000;
+	line-height: normal;
+}
+#wiki_listes h2 {
+	font-size:13px;
+	color:#000;
+	font-weight:normal;
+	background: url('../images/bg_h2_wiki.png') no-repeat 0 0;
+	padding-left:10px;
+	height:30px;
+	line-height:25px;
+}
+#wiki_listes .liens_wiki {
+	width:300px;
+	float:left;
+	margin: 0 15px 15px 0;
+	padding-top:5px;
+}
+#wiki_listes .liens_wiki ul {
+	padding-left:10px;
+}
+#wiki .chapeau {
+	color: #000;
+}
+#wiki .chapeau, #wiki .texte {
+    margin: 10px 0;
+}
+#wiki #picture {
+	width: 940px;
+}
+#wiki #picture p {
+	margin: 0;
+}
+#wiki #picture h2 {
+	color:#FFF;
+}
+#wiki #picture img {
+	display: block;
+}
+#wiki .liensutiles {
+	float:right;
+	width:630px;
+}
+
+
+/* -----------------------------------------------------------------------------------*/
+/* ----------------------------------- 3. Info fiche -------------------------------- */
+/* -----------------------------------------------------------------------------------
+
+#info_fiche .top {
+	background: transparent url('../images/bg_info_fiche1.gif') no-repeat center top;
+}
+#info_fiche {
+	background: transparent url('../images/bg_info_fiche2.gif') repeat-y center;
+	margin-bottom: 20px;
+}
+#info_fiche .bottom {
+	background: transparent url('../images/bg_info_fiche3.gif') no-repeat center bottom;
+	padding: 15px;
+}*/
+#info_fiche {
+	padding: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #CCC;
+}
+#info_fiche img {
+	float:left;
+	margin: 0 10px 5px 0;
+}
+#info_fiche .chapeau, #info_fiche h1 {
+	color:#000;
+	margin: 10px 0;
+}
+#info_fiche .texte_fiche p, #info_fiche .chapeau p {
+	text-align:justify;
+	margin: 5px 0;
+}
+#info_fiche .changed {
+	color:#999;
+}
+#info_fiche .bloc-01 {
+	background: none;
+	float:right;
+	width:140px;
+	margin: 0 0 10px 10px;
+	padding: 0 0 10px 10px;
+	border-left: 1px solid #CCC;
+	border-bottom: 1px solid #CCC;
+}
+#info_fiche .bloc-01 ul {
+    padding-top: 7px;
+}
+
+/* -----------------------------------------------------------------------------------*/
+/* ----------------------------------- 4. Modal ------------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+#modal-content {
+	height: 455px !important;
+	width:630px !important;
+}
+#modalContent div.ctools-modal-content .modal-header {
+	height: 23px;
+	line-height:23px;
+    background: url("../images/bg_modal-header.gif") repeat-x scroll 0 0 #000;
+	padding: 0 10px;
+}
+#modalContent div.ctools-modal-content .modal-title {
+	font-size: 13px;
+	font-weight: normal;
+}
+#modalContent div.ctools-modal-content a.close img {
+  position: absolute;
+  left:-2000px;
+}
+#modalContent .modal-header a {
+    background: url("../images/icon-close-window.png") no-repeat scroll right 3px  transparent;
+	padding-right:20px;
+}
+#modalContent div.ctools-modal-content .modal-content {
+	padding: 12px 0 10px 13px;
+}
+#modalContent #forward-form {
+	margin:0;
+	padding:0;
+}
+#modalContent .form-text, #modalContent div.ctools-modal-content .resizable-textarea {
+    width: 400px;
+}
+#modalContent div.ctools-modal-content .resizable-textarea {
+    margin-left: 200px;
+}
+#modalContent div.ctools-modal-content .form-item .description {
+	padding-left:200px;
+}
+#modalContent .form-item label {
+	color:#4D4C45;
+	text-align:right;
+	font-weight:normal;
+	border-top:1px dotted #ccc;
+    margin: -1px 10px 0 0;
+    width: 190px;
+}
+#modalContent html.js .resizable-textarea textarea {
+    height: 50px;
+}
+#modalContent #modal-content .form-item {
+	margin:0;
+	clear:both;
+	padding-bottom:2px;
+	line-height:20px;
+}
+#modalContent input {
+    margin-left: 200px;
+}
+#modalContent .form-item input {
+    margin-left: 0;
+}
+#modalContent .form-item a {
+	font-weight:bold;
+}
+.ctools-modal-content {
+	height:500px !important;
+}
+#modalContent #modal-content .form-textarea, #modalContent #modal-content .form-text {
+	font-family:Arial, Helvetica, sans-serif !important;
+	font-size:13px;
+}
+
+/* -----------------------------------------------------------------------------------*/
+/* ------------------------------- 5. Pages object ---------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+#page_object {
+	text-align:center;
+	padding:20px;
+	border: 1px dotted #CCC;
+}
+#page_object h1 {
+	margin:0;
+	line-height:100%;
+}
+#page_object img, #page_object object {
+	display:block;
+	margin: 0 auto;
+}
+#page_object p {
+	margin:10px 0 0;
+	text-align:center;
+}
+#page_object p.time {
+	margin-bottom:5px;
+}
+#page_object .copyright {
+	color: #CCC;
+	margin: 0 auto;
+}
+
+/* ---------------------------------- 5.1 Photo ------------------------------------- */
+
+#page_object.embed_photo .copyright {
+	background-color: #333;
+	text-align:right;
+	padding: 3px 7px;
+	width: 286px;
+}
+
+/* ---------------------------------- 5.2 Vidéo ------------------------------------- */
+
+#page_object.embed_video .copyright {
+    background: url("../images/bg_copy_embed_video.png") repeat-y scroll center center transparent;
+	padding: 3px 50px;
+	width: 200px;
+}
+
+/* ---------------------------------- 5.3 Textes ------------------------------------ */
+
+#page_object.embed_text, #page_object.embed_text p {
+	margin: 10px 0;
+	text-align:left;
+	line-height:normal
+}
+#page_object.embed_text {
+	padding:20px 20px 10px;
+}
+#page_object.embed_text h1 {
+	line-height:27px;
+}
+#embedded_package{
+	padding: 10px;
+	background-color: #EDEDED;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	box-shadow: 0 2px 2px #858585;
+}
+#embedded_package div.bloc_sondage_results{
+	background-color: #EDEDED;
+}
+.clear{
+	clear: both;
+}

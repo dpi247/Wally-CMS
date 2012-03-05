@@ -1,0 +1,1 @@
+<?php print theme('sptrafic_header');

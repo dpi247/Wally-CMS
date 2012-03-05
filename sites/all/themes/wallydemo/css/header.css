@@ -1,0 +1,445 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+#header a, #header a:visited {
+	border:none;
+	color: #003366;
+	text-decoration:none;
+}
+#header #block-pub-horizontal_top {
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+/*-------------------------- Top Header --------------------------------*/
+
+#top_header li {
+	float:left;
+}
+#top_header .titre_region {
+	color: #000;
+	height: 21px;
+}
+#top_header #s_titre {
+	font-family: Arial, Helvetica, sans-serif;
+	color:#999;
+	height: 20px;
+	margin-left:10px;
+	font-size:12px;
+}
+#top_header .titre_region, #top_header div.date {
+	margin-left:10px;
+}
+#top_header #s_titre option.edition {
+	padding-left:10px;
+	color: #0087C0;
+	margin-bottom:0;
+}
+#top_header #s_titre option.s_titre {
+	color: #E20031;
+}
+#top_header .date {
+	line-height:11px;
+	margin-bottom:5px;
+	font-size: 11px;
+	padding-bottom: 6px;
+	background: url("../images/separator_horizontal1.gif") repeat-x scroll left bottom transparent;
+	color:#999;
+}
+
+/* services */
+
+#header .services {
+	float: right;
+	font-size: 11px;
+	line-height: normal;
+	height:37px;
+}
+#header .services a:hover {
+	text-decoration: underline;
+}
+#header .widget_meteo {
+	padding: 7px 6px 0 0;
+	min-width:60px;
+}
+.services.widget_meteo img {
+	float: left;
+	margin-right: 5px;
+}
+.widget_meteo a {
+	float:right;
+}
+.widget_meteo .letemps {
+	white-space:nowrap; 
+}
+#header a .temp_min {
+	color: #00F;
+	font-weight: bold;
+}
+#header a .temp_max {
+	color: #F00;
+	font-weight: bold;
+}
+#header .widget_carburant, #header .widget_trafic {
+	padding: 7px 6px 0 7px;
+	max-width: 80px;
+	background: url('../images/separator_vertical3.gif') repeat-y scroll left center transparent;
+}
+#header .widget_carburant a {
+	background: url('../images/bg_carburant_header.png') no-repeat left 2px;
+	padding-left: 14px;
+	display:block;
+}
+#header .widget_trafic a {
+	background: url('../images/bg_trafic_header.png') no-repeat left 2px;
+	padding-left: 21px;
+	display:block;
+}
+#header .services.recherche_menu {
+	background: #f0f0f0;
+	padding: 9px 10px 0;
+	height:35px;
+}
+#header .services.recherche_menu label {
+	position:absolute;
+	left:-2000px;
+}
+#header .services.recherche_menu .form-item {
+	margin:0;
+}
+#header li.recherche_menu label {
+	font-size: 12px;
+}
+#header .services.recherche_menu #edit-apachesolr-panels-search-block-form-wrapper {
+	display:inline;
+}
+#header .recherche_menu .form-text {
+	width:90px;
+	color: #666;
+}
+#header .recherche_menu .loginbouton {
+	padding: 0px;
+}
+
+/*--------------------- barre de navigation ----------------------------*/
+
+div#navcontainer {
+	background: url('../images/bg_menu2.gif') no-repeat left 39px;
+	width: 960px;
+	height:85px;
+	clear:both;
+	margin:0;
+}
+#navcontainer ul {
+	margin-top:0;
+	font-size:13px;
+	line-height:16px;
+	list-style:none;
+}
+#navcontainer li {
+	list-style:none;
+	margin-bottom:0;
+}
+:focus {
+	outline:0;
+}
+.clearfix {
+	display:block;
+}
+* html .clearfix {
+	height:1%;
+}
+.clearfix:after {
+	clear:both;
+	content:' ';
+	display:block;
+	font-size:0;
+	line-height:0;
+	visibility:hidden;
+	width:0;
+	height:0;
+}
+
+/*--------------------- 1er, 2ème & 3ème niveau ----------------------------*/
+
+#navcontainer .sf-menu {
+	z-index:100;
+	width:100%;
+	position:relative;
+	height: 63px;
+	padding-bottom:0;
+	float:left;
+}
+#navcontainer .sf-menu ul {
+	position:absolute;
+	top:-999em;
+	width:10em;
+}
+#navcontainer .sf-menu a, #navcontainer .sf-menu a:visited {
+	border:none;
+	color: #003366;
+	font-size:1.2em;
+	text-decoration:none;
+	display:block;
+	position:relative;
+}
+
+/*--------------------- 1er niveau ----------------------------*/
+
+#navcontainer ul.sf-menu {
+	top:6px;
+}
+#navcontainer .sf-menu li {
+	background: url('../images/bg_menu.gif') repeat-x;
+	float:left;
+	border-left: solid 1px #CCC;
+	border-right: solid 1px #CCC;
+	border-top: solid 1px #CCC;
+	position:static;
+	display:inline;
+	margin-right:6px;
+}
+#navcontainer .sf-menu li:hover, #navcontainer .sf-menu li.sfHover, #navcontainer .sf-menu li.sfHover a, #navcontainer .sf-menu a:focus, #navcontainer .sf-menu a:hover, #navcontainer .sf-menu a:active, #navcontainer .sf-menu li.current, #navcontainer .sf-menu li.current a {
+	background: url('../images/bg_menu_hover.gif') no-repeat left top #000;
+	outline:0;
+	color:#FFF;
+}
+#navcontainer .sf-menu li.sfHover, #navcontainer .sf-menu li.current {
+	border-left: solid 1px #003365;
+	border-top: solid 1px #003365;
+	border-right: solid 1px #003365;
+}
+#navcontainer .sf-menu li.first_level a {
+	font-weight:bold;
+	margin-right:0;
+	padding:8px 17px 8px;
+	border:0;
+}
+#navcontainer .sf-menu li.backtohome, #navcontainer .sf-menu li.backtohome a, #navcontainer .sf-menu li.myhomepage, #navcontainer .sf-menu li.myhomepage a {
+	background: none;
+	border: none 0;
+}
+#navcontainer .sf-menu li.backtohome, #navcontainer .sf-menu li.backtohome a {
+	text-indent:-999px;
+	background:url('../images/ico_home.png') no-repeat 9px 9px;
+	width:34px;
+	height:33px;
+	padding:0;
+	margin:0;
+}
+#navcontainer .sf-menu li.first_level.backtohome a:hover, #navcontainer .sf-menu li.myhomepage a:hover {
+	color: #003366;
+	text-decoration:underline;
+}
+#navcontainer .sf-menu li.first_level.backtohome a {
+	padding:0;
+}
+#navcontainer li.myhomepage {
+	float:right;
+	padding:15px 10px 0 0;
+}
+#navcontainer li.myhomepage a, #navcontainer li.myhomepage a:visited {
+	font-size:0.9em;
+}
+
+/*--------------------- 2ème niveau ----------------------------*/
+
+#navcontainer .sf-menu li ul.sf-submenu {
+	width:960px;
+	left:0;
+}
+#navcontainer .sf-menu > li > ul {
+	padding:0;
+}
+#navcontainer .sf-menu li:hover ul, #navcontainer .sf-menu li.sfHover ul, #navcontainer .sf-menu li.current ul {
+	top:33px;
+	z-index:99;
+}
+#navcontainer .sf-menu li.first_level li a.sf-with-ul {
+/*	padding-right:25px;*/
+}
+#navcontainer .sf-menu li.first_level li a, #navcontainer .sf-menu li.first_level li a:hover {
+/*	background: url('../images/separator_vertical4.gif') no-repeat right 10px;*/
+}
+#navcontainer .sf-menu li.first_level li a.toplast {
+	background-image: none;
+}
+
+/* flêche vers le bas (sf-sub-indicator) */
+
+.sf-menu .sf-sub-indicator {
+	background:url('../images/arrow_menu.png') no-repeat left top;
+	display:block;
+	position:absolute;
+	top:22px;
+	right: 1px;
+	width:7px;
+	height:7px;
+	text-indent: -999em;
+	overflow:hidden;
+}
+.sf-menu a:hover .sf-sub-indicator {
+ 	background-position: -7px top; 
+}
+.sf-menu ul a > .sf-sub-indicator {
+/*    background-position: 0 0;
+    right: 1px;
+    top: 22px; */
+}
+.sf-menu ul a:focus > .sf-sub-indicator, .sf-menu ul a:hover > .sf-sub-indicator, .sf-menu ul a:active > .sf-sub-indicator, .sf-menu ul li:hover > a > .sf-sub-indicator, .sf-menu ul li.sfHover > a > .sf-sub-indicator, .sf-menu ul li.current > a > .sf-sub-indicator {
+/* 	background-position: 7px top; */
+}
+.sf-menu li span.sf-sub-indicator {
+	display:none;
+}
+.sf-menu li li span.sf-sub-indicator {
+	display:block;
+}
+
+/*--------------------- 2ème & 3ème niveau ----------------------------*/
+
+#navcontainer .sf-menu li li {
+	width:auto;
+	margin-right:0;
+	position: relative;
+	border:none 0px;
+}
+#navcontainer .sf-menu li.first_level li a {
+	font-weight:normal;
+	font-size:12px;
+	margin-right:0;
+	padding: 7px 9px;
+	border: none 0px;
+	background:url("../images/bg_menu_right.png") no-repeat scroll right top transparent;
+}
+#navcontainer .sf-menu li.li_etroit.first_level li a {
+	padding: 7px 6px;
+}
+#navcontainer .sf-menu li.first_level li {
+	border: none 0px;
+	background: url("../images/bg_menu_left.png") no-repeat scroll left top transparent;
+}
+#navcontainer .sf-menu li.first_level li a:visited {
+	border: none 0px;
+	font-weight:normal;
+	font-size:1em;
+}
+#navcontainer .sf-menu li li a:hover {
+	text-decoration:underline;
+}
+
+/*----------- 3ème niveau -------------*/
+
+#navcontainer .sf-menu li:hover ul ul, #navcontainer .sf-menu li.sfHover ul ul, #navcontainer .sf-menu li.current ul ul {
+    top: 29px;
+    z-index: 99;
+}
+#navcontainer .sf-menu li li ul {
+	background:url('../images/shadow_topmenu.png') no-repeat bottom right;
+	padding:3px 8px 13px 0;
+}
+#navcontainer .sf-menu li.current li ul {
+	display:none;
+}
+#navcontainer .sf-menu li.first_level li li a, #navcontainer .sf-menu li.li_etroit.first_level li li a, #navcontainer .sf-menu li.first_level li li a:visited, #navcontainer .sf-menu li.first_level li li a:hover {
+	background:none;
+	padding: 0px 5px 4px 10px;
+	font-size:1em;
+	color: #CCC;
+}
+#navcontainer .sf-menu li.first_level li li {
+	background:none;
+	padding:0;
+	width:100%;
+}
+
+/*----------- VOO -------------*/
+
+#navcontainer .sf-menu li.first_level.partner_enable {
+	display:none;
+}
+
+#navcontainer .sf-menu li.first_level.partner_disable {
+	border: 0 none;
+	float:right;
+}
+#navcontainer .sf-menu li.first_level.partner_disable a {
+	color: #DD197A !important;
+	font-size:12px;
+	font-weight:normal;
+}
+#navcontainer .sf-menu li.first_level.partner_disable a {
+    background: #FFF url(../mediastore/voo/disable.gif) no-repeat left 11px;
+	padding: 10px 0 0 20px;
+}
+#navcontainer .sf-menu li.first_level.partner_disable a:hover {
+	text-decoration:underline;
+	color:#000 !important;
+}
+
+/*--------------------- Editions ----------------------------*/
+
+
+/*---------- dans le menu principal 2ème niveau -------------*/
+
+#navcontainer .sf-menu li.menu_edition.first_level ul {
+	padding-left: 2px;
+}
+#navcontainer .sf-menu li.menu_edition.first_level li a, #navcontainer .sf-menu li.menu_edition.first_level li a:hover {
+	background: url('../images/separator_vertical4.gif') no-repeat right 11px;
+	padding: 8px 5px 8px 4px;
+}
+.sf-menu .menu_edition .sf-sub-indicator {
+	background: none;
+}
+
+/*---------------- dans la page d'édition --------------------*/
+
+.pane-mainmenusp {position: relative;}
+#special-nav {
+	float: left;
+	width: 960px;
+	margin-bottom: 10px;
+	position: absolute;
+	top: 39px;
+	left: 0;
+	z-index: 999;
+}
+#special-nav ul {
+	background:url('../images/bg_menu_edition2.png') repeat-x left top;
+	width:960px;
+}
+#special-nav li.sf-breadcrumb {
+	background:url('../images/bg_menu_hover.gif') repeat-x top;
+}
+
+#special-nav li.second
+{
+  background: url('../images/bg_menu_edition2_first.png') no-repeat left top;
+  padding-left: 45px;
+}
+	
+#special-nav li:nth-child(2)
+{
+	background: url('../images/bg_menu_edition2_first.png') no-repeat left top;
+	padding-left: 45px;
+}
+#special-nav ul, #special-nav li {
+	float:left;
+	height: 30px;
+}
+#special-nav li a, #special-nav a:hover {
+	color: white;
+	height: 30px;
+	line-height: 30px;
+    background: url("../images/bg_menu_edition2_separator.png") no-repeat right 10px;
+	padding: 7px 6px 7px;
+}
+#special-nav li.sf-breadcrumb a, #special-nav li.sf-breadcrumb a:hover {
+	background: none;
+    padding: 7px 0 7px 10px;
+	text-decoration: none;
+	cursor: text;
+	font-weight:bold;
+}
