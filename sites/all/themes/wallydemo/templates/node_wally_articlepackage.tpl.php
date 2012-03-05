@@ -42,7 +42,7 @@
  * @see template_preprocess_node()
  */
 
-
+dsm($node);
 //drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/article.css','file','screen');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
@@ -439,11 +439,20 @@ if (is_array($embeds)){
     $html_embedlinks .= '</div>';
     $html_embedlinks .= '</div>';
     $html_embedlinks .= '</div>';
-   } elseif (count($node->embed_links) > 0){
-     $embed_link = array_pop($node->embed_links);
-     $html_embedlinks .= $embed_link['image'];
-   }
+  } elseif (count($node->embed_links) > 0){
+    $embed_link = array_pop($node->embed_links);
+    $html_embedlinks .= $embed_link['image'];
+  }
   
+  $html_embedurl = '';
+  if (count($node->embed_url) > 0){
+    
+    $html_embedurl .= '<div class="bloc-01"><h2>'.t('Links').'</h2><div class="inner-bloc"><ul>';
+    foreach($node->embed_url as $link){
+      $html_embedurl .= '<li class="media-press">'.$link.'</li>';
+    }
+    $html_embedurl .= '</ul></div></div>';
+  }
   // Fin génération html médias digitaux affichés sous l'article
 }	
 /*
@@ -504,8 +513,13 @@ if ($htmltags != "" && $taxonomy != "20"){
   <h1><?php print wallydemo_check_plain($main_title); ?></h1>
   
   <div id="picture">
-    <?php print $mainObject_html; ?>
-    <?php print $links_html; ?>
+    <?php 
+    print $mainObject_html; 
+    print $html_embedlinks;
+    print $html_embedurl;
+    print $links_html; 
+    ?>
+    
   </div>
   <?php 
   print $chapeau; 
@@ -516,8 +530,7 @@ if ($htmltags != "" && $taxonomy != "20"){
   if (isset($bottomVideosBlock)) print $bottomVideosBlock ; 
   if (isset($bottomDigitalElements)) print $bottomDigitalElements ; 
   
-  print $html_embedlinks;
-  
+
   print $html_embedpackages;
   print $listTags; ?>
   <!-- FACEBOOK REACTIONS -->

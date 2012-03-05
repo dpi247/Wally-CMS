@@ -113,6 +113,7 @@ function wallydemo_preprocess_node(&$vars) {
           
           $item = array('embed' => $embed->field_link_item[0]['url']);
           $modules = array('emvideo', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
+          $emfield = FALSE;
           foreach ($modules as $module) {
             $item = _emfield_field_submit_id($field, $item, $module);
             if (!empty($item['provider'])) {
@@ -136,10 +137,21 @@ function wallydemo_preprocess_node(&$vars) {
               }
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
               $node->embed_links[$embed->nid] = array('image' => $content, 'thumb' => $thumb);
+              $emfield = TRUE;
               break;
             }
           }
+          if (!$emfield){
+            $target = '';
+            if ($embed->field_link_item[0]['attributes']['target'] == 1){
+              $target = 'target=_blank';
+            }
+            $content = '<a '.$target.' href = "'.$embed->field_link_item[0]['url'].'">'.$embed->field_link_item[0]['title'].'</a>';
+            $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
+            $node->embed_url[] = $content;
+          }
         } elseif ($embed->field_internal_link[0]['nid'] != NULL){
+          //package
           $package = node_load($embed->field_internal_link[0]['nid']);
           $package = node_build_content($package);
           $content = node_view($package);
