@@ -69,6 +69,14 @@ function wallyctools_form_alter($form, $form_state, $form_id) {
 }
 
 /**
+ * Implementation of hood_panels_display_save()
+ * Refresh the term and handler mapping
+ */
+function wallyctools_panels_display_save($display) {
+  wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
+}
+
+/**
  * A theme preprocess function to automatically allow view-based node
  * templates if called from a view.
  *
@@ -316,26 +324,24 @@ function wallyctools_get_view_info_from_redacblock ($redacblock) {
  *
  * @return an array where term are key and the hierarchical structure of the redactional content.
  */
-function wallyctools_get_hierarchies(){
+function wallyctools_get_hierarchies() {
   static $tid_did_mapping = array();
   if (empty($tid_did_mapping)) {
-    $terms=taxonomy_get_tree(variable_get('wallymport_destinationpath', 0));
-    $depth=0;
+    $dest_vid = variable_get('wallymport_destinationpath', 0);
+    $depth = 0;
 
-    //@todo : 1second lost here
-    $tid_did_mapping=wallyctools_get_term_handler_mapping($terms,$depth);
+    $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
 
-    //@todo : 1second lost here
-    $array_of_redacblock_panes=wallyctools_get_redacblock_panes();
+    $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
 
-    foreach($tid_did_mapping as $tid=>$did_infos){
+    foreach($tid_did_mapping as $tid=>$did_infos) {
       $tid_did_mapping[$tid]['redacblocks']=array();
 
-      foreach($array_of_redacblock_panes as $pane){
-        if($did_infos['did']==$pane->did){
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title']=$pane->admin_title;
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name']=$pane->name;
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id]=array('name'=>$pane->layout_id);
+      foreach($array_of_redacblock_panes as $pane) {
+        if($did_infos['did'] == $pane->did) {
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
         }
       }
     }
@@ -351,22 +357,70 @@ function wallyctools_get_hierarchies(){
  *   depth to take into account default = 0
  * @return an array where term are key and the handler of the variant for this term
  */
-function wallyctools_get_term_handler_mapping($terms,$depth){
+function wallyctools_get_term_handler_mapping($vid, $depth, $reset = FALSE) {
   $tid_did_mapping = array();
-  foreach($terms as $term){
-    $term_parents = array_filter($term->parents);
 
-    $handler = wallyctools_get_active_handler($term->tid,$depth);
-    $tid_did_mapping[$term->tid] = array(
-      'name' => $handler->name,
-      'did' => $handler->conf['did'],
-      'title' => $handler->conf['title'],
-      'term_name' => $term->name,
-      'hierarchic_name' => str_repeat('-', count($term_parents)).$term->name,
-    );
+  if ($reset) {
+    // Force rebuild
+    $tid_did_mapping = wallyctools_build_term_handler_mapping($vid, $depth, $reset);
+  } else {
+    $cached_datas = cache_get('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, 'cache');
+    if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+      // There is no cache for this page, rebuild it
+      $tid_did_mapping = wallyctools_build_term_handler_mapping($vid, $depth);
+    } else {
+      // Cache present
+      $tid_did_mapping = $cached_datas->data;
+    }
   }
+
   return $tid_did_mapping;
 }
+
+function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
+  $tid_did_mapping = array();
+
+  if ($reset) {
+    // Completely rebuild the datas, also in DB
+
+    db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
+    
+    $terms = taxonomy_get_tree($vid);
+
+    foreach($terms as $term) {
+      $term_parents = array_filter($term->parents);
+
+      $handler = wallyctools_get_active_handler($term->tid, $depth);
+      $tid_did_mapping[$term->tid] = array(
+        'name' => $handler->name,
+        'did' => $handler->conf['did'],
+        'title' => $handler->conf['title'],
+        'term_name' => $term->name,
+        'hierarchic_name' => str_repeat('-', count($term_parents)).$term->name,
+      );
+      
+      $datas = array(
+        'tid' => $term->tid,
+        'vid' => $vid,
+        'depth' => $depth,
+        'mapping' => $tid_did_mapping[$term->tid],
+      );
+      drupal_write_record('wallyctools_term_handler_mapping', $datas);
+    }
+  } else {
+    // Rebuild the datas from the DB
+
+    $db_datas = db_query("SELECT * FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
+    while ($obj = db_fetch_object($db_datas)) {
+      $tid_did_mapping[$obj->tid] = unserialize($obj->mapping);
+    }
+  }
+  
+  cache_set('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, $tid_did_mapping, 'cache');
+  
+  return $tid_did_mapping;
+}
+
 /**
  * Helper function that give the active handler for a given tid  .
  * @param: $term_tid
@@ -411,7 +465,7 @@ function wallyctools_get_redacblock_panes(){
     $redacblocks[$result->name]=$result;
   }
 
-  list($panels,$handlers)=wallytoolbox_get_panels_and_handlers('term_view');
+  $handlers=wallytoolbox_get_panels_and_handlers(FALSE, 'term_view');
 
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
