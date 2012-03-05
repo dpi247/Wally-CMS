@@ -240,6 +240,13 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         $node->type == 'wally_pollpackage') && !$node->DoNotPopulate)//DoNotPopulate is for wallyedit preview, since we give it a node already populated
         wallycontenttypes_packagepopulate($node, $op);
       break;
+    case 'insert':
+      if ($node->type == 'wally_articlepackage' ||
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage'){
+          _wallycontenttypes_insertautopublish($node);
+      }
+      break;
     case 'presave' : 
       if($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
@@ -255,6 +262,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
           wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+          _wallycontenttypes_insertautopublish($node);
       } elseif(($node->type == 'wally_textobject' ||
               $node->type == 'wally_audioobject' ||
               $node->type == 'wally_digitalobject' || 
@@ -354,24 +362,45 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
 
 /**
 * Check if the node need to be publish or unpublish
-* @param: $node
+* @param $node
 * The node
 * @return Nothing.
 */
 function _wallycontenttypes_checkautopublish(&$node){
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
-    db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
     if ($node->field_autopublish[0]['value'] == 'Autopublish'){
-      if (strtotime($node->field_embargodatetime[0]['value']) < time() & strtotime($node->field_unpublishdate[0]['value']) > time() & $node->status == 0){
+      if (strtotime($node->field_embargodatetime[0]['value']) <= time() & (strtotime($node->field_unpublishdate[0]['value']) >= time() | $node->field_unpublishdate[0]['value'] == NULL)){
         $node->status = 1;
-      } elseif ($node->status == 1) {
+      } else {
         $node->status = 0;
       }
-    } elseif ($node->status == 1) {
+    } else {
       $node->status = 0;
     }
   }
 }
+/**
+* Check if the node need to be publish or unpublish
+* @param $node
+* The node
+* @return Nothing.
+*/
+function _wallycontenttypes_insertautopublish($node){
+  
+  if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
+    db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
+    if ($node->field_autopublish[0]['value'] == 'Autopublish'){
+      
+      $node_temp = new stdClass();
+      $node_temp->nid = $node->nid;
+      $node_temp->status = $node->status;
+      $node_temp->field_embargodatetime_value = $node->field_embargodatetime[0]['value'];
+      $node_temp->field_unpublishdate_value = $node->field_unpublishdate[0]['value'];
+      drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+    }
+  }
+}
+
 function wallycontenttypes_form_poll_view_voting_alter (&$form, &$form_state) {
   $form['choice']['#title'] = $form['#node']->title;
   $form['vote']['#submit'][] = 'wallycontentypes_update_poll_cache';
