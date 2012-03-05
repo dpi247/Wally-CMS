@@ -41,11 +41,9 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
     '#value' => t('Update list'),
     '#submit' => array('wallytoolbox_supercron_settings_form_go_to_submit'),
   );
-  
+
   if ($page) {
-    $cid_like = $page;
-    $cid_like .= $block_type ? ':'.$block_type : '';
-    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s%%" ORDER BY weight ASC, cid ASC', $cid_like);
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%:%s:%" ORDER BY weight ASC, cid ASC', $page, $block_type);
 
     $form['rows']['#tree'] = TRUE;
     
@@ -99,6 +97,12 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
     '#value' => t('Save changes'),
   );
   
+  $form['force_refresh'] = array(
+    '#type' => 'submit',
+    '#value' => t('Force datas refresh'),
+    '#submit' => array('wallytoolbox_supercron_settings_form_force_refresh_submit'),
+  );
+  
   return $form;
 }
 
@@ -109,6 +113,7 @@ function theme_wallytoolbox_supercron_settings_form($form) {
   $header[] = '';
   $header[] = '';
   $header[] = t('Page');
+  $header[] = t('Variant');
   $header[] = t('Type');
   $header[] = t('Subtype');
   $header[] = t('Panel');
@@ -131,7 +136,8 @@ function theme_wallytoolbox_supercron_settings_form($form) {
     $row[] = check_plain($expl_cid[2]);
     $row[] = check_plain($expl_cid[3]);
     $row[] = check_plain($expl_cid[4]);
-    $row[] = date('Y-m-d H:i:s', $form_row['last_run']['#value']);
+    $row[] = check_plain($expl_cid[5]);
+    $row[] = $form_row['last_run']['#value'] ? date('Y-m-d H:i:s', $form_row['last_run']['#value']) : t('never');
     $row[] = l(t('Output'), 'admin/wally/wallytoolbox/supercron/output/'.$cid);
     $row[] = drupal_render($form_row['enabled']);
     $row[] = drupal_render($form_row['rule']);
@@ -184,6 +190,15 @@ function wallytoolbox_supercron_settings_form_go_to_submit($form, &$form_state) 
   $goto = 'admin/wally/wallytoolbox/supercron/'.$values['page'];
   $goto .= !empty($values['block_type']) ? '/'.$values['block_type'] : '';
   drupal_goto($goto);
+}
+
+/**
+ * Specific submit for the wallytoolbox "Supercron" settings form to force the refresh of the cached datas
+ */
+function wallytoolbox_supercron_settings_form_force_refresh_submit($form, $form_state) {
+  wallytoolbox_get_panels_and_handlers(TRUE);
+  drupal_set_message(t('Datas refreshed'));
+  drupal_goto('admin/wally/wallytoolbox/supercron');
 }
 
 /**
