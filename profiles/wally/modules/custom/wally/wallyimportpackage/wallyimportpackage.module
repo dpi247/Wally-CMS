@@ -1603,7 +1603,7 @@ function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, 
  * @return
  *   A node object
  */
-function wallyimportpackage_create_or_load_object_digitalobjecttype($dom, &$log, $importer){
+function wallyimportpackage_create_or_load_object_multimediaobjecttype($dom, &$log, $importer){
   $node = new stdClass;
   $node->type = 'wally_digitalobject';
   $node->wallymport_node = TRUE;
@@ -1634,7 +1634,7 @@ function wallyimportpackage_create_or_load_object_digitalobjecttype($dom, &$log,
  * @return
  *   Nothing
  */
-function wallyimportpackage_process_object_digitalobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_process_object_multimediaobjecttype(&$node, $dom, &$log, $importer){
 
   $value = $dom->nodeValue;
   
