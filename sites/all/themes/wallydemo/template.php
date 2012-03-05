@@ -104,7 +104,33 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
   $vars['messages'] = $messages;
 }
 
-
+function wallydemo_preprocess_node(&$vars) {
+  if (isset($vars['node'])) {
+    $node = &$vars['node'];
+    if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+      foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+        if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
+          $item = array('embed' => $embed->field_link_item[0]['url']);
+          $modules = array('emvideo', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
+          foreach ($modules as $module) {
+            $item = _emfield_field_submit_id($field, $item, $module);
+            if (!empty($item['provider'])) {
+              $element = array(
+                '#item' => $item,
+                '#formatter' => 'default',
+                '#node' => $node,
+              );
+              $function = $module.'_field_formatter';
+              $content = $function($field, $element['#item'], $element['#formatter'], $element['#node']);
+              $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
 function wallydemo_preprocess_page(&$vars){
 
