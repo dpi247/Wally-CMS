@@ -349,7 +349,7 @@ function wallypressfilters_getallowedhtmltagforformat($format){
 function wallypressfilters_filter_process($fid, $text, $format){
   $filter = wallypressfilters_getfilterbyid($fid);
   $tags = wallypressfilters_gettagsfromfilterandformat($filter->name, $format);
-  
+
   foreach ($tags as $tag){
     $text = wallypressfilters_replace_tags($tag->tag, $tag->html_tag, $tag->classes, $text);
   }
@@ -364,18 +364,20 @@ function wallypressfilters_filter_process($fid, $text, $format){
 * @param string $text le texte à processer
 */
 function wallypressfilters_replace_tags($tag, $replacetag, $class, $text) {
-
+/*
   $i = 0;
   $regExpStart = '/<+\s*\s*';
   $regExpEnd = '/<\/+\s*\s*';
   while ($tag[$i] != ''){
+    if ($tag[$i] == ' '){dsm('coucou');
+      $tag[i] = '\s';
+    }
     $regExpStart .= '('.strtolower($tag[$i]).'|'.strtoupper($tag[$i]).')';
     $regExpEnd .= '('.strtolower($tag[$i]).'|'.strtoupper($tag[$i]).')';
     $i++;
   }
   $regExpStart .= '\b[^>]*\/*\s*>+/i';
   $regExpEnd .= '\b[^>]*\/*\s*>+/i';
-  
   //Replace end tag
   $text = preg_replace($regExpEnd, "</".$replacetag.">", $text);
   
@@ -385,8 +387,35 @@ function wallypressfilters_replace_tags($tag, $replacetag, $class, $text) {
   } else {
     $text = preg_replace($regExpStart, "<".$replacetag.">", $text);
   }
-   
-  return $text;
+*/
+  $items = NULL;
+  $exp = explode('<', $text);
+  $i = 0;
+  foreach ($exp as $key => $expi){
+    $expo = explode('>', $expi);
+    $items[$i] = $expo[0];  
+    if ($expo[1] != NULL){
+      $items2[$i+1] = $expo[1];
+      $i++;
+    }
+    $i++;
+  }
+  $end_tag = explode(' ', $tag);
+  
+  foreach ($items as $key => $item){
+    if (str_replace('/','', str_replace(' ', '', strtolower($item))) == str_replace(' ', '', strtolower($tag))
+     | str_replace('/','', str_replace(' ', '', strtolower($item))) == str_replace(' ', '', strtolower($end_tag[0]))){
+      $items[$key] = str_replace(str_replace('/','',$item), $replacetag, $item);
+    } 
+  }
+  $text_html = '';
+  foreach ($items as $key => $item){
+    if ($item != ''){
+      $text_html .= '<'.$item.'>'.$items2[$key+1];
+  
+    }
+  }
+  return $text_html;
 }
 
 /**
