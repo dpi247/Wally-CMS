@@ -102,11 +102,7 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
   $form_state['values']['wallypresstags'] = array();
   foreach ($tags as $tag){
     //Check if the tag is correct
-    if (preg_match('/[^a-z0-9_-]/', $tag)) {
-      form_set_error('wallypressfilters][tags', t('Tag name must be alphanumeric, with lowercase letter and underscores only.'));
-    } 
-    //Ignore space
-    elseif ($tag == ''){
+    if ($tag == ''){
       ;
     } 
     //Check is the tag exists two times
