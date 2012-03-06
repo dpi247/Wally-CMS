@@ -11,3 +11,10 @@ div.gallerie_photo img {
 .clear{
 	clear: both;
 }
+#embedded_text{
+	padding: 10px;
+	background-color: #EDEDED;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	box-shadow: 0 2px 2px #858585;
+}
