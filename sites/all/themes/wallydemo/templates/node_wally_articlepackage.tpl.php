@@ -513,10 +513,11 @@ if ($htmltags != "" && $taxonomy != "20"){
   
   <div id="picture">
     <?php 
-    print $mainObject_html; 
+    
+    print '<div id = "main">'.$mainObject_html.'</div>'; 
     print $html_embedlinks;
     print $html_embedurl;
-    print $links_html; 
+    print '<div id = "link">'.$links_html.'</div>'; 
     ?>
     
   </div>
