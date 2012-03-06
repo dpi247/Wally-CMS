@@ -153,7 +153,6 @@ function wallydemo_preprocess_node(&$vars) {
         } elseif ($embed->field_internal_link[0]['nid'] != NULL){
           //package
           $package = node_load($embed->field_internal_link[0]['nid']);
-          $package = node_build_content($package);
           $content = node_view($package);
           $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
           $node->embed_packages[] = $content;
