@@ -987,24 +987,26 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
  *   the array of nodes objects that has been build
  */
 function wimprt_node_process_list($dom_element, &$log, $importer){
- 
-  //@todo: place in walymportlog module  
-  if (variable_get('wallymport_debug',0) or TRUE){
-    $log['log'][] = 'process list: '.$dom_element->nodeName;
-  }
-
   $array_of_nodes = array();
-  module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'before_process');
- 
-  foreach ($dom_element->childNodes as $dom_child){
-    $element_name = $dom_child->nodeName;
-    if ($element_name != '#text'){
-      $array_of_nodes[] = call_user_func('wimprt_node_process', $dom_child, &$log, $importer, NULL);
+  
+  if ($dom_element != NULL){
+    //@todo: place in walymportlog module  
+    if (variable_get('wallymport_debug',0) or TRUE){
+      $log['log'][] = 'process list: '.$dom_element->nodeName;
     }
-  }
-  module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'after_process');
 
-  $log['node'] = array('current' => $array_of_nodes);
+    module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'before_process');
+  
+    foreach ($dom_element->childNodes as $dom_child){
+      $element_name = $dom_child->nodeName;
+      if ($element_name != '#text'){
+        $array_of_nodes[] = call_user_func('wimprt_node_process', $dom_child, &$log, $importer, NULL);
+      }
+    }
+    module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'after_process');
+
+    $log['node'] = array('current' => $array_of_nodes);
+  }
   return $array_of_nodes;
 }
 
