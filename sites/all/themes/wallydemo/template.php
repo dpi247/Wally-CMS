@@ -1440,7 +1440,7 @@ function _wallydemo_get_sorted_links($node){
 			$lLinks["links"][$i]["url"] = "/".$att->filepath;
 			$lLinks["links"][$i]["title"] = $l->title;
 		  } else {
-		    $lLinks["links"][$i]["url"] = "/".$l->field_link_item[0]["url"];
+		    $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
 		    if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
 			  $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
 		    } else {
