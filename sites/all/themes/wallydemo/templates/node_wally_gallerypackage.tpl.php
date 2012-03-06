@@ -54,7 +54,7 @@ drupal_add_js('
 <?php print $main_desc ; ?>
 
 		
-  <div class="text_thumb">
+  <div id = "embedded_text"class="text_thumb">
     <ul>
       
       <?php foreach ($textstory as $text) { ?>
@@ -68,7 +68,7 @@ drupal_add_js('
   <div class="photos">
     <?php foreach ($imgstory as $image):?>
 	  <div class="gallerie_photo">
-        <?php print theme('imagecache', 'divers_201x134',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
+        <?php print theme('imagecache', 'unebis_medium_180x120',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
   	  </div>
     <?php endforeach;?>
   </div>
