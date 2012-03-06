@@ -3,6 +3,7 @@
  *
  * 
  */
+
 $themeroot = drupal_get_path('theme', 'wallydemo');
 drupal_add_css($themeroot . '/css/gallery.css');
 $node_path = drupal_get_path_alias("/node/".$node->nid);
@@ -13,6 +14,7 @@ $imgstory = $sorted_embededobjects['wally_photoobject'];
 $videostory = $sorted_embededobjects['wally_videoobject'];
 $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 $main_summary = $field_summary[0]['value'];
+
 $main_desc = $field_objectdescription [0]['value'];
 $textstory = NULL;
 foreach ($node->field_embededobjects_nodes as $embeds){
@@ -25,8 +27,7 @@ foreach ($node->field_embededobjects_nodes as $embeds){
     $textstory[] = $text;
   }
 }
-//$main_edition = $field_editions [0]['value'];
-//$main_channel = $field_channels [0]['value'];
+
 $presetname='gallery_preset';
 
 foreach ($imgstory as $n) {
@@ -40,29 +41,29 @@ foreach ($imgstory as $n) {
     $summary[]= $n->field_summary[0]['value'];
   }
 }
-
 drupal_add_js('
   $(document).ready(function() {
     diapo("gal_node_'.$node->nid.'");
   });
 ', 'inline');
-
 ?>
 <div id="gal_node_<?php print $node->nid; ?>" class="gallery">
-<h2><?php print $node->title ; ?></h2>
-<?php print $main_summary ; ?> <br/> 
+
+<h2><?php print $node->title;?></h2>
+<?php print $main_summary ; ?> <br/>
 <?php print $main_desc ; ?>
-	
-	  <p><br/></p>
-	
-	<div class="text_thumb">
-  <ul>
+
+		
+  <div class="text_thumb">
+    <ul>
+      
       <?php foreach ($textstory as $text) { ?>
         <?php print $text; ?>
       <?php } ?>
   	
   </ul>
   </div>
+  
   <p><br/><br/></p>
   <div class="photos">
     <?php foreach ($imgstory as $image):?>
