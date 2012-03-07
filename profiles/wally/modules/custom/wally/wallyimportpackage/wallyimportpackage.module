@@ -1226,7 +1226,7 @@ function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element,
  * @return
  *   Nothing
  */
-function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $importer){
+function wallyimportpackage_set_field_pollquestions(&$node, $dom, &$log, $importer){
   if (module_exists('webform')){
     $node->webform['confirmation'] = '';
     $node->webform['confirmation_format'] = 2;
