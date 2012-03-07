@@ -318,17 +318,17 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -338,7 +338,7 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -379,17 +379,17 @@ function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_elem
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -399,7 +399,7 @@ function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_elem
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -437,17 +437,17 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -457,7 +457,7 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -1226,34 +1226,79 @@ function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element,
  * @return
  *   Nothing
  */
-function wallyimportpackage_set_field_pollquestions(&$node, $dom, &$log, $importer){
-  $i = 0;
+function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $importer){
+  if (module_exists('webform')){
+    $node->webform['confirmation'] = '';
+    $node->webform['confirmation_format'] = 2;
+    $node->webform['redirect_url'] = '<none>';
+    $node->webform['status'] = 1;
+    $node->webform['block'] = 0;
+    $node->webform['teaser'] = 0;
+    $node->webform['allow_draft'] = 0;
+    $node->webform['auto_save'] = 0;
+    $node->webform['submit_notice'] = 1;
+    $node->webform['submit_text'] = ''; 
+    $node->webform['submit_limit'] = 1;
+    $node->webform['submit_interval'] = -1;
+    $node->webform['total_submit_limit'] = -1;
+    $node->webform['total_submit_interval'] = -1;
+    $node->webform['record_exists'] = TRUE;
+    $node->webform['roles'] = array(0 => 1, 1 => 2);
+    $node->webform['emails'] = array();
     
-  foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
-    $node->field_poll[$i]['active'] = 1;
-    $feature = array();
-    $choice = 1;
-    if ($pollquestion->hasAttribute("Choice")){
-      if ($pollquestion->getAttributeNode("Choice")->value === "radioButton"){
-        $choice = 0;
+    $i = 1;
+    foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
+      if (isset($node->nid)){
+        $node->webform['components'][$i]['nid'] = $node->nid;
+        
       }
+      $node->webform['components'][$i]['cid'] = $i;
+      $node->webform['components'][$i]['form_key'] = _webform_safe_name($pollquestion->getElementsbyTagName("Question")->item(0)->nodeValue);
+      $node->webform['components'][$i]['name'] = $pollquestion->getElementsbyTagName("Question")->item(0)->nodeValue;
+      $node->webform['components'][$i]['type'] = 'select';
+      $node->webform['components'][$i]['value'] = '';
+      $node->webform['components'][$i]['mandatory'] = 0;
+      $node->webform['components'][$i]['pid'] = 0;
+      $node->webform['components'][$i]['weight'] = 0;
+      $node->webform['components'][$i]['page_num'] = 1;
+      $node->webform['components'][$i]['extra'] = array();
+      
+      //Answer
+      $enter = '';
+      $items = '';
+      foreach($pollquestion->getElementsByTagName("Answer") as $answer){
+        $items .= $enter.$answer->nodeValue.'|'.$answer->nodeValue;
+        $enter = "\n";  
+      }
+      
+      //Radio / checkboxes
+      $choice = 1;
+      if ($pollquestion->hasAttribute("Choice")){
+        if ($pollquestion->getAttributeNode("Choice")->value === "radioButton"){
+          $choice = 0;
+        }
+      }
+      
+      $node->webform['components'][$i]['extra']['items'] = $items;
+      $node->webform['components'][$i]['extra']['multiple'] = $choice;
+      $node->webform['components'][$i]['extra']['title_display'] =  'before';
+      $node->webform['components'][$i]['extra']['private'] = 0;
+      $node->webform['components'][$i]['extra']['aslist'] = 0;
+      $node->webform['components'][$i]['extra']['optrand'] = 0;
+      $node->webform['components'][$i]['extra']['conditional_operator'] = '=';
+      $node->webform['components'][$i]['extra']['other_option'] = NULL;
+      $node->webform['components'][$i]['extra']['other_text'] = 'Other...';
+      $node->webform['components'][$i]['extra']['description'] = '';
+      $node->webform['components'][$i]['extra']['custom_keys'] = FALSE;
+      $node->webform['components'][$i]['extra']['options_source'] = '';
+      $node->webform['components'][$i]['extra']['conditional_component'] = '';
+      $node->webform['components'][$i]['extra']['conditional_values'] = '';
+      
+      $i++;
     }
-    $feature['CancelVote_Allow'] = 1;
-    $feature['ResultsAllow'] = 0;
-    $feature['PollType'] = $choice;
-    $node->field_poll[$i]['poll_features'] = serialize($feature);
-    $node->field_poll[$i]['question'] = $pollquestion->getElementsbyTagName("Question")->item(0)->nodeValue;
-    $j = 0;
-    $answers = array();
-    foreach($pollquestion->getElementsByTagName("Answer") as $answer){
-      $answers[$j]['choice'] = $answer->nodeValue;
-      $answers[$j]['votes'] = NULL;
-      $j += 1;
-    }
-    if ($j > 0) {
-      $node->field_poll[$i]['choice'] = serialize($answers);
-    }
-    $i += 1;
+  } else {
+    drupal_set_message(t('You must install the module "WebForm" to use the poll import'), 'error');
+    $node->rejected = TRUE;
   }
 }
 
@@ -1926,8 +1971,8 @@ function wallyimportpackage_set_field_rating(&$node, $dom, &$log, $importer){
  */
 function wallyimportpackage_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_textarette[0]['value'] = $value;
-  $node->field_textarette[0]['format'] = wallyimportpackage_get_default_format();
+  $node->field_textbarette[0]['value'] = $value;
+  $node->field_textbarette[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
