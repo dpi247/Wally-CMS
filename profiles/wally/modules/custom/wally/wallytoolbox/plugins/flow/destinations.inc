@@ -118,16 +118,18 @@ function wallytoolbox_destinations_flow_build($feed_infos) {
   $view_results = $view->result;
 
   $transformed_nodes = wallytoolbox_flow_to_array_init_array();
-  foreach ($view_results as $node_result) {
-    $node = node_load($node_result->nid);
-    $node->view = $view;
-    wallycontenttypes_packagepopulate($node, '');
-    if ($conf['render_node'] == 'wally') {
-      $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
-    } else {
-      $package = wallytoolbox_destinations_flow_set_package($node, $feed_infos, TRUE);
-      $package['node'] = $node;
-      $transformed_nodes['Packages']['Package'][] = $package;
+  if (is_array($view_results)) {
+    foreach ($view_results as $node_result) {
+      $node = node_load($node_result->nid);
+      $node->view = $view;
+      wallycontenttypes_packagepopulate($node, '');
+      if ($conf['render_node'] == 'wally') {
+        $transformed_nodes['Packages']['Package'][] = wallytoolbox_destinations_flow_transform_node($node, $feed_infos);
+      } else {
+        $package = wallytoolbox_destinations_flow_set_package($node, $feed_infos, TRUE);
+        $package['node'] = $node;
+        $transformed_nodes['Packages']['Package'][] = $package;
+      }
     }
   }
 
