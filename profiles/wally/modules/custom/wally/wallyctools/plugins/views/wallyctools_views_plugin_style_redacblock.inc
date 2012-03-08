@@ -89,6 +89,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       return;
     }
     $rows = '';
+    module_load_include('inc', 'wallyedit', 'includes/Prenode');
     $prenode = new Prenode($this->view->wallyedit_preview['cache name']);
     $node = $prenode->ReturnPopulated();
     $node->node_view_destination = $this->view->wallyedit_preview['tid'];
