@@ -9,7 +9,7 @@ $(document).ready(function() {
 
 	updateList();
 	$("#field-destinations-items").bind("DOMNodeInserted", function(event) {
-		if (event.target.nodeName == "DIV") {
+		if (event.target.nodeName == "TABLE") {
 			updateList();
 		}
 	});
@@ -49,25 +49,27 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	//}
 	childVal = (typeof childVal == "undefined") ? "" : childVal ;
 	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-	
-	$("#"+parent).bind("change DOMSubtreeModified", function(event) {
-		if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
-			var parentValue = $("#"+parent).find("option:selected").attr("title");
-		} else {
-			var term_value = $("#"+parent).val();
-			term_value = term_value.substring(0, term_value.length - 1);
-			var expl_term_value = term_value.split('[');
-			var parentValue = expl_term_value[expl_term_value.length - 1];
-		}
 
-		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-		//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
-			//$("#"+child).prepend("<option value=''> -- Select -- </option>");
-		//}
-		childVal = (typeof childVal == "undefined") ? "" : childVal ;
-		$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-		$("#"+child).trigger("change");
-		//$("#"+child).focus();
+	$("#field-destinations-items").bind("DOMNodeRemoved", function(event) {
+		if (event.target.id == "autocomplete") {
+			if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
+				var parentValue = $("#"+parent).find("option:selected").attr("title");
+			} else {
+				var term_value = $("#"+parent).val();
+				term_value = term_value.substring(0, term_value.length - 1);
+				var expl_term_value = term_value.split('[');
+				var parentValue = expl_term_value[expl_term_value.length - 1];
+			}
+
+			$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
+			//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
+				//$("#"+child).prepend("<option value=''> -- Select -- </option>");
+			//}
+			childVal = (typeof childVal == "undefined") ? "" : childVal ;
+			$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
+			$("#"+child).trigger("change");
+			//$("#"+child).focus();
+		}
 	});
 }
 
