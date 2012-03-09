@@ -967,6 +967,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'after_process');
 
   if (!empty($node) && !$node->rejected){
+    $node->doNotPullUp = TRUE;
     node_save($node);
   }
   $log['node'] = array('current' => $node,'next' => $log['node']);
