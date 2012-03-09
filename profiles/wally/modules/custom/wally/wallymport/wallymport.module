@@ -962,6 +962,7 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
   module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'after_process');
 
   if (!empty($node) && !$node->rejected){
+    $node->doNotPullUp = TRUE;
     node_save($node);
     module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
   }
