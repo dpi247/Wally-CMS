@@ -256,6 +256,20 @@ function wallycontenttypes_prenodeapi(&$form_state, $op){
 }
 
 /**
+ * Implementation of hook_wimprt_process_package().
+ * Put the main object's taxonomy terms in the package
+ */
+function wallycontenttypes_wimprt_process_package($node, $dom, $log, $op, $importer) {
+  if ($op == 'after_process') {
+    if ($node->type == 'wally_articlepackage' ||
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+      _wallycontenttypes_addtaxonomywheninserted($node);
+    }
+  }
+}
+
+/**
  *  Implémentation du hook_preprocess_page(); 
  */
 function wallycontenttypes_preprocess_page(&$variables) {
