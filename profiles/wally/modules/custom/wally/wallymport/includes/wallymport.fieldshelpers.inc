@@ -121,8 +121,27 @@ function _wimprthelp_array_to_ccklocation($location) {
  *   CCK datetime field (array)
  */
 function _wimprthelp_date_to_ccktime($date) {
-  //@todo: handle timezone
-  $result['value'] = str_replace('T', ' ', $date);
+
+  list($thedate, $thetime) = explode('T', $date);
+  if (count(explode('+',$thetime)) == 2){
+    list($datetime, $offset) = explode('+', $date);
+    list ($offsethour, $offsetmin) = explode(':', $offset);
+    $time_offset = $offsethour*3600 + $offsetmin * 60;
+    $time = strtotime($datetime) - $time_offset;
+  } elseif (count(explode('-',$thetime)) == 2){
+    list($thetime, $offset) = explode('-', $thetime);
+    $date = $thedate.'T'.$thetime;
+    list ($offsethour, $offsetmin) = explode(':', $offset);
+    $time_offset = $offsethour*3600 + $offsetmin * 60; 
+    $time = strtotime($date) + $time_offset;
+  } else {
+    //We suppose the xml date is at the same offset than the site
+    $timezone = new DateTimeZone(variable_get('date_default_timezone_name', 'UTC'));
+    $time_offset = $timezone->getOffset(new DateTime("now")); // Offset in seconds
+    $time = strtotime($date) - $time_offset;
+  }
+
+  $result['value'] = date('Y-m-d H:i:s', $time);
   $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
   $result['timezone_db'] = 'UTC';
   $result['date_type'] = 'datetime';
@@ -139,8 +158,11 @@ function _wimprthelp_date_to_ccktime($date) {
  */
 function _wimprthelp_polldate_to_ccktime($date1,$date2) {
   //@todo: handle timezone
-  $result['value'] = str_replace('T', ' ', $date1);
-  $result['value2'] = str_replace('T', ' ', $date2);
+
+  $date1 = _wimprthelp_date_to_ccktime($date1);
+  $date2 = _wimprthelp_date_to_ccktime($date2);
+  $result['value'] = $date1['value'];
+  $result['value2'] = $date2['value'];
   $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
   $result['timezone_db'] = 'UTC';
   $result['date_type'] = 'datetime';
@@ -156,7 +178,9 @@ function _wimprthelp_polldate_to_ccktime($date1,$date2) {
  *   timestamp
  */
 function _wimprthelp_date_to_timestamp($date) {
+  
   $result = strtotime($date);
+  
   return $result;
 }
 

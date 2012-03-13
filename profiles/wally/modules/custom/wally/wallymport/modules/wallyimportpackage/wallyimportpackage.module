@@ -326,17 +326,17 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -346,7 +346,7 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
     $node->status = 0;
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
@@ -388,17 +388,17 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -408,7 +408,7 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -446,17 +446,17 @@ function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
-    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("CreationDate")){
     $node->field_creationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("CreationDate")->value);
   } else {
-    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("LastUpdateDate")){
     $node->changed = _wimprthelp_date_to_timestamp($dom_element->getAttributeNode("LastUpdateDate")->value);
   } else {
-    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("EmbargoDate")) {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("EmbargoDate")->value);
@@ -466,7 +466,7 @@ function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &
       $node->status = 1;
     }
   } else {
-    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-dTH:i:s"));
+    $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -1921,8 +1921,8 @@ function wallyimportpackage_node_set_field_rating(&$node, $dom, &$log, $importer
  */
 function wallyimportpackage_node_set_field_textbarette(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_textarette[0]['value'] = $value;
-  $node->field_textarette[0]['format'] = wallyimportpackage_get_default_format();
+  $node->field_textbarette[0]['value'] = $value;
+  $node->field_textbarette[0]['format'] = wallyimportpackage_get_default_format();
 }
 
 /**
