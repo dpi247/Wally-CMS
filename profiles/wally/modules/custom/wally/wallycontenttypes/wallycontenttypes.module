@@ -1583,15 +1583,15 @@ function wallycontenttypes_delete_orphans_objects($node){
 }
 
 /**
-* Check if the node need to be publish or unpublish
-* @param $node
-* The node
-* @return Nothing.
-*/
+ * Check if the node need to be publish or unpublish
+ * @param $node
+ * The node
+ * @return Nothing.
+ */
 function _wallycontenttypes_checkautopublish(&$node){
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
     if ($node->field_autopublish[0]['value'] == 'Autopublish'){
-      if (strtotime($node->field_embargodatetime[0]['value']) <= time() & (strtotime($node->field_unpublishdate[0]['value']) >= time() | $node->field_unpublishdate[0]['value'] == NULL)){
+      if (strtotime($node->field_embargodatetime[0]['value']) <= time() && ($node->field_unpublishdate[0]['value'] == NULL || strtotime($node->field_unpublishdate[0]['value']) >= time())){
         $node->status = 1;
       } else {
         $node->status = 0;
@@ -1601,12 +1601,13 @@ function _wallycontenttypes_checkautopublish(&$node){
     }
   }
 }
+
 /**
-* Check if the node need to be publish or unpublish
-* @param $node
-* The node
-* @return Nothing.
-*/
+ * Check if the node need to be publish or unpublish
+ * @param $node
+ * The node
+ * @return Nothing.
+ */
 function _wallycontenttypes_insertautopublish($node){
   
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){

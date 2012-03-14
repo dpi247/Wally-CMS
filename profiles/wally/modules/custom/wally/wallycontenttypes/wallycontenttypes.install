@@ -219,6 +219,7 @@ function wallycontenttypes_update_6101(&$sandbox) {
   
   return $ret;
 }
+
 /**
 * Implementation of hook_update_N
 */
@@ -278,6 +279,20 @@ Autopublish', 'allowed_values_php' => '');
     }
   }
 
+  return $ret;
+}
+
+/**
+* Implementation of hook_update_N
+* Set "Autopublish" as default value for field_autopublish
+*/
+function wallycontenttypes_update_6103() {
+  $ret = array();
+
+  $widget_settings = array('default_value' => array(0 => array('value' => 'Autopublish')), 'default_value_php' => NULL);
+
+  $ret[0]['query'] = 'UPDATE {content_node_field_instance} SET widget_settings = "%s" WHERE field_name = "field_autopublish"';
+  $ret[0]['success'] = db_query($ret[0]['query'], serialize($widget_settings)) ? TRUE : FALSE;
 
   return $ret;
 }
