@@ -435,17 +435,20 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
     }
     wallycontenttypes_restore_node($node, $cleaned_node);
   } else {
-    wallycontenttypes_fieldNID($node);
-    wallycontenttypes_fieldTID($node);
+    $cleaned_node = wallycontenttypes_clean_node($node);
+    wallycontenttypes_fieldNID($cleaned_node);
+    wallycontenttypes_fieldTID($cleaned_node);
+    wallycontenttypes_restore_node($node, $cleaned_node);
   }
 }
 
-/*Implementation of hook_cron
- *Check once a day(at midnight) if the temporary table is build
- *if not build it
- *Publish or Unpublish node based on information in temporary table. 
+/**
+ * Implementation of hook_cron
+ * Check once a day(at midnight) if the temporary table is build
+ * if not build it
+ * Publish or Unpublish node based on information in temporary table. 
  */
-function wallycontenttypes_cron(){
+function wallycontenttypes_cron() {
 
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){ 
     //Reset the temp table once a day
