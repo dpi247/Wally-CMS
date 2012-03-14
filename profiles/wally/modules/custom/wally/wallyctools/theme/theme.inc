@@ -129,12 +129,15 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   }
 }
 
-function theme_wallyctools_form_reorder_destination_form($form){
-  if (!isset($form['rows']) || empty($form['rows'])) {
+function theme_wallyctools_form_reorder_destination_form($form) {
+  if ((!isset($form['rows']) || empty($form['rows'])) && !isset($form['saved_rows'])) {
     if (isset($form['submit'])) {
       drupal_set_message(t('No nodes to reorder.'));
     }
     return;
+  } elseif (isset($form['saved_rows'])) {
+    drupal_render($form['submit']);
+    return drupal_render($form);
   }
 
   $node_types = node_get_types('names');
