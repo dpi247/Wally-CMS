@@ -95,11 +95,16 @@ function _wallyctools_default_content_type() {
   return $plugin;
 }
 
+
 /**
  * Returns the administrative title for a type.
  */
 function wallyctools_redacblock_content_type_admin_title($subtype, $conf) {
-  return $subtype;
+  if($conf['split_index_count']!=''){
+    return $subtype.' - Split'.$conf['split_index_count'].'/'.$conf['split_total_count'];
+  }
+  else
+    return $subtype;
 }
 
 /**
