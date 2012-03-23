@@ -86,6 +86,25 @@ function wallyflowtonode_node_operations() {
 }
 
 /**
+ * Implementation of hook_action_info().
+ */
+function wallyflowtonode_action_info() {
+  $actions = array(
+    'wallyflowtonode_publish_nodes' => array(
+      'type' => 'node',
+      'description' => t('Publish from flow to node'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks' => array(
+        'nodeapi' => array('presave'),
+        'comment' => array('insert', 'update'),
+      ),
+    ),
+  );
+  return $actions;
+}
+
+/**
  * Implementation of hook_cron()
  * Executes the flow to node cron run when called.
  * 
@@ -169,6 +188,19 @@ function wallyflowtonode_reject_nodes($nodes) {
   }
 }
 
+/**
+ * Make mass publish of nodes, status and autopublish field
+ *
+ * @param array $nodes
+ *   Array of node nids to reject.
+ */
+function wallyflowtonode_publish_nodes(&$node, $context = array()) {
+  $node->status = 1;
+  if ($node->field_autopublish && $node->field_autopublish[0]['value'] == 'No') {
+    $node->field_autopublish[0]['value'] = 'Autopublish';
+  }
+}
+
 function _wallyflowtonode_callallfeeds($flow_key = NULL) {
   $db_query = 'SELECT * FROM {wallyflowtonode_flows}';
   if ($flow_key) {
@@ -202,6 +234,9 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
     }
     $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
     $struct_array = $function($feed_infos);
+    foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
+      $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
+    }
 
     if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
@@ -263,11 +298,11 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $package = $packages->appendChild($valid_dom->createElement('Package'));
     $package->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'ArticlePackageType');
     $package->setAttribute('PackageID', $array_valid_dom['Package']['PackageID']);
-    if (!$feed_infos['publish'])
-      $array_valid_dom['Package']['EmbargoDate'] = (date('Y')+1).'-'.date('m-d').'T'.date('H:i:sP');
     $package->setAttribute('PublicationDate', $array_valid_dom['Package']['PublicationDate']);
     $package->setAttribute('CreationDate', $array_valid_dom['Package']['CreationDate']);
-    $package->setAttribute('EmbargoDate', $array_valid_dom['Package']['EmbargoDate']);
+    if ($feed_infos['publish']) {
+      $package->setAttribute('EmbargoDate', date('Y-m-dTH:i:sP'));
+    }
     $package->setAttribute('Language', $array_valid_dom['Package']['Language']);
     $text_title = $valid_dom->createCDATASection($array_valid_dom['Package']['PackageTitle']['value']);
     $text_title_dom = $package->appendChild($valid_dom->createElement('PackageTitle'));
@@ -283,6 +318,7 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
       2 => 'Read-Write',
     );
     $package->appendChild($valid_dom->createElement('CommentsAllowed', $comments_translate[$array_valid_dom['Package']['CommentsAllowed'] ? $array_valid_dom['Package']['CommentsAllowed']['value'] : variable_get('comment_wally_articlepackage', 0)]));
+    $package->appendChild($valid_dom->createElement('AutoPublish', $feed_infos['publish']));
     $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
     $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
     $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
