@@ -464,7 +464,7 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
     if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
     }
-  } 
+  }
   
   //Map XML element
   wimprt_process_node_default($node, $dom_element, $log, $importer);
@@ -1415,7 +1415,10 @@ function wallyimportpackage_create_or_load_object_photoobjecttype($dom, &$log, $
  * @todo
  *   Check variable name line 575, procced or proceed?
  */
-function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, $importer){
+function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, $importer) {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
+
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
   	if ($crop->hasAttribute("Type")) {
@@ -1445,15 +1448,18 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, '', $importer);
-    
-  
+  $thumb_field = content_field_instance_read(array('type_name' => 'wally_photoobject', 'field_name' => 'field_thumbnail'));
+  $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
+
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
-  
-  if (empty($rdpartyMatch)){ //Not a 3rdparty
-    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
+
+  if (empty($rdpartyMatch)) { //Not a 3rdparty
+    $photo_field = content_field_instance_read(array('type_name' => 'wally_photoobject', 'field_name' => 'field_photofile'));
+    $new_photo_path = module_exists('token') ? token_replace($photo_field[0]['widget']['file_path'], 'user', $token_user) : $photo_field[0]['widget']['file_path'];
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, $new_photo_path, $importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
