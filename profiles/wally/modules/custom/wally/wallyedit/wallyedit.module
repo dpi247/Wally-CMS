@@ -439,6 +439,10 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
       $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
     }
   }
+
+  if ($form_id == 'wallyedit_form_node_edition_form' || strstr($form_id, '_node_form')) {
+    $form['#after_build'][] = 'wallyedit_form_node_form_after_build';
+  }
   
   if (module_exists('pathauto') && $form_id == 'wallyedit_form_node_edition_form' && isset($form['path'])) {
     // Override path.module's vertical tabs summary.
@@ -763,19 +767,15 @@ function wydit_elements_validate($element, &$form_state) {
       $parents = $element['#parents'];
       
       // If the whole field is empty and that's OK, stop now.
-      if (empty($element['#post'][$field_name]) && !$element['#required']) {
+      $posted = wydit_get_target_from_parents($element['#post'], $parents);
+      if ((!$posted || empty($posted)) && !$element['#required']) {
         return;
       }
       
       // Repeating dates have a different form structure, so get the
       // right item values.
-      $item = $form_values;
-      $posted = $element['#post'];
-      foreach ($parents as $parent) {
-        $item = isset($item[$parent]) ? $item[$parent] : $item;
-        $posted = isset($posted[$parent]) ? $posted[$parent] : $posted;
-      }
-        
+      $item = wydit_get_target_from_parents($form_values, $parents);
+
       $field = $form_state['#field_info'][$element['#field_name']];
       $from_field = 'value';
       $to_field = 'value2';
@@ -787,8 +787,7 @@ function wydit_elements_validate($element, &$form_state) {
       // done by the time we get here, it is not possible highlight the field
       // with an error, we just try to explain which element is creating the
       // problem in the error message.
-      $parent = $element['#parents'];
-      $error_field = array_pop($parent);
+      $error_field = array_pop($parents);
       $errors = array();
     
       // Check for empty 'From date', which could either be an empty
