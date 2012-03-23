@@ -38,6 +38,7 @@ function wallyimporttme_create_or_load_message_tme($dom, &$log, $importer, $call
   
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref), $type)){
     $node = $node_temp[0];
+    cckdestinations_force_dnc($node);
   }
   
   return $node;

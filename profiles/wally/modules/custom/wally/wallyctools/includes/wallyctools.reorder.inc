@@ -103,7 +103,7 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     );
 
     $form['pager_limit'] = array(
-      '#type' => 'value',
+      '#type' => 'hidden',
       '#value' => $limit,
     );
 
@@ -255,6 +255,17 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   $tid = $values['destination_tid'];
   $target = $values['target'];
+  $limit = $values['pager_limit'];
+  $time = time();
+
+  $defaults = array(
+    'sort_method' => 'absolute',
+    'behavior' => 'top',
+    'reserved' => 5,
+    'delta_t' => 1,
+  );
+  $dest_settings = variable_get('cckdestinations_destination_'.$tid.'_'.$target, $defaults);
+  $sort_method = $dest_settings['sort_method'];
 
   $order_by_weight = array();
   foreach($form_state['values']['rows'] as $key => $data) {
@@ -269,7 +280,15 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   for($i = $max_weight; $i >= $min_weight; $i--) {
     $elem_nid = $order_by_weight[$i]['nid'];
     $elem_node = node_load($elem_nid);
-    $new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
+
+    if ($sort_method == 'interval') {
+      //$rank = ($i < 0) ? (-$limit/2 - $i) : ($limit/2 - $i);
+      $rank = ($i < 0) ? (-$i - $limit) : (-$i);
+      $new_time_rank[$elem_nid] = $time + ($rank * 60 * 60 * $dest_settings['delta_t']);
+    } else {
+      $new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
+    }
+
     $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
 
     foreach ($elem_node->field_destinations as $delta => $dest) {
