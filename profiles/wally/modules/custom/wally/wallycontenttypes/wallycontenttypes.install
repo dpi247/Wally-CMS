@@ -185,7 +185,6 @@ function wallycontenttypes_schema() {
   return $schema;
 }
 
-
 function wallycontenttypes_update_6100(&$sandbox) {
   $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
   $imagecacheaction = new stdClass ();
@@ -221,8 +220,8 @@ function wallycontenttypes_update_6101(&$sandbox) {
 }
 
 /**
-* Implementation of hook_update_N
-*/
+ * Implementation of hook_update_N
+ */
 function wallycontenttypes_update_6102(){
   $schema = drupal_get_schema('wallycontenttypes_temp_nodetopublish', TRUE);
   $ret = array();
@@ -260,9 +259,9 @@ Autopublish', 'allowed_values_php' => '');
       'label' => array('format' => 'above', 'exclude' => 0), 
       'teaser' => array('format' => 'default', 'exclude' => 0),
       'full' => array('format' => 'default', 'exclude' => 0),
-    4 => array('format' => 'default', 'exclude' => 0),
-    2 => array('format' => 'default', 'exclude' => 0),
-    3 => array('format' => 'default', 'exclude' => 0),
+      4 => array('format' => 'default', 'exclude' => 0),
+      2 => array('format' => 'default', 'exclude' => 0),
+      3 => array('format' => 'default', 'exclude' => 0),
     );
     $content->widget_module = 'optionwidgets';
     $content->widget_active = 1;
