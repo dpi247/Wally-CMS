@@ -93,8 +93,12 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
   $package_node->setAttribute('PublicationDate', str_replace(' ','T',$package_array['PublicationDate']));
   $package_node->setAttribute('CreationDate', str_replace(' ','T',$package_array['CreationDate']));
   $package_node->setAttribute('LastUpdateDate', str_replace(' ','T',$package_array['LastUpdateDate']));
-  $package_node->setAttribute('EmbargoDate', str_replace(' ','T',$package_array['EmbargoDate']));
-  $package_node->setAttribute('UnPublishDate', str_replace(' ','T',$package_array['UnPublishDate']));
+  if ($package_array['EmbargoDate']) {
+    $package_node->setAttribute('EmbargoDate', str_replace(' ','T',$package_array['EmbargoDate']));
+  }
+  if ($package_array['UnPublishDate']) {
+    $package_node->setAttribute('UnPublishDate', str_replace(' ','T',$package_array['UnPublishDate']));
+  }
   $package_node->setAttribute('Language', $package_array['Language']);
   $package_node->setAttribute('Version', $package_array['Version']);
   $package_node->setAttribute('Action', 'CreateUpdate');
@@ -135,6 +139,7 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $freeaccess_node = $package_node->appendChild($valid_dom->createElement('FreeAccess'));
     $freeaccess_node->setAttribute('xsi:nil', 'true');
   }
+  $package_node->appendChild($valid_dom->createElement('AutoPublish', $package_array['AutoPublish']['value']));
   $package_node->appendChild($valid_dom->createElement('PackageLayout', $package_array['PackageLayout']['value']));
   
   $package_node->appendChild($valid_dom->createElement('Summary', $package_array['Summary']['value']));
