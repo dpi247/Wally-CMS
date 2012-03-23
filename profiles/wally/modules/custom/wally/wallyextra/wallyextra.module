@@ -453,8 +453,14 @@ function _wallyextra_content_types_ajax_callback() {
     $content = theme($default_theme, $subtype, $context, $datas, $settings);
   }
 
+  $previous_preprocess_css = variable_get('preprocess_css', FALSE);
+  $previous_preprocess_js = variable_get('preprocess_js', FALSE);
+  variable_set('preprocess_css', TRUE);
+  variable_set('preprocess_js', TRUE);
   $styles = drupal_get_css();
   $scripts = drupal_get_js();
+  variable_set('preprocess_css', $previous_preprocess_css);
+  variable_set('preprocess_js', $previous_preprocess_js);
   
   print $styles.$scripts.$content;
 }
