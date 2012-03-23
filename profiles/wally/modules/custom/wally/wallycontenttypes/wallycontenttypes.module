@@ -12,7 +12,6 @@ include_once('wallycontenttypes.features.inc');
  */
  
 
-
 /**
  * Implementation of hook_perm().
  */
@@ -436,17 +435,20 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
     }
     wallycontenttypes_restore_node($node, $cleaned_node);
   } else {
-    wallycontenttypes_fieldNID($node);
-    wallycontenttypes_fieldTID($node);
+    $cleaned_node = wallycontenttypes_clean_node($node);
+    wallycontenttypes_fieldNID($cleaned_node);
+    wallycontenttypes_fieldTID($cleaned_node);
+    wallycontenttypes_restore_node($node, $cleaned_node);
   }
 }
 
-/*Implementation of hook_cron
- *Check once a day(at midnight) if the temporary table is build
- *if not build it
- *Publish or Unpublish node based on information in temporary table. 
+/**
+ * Implementation of hook_cron
+ * Check once a day(at midnight) if the temporary table is build
+ * if not build it
+ * Publish or Unpublish node based on information in temporary table. 
  */
-function wallycontenttypes_cron(){
+function wallycontenttypes_cron() {
 
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){ 
     //Reset the temp table once a day
@@ -1584,15 +1586,15 @@ function wallycontenttypes_delete_orphans_objects($node){
 }
 
 /**
-* Check if the node need to be publish or unpublish
-* @param $node
-* The node
-* @return Nothing.
-*/
+ * Check if the node need to be publish or unpublish
+ * @param $node
+ * The node
+ * @return Nothing.
+ */
 function _wallycontenttypes_checkautopublish(&$node){
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
     if ($node->field_autopublish[0]['value'] == 'Autopublish'){
-      if (strtotime($node->field_embargodatetime[0]['value']) <= time() & (strtotime($node->field_unpublishdate[0]['value']) >= time() | $node->field_unpublishdate[0]['value'] == NULL)){
+      if (strtotime($node->field_embargodatetime[0]['value']) <= time() && ($node->field_unpublishdate[0]['value'] == NULL || strtotime($node->field_unpublishdate[0]['value']) >= time())){
         $node->status = 1;
       } else {
         $node->status = 0;
@@ -1602,12 +1604,13 @@ function _wallycontenttypes_checkautopublish(&$node){
     }
   }
 }
+
 /**
-* Check if the node need to be publish or unpublish
-* @param $node
-* The node
-* @return Nothing.
-*/
+ * Check if the node need to be publish or unpublish
+ * @param $node
+ * The node
+ * @return Nothing.
+ */
 function _wallycontenttypes_insertautopublish($node){
   
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
@@ -1629,3 +1632,4 @@ function _wallycontenttypes_deletefromtempautopublish($node){
 /**
  * @} End of "defgroup wallycontenttypes".
  */
+
