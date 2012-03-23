@@ -79,6 +79,15 @@ function wallytoolbox_theme(&$var) {
 }
 
 /**
+ * Implementation of hook_form_FORM_ID_alter()
+ * 
+ * Add submit callback to refresh the wallytoolbox_content_types_cache table after saving a page contents.
+ */
+function wallytoolbox_form_panels_panel_context_edit_content_alter(&$form, $form_state) {
+  wallytoolbox_refresh_cache_list();
+}
+
+/**
  * Implementation of hook_form_alter()
  */
 function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
@@ -1102,6 +1111,75 @@ function rrmdir($dir) {
     reset($objects); 
     rmdir($dir); 
   } 
+}
+
+/**
+ * Checks whether a directory exists and is writable.
+ *
+ * Furthermore, the directory can optionally be created if it does not exist,
+ * and/or be set to writable if it is currently not. Directories need to have
+ * execute permission to be considered a directory by FTP servers.
+ *
+ * @param $directory
+ *   A string representing the directory path.
+ * @param $mode
+ *   An optional bitmask containing the actions, if any, to be carried out on
+ *   the directory. Any combination of the actions FILE_CREATE_DIRECTORY and
+ *   FILE_MODIFY_PERMISSIONS is allowed.
+ * @param $form_item
+ *   An optional string containing the name of a form item that any errors
+ *   will be attached to. Useful when the function validates a directory path
+ *   entered as a form value. An error will consequently prevent form submit
+ *   handlers from running, and instead display the form along with the
+ *   error messages.
+ *
+ * @return
+ *   FALSE if the directory does not exist or is not writable, even after
+ *   any optional actions have been carried out. Otherwise, TRUE is returned.
+ */
+function file_check_directory_recursive(&$directory, $mode = 0, $form_item = NULL) {
+  $directory = rtrim($directory, '/\\');
+
+  // Check if directory exists.
+  if (!is_dir($directory)) {
+    if (($mode & FILE_CREATE_DIRECTORY) && @mkdir($directory, 0775, TRUE)) {
+      drupal_set_message(t('The directory %directory has been created.', array('%directory' => $directory)));
+      @chmod($directory, 0775); // Necessary for non-webserver users.
+    }
+    else {
+      if ($form_item) {
+        form_set_error($form_item, t('The directory %directory does not exist.', array('%directory' => $directory)));
+      }
+      return FALSE;
+    }
+  }
+
+  // Check to see if the directory is writable.
+  if (!is_writable($directory)) {
+    if (($mode & FILE_MODIFY_PERMISSIONS) && @chmod($directory, 0775)) {
+      drupal_set_message(t('The permissions of directory %directory have been changed to make it writable.', array('%directory' => $directory)));
+    }
+    else {
+      form_set_error($form_item, t('The directory %directory is not writable', array('%directory' => $directory)));
+      watchdog('file system', 'The directory %directory is not writable, because it does not have the correct permissions set.', array('%directory' => $directory), WATCHDOG_ERROR);
+      return FALSE;
+    }
+  }
+
+  if ((file_directory_path() == $directory || file_directory_temp() == $directory) && !is_file("$directory/.htaccess")) {
+    $htaccess_lines = "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\nOptions None\nOptions +FollowSymLinks";
+    if (($fp = fopen("$directory/.htaccess", 'w')) && fputs($fp, $htaccess_lines)) {
+      fclose($fp);
+      chmod($directory .'/.htaccess', 0664);
+    }
+    else {
+      $variables = array('%directory' => $directory, '!htaccess' => '<br />'. nl2br(check_plain($htaccess_lines)));
+      form_set_error($form_item, t("Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables));
+      watchdog('security', "Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables, WATCHDOG_ERROR);
+    }
+  }
+
+  return TRUE;
 }
 
 /**
