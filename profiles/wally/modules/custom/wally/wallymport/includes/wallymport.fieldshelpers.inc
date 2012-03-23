@@ -221,8 +221,11 @@ function _wimprthelp_plain_text($text){
  * @return
  *   A Drupal File Object
  */
-function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $importer = NULL ){
- 
+function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $importer = NULL) {
+  if (empty($file_uri)) {
+    return NULL;
+  }
+
   global $proceed_file_path;
   global $base_path;
   global $proceed_folder_path;
@@ -232,24 +235,26 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   } else {
     $temp_folder = $importer->temp_subdir; 
   }
-  
+
   $uri = parse_url($file_uri);
-  $badcar = array("+"," ");
-  $new_file_path = rtrim($new_file_path, '/');
+  $badcar = array('+', ' ');
+  $new_file_path = str_replace($badcar, '_', rtrim($new_file_path, '/'));
   $new_file_path .= '/';
 
   switch($uri['scheme']){
     case'embed':
       // "+" sign in filename is unsupported by imagecache.
-      $good_uri_host = str_replace($badcar, "_", $uri['host']);
+      $good_uri_host = str_replace($badcar, '_', $uri['host']);
       $file_temp_path = $temp_folder.'/'.$uri['host'];
-      $file_dest_path = file_directory_path().'/'.rand().'_'.$good_uri_host;
+      $file_dir = file_directory_path().'/'.$new_file_path;
+      file_check_directory_recursive($file_dir, 1);
+      $file_dest_path = $file_dir.'/'.rand().'_'.$good_uri_host;
 
       if (!@copy($file_temp_path, $file_dest_path)) {
         // Everything for owner, read and execute for others
         //chmod($file_dest_path, octdec("0777"));
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
-      	watchdog('Wallymport file', "copie du fichier ".$file_temp_path." vers ".$file_dest_path." a échoué", array(), WATCHDOG_ERROR);
+      	watchdog('Wallymport file', t('File copy form @from to @to failed', array('@from' => $file_temp_path, '@to' => $file_dest_path)), array(), WATCHDOG_ERROR);
       } else {
         $return = _wimprthelp_create_file($file_dest_path);
         return $return;
@@ -262,7 +267,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
       $http_req = drupal_http_request($file_uri);
       if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
         if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
-          $good_file_name = str_replace($badcar, "_", $file_name);
+          $good_file_name = str_replace($badcar, '_', $file_name);
         } elseif ($http_req->headers['Content-Disposition']) {
           $content_disp = $http_req->headers['Content-Disposition'];
           $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
@@ -271,11 +276,11 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
           break;
         }
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
-        file_check_directory($file_temp_dir, 1);
+        file_check_directory_recursive($file_temp_dir, 1);
         $file_temp_path = $file_temp_dir.'/'.md5($file_uri).'_'.$good_file_name;
         if(!@copy($file_uri, $file_temp_path)) {
           chmod($file_temp_path, octdec("0777"));
-          drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
+          drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
         } else {
           $return = _wimprthelp_create_file($file_temp_path);
           return $return;
@@ -283,6 +288,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
       }
       break;
   }
+
   return $return;
 }
 
