@@ -198,7 +198,7 @@ function wesi_render_blockcore($module,$delta){
 
 
 
-function wesi_render_ctoolscontenttype($module,$identifier,$subtype){
+function wesi_render_ctoolscontenttype($module,$identifier,$subtype=""){
   $esi_api_variables = wallyesi_api_variables();
   $menu_item=menu_get_item($esi_api_variables['drupal_path']);
  // dsm($menu_item);
@@ -269,7 +269,7 @@ function wesi_render_ctoolscontenttype($module,$identifier,$subtype){
       $pane_subtype=$identifier;
       //$output = ctools_context_handler_render($task, $subtask, $contexts, $args);
       
-     esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype);
+      esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype);
      
    
     break;
