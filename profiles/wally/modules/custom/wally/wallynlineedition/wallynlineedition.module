@@ -74,6 +74,7 @@ function wallynlineedition_form_inline_edit_form_submit ($form, $form_state) {
   $nid = array_shift($parents);
 
   if ($node = node_load($nid)) {
+    cckdestinations_force_dnc($node);
     $first_parent = array_shift($parents);
     $field = &$node->$first_parent;
     $parent = array_shift($parents);

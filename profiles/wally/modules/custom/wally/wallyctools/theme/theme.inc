@@ -50,14 +50,16 @@ function wallyctools_views_admin_links_alter(&$vars,$view){
         break;
       }
     }
-    foreach ($view->argument as $arg_name => $argument) {
-      if (strstr($arg_name, 'field_destination')) {
-        $vars['admin_links_raw'] = array(
-          'title' => t('Reorder'),
-          'alt' => t("Reorder the view"),
-          'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
-        );
-        break;
+    if ($target) {
+      foreach ($view->argument as $arg_name => $argument) {
+        if (strstr($arg_name, 'field_destination')) {
+          $vars['admin_links_raw'] = array(
+            'title' => t('Reorder'),
+            'alt' => t("Reorder the view"),
+            'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
+          );
+          break;
+        }
       }
     }
   }
