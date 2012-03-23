@@ -457,10 +457,7 @@ function _wallyextra_flowmix_get_available_items_from_schema($schema_elem, $feed
  *   The ID of the flow list containing the most recent feed.
  */
 function _wallyextra_flowmix_get_most_recent_from_availables($available_items) {
-  $most_recent = array(
-    'PublicationDate' => '1970-01-01T00:00:00+00:00',
-    'arrayID' => 0,
-  );
+  $most_recent = array_shift($available_items);
 
   foreach ($available_items as $available_item) {
     if (strtotime($available_item['PublicationDate']) > strtotime($most_recent['PublicationDate']))

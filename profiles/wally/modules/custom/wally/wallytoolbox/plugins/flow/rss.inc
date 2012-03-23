@@ -247,7 +247,8 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $feed_destination = explode('/',$feed_infos['destination']);
   $array_item['type'] = 'ArticlePackageType';
   $array_item['PackageID'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name);
-  $channel_pubDate = strtotime(_wallytoolbox_checkifelementexists($item, 'pubDate'));
+  $xml_pub_date = _wallytoolbox_checkifelementexists($item, 'pubDate');
+  $channel_pubDate = empty($xml_pub_date) ? time() : strtotime($xml_pub_date);
   $pubDate = date('Y-m-d', $channel_pubDate).'T'.date('H:i:sP', $channel_pubDate);
   $array_item['PublicationDate'] = $pubDate;
   $array_item['LastUpdateDate'] = date('Y-m-d').'T'.date('H:i:s');
