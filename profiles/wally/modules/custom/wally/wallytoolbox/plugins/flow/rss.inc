@@ -210,7 +210,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
     $new_file_path = 'Flows/';
     $file_temp_dir = file_directory_path().'/'.$new_file_path;
-    file_check_directory($file_temp_dir, 1);
+    file_check_directory_recursive($file_temp_dir, 1);
     $new_file_path .= $feed_infos['caid'];
     $new_file_path .= '_'.date('Ymd', time());
     foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
