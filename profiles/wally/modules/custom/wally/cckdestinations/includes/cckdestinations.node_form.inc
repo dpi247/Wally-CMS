@@ -101,7 +101,10 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
   $form_element = content_field_form($form_t, $temp, $field);
 
   // Let other modules alter it.
-  drupal_alter('form', $form_element, array(), 'content_add_more_js');
+  $a = array();
+  $data = &$form_element;
+  $data['__drupal_alter_by_ref'] = array(&$a);
+  drupal_alter('form', $data, 'content_add_more_js');
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
