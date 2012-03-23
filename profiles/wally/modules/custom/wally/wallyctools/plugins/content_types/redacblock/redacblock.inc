@@ -95,7 +95,6 @@ function _wallyctools_default_content_type() {
   return $plugin;
 }
 
-
 /**
  * Returns the administrative title for a type.
  */
