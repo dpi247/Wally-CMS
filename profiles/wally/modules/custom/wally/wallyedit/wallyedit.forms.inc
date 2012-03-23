@@ -43,9 +43,6 @@ function wallyedit_form_node_edition_form(&$form_state) {
 
   $temp_b = $form[$type_name];
   wydit_prepare_primary_package_form($form[$type_name], $current_form_state, $type_name, $parents, $temp_b);
-  if (module_exists('wysiwyg')) {
-    $form = wysiwyg_process_form($form, $current_form_state); 
-  }
 
   if (!$form_state['locked']) {
     $form['save_global'] = array(
@@ -114,6 +111,59 @@ function wallyedit_form_node_edition_form(&$form_state) {
   
   if (!empty($prenode->locked)) {
     $form['#prefix'] = theme('wallyedit_lock', $prenode);
+  }
+
+  return $form;
+}
+
+function wallyedit_form_node_form_after_build(&$form) {
+  // Iterate over element children; resetting array keys to access last index.
+  if ($children = array_values(element_children($form))) {
+    foreach ($children as $index => $item) {
+      $element = &$form[$item];
+      // filter_form() always uses the key 'format'. We need a type-agnostic
+      // match to prevent false positives. Also, there must have been at least
+      // one element on this level.
+      if (($item === 'format' || $item === 'signature_format') && $index > 0) {
+        // Make sure we either match a input format selector or input format
+        // guidelines (displayed if user has access to one input format only).
+        if ((isset($element['#type']) && $element['#type'] == 'fieldset') || isset($element['format']['guidelines'])) {
+          // The element before this element is the target form field.
+          $field = &$form[$children[$index - 1]];
+
+          // Allow modules to programmatically enforce no client-side editor by
+          // setting the #wysiwyg property to FALSE.
+          if (isset($field['#wysiwyg']) && !$field['#wysiwyg']) {
+            // A 'format' element should not have any child elements that may
+            // need processing, so it should be safe to skip the recursion that
+            // happens at the end of this function, and move on to the next
+            // element on the same level.
+            continue;
+          }
+
+          // Determine the available input formats. The last child element is a
+          // link to "More information about formatting options". When only one
+          // input format is displayed, we also have to remove formatting
+          // guidelines, stored in the child 'format'.
+          $formats = element_children($element);
+          array_pop($formats);
+          if (($key = array_search('format', $formats)) !== FALSE) {
+            unset($formats[$key]);
+          }
+          foreach ($formats as $format) {
+            // Use a prefix/suffix for a single input format, or attach to input
+            // format selector radio buttons.
+            if (!isset($element['format']['guidelines'])) {
+              $element[$format]['#attributes']['class'] .= ' wysiwyg-field-' . $field['#id'] . '-value';
+            }
+          }
+        }
+        // If this element is 'format', do not recurse further.
+        continue;
+      }
+      // Recurse into children.
+      wallyedit_form_node_form_after_build($element);
+    }
   }
 
   return $form;
@@ -649,7 +699,7 @@ function wydit_form_submit_action_cancel_global($form_state) {
   $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
-  $new_form_state['action'] = '/node/'.$cache_name.'/edit/ajax/'.$current_profile;
+  $new_form_state['action'] = '/node/'.$cache_name.'/edit2/ajax/'.$current_profile;
 
   $edit_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
