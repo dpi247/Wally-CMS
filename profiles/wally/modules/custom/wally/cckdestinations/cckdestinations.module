@@ -1697,7 +1697,10 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   }
 
   // Let other modules alter it.
-  drupal_alter('form', $form_element, array(), 'cckdestinations_remove_ahah');
+  $a = array();
+  $data = &$form_element;
+  $data['__drupal_alter_by_ref'] = array(&$a);
+  drupal_alter('form', $data, 'cckdestinations_remove_ahah');
 
   // Add the new element at the right place in the (original, unbuilt) form.
   $form_element[$field_name]['#parents'] = $parents;
