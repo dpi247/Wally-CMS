@@ -233,6 +233,7 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
     case 'CreateUpdate':
       if ($node_temporary != NULL){
         $node = $node_temporary;
+        cckdestinations_force_dnc($node);
       }
       break;
     case 'Update':
