@@ -439,7 +439,7 @@ function wallymport_process_folder($importer){
       if ($xml_file != NULL){
         //Process the file
         $return = wallymport_process_xmlfile($xml_file, $importer);
-        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+     //   $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
@@ -941,7 +941,7 @@ function wimprt_exploredom($dom, &$log, $importer){
 function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
   //get function name
   $callback = wimprt_set_callback($dom, $importer, $callback);
-  
+
   //Create or load the node
   $node = wimprt_node_create_or_load($dom, $importer, $callback, $log);
 
@@ -1069,7 +1069,9 @@ function wimprt_set_callback($dom, $importer, $callback = NULL){
     } 
   }
   if (!$function_exist) {
-    $callback = strtolower($dom->nodeName);
+    if ($callback == NULL){
+      $callback = strtolower($dom->nodeName);
+    }
   }
   return strtolower($callback);
 }
