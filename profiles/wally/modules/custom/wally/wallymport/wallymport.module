@@ -439,7 +439,7 @@ function wallymport_process_folder($importer){
       if ($xml_file != NULL){
         //Process the file
         $return = wallymport_process_xmlfile($xml_file, $importer);
-     //   $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
