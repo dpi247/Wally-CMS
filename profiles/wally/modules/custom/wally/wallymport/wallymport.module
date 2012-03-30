@@ -646,6 +646,14 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
       drupal_set_header('HTTP/1.1 517 '.$error_msg);
     } else {
       $file_location = $importer->done_directory_path.'/'.$file->name;
+      //If the is no zip, get all media file path form log and replace them in the done directory file
+      if ($importer->zip == 0){
+        foreach ($return['log']['filetomove'] as $media_file){
+          if (!file_move($media_file, $importer->done_directory_path)){
+            $error_msg = t('An error occured during file copy to done dorectory (file : '.$media_file.')');
+          }
+        }
+      }
     }
   } else {
     if (!file_move($file->filename, $importer->error_directory_path)) {
@@ -653,6 +661,14 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
       drupal_set_header('HTTP/1.1 517 '.$error_msg);
     } else {
       $file_location = $importer->error_directory_path.'/'.$file->name;
+      //If the is no zip, get all media file path form log and replace them in the error directory file
+      if ($importer->zip == 0){
+        foreach ($return['log']['filetomove'] as $media_file){
+          if (!file_move($media_file, $importer->error_directory_path)){
+            $error_msg = t('An error occured during file copy to done dorectory (file : '.$media_file.')');
+          }
+        }
+      }
     }
   }
   //save log in db
