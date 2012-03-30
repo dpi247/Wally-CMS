@@ -771,6 +771,8 @@ function wallymport_process_xmlfile($xml_file, $importer){
     $log = array();
     $return = array('error' => FALSE);
    
+    module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
+    
     if (!$dom->schemaValidate($importer->xsd_path)){
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
