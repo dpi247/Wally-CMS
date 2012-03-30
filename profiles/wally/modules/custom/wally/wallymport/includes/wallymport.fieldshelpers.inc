@@ -229,13 +229,16 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   global $proceed_file_path;
   global $base_path;
   global $proceed_folder_path;
-  
+
   if ($importer == NULL){
     $temp_folder = $proceed_folder_path;
+  } elseif($importer->zip == 0){
+    //If files are not zipped : The img files is search in the source directory path folder Be careful of name collision!
+    $temp_folder = $importer->source_directory_path;
   } else {
+    //if files are zipped
     $temp_folder = $importer->temp_subdir; 
   }
-
   $uri = parse_url($file_uri);
   $badcar = array('+', ' ');
   $new_file_path = str_replace($badcar, '_', rtrim($new_file_path, '/'));
