@@ -51,22 +51,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
   function options_form(&$form, &$form_state) {
     
   }
-  
-  function _clean_results($node){
-     $extracted = false;
-    
-    foreach($this->view->result as $key=>$result){
-      if($result->nid == $node->nid){
-        $extracted = true;
-        $result = array_merge(array_slice($this->view->result, 0, $key), array_slice($this->view->result, $key+2));
-        $this->view->result = $result;
-        break;
-      }
-    }
-    if(!$extracted && $this->view->pager['use_pager']==0)
-      array_pop($this->view->result);
-  }
-  
+
   /**
    * Allow the style to do stuff before each row is rendered.
    *
@@ -79,8 +64,9 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
     }
     
     $view = &$this->view;
-    if (isset($view->wallyedit_preview) && empty($view->result))
+    if (isset($view->wallyedit_preview) && empty($view->result)) {
       $view->result[] = array();
+    }
   }
   
   function render() {
@@ -88,49 +74,115 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       vpr('views_plugin_style_default: Missing row plugin');
       return;
     }
-    $rows = '';
-    module_load_include('inc', 'wallyedit', 'includes/Prenode');
-    $prenode = new Prenode($this->view->wallyedit_preview['cache name']);
-    $node = $prenode->ReturnPopulated();
-    $node->node_view_destination = $this->view->wallyedit_preview['tid'];
-    if($this->view->pager['current_page']==0)//useful if more than one view in a page.
-      $node->done = false;
+    
+    static $inserted_previews = array();
+    static $saved_results = array();
 
-    $this->_clean_results($node);
-    while(!$node->done){
-      foreach($this->view->result as $key=>$row) {
-        $cur_dest = $node->field_destinations[$this->view->wallyedit_preview['key']];
-        if (!isset($cur_dest['time_rank']) || empty($cur_dest['time_rank']) || $cur_dest['time_rank'] == 0) {
-          $items = array($cur_dest);
-          _cckdestinations_set_new_time_ranks($node, $items);
-          $cur_dest = $items[0];
+    $rows = '';
+
+    if ($this->view->wallyedit_preview) {
+      $preview_infos = $this->view->wallyedit_preview;
+      $view_infos = wallyctools_get_view_info_from_redacblock($preview_infos['target']);
+      if ($view_infos['view_id'] == $this->view->current_display) {
+        module_load_include('inc', 'wallyedit', 'includes/Prenode');
+        $prenode = new Prenode($preview_infos['cache name']);
+        $node = $prenode->ReturnPopulated();
+        $node->node_view_destination = $preview_infos['tid'];
+  
+        if (!isset($saved_results[$this->view->current_display])) {
+          $saved_results[$this->view->current_display] = array();
         }
-        $node->field_destinations[$this->view->wallyedit_preview['key']] = $cur_dest;
-        if($node->field_destinations[$this->view->wallyedit_preview['key']]['time_rank'] >= $row->node_data_field_destinations_field_destinations_time_rank){
-          $node->done = true;
-          $result = array_merge(array_slice($this->view->result, 0, $key), array(0=>$node, ), array_slice($this->view->result, $key));
-          $this->view->result = $result;
-          break;
-        }
-      }
-      $remaining_rows = $this->view->total_rows-($this->view->pager['items_per_page']*($this->view->pager['current_page']+1));
-      if(!$node->done){
-        if($remaining_rows<=0){ //At the end, node still not inserted and no remaining pages
-          $node->done = true;
-          $this->view->result[] = $node;
-        }else{
-          $this->view->pager['current_page'] += 1;
-          $this->view->executed = FALSE;
-          $this->view->pre_execute();
-          $this->view->execute();
-          $this->_clean_results($node);
+
+        // Remove previewed node from results
+        $this->_clean_results($node, $saved_results[$this->view->current_display]);
+
+        if (!isset($inserted_previews[$this->view->current_display]) || !$inserted_previews[$this->view->current_display]) {
+          if($this->view->pager['current_page'] == 0) {//useful if more than one view in a page.
+            $inserted_previews[$this->view->current_display] = FALSE;
+          }
+  
+          // Determine new time_rank
+          $this->_insert_node_in_results($node);
+
+          foreach($this->view->result as $key => $row) {
+            if($node->field_destinations[$preview_infos['key']]['time_rank'] >= $row->node_data_field_destinations_field_destinations_time_rank){
+              $inserted_previews[$this->view->current_display] = TRUE;
+              $result = array_merge(array_slice($this->view->result, 0, $key), array(0 => $node), array_slice($this->view->result, $key));
+              $this->view->result = $result;
+              break;
+            }
+          }
+
+          if($inserted_previews[$this->view->current_display]) {
+            array_push($saved_results[$this->view->current_display], array_pop($this->view->result));
+          }
         }
       }
     }
+
     foreach ($this->view->result as $row) {
       $rows[] = $this->row_plugin->render($row);
     }
+
     $output .= theme($this->theme_functions(), $this->view, $this->options, $rows, $title);
     return $output;
+  }
+  
+  function _clean_results($node, &$saved_results) {
+    // Replace saved results at the beginning of the current results
+    while (!empty($saved_results)) {
+      array_unshift($this->view->result, array_shift($saved_results));
+    }
+    foreach($this->view->result as $key => $result) {
+      if($result->nid == $node->nid) {
+        $result = array_merge(array_slice($this->view->result, 0, $key), array_slice($this->view->result, $key + 1));
+        $this->view->result = $result;
+        break;
+      }
+    }
+    // Remove and save additionnal results
+    while (sizeof($this->view->result) >= $this->view->pager['items_per_page']) {
+      array_push($saved_results, array_pop($this->view->result));
+    }
+  }
+  
+  function _insert_node_in_results(&$node) {
+    $current_results = $this->view->result;
+    $item = $preview_infos = $this->view->wallyedit_preview;
+
+    $defaults = array(
+      'sort_method' => 'absolute',
+      'behavior' => 'top',
+      'reserved' => 5,
+      'delta_t' => 1,
+    );
+    $dest_settings = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
+    $sort_method = $dest_settings['sort_method'];
+
+    if ($sort_method == 'interval') {
+      $item['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * $dest_settings['delta_t']);
+    } else {
+      // Set params for this destination
+      $behavior = $dest_settings['behavior'];
+      $reserved = $dest_settings['reserved'] - $this->view->pager['offset'];
+      $temp_time_rank = 0;
+      $rank = $item['rank'];
+
+      if ($rank == 0) {
+        if ($behavior == 'bottom') {
+          $rank = $reserved + 1;
+        } else {
+          $rank = 1;
+        }
+      } elseif ($rank > $reserved) {
+        $rank = $reserved + 1;
+      }
+      --$rank;
+
+      $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = isset($current_results[$rank - 1]) ? $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank : $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank + 30;
+      $item['time_rank'] = ($current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank) / 2;
+    }
+
+    $node->field_destinations[$preview_infos['key']]['time_rank'] = $item['time_rank'];
   }
 }
