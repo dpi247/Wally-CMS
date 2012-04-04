@@ -11,18 +11,17 @@
  *   $valid_dom
  */
 
-function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip){
+function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip) {
   $packages_node = $valid_dom->appendChild($valid_dom->createElement('Packages'));
   $packages_node->setAttribute('xmlns', 'http://rossel.audaxis.com');
   $packages_node->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');  
   $packages_node->setAttribute('xsi:schemaLocation', 'http://rossel.audaxis.com http://rossel.audaxis.com/xsd/packages.1.12.xsd');
-  
-  foreach ($wally_array['Packages']['Package'] as $package_array){
+
+  foreach ($wally_array['Packages']['Package'] as $package_array) {
     $package_node = $packages_node->appendChild($valid_dom->createElement('Package'));
     //Package Type
     $package_node->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', $package_array['type']);
-    
-    $files_to_zip = array();
+
     //Set common fields
     _wallytoolbox_arraytowallyxml_fillPackageType($valid_dom, $package_node, $package_array);
     switch ($package_array['type']){
@@ -62,7 +61,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
               break;
           }
         }
-      }  
+      }
       if (isset($package_array['EmbeddedContent']['LinksLists']['LinksList'])){
         $linkslists_node = $embeddedcontent_node->appendChild($valid_dom->createElement('LinksLists'));
         foreach ($package_array['EmbeddedContent']['LinksLists']['LinksList'] as $linkslist_array){
@@ -74,6 +73,7 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
   }
   return $valid_dom;
 }
+
 /**
  * Set the common Package elements
  *
@@ -88,7 +88,6 @@ function wallytoolbox_arraytowallyxml($wally_array, &$valid_dom, &$files_to_zip)
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_node, $package_array){
-
   $package_node->setAttribute('PackageID', $package_array['PackageID']);
   $package_node->setAttribute('PublicationDate', str_replace(' ','T',$package_array['PublicationDate']));
   $package_node->setAttribute('CreationDate', str_replace(' ','T',$package_array['CreationDate']));
@@ -149,9 +148,8 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $externaluri_node = $package_node->appendChild($valid_dom->createElement('ExternalURI'));
     $externaluri_node->setAttribute('xsi:nil', 'true');
   }
-  
-
 }
+
 /**
  * Set the Article Package elements
  *
@@ -166,16 +164,14 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillArticlePackageType(&$valid_dom, &$package_node, $package_array){
-
   $mainstory_node = $package_node->appendChild($valid_dom->createElement('MainStory'));
   $mainstory_array = $package_array['MainStory'];
   $mainstory_node->setAttributeNS('http://www.w3.org/2001/XMLSchema-instance', 'xsi:type', 'TextObjectType');
 
   _wallytoolbox_arraytowallyxml_fillObjectType($valid_dom, $mainstory_node, $mainstory_array);
-
   _wallytoolbox_arraytowallyxml_fillTextObjectType($valid_dom, $mainstory_node,$mainstory_array);
-
 }
+
 /**
  * Set the Gallery Package elements
  *
@@ -204,6 +200,7 @@ function _wallytoolbox_arraytowallyxml_fillGalleryPackageType(&$valid_dom, &$pac
       break;
   }
 }
+
 /**
  * Set the Gallery Package elements
  *
@@ -226,6 +223,7 @@ function _wallytoolbox_arraytowallyxml_fillPollPackageType(&$valid_dom, &$packag
     }  
   }
 }
+
 /**
  * Set the LinksList elements
  *
@@ -258,6 +256,7 @@ function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_no
     }
   }
 }
+
 /**
  * Set the Object elements
  *
@@ -272,7 +271,6 @@ function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_no
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node, $object_array){
-
   $object_node->setAttribute('ObjectID', $object_array['ObjectID']);
   $object_node->setAttribute('ObjectDescription', $object_array['ObjectDescription']);
   $object_node->setAttribute('PublicationDate', $object_array['PublicationDate']);
@@ -282,7 +280,6 @@ function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node
   $object_node->appendChild($valid_dom->createElement('Title', $object_array['Title']['value']));
   $object_node->appendChild($valid_dom->createElement('ExternalReference', $object_array['ExternalReference']['value']));
   $object_node->appendChild($valid_dom->createElement('InternalReference', $object_array['InternalReference']['value']));
-  
 
   if (isset($object_array['Taxonomy']) & count($object_array['Taxonomy']) != 0){
     _wallytoolbox_arraytowallyxml_createVocItems($valid_dom, $object_node, $object_array['Taxonomy']);
@@ -329,8 +326,8 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
   $text_extmed_node->appendChild($valid_dom->createCDATASection($mainstory_array['ExtractMedium']['value']));
   $text_extshort_node = $mainstory_node->appendChild($valid_dom->createElement('ExtractShort'));
   $text_extshort_node->appendChild($valid_dom->createCDATASection($mainstory_array['ExtractShort']['value']));
-
 }
+
 /**
  * Set the Text PhotoObject elements
  *
@@ -345,8 +342,8 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$object_node, $object_array){
-  $object_node->appendChild($valid_dom->createElement('Caption',$object_array['Caption']['value']));
-  $object_node->appendChild($valid_dom->createElement('FileURI',$object_array['FileURI']['value']));
+  $object_node->appendChild($valid_dom->createElement('Caption', $object_array['Caption']['value']));
+  $object_node->appendChild($valid_dom->createElement('FileURI', $object_array['FileURI']['value']));
   
   if ($object_array['FileSize']['value'] == '' | $object_array['FileSize']['value'] == NULL){
     $object_array['FileSize']['value'] = 0;
@@ -355,7 +352,6 @@ function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$o
   $thumbnail_node = $object_node->appendChild($valid_dom->createElement('Thumbnail'));
   $thumbnail_node->setAttribute('URI', $object_array['Thumbnail']['URI']);
   if (isset($object_array['Thumbnail']) & $object_array['Thumbnail']['value'] != NULL & $object_array['Thumbnail']['value'] != ''){
-    
     if (isset($object_array['Thumbnail']['Type']) & $object_array['Thumbnail']['Type'] != NULL & $object_array['Thumbnail']['Type'] != '')
       $thumbnail_node->setAttribute('Type',$object_array['Thumbnail']['Type']);
     if (isset($object_array['Thumbnail']['Title']) & $object_array['Thumbnail']['Title'] != NULL & $object_array['Thumbnail']['Title'] != '')
@@ -374,10 +370,11 @@ function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$o
     $rating_node->setAttribute('xsi:nil','true');
   }
     
-  if (isset($object_array['MimeType']) & $object_array['MimeType'] != NULL & $object_array['MimeType'] != '')
+  if (isset($object_array['MimeType']) & $object_array['MimeType'] != NULL & $object_array['MimeType'] != '') {
     $object_node->setAttribute('MimeType',$object_array['MimeType']);
-  
+  }
 }
+
 /**
  * Set the Text PhotoObject elements
  *
@@ -392,10 +389,47 @@ function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$o
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object_node, $object_array, &$files_to_zip){
-  _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom,$object_node, $object_array);
   if (isset($object_array['PhotoFile'])){
     $files_to_zip[] = $object_array['PhotoFile'];
+  } else {
+    $file_uri = $object_array['FileURI']['value'];
+    $uri = parse_url($file_uri);
+    $badcar = array('+', ' ');
+    $recognized = FALSE;
+    $expl_path = explode('/', $uri['path']);
+    $file_name = $expl_path[count($expl_path)-1];
+    $http_req = drupal_http_request($file_uri);
+    if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
+      if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
+        $good_file_name = str_replace($badcar, '_', $file_name);
+        $recognized = TRUE;
+      } elseif ($http_req->headers['Content-Disposition']) {
+        $content_disp = $http_req->headers['Content-Disposition'];
+        $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
+        $good_file_name = str_replace($badcar, '_', substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
+        $recognized = TRUE;
+      } else {
+        $processed_uri = $file_uri;
+      }
+      if ($recognized) {
+        $file_temp_path = '/tmp/'.$good_file_name;
+        if(!@copy($file_uri, $file_temp_path)) {
+          chmod($file_temp_path, octdec('0777'));
+          drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
+          $processed_uri = $file_uri;
+        } else {
+          $processed_uri = 'embed://'.$good_file_name;
+          $files_to_zip[] = $file_temp_path;
+        }
+      }
+    } else {
+      $processed_uri = $file_uri;
+    }
+    $object_array['FileURI']['value'] = $processed_uri;
   }
+
+  _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom, $object_node, $object_array);
+
   $crops_node = $object_node->appendChild($valid_dom->createElement('Crops'));
   if (isset($object_array['Crops'])){
     foreach ($object_array['Crops']['Crop'] as $crop_array){
@@ -434,6 +468,7 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
     $height_node->setAttribute('xsi:nil', 'true');
   }
 }
+
 /**
  * Set the Text AudioObject elements
  *
@@ -466,6 +501,7 @@ function _wallytoolbox_arraytowallyxml_fillAudioObjectType(&$valid_dom, &$object
     $linkuri_node->setAttribute('xsi:nil', 'true');
   }
 }
+
 /**
  * Set the Text VideoObject elements
  *
@@ -498,8 +534,8 @@ function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object
     $linkuri_node = $object_node->appendChild($valid_dom->createElement('LinkURI'));
     $linkuri_node->setAttribute('xsi:nil', 'true');
   }
-  
 }
+
 /**
  * Set the Text PollObject elements
  *
@@ -536,6 +572,7 @@ function _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom, $object_no
     }
   }
 }
+
 /**
  * Set the Taxonomy elements
  *
@@ -606,6 +643,7 @@ function _wallytoolbox_arraytowallyxml_createVocItems(&$valid_dom, &$object_node
     }
   }
 }
+
 /**
  * Set the Person elements
  *
@@ -620,7 +658,6 @@ function _wallytoolbox_arraytowallyxml_createVocItems(&$valid_dom, &$object_node
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPersonType(&$valid_dom,&$term_node,$term_array){
-
   $term_node->appendChild($valid_dom->createElement('PersonLastName',$term_array['PersonLastName']['value']));
   $term_node->appendChild($valid_dom->createElement('PersonFirstName',$term_array['PersonFirstName']['value']));
   $term_node->appendChild($valid_dom->createElement('PersonNickName',$term_array['PersonNickName']['value']));
@@ -640,8 +677,8 @@ function _wallytoolbox_arraytowallyxml_fillPersonType(&$valid_dom,&$term_node,$t
   $term_node->appendChild($valid_dom->createElement('PersonEmail',$term_array['PersonEmail']['value']));
   $term_node->appendChild($valid_dom->createElement('PersonWebSite',$term_array['PersonWebSite']['value']));
   $term_node->appendChild($valid_dom->createElement('PersonPhoneNumber',$term_array['PersonPhoneNumber']['value']));
-
 }
+
 /**
  * Set the Entity elements
  *
@@ -656,11 +693,10 @@ function _wallytoolbox_arraytowallyxml_fillPersonType(&$valid_dom,&$term_node,$t
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillEntityType(&$valid_dom,&$term_node,$term_array){
-
   $term_node->appendChild($valid_dom->createElement('EntityDescription',$term_array['EntityDescription']['value']));
   $term_node->appendChild($valid_dom->createElement('EntityServices',$term_array['EntityServices']['value']));
- 
 }
+
 /**
  * Set the Location elements
  *

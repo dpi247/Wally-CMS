@@ -97,7 +97,10 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
-          
+          if (strstr('Flow2Node_', $feed_infos['caid']) && isset($feed_infos['conf']['get_distant_img'])) {
+            // Do not import image to local folder for Flow2Node
+            $feed_infos['conf']['get_distant_img'] = 0;
+          }
           while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5'])) {
             $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
           }
@@ -204,20 +207,18 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   
   // Copy distant images to local
   if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
-    $new_file_path = 'Flows/';
-    $file_temp_dir = file_directory_path().'/'.$new_file_path;
+    $file_temp_dir = file_directory_path().'/Flows/';
     file_check_directory_recursive($file_temp_dir, 1);
-    $new_file_path .= $feed_infos['caid'];
-    $new_file_path .= '_'.date('Ymd', time());
+    
     foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
       if ($object['type'] == 'PhotoObjectType') {
         $file_uri = $object['FileURI']['value'];
-        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
       }
       
       if (isset($object['Thumbnail'])) {
         $file_uri = $object['Thumbnail']['URI'];
-        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
       }
     }
   }
@@ -248,7 +249,6 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $pubDate = date('Y-m-d', $channel_pubDate).'T'.date('H:i:sP', $channel_pubDate);
   $array_item['PublicationDate'] = $pubDate;
   $array_item['LastUpdateDate'] = date('Y-m-d').'T'.date('H:i:s');
-  $array_item['UnPublishDate'] = date('Y-m-d', strtotime('+10 years')).'T'.date('H:i:s');
   $array_item['CreationDate'] = date('Y-m-d').'T'.date('H:i:s');
   $array_item['PackageTitle']['value'] = _wallytoolbox_checkifelementexists($item, 'title');
   $array_item['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
@@ -680,4 +680,48 @@ function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'not
   drupal_set_message($msg, $severity);
   $item['__log']['success'] = $success;
   $item['__log']['msg'] = $msg;
+}
+
+function _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $caid) {
+  $uri = parse_url($file_uri);
+  $expl_path = explode('/', $uri['path']);
+  $file_name = $expl_path[count($expl_path)-1];
+  $badcar = array('+', ' ');
+  $good_file_name = str_replace($badcar, '_', $file_name);
+  $photo_name = md5($file_uri).'_'.$good_file_name;
+  $matching_photos = file_scan_directory($file_temp_dir, $photo_name);
+  $matching_photo = NULL;
+  foreach ($matching_photos as $match) {
+    $match_path = $match->filename;
+    $expl_match_path = explode('/', $match_path);
+    $not_found = TRUE;
+    while($not_found) {
+      $a = array_shift($expl_match_path);
+      if ($a == 'Flows') {
+        $match_dir = array_shift($expl_match_path);
+        $match_name = array_pop($expl_match_path);
+        $not_found = FALSE;
+      }
+      if (empty($expl_match_path)) {
+        $not_found = FALSE;
+      }
+    }
+    if ($match_name == $photo_name && ereg($caid.'-[0-9]{8}', $match_dir)) {
+      $matching_photo = $match;
+      break;
+    }
+  }
+
+  if ($matching_photo) {
+    $db_matching_photos = db_query("SELECT fid, filepath FROM {files} WHERE filepath = '%s'", $matching_photo->filename);
+    while($file = db_fetch_object($db_matching_photos)) {
+      if (!field_file_delete($file)) {
+        db_query('DELETE FROM {files} WHERE fid = %d', $file->fid);
+        _field_file_cache(NULL, $file); // delete the file from the cache
+      }
+    }
+  }
+
+  $new_file_path = 'Flows/'.$caid.'-'.date('Ymd', time());
+  return _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
 }

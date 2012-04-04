@@ -1,16 +1,17 @@
 <?php
 
-/*
+/**
  * Implementation of the hook module _install();
  */
 function wallyextra_install() {
   drupal_install_schema('wallyextra');
 }
 
-/*
+/**
  * Implementation of the hook module _uninstall();
  */
 function wallyextra_uninstall() {
+  wallytoolbox_variable_del_like('wallyextra_');
   drupal_uninstall_schema('wallyextra');
 }
 

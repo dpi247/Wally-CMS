@@ -1203,7 +1203,7 @@ function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element,
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
   wimprt_process_node_default($node, $dom_element, $log, $importer);
   //Exception for TextObject
-  if ($dom_element->getElementsByTagName("TextTitle")->item(0)->length) {
+  if ($dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
   

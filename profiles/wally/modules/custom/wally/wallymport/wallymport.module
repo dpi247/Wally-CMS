@@ -496,22 +496,24 @@ function wallymport_save_log($importer, $date, $file_location, $log) {
  * @return errors, logs
  */
 function wallymport_process_file($importer, $file_name){
-  
   $returns = NULL;
   
   $folder = $importer->source_directory_path;
 
-  $file = new stdClass();
-  
+  $file = new stdClass();  
   $file->name = $file_name;
   $file->filename = $folder."/".$file_name;
   $file->basename = $file_name;
 
   if (!file_exists($file->filename)) {
     $error_msg = t('Input file doesn\'t exists');
-    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+    $return = array('error' => TRUE, 'error_msg' => $error_msg);
+    $returns[] = $return;
+    drupal_set_header('HTTP/1.1 517 '.$error_msg);
+    wallymport_save_log($importer, time(), $file->filename, serialize($return));
   }
-  if ($returns == NULL){
+
+  if ($returns == NULL) {
     $xml_file = wallymport_preprocess_file($file, $importer, $returns);
     if ($xml_file != NULL & $returns == NULL){
       //Process the file
@@ -718,8 +720,9 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
 
   $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    $temp_subdir = $importer->temp_directory_path.'/'.$file->name;
-    file_check_directory($temp_subdir,1);
+    $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+    $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
+    file_check_directory_recursive($temp_subdir, 1);
     if (is_dir($temp_subdir)) {
       $importer->temp_subdir = $temp_subdir;
       $zip->extractTo($temp_subdir);
@@ -756,6 +759,7 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
     }
     drupal_set_header('HTTP/1.1 517 '.$error_msg);
   }
+
   return $xml_file;
 }
 
@@ -780,7 +784,7 @@ function wallymport_page_process_file($xml_file, $importer){
   } else {
     $contents = fread($handle, filesize($xml_file));
     $contents = wallymport_convertEntities($contents);
-    
+
     $dom = new DomDocument();
     $dom->LoadXML($contents);
     $log = array();
