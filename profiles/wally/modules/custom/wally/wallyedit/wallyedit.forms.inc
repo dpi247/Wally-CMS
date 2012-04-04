@@ -251,17 +251,13 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
           if ($form[$element][$child]['#type'] == 'text_textarea') {
             $form[$element][$child]['#wysiwyg'] = FALSE;
           }
-          $form[$element][$child]['#type'] = 'value';
           $form[$element][$child]['#required'] = FALSE;
-          $form[$element][$child]['#value'] = $form[$element][$child]['#default_value'];
         }
       } else {
         if ($form[$element]['#type'] == 'text_textarea') {
           $form[$element]['#wysiwyg'] = FALSE;
         }
-        $form[$element]['#type'] = 'value';
         $form[$element]['#required'] = FALSE;
-        $form[$element]['#value'] = $form[$element]['#default_value'];
       }
     }
     if($form[$element]['#type'] == 'value' && $form[$element]['#value']) {
@@ -476,9 +472,15 @@ function wydit_form_preview_form(&$form_state, $cache_name = NULL) {
     $options = array('disabled' => t('Preview disabled'), 'no_dest' => 'Node');
     if (isset($tmp_form_state[$type_name]['#node']->field_destinations)) {
       foreach($tmp_form_state[$type_name]['#node']->field_destinations as $delta => $dest) {
-        if($delta !== 'field_destinations_add_more') {
+        if($delta !== 'field_destinations_add_more' && $dest['tid'] && !empty($dest['tid']) && $dest['target'] && !empty($dest['target'])) {
           $dest_name = taxonomy_get_term($dest['tid'])->name;
-          $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank']);
+          $option = $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : ';
+          if (strstr($dest['rank'], 'DNC')) {
+            $option .= substr($dest['rank'], 3, 1).' (not changed)';
+          } else {
+            $option .= $dest['rank'];
+          }
+          $options += array($delta => $option);
         }
       }
     }
@@ -1180,12 +1182,6 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
       }
       $form_state['#node']->$field_name = $form_state[$field_name] ? $form_state[$field_name] : array();
     }
-  }
-
-  if (is_array($fields) && isset($fields['field_publicationdate']) && $fields['field_publicationdate']['display'] == 0) {
-    $cck_fields = content_types($type_name);
-    $format = $cck_fields['fields']['field_publicationdate']['widget']['input_format'];
-    $form_state['#node']->field_publicationdate[0]['value'] = date($format);
   }
   
   if (is_array($form_state['#node']->path) && isset($form_state['#node']->path['pathauto_perform_alias'])) {
