@@ -540,7 +540,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $element['rank'] = array(
     '#title'            => t( 'Rank' ),
     '#type'             => 'select',
-    '#default_value'    => 'DNC'.$defaults['rank'],
+    '#default_value'    => array_key_exists('DNC'.$defaults['rank'], $rank_values) ? 'DNC'.$defaults['rank'] : $defaults['rank'],
     '#options'          => $rank_values,
     '#classes'          => $rank_classes,
     '#required'         => FALSE,
@@ -871,11 +871,11 @@ function cckdestinations_widget(&$form, &$form_state, $field, $items, $delta = 0
                           : $minimum_item_count;
 
     if (count($deltas) > 1 || $current_item_count >= 1) {
-      $deltas[] = max($deltas) + 1;
+      $deltas[] = !empty($deltas) ? max($deltas) + 1 : 1;
     }
 
     if (count($deltas) < $current_item_count) {
-      $deltas[] = max($deltas) + 1;
+      $deltas[] = !empty($deltas) ? max($deltas) + 1 : 1;
     }
     
     if (count($deltas) == 0) {
