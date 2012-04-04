@@ -1565,15 +1565,35 @@ function wallycontenttypes_getpackagelayout($node) {
 */
 function wallycontenttypes_delete_orphans_objects($node){
   $nids = array();
-  $nids[] = $node->field_mainstory[0]['nid'];
-  foreach($node->field_embededobjects as $emobject){
-    if($emobject['nid']!= NULL && !in_array($emobject['nid'], $nids)){
-      $nids[] = $emobject['nid'];
+  switch ($node->type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+    default:
+      $main_object_type = FALSE;
+  }
+  if ($main_object_type) {
+    $main_object = $node->$main_object_type;
+    $nids[] = $main_object[0]['nid'];
+  }
+  if (isset($node->field_embededobjects) && is_array($node->field_embededobjects)) {
+    foreach($node->field_embededobjects as $emobject){
+      if($emobject['nid']!= NULL && !in_array($emobject['nid'], $nids)){
+        $nids[] = $emobject['nid'];
+      }
     }
   }
-  foreach($node->field_linkedobjects as $lnobject){
-    if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
-      $nids[] = $lnobject['nid'];
+  if (isset($node->field_linkedobjects) && is_array($node->field_linkedobjects)) {
+    foreach($node->field_linkedobjects as $lnobject){
+      if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
+        $nids[] = $lnobject['nid'];
+      }
     }
   }
   foreach($nids as $nid){
