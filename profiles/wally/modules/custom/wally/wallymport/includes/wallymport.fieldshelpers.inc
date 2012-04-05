@@ -158,8 +158,11 @@ function _wimprthelp_date_to_ccktime($date) {
  */
 function _wimprthelp_polldate_to_ccktime($date1,$date2) {
   //@todo: handle timezone
-  $result['value'] = str_replace('T', ' ', $date1);
-  $result['value2'] = str_replace('T', ' ', $date2);
+
+  $date1 = _wimprthelp_date_to_ccktime($date1);
+  $date2 = _wimprthelp_date_to_ccktime($date2);
+  $result['value'] = $date1['value'];
+  $result['value2'] = $date2['value'];
   $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
   $result['timezone_db'] = 'UTC';
   $result['date_type'] = 'datetime';
@@ -221,6 +224,10 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
     return NULL;
   }
 
+  global $proceed_file_path;
+  global $base_path;
+  global $proceed_folder_path;
+  
   if ($importer == NULL){
     $temp_folder = $proceed_folder_path;
   } else {

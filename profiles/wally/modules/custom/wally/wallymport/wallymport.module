@@ -285,7 +285,7 @@ function wallymport_check_process_folder($importer_name) {
       watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
     }
 
-    $returns[] = array('error' => TRUE, 'error_msg' => array('Process folder task has been running for more than an hour and is most likely stuck.'));
+    $returns[] = array('error' => TRUE, 'error_msg' => t('Process folder task has been running for more than an hour and is most likely stuck.'));
   } else {
     // Register shutdown callback
     register_shutdown_function('wallymport_process_folder_cleanup');
@@ -347,8 +347,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
       // Cron is still running normally.
       watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
     }
-
-    $returns = array('error' => TRUE, 'error_msg' => array('Process folder task has been running for more than an hour and is most likely stuck.'));
+    $returns[] = array('error' => TRUE, 'error_msg' => t('Process folder task has been running for more than an hour and is most likely stuck.'));
   } else {
     // Register shutdown callback
     register_shutdown_function('wallymport_process_folder_cleanup');
@@ -363,7 +362,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
       $returns = wallymport_process_file($importer, $file_name);
     } else {
       //Unknown importer
-      $returns = array('error' => TRUE, 'error_msg' => array('Unknown imprter'));
+      $returns[] = array('error' => TRUE, 'error_msg' => t('Unknown importer'));
     }
     // Record cron time
     variable_set('wallymport_process_folder_last', time());
@@ -465,10 +464,10 @@ function wallymport_process_folder($importer){
 }
 
 /**
- * Save log in db
- *
- * @param: $importer_name
- *   Importer choose to process file
+ * Save logs in db
+ * 
+ * @param $importer_name
+ *   Importer_name of the importer choose to process file
  * @param $date
  * @param $file_location
  * @param $log
@@ -596,7 +595,6 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * 
  * */
 function wallymport_post($importer_name){
-  
   $returns = NULL;
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
@@ -1187,7 +1185,7 @@ function wimprt_set_callback($dom, $callback = NULL){
  * @param $callback
  *   The callback of the process function to allow specific call of wimprt_create_or_load_object_CALLBACK
  * @param $log
- *   
+ *
  * @return
  *   A node object
  */

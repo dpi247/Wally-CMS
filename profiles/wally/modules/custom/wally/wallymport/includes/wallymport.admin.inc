@@ -138,19 +138,19 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   );
   
   $form['wallymport']['processed_by_post'] = array(
-    '#type' => 'select',
-    '#title' => t('Are the data imported during POST?'),
+    '#type'        => 'select',
+    '#title'       => t('Are the data imported during POST?'),
     '#description' => t('Indicates if the data are processed during the POST?'),
-    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
-    '#required' => TRUE,
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
    $form['wallymport']['processed_by_cron'] = array(
-    '#type' => 'select',
-    '#title' => t('Are the data imported by a CRON job?'),
+    '#type'        => 'select',
+    '#title'       => t('Are the data imported by a CRON job?'),
     '#description' => t('Indicates if the data are processed by a CRON job?'),
-    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
-    '#required' => TRUE,
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
   $form['wallymport']['cron_frequency'] = array (
@@ -172,19 +172,20 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
   );
   
   $form['wallymport']['default_user'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Drupal user used for imports.'),
+    '#type'        => 'textfield',
+    '#title'       => t('Drupal user used for imports.'),
     '#description' => t('This user will be used as author for creating content.'),
-    '#size' => 3,
-    '#maxlength' => 8,
-    '#required' => TRUE,
+    '#size'        => 3,
+    '#maxlength'   => 8,
+    '#required'    => TRUE,
   );
   
-  $form['wallymport']['keep_log'] = array (
-    '#type'             => 'select',
-    '#title'            => t('Keep logs?'),
-    '#options'          => array(t('No'), t('Yes')),
-    '#required'         => TRUE,
+  $form['wallymport']['keep_log'] = array(
+    '#type'        => 'select',
+    '#title'       => t('Keep logs?'),
+    '#description' => t('If checked, the logs are saved in db'),
+    '#options'     => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required'    => TRUE,
   );
   
   $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save') );
@@ -383,10 +384,14 @@ function wallymport_page_admin(){
 function wallymport_page_importer_logs($iid){
   $importer = wallymport_getimporter($iid);
   $logs = unserialize($importer->cron_log);
-  rsort($logs);
   $content = '';
-  foreach ($logs as $log){
-    $content .= theme('wallymport_logs', $log);
+  if ($logs != NULL){
+    rsort($logs);
+    foreach ($logs as $log){
+      $content .= theme('wallymport_logs', $log);
+    }
+  } else {
+    $content .= 'There is no log';
   }
   return $content;
 }
