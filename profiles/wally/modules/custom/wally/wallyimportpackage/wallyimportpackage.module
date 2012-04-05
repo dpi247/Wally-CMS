@@ -51,7 +51,8 @@ function wallyimportpackage_menu() {
  *   The DomDocument who is being proceed
  * @param $log
  *   The log object build recursively in different operation. this could track error in the process and build nodes
- *
+ * @param $importer
+ *   The importer object used to import
  * @return
  *   the log object
  */
@@ -66,7 +67,7 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   return $return;
 }
 
-/*
+/**
  * hook_wimprt_process_package 
  */
 function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $importer){
@@ -114,9 +115,10 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
+
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
-      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
+      module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
       
       $prenode = new Prenode();
@@ -163,25 +165,26 @@ function wallyimportpackage_create_or_load_package_articlepackagetype($dom, &$lo
   wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $importer);
   return $node;
 }
+
 /**
-* Delete the node without checking permissions.
-*
-* @param $nid
-*   The nid of the node
-*/
+ * Delete the node without checking permissions.
+ *
+ * @param $nid
+ *   The nid of the node
+ */
 function wallyimportpackage_node_delete($nid){
   $node = node_load($nid, NULL, TRUE);
   db_query('DELETE FROM {node} WHERE nid = %d', $node->nid);
   db_query('DELETE FROM {node_revisions} WHERE nid = %d', $node->nid);
   db_query('DELETE FROM {node_access} WHERE nid = %d', $node->nid);
-  
+
   // Call the node-specific callback (if any):
   node_invoke($node, 'delete');
   node_invoke_nodeapi($node, 'delete');
-  
+
   // Clear the page and block caches.
   cache_clear_all();
-  
+
   // Remove this node from the search index if needed.
   if (function_exists('search_wipe')) {
     search_wipe($node->nid, 'node');
@@ -189,6 +192,7 @@ function wallyimportpackage_node_delete($nid){
   watchdog('content', '@type: deleted %title.', array('@type' => $node->type, '%title' => $node->title));
   drupal_set_message(t('@type %title has been deleted.', array('@type' => node_get_types('name', $node), '%title' => $node->title)));
 }
+
 /**
  * Preprocess Create or load package
  * 
@@ -670,9 +674,10 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
 	} else {
 	  // @TODO: FATAL ERROR - PACKAGE DONE - NEED CHECK
       $node->rejected = '';
-      $log['error'] = TRUE;
-      $log['error_msg'] = t('No destination AT ALL for current package. Package rejected.');
-	  drupal_set_message('No destination AT ALL for current package. Package rejected.','error');
+      $error_msg = t('No destination AT ALL for current package. Package rejected.');
+	  drupal_set_message($error_msg,'error');
+	  $log['error'] = TRUE;
+	  $log['error_msg'] = $error_msg;
 	  return '';
 	}
   } else {
@@ -735,9 +740,9 @@ function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
 	if ($valid) { 
       $node->field_editions = array(array("value"=>serialize($result)));
 	} else {
-    //$node->rejected = '';
-	drupal_set_message('ALL Edition set to false. Package rejected','error');
-	// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
+      //$node->rejected = '';
+	  drupal_set_message(t('ALL Edition set to false.'),'error');
+	  // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
 	}
 		
   } else {
@@ -745,6 +750,7 @@ function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
 	return '';
   }
 }
+
 /**
 * Process field Auto Publish from DOM element.
 *
@@ -800,9 +806,10 @@ function wallyimportpackage_set_field_channels(&$node, $dom, $log, $importer) {
     $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
+    $error_msg = t('No channels found. Package rejected');
+    drupal_set_message($error_msg, 'error');
     $log['error'] = TRUE;
-    $log['error_msg'] = t('No channels found. Package rejected');
-    drupal_set_message('No channels found. Package rejected','error');
+    $log['error_msg'] = $error_msg;
     // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
   }
 }
@@ -1200,6 +1207,7 @@ function wallyimportpackage_create_or_load_object_textobjecttype($dom, &$log, $i
 function wallyimportpackage_process_object_textobjecttype (&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
+  
   wallyimportpackage_objecttype_preprocess($node, $dom_element, $importer);
   wimprt_process_node_default($node, $dom_element, $log, $importer);
   //Exception for TextObject
@@ -1361,8 +1369,9 @@ function wallyimportpackage_process_object_pollobjecttype(&$node, $dom, &$log, $
   $date1 = NULL;
   $date2 = NULL;
   $date1 = $dom->getElementsByTagName("DateOpen")->item(0)->nodeValue;
-  if ($dom->getElementsByTagName("DateClose")->length) 
+  if ($dom->getElementsByTagName("DateClose")->length){
     $date2 = $dom->getElementsByTagName("DateClose")->item(0)->nodeValue;
+  }
   $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1, $date2);
 
   return $node;
@@ -1477,7 +1486,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
-  
+
   return $node;
 }
 
@@ -1719,6 +1728,7 @@ function wallyimportpackage_set_field_thumbnail(&$node, $dom, &$log, $importer){
   $thumbnail = $dom->nodeValue;
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumbnail, '', $importer);
 }
+
 /**
 * Process article package from DOM.
 *
@@ -1759,6 +1769,7 @@ function wallyimportpackage_process_object_link(&$node, $dom, &$log, $importer){
     $node->field_link_item[0]['attributes'] = array('target'=>'_blank');
   }
 }
+
 /**
  * Process article package from DOM.
  * 
@@ -1800,7 +1811,6 @@ function wallyimportpackage_process_type_link(&$node, $dom, &$log, $importer){
   }
 }
 
-
 /**
  * Create or load a links list object depending of external reference.
  * 
@@ -1828,6 +1838,7 @@ function wallyimportpackage_create_or_load_object_linkslist($dom, &$log, $import
 
   return $node;
 }
+
 /**
 * Create or load a link type depending of external reference.
 *
@@ -1855,6 +1866,7 @@ function wallyimportpackage_create_or_load_object_link($dom, &$log, $importer){
 
   return $node;
 }
+
 /**
  * Create or load a link type depending of external reference.
  * 
@@ -1905,8 +1917,8 @@ function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $impor
   $links = $dom->getElementsByTagName("Links")->item(0);
   
   //DDU: We need to reset the field first see: http://rossel.audaxis.com/jira/browse/WALLY-237
-  $node->field_links_list=array();
-  $node->field_links_list_nodes=array();
+  $node->field_links_list = array();
+  $node->field_links_list_nodes = array();
   
   foreach(wimprt_process_list($links, $log, $importer, 'type') as $result){
     if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
@@ -1918,7 +1930,6 @@ function wallyimportpackage_process_object_linkslist(&$node, $dom, &$log, $impor
     }
   }
 }
-
 
 /**
  * Process field Title from DOM element.
@@ -2021,7 +2032,7 @@ function wallyimportpackage_set_field_textforetitle(&$node, $dom, &$log, $import
  */
 function wallyimportpackage_set_field_texttitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-   $node->field_objecttitle = array(array("value" => $value));
+  $node->field_objecttitle = array(array("value" => $value));
 }
 
 /**
@@ -2285,7 +2296,6 @@ function wallyimportpackage_process_type_location(&$node, $dom, &$log, $importer
 	  }
 	}
   }
-
 
   // Send back the node
   return($node);
@@ -2619,8 +2629,11 @@ function wallyimportpackage_create_or_load_type_entity($dom, $log, $importer){
 	
   if (!($vid = variable_get('wallymport_entity', NULL))) {
     // TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Entity Taxonomy Vocabulary not Found. See admin.','error');
+	$error_msg = t('Entity Taxonomy Vocabulary not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$node->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
 
@@ -2763,6 +2776,7 @@ function wallyimportpackage_set_field_persons(&$node, $dom, &$log, $importer){
     }
   }
 }
+
 /**
  * Process field Authors from DOM element.
  * 
@@ -2799,6 +2813,7 @@ function wallyimportpackage_set_field_authors(&$node, $dom, &$log, $importer){
     }
   }
 }
+
 /**
  * Create or load a person type depending of PersonID.
  * 
@@ -2816,8 +2831,11 @@ function wallyimportpackage_create_or_load_type_person($dom, $log, $importer){
 
   if (!($vid = variable_get('wallymport_person',NULL))) {
 	// TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Person Taxonomy Vocabulary  not Found. See admin.','error');
+	$error_msg = t('Person Taxonomy Vocabulary  not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$result->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
@@ -2850,6 +2868,7 @@ function wallyimportpackage_create_or_load_type_person($dom, $log, $importer){
   $result->taxonomy = array($tid => $taxonomy); 
   return $result;
 }
+
 /**
  * Create or load an author type depending of term.
  * 
@@ -2867,8 +2886,11 @@ function wallyimportpackage_create_or_load_type_author($dom, $log, $importer){
 
   if (!($vid = variable_get('wallymport_author',NULL))) {
 	// TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Author Taxonomy Vocabulary  not Found. See admin.','error');
+	$error_msg = t('Author Taxonomy Vocabulary  not Found. See admin.');
+    drupal_set_message($error_msg, 'error');
 	$result->rejected = TRUE;
+	$log['error'] = TRUE;
+	$log['error_msg'] = $error_msg;
 	return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
@@ -2901,6 +2923,7 @@ function wallyimportpackage_create_or_load_type_author($dom, $log, $importer){
   $result->taxonomy = array($tid => $taxonomy); 
   return $result;
 }
+
 /**
  * Process Person type from DOM.
  * 
@@ -2987,6 +3010,7 @@ function wallyimportpackage_process_type_person(&$node, $dom, &$log, $importer){
   return($node);
 
 }
+
 /**
  * Process Author type from DOM.
  * 
@@ -3009,6 +3033,7 @@ function wallyimportpackage_process_type_author(&$node, $dom, &$log, $importer){
   return($node);
 
 }
+
 /**
  * Convert a adress DOM element to a CCK_location form element.
  * 
