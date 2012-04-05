@@ -193,7 +193,8 @@ function wallyedit_menu(){
     'access callback' => 'node_access',
     'access arguments' => array('delete', 1),
     'file' => 'includes/page_admin.inc',
-  );//!! For now users can only delete their own prenodes
+    'load arguments' => array('%map'),
+  );
   
   // Edition interface callbacks
   $items['node/%prenode/edit2/%ctools_js/%'] = array(
