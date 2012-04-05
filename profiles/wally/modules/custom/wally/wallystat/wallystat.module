@@ -39,14 +39,14 @@ function wallystat_menu() {
 function wallystat_theme() {
  return array(
     'wallystat_show_stats_48h' => array(
-      'arguments' => array('width'=>240,'height'=>150,'display_title'=>true),
+      'arguments' => array('width' => 240, 'height' => 150, 'display_title' => TRUE),
       'template' => 'wallystat-show-stats-48h',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
     ),
     
     'wallystat_show_stats_param' => array(
-      'arguments' => array('param_i' => 0, 'params_callback' => array(),'width'=>240,'height'=>150),
+      'arguments' => array('param_i' => 0, 'params_callback' => array(), 'width' => 240, 'height' => 150),
       'template' => 'wallystat-show-stats-param',
       'preprocess functions' => array(),
       'path' => drupal_get_path('module', 'wallystat') . '/templates',
@@ -87,18 +87,17 @@ function wallystat_block($op = 'list', $delta = 0, $edit = array()) {
  * Implementation of hook_cron()
  */
 function wallystat_cron(){
-
-	$current_tstamp = time() - date('i')*60 - date('s');
+  $current_tstamp = time() - date('i')*60 - date('s');
   echo('Started : '.date('Y-m-d H:i:s').'<br/>');
   
   $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_node_counter} ORDER BY timestamp DESC", 0, 1));
-  if($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
+  if ($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
     db_query('UPDATE {wallystat_node_counter} SET '.$placeholder);
     echo($placeholder.' for wallystat_node_counter <br/>');
   }
   
   $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_term_counter} ORDER BY timestamp DESC", 0, 1));
-  if($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
+  if ($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
     db_query('UPDATE {wallystat_term_counter} SET '.$placeholder);
     echo($placeholder.' for wallystat_term_counter <br/>');
   }
@@ -116,17 +115,18 @@ function wallystat_cron(){
     }
   }
   
-  foreach($term_counts as $tid=>$term_count){
+  
+  foreach ($term_counts as $tid => $term_count){
     db_query("UPDATE {wallystat_term_counter} SET daycount = daycount + %d, weekcount = weekcount + %d, monthcount = monthcount + %d, yearcount = yearcount + %d, totalcount = totalcount + %d, timestamp = %d WHERE tid = %d",
               $term_count, $term_count, $term_count, $term_count, $term_count, $current_tstamp, $tid);
     if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-			db_query("INSERT INTO {wallystat_term_counter} (tid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES (%d, %d, %d, %d, %d, %d, %d)",
-                $tid, $term_count, $term_count, $term_count, $term_count, $term_count, $current_tstamp);
-		}
+	  db_query("INSERT INTO {wallystat_term_counter} (tid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES (%d, %d, %d, %d, %d, %d, %d)",
+      $tid, $term_count, $term_count, $term_count, $term_count, $term_count, $current_tstamp);
+    }
   }
   
   $last_tstamp = db_result(db_query("SELECT MIN(timestamp) FROM {wallystat_tempdata}"));
-  while($last_tstamp!= FALSE && $last_tstamp < $current_tstamp){
+  while($last_tstamp != FALSE && $last_tstamp < $current_tstamp) {
     $truncated_tstmp_start = $last_tstamp - (date('i', $last_tstamp)*60+date('s', $last_tstamp));
     $truncated_tstmp_end = ($current_tstamp>$truncated_tstmp_start+60*60) ? $truncated_tstmp_start-1+60*60 : $current_tstamp-1;
     $query = "SELECT nid, title, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10, count(*) as node_count FROM {wallystat_tempdata} 
@@ -154,69 +154,6 @@ function wallystat_cron(){
     db_query("DELETE FROM {wallystat_tempdata} WHERE timestamp <= %d", $truncated_tstmp_end);
     $last_tstamp = db_result(db_query("SELECT MIN(timestamp) FROM {wallystat_tempdata}"));
   }
-	
-  /*
-	while ($row = db_fetch_object($result)){
-    
-    $node_counts[$row->nid]['count'][$row->params][$truncated_tstmp] += 1;
-    $node_counts[$row->nid]['title'] = $row->title;
-    $term_array = explode(' ', $row->terms);
-    if(is_array($term_array)){
-      foreach($term_array as $term){
-        $term_counts[$term] += 1;
-      }
-    }
-  
-		//echo $row->nid." - ".$row->terms."<br/>";	
-		//db_query('UPDATE {wallystat_node_counter} SET daycount = daycount + '.$row->nodecount.', totalcount = totalcount + '.$row->nodecount.', timestamp = '.$current_tstamp.' WHERE nid = '.$row->nid);
-		//if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-		//	db_query('INSERT INTO {wallystat_node_counter} (nid, daycount, totalcount, timestamp) VALUES ('.$row->nid.', '.$row->nodecount.', '.$row->nodecount.', '.$current_tstamp.')');
-		//}
-	}
-  $total_view_processed = 0;
-	foreach($node_counts as $nid=>$node_count){
-
-    foreach($node_count['count'] as $params=>$tstamp_count){
-      $params_array = unserialize($params);
-      foreach($params_array as &$value){
-        $value = rawurldecode($value);
-      }
-      $node_count_tmp = array_sum($tstamp_count);
-      //db_query('UPDATE {wallystat_node_counter} SET daycount = daycount + '.$node_count_tmp.', weekcount = weekcount + '.$node_count_tmp.', monthcount = monthcount + '.$node_count_tmp.', yearcount = yearcount + '.$node_count_tmp.', totalcount = totalcount + '.$node_count_tmp.', timestamp = '.$current_tstamp.', title =  WHERE nid = '.$nid);
-      db_query("UPDATE {wallystat_node_counter} SET daycount = daycount + %d, weekcount = weekcount + %d, monthcount = monthcount + %d, yearcount = yearcount + %d, totalcount = totalcount + %d, timestamp = %d, title = '%s' 
-                WHERE nid = %d AND param01 = '%s' AND param02 = '%s' AND param03 = '%s' AND param04 = '%s' AND param05 = '%s' AND param06 = '%s' AND param07 = '%s' AND param08 = '%s' AND param09 = '%s' AND param10 = '%s'", 
-                $node_count_tmp, $node_count_tmp, $node_count_tmp, $node_count_tmp, $node_count_tmp, $current_tstamp, $node_count['title'], $nid, $params_array[0], $params_array[1], $params_array[2], $params_array[3], $params_array[4], $params_array[5], $params_array[6], $params_array[7], $params_array[8], $params_array[9]);
-      if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-        //db_query('INSERT INTO {wallystat_node_counter} (nid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES ('.$nid.', '.$node_count_tmp.', '.$node_count_tmp.', '.$node_count_tmp.', '.$node_count_tmp.', '.$node_count_tmp.', '.$current_tstamp.')');
-        db_query("INSERT INTO {wallystat_node_counter} (nid, title, daycount, weekcount, monthcount, yearcount, totalcount, timestamp, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10) 
-                  VALUES (%d, '%s', %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                  $nid, $node_count['title'], $node_count_tmp, $node_count_tmp, $node_count_tmp, $node_count_tmp, $node_count_tmp, $current_tstamp, $params_array[0], $params_array[1], $params_array[2], $params_array[3], $params_array[4], $params_array[5], $params_array[6], $params_array[7], $params_array[8], $params_array[9]);
-      }
-      $total_view_processed += $node_count_tmp;
-      foreach($tstamp_count as $hourtstmp=>$hourly_count){
-        //db_query('UPDATE {wallystat_node_hourly_counter} SET count = count + '.$hourly_count.' WHERE nid = '.$nid.' AND timestamp = '.$hourtstmp);
-        db_query("UPDATE {wallystat_node_hourly_counter} SET count = count + %d, title = '%s'
-                  WHERE nid = %d AND timestamp = %d AND param01 = '%s' AND param02 = '%s' AND param03 = '%s' AND param04 = '%s' AND param05 = '%s' AND param06 = '%s' AND param07 = '%s' AND param08 = '%s' AND param09 = '%s' AND param10 = '%s'",
-                  $hourly_count, $node_count['title'], $nid, $hourtstmp, $params_array[0], $params_array[1], $params_array[2], $params_array[3], $params_array[4], $params_array[5], $params_array[6], $params_array[7], $params_array[8], $params_array[9]);
-        if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-          //db_query('INSERT INTO {wallystat_node_hourly_counter} (nid, timestamp, count) VALUES ('.$nid.', '.$hourtstmp.', '.$hourly_count.')');
-          db_query("INSERT INTO {wallystat_node_hourly_counter} (nid, title, timestamp, count, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10)
-                    VALUES (%d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                    $nid, $node_count['title'], $hourtstmp, $hourly_count, $params_array[0], $params_array[1], $params_array[2], $params_array[3], $params_array[4], $params_array[5], $params_array[6], $params_array[7], $params_array[8], $params_array[9]);
-        }
-      }
-    }
-  }
-  echo(count($node_counts).' nodes processed for a total of '.$total_view_processed.' views <br/>');
-  
-  foreach($term_counts as $tid=>$term_count){
-    db_query('UPDATE {wallystat_term_counter} SET daycount = daycount + '.$term_count.', weekcount = weekcount + '.$term_count.', monthcount = monthcount + '.$term_count.', yearcount = yearcount + '.$term_count.', totalcount = totalcount + '.$term_count.', timestamp = '.$current_tstamp.' WHERE tid = '.$tid);
-    if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-			db_query('INSERT INTO {wallystat_term_counter} (tid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES ('.$tid.', '.$term_count.', '.$term_count.', '.$term_count.', '.$term_count.', '.$term_count.', '.$current_tstamp.')');
-		}
-  }
-  echo(count($term_counts).' terms processed for a total of '.array_sum($term_counts).' views <br/>');
-  */
   
   // Time limit of 48h
   $limit_tstamp = $current_tstamp - 48*60*60;
@@ -236,14 +173,14 @@ function wallystat_cron(){
 }*/
 
 function wallystat_init(){
-    if (arg(0) == 'node'){
-      if(arg(1)!=''){
-        if(arg(2)==NULL){
-      	  $vars['node']=node_load(arg(1));
-     	  _wallystat_add_updater_callback($vars);
-	    }
+  if (arg(0) == 'node'){
+    if (arg(1) != ''){
+      if (arg(2) == NULL){
+    	$vars['node'] = node_load(arg(1));
+     	_wallystat_add_updater_callback($vars);
 	  }
-    }
+	}
+  }
 }
 
 /**
@@ -268,7 +205,7 @@ function wallystat_show_stats() {
     // This cache doesn't exists or is too old, create it
     $last_48h = theme('wallystat_show_stats_48h');
     $params = array();
-    for ($i=1; $i<=10; $i++) {
+    for ($i = 1; $i <= 10; $i++) {
       if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
         $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
     }
@@ -346,9 +283,9 @@ function wallystat_get_node_field_form() {
   $form = array();
   
   $form[] = array(
-    '#type' => 'textfield',
-    '#title' => t('Field name'),
-    '#size' => 80,
+    '#type'      => 'textfield',
+    '#title'     => t('Field name'),
+    '#size'      => 80,
     '#maxlength' => 512,
   );
   
@@ -369,10 +306,10 @@ function wallystat_get_eval_form() {
   $form = array();
   
   $form[] = array(
-    '#type' => 'textarea',
+    '#type'        => 'textarea',
     '#description' => t('The $node variable is available.'),
-    '#title' => t('PHP Code'),
-    '#rows' => 5,
+    '#title'       => t('PHP Code'),
+    '#rows'        => 5,
   );
   
   return $form;
@@ -384,25 +321,25 @@ function wallystat_get_eval_form() {
  * time between two timestamps
  */
 function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
-  if(!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
+  if (!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
     return FALSE;
   
   $placeholder = array();
-  if(date('z' ,$current_tstamp) != date('z' ,$last_tstamp))
+  if (date('z', $current_tstamp) != date('z', $last_tstamp))
     $placeholder[] = 'daycount = 0';
   
-  if(date('W' ,$current_tstamp) != date('W' ,$last_tstamp))
+  if (date('W', $current_tstamp) != date('W', $last_tstamp))
     $placeholder[] = 'weekcount = 0';
   
-  if(date('m' ,$current_tstamp) != date('m' ,$last_tstamp))
+  if (date('m', $current_tstamp) != date('m', $last_tstamp))
     $placeholder[] = 'monthcount = 0';
   
-  if(date('Y' ,$current_tstamp) != date('Y' ,$last_tstamp))
+  if (date('Y', $current_tstamp) != date('Y', $last_tstamp))
     $placeholder[] = 'yearcount = 0';
   
-  if(!empty($placeholder)){
-    return implode(', ',$placeholder);
-  }else{
+  if (!empty($placeholder)){
+    return implode(', ', $placeholder);
+  } else {
     return FALSE;
   }
 }
@@ -414,8 +351,8 @@ function _wallystat_add_updater_callback(&$vars) {
   $current_id = $vars['node']->nid;
   $title = $vars['node']->title;
   $current_terms = '';
-  if(isset($vars['node']->field_destinations) && is_array($vars['node']->field_destinations)){
-    foreach($vars['node']->field_destinations as $dest)
+  if (isset($vars['node']->field_destinations) && is_array($vars['node']->field_destinations)){
+    foreach ($vars['node']->field_destinations as $dest)
       $current_terms .= $dest['tid'].'+';
   }
   $query = "SELECT tid FROM {term_node} WHERE nid = ".$current_id;
@@ -424,7 +361,7 @@ function _wallystat_add_updater_callback(&$vars) {
     $current_terms .= $row['tid'].'+';
 
   $params_array = array();
-  for ($i=1; $i<=10; $i++) {
+  for ($i = 1; $i <= 10; $i++) {
     $params_callback = variable_get('wallystat_param_'.$i, array());
     $current_callback = isset($params_callback['current_callback']) ? $params_callback['current_callback'] : 'none';
 
