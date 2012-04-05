@@ -224,6 +224,9 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
 }
 
 function _wallyflowtonode_callonefeed(&$feed_infos) {
+  $return = 'Flow "@flow_name": ';
+  $return_substion = array('@flow_name' => $feed_infos['name']);
+  
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
     while(is_string($feed_infos['conf'])) {
@@ -238,7 +241,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
       $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
     }
 
-    if ($struct_array['Packages']['__log']['success'] && !empty($struct_array['Packages']['Package'])) {
+    if (!empty($struct_array['Packages']['Package'])) {
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
       $file_name = $feed_infos['flow_key'].'_'.time();
@@ -277,19 +280,28 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
 
-        $text_to_return = $temp_return['error'] ? 'Import error ('.$temp_return['error_msg'].')' : 'Import done';
-        $text_to_return .= ' for file : '.$tempFile;
-        $return = $text_to_return;
+        $return .= $temp_return['error'] ? 'Import error (@error_msg)' : 'Import done';
+        $return .= ' for file : "@tmp_file"';
+        $return_substion['@tmp_file'] = $tempFile;
+        $return_substion['@msg'] = $temp_return['error_msg'];
       } else {
-        $return = is_string($valid_dom) ? $valid_dom : t('Channel not rebuild for the flow').' : '.$feed_infos['name'];
+        if (is_string($valid_dom)) {
+          return $valid_dom;
+        } else {
+          $return .= 'Channel not rebuild';
+        }
       }
+    } elseif ($struct_array['Packages']['__log']['success']) {
+      $return .= 'Process succeed but no packages to import (@msg)';
+      $return_substion['@msg'] = $struct_array['Packages']['__log']['msg'];
     } else {
-      $return = t('Packages building error for the flow').' : '.$feed_infos['name'].'. '.t('Error').' : '.$struct_array['Packages']['__log']['msg'];
+      $return .= 'Packages building error (@msg)';
+      $return_substion['@msg'] = $struct_array['Packages']['__log']['msg'];
     }
   } else {
-    $return = t('No plugin for the flow').' : '.$feed_infos['name'];
+    $return .= 'No matching plugin';
   }
-  return $return;
+  return t($return, $return_substion);
 }
 
 /**
