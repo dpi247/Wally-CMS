@@ -733,6 +733,9 @@ function wydit_elements_process($element, $edit, &$form_state, $form) {
     } elseif ($element['#type'] == 'date_combo') {
       $element['#element_validate'] = array('wydit_elements_validate');
     }
+    if (($element['#type'] == 'date_combo') || strstr($element['#type'], 'optionwidgets_')) {
+      $element['#force_validate'] = TRUE;
+    }
     $orig_process = $element['#process'][0];
     $element = $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
   }
