@@ -346,6 +346,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
   $empty_feed = FALSE;
   foreach ($settings['flows'] as $flow) {
     $flow = (array)$flow;
+    $flow['caid'] = $settings['caid'];
     $temp_feed_array = _wallyextra_flowmix_create_array_from_uri($flow);
     if ($temp_feed_array) {
       $feed_array[] = $temp_feed_array;
