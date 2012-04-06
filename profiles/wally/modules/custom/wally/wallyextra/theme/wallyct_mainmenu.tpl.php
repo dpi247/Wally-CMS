@@ -71,7 +71,6 @@ if (!function_exists('wallyct_mainmenu_menu_item_link')) {
     // Omit alias lookups.
     $link['localized_options']['alias'] = TRUE;
     $link_html = '<a href="'. check_url(url($link['href'], $link['localized_options'])) .'">'. (!empty($link['localized_options']['html']) ? $link['title'] : check_plain($link['title'])) .'</a>'; 
-    
     return $link_html;
   }
 }

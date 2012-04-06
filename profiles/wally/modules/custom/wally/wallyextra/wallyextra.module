@@ -7,7 +7,16 @@ include_once('wallyextra.features.inc');
  */
 function wallyextra_menu() {
   $items = array();
-  
+
+  $items['admin/wally/wallyextra'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyextra_page_admin_form',),
+    'access arguments' => array('administer page manager'),
+    'file' => 'includes/page_admin.inc',
+    'title' => t('Wally Extra Settings'),
+    'description' => t('Configure WallyExtra (including global settings for CTools content types such as flowmix, remoteHTML, ...)'),
+  );
+
   $items['wallyextra/contenttypesajax'] = array(
     'page callback'    => '_wallyextra_content_types_ajax_callback',
     'access arguments' => array('access content'),
@@ -128,6 +137,47 @@ function wallyextra_theme(&$var) {
       'arguments' => array('versions' => NULL),
     ),
    );
+}
+
+/**
+ * Implementation of hook_cron()
+ * Flush old files coming from FlowMix
+ */
+function wallyextra_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+
+  $flows_path = 'sites/default/files/Flows/';
+  $days_limit = variable_get('wallyextra_flowmix_files_days_limit', 7);
+  if ($removed_files = db_fetch_array(db_query("SELECT COUNT(*) FROM {files} WHERE filepath LIKE '%s%' AND FROM_UNIXTIME(timestamp) < NOW() - INTERVAL %d DAY", $flows_path, $days_limit))) {
+    if ($removed_files['COUNT(*)'] > 0) {
+      if (db_query("DELETE FROM {files} WHERE filepath LIKE '%s%' AND FROM_UNIXTIME(timestamp) < NOW() - INTERVAL %d DAY", $flows_path, $days_limit)) {
+        $return .= t('!num_files files removed.', array('!num_files' => $removed_files['COUNT(*)']));
+
+        // Now remove files on disk
+        /*$folders = file_scan_directory('sites/default/files/Flows', './*', array('.', '..'), 0, FALSE);
+        foreach ($folders as $path => $folder) {
+          $folder_name = $folder->basename;
+          list($a, $folder_date) = explode('-', $folder_name);
+          $year = substr($folder_date, 0, 4);
+          $month = substr($folder_date, 4, 2);
+          $date = substr($folder_date, 6, 2);
+          $folder_created = strtotime($year.'-'.$month.'-'.$date);
+          $days_diff = (mktime(0, 0, 0) - $folder_created)/86400; // Folder age in days
+          if ($days_diff > $days_limit) {
+            rrmdir($path);
+          }
+        }*/
+      } else {
+        $return .= t('SQL error during files removal.');
+      }
+    } else {
+      $return .= t('No files to remove.');
+    }
+  } else {
+    $return .= t('SQL error during files count.');
+  }
+
+  print $return;
 }
 
 /**
@@ -499,6 +549,11 @@ function _wallyextra_content_types_ajax_callback() {
     $datas = $cached_datas->data;
   }
 
+  $js_before = drupal_add_js();
+  $css_before = drupal_add_css();
+  
+  drupal_add_js('Drupal.attachBehaviors();', 'inline');
+
   // Usual theming
   if ($settings['override_theme'] && $settings['override_theme_text'] != '') {
     $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
@@ -506,14 +561,11 @@ function _wallyextra_content_types_ajax_callback() {
     $content = theme($default_theme, $subtype, $context, $datas, $settings);
   }
 
-  $previous_preprocess_css = variable_get('preprocess_css', FALSE);
-  $previous_preprocess_js = variable_get('preprocess_js', FALSE);
-  variable_set('preprocess_css', TRUE);
-  variable_set('preprocess_js', TRUE);
-  $styles = drupal_get_css();
-  $scripts = drupal_get_js();
-  variable_set('preprocess_css', $previous_preprocess_css);
-  variable_set('preprocess_js', $previous_preprocess_js);
+  $js_after = drupal_add_js();
+  $css_after = drupal_add_css();
+
+  $scripts = drupal_get_js('header', arrayRecursiveDiff($js_after, $js_before));
+  $styles = drupal_get_css(arrayRecursiveDiff($css_after, $css_before));
   
   print $styles.$scripts.$content;
 }
