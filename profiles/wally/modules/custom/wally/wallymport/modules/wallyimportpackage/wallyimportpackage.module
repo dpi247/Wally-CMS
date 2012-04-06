@@ -62,7 +62,6 @@ function wallyimportpackage_menu() {
  *   the log object
  */
 function wallyimportpackage_process_packages($dom, &$log, $importer){
-  
   module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'before_process');
   foreach ($dom->getElementsByTagName('Package') as $package_element){
     wallyimportpackage_process_package($package_element, $log, $importer);
@@ -72,9 +71,10 @@ function wallyimportpackage_process_packages($dom, &$log, $importer){
   //To not browse the DOM
   return FALSE;
 }
-/*
-* hook_wallymport_process
-*/
+
+/**
+ * hook_wallymport_process
+ */
 function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
   if ($location == 'process_package' & $type == 'before_process'){
     $uri = explode('/', $_SERVER['REQUEST_URI']);
@@ -83,6 +83,7 @@ function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer,
     }
   }
 }
+
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
  * 
@@ -119,7 +120,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
 
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
-      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
+      module_load_include('inc', 'wallyedi', 'includes/Prenode');
      
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
@@ -165,12 +166,13 @@ function wallyimportpackage_node_create_or_load_articlepackagetype($dom, &$log, 
   wallyimportpackage_create_or_load_preprocesspackage($dom, $node, $log, $importer);
   return $node;
 }
+
 /**
-* Delete the node without checking permissions.
-*
-* @param $nid
-*   The nid of the node
-*/
+ * Delete the node without checking permissions.
+ *
+ * @param $nid
+ *   The nid of the node
+ */
 function wallyimportpackage_node_delete($nid){
   $node = node_load($nid, NULL, TRUE);
   db_query('DELETE FROM {node} WHERE nid = %d', $node->nid);
@@ -191,6 +193,7 @@ function wallyimportpackage_node_delete($nid){
   watchdog('content', '@type: deleted %title.', array('@type' => $node->type, '%title' => $node->title));
   drupal_set_message(t('@type %title has been deleted.', array('@type' => node_get_types('name', $node), '%title' => $node->title)));
 }
+
 /**
  * Preprocess Create or load package
  * 
@@ -348,7 +351,6 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
     }
   } else {
     $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
-    $node->status = 0;
   }
   if ($dom_element->hasAttribute("UnPublishDate")) {
     $node->field_unpublishdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("UnPublishDate")->value);
@@ -745,9 +747,9 @@ function wallyimportpackage_node_set_field_editions(&$node, $dom, $log, $importe
 	if ($valid) { 
       $node->field_editions = array(array("value"=>serialize($result)));
 	} else {
-    //$node->rejected = '';
-	drupal_set_message(t('ALL Edition set to false.'),'error');
-	// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
+      //$node->rejected = '';
+	  drupal_set_message(t('ALL Edition set to false.'),'error');
+	  // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
 	}
 		
   } else {
@@ -1223,6 +1225,7 @@ function wallyimportpackage_node_process_textobjecttype(&$node, $dom_element, &$
   if ($dom_element->getElementsByTagName("TextTitle")->item(0)->length) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
+  
   if ($dom_element->getElementsByTagName("Title")->length) {
     $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
   } 
@@ -1245,6 +1248,7 @@ function wallyimportpackage_node_process_textobjecttype(&$node, $dom_element, &$
  */
 function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $importer){
   if (module_exists('webform')){
+    $node->webform = array();
     $node->webform['confirmation'] = '';
     $node->webform['confirmation_format'] = 2;
     $node->webform['redirect_url'] = '<none>';
@@ -1432,8 +1436,10 @@ function wallyimportpackage_node_create_or_load_photoobjecttype($dom, &$log, $im
  * @todo
  *   Check variable name line 575, procced or proceed?
  */
-function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $importer){
-  
+function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $importer) {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
+
   $c = array();
   foreach($dom->getElementsByTagName('Crop') as $crop) {
   	if ($crop->hasAttribute("Type")) {
@@ -1463,14 +1469,18 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
   //if (!isset($node->field_thumbnail[0]) || count($node->field_thumbnail[0])<8)
-  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, '', $importer);
-    
-    
+  $thumb_field = content_field_instance_read(array('type_name' => 'wally_photoobject', 'field_name' => 'field_thumbnail'));
+  $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
+  $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
+
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
-  if (empty($rdpartyMatch)){//Not a 3rdparty
-    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
+
+  if (empty($rdpartyMatch)) { //Not a 3rdparty
+    $photo_field = content_field_instance_read(array('type_name' => 'wally_photoobject', 'field_name' => 'field_photofile'));
+    $new_photo_path = module_exists('token') ? token_replace($photo_field[0]['widget']['file_path'], 'user', $token_user) : $photo_field[0]['widget']['file_path'];
+    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, $new_photo_path, $importer);
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
@@ -1754,8 +1764,10 @@ function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
   $uri = $dom->getElementsByTagName('URI')->item(0);
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri->nodeValue);
+    
   if ($uri['scheme'] == "externalRef"){
     $ext_ref = $uri['host'];
+    
     if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
@@ -1810,7 +1822,6 @@ function wallyimportpackage_node_create_or_load_linkslist($dom, &$log, $importer
  *   A node object
  */
 function wallyimportpackage_node_create_or_load_link($dom, &$log, $importer){
-  
   $node = new stdClass;
   $node->type = 'wally_linktype';
   //je pense qu'il faut enlever ca car les liens n'ont pas de tag ExternalReference
@@ -1861,7 +1872,6 @@ function wallyimportpackage_node_process_linkslist(&$node, $dom, &$log, $importe
     }
   }
 }
-
 
 /**
  * Process field Title from DOM element.
@@ -2032,6 +2042,7 @@ function wallyimportpackage_node_set_field_textbody(&$node, $dom, &$log, $import
 function wallyimportpackage_get_default_format(){
   return "2";
 }
+
 /**
  * Process field Text Extract Medium from DOM element.
  * 
@@ -2227,7 +2238,6 @@ function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer
 	  }
 	}
   }
-
 
   // Send back the node
   return($node);
@@ -2435,6 +2445,7 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
 	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
+
   if ($vid == NULL){
     $result_set = NULL;
     $vid = wallytoolbox_taxonomy_getvocabularyvidbyname($vocabulary_name);
@@ -2729,6 +2740,7 @@ function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importe
     }
   }
 }
+
 /**
  * Process field Authors from DOM element.
  * 
@@ -2766,6 +2778,7 @@ function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importe
     }
   }
 }
+
 /**
  * Create or load a person type depending of PersonID.
  * 
@@ -2820,6 +2833,7 @@ function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){
   $result->taxonomy = array($tid => $taxonomy); 
   return $result;
 }
+
 /**
  * Create or load an author type depending of term.
  * 
@@ -2874,6 +2888,7 @@ function wallyimportpackage_node_create_or_load_author($dom, $log, $importer){
   $result->taxonomy = array($tid => $taxonomy); 
   return $result;
 }
+
 /**
  * Process Person type from DOM.
  * 
@@ -2960,6 +2975,7 @@ function wallyimportpackage_node_process_person(&$node, $dom, &$log, $importer){
   return($node);
 
 }
+
 /**
  * Process Author type from DOM.
  * 
@@ -2982,6 +2998,7 @@ function wallyimportpackage_node_process_author(&$node, $dom, &$log, $importer){
   return($node);
 
 }
+
 /**
  * Convert a adress DOM element to a CCK_location form element.
  * 
@@ -3046,6 +3063,7 @@ function _wallyimportpackage_address_dom_to_ccklocation($addresses, &$log, $loca
   }
   return $array_node;
 }
+
 /**
  * Determine the next callback function from the Dom element
  *
