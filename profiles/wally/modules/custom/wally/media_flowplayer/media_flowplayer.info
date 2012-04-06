@@ -1,0 +1,6 @@
+name = "Media: FlowPlayer"
+description = "Provides Flow Player support to the Embedded Media Field module."
+package = "Media"
+core = "6.x"
+
+dependencies[] = emfield
