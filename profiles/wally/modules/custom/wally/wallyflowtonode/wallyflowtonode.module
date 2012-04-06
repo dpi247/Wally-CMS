@@ -237,6 +237,9 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
     }
     $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
     $struct_array = $function($feed_infos);
+    foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
+      $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
+    }
 
     if (!empty($struct_array['Packages']['Package'])) {
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
@@ -248,11 +251,29 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
 
       if ($valid_dom) {
         $importer = wallymport_getimporterbyname($feed_infos['importer']);
+        $tmp_folder = $importer->temp_directory_path;
         
-        $tempFile = variable_get('wallymport_temp','').'/'.$file_name.'.xml';
+        $tempFile = $tmp_folder.'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
-        $temp_return = wallymport_process_xmlfile($tempFile, $importer);
-        //file_delete($tempFile);
+        
+        if (!empty($files_to_zip)) {
+          $files_to_zip[] = $tempFile;
+          // Zip files
+          $zip_file = $tmp_folder.'/zip_'.$file_name.'.zip';
+          $zip = new ZipArchive;
+          $zip->open($zip_file, ZipArchive::CREATE);
+          foreach ($files_to_zip as $file_to_zip) {
+            $localname = str_replace($tmp_folder.'/', '', $file_to_zip);
+            $zip->addFile($file_to_zip, $localname);
+          }
+          $zip->close();
+
+          $importer->source_directory_path = $tmp_folder;
+          $temp_return = wallymport_process_file($importer, 'zip_'.$file_name.'.zip');
+        } else {
+          $temp_return = wallymport_page_process_file($tempFile, $importer);
+          //file_delete($tempFile);
+        }
 
         if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {
           $object = $feed_infos;
