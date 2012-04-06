@@ -245,7 +245,6 @@ function wallyctools_views_api() {
     'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
   );
 }
-//-----------------------------------------------
 
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
   foreach($node->field_destinations as $destination_item){
@@ -255,7 +254,6 @@ function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$t
   }
   return NULL;
 }
-//-----------
 
 function wallyctools_content_get_subtypes($type) {
   $subtypes = array();
