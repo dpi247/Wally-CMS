@@ -99,11 +99,11 @@ function _wallyctools_default_content_type() {
  * Returns the administrative title for a type.
  */
 function wallyctools_redacblock_content_type_admin_title($subtype, $conf) {
-  if($conf['split_index_count']!=''){
+  if($conf['split_index_count'] != '') {
     return $subtype.' - Split'.$conf['split_index_count'].'/'.$conf['split_total_count'];
-  }
-  else
+  } else {
     return $subtype;
+  }
 }
 
 /**
@@ -286,7 +286,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     }
   }
 
-  if($conf['hide_pager']){
+  if($conf['hide_pager']) {
     $view->hide_pager=TRUE;
   }
   $view->split_index_count=$conf['split_index_count'];
@@ -306,6 +306,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
     }
 
     $stored_feeds = drupal_add_feed();
+
+    if (array_key_exists('wallyedit_preview', $contexts)) {
+      $view->wallyedit_preview = $contexts['wallyedit_preview']->wallyedit_preview;
+      $view->display_handler->set_option('items_per_page', $view->pager['items_per_page'] + 1);
+      $view->set_items_per_page($view->pager['items_per_page'] + 1);
+    }
+
     $block->content = $view->preview();
     $block->title = $view->get_title();
 
