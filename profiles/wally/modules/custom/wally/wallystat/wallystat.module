@@ -87,7 +87,6 @@ function wallystat_block($op = 'list', $delta = 0, $edit = array()) {
  * Implementation of hook_cron()
  */
 function wallystat_cron(){
-
   $current_tstamp = time() - date('i')*60 - date('s');
   echo('Started : '.date('Y-m-d H:i:s').'<br/>');
   $current_tstamp = time();

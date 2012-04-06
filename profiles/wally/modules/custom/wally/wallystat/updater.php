@@ -15,7 +15,7 @@ if (isset($_GET['nid']) && is_numeric($_GET['nid'])){
 		  $safe_terms[] = $term; 
 		}
 	  }
-	  $terms = implode(' ',$safe_terms);
+	  $terms = implode(' ', $safe_terms);
 	}
   }
   

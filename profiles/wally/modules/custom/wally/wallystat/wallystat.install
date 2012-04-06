@@ -653,7 +653,8 @@ function wallystat_update_6001() {
   db_create_table($ret, 'wallystat_term_counter', $schema['wallystat_term_counter']);
   return $ret;
 }
-/*
+
+/**
  * Implementation of hook_update_N
  */
 function wallystat_update_6002(){
