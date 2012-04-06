@@ -178,9 +178,7 @@ function _wimprthelp_polldate_to_ccktime($date1,$date2) {
  *   timestamp
  */
 function _wimprthelp_date_to_timestamp($date) {
-  
   $result = strtotime($date);
-  
   return $result;
 }
 

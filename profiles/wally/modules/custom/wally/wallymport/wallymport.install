@@ -223,9 +223,10 @@ function wallymport_update_6003(){
   }
   return $ret;
 }
+
 /**
-* Implementation of hook_update_N().
-*/
+ * Implementation of hook_update_N().
+ */
 function wallymport_update_6004(){
   if (module_exists('views')){
     if (views_get_view('wallymport_logs') == NULL){
@@ -242,7 +243,8 @@ function wallymport_update_6004(){
   }
   return $ret;
 }
-/*
+
+/**
  * Create the wallymport log view 
  */
 function wallymport_createlogcreateview(){
