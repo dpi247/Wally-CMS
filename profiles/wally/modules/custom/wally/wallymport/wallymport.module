@@ -799,6 +799,8 @@ function wallymport_process_xmlfile($xml_file, $importer){
     $dom->LoadXML($contents);
     $log = array();
     $return = array('error' => FALSE);
+    
+    //If you edit the root of the dom, do not forget to reload the dom ($content = dom->saveXML(); $dom->LoadXML(content))
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
     
     if (!$dom->schemaValidate($importer->xsd_path)){
