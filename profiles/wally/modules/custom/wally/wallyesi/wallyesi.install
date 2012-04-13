@@ -1,6 +1,6 @@
 <?php
-function wallyesi_uninstall(){
-  variable_del('esi_block_config');
-  variable_del('esi_ctoolscontenttype_config');
 
+function wallyesi_uninstall(){
+  wallytoolbox_variable_del_like('esi_');
+  wallytoolbox_variable_del_like('wallyesi_');
 }
