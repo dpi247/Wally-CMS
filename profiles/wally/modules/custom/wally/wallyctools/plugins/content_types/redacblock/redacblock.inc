@@ -347,7 +347,7 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   $view = views_get_view($view_name);
   $view->set_display($view_id);
   $form_state['settings'] = $conf;
-  if (!user_access('administer redacblock content')) {
+  if (!user_access('administer page manager')) {
     return;
   }
 
