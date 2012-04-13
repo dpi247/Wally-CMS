@@ -136,6 +136,7 @@ function wallyctools_install() {
  * Implementation of hook_uninstall().
  */
 function wallyctools_uninstall() {
+  wallytoolbox_variable_del_like('wallyctools_');
   drupal_uninstall_schema('wallyctools');
 }
 

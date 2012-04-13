@@ -25,9 +25,10 @@ function wallyctools_menu() {
   );
 
   $items['admin/wally/wallyctools'] = $base + array(
-    'title'                         => t('Reorder and manipulate'),
-    'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
-    'page callback'                 => 'wallyctools_page_reorder_destination',
+    'title'                         => t('Reorder Settings'),
+    'description'                   => t('Manage some settings used during the packages reorder'),
+    'page callback'                 => 'drupal_get_form',
+    'page arguments'                => array('wallyctools_page_reorder_settings_form'),
   );
 
   $items['admin/wally/wallyctools-operations'] = $base + array(
@@ -35,7 +36,7 @@ function wallyctools_menu() {
     'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
     'page arguments'                => array(),
-    'type'                          => MENU_DEFAULT_LOCAL_TASK,
+    'type'                          => MENU_CALLBACK,
   );
 
   $items['admin/wally/wallyctools-operations/reorder/%/%/%'] = $base + array(
