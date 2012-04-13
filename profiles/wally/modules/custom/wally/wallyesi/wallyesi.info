@@ -2,6 +2,3 @@ name = Wally ESI
 description = Provides low level API for ESI handling. WARNING THIS MODULE IS NOT SECURE ALL CONTENT IS ACCESSIBLE USING A SPECIFIC CRAFTED URL!. DO NOT USE ON PRODUCTION SITE
 version = "6.x-1.0-dev"
 core = "6.x"
-
-
-

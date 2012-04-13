@@ -1,7 +1,6 @@
 <?php 
 $attributes_string='';
 foreach ($variables["esi"]['attributes'] as $key=>$value){
-  
   $attributes_string.="$key=\"$value\" ";
 }
 ?>
