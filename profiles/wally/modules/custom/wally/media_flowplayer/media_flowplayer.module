@@ -5,30 +5,27 @@
 function media_flowplayer_emfield_providers($module, $provider = NULL) {
   // We know this module only includes the main provider file, avoid needless
   // PHP warnings.
-  
-  if ($module == 'emaudio' && (!isset($provider) || ($provider == 'flowplayer'))) {
-      $found = drupal_system_listing("flowplayer\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
-      if (is_array($found) && !empty($found)) {
-        $path = $found;
-          return $path;
-      }
-      
-  }
-elseif ($module == 'emother' && (!isset($provider) || ($provider == 'document'))) {
-      $found = drupal_system_listing("document\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
-      if (is_array($found) && !empty($found)) {
-        $path = $found;
-    }
-    return $path;
-  }
-}
 
+  if ($module == 'emaudio' && (!isset($provider) || ($provider == 'flowplayer'))) {
+    $found = drupal_system_listing("flowplayer\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
+    if (is_array($found) && !empty($found)) {
+      return $found;
+    }
+  }
+  if ($module == 'emother' && (!isset($provider) || ($provider == 'document'||$provider == 'googlemaps'))) {
+    $found = drupal_system_listing("(document)|(googlemaps)\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
+    if (is_array($found) && !empty($found)) {
+      return $found;
+    }
+  }
+
+  return $path;
+}
 
 /**
  * Implementation of hook_emfield_status().
  */
 function media_flowplayer_emfield_status($item, $field = NULL, $module = 'emaudio') {
   // Return the availability of the video.
-
   return true;
 }
