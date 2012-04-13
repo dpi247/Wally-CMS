@@ -6,25 +6,13 @@
  *   This is an include file used by emfield.module.
  */
 
-/**
- * Retrieves an associative array of types that are supported by Custom URLs.
- */
-function _emother_document_default_types() {
-  return array(
-    'pdf' => t('PDF'),
-    'doc' => t('Document word (dovc)'),
-    'ppt' => t('PowerPoint (ppt)'),
-    'xls' => t('Stylesheet (xls)'),
-  );
-}
-
 function emother_document_info() {
   $features = array(
-    array(t('PDF'), t('Yes'), ''),
-    array(t('DOC'), t('Yes'), ''),
-    array(t('PPT'), t('Yes'), ''),
-    array(t('XLS'), t('Yes'), ''),
-    );
+  array(t('PDF'), t('Yes'), ''),
+  array(t('DOC'), t('Yes'), ''),
+  array(t('PPT'), t('Yes'), ''),
+  array(t('XLS'), t('Yes'), ''),
+  );
   return array(
     'provider' => 'document',
     'name' => t('Document'),
@@ -47,27 +35,15 @@ function emother_document_settings() {
   return $form;
 }
 
-/**
- * Retrieves the types that are supported by Custom URLs.
- */
-function _emother_document_supported_types() {
-  return variable_get('emother_document_supported_types', array_keys(_emother_document_default_types()));
-}
-
 function emother_document_extract($embed = '') {
-  
- //https://spreadsheets.google.com/spreadsheet/embeddedform?formkey=dGs3T0I1NnNmdmROYkhhZnJYTElGcmc6MQ
+  //https://spreadsheets.google.com/spreadsheet/embeddedform?formkey=dGs3T0I1NnNmdmROYkhhZnJYTElGcmc6MQ
   if (preg_match('/\.(pdf|doc|ppt|xls)$/', $embed, $matches)) { //Get the googledoc code, can be normal or from embed link
     return $embed;
   }
   else {
     return FALSE;
   }
-  
 }
-
-
-
 
 /**
  * hook emaudio_PROVIDER_audio
@@ -86,12 +62,29 @@ function emother_document_extract($embed = '') {
  *    the html of the embedded audio
  */
 function emother_document_other($url = NULL, $width = 0, $height = 0, $field = NULL, $data = array(), $node = NULL) {
- return '<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
- return theme_emother_pdf_embeddeccode($url, $width, $height, $field, $data, $node);
+  return '<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
+  return theme_emother_pdf_embeddeccode($url, $width, $height, $field, $data, $node);
 }
 
 function theme_emother_pdf_embeddeccode($url, $width, $height, $field, $data, $node){
-
   return '<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
 }
 
+/**
+ * Retrieves an associative array of types that are supported by Custom URLs.
+ */
+function _emother_document_default_types() {
+  return array(
+    'pdf' => t('PDF'),
+    'doc' => t('Document word (dovc)'),
+    'ppt' => t('PowerPoint (ppt)'),
+    'xls' => t('Stylesheet (xls)'),
+  );
+}
+
+/**
+ * Retrieves the types that are supported by Custom URLs.
+ */
+function _emother_document_supported_types() {
+  return variable_get('emother_document_supported_types', array_keys(_emother_document_default_types()));
+}
