@@ -193,6 +193,13 @@ function wallyedit_form_node_form_validate(&$form, &$form_state) {
 
 function wallyedit_form_node_form_submit(&$form, &$form_state) {
   wydit_ctools_include();
+  
+  // Some fields have a part of their process in the validation step
+  if ($form_state['clicked_button']['#skip validation']) {
+    wydit_form_node_main_treatment_forced_validate($form, $form_state);
+    // We only want the process part, not the true validation, so we skip the messages
+    drupal_get_messages();
+  }
 
   if ($form_state['clicked_button']['#wydit_op_type'] == 'pre_treat') {
     $pre_treat_function_name = 'wydit_form_submit_action_'.$form_state['clicked_button']['#name'];
@@ -669,6 +676,18 @@ function wydit_form_validate_action_next($form_state) {
   }
 
   return array(FALSE, $commands);
+}
+
+function wydit_form_node_main_treatment_forced_validate($elements, &$form_state) {
+  // Recurse through all children.
+  foreach (element_children($elements) as $key) {
+    if (isset($elements[$key]) && $elements[$key]) {
+      wydit_form_node_main_treatment_forced_validate($elements[$key], $form_state);
+    }
+  }
+  if ($elements['#force_validate']) {
+    _form_validate($elements, $form_state);
+  }
 }
 
 /**
