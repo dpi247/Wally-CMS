@@ -1,5 +1,17 @@
 <?php
 
+function wallyctools_page_reorder_settings_form(&$form_state) {
+  $form = array();
+  
+  $form['wallyctools_reorder_check_conflict'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Check conflicts before applying reorder'),
+    '#default_value' => variable_get('wallyctools_reorder_check_conflict', 1),
+  );
+  
+  return system_settings_form($form);
+}
+
 function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NULL, $target = NULL) {
   $output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $limit, $destination_tid, $target);
   $output .= drupal_get_form('wallyctools_form_reorder_destination_form', $limit, $destination_tid, $target);
@@ -108,34 +120,36 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     );
 
     $conflict = FALSE;
-    if (isset($form_state['post']['saved_rows']) || (isset($form_state['post']['rows']) && _wallyctools_form_reorder_destination_form_compare_results($results, $form_state['post']['rows'], $limit))) {
-      // This means we got a conflict
-      $conflict = TRUE;
-
-      $form['saved_rows'] = array(
-        '#type' => 'hidden',
-        '#value' => serialize($form_state['post']['rows']),
-      );
-
-      $form['reset'] = array(
-        '#type' => 'submit',
-        '#value' => t('Cancel the changes and start over the reorder'),
-        '#validate' => array(),
-        '#submit' => array('wallyctools_form_reset_submit'),
-      );
-
-      $form['override'] = array(
-        '#type' => 'submit',
-        '#value' => t('Proceed anyway (may cause surprising results)'),
-        '#validate' => array(),
-        '#submit' => array('wallyctools_form_override_submit'),
-      );
-
-      if ($form_state['post']['op'] == t('Save changes')) {
-        $form['submit'] = array(
-          '#type' => 'submit',
-          '#value' => t('Save changes'),
+    if (variable_get('wallyctools_reorder_check_conflict', 1)) {
+      if (isset($form_state['post']['saved_rows']) || (isset($form_state['post']['rows']) && _wallyctools_form_reorder_destination_form_compare_results($results, $form_state['post']['rows'], $limit))) {
+        // This means we got a conflict
+        $conflict = TRUE;
+  
+        $form['saved_rows'] = array(
+          '#type' => 'hidden',
+          '#value' => serialize($form_state['post']['rows']),
         );
+  
+        $form['reset'] = array(
+          '#type' => 'submit',
+          '#value' => t('Cancel the changes and start over the reorder'),
+          '#validate' => array(),
+          '#submit' => array('wallyctools_form_reset_submit'),
+        );
+  
+        $form['override'] = array(
+          '#type' => 'submit',
+          '#value' => t('Proceed anyway (may cause surprising results)'),
+          '#validate' => array(),
+          '#submit' => array('wallyctools_form_override_submit'),
+        );
+  
+        if ($form_state['post']['op'] == t('Save changes')) {
+          $form['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Save changes'),
+          );
+        }
       }
     }
 
@@ -366,7 +380,7 @@ function _wallyctools_form_reorder_destination_form_compare_results($new_results
   foreach ($new_results as $res) {
     $current_nids[] = $res->nid;
   }
-  $current_nids[3] = 3;
+
   if (sizeof(array_intersect($orig_nids, $current_nids)) < $limit) {
     // The results of the view are not the same as during the construction of the form, at least one node has been inserted
     return TRUE;
