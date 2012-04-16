@@ -27,7 +27,7 @@ function emother_googlemaps_settings() {
 
 function emother_googlemaps_extract($embed = '') {
   $embed_url=parse_url($embed);
-  $domain_array=explode('.',$embed_url);
+  $domain_array=explode('.',$embed_url['host']);
   $subdomain=$domain_array[0];
   $domain=$domain_array[1];
   if($subdomain=="maps" && $domain=="google"){
