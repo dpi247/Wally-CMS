@@ -472,7 +472,7 @@ if (is_array($embeds)){
 
 
 
-
+dsm($node->embed_links,trtr);
 
 
 
