@@ -33,6 +33,7 @@ function emother_googlemaps_extract($embed = '') {
   $domain=$domain_array[1];
   dsm($subdomain,$domain);
   if($subdomain=="maps" && $domain=="google"){
+    dsm($embed);
     return $embed;
   }
   else{
