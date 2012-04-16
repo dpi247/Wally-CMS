@@ -60,6 +60,69 @@ function wallydemo_displaypollresult($node){
   return $content;
 }
 
+
+function wallydemo_preprocess_node(&$vars) {
+  if (isset($vars['node'])) {
+    $node = &$vars['node'];
+    if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+      foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+        if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
+          
+          $item = array('embed' => $embed->field_link_item[0]['url']);
+          $modules = array('emvideo', 'emother', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck', 'emother');
+          $emfield = FALSE;
+          foreach ($modules as $module) {
+            $item = _emfield_field_submit_id($field, $item, $module);
+            if (!empty($item['provider'])) {
+              $element = array(
+                '#item' => $item,
+                '#formatter' => 'default',
+                '#node' => $node,
+              );
+              $function = $module.'_field_formatter';
+              $content = $function($field, $element['#item'], $element['#formatter'], $element['#node']);
+
+              if(($module=="emimage"||$module=='emvideo')&&($item['provider']!="flickr_sets"&&$item['provider']!="slideshare")){
+                //reduction de la taille
+                $content = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"', $content);
+                $content = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"', $content);
+                
+                if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
+                  $thumb = '<img src= "'.$element['#item']['data']['thumbnail']['url'].'" width = "48" height = "32">';
+                } else {
+                  $thumb = preg_replace('+width=("|\')([0-9]{3})?("|\')+','width="48"', $content);
+                  $thumb = preg_replace('+height=("|\')([0-9]{3})?("|\')+','height="32"', $thumb);
+                }
+              }
+              $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
+              $title=$node->field_embededobjects_nodes[$delta]->field_link_item[0]['title'];
+              $node->embed_links[$embed->nid] = array('title' => $title,'content' => $content, 'thumb' => $thumb,'type'=>$module,'provider'=>$item['provider']);
+              $emfield = TRUE;
+              break;
+            }
+          }
+          if (!$emfield){
+            $target = '';
+            if ($embed->field_link_item[0]['attributes']['target'] == 1){
+              $target = 'target=_blank';
+            }
+            $content = '<a '.$target.' href = "'.$embed->field_link_item[0]['url'].'">'.$embed->field_link_item[0]['title'].'</a>';
+            $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
+            $node->embed_url[] = $content;
+          }
+        } elseif ($embed->field_internal_link[0]['nid'] != NULL){
+          //Link item to a package
+          $package = node_load($embed->field_internal_link[0]['nid']);
+          $content = node_view($package);
+          $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
+          $node->embed_packages[] = $content;
+        }
+      }
+    }
+  }
+}
+
+
 /*
  * Fonction temporaire
  * A supprimer!
@@ -102,64 +165,6 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
   if (count($messages['status']) > 0) $messages = $messages['status'][0];
   else $messages = $messages['error'][0];
   $vars['messages'] = $messages;
-}
-
-function wallydemo_preprocess_node(&$vars) {
-  if (isset($vars['node'])) {
-    $node = &$vars['node'];
-    if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-      foreach ($node->field_embededobjects_nodes as $delta => $embed) {
-        if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
-          
-          $item = array('embed' => $embed->field_link_item[0]['url']);
-          $modules = array('emvideo', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
-          $emfield = FALSE;
-          foreach ($modules as $module) {
-            $item = _emfield_field_submit_id($field, $item, $module);
-            if (!empty($item['provider'])) {
-              $element = array(
-                '#item' => $item,
-                '#formatter' => 'default',
-                '#node' => $node,
-              );
-              $function = $module.'_field_formatter';
-              $content = $function($field, $element['#item'], $element['#formatter'], $element['#node']);
-
-              //reduction de la taille
-              $content = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"', $content);
-              $content = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"', $content);
-              
-              if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
-                $thumb = '<img src= "'.$element['#item']['data']['thumbnail']['url'].'" width = "48" height = "32">';
-              } else {
-                $thumb = preg_replace('+width=("|\')([0-9]{3})?("|\')+','width="48"', $content);
-                $thumb = preg_replace('+height=("|\')([0-9]{3})?("|\')+','height="32"', $thumb);
-              }
-              $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
-              $node->embed_links[$embed->nid] = array('image' => $content, 'thumb' => $thumb);
-              $emfield = TRUE;
-              break;
-            }
-          }
-          if (!$emfield){
-            $target = '';
-            if ($embed->field_link_item[0]['attributes']['target'] == 1){
-              $target = 'target=_blank';
-            }
-            $content = '<a '.$target.' href = "'.$embed->field_link_item[0]['url'].'">'.$embed->field_link_item[0]['title'].'</a>';
-            $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
-            $node->embed_url[] = $content;
-          }
-        } elseif ($embed->field_internal_link[0]['nid'] != NULL){
-          //package
-          $package = node_load($embed->field_internal_link[0]['nid']);
-          $content = node_view($package);
-          $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
-          $node->embed_packages[] = $content;
-        }
-      }
-    }
-  }
 }
 
 function wallydemo_preprocess_page(&$vars){
