@@ -5,7 +5,7 @@ $item['image_path'] = $feed[0]['EmbeddedContent']['EmbeddedObjects']['Object'][0
 $item['url'] = $feed[0]['ExternalURI']['value'];
 
 if ($item['image_path'] == "") {
-  $item['image_path'] = "/sites/all/themes/wallydemo/images/default_pic_last-vids.gif"; 
+  $item['image_path'] = "/sites/all/themes/custom_sp/images/default_pic_last-vids.gif"; 
 }
 
 // transformation d'une image "source" en thumbnail via image cache.

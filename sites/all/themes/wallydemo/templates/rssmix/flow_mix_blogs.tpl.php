@@ -9,7 +9,7 @@
 		  $href = $f["ExternalURI"]["value"];
           $title = $f["MainStory"]["Title"]["value"];
 		      $src = $f["EmbeddedContent"]["EmbeddedObjects"]["Object"][0]["LocaleImage"]["filepath"];
-		      if($src == ""){ $src = "/sites/all/themes/wallydemo/images/default_pic_last-vids.gif"; }          
+		      if($src == ""){ $src = "/sites/all/themes/custom_sp/images/default_pic_last-vids.gif"; }          
           $src = theme('imagecache', 'une_small_78x52', $src, $title, $title);
           
           $jourmois =date('d/m', $f["MainStory"]["PostDate"]["value"]);

@@ -3,7 +3,7 @@
 	<div class="inner-bloc">
 		<ul>
 		<?php
-		$theme_path = $_SERVER['DOCUMENT_ROOT'].'/'.drupal_get_path('theme','wallydemo').'/images';
+		$theme_path = $_SERVER['DOCUMENT_ROOT'].'/'.drupal_get_path('theme','custom_sp').'/images';
 		$c = count($feed);
 		$i = 0; 
 		foreach ($feed as $f) {
