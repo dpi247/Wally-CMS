@@ -28,16 +28,14 @@ function emother_googlemaps_settings() {
 function emother_googlemaps_extract($embed = '') {
   $embed_url=parse_url($embed);
   $domain_array=explode('.',$embed_url['host']);
-  if(isset($domain_array[0]) && isset($domain_array[1])){
-    $subdomain=$domain_array[0];
-    $domain=$domain_array[1];
-    dsm($subdomain,$domain);
-    if($subdomain=="maps" && $domain=="google"){
-      return $embed;
-    }
+  $subdomain=$domain_array[0];
+  $domain=$domain_array[1];
+  if($subdomain=="maps" && $domain=="google"){
+    return $embed;
   }
+  else{
     return FALSE;
-  
+  }
 }
 
 /**
