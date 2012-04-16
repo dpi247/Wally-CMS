@@ -836,7 +836,7 @@ function wallydemo_theme(&$var) {
     'arguments' => array('form' => NULL),
     'path' => "$path/templates",
 		 ),
-    'sp_header' => $base + array(
+      'sp_header' => $base + array(
     'arguments' => array("subtype" => NULL, "context" => NULL, "data_array" => NULL, "options" => NULL),
     'template' => 'sp_header',
     'path' => "$path/templates/general",
@@ -1000,7 +1000,7 @@ function wallydemo_theme(&$var) {
     'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
     'template' => 'rss_mix_crossmedia_regionjobs',
     'path' => "$path/templates/rssmix",   
-    ),
+    ),  
   );
 }
 
