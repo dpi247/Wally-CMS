@@ -410,32 +410,24 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // This cache doesn't exists, create it
     if ($ajax) {
-      module_invoke_all('ajax_loading', $cid, $settings, $subtype, $context, $default_theme);
-
       // Adding the AJAX call
-      drupal_add_js('
-        $(document).ready(function() {
-          setTimeout(function(){
-            $.ajax({
-              type: "POST",
-              url: "/wallyextra/contenttypesajax",
-              cache: false,
-              data: {
-                callback: "'.$callback.'",
-                settings: \''.addslashes(serialize(str_replace(array('\n', '\r\n'), '|@@@|', $settings))).'\',
-                subtype: "'.$subtype.'",
-                context: \''.addslashes(serialize($context)).'\',
-                default_theme: "'.$default_theme.'",
-                plugin: "'.$plugin.'",
-                cid: \''.$cid.'\',
-              },
-              complete: function(data) {
-                $("div.loading_'.$cid.'_'.$default_theme.'").html(data.responseText);
-              }
-            });
-           }, 1);
-        });
-      ', 'inline');
+      drupal_add_js(drupal_get_path('module', 'wallyextra').'/scripts/get_cache_or_create.js');
+      $js_settings = array(
+        'wallyextra' => array(
+          $cid.'_'.$default_theme => array(
+            'data' => array(
+              'callback' => $callback,
+              'settings' => addslashes(serialize(str_replace(array('\n', '\r\n'), '|@@@|', $settings))),
+              'subtype' => $subtype,
+              'context' => addslashes(serialize($context)),
+              'default_theme' => $default_theme,
+              'plugin' => $plugin,
+              'cid' => $cid,
+            ),
+          ),
+        ),
+      );
+      drupal_add_js($js_settings, 'setting');
       
       // Temporary HTML content
       // The div has a specific id to be able to fill it with the right contents
