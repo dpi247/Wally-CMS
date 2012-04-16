@@ -98,7 +98,7 @@ function wallydemo_preprocess_node(&$vars) {
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
               $title=$node->field_embededobjects_nodes[$delta]->field_link_item[0]['title'];
               $node->embed_links[$embed->nid] = array('title' => $title,'content' => $content, 'thumb' => $thumb,'type'=>$module,'provider'=>$item['provider']);
-              dsm($node->embed_links[$embed->nid],gogogo);
+              dsm($node->embed_links,gogogo);
               $emfield = TRUE;
               break;
             }
