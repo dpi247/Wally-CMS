@@ -472,7 +472,6 @@ if (is_array($embeds)){
 
 
 
-dsm($node->embed_links,trtr);
 
 
 
@@ -493,6 +492,8 @@ dsm($node->embed_links,trtr);
     $html_embedlinks .= '</div>';
     $html_embedlinks .= '</div>';
   } elseif (count($node->embed_links) > 0){
+    dsm($node->embed_links,trtr);
+    
     $embed_link = array_pop($node->embed_links);
     $html_embedlinks .= $embed_link['image'];
   }
