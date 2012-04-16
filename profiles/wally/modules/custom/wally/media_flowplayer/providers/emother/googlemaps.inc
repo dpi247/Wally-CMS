@@ -31,6 +31,7 @@ function emother_googlemaps_extract($embed = '') {
   $domain_array=explode('.',$embed_url['host']);
   $subdomain=$domain_array[0];
   $domain=$domain_array[1];
+  dsm($subdomain,$domain);
   if($subdomain=="maps" && $domain=="google"){
     return $embed;
   }
