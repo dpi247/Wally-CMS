@@ -70,7 +70,7 @@ function wallydemo_preprocess_node(&$vars) {
         if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
           
           $item = array('embed' => $embed->field_link_item[0]['url']);
-          $modules = array('emvideo', 'emother', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck', 'emother');
+          $modules = array('emvideo', 'emother', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
           $emfield = FALSE;
           foreach ($modules as $module) {
             $item = _emfield_field_submit_id($field, $item, $module);
@@ -98,6 +98,7 @@ function wallydemo_preprocess_node(&$vars) {
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
               $title=$node->field_embededobjects_nodes[$delta]->field_link_item[0]['title'];
               $node->embed_links[$embed->nid] = array('title' => $title,'content' => $content, 'thumb' => $thumb,'type'=>$module,'provider'=>$item['provider']);
+              dsm($node->embed_links[$embed->nid],gogogo);
               $emfield = TRUE;
               break;
             }
