@@ -414,19 +414,6 @@ if (is_array($embeds)){
   $class_thumb = '';
   if (count($node->embed_links) > 1){
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     foreach ($node->embed_links as $key => $emblink){
       if(($emblink['type']=="emimage"||$emblink['type']=="emvideo")&&($emblink['provider']!='flickr_sets'&&$emblink['provider']!='slideshare')){
         $link_picture .=  '<div id ="item'.$key.'" class = "item_media '.$class_image. $emblink['type'].'">';
@@ -491,11 +478,12 @@ if (is_array($embeds)){
     $html_embedlinks .= '</div>';
     $html_embedlinks .= '</div>';
     $html_embedlinks .= '</div>';
-  } elseif (count($node->embed_links) > 0){
-    dsm($node->embed_links,trtr);
-    
+  } elseif (count($node->embed_links) > 0 ){
+      if(($emblink['type']=="emimage"||$emblink['type']=="emvideo")&&($emblink['provider']!='flickr_sets'&&$emblink['provider']!='slideshare')){
+        
     $embed_link = array_pop($node->embed_links);
     $html_embedlinks .= $embed_link['image'];
+      }
   }
 
   $html_embedurl = '';
