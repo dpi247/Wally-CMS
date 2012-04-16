@@ -51,11 +51,10 @@ $nodes = array();
 foreach ( $node->field_embededobjects_nodes as $n){
   node_build_content($n);
   drupal_render($n->content);
-  $nodes[] = $n; 
+  $nodes[] = $n;
 }
 $node->field_embededobjects_nodes = $nodes;
-unset($nodes); 
-
+unset($nodes);
 // Give the index of the row into the view.
 $themeroot = drupal_get_path('theme', 'wallydemo');
 
@@ -66,15 +65,15 @@ $domain = 'sudinfo';
 // Get the node's main destination
 $mainDestination = $node->field_destinations[0]["tid"];
 
-// Le package -> $node 
+// Le package -> $node
 
 /* Récupération de l'id du package -> $node_id
- * 
+ *
  */
 $node_id = $node->nid;
 
 /* Récupération de l'alias de l'url du package -> $node_path
- * 
+ *
  * print($node_path);
  */
 //$aliases = wallytoolbox_get_path_aliases("node/".$node->nid);
@@ -82,23 +81,23 @@ $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
 $node_path = $aliases[0];
 
 /* Récupération du path
- * 
+ *
  */
 $theme_path = drupal_get_path('theme', 'wallydemo');
 
 /* Récupération du mainstory et de la photo principale du package.
  * Le package peut être articlePackage ou galleryPackage
- * 
+ *
  * Objet principal du package -> $mainstory
- * 
+ *
  * Photo principale du package -> $photoObject
  * Path vers cette image -> $photoObject_path
  * Taille de la photo sur le serveur -> $photoObject_size
- * 
+ *
  * S'il y a bien une image à afficher -> $photo==TRUE
- * 
+ *
  * Pour l'affichage de la photo via son preset imagecache :
- * 
+ *
  * $photoObject_img = theme('imagecache', '???presetImagecache???', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2')); ?>
  * print($photoObject_img);
  */
@@ -106,15 +105,15 @@ $photo = FALSE;
 $photoObject_path = "";
 if ($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
-} else {  
+} else {
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
-  if ($mainstory_type == "wally_photoobject"){ 
+  if ($mainstory_type == "wally_photoobject"){
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $explfilepath = explode('/', $photoObject_path);
     $photoObject_size == $mainstory->field_photofile[0]['filesize'];
     if (isset($photoObject_path) && $photoObject_size > 0) {
-    	$photo = TRUE;
+      $photo = TRUE;
     }
   }
 }
@@ -127,7 +126,7 @@ if ($photoObject_path == ""){
     $photoObject_size = $photoObject->field_photofile[0]['filesize'];
     if (isset($photoObject_path) && $photoObject_size > 0) {
       $photo = TRUE;
-    }    
+    }
   }
 }
 
@@ -138,29 +137,29 @@ $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
 
 /* Affichage de la date au format souhaité
  * Les formats sont:
- * 
+ *
  * 'filinfo' -> '00h00'
  * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
  * 'default' -> 'publié le 26/05 à 15h22'
- * 
+ *
  * print($date_edition);
- */ 
- 
+ */
+
 $date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
- 
+
 /* Récupération du chapeau de l'article -> $strapline
  * Le nombre de caractères attendus pour ce chapeau est spécifié dans $strapline_length
  * Si aucune limitation n'est attendue, laisser la valeur de $strapline_length à 0
- * 
+ *
  * print($strapline);
  */
 
 //$strapline_length = 0;
 //$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 if ($mainstory->type == "wally_textobject"){
-   $strapline = $mainstory->field_textchapo[0]['value'];
+  $strapline = $mainstory->field_textchapo[0]['value'];
 } else {
-   $strapline = $mainstory->field_summary[0]['value'];
+  $strapline = $mainstory->field_summary[0]['value'];
 }
 
 
@@ -174,6 +173,12 @@ if (isset($strapline)){
 $texte_article = $mainstory->field_textbody[0]['value'];
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
 
+
+$byline="<p class=\"byline\">" .$mainstory->field_textbody[0]['value'] ."</p>";
+$extract_short="<p class=\"extract_short\">" .$mainstory->field_extractshort[0]['value'] ."</p>";
+$extract_medium="<p class=\"extract_medium\">" .$mainstory->field_extractmedium[0]['value'] ."</p>";
+
+
 drupal_add_css($themeroot . '/css/article.css');
 
 //wallytoolbox_add_meta(array("property"=>"og:type"), "Article");
@@ -181,35 +186,32 @@ drupal_add_css($themeroot . '/css/article.css');
 
 $nb_comment = $node->comment_count;
 //$nb_comment = $node->comment;
-if ($nb_comment == 0){
+if ($nb_comment == 0) {
   $reagir = "réagir";
-}    
-else if ($nb_comment == 1){
+} else if ($nb_comment == 1) {
   $reagir = $nb_comment."&nbsp;réaction";
-}    
-else {
+} else {
   $reagir = $nb_comment."&nbsp;réactions";
 }
 
-
-$links = _wallydemo_get_sorted_links($node); 
+$links = _wallydemo_get_sorted_links($node);
 $links_html = "";
 foreach ($links as $linksList){
   if (isset($linksList["title"])){
     $list_titre = $linksList["title"];
     $links_html .= "<div class=\"bloc-01\"><h2>".$list_titre."</h2><div class=\"inner-bloc\"><ul>";
     if (isset($linksList["links"])){
-	  foreach($linksList["links"] as $link){
-	    $link_url = $link["url"];
-	    $link_title = $link["title"];
-	    $link_target = $link["target"];
-	    $link_type = $link["type"];
-	    if ($link["packagelayout"] == 'Article Wiki') {
-	      $links_html .= "<li class=\"media-dossier\">" ."<a class=\"novisited\" href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
-	    } else {
-	      $links_html .= "<li class=\"media-press\">" ."<a href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
-	    }
-	  }
+      foreach($linksList["links"] as $link){
+        $link_url = $link["url"];
+        $link_title = $link["title"];
+        $link_target = $link["target"];
+        $link_type = $link["type"];
+        if ($link["packagelayout"] == 'Article Wiki') {
+          $links_html .= "<li class=\"media-dossier\">" ."<a class=\"novisited\" href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
+        } else {
+          $links_html .= "<li class=\"media-press\">" ."<a href=\"".$link_url."\" target=\"".$link_target."\">".$link_title."</a></li>";
+        }
+      }
     }
     $links_html .= "</ul></div></div>";
   }
@@ -225,7 +227,6 @@ if (is_array($embeds)){
   $embeds_audios = array();
   $embeds_digital = array();
   $embeds_link = array();
-	
   foreach ($embeds["photos"] as $photo){
     $embed_photo = wallydemo_get_photo_infos_and_display($photo);
     array_push($embeds_photos,$embed_photo);
@@ -245,11 +246,13 @@ if (is_array($embeds)){
   foreach ($embeds["link"] as $link){
     array_push($embeds_link, $link);
   }
+
+
   //dsm($embeds_photos);
-  //dsm($embeds_videos);
+  //dsm($embeds_videos,videos);
   //dsm($node);
-  //dsm($photoObject);
-  //dsm($links);
+  //dsm($photoObject,photos);
+  //dsm($links,links);
 
   // Génération main bloc médias
   // I -> on affiche l’image.
@@ -277,12 +280,12 @@ if (is_array($embeds)){
     }
     $widthMedias = 300*$cpt;
   }
-	
-  
-  
+
+
+
   $mainObject_html = "";
   $mainObject_html .= "<div class=\"allMedias\"><div class=\"wrappAllMedia\" style=\"width:".$widthMedias."px;\">";
-	
+
   switch($embeds["mainObject"]->type){
      
     case "wally_videoobject":
@@ -314,7 +317,7 @@ if (is_array($embeds)){
         }
       }
       break;
-      	
+       
     case "wally_photoobject":
       foreach ($embeds_photos as $embed){
         //				$mainObject_html .= "<a name=\"".$embed['nid']."\" ></a>";
@@ -330,24 +333,17 @@ if (is_array($embeds)){
       break;
   }
 
-  if (count($embeds_digital) > 0){
-    foreach($embeds_digital as $embed){
-      //$mainObject_html .= "<div>".$embed['emcode']."</div>";
-    }
-  }
   /*
    //print_r($embeds_videos);
-  if (count($embeds_videos) > 0){
-  $mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Vidéos</h2><div class=\"inner-bloc\"><ul>";
-  foreach($embeds_videos as $embed){
-  $mainObject_html .="<li><a href=\"javascript:void(0)\"><img width=\"48\" height=\"32\" src=\"".$embeds_video[0]['thumbnail']."\"></a></li>";
-  }
-  $mainObject_html .= "</ul></div></div>";
-  }
-  */
-  
-  
-  
+   if (count($embeds_videos) > 0){
+   $mainObject_html .= "<div class=\"bloc-01 pf_article\"><h2>Vidéos</h2><div class=\"inner-bloc\"><ul>";
+   foreach($embeds_videos as $embed){
+   $mainObject_html .="<li><a href=\"javascript:void(0)\"><img width=\"48\" height=\"32\" src=\"".$embeds_video[0]['thumbnail']."\"></a></li>";
+   }
+   $mainObject_html .= "</ul></div></div>";
+   }
+   */
+
   // fin div wrappAllMedia et allMedias
   $mainObject_html .= "</div></div>";
 
@@ -361,39 +357,52 @@ if (is_array($embeds)){
     }
     $mainObject_html .= "</ul></div></div>";
   }
-	// Fin génération main bloc médias
-	
-	// Génération bloc médias vidéos affiché sous l'article
+  // Fin génération main bloc médias
+
+  // Génération bloc médias vidéos affiché sous l'article
   if (count($embeds_videos) > 0){
-    $cpt = 0;		
-	$bottomVideosBlock = "<div id=\"bottomVideos\">";
-	foreach ($embeds_videos as $embed){
-		  // Si mainObject est une vidéo, il ne faut pas la réafficher ici
-	  if ($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){ 
-		$cpt++;
-		CONTINUE;
-	  }
-	  $bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
-	  $bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
-	  if (trim(strip_tags($embed["summary"])) != ""){
-	    $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
+    $cpt = 0;
+    $bottomVideosBlock = "<div id=\"bottomVideos\">";
+    foreach ($embeds_videos as $embed){
+      // Si mainObject est une vidéo, il ne faut pas la réafficher ici
+      if ($embeds["mainObject"]->type == 'wally_videoobject' && $cpt==0){
+        $cpt++;
+        CONTINUE;
       }
-	  $bottomVideosBlock .= "</div>";
-	}
-	$bottomVideosBlock .= "</div>";
+      $bottomVideosBlock .= "<a name=\"".$embed['nid']."\" ></a>";
+      $bottomVideosBlock .= "<div class=\"bottomVideos\">" .$embed['emcode'];
+      if (trim(strip_tags($embed["summary"])) != ""){
+        $bottomVideosBlock .= "<p class=\"pic_description\">".strip_tags($embed["summary"])."</p>";
+      }
+      $bottomVideosBlock .= "</div>";
+    }
+    $bottomVideosBlock .= "</div>";
   }
   // Fin génération bloc médias vidéos affiché sous l'article
-	
+
   // Génération html médias digitaux affichés sous l'article
   if (count($embeds_digital) > 0){
-	$bottomDigitalElements = "";
-	foreach ($embeds_digital as $embed){
-	  $bottomDigitalElements .= "<a name=\"".$embed['nid']."\" ></a>";
+    $bottomDigitalElements = "";
+    foreach ($embeds_digital as $embed){
+      $bottomDigitalElements .= "<a name=\"".$embed['nid']."\" ></a>";
       $bottomDigitalElements .= "<div class=\"digital-".$embed["type"]."\">";
-	  $bottomDigitalElements .= $embed["emcode"];
-  	  $bottomDigitalElements .= "</div>";
-	}
+      $bottomDigitalElements .= $embed["emcode"];
+      $bottomDigitalElements .= "</div>";
+    }
   }
+
+  // Génération html médias audios affichés sous l'article
+  if (count($embeds_audios) > 0){
+    $bottomAudioElements = "";
+    foreach ($embeds_audios as $embed) {
+      $bottomAudioElements .= "<a name=\"".$embed['nid']."\" ></a>";
+      $bottomAudioElements .= "<div class=\"digital-".$embed["type"]."\">";
+      $bottomAudioElements .= "<h3>".$embed['title']."</h3>";
+      $bottomAudioElements .= $embed["emcode"];
+      $bottomAudioElements .= "</div>";
+    }
+  }
+
   $html_embedpackages = '';
   if (count($node->embed_packages) > 0){
     foreach ($node->embed_packages as $embpackage){
@@ -410,18 +419,69 @@ if (is_array($embeds)){
   $class_image = '';
   $class_thumb = '';
   if (count($node->embed_links) > 1){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     foreach ($node->embed_links as $key => $emblink){
-      $link_picture .=  '<div id ="item'.$key.'" class = "item_media '.$class_image.'">';
-      $link_picture .= $emblink['image'];
-      $link_picture .= '</div>';
-      $link_thumb .= '<li class="'.$class_thumb.'">';
-      $link_thumb .= '<a href="#item'.$key.'">';
-      $link_thumb .= $emblink['thumb'];
-      $link_thumb .= '</a>';
-      $link_thumb .= '</li>';
-      $class_image = '';
-      $class_thumb = '';
+      if(($emblink['type']=="emimage"||$emblink['type']=="emvideo")&&($emblink['provider']!='flickr_sets'&&$emblink['provider']!='slideshare')){
+        $link_picture .=  '<div id ="item'.$key.'" class = "item_media '.$class_image. $emblink['type'].'">';
+        $link_picture .= $emblink['content'];
+        $link_picture .= '</div>';
+        $link_thumb .= '<li class="'.$class_thumb.'">';
+        $link_thumb .= '<a href="#item'.$key.'">';
+        $link_thumb .= $emblink['thumb'];
+        $link_thumb .= '</a>';
+        $link_thumb .= '</li>';
+        $class_image = '';
+        $class_thumb = '';
+      }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     $width = count($node->embed_links)*300;
     $html_embedlinks .= '<div id="links">';
     $html_embedlinks .= '<div class="allMedias">';
@@ -442,10 +502,10 @@ if (is_array($embeds)){
     $embed_link = array_pop($node->embed_links);
     $html_embedlinks .= $embed_link['image'];
   }
-  
+
   $html_embedurl = '';
   if (count($node->embed_url) > 0){
-    
+
     $html_embedurl .= '<div class="bloc-01"><h2>'.t('Links').'</h2><div class="inner-bloc"><ul>';
     foreach($node->embed_url as $link){
       $html_embedurl .= '<li class="media-press">'.$link.'</li>';
@@ -453,7 +513,7 @@ if (is_array($embeds)){
     $html_embedurl .= '</ul></div></div>';
   }
   // Fin génération html médias digitaux affichés sous l'article
-}	
+}
 /*
  * Génération du breadcrumb
  */
@@ -469,86 +529,126 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
 
 /*
  * Récupération des tags de l'article et afficha html
- * et 
+ * et
  * On n'affiche pas les tags dans le fil info
- * 
+ *
  */
 $htmltags = wallydemo_taxonomy_tags_particle($node);
 $taxonomy = $node->field_destinations[0]["tid"];
 
 if ($htmltags != "" && $taxonomy != "20"){
-	$listTags .= "<div class=\"tags\"><h2>Termes associés : </h2>".$htmltags."</div>";
+  $listTags .= "<div class=\"tags\"><h2>Termes associés : </h2>".$htmltags."</div>";
 }
 
 ?>
 
-<div id="article"><?php echo $breadcrumb; ?>
-  <ul class="liensutiles">
-    <li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?></li>
-    <li class="imprimer"><a href="javascript:window.print();"><img src="/<?php echo $theme_path; ?>/images/ico_imprimer2.gif" alt="Imprimer" title="Imprimer"  width="22" height="20" /></a></li>
-    <li class="reagir"><a href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a> </li>
-    <li class="facebook">
-      <div id="fb-root"></div>
-      <script src="http://connect.facebook.net/fr_FR/all.js#appId=276704085679009&amp;xfbml=1"></script>
-      <fb:like href="<?php print $socialSharingDomainAndPathUrl; ?>" send="true" layout="button_count" width="90" show_faces="false" action="like" font="arial" ref="article_sudpresse"></fb:like>
-    </li>
-    <li class="linkedin"> 
-      <script src="http://platform.linkedin.com/in.js" type="text/javascript"></script> 
-      <script type="IN/Share" data-url="<?php print $socialSharingDomainAndPathUrl; ?>"></script></li>
-    <li class="twitter"> 
-      <script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
-      <div> <a href="http://twitter.com/share" class="twitter-share-button"
-     data-url="<?php print $socialSharingDomainAndPathUrl; ?>"
-     data-via="sudpresseonline"
-     data-text="<?php print str_replace('"', '', $main_title); ?>"
-     data-related="lameuse.be:Toute l'information du La Meuse,LaGazette_be:Toute l'information de La Nouvelle Gazette,xalambert:Responsable de la rédaction de Sudpresse.be"
-     data-count="horizontal"      
-     data-lang="fr">Tweet</a> </div>
-    </li>
-    <li class="google">
-      <div class="g-plusone" data-size="medium" data-href="<?php print $socialSharingDomainAndPathUrl; ?>"></div>
-    </li>
-  </ul>
-  <h1><?php print wallydemo_check_plain($main_title); ?></h1>
-  
-  <div id="picture">
-    <?php 
-    
-    print '<div id = "main">'.$mainObject_html.'</div>'; 
-    print $html_embedlinks;
-    print $html_embedurl;
-    print '<div id = "link">'.$links_html.'</div>'; 
-    ?>
-    
-  </div>
-  <?php 
-  print $chapeau; 
-  print $signature; 
-  print $date_edition; 
-  print $texte_article; 
+<div
+	id="article">
+	<?php echo $breadcrumb; ?>
+	<ul class="liensutiles">
+		<li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?>
+		</li>
+		<li class="imprimer"><a href="javascript:window.print();"><img
+				src="/<?php echo $theme_path; ?>/images/ico_imprimer2.gif"
+				alt="Imprimer" title="Imprimer" width="22" height="20" /> </a></li>
+		<li class="reagir"><a
+			href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?>
+		</a>
+		</li>
+		<li class="facebook">
+			<div id="fb-root"></div> <script
+				src="http://connect.facebook.net/fr_FR/all.js#appId=276704085679009&amp;xfbml=1"></script>
+			<fb:like href="<?php print $socialSharingDomainAndPathUrl; ?>"
+				send="true" layout="button_count" width="90" show_faces="false"
+				action="like" font="arial" ref="article_sudpresse"></fb:like>
+		</li>
+		<li class="linkedin"><script src="http://platform.linkedin.com/in.js"
+				type="text/javascript"></script> <script type="IN/Share"
+				data-url="<?php print $socialSharingDomainAndPathUrl; ?>"></script>
+		</li>
+		<li class="twitter"><script
+				src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+			<div>
+				<a href="http://twitter.com/share" class="twitter-share-button"
+					data-url="<?php print $socialSharingDomainAndPathUrl; ?>"
+					data-via="sudpresseonline"
+					data-text="<?php print str_replace('"', '', $main_title); ?>"
+					data-related="lameuse.be:Toute l'information du La Meuse,LaGazette_be:Toute l'information de La Nouvelle Gazette,xalambert:Responsable de la rédaction de Sudpresse.be"
+					data-count="horizontal" data-lang="fr">Tweet</a>
+			</div>
+		</li>
+		<li class="google">
+			<div class="g-plusone" data-size="medium"
+				data-href="<?php print $socialSharingDomainAndPathUrl; ?>"></div>
+		</li>
+	</ul>
+	<h1>
+	<?php print wallydemo_check_plain($main_title); ?>
+	</h1>
 
-  if (isset($bottomVideosBlock)) print $bottomVideosBlock ; 
-  if (isset($bottomDigitalElements)) print $bottomDigitalElements ; 
-  
+	<div id="picture">
+	<?php
 
-  print $html_embedpackages;
-  print $listTags; ?>
-  <!-- FACEBOOK REACTIONS -->
-  <?php if ($node->comment == 2) { ?>
-    <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>
-  <?php print theme("spreactions_facebook", $node_id, $socialSharingBaseUrl, $socialSharingDomainAndPathUrl, $socialSharingDomainAndPathUrl); ?>
-  <?php } ?>
-  <!-- Facebook social bar -->
-  <script>/*(function(d){
+	print '<div id = "main">'.$mainObject_html.'</div>';
+	print $html_embedlinks;
+	print $html_embedurl;
+	print '<div id = "link">'.$links_html.'</div>';
+	?>
+
+	</div>
+	<?php
+	print $chapeau;
+	print $signature;
+	print $date_edition;
+	print $texte_article;
+	
+	print $byline;
+    print $extract_short;
+	print $extract_medium;
+		
+
+	if (isset($bottomVideosBlock)) print $bottomVideosBlock ;
+	if (isset($bottomDigitalElements)) print $bottomDigitalElements ;
+	if (isset($bottomAudioElements)) print $bottomAudioElements ;
+
+
+	$link_picture="";
+	if(isset($node->embed_links)){
+	  foreach ($node->embed_links as $key => $emblink){
+	    if(($emblink['type']!="emimage" && $emblink['type']!="emvideo") || ($emblink['provider']=='flickr_sets'||$emblink['provider']=='slideshare')){
+	      $link_picture .=  '<div class="digital-wally_audioobject" width:"100%"><div id ="itddem'.$key.'" class = "item_medddia '.$class_image. $emblink['type'].'">';
+	      $link_picture .= "<h3>".$emblink['title'].'</h3>';
+	      $link_picture .= $emblink['content'];
+	      $link_picture .= '</div></div>';
+	      $class_image = '';
+	      $class_thumb = '';
+	    }
+	  }
+	  print $link_picture;
+	}
+
+
+
+
+	print $html_embedpackages;
+	print $listTags; ?>
+	<!-- FACEBOOK REACTIONS -->
+	<?php if ($node->comment == 2) { ?>
+	<a id="ancre_commentaires" name="ancre_commentaires"
+		href="#ancre_commentaires" /></a>
+		<?php print theme("spreactions_facebook", $node_id, $socialSharingBaseUrl, $socialSharingDomainAndPathUrl, $socialSharingDomainAndPathUrl); ?>
+		<?php } ?>
+	<!-- Facebook social bar -->
+	<script>/*(function(d){
 	  var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}
 	  js = d.createElement('script'); js.id = id; js.async = true;
 	  js.src = "//connect.facebook.net/fr_FR/all.js#appId=191499344249079&xfbml=1";
 	  d.getElementsByTagName('head')[0].appendChild(js);
 	  }(document));*/
 	</script>
-  <!-- <fb:social-bar href="<?php print $socialSharingDomainAndPathUrl ; ?>" trigger="0%" read_time="8" action="recommend" /> -->
-  <!-- Pour Googleplus --> 
-  <script type="text/javascript">
+	<!-- <fb:social-bar href="<?php print $socialSharingDomainAndPathUrl ; ?>" trigger="0%" read_time="8" action="recommend" /> -->
+	<!-- Pour Googleplus -->
+	<script type="text/javascript">
  window.___gcfg = {lang: 'fr'};
 
  (function() {
@@ -556,18 +656,18 @@ if ($htmltags != "" && $taxonomy != "20"){
    po.src = 'https://apis.google.com/js/plusone.js';
    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
  })();
-</script> 
+</script>
 </div>
 
-<?php 
-//ici unset des variables
-unset($node);
-unset($mainstory);
-unset($photoObject);
-unset($links);
-unset($embeds);
-unset($embeds_audios);
-unset($embeds_videos);
-unset($embeds_photos);
-unset($embeds_digital);
-?>
+		<?php
+		//ici unset des variables
+		unset($node);
+		unset($mainstory);
+		unset($photoObject);
+		unset($links);
+		unset($embeds);
+		unset($embeds_audios);
+		unset($embeds_videos);
+		unset($embeds_photos);
+		unset($embeds_digital);
+		?>

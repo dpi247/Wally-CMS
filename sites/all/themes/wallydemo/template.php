@@ -177,7 +177,7 @@ function wallydemo_preprocess_page(&$vars){
   $associated_brand = variable_get($domain.'_associated_brand', NULL);
   $current_path = wallydemo_get_current_path();
   $current_path_alias = wallytoolbox_get_all_aliases($current_path);  
-  $vars['head'] = _set_meta_general($site_name, $site_url, $associated_brand, $domain);  
+  //$vars['head'] = _set_meta_general($site_name, $site_url, $associated_brand, $domain);  
 	$args = arg();
 	if ($args[0] == 'node'){
 		$default_site_name = variable_get('site_name','Wally Sudpresse');
