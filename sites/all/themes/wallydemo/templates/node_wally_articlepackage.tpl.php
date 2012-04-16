@@ -591,7 +591,6 @@ if ($htmltags != "" && $taxonomy != "20"){
 
 
 	$link_picture="";
-	dsm($node->embed_links,nodeemlinks);
 	if(isset($node->embed_links)){
 	  foreach ($node->embed_links as $key => $emblink){
 	    if(($emblink['type']!="emimage" && $emblink['type']!="emvideo") || ($emblink['provider']=='flickr_sets'||$emblink['provider']=='slideshare')){

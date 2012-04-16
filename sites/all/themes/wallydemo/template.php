@@ -66,7 +66,6 @@ function wallydemo_preprocess_node(&$vars) {
     $node = &$vars['node'];
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
-        dsm($node->field_embededobjects_nodes);
         if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
           
           $item = array('embed' => $embed->field_link_item[0]['url']);
@@ -98,7 +97,6 @@ function wallydemo_preprocess_node(&$vars) {
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
               $title=$node->field_embededobjects_nodes[$delta]->field_link_item[0]['title'];
               $node->embed_links[$embed->nid] = array('title' => $title,'content' => $content, 'thumb' => $thumb,'type'=>$module,'provider'=>$item['provider']);
-              dsm($node->embed_links,gogogo);
               $emfield = TRUE;
               break;
             }
