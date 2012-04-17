@@ -156,8 +156,9 @@ $date_edition = "<p class=\"publiele\">Publi̩ le " ._wallydemo_date_edition_dip
 
 //$strapline_length = 0;
 //$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
-dsm($mainstory);
 if ($mainstory->type == "wally_textobject"){
+    node_build_content($mainstory, $teaser, $page);
+  dsm($mainstory);
   $strapline = $mainstory->field_textchapo[0]['value'];
 } else {
   $strapline = $mainstory->field_summary[0]['value'];
