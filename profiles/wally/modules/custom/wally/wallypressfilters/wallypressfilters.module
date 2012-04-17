@@ -68,7 +68,6 @@ function wallypressfilters_menu() {
  * On déclare les filtres Hermès et CCI. 
  * */
 function wallypressfilters_filter($op, $delta = 0, $format = -1, $text = '') {
- dsm($text);
   switch ($op) {
     case 'list':
       $list = array();
@@ -366,7 +365,6 @@ function wallypressfilters_filter_process($fid, $text, $format){
 function wallypressfilters_replace_tags($tag, $replacetag, $class, $text) {
  // dsm(preg_replace('@<(\/)?'.$tag.'\b@','<${1}'.$replacetag, $text),coco);
   $text=preg_replace('@<(\/)?'.$tag.'\b@','<${1}'.$replacetag, $text);
-  dsm($text,txt);
   return $text;
 
 }
