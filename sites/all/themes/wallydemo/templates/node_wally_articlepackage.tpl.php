@@ -172,7 +172,6 @@ if (isset($strapline)){
 }
 $texte_article = $mainstory->field_textbody[0]['value'];
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
-
 $byline="<p class=\"byline\">" .$mainstory->field_byline[0]['value'] ."</p>";;
 $extract_short="<p class=\"extract_short\">" .$mainstory->field_extractshort[0]['value'] ."</p>";;
 $extract_medium="<p class=\"extract_medium\">" .$mainstory->field_extractmedium[0]['value'] ."</p>";
@@ -584,12 +583,13 @@ if ($htmltags != "" && $taxonomy != "20"){
 
 	</div>
 	<?php
+	print $byline;
+	
 	print $chapeau;
 	print $signature;
 	print $date_edition;
 	print $texte_article;
 	
-	print $byline;
     print $extract_short;
 	print $extract_medium;
 	
