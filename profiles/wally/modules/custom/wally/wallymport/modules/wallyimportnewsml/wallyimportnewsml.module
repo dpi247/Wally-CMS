@@ -146,6 +146,8 @@ function wallyimportnewsml_node_process_package(&$node, $dom, &$log, $importer){
   
   $node->language = $dom->getAttributeNode("xml:lang")->value;
   
+  $channel = array('newsml');
+  $node->field_channels = array(array("value" => serialize($channel)));
 
   //Map XML element
   wimprt_node_process_fields($node, $dom, $log, $importer);
