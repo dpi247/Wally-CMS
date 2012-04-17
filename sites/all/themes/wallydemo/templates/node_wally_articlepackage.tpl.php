@@ -133,7 +133,7 @@ if ($photoObject_path == ""){
 
 /*  R̩cup̩ration de la date de publication du package -> $node_publi_date
  */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
+$node_publi_date = strtotime($node->field_publicationdate[0]['safe']);
 
 /* Affichage de la date au format souhait̩
  * Les formats sont:
@@ -158,10 +158,9 @@ $date_edition = "<p class=\"publiele\">Publi̩ le " ._wallydemo_date_edition_dip
 //$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 if ($mainstory->type == "wally_textobject"){
     node_build_content($mainstory, $teaser, $page);
-  dsm($mainstory);
-  $strapline = $mainstory->field_textchapo[0]['value'];
+  $strapline = $mainstory->field_textchapo[0]['safe'];
 } else {
-  $strapline = $mainstory->field_summary[0]['value'];
+  $strapline = $mainstory->field_summary[0]['safe'];
 }
 
 
@@ -172,11 +171,11 @@ $chapeau = "";
 if (isset($strapline)){
   $chapeau = "<p class=\"chapeau\">" .$strapline ."</p>";
 }
-$texte_article = $mainstory->field_textbody[0]['value'];
+$texte_article = $mainstory->field_textbody[0]['safe'];
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
-$byline="<p class=\"byline\">" .$mainstory->field_byline[0]['value'] ."</p>";;
-$extract_short="<p class=\"extract_short\">" .$mainstory->field_extractshort[0]['value'] ."</p>";;
-$extract_medium="<p class=\"extract_medium\">" .$mainstory->field_extractmedium[0]['value'] ."</p>";
+$byline="<p class=\"byline\">" .$mainstory->field_byline[0]['safe'] ."</p>";;
+$extract_short="<p class=\"extract_short\">" .$mainstory->field_extractshort[0]['safe'] ."</p>";;
+$extract_medium="<p class=\"extract_medium\">" .$mainstory->field_extractmedium[0]['safe'] ."</p>";
 
 drupal_add_css($themeroot . '/css/article.css');
 
