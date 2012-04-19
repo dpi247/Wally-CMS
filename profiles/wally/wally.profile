@@ -190,23 +190,27 @@ function wally_profile_tasks(&$task, $url) {
     $batch['operations'][] = array('wallycontenttypes_add_indexes', array());
     
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
-      foreach ( wally_demo_feature_modules() as $feature ) {   
+      foreach ( wally_demo_feature_modules() as $feature ) {
         $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));
         $batch['operations'][] = array('features_flush_caches', array());
       }
-      if (isset($wally_install_config['wallyedit']) && $wally_install_config['wallyedit']) {
-        $batch['operations'][] = array('_install_module_batch', array('wallyedit', $files['wallyedit']->info['name']));
-        $batch['operations'][] = array('features_flush_caches', array());
-        if (isset($wally_install_config['wallyedit_config']) && $wally_install_config['wallyedit_config']) {
-          $batch['operations'][] = array('wallyedit_install_default_config', array());
-        }
+    }
+
+    if (isset($wally_install_config['wallyedit']) && $wally_install_config['wallyedit']) {
+      $batch['operations'][] = array('_install_module_batch', array('wallyedit', $files['wallyedit']->info['name']));
+      $batch['operations'][] = array('features_flush_caches', array());
+      if (isset($wally_install_config['wallyedit_config']) && $wally_install_config['wallyedit_config']) {
+        $batch['operations'][] = array('wallyedit_install_default_config', array());
       }
+    }
+
+    if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       $batch['operations'][] = array('_wally_install_menus', array());
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
       $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
       $batch['operations'][] = array('_wally_placeholder_content', array());
     }
-    
+
     $batch['operations'][] = array('_wally_set_permissions', array());
     $batch['operations'][] = array('_wally_initialize_settings', array());
     $batch['operations'][] = array('_wally_set_views', array());
@@ -915,8 +919,6 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Install WallyEdit?'),
     '#description' => t('Do you want to use WallyEdit as default node edition interface?'),
-    '#dependency' => array('edit-demo-content' => array(1)),
-    '#process' => array('ctools_dependent_process'),
   );
   
   $form['wally']['wallyedit_config'] = array(
