@@ -679,9 +679,15 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
         // As we check the taxonomy full path and specify a vocabulary
         // we can only have one result.
         $temp_result['tid'] = $terms[0]->tid;
-        $temp_result['target'] = $destination->getAttributeNode("Position")->value;
-        $temp_result['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
-        $temp_result['rank'] = $destination->getAttributeNode("DestinationRank")->value;
+        if ($destination->hasAttribute("Position")) {
+          $temp_result['target'] = $destination->getAttributeNode("Position")->value;
+          $temp_result['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
+          $temp_result['rank'] = $destination->getAttributeNode("DestinationRank")->value;
+        } else {
+          $temp_result['target'] = 'none';
+          $temp_result['layout'] = 'none';
+          $temp_result['rank'] = 0;
+        }
 
         if (!in_array($temp_result['tid'].':'.$temp_result['target'], $check_double)) {
           $check_double[] = $temp_result['tid'].':'.$temp_result['target'];
