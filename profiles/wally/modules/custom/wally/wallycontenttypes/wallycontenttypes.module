@@ -331,12 +331,14 @@ function wallycontentypes_update_poll_cache (&$form, &$form_state) {
 
 function wallycontenttypes_form_wallyedit_form_fields_overview_form_alter(&$form, $form_state) {
   $flat_fields = wyditadmin_get_fields_flat($form['profile_id']['#value'], $form['type']['#value']);
-  $default_field = isset($flat_fields['field_editorialupdatedate']) ? $flat_fields['field_editorialupdatedate'] : array('display' => 0);
-  $form['fields']['field_editorialupdatedate']['wallyedit'] = array(
-    '#type' => 'select',
-    '#options' => array(0 => t('Exclude'), 1 => t('Normal'), 4 => t('Checkbox')),
-    '#default_value' => $default_field['display'],
-  );
+  if (isset($flat_fields['field_editorialupdatedate'])) {
+    $default_field = $flat_fields['field_editorialupdatedate'];
+    $form['fields']['field_editorialupdatedate']['wallyedit'] = array(
+      '#type' => 'select',
+      '#options' => array(0 => t('Exclude'), 1 => t('Normal'), 4 => t('Checkbox')),
+      '#default_value' => $default_field['display'] ? $default_field['display'] : 0,
+    );
+  }
 }
 
 function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
@@ -358,10 +360,8 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &
           $edit_update_elem = &$form[$type_name]['field_editorialupdatedate'];
         }
 
-        $edit_update_elem[0]['#type'] = 'hidden';
-        foreach (element_children($edit_update_elem[0]) as $elem) {
-          $edit_update_elem[0][$elem]['#type'] = 'hidden';
-        }
+        $edit_update_elem[0]['#prefix'] = '<div style="display:none;">';
+        $edit_update_elem[0]['#suffix'] = '</div>';
         $edit_update_elem[] = array(
           '#type' => 'checkbox',
           '#title' => t('Update Editorial Update Date'),
