@@ -252,7 +252,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
     }
     $form[$element]['#parents'] = $parents_new;
 
-    if(isset($flat_fields[$element]) and $flat_fields[$element]['display'] == 0) {
+    if(isset($flat_fields[$element]) && $flat_fields[$element]['display'] == 0) {
       if ($children = element_children($form[$element])) {
         foreach ($children as $child) {
           if ($form[$element][$child]['#type'] == 'text_textarea') {
@@ -370,7 +370,7 @@ function wydit_prepare_inline_form_element(&$form_element, $form_state, $element
 
     //WARNNING: FIELDS DOESN'T EXIST CAUSE THERE ARE FIELDS FROM THE MAIN CONTENT, SHOULD BRING FIELD INFO FROM NODEREFERENCE CONTENT TYPE
     //EDIT2: WTF ???
-    if(isset($fields[$element_name]) and $flat_fields[$element_name]['display'] == 1) {
+    if(isset($fields[$element_name]) && $flat_fields[$element_name]['display'] == 1) {
       $form[$element_name]['#parents'] = $parents;
     }
   }
@@ -802,7 +802,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
     $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
     foreach($flat_fields as $field) {
       $field_name = $field['name'];
-      if($field['display'] > 1) {
+      if($field['display'] == 2 || $field['display'] == 3) {
         if(isset($sub_form_state[$type_name][$field_name])) {
           foreach($sub_form_state[$type_name][$field_name] as $key => $value) {
             //avoid the weight_.$key element
@@ -821,7 +821,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 
               foreach($subfields as $subfield) {
                 $subfield_name = $subfield['name'];
-                if($subfield['display'] > 1 && isset($sub_form_state[$type_name][$field_name][$key][$subfield_name])) {
+                if(($subfield['display'] == 2 || $subfield['display'] = 3) && isset($sub_form_state[$type_name][$field_name][$key][$subfield_name])) {
                   foreach($sub_form_state[$type_name][$field_name][$key][$subfield_name] as $subkey => $subvalue) {
                     $a[$type_name][$field_name][$key][$subfield_name][$subkey] = $sub_form_state[$type_name][$field_name][$key][$subfield_name][$subkey];
                   }
@@ -1132,7 +1132,7 @@ function wydit_clean_form_state($form_state){
 
   foreach($fields as $field) {
     $field_name = $field['name'];
-    if($field['display'] > 1) {
+    if($field['display'] == 2 || $field['display'] == 3) {
       $a[$type_name][$field_name] = array();
       if(isset($form_state[$type_name][$field_name])) {
         foreach($form_state[$type_name][$field_name] as $key => $value) {
@@ -1148,7 +1148,7 @@ function wydit_clean_form_state($form_state){
             
             foreach($subfields as $subfield) {
               $subfield_name = $subfield['name'];
-              if($subfield['display'] > 1 && isset($form_state[$type_name][$field_name][$key][$subfield_name])) {
+              if(($subfield['display'] == 2 || $subfield['display'] == 3) && isset($form_state[$type_name][$field_name][$key][$subfield_name])) {
                 foreach($form_state[$type_name][$field_name][$key][$subfield_name] as $subkey => $subvalue) {
                   $a[$type_name][$field_name][$key][$subfield_name][$subkey] = $form_state[$type_name][$field_name][$key][$subfield_name][$subkey];
                 }
@@ -1190,7 +1190,7 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
   $fields = wyditadmin_get_fields_flat($current_profile, $type_name);
 
   foreach($fields as $field) {
-    if($field['display'] > 1) {
+    if($field['display'] == 2 || $field['display'] == 3) {
       $field_name = $field['name'];
       if(isset($form_state[$field_name])) {
         foreach($form_state[$field_name] as $key => $value) {
@@ -1279,7 +1279,7 @@ function wydit_populate_form_state(&$form_state, $node, $current_profile) {
   foreach($flat_fields as $field_name => $infos) {
     $orig_field_infos = $existing_fields[$field_name];
 
-    if($infos['display'] > 1) {
+    if($infos['display'] == 2 || $infos['display'] == 3) {
       $form_state[$field_name] = array();
       if($infos['display'] == 2) {
         $type = wydit_get_inline_type($orig_field_infos['referenceable_types']);

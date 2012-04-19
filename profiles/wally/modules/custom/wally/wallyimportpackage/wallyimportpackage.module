@@ -232,6 +232,7 @@ function wallyimportpackage_create_or_load_preprocesspackage($dom, &$node, $impo
     case 'CreateReplace':
       if ($node_temporary != NULL){
         $node->nid = $node_temporary->nid;
+        $node->vid = $node_temporary->vid;
       }
       break;
     case 'CreateUpdate':
@@ -350,6 +351,28 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
     if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
     }
+  }
+  if ($dom_element->hasAttribute("force_lastupdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("force_lastupdate")->value);
+  } else {
+    $force_edit_update = FALSE;
+  }
+  if ($dom_element->hasAttribute('Action')){
+    $action = $dom_element->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'CreateReplace':
+    case 'Preview':
+      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      break;
+    case 'CreateUpdate':
+    case 'Update':
+      if ($node->nid == NULL || $force_edit_update) {
+        $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      }
+      break;
   }
   $node->language = $dom_element->getAttributeNode("Language")->value;
   //jusque ici ok

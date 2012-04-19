@@ -329,10 +329,45 @@ function wallycontentypes_update_poll_cache (&$form, &$form_state) {
   wallytoolbox_object_referencer_cache_clear($node);
 }
 
+function wallycontenttypes_form_wallyedit_form_fields_overview_form_alter(&$form, $form_state) {
+  $flat_fields = wyditadmin_get_fields_flat($form['profile_id']['#value'], $form['type']['#value']);
+  $default_field = isset($flat_fields['field_editorialupdatedate']) ? $flat_fields['field_editorialupdatedate'] : array('display' => 0);
+  $form['fields']['field_editorialupdatedate']['wallyedit'] = array(
+    '#type' => 'select',
+    '#options' => array(0 => t('Exclude'), 1 => t('Normal'), 4 => t('Checkbox')),
+    '#default_value' => $default_field['display'],
+  );
+}
+
 function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (in_array($form_state['type'], $pack_types)) {
     array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
+
+    // Editorial Update Date gestion
+    // Replace the DateTime field with a checkbox
+    $type_name = $form_state['type'];
+    $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+    if (is_array($flat_fields) && isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4)) {
+      $type = wydit_get_infos_type($type_name);
+      $cck_fields = $type['fields'];
+      if (isset($cck_fields['field_editorialupdatedate'])) {
+        if (isset($cck_fields['field_editorialupdatedate']['display_settings']['parent']) && !empty($cck_fields['field_editorialupdatedate']['display_settings']['parent'])) {
+          $edit_update_elem = &$form[$type_name][$cck_fields['field_editorialupdatedate']['display_settings']['parent']]['field_editorialupdatedate'];
+        } else {
+          $edit_update_elem = &$form[$type_name]['field_editorialupdatedate'];
+        }
+
+        $edit_update_elem[0]['#type'] = 'hidden';
+        foreach (element_children($edit_update_elem[0]) as $elem) {
+          $edit_update_elem[0][$elem]['#type'] = 'hidden';
+        }
+        $edit_update_elem[] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Update Editorial Update Date'),
+        );
+      }
+    }
   }
 }
 
@@ -341,6 +376,8 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, 
   if (in_array($form_state['type'], $pack_types)) {
     $type_name = $form_state['type'];
     $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+
+    // Force the package title with the main object title
     if ($flat_fields['title']['display'] == 0) {
       switch ($type_name){
         case 'wally_articlepackage':
@@ -354,6 +391,15 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, 
           break;
       }
       $form_state['values'][$type_name]['title'] = $form_state['values'][$type_name][$main_object_type][0]['title'];
+    }
+
+    // Force update of the editorial update date
+    if (($form_state['clicked_button']['#name'] == 'publish_global') && is_array($flat_fields) && isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4) && $form_state['values'][$type_name]['field_editorialupdatedate'][1]) {
+      $type = wydit_get_infos_type($type_name);
+      $cck_fields = $type['fields'];
+      $format = $cck_fields['field_editorialupdatedate']['widget']['input_format'];
+      $form_state[$type_name]['#node']->field_editorialupdatedate[0]['value'] = gmdate($format);
+      unset($form_state['values'][$type_name]['field_editorialupdatedate']);
     }
   }
 }

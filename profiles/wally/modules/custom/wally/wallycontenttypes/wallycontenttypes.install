@@ -134,28 +134,29 @@ function wallycontenttypes_schema() {
         'description' => 'Nid',
         'unsigned' => TRUE,
         'not null' => TRUE,
-  ),
+      ),
       'status' => array(
         'description' => 'node status',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE,
-  ),
+      ),
       'field_embargodatetime_value' => array(
         'description' => 'Embargo date.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => FALSE,
-  ),
+      ),
   	  'field_unpublishdate_value' => array(
         'description' => 'Unpublish date.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => FALSE,
-  ),
-  ),
+      ),
+    ),
     'primary key' => array('nid'),
   );
+
   $schema['content_field_autopublish'] = array(
     'description' => 'Field autopublish',
     'fields' => array(
@@ -164,24 +165,65 @@ function wallycontenttypes_schema() {
         'unsigned' => TRUE, 
         'not null' => TRUE, 
         'default' => 0,
-  ),
+      ),
       'nid' => array(
         'type' => 'int',
         'unsigned' => TRUE, 
         'not null' => TRUE, 
         'default' => 0,
-  ),
+      ),
       'field_autopublish_value' => array(
         'type' => 'varchar',
         'length' => 255, 
         'not null' => FALSE, 
-  ),
-  ),
+      ),
+    ),
     'primary key' => array('vid'),
   	'indexes' => array(
       'nid' => array('nid'),
-  ),
+    ),
   );
+  
+  $schema['content_field_editorialupdatedate'] = array(
+    'description' => 'Field Editorial Update Date',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'field_editorialupdatedate_value' => array(
+        'type' => 'datetime',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_timezone' => array(
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_offset' => array(
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => FALSE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid'),
+  	'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+
   return $schema;
 }
 
@@ -259,9 +301,9 @@ Autopublish', 'allowed_values_php' => '');
       'label' => array('format' => 'above', 'exclude' => 0), 
       'teaser' => array('format' => 'default', 'exclude' => 0),
       'full' => array('format' => 'default', 'exclude' => 0),
-    4 => array('format' => 'default', 'exclude' => 0),
-    2 => array('format' => 'default', 'exclude' => 0),
-    3 => array('format' => 'default', 'exclude' => 0),
+      4 => array('format' => 'default', 'exclude' => 0),
+      2 => array('format' => 'default', 'exclude' => 0),
+      3 => array('format' => 'default', 'exclude' => 0),
     );
     $content->widget_module = 'optionwidgets';
     $content->widget_active = 1;
@@ -297,11 +339,101 @@ function wallycontenttypes_update_6103() {
 }
 
 function wallycontenttypes_update_6104(){
-
   module_load_include('inc', 'content', 'includes/content.crud');
   $field = content_fields('field_copyright', 'wally_textobject');
   $field['field_name'] = 'field_byline';
   $field['widget']['label'] = 'Byline';
 
   content_field_instance_create($field);
+}
+
+/**
+ * Implementation of hook_update_N
+ * Creation of the "Editorial Update Date" field
+ */
+function wallycontenttypes_update_6105() {
+  $ret = array();
+
+  if (!db_table_exists('content_field_editorialupdatedate')) {
+    $schema = drupal_get_schema('content_field_editorialupdatedate', TRUE);
+    db_create_table($ret, 'content_field_editorialupdatedate', $schema);
+
+    $content_node_field = array(
+      'field_name' => 'field_editorialupdatedate',
+      'type' => 'datetime',
+      'global_settings' => array(
+        'granularity' => array('year' => 'year', 'month' => 'month', 'day' => 'day', 'hour' => 'hour', 'minute' => 'minute', 'second' => 'second'),
+        'timezone_db' => 'UTC',
+        'tz_handling' => 'date',
+        'todate' => '',
+        'repeat' => 0,
+        'repeat_collapsed' => '',
+        'default_format' => 'medium',
+      ),
+      'required' => 0,
+      'multiple' => 0,
+      'db_storage' => 0,
+      'module' => 'date',
+      'db_columns' => array(
+        'value' => array('type' => 'datetime', 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE),
+        'timezone' => array('type' => 'varchar', 'length' => 50, 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+        'offset' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+      ),
+      'active' => 1,
+      'locked' => 0
+    );
+    drupal_write_record('content_node_field', $content_node_field);
+    
+    $content_node_field_instance = array(
+      'field_name' => 'field_editorialupdatedate',
+      'weight' => 22,
+      'label' => 'Editorial Update Date',
+      'widget_type' => 'date_text',
+      'widget_settings' => array(
+        'default_value' => 'now',
+        'default_value_code' => '',
+        'default_value2' => 'blank',
+        'default_value_code2' => '',
+        'input_format' => 'Y-m-d H:i:s',
+        'input_format_custom' => '',
+        'increment' => 1,
+        'text_parts' => array(),
+        'year_range' => '-3:+3',
+        'label_position' => 'above',
+      ),
+      'display_settings' => array(
+        'weight' => '22',
+        'parent' => 'group_authoring',
+        'label' => array('format' => 'above'),
+        'teaser' => array('format' => 'default', 'exclude' => 0),
+        'full' => array('format' => 'default', 'exclude' => 0),
+        4 => array('format' => 'default', 'exclude' => 0),
+        2 => array('format' => 'default', 'exclude' => 0),
+        3 => array('format' => 'default', 'exclude' => 0),
+        'token' => array('format' => 'default', 'exclude' => 0),
+      ),
+      'description' => '',
+      'widget_module' => 'date',
+      'widget_active' => 1,
+    );
+    $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+    foreach ($pack_types as $pack_type) {
+      $content_node_field_instance['type_name'] = $pack_type;
+      drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    }
+    
+    $content_group_fields = array(
+      'group_name' => 'group_authoring',
+      'field_name' => 'field_editorialupdatedate',
+    );
+    foreach ($pack_types as $pack_type) {
+      $content_group_fields['type_name'] = $pack_type;
+      drupal_write_record('content_group_fields', $content_group_fields);
+    }
+
+    global $language;
+    cache_clear_all('content_type_info:'. $language->language, content_cache_tablename());
+  }
+
+  return $ret;
 }

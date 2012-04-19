@@ -2262,8 +2262,6 @@ Free',
       'module' => 'content_taxonomy_tree',
     ),
   );
-  
-  
 
   // Exported field: field_copyright
   $fields['wally_audioobject-field_copyright'] = array(
@@ -15580,12 +15578,6 @@ Free',
       'module' => 'text',
     ),
   );
-  
-  
-  
-  
-  
-  
 
   // Exported field: field_persons
   $fields['wally_textobject-field_persons'] = array(
