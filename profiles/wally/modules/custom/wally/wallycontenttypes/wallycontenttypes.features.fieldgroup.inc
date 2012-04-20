@@ -47,10 +47,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
       '2' => 'field_creationdate',
-      '3' => 'field_embargodatetime',
-      '4' => 'field_unpublishdate',
-      '5' => 'field_publicationdate',
-      '6' => 'field_freeaccess',
+      '3' => 'field_publicationdate',
+      '4' => 'field_embargodatetime',
+      '5' => 'field_unpublishdate',
+      '6' => 'field_editorialupdatedate',
+      '7' => 'field_freeaccess',
     ),
   );
 
@@ -607,7 +608,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '3' => 'field_publicationdate',
       '4' => 'field_embargodatetime',
       '5' => 'field_unpublishdate',
-      '6' => 'field_freeaccess',
+      '6' => 'field_editorialupdatedate',
+      '7' => 'field_freeaccess',
     ),
   );
 
@@ -1504,7 +1506,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '3' => 'field_publicationdate',
       '4' => 'field_embargodatetime',
       '5' => 'field_unpublishdate',
-      '6' => 'field_freeaccess',
+      '6' => 'field_editorialupdatedate',
+      '7' => 'field_freeaccess',
     ),
   );
 
