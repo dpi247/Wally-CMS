@@ -64,6 +64,19 @@ function wallydemo_displaypollresult($node){
 function wallydemo_preprocess_node(&$vars) {
   if (isset($vars['node'])) {
     $node = &$vars['node'];
+
+    $pub_date = $node->field_publicationdate[0];
+    $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
+    $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
+    $form_date = unserialize(serialize($form_date));
+    $vars['node']->field_publicationdate[0]['value'] = $form_date->date;
+
+    $editorial_update = $node->field_editorialupdatedate[0];
+    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
+    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
+    $form_date = unserialize(serialize($form_date));
+    $vars['node']->field_editorialupdatedate[0]['value'] = $form_date->date;
+    
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
         if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
@@ -121,7 +134,6 @@ function wallydemo_preprocess_node(&$vars) {
     }
   }
 }
-
 
 /*
  * Fonction temporaire
@@ -836,7 +848,7 @@ function wallydemo_theme(&$var) {
     'arguments' => array('form' => NULL),
     'path' => "$path/templates",
 		 ),
-      'sp_header' => $base + array(
+    'sp_header' => $base + array(
     'arguments' => array("subtype" => NULL, "context" => NULL, "data_array" => NULL, "options" => NULL),
     'template' => 'sp_header',
     'path' => "$path/templates/general",
@@ -1000,7 +1012,7 @@ function wallydemo_theme(&$var) {
     'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
     'template' => 'rss_mix_crossmedia_regionjobs',
     'path' => "$path/templates/rssmix",   
-    ),  
+    ),
   );
 }
 
