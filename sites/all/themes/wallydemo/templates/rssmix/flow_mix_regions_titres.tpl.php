@@ -20,7 +20,7 @@ foreach ($feed as $item){
 
 	/* Récupération du path vers notre theme -> $theme_path
 	 */
-	$theme_path = drupal_get_path('theme','custom_sp');
+	$theme_path = drupal_get_path('theme','wallydemo');
 	
 	/* Récupération du mainstory et de la photo principale du package.
 	 * Le package peut être articlePackage ou galleryPackage
@@ -58,7 +58,7 @@ foreach ($feed as $item){
 	}
 	if ($photoObject_path == ""){
 	  $embeded_objects = $node->field_embededobjects_nodes;
-	  $photoObject = custom_sp_get_first_photoEmbededObject_from_package($embeded_objects);
+	  $photoObject = wallydemo_get_first_photoEmbededObject_from_package($embeded_objects);
 	  If ($photoObject) {
 	    $photoObject_path = $photoObject->field_photofile[0]['filepath'];
 	    $photoObject_summary = $photoObject->field_summary[0]['value'];
@@ -81,7 +81,7 @@ foreach ($feed as $item){
 	 * 
 	 */
 	$strapline_length = 65;
-  $node_strapline = _custom_sudpresse_get_strapline($mainstory,$node,$strapline_length);
+  $node_strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 	
 	/*  Récupération de la date de publication du package -> $node_publi_date
 	 */
@@ -97,10 +97,7 @@ foreach ($feed as $item){
 	 * print($date_edition);
 	 */ 
 	 
-	 // HOTFIX RED #7054
-   $node_publi_date = $node_publi_date + 7200;
-	
-   $date_edition = _custom_sudpresse_date_edition_diplay($node_publi_date, 'date_courte');
+   $date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'date_courte');
    
    // Gestion spécifique destinations   
    

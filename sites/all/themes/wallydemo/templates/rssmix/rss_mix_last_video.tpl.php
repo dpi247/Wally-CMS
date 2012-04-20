@@ -20,7 +20,7 @@ foreach ($feed as $k=>$item) {
   if ($item['image_path'] != "") {
     $item['img'] = theme('imagecache', 'divers_68x45', $item['image_path']); 
   } else {
-    $item['img'] = "<img src=\"/sites/all/themes/custom_sp/images/default_pic_last-vids.gif\">"; 
+    $item['img'] = "<img src=\"/sites/all/themes/wallydemo/images/default_pic_last-vids.gif\">"; 
   }
   $content .= "<li class=\"item clearfix".$classlast."\">" ."<a href='".$item['ExternalURI']['value']."' target='_blank'>" .$item['img'] ."</a>" ."<h3><a href='".$item['ExternalURI']['value']."' target='_blank'>" .$item['titre'] ."</h3></a></li>";
   unset($item);
