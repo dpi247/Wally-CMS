@@ -4,7 +4,7 @@
  * Implementation of hook_install();
  */
 function wallycontenttypes_install() {
-  _wallycontenttypes_install_presets(); 
+  _wallycontenttypes_install_presets();
   drupal_install_schema('wallycontenttypes');
 }
 
@@ -34,7 +34,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->weight = 1;
     drupal_write_record('imagecache_action', $imagecacheaction);
   }
-  
+
   if (!imagecache_preset_by_name('slider_preset')) {
     $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
     $imagecacheaction = new stdClass ();
@@ -50,7 +50,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->weight = 1;
     drupal_write_record('imagecache_action', $imagecacheaction);
   }
-  
+
   if (!imagecache_preset_by_name('theme_medium_article_preset')) {
     $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
     $imagecacheaction = new stdClass ();
@@ -59,14 +59,14 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
     $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
-    drupal_write_record('imagecache_action', $imagecacheaction); 
+    drupal_write_record('imagecache_action', $imagecacheaction);
     $imagecacheaction->module = 'imagecache';
     $imagecacheaction->action = 'imagecache_scale';
     $imagecacheaction->data = array('width' => 90, 'height' => 90, 'upscale' => true);
     $imagecacheaction->weight = 1;
     drupal_write_record('imagecache_action', $imagecacheaction);
   }
-  
+
   if (!imagecache_preset_by_name('theme_large_article_preset')) {
     $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_large_article_preset'));
     $imagecacheaction = new stdClass ();
@@ -75,14 +75,14 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
     $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
-    drupal_write_record('imagecache_action', $imagecacheaction); 
+    drupal_write_record('imagecache_action', $imagecacheaction);
     $imagecacheaction->module = 'imagecache';
     $imagecacheaction->action = 'imagecache_scale';
     $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
     $imagecacheaction->weight = 1;
     drupal_write_record('imagecache_action', $imagecacheaction);
   }
-  
+
   if (!imagecache_preset_by_name('gallery_preset')) {
     $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
     $imagecacheaction = new stdClass ();
@@ -91,7 +91,7 @@ function _wallycontenttypes_install_presets() {
     $imagecacheaction->action = 'wallycontenttypes_wallycrop';
     $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
     $imagecacheaction->weight = 0;
-    drupal_write_record('imagecache_action', $imagecacheaction); 
+    drupal_write_record('imagecache_action', $imagecacheaction);
     $imagecacheaction->module = 'imagecache';
     $imagecacheaction->action = 'imagecache_scale';
     $imagecacheaction->data = array('width' => 75, 'height' => 75, 'upscale' => true);
@@ -105,7 +105,7 @@ function _wallycontenttypes_uninstall_presets() {
   if (!imagecache_preset_by_name('sm_event_main')) {
     imagecache_preset_delete(imagecache_preset_by_name('sm_event_main'));
   }
-  
+
   // @see wallyct_photoobject_slider
   if (!imagecache_preset_by_name('slider_preset')) {
     imagecache_preset_delete(imagecache_preset_by_name('slider_preset'));
@@ -125,7 +125,7 @@ function _wallycontenttypes_uninstall_presets() {
 
 function wallycontenttypes_schema() {
   $schema = array();
-  
+
   $schema['wallycontenttypes_temp_nodetopublish'] = array(
     'description' => 'Contains all the node where embargo date or unpublish date are the current date',
     'fields' => array(
@@ -156,6 +156,7 @@ function wallycontenttypes_schema() {
     ),
     'primary key' => array('nid'),
   );
+
   $schema['content_field_autopublish'] = array(
     'description' => 'Field autopublish',
     'fields' => array(
@@ -182,6 +183,47 @@ function wallycontenttypes_schema() {
       'nid' => array('nid'),
     ),
   );
+  
+  $schema['content_field_editorialupdatedate'] = array(
+    'description' => 'Field Editorial Update Date',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+      ),
+      'field_editorialupdatedate_value' => array(
+        'type' => 'datetime',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_timezone' => array(
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_offset' => array(
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => FALSE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid'),
+  	'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+
   return $schema;
 }
 
@@ -193,7 +235,7 @@ function wallycontenttypes_update_6100(&$sandbox) {
   $imagecacheaction->action = 'wallycontenttypes_wallycrop';
   $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
   $imagecacheaction->weight = 0;
-  drupal_write_record('imagecache_action', $imagecacheaction); 
+  drupal_write_record('imagecache_action', $imagecacheaction);
   $imagecacheaction->module = 'imagecache';
   $imagecacheaction->action = 'imagecache_scale';
   $imagecacheaction->data = array('width' => 75, 'height' => 75, 'upscale' => true);
@@ -203,7 +245,7 @@ function wallycontenttypes_update_6100(&$sandbox) {
 
 function wallycontenttypes_update_6101(&$sandbox) {
   $ret = array();
-  
+
   $tables = array(
     'wallycontenttypes_rssmixread_content',
     'wallycontenttypes_rssread_content',
@@ -211,11 +253,11 @@ function wallycontenttypes_update_6101(&$sandbox) {
     'wallycontenttypes_twitread_content',
     'wallycontenttypes_remotehtml_content',
   );
-  
+
   foreach ($tables as $table) {
     db_drop_table($ret, $table);
   }
-  
+
   return $ret;
 }
 
@@ -282,9 +324,9 @@ Autopublish', 'allowed_values_php' => '');
 }
 
 /**
-* Implementation of hook_update_N
-* Set "Autopublish" as default value for field_autopublish
-*/
+ * Implementation of hook_update_N
+ * Set "Autopublish" as default value for field_autopublish
+ */
 function wallycontenttypes_update_6103() {
   $ret = array();
 
@@ -292,6 +334,106 @@ function wallycontenttypes_update_6103() {
 
   $ret[0]['query'] = 'UPDATE {content_node_field_instance} SET widget_settings = "%s" WHERE field_name = "field_autopublish"';
   $ret[0]['success'] = db_query($ret[0]['query'], serialize($widget_settings)) ? TRUE : FALSE;
+
+  return $ret;
+}
+
+function wallycontenttypes_update_6104(){
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $field = content_fields('field_copyright', 'wally_textobject');
+  $field['field_name'] = 'field_byline';
+  $field['widget']['label'] = 'Byline';
+
+  content_field_instance_create($field);
+}
+
+/**
+ * Implementation of hook_update_N
+ * Creation of the "Editorial Update Date" field
+ */
+function wallycontenttypes_update_6105() {
+  $ret = array();
+
+  if (!db_table_exists('content_field_editorialupdatedate')) {
+    $schema = drupal_get_schema('content_field_editorialupdatedate', TRUE);
+    db_create_table($ret, 'content_field_editorialupdatedate', $schema);
+
+    $content_node_field = array(
+      'field_name' => 'field_editorialupdatedate',
+      'type' => 'datetime',
+      'global_settings' => array(
+        'granularity' => array('year' => 'year', 'month' => 'month', 'day' => 'day', 'hour' => 'hour', 'minute' => 'minute', 'second' => 'second'),
+        'timezone_db' => 'UTC',
+        'tz_handling' => 'date',
+        'todate' => '',
+        'repeat' => 0,
+        'repeat_collapsed' => '',
+        'default_format' => 'medium',
+      ),
+      'required' => 0,
+      'multiple' => 0,
+      'db_storage' => 0,
+      'module' => 'date',
+      'db_columns' => array(
+        'value' => array('type' => 'datetime', 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE),
+        'timezone' => array('type' => 'varchar', 'length' => 50, 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+        'offset' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+      ),
+      'active' => 1,
+      'locked' => 0
+    );
+    drupal_write_record('content_node_field', $content_node_field);
+    
+    $content_node_field_instance = array(
+      'field_name' => 'field_editorialupdatedate',
+      'weight' => 22,
+      'label' => 'Editorial Update Date',
+      'widget_type' => 'date_text',
+      'widget_settings' => array(
+        'default_value' => 'now',
+        'default_value_code' => '',
+        'default_value2' => 'blank',
+        'default_value_code2' => '',
+        'input_format' => 'Y-m-d H:i:s',
+        'input_format_custom' => '',
+        'increment' => 1,
+        'text_parts' => array(),
+        'year_range' => '-3:+3',
+        'label_position' => 'above',
+      ),
+      'display_settings' => array(
+        'weight' => '22',
+        'parent' => 'group_authoring',
+        'label' => array('format' => 'above'),
+        'teaser' => array('format' => 'default', 'exclude' => 0),
+        'full' => array('format' => 'default', 'exclude' => 0),
+        4 => array('format' => 'default', 'exclude' => 0),
+        2 => array('format' => 'default', 'exclude' => 0),
+        3 => array('format' => 'default', 'exclude' => 0),
+        'token' => array('format' => 'default', 'exclude' => 0),
+      ),
+      'description' => '',
+      'widget_module' => 'date',
+      'widget_active' => 1,
+    );
+    $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+    foreach ($pack_types as $pack_type) {
+      $content_node_field_instance['type_name'] = $pack_type;
+      drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    }
+    
+    $content_group_fields = array(
+      'group_name' => 'group_authoring',
+      'field_name' => 'field_editorialupdatedate',
+    );
+    foreach ($pack_types as $pack_type) {
+      $content_group_fields['type_name'] = $pack_type;
+      drupal_write_record('content_group_fields', $content_group_fields);
+    }
+
+    global $language;
+    cache_clear_all('content_type_info:'. $language->language, content_cache_tablename());
+  }
 
   return $ret;
 }
