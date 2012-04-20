@@ -107,12 +107,25 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
 function wallydemo_preprocess_node(&$vars) {
   if (isset($vars['node'])) {
     $node = &$vars['node'];
+
+    $pub_date = $node->field_publicationdate[0];
+    $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
+    $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
+    $form_date = unserialize(serialize($form_date));
+    $vars['node']->field_publicationdate[0]['value'] = $form_date->date;
+
+    $editorial_update = $node->field_editorialupdatedate[0];
+    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
+    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
+    $form_date = unserialize(serialize($form_date));
+    $vars['node']->field_editorialupdatedate[0]['value'] = $form_date->date;
+    
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
         if ($embed->type == 'wally_linktype' && isset($embed->field_link_item[0]['url']) && !empty($embed->field_link_item[0]['url']) && !strstr($embed->field_link_item[0]['url'], 'extref://')) {
           
           $item = array('embed' => $embed->field_link_item[0]['url']);
-          $modules = array('emvideo', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
+          $modules = array('emvideo', 'emother', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck');
           $emfield = FALSE;
           foreach ($modules as $module) {
             $item = _emfield_field_submit_id($field, $item, $module);
@@ -125,18 +138,21 @@ function wallydemo_preprocess_node(&$vars) {
               $function = $module.'_field_formatter';
               $content = $function($field, $element['#item'], $element['#formatter'], $element['#node']);
 
-              //reduction de la taille
-              $content = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"', $content);
-              $content = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"', $content);
-              
-              if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
-                $thumb = '<img src= "'.$element['#item']['data']['thumbnail']['url'].'" width = "48" height = "32">';
-              } else {
-                $thumb = preg_replace('+width=("|\')([0-9]{3})?("|\')+','width="48"', $content);
-                $thumb = preg_replace('+height=("|\')([0-9]{3})?("|\')+','height="32"', $thumb);
+              if(($module=="emimage"||$module=='emvideo')&&($item['provider']!="flickr_sets"&&$item['provider']!="slideshare")){
+                //reduction de la taille
+                $content = preg_replace('+width=("|\')[0-9]{3}("|\')+','width="300"', $content);
+                $content = preg_replace('+height=("|\')[0-9]{3}("|\')+','height="200"', $content);
+                
+                if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
+                  $thumb = '<img src= "'.$element['#item']['data']['thumbnail']['url'].'" width = "48" height = "32">';
+                } else {
+                  $thumb = preg_replace('+width=("|\')([0-9]{3})?("|\')+','width="48"', $content);
+                  $thumb = preg_replace('+height=("|\')([0-9]{3})?("|\')+','height="32"', $thumb);
+                }
               }
               $node->field_embededobjects_nodes[$delta]->field_link_item[0]['embed'] = $content;
-              $node->embed_links[$embed->nid] = array('image' => $content, 'thumb' => $thumb);
+              $title=$node->field_embededobjects_nodes[$delta]->field_link_item[0]['title'];
+              $node->embed_links[$embed->nid] = array('title' => $title,'content' => $content, 'thumb' => $thumb,'type'=>$module,'provider'=>$item['provider']);
               $emfield = TRUE;
               break;
             }
@@ -151,7 +167,7 @@ function wallydemo_preprocess_node(&$vars) {
             $node->embed_url[] = $content;
           }
         } elseif ($embed->field_internal_link[0]['nid'] != NULL){
-          //package
+          //Link item to a package
           $package = node_load($embed->field_internal_link[0]['nid']);
           $content = node_view($package);
           $node->field_embeddedobjecs_nodes[$delta]->field_internal_link[0]['embed'] = $content;
