@@ -27,7 +27,10 @@ function emother_googlemaps_settings() {
 
 function emother_googlemaps_extract($embed = '') {
   $embed_url=parse_url($embed);
-  if($embed_url['host']=="maps.google.com"){
+  $domain_array=explode('.',$embed_url['host']);
+  $subdomain=$domain_array[0];
+  $domain=$domain_array[1];
+  if($subdomain=="maps" && $domain=="google"){
     return $embed;
   }
   else{
