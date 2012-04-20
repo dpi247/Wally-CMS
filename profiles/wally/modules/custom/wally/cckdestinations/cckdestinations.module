@@ -524,7 +524,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $rank_classes = array();
   $rank_limit = variable_get('cckdestinations_rank_limit', '10');
 
-  if (!cckdestinations_content_is_empty($defaults, array()) && isset($defaults['rank']) && $defaults['rank'] != '' && isset($defaults['time_rank']) && $defaults['time_rank'] != '') {
+  if (!cckdestinations_content_is_empty($defaults, array()) && ($defaults['target'] != 'none') && isset($defaults['rank']) && $defaults['rank'] != '' && isset($defaults['time_rank']) && $defaults['time_rank'] != '') {
     $default_value=current(explode('DNC',$defaults['rank']));
     $default_value=next(explode('DNC',$defaults['rank'])).$default_value;
     $defaults['rank'] = $default_value;
@@ -1781,7 +1781,7 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
   
   foreach ($items as $delta => $item) {
-    if (!cckdestinations_content_is_empty($item, array())) {
+    if (!cckdestinations_content_is_empty($item, array()) && ($item['target'] != 'none')) {
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
         $items[$delta]['rank'] = substr($item['rank'], 3);
       } else {

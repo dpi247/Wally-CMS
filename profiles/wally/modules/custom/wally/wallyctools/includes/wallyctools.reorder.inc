@@ -1,17 +1,5 @@
 <?php
 
-function wallyctools_page_reorder_settings_form(&$form_state) {
-  $form = array();
-  
-  $form['wallyctools_reorder_check_conflict'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Check conflicts before applying reorder'),
-    '#default_value' => variable_get('wallyctools_reorder_check_conflict', 1),
-  );
-  
-  return system_settings_form($form);
-}
-
 function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NULL, $target = NULL) {
   $output = drupal_get_form('wallyctools_form_change_destination_form', 'reorder', $limit, $destination_tid, $target);
   $output .= drupal_get_form('wallyctools_form_reorder_destination_form', $limit, $destination_tid, $target);
