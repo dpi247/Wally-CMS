@@ -39,11 +39,16 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   $form['go_to']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Update list'),
+    '#validate' => array(),
     '#submit' => array('wallytoolbox_supercron_settings_form_go_to_submit'),
   );
 
   if ($page) {
-    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%:%s:%" ORDER BY weight ASC, cid ASC', $page, $block_type);
+    if ($block_type) {
+      $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%:%s:%" ORDER BY weight ASC, cid ASC', $page, $block_type);
+    } else {
+      $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%" ORDER BY weight ASC, cid ASC', $page);
+    }
 
     $form['rows']['#tree'] = TRUE;
     
@@ -100,6 +105,7 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   $form['force_refresh'] = array(
     '#type' => 'submit',
     '#value' => t('Force datas refresh'),
+    '#validate' => array(),
     '#submit' => array('wallytoolbox_supercron_settings_form_force_refresh_submit'),
   );
   
