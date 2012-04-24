@@ -1267,32 +1267,35 @@ function wydit_get_fil_ariane($form_state) {
 }
 
 function wydit_populate_form_state(&$form_state, $node, $current_profile) {
-  $type_name = $node->type;
-  $form_state['#node'] = $node;
-  $form_state['type'] = $type_name;
+  if (wallytoolbox_check_is_node($node)) {
+    $type_name = $node->type;
+    $form_state['#node'] = $node;
+    $form_state['type'] = $type_name;
 
-  $type = wydit_get_infos_type($type_name);
-  $fields = $type['fields'];
-  $flat_fields = wyditadmin_get_fields_flat($current_profile, $type_name);
-  $existing_fields = wyditadmin_get_existing_fields($type_name);
+    $type = wydit_get_infos_type($type_name);
+    $fields = $type['fields'];
+    $flat_fields = wyditadmin_get_fields_flat($current_profile, $type_name);
+    $existing_fields = wyditadmin_get_existing_fields($type_name);
 
-  foreach($flat_fields as $field_name => $infos) {
-    $orig_field_infos = $existing_fields[$field_name];
+    foreach($flat_fields as $field_name => $infos) {
+      $orig_field_infos = $existing_fields[$field_name];
 
-    if($infos['display'] == 2 || $infos['display'] == 3) {
-      $form_state[$field_name] = array();
-      if($infos['display'] == 2) {
-        $type = wydit_get_inline_type($orig_field_infos['referenceable_types']);
-        $main_node = new stdClass;
-        $main_node->type = $type;
-        $form_state[$field_name][0]['#node'] = $main_node;
-        $form_state[$field_name][0]['type'] = $main_node->type;
-      }
+      if($infos['display'] == 2 || $infos['display'] == 3) {
+        $form_state[$field_name] = array();
+        if($infos['display'] == 2) {
+          if($inline_type = wydit_get_inline_type($orig_field_infos['referenceable_types'])) {
+            $main_node = new stdClass;
+            $main_node->type = $inline_type;
+            $form_state[$field_name][0]['#node'] = $main_node;
+            $form_state[$field_name][0]['type'] = $main_node->type;
+          }
+        }
 
-      if ($node->{$field_name}) {
-        foreach($node->{$field_name} as $key => $value){
-          if ($temp_node = node_load($value['nid'])) {
-            wydit_populate_form_state($form_state[$field_name][$key], $temp_node, $current_profile);
+        if ($node->{$field_name}) {
+          foreach($node->{$field_name} as $key => $value){
+            if ($temp_node = node_load($value['nid'])) {
+              wydit_populate_form_state($form_state[$field_name][$key], $temp_node, $current_profile);
+            }
           }
         }
       }
