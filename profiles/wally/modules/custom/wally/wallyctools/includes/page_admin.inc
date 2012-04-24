@@ -1,5 +1,57 @@
 <?php
 
+function wallyctools_page_default_target_form($form_state) {
+  $form = array();
+
+  drupal_set_message(t('You can choose, for every variant of the taxonomy term page, which redacblock will be used as default'));
+
+  $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+
+  $form['rows'] = array();
+
+  $panels = wallytoolbox_get_panels('term_view');
+  foreach ($panels as $panel) {
+    $panel_id = $panel->conf['did'];
+
+    $redac_options = array();
+    foreach ($panel->display->content as $content) {
+      if ($content->type == 'redacblock') {
+        $redac_options[$content->subtype] = $content->subtype;
+      }
+    }
+    if (!empty($redac_options)) {
+      $form['rows'][$panel_id] = array();
+
+      $form['rows'][$panel_id]['name'] = array(
+        '#type' => 'markup',
+        '#value' => $panel->conf['title'],
+      );
+
+      $form['rows'][$panel_id]['default_redacblock'] = array(
+        '#type' => 'select',
+        '#options' => $redac_options,
+        '#default_value' => isset($default_redacblocks[$panel_id]) ? $default_redacblocks[$panel_id]['default_redacblock'] : 0,
+      );
+    }
+  }
+
+  if (!empty($form['rows'])) {
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    );
+  }
+
+  $form['#theme'] = 'wallyctools_form_default_target_form';
+  $form['#tree'] = TRUE;
+
+  return $form;
+}
+
+function wallyctools_page_default_target_form_submit($form, $form_state) {
+  variable_set('wallyctools_default_redacblocks', $form_state['values']['rows']);
+}
+
 function wallyctools_page_reorder_settings_form($form_state) {
   $form = array();
   
