@@ -7,7 +7,7 @@ $row_index=$variables["view"]->row_index;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 
 if($node->type == "wally_articlepackage"){
@@ -27,7 +27,7 @@ $title = $mainstory->title;
 ?>
 
 <li>
-  <a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+  <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
 </li>
 
 <?php 

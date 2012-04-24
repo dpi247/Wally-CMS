@@ -10,7 +10,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du path vers notre theme -> $theme_path
  * 
@@ -133,17 +133,17 @@ $breadcrumb = _wallydemo_breadcrumb_display($node->field_destinations[0]["tid"],
 
 ?>
 <div class="super_event">
-  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <div class="cadre_super_event">
     <?php if($links_html != ""){
         print $links_html;
         } 
     ?>
-    <p class="comment right"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+    <p class="comment right"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
     <p class="time_super_event"><?php print $date_edition; ?></p>
   </div>
   <?php if($photo == TRUE){ ?>
-  <a class="photo_event" href="/<?php print check_url($node_path); ?>">
+  <a class="photo_event" href="<?php print $node_path; ?>">
   <?php $photoObject_img = theme('imagecache', 'cible_top_960x320', $photoObject_filename, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>

@@ -6,7 +6,6 @@
 
 $themeroot = drupal_get_path('theme', 'wallydemo');
 drupal_add_css($themeroot . '/css/gallery.css');
-$node_path = drupal_get_path_alias("/node/".$node->nid);
 $embededobjects = $node->field_embededobjects_nodes;
 array_unshift($embededobjects, $node->field_mainobject_nodes[0]);
 $sorted_embededobjects = wallycontenttypes_sort_embededobjects($embededobjects);
