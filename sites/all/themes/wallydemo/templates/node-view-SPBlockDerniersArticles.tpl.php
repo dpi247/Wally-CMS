@@ -109,14 +109,14 @@ $current = $node->view->row_index;
 
 <li class="item clearfix<?php print($classlast) ?>">
   <?php if($photo == TRUE){ ?>
-  <a href="/<?php print check_url($node_path); ?>">
+  <a href="<?php print $node_path; ?>">
   <?php $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_filename, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>
   <?php } ?>
   <?php print $date_edition; ?>
   <?php echo $breadcrumb; ?>
-  <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+  <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
 </li>
 
 <?php 

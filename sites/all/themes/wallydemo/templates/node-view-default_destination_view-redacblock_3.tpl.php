@@ -72,7 +72,7 @@ $title = $mainstory->title;
 
 
 <div class="octetFun">
-  <a href="<?php print check_url($node_path); ?>">
+  <a href="<?php print $node_path; ?>">
     <h3><?php print wallydemo_check_plain($title); ?></h3>
   </a>
   <?php if($photo == TRUE){ ?>

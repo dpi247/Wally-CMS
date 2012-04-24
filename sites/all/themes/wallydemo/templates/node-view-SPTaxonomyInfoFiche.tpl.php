@@ -7,12 +7,6 @@
  */
 $node_id = $node->nid;
 
-/* Récupération de l'alias de l'url du package -> $node_path
- * 
- * print($node_path);
- */
-$node_path = wallydemo_get_node_uri($node);
-
 $nodes = array();
 foreach ( $vars['field_embededobjects_nodes'] as $node)
 {

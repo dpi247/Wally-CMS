@@ -99,7 +99,7 @@ $chapeau = "<p>" .$strapline ."</p>";
      <?php $photoObject_img = theme('imagecache', 'divers_95x140', $photoObject_filename, $photoObject_summary, $photoObject_summary);
      print($photoObject_img); ?>
   </a>
-  <h4><a href="<?php print check_url($node_path); ?>">
+  <h4><a href="<?php print $node_path; ?>">
     <?php print wallydemo_check_plain($title); ?>
   </a></h4>
   <?php print $chapeau; ?>

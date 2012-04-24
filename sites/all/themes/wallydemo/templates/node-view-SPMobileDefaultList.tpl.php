@@ -116,7 +116,7 @@ $date_edition = "<span class=\"time\">" ._wallydemo_date_edition_diplay($node_pu
 ?>
  <li<?php print $classlast ; ?>>
  	<?php print $photoObject_img; ?><?php print $date_edition; ?>
-	 <a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+	 <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
  </li>  
  
  <?php 

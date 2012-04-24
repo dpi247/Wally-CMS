@@ -212,7 +212,7 @@ switch ($row_index) {
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
   <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="/<?php print check_url($node_path); ?>">
+  <a href="<?php print $node_path; ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
@@ -224,7 +224,7 @@ switch ($row_index) {
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -239,8 +239,8 @@ switch ($row_index) {
 <div class="article md clearfix">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="/<?php print check_url($node_path); ?>">
+  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="<?php print $node_path; ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
@@ -252,7 +252,7 @@ switch ($row_index) {
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -266,8 +266,8 @@ switch ($row_index) {
 <div class="article md clearfix noborder">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="/<?php print check_url($node_path); ?>">
+  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="<?php print $node_path; ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
@@ -279,7 +279,7 @@ switch ($row_index) {
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -296,8 +296,8 @@ switch ($row_index) {
     <div class="article md clearfix">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="/<?php print check_url($node_path); ?>">
+		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_path; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -309,7 +309,7 @@ switch ($row_index) {
           </a>
           
 		  <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-		  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+		  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
 		  <?php if($links_html != ""){
 			print $links_html;
 			} ?>
@@ -324,8 +324,8 @@ switch ($row_index) {
     <div class="article md clearfix noborder">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="/<?php print check_url($node_path); ?>">
+		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_path; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -337,7 +337,7 @@ switch ($row_index) {
           </a>
           
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
@@ -353,8 +353,8 @@ switch ($row_index) {
     <div class="article md clearfix">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="/<?php print check_url($node_path); ?>">
+		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_path; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -366,7 +366,7 @@ switch ($row_index) {
           </a>
           
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
@@ -380,8 +380,8 @@ switch ($row_index) {
     <div class="article md clearfix noborder">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="/<?php print check_url($node_path); ?>">
+		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_path; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -393,7 +393,7 @@ switch ($row_index) {
           </a>
         
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
