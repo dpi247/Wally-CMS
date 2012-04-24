@@ -928,6 +928,13 @@ function wallytoolbox_get_node_by_reference($node) {
   return $rows;
 }
 
+function wallytoolbox_check_is_node($node) {
+  if(isset($node->type) && !empty($node->type) && isset($node->title) && !empty($node->title)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
 /**
  *  Add "$element" in the structure of the $array based on the path of target 
  * 
