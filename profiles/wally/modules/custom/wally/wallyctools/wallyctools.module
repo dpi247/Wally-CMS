@@ -21,11 +21,21 @@ function wallyctools_menu() {
 
   $items['admin/wally/wallyctools'] = array(
     'title'                         => t('Wally CTools Settings'),
-    'description'                   => t('Manage settings used in Wally CTools (reorder and destinations tree caching)'),
+    'description'                   => t('Manage settings used in Wally CTools (default target, reorder and destinations tree caching)'),
     'page callback'                 => 'drupal_get_form',
-    'page arguments'                => array('wallyctools_page_reorder_settings_form'),
+    'page arguments'                => array('wallyctools_page_default_target_form'),
     'access arguments'              => array('administer nodes'),
     'file'                          => 'includes/page_admin.inc',
+  );
+  
+  $items['admin/wally/wallyctools/defaulttarget'] = array(
+    'title'                         => t('Default Target'),
+    'page callback'                 => 'drupal_get_form',
+    'page arguments'                => array('wallyctools_page_default_target_form'),
+    'access arguments'              => array('administer nodes'),
+    'file'                          => 'includes/page_admin.inc',
+    'type'                          => MENU_DEFAULT_LOCAL_TASK,
+    'weight'                        => 0,
   );
 
   $items['admin/wally/wallyctools/reordersettings'] = array(
@@ -34,8 +44,8 @@ function wallyctools_menu() {
     'page arguments'                => array('wallyctools_page_reorder_settings_form'),
     'access arguments'              => array('administer nodes'),
     'file'                          => 'includes/page_admin.inc',
-    'type'                          => MENU_DEFAULT_LOCAL_TASK,
-    'weight'                        => 0,
+    'type'                          => MENU_LOCAL_TASK,
+    'weight'                        => 1,
   );
 
   $items['admin/wally/wallyctools/desttreecaching'] = array(
@@ -45,7 +55,7 @@ function wallyctools_menu() {
     'access arguments'              => array('manage cache'),
     'file'                          => 'includes/page_admin.inc',
     'type'                          => MENU_LOCAL_TASK,
-    'weight'                        => 1,
+    'weight'                        => 2,
   );
 
   $items['admin/wally/wallyctools-operations'] = array(
@@ -285,6 +295,54 @@ function wallyctools_views_api() {
   );
 }
 
+/**
+ * Implementation of hook_ccimapping_productinfo_alter
+ * Add the default target to product info
+ */
+function wallyctools_ccimapping_productinfo_alter(&$dom, $op) {
+  if ($op == 'before_send') {
+    $dest_vid = variable_get('wallymport_destinationpath', 0);
+    $depth = 0;
+    $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
+    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+    $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
+
+    $level = 1;
+    wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, $budgettemplate, $tid_did_mapping, $default_redacblocks, $dest_vid, $level);
+  }
+}
+
+function wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, &$dom_element, $tid_did_mapping, $default_redacblocks, $dest_vid, $level, $tax_path = '') {
+  $dom_levels = $dom_element->getElementsByTagName('level'.$level);
+  if ($dom_levels->item(0)) {
+    foreach ($dom_levels as $dom_level) {
+      $default_set = FALSE;
+      $term_path = $tax_path.$dom_level->getAttributeNode('name')->value.'/';
+      $term = wallytoolbox_taxonomy_get_term_by_path($term_path, $dest_vid);
+      $did = $tid_did_mapping[$term[0]->tid]['did'];
+      $default_redacblock = $default_redacblocks[$did];
+      
+      $leafs = $dom_level->getElementsByTagName('leaf');
+      if ($leafs->item(0)) {
+        foreach ($leafs as $leaf) {
+          if ($leaf->getAttributeNode('name')->value == $default_redacblock['default_redacblock']) {
+            $leaf->setAttribute('target', 'true');
+            $default_set = TRUE;
+            break;
+          }
+        }
+      }
+      
+      if (!$default_set) {
+        $leafs->item(0)->setAttribute('target', 'true');
+      }
+
+      $next_level = $level + 1;
+      wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, $dom_level, $tid_did_mapping, $default_redacblocks, $dest_vid, $next_level, $term_path);
+    }
+  }
+}
+
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
   foreach($node->field_destinations as $destination_item){
     if($destination_item['tid']==$destination and $destination_item['target']==$target){
@@ -368,20 +426,28 @@ function wallyctools_get_hierarchies() {
     $depth = 0;
 
     $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
-
     $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
+    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
 
-    foreach($tid_did_mapping as $tid=>$did_infos) {
-      $tid_did_mapping[$tid]['redacblocks']=array();
+    foreach($tid_did_mapping as $tid => $did_infos) {
+      $tid_did_mapping[$tid]['redacblocks'] = $temp_mapping = array();
 
       foreach($array_of_redacblock_panes as $pane) {
         if($did_infos['did'] == $pane->did) {
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
-          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
+          if (isset($default_redacblocks[$pane->did]) && ($pane->subtype == $default_redacblocks[$pane->did]['default_redacblock'])) {
+            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
+            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
+            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
+          } else {
+            $temp_mapping[$pane->name]['title'] = $pane->admin_title;
+            $temp_mapping[$pane->name]['name'] = $pane->name;
+            $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
+          }
         }
       }
-      
+
+      $tid_did_mapping[$tid]['redacblocks'] = array_merge($tid_did_mapping[$tid]['redacblocks'], $temp_mapping);
+
       $tid_did_mapping[$tid]['redacblocks']['none'] = array(
         'title' => 'none',
         'name' => t('none'),
@@ -431,10 +497,14 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
 
     db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     
-    $terms = taxonomy_get_tree($vid);
+    $temp_terms = taxonomy_get_tree($vid);
+    foreach($temp_terms as $term) {
+      $terms[$term->tid] = $term;
+    }
 
     foreach($terms as $term) {
-      $term_parents = array_filter($term->parents);
+      $count_parents = 0;
+      wallytoolbox_taxonomy_count_parents($count_parents, $terms, $term);
 
       $handler = wallyctools_get_active_handler($term->tid, $depth);
       $tid_did_mapping[$term->tid] = array(
@@ -442,9 +512,9 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
         'did' => $handler->conf['did'],
         'title' => $handler->conf['title'],
         'term_name' => $term->name,
-        'hierarchic_name' => str_repeat('-', count($term_parents)).$term->name,
+        'hierarchic_name' => str_repeat('-', $count_parents).$term->name,
       );
-      
+
       $datas = array(
         'tid' => $term->tid,
         'vid' => $vid,
@@ -511,7 +581,7 @@ function wallyctools_get_redacblock_panes(){
     $redacblocks[$result->name]=$result;
   }
 
-  $handlers=wallytoolbox_get_panels_and_handlers(FALSE, 'term_view');
+  $handlers=wallytoolbox_get_handlers(FALSE, 'term_view');
 
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
@@ -551,6 +621,9 @@ function wallyctools_theme() {
   require_once "./$path/theme/theme.inc";
   return array(
     'wallyctools_form_reorder_destination_form' => $base + array(
+      'arguments' => array('form' => array()),
+    ),
+    'wallyctools_form_default_target_form' => $base + array(
       'arguments' => array('form' => array()),
     ),
   );

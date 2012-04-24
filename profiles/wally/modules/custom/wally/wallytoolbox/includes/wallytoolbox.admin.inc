@@ -196,7 +196,7 @@ function wallytoolbox_supercron_settings_form_go_to_submit($form, &$form_state) 
  * Specific submit for the wallytoolbox "Supercron" settings form to force the refresh of the cached datas
  */
 function wallytoolbox_supercron_settings_form_force_refresh_submit($form, $form_state) {
-  wallytoolbox_get_panels_and_handlers(TRUE);
+  wallytoolbox_get_handlers(TRUE);
   drupal_set_message(t('Datas refreshed'));
   drupal_goto('admin/wally/wallytoolbox/supercron');
 }
