@@ -1322,7 +1322,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '1',
+    'weight' => '3',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
@@ -1366,8 +1366,12 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
-    'fields' => array(),
+    'weight' => '1',
+    'fields' => array(
+      '0' => 'field_poll',
+      '1' => 'field_summary',
+      '2' => 'field_polldate',
+    ),
   );
 
   // Exported group: group_pollidentification
@@ -1406,11 +1410,12 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '2',
+    'weight' => '4',
     'fields' => array(
       '0' => 'field_externalreference',
-      '1' => 'field_objectid',
-      '2' => 'field_objectdescription',
+      '1' => 'field_objecttitle',
+      '2' => 'field_objectid',
+      '3' => 'field_objectdescription',
     ),
   );
 
@@ -1450,7 +1455,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '0',
+    'weight' => '2',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
@@ -1867,8 +1872,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '0' => 'field_textbarette',
       '1' => 'field_textforetitle',
       '2' => 'field_textsubtitle',
-      '3' => 'field_copyright',
-      '4' => 'field_byline',
+      '3' => 'field_byline',
+      '4' => 'field_copyright',
     ),
   );
 
