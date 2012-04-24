@@ -689,7 +689,7 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
         if ($destination->hasAttribute("Position")) {
           $temp_result['target'] = $destination->getAttributeNode("Position")->value;
           $temp_result['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
-          $temp_result['rank'] = $destination->getAttributeNode("DestinationRank")->value;
+          $temp_result['rank'] = $destination->hasAttribute("DestinationRank") ? $destination->getAttributeNode("DestinationRank")->value : 'DNC';
         } else {
           $temp_result['target'] = 'none';
           $temp_result['layout'] = 'none';
@@ -700,8 +700,12 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
           $check_double[] = $temp_result['tid'].':'.$temp_result['target'];
 
           if ($actual_dest = _wallyimportpackage_find_destination($node->field_destinations, $temp_result)) {
-            $temp_result['rank'] = ($actual_dest['rank'] == $temp_result['rank']) ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
+            $temp_result['rank'] = (($actual_dest['rank'] == $temp_result['rank']) || ($temp_result['rank'] == 'DNC')) ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
             $temp_result['time_rank'] = $actual_dest['time_rank'];
+          }
+          
+          if ($temp_result['rank'] == 'DNC') {
+            $temp_result['rank'] = 0;
           }
 
           $result[$i] = $temp_result;
@@ -1412,6 +1416,15 @@ function wallyimportpackage_node_process_pollobjecttype(&$node, $dom, &$log, $im
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
   wimprt_node_process_fields($node, $dom, $log, $importer);
+  
+  //Exception for PollObject
+  if ($dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
+    $node->title = $dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+  }
+  
+  if ($dom_element->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+  }
    
  ///Exception for TextObject
   $date1 = NULL;
@@ -2010,6 +2023,26 @@ function wallyimportpackage_node_set_field_textforetitle(&$node, $dom, &$log, $i
  *   Nothing
  */
 function wallyimportpackage_node_set_field_texttitle(&$node, $dom, &$log, $importer){
+  $value = $dom->nodeValue;
+  $node->field_objecttitle = array(array("value" => $value));
+}
+
+/**
+ * Process field Poll Title from DOM element.
+ * 
+ * MAP field from the a DOM (XML) element or attributes. 
+ * 
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wallyimportpackage_node_set_field_polltitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_objecttitle = array(array("value" => $value));
 }
