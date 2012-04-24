@@ -192,3 +192,28 @@ function theme_wallyctools_form_reorder_destination_form($form) {
 
   return $output;
 }
+
+function theme_wallyctools_form_default_target_form($form) {
+  if (!isset($form['rows']) || empty($form['rows'])) {
+    drupal_set_message(t('No variant defined'));
+    return;
+  }
+
+  $rows = array();
+  foreach(element_children($form['rows']) as $row_id){
+    $rows[] = array(
+      drupal_render($form['rows'][$row_id]['name']),
+      drupal_render($form['rows'][$row_id]['default_redacblock']),
+    );
+  }
+
+  //Make sure the header count matches the column count
+  $header = array(
+    t('Variant Name'), t('Default Redacblock'),
+  );
+
+  $output = theme('table', $header, $rows);
+  $output .= drupal_render($form);
+
+  return $output;
+}
