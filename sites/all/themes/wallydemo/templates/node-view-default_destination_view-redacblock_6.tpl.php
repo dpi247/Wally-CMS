@@ -15,7 +15,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du mainstory et de la photo principale du package.
  * Le package peut être articlePackage ou galleryPackage
@@ -99,7 +99,7 @@ $chapeau = "<p>" .$strapline ."</p>";
      <?php $photoObject_img = theme('imagecache', 'divers_95x140', $photoObject_filename, $photoObject_summary, $photoObject_summary);
      print($photoObject_img); ?>
   </a>
-  <h4><a href="<?php print check_url($node_path); ?>">
+  <h4><a href="<?php print $node_path; ?>">
     <?php print wallydemo_check_plain($title); ?>
   </a></h4>
   <?php print $chapeau; ?>

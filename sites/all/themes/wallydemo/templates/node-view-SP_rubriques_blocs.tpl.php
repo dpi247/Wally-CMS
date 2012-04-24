@@ -18,7 +18,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du mainstory et de la photo principale du package.
  * Le package peut être articlePackage ou galleryPackage
@@ -83,25 +83,25 @@ $title = $mainstory->title;
 		 $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_filename, $photoObject_summary, $photoObject_summary);
      print($photoObject_img);
      } ?>
-          <a href="/<?php print check_url($node_path); ?>">  
+          <a href="<?php print $node_path; ?>">  
             <h3><?php print wallydemo_check_plain($title); ?></h3>
           </a>
 	<?php break;
 	case 1 : ?>
 	         <ul>
             <li>
-              <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+              <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
             </li>		
   <?php break;
 	case 3: ?>
             <li>
-              <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+              <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
             </li>
            </ul> 		
 	<?php break;
 	default:	?>
 		        <li>
-		          <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
+		          <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
 		        </li>
 <?php } 
 ?>

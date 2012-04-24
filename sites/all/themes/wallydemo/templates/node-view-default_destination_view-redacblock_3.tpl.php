@@ -12,7 +12,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du mainstory et de la photo principale du package.
  * Le package peut être articlePackage ou galleryPackage
@@ -72,7 +72,7 @@ $title = $mainstory->title;
 
 
 <div class="octetFun">
-  <a href="<?php print check_url($node_path); ?>">
+  <a href="<?php print $node_path; ?>">
     <h3><?php print wallydemo_check_plain($title); ?></h3>
   </a>
   <?php if($photo == TRUE){ ?>

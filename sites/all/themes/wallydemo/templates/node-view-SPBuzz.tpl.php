@@ -17,7 +17,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du mainstory et de la photo principale du package.
  * Le package peut être articlePackage ou galleryPackage
@@ -93,61 +93,61 @@ else $reagir = $nb_comment."&nbsp;réactions";
 switch ($row_index){
 	case 0: ?>
   <div class="item column">   
-    <a href=<?php print check_url($node_path); ?>>
+    <a href="<?php print $node_path; ?>">
      <?php if($photo == TRUE){ 
       $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_filename, $photoObject_summary, $photoObject_summary);
       print $photoObject_img;
      }
      	?>
     </a>
-    <h2><a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+    <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
     <p><?php print wallydemo_check_plain($strapline); ?></p>  
     <p class="comment">
-      <a href="<?php print check_url($node_path); ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
+      <a href="<?php print $node_path; ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
     </p>
   </div>
 	<?php break;
 	case 1: ?>
 	  <div class="item column coince">   
-    <a href="<?php print check_url($node_path); ?>">
+    <a href="<?php print $node_path; ?>">
      <?php if($photo == TRUE){ 
       $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_filename, $photoObject_summary, $photoObject_summary);
       print $photoObject_img;
      }
       ?>
     </a>
-    <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+    <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
     <p><?php print wallydemo_check_plain($strapline); ?></p>  
     <p class="comment">
-      <a href="/<?php print check_url($node_path); ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
+      <a href="<?php print $node_path; ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
     </p>
   </div>	
 	<?php break;
 	case 2: ?>
     <div class="item column dernier">   
-    <a href="<?php print check_url($node_path); ?>">
+    <a href="<?php print $node_path; ?>">
      <?php if($photo == TRUE){ 
       $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_filename, $photoObject_summary, $photoObject_summary);
       print $photoObject_img;
      }
       ?>
     </a>
-    <h2><a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+    <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
     <p><?php print wallydemo_check_plain($strapline); ?></p>  
     <p class="comment">
-      <a href="<?php print check_url($node_path); ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
+      <a href="<?php print $node_path; ?>#ancre_commentaires" title="Commentez cet article !"><?php print $reagir; ?></a>
     </p>
   </div>  		
 	<?php break;
   case 3: ?>
     <ul>
-		<li><a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></li>
+		<li><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></li>
 	<?php break;    
 	case 4: ?>
-    <li><a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></li>
+    <li><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></li>
   <?php break;
 	case 5: ?>
-    <li><a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></li>
+    <li><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></li>
     </ul>
   <?php break;
 	
