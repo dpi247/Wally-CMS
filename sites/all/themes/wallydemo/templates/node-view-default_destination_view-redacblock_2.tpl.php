@@ -16,7 +16,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 /* Récupération du path vers notre theme -> $theme_path
  * 
@@ -211,7 +211,7 @@ switch ($row_index) {
 <div class="article gd clearfix">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_path, $photoObject_summary, $photoObject_summary);

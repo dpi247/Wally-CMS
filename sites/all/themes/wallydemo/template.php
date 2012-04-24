@@ -1457,7 +1457,7 @@ function _wallydemo_get_sorted_links($node){
 			$lLinks["links"][$i]["url"] = "/".$att->filepath;
 			$lLinks["links"][$i]["title"] = $l->title;
 		  } else {
-		    $lLinks["links"][$i]["url"] = "/".$l->field_link_item[0]["url"];
+		    $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
 		    if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
 			  $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
 		    } else {
@@ -2005,6 +2005,14 @@ function wallydemo_get_current_path(){
       return $_REQUEST['q'];
     }  
   }	
+}
+
+function wallydemo_get_node_uri($node) {
+  if (isset($node->field_externaluri[0]['value']) && !empty($node->field_externaluri[0]['value'])) {
+    return check_url($node->field_externaluri[0]['value']);
+  } else {
+    return '/'.check_url(drupal_get_path_alias('node/'.$node->nid));
+  }
 }
 
 function string_to_numericentities_mod($str) {

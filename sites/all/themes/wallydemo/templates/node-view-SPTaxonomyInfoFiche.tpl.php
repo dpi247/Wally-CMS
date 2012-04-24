@@ -11,7 +11,7 @@ $node_id = $node->nid;
  * 
  * print($node_path);
  */
-$node_path = drupal_get_path_alias("node/".$node->nid);
+$node_path = wallydemo_get_node_uri($node);
 
 $nodes = array();
 foreach ( $vars['field_embededobjects_nodes'] as $node)
