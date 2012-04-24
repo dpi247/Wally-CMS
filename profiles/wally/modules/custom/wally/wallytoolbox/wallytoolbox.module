@@ -787,6 +787,16 @@ function wallytoolbox_taxonomy_get_related($tid, $key = 'tid', $bidirect = FALSE
 }
 
 /**
+ * Count the amount of parents for a term
+ */
+function wallytoolbox_taxonomy_count_parents(&$count_parents, $terms, $term) {
+  if (isset($term->parents[0]) && array_key_exists($term->parents[0], $terms)) {
+    ++$count_parents;
+    wallytoolbox_taxonomy_count_parents(&$count_parents, $terms, $terms[$term->parents[0]]);
+  }
+}
+
+/**
  * Get all nodes where cckfield match a value. 
  *
  * @param $param
@@ -1511,7 +1521,7 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
       }
     } else {
       // Get all blocks for this page/handler, from DB or features
-      list($a, $handlers) = wallytoolbox_get_panels_and_handlers(TRUE, $page, $handler_name);
+      $handlers = wallytoolbox_get_handlers(TRUE, $page, $handler_name);
     }
 
     // Get previous settings from DB to save the cron config
@@ -1521,7 +1531,7 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
     db_query('DELETE FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s%%"', $display_name);
   } else {
     // Get all blocks, from DB or features
-    list($a, $handlers) = wallytoolbox_get_panels_and_handlers(TRUE);
+    $handlers = wallytoolbox_get_handlers(TRUE);
 
     // Get previous settings from DB to save the cron config
     $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache}');
@@ -1574,10 +1584,10 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
 /**
  * Get a list of all blocks set in all pages
  */
-function wallytoolbox_get_panels_and_handlers($reset = FALSE, $page = NULL, $req_handler = NULL) {
+function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = NULL) {
   if ($reset) {
     // Rebuild the entire arrays
-    $handlers = wallytoolbox_refresh_panels_and_handlers($page, $req_handler);
+    $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
   } else {
     // Only want one page ?
     if ($page) {
@@ -1585,7 +1595,7 @@ function wallytoolbox_get_panels_and_handlers($reset = FALSE, $page = NULL, $req
       $cached_datas = cache_get('wallytoolbox_panels_handlers_'.$page, 'cache');
       if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
         // There is no cache for this page, rebuild it
-        $handlers = wallytoolbox_refresh_panels_and_handlers($page, $req_handler);
+        $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
       } else {
         $tmp_handlers = $cached_datas->data;
         if ($req_handler) {
@@ -1606,14 +1616,14 @@ function wallytoolbox_get_panels_and_handlers($reset = FALSE, $page = NULL, $req
     } else {
       // Want all the tables
       // @todo : handle cache in this case
-      $handlers = wallytoolbox_refresh_panels_and_handlers();
+      $handlers = wallytoolbox_refresh_handlers();
     }
   }
 
   return $handlers;
 }
 
-function wallytoolbox_refresh_panels_and_handlers($page = NULL, $req_handler = NULL) {
+function wallytoolbox_refresh_handlers($page = NULL, $req_handler = NULL) {
   $pages = page_manager_get_tasks_by_type('page');
   if ($page && isset($pages[$page])) {
     $pages = array($page => $pages[$page]);
@@ -1646,6 +1656,26 @@ function wallytoolbox_refresh_panels_and_handlers($page = NULL, $req_handler = N
 
   //return array($panels, $handlers);
   return $handlers;
+}
+
+/**
+ * Get a list of all panels
+ */
+function wallytoolbox_get_panels($page = NULL) {
+  $pages = page_manager_get_tasks_by_type('page');
+  if ($page && isset($pages[$page])) {
+    $pages = array($page => $pages[$page]);
+  }
+
+  $panels = array();
+  foreach ($pages as $page_name => $page) {
+    $cached_page = page_manager_get_page_cache($page_name);
+    foreach ($cached_page->handlers as $handler_name => $handler) {
+      $panels[$handler->name] = (object)array_merge((array)$handler, (array)panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name));
+    }
+  }
+
+  return $panels;
 }
 
 function wallytoolbox_flow_to_array_init_array($feed_infos = array()) {
