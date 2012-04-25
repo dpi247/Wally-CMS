@@ -1267,7 +1267,7 @@ function wydit_get_fil_ariane($form_state) {
 }
 
 function wydit_populate_form_state(&$form_state, $node, $current_profile) {
-  if (wallytoolbox_check_is_node($node)) {
+  if (isset($node->type) && !empty($node->type)) {
     $type_name = $node->type;
     $form_state['#node'] = $node;
     $form_state['type'] = $type_name;
