@@ -1030,15 +1030,17 @@ function wimprt_node_process_list($dom_element, &$log, $importer){
 
     module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'before_process');
   
-    foreach ($dom_element->childNodes as $dom_child){
-      $element_name = $dom_child->nodeName;
-      if ($element_name != '#text'){
-        $array_of_nodes[] = call_user_func('wimprt_node_process', $dom_child, &$log, $importer, NULL);
+    if ($dom_element->hasChildNodes) {
+      foreach ($dom_element->childNodes as $dom_child){
+        $element_name = $dom_child->nodeName;
+        if ($element_name != '#text'){
+          $array_of_nodes[] = call_user_func('wimprt_node_process', $dom_child, &$log, $importer, NULL);
+        }
       }
-    }
-    module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'after_process');
+      module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'after_process');
 
-    $log['node'] = array('current' => $array_of_nodes);
+      $log['node'] = array('current' => $array_of_nodes);
+    }
   }
   return $array_of_nodes;
 }
