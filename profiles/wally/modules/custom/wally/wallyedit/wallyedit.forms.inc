@@ -1212,8 +1212,10 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
 }
 
 function wydit_publish_prenode_save(&$form_state) {
+  global $user;
   $b = $form_state['#node'];
   $b->doNotPullUp = TRUE;
+  $b->uid = $user->uid;
   node_save($b);
   $form_state['#node'] = $b;
 
