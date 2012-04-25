@@ -3140,12 +3140,14 @@ function _wallyimportpackage_address_dom_to_ccklocation($addresses, &$log, $loca
 }
 
 function _wallyimportpackage_find_destination($current_destinations, $new_dest) {
-  foreach($current_destinations as $cur_dest) {
-    if (($cur_dest['tid'] == $new_dest['tid']) && ($cur_dest['target'] == $new_dest['target'])) {
-      if (strstr($cur_dest['rank'], 'DNC')) {
-        $cur_dest['rank'] = substr($cur_dest['rank'], 3);
+  if (is_array($current_destinations)) {
+    foreach($current_destinations as $cur_dest) {
+      if (($cur_dest['tid'] == $new_dest['tid']) && ($cur_dest['target'] == $new_dest['target'])) {
+        if (strstr($cur_dest['rank'], 'DNC')) {
+          $cur_dest['rank'] = substr($cur_dest['rank'], 3);
+        }
+        return $cur_dest;
       }
-      return $cur_dest;
     }
   }
   return FALSE;

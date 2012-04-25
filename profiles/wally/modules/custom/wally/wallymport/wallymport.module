@@ -1065,20 +1065,21 @@ function wimprt_process_list($dom_element, &$log, $importer, $callback = NULL){
   $array_of_nodes = array();
   module_invoke_all('wimprt_process_list', $array_of_nodes, $dom_element, $callback, $log, 'before_process');
  
-  foreach ($dom_element->childNodes as $dom_child){
-    $element_name = $dom_child->nodeName;
-    if ($element_name != '#text'){
-      
-      $function_exist = FALSE;
-      foreach ($importer->importer_functions as $importer_function){
-        if (function_exists($importer_function.'_process_'.$callback)){
-          $array_of_nodes[] = call_user_func($importer_function.'_process_'.$callback, $dom_child, &$log, $importer, NULL);
-          $function_exist = TRUE;
-          break;
-        } 
-      }
-      if ($function_exist == FALSE & function_exists("wimprt_process_".$callback)){
-        $array_of_nodes[] = call_user_func("wimprt_process_".$callback, $dom_child, &$log, $importer, NULL);
+  if ($dom_element->hasChildNodes) {
+    foreach ($dom_element->childNodes as $dom_child){
+      $element_name = $dom_child->nodeName;
+      if ($element_name != '#text'){
+        $function_exist = FALSE;
+        foreach ($importer->importer_functions as $importer_function){
+          if (function_exists($importer_function.'_process_'.$callback)){
+            $array_of_nodes[] = call_user_func($importer_function.'_process_'.$callback, $dom_child, &$log, $importer, NULL);
+            $function_exist = TRUE;
+            break;
+          } 
+        }
+        if ($function_exist == FALSE & function_exists("wimprt_process_".$callback)){
+          $array_of_nodes[] = call_user_func("wimprt_process_".$callback, $dom_child, &$log, $importer, NULL);
+        }
       }
     }
   }
@@ -1173,7 +1174,7 @@ function wimprt_process_type_default(&$node, $dom, &$log, $importer){
  *   The next callback
  */
 function wimprt_set_callback($dom, $callback = NULL){
-  if (get_class($dom) == 'DOMElement'){
+  if (is_object($dom) && get_class($dom) == 'DOMElement'){
     if ($callback == NULL){
       if ($dom->hasAttribute('xsi:type')){
         $callback = $dom->getAttributeNode('xsi:type')->value;
