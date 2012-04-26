@@ -1,0 +1,19 @@
+*** includes/database.mysql.inc	2011-08-24 08:39:24.000000000 +0200
+--- includes/database.mysql.inc	2011-11-16 15:02:16.109842286 +0100
+***************
+*** 73,79 ****
+    //   server.
+    // - 2 means CLIENT_FOUND_ROWS: return the number of found
+    //   (matched) rows, not the number of affected rows.
+!   $connection = @mysql_connect($url['host'], $url['user'], $url['pass'], TRUE, 2);
+    if (!$connection || !mysql_select_db(substr($url['path'], 1))) {
+      // Show error screen otherwise
+      _db_error_page(mysql_error());
+--- 73,79 ----
+    //   server.
+    // - 2 means CLIENT_FOUND_ROWS: return the number of found
+    //   (matched) rows, not the number of affected rows.
+!   $connection = @mysql_pconnect($url['host'], $url['user'], $url['pass'], FALSE);
+    if (!$connection || !mysql_select_db(substr($url['path'], 1))) {
+      // Show error screen otherwise
+      _db_error_page(mysql_error());
