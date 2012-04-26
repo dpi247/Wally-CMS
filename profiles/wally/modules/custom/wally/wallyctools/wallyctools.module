@@ -701,7 +701,14 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
         else{
           $page = 0;
         }
-  
+   $view->display_handler->set_option('pager_element', $conf['pager_id']);
+      $view->set_pager_element($conf['pager_id']);
+      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
+      $view->set_items_per_page($conf['nodes_per_page']);
+      $view->display_handler->set_option('offset', $conf['offset']);
+      $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
+      $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
+      
     
       }
     }
