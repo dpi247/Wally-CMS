@@ -1,5 +1,4 @@
 <?php
-// $Id: custom_pagers.inc,v 1.1.2.1 2008/08/15 20:40:41 quicksketch Exp $
 
 /**
  * Create a custom pager.

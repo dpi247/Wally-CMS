@@ -1,5 +1,4 @@
 <?php
-// $Id: taxonomy.inc,v 1.1.2.8.2.4 2009/06/01 22:22:51 jamesandres Exp $
 
 /**
  * Given the name of a vocabulary, return its Vocab ID.

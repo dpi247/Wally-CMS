@@ -8,16 +8,20 @@
  */
 
 /**
- * Enable a theme.
+ * Enable themes.
  *
- * @param $theme
- *   Unique string that is the name of theme.
+ * @param $themes
+ *   An array of theme names
  */
-function install_enable_theme($theme) {
+function install_enable_theme($themes) {
   system_theme_data();
-  db_query("UPDATE {system} SET status = 1 WHERE type = 'theme' and name = '%s'", $theme);
-  system_initialize_theme_blocks($theme);
+  $themes = is_array($themes) ? $themes : array($themes);
+  foreach($themes as $theme){
+    db_query("UPDATE {system} SET status = 1 WHERE type = 'theme' and name = '%s'", $theme);
+    system_initialize_theme_blocks($theme);
+  }
 }
+
 
 /**
  * Disable a theme.
@@ -38,7 +42,6 @@ function install_disable_theme($theme) {
  */
 function install_default_theme($theme) {
   global $theme_key;
-  install_enable_theme($theme);
   variable_set('theme_default', $theme);
   // update the global variable too,
   // mainly so that block functions work correctly
