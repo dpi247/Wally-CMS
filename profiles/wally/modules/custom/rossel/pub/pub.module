@@ -221,19 +221,19 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
         case 'analytic_block':
           $block = array(
             'subject' => t('Analytic block.'), 
-            'content' => _pub_getanalyticcontent($cache_url),
+            'content' => _pub_get_block_content($cache_url, 'analytic', 'GA-Async'),
           );
           break;
         case 'xiti_block':
           $block = array(
             'subject' => t('Xiti block.'), 
-            'content' => _pub_getxiticontent($cache_url),
+            'content' => _pub_get_block_content($cache_url, 'xiti', 'Xiti'),
           );
           break;
         case 'metriweb_block':
           $block = array(
             'subject' => t('MetriWeb block.'), 
-            'content' => _pub_getmetriwebcontent($cache_url),
+            'content' => _pub_get_block_content($cache_url, 'metriweb', 'Metriweb'),
           );
           break;
         default:
@@ -304,13 +304,25 @@ function _pub_getpubcontent($delta, $cache_url) {
 }
 
 function _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
-  $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
-  $webserv_adress = variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  $website = variable_get('pub'.$builder.'_website', '');
+  $expl_website = explode('_', $website);
   $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
-  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress, $edition);
-
-  if ($content_from_webservice) {
+  $domain = $_SERVER['HTTP_HOST'];
+  $params = array(
+    'scriptType' => $script_type,
+    'site' => $expl_website[0],
+    'pageType' => $webserv_req[1],
+    'context' => '/'.$webserv_req[0],
+    'position' => $delta,
+    'domain' => $domain,
+  );
+  if ($edition) {
+    $params['edition'] = $edition;
+  }
+  $webserv_adress = variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  
+  if ($content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params)) {
     $pub_content = $content_from_webservice;
   } else {
     $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
@@ -321,20 +333,33 @@ function _pub_generate_default_pub_content($block_settings, $delta, $webserv_req
 }
 
 function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
-  $website = variable_get('pub'.$builder.'_website', '');
   $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
+  $website = variable_get('pub'.$builder.'_website', '');
+  $expl_website = explode('_', $website);
+  $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
+  $domain = $_SERVER['HTTP_HOST'];
+  $params = array(
+    'scriptType' => $script_type,
+    'site' => $expl_website[0],
+    'pageType' => $webserv_req[1],
+    'context' => '/'.$webserv_req[0],
+    'position' => $delta,
+    'domain' => $domain,
+  );
+  if ($edition) {
+    $params['edition'] = $edition;
+  }
   $webserv_adress = variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
   $header_adress = variable_get('pub'.$builder.'_header', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/header');
-  $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
-  $content_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress, $edition);
-  $header_from_webservice = _pub_getcontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $header_adress, $edition);
+  
+  $content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params);
+  $header_from_webservice = _pub_get_content_from_webservice($header_adress, $params);
 
   if ($content_from_webservice && !empty($content_from_webservice) && $header_from_webservice && !empty($header_from_webservice)) {
     $pub_content['content'] = $content_from_webservice;
     $pub_content['meta']['content'] = $header_from_webservice;
     $pub_content['meta']['attributes'] = array(
       'name' => variable_get('pub'.$builder.'_meta_name', 'adpurl-keywords'),
-      //'id' => variable_get('pub'.$builder.'_meta_id', 'adpurl-keywords'),
     );
   } else {
     $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
@@ -359,13 +384,26 @@ function _pub_getheadercontent($cache_url) {
   $cache_time = variable_get('header_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $webserv_req = _pub_getwebservreq($orig_url);
-    $website = variable_get('pub_website', '');
     $script_type = variable_get('pub_provider', 'AdTech');
+    $website = variable_get('pub_website', '');
+    $expl_website = explode('_', $website);
+    $webserv_req = _pub_getwebservreq($orig_url);
     $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
-    $content_from_webservice = _pub_getheadercontentfromwebservice($script_type, $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $edition);
-    
-    if ($content_from_webservice) {
+    $domain = $_SERVER['HTTP_HOST'];
+    $params = array(
+      'scriptType' => $script_type,
+      'site' => $expl_website[0],
+      'pageType' => $webserv_req[1],
+      'context' => '/'.$webserv_req[0],
+      'position' => $delta,
+      'domain' => $domain,
+    );
+    if ($edition) {
+      $params['edition'] = $edition;
+    }
+    $header_adress = variable_get('pub_header', '');
+
+    if ($content_from_webservice = _pub_get_content_from_webservice($header_adress, $params)) {
       $header_content = $content_from_webservice;
     } else {
       $cached_pub = cache_get('header_perm-'.$cache_url);
@@ -382,7 +420,7 @@ function _pub_getheadercontent($cache_url) {
 }
 
 /**
- * Get content for the analytic block.
+ * Get content a generic block.
  * 
  * @return
  *   HTML content.
@@ -390,130 +428,40 @@ function _pub_getheadercontent($cache_url) {
  * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
  *   Hook_block
  */
-function _pub_getanalyticcontent($cache_url) {
+function _pub_get_block_content($cache_url, $type, $script_type, $delta = '') {
   $orig_url = $_GET['q'];
-  $cached_pub = cache_get('analytic_block_temp-'.$cache_url);
-  $cache_time = variable_get('analytic_block_refresh_time', 24);
+  $cached_pub = cache_get($type.'_block_temp-'.$cache_url);
+  $cache_time = variable_get($type.'_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $webserv_req = _pub_getwebservreq($orig_url);
     $website = variable_get('pub_website', '');
-    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
-    $content_from_webservice = _pub_getcontentfromwebservice('GA-Async', $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
-    
-    if ($content_from_webservice) {
-      $analytic_content = $content_from_webservice;
-    } else {
-      $cached_pub = cache_get('analytic_block_perm-'.$cache_url);
-      $analytic_content = $cached_pub->data ? $cached_pub->data : '';
-    }
-    
-    cache_set('analytic_block_temp-'.$cache_url, $analytic_content, 'cache', time() + 3600*$cache_time);
-    cache_set('analytic_block_perm-'.$cache_url, $analytic_content);
-  } else {
-    $analytic_content = $cached_pub->data;
-  }
-  
-  return theme('analytic_content', $analytic_content);
-}
-
-/**
- * Get content for the Xiti block.
- * 
- * @return
- *   HTML content.
- * 
- * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
- *   Hook_block
- */
-function _pub_getxiticontent($cache_url) {
-  $orig_url = $_GET['q'];
-  $cached_pub = cache_get('xiti_block_temp-'.$cache_url);
-  $cache_time = variable_get('xiti_block_refresh_time', 24);
-  
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $expl_website = explode('_', $website);
     $webserv_req = _pub_getwebservreq($orig_url);
-    $website = variable_get('pub_website', '');
-    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    $domain = $_SERVER['HTTP_HOST'];
+    $params = array(
+      'scriptType' => $script_type,
+      'site' => $expl_website[0],
+      'pageType' => $webserv_req[1],
+      'context' => '/'.$webserv_req[0],
+      'position' => $delta,
+      'domain' => $domain,
+    );
+    $webserv_adress = variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
     
-    $content_from_webservice = _pub_getcontentfromwebservice('Xiti', $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
-    
-    if ($content_from_webservice) {
-      $xiti_content = $content_from_webservice;
-    } else {
-      $cached_pub = cache_get('xiti_block_perm-'.$cache_url);
-      $xiti_content = $cached_pub->data ? $cached_pub->data : '';
-    }
-    
-    cache_set('xiti_block_temp-'.$cache_url, $xiti_content, 'cache', time() + 3600*$cache_time);
-    cache_set('xiti_block_perm-'.$cache_url, $xiti_content);
-  } else {
-    $xiti_content = $cached_pub->data;
-  }
-  
-  return theme('xiti_content', $xiti_content);
-}
-
-/**
- * Get content for the MetriWeb block.
- * 
- * @return
- *   HTML content.
- * 
- * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
- *   Hook_block
- */
-function _pub_getmetriwebcontent($cache_url) {
-  $orig_url = $_GET['q'];
-  $expl_url = explode('/', $orig_url);
-  $cached_pub = cache_get('metriweb_block_temp-'.$cache_url);
-  $cache_time = variable_get('metriweb_block_refresh_time', 24);
-  
-  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
-    $webserv_req = _pub_getwebservreq($orig_url);
-    $website = variable_get('pub_website', '');
-    $webserv_adress=variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
-    
-    $content_from_webservice = _pub_getcontentfromwebservice('Metriweb', $website, $webserv_req[1], '/'.$webserv_req[0], $delta, $webserv_adress);
-    
-    if ($content_from_webservice) {
+    if ($content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params)) {
       $metriweb_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get('metriweb_block_perm-'.$cache_url);
+      $cached_pub = cache_get($type.'_block_perm-'.$cache_url);
       $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
-    cache_set('metriweb_block_temp-'.$cache_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
-    cache_set('metriweb_block_perm-'.$cache_url, $metriweb_content);
+    cache_set($type.'_block_temp-'.$cache_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
+    cache_set($type.'_block_perm-'.$cache_url, $metriweb_content);
   } else {
     $metriweb_content = $cached_pub->data;
   }
   
-  return theme('metriweb_content', $metriweb_content);
-}
-
-/**
- * Get header content from a webservice.
- * 
- * @return
- *   HTML content.
- */
-function _pub_getheadercontentfromwebservice($script_type, $website, $page_type, $context, $position, $edition = NULL) {
-  $expl_website = explode('_', $website);
-  $domain = $_SERVER['HTTP_HOST'];
-  $params = array(
-    'site='.rawurlencode($expl_website[0]),
-    'pageType='.rawurlencode($page_type),
-    'context='.rawurlencode($context),
-    'position='.rawurlencode($position),
-    'domain='.$domain,
-  );
-  if ($edition) {
-    $params[] = 'edition='.rawurlencode($edition);
-  }
-  $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  $content = drupal_http_request(variable_get('pub_header', '').$req_url);
-  return ($content->code == '200') ? $content->data : FALSE;
+  return theme($type.'_content', $metriweb_content);
 }
 
 /**
@@ -522,22 +470,19 @@ function _pub_getheadercontentfromwebservice($script_type, $website, $page_type,
  * @return
  *   HTML content.
  */
-function _pub_getcontentfromwebservice($script_type, $website, $page_type, $context, $position, $pub_webserv, $edition = NULL) {
-  $expl_website = explode('_', $website);
-  $domain = $_SERVER['HTTP_HOST'];
-  $params = array(
-    'site='.rawurlencode($expl_website[0]),
-    'pageType='.rawurlencode($page_type),
-    'context='.rawurlencode($context),
-    'position='.rawurlencode($position),
-    'domain='.$domain,
-  );
-  if ($edition) {
-    $params[] = 'edition='.rawurlencode($edition);
+function _pub_get_content_from_webservice($url, $params) {
+  drupal_alter('pub_params', $params);
+  foreach ($params as $key => $value) {
+    $params[$key] = $key.'='.rawurlencode($value);
   }
-  $req_url = '?scriptType='.$script_type.'&'.implode('&', $params);
-  $content = drupal_http_request($pub_webserv.$req_url);
+  $req_params = '?'.implode('&', $params);
+  $content = drupal_http_request($url.$req_params);
   return ($content->code == '200') ? $content->data : FALSE;
+}
+
+function pub_pub_params_alter(&$params) {
+  dsm('couo');
+  var_dump($params);
 }
 
 /**
