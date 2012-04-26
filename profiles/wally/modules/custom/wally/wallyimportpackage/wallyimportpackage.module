@@ -116,7 +116,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
 
-  if (!empty($node) && !isset($node->rejected)) {
+  if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
@@ -1038,9 +1038,15 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObjectType');
-  $node->field_mainstory[0]['nid'] = $object->nid;
-  if ($importer->wallymport_preview) {
-    $node->field_mainstory_nodes[0] = $object;
+  if (!$object->rejected) {
+    if ($importer->wallymport_preview) {
+      $node->field_mainstory_nodes[0] = $object;
+    }
+    if (isset($object->nid) && !empty($object->nid)) {
+      $node->field_mainstory[0]['nid'] = $object->nid;
+    }
+  } else {
+    $node->rejected = TRUE;
   }
 }
 
@@ -1072,11 +1078,13 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
       $object = wimprt_process_object($dom, $log, $importer, 'videoobjecttype');
     }
         
-    if ($object->nid) {
+    if (isset($object->nid) && !empty($object->nid) && !$object->rejected) {
       $node->field_mainobject[0]['nid'] = $object->nid;
       if ($importer->wallymport_preview) {
         $node->field_mainobject_nodes[0] = $object;
       }
+    } else {
+      $node->rejected = TRUE;
     }
   }
 }
@@ -1133,8 +1141,8 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
   $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
-  foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result){
-    if (!array_key_exists($result->nid, $results) || $importer->wallymport_preview) {
+  foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
+    if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
       $results[$result->nid] = $result->nid;
       $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
       if ($importer->wallymport_preview){
@@ -1157,8 +1165,8 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $linklist = $dom->getElementsByTagName('LinksList')->item(0);
   if ($dom->getElementsByTagName('LinksList')->item(0)){
     if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
-      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result){
-        if (!array_key_exists($result->nid, $links) || $importer->wallymport_preview) {
+      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result) {
+        if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
           if ($importer->wallymport_preview){

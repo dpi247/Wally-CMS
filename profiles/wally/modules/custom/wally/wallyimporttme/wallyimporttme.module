@@ -115,7 +115,7 @@ function wallyimporttme_process_message($dom, &$log, $importer, $callback = NULL
     }
     module_invoke_all('wimprt_process_message', $node, $dom, $log, 'after_process');
   }
-  if (!empty($node) && !isset($node->rejected)) {
+  if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($preview) {
       require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
       $prenode = new Prenode();

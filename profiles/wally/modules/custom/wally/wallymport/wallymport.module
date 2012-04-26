@@ -981,9 +981,11 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'after_process');
 
-  if (!empty($node) && !$node->rejected){
+  if (!empty($node) && !$node->rejected && wallytoolbox_check_is_node($node)){
     $node->doNotPullUp = TRUE;
     node_save($node);
+  } else {
+    $node->rejected = TRUE;
   }
   $log['node'] = array('current' => $node,'next' => $log['node']);
   return $node;
@@ -1030,7 +1032,7 @@ function wimprt_process_type($dom, &$log, $importer, $callback = NULL){
   }
 
   module_invoke_all('wimprt_process_type', $node, $dom, $log, 'after_process');
-  if (!empty($node) && !$node->rejected){
+  if (!empty($node) && !$node->rejected && wallytoolbox_check_is_node($node)){
     node_save($node);
   }
 
@@ -1075,7 +1077,7 @@ function wimprt_process_list($dom_element, &$log, $importer, $callback = NULL){
             $array_of_nodes[] = call_user_func($importer_function.'_process_'.$callback, $dom_child, &$log, $importer, NULL);
             $function_exist = TRUE;
             break;
-          } 
+          }
         }
         if ($function_exist == FALSE & function_exists("wimprt_process_".$callback)){
           $array_of_nodes[] = call_user_func("wimprt_process_".$callback, $dom_child, &$log, $importer, NULL);
