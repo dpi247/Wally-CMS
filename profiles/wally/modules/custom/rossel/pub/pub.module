@@ -480,11 +480,6 @@ function _pub_get_content_from_webservice($url, $params) {
   return ($content->code == '200') ? $content->data : FALSE;
 }
 
-function pub_pub_params_alter(&$params) {
-  dsm('couo');
-  var_dump($params);
-}
-
 /**
  * Return the request sent to the webservice. The request is based on the URL.
  * 
