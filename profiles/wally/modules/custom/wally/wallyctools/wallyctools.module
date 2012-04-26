@@ -19,73 +19,40 @@
 function wallyctools_menu() {
   $items = array();
 
-  $items['admin/wally/wallyctools'] = array(
-    'title'                         => t('Wally CTools Settings'),
-    'description'                   => t('Manage settings used in Wally CTools (default target, reorder and destinations tree caching)'),
-    'page callback'                 => 'drupal_get_form',
-    'page arguments'                => array('wallyctools_page_default_target_form'),
-    'access arguments'              => array('administer nodes'),
-    'file'                          => 'includes/page_admin.inc',
-  );
-  
-  $items['admin/wally/wallyctools/defaulttarget'] = array(
-    'title'                         => t('Default Target'),
-    'page callback'                 => 'drupal_get_form',
-    'page arguments'                => array('wallyctools_page_default_target_form'),
-    'access arguments'              => array('administer nodes'),
-    'file'                          => 'includes/page_admin.inc',
-    'type'                          => MENU_DEFAULT_LOCAL_TASK,
-    'weight'                        => 0,
+  $base = array(
+    'file' => 'includes/wallyctools.reorder.inc',
+    'access arguments' => array('administer nodes'),
   );
 
-  $items['admin/wally/wallyctools/reordersettings'] = array(
+  $items['admin/wally/wallyctools'] = $base + array(
     'title'                         => t('Reorder Settings'),
+    'description'                   => t('Manage some settings used during the packages reorder'),
     'page callback'                 => 'drupal_get_form',
     'page arguments'                => array('wallyctools_page_reorder_settings_form'),
-    'access arguments'              => array('administer nodes'),
-    'file'                          => 'includes/page_admin.inc',
-    'type'                          => MENU_LOCAL_TASK,
-    'weight'                        => 1,
   );
 
-  $items['admin/wally/wallyctools/desttreecaching'] = array(
-    'title'                         => t('Destinations Tree Caching'),
-    'page callback'                 => 'drupal_get_form',
-    'page arguments'                => array('wallyctools_page_destinations_tree_caching_form'),
-    'access arguments'              => array('manage cache'),
-    'file'                          => 'includes/page_admin.inc',
-    'type'                          => MENU_LOCAL_TASK,
-    'weight'                        => 2,
-  );
-
-  $items['admin/wally/wallyctools-operations'] = array(
+  $items['admin/wally/wallyctools-operations'] = $base + array(
     'title'                         => t('Reorder and manipulate'),
     'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
     'page arguments'                => array(),
-    'access arguments'              => array('administer nodes'),
     'type'                          => MENU_CALLBACK,
-    'file'                          => 'includes/wallyctools.reorder.inc',
   );
 
-  $items['admin/wally/wallyctools-operations/reorder/%/%/%'] = array(
+  $items['admin/wally/wallyctools-operations/reorder/%/%/%'] = $base + array(
     'title'                         => t('Reorder'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
     'page arguments'                => array(4, 5, 6),
-    'access arguments'              => array('administer nodes'),
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 0,
-    'file'                          => 'includes/wallyctools.reorder.inc',
   );
 
-  $items['admin/wally/wallyctools-operations/batchoperations/%/%/%'] = array(
+  $items['admin/wally/wallyctools-operations/batchoperations/%/%/%'] = $base + array(
     'title'                         => t('Batch operations'),
     'page callback'                 => 'wallyctools_page_destination_batch_operations',
     'page arguments'                => array(4, 5, 6),
-    'access arguments'              => array('administer nodes'),
     'type'                          => MENU_LOCAL_TASK,
     'weight'                        => 1,
-    'file'                          => 'includes/wallyctools.reorder.inc',
   );
 
   return $items;
@@ -98,21 +65,6 @@ function wallyctools_form_alter($form, $form_state, $form_id) {
       if ($view->name == 'batch_destinations' && $view->current_display == 'page_1') {
         $form['#suffix'] = drupal_get_form('wallyctools_form_batch_operations_form', $view->args[0]);
       }
-    }
-  }
-}
-
-/**
- * Implementation of hook_taxonomy.
- * force refresh of destinations tree cache after modification of a destination term
- */
-function wallyctools_taxonomy($op, $type, $array = NULL) {
-  if ($type == 'term') {
-    $dest_vid = variable_get('wallymport_destinationpath', 0);
-    $depth = 0;
-    if (isset($array['vid']) && $array['vid'] == $dest_vid) {
-      cache_clear_all('wallyctools_term_handler_mapping_'.$dest_vid.'_'.$depth, 'cache');
-      db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $dest_vid, $depth);
     }
   }
 }
@@ -378,36 +330,21 @@ function wallyctools_get_hierarchies() {
     $depth = 0;
 
     $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
-    $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
-    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
 
-    foreach($tid_did_mapping as $tid => $did_infos) {
-      $tid_did_mapping[$tid]['redacblocks'] = $temp_mapping = array();
+    $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
+
+    foreach($tid_did_mapping as $tid=>$did_infos) {
+      $tid_did_mapping[$tid]['redacblocks']=array();
 
       foreach($array_of_redacblock_panes as $pane) {
         if($did_infos['did'] == $pane->did) {
-          if (isset($default_redacblocks[$pane->did]) && ($pane->subtype == $default_redacblocks[$pane->did]['default_redacblock'])) {
-            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
-            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
-            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
-          } else {
-            $temp_mapping[$pane->name]['title'] = $pane->admin_title;
-            $temp_mapping[$pane->name]['name'] = $pane->name;
-            $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
-          }
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
+          $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
         }
       }
-
-      $tid_did_mapping[$tid]['redacblocks'] = array_merge($tid_did_mapping[$tid]['redacblocks'], $temp_mapping);
-
-      $tid_did_mapping[$tid]['redacblocks']['none'] = array(
-        'title' => 'none',
-        'name' => t('none'),
-        'layouts' => array('none' => array('name' => t('none'))),
-      );
     }
   }
-
   return $tid_did_mapping;
 }
 
@@ -441,22 +378,16 @@ function wallyctools_get_term_handler_mapping($vid, $depth, $reset = FALSE) {
 
 function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
   $tid_did_mapping = array();
-  
-  $current_count = db_fetch_array(db_query("SELECT COUNT(tid) FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth));
 
-  if ($reset || ($current_count['COUNT(tid)'] == 0)) {
+  if ($reset) {
     // Completely rebuild the datas, also in DB
 
     db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     
-    $temp_terms = taxonomy_get_tree($vid);
-    foreach($temp_terms as $term) {
-      $terms[$term->tid] = $term;
-    }
+    $terms = taxonomy_get_tree($vid);
 
     foreach($terms as $term) {
-      $count_parents = 0;
-      wallytoolbox_taxonomy_count_parents($count_parents, $terms, $term);
+      $term_parents = array_filter($term->parents);
 
       $handler = wallyctools_get_active_handler($term->tid, $depth);
       $tid_did_mapping[$term->tid] = array(
@@ -464,9 +395,9 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
         'did' => $handler->conf['did'],
         'title' => $handler->conf['title'],
         'term_name' => $term->name,
-        'hierarchic_name' => str_repeat('-', $count_parents).$term->name,
+        'hierarchic_name' => str_repeat('-', count($term_parents)).$term->name,
       );
-
+      
       $datas = array(
         'tid' => $term->tid,
         'vid' => $vid,
@@ -533,7 +464,7 @@ function wallyctools_get_redacblock_panes(){
     $redacblocks[$result->name]=$result;
   }
 
-  $handlers=wallytoolbox_get_handlers(FALSE, 'term_view');
+  $handlers=wallytoolbox_get_panels_and_handlers(FALSE, 'term_view');
 
   $term_view_handlers=$handlers['term_view'];
   foreach ($term_view_handlers as $term_view_handler){
@@ -573,9 +504,6 @@ function wallyctools_theme() {
   require_once "./$path/theme/theme.inc";
   return array(
     'wallyctools_form_reorder_destination_form' => $base + array(
-      'arguments' => array('form' => array()),
-    ),
-    'wallyctools_form_default_target_form' => $base + array(
       'arguments' => array('form' => array()),
     ),
   );
@@ -657,30 +585,15 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
     if (!empty($conf['more_link'])) {
       $view->display_handler->set_option('use_more', FALSE);
     }
-
+  
     // Only set use_pager if they differ, this way we can avoid overwriting the
     // pager type that Views uses.
     if ($conf['override_pager_settings']) {
-      $view->display_handler->set_option('pager_element', $conf['pager_id']);
-      $view->set_pager_element($conf['pager_id']);
-      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->display_handler->set_option('offset', $conf['offset']);
-      $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
-      $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
       if (method_exists($view, 'init_pager')) {
         // Views 3 version
         $view->set_items_per_page($conf['nodes_per_page']);
         $view->set_offset($conf['offset']);
-
-$view->display_handler->set_option('pager_element', $conf['pager_id']);
-      $view->set_pager_element($conf['pager_id']);
-      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->display_handler->set_option('offset', $conf['offset']);
-      $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
-      $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
-     
+  
         $pager = $view->display_handler->get_option('pager');
         if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
           $pager['type'] = 'full';
@@ -708,15 +621,14 @@ $view->display_handler->set_option('pager_element', $conf['pager_id']);
         else{
           $page = 0;
         }
-   $view->display_handler->set_option('pager_element', $conf['pager_id']);
-      $view->set_pager_element($conf['pager_id']);
-      $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
-      $view->set_items_per_page($conf['nodes_per_page']);
-      $view->display_handler->set_option('offset', $conf['offset']);
-      $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
-      $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
-      
-    
+  
+        $view->display_handler->set_option('pager_element', $conf['pager_id']);
+        $view->set_pager_element($conf['pager_id']);
+        $view->display_handler->set_option('items_per_page', $conf['nodes_per_page']);
+        $view->set_items_per_page($conf['nodes_per_page']);
+        $view->display_handler->set_option('offset', $conf['offset']);
+        $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
+        $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
       }
     }
     $success = TRUE;
