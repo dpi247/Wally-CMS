@@ -97,9 +97,10 @@ function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $im
  *   the node object that has been build
  */
 function wallyimportpackage_process_package($dom, &$log, $importer, $callback = NULL) {
-
+  
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, $importer, 'package', $callback, $log);
+  echo '<pre>REJECT:'.print_r($node->rejected,1).'</pre>';
   $return = array();
   //@todo: place in walymportlog module
   if (variable_get('wallymport_debug',0) or TRUE){
@@ -116,8 +117,8 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
-  dsm($node);
-  echo '<pre>'.print_r($node,1).'</pre>';
+  dsm($node->rejected);
+  echo '<pre>REJECT:'.print_r($node->rejected,1).'</pre>';
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       echo 'previeeew';
