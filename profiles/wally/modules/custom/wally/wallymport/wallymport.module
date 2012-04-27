@@ -984,7 +984,6 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   if (!empty($node) && !$node->rejected && wallytoolbox_check_is_node($node)){
     $node->doNotPullUp = TRUE;
     node_save($node);
-    unset($node->rejected);
   } else {
     $node->rejected = TRUE;
   }
