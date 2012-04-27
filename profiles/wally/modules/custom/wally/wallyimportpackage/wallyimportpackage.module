@@ -100,7 +100,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
   $callback = wimprt_set_callback($dom, $callback);
   $node = wimprt_create_or_load($dom, $importer, 'package', $callback, $log);
-  echo '<pre>REJECT:'.print_r($node->rejected,1).'</pre>';
   $return = array();
   //@todo: place in walymportlog module
   if (variable_get('wallymport_debug',0) or TRUE){
@@ -117,11 +116,8 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
-  dsm($node->rejected);
-  echo '<pre>REJECT:'.print_r($node->rejected,1).'</pre>';
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      echo 'previeeew';
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
       $node->preview = TRUE;
@@ -1051,10 +1047,9 @@ function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) 
       $node->field_mainstory[0]['nid'] = $object->nid;
     }
   } else {
-      echo '<pre>REJECT: '.$node->type.'  '.print_r($node->rejected,1).'</pre>';
     
-   // $node->rejected = TRUE;
-      echo '<pre>REJECT: '.$node->type.'  '.print_r($node->rejected,1).'</pre>';
+    //TODO ODM need to make a distinction between  rejected and not_to_saved
+    // $node->rejected = TRUE;
         
   }
 }
