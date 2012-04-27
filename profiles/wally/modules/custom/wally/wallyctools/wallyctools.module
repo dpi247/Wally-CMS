@@ -134,6 +134,17 @@ function wallyctools_panels_display_save($display) {
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_views_view(&$vars){
+  
+  //if redacblock is splitted we need to tweak the pager 
+  if(isset($vars['view']->split_index_count)){
+    global $pager_total;
+    $pager_total[$vars['view']->pager['element']]=(int) (($vars['view']->total_rows+$vars['view']->pager['offset']+$view->split_index_count)/$vars['view']->split_total_count)+1;
+    $view=$vars['view'];
+    $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
+    $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
+    $vars['pager']    = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
+  }
+    
   $funcs=_views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
 
   $new_funcs=array();
@@ -749,6 +760,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
         $view->display_handler->set_option('offset', $conf['offset']);
         $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
         $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
+        $view->pager['items_per_page'] = $conf['total_nodes_per_page'];
       }
     }
     $success = TRUE;
