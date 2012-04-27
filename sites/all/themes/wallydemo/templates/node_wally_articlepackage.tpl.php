@@ -82,7 +82,7 @@ $node_path = $aliases[0];
  *
  * print($strapline);
  */
-echo '<pre>'.print_r($node,1).'</pre>';
+echo '<pre>'.print_r($node->field_mainstory_nodes,1).'</pre>';
 $mainstory = $node->field_mainstory_nodes[0];
 if ($mainstory->type == "wally_textobject"){
   node_build_content($mainstory, $teaser, $page);
