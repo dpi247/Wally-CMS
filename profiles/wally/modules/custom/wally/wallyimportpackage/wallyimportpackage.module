@@ -122,6 +122,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       ctools_include('object-cache');
       $node->preview = TRUE;
       
+      echo '<pre>'.print_r($node,1).'</pre>';
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
