@@ -1050,7 +1050,9 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObjectType');
-  if (!$object->rejected) {
+
+  //TODO ODM need to make a distinction between  rejected and not_to_saved
+  if (!$object->rejected OR TRUE) {
     if ($importer->wallymport_preview) {
       $node->field_mainstory_nodes[0] = $object;
     }
