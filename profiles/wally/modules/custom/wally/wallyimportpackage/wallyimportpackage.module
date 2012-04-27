@@ -1095,7 +1095,7 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
       $object = wimprt_process_object($dom, $log, $importer, 'videoobjecttype');
     }
         
-    if (isset($object->nid) && !empty($object->nid) && !$object->rejected) {
+    if (isset($object->nid) && !empty($object->nid) && !$object->rejected OR TRUE) {
       $node->field_mainobject[0]['nid'] = $object->nid;
       if ($importer->wallymport_preview) {
         $node->field_mainobject_nodes[0] = $object;
