@@ -404,8 +404,10 @@ function wallydemo_preprocess_node(&$vars) {
   }
 
   if($node->type=="wally_articlepackage"){
+    echo 'rr';
     if($node->nid==arg(1) or $node->preview){
-
+    echo '&&';
+      
       $vars['bool_node_page']=true;
       //node_build_content($node);
       //wallycontenttypes_packagepopulate($node);
