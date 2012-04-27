@@ -75,6 +75,7 @@ function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $im
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
+      $node->preview = TRUE;
     }
   }
 }
@@ -120,6 +121,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     if ($importer->wallymport_preview) {
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
+      $node->preview = TRUE;
       
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
@@ -128,7 +130,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $return['content'] = $content;
+      $return['content'] = 'e'.$content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
@@ -2141,6 +2143,8 @@ function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
   $node->field_textchapo[0]['value'] = $value;
   $node->field_textchapo[0]['format'] = wallyimportpackage_get_default_format();
 }
+
+
 
 /**
  * Process field Text Body from DOM element.
