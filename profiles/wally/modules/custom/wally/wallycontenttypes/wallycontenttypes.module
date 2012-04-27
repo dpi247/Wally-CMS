@@ -464,27 +464,32 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  */
 
 function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
-  if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
-    require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
-    if (!isset($node->view)) {
-      $node->view->name = '';
-      $node->view->current_display = '';
-    }
-    $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
-    if (!$cached_node || $reset_cache) {
+  static $populated_nids = array();
+  if (!in_array($node->nid, $populated_nids)) {
+    // Avoid infinite loop
+    $populated_nids[] = $node->nid;
+    if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
+      require_once './' . drupal_get_path('module', 'wallytoolbox') . '/includes/wally.object-cache.inc';
+      if (!isset($node->view)) {
+        $node->view->name = '';
+        $node->view->current_display = '';
+      }
+      $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
+      if (!$cached_node || $reset_cache) {
+        $cleaned_node = wallycontenttypes_clean_node($node);
+        wallycontenttypes_fieldNID($cleaned_node);
+        wallycontenttypes_fieldTID($cleaned_node);
+        wallytoolbox_object_cache_set($cleaned_node);
+      } else {
+        $cleaned_node = $cached_node;
+      }
+      wallycontenttypes_restore_node($node, $cleaned_node);
+    } else {
       $cleaned_node = wallycontenttypes_clean_node($node);
       wallycontenttypes_fieldNID($cleaned_node);
       wallycontenttypes_fieldTID($cleaned_node);
-      wallytoolbox_object_cache_set($cleaned_node);
-    } else {
-      $cleaned_node = $cached_node;
+      wallycontenttypes_restore_node($node, $cleaned_node);
     }
-    wallycontenttypes_restore_node($node, $cleaned_node);
-  } else {
-    $cleaned_node = wallycontenttypes_clean_node($node);
-    wallycontenttypes_fieldNID($cleaned_node);
-    wallycontenttypes_fieldTID($cleaned_node);
-    wallycontenttypes_restore_node($node, $cleaned_node);
   }
 }
 
