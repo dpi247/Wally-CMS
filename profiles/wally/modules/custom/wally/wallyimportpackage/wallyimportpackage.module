@@ -116,9 +116,11 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
-
+      echo 'R2D2';
+  
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
+      echo 'previeeew';
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
       $node->preview = TRUE;
