@@ -128,7 +128,9 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
-      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
+      
+      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name);
+      
       $return['content'] = $content;
     /* 
       if (variable_get('wallymport_debug',0) or TRUE){
