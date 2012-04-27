@@ -479,6 +479,15 @@ function wallydemo_preprocess_node(&$vars) {
 }
 
 
+function wallydemo_get_node_uri($node) {
+  if (isset($node->field_externaluri[0]['value']) && !empty($node->field_externaluri[0]['value'])) {
+    return check_url($node->field_externaluri[0]['value']);
+  } else {
+    return '/'.check_url(drupal_get_path_alias('node/'.$node->nid));
+  }
+}
+
+
 /*
  * Fonction temporaire
  * A supprimer!
