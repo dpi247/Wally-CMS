@@ -80,6 +80,7 @@ function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer,
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
+      $node->preview = TRUE;
     }
   }
 }
@@ -119,7 +120,9 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   }
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
+    
     if ($importer->wallymport_preview) {
+      $node->preview=TRUE;
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
      
       $prenode = new Prenode();
@@ -131,7 +134,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       prenode_save($form_state_prenode);
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $log['content'] =  $content;
+      $log['content'] =  'e'.$content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
@@ -2119,7 +2122,7 @@ function wallyimportpackage_node_set_field_textbody(&$node, $dom, &$log, $import
 }
 
 function wallyimportpackage_get_default_format(){
-  return "2";
+  return 2;
 }
 
 /**
@@ -2651,6 +2654,7 @@ function wallyimportpackage_node_set_field_entities(&$node, $dom, &$log, $import
 function wallyimportpackage_typetype_preprocess(&$node, $dom, $importer){
   if ($importer->wallymport_preview){
     $node->rejected = TRUE;
+    $node->preview = TRUE;
   }
 }
 
