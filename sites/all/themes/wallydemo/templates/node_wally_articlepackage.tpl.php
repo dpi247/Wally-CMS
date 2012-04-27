@@ -76,18 +76,15 @@ $node_id = $node->nid;
 $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
 $node_path = $aliases[0];
 
-
-
-
 /* R̩cup̩ration du chapeau de l'article -> $strapline
  * Le nombre de caract̬res attendus pour ce chapeau est sp̩cifi̩ dans $strapline_length
- * Si aucune limitation n'est attendue, laisser la valeur de $strapline_length �  0
+ * Si aucune limitation n'est attendue, laisser la valeur de $strapline_length �  0
  *
  * print($strapline);
  */
 
- $mainstory = $node->field_mainstory_nodes[0];
- if ($mainstory->type == "wally_textobject"){
+$mainstory = $node->field_mainstory_nodes[0];
+if ($mainstory->type == "wally_textobject"){
   node_build_content($mainstory, $teaser, $page);
   $strapline = $mainstory->field_textchapo[0]['safe'];
 } else {
@@ -102,7 +99,7 @@ $node_path = $aliases[0];
  *
  * 'filinfo' -> '00h00'
  * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publi̩ le 26/05 �  15h22'
+ * 'default' -> 'publi̩ le 26/05 �  15h22'
  *
  * print($date_edition);
  */
@@ -125,7 +122,6 @@ $byline="<p class=\"byline\">" .$mainstory->field_byline[0]['safe'] ."</p>";;
 $extract_short="<p class=\"extract_short\">" .$mainstory->field_extractshort[0]['safe'] ."</p>";;
 $extract_medium="<p class=\"extract_medium\">" .$mainstory->field_extractmedium[0]['safe'] ."</p>";
 
-
 $nb_comment = $node->comment_count;
 if ($nb_comment == 0) {
   $reagir = "r̩agir";
@@ -142,7 +138,6 @@ $socialSharingBaseUrl = wallydemo_get_social_sharing_base_url($mainDestination,$
 $socialSharingDomainAndPathUrl = $socialSharingBaseUrl."/".$node_path;
 $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
 
-
 ?>
 
 <div id="article">
@@ -151,7 +146,7 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
 	<?php if($bool_node_page):?>
 	
 	<ul class="liensutiles">
-		<li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer � \" title=\"Envoyer � \" width=\"19\" height=\"16\" />"); ?>
+		<li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer � \" title=\"Envoyer � \" width=\"19\" height=\"16\" />"); ?>
 		</li>
 		<li class="imprimer"><a href="javascript:window.print();"><img
 				src="/<?php echo $theme_path; ?>/images/ico_imprimer2.gif"
@@ -202,25 +197,19 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
 
 <?php
 	print $byline;
-	
 	print $chapeau;
 	print $signature;
 	print $date_edition;
 	print $date_systeme;
 	print $texte_article;
-	
-    print $extract_short;
+	print $extract_short;
 	print $extract_medium;
-	
 	print $bottom_html;
-	
-	
 ?>
 <h3>Tags</h3>
 <div>
 <?php
 print $htmltags_html; 
-
 ?>
 </div>
 
