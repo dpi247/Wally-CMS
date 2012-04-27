@@ -134,7 +134,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       prenode_save($form_state_prenode);
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $log['content'] =  'e'.$content;
+      $log['content'] =  $content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
