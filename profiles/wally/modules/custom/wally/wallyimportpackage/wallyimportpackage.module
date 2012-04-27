@@ -1051,7 +1051,11 @@ function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) 
       $node->field_mainstory[0]['nid'] = $object->nid;
     }
   } else {
+      echo '<pre>REJECT: '.$node->type.'  '.print_r($node->rejected,1).'</pre>';
+    
     $node->rejected = TRUE;
+      echo '<pre>REJECT: '.$node->type.'  '.print_r($node->rejected,1).'</pre>';
+        
   }
 }
 
