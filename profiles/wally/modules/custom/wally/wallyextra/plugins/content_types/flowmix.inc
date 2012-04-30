@@ -45,8 +45,8 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
     $feed = array();
     $cid = $settings['caid'];
     $default_theme = 'wallyct_flowmix';
-    $ajax = TRUE;
-  
+    $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
+
     $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
     
     if (is_string($feed))
@@ -583,6 +583,12 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     '#title'            => t('Theming Function Name'),
   );
   
+  $form['use_ajax'] = array(
+    '#type'             => 'checkbox',
+    '#title'            => t('Use AJAX loading'),
+    '#default_value'    => isset($settings->use_ajax) ? $settings->use_ajax : 1,
+  );
+  
   $form['caid'] = array (
     '#type'             => 'hidden',
     '#value'            => $settings->caid,
@@ -661,6 +667,7 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
   $defaults->own_schema = '';
   $defaults->override_theme = 0;
   $defaults->override_theme_text = '';
+  $defaults->use_ajax = 1;
   $defaults->caid = 'flowmix_'.time();
   $defaults->flows = array();
   
@@ -682,6 +689,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
       'own_schema',
       'override_theme',
       'override_theme_text',
+      'use_ajax',
       'caid',
       'reusable',
       'admin_title',
