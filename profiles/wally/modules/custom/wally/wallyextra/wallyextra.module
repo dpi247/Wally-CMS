@@ -404,8 +404,8 @@ function wallyextra_refresh_block($infos, $settings) {
  * @param $ajax {Boolean} telling whether or not to use AJAX load (default to FALSE, so you have to explicitely choose it).
  * @return Datas
  */
-function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin = '', $ajax = FALSE) {
-  $cached_datas = cache_get($cid, 'cache');
+function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin = '', $ajax = FALSE, $bypass_cache = FALSE) {
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // This cache doesn't exists, create it
@@ -423,6 +423,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
               'default_theme' => $default_theme,
               'plugin' => $plugin,
               'cid' => $cid,
+              'bypass_cache' => $bypass_cache,
             ),
           ),
         ),
@@ -471,9 +472,10 @@ function _wallyextra_content_types_ajax_callback() {
   $context = unserialize($_POST['context']);
   $default_theme = $_POST['default_theme'];
   $plugin = $_POST['plugin'];
+  $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
 
   // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
-  $cached_datas = cache_get($cid, 'cache');
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // Load plugin if necessary
