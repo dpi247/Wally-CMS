@@ -25,11 +25,50 @@ function cckdestinations_menu() {
   
   $items['admin/wally/cckdestinations/settings'] = array(
     'title' => t('CCKDestinations Settings'),
+    'description' => t('Manage settings used for destinations (ranks, layouts, autocomplete, multiple destinations)'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('cckdestinations_page_admin_form'),
+    'page arguments' => array('cckdestinations_page_multiple_destinations_form'),
     'access arguments' => array('administer destinations'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/cckdestinations.settings_admin.inc',
+  );
+  
+  $items['admin/wally/cckdestinations/settings/multipledests'] = array(
+    'title' => t('Multiple Destinations'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_page_multiple_destinations_form'),
+    'access arguments' => array('administer destinations'),
+    'file' => 'includes/cckdestinations.settings_admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  
+  $items['admin/wally/cckdestinations/settings/multipledests/delete'] = array(
+    'title' => t('Delete'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_page_multiple_destinations_delete_form'),
+    'access arguments' => array('administer destinations'),
+    'file' => 'includes/cckdestinations.settings_admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['admin/wally/cckdestinations/settings/rankslayouts'] = array(
+    'title' => t('Ranks and Layouts'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_page_ranks_layouts_form'),
+    'access arguments' => array('administer destinations'),
+    'file' => 'includes/cckdestinations.settings_admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/wally/cckdestinations/settings/autocomplete'] = array(
+    'title' => t('Taxonomy Autocomplete'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cckdestinations_page_taxonomy_autocomplete_form'),
+    'access arguments' => array('administer destinations'),
+    'file' => 'includes/cckdestinations.settings_admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
   );
   
   $items['admin/wally/cckdestinations/node'] = array(
@@ -1063,6 +1102,12 @@ function cckdestinations_theme() {
     'cckdestinations_autocomplete' => array(
       'arguments' => array('element' => NULL),
     ),
+    'cckdestinations_page_multiple_destinations_form' => array(
+      'arguments' => array('form' => array()),
+    ),
+    'cckdestinations_page_multiple_destinations_table_reals' => array(
+      'arguments' => array('element' => array()),
+    ),
   );
 }
 
@@ -1557,8 +1602,10 @@ function cckdestinations_autocomplete_merge_tags($terms, $vid, $multiple = TRUE)
         //if ($tid && in_array($term->tid,drupal_map_assoc(array_keys((taxonomy_get_children($tid,$vid)))))) {
           // Commas and quotes in terms are special cases, so encode 'em.
           $name = $term->name;
-          $tag_hierarchy = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
-          $name .= $multiple ? '' : ' ('.$tag_hierarchy.')';
+          if ($multiple) {
+            $tag_hierarchy = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
+            $name .= ' ('.$tag_hierarchy.')';
+          }
           if (preg_match('/,/', $term->name) || preg_match('/"/', $term->name)) {
             $name = '"'. preg_replace('/"/', '""', $name) .'"';
           }
@@ -1753,6 +1800,36 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $GLOBALS['devel_shutdown'] =  FALSE;
   print drupal_to_js(array('status' => TRUE, 'data' => $output));
   exit;
+}
+
+/**
+ * Get all mappings virtual dest/real destinations from DB
+ */
+function cckdestinations_get_multiple_dests() {
+  static $multi_dests = array();
+  static $processed = FALSE;
+  if (!$processed) {
+    $db_multi_dests = db_query("SELECT * FROM {cckdestinations_multiple_destinations}");
+    while($multi_dest = db_fetch_array($db_multi_dests)) {
+      while (is_string($multi_dest['reals'])) {
+        $multi_dest['reals'] = unserialize($multi_dest['reals']);
+      }
+      $multi_dests[$multi_dest['virtual']] = $multi_dest;
+    }
+    $processed = TRUE;
+  }
+  return $multi_dests;
+}
+
+/**
+ * Check wether a given destination is virtual and return the real destinations if it is
+ */
+function cckdestinations_is_virtual($dest_name) {
+  $multi_dests = cckdestinations_get_multiple_dests();
+  if (array_key_exists($dest_name, $multi_dests)) {
+    return $multi_dests[$dest_name]['reals'];
+  }
+  return FALSE;
 }
 
 function cckdestinations_force_dnc(&$node) {
