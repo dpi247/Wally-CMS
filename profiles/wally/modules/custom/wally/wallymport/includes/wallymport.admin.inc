@@ -7,35 +7,43 @@
  */
 
 /**
- * Settings form.
+ * List of existing importers
  */
-function wallymport_page_links_form($form_state, $importer_name){
-  
-  $importer = wallymport_getimporterbyname($importer_name);
+function wallymport_page_list_importers(){
+  $content = '';
+  $importers = wallymport_getimporters();
+  $yesno = array(t('No'), t('Yes'));
 
-  $form = array();
-  $dirs[] = $importer->source_directory_path;
-  $dirs[] = $importer->error_directory_path;
-  $dirs[] = $importer->done_directory_path;
-  
-  foreach($dirs as $dir){
-    if (file_check_directory($dir, 0)){
-      $form[$dir] = array(
-        '#type'        => 'fieldset',
-        '#title'       => t($dir),
-        '#collapsible' => TRUE,
-        '#collapsed'   => FALSE,
-      );
-      $files = file_scan_directory($dir, '.*\.zip', array('.', '..', 'CVS'), 0, FALSE);
-      foreach($files as $file){
-        $form[$dir][$file->basename]=array(
-          "#type"  => 'markup',
-          "#value" => '<a href="'.file_create_url($file->filename).'">'.$file->basename.'</a><br/>',
-        );
+  if ($importers != NULL){
+    $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Logs'),t('Operations'));
+    $rows = array();
+    foreach ($importers as $importer){
+      $logs = '';
+      $post = '';
+      if ($importer->processed_by_cron == 1){
+        $logs = ' (<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">logs</a>)';
       }
+      if ($importer->processed_by_post == 1){
+        $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
+      }
+      $rows[] = array(
+      $importer->importer_type,
+      $importer->name,
+      $importer->description,
+      $yesno[$importer->processed_by_post].$post,
+      $yesno[$importer->processed_by_cron].$logs,
+          '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
+          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
+          '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
+          '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
+          '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
+      );
     }
+    $content .= theme_table($header,$rows);
+  } else {
+    $content = t('There is no importer. To add one, click <a href = "/admin/wally/wallymport/settings/add">here</a>');
   }
-  return $form;
+  return $content;
 }
 
 /**
@@ -300,7 +308,6 @@ function wallymport_page_importer_form_submit($form, &$form_state){
  * Delete importer form.
  */
 function wallymport_page_importerdelete_form($form_state,$delete_id = NULL){
-  
   if ($delete_id != NULL){
     $form['wallymport']['#tree'] = TRUE;
     $form['wallymport']['iid'] = array(
@@ -332,53 +339,11 @@ function wallymport_page_importerdelete_form_submit($form,$form_state){
 }
 
 /**
- * administration page of wallymport
- */
-function wallymport_page_admin(){
-  $content = '';
-  if (db_table_exists('wallymport_importer')){
-    $importers = wallymport_getimporters();
-    $yesno = array(t('No'), t('Yes'));
-    
-    if ($importers != NULL){
-      $header = array(t('Importeur'),t('Name'),t('Description'),t('POST'), t('CRON'), t('Importer links'), t('URL to process folder'), t('URL to process file'), t('Logs'),t('Operations'));
-      $rows = array();
-      foreach ($importers as $importer){
-        $logs = '';
-        $post = '';
-        if ($importer->processed_by_cron == 1){
-          $logs = ' (<a href = "/admin/wally/wallymport/settings/log/'.$importer->iid.'">logs</a>)';
-        }
-        if ($importer->processed_by_post == 1){
-          $post = ' (<a href = "/wallymport/post/'.$importer->name.'">'.url('wallymport/post/'.$importer->name, array('absolute' => TRUE)).'</a>)';
-        }
-        $rows[] = array(
-          $importer->importer_type, 
-          $importer->name, 
-          $importer->description, 
-          $yesno[$importer->processed_by_post].$post,
-          $yesno[$importer->processed_by_cron].$logs,
-          '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
-          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
-          '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
-          '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
-          '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
-        );
-      }
-      $content .= theme_table($header,$rows);
-    } else {
-      $content = t('There is no importer. To add one, click <a href = "/admin/wally/wallymport/settings/add">here</a>');
-    }
-  } else {
-    $content = t('This module needs to be updated');
-  }
-  return $content;
-}
-
-/**
  * Importer logs
+ * 
  * @param $iid
- * importer id 
+ *   Importer id 
+ * 
  * @return page content
  */
 function wallymport_page_importer_logs($iid){
@@ -395,12 +360,15 @@ function wallymport_page_importer_logs($iid){
   }
   return $content;
 }
+
 /**
-* Importer logs
-* @param $iid
-* importer id
-* @return page content
-*/
+ * Importer logs
+ * 
+ * @param $iid
+ *   Importer id
+ * 
+ * @return page content
+ */
 function wallymport_page_importerlogs($iid){
   $importer = wallymport_getimporter($iid);
   $count_tot = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs}"));
@@ -422,4 +390,65 @@ function wallymport_page_importerlogs($iid){
   }
   drupal_set_message(t('@num_rows packages in the logs (500 visible)', array('@num_rows' => $count_tot['COUNT(*)'])));
   return theme_table($header,$rows);
+}
+
+/**
+ * Page with the links to the folders of the importer
+ */
+function wallymport_page_links_form($form_state, $importer_name){
+  $importer = wallymport_getimporterbyname($importer_name);
+
+  $form = array();
+  $dirs[] = $importer->source_directory_path;
+  $dirs[] = $importer->error_directory_path;
+  $dirs[] = $importer->done_directory_path;
+  
+  foreach($dirs as $dir){
+    if (file_check_directory($dir, 0)){
+      $form[$dir] = array(
+        '#type'        => 'fieldset',
+        '#title'       => t($dir),
+        '#collapsible' => TRUE,
+        '#collapsed'   => FALSE,
+      );
+      $files = file_scan_directory($dir, '.*\.zip', array('.', '..', 'CVS'), 0, FALSE);
+      foreach($files as $file){
+        $form[$dir][$file->basename]=array(
+          "#type"  => 'markup',
+          "#value" => '<a href="'.file_create_url($file->filename).'">'.$file->basename.'</a><br/>',
+        );
+      }
+    }
+  }
+  return $form;
+}
+
+/**
+ * General settings form for Wallymport
+ */
+function wallymport_page_general_settings_form($form_state) {
+  $form = array();
+  
+  $form['semaphore'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Semaphores'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['semaphore']['wallymport_process_folder_semaphore_duration'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Folder semaphore period'),
+    '#description' => t('Period during which the import folder with be locked (minutes)'),
+    '#default_value' => variable_get('wallymport_process_folder_semaphore_period', 5),
+  );
+  
+  $form['semaphore']['wallymport_process_file_semaphore_duration'] = array(
+    '#type' => 'textfield',
+    '#title' => t('File semaphore period'),
+    '#description' => t('Period during which a processed file with be locked (minutes)'),
+    '#default_value' => variable_get('wallymport_process_file_semaphore_period', 1),
+  );
+  
+  return system_settings_form($form);
 }
