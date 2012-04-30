@@ -27,20 +27,19 @@ function wallymport_menu() {
   //Admin settings Page
   $items['admin/wally/wallymport/settings'] = array(
     'title'            => t('Wally Import Settings'),
-    'page callback'    => 'wallymport_page_admin',
+    'page callback'    => 'wallymport_page_list_importers',
     'access arguments' => array('administer wallymport'),
-    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
+    'description'      => t('Manage importers and general settings'),
     'file'             => 'includes/wallymport.admin.inc',
   );
   
-  $items['admin/wally/wallymport/settings/general'] = array(
-    'title'            => t('General'),
-    'page callback'    => 'wallymport_page_admin',
+  $items['admin/wally/wallymport/settings/list'] = array(
+    'title'            => t('Importers list'),
+    'page callback'    => 'wallymport_page_list_importers',
     'access arguments' => array('administer wallymport'),
-    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
     'file'             => 'includes/wallymport.admin.inc',
-    'weight'           => -3,
     'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 0,
   );
   
   //Page to create an importer
@@ -49,9 +48,20 @@ function wallymport_menu() {
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('wallymport_page_importer_form'),
     'access arguments' => array('administer wallymport'),
-    'description'      => t('Allows administrators to create a new importer.'),
     'file'             => 'includes/wallymport.admin.inc',
     'type'             => MENU_LOCAL_TASK,
+    'weight'           => 1,
+  );
+  
+  //Page to create an importer
+  $items['admin/wally/wallymport/settings/general'] = array(
+    'title'            => t('General settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_general_settings_form'),
+    'access arguments' => array('administer wallymport'),
+    'file'             => 'includes/wallymport.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
   );
   
   //Page to edit an importer
@@ -283,28 +293,18 @@ function wallymport_page_destinations_items($short = FALSE) {
  *   Response about the success or failure of import.
  */
 function wallymport_check_process_folder($importer_name) {
-  // Try to allocate enough time to run import process.
-  if (function_exists('set_time_limit')) {
-    @set_time_limit(60);
-  }
-  $returns = array();
   // Fetch the cron semaphore
   $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
+  $semaphore_period = variable_get('wallymport_process_folder_semaphore_period', 5);
 
-  if ($semaphore) {
-    if (time() - $semaphore > 60) {
-      // Either cron has been running for more than an hour or the semaphore
-      // was not reset due to a database error.
-      watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
+  // Try to allocate enough time to run import process.
+  if (function_exists('set_time_limit')) {
+    @set_time_limit(60 * $semaphore_period);
+  }
+  $returns = array();
 
-      // Release cron semaphore
-      variable_del('wallymport_process_folder_semaphore');
-    } else {
-      // Cron is still running normally.
-      watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
-    }
-
-    $returns[] = array('error' => TRUE, 'error_msg' => t('Process folder task has been running for more than an hour and is most likely stuck.'));
+  if ($tmp_return = wimprt_check_semaphore('wallymport_process_folder_semaphore', $semaphore_period, 'folder')) {
+    $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
     register_shutdown_function('wallymport_process_folder_cleanup');
@@ -312,7 +312,6 @@ function wallymport_check_process_folder($importer_name) {
     // Lock cron semaphore
     variable_set('wallymport_process_folder_semaphore', time());
 
-    // Call the function calling the RSS feeds
     $importer = wallymport_getimporterbyname($importer_name);
     if ($importer != NULL){
       $returns = wallymport_process_folder($importer);
@@ -320,14 +319,14 @@ function wallymport_check_process_folder($importer_name) {
       //Unknown importer
       $returns[] = array('error' => TRUE, 'error_msg' => t('Unknown importer'));
     }
+
     // Record cron time
     variable_set('wallymport_process_folder_last', time());
-    // watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
 
     // Release cron semaphore
     variable_del('wallymport_process_folder_semaphore');
-    
   }
+
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
@@ -346,36 +345,29 @@ function wallymport_check_process_folder($importer_name) {
  *   Response about the success or failure of import.
  */
 function wallymport_check_process_file($importer_name, $file_name) {
+  // Fetch the cron semaphores
+  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
+  $semaphore_period = variable_get('wallymport_process_folder_semaphore_period', 5);
+  $file_semaphore = variable_get('wallymport_process_file_semaphore_'.$file_name, FALSE);
+  $file_semaphore_period = variable_get('wallymport_process_file_semaphore_period', 1);
+
   // Try to allocate enough time to run import process.
   if (function_exists('set_time_limit')) {
-    @set_time_limit(60);
+    @set_time_limit(60 * $file_semaphore_period);
   }
   $returns = array();
-  // Fetch the cron semaphore
-  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
 
-  if ($semaphore) {
-    if (time() - $semaphore > 60) {
-      // Either cron has been running for more than an hour or the semaphore
-      // was not reset due to a database error.
-      watchdog('Wallymport', 'Process folder task has been running for more than an hour and is most likely stuck.', array(), WATCHDOG_ERROR);
-
-      // Release cron semaphore
-      variable_del('wallymport_process_folder_semaphore');
-    } else {
-      // Cron is still running normally.
-      watchdog('Wallymport', 'Attempting to re-run process folder task while it is already running.', array(), WATCHDOG_WARNING);
-    }
-    $returns[] = array('error' => TRUE, 'error_msg' => t('Process folder task has been running for more than an hour and is most likely stuck.'));
+  if ($tmp_return = wimprt_check_semaphore('wallymport_process_folder_semaphore', $semaphore_period, 'folder')) {
+    $returns[] = $tmp_return;
+  } elseif ($tmp_return = wimprt_check_semaphore('wallymport_process_file_semaphore_'.$file_name, $file_semaphore_period, 'file')) {
+    $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
     register_shutdown_function('wallymport_process_folder_cleanup');
 
     // Lock cron semaphore
-    variable_set('wallymport_process_folder_semaphore', time());
-    
-    // Call the function calling the RSS feeds
-    
+    variable_set('wallymport_process_file_semaphore_'.$file_name, time());
+
     $importer = wallymport_getimporterbyname($importer_name);
     if ($importer != NULL){
       $returns = wallymport_process_file($importer, $file_name);
@@ -383,18 +375,11 @@ function wallymport_check_process_file($importer_name, $file_name) {
       //Unknown importer
       $returns[] = array('error' => TRUE, 'error_msg' => t('Unknown importer'));
     }
-    // Record cron time
-    variable_set('wallymport_process_folder_last', time());
-    // watchdog('Wallymport', 'Process folder task completed.', array(), WATCHDOG_NOTICE);
 
     // Release cron semaphore
-    variable_del('wallymport_process_folder_semaphore');
-    
-    /**
-    * @todo Remove print in production mode OR check the "log" mode or import settings.
-    */
-    
+    variable_del('wallymport_process_file_semaphore_'.$file_name);
   }
+
   $content = '';
   foreach ($returns as $return){
     $return['date'] = time();
@@ -1137,6 +1122,35 @@ function wimprt_node_create_or_load($dom, $importer, $callback, &$log){
     }
   }
   return $node;
+}
+
+/**
+ * Check a semaphore value and period
+ */
+function wimprt_check_semaphore($semaphore_name, $semaphore_period, $type) {
+  $semaphore = variable_get($semaphore_name, FALSE);
+
+  if ($semaphore) {
+    if ((time() - $semaphore) > (60 * $semaphore_period)) {
+      $msg = t('Process @type task has been running for more than @period minutes and is most likely stuck.', array('@type' => $type, '@period' => $semaphore_period));
+
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      watchdog('Wallymport', $msg, array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del($semaphore_name);
+    } else {
+      $msg = t('Attempting to re-run process @type task while it is already running.', array('@type' => $type));
+
+      // Cron is still running normally.
+      watchdog('Wallymport', $msg, array(), WATCHDOG_WARNING);
+    }
+
+    return array('error' => TRUE, 'error_msg' => $msg);
+  } else {
+    return FALSE;
+  }
 }
 
 function wallymport_page_test($importeur){
