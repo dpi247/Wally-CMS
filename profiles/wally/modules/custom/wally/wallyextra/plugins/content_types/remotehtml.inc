@@ -54,6 +54,12 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
     '#default_value'    => isset($settings['use_ajax']) ? $settings['use_ajax'] : 1,
   );
   
+  $form['bypass_cache'] = array(
+    '#type'             => 'checkbox',
+    '#title'            => t('Bypass cache'),
+    '#default_value'    => isset($settings['bypass_cache']) ? $settings['bypass_cache'] : 0,
+  );
+  
   $form['caid'] = array (
     '#type'             => 'hidden',
     '#value'            => $settings['caid'],
@@ -136,6 +142,7 @@ function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['conf']['override_theme']=$form['override_theme']['#value'];
     $form_state['conf']['override_theme_text']=$form['override_theme_text']['#value'];
     $form_state['conf']['use_ajax']=$form['use_ajax']['#value'];
+    $form_state['conf']['bypass_cache']=$form['bypass_cache']['#value'];
     $form_state['conf']['caid'] = $form['caid']['#value'];
   }
 }
@@ -382,6 +389,7 @@ function _wallyextra_remotehtml_defaultformvalues() {
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
   $default_form_values['use_ajax'] = 1;
+  $default_form_values['bypass_cache'] = 0;
   $default_form_values['caid'] = 'remotehtml_'.time();
 
   return $default_form_values;

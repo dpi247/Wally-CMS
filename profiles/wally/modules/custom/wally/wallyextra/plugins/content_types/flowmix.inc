@@ -46,8 +46,9 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
     $cid = $settings['caid'];
     $default_theme = 'wallyct_flowmix';
     $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
+    $bypass_cache = isset($settings['bypass_cache']) ? $settings['bypass_cache'] : FALSE;
 
-    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax);
+    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax, $bypass_cache);
     
     if (is_string($feed))
       $block->content = $feed;
@@ -589,6 +590,12 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     '#default_value'    => isset($settings->use_ajax) ? $settings->use_ajax : 1,
   );
   
+  $form['bypass_cache'] = array(
+    '#type'             => 'checkbox',
+    '#title'            => t('Bypass cache'),
+    '#default_value'    => isset($settings->bypass_cache) ? $settings->bypass_cache : 0,
+  );
+  
   $form['caid'] = array (
     '#type'             => 'hidden',
     '#value'            => $settings->caid,
@@ -668,6 +675,7 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
   $defaults->override_theme = 0;
   $defaults->override_theme_text = '';
   $defaults->use_ajax = 1;
+  $defaults->bypass_cache = 0;
   $defaults->caid = 'flowmix_'.time();
   $defaults->flows = array();
   
@@ -690,6 +698,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
       'override_theme',
       'override_theme_text',
       'use_ajax',
+      'bypass_cache',
       'caid',
       'reusable',
       'admin_title',
