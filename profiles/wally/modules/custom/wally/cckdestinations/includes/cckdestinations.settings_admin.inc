@@ -7,24 +7,132 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
   $form = array();
 
   $current_multiple_dests = cckdestinations_get_multiple_dests();
-  
+
   $form['rows'] = array();
-  
+
   foreach ($current_multiple_dests as $cur_multi_dest) {
     $form['rows'][$cur_multi_dest['id']]['name'] = array(
       '#type' => 'markup',
       '#value' => $cur_multi_dest['virtual'],
     );
-    
+
     $form['rows'][$cur_multi_dest['id']]['reals'] = array(
       '#type' => 'markup',
       '#value' => $cur_multi_dest['reals'],
+      '#theme' => 'cckdestinations_page_multiple_destinations_table_reals',
     );
   }
-  
+
+  if ($op == 'edit' && $key && isset($current_multiple_dests[$key])) {
+    $edit_reals = $current_multiple_dests[$key]['reals'];
+    foreach ($edit_reals as $edit_real) {
+      $defaults_reals[$edit_real['tid']] = (object)$edit_real;
+    }
+    $dest_vid = variable_get('wallymport_destinationpath', 0);
+    $default_reals = cckdestinations_autocomplete_merge_tags($defaults_reals, $dest_vid);
+    $defaults = array(
+      'name' => $key,
+      'reals' => $default_reals,
+    );
+
+    $form['edit_id'] = array(
+      '#type' => 'hidden',
+      '#value' => $current_multiple_dests[$key]['id'],
+    );
+  } else {
+    $defaults = array(
+      'name' => '',
+      'reals' => '',
+    );
+  }
+
+  $form['new'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Add new'),
+  );
+
+  $form['new']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#default_value' => $defaults['name'],
+    '#required' => TRUE,
+  );
+
+  $form['new']['reals'] = array(
+    '#type' => 'cckdestinations_autocomplete',
+    '#title' => t('Real destinations'),
+    '#description' => t('You can enter more than one value'),
+    '#default_value' => $defaults,
+    '#required' => TRUE,
+    '#vid' => variable_get('wallymport_destinationpath', 0),
+    '#multiple' => TRUE,
+  );
+
+  $form['new']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
   $form['#theme'] = 'cckdestinations_page_multiple_destinations_form';
-  
+  $form['#redirect'] = 'admin/wally/cckdestinations/settings/multipledests';
+
   return $form;
+}
+
+function cckdestinations_page_multiple_destinations_form_validate($form, $form_state) {
+  $values = $form_state['values'];
+  $dest_vid = variable_get('wallymport_destinationpath', '');
+  if (wallytoolbox_taxonomy_get_path_by_tid_or_term($values['name'], $dest_vid)) {
+    form_set_error('name', t('This is name already exists as real destination'));
+  }
+}
+
+function cckdestinations_page_multiple_destinations_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+  $mapping = array(
+    'virtual' => $values['name'],
+  );
+  foreach ($values['reals'] as $tid) {
+    $term = (array)taxonomy_get_term($tid);
+    $term['hierarchic_name'] = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
+    $mapping['reals'][$tid] = $term;
+  }
+  if (isset($form['edit_id'])) {
+    $mapping['id'] = $form['edit_id']['#value'];
+    drupal_write_record('cckdestinations_multiple_destinations', $mapping, array('id'));
+  } else {
+    drupal_write_record('cckdestinations_multiple_destinations', $mapping);
+  }
+}
+
+/**
+ * Delete an existing multiple destination
+ */
+function cckdestinations_page_multiple_destinations_delete_form($form_state, $key) {
+  $question = t('Are you sure you want to delete virtual destination "@name"?', array('@name' => $key));
+
+  $add_form = array();
+  $add_form['key'] = array(
+    '#type' => 'value',
+    '#value' => $key,
+  );
+
+  $form = confirm_form($add_form, $question, 'admin/wally/cckdestinations/settings/multipledests');
+  $form['#redirect'] = 'admin/wally/cckdestinations/settings/multipledests';
+
+  return $form;
+}
+
+function cckdestinations_page_multiple_destinations_delete_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+  $key = $values['key'];
+
+  if (db_result(db_query('SELECT * FROM {cckdestinations_multiple_destinations} WHERE virtual = "%s"', $key))) {
+    db_query('DELETE FROM {cckdestinations_multiple_destinations} WHERE virtual = "%s"', $key);
+    drupal_set_message(t('Virtual destination deleted'));
+  } else {
+    drupal_set_message(t('No virtual destination matching the requested key.'), 'warning');
+  }
 }
 
 /**
@@ -250,19 +358,20 @@ function cckdestinations_page_taxonomy_autocomplete_form_validate($form, &$form_
 }
 
 function theme_cckdestinations_page_multiple_destinations_form($form) {
-  if (!isset($form['rows']) || empty(element_children($form['rows']))) {
+  $rows_id = element_children($form['rows']);
+  if (!isset($form['rows']) || empty($rows_id)) {
     drupal_set_message(t('No multiple destination defined'));
     $output = '';
   } else {
     $rows = array();
-    foreach(element_children($form['rows']) as $row_id) {
+    foreach($rows_id as $row_id) {
       $rows[] = array(
         drupal_render($form['rows'][$row_id]['name']),
         drupal_render($form['rows'][$row_id]['reals']),
-        _cckdestinations_multiple_destinations_table_operations($row_id),
+        _cckdestinations_multiple_destinations_table_operations($form['rows'][$row_id]['name']['#value']),
       );
     }
-  
+
     //Make sure the header count matches the column count
     $header = array(
       t('Virtual destinations'), t('Mapped real destinations'), t('Operations'),
@@ -276,9 +385,19 @@ function theme_cckdestinations_page_multiple_destinations_form($form) {
   return $output;
 }
 
+function theme_cckdestinations_page_multiple_destinations_table_reals($element) {
+  $items = $element['#value'];
+  $ret = '';
+  foreach ($items as $item) {
+    $ret .= '<b>'.$item['name'].'</b>';
+    $ret .= ' ('.$item['hierarchic_name'].')<br>';
+  }
+  return $ret;
+}
+
 function _cckdestinations_multiple_destinations_table_operations($id) {
-  $return = l('Edit', 'admin/wally/cckdestinations/settings/multipledests/edit/'.$id['rss_key']).' ';
-  $return .= l('Delete', 'admin/wally/cckdestinations/settings/multipledests/delete/'.$id['rss_key']);
+  $return = l('Edit', 'admin/wally/cckdestinations/settings/multipledests/edit/'.$id).' ';
+  $return .= l('Delete', 'admin/wally/cckdestinations/settings/multipledests/delete/'.$id);
   
   return $return;
 }
