@@ -679,16 +679,16 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
   $vid = variable_get('wallymport_destinationpath',NULL);
   if ($vid) {
     $hook_is_empty = 'cckdestinations_content_is_empty';
-    $check_double = $temp_result = array();
+    $temp_results = $temp_result = array();
     $i = 0;
+
+    $multiple_destinations = cckdestinations_get_multiple_dests();
+    $hierarchies = wallyctools_get_hierarchies();
 
     foreach($dom->getElementsByTagName('Destination') as $destination) {
       $path = $destination->getElementsByTagName("DestinationPath")->item(0)->nodeValue;
       $terms = wallytoolbox_taxonomy_get_term_by_path($path, $vid);
-      if ($terms) {
-        // As we check the taxonomy full path and specify a vocabulary
-        // we can only have one result.
-        $temp_result['tid'] = $terms[0]->tid;
+      if ($terms || array_key_exists($path, $multiple_destinations)) {
         if ($destination->hasAttribute("Position")) {
           $temp_result['target'] = $destination->getAttributeNode("Position")->value;
           $temp_result['layout'] = $destination->getAttributeNode("DocumentLayout")->value;
@@ -698,24 +698,45 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
           $temp_result['layout'] = 'none';
           $temp_result['rank'] = 0;
         }
-
-        if (!in_array($temp_result['tid'].':'.$temp_result['target'], $check_double)) {
-          $check_double[] = $temp_result['tid'].':'.$temp_result['target'];
-
-          if ($actual_dest = _wallyimportpackage_find_destination($node->field_destinations, $temp_result)) {
-            $temp_result['rank'] = (($actual_dest['rank'] == $temp_result['rank']) || ($temp_result['rank'] == 'DNC')) ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
-            $temp_result['time_rank'] = $actual_dest['time_rank'];
-          }
-          
-          if ($temp_result['rank'] == 'DNC') {
-            $temp_result['rank'] = 0;
-          }
-
-          $result[$i] = $temp_result;
+        
+        if ($terms) {
+          // As we check the taxonomy full path and specify a vocabulary
+          // we can only have one result.
+          $temp_result['tid'] = $terms[0]->tid;
+          $temp_results[$i] = $temp_result;
           $i++;
+        } else {
+          foreach ($multiple_destinations[$path]['reals'] as $term) {
+            if (isset($hierarchies[$term['tid']]['redacblocks'][$temp_result['target']])) {
+              $real_dest = $temp_result;
+              $real_dest['tid'] = $term['tid'];
+              $temp_results[$i] = $real_dest;
+              $i++;
+            }
+          }
         }
       } else {
-        drupal_set_message('Path "'.$path.'" not found in vocabulary ('.$vid.'). Destination rejected.','notice');
+        drupal_set_message(t('Path "@path" not found in vocabulary (@vid). Destination rejected.', array('@path' => $path, '@vid' => $vid)), 'notice');
+      }
+    }
+
+    $check_double = array();
+    $i = 0;
+    foreach ($temp_results as $temp_result) {
+      if (!in_array($temp_result['tid'].':'.$temp_result['target'], $check_double)) {
+        $check_double[] = $temp_result['tid'].':'.$temp_result['target'];
+
+        if ($actual_dest = _wallyimportpackage_find_destination($node->field_destinations, $temp_result)) {
+          $temp_result['rank'] = (($actual_dest['rank'] == $temp_result['rank']) || ($temp_result['rank'] == 'DNC')) ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
+          $temp_result['time_rank'] = $actual_dest['time_rank'];
+        }
+
+        if ($temp_result['rank'] == 'DNC') {
+          $temp_result['rank'] = 0;
+        }
+
+        $result[$i] = $temp_result;
+        $i++;
       }
     }
 
