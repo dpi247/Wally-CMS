@@ -23,12 +23,12 @@ function updateList() {
 		lay = taxo.replace(str_to_replace, "layout");
 		var selected_targ = $("#"+targ).find("option:selected").attr("value");
 		var selected_lay = $("#"+lay).find("option:selected").attr("value");
-		makeSublist(taxo, targ, true, selected_targ);
-		makeSublist(targ, lay, true, selected_lay);
+		makeSublist(taxo, targ, selected_targ);
+		makeSublist(targ, lay, selected_lay);
 	});
 }
 
-function makeSublist(parent, child, isSubselectOptional, childVal) {
+function makeSublist(parent, child, childVal) {
 	if ($("#"+parent+child).length==0) {
 		$("body").append("<select style='display:none' id='"+parent+child+"'></select>");
 		$("#"+parent+child).html($("#"+child+" option"));
@@ -44,9 +44,6 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 	}
 	
 	$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-	//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
-		//$("#"+child).prepend("<option value=''> -- Select -- </option>");
-	//}
 	childVal = (typeof childVal == "undefined") ? "" : childVal ;
 	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 
@@ -62,14 +59,26 @@ function makeSublist(parent, child, isSubselectOptional, childVal) {
 			}
 
 			$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-			//if(typeof parentValue != "undefined" && parentValue != "0" && isSubselectOptional) {
-				//$("#"+child).prepend("<option value=''> -- Select -- </option>");
-			//}
 			childVal = (typeof childVal == "undefined") ? "" : childVal ;
 			$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 			$("#"+child).trigger("change");
-			//$("#"+child).focus();
 		}
+	});
+	
+	$("#"+parent).bind("change", function(event) {
+		if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
+			var parentValue = $("#"+parent).find("option:selected").attr("title");
+		} else {
+			var term_value = $("#"+parent).val();
+			term_value = term_value.substring(0, term_value.length - 1);
+			var expl_term_value = term_value.split('[');
+			var parentValue = expl_term_value[expl_term_value.length - 1];
+		}
+
+		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
+		childVal = (typeof childVal == "undefined") ? "" : childVal ;
+		$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
+		$("#"+child).trigger("change");
 	});
 }
 
