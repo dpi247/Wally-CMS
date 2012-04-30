@@ -21,6 +21,10 @@ function cckdestinations_install(){
   } else {
     db_query("UPDATE {system} SET weight = 1 WHERE name = 'cckdestinations'");
   }
+  
+  if (!db_table_exists('cckdestinations_multiple_destinations')) {
+    drupal_install_schema('cckdestinations');
+  }
 }
 
 /**
@@ -46,6 +50,40 @@ function cckdestinations_enable(){
  */
 function cckdestinations_disable(){
   content_notify('disable', 'destinationsfield');
+}
+
+/**
+ * Implementation of hook_schema
+ */
+function cckdestinations_schema() {
+  $schema = array();
+
+  $schema['cckdestinations_multiple_destinations'] = array(
+    'description' => 'Contains the mapping between virtual destinations and real destinations',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'virtual' => array(
+        'type' => 'varchar',
+        'length' => 255, 
+        'not null' => TRUE,
+        'description' => 'The virtual destination name',
+      ),
+      'reals' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized informations about mapped real destinations',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
 }
 
 /**
@@ -110,4 +148,15 @@ function cckdestinations_update_6003() {
   }
   
   return array();
+}
+
+/**
+ * Implementation of hook_update_N
+ * Install table cckdestinations_multiple_destinations
+ */
+function cckdestinations_update_6004() {
+  $ret = array();
+  $schemas = cckdestinations_schema();
+  db_create_table($ret, 'cckdestinations_multiple_destinations', $schemas['cckdestinations_multiple_destinations']);
+  return $ret;
 }
