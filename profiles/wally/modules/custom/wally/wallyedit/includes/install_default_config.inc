@@ -812,3 +812,9 @@ $wallyedit_tabs = array(
   array('tid'=>73,'pid'=>1,'content_type'=>'wally_pollpackage','name'=>'medias_1334835498','label'=>'Medias','weight'=>-3,'erasable'=>1),
   array('tid'=>74,'pid'=>1,'content_type'=>'wally_pollpackage','name'=>'liens_1334835502','label'=>'Liens','weight'=>-2,'erasable'=>1)
 );
+
+global $wallyedit_variables;
+$wallyedit_variables = array(
+  array('name'=>'wallyedit_content_types_interface_type_2','value'=>'a:15:{s:17:"wally_audioobject";s:5:"wally";s:19:"wally_digitalobject";s:5:"wally";s:21:"wally_linkslistobject";s:5:"wally";s:17:"wally_photoobject";s:5:"wally";s:16:"wally_pollobject";s:5:"wally";s:16:"wally_textobject";s:5:"wally";s:17:"wally_videoobject";s:5:"wally";s:20:"wally_articlepackage";s:5:"wally";s:20:"wally_gallerypackage";s:5:"wally";s:17:"wally_pollpackage";s:5:"wally";s:4:"page";s:5:"wally";s:16:"wally_entitytype";s:5:"wally";s:14:"wally_linktype";s:5:"wally";s:18:"wally_locationtype";s:5:"wally";s:16:"wally_persontype";s:5:"wally";}'),
+  array('name'=>'wallyedit_content_types_interface_type_1','value'=>'a:15:{s:17:"wally_audioobject";s:5:"wally";s:19:"wally_digitalobject";s:5:"wally";s:21:"wally_linkslistobject";s:5:"wally";s:17:"wally_photoobject";s:5:"wally";s:16:"wally_pollobject";s:5:"wally";s:16:"wally_textobject";s:5:"wally";s:17:"wally_videoobject";s:5:"wally";s:20:"wally_articlepackage";s:5:"wally";s:20:"wally_gallerypackage";s:5:"wally";s:17:"wally_pollpackage";s:5:"wally";s:4:"page";s:5:"wally";s:16:"wally_entitytype";s:5:"wally";s:14:"wally_linktype";s:5:"wally";s:18:"wally_locationtype";s:5:"wally";s:16:"wally_persontype";s:5:"wally";}')
+);
