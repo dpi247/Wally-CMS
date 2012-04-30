@@ -48,6 +48,12 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
     '#title'            => 'Theming Function Name',
   );
   
+  $form['use_ajax'] = array(
+    '#type'             => 'checkbox',
+    '#title'            => t('Use AJAX loading'),
+    '#default_value'    => isset($settings['use_ajax']) ? $settings['use_ajax'] : 1,
+  );
+  
   $form['caid'] = array (
     '#type'             => 'hidden',
     '#value'            => $settings['caid'],
@@ -123,11 +129,13 @@ function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_stat
     _wallyextra_remotehtml_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
   } else {
+    //@todo WTF #value?? => remplacer par $form_state['values']
     // Otherwise, just save values into $conf normally.
     cache_clear_all($cid = $form['caid']['#value'], $table = 'cache');
     $form_state['conf']['uri']=$form['uri']['#value'];
     $form_state['conf']['override_theme']=$form['override_theme']['#value'];
     $form_state['conf']['override_theme_text']=$form['override_theme_text']['#value'];
+    $form_state['conf']['use_ajax']=$form['use_ajax']['#value'];
     $form_state['conf']['caid'] = $form['caid']['#value'];
   }
 }
@@ -272,8 +280,9 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->module = 'wallyextra';
   $block->title = 'HTML Block';
   $cid = $settings['caid'];
+  $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
 
-  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', drupal_get_path('module', 'wallyextra').'/plugins/content_types/remotehtml.inc', TRUE);
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', drupal_get_path('module', 'wallyextra').'/plugins/content_types/remotehtml.inc', $ajax);
   
   if (is_string($htmlblock))
     $block->content = $htmlblock;
@@ -372,6 +381,7 @@ function _wallyextra_remotehtml_defaultformvalues() {
   $default_form_values['uri'] = '';
   $default_form_values['override_theme'] = 0;
   $default_form_values['override_theme_text'] = '';
+  $default_form_values['use_ajax'] = 1;
   $default_form_values['caid'] = 'remotehtml_'.time();
 
   return $default_form_values;
