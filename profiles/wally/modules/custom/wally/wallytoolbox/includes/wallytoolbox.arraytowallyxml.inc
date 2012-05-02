@@ -101,9 +101,9 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
   $package_node->setAttribute('Language', $package_array['Language']);
   $package_node->setAttribute('Version', $package_array['Version']);
   $package_node->setAttribute('Action', 'CreateUpdate');
+  $package_node->setAttribute('ForceLastUpdate', 'true');
   
   $package_node->appendChild($valid_dom->createElement('ProductID', $package_array['ProductID']['value']));
-  
   $package_node->appendChild($valid_dom->createElement('PackageTitle', $package_array['PackageTitle']['value']));
   $package_node->appendChild($valid_dom->createElement('PackageDescription', $package_array['PackageDescription']['value']));
   $package_node->appendChild($valid_dom->createElement('InternalReference', $package_array['InternalReference']['value']));
@@ -247,7 +247,6 @@ function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_no
     if (isset($links_array['Link'])){
       foreach ($links_array['Link'] as $link_array){
         $link_node = $links_node->appendChild($valid_dom->createElement('Link'));
-        $link_node->appendChild($valid_dom->createElement('InternalReference', $link_array['InternalReference']['value']));
         $link_node->appendChild($valid_dom->createElement('ExternalReference', $link_array['ExternalReference']['value']));  
         $link_node->appendChild($valid_dom->createElement('Title', $link_array['Title']['value']));  
         $link_node->appendChild($valid_dom->createElement('Description', $link_array['Description']['value']));  
@@ -286,7 +285,6 @@ function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node
   }
 
   $object_node->appendChild($valid_dom->createElement('Copyright', $object_array['Copyright']['value'])); 
-  $object_node->appendChild($valid_dom->createElement('ByLine', $object_array['ByLine']['value']));
   
   if (isset($object_array['EmbeddedObjectsOrder']) & $object_array['EmbeddedObjectsOrder'] != NULL & $object_array['EmbeddedObjectsOrder'] != ''){
     $object_node->appendChild($valid_dom->createElement('EmbeddedObjectsOrder', $object_array['EmbeddedObjectsOrder']['value']));
@@ -326,6 +324,8 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
   $text_extmed_node->appendChild($valid_dom->createCDATASection($mainstory_array['ExtractMedium']['value']));
   $text_extshort_node = $mainstory_node->appendChild($valid_dom->createElement('ExtractShort'));
   $text_extshort_node->appendChild($valid_dom->createCDATASection($mainstory_array['ExtractShort']['value']));
+  $text_byline_node = $mainstory_node->appendChild($valid_dom->createElement('ByLine'));
+  $text_byline_node->appendChild($valid_dom->createCDATASection($mainstory_array['ByLine']['value']));
 }
 
 /**
@@ -343,7 +343,7 @@ function _wallytoolbox_arraytowallyxml_fillTextObjectType(&$valid_dom, &$mainsto
  */
 function _wallytoolbox_arraytowallyxml_fillMultimediaObjectType(&$valid_dom, &$object_node, $object_array){
   $object_node->appendChild($valid_dom->createElement('Caption', $object_array['Caption']['value']));
-  $object_node->appendChild($valid_dom->createElement('FileURI', $object_array['FileURI']['value']));
+  $object_node->appendChild($valid_dom->createElement('URI', $object_array['FileURI']['value']));
   
   if ($object_array['FileSize']['value'] == '' | $object_array['FileSize']['value'] == NULL){
     $object_array['FileSize']['value'] = 0;
@@ -550,7 +550,9 @@ function _wallytoolbox_arraytowallyxml_fillVideoObjectType(&$valid_dom, &$object
  *   $valid_dom
  */
 function _wallytoolbox_arraytowallyxml_fillPollObjectType($valid_dom, $object_node, $object_array){
-  $object_node->appendChild($valid_dom->createElement('Summary',$object_array['Summary']['value']));
+  $poll_polltitle_node = $object_node->appendChild($valid_dom->createElement('PollTitle'));
+  $poll_polltitle_node->appendChild($valid_dom->createCDATASection($object_array['Title']['value']));
+  $object_node->appendChild($valid_dom->createElement('Body',$object_array['Summary']['value']));
   $object_node->appendChild($valid_dom->createElement('DateOpen',$object_array['DateOpen']['value']));
   if (isset($object_array['DateClose']) & $object_array['DateClose']['value'] != NULL & $object_array['DateClose']['value'] != ''){
     $object_node->appendChild($valid_dom->createElement('DateClose',$object_array['DateClose']['value']));
