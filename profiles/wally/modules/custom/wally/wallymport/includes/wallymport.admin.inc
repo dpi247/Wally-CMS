@@ -292,7 +292,7 @@ function wallymport_page_importer_form_submit($form, &$form_state){
     $message = 'The importer as not been created/udpated';
   }
   drupal_set_message(t($message));
-  drupal_goto('admin/wally/wallymport/settings/general');
+  drupal_goto('admin/wally/wallymport/settings/list');
 }
 
 /**
