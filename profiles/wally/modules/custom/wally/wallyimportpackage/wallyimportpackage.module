@@ -1544,7 +1544,7 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
 
