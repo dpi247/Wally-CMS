@@ -121,26 +121,16 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
       $node->preview = TRUE;
-      
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
-      
-      
-      
+
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name,'disabled');
       
       $return['content'] = $content;
-    /* 
-      if (variable_get('wallymport_debug',0) or TRUE){
-        $file_name=file_directory_temp()."/file".time().".xml";
-        $dom->save($file_name);
-        $log['log'][] = 'XML: '.file_get_contents($file_name);
-      }
-      */
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
     } else {
@@ -1180,7 +1170,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $arraytemporaire = array();
   $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
   foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
-    if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+    if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
       $results[$result->nid] = $result->nid;
       $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
       if ($importer->wallymport_preview){
@@ -1204,7 +1194,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   if ($dom->getElementsByTagName('LinksList')->item(0)){
     if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
       foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result) {
-        if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+        if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
           if ($importer->wallymport_preview){
