@@ -409,6 +409,13 @@ function wallydemo_preprocess_node(&$vars) {
       $vars['bool_node_page']=true;
       //node_build_content($node);
       //wallycontenttypes_packagepopulate($node);
+      
+      if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+        foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+          // Fake nid in case of preview
+          $node->field_embededobjects_nodes[$delta]->nid = $delta;
+        }
+      }
 
       wallydemo_preprocess_node_build_embedded_links($vars);
       wallydemo_preprocess_node_build_embedded_photos($vars);
