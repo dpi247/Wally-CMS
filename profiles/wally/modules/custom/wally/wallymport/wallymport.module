@@ -216,6 +216,18 @@ function wallymport_theme(){
 }
 
 /**
+ * Implementation of hook_panels_pane_content_alter
+ * Remove admin links in case of preview
+ */
+function wallymport_panels_pane_content_alter(&$content, $pane, $panel_args, $context) {
+  if ($pane->type == 'node_content') {
+    if (array_key_exists('argument_nid_1', $context) && isset($context['argument_nid_1']->data->preview) && $context['argument_nid_1']->data->preview && isset($content->admin_links)) {
+      $content->admin_links = array();
+    }
+  }
+}
+
+/**
  * Create a XML document containing all available destinations.
  * The structure of the XML follows packages.xsd.
  * 
