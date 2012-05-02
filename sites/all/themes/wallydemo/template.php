@@ -2025,7 +2025,6 @@ function wallydemo_comment_form($form) {
  *  @return string list of tags formated as <a href="[TAXONOMY_PAGE]" class="[SAFE_CLASS_NAME]">[TERM_NAME]</a>, <a href.....
  */
 function wallydemo_taxonomy_tags_particle($main_story){
-
   $vocabulary = taxonomy_get_vocabularies();
   $voclass = array();
   foreach ($vocabulary as $key => $value){
@@ -2033,13 +2032,15 @@ function wallydemo_taxonomy_tags_particle($main_story){
   }
   $cpt = 1;
   $htmltags = "";
-  foreach ($main_story->taxonomy as $termclass){
-    if ($cpt != 1){
-      $htmltags .= ", ";
+  if (is_array($main_story->taxonomy) && !empty($main_story->taxonomy)) {
+    foreach ($main_story->taxonomy as $termclass){
+      if ($cpt != 1){
+        $htmltags .= ", ";
+      }
+  
+      $htmltags .= "<a href=\"".url(taxonomy_term_path(taxonomy_get_term($termclass->tid)))."\" class=\"".$voclass[$termclass->vid]."\">".$termclass->name."</a>";
+      $cpt++;
     }
-
-    $htmltags .= "<a href=\"".url(taxonomy_term_path(taxonomy_get_term($termclass->tid)))."\" class=\"".$voclass[$termclass->vid]."\">".$termclass->name."</a>";
-    $cpt++;
   }
   return $htmltags;
 }
