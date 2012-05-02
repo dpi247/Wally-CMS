@@ -93,20 +93,21 @@ function emvideo_dailymotion_extract($video_id = '') {
           $allowed_url = addcslashes($allowed_url, '/.');
           $allowed_url = str_replace('*', '(.*)', $allowed_url);
           $return[] = $delim.'('.$allowed_url.')'.$delim.'i';
+          
+          $temp_return = '';
+          $parsed_url = parse_url($orig_allowed_url);
+          if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
+            $temp_return = str_replace('*', '(.*)', '@'.$parsed_url['host']);
+            if (isset($parsed_url['path']) && !empty($parsed_url['path'])) {
+              $temp_return .= $parsed_url['path'];
+            }
+            $temp_return .= '([^"\& ]+)@i';
+            $return[] = $temp_return;
+          }
+
           break;
         }
       }
-    }
-    //print_r($return); exit();
-    $temp_return = '';
-    $parsed_url = parse_url($orig_allowed_url);
-    if (isset($parsed_url['host']) && !empty($parsed_url['host'])) {
-      $temp_return = '@'.$parsed_url['host'];
-      if (isset($parsed_url['path']) && !empty($parsed_url['path'])) {
-        $temp_return .= $parsed_url['path'];
-      }
-      $temp_return .= '([^"\& ]+)@i';
-      $return[] = $temp_return;
     }
   }
 
