@@ -394,13 +394,13 @@ function wallydemo_preprocess_node(&$vars) {
     $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
     $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
     $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_publicationdate[0]['value'] = $form_date->date;
+    $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
 
     $editorial_update = $node->field_editorialupdatedate[0];
     $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
     $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
     $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_editorialupdatedate[0]['value'] = $form_date->date;
+    $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
   }
 
   if($node->type=="wally_articlepackage"){
