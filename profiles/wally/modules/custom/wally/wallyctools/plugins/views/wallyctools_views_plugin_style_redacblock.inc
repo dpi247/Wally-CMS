@@ -107,6 +107,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
           foreach($this->view->result as $key => $row) {
             if($node->field_destinations[$preview_infos['key']]['time_rank'] >= $row->node_data_field_destinations_field_destinations_time_rank){
               $inserted_previews[$this->view->current_display] = TRUE;
+              $node->done = TRUE;
               $result = array_merge(array_slice($this->view->result, 0, $key), array(0 => $node), array_slice($this->view->result, $key));
               $this->view->result = $result;
               break;
