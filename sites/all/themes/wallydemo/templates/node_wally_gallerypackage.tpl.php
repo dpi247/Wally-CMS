@@ -3,6 +3,8 @@
  *
  * 
  */
+$mainobject = $node->field_mainobject_nodes[0];
+$main_title = $mainobject->title;
 
 $themeroot = drupal_get_path('theme', 'wallydemo');
 drupal_add_css($themeroot . '/css/gallery.css');
@@ -48,7 +50,7 @@ drupal_add_js('
 ?>
 <div id="gal_node_<?php print $node->nid; ?>" class="gallery">
 
-<h2><?php print $node->title;?></h2>
+<h2><?php print $main_title;?></h2>
 <?php print $main_summary ; ?> <br/>
 <?php print $main_desc ; ?>
 
