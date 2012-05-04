@@ -5,7 +5,7 @@ function wallyedit_page_admin($limit = 25) {
   $custom_theme = variable_get('admin_theme','rubik');
   
   $count_query = "SELECT count(*) from {wallyedit_prenodes}";
-  $result = pager_query("SELECT * from {wallyedit_prenodes}", $limit, 0, $count_query);
+  $result = pager_query("SELECT * from {wallyedit_prenodes} ORDER BY updated DESC", $limit, 0, $count_query);
   
   while($obj = db_fetch_object($result)) {
     $row['title'] = $obj->title;
