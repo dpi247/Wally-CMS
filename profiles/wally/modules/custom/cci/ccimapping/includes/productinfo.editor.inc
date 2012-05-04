@@ -47,8 +47,6 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
     $dom->loadXML($form_state['values']['xml']);
     drupal_alter('ccimapping_productinfo', $dom, 'before_send');
     $xml = $dom->saveXML();
-    dsm($xml);
-    return;
 
     $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
@@ -72,7 +70,7 @@ function ccimap_get_productinfo_fromWS() {
   $wsdl_uri=variable_get('ccimapping_ws_wsdluri', '');
   $newsroom=variable_get('ccimapping_newsroom', '');
   $product_name=variable_get('ccimapping_product_name', '');
-return '';
+
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
