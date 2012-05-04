@@ -313,7 +313,7 @@ function wallymport_check_process_folder($importer_name) {
     $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallymport_process_folder_cleanup');
+    //register_shutdown_function('wallymport_process_folder_cleanup');
 
     // Lock cron semaphore
     variable_set('wallymport_process_folder_semaphore', time());
@@ -369,7 +369,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallymport_process_folder_cleanup');
+    //register_shutdown_function('wallymport_process_folder_cleanup');
 
     // Lock cron semaphore
     variable_set('wallymport_process_file_semaphore_'.$file_name, time());
