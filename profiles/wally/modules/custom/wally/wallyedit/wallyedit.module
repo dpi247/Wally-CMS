@@ -272,7 +272,7 @@ function wallyedit_menu(){
  * Flush old prenodes from index
  */
 function wallyedit_cron() {
-  module_load_all('inc', 'wallyedit', 'includes/index_prenodes');
+  module_load_include('inc', 'wallyedit', 'includes/index_prenodes');
   wallyedit_index_prenodes_clean();
 }
 
