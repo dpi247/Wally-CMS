@@ -691,8 +691,7 @@ function wallyimportpackage_set_field_destinations(&$node, $dom, $log, $importer
         }
         dsm($multiple_destinations, 'multiple');
         dsm($temp_result, 'temp result');
-        dsm($path);
-        dsm($terms, 'terms');
+        dsm($hierarchies, 'hier');
         if ($terms) {
           // As we check the taxonomy full path and specify a vocabulary
           // we can only have one result.
