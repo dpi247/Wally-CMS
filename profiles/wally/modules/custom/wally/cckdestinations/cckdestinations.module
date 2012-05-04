@@ -503,6 +503,26 @@ function cckdestinations_schema_alter (&$schema) {
   }
 }
 
+/**
+ * Implementation of hook_ccimapping_productinfo_alter
+ * Add the multiple destinations to product info
+ */
+function cckdestinations_ccimapping_productinfo_alter(&$dom, $op) {
+  if ($op == 'before_send') {
+    $multiple_dests = cckdestinations_get_multiple_dests();
+    $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
+    foreach ($multiple_dests as $multi_dest) {
+      $dom_level = $budgettemplate->appendChild($dom->createElement('level1'));
+      $dom_level->setAttribute('name', $multi_dest['virtual']);
+      $target_intersect = cckdestinations_multiple_dests_get_target_intersect($multi_dest['reals']);
+      foreach ($target_intersect as $redack_machine_name => $redacblock) {
+        $leaf = $dom_level->appendChild($dom->createElement('leaf'));
+        $leaf->setAttribute('name', $redack_machine_name);
+      }
+    }
+  }
+}
+
 function cckdestinations_add_more_submit_proxy($form, &$form_state) {
   module_load_include('inc', 'cckdestinations', 'includes/cckdestinations.node_form');
   cckdestinations_add_more_submit($form, $form_state);
@@ -1602,7 +1622,7 @@ function cckdestinations_autocomplete_merge_tags($terms, $vid, $multiple = TRUE)
         //if ($tid && in_array($term->tid,drupal_map_assoc(array_keys((taxonomy_get_children($tid,$vid)))))) {
           // Commas and quotes in terms are special cases, so encode 'em.
           $name = $term->name;
-          if ($multiple) {
+          if (!$multiple) {
             $tag_hierarchy = wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid);
             $name .= ' ('.$tag_hierarchy.')';
           }
@@ -1819,6 +1839,23 @@ function cckdestinations_get_multiple_dests() {
     $processed = TRUE;
   }
   return $multi_dests;
+}
+
+/**
+ * Find the common target for a list of destinations
+ */
+function cckdestinations_multiple_dests_get_target_intersect($dests) {
+  $hierarchies = wallyctools_get_hierarchies();
+  $redacblocks = array();
+  foreach ($dests as $tid => $dest) {
+    $redacblocks[] = $hierarchies[$tid]['redacblocks'];
+  }
+  if (sizeof($redacblocks) > 1) {
+    $intersect = call_user_func_array('array_intersect_assoc', $redacblocks);
+  } else {
+    $intersect = $redacblocks[0];
+  }
+  return $intersect;
 }
 
 /**
