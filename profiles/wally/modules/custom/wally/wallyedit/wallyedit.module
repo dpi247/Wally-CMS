@@ -286,11 +286,11 @@ function wallyedit_menu(){
 
 /**
  * Implementation of hook_cron
- * Flush old prenodes from index
+ * Clean oldest PreNodes
  */
 function wallyedit_cron() {
-  module_load_include('inc', 'wallyedit', 'includes/index_prenodes');
-  wallyedit_index_prenodes_clean();
+  module_load_include('inc', 'wallyedit', 'includes/object-cache');
+  wallyedit_object_cache_clean();
 }
 
 /**
@@ -438,15 +438,6 @@ function wallyedit_theme(){
       'template' => 'wallyedit-node-accordion-form',
     ),
   );
-}
-
-/**
- * Implementation of hook_cron()
- * Clean oldest PreNodes
- */
-function wallyedit_cron() {
-  module_load_include('inc', 'wallyedit', 'includes/object-cache');
-  wallyedit_object_cache_clean();
 }
 
 /**
