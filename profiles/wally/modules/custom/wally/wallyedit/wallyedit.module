@@ -268,6 +268,14 @@ function wallyedit_menu(){
 }
 
 /**
+ * Implementation of hook_cron
+ * Flush old prenodes from index
+ */
+function wallyedit_cron() {
+  wallyedit_index_prenodes_clean();
+}
+
+/**
  * Implementation of hook_menu_alter()
  * Simulate redirection to edition interface instead of classical node form
  */
