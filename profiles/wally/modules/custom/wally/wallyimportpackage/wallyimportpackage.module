@@ -403,7 +403,6 @@ function wallyimportpackage_process_package_articlepackagetype(&$node, $dom_elem
 function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
-  
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
@@ -435,7 +434,28 @@ function wallyimportpackage_process_package_galleryPackageType(&$node, $dom_elem
       $node->status = 0;
     }
   }
-  
+  if ($dom_element->hasAttribute("ForceLastUpdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+  } else {
+    $force_edit_update = FALSE;
+  }
+  if ($dom_element->hasAttribute('Action')){
+    $action = $dom_element->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'CreateReplace':
+    case 'Preview':
+      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      break;
+    case 'CreateUpdate':
+    case 'Update':
+      if ($node->nid == NULL || $force_edit_update) {
+        $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      }
+      break;
+  }
   //Map XML element
   wimprt_process_node_default($node, $dom_element, $log, $importer);
   
@@ -493,7 +513,28 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
       $node->status = 0;
     }
   }
-  
+  if ($dom_element->hasAttribute("ForceLastUpdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+  } else {
+    $force_edit_update = FALSE;
+  }
+  if ($dom_element->hasAttribute('Action')){
+    $action = $dom_element->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'CreateReplace':
+    case 'Preview':
+      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      break;
+    case 'CreateUpdate':
+    case 'Update':
+      if ($node->nid == NULL || $force_edit_update) {
+        $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      }
+      break;
+  }
   //Map XML element
   wimprt_process_node_default($node, $dom_element, $log, $importer);
   
