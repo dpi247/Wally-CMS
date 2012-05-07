@@ -445,7 +445,28 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
       $node->status = 0;
     }
   }
-  
+  if ($dom_element->hasAttribute("ForceLastUpdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+  } else {
+    $force_edit_update = FALSE;
+  }
+  if ($dom_element->hasAttribute('Action')){
+    $action = $dom_element->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'CreateReplace':
+    case 'Preview':
+      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      break;
+    case 'CreateUpdate':
+    case 'Update':
+      if ($node->nid == NULL || $force_edit_update) {
+        $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      }
+      break;
+  }
   //Map XML element
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
   
@@ -502,6 +523,28 @@ function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &
     if (strtotime($node->field_unpublishdate[0]['value']) < time()){
       $node->status = 0;
     }
+  }
+  if ($dom_element->hasAttribute("ForceLastUpdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+  } else {
+    $force_edit_update = FALSE;
+  }
+  if ($dom_element->hasAttribute('Action')){
+    $action = $dom_element->getAttribute('Action');
+  } else {
+    $action = 'CreateReplace';
+  }
+  switch($action){
+    case 'CreateReplace':
+    case 'Preview':
+      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      break;
+    case 'CreateUpdate':
+    case 'Update':
+      if ($node->nid == NULL || $force_edit_update) {
+        $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+      }
+      break;
   }
   
   //Map XML element
