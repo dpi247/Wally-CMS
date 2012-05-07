@@ -362,8 +362,8 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("force_lastupdate")) {
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("force_lastupdate")->value);
+  if ($dom_element->hasAttribute("ForceLastUpdate")) {
+    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
   } else {
     $force_edit_update = FALSE;
   }
@@ -1556,7 +1556,7 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
   $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
   //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
 
