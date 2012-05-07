@@ -102,11 +102,21 @@ if ($mainstory->type == "wally_textobject"){
  *
  * print($date_edition);
  */
-$editorialupdatedate = strtotime($node->field_editorialupdatedate[0]['safe']);
+
+if(!isset($node->field_editorialupdatedate[0]['safe'])){
+  $field_editorialupdatedate=$node->field_publicationdate[0]['safe'];
+  
+}
+else{
+  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
+  
+  
+}
+$editorialupdatedate = strtotime($field_editorialupdatedate);
 $node_publi_date = strtotime($node->field_publicationdate[0]['safe']);
 
-$date_edition = "<p class=\"publiele\">Last updte editorial: " ._wallydemo_date_edition_diplay($editorialupdatedate, 'date_jour_heure') ."</p>";
-$date_systeme = "<p class=\"publiele\">Last updte system: " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
+$date_edition = "<p class=\"publiele\">Last update editorial: " ._wallydemo_date_edition_diplay($editorialupdatedate, 'date_jour_heure') ."</p>";
+$date_systeme = "<p class=\"publiele\">Last update system: " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
 
 $package_signature = _wallydemo_get_package_signature($mainstory) ;
 
