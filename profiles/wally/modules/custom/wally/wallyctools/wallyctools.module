@@ -337,7 +337,7 @@ function wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, &$dom_el
       if ($leafs->item(0)) {
         foreach ($leafs as $leaf) {
           if ($leaf->getAttributeNode('name')->value == $default_redacblock['default_redacblock']) {
-            $leaf->setAttribute('target', 'true');
+            $leaf->setAttribute('default', 'true');
             $default_set = TRUE;
             break;
           }
