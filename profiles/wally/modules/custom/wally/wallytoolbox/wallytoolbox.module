@@ -468,8 +468,8 @@ function wallytoolbox_string_args_translate($string, $args) {
 function wallytoolbox_toboolean($v, $def=NULL) {
   if ($v===FALSE) return FALSE;
   if ($v===TRUE) return TRUE;
-  if ($v=="true") return TRUE;
-  if ($v=="false") return FALSE;
+  if (strtolower($v)=="true") return TRUE;
+  if (strtolower($v)=="false") return FALSE;
   if ($v==0) return FALSE;
   if ($v==1) return TRUE;
   return $def;
