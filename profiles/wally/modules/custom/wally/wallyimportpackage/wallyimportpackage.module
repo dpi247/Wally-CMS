@@ -1482,12 +1482,12 @@ function wallyimportpackage_process_object_pollobjecttype(&$node, $dom, &$log, $
   wimprt_process_node_default($node, $dom, $log, $importer);
 
   //Exception for PollObject
-  if ($dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
-    $node->title = $dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+  if ($dom->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
+    $node->title = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
   }
 
-  if ($dom_element->getElementsByTagName("Title")->length) {
-    $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+  if ($dom->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value" => $dom->getElementsByTagName("Title")->item(0)->nodeValue));
   }
    
   //Exception for TextObject
