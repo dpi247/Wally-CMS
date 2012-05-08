@@ -401,12 +401,12 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
     $http_req = drupal_http_request($file_uri);
     if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
       if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
-        $good_file_name = str_replace($badcar, '_', $file_name);
+        $good_file_name = md5($file_uri).'_'.str_replace($badcar, '_', $file_name);
         $recognized = TRUE;
       } elseif ($http_req->headers['Content-Disposition']) {
         $content_disp = $http_req->headers['Content-Disposition'];
         $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
-        $good_file_name = str_replace($badcar, '_', substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
+        $good_file_name = md5($file_uri).'_'.str_replace($badcar, '_', substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
         $recognized = TRUE;
       } else {
         $processed_uri = $file_uri;
