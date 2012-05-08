@@ -54,12 +54,6 @@ function ccimapping_theme(){
     'ccimapping_typeselector'=>$base + array(
       'arguments'=>array('type'),
     ),
-    'ccimapping_hierarchies'=>$base + array(
-      'arguments'=>array('hierarchies'=>array(),'nested_taxonomy_tree'=>array()),
-    ),
-    'ccimapping_hierarchies_items'=>$base + array(
-      'arguments'=>array('hierarchies'=>array(),'nested_taxonomy_tree'=>array()),
-    ),
   );
 }
 
