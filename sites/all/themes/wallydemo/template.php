@@ -252,7 +252,9 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           else{
             dsm(wallydemo_get_digitalobject_infos_and_display($embed));
             dsm($embed);
-            dsm(url($embed->field_objectfile[0]["filepath"],array('absolute'=>TRUE)));
+            $width=$height='auto';
+            $url=url($embed->field_objectfile[0]["filepath"],array('absolute'=>TRUE));
+            $content='<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
             $content = $embed->field_objectfile[0]["view"];
             $title=$node->embed_videos[$embed->nid]['title'];
             $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
