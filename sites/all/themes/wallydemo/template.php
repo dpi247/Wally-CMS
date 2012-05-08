@@ -252,7 +252,7 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           else{
             dsm(wallydemo_get_digitalobject_infos_and_display($embed));
             dsm($embed);
-            
+            dsm(url($embed->field_objectfile[0]["filepath"]));
             $content = $embed->field_objectfile[0]["view"];
             $title=$node->embed_videos[$embed->nid]['title'];
             $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
