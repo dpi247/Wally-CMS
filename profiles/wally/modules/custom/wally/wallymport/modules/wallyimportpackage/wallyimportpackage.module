@@ -120,7 +120,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   }
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
-    
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
@@ -328,7 +327,6 @@ function wallyimportpackage_node_create_or_load_pollpackagetype($dom, &$log, $im
  *   Nothing
  */
 function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element, &$log, $importer){
-  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -410,10 +408,8 @@ function wallyimportpackage_node_process_articlepackagetype(&$node, $dom_element
  *   Nothing
  */
 function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element, &$log, $importer){
-  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
-  
   if ($dom_element->hasAttribute("PublicationDate")) {
     $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
   } else {
@@ -470,8 +466,9 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
   //Map XML element
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
   
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')) {
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
+  }
 }
 /**
  * Process article package from DOM.
@@ -490,7 +487,6 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
  *   Nothing
  */
 function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &$log, $importer){
-  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -546,12 +542,13 @@ function wallyimportpackage_node_process_pollpackagetype(&$node, $dom_element, &
       }
       break;
   }
-  
+
   //Map XML element
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
- 
-  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article'))
+
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')) {
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
+  }
 }
 
 /**
@@ -741,7 +738,7 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
           $temp_result['layout'] = 'none';
           $temp_result['rank'] = 0;
         }
-        
+
         if ($terms) {
           // As we check the taxonomy full path and specify a vocabulary
           // we can only have one result.
@@ -796,7 +793,7 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
 	  return '';
 	}
   } else {
-    drupal_set_message('Destination Path vocabulary not set. See settings.','error');
+    drupal_set_message(t('Destination Path vocabulary not set. See settings.'),'error');
     return '';
   }
 }
@@ -818,51 +815,50 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
  */
 function wallyimportpackage_node_set_field_editions(&$node, $dom, $log, $importer) {
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Editions: '.$dom->nodeName;
+    $log['log'][] = 'process Editions: '.$dom->nodeName;
   }
 
   $result = array();
   $valid = (bool) FALSE;
-  $terms = array(); 
+  $terms = array();
   $vid = variable_get('wallymport_edition', NULL);
   if ($vid) {
-	// Read all terms from vocabulary and set if to False (default);
-	$terms = taxonomy_get_tree($vid);
-	foreach ($terms as $term) {
-	  $result[$term->name]["Publish"] = FALSE;
-	  $result[$term->name]["EditionTid"] = $term->tid;
-	  $result[$term->name]["EditionID"] = $term->name;
-	}
+    // Read all terms from vocabulary and set if to False (default);
+    $terms = taxonomy_get_tree($vid);
+    foreach ($terms as $term) {
+      $result[$term->name]["Publish"] = FALSE;
+      $result[$term->name]["EditionTid"] = $term->tid;
+      $result[$term->name]["EditionID"] = $term->name;
+    }
 
-	// Get edition from DOM & update array.
-	foreach($dom->getElementsByTagName('Edition') as $edition) {
-	  $editionID = $edition->getAttributeNode("EditionID")->value;
-	  $value = wallytoolbox_toboolean($edition->nodeValue);
-	  if (strtolower($editionID) == "all") {
-		foreach ($terms as $term) $result[$term->name]["Publish"] = $value;
-	      $valid = $value;
-		  drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
-		  break;
-	  } else {
-		if (array_key_exists($editionID, $result)) {
-		  $valid = ($valid || $value);
-		  $result[$editionID]['Publish'] = $value;
-	    } else {
-		  drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
-		}
-	  }
-	}
-	if ($valid) { 
+    // Get edition from DOM & update array.
+    foreach($dom->getElementsByTagName('Edition') as $edition) {
+      $editionID = $edition->getAttributeNode("EditionID")->value;
+      $value = wallytoolbox_toboolean($edition->nodeValue);
+      if (strtolower($editionID) == "all") {
+        foreach ($terms as $term) $result[$term->name]["Publish"] = $value;
+        $valid = $value;
+        drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
+        break;
+      } else {
+        if (array_key_exists($editionID, $result)) {
+          $valid = ($valid || $value);
+          $result[$editionID]['Publish'] = $value;
+        } else {
+          drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
+        }
+      }
+    }
+    if ($valid) {
       $node->field_editions = array(array("value"=>serialize($result)));
-	} else {
+    } else {
       //$node->rejected = '';
-	  drupal_set_message(t('ALL Edition set to false.'),'error');
-	  // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
-	}
-		
+      drupal_set_message(t('ALL Edition set to false.'),'error');
+      // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
+    }
   } else {
-	drupal_set_message('Edition vocabulary not set. See settings.','error');
-	return '';
+    drupal_set_message('Edition vocabulary not set. See settings.','error');
+    return '';
   }
 }
 
@@ -884,7 +880,7 @@ function wallyimportpackage_node_set_field_editions(&$node, $dom, $log, $importe
 function wallyimportpackage_node_set_field_channels(&$node, $dom, $log, $importer) {
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Channels: '.$dom->nodeName;
+    $log['log'][] = 'process Channels: '.$dom->nodeName;
   }
   $result = array();
   // Get edition from DOM & update array.
@@ -893,7 +889,7 @@ function wallyimportpackage_node_set_field_channels(&$node, $dom, $log, $importe
     $result[] = $channelName;
   }
 
-  if (!empty($result)) { 
+  if (!empty($result)) {
     $node->field_channels = array(array("value" => serialize($result)));
   } else {
     $node->rejected = '';
@@ -1008,7 +1004,7 @@ function wallyimportpackage_node_set_field_packagelayout(&$node, $dom, &$log, $i
   $node->field_packagelayout = array();
 
   if (variable_get('wallymport_debug',0) or TRUE) {
-	$log['log'][] = 'process PackageLayout: '.$dom->nodeName;
+    $log['log'][] = 'process PackageLayout: '.$dom->nodeName;
   }
 
   if (is_numeric($value)) {
@@ -1019,7 +1015,7 @@ function wallyimportpackage_node_set_field_packagelayout(&$node, $dom, &$log, $i
     if ($tax_term = taxonomy_get_term_by_name('Article')) {
       $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
     } else {
-	  drupal_set_message('PackageLayout not found: '.$value.'.','notice');
+      drupal_set_message('PackageLayout not found: '.$value.'.','notice');
     }
   }
 }
@@ -1064,7 +1060,7 @@ function wallyimportpackage_node_set_field_externaluri(&$node, $dom, &$log, $imp
   $node->field_externaluri = array();
 
   if (variable_get('wallymport_debug',0) or TRUE) {
-	$log['log'][] = 'process ExternalURI: '.$dom->nodeName;
+    $log['log'][] = 'process ExternalURI: '.$dom->nodeName;
   }
 
   $uri_response = drupal_http_request($value);
@@ -1093,7 +1089,7 @@ function wallyimportpackage_node_set_field_packagecopyright(&$node, $dom, &$log,
   $node->field_packagecopyright = array();
 
   if (variable_get('wallymport_debug',0) or TRUE) {
-		$log['log'][] = 'process PackageCopyright: '.$dom->nodeName;
+    $log['log'][] = 'process PackageCopyright: '.$dom->nodeName;
   }
 
   $node->field_packagecopyright[] = $value;
@@ -1187,11 +1183,13 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
  */
 function wallyimportpackage_node_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
-	$object = wimprt_node_process($dom, $log, $importer, 'pollobjecttype');
-	$node->field_mainpoll[0]['nid'] = $object->nid;
-	if ($importer->wallymport_preview)
-	  $node->field_mainpoll_nodes[0] = $object;
+  $object = wimprt_node_process($dom, $log, $importer, 'pollobjecttype');
+  $node->field_mainpoll[0]['nid'] = $object->nid;
+  if ($importer->wallymport_preview) {
+    $node->field_mainpoll_nodes[0] = $object;
+  }
 }
+
 /**
  * Process field Package Description from DOM element.
  * 
@@ -1215,17 +1213,18 @@ function wallyimportpackage_node_set_field_poll(&$node, $dom, &$log, $importer){
  */
 function wallyimportpackage_node_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
   // Embeded objects
-  $results = array(); 
+  $results = array();
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
-  $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
-  foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result) {
-    if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
-      $results[$result->nid] = $result->nid;
-      $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
-      if ($importer->wallymport_preview){
-        $node->field_embededobjects_nodes[] = $result;
+  if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
+    foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result) {
+      if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+        $results[$result->nid] = $result->nid;
+        $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
+        if ($importer->wallymport_preview){
+          $node->field_embededobjects_nodes[] = $result;
+        }
       }
     }
   }
@@ -1235,15 +1234,15 @@ function wallyimportpackage_node_set_field_EmbeddedContent(&$node, $dom, &$log, 
       array_push($node->field_embededobjects, $array_valuee);
     }
   }
-  
+
   // Linkslists objects
-  $links = array(); 
+  $links = array();
   $node->field_linkedobjects = array();
   $node->field_linkedobjects_nodes = array();
-  $linklists = $dom->getElementsByTagName('LinksLists')->item(0);
-  $linklist = $dom->getElementsByTagName('LinksList')->item(0);
-  if ($dom->getElementsByTagName('LinksList')->item(0)){
-    if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
+  $linkslists = $dom->getElementsByTagName('LinksLists')->item(0);
+  $linkslist = $dom->getElementsByTagName('LinksList')->item(0);
+  if ($linkslists && $linkslist){
+    if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
       foreach (wimprt_node_process_list($linklists, $log, $importer) as $result) {
         if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
           $links[$result->nid] = $result->nid;
@@ -1345,7 +1344,7 @@ function wallyimportpackage_node_process_textobjecttype(&$node, $dom_element, &$
   
   if ($dom_element->getElementsByTagName("Title")->length) {
     $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
-  } 
+  }
 }
 
 /**
@@ -1375,7 +1374,7 @@ function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $i
     $node->webform['allow_draft'] = 0;
     $node->webform['auto_save'] = 0;
     $node->webform['submit_notice'] = 1;
-    $node->webform['submit_text'] = ''; 
+    $node->webform['submit_text'] = '';
     $node->webform['submit_limit'] = 1;
     $node->webform['submit_interval'] = -1;
     $node->webform['total_submit_limit'] = -1;
@@ -1383,12 +1382,11 @@ function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $i
     $node->webform['record_exists'] = TRUE;
     $node->webform['roles'] = array(0 => 1, 1 => 2);
     $node->webform['emails'] = array();
-    
+
     $i = 1;
     foreach($dom->getElementsByTagName("PollQuestion") as $pollquestion){
       if (isset($node->nid)){
         $node->webform['components'][$i]['nid'] = $node->nid;
-        
       }
       $node->webform['components'][$i]['cid'] = $i;
       $node->webform['components'][$i]['form_key'] = _webform_safe_name($pollquestion->getElementsbyTagName("Question")->item(0)->nodeValue);
@@ -1400,15 +1398,15 @@ function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $i
       $node->webform['components'][$i]['weight'] = 0;
       $node->webform['components'][$i]['page_num'] = 1;
       $node->webform['components'][$i]['extra'] = array();
-      
+
       //Answer
       $enter = '';
       $items = '';
       foreach($pollquestion->getElementsByTagName("Answer") as $answer){
         $items .= $enter.$answer->nodeValue.'|'.$answer->nodeValue;
-        $enter = "\n";  
+        $enter = "\n";
       }
-      
+
       //Radio / checkboxes
       $choice = 1;
       if ($pollquestion->hasAttribute("Choice")){
@@ -1416,7 +1414,7 @@ function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $i
           $choice = 0;
         }
       }
-      
+
       $node->webform['components'][$i]['extra']['items'] = $items;
       $node->webform['components'][$i]['extra']['multiple'] = $choice;
       $node->webform['components'][$i]['extra']['title_display'] =  'before';
@@ -1431,7 +1429,7 @@ function wallyimportpackage_node_set_field_pollquestions(&$node, $dom, &$log, $i
       $node->webform['components'][$i]['extra']['options_source'] = '';
       $node->webform['components'][$i]['extra']['conditional_component'] = '';
       $node->webform['components'][$i]['extra']['conditional_values'] = '';
-      
+
       $i++;
     }
   } else {
@@ -1461,15 +1459,14 @@ function wallyimportpackage_node_create_or_load_pollobjecttype($dom, &$log, $imp
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref), 'wally_pollobject')){
     $node = $node_temp[0];
   }
-  
+
   $uid = $importer->default_user;
   $node->uid = $uid;
-  
+
   return $node;
 }
 
- 
- /**
+/**
  * Process poll object from DOM.
  * 
  * MAP fields of the poll object content type
@@ -1486,23 +1483,22 @@ function wallyimportpackage_node_create_or_load_pollobjecttype($dom, &$log, $imp
  *   Nothing
  */
 function wallyimportpackage_node_process_pollobjecttype(&$node, $dom, &$log, $importer){
-  
   static $proceed_file_path;
   //put common attribute
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
   wimprt_node_process_fields($node, $dom, $log, $importer);
-  
+
   //Exception for PollObject
-  if ($dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
-    $node->title = $dom_element->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+  if ($dom->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
+    $node->title = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
   }
-  
-  if ($dom_element->getElementsByTagName("Title")->length) {
-    $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
+
+  if ($dom->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value" => $dom->getElementsByTagName("Title")->item(0)->nodeValue));
   }
    
- ///Exception for TextObject
+  //Exception for TextObject
   $date1 = NULL;
   $date2 = NULL;
   $date1 = $dom->getElementsByTagName("DateOpen")->item(0)->nodeValue;
@@ -1512,7 +1508,6 @@ function wallyimportpackage_node_process_pollobjecttype(&$node, $dom, &$log, $im
   $node->field_polldate[0]=_wimprthelp_polldate_to_ccktime($date1, $date2);
 
   return $node;
-
 }
 
 /**
@@ -1610,6 +1605,7 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
   } else {//Is a 3rd party
     $node->field_photo3rdparty[0]['embed'] = $file_uri;
   }
+
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
   if ($dom->getElementsByTagName("Caption")->length) {
@@ -1677,7 +1673,6 @@ function wallyimportpackage_node_process_audioobjecttype(&$node, $dom, &$log, $i
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
 
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emaudio');  
@@ -1697,7 +1692,6 @@ function wallyimportpackage_node_process_audioobjecttype(&$node, $dom, &$log, $i
   wimprt_node_process_fields($node, $dom, $log, $importer);
   
   return $node;
-
 }
 
 /**
@@ -1773,7 +1767,6 @@ function wallyimportpackage_node_process_videoobjecttype(&$node, $dom, &$log, $i
     $node->field_link[0]['title'] = $link_title;
   }
   return $node;
-
 }
 
 /**
@@ -1827,7 +1820,6 @@ function wallyimportpackage_node_process_multimediaobjecttype(&$node, $dom, &$lo
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-
   $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emother');  
   if (empty($rdpartyMatch)){//No a 3rdparty
@@ -1835,14 +1827,12 @@ function wallyimportpackage_node_process_multimediaobjecttype(&$node, $dom, &$lo
   } else {//Is a 3rd party
     $node->field_object3rdparty[0]['embed'] = $file_uri;
   }
-  
  
   //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
   wimprt_node_process_fields($node, $dom, $log, $importer);
   
   return $node;
-
 }
 
 /**
@@ -1980,7 +1970,6 @@ function wallyimportpackage_node_create_or_load_link($dom, &$log, $importer){
  */
 function wallyimportpackage_node_process_linkslist(&$node, $dom, &$log, $importer){
   wimprt_node_process_fields($node, $dom, $log, $importer);
-
   $results = array();
   $links = $dom->getElementsByTagName("Links")->item(0);
   
@@ -2283,42 +2272,40 @@ function wallyimportpackage_node_set_field_byline(&$node, $dom, &$log, $importer
  *   A node object
  */
 function wallyimportpackage_node_create_or_load_location($dom, $log, $importer){	
-
   if (!($vid = variable_get('wallymport_location',NULL))) {
-	// TO DO FATAL :: No location taxonomy vocabulary
-	drupal_set_message('Location Taxonomy Vocabulary  not Found. See admin.','error');
-	$node->rejected = TRUE;
-	return NULL;
+    // TO DO FATAL :: No location taxonomy vocabulary
+    drupal_set_message('Location Taxonomy Vocabulary  not Found. See admin.','error');
+    $node->rejected = TRUE;
+    return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
   $term = $dom->getAttributeNode("Name")->value;
   if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
-	// Taxonomy term exist - fetch the tid.
-	$taxonomy = $taxonomy[0]; 
-	$tid = $taxonomy->tid;
-	$result = wallytoolbox_get_node_by_tid($tid,"wally_locationtype");
-	if ($result == NULL){
-	  $taxonomy = taxonomy_get_term($tid);
-	  $result = new stdClass();
-	}
-	elseif (count($result) > 1){
-	  drupal_set_message('Found 2 or more node reference for LocationID: '.$lid.'.','error');
-	  return NULL;
-	} else {
+    // Taxonomy term exist - fetch the tid.
+    $taxonomy = $taxonomy[0];
+    $tid = $taxonomy->tid;
+    $result = wallytoolbox_get_node_by_tid($tid,"wally_locationtype");
+    if ($result == NULL){
+      $taxonomy = taxonomy_get_term($tid);
+      $result = new stdClass();
+    }
+    elseif (count($result) > 1){
+      drupal_set_message('Found 2 or more node reference for LocationID: '.$lid.'.','error');
+      return NULL;
+    } else {
       $result = $result[0];
-	}
+    }
   } else {
-	// New taxonomy term. Create & get the tid.
-	$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
-	$taxonomy = taxonomy_get_term($tid);
-	$result = new stdClass();
-  };
+    // New taxonomy term. Create & get the tid.
+    $tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+    $taxonomy = taxonomy_get_term($tid);
+    $result = new stdClass();
+  }
   // Set the taxonomy field.
   $result->field_locationtaxonomy = array( array("value" => $tid) );
-  // Set drupal node->taxonomy. 
-  $result->taxonomy = array($tid => $taxonomy); 
+  // Set drupal node->taxonomy.
+  $result->taxonomy = array($tid => $taxonomy);
   return $result;
-
 }
 
 /**
@@ -2343,46 +2330,46 @@ function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer
   // UID
   $node->uid = variable_get('wallymport_defaultuser',1);
 
-//  External Reference Supprimé
-//  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value)); 
+  //  External Reference Supprimé
+  //  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value));
 
   // Note Type
   $node->type = 'wally_locationtype';
 
-  // Node Title 
+  // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
 
-  // field_objectdescription supprimé 
+  // field_objectdescription supprimé
   //$node->field_objectdescription = array(array("value" => _wimprthelp_plain_text($dom->getAttributeNode("LocationID")->value)));
 
   // field_address
   $addresses = $dom->getElementsByTagName("Address");
   if ($addresses->length) {
-	$node->field_address = _wallyimportpackage_address_dom_to_ccklocation($addresses, $log, $node->title);
+    $node->field_address = _wallyimportpackage_address_dom_to_ccklocation($addresses, $log, $node->title);
   }
 
   // location lat/long - In this case will re-write field_adress values.
 
   $locationgeo = $dom->getElementsByTagName("LocationGeo");
   if ($locationgeo->length) {
-	$locationgeo = explode(",", $locationgeo->item(0)->nodeValue);
-	$lat = $locationgeo[0]; 
-	$lon = $locationgeo[1]; 
-	if (isset($locationgeo[2])) {
-	  $zoom = $locationgeo[2];
-	} 
-	$address_cpt = 0;
-	// BAD >>> ARRAY et en plus peut etre multiple ? 
-	if ($node->field_address) {
-	  foreach ($node->field_address as $address) {
-	    $address['latitude'] = $lat;
-	    $address['longitude'] = $lon;
-		$address['locpick']["user_latitude"] = $lat;
-		$address['locpick']["user_longitude"] = $lon;
-		$node->field_address[$address_cpt] = $address;
-		$address_cpt++;  
-	  }
-	}
+    $locationgeo = explode(",", $locationgeo->item(0)->nodeValue);
+    $lat = $locationgeo[0];
+    $lon = $locationgeo[1];
+    if (isset($locationgeo[2])) {
+      $zoom = $locationgeo[2];
+    }
+    $address_cpt = 0;
+    // BAD >>> ARRAY et en plus peut etre multiple ?
+    if ($node->field_address) {
+      foreach ($node->field_address as $address) {
+        $address['latitude'] = $lat;
+        $address['longitude'] = $lon;
+        $address['locpick']["user_latitude"] = $lat;
+        $address['locpick']["user_longitude"] = $lon;
+        $node->field_address[$address_cpt] = $address;
+        $address_cpt++;
+      }
+    }
   }
 
   // Send back the node
@@ -2405,23 +2392,22 @@ function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer
  *   Nothing
  */
 function wallyimportpackage_node_set_field_marker(&$node, $dom, &$log, $importer){
-
-  $node->field_markers = array(); 
+  $node->field_markers = array();
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Marker: '.$dom->nodeName;
+    $log['log'][] = 'process Marker: '.$dom->nodeName;
   }
   $node->field_markers[0] = array();
   $address = _wallyimportpackage_address_dom_to_ccklocation($dom->getElementsByTagName("Address"), $log);
   $node->field_markers[0] = $address[0];
   $node->field_markers[0]['name'] = $dom->getAttribute('Name');
-  
+
   if ($dom->getElementsByTagName("LocationGeo")->length){
     list($longitude, $latitude, $zoom) = explode(',', $dom->getElementsByTagName('LocationGeo')->item(0)->nodeValue);
     $node->field_markers[0]['locpick']['user_latitude'] = $latitude;
     $node->field_markers[0]['locpick']['user_longitude'] = $longitude;
   }
-  return $results; 
+  return $results;
 }
 
 /**
@@ -2440,30 +2426,29 @@ function wallyimportpackage_node_set_field_marker(&$node, $dom, &$log, $importer
  *   Nothing
  */
 function wallyimportpackage_node_set_field_locations(&$node, $dom, &$log, $importer){
-
-  $node->field_locations = array(); 
+  $node->field_locations = array();
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Locations: '.$dom->nodeName;
+    $log['log'][] = 'process Locations: '.$dom->nodeName;
   }
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
     $results[] = wimprt_node_process($terme, $log, $importer, 'location');
   }
- 
+
   // Get Location Taxonomy for all nodes.
   $node->field_locations = array();
   foreach($results as $result) {
     if (isset($result->field_locationtaxonomy)) {
-	  if ($result->field_locationtaxonomy[0]) {
-	    $node->field_locations[] = array("value" => $result->field_locationtaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_locationtaxonomy[0]["value"]] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
-		$node->node_term_to_save[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
+      if ($result->field_locationtaxonomy[0]) {
+        $node->field_locations[] = array("value" => $result->field_locationtaxonomy[0]["value"]);
+        $node->taxonomy[$result->field_locationtaxonomy[0]["value"]] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
+        $node->node_term_to_save[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
       }
     }
   }
-  return $results; 
+  return $results;
 }
 
 /**
@@ -2484,83 +2469,82 @@ function wallyimportpackage_node_set_field_locations(&$node, $dom, &$log, $impor
 function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importer) {
   $result = array();
   if (variable_get('wallymport_debug',0) or TRUE) {
-	$log['log'][] = 'process Taxonomy: '.$dom->nodeName;
+    $log['log'][] = 'process Taxonomy: '.$dom->nodeName;
   }
   $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy', NULL);
   if ($freetagtaxonomy_vid) {
-	$vocabularies = $dom->getElementsByTagName("Vocabulary");
-	if ($vocabularies->length) {
-		
-	  foreach($vocabularies as $vocabulary) {	    
-	    $function_exist = FALSE;
+    $vocabularies = $dom->getElementsByTagName("Vocabulary");
+    if ($vocabularies->length) {
+
+      foreach($vocabularies as $vocabulary) {
+        $function_exist = FALSE;
         foreach ($importer->importer_functions as $importer_function){
           if (function_exists($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
             if (isset($node->nid)){
-	          $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
-	          wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
-	        }
-	        call_user_func($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer); 
+              $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
+              wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
+            }
+            call_user_func($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
             $function_exist = TRUE;
-	        break;
-          } 
+            break;
+          }
         }
         if (!$function_exist & function_exists("wimprt_set_field_".$vocabulary->getAttributeNode("VocabularyName")->value)){
           if (isset($node->nid)){
-	        $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
-	        wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
-	      } 
-	      call_user_func('wimprt_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
+            $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
+            wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
+          }
+          call_user_func('wimprt_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
           $function_exist = TRUE;
         }
-	    if (!$function_exist){
-	      $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
-	      if ($vid != NULL){
-	        if (isset($node->nid)){
-  	          wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
-  	        }
-	      }
-  		  wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
-  	
-  		  if (!isset($node->nid)){
-  		    $node->field_free_tags = array();
-  		    $node->field_concepts = array();
-  		    $node->field_iptc = array();
-  		  }
-  		  if (isset($result['field_free_tags'])){
-  		    foreach($result['field_free_tags'] as $term) {
-  		      if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {  
-  		        $node->field_free_tags[] =  array("value" => $term->tid);
-  			    $node->taxonomy[] = $term; 
-  		      }
+        if (!$function_exist){
+          $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
+          if ($vid != NULL){
+            if (isset($node->nid)){
+              wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
+            }
+          }
+          wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+          if (!isset($node->nid)){
+            $node->field_free_tags = array();
+            $node->field_concepts = array();
+            $node->field_iptc = array();
+          }
+          if (isset($result['field_free_tags'])){
+            foreach($result['field_free_tags'] as $term) {
+              if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {
+                $node->field_free_tags[] =  array("value" => $term->tid);
+                $node->taxonomy[] = $term;
+              }
   		      $node->node_term_to_save[] = $term;
-  		    }
-  		  }
-  		  if (isset($result['field_concepts'])){
-	        foreach($result['field_concepts'] as $term) {
-  		      if (!in_array(array("value" => $term->tid), $node->field_concepts)) {  
-  		        $node->field_concepts[] =  array("value" => $term->tid);
-  			    $node->taxonomy[] = $term; 
-  		      }
+            }
+          }
+          if (isset($result['field_concepts'])){
+            foreach($result['field_concepts'] as $term) {
+              if (!in_array(array("value" => $term->tid), $node->field_concepts)) {
+                $node->field_concepts[] =  array("value" => $term->tid);
+                $node->taxonomy[] = $term;
+              }
   		      $node->node_term_to_save[] = $term;
-  		    }
-  		  }
-  		  if (isset($result['field_iptc'])){
-	        foreach($result['field_iptc'] as $term) {
-  		      if (!in_array(array("value" => $term->tid), $node->field_iptc)) {  
-  		        $node->field_iptc[] =  array("value" => $term->tid);
+            }
+          }
+          if (isset($result['field_iptc'])){
+            foreach($result['field_iptc'] as $term) {
+              if (!in_array(array("value" => $term->tid), $node->field_iptc)) {
+                $node->field_iptc[] =  array("value" => $term->tid);
   		        $node->taxonomy[$term->tid] = $term;
-  		      }
+              }
   		      $node->node_term_to_save[] = $term;
-  		    }
-  		  }
-	    }
-	  }
-	} else {
-	  drupal_set_message('WARNING: No vocabulary tag found in taxonomy element. Skipping taxonomy process.','notice');
-	}
+            }
+          }
+        }
+      }
+    } else {
+      drupal_set_message('WARNING: No vocabulary tag found in taxonomy element. Skipping taxonomy process.','notice');
+    }
   } else {
-	drupal_set_message('Free tag taxonomy vocabulary not set. See wally/settings.','error');
-	return NULL;
+    drupal_set_message('Free tag taxonomy vocabulary not set. See wally/settings.','error');
+    return NULL;
   }
 }
 
@@ -2583,13 +2567,13 @@ function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importe
  *   Nothing but modify $result
  */
 function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
- // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
- // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
+  // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
+  // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
   $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
 
   $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
-	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+    $VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
 
   if ($vid == NULL){
@@ -2605,15 +2589,15 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
   }
   $terms = $vocabulary->getElementsByTagName("Term");
   if ($terms->length) {
-	foreach($terms as $term) {
-	  $path = trim(trim($term->getAttribute('Name')),"/");
+    foreach($terms as $term) {
+      $path = trim(trim($term->getAttribute('Name')),"/");
       if ($t = wallytoolbox_taxonomy_get_term_by_path($path, $vid)) {
-		// Cool, we got a term for the correct VID.
-		if ($taxonomy_recursive) {
-		  $recursive_path = "";
-		  foreach( explode("/",trim($path,"/")) as $t){
-			$recursive_path = $recursive_path."/".$t;
-			$t = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
+        // Cool, we got a term for the correct VID.
+        if ($taxonomy_recursive) {
+          $recursive_path = "";
+          foreach( explode("/",trim($path,"/")) as $t){
+            $recursive_path = $recursive_path."/".$t;
+            $t = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
 			if ($result_set != NULL){
 			  $term_object = $t[0];
 			  $term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
@@ -2627,26 +2611,25 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
 			$term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
 			$term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
 			$result[$result_set][] = $term_object;
-		
-		  }
-		}
-	  } else {
-		$tid = NULL; 
-		$recursive_path = "";
-		foreach( explode("/",trim($path,"/")) as $t){
-		  
+          }
+        }
+      } else {
+        $tid = NULL;
+        $recursive_path = "";
+        foreach( explode("/",trim($path,"/")) as $t){
+
           $recursive_path = $recursive_path."/".$t;
-    	  $t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
-    	  if ($t_parent) {
-    	    $tid = $t_parent[0]->tid;
-    	  } else {
-    		if ($tid) {
-    		  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
-    		} else {
-    		  $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, NULL);
-    		}
-    	  }
-    	   // The node will be assigned to all the terms from PATH.
+          $t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
+          if ($t_parent) {
+            $tid = $t_parent[0]->tid;
+          } else {
+            if ($tid) {
+              $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
+            } else {
+              $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, NULL);
+            }
+          }
+          // The node will be assigned to all the terms from PATH.
     	   $term_object = taxonomy_get_term($tid);
     	   $term_object->wally_confidence_score = $term->getAttribute('ConfidenceScore');
     	   $term_object->wally_relevancy_score = $term->getAttribute('RelevancyScore');
@@ -2681,21 +2664,21 @@ function wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$re
 function wallyimportpackage_node_set_field_entities(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Entities: '.$dom->nodeName;
+    $log['log'][] = 'process Entities: '.$dom->nodeName;
   }
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
   foreach ($termes as $terme){
     $results[] = wimprt_node_process($terme, $log, $importer, 'entity');
   }
- 
+
   // Get Location Taxonomy for all nodes.
   $node->field_entities = array();
   foreach($results as $result) {
     if (isset($result->field_entity)) {
-	  if ($result->field_entity[0]) {
-	    $node->field_entities[] = array("value" => $result->field_entity[0]["value"]);
-	    $node->taxonomy[$result->field_entity[0]["value"]] = taxonomy_get_term($result->field_entity[0]["value"]);
+      if ($result->field_entity[0]) {
+        $node->field_entities[] = array("value" => $result->field_entity[0]["value"]);
+        $node->taxonomy[$result->field_entity[0]["value"]] = taxonomy_get_term($result->field_entity[0]["value"]);
 	    $node->node_term_to_save[] = taxonomy_get_term($result->field_entity[0]["value"]);
       }
     }
@@ -2736,44 +2719,42 @@ function wallyimportpackage_typetype_preprocess(&$node, $dom, $importer){
  *   A node object
  */
 function wallyimportpackage_node_create_or_load_entity($dom, $log, $importer){	
-	
   if (!($vid = variable_get('wallymport_entity', NULL))) {
     // TO DO FATAL :: No location taxonomy vocabulary
-	$error_msg = t('Entity Taxonomy Vocabulary not Found. See admin.');
+    $error_msg = t('Entity Taxonomy Vocabulary not Found. See admin.');
     drupal_set_message($error_msg, 'error');
-	$node->rejected = TRUE;
-	$log['error'] = TRUE;
-	$log['error_msg'] = $error_msg;
-	return NULL;
+    $node->rejected = TRUE;
+    $log['error'] = TRUE;
+    $log['error_msg'] = $error_msg;
+    return NULL;
   }
 
   // Taxonomy TID (from vocabulary Locations).
   $term = $dom->getAttributeNode("Name")->value;
   if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
-	// Taxonomy term exist - fetch the tid.
-	$taxonomy = $taxonomy[0]; 
-	$tid = $taxonomy->tid;
-	$result = wallytoolbox_get_node_by_tid($tid,"wally_entitytype");
-	if ($result == NULL){
-	  $taxonomy = taxonomy_get_term($tid);
-	  $result = new stdClass();
-	}
-	elseif (count($result) > 1){
-	  drupal_set_message('Found 2 or more node reference for EntityID: '.$lid.'.','error');
-	  return NULL;
-	} else {
+    // Taxonomy term exist - fetch the tid.
+    $taxonomy = $taxonomy[0];
+    $tid = $taxonomy->tid;
+    $result = wallytoolbox_get_node_by_tid($tid,"wally_entitytype");
+    if ($result == NULL){
+      $taxonomy = taxonomy_get_term($tid);
+      $result = new stdClass();
+    } elseif (count($result) > 1){
+      drupal_set_message('Found 2 or more node reference for EntityID: '.$lid.'.','error');
+      return NULL;
+    } else {
       $result = $result[0];
-	}
+    }
   } else {
-	// New taxonomy term. Create & get the tid.
-	$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
-	$taxonomy = taxonomy_get_term($tid);
-	$result = new stdClass();
-  };
+    // New taxonomy term. Create & get the tid.
+    $tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+    $taxonomy = taxonomy_get_term($tid);
+    $result = new stdClass();
+  }
   // Set the taxonomy field.
   $result->field_entity = array( array("value" => $tid) );
-  // Set drupal node->taxonomy. 
-  $result->taxonomy = array($tid => $taxonomy); 
+  // Set drupal node->taxonomy.
+  $result->taxonomy = array($tid => $taxonomy);
 
   return $result;
 }
@@ -2795,57 +2776,54 @@ function wallyimportpackage_node_create_or_load_entity($dom, $log, $importer){
  *   Nothing
  */
 function wallyimportpackage_node_process_entity(&$node, $dom, &$log, $importer){
- 
-  
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
 
   // Node type
   $node->type = "wally_entitytype";
-  
+
   // External Reference
-  //$node->field_externalreference = array(array("value" => $dom->getAttributeNode("EntityID")->value)); 		   
-  
-  // Node UID 
+  //$node->field_externalreference = array(array("value" => $dom->getAttributeNode("EntityID")->value));
+
+  // Node UID
   $node->uid = variable_get('wallymport_defaultuser',1);
 
-  // Node Title 
+  // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
-  
+
   // Description
   $t = $dom->getElementsByTagName("EntityDescription");
   if ($t->length) {
-	$node->field_objectdescription = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_objectdescription = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Services
   $t = $dom->getElementsByTagName("EntityServices");
   if ($t->length) {
-	$node->field_entityservices = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_entityservices = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
-// Locations : supprimées
-/*
+  // Locations : supprimées
+  /*
   $t = $dom->getElementsByTagName("Locations");
   if ($t->length) {
-	$node->field_locations = array(); 
+    $node->field_locations = array();
     if (variable_get('wallymport_debug',0) or TRUE){
-	  $log['log'][] = 'process Locations: '.$t->nodeName;
-	}
+      $log['log'][] = 'process Locations: '.$t->nodeName;
+    }
 	$results = wimprt_node_process_list($t->item(0), $log);
-	// Get Location Taxonomy for all nodes.
-	foreach ($results as $result) {
-	  if (isset($result->field_locationtaxonomy)) {
-		if ($result->field_locationtaxonomy[0]) {
-		  $node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
-		  $node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);  
-		}
-	  }
-	} 
+    // Get Location Taxonomy for all nodes.
+    foreach ($results as $result) {
+      if (isset($result->field_locationtaxonomy)) {
+        if ($result->field_locationtaxonomy[0]) {
+          $node->field_locations[] = array("value"=>$result->field_locationtaxonomy[0]["value"]);
+          $node->taxonomy[] = taxonomy_get_term($result->field_locationtaxonomy[0]["value"]);
+        }
+      }
+    }
   }
-*/
+  */
   // Send back the node
   return($node);
-
 }
 
 /**
@@ -2864,11 +2842,10 @@ function wallyimportpackage_node_process_entity(&$node, $dom, &$log, $importer){
  *   Nothing
  */
 function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importer){
-  
-  $node->field_persons = array(); 
+  $node->field_persons = array();
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Persons: '.$dom->nodeName;
+    $log['log'][] = 'process Persons: '.$dom->nodeName;
   }
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
@@ -2879,9 +2856,9 @@ function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importe
   $node->field_persons = array();
   foreach($results as $result) {
     if (isset($result->field_persontaxonomy)) {
-	  if ($result->field_persontaxonomy[0]) {
-	    $node->field_persons[] = array("value" => $result->field_persontaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_persontaxonomy[0]["value"]] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);
+      if ($result->field_persontaxonomy[0]) {
+        $node->field_persons[] = array("value" => $result->field_persontaxonomy[0]["value"]);
+        $node->taxonomy[$result->field_persontaxonomy[0]["value"]] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);
 		$node->node_term_to_save[] = taxonomy_get_term($result->field_persontaxonomy[0]["value"]);
       }
     }
@@ -2906,7 +2883,7 @@ function wallyimportpackage_node_set_field_persons(&$node, $dom, &$log, $importe
 function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importer){
 
   if (variable_get('wallymport_debug',0) or TRUE){
-	$log['log'][] = 'process Authors: '.$dom->nodeName;
+    $log['log'][] = 'process Authors: '.$dom->nodeName;
   }
   $termes = $dom->getElementsByTagName("Term");
   $results = array();
@@ -2917,9 +2894,9 @@ function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importe
   $node->field_authors = array();
   foreach($results as $result) {
     if (isset($result->field_authortaxonomy)) {
-	  if ($result->field_authortaxonomy[0]) {
-	    $node->field_authors[] = array("value" => $result->field_authortaxonomy[0]["value"]);
-		$node->taxonomy[$result->field_authortaxonomy[0]["value"]] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);
+      if ($result->field_authortaxonomy[0]) {
+        $node->field_authors[] = array("value" => $result->field_authortaxonomy[0]["value"]);
+        $node->taxonomy[$result->field_authortaxonomy[0]["value"]] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);
 		$node->node_term_to_save[] = taxonomy_get_term($result->field_authortaxonomy[0]["value"]);
       }
     }
@@ -2939,45 +2916,44 @@ function wallyimportpackage_node_set_field_authors(&$node, $dom, &$log, $importe
  * @return
  *   A node object
  */
-function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){	
-
+function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){
   if (!($vid = variable_get('wallymport_person',NULL))) {
-	// TO DO FATAL :: No location taxonomy vocabulary
-	$error_msg = t('Person Taxonomy Vocabulary  not Found. See admin.');
+    // TO DO FATAL :: No location taxonomy vocabulary
+    $error_msg = t('Person Taxonomy Vocabulary  not Found. See admin.');
     drupal_set_message($error_msg, 'error');
-	$result->rejected = TRUE;
-	$log['error'] = TRUE;
-	$log['error_msg'] = $error_msg;
-	return NULL;
+    $result->rejected = TRUE;
+    $log['error'] = TRUE;
+    $log['error_msg'] = $error_msg;
+    return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
   $term = $dom->getAttributeNode("Name")->value;
   if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
     // Taxonomy term exist - fetch the tid.
-	$taxonomy = $taxonomy[0]; 
-	$tid = $taxonomy->tid;
-	$result = wallytoolbox_get_node_by_tid($tid,"wally_persontype");
-	if ($result == NULL){
-	  $taxonomy = taxonomy_get_term($tid);
-	  $result = new stdClass();
-	}
-	elseif (count($result) > 1){
-	  drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
-	  return NULL;
-	} else {
+    $taxonomy = $taxonomy[0];
+    $tid = $taxonomy->tid;
+    $result = wallytoolbox_get_node_by_tid($tid,"wally_persontype");
+    if ($result == NULL){
+      $taxonomy = taxonomy_get_term($tid);
+      $result = new stdClass();
+    }
+    elseif (count($result) > 1){
+      drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
+      return NULL;
+    } else {
       $result = $result[0];
-	}
+    }
   } else {
-	// New taxonomy term. Create & get the tid.
-	$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
-	$taxonomy = taxonomy_get_term($tid);
-	$result = new stdClass();
-  };
+    // New taxonomy term. Create & get the tid.
+    $tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+    $taxonomy = taxonomy_get_term($tid);
+    $result = new stdClass();
+  }
   // Set the taxonomy field.
-  
+
   $result->field_persontaxonomy = array( array("value" => $tid) );
-  // Set drupal node->taxonomy. 
-  $result->taxonomy = array($tid => $taxonomy); 
+  // Set drupal node->taxonomy.
+  $result->taxonomy = array($tid => $taxonomy);
   return $result;
 }
 
@@ -2997,42 +2973,42 @@ function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){
 function wallyimportpackage_node_create_or_load_author($dom, $log, $importer){	
 
   if (!($vid = variable_get('wallymport_author',NULL))) {
-	// TO DO FATAL :: No location taxonomy vocabulary
-	$error_msg = t('Author Taxonomy Vocabulary  not Found. See admin.');
+    // TO DO FATAL :: No location taxonomy vocabulary
+    $error_msg = t('Author Taxonomy Vocabulary  not Found. See admin.');
     drupal_set_message($error_msg, 'error');
-	$result->rejected = TRUE;
-	$log['error'] = TRUE;
-	$log['error_msg'] = $error_msg;
-	return NULL;
+    $result->rejected = TRUE;
+    $log['error'] = TRUE;
+    $log['error_msg'] = $error_msg;
+    return NULL;
   }
   // Taxonomy TID (from vocabulary Locations).
   $term = $dom->getAttributeNode("Name")->value;
   if ($taxonomy = wallytoolbox_taxonomy_get_term_by_path($term, $vid)) {
     // Taxonomy term exist - fetch the tid.
-	$taxonomy = $taxonomy[0]; 
-	$tid = $taxonomy->tid;
-	$result = wallytoolbox_get_node_by_tid($tid,"wally_persontype");
-	if ($result == NULL){
-	  $taxonomy = taxonomy_get_term($tid);
-	  $result = new stdClass();
-	}
-	elseif (count($result) > 1){
-	  drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
-	  return NULL;
-	} else {
+    $taxonomy = $taxonomy[0];
+    $tid = $taxonomy->tid;
+    $result = wallytoolbox_get_node_by_tid($tid,"wally_persontype");
+    if ($result == NULL){
+      $taxonomy = taxonomy_get_term($tid);
+      $result = new stdClass();
+    }
+    elseif (count($result) > 1){
+      drupal_set_message('Found 2 or more node reference for PersonID: '.$lid.'.','error');
+      return NULL;
+    } else {
       $result = $result[0];
-	}
+    }
   } else {
-	// New taxonomy term. Create & get the tid.
-	$tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
-	$taxonomy = taxonomy_get_term($tid);
-	$result = new stdClass();
-  };
+    // New taxonomy term. Create & get the tid.
+    $tid = wallytoolbox_add_taxonomy_term(_wimprthelp_plain_text($term), $vid, _wimprthelp_plain_text($term), 0);
+    $taxonomy = taxonomy_get_term($tid);
+    $result = new stdClass();
+  }
   // Set the taxonomy field.
-  
+
   $result->field_authortaxonomy = array( array("value" => $tid) );
-  // Set drupal node->taxonomy. 
-  $result->taxonomy = array($tid => $taxonomy); 
+  // Set drupal node->taxonomy.
+  $result->taxonomy = array($tid => $taxonomy);
   return $result;
 }
 
@@ -3058,69 +3034,68 @@ function wallyimportpackage_node_process_person(&$node, $dom, &$log, $importer){
   // Node type
   $node->type = "wally_persontype";
 
-// External Reference supprimé
-//  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("PersonID")->value)); 
+  // External Reference supprimé
+  // $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("PersonID")->value));
 
-  // Node UID 
+  // Node UID
   $node->uid = variable_get('wallymport_defaultuser', 1);
 
-  // Node Title 
+  // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
-  
+
   // Last Name
   $t = $dom->getElementsByTagName("PersonLastName");
   if ($t->length) {
-	$node->field_personlastname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_personlastname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // First Name
   $t = $dom->getElementsByTagName("PersonFirstName");
   if ($t->length) {
-	$node->field_personfirstname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_personfirstname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Nick Name
   $t = $dom->getElementsByTagName("PersonNickName");
   if ($t->length) {
-	$node->field_personnickname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_personnickname = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Birth Date
   $t = $dom->getElementsByTagName("PersonBirthDate");
   if ($t->length) {
-	$node->field_personbirthdate = array(_wimprthelp_date_to_ccktime($t->item(0)->nodeValue));
+    $node->field_personbirthdate = array(_wimprthelp_date_to_ccktime($t->item(0)->nodeValue));
   }
 
   // Sex
   $t = $dom->getElementsByTagName("PersonSex");
   if ($t->length) {
-	$node->field_personsex = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_personsex = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Email
   $t = $dom->getElementsByTagName("PersonEmail");
   if ($t->length) {
-	$node->field_personemail = array(array("email" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_personemail = array(array("email" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Phone number
   $t = $dom->getElementsByTagName("PersonPhoneNumber");
   if ($t->length) {
-	$node->field_phonenumber = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
+    $node->field_phonenumber = array(array("value" => _wimprthelp_plain_text($t->item(0)->nodeValue)));
   }
 
   // Website
   $t = $dom->getElementsByTagName("PersonWebSite");
   if ($t->length) {
-	$site = array(); 
-	$site["url"] = $t->item(0)->nodeValue; 
-	$site["title"] = $t->item(0)->nodeValue;
-	$site["attributes"] = Array();
-	$node->field_personwebsite = array($site);
+    $site = array();
+    $site["url"] = $t->item(0)->nodeValue;
+    $site["title"] = $t->item(0)->nodeValue;
+    $site["attributes"] = Array();
+    $node->field_personwebsite = array($site);
   }
   // Send back the node
   return($node);
-
 }
 
 /**
@@ -3143,7 +3118,6 @@ function wallyimportpackage_node_process_author(&$node, $dom, &$log, $importer){
   wallyimportpackage_node_process_person($node, $dom, $log, $importer);
   // Send back the node
   return($node);
-
 }
 
 /**
