@@ -1029,7 +1029,7 @@ function wimprt_node_process_list($dom_element, &$log, $importer){
 
     module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'before_process');
   
-    if ($dom_element->hasChildNodes) {
+    if ($dom_element->hasChildNodes()) {
       foreach ($dom_element->childNodes as $dom_child){
         $element_name = $dom_child->nodeName;
         if ($element_name != '#text'){
