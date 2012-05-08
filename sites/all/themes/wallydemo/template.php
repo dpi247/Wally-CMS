@@ -233,6 +233,34 @@ function wallydemo_preprocess_node_build_embedded_videos(&$vars){
 function wallydemo_preprocess_node_build_embedded_documents(&$vars){
   $node = &$vars['node'];
   $node->embed_documents=array();
+  
+ if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+      foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+        if ($embed->type == 'wally_digitalobject') {
+          node_view($embed);
+          dsm(wallydemo_get_digitalobject_infos_and_display($embed));
+          $node->embed_videos[$embed->nid]=wallydemo_get_digitalobject_infos_and_display($embed);
+          dsm($embed);
+          $content = $embed->field_video3rdparty[0]["view"];
+          $title=$node->embed_videos[$embed->nid]['title'];
+          $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
+          $module="";
+          $provider="";
+         
+          $node->embed_videos[$embed->nid] = array(
+          	'title' => $title,
+            'nid'=>$embed->nid,
+          	'emcode' => $content,
+          	'content' => $content, 
+          	'thumb' => $thumb,
+          	'group_type'=>'video',
+          	'type'=>$embed->type,
+          	'module'=>$module,
+          	'provider'=>$provider
+          );
+        }
+      }
+    }
 }
 
 function wallydemo_preprocess_node_build_embedded_audios(&$vars){
@@ -422,7 +450,6 @@ function wallydemo_preprocess_node(&$vars) {
       wallydemo_preprocess_node_build_embedded_videos($vars);
       wallydemo_preprocess_node_build_embedded_documents($vars);
       wallydemo_preprocess_node_build_embedded_audios($vars);
-
       $merged_medias=preprocess_node_article_merge_medias($vars);
 
       $mediaboxItems=array();
