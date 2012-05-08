@@ -111,7 +111,7 @@ function wallyflowtonode_action_info() {
  * @return
  *   Returns FALSE in case of error, redirect if successful.
  */
-function wallyflowtonode_cron($flow_key = NULL) {
+function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
   // Try to allocate enough time to run all the hook_cronflowtonode implementations.
   if (function_exists('set_time_limit')) {
     @set_time_limit(60);
@@ -142,7 +142,7 @@ function wallyflowtonode_cron($flow_key = NULL) {
     variable_set('wallyflowtonode_cron_semaphore', time());
 
     // Call the function calling the flows
-    $return = _wallyflowtonode_callallfeeds($flow_key);
+    $return = _wallyflowtonode_callallfeeds($flow_key, $force);
 
     // Record cron time
     variable_set('wallyflowtonode_cron_last', time());
@@ -201,7 +201,7 @@ function wallyflowtonode_publish_nodes(&$node, $context = array()) {
   }
 }
 
-function _wallyflowtonode_callallfeeds($flow_key = NULL) {
+function _wallyflowtonode_callallfeeds($flow_key = NULL, $force = FALSE) {
   $db_query = 'SELECT * FROM {wallyflowtonode_flows}';
   if ($flow_key) {
     $db_query .= ' WHERE flow_key = %d';
@@ -217,18 +217,22 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL) {
   $return = array();
   $return['date'] = date('Y-m-d H:i:s');
   foreach ($feeds_infos as $feed_infos) {
-    $return[] = _wallyflowtonode_callonefeed($feed_infos);
+    $return[] = _wallyflowtonode_callonefeed($feed_infos, $force);
   }
   
   return $return;
 }
 
-function _wallyflowtonode_callonefeed(&$feed_infos) {
+function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
   $return = 'Flow "@flow_name": ';
   $return_substion = array('@flow_name' => $feed_infos['name']);
   
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
+    if ($force) {
+      $feed_infos['last_build'] = 0;
+      $feed_infos['feeds_md5'] = array();
+    }
     while(is_string($feed_infos['conf'])) {
       $feed_infos['conf'] = unserialize($feed_infos['conf']);
     }
@@ -236,6 +240,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
       $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
     }
     $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
+
     $struct_array = $function($feed_infos);
     foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
       $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
@@ -278,7 +283,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos) {
           //file_delete($tempFile);
         }
 
-        if (isset($feed_infos['flow_key']) && $temp_return && !is_string($temp_return)) {
+        if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return[0]['error']) {
           $object = $feed_infos;
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
