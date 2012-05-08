@@ -241,8 +241,6 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           
           if($embed->field_object3rdparty['field']['items']['#value']){
             
-            dsm(wallydemo_get_digitalobject_infos_and_display($embed));
-            dsm($embed);
             
             $node->embed_videos[$embed->nid]=wallydemo_get_digitalobject_infos_and_display($embed);
             $content = $embed->field_video3rdparty[0]["view"];
@@ -252,6 +250,9 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
             $provider="";
           }
           else{
+            dsm(wallydemo_get_digitalobject_infos_and_display($embed));
+            dsm($embed);
+            
             $content = $embed->field_objectfile[0]["view"];
             $title=$node->embed_videos[$embed->nid]['title'];
             $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
@@ -265,7 +266,7 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           	'emcode' => $content,
           	'content' => $content, 
           	'thumb' => $thumb,
-          	'group_type'=>'video',
+          	'group_type'=>'document',
           	'type'=>$embed->type,
           	'module'=>$module,
           	'provider'=>$provider
