@@ -319,7 +319,7 @@ function preprocess_node_article_dispatch_top_bottom($vars,$allItems,&$top, &$bo
           $top[$embed->nid]=$item;
           break;
         case 'video':
-          if($switch!=TRUE){
+          if($switch!=TRUE and $item['provider']!='slideshare'){
             $top[$embed->nid]=$item;
             $switch=TRUE;
           }
