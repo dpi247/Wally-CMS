@@ -250,8 +250,6 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
             $provider="";
           }
           else{
-            dsm(wallydemo_get_digitalobject_infos_and_display($embed));
-            dsm($embed);
             $width=$height='600px';
             $height="400px";
             $url=url($embed->field_objectfile[0]["filepath"],array('absolute'=>TRUE));
