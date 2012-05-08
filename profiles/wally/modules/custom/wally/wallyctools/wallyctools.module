@@ -345,7 +345,7 @@ function wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, &$dom_el
       }
       
       if (!$default_set) {
-        $leafs->item(0)->setAttribute('target', 'true');
+        $leafs->item(0)->setAttribute('default', 'true');
       }
 
       $next_level = $level + 1;
