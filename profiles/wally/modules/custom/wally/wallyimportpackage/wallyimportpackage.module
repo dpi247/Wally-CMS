@@ -116,11 +116,13 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
+
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
+      $node->preview=TRUE;
       module_load_include('inc', 'wallyedi', 'includes/Prenode');
       ctools_include('object-cache');
-      $node->preview = TRUE;
+
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
@@ -129,7 +131,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name,'disabled');
-      
       $return['content'] = $content;
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message('The package '.$node->ext_ref.' has been deleted');
@@ -535,9 +536,10 @@ function wallyimportpackage_process_package_pollpackagetype(&$node, $dom_element
       }
       break;
   }
+
   //Map XML element
   wimprt_process_node_default($node, $dom_element, $log, $importer);
-  
+
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')) {
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
   }
@@ -1175,11 +1177,11 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
  */
 function wallyimportpackage_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
-	$object = wimprt_process_object($dom, $log, $importer, 'pollobjecttype');
-	$node->field_mainpoll[0]['nid'] = $object->nid;
-	if ($importer->wallymport_preview) {
-	  $node->field_mainpoll_nodes[0] = $object;
-	}
+  $object = wimprt_process_object($dom, $log, $importer, 'pollobjecttype');
+  $node->field_mainpoll[0]['nid'] = $object->nid;
+  if ($importer->wallymport_preview) {
+    $node->field_mainpoll_nodes[0] = $object;
+  }
 }
 
 /**
@@ -2211,8 +2213,6 @@ function wallyimportpackage_set_field_textchapo(&$node, $dom, &$log, $importer){
   $node->field_textchapo[0]['value'] = $value;
   $node->field_textchapo[0]['format'] = wallyimportpackage_get_default_format();
 }
-
-
 
 /**
  * Process field Text Body from DOM element.
