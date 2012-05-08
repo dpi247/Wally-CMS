@@ -252,7 +252,8 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           else{
             dsm(wallydemo_get_digitalobject_infos_and_display($embed));
             dsm($embed);
-            $width=$height='auto';
+            $width=$height='100%';
+            $height="4OOpx";
             $url=url($embed->field_objectfile[0]["filepath"],array('absolute'=>TRUE));
             $content='<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
             $title=$node->embed_videos[$embed->nid]['title'];
