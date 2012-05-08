@@ -515,9 +515,15 @@ function cckdestinations_ccimapping_productinfo_alter(&$dom, $op) {
       $dom_level = $budgettemplate->appendChild($dom->createElement('level1'));
       $dom_level->setAttribute('name', $multi_dest['virtual']);
       $target_intersect = cckdestinations_multiple_dests_get_target_intersect($multi_dest['reals']);
+      $first = TRUE;
       foreach ($target_intersect as $redack_machine_name => $redacblock) {
         $leaf = $dom_level->appendChild($dom->createElement('leaf'));
         $leaf->setAttribute('name', $redack_machine_name);
+        //@todo hardcoding to remove
+        if ($first) {
+          $leaf->setAttribute('default', 'true');
+          $first = FALSE;
+        }
       }
     }
   }
