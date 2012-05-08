@@ -47,7 +47,7 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
     $dom->loadXML($form_state['values']['xml']);
     drupal_alter('ccimapping_productinfo', $dom, 'before_send');
     $xml = $dom->saveXML();
-
+    dsm($xml);
     $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
     $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
