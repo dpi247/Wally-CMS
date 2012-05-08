@@ -85,6 +85,12 @@ function cckdestinations_page_multiple_destinations_form_validate($form, $form_s
   if (wallytoolbox_taxonomy_get_path_by_tid_or_term($values['name'], $dest_vid)) {
     form_set_error('name', t('This is name already exists as real destination'));
   }
+  
+  $intersect = cckdestinations_multiple_dests_get_target_intersect($values['reals']);
+  unset($intersect['none']);
+  if (empty($intersect)) {
+    form_set_error('reals', t('The given destinations have no common target'));
+  }
 }
 
 function cckdestinations_page_multiple_destinations_form_submit($form, $form_state) {
