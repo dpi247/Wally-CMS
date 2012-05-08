@@ -134,10 +134,6 @@ function wallyctools_panels_display_save($display) {
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_views_view(&$vars){
-  $funcs=_views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
-
-  
-   
   //if redacblock is splitted we need to tweak the pager 
   if(isset($vars['view']->split_index_count)){
     global $pager_total;
@@ -148,7 +144,8 @@ function wallyctools_preprocess_views_view(&$vars){
     $vars['pager']    = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
   }
     
-  
+  $funcs=_views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
+
   $new_funcs=array();
   if($vars['view']->split_index_count){
 
@@ -306,6 +303,54 @@ function wallyctools_views_api() {
     'api' => 2,
     'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
   );
+}
+
+/**
+ * Implementation of hook_ccimapping_productinfo_alter
+ * Add the default target to product info
+ */
+function wallyctools_ccimapping_productinfo_alter(&$dom, $op) {
+  if ($op == 'before_send') {
+    $dest_vid = variable_get('wallymport_destinationpath', 0);
+    $depth = 0;
+    $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
+    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+    $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
+
+    $level = 1;
+    wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, $budgettemplate, $tid_did_mapping, $default_redacblocks, $dest_vid, $level);
+  }
+}
+
+function wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, &$dom_element, $tid_did_mapping, $default_redacblocks, $dest_vid, $level, $tax_path = '') {
+  $dom_levels = $dom_element->getElementsByTagName('level'.$level);
+  if ($dom_levels->item(0)) {
+    foreach ($dom_levels as $dom_level) {
+      $default_set = FALSE;
+      $term_path = $tax_path.$dom_level->getAttributeNode('name')->value.'/';
+      $term = wallytoolbox_taxonomy_get_term_by_path($term_path, $dest_vid);
+      $did = $tid_did_mapping[$term[0]->tid]['did'];
+      $default_redacblock = $default_redacblocks[$did];
+      
+      $leafs = $dom_level->getElementsByTagName('leaf');
+      if ($leafs->item(0)) {
+        foreach ($leafs as $leaf) {
+          if ($leaf->getAttributeNode('name')->value == $default_redacblock['default_redacblock']) {
+            $leaf->setAttribute('default', 'true');
+            $default_set = TRUE;
+            break;
+          }
+        }
+      }
+      
+      if (!$default_set) {
+        $leafs->item(0)->setAttribute('default', 'true');
+      }
+
+      $next_level = $level + 1;
+      wallyctools_ccimapping_productinfo_alter_hierarchy_items($dom, $dom_level, $tid_did_mapping, $default_redacblocks, $dest_vid, $next_level, $term_path);
+    }
+  }
 }
 
 function wallyctools_api_getlayoutfromdestinationandtarget($node,$destination,$target){
@@ -714,6 +759,7 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
         $view->display_handler->set_option('offset', $conf['offset']);
         $view->set_offset($conf['offset'] + $page*$conf['nodes_per_page']);
         $view->pager['total_items_per_page'] = $conf['total_nodes_per_page'];
+        $view->pager['items_per_page'] = $conf['total_nodes_per_page'];
       }
     }
     $success = TRUE;
