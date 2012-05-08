@@ -134,7 +134,6 @@ function wallyctools_panels_display_save($display) {
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_views_view(&$vars){
-  
   //if redacblock is splitted we need to tweak the pager 
   if(isset($vars['view']->split_index_count)){
     global $pager_total;
