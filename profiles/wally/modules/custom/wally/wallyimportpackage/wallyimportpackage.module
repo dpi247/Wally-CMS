@@ -1209,13 +1209,14 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
-  $embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0);
-  foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
-    if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
-      $results[$result->nid] = $result->nid;
-      $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
-      if ($importer->wallymport_preview){
-        $node->field_embededobjects_nodes[] = $result;
+  if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
+    foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
+      if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+        $results[$result->nid] = $result->nid;
+        $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
+        if ($importer->wallymport_preview){
+          $node->field_embededobjects_nodes[] = $result;
+        }
       }
     }
   }
@@ -1230,11 +1231,11 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $links = array();
   $node->field_linkedobjects = array();
   $node->field_linkedobjects_nodes = array();
-  $linklists = $dom->getElementsByTagName('LinksLists')->item(0);
-  $linklist = $dom->getElementsByTagName('LinksList')->item(0);
-  if ($dom->getElementsByTagName('LinksList')->item(0)){
-    if ($linklist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
-      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result) {
+  $linkslists = $dom->getElementsByTagName('LinksLists')->item(0);
+  $linkslist = $dom->getElementsByTagName('LinksList')->item(0);
+  if ($linkslists && $linkslist){
+    if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
+      foreach (wimprt_process_list($linkslists, $log, $importer, 'object') as $result) {
         if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
