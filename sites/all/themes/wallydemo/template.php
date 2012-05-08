@@ -238,15 +238,27 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
         if ($embed->type == 'wally_digitalobject') {
           node_view($embed);
-          dsm(wallydemo_get_digitalobject_infos_and_display($embed));
-          $node->embed_videos[$embed->nid]=wallydemo_get_digitalobject_infos_and_display($embed);
-          dsm($embed);
-          $content = $embed->field_video3rdparty[0]["view"];
-          $title=$node->embed_videos[$embed->nid]['title'];
-          $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
-          $module="";
-          $provider="";
-         
+          
+          if($embed->field_object3rdparty['field']['items']['#value']){
+            
+            dsm(wallydemo_get_digitalobject_infos_and_display($embed));
+            dsm($embed);
+            
+            $node->embed_videos[$embed->nid]=wallydemo_get_digitalobject_infos_and_display($embed);
+            $content = $embed->field_video3rdparty[0]["view"];
+            $title=$node->embed_videos[$embed->nid]['title'];
+            $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
+            $module="";
+            $provider="";
+          }
+          else{
+            $content = $embed->field_objectfile[0]["view"];
+            $title=$node->embed_videos[$embed->nid]['title'];
+            $thumb="<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
+            $module="";
+            $provider="";
+          
+          }
           $node->embed_videos[$embed->nid] = array(
           	'title' => $title,
             'nid'=>$embed->nid,
