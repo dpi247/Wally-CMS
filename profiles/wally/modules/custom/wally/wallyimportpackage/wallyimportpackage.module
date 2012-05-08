@@ -1666,7 +1666,7 @@ function wallyimportpackage_process_object_audioobjecttype(&$node, $dom, &$log, 
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
 
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emaudio');  
   if (empty($rdpartyMatch)){//No a 3rdparty
@@ -1738,7 +1738,7 @@ function wallyimportpackage_process_object_videoobjecttype(&$node, $dom, &$log, 
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue; 
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emvideo');  
   if (empty($rdpartyMatch)){//No a 3rdparty
     $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
@@ -1812,7 +1812,7 @@ function wallyimportpackage_process_object_multimediaobjecttype(&$node, $dom, &$
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
   $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emother');  
   if (empty($rdpartyMatch)){//No a 3rdparty
     $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
