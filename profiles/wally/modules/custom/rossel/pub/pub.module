@@ -247,6 +247,139 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
 }
 
 /**
+ * Hook preprocess for meta tags.
+ */
+function pub_preprocess_page(&$variables) {
+  $variables['meta'] = pub_get_meta();	
+}
+
+/**
+ * Return an entry from the zz_pub_UMI
+ * @param string $delta
+ *   The block delta croorepsponding to the position column
+ *  
+ * @return
+ *   Return the database entry as an array or FALSE
+ * 
+ */
+function pub_load_block($delta){
+  $query='SELECT * FROM {zz_pub_UMI} where position = "%s"';
+  $result = db_fetch_array(db_query($query, $delta));
+  return $result;
+}
+
+/**
+ * Adds a META TAG to the process template queue.
+ * 
+ * @param $attributes
+ *   Array of meta key keyword & key value. 
+ *   If key keyword is one of "http-equiv, name, property"
+ *   the Meta is updated in case of 2 calls.
+ * @param $content
+ *   Content of the meta tag.
+ *   
+ * @return
+ * 	Return an array of meta.
+ */
+function pub_add_meta($attributes = array(), $content = NULL) {
+	static $metas = array();
+	$meta_key = NULL; 
+
+	// Supported "Meta Keys" are : http-equiv, name, property.
+	if (is_array($attributes)) {
+	  $content = strip_tags($content);
+
+	  foreach ($attributes as $attribute_name => $attribute_value) {
+	    switch (strtolower($attribute_name)) {
+	      case 'name':
+	      case 'http-equiv':
+	      case 'property':
+	        $meta_key = strtolower($attribute_name).'_'.$attribute_value;
+	        $metas[$meta_key] = array($attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	      default:
+	        $metas[] = array($attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	    }
+	  }
+	}
+	return $metas;
+}
+
+/**
+ * Generate HTML tag for meta tags.
+ */
+function pub_get_meta() {
+  if (!isset($metas)) {
+    $metas = pub_add_meta();
+  }
+
+  if (empty($metas)) {
+    return '';
+  }
+
+  $output = '';
+  
+  foreach ($metas as $meta_k => $meta) {
+    if (!$meta) {
+      continue;
+    }
+    $output .= "<meta ";
+		foreach($meta as $data_k => $data_v) {
+			$output .= " ".$data_k."=\"".$data_v."\"";
+		}
+    $output .= " />\n";
+  }
+  
+  return $output;
+}
+
+/**
+ * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
+ * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
+ * 
+ * @param string $term
+ *   A taxonomy term ID or name. If it is a name, the chosen term will
+ * be the one matching the $vid, if given, or the first in the results
+ * list.
+ * @param string $vid
+ *   The vocabulary ID.
+ * 
+ * @return
+ *   A string containing the parents hierarchy, separated by "/".
+ */
+function pub_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_voc = FALSE) {
+  $return = '';
+  
+  if (!is_numeric($term)) {
+    $terms_list = taxonomy_get_term_by_name($term);
+    if ($vid != '') {
+      foreach ($terms_list as $term_elem) {
+        if ($term_elem->vid == $vid) {
+          $tid = $term_elem->tid;
+          break;
+        }
+      }
+    } else {
+      $tid = $terms_list[0]->tid;
+    }
+  } else {
+    $tid = $term;
+  }
+  
+  $tax_list = taxonomy_get_parents_all($tid);
+  foreach (array_reverse($tax_list) as $tax_elem) {
+    $return .= $tax_elem->name.'/';
+  }
+  if ($add_voc) {
+    $voc = taxonomy_vocabulary_load($tax_list[0]->vid);
+    $return = $voc->name.'/'.$return;
+  }
+  
+  return substr($return, 0, strlen($return)-1);
+}
+
+/**
  * Get content for the pub block.
  * 
  * @param string $delta
@@ -284,7 +417,7 @@ function _pub_getpubcontent($delta, $cache_url) {
       case 'purl':
         $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
         if ($pub_content['meta'] && !empty($pub_content['meta']['content'])) {
-          wallytoolbox_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+          pub_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
         }
         break;
       case 'openx':
@@ -501,12 +634,16 @@ function _pub_getwebservreq($orig_url) {
       case 'node':
         if ($expl_url[1]) {
           $node = node_load($expl_url[1]);
-          $node_dest = $node->field_destinations;
-          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
-          if ($tax_hierar == '' || empty($tax_hierar)) {
-            $webserv_req[] = $orig_url;
+          if (module_exists('cckdestinations') && isset($node->field_destinations) && !empty($node->field_destinations)) {
+            $node_dest = $node->field_destinations;
+            $tax_hierar = pub_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
+            if ($tax_hierar == '' || empty($tax_hierar)) {
+              $webserv_req[] = $orig_url;
+            } else {
+              $webserv_req[] = $tax_hierar.'/'.$node->nid;
+            }
           } else {
-            $webserv_req[] = $tax_hierar.'/'.$node->nid;
+            $webserv_req[] = $orig_url;
           }
         } else {
           $webserv_req[] = $orig_url;
@@ -521,7 +658,7 @@ function _pub_getwebservreq($orig_url) {
         if ($expl_url[2]) {
           $tids = $expl_url[2];
           $expl_tids = preg_split('(\+|\,|\ )', $tids);
-          $tax_hierar = wallytoolbox_taxonomy_get_path_by_tid_or_term($expl_tids[0], '', TRUE);
+          $tax_hierar = pub_taxonomy_get_path_by_tid_or_term($expl_tids[0], '', TRUE);
           $webserv_req[] = $tax_hierar;
         } else {
           $webserv_req[] = $orig_url;
@@ -575,19 +712,4 @@ function _pub_get_path_to_item($menu_step, $link_path, $first_level = FALSE) {
     }
   }
   return 'not found';
-}
-
-/**
- * Return an entry from the zz_pub_UMI
- * @param string $delta
- *   The block delta croorepsponding to the position column
- *  
- * @return
- *   Return the database entry as an array or FALSE
- * 
- */
-function pub_load_block($delta){
-  $query='SELECT * FROM {zz_pub_UMI} where position = "%s"';
-  $result = db_fetch_array(db_query($query, $delta));
-  return $result;
 }
