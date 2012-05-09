@@ -21,7 +21,7 @@
   <div id="scroller-body">
       <div id="mask">
           <div id="onglet">
-          <?php  foreach($onglets_struct as $onglet=>$onglet_content): ?>
+          <?php foreach($onglets_struct as $onglet=>$onglet_content): ?>
             <?php if($onglet!=$meta_tab_name and $onglet!=$no_tab_name): ?>
               <div class="content-tabs" id="onglet-<?php print $onglet; ?>">
              
@@ -29,34 +29,26 @@
                   <div class="group">
                     <div class="group_content">
                       <?php  foreach($onglets_struct[$onglet]['elements']['no_group']['fields'] as $element_name=>$element_content): ?>
-                        <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-                          <?php  print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
-                        <?php else:?>
-                          <?php print drupal_render($form[$node_type][$element_name]); ?>
-                        <?php endif;?>
+                        <?php print drupal_render($form[$node_type][$element_name]); ?>
                       <?php endforeach;?>
                     </div>
                   </div>
                 <?php endif;?>
              
-             <?php  foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
+              <?php foreach($onglets_struct[$onglet]['elements'] as $group_id=>$group_content): ?>
                 <?php if($group_id!='no_group'): ?>
                 <div class="group">
                   <h2 class="title  title-group "><span><?php print $onglets_struct[$onglet]['elements'][$group_id]["label"]; ?></span></h2>
                   <div class="group_content">
                   <?php  foreach($onglets_struct[$onglet]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
-                    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-                      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name]); ?>
-                    <?php else:?>
-                      <?php print drupal_render($form[$node_type][$element_name]); ?>
-                    <?php endif; ?>
+                    <?php print drupal_render($form[$node_type][$element_name]); ?>
                   <?php endforeach; ?>
                   <div class="clear"></div>
-                  
                   </div>
                   </div>
                   <?php endif; ?>
                 <?php endforeach; ?>
+
               </div>
               <?php endif; ?>
             <?php endforeach; ?>
@@ -70,34 +62,29 @@
   <div id="meta-header">
     <span><?php print $onglets_struct[$meta_tab_name]['label']; ?></span>
   </div>
-  <?php  if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
+
+  <?php if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
   <div class="group">
     <?php foreach($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'] as $element_name=>$element_content):?>
-    <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-      <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-    <?php else:?>
       <?php print drupal_render($form[$node_type][$element_name])?>
-    <?php endif;?>
     <?php endforeach;?>
   </div>
   <?php endif;?>
-  <?php  foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
+
+  <?php foreach($onglets_struct[$meta_tab_name]['elements'] as $group_id=>$group_content):?>
   <?php if($group_id!='no_group'):?>
     <div class="group">
       <h2 class="title title-group "><span><?php print $onglets_struct[$meta_tab_name]['elements'][$group_id]["label"]?></span></h2>
       <div class="group_content">
         <?php foreach($onglets_struct[$meta_tab_name]['elements'][$group_id]['fields'] as $element_name=>$element_content): ?>
-          <?php if(isset($cck_fields[$element_name]['display_settings']['parent']) && !empty($cck_fields[$element_name]['display_settings']['parent'])): ?>
-            <?php print drupal_render($form[$node_type][$cck_fields[$element_name]['display_settings']['parent']][$element_name])?>
-          <?php else:?>
-            <?php print drupal_render($form[$node_type][$element_name])?>
-          <?php endif;?>
+          <?php print drupal_render($form[$node_type][$element_name])?>
         <?php endforeach;?>
         <div class="clear"></div>
       </div>
     </div>
   <?php endif;?>
   <?php endforeach;?>
+
 <?php endif; ?>
 </div>
 
