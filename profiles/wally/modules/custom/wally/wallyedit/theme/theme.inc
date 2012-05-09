@@ -51,6 +51,22 @@ function wallyedit_preprocess_wallyedit_node_form(&$vars) {
   
   $vars['profile_id'] = $vars['form']['profile_id']['#value'];
   $vars['node_type'] = $vars['form']['type']['#value'];
+  
+  if (module_exists('fieldgroup')) {
+    // Flatten the form so we do not dependent on the groups
+    $groups = fieldgroup_groups($vars['node_type']);
+    $form = &$vars['form'][$vars['node_type']];
+    foreach ($groups as $group) {
+      if (isset($form[$group['group_name']])) {
+        foreach ($group['fields'] as $field) {
+          if (isset($form[$group['group_name']][$field['field_name']])) {
+            $form[$field['field_name']] = $form[$group['group_name']][$field['field_name']];
+          }
+        }
+        unset($form[$group['group_name']]);
+      }
+    }
+  }
 
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/tab_slider.js');
