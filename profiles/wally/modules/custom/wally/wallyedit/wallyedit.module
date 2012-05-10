@@ -3,7 +3,7 @@
 module_load_include('inc', 'node', 'node.pages');
 module_load_include('inc', 'wallyedit', 'includes/Prenode');
 module_load_include('inc', 'wallyedit', 'wallyedit.forms');
-module_load_include('inc', 'wallyedit', 'includes/page_form_display_tabs');
+module_load_include('inc', 'wallyedit', 'includes/config_api');
 
 /**
  * Implementation of hook_init()
@@ -67,6 +67,25 @@ function wallyedit_menu(){
     'file' => 'includes/page_form_display_tabs.inc',
     'title' => t('WallyEdit - Display all fields into tabs'),
     'description' => t('Display all fields and organise them into tabs'),
+  );
+  
+  $items['admin/content/wallydisplaytabs/profiles'] = array(
+    'page callback' => 'wallyedit_page_profiles_overview',
+    'access arguments' => array('manage profiles'),
+    'file' => 'includes/page_form_display_tabs.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => t('Profiles'),
+    'weight' => 0,
+  );
+  
+  $items['admin/content/wallydisplaytabs/config'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyedit_form_config_import_export_form'),
+    'access arguments' => array('manage profiles'),
+    'file' => 'includes/page_form_config_import_export.inc',
+    'type' => MENU_LOCAL_TASK,
+    'title' => t('Import/Export'),
+    'weight' => 1,
   );
   
   $items['admin/content/wallydisplaytabs/displaytabs/%'] = array(
