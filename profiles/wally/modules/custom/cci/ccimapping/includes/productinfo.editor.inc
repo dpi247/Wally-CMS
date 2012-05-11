@@ -25,7 +25,7 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
   $form['fieldset']['actual_xml'] = array(
     '#type' => 'markup',
     '#weight'=>999,
-    '#value' =>'<pre>'.htmlentities(ccimap_get_productinfo_fromWS($type)).'</pre>',
+    '#value' =>'<pre>'.htmlentities(formatXmlString(ccimap_get_productinfo_fromWS($type))).'</pre>',
   );
   
   $form['send'] = array(
