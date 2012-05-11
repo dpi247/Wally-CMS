@@ -1219,20 +1219,20 @@ function wallyimportpackage_node_set_field_EmbeddedContent(&$node, $dom, &$log, 
   $arraytemporaire = array();
   if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
     foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result) {
-      if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+      if (!$result->rejected && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
         $results[$result->nid] = $result->nid;
-        $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
+        $arraytemporaire[$result->embeddedobjectsorder]['nid'] = $result->nid;
         if ($importer->wallymport_preview){
           $node->field_embededobjects_nodes[] = $result;
         }
       }
     }
   }
+  
+  ksort($arraytemporaire);
   //Place object in the correct order (depend of the embeddedobjectorder)
   foreach ($arraytemporaire as $array_key => $array_value){
-    foreach ($array_value as $array_valuee){
-      array_push($node->field_embededobjects, $array_valuee);
-    }
+    array_push($node->field_embededobjects, $array_value);
   }
 
   // Linkslists objects
@@ -1594,17 +1594,8 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
   $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
 
-  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
-  //if (!isset($node->field_photofile[0]) || count($node->field_photofile[0])<8)
-  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emimage');  
+  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emimage', 'wally_photoobject', 'field_photofile', 'field_photo3rdparty');
 
-  if (empty($rdpartyMatch)) { //Not a 3rdparty
-    $photo_field = content_field_instance_read(array('type_name' => 'wally_photoobject', 'field_name' => 'field_photofile'));
-    $new_photo_path = module_exists('token') ? token_replace($photo_field[0]['widget']['file_path'], 'user', $token_user) : $photo_field[0]['widget']['file_path'];
-    $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, $new_photo_path, $importer);
-  } else {//Is a 3rd party
-    $node->field_photo3rdparty[0]['embed'] = $file_uri;
-  }
 
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
@@ -1673,14 +1664,8 @@ function wallyimportpackage_node_process_audioobjecttype(&$node, $dom, &$log, $i
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-
-  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emaudio');  
-  if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_audiofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
-  } else {//Is a 3rd party
-    $node->field_audio3rdparty[0]['embed'] = $file_uri;
-  }
+  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
+  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emaudio', 'wally_audioobject', 'field_audiofile', 'field_audio3rdparty');
 
   //Link
   $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
@@ -1745,13 +1730,8 @@ function wallyimportpackage_node_process_videoobjecttype(&$node, $dom, &$log, $i
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue; 
-  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emvideo');  
-  if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_videofile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
-  } else {//Is a 3rd party
-    $node->field_video3rdparty[0]['embed'] = $file_uri;
-  }
+  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
+  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emvideo', 'wally_videoobject', 'field_videofile', 'field_video3rdparty');
   
   $node->field_link[0]['url'] = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   $node->field_link[0]['title'] = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
@@ -1820,13 +1800,8 @@ function wallyimportpackage_node_process_multimediaobjecttype(&$node, $dom, &$lo
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
 
-  $file_uri = $dom->getElementsByTagName('FileURI')->item(0)->nodeValue;
-  $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, 'emother');  
-  if (empty($rdpartyMatch)){//No a 3rdparty
-    $node->field_objectfile[0] = _wimprthelp_create_file_from_uri($file_uri, '', $importer);
-  } else {//Is a 3rd party
-    $node->field_object3rdparty[0]['embed'] = $file_uri;
-  }
+  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
+  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emother', 'wally_multimediaobject', 'field_objectfile', 'field_object3rdparty');
  
   //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
@@ -3195,6 +3170,29 @@ function _wallyimportpackage_find_destination($current_destinations, $new_dest) 
     }
   }
   return FALSE;
+}
+
+function _wallymportpackage_manage_file_from_uri(&$node, $importer, $dom, $token_user, $emfield_module, $object_type, $field_name, $rdfile_name) {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  
+  $file_uri = $dom->getElementsByTagName('URI')->item(0)->nodeValue;
+  
+  $uri = parse_url($file_uri);
+  if ($uri['scheme'] == 'embed') {
+    // If embed we don't want to treat it like a 3rd party
+    $rdpartyMatch = array();
+  } else {
+    $rdpartyMatch = emfield_parse_embed(NULL, $file_uri, $emfield_module);
+  }
+
+  if (empty($rdpartyMatch)){//No a 3rdparty
+    // Copy the file in the correct subfolder
+    $field = content_field_instance_read(array('type_name' => $object_type, 'field_name' => $field_name));
+    $new_path = module_exists('token') ? token_replace($field[0]['widget']['file_path'], 'user', $token_user) : $field[0]['widget']['file_path'];
+    $node->{$field_name}[0] = _wimprthelp_create_file_from_uri($file_uri, $new_path, $importer);
+  } else {//Is a 3rd party
+    $node->{$rdfile_name}[0]['embed'] = $file_uri;
+  }
 }
 
 /**
