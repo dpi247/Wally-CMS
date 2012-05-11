@@ -5,9 +5,9 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
 
   $form['xml'] = array(
     '#type' => 'textarea',
-    '#disabled' => !user_access('edit synchronization datas'),
     '#title' => t('XML Mapping'),
     '#default_value' => formatXmlString(ccimap_build_productinfo($type)),
+    '#disabled' => !user_access('edit synchronization datas'),
   );
 
   $form['type'] = array(

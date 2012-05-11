@@ -7,6 +7,7 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
     '#type' => 'textarea',
     '#title' => t('XML Cropings'),
     '#default_value' => ccimapping_cropsync_get_cropings_fromWS(),
+    '#disabled' => !user_access('edit synchronization datas'),
   );
 
   $form['send'] = array(
@@ -47,7 +48,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form, $form_state
     $result = $client->setImageSettings($parameters_array);
     drupal_set_message(t('The cropings have been sent to CCI'));
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: FaultString: '.$exception->faultstring.'. FaultCode: '.$exception->faultcode, 'error');
+    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
     dsm($exception);
   }
 /*dsm($client->__getLastRequest(), 'submit req');
@@ -76,7 +77,7 @@ function ccimapping_cropsync_get_cropings_fromWS() {
   try {
     $result = $client->getImageSettings($parameters_array);
   } catch (SoapFault $exception) {
-    drupal_set_message('WebService Error: FaultString: '.$exception->faultstring.'. FaultCode: '.$exception->faultcode, 'error');
+    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
     dsm($exception);
   }
 /*dsm($client->__getLastRequest(), 'req');
@@ -142,39 +143,3 @@ function ccimapping_cropsync_get_crops() {
 
   return $crops;
 }
-
-/*function ccimapping_cropsync_set_cropings_xml($req_xml) {
-  $dom = new DOMDocument();
-  $dom->loadXML($req_xml);
-  $crops_settings = $dom->getElementsByTagName('cropSetting');
-  
-  $result = TRUE;
-  
-  if ($crops_settings->item(0)) {
-    foreach($crops_settings as $crop_settings) {
-      $presetname = $crop_settings->getAttribute('id');
-      $preset = imagecache_preset_by_name($presetname);
-      $dimension = $crop_settings->getElementsByTagName('dimension')->item(0);
-      $datas['width'] = $dimension->getAttribute('width');
-      $datas['height'] = $dimension->getAttribute('height');
-
-      if ($preset['actions']) {
-        $found_wallycrop = FALSE;
-        foreach ($preset['actions'] as $action) {
-          if ($action['action'] == 'wallycontenttypes_wallycrop') {
-            $action['data']['width'] = $datas['width'];
-            $action['data']['height'] = $datas['height'];
-            imagecache_action_save($action);
-            $found_wallycrop = TRUE;
-          } elseif ($action['action'] == 'imagecache_scale' && $found_wallycrop) {
-            $action['data']['width'] = $datas['width'];
-            $action['data']['height'] = $datas['height'];
-            imagecache_action_save($action);
-          }
-        }
-      }
-    }
-  }
-  
-  return $result;
-}*/
