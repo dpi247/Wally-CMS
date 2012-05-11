@@ -7,6 +7,7 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
     '#type' => 'textarea',
     '#title' => t('XML Mapping'),
     '#default_value' => formatXmlString(ccimap_build_productinfo($type)),
+    '#disabled' => !user_access('edit synchronization datas'),
   );
 
   $form['type'] = array(
@@ -53,9 +54,9 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
     $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
     try {
       $result = $client->setProductTemplate($parameters_array);
-      drupal_set_message('the productinfo has been sent to CCI');
+      drupal_set_message(t('The productinfo has been sent to CCI'));
     } catch (SoapFault $exception) {
-      drupal_set_message("WebService Errror when sending the XML: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+      drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
       dsm($exception);
     }
   }
@@ -75,7 +76,7 @@ function ccimap_get_productinfo_fromWS() {
   try {
     $result = $client->getProductTemplate(array('newsroom' => $newsroom, 'productname' => $product_name));
   } catch (SoapFault $exception) {
-    drupal_set_message("WebService Errror: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
     dsm($exception);
   }
   return $result->return;

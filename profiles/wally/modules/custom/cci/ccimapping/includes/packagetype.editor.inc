@@ -2,11 +2,13 @@
 
 function ccimapping_form_packagetype_editor_form($form_state,$wally_type=NULL){
   $form=array();
-  if($wally_type){
+  
+  if($wally_type) {
     $form['xml'] = array(
       '#type' => 'textarea',
       '#title' => t('XML Mapping'),
-      '#default_value' => ccimap_get_specific_type(ccimap_get_packagetype_fromWS($wally_type),$wally_type),
+      '#default_value' => ccimap_get_specific_type(ccimap_get_packagetype_fromWS($wally_type), $wally_type),
+      '#disabled' => !user_access('edit synchronization datas'),
     );
 
     $form['type'] = array(
@@ -19,8 +21,7 @@ function ccimapping_form_packagetype_editor_form($form_state,$wally_type=NULL){
       '#name'=>'send',
       '#value' => t('Save & Send to CCI'),
     );
-  }
-  else{
+  } else{
     $form['type_selector']=array(
       '#type'=>'markup',
       '#value'=>theme("ccimapping_typeselector","packagetype"),
@@ -42,9 +43,9 @@ function ccimapping_form_packagetype_editor_form_submit($form,$form_state){
     $parameters_object=(object) $parameters_array;
     try {
       $result = $client->setPackageType( $parameters_array);
-      drupal_set_message('the packageType has been sent to CCI');
+      drupal_set_message(t('The packageType has been sent to CCI'));
     } catch (SoapFault $exception) {
-      drupal_set_message("WebService Errror: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+      drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error'); 
       dsm($exception);
     }
   }
@@ -69,7 +70,7 @@ function ccimap_get_packagetype_fromWS($wally_type){
   try {
     $result = $client->getPackageType( array("newsroom"=>$newsroom,'productname'=>$product_name));
   } catch (SoapFault $exception) {
-    drupal_set_message("WebService Errror: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
     dsm($exception);
   }
 
