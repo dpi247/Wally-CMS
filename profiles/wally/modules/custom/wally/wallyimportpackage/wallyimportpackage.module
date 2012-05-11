@@ -1213,20 +1213,20 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   $arraytemporaire = array();
   if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
     foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
-      if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+      if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
         $results[$result->nid] = $result->nid;
-        $arraytemporaire[$result->embeddedobjectsorder][]['nid'] = $result->nid;
+        $arraytemporaire[$result->embeddedobjectsorder]['nid'] = $result->nid;
         if ($importer->wallymport_preview){
           $node->field_embededobjects_nodes[] = $result;
         }
       }
     }
   }
+  
+  ksort($arraytemporaire);
   //Place object in the correct order (depend of the embeddedobjectorder)
   foreach ($arraytemporaire as $array_key => $array_value){
-    foreach ($array_value as $array_valuee){
-      array_push($node->field_embededobjects, $array_valuee);
-    }
+    array_push($node->field_embededobjects, $array_value);
   }
 
   // Linkslists objects
