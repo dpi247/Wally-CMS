@@ -1588,7 +1588,6 @@ function wallyimportpackage_process_object_photoobjecttype(&$node, $dom, &$log, 
   $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
 
-  $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
   _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emimage', 'wally_photoobject', 'field_photofile', 'field_photo3rdparty');
 
   wimprt_process_node_default($node, $dom, $log, $importer);
