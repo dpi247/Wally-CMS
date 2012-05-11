@@ -25,7 +25,7 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
   $form['fieldset']['actual_xml'] = array(
     '#type' => 'markup',
     '#weight'=>999,
-    '#value' =>'<pre>'.htmlentities(ccimap_get_productinfo_fromWS($type)).'</pre>',
+    '#value' =>'<pre>'.htmlentities(formatXmlString(ccimap_get_productinfo_fromWS($type))).'</pre>',
   );
   
   $form['send'] = array(
@@ -46,18 +46,23 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
     drupal_alter('ccimapping_productinfo', $dom, 'before_send');
-    $xml = $dom->saveXML();
-    dsm($xml);
-    $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
-    $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
-    try {
-      $result = $client->setProductTemplate($parameters_array);
-      drupal_set_message('the productinfo has been sent to CCI');
-    } catch (SoapFault $exception) {
-      drupal_set_message("WebService Errror when sending the XML: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
-      dsm($exception);
-    }
+    //if ($dom->schemaValidate(drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')){
+      $xml = $dom->saveXML();
+  //return;
+      $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
+
+      $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
+      try {
+        $result = $client->setProductTemplate($parameters_array);
+        drupal_set_message('the productinfo has been sent to CCI');
+      } catch (SoapFault $exception) {
+        drupal_set_message("WebService Errror when sending the XML: \n FAULTSTRING:".$exception->faultstring."\n FAULTCODE:".$exception->faultcode,'error');
+        dsm($exception);
+      }
+  /*  } else {
+      drupal_set_message(t('XML not validated'));
+    }*/
   }
 }
 
@@ -70,7 +75,7 @@ function ccimap_get_productinfo_fromWS() {
   $wsdl_uri=variable_get('ccimapping_ws_wsdluri', '');
   $newsroom=variable_get('ccimapping_newsroom', '');
   $product_name=variable_get('ccimapping_product_name', '');
-
+//return '';
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
