@@ -1,5 +1,4 @@
 <?php
-// $Id: xmlsitemap.admin.inc,v 1.1.2.110 2011/02/09 22:38:01 davereid Exp $
 
 /**
  * @file
@@ -248,7 +247,7 @@ function xmlsitemap_sitemap_delete_form(array &$form_state, stdClass $sitemap) {
 
   $count = (int) db_result(db_query("SELECT COUNT(smid) FROM {xmlsitemap_sitemap}"));
   if ($count === 1 && empty($_POST)) {
-    drupal_set_message('It is not recommended to delete the only XML sitemap.', 'error');
+    drupal_set_message(t('It is not recommended to delete the only XML sitemap.'), 'error');
   }
 
   $form['#sitemap'] = $sitemap;
@@ -295,7 +294,7 @@ function xmlsitemap_settings_form() {
   $form['xmlsitemap_prefetch_aliases'] = array(
     '#type' => 'checkbox',
     '#title' => t('Prefetch URL aliases during sitemap generation.'),
-    '#description' => t('When enabled, this will fetch all URL alises at once instead of one at a time during sitemap generation. For medium or large sites, it is recommended to disable this feature as it uses a lot of memory.'),
+    '#description' => t('When enabled, this will fetch all URL aliases at once instead of one at a time during sitemap generation. For medium or large sites, it is recommended to disable this feature as it uses a lot of memory.'),
     '#default_value' => variable_get('xmlsitemap_prefetch_aliases', 1),
   );
 
@@ -513,7 +512,8 @@ function xmlsitemap_add_form_entity_summary(&$form, $entity, array $entity_info)
       $row[] = l($bundle_info['label'], $edit_link['href'], $edit_link);
     }
     else {
-      $row[] = $bundle_info['label'];
+      // Bundle labels are assumed to be un-escaped input.
+      $row[] = check_plain($bundle_info['label']);
     }
     $row[] = $statuses[$bundle_info['xmlsitemap']['status'] ? 1 : 0];
     $row[] = $priorities[number_format($bundle_info['xmlsitemap']['priority'], 1)];
@@ -525,7 +525,7 @@ function xmlsitemap_add_form_entity_summary(&$form, $entity, array $entity_info)
 
   if ($rows) {
     $header = array(
-      $entity_info['bundle label'],
+      isset($entity_info['bundle label']) ? $entity_info['bundle label'] : '',
       t('Inclusion'),
       t('Priority'),
       t('Available'),
@@ -661,6 +661,7 @@ function xmlsitemap_link_bundle_settings_form(array &$form_state, array $bundle)
  */
 function xmlsitemap_add_form_link_options(array &$form, $entity, $bundle, $id) {
   $info = xmlsitemap_get_link_info($entity);
+
   if (!$info || empty($info['bundles'][$bundle])) {
     return;
   }

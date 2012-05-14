@@ -1,5 +1,4 @@
 <?php
-// $Id: cache_actions_test.rules_defaults.inc,v 1.6.2.8 2011/01/15 17:35:11 fabsor Exp $
 
 /**
  * @file

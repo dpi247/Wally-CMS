@@ -1,5 +1,4 @@
 <?php
-// $Id: cache_actions.rules.inc,v 1.2.2.21 2011/01/24 19:53:48 fabsor Exp $
 
 /**
  * @file
@@ -15,16 +14,33 @@ function cache_actions_rules_action_info() {
     'cache_actions_action_clear_cache' => array(
       'label' => t('Clear cache bins'),
       'arguments' => array(
-        'tables' => array('type' => 'string', 'label' => t('Cache tables'), 'description' => t('Specify which cache tables you want to clear here. Separate the tables with spaces. You can use * to clear all tables')),
+        'tables' => array(
+           'type' => 'value',
+           'label' => t('Cache tables'),
+           'description' => t('Specify which cache tables you want to clear here. 
+             Separate the tables with spaces. You can use * to clear all tables')),
       ),
       'module' => 'Cache Actions',
     ),
     'cache_actions_action_clear_cache_cid' => array(
       'label' => t('Clear a specific cache cid'),
       'arguments' => array(
-        'table' => array('type' => 'string', 'label' => t('Cache tables'), 'description' => t('The cache table where the cid is')),
-        'cid' => array('type' => 'string', 'label' => t('Cache cid'), 'description' => t('The cid to clear')),
-        'wildcard' => array('type' => 'boolean', 'label' => t('Use wildcard'), 'description' => t('Use wildcards. This means you will be clearing all cids that partially matches.'))
+        'table' => array(
+          'type' => 'value',
+          'label' => t('Cache tables'),
+          'description' => t('The cache table where the cid is')
+         ),
+         'cid' => array(
+           'type' => 'string',
+           'label' => t('Cache cid'),
+           'description' => t('The cid to clear')
+         ),
+         'wildcard' => array(
+           'type' => 'boolean',
+           'label' => t('Use wildcard'),
+           'description' => t('Use wildcards. This means you will be clearing 
+             all cids that partially matches.')
+        ),
       ),
       'module' => 'Cache Actions',
     ),
@@ -38,14 +54,21 @@ function cache_actions_rules_action_info() {
     $actions['cache_actions_action_clear_views_cache'] = array(
       'label' => t('Clear the cache for specific views'),
       'arguments' => array(
-        'view' => array('type' => 'string', 'label' => t('View'), 'description' => t('Specify the views you want to clear.')),
+        'view' => array(
+          'type' => 'value',
+          'label' => t('View'),
+          'description' => t('Specify the views you want to clear.')),
       ),
       'module' => 'Cache Actions',
     );
     $actions['cache_actions_action_clear_views_display_cache'] = array(
       'label' => t('Clear the cache for views displays'),
       'arguments' => array(
-        'displays' => array('type' => 'string', 'label' => t('Displays'), 'description' => t('Select the displays you want to clear.')),
+        'displays' => array(
+          'type' => 'value',
+          'label' => t('Displays'),
+          'description' => t('Select the displays you want to clear.')
+        ),
       ),
       'module' => 'Cache Actions',
     );
@@ -56,7 +79,11 @@ function cache_actions_rules_action_info() {
     $actions['cache_actions_action_clear_panels_page_cache'] = array(
       'label' => t('Clear the cache for panel page variants'),
       'arguments' => array(
-        'panel' => array('type' => 'string', 'label' => t('Panel page'), 'description' => t('Specify the panel page you want to clear.')),
+        'panel' => array(
+          'type' => 'value',
+          'label' => t('Panel page'),
+          'description' => t('Specify the panel page you want to clear.')
+        ),
       ),
       'module' => 'Cache Actions',
     );
@@ -64,8 +91,16 @@ function cache_actions_rules_action_info() {
     $actions['cache_actions_action_clear_panels_pane_cache'] = array(
       'label' => t('Clear the cache for panel page panes'),
       'arguments' => array(
-        'panel' => array('type' => 'string', 'label' => t('Panel page'), 'description' => t('Specify the panel page you want to clear.')),
-        'panes' => array('type' => 'string', 'label' => t('Panel page'), 'description' => t('The pane to clear')),
+        'panel' => array(
+          'type' => 'value',
+          'label' => t('Panel page'),
+          'description' => t('Specify the panel page you want to clear.')
+        ),
+        'panes' => array(
+          'type' => 'value',
+          'label' => t('Panel page'),
+          'description' => t('The pane to clear')
+        ),
       ),
       'module' => 'Cache Actions',
     );
@@ -76,15 +111,27 @@ function cache_actions_rules_action_info() {
     $actions['cache_actions_action_clear_panels_mini_cache'] = array(
       'label' => t('Clear the cache for a specific mini panel variants'),
       'arguments' => array(
-        'panel' => array('type' => 'string', 'label' => t('Panel page'), 'description' => t('Specify the mini panel you want to clear.')),
+        'panel' => array(
+          'type' => 'value',
+          'label' => t('Panel page'),
+          'description' => t('Specify the mini panel you want to clear.')
+        ),
       ),
       'module' => 'Cache Actions',
     );
     $actions['cache_actions_action_clear_panels_mini_pane_cache'] = array(
       'label' => t('Clear the cache for mini panel panes'),
       'arguments' => array(
-        'panel' => array('type' => 'string', 'label' => t('Panel page'), 'description' => t('Specify the mini panel you want to clear.')),
-        'panes' => array('type' => 'string', 'label' => t('Panel panes'), 'description' => t('Specify the mini panes you want to clear.')),
+        'panel' => array(
+          'type' => 'value',
+          'label' => t('Panel page'),
+          'description' => t('Specify the mini panel you want to clear.')
+        ),
+        'panes' => array(
+          'type' => 'string',
+          'label' => t('Panel panes'),
+          'description' => t('Specify the mini panes you want to clear.')
+        ),
       ),
       'module' => 'Cache Actions',
     );
@@ -95,7 +142,11 @@ function cache_actions_rules_action_info() {
     $actions['cache_actions_action_clear_varnish_page'] = array(
       'label' => t('Clear paths cached in varnish'),
       'arguments' => array(
-        'paths' => array('type' => 'string', 'label' => t('Varnish paths'), 'description' => t('The cached paths')),
+        'paths' => array(
+          'type' => 'string',
+          'label' => t('Varnish paths'),
+          'description' => t('The cached paths')
+        ),
       ),
       'module' => 'Cache Actions',
     );
@@ -201,8 +252,8 @@ function _cache_actions_load_panes($handler, $handler_title, $js = FALSE) {
   ctools_include('plugins', 'panels');
   $available_panes = array();
   $js_panes = array();
-  if (isset($handler->did)) {
-    $display = panels_load_display($handler->did);
+  if (isset($handler->conf['did'])) {
+    $display = panels_load_display($handler->conf['did']);
   }
   else {
     $display = $handler->conf['display'];
@@ -535,7 +586,7 @@ function cache_actions_action_clear_panels_mini_pane_cache($mini_panel, $panes) 
 
 function cache_actions_action_clear_varnish_page($paths) {
   if (module_exists('varnish')) {
-    $paths = explode("\r\n", $paths);
+    $paths = preg_split("/(\r\n?|\n)/", $paths);
     // Since varnish don't understand things like <front>, we need to
     // Replace that with something it does understand. If <front> exists more than
     // once, we ignore it, since the cache will be cleared anyway.

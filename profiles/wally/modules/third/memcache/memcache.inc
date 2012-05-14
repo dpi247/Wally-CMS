@@ -154,7 +154,7 @@ function cache_get($cid, $table = 'cache') {
  *   The cache ID of the data to store.
  * @param $data
  *   The data to store in the cache. Complex data types will be automatically
- *   serialized before insertion. Strings will be stored as plain text and 
+ *   serialized before insertion. Strings will be stored as plain text and
  *   not serialized.
  * @param $table
  *   The table $table to store the data in. Valid core values are 'cache_filter',
@@ -316,7 +316,9 @@ function memcache_wildcards($cid, $table, $flush = FALSE) {
     // shortest wildcard clear on the table so far. So if the shortest
     // wildcard was "links:foo:", and the cid we're checking for is
     // "links:bar:bar", then the key will be "links:bar:".
-    $wildcard_length = strlen(reset(array_keys($wildcard_flushes[$table])));
+    $keys = array_keys($wildcard_flushes[$table]);
+    // All keys are the same length, so just get the length of the first one.
+    $wildcard_length = strlen(reset($keys));
     $wildcard_key = substr($cid, 0, $wildcard_length);
 
     // Determine which lookups we need to perform to determine whether or not
@@ -368,7 +370,13 @@ function memcache_wildcards($cid, $table, $flush = FALSE) {
     // fraction of the wildcard invalidation variable, per cid length.  Defaults
     // to 28 / 4, or one week.
     $length = strlen($cid);
-    $key_length = isset($wildcard_flushes[$table]) ? strlen(reset(array_keys($wildcard_flushes[$table]))) : $length;
+    if (isset($wildcard_flushes[$table])) {
+      $wildcard_flushes_keys = array_keys($wildcard_flushes[$table]);
+      $key_length = strlen(reset($wildcard_flushes_keys));
+    }
+    else {
+      $key_length = $length;
+    }
     $key = substr($cid, 0, $key_length);
     if (!isset($wildcard_flushes[$table][$key][$length]) || ($_SERVER['REQUEST_TIME'] - $wildcard_flushes[$table][$key][$length] > $wildcard_invalidate / 4)) {
 
