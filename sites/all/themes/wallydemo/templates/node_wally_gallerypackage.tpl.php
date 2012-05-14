@@ -3,6 +3,8 @@
  *
  * 
  */
+$mainobject = $node->field_mainobject_nodes[0];
+$main_title = $mainobject->title;
 
 $themeroot = drupal_get_path('theme', 'wallydemo');
 drupal_add_css($themeroot . '/css/gallery.css');
@@ -48,12 +50,12 @@ drupal_add_js('
 ?>
 <div id="gal_node_<?php print $node->nid; ?>" class="gallery">
 
-<h2><?php print $node->title;?></h2>
+<h2><?php print $main_title;?></h2>
 <?php print $main_summary ; ?> <br/>
 <?php print $main_desc ; ?>
 
 		
-  <div class="text_thumb">
+  <div id = "embedded_text"class="text_thumb">
     <ul>
       
       <?php foreach ($textstory as $text) { ?>
@@ -67,7 +69,7 @@ drupal_add_js('
   <div class="photos">
     <?php foreach ($imgstory as $image):?>
 	  <div class="gallerie_photo">
-        <?php print theme('imagecache', 'divers_201x134',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
+        <?php print theme('imagecache', 'unebis_medium_180x120',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
   	  </div>
     <?php endforeach;?>
   </div>
