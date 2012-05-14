@@ -1,5 +1,4 @@
 <?php
-// $Id: coder_sql.inc,v 1.1.4.12.2.3 2009/08/14 00:18:30 snpower Exp $
 
 /**
  * @file

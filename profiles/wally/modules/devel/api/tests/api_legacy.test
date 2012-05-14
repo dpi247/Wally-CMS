@@ -1,17 +1,27 @@
 <?php
-// $Id: api_legacy.test,v 1.1.2.3 2010/10/26 06:57:14 drumm Exp $
+
+/**
+ * @file
+ * Tests for legacy redirects in the API module.
+ */
 
 include_once './'. drupal_get_path('module', 'api') .'/tests/api_test_case.php';
 
+/**
+ * Tests that legacy redirects are correct.
+ */
 class ApiLegacyTest extends ApiTestCase {
-  function getInfo() {
+  public static function getInfo() {
     return array(
-      'name' => t('legacy.inc'),
-      'description' => t('Test legacy.inc redirects.'),
+      'name' => 'Legacy redirects',
+      'description' => 'Test legacy.inc redirect functions.',
       'group' => 'API Module',
     );
   }
-  
+
+  /**
+   * Tests that legacy URL redirects are correct.
+   */
   function testApiLegacy() {
     $tests = array(
       // Function
@@ -50,13 +60,13 @@ class ApiLegacyTest extends ApiTestCase {
       // Topic
       array(
         'function' => 'api_legacy_1_2_object_load',
-        'arguments' => array('samples', 'group', ''),
-        'redirect' => 'api/test/sample.php/group/samples/6',
+        'arguments' => array('samp_GRP-6.x', 'group', ''),
+        'redirect' => 'api/test/sample.php/group/samp_GRP-6.x/6',
       ),
       array(
         'function' => 'api_legacy_1_2_object_load',
-        'arguments' => array('samples', 'group', '6'),
-        'redirect' => 'api/test/sample.php/group/samples/6',
+        'arguments' => array('samp_GRP-6.x', 'group', '6'),
+        'redirect' => 'api/test/sample.php/group/samp_GRP-6.x/6',
       ),
     );
     include_once './' . drupal_get_path('module', 'api') . '/legacy.inc';

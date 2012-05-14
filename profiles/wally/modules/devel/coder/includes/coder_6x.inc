@@ -1,5 +1,4 @@
 <?php
-// $Id: coder_6x.inc,v 1.17.2.68.2.2 2008/10/01 20:10:49 snpower Exp $
 
 /**
  * @file
@@ -23,6 +22,13 @@ function coder_6x_reviews() {
       '#function' => '_menu$',
       '#value' => '(for|foreach|while)\s*\(',
       '#warning_callback' => '_coder_6x_new_menu_loop_warning',
+    ),
+    array(
+      '#type' => 'regex',
+      '#function' => '_menu$',
+      '#value' => '[\'"]access callback.*=.*\(',
+      '#source' => 'allphp',
+      '#warning_callback' => '_coder_6x_menu_access_callback_warning',
     ),
     array(
       '#type' => 'regex',
@@ -491,9 +497,11 @@ function coder_6x_reviews() {
  * Define the rule callbacks for 6.x, see do_coder_review_callback().
  */
 function _coder_6x_callback(&$coder_args, $review, $rule, $lines, &$results) {
+  $ignores = $coder_args['#ignore_lines'][$review['#review_name']];
+
   // Only perform this check on module's (not includes).
   $filename = $coder_args['#filename'];
-  if (substr($filename, -7) == '.module') {
+  if (drupal_substr($filename, -7) == '.module') {
     // If there are any theme functions, make sure that a hook_theme exists.
     $theme = FALSE;
     $hook_theme = FALSE;
@@ -513,7 +521,7 @@ function _coder_6x_callback(&$coder_args, $review, $rule, $lines, &$results) {
       $severity_name = _coder_severity_name($coder_args, $review, $rule);
       $tmprule = $rule;
       $tmprule['#warning_callback'] = '_coder_6x_hook_theme_warning';
-      _coder_error($results, $tmprule, $severity_name, $theme_lineno, $theme_line);
+      _coder_error($results, $tmprule, $severity_name, $theme_lineno, $theme_line, $ignores);
     }
 
     // Read the .info file.
@@ -525,7 +533,7 @@ function _coder_6x_callback(&$coder_args, $review, $rule, $lines, &$results) {
             $severity_name = _coder_severity_name($coder_args, $review, $rule);
             $tmprule = $rule;
             $tmprule['#warning_callback'] = '_coder_6x_dependency_warning';
-            _coder_error($results, $tmprule, $severity_name, $lineno, $line);
+            _coder_error($results, $tmprule, $severity_name, $lineno, $line, $ignores);
           }
           if (preg_match('/^core\s*=/', $line)) {
             $core = TRUE;
@@ -535,7 +543,7 @@ function _coder_6x_callback(&$coder_args, $review, $rule, $lines, &$results) {
           $severity_name = _coder_severity_name($coder_args, $review, $rule);
           $tmprule = $rule;
           $tmprule['#warning_callback'] = '_coder_6x_core_warning';
-          _coder_error($results, $tmprule, $severity_name, $lineno, $line);
+          _coder_error($results, $tmprule, $severity_name, $lineno, $line, $ignores);
         }
       }
     }
@@ -587,6 +595,13 @@ function _coder_6x_new_menu_loop_warning() {
   return array(
     '#warning' => t('The menu system has been completely over-hauled in 6.x, and if you are looping, you are probably doing something wrong.'),
     '#link' => 'http://drupal.org/node/103114',
+  );
+}
+
+function _coder_6x_menu_access_callback_warning() {
+  return array(
+    '#warning' => t("The value for the 'access callback' must always be a string which is the the name of the function - never a function call. It may also be assigned the value TRUE or FALSE if the callback is always (or never) accessible."),
+    '#link' => 'http://drupal.org/node/109157',
   );
 }
 

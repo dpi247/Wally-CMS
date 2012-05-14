@@ -1,11 +1,17 @@
 <?php
+
+/**
+ * @file
+ * Test file for reviews for upgrading from 5x to 6x.
+ */
+
 require_once(dirname(__FILE__) .'/coder_test_case.tinc');
 
 class CoderUpgrade6xTest extends CoderTestCase {
   function __construct($id = NULL) {
     parent::__construct('upgrade6x', $id);
   }
-  
+
   public static function getInfo() {
     return array(
       'name' => t('Coder Upgrade 6.x Tests'),

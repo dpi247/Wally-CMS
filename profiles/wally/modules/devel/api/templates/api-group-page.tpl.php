@@ -1,27 +1,30 @@
 <?php
-// $Id: api-group-page.tpl.php,v 1.1.2.6 2010/05/29 23:41:32 drumm Exp $
 
 /**
- * @file api-group-page.tpl.php
- * Theme implementation for summarizing code that in a group.
+ * @file
+ * Displays an API page for a topic/group, with list of items in that group.
  *
  * Available variables:
- * - $classes: List of classes, if any.
- * - $constants: List of constants, if any.
- * - $globals: List of globals, if any.
- * - $functions: List of functions, if any.
- * - $files: List of functions, if any.
+ * - $alternatives: List of alternate versions (branches) of this group.
+ * - $documentation: Documentation from the comment header of the constant.
+ * - $see: Related API objects.
+ * - $objects: Formatted list of member objects, if any.
  * - $defined: HTML reference to file that defines this group.
- * - $see: Related api objects.
+ *
+ * @ingroup themeable
  */
 ?>
+
+<?php print $alternatives; ?>
+
 <?php print $documentation ?>
 
 <?php if (!empty($see)) { ?>
-<h3><?php print t('See also') ?></h3>
-<?php print $see ?>
+  <h3><?php print t('See also') ?></h3>
+  <?php print $see ?>
 <?php } ?>
 
 <?php print $objects; ?>
 
+<h3><?php print t('File'); ?></h3>
 <?php print $defined; ?>

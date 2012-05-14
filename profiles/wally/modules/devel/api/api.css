@@ -1,13 +1,12 @@
-/* $Id: api.css,v 1.15.2.11 2010/08/08 23:03:48 drumm Exp $ */
-
-/* Expandable regions */
-html.js div.api-expandable div.content {
-  display: none;
-}
+/**
+ * @file
+ * CSS for the API module.
+ */
 
 /* PHP code */
 .php {
   overflow: auto;
+  white-space: pre-wrap;
 }
 .php .php-comment {
   color: #666;
@@ -36,6 +35,16 @@ html.js div.api-expandable div.content {
   color: #060;
 }
 
+ol.code-lines {
+   padding: 0;
+   margin: 0 0 0 20px;
+}
+
+ol.code-lines li {
+   padding: 0 0 0 5px;
+   margin: 0 0 0 20px;
+}
+
 /* Function signature */
 #api-function-signature td,
 #api-function-signature td a,
@@ -58,7 +67,7 @@ html.js div.api-expandable div.content {
 #api-function-signature td code {
   background: #fff;
 }
-#api-function-signature {
+#api-function-signature td.signature {
   font-size: 1.2em;
 }
 #api-function-signature .branch {
@@ -79,21 +88,21 @@ html.js div.api-expandable div.content {
 }
 #api-function-signature ins {
   text-decoration: none;
-  color: #96bc44;
+  color: #456500;
 }
 
-/* Search block- make the text field the correct width */
-#api-search-form #edit-search-wrapper {
+/* Search form */
+
+form.api-search-form div.form-item {
   display: inline;
 }
-#api-search-form #edit-search {
+
+form.api-search-form input.api-search-keywords {
   width: 115px;
-}
-#api-search-form #autocomplete {
-  width: 250px !important;
 }
 
 /* Other styles */
+
 .api-defined {
   color: #9d9d93;
   font-size: 0.8333em;
@@ -101,4 +110,22 @@ html.js div.api-expandable div.content {
 
 .api-inheritance-source {
   float:right;
+}
+
+#api-alternatives,
+#api-alternatives li {
+  margin: 0;
+  padding: 0;
+}
+#api-alternatives,
+#api-alternatives ol {
+  list-style: none;
+}
+#api-alternatives strong {
+  float: left;
+  clear: left;
+}
+#api-alternatives ol li {
+  display: inline;
+  padding-left: 1em;
 }
