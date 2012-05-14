@@ -1,5 +1,4 @@
 <?php
-// $Id: cache_actions.views.inc,v 1.2.4.3 2010/09/30 10:46:24 fabsor Exp $
 
 /**
  * @file

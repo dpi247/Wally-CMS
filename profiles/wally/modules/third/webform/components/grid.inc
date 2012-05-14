@@ -142,13 +142,15 @@ function _webform_edit_grid($component) {
  * Implements _webform_render_component().
  */
 function _webform_render_grid($component, $value = NULL, $filter = TRUE) {
+  $node = isset($component['nid']) ? node_load($component['nid']) : NULL;
+
   $element = array(
     '#type' => 'webform_grid',
     '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
     '#title_display' => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
     '#required' => $component['mandatory'],
     '#weight' => $component['weight'],
-    '#description' => $filter ? _webform_filter_descriptions($component['extra']['description']) : $component['extra']['description'],
+    '#description' => $filter ? _webform_filter_descriptions($component['extra']['description'], $node) : $component['extra']['description'],
     '#grid_questions' => _webform_select_options_from_text($component['extra']['questions'], TRUE),
     '#grid_options' => _webform_select_options_from_text($component['extra']['options'], TRUE),
     '#optrand' => $component['extra']['optrand'],
@@ -203,10 +205,10 @@ function webform_expand_grid($element) {
   $value = isset($element['#default_value']) ? $element['#default_value'] : array();
   foreach (element_children($element) as $key) {
     if (isset($value[$key])) {
-      $element[$key]['#default_value'] = ($value[$key] !== '') ? $value[$key] : FALSE;
+      $element[$key]['#default_value'] = ($value[$key] !== '') ? $value[$key] : NULL;
     }
     else {
-      $element[$key]['#default_value'] = FALSE;
+      $element[$key]['#default_value'] = NULL;
     }
   }
 

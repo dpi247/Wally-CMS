@@ -225,6 +225,8 @@ function memcache_admin_bin_mapping($bin = 'cache') {
  * @return string
  */
 function memcache_admin_stats($bin = 'cache') {
+  module_load_include('inc', 'memcache', 'dmemcache');
+
   $bin = memcache_admin_bin_mapping($bin);
 
   $stats = dmemcache_stats($bin, 'default', TRUE);
@@ -245,18 +247,6 @@ function memcache_admin_stats($bin = 'cache') {
       $version = t('Unknown');
       drupal_set_message(t('Failed to detect the memcache PECL extension.'), 'error');
     }
-
-    $data['server_overview'] = array();
-    $data['server_pecl'] = array();
-    $data['server_time'] = array();
-    $data['server_connections'] = array();
-    $data['cache_sets'] = array();
-    $data['cache_gets'] = array();
-    $data['cache_counters'] = array();
-    $data['cache_transfer'] = array();
-    $data['cache_average'] = array();
-    $data['memory_available'] = array();
-    $data['memory_evictions'] = array();
 
     // Building per-server stats for the current memcache bin.
     $servers = array();
@@ -420,6 +410,8 @@ function theme_memcache_admin_stats_table($bin, $servers, $stats) {
 }
 
 function memcache_admin_stats_types($bin) {
+  module_load_include('inc', 'memcache', 'dmemcache');
+
   if ($mc = dmemcache_object($bin)) {
     if ($mc instanceof Memcache) {
       // TODO: Determine which versions of the PECL memcache extension have
@@ -432,6 +424,9 @@ function memcache_admin_stats_types($bin) {
       // The Memcached PECL extension only offers the default statistics.
       return array('default');
     }
+  }
+  else {
+    return array();
   }
 }
 

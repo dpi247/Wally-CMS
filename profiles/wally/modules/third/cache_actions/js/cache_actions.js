@@ -1,4 +1,3 @@
-// $id$
 Drupal.behaviors.cache_actions = function(context) {
   var variants = Drupal.settings.variants;
   // Get the initial default values

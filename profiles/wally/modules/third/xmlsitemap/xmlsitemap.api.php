@@ -1,5 +1,4 @@
 <?php
-// $Id: xmlsitemap.api.php,v 1.1.2.22 2010/08/30 05:31:36 davereid Exp $
 
 /**
  * @file
@@ -68,6 +67,44 @@ function hook_xmlsitemap_link_alter(&$link) {
   if ($link['type'] == 'mymodule') {
     $link['priority'] += 0.5;
   }
+}
+
+/**
+ * Inform modules that an XML sitemap link has been created.
+ *
+ * @param $link
+ *   Associative array defining an XML sitemap link as passed into
+ *   xmlsitemap_link_save().
+ *
+ * @see hook_xmlsitemap_link_update()
+ */
+function hook_xmlsitemap_link_insert(array $link) {
+  db_insert('mytable')
+    ->fields(array(
+      'link_type' => $link['type'],
+      'link_id' => $link['id'],
+      'link_status' => $link['status'],
+    ))
+    ->execute();
+}
+
+/**
+ * Inform modules that an XML sitemap link has been updated.
+ *
+ * @param $link
+ *   Associative array defining an XML sitemap link as passed into
+ *   xmlsitemap_link_save().
+ *
+ * @see hook_xmlsitemap_link_insert()
+ */
+function hook_xmlsitemap_link_update(array $link) {
+  db_update('mytable')
+    ->fields(array(
+      'link_type' => $link['type'],
+      'link_id' => $link['id'],
+      'link_status' => $link['status'],
+    ))
+    ->execute();
 }
 
 /**
