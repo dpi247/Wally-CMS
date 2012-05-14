@@ -1,4 +1,3 @@
-// $Id: coder.js,v 1.3.4.1 2009/08/08 14:40:12 snpower Exp $
 
 if (Drupal.jsEnabled) {
   jQuery.fn.extend({

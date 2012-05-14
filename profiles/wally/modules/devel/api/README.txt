@@ -1,4 +1,3 @@
-$Id: README.txt,v 1.5.6.3 2010/04/06 05:26:27 drumm Exp $
 
 API Module
 Generates and displays API documentation pages.
@@ -48,7 +47,6 @@ Besides the Doxygen features that are supported, this module also provides the
 following features:
 
 CVS version numbers and dates are parsed from
-$Id: README.txt,v 1.5.6.3 2010/04/06 05:26:27 drumm Exp $
 tags and reported.
 
 Functions may be in multiple groups (Doxygen ignores all but the first

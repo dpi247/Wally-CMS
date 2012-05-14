@@ -1,17 +1,28 @@
 <?php
-// $Id: api_link_documentation.test,v 1.6.2.9 2010/08/22 13:15:00 drumm Exp $
+
+/**
+ * @file
+ * Tests for the api_link_documentation() function of the API module.
+ */
+
 
 include_once './'. drupal_get_path('module', 'api') .'/tests/api_test_case.php';
 
+/**
+ * Tests the api_link_documentation() function.
+ */
 class ApiLinkDocumentationTest extends ApiTestCase {
-  function getInfo() {
+  public static function getInfo() {
     return array(
-      'name' => t('api_link_documentation()'),
-      'description' => t('Test the api_link_documentation() function.'),
+      'name' => 'Documentation linking',
+      'description' => 'Test the api_link_documentation() function.',
       'group' => 'API Module',
     );
   }
 
+  /**
+   * Tests the api_link_documentation() function.
+   */
   function testApiLinkDocumentation() {
     $class = api_object_load('Sample', $this->getBranch(), 'class', 'classes.php');
 
@@ -38,20 +49,19 @@ class ApiLinkDocumentationTest extends ApiTestCase {
         'expected' => '<a href="'. url('api/test/sample.php/function/sample_function/6') .'" title="A sample function." class="local">A sample function.</a>',
       ),
       array(
+        'message' => 'Multiple @link',
+        'data' => "@link sample_function A sample function. @endlink and @link samp_GRP-6.x A topic. @endlink",
+        'expected' => '<a href="'. url('api/test/sample.php/function/sample_function/6') .'" title="A sample function." class="local">A sample function.</a> and <a href="' . url('api/test/sample.php/group/samp_GRP-6.x/6') . '" title="A sample group." class="local">A topic.</a>',
+      ),
+      array(
         'message' => 'Method name linking',
         'data' => 'Sample::foo(',
         'expected' => '<a href="'. url('api/test/classes.php/function/Sample::foo/6') .'" title="Metasyntatic member function." class="local">Sample::foo</a>(',
       ),
       array(
-        'message' => 'Method name linking without explicit class',
+        'message' => 'Method name linking without explicit class -- should not link',
         'data' => 'foo(',
-        'expected' => '<a href="'. url('api/test/classes.php/function/SampleInterface::foo/6') .'" title="Implement this API." class="local">foo</a>(',
-      ),
-      array(
-        'message' => 'Method name linking without explicit class, but in class context',
-        'data' => 'foo(',
-        'expected' => '<a href="'. url('api/test/classes.php/function/Sample::foo/6') .'" title="Metasyntatic member function." class="local">foo</a>(',
-        'class_did' => $class->did,
+        'expected' => 'foo(',
       ),
       array(
         'message' => 'Class constant @link',
@@ -73,6 +83,11 @@ class ApiLinkDocumentationTest extends ApiTestCase {
         'data' => 'Sample',
         'expected' => '<a href="'. url('api/test/classes.php/class/Sample/6') .'" title="Sample class." class="local">Sample</a>',
         'aggressive_classes' => TRUE,
+      ),
+      array(
+        'message' => 'Constant link',
+        'data' => 'SAMPLE_CONSTANT',
+        'expected' => '<a href="'. url('api/test/sample.php/constant/SAMPLE_CONSTANT/6') .'" title="A sample constant." class="local">SAMPLE_CONSTANT</a>',
       ),
 
       // Should not be linked
@@ -111,6 +126,11 @@ class ApiLinkDocumentationTest extends ApiTestCase {
         'message' => 'Class link',
         'data' => 'Sample',
         'expected' => 'Sample',
+      ),
+      array(
+        'message' => 'Constant link with trailing chatacter',
+        'data' => 'SAMPLE_CONSTANTA',
+        'expected' => 'SAMPLE_CONSTANTA',
       ),
 
       // Should be linked

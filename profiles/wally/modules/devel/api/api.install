@@ -1,5 +1,4 @@
 <?php
-// $Id: api.install,v 1.11.2.36 2010/11/09 03:16:14 drumm Exp $
 
 /**
  * @file
@@ -7,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_schema().
+ * Implements hook_schema().
  */
 function api_schema() {
   $schema['api_branch'] = array(
@@ -48,8 +47,25 @@ function api_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'title' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
-      'weight' => array('type' => 'int', 'unsigned' => TRUE, 'size' => 'tiny', 'not null' => TRUE, 'default' => 0),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'project_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'primary key' => array('branch_id'),
     'unique keys' => array(
@@ -57,17 +73,31 @@ function api_schema() {
     ),
     'indexes' => array(
       'weight' => array('weight'),
+      'branch_name' => array('branch_name'),
+      'project_title' => array('project_title'),
+      'status' => array('status'),
     ),
   );
+
   $schema['api_documentation'] = array(
     'fields' => array(
-      'did' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+      'did' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'branch_id' => array(
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'object_name' => array('type' => 'varchar', 'length' => '127', 'not null' => TRUE, 'default' => ''),
+      'object_name' => array(
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'member_name' => array(
         'description' => 'For class members, the name without Class::',
         'type' => 'varchar',
@@ -75,13 +105,44 @@ function api_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'object_type' => array('type' => 'varchar', 'length' => '31', 'not null' => TRUE, 'default' => ''),
-      'title' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
-      'file_name' => array('type' => 'varchar', 'length' => '127', 'not null' => TRUE, 'default' => ''),
-      'summary' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
-      'documentation' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
-      'code' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
-      'start_line' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'object_type' => array(
+        'type' => 'varchar',
+        'length' => '31',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'file_name' => array(
+        'type' => 'varchar',
+        'length' => '127',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'summary' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'documentation' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'code' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'start_line' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'see' => array(
         'type' => 'text',
         'size' => 'medium',
@@ -111,36 +172,92 @@ function api_schema() {
       'branch_id' => array('branch_id'),
       'title' => array('title'),
       'class_did' => array('class_did'),
+      'file_name' => array('file_name'),
+      'member_name' => array('member_name'),
     ),
   );
+
   $schema['api_file'] = array(
     'fields' => array(
-      'did' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-      'modified' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
-      'version' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
-      'found' => array('type' => 'int', 'unsigned' => TRUE, 'size' => 'tiny', 'not null' => TRUE, 'default' => 0),
+      'did' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'modified' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'queued' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'basename' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
     ),
     'primary key' => array('did'),
+    'indexes' => array(
+      'basename' => array('basename'),
+    ),
   );
+
   $schema['api_function'] = array(
     'fields' => array(
-      'did' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
-      'signature' => array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => ''),
-      'parameters' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
-      'return_value' => array('type' => 'text', 'size' => 'medium', 'not null' => TRUE),
+      'did' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'signature' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'parameters' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'return_value' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
     ),
     'primary key' => array('did'),
   );
+
   $schema['api_reference_storage'] = array(
     'documentation' => 'Keep track of references. For classes/interafaces, from_did extends to_did.',
     'fields' => array(
-      'object_name' => array('type' => 'varchar', 'length' => '127', 'not null' => TRUE, 'default' => ''),
+      'object_name' => array(
+        'type' => 'varchar',
+        'mysql_type' => 'varbinary',
+        'pgsql_type' => 'bytea',
+        'length' => '127',
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'branch_id' => array(
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'object_type' => array('type' => 'varchar', 'length' => '31', 'not null' => TRUE, 'default' => ''),
+      'object_type' => array(
+        'type' => 'varchar',
+        'length' => '31',
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'from_did' => array(
         'type' => 'int',
         'unsigned' => TRUE,
@@ -155,10 +272,14 @@ function api_schema() {
       ),
     ),
     'indexes' => array(
-      'object_ref' => array('object_name', 'branch_id', 'object_type'),
       'to_did' => array('to_did'),
+      'from_did' => array('from_did'),
+      'object_name' => array('object_name'),
+      'object_type' => array('object_type'),
+      'branch_id' => array('branch_id'),
     ),
   );
+
   $schema['api_overrides'] = array(
     'description' => 'Keep track of method, property, and class constant parents.',
     'fields' => array(
@@ -189,16 +310,28 @@ function api_schema() {
     ),
     'indexes' => array(
       'did' => array('did'),
+      'root_did' => array('root_did'),
+      'overrides_did' => array('overrides_did'),
     ),
   );
+
   $schema['api_members'] = array(
     'description' => 'Keep track of class members, including inherited members.',
     'fields' => array(
-      'class_did' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
-      'did' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'class_did' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'did' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'indexes' => array(
-      'class_did' => array('did'),
+      'did' => array('did'),
+      'class_did' => array('class_did'),
     ),
   );
 
@@ -206,7 +339,7 @@ function api_schema() {
 }
 
 /**
- * Implementation of hook_install().
+ * Implements hook_install().
  */
 function api_install() {
   // Get access to api_save_branch().
@@ -219,18 +352,25 @@ function api_install() {
 }
 
 /**
- * Implementation of hook_enable().
+ * Implements hook_enable().
  */
 function api_enable() {
   // Workaround for http://drupal.org/node/200931
   drupal_get_schema(NULL, TRUE);
 
-  $names = api_get_branch_names();
-  if (!isset($names['php'])) {
-    // Save PHP branch
+  $exists = FALSE;
+  $result = db_query("SELECT branch_name FROM {api_branch} WHERE branch_name='php'");
+  while ($branch = db_fetch_object($result)) {
+    $exists = TRUE;
+    break;
+  }
+
+  if (!$exists) {
+    // Create new PHP branch.
     $branch = new stdClass();
     $branch->type = 'php';
     $branch->project = 'php';
+    $branch->project_title = 'php';
     $branch->branch_name = 'php';
     $branch->title = 'PHP functions';
     $branch->status = 0;
@@ -240,24 +380,6 @@ function api_enable() {
     );
     api_save_branch($branch);
   }
-}
-
-/**
- * Implementation of hook_requirements().
- */
-function api_requirements($phase) {
-  $requirements = array();
-  $t = get_t();
-
-  if (!file_exists(drupal_get_path('module', 'api') . '/jquery-autocomplete/jquery.autocomplete.js')) {
-    // Required library wasn't found. Abort installation.
-    $requirements['api']['title'] = $t('jQuery autocomplete');
-    $requirements['api']['value'] = $t('Not found');
-    $requirements['api']['description'] = $t('Missing jQuery autocomplete plug-in. Please !download and extract it to your api module directory.', array('!download' => l($t('download the jQuery autocomplete plug-in'), 'http://bassistance.de/jquery-plugins/jquery-plugin-autocomplete/')));
-    $requirements['api']['severity'] = REQUIREMENT_ERROR;
-  }
-
-  return $requirements;
 }
 
 /**
@@ -286,7 +408,7 @@ function api_update_14() {
 }
 
 /**
- * Add excluded_directories column.
+ * Add {api_branch}.excluded_directories field.
  */
 function api_update_15() {
   $return = array();
@@ -299,6 +421,9 @@ function api_update_15() {
   return $return;
 }
 
+/**
+ * Delete all documentation to force a reindex.
+ */
 function api_update_16() {
   $return = array();
 
@@ -309,7 +434,7 @@ function api_update_16() {
 }
 
 /**
- * Update #16 left {api_reference_storage} inconsistent.
+ * Update #16 left {api_reference_storage} inconsistent; fix that.
  */
 function api_update_17() {
   $return = array();
@@ -321,7 +446,7 @@ function api_update_17() {
 }
 
 /**
- * This anti-pattern has been replaced with a queue.
+ * Delete a variable for cron runs; has been replaced with a queue.
  */
 function api_update_18() {
   variable_del('api_files_per_cron');
@@ -329,7 +454,7 @@ function api_update_18() {
 }
 
 /**
- * Move start line next to code.
+ * Move start_line field from {api_function} to {api_documentation} table.
  */
 function api_update_19() {
   $return = array();
@@ -341,7 +466,7 @@ function api_update_19() {
 }
 
 /**
- * Add project to branches.
+ * Add {api_branch}.project field.
  */
 function api_update_20() {
   $return = array();
@@ -371,7 +496,7 @@ function api_update_20() {
 }
 
 /**
- * Add branch id to api_reference_storage table.
+ * Add {api_reference_storage}.branch_id field.
  */
 function api_update_21() {
   $return = array();
@@ -389,7 +514,7 @@ function api_update_21() {
 }
 
 /**
- * Add branch id to api_documentation table.
+ * Add {api_documentation}.branch_id field.
  */
 function api_update_22() {
   $return = array();
@@ -409,7 +534,7 @@ function api_update_22() {
 }
 
 /**
- * Set up branches for multiple types and recombobulate.
+ * Set up branches for multiple types (php vs. file).
  */
 function api_update_23() {
   $return = array();
@@ -488,7 +613,7 @@ function api_update_26() {
 }
 
 /**
- * Drop redundant column.
+ * Drop redundant field {api_documentation}.branch_name.
  */
 function api_update_27() {
   $return = array();
@@ -499,7 +624,7 @@ function api_update_27() {
 }
 
 /**
- * Add separate column for @see
+ * Add {api_documentation}.see field.
  */
 function api_update_28() {
   $return = array();
@@ -514,7 +639,7 @@ function api_update_28() {
 }
 
 /**
- * Refer objects to the class they belong to.
+ * Add {api_documentation}.class_did field.
  */
 function api_update_29() {
   $return = array();
@@ -530,6 +655,9 @@ function api_update_29() {
   return $return;
 }
 
+/**
+ * Add {api_overrides} table.
+ */
 function api_update_30() {
   $return = array();
 
@@ -548,6 +676,9 @@ function api_update_30() {
   return $return;
 }
 
+/**
+ * Add {api_documentation}.var and {api_documentation}.throws fields.
+ */
 function api_update_31() {
   $return = array();
 
@@ -565,6 +696,9 @@ function api_update_31() {
   return $return;
 }
 
+/**
+ * Add {api_documentation}.member_name field.
+ */
 function api_update_32() {
   $return = array();
 
@@ -579,6 +713,9 @@ function api_update_32() {
   return $return;
 }
 
+/**
+ * Add {api_overrides}.documented_did field.
+ */
 function api_update_33() {
   $return = array();
 
@@ -592,7 +729,7 @@ function api_update_33() {
 }
 
 /**
- * Add {api_members}
+ * Add {api_members} table.
  */
 function api_update_34() {
   $return = array();
@@ -655,6 +792,245 @@ function api_update_35() {
   ));
   db_add_index($return, 'api_documentation', 'object_type', array('object_type'));
 
+  return $return;
+}
+
+/**
+ * Add {api_branch}.project_title field.
+ */
+function api_update_36() {
+  $return = array();
+
+  db_add_field($return, 'api_branch', 'project_title', array('type' => 'varchar', 'length' => '255', 'not null' => TRUE, 'default' => '')
+  );
+  // Set it equal to the existing 'project' field.
+  $return[] = update_sql("UPDATE {api_branch} b SET b.project_title = b.project");
+
+  return $return;
+}
+
+/**
+ * Helper function for updates: Forces everything to be reparsed.
+ *
+ * @param $return
+ *   Update function return value array.
+ *
+ * @return
+ *   $return with additional line added to it.
+ */
+function _api_update_force_all_reparse($return) {
+  drupal_load('module', 'api');
+  $num = api_mark_for_reparse();
+  $return[] = array('success' => TRUE, 'query' => "$num files set to reparse, starting at next cron run");
+
+  return $return;
+}
+
+/**
+ * Force refresh of everything, because parser has changed.
+ */
+function api_update_6100() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, because parser has changed again.
+ */
+function api_update_6101() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, because parser has changed again.
+ */
+function api_update_6102() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, because parser has changed again.
+ */
+function api_update_6103() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Drop and add fields in {api_file} and reset parsing queue.
+ */
+function api_update_6104() {
+  $return = array();
+  db_drop_field($return, 'api_file', 'version');
+  db_drop_field($return, 'api_file', 'found');
+
+  db_add_field($return, 'api_file', 'queued', array(
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ));
+
+  drupal_load('module', 'api');
+  api_reset_parse_queue();
+  $return[] = array('success' => TRUE, 'query' => "Parse queue was emptied");
+
+  return $return;
+}
+
+/**
+ * Force reparse of text files, because parsing has changed for them.
+ */
+function api_update_6105() {
+  $return = array();
+
+  db_query("UPDATE {api_file} af LEFT JOIN {api_documentation} ad ON af.did = ad.did SET af.modified = 52 WHERE ad.object_type = 'file' AND (ad.file_name LIKE '%.txt' OR ad.file_name LIKE '%.info')");
+  $num = db_affected_rows();
+  $return[] = array('success' => TRUE, 'query' => "$num text files set to reparse, starting at next cron run");
+
+  return $return;
+}
+
+/**
+ * Force refresh of everything, because parser has changed again.
+ */
+function api_update_6106() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Add indexes to various tables for query efficiency.
+ */
+function api_update_6107() {
+  $return = array();
+
+  db_add_index($return, 'api_branch', 'branch_name', array('branch_name'));
+  db_add_index($return, 'api_branch', 'status', array('status'));
+  db_add_index($return, 'api_branch', 'project_title', array('project_title'));
+
+  db_add_index($return, 'api_documentation', 'file_name', array('file_name'));
+  db_add_index($return, 'api_documentation', 'member_name', array('member_name'));
+
+  db_drop_index($return, 'api_reference_storage', 'object_ref');
+  db_add_index($return, 'api_reference_storage', 'from_did', array('from_did'));
+  db_add_index($return, 'api_reference_storage', 'object_name', array('object_name'));
+  db_add_index($return, 'api_reference_storage', 'object_type', array('object_type'));
+  db_add_index($return, 'api_reference_storage', 'branch_id', array('branch_id'));
+
+  db_add_index($return, 'api_overrides', 'root_did', array('root_did'));
+  db_add_index($return, 'api_overrides', 'overrides_did', array('overrides_did'));
+
+  db_drop_index($return, 'api_members', 'class_did');
+  db_add_index($return, 'api_members', 'class_did', array('class_did'));
+  db_add_index($return, 'api_members', 'did', array('did'));
+
+  return $return;
+}
+
+/**
+ * Force refresh of everything, because parser has changed again.
+ */
+function api_update_6108() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, as parsing has changed again.
+ */
+function api_update_6109() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, as parsing has changed again.
+ */
+function api_update_6110() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, as parsing has changed again.
+ */
+function api_update_6111() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Modify {api_reference_storage}.object_name to use binary collation.
+ */
+function api_update_6112() {
+  $return = array();
+
+  db_change_field($return, 'api_reference_storage', 'object_name', 'object_name', array(
+      'type' => 'varchar',
+      'mysql_type' => 'varbinary',
+      'pgsql_type' => 'bytea',
+      'length' => '255',
+      'not null' => TRUE,
+      'default' => '',
+    ));
+
+  return $return;
+}
+
+/**
+ * Force refresh of everything, as parsing has changed again.
+ */
+function api_update_6113() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Force refresh of everything, as parsing has changed again.
+ */
+function api_update_6114() {
+  $return = array();
+  return _api_update_force_all_reparse($return);
+}
+
+/**
+ * Add basename field to {api_file} table.
+ */
+function api_update_6115() {
+  $return = array();
+
+  // Add the basename field.
+  db_add_field($return, 'api_file', 'basename', array(
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+      'default' => '',
+    ));
+
+  // Populate this field from the existing filename field. This is a bit
+  // complicated, because PostgreSQL and MySQL do not have the same string
+  // functions available. So, start by just copying in the file name field.
+  db_query("UPDATE {api_file} f INNER JOIN {api_documentation} d ON f.did = d.did SET basename = d.file_name");
+  // Strip off leading / if there is one. Note that SQL counts strings starting
+  // from position 1.
+  db_query("UPDATE {api_file} f SET f.basename = SUBSTRING(f.basename FROM 2) WHERE SUBSTRING(f.basename FROM 1 FOR 1) = '/'");
+
+  // Now strip off parts coming before a / until we don't have any more.
+  while (db_result(db_query("SELECT COUNT(*) FROM {api_file} f WHERE POSITION('/' IN f.basename) > 0"))) {
+    db_query("UPDATE {api_file} f SET f.basename = SUBSTRING(f.basename FROM (POSITION('/' IN f.basename) + 1)) WHERE POSITION('/' IN f.basename) > 0");
+  }
+
+  return $return;
+}
+
+/**
+ * Add basename index to {api_file} table.
+ */
+function api_update_6116() {
+  $return = array();
+  db_add_index($return, 'api_file', 'basename', array('basename'));
   return $return;
 }
 

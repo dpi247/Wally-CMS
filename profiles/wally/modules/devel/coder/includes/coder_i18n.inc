@@ -1,5 +1,4 @@
 <?php
-// $Id: coder_i18n.inc,v 1.1.2.11.2.6 2009/08/14 00:18:30 snpower Exp $
 
 /**
  * @file
@@ -101,6 +100,7 @@ function coder_i18n_reviews() {
  */
 function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$results) {
   $severity_name = _coder_severity_name($coder_args, $review, $rule);
+  $ignores = $coder_args['#ignore_lines'][$review['#review_name']];
 
   // Parse the translation file into msgid/msgstr pairs.
   $translations = array();
@@ -126,15 +126,15 @@ function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$res
       $rule = array(
         '#warning' => "The first letter in the translation text should have the same capitalization as it's original text.",
       );
-      _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+      _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
     }
 
     // Check the translation trailing periods.
-    if (substr($msgid, -1, 1) == '.' && !substr($msgstr, -1, 1) != '.') {
+    if (drupal_substr($msgid, -1, 1) == '.' && !drupal_substr($msgstr, -1, 1) != '.') {
       $rule = array(
         '#warning' => 'The translation text should end in a period when the same original text also ends in a period.',
       );
-      _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+      _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
     }
 
     // Check punctuation characters.
@@ -144,7 +144,7 @@ function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$res
           $rule = array(
             '#warning' => 'Punctuation characters (.,:;?!) from the original text should exist in the translation.',
           );
-          _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+          _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
         }
       }
     }
@@ -154,7 +154,7 @@ function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$res
           $rule = array(
             '#warning' => 'Punctuations characters (.,:;?!) in the translation should also exist in the original text.',
           );
-          _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+          _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
         }
       }
     }
@@ -166,7 +166,7 @@ function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$res
           $rule = array(
             '#warning' => 'HTML from the original text should also exist in the translation.'
           );
-          _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+          _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
         }
       }
     }
@@ -178,7 +178,7 @@ function _coder_translation_callback(&$coder_args, $review, $rule, $lines, &$res
           $rule = array(
             '#warning' => 'If placeholders like !name, @name or %name exist in the original text, they must also exist in the translation.',
           );
-          _coder_error($results, $rule, $severity_name, $lineno, $msgstr);
+          _coder_error($results, $rule, $severity_name, $lineno, $msgstr, $ignores);
         }
       }
     }

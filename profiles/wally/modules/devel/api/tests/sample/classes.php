@@ -15,7 +15,7 @@
 /**
  * Sample class.
  */
-class Sample implements SampleInterface {
+class Sample extends ClassNotDefinedHere implements SampleInterface {
   /**
    * A class constant.
    */
@@ -34,6 +34,28 @@ class Sample implements SampleInterface {
    * @throws SampleException when it all goes wrong.
    */
   public function foo() {
+    // Test linking to a method.
+    $x = self::baz();
+
+    // Test linking to a property.
+    $this->property = 3;
+
+    // Test linking to a constant.
+    $y = $this->constant;
+
+    // But this shouldn't be a link, wrong syntax.
+    bar();
+  }
+
+  /**
+   * Only implemented in children.
+   */
+  public function baz() {
+    // This should be a link.
+    Sample::foo();
+
+    // This should link to a search.
+    $x->bar();
   }
 }
 
@@ -52,9 +74,15 @@ interface SampleInterface {
  *
  * @see Sample::foo() should be a link
  */
-class SubSample extends Sample implements SampleInterfaceTwo {
-  // Not documented.
+class SubSample extends Sample implements SampleInterfaceTwo, InterfaceNotDefinedHere {
+  // Not documented (this is intentional for testing).
   public function bar() {
+    // This should link to parent method.
+    $x = parent::foo();
+
+    // This should link to the parent method, which is not overridden on
+    // this class.
+    $this->baz();
   }
 }
 
@@ -69,6 +97,11 @@ interface SampleInterfaceTwo {
 }
 
 $random_assignment_not_to_be_parsed = NULL;
+
+abstract class Sample2 implements SampleInterface {
+  public function baz() {
+  }
+}
 
 /**
  * @} end samples

@@ -1,5 +1,4 @@
 <?php
-// $Id: coder_style.inc,v 1.16.2.18.2.11 2009/10/18 13:24:17 snpower Exp $
 
 /**
  * @file

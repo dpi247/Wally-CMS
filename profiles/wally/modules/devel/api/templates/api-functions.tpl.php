@@ -1,14 +1,17 @@
 <?php
-// $Id: api-functions.tpl.php,v 1.1.2.2 2010/04/21 23:21:12 drumm Exp $
 
 /**
- * @file api-functions.tpl.php
- * Theme implementation to show a list of functions, their source and description.
+ * @file
+ * Displays a list of function/file references.
  *
  * Available variables:
- * - $function['function']: Function link.
- * - $function['file']: File link.
- * - $function['description']: Function description.
+ * - $functions: Array of items to display. Each is an array with the following
+ *   elements:
+ *   - function: HTML-formatted link to the item.
+ *   - file: HTML-formatted link to the file is in.
+ *   - description: Description of the item.
+ *
+ * @ingroup themeable
  */
 ?>
 <dl class="api-functions">

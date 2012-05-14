@@ -1,17 +1,18 @@
 <?php
-// $Id: api-global-page.tpl.php,v 1.1.2.5 2010/04/21 23:21:12 drumm Exp $
 
 /**
- * @file api-global-page.tpl.php
- * Theme implementation to display a function overview.
+ * @file
+ * Displays an API page for a global variable.
  *
  * Available variables:
- * - $documentation: Documentation from the comment header of the function.
+ * - $alternatives: List of alternate versions (branches) of this global.
+ * - $documentation: Documentation from the comment header of the global.
+ * - $see: See also documentation.
+ * - $defined: HTML reference to file that defines this global.
+ * - $code: HTML-formatted declaration of this global.
+ * - $related_topics: List of related groups/topics.
  * - $branch: Object with information about the branch.
- * - $global: Object with information about the function.
- * - $defined: HTML reference to file that defines this function.
- * - $is_admin: True or false.
- * - $logged_in: True or false.
+ * - $object: Object with information about the global.
  *
  * Available variables in the $branch object:
  * - $branch->project: The machine name of the branch.
@@ -19,27 +20,35 @@
  * - $branch->directories: The local included directories.
  * - $branch->excluded_directories: The local excluded directories.
  *
- * Available variables in the $global object.
- * - $global->title: Display name.
- * - $global->related_topics: Related information about the function.
- * - $global->object_type: For this template it will be 'function'.
- * - $global->branch_id: An identifier for the branch.
- * - $global->file_name: The path to the file in the source.
- * - $global->summary: A one-line summary of the object.
- * - $global->code: Escaped source code.
- * - $global->see: HTML index of additional references.
+ * Available variables in the $object object:
+ * - $object->title: Display name.
+ * - $object->related_topics: Related information about the function.
+ * - $object->object_type: For this template it will be 'global'.
+ * - $object->branch_id: An identifier for the branch.
+ * - $object->file_name: The path to the file in the source.
+ * - $object->summary: A one-line summary of the object.
+ * - $object->code: Escaped source code.
+ * - $object->see: HTML index of additional references.
  *
- * @see api_preprocess_api_global_page().
+ * @see api_preprocess_api_object_page()
+ *
+ * @ingroup themeable
  */
 ?>
+
+<?php print $alternatives; ?>
+
 <?php print $documentation ?>
 
 <?php if (!empty($see)) { ?>
-<h3><?php print t('See also') ?></h3>
-<?php print $see ?>
+  <h3><?php print t('See also') ?></h3>
+  <?php print $see ?>
 <?php } ?>
 
-<?php print $defined; ?>
+<h3><?php print t('File'); ?></h3>
+ <?php print $defined; ?>
+
+<h3><?php print t('Code'); ?></h3>
 <?php print $code; ?>
 
 <?php if (!empty($related_topics)) { ?>

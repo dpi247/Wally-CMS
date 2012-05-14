@@ -1,5 +1,4 @@
 <?php
-// $Id: legacy.inc,v 1.1.2.10 2010/10/12 06:59:55 drumm Exp $
 
 /**
  * @file
@@ -7,12 +6,13 @@
  */
 
 /**
- * Legacy function for file redirect.
+ * Redirects legacy URLs for files.
  *
- * api/file/{directory}/{file.php}[/{branch}] -> api/{project}/{directory}--{file.php}/{branch}
+ * api/file/{directory}/{file.php}[/{branch}] ->
+ * api/{project}/{directory}{separator}{file.php}/{branch}
  *
- * @param menu_tail
- *   One or more menu parts that follows the old style api/file/ path.
+ * @param ...
+ *   One or more menu parts that follow(s) the old style api/file/ path.
  */
 function api_file_redirect() {
   $branches = api_get_branches();
