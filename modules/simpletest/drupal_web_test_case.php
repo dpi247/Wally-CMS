@@ -1,5 +1,5 @@
 <?php
-// $Id: drupal_web_test_case.php,v 1.2.2.3.2.46 2009/11/06 21:23:32 boombatower Exp $
+// $Id: drupal_web_test_case.php,v 1.2.2.3.2.47 2010/01/27 01:55:29 boombatower Exp $
 // Core: Id: drupal_web_test_case.php,v 1.146 2009/08/31 18:30:26 webchick Exp $
 
 /**
@@ -1649,6 +1649,7 @@ class DrupalWebTestCase extends DrupalTestCase {
         switch ($type) {
           case 'text':
           case 'textarea':
+          case 'hidden':
           case 'password':
             $post[$name] = $edit[$name];
             unset($edit[$name]);
