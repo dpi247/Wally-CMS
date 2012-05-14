@@ -1,4 +1,17 @@
-// $Id: CHANGELOG.txt,v 1.1.2.110 2009/12/30 22:37:21 boombatower Exp $
+// $Id: CHANGELOG.txt,v 1.1.2.117 2010/10/07 23:18:28 boombatower Exp $
+
+SimpleTest 6.x-2.11, 2010-10-07
+-------------------------------
+- Bugs
+   * #673928: SimpleTest 6.x-2.x requires PHP 5.2, but does not require in .info.
+   * #680318: Update D6 core patch.
+   * #627390: Filename cannot be empty if a test lasts less than 1s.
+   * #702142: $db_prefix is assumed to be a string.
+- Changes:
+   * #488810: drupalPost and hidden input.
+   * Reroll core patch.
+   * #867560: INSTALL.txt should contain details on patching
+   * #699434: Workaround check for dom support.
 
 SimpleTest 6.x-2.10, 2009-12-30
 -------------------------------
