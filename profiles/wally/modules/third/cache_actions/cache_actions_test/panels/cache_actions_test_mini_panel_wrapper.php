@@ -1,5 +1,4 @@
 <?php
-// $Id: cache_actions_test_mini_panel_wrapper.php,v 1.2.2.2 2010/09/28 13:52:50 fabsor Exp $
 
 /**
  * @file

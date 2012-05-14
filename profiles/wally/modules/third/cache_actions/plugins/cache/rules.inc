@@ -1,5 +1,4 @@
 <?php
-// $Id: rules.inc,v 1.5.2.13 2011/01/15 17:39:56 fabsor Exp $
 
 /**
  * @file

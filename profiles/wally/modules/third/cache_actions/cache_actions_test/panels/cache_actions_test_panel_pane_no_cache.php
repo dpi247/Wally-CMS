@@ -1,5 +1,4 @@
 <?php
-// $Id: cache_actions_test_panel_pane_no_cache.php,v 1.3.2.3 2010/09/29 07:05:52 fabsor Exp $
 
 /**
  * @file

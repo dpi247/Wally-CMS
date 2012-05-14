@@ -1,5 +1,4 @@
 <?php
-// $Id: views_plugin_cache_rules.inc,v 1.4.2.5 2011/01/15 17:35:11 fabsor Exp $
 
 /**
  * @file
