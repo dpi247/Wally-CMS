@@ -8,7 +8,6 @@
    */
 + 
 + // Include functions for automatic master/slave replication
-+ 
 + require_once './includes/database.mysql-replication.inc';
 + 
 + function db_query($query) {

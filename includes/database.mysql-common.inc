@@ -26,12 +26,12 @@
  *   and TRUE values to decimal 1.
  *
  * @return
- *   A database query result resource, or FALSE if the query was not
- *   executed correctly.
+ *   Successful SELECT, SHOW, DESCRIBE, EXPLAIN, or other queries which return a
+ *   set of results will return a database query result resource. Other
+ *   successful queries will return TRUE and failing queries will return FALSE.
  */
 
 // Include functions for automatic master/slave replication
-
 require_once './includes/database.mysql-replication.inc';
 
 function db_query($query) {
