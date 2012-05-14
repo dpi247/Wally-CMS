@@ -171,7 +171,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
            $node->type == 'wally_pollpackage') && 
            !$node->DoNotPopulate) //DoNotPopulate is for wallyedit preview, since we give it a node already populated
       { 
-        wallycontenttypes_packagepopulate($node, $op);
+        wallycontenttypes_packagepopulate($node);
       }
       break;
     case 'insert':
@@ -463,7 +463,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * @return Nothing but modify the $node
  */
 
-function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
+function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALSE) {
   static $populated_nids = array();
   if (!in_array($node->nid, $populated_nids)) {
     // Avoid infinite loop
@@ -763,7 +763,7 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
           // $r[$value] = node_build_content($r[$value]);
           // drupal_render($r[$value]->content);
           if (variable_get('wallycontenttypes_packagepopulate_recursive', 1))
-            wallycontenttypes_packagepopulate($r[$value], '');
+            wallycontenttypes_packagepopulate($r[$value]);
         } else {
           unset($r[$value]); 
         }
