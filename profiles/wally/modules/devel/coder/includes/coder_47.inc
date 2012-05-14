@@ -1,5 +1,4 @@
 <?php
-// $Id: coder_47.inc,v 1.14.2.5 2008/02/16 14:21:57 douggreen Exp $
 
 /**
  * @file

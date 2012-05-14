@@ -1,0 +1,71 @@
+<?php
+
+/**
+ * @file
+ * Tests for multi-directory setup for the API module.
+ */
+
+include_once './'. drupal_get_path('module', 'api') .'/tests/api_test_case.php';
+
+/**
+ * Tests that a multi-directory setup works.
+ */
+class ApiMultiDirectoryTestCase extends ApiTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Multiple directories',
+      'description' => 'Tests that the API module can parse files located in multiple directories in one branch',
+      'group' => 'API Module',
+    );
+  }
+
+  function setUp() {
+    $this->baseSetUp();
+
+    // Make a branch for both sets of sample code, using a .. in the path.
+    $base = getcwd();
+    $parts = explode('/', $base);
+    $last = array_pop($parts);
+    $prefix = '../' . $last . '/';
+
+    $this->setUpBranchAPICall('', TRUE, array(
+        'directory' => $prefix . drupal_get_path('module', 'api') .'/tests/sample' . "\n" . $prefix . drupal_get_path('module', 'api') .'/tests/sample2',
+      'excluded' => $prefix . drupal_get_path('module', 'api') .'/tests/sample/to_exclude' . "\n" . $prefix . drupal_get_path('module', 'api') .'/tests/sample2/maybe_exclude',
+      ));
+
+    $this->resetBranchesAndCache();
+    api_update_all_branches();
+
+    $count = $this->processApiParseQueue();
+    $this->assertEqual($count, 11, "11 files were parsed ($count)");
+  }
+
+  /**
+   * Tests that all the files were parsed.
+   */
+  function testParsing() {
+    // Make sure we have the right number of doc objects.
+    $branch = $this->getBranch();
+    $count = db_result(db_query("SELECT count(*) FROM {api_documentation} WHERE branch_id = %d", $branch->branch_id));
+    $this->assertEqual($count, 68, 'Found ' . $count . ' documentation objects.');
+
+    // Verify that the top-level directory was parsed.
+
+    $object = api_filename_load('sample/sample.php', $branch->project, $branch->branch_name);
+    $this->assertTrue(isset($object) && $object, 'sample.php was found');
+    $this->assertEqual($object->summary, 'A sample file.', 'sample.php has summary ' . $object->summary);
+
+    $object = api_filename_load('sample2/sample2.php', $branch->project, $branch->branch_name);
+    $this->assertTrue(isset($object) && $object, 'sample2.php was found');
+    $this->assertEqual($object->summary, 'A sample file to make as a new project.', 'sample2.php has summary ' . $object->summary);
+
+    $object = api_object_load('second_sample_function', $branch, 'function');
+    $this->assertTrue(isset($object) && $object, 'second_sample_function was found');
+    $this->assertEqual($object->file_name, 'sample2/sample2.php', 'second_sample_function was in file ' . $object->file_name);
+
+    $object = api_object_load('sample_class_function', $branch, 'function');
+    $this->assertTrue(isset($object) && $object, 'sample_class_function was found');
+    $this->assertEqual($object->file_name, 'sample/sample.php', 'sample_class_function was in file ' . $object->file_name);
+  }
+}
+
