@@ -51,7 +51,7 @@ var_dump('memget '.$cid);
   $wildcard_invalidate = variable_get('memcache_wildcard_invalidate', MEMCACHE_WILDCARD_INVALIDATE);
 
   if (is_object($cache)) {
-var_dump('hit'.'<br>');
+
     // Items that have expired are invalid.
     if (isset($cache->expire) && $cache->expire !== CACHE_PERMANENT && $cache->expire <= $_SERVER['REQUEST_TIME']) {
       // If the memcache_stampede_protection variable is set, allow one process
@@ -102,6 +102,8 @@ var_dump('hit'.'<br>');
         // number of flushes.
         dmemcache_delete($cid, $table);
         $cache = FALSE;
+      } else {
+var_dump('hit'.'<br>');
       }
     }
   }
