@@ -18,7 +18,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '0',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -27,6 +28,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -39,7 +41,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '0',
@@ -48,10 +49,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_packageauthors',
       '2' => 'field_creationdate',
       '3' => 'field_publicationdate',
-      '4' => 'field_embargodatetime',
-      '5' => 'field_unpublishdate',
-      '6' => 'field_editorialupdatedate',
-      '7' => 'field_freeaccess',
+      '4' => 'field_autopublish',
+      '5' => 'field_embargodatetime',
+      '6' => 'field_unpublishdate',
+      '7' => 'field_editorialupdatedate',
+      '8' => 'field_freeaccess',
     ),
   );
 
@@ -67,7 +69,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -76,6 +79,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -88,7 +92,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '1',
@@ -113,7 +116,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => 'Tells where the package will be published. ',
       ),
       'display' => array(
-        'description' => 'Tells where the package will be published. ',
+        'weight' => '-2',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -122,6 +126,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => 'Tells where the package will be published. ',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -134,7 +139,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-2',
@@ -157,7 +161,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => 'IDs; Internal, external, product, etc.',
       ),
       'display' => array(
-        'description' => 'IDs; Internal, external, product, etc.',
+        'weight' => '-3',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -166,6 +171,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => 'IDs; Internal, external, product, etc.',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -178,7 +184,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-3',
@@ -202,7 +207,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -211,6 +217,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -223,7 +230,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-1',
@@ -250,7 +256,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-4',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -260,6 +266,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -297,7 +304,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -307,6 +314,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -341,7 +349,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -351,6 +359,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -385,7 +394,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -395,6 +404,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -576,7 +586,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '0',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -585,6 +596,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -597,7 +609,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '0',
@@ -606,10 +617,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_packageauthors',
       '2' => 'field_creationdate',
       '3' => 'field_publicationdate',
-      '4' => 'field_embargodatetime',
-      '5' => 'field_unpublishdate',
-      '6' => 'field_editorialupdatedate',
-      '7' => 'field_freeaccess',
+      '4' => 'field_autopublish',
+      '5' => 'field_embargodatetime',
+      '6' => 'field_unpublishdate',
+      '7' => 'field_editorialupdatedate',
+      '8' => 'field_freeaccess',
     ),
   );
 
@@ -625,7 +637,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -634,6 +647,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -646,7 +660,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '1',
@@ -670,7 +683,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -679,6 +693,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -691,7 +706,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-2',
@@ -714,7 +728,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -723,6 +738,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -735,7 +751,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-3',
@@ -759,7 +774,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -768,6 +784,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -780,7 +797,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-1',
@@ -807,7 +823,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -817,6 +833,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -850,7 +867,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -860,6 +877,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -894,7 +912,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-4',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -904,6 +922,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -938,7 +957,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -948,6 +967,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -982,7 +1002,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '0',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -992,6 +1012,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1024,7 +1045,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1034,6 +1055,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1068,7 +1090,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1078,6 +1100,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1114,7 +1137,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1123,6 +1147,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1135,7 +1160,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '1',
@@ -1158,7 +1182,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1167,6 +1192,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1179,7 +1205,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-2',
@@ -1206,7 +1231,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '0',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1216,6 +1241,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1254,7 +1280,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1263,6 +1290,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1275,7 +1303,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '-1',
@@ -1298,7 +1325,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1308,6 +1335,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1322,7 +1350,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '3',
+    'weight' => '0',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_copyright',
@@ -1342,7 +1370,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1352,6 +1380,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1366,11 +1395,10 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '1',
+    'weight' => '-3',
     'fields' => array(
-      '0' => 'field_poll',
-      '1' => 'field_summary',
-      '2' => 'field_polldate',
+      '0' => 'field_summary',
+      '1' => 'field_polldate',
     ),
   );
 
@@ -1386,7 +1414,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '4',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1396,6 +1424,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1410,7 +1439,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '4',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_externalreference',
       '1' => 'field_objecttitle',
@@ -1431,7 +1460,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1441,6 +1470,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1455,7 +1485,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '2',
+    'weight' => '-1',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
@@ -1479,7 +1509,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '0',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1489,6 +1519,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1509,10 +1540,11 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_packageauthors',
       '2' => 'field_creationdate',
       '3' => 'field_publicationdate',
-      '4' => 'field_embargodatetime',
-      '5' => 'field_unpublishdate',
-      '6' => 'field_editorialupdatedate',
-      '7' => 'field_freeaccess',
+      '4' => 'field_autopublish',
+      '5' => 'field_embargodatetime',
+      '6' => 'field_unpublishdate',
+      '7' => 'field_editorialupdatedate',
+      '8' => 'field_freeaccess',
     ),
   );
 
@@ -1528,7 +1560,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1538,6 +1570,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1573,7 +1606,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1583,6 +1616,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1617,7 +1651,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1627,6 +1661,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1662,7 +1697,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1672,6 +1707,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1710,7 +1746,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '41',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1720,6 +1756,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1752,7 +1789,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '38',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1761,6 +1799,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1773,7 +1812,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '38',
@@ -1795,7 +1833,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '40',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1804,6 +1843,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1816,7 +1856,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '40',
@@ -1843,7 +1882,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '37',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1852,6 +1892,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1864,7 +1905,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '37',
@@ -1889,7 +1929,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '39',
+        'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1898,6 +1939,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1910,7 +1952,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
-        'label' => 'above',
       ),
     ),
     'weight' => '39',
@@ -1934,7 +1975,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1944,6 +1985,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -1978,7 +2020,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1988,6 +2030,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -2026,7 +2069,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-4',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -2036,6 +2079,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
@@ -2073,7 +2117,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'description' => '',
+        'weight' => '-2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -2083,6 +2127,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
           'format' => 'fieldset',
           'exclude' => 0,
         ),
+        'description' => '',
         '4' => array(
           'format' => 'fieldset',
           'exclude' => 0,
