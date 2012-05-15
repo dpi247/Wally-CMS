@@ -476,16 +476,13 @@ function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALS
         $node->view->name = '';
         $node->view->current_display = '';
       }
-      dsm($node->nid);
       $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
       if (!$cached_node || $reset_cache) {
-        dsm('not cached');
         $cleaned_node = wallycontenttypes_clean_node($node);
         wallycontenttypes_fieldNID($cleaned_node);
         wallycontenttypes_fieldTID($cleaned_node);
         wallytoolbox_object_cache_set($cleaned_node);
       } else {
-        dsm('cached');
         $cleaned_node = $cached_node;
       }
       wallycontenttypes_restore_node($node, $cleaned_node);
