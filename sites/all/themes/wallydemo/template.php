@@ -429,6 +429,7 @@ function theme_wallydemo_article_links_lists($linkslist){
 
 function wallydemo_preprocess_node(&$vars) {
   $node=$vars['node'];
+dsm($vars);
   $vars = array('node' => $node);
   $node=&$vars['node'];
 
