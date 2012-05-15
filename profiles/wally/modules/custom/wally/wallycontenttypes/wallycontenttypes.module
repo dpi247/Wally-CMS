@@ -477,6 +477,7 @@ function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALS
         $node->view->current_display = '';
       }
       $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
+      dsm($node);
       dsm($cached_node);
       if (!$cached_node || $reset_cache) {
         $cleaned_node = wallycontenttypes_clean_node($node);
