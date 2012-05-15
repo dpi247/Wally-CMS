@@ -7,6 +7,7 @@
  * This module completes the features module to support correctly CCK
  * content taxonomy fields.
  */
+
 /**
  * Implementation of hook_menu
  */
@@ -20,6 +21,7 @@ function wally_content_taxonomy_menu(){
   );
   return $items;
 }
+
 /**
  * Implementation of hook_features_api().
  */
@@ -32,9 +34,10 @@ function wally_content_taxonomy_features_api() {
     )
   );
 }
+
 /**
-* Implementation of hook_features_api().
-*/
+ * Implementation of hook_nodeapi().
+ */
 function wally_content_taxonomy_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   switch ($op){
     case "update" :
@@ -53,17 +56,18 @@ function wally_content_taxonomy_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       break;
   }
 }
+
 /**
  * Set the wally_confidence_score and the wally_relevancy_score to a node
  * 
  * @param $term
  * the term
- **/
+ */
 function wally_content_taxonomy_updateterm($node, $term){
   db_query("UPDATE {term_node} SET wally_confidence_score = %d, wally_relevancy_score = %d WHERE nid = %d AND tid = %d"
   ,$term->wally_confidence_score, $term->wally_relevancy_score, $node->nid, $term->tid );
-  
 }
+
 /**
  * Implementation of hook_features_export_render().
  */
@@ -105,7 +109,7 @@ function content_taxonomy_mapping_features_export($data, &$export, $module_name)
 /**
  * Implementation of hookt_features_pipe_content_alter().
  */
-function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $export, $module_name) {
+function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $export) {
   $content_taxonomy_mapping = array();
   module_load_include('inc', 'features', 'includes/features.taxonomy');
   $vocabs = _taxonomy_features_get_vocabularies();
@@ -126,15 +130,17 @@ function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $expo
     }
   }
 }
+
 /**
-* Implementation of hook_views_api().
-*/
+ * Implementation of hook_views_api().
+ */
 function wally_content_taxonomy_views_api() {
   return array(
     'api'  => 2.0,
-	'path' => drupal_get_path('module', 'wally_content_taxonomy') . '/plugins/views',
+	  'path' => drupal_get_path('module', 'wally_content_taxonomy') . '/plugins/views',
   );
 }
+
 /**
  * Generates a map linking the name of a content taxonomy field with
  * the linked vocabulary machine name
@@ -181,6 +187,7 @@ function wally_content_taxonomy_content_default_fields_alter(&$fields) {
     }
   }
 }
+
 /**
  * Get all facture containing a string 
  * to display them in a form element
@@ -192,13 +199,12 @@ function wally_content_taxonomy_content_default_fields_alter(&$fields) {
  *   "@return" a list of facture containing the $string
  */
 function wally_content_taxonomy_autocomplete_terms($string){
-
   $items = array();  
   $result = db_query("SELECT td.name AS term_name, td.tid, v.name AS vocabulary_name
-  					  FROM {term_data} td
-  					  LEFT JOIN {vocabulary} v ON v.vid = td.vid
-  					  WHERE LOWER(td.name) LIKE LOWER('%%%s%%') 
-  					  ORDER BY td.name ASC", $string);
+          					  FROM {term_data} td
+          					  LEFT JOIN {vocabulary} v ON v.vid = td.vid
+          					  WHERE LOWER(td.name) LIKE LOWER('%%%s%%') 
+          					  ORDER BY td.name ASC", $string);
   while ($obj = db_fetch_object($result)) {
     $items[$obj->term_name.' ('.$obj->vocabulary_name.') [tid]' . $obj->tid . '[tid]']
      = $obj->term_name.' ('.$obj->vocabulary_name.')';

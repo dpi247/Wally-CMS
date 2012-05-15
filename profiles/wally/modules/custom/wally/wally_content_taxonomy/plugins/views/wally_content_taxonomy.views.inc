@@ -10,12 +10,9 @@
  * and plugins (argument validators).
  */
 
-
-
 /**
  * Implementation of hook_views_data().
  */
-
 function wally_content_taxonomy_views_data() {
   
   $data['term_node']['field_wally_confidence_score'] = array(

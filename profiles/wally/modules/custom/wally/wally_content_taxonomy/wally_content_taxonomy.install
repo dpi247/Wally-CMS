@@ -1,6 +1,21 @@
 <?php
 
 /**
+ * Implementation of hook_install().
+ */
+function wally_content_taxonomy_install() {
+  drupal_install_schema('wally_content_taxonomy');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wally_content_taxonomy_schema() {
+  $schema = array();
+  return $schema;
+}
+
+/**
  * Implementation of hook_uninstall().
  */
 function wally_content_taxonomy_uninstall(){
@@ -8,24 +23,8 @@ function wally_content_taxonomy_uninstall(){
   $ret = array();
   db_drop_field($ret, 'term_node', 'wally_confidence_score');
   db_drop_field($ret, 'term_node', 'wally_relevancy_score');
-  
 }
 
-
-/**
- * Implementation of hook_install().
- */
-function wally_content_taxonomy_install() {
-  drupal_install_schema('wally_content_taxonomy');
-}
-/**
- * Implementation of hook_schema().
- */
-function wally_content_taxonomy_schema() {
-  $schema = array();
-
-  return $schema;
-}
 /**
  * Implementation of hook_update_N().
  */
@@ -37,5 +36,3 @@ function wally_content_taxonomy_update_6001(){
   }
   return $ret;
 }
-
-
