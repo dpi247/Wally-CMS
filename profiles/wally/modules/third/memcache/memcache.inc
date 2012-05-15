@@ -171,6 +171,13 @@ function cache_get($cid, $table = 'cache') {
  *   A string containing HTTP header information for cached pages.
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
+  static $keys = array();
+  if (!array_key_exists($cid, $keys)) {
+    $keys[] = $cid;
+  } else {
+    var_dump($cid);
+  }
+  
   // Handle database fallback first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
