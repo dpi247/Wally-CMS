@@ -31,7 +31,7 @@ define('MEMCACHE_CONTENT_FLUSH', 'MEMCACHE_CONTENT_FLUSH');
  *   'cache_menu', 'cache_page', or 'cache' for the default cache.
  */
 function cache_get($cid, $table = 'cache') {
-dsm('get '.$cid);
+dsm('memget '.$cid);
   // Handle excluded bins first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
@@ -175,7 +175,7 @@ dsm('get '.$cid);
  *   A string containing HTTP header information for cached pages.
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
-dsm('set '.$cid);
+dsm('memset '.$cid);
   // Handle database fallback first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
