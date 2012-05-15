@@ -120,7 +120,9 @@ $main_menu = wallydemo_menu_tree_output($menu, "selectboxeditions", 1);
     $date = _wallydemo_date_edition_diplay($unix, 'date_jour');
     print $date;
     print "&nbsp;";
-    print theme("spmeteo_get_saint"); ?>
+    if (module_exists('spmeteo')) {
+      print theme("spmeteo_get_saint");
+    } ?>
   </div>     
 <?php print $main_menu; ?>
 </li>
