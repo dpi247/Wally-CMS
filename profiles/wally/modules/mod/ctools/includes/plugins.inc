@@ -330,7 +330,6 @@ function ctools_plugin_load_includes($info, $filename = NULL) {
     if ($filename) {
       $files = isset($files[$filename]) ? array($filename => $files[$filename]) : array();
     }
-dsm($files);
     foreach ($files as $file) {
       if (!empty($info['info file'])) {
         // Parse a .info file
@@ -339,7 +338,6 @@ dsm($files);
       else {
         // Parse a hook.
         $plugin = NULL; // ensure that we don't have something leftover from earlier.
-if (!file_exists('./' . $file->filename)) dsm(debug_backtrace());
         include_once './' . $file->filename;
         // .inc files have a special format for the hook identifier.
         // For example, 'foo.inc' in the module 'mogul' using the plugin
