@@ -171,7 +171,9 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
            $node->type == 'wally_pollpackage') && 
            !$node->DoNotPopulate) //DoNotPopulate is for wallyedit preview, since we give it a node already populated
       { 
-        wallycontenttypes_packagepopulate($node, $op);
+        wallycontenttypes_packagepopulate($node);
+        //$node->inlineobjects = $node->field_embededobjects_nodes;
+        //wallycontenttypes_process_inline_objects($node);
       }
       break;
     case 'insert':
@@ -463,7 +465,7 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * @return Nothing but modify the $node
  */
 
-function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
+function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALSE) {
   static $populated_nids = array();
   if (!in_array($node->nid, $populated_nids)) {
     // Avoid infinite loop
@@ -474,13 +476,16 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
         $node->view->name = '';
         $node->view->current_display = '';
       }
+      dsm($node->nid);
       $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
       if (!$cached_node || $reset_cache) {
+        dsm('not cached');
         $cleaned_node = wallycontenttypes_clean_node($node);
         wallycontenttypes_fieldNID($cleaned_node);
         wallycontenttypes_fieldTID($cleaned_node);
         wallytoolbox_object_cache_set($cleaned_node);
       } else {
+        dsm('cached');
         $cleaned_node = $cached_node;
       }
       wallycontenttypes_restore_node($node, $cleaned_node);
@@ -489,6 +494,34 @@ function wallycontenttypes_packagepopulate(&$node, $op, $reset_cache = FALSE) {
       wallycontenttypes_fieldNID($cleaned_node);
       wallycontenttypes_fieldTID($cleaned_node);
       wallycontenttypes_restore_node($node, $cleaned_node);
+    }
+  }
+}
+
+function wallycontenttypes_process_inline_objects($node) {
+  if (isset($node->inlineobjects) && !empty($node->inlineobjects)) {
+    $inline_objects = $node->inlineobjects;
+    if ($node->type == 'wally_articlepackage') {
+      $text = &$node->field_mainstory_nodes[0]->field_textbody[0]['value'];
+      $matches = array();
+      $regex = '@<ccix:inline(.*)\/>@iU';
+      preg_match_all($regex, $text, $matches);
+      if (!empty($matches[1])) {
+        foreach ($matches[1] as $id => $match) {
+          $found_args = explode(' ', trim($match));
+          $args = array();
+          foreach ($found_args as $found_arg) {
+            $temp_arg = explode('=', $found_arg);
+            $args[$temp_arg[0]] = str_replace(array('"', "'"), '', $temp_arg[1]);
+          }
+
+          foreach ($inline_objects as $inline_object) {
+            if ($inline_object->field_externalreference[0]['value'] == $args['extref']) {
+              $text = str_replace($matches[0][$id], node_view($inline_object), $text);
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -763,7 +796,7 @@ function wallycontenttypes_fieldnodeload($field, $values=null) {
           // $r[$value] = node_build_content($r[$value]);
           // drupal_render($r[$value]->content);
           if (variable_get('wallycontenttypes_packagepopulate_recursive', 1))
-            wallycontenttypes_packagepopulate($r[$value], '');
+            wallycontenttypes_packagepopulate($r[$value]);
         } else {
           unset($r[$value]); 
         }
