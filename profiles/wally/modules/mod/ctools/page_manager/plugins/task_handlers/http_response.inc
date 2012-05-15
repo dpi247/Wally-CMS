@@ -1,4 +1,5 @@
 <?php
+// $Id: http_response.inc,v 1.1.2.1 2010/08/06 18:23:11 merlinofchaos Exp $
 
 /**
  * @file
@@ -68,7 +69,7 @@ $plugin = array(
   'add finish' => 'settings',
 
   'required forms' => array(
-    'settings' => t('HTTP Response settings'),
+    'settings' => t('Panel settings'),
   ),
 
   'edit forms' => array(
@@ -107,7 +108,8 @@ function page_manager_http_response_codes() {
   return array(
     404 => t('404 Page not found'),
     403 => t('403 Access denied'),
-    301 => t('301 Redirect'),
+    301 => t('301 Permanent Redirect'),
+    302 => t('302 Temporary Redirect'),
   );
 }
 
@@ -115,6 +117,9 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
   $task_name = page_manager_make_task_name($task['name'], $subtask['name']);
   $output = '';
 
+  $display = panels_panel_context_get_display($handler);
+
+  ctools_include('plugins', 'panels');
   ctools_include('context');
   ctools_include('context-task-handler');
 
@@ -126,17 +131,19 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
   $args = array('handlers', $handler->name, 'actions');
   $rendered_operations = page_manager_render_operations($page, $operations, array(), array('class' => 'actions'), 'actions', $args);
 
+  $layout = panels_get_layout($display->layout);
+
   $plugin = page_manager_get_task_handler($handler->handler);
 
   $object = ctools_context_handler_get_task_object($task, $subtask, $handler);
-  $context = ctools_context_load_contexts($object, TRUE);
+  $display->context = ctools_context_load_contexts($object, TRUE);
 
-  $access = ctools_access_group_summary(!empty($handler->conf['access']) ? $handler->conf['access'] : array(), $context);
+  $access = ctools_access_group_summary(!empty($handler->conf['access']) ? $handler->conf['access'] : array(), $display->context);
   if ($access) {
-    $access = t('This task will be selected if @conditions.', array('@conditions' => $access));
+    $access = t('This panel will be selected if @conditions.', array('@conditions' => $access));
   }
   else {
-    $access = t('This task will always be selected.');
+    $access = t('This panel will always be selected.');
   }
 
   $rows = array();
@@ -181,13 +188,13 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
   $info = theme('table', array(), $rows, array('class' => 'page-manager-handler-summary'));
 
   $title = $handler->conf['title'];
-  if ($title != t('HTTP Response')) {
-    $title = t('HTTP Response: @title', array('@title' => $title));
+  if ($title != t('Panel')) {
+    $title = t('Panel: @title', array('@title' => $title));
   }
 
   $output .= '<div class="clear-block">';
   if ($show_title) {
-    $output .= '<div class="handler-title clear-block">';
+  $output .= '<div class="handler-title clear-block">';
     $output .= '<div class="actions handler-actions">' . $rendered_operations['actions'] . '</div>';
     $output .= '<span class="title-label">' . $title . '</span>';
   }
@@ -200,7 +207,7 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
 }
 
 /**
- * Set up a title for the handler based upon the selection rules.
+ * Set up a title for the panel based upon the selection rules.
  */
 function page_manager_http_response_title($handler, $task, $subtask) {
   if (isset($handler->conf['title'])) {
@@ -212,7 +219,7 @@ function page_manager_http_response_title($handler, $task, $subtask) {
 }
 
 /**
- * General settings for the handler
+ * General settings for the panel
  */
 function page_manager_http_response_edit_settings(&$form, &$form_state) {
   $conf = $form_state['handler']->conf;
@@ -251,6 +258,7 @@ function page_manager_http_response_render($handler, $base_contexts, $args, $tes
   // Go through arguments and see if they match.
   ctools_include('context');
   ctools_include('context-task-handler');
+  ctools_include('plugins', 'panels');
 
   // Add my contexts
   $contexts = ctools_context_handler_get_handler_contexts($base_contexts, $handler);
@@ -265,7 +273,7 @@ function page_manager_http_response_render($handler, $base_contexts, $args, $tes
   }
 
   $info['response code'] = $handler->conf['code'];
-  if ($info['response code'] == 301) {
+  if ($info['response code'] == 301 || $info['response code'] == 302) {
     $path = ctools_context_keyword_substitute($handler->conf['destination'], array(), $contexts);
     $url = parse_url($path);
     if (isset($url['query'])) {
