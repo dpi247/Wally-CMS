@@ -44,7 +44,6 @@ function wally_profile_modules() {
     'update', 'dblog', 'path',
   );
   
-  
   // Modified modules
   $mod = array(
     // CCK (content)
@@ -63,8 +62,7 @@ function wally_profile_modules() {
     // CCK (content)
     'content_taxonomy', 'content_taxonomy_autocomplete',
     'content_taxonomy_options', 'content_taxonomy_tree',
-    'email', 'filefield', 'imagefield', 'link', 
-    'pollfield', 
+    'email', 'filefield', 'imagefield', 'link', 'webform',
   
     // Chaos tool suite
     'ctools', 'page_manager', 'views_content', 'ctools_custom_content',
@@ -81,12 +79,21 @@ function wally_profile_modules() {
     
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo', 'emother',
-    'media_vimeo', 'media_youtube', 'media_kewego','media_embedly','media_flickr', 'media_coveritlive',
+    'media_vimeo', 'media_youtube', 'media_coveritlive', 'media_dailymotion',
+    'media_embedly', 'media_flowplayer', 'media_googledoc', 'media_kewego', 'media_qualifio',
+    'media_ustream', 'media_videortl', 'media_flickr',
+
     // Others
     'job_queue', 
     
     // Panels
     'panels', 
+  
+    // Pathauto
+    'pathauto',
+  
+    // Token
+    'token',
     
     // Taxonomy related
     'taxonomy_manager', 'taxonomy_menu', 
@@ -102,7 +109,6 @@ function wally_profile_modules() {
   $custom = array(
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
     'wallyctools', 'wallytoolbox', 'wallymport', 'wallyflowtonode',
-    //'wallyedit', 'wallyfeaturessynchronizer',
   );
 
   return array_merge($core_modules, $mod, $third, $custom);
@@ -160,6 +166,7 @@ function wally_profile_tasks(&$task, $url) {
 // global $install_locale;
 
   $output = "";
+
   // Install Modules.
   install_include(wally_profile_modules());
 
