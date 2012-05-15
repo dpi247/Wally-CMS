@@ -6,14 +6,15 @@
 function wallycontenttypes_views_default_views() {
   $views = array();
 
-  // Exported view: do_not_use
+  // Exported view: node_autocomp_publication_date
   $view = new view;
   $view->name = 'node_autocomp_publication_date';
   $view->description = 'Return values for a node autocomplete field, the values are ordered by publication date';
   $view->tag = '';
+  $view->view_php = '';
   $view->base_table = 'node';
-  $view->core = 6;
-  $view->api_version = '2';
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('fields', array(
