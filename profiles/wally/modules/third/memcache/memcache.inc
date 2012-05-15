@@ -51,7 +51,7 @@ var_dump('memget '.$cid);
   $wildcard_invalidate = variable_get('memcache_wildcard_invalidate', MEMCACHE_WILDCARD_INVALIDATE);
 
   if (is_object($cache)) {
-var_dump('hit');
+var_dump('hit'.'<br>');
     // Items that have expired are invalid.
     if (isset($cache->expire) && $cache->expire !== CACHE_PERMANENT && $cache->expire <= $_SERVER['REQUEST_TIME']) {
       // If the memcache_stampede_protection variable is set, allow one process
@@ -106,7 +106,7 @@ var_dump('hit');
     }
   }
   else {
-var_dump('miss');
+var_dump('miss'.'<br>');
     $cache = FALSE;
   }
 
@@ -175,7 +175,7 @@ var_dump('miss');
  *   A string containing HTTP header information for cached pages.
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
-var_dump('memset '.$cid);
+var_dump('memset '.$cid.'<br>');
   // Handle database fallback first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
