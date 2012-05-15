@@ -2,7 +2,6 @@
 
 class wally_content_taxonomy_handler_field_confidence extends views_handler_field_prerender_list {
 
-
 function init(&$view, $options) {
   parent::init($view, $options);
     if ($view->base_table == 'node_revisions') {
