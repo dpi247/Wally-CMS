@@ -134,49 +134,44 @@ function wallyctools_panels_display_save($display) {
  * node portion of the theme registry.
  */
 function wallyctools_preprocess_views_view(&$vars){
-  //if redacblock is splitted we need to tweak the pager 
-  if(isset($vars['view']->split_index_count)){
+  //if redacblock is splitted we need to tweak the pager
+  if(isset($vars['view']->split_index_count) && !empty($vars['view']->split_index_count) && is_numeric($vars['view']->split_index_count) && ($vars['view']->split_index_count > 0)) {
     global $pager_total;
-    $pager_total[$vars['view']->pager['element']]=(int) (($vars['view']->total_rows+$vars['view']->pager['offset']+$view->split_index_count)/$vars['view']->split_total_count)+1;
-    $view=$vars['view'];
+    $pager_total[$vars['view']->pager['element']] = (int)(($vars['view']->total_rows + $vars['view']->pager['offset'] + $view->split_index_count) / $vars['view']->split_total_count) + 1;
+    $view = $vars['view'];
     $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
     $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
-    $vars['pager']    = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
-  }
-    
-  $funcs=_views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
+    $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
 
-  $new_funcs=array();
-  if($vars['view']->split_index_count){
+    $funcs = $view->theme_functions();
 
-    foreach($funcs as $func){
-      if($func!='views_view__' and isset($vars['view']->split_index_count) and $vars['view']->split_index_count!=''and $vars['view']->split_index_count!=NULL){
-
+    $new_funcs = array();
+    foreach($funcs as $func) {
+      if($func != 'views_view__' && isset($vars['view']->split_index_count) && $vars['view']->split_index_count != '' && $vars['view']->split_index_count != NULL) {
         $needle=str_replace('views_view','',$func);
-        if($needle==''){
-
+        if($needle=='') {
           $new_funcs[]='views_view__splitted_redacblock';
-          if($vars['view']->split_index_count==1){
+          if($vars['view']->split_index_count==1) {
             $new_funcs[]='views_view__splitted_redacblock__first';
           }
-          if($vars['view']->split_index_count==$vars['view']->split_total_count){
+          if($vars['view']->split_index_count==$vars['view']->split_total_count) {
             $new_funcs[]='views_view__splitted_redacblock__last';
           }
-        }
-        else{
+        } else {
           $new_funcs[]='views_view__splitted_redacblock'.$needle;
-          if($vars['view']->split_index_count==1){
+          if($vars['view']->split_index_count==1) {
             $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
           }
-          if($vars['view']->split_index_count==$vars['view']->split_total_count){
+          if($vars['view']->split_index_count==$vars['view']->split_total_count) {
             $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
           }
         }
       }
     }
+
+    $result = array_merge($new_funcs, $funcs);
+    $vars['template_files'] = array_merge($result, $vars['template_files']);
   }
-  $result= array_merge($new_funcs,$funcs);
-  $vars['template_files']= array_merge($result,$vars['template_files']);
 }
 
 function wallyctools_preprocess_node(&$vars) {
