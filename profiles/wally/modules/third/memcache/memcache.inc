@@ -172,6 +172,7 @@ function cache_get($cid, $table = 'cache') {
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
   static $keys = array();
+  var_dump('coucou');
   if (!array_key_exists($cid, $keys)) {
     $keys[] = $cid;
   } else {
