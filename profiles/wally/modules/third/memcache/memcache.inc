@@ -108,7 +108,6 @@ var_dump('hit'.'<br>');
     }
   }
   else {
-var_dump('miss'.'<br>');
     $cache = FALSE;
   }
 
