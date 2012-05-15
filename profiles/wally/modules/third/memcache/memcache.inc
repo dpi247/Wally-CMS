@@ -31,11 +31,9 @@ define('MEMCACHE_CONTENT_FLUSH', 'MEMCACHE_CONTENT_FLUSH');
  *   'cache_menu', 'cache_page', or 'cache' for the default cache.
  */
 function cache_get($cid, $table = 'cache') {
-var_dump('memget '.$cid);
   // Handle excluded bins first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
-    dsm('db');
     return _cache_get($cid, $table);
   }
 
@@ -51,7 +49,6 @@ var_dump('memget '.$cid);
   $wildcard_invalidate = variable_get('memcache_wildcard_invalidate', MEMCACHE_WILDCARD_INVALIDATE);
 
   if (is_object($cache)) {
-
     // Items that have expired are invalid.
     if (isset($cache->expire) && $cache->expire !== CACHE_PERMANENT && $cache->expire <= $_SERVER['REQUEST_TIME']) {
       // If the memcache_stampede_protection variable is set, allow one process
@@ -102,8 +99,6 @@ var_dump('memget '.$cid);
         // number of flushes.
         dmemcache_delete($cid, $table);
         $cache = FALSE;
-      } else {
-var_dump('hit'.'<br>');
       }
     }
   }
@@ -176,7 +171,6 @@ var_dump('hit'.'<br>');
  *   A string containing HTTP header information for cached pages.
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
-var_dump('memset '.$cid.'<br>');
   // Handle database fallback first.
   $bins = variable_get('memcache_bins', array());
   if (!is_null($table) && isset($bins[$table]) && $bins[$table] == 'database') {
