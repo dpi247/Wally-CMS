@@ -14,7 +14,7 @@
  */
 function cache_get($cid, $table = 'cache') {
   global $user;
-
+dsm('get '.$cid);
   // Garbage collection necessary when enforcing a minimum cache lifetime
   $cache_flush = variable_get('cache_flush_'. $table, 0);
   if ($cache_flush && ($cache_flush + variable_get('cache_lifetime', 0) <= time())) {
@@ -26,6 +26,7 @@ function cache_get($cid, $table = 'cache') {
 
   $cache = db_fetch_object(db_query("SELECT data, created, headers, expire, serialized FROM {". $table ."} WHERE cid = '%s'", $cid));
   if (isset($cache->data)) {
+    dsm('hit');
     // If the data is permanent or we're not enforcing a minimum cache lifetime
     // always return the cached data.
     if ($cache->expire == CACHE_PERMANENT || !variable_get('cache_lifetime', 0)) {
@@ -53,6 +54,7 @@ function cache_get($cid, $table = 'cache') {
     }
     return $cache;
   }
+  dsm('miss');
   return 0;
 }
 
@@ -103,6 +105,7 @@ function cache_get($cid, $table = 'cache') {
  *   @see cache_get()
  */
 function cache_set($cid, $data, $table = 'cache', $expire = CACHE_PERMANENT, $headers = NULL) {
+  dsm('set '.$cid);
   $serialized = 0;
   if (is_object($data) || is_array($data)) {
     $data = serialize($data);
