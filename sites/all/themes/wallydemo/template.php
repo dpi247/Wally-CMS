@@ -429,7 +429,6 @@ function theme_wallydemo_article_links_lists($linkslist){
 
 function wallydemo_preprocess_node(&$vars) {
   $node=&$vars['node'];
-  dsm('coucou');
   if($node->type=="wally_articlepackage" ||$node->type=="wally_pollpackage" || $node->type=="wally_gallerypackage"){
 
     $pub_date = $node->field_publicationdate[0];
