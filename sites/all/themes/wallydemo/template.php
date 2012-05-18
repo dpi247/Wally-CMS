@@ -2123,7 +2123,7 @@ function wallydemo_menu_get_cache($menu_name){
   $cid = $menu_name;
   $cached_block = cache_get($cid);
   if (!is_object($cached_block) || !isset($cached_block) || empty($cached_block) || ($cached_block->expire < time()) || ($cached_block->expire == -1)) {
-    //$data = menu_tree_all_data($menu_name);
+    $data = menu_tree_all_data($menu_name);
     cache_set($cid, $data, 'cache', time() + 60*30 + 1);
   } else {
 	$data = $cached_block->data;
