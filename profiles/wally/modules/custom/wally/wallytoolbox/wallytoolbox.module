@@ -490,6 +490,7 @@ function wallytoolbox_set_microtime_step($step = '') {
 
     $formatted = $d->format('i:s.u');
     dsm($formatted, $step);
+    return $t;
   }
 }
 
