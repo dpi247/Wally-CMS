@@ -432,16 +432,18 @@ function wallydemo_preprocess_node(&$vars) {
   if($node->type=="wally_articlepackage" ||$node->type=="wally_pollpackage" || $node->type=="wally_gallerypackage"){
 
     $pub_date = $node->field_publicationdate[0];
-    $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
+    if ($form_date = date_make_date($pub_date['value'], $pub_date['timezone_db'])) {
+      $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
+      $form_date = unserialize(serialize($form_date));
+      $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
+    }
 
     $editorial_update = $node->field_editorialupdatedate[0];
-    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
+    if($form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db'])) {
+      $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
+      $form_date = unserialize(serialize($form_date));
+      $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
+    }
   }
 
   if($node->type=="wally_articlepackage"){
@@ -449,8 +451,8 @@ function wallydemo_preprocess_node(&$vars) {
       
       $vars['bool_node_page']=true;
       //node_build_content($node);
-      //wallycontenttypes_packagepopulate($node);
-      
+      wallycontenttypes_packagepopulate($node);
+
       if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
         foreach ($node->field_embededobjects_nodes as $delta => $embed) {
           // Fake nid in case of preview
