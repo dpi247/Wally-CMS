@@ -166,9 +166,6 @@ function _db_query($query, $debug = 0, $slave = FALSE) {
   else {
     // Indicate to drupal_error_handler that this is a database error.
     ${DB_ERROR} = TRUE;
-    if ($query == "SELECT n.nid, n.type, n.language, n.uid, n.status, n.created, n.changed, n.comment, n.promote, n.moderate, n.sticky, n.tnid, n.translate, n.fbcomment, r.vid, r.uid AS revision_uid, r.title, r.body, r.teaser, r.log, r.timestamp AS revision_timestamp, r.format, u.name, u.picture, u.data FROM node n INNER JOIN users u ON u.uid = n.uid INNER JOIN node_revisions r ON r.vid = n.vid WHERE n.nid = 162") {
-      dsm(debug_backtrace());
-    }
     trigger_error(check_plain(mysqli_error($active_last_db) ."\nquery: ". $query), E_USER_WARNING);
     return FALSE;
   }
