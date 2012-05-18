@@ -337,6 +337,7 @@ function ctools_plugin_load_includes($info, $filename = NULL) {
       }
       else {
         if (strstr($file->filename, 'custom_sp')) dsm(debug_backtrace());
+        dsm($file);
         // Parse a hook.
         $plugin = NULL; // ensure that we don't have something leftover from earlier.
         include_once './' . $file->filename;
