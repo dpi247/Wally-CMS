@@ -79,6 +79,7 @@ $node_id = $node->nid;
  * print($node_path);
  */
 //$aliases = wallytoolbox_get_path_aliases("node/".$node->nid);
+module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
 $node_path = $aliases[0];
 
