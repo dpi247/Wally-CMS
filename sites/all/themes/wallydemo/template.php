@@ -532,6 +532,7 @@ function wallydemo_preprocess_views_view(&$vars){
   }
   $result = array_merge($new_funcs,$funcs);
   $vars['template_files'] = array_merge($result, $vars['template_files']);
+
 }
 
 function wallydemo_preprocess_spnewsletter_html_form(&$vars){
@@ -550,6 +551,8 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
 function wallydemo_preprocess_page(&$vars){
   $domain_url = $_SERVER["SERVER_NAME"];
   $domain = 'sudinfo';
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   //ajoute un candidat template utilisé pour le contexte mobile
   if ($domain == "mobile"){
@@ -728,6 +731,7 @@ function _set_meta_fornode($node, $site_name=NULL, $site_url=NULL, $associated_b
   }
 
   //$aliases = wallytoolbox_get_path_aliases("node/".$node->nid);
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
   $node_path = $aliases[0];
 
