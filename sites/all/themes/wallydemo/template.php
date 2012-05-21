@@ -353,30 +353,34 @@ function preprocess_node_article_dispatch_top_bottom($vars,$allItems,&$top, &$bo
   $node=$vars['node'];
 
   //First we set the top
-  foreach($node->field_embededobjects_nodes as $nid=>$embed){
-    if($item=$allItems[$embed->nid]){
-      switch ($item['group_type']){
-        case 'photo':
-          $top[$embed->nid]=$item;
-          break;
-        case 'video':
-          if($switch!=TRUE and $item['provider']!='slideshare'){
+  if (is_array($node->field_embededobjects_nodes)) {
+    foreach($node->field_embededobjects_nodes as $nid=>$embed){
+      if($item=$allItems[$embed->nid]){
+        switch ($item['group_type']){
+          case 'photo':
             $top[$embed->nid]=$item;
-            $switch=TRUE;
-          }
-          break;
-        case 'link':
-          break;
+            break;
+          case 'video':
+            if($switch!=TRUE and $item['provider']!='slideshare'){
+              $top[$embed->nid]=$item;
+              $switch=TRUE;
+            }
+            break;
+          case 'link':
+            break;
+        }
       }
     }
   }
 
   //First we set the top
-  foreach($node->field_embededobjects_nodes as $nid=>$embed){
-    if($item=$allItems[$embed->nid]){
-      //We simply put on bottom all content not include in top ...
-      if(!isset($top[$embed->nid])){
-        $bottom[$embed->nid]=$item;
+  if (is_array($node->field_embededobjects_nodes)) {
+    foreach($node->field_embededobjects_nodes as $nid=>$embed){
+      if($item=$allItems[$embed->nid]){
+        //We simply put on bottom all content not include in top ...
+        if(!isset($top[$embed->nid])){
+          $bottom[$embed->nid]=$item;
+        }
       }
     }
   }
@@ -450,7 +454,7 @@ function wallydemo_preprocess_node(&$vars) {
     if($node->nid==arg(1) or $node->preview or TRUE){
       
       $vars['bool_node_page']=true;
-      //node_build_content($node);
+      node_build_content($node);
       wallycontenttypes_packagepopulate($node);
 
       if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
@@ -1778,47 +1782,49 @@ function _wallydemo_get_trimmed_string($string){
 
 function _wallydemo_get_sorted_links($node){
   $allLinks = array();
-  $listLinks = $node->field_linkedobjects_nodes;	
-  foreach ($listLinks as $ll) {
-	$lLinks = array();
-	$lLinks["title"] = $ll->title;
-	$i = 0;   
-	if (isset($ll->field_links_list_nodes)){
-  	  foreach ($ll->field_links_list_nodes as $l) {			
-  	    if ($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
-	      $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
-	      $package_layout = taxonomy_get_term($package_layout);
-	      $package_layout_name = $package_layout->name;
-	    }
-		// teste s'il s'agit d'un lien interne
-		if ($l->field_internal_link[0]["nid"] != NULL) {
-		  $nodeTarget = node_load($l->field_internal_link[0]["nid"]);
-	      $lLinks["links"][$i]["internal"] = 1;
-		  $lLinks["links"][$i]["title"] = $nodeTarget->title;
-	      $lLinks["links"][$i]["target"] = NULL;
-	      $lLinks["links"][$i]["status"] = $l->status;				
-		  $lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
-		  if ($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
-		} else {
-		  if ($l->files) {
-			$att = array_pop($l->files);
-			$lLinks["links"][$i]["url"] = "/".$att->filepath;
-			$lLinks["links"][$i]["title"] = $l->title;
-		  } else {
-		    $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
-		    if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
-			  $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
-		    } else {
-			  $lLinks["links"][$i]["title"] = $l->title;
-		    }
-		    $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
-		  } 
-		  $lLinks["links"][$i]["status"] = $l->status;
-	    }
-	    $lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);			
-	    $i++;
-	  }
-	  array_push($allLinks,$lLinks);
+  $listLinks = $node->field_linkedobjects_nodes;
+  if (is_array($listLinks)) {
+    foreach ($listLinks as $ll) {
+      $lLinks = array();
+      $lLinks["title"] = $ll->title;
+      $i = 0;
+      if (isset($ll->field_links_list_nodes)){
+        foreach ($ll->field_links_list_nodes as $l) {
+          if ($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
+            $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
+            $package_layout = taxonomy_get_term($package_layout);
+            $package_layout_name = $package_layout->name;
+          }
+          // teste s'il s'agit d'un lien interne
+          if ($l->field_internal_link[0]["nid"] != NULL) {
+            $nodeTarget = node_load($l->field_internal_link[0]["nid"]);
+            $lLinks["links"][$i]["internal"] = 1;
+            $lLinks["links"][$i]["title"] = $nodeTarget->title;
+            $lLinks["links"][$i]["target"] = NULL;
+            $lLinks["links"][$i]["status"] = $l->status;
+            $lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
+            if ($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
+          } else {
+            if ($l->files) {
+              $att = array_pop($l->files);
+              $lLinks["links"][$i]["url"] = "/".$att->filepath;
+              $lLinks["links"][$i]["title"] = $l->title;
+            } else {
+              $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
+              if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
+                $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
+              } else {
+                $lLinks["links"][$i]["title"] = $l->title;
+              }
+              $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
+            }
+            $lLinks["links"][$i]["status"] = $l->status;
+          }
+          $lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);
+          $i++;
+        }
+        array_push($allLinks,$lLinks);
+      }
     }
   }
   return $allLinks;
