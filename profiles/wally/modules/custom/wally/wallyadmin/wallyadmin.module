@@ -6,58 +6,6 @@ define('WALLY_ADMIN_PATH', 'admin/wally');
  */
 
 /**
- * Implementation of hook_perm()
- */
-function wallyadmin_perm() {
-  return array(
-    'manage cache',
-    'manage variables',
-  );
-}
-
-/**
- * Implementation of hook_form_alter().
- */
-function wallyadmin_form_alter(&$form, $form_state, $form_id) {
-  // Make mods to every node form
-  if ($form['#id'] == 'node-form') {
-        
-    $form['menu']['#collapsed'] = TRUE;
-    $form['path']['#collapsed'] = TRUE;
-    
-    if (isset($form['flag'])) {
-      $form['flag']['#collapsed'] = TRUE;
-    }
-    
-    // Hide the split summary button
-    if (!empty($form['body_field'])) {
-      $form['body_field']['teaser_js']['#type'] = 'hidden';
-      $form['body_field']['teaser_include']['#type'] = 'hidden';
-    }
-  }
-  
-}
-
-/**
- * Implementation of hook_node_form_sidebar().
- *
- * This is an integration with the Slate theme of the Admin module.
- */
-function wallyadmin_node_form_sidebar($form, $node) {
-  return array(
-    'group_identification',
-    'path', 
-    'options', 
-    'menu', 
-    'author', 
-    'revision_information', 
-    'comment_settings', 
-    'flag',
-    'scheduler_settings',
-  );
-}
-
-/**
  * Implementation of hook_menu().
  */
 function wallyadmin_menu() {
@@ -184,6 +132,58 @@ function wallyadmin_menu_alter(&$items) {
     
     //-- And if we have context, I guess we don't need blocks UI :)
   $items['admin/user/roles']['options']['admin'] = TRUE;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyadmin_perm() {
+  return array(
+    'manage cache',
+    'manage variables',
+  );
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function wallyadmin_form_alter(&$form, $form_state, $form_id) {
+  // Make mods to every node form
+  if ($form['#id'] == 'node-form') {
+        
+    $form['menu']['#collapsed'] = TRUE;
+    $form['path']['#collapsed'] = TRUE;
+    
+    if (isset($form['flag'])) {
+      $form['flag']['#collapsed'] = TRUE;
+    }
+    
+    // Hide the split summary button
+    if (!empty($form['body_field'])) {
+      $form['body_field']['teaser_js']['#type'] = 'hidden';
+      $form['body_field']['teaser_include']['#type'] = 'hidden';
+    }
+  }
+  
+}
+
+/**
+ * Implementation of hook_node_form_sidebar().
+ *
+ * This is an integration with the Slate theme of the Admin module.
+ */
+function wallyadmin_node_form_sidebar($form, $node) {
+  return array(
+    'group_identification',
+    'path', 
+    'options', 
+    'menu', 
+    'author', 
+    'revision_information', 
+    'comment_settings', 
+    'flag',
+    'scheduler_settings',
+  );
 }
 
 /**
