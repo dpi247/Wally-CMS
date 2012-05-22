@@ -2251,7 +2251,7 @@ function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
 
   $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
-	  $VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
 
   if ($vid == NULL){

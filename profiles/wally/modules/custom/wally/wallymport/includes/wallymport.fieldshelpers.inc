@@ -222,7 +222,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   global $proceed_file_path;
   global $base_path;
   global $proceed_folder_path;
-  
+
   if ($importer == NULL){
     $temp_folder = $proceed_folder_path;
   } else {
