@@ -52,7 +52,7 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
 
     //if ($dom->schemaValidate(drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')){
       $xml = $dom->saveXML();
-return;
+//return;
       $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
       $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
@@ -78,7 +78,7 @@ function ccimap_get_productinfo_fromWS() {
   $wsdl_uri=variable_get('ccimapping_ws_wsdluri', '');
   $newsroom=variable_get('ccimapping_newsroom', '');
   $product_name=variable_get('ccimapping_product_name', '');
-return '';
+//return '';
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
