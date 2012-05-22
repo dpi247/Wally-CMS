@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.flowtoarray');
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
@@ -82,7 +84,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
   if ($feed_xml && $feed_xml->code == '200') {
-    set_error_handler('wallytoolbox_handle_errors');
+    set_error_handler('_wallytoolbox_rss_flow_handle_errors');
 
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
@@ -212,6 +214,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   // Copy distant images to local
   if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
     $file_temp_dir = file_directory_path().'/Flows/';
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     file_check_directory_recursive($file_temp_dir, 1);
     
     foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
@@ -678,6 +681,15 @@ function _wallytoolbox_rss_flow_check_is_video($media_content) {
   }
 
   return FALSE;
+}
+
+/**
+ * Error handler
+ */
+function _wallytoolbox_rss_flow_handle_errors($errno, $errstr, $errfile, $errline, $args) {
+  if($errno == 1){
+    watchdog('php', 'Fatal error: @errstr in @errfile at line @errline', array('@errstr' => $errstr, '@errfile' => $errfile, '@errline' => $errline), WATCHDOG_ERROR);
+  }
 }
 
 function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {

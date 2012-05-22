@@ -371,7 +371,7 @@ function wallyflowtonode_finalstep_form_submit(&$form, &$form_state) {
   $flow_item = (array)$form_state['flow_obj'];
   $values = $form_state['values'];
   if ($values['direct_process']) {
-    require_once drupal_get_path('module', 'wallyflowtonode').'/includes/wallyflowtonode.admin.inc';
+    module_load_include('inc', 'wallyflowtonode', 'includes/wallyflowtonode.admin');
     $return = array();
     $return['date'] = date('Y-m-d H:i:s');
     $return[] = _wallyflowtonode_callonefeed($flow_item);

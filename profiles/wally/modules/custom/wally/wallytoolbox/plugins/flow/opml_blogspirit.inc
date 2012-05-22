@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.flowtoarray');
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.

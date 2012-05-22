@@ -4,5 +4,6 @@
  * Implementation of hook_uninstall()
  */
 function wallyexport_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('wallyexport_');
 }

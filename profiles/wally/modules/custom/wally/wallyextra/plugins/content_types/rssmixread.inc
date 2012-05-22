@@ -535,7 +535,7 @@ function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings
       $media_namespace = $rss_tags->item(0) ? $rss_tags->item(0)->getAttributeNS('http://www.w3.org/2000/xmlns/', 'media') : 'http://search.yahoo.com/mrss/';
       $channels = $dom->getElementsByTagName('channel');
       if ($channels->item(0)) {
-        require_once drupal_get_path('module', 'wallytoolbox').'/plugins/flow/rss.inc';
+        module_load_include('inc', 'wallytoolbox', 'plugins/flow/rss');
         
         foreach ($channels->item(0)->getElementsByTagName('item') as $item) {
           $temp_feed_array = wallytoolbox_rss_item_to_array($channels->item(0), $item, $media_namespace, $settings);
@@ -666,6 +666,7 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
 
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_flush_all_pages($internal_url, TRUE);
     cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);//, NULL, 'rssmix');
   }

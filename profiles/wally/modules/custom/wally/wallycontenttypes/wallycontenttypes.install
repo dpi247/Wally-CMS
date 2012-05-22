@@ -14,6 +14,7 @@ function wallycontenttypes_install() {
 function wallycontenttypes_uninstall() {
   _wallycontenttypes_uninstall_presets();
   drupal_uninstall_schema('wallycontenttypes');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('wallycontenttypes_');
 }
 

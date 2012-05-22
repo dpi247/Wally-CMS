@@ -3,6 +3,8 @@
 function ccimapping_cropsync_form_cropings_editor_form($form_state) {
   $form = array();
   
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  
   $form['xml'] = array(
     '#type' => 'textarea',
     '#title' => t('XML Cropings'),
