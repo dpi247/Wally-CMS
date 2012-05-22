@@ -263,6 +263,8 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
 
         $tempFile = $tmp_folder.'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
+        
+        module_load_include('inc', 'wallymport', 'wallymport.process');
 
         if (!empty($files_to_zip)) {
           $files_to_zip[] = $tempFile;

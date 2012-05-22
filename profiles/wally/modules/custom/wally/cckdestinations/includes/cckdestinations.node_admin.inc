@@ -4,7 +4,7 @@
  * Menu callback: content administration.
  */
 function cckdestinations_node_admin_content($form_state) {
-  require_once './'.drupal_get_path('module', 'node').'/node.admin.inc';
+  module_load_include('inc', 'node', 'node.admin');
   if (isset($form_state['values']['operation']) && $form_state['values']['operation'] == 'delete') {
     return node_multiple_delete_confirm($form_state, array_filter($form_state['values']['nodes']));
   }
@@ -20,7 +20,7 @@ function cckdestinations_node_admin_content($form_state) {
  * Form builder: Builds the node administration overview.
  */
 function cckdestinations_node_admin_nodes() {
-  require_once './'.drupal_get_path('module', 'node').'/node.admin.inc';
+  module_load_include('inc', 'node', 'node.admin');
   $session = &$_SESSION['node_overview_filter'];
   $session = is_array($session) ? $session : array();
 

@@ -452,3 +452,66 @@ function wallymport_page_general_settings_form($form_state) {
   
   return system_settings_form($form);
 }
+
+/**
+ * Create a XML document containing all available destinations.
+ * The structure of the XML follows packages.xsd.
+ * 
+ * <xsd:complexType name="DestinationsItem">
+ *   <xsd:sequence>
+ *     <xsd:element name="DestinationPath" type="xsd:string" />
+ *   </xsd:sequence>
+ *   <xsd:attribute name="DestinationRank" type="xsd:string" use="required" />
+ *   <xsd:attribute name="Position" type="xsd:string" />
+ *   <xsd:attribute name="DocumentLayout" use="required" type="xsd:string" />
+ * </xsd:complexType>
+ * 
+ * @return
+ *   The XML document as a string.
+ */
+function wallymport_page_destinations_items($short = FALSE) {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  $array_dests = wallytoolbox_destinations_items_array();
+  $dom_dests = new DOMDocument('1.0', 'UTF-8');
+
+  $destinations = $dom_dests->createElement('Destinations');
+  $destinations = $dom_dests->appendChild($destinations);
+
+  foreach ($array_dests as $tid => $term_infos) {
+    $term = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
+    $term = strtoupper($term);
+    foreach ($term_infos as $target_name => $target_infos) {
+      if (!$short) {
+        foreach ($target_infos as $layout_name => $layout_infos) {
+          foreach ($layout_infos as $rank_elem => $true_value) {
+            $destination = $dom_dests->createElement('Destination');
+            $destination = $destinations->appendChild($destination);
+
+            $destination->setAttribute('tid', $tid);
+            $destination->setAttribute('Position', $target_name);
+            $destination->setAttribute('DocumentLayout', $layout_name);
+            $destination->setAttribute('DestinationRank', $rank_elem);
+
+            $destination_path = $dom_dests->createElement('DestinationPath');
+            $destination_path = $destination->appendChild($destination_path);
+            $destination_path_text = $dom_dests->createTextNode($term);
+            $destination_path->appendChild($destination_path_text);
+          }
+        }
+      } else {
+        $destination = $dom_dests->createElement('Destination');
+        $destination = $destinations->appendChild($destination);
+
+        $destination->setAttribute('tid', $tid);
+        $destination->setAttribute('Position', $target_name);
+
+        $destination_path = $dom_dests->createElement('DestinationPath');
+        $destination_path = $destination->appendChild($destination_path);
+        $destination_path_text = $dom_dests->createTextNode($term);
+        $destination_path->appendChild($destination_path_text);
+      }
+    }
+  }
+  
+  print $dom_dests->saveXML(); 
+}

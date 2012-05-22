@@ -149,5 +149,6 @@ function _wallyrules_flush_all_pages($settings, $paths) {
     $flush_type = 'drupal';
   }
   
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_flush_all_pages($paths, TRUE, $flush_type);
 }

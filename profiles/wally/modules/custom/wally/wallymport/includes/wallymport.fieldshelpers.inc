@@ -1,10 +1,5 @@
 <?php
 
-/*
- * 
- * 
- * 
- */
 function _wimprthelp_getfieldnamefromvocabularyname($name){
   $result_set = NULL;
   switch ($name){

@@ -3,6 +3,8 @@
 function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
   $form = array();
 
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  
   $form['xml'] = array(
     '#type' => 'textarea',
     '#title' => t('XML Mapping'),

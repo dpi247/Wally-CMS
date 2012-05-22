@@ -140,6 +140,7 @@ function wallyextra_cron() {
           $folder_created = strtotime($year.'-'.$month.'-'.$date);
           $days_diff = (mktime(0, 0, 0) - $folder_created)/86400; // Folder age in days
           if ($days_diff > $days_limit) {
+            module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
             rrmdir($path);
           }
         }*/
@@ -463,6 +464,7 @@ function _wallyextra_content_types_ajax_callback() {
   $content = '';
   
   ctools_include('context');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   
   // Get POSTed values
   $cid = $_POST['cid'];

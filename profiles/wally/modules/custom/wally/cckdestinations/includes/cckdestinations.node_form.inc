@@ -7,6 +7,7 @@
 function cckdestinations_add_more_js($type_name_url, $field_name) {
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
@@ -112,7 +113,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
   if ($form['#tree']) {
     unset($redirect_path[0]);
   }
-  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  //$form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
   wallytoolbox_add_elem_at_target($form, $form_element[$field_name], $path);
@@ -144,7 +145,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
 
   //$field_form[$field_name]['#parents']=$parents;
   $field_form['#parents'] = $parents;
-  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  //$field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
 
   if (isset($field_form[$delta])) {

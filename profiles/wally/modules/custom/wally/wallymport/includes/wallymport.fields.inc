@@ -7,6 +7,9 @@
  * wimprt_process_object() or wimprt_process_type() functions.
  */
 
+module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+
 /**
  * Process the packages element of a wally DomDocument object.
  * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
@@ -71,7 +74,7 @@ function wimprt_process_package($dom, &$log, $importer, $callback = NULL) {
   
   if (!empty($node) && !isset($node->rejected)) {
     if ($importer->wallymport_preview) {
-      require_once './'.drupal_get_path('module', 'wallyedit').'/includes/Prenode.inc';
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
@@ -633,51 +636,53 @@ function wimprt_set_field_destinations(&$node, $dom, $log, $importer) {
  */
 function wimprt_set_field_editions(&$node, $dom, $log, $importer) {
   if(variable_get('wallymport_debug',0) or true){
-	$log['log'][] = 'process Editions: '.$dom->nodeName;
+    $log['log'][] = 'process Editions: '.$dom->nodeName;
   }
 
   $result = array();
   $valid = (bool) false;
-  $terms = array(); 
+  $terms = array();
   $vid=variable_get('wallymport_edition', NULL);
   if ($vid) {
-	// Read all terms from vocabulary and set if to False (default);
-	$terms = taxonomy_get_tree($vid);
-	foreach ($terms as $term) {
-	  $result[$term->name]["Publish"]=false;
-	  $result[$term->name]["EditionTid"]=$term->tid;
-	  $result[$term->name]["EditionID"]=$term->name;
-	}
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
-	// Get edition from DOM & update array.
-	foreach($dom->getElementsByTagName('Edition') as $edition) {
-	  $editionID = $edition->getAttributeNode("EditionID")->value;
-	  $value = wallytoolbox_toboolean($edition->nodeValue);
-	  if (strtolower($editionID)=="all") {
-		foreach ($terms as $term) $result[$term->name]["Publish"] = $value;
-	      $valid = $value;
-		  drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
-		  break;
-	  } else {
-		if (array_key_exists($editionID, $result)) {
-		  $valid = ($valid || $value);
-		  $result[$editionID]['Publish']=$value;
-	    } else {
-		  drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
-		}
-	  }
-	}
-	if ($valid) { 
+    // Read all terms from vocabulary and set if to False (default);
+    $terms = taxonomy_get_tree($vid);
+    foreach ($terms as $term) {
+      $result[$term->name]["Publish"]=false;
+      $result[$term->name]["EditionTid"]=$term->tid;
+      $result[$term->name]["EditionID"]=$term->name;
+    }
+
+    // Get edition from DOM & update array.
+    foreach($dom->getElementsByTagName('Edition') as $edition) {
+      $editionID = $edition->getAttributeNode("EditionID")->value;
+      $value = wallytoolbox_toboolean($edition->nodeValue);
+      if (strtolower($editionID)=="all") {
+        foreach ($terms as $term) $result[$term->name]["Publish"] = $value;
+        $valid = $value;
+        drupal_set_message('Editions ALL found. All editions set to '.$value.'. Editions iteration terminated.','notice');
+        break;
+      } else {
+        if (array_key_exists($editionID, $result)) {
+          $valid = ($valid || $value);
+          $result[$editionID]['Publish']=$value;
+        } else {
+          drupal_set_message('Edition: "'.$editionID.'" not found in vocabulary. Edition rejected','error');
+        }
+      }
+    }
+    if ($valid) {
       $node->field_editions=array(array("value"=>serialize($result)));
-	} else {
-    //$node->rejected = '';
-	drupal_set_message('ALL Edition set to false. Package rejected','error');
-	// TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
-	}
-		
+    } else {
+      //$node->rejected = '';
+      drupal_set_message('ALL Edition set to false. Package rejected','error');
+      // TODO: FATAL ERROR - PACKAGE - DONE NEED CHECK
+    }
+
   } else {
-	drupal_set_message('Edition vocabulary not set. See settings.','error');
-	return '';
+    drupal_set_message('Edition vocabulary not set. See settings.','error');
+    return '';
   }
 }
 
@@ -770,6 +775,7 @@ function wimprt_set_field_commentsallowed(&$node, $dom, &$log, $importer){
  *   Nothing
  */
 function wimprt_set_field_freeaccess(&$node, $dom, &$log, $importer){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
     $node->field_freeaccess[0]['value'] = NULL; 
@@ -2238,13 +2244,14 @@ function wimprt_set_field_taxonomy(&$node, $dom, $log, $importer) {
  *   Nothing but modify $result
  */
 function wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
- // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
- // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
+  // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
+  // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
 
   $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
   if (isset($vocabulary->getAttributeNode("VocabularyDescription")->value)) {
-	$VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
+	  $VocabularyDescription = $vocabulary->getAttributeNode("VocabularyDescription")->value;
   }
 
   if ($vid == NULL){
@@ -2739,6 +2746,7 @@ function wimprt_process_type_person(&$node, $dom, &$log, $importer){
 	$site["attributes"] = Array();
 	$node->field_personwebsite = array($site);
   }
+
   // Send back the node
   return($node);
 
