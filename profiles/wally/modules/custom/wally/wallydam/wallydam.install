@@ -4,6 +4,7 @@
  * Implementation of hook_uninstall().
  */
 function wallydam_uninstall(){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   drupal_uninstall_schema('wallydam');
   wallytoolbox_variable_del_like('wallydam_');
 }

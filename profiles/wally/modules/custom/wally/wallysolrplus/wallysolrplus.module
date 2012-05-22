@@ -7,7 +7,6 @@ function wallysolrplus_theme() {
     'path' => "$path/theme",
   );
 
-  require_once "./$path/theme/theme.inc";
   return array(
     'search_result' => array(
       'arguments' => array('result' => NULL, 'type' => NULL),

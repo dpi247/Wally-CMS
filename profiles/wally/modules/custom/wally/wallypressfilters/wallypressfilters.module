@@ -68,7 +68,6 @@ function wallypressfilters_menu() {
  * On déclare les filtres Hermès et CCI. 
  * */
 function wallypressfilters_filter($op, $delta = 0, $format = -1, $text = '') {
- 
   switch ($op) {
     case 'list':
       $list = array();

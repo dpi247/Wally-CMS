@@ -319,6 +319,7 @@ function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
     
     drupal_set_message(t('The configuration options have been saved.'));
   } elseif ($values['op'] == $values['buttons']['reset']) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_variable_del_like('cckdestinations_');
     drupal_set_message(t('The configuration options have been reset to their default values.'));
   }

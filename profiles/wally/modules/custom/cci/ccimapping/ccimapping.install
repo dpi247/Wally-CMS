@@ -30,5 +30,6 @@ function ccimapping_requirements($phase) {
  * Implementation of hook_uninstall().
  */
 function ccimapping_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('ccimapping_');
 }

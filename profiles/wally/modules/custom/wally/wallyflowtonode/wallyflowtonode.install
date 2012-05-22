@@ -137,6 +137,7 @@ function wallyflowtonode_install() {
  */
 function wallyflowtonode_uninstall() {
   drupal_uninstall_schema('wallyflowtonode');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('wallyflowtonode_');
 }
 

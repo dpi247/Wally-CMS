@@ -1,10 +1,5 @@
 <?php
 
-/*
- * 
- * 
- * 
- */
 function _wimprthelp_getfieldnamefromvocabularyname($name){
   $result_set = NULL;
   switch ($name){
@@ -237,6 +232,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
     //if files are zipped
     $temp_folder = $importer->temp_subdir; 
   }
+
   $uri = parse_url($file_uri);
   $badcar = array('+', ' ');
   $new_file_path = str_replace($badcar, '_', rtrim($new_file_path, '/'));
