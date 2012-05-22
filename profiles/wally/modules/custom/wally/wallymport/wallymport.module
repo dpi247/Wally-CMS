@@ -306,13 +306,18 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
  */
 function wimprt_process_type($dom, &$log, $importer, $callback = NULL){
   module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+
+  //get function name
   $callback = wimprt_set_callback($dom, $callback);
+
+  //Create or load the node
   $node = wimprt_create_or_load($dom, $importer,'type', $callback, $log);
-  //@todo: place in walymportlog module
+
+  //@todo: place in wallymportlog module
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process type: '.$dom->nodeName;
   }
-    
+
   module_invoke_all('wimprt_process_type', $node, $dom, $log, 'before_process');
   $callback = strtolower($callback);
   //Posibility of extension with 'hook_wallymport_info' / CTools Plugin
@@ -424,6 +429,7 @@ function wimprt_process_node_default(&$node, $dom, &$log, $importer){
       }  
     }
   }
+  
   return $node;
 }
 

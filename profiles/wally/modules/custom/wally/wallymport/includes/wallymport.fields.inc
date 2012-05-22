@@ -1,4 +1,5 @@
 <?php 
+
 /**
  * @defgroup wallymport.field Wally fields specifics Callback functions
  * @{
@@ -636,7 +637,7 @@ function wimprt_set_field_destinations(&$node, $dom, $log, $importer) {
  */
 function wimprt_set_field_editions(&$node, $dom, $log, $importer) {
   if(variable_get('wallymport_debug',0) or true){
-    $log['log'][] = 'process Editions: '.$dom->nodeName;
+	$log['log'][] = 'process Editions: '.$dom->nodeName;
   }
 
   $result = array();
