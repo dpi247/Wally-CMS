@@ -166,12 +166,12 @@ function warnish_block($op = 'list', $delta = 0, $edit = array()) {
  * Implementation du hook_cron.
  */
 function warnish_cron() {
-  if (variable_get('warnish_flush_cron', 0)) {
+  if (wally_variable_get('warnish_flush_cron', 0)) {
     if (variable_get('cache_lifetime', 0)) {
-      $cache_flush = variable_get('warnish_cache_flush', 0);
+      $cache_flush = wally_variable_get('warnish_cache_flush', 0);
       if ($cache_flush == 0) {
         // This is the first request to clear the cache, start a timer.
-        variable_set('warnish_cache_flush', time());
+        wally_variable_set('warnish_cache_flush', time());
       } elseif (time() > ($cache_flush + variable_get('cache_lifetime', 0))) {
         warnish_purge_all_pages();
       }
@@ -201,7 +201,7 @@ function warnish_requirements($phase) {
     $requirements['warnish']['title'] = t('Varnish status');
     // try a Varnish admin connect, report results
     $status = _warnish_terminal_run('status');
-    $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+    $terminals = explode(' ', wally_variable_get('warnish_control_terminal', '127.0.0.1:6082'));
     foreach ($terminals as $term) {
       list($server, $port) = explode(':', $term);
       $stat = array_shift($status);
@@ -283,7 +283,7 @@ function warnish_get_status() {
   if (is_null($results)) {
     $results = array();
     $status = _warnish_terminal_run('status');
-    $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+    $terminals = explode(' ', wally_variable_get('warnish_control_terminal', '127.0.0.1:6082'));
     foreach ($terminals as $terminal) {
       $stat = array_shift($status);
       $results[$terminal] = ($stat['status']['code'] == 200) ? WARNISH_SERVER_STATUS_UP : WARNISH_SERVER_STATUS_DOWN;
@@ -409,8 +409,8 @@ function _warnish_terminal_run($commands) {
     $commands = array($commands);
   }
   $ret = array();
-  $terminals = explode(' ', variable_get('warnish_control_terminal', '127.0.0.1:6082'));
-  $timeout = variable_get('warnish_socket_timeout', WARNISH_DEFAULT_TIMETOUT);
+  $terminals = explode(' ', wally_variable_get('warnish_control_terminal', '127.0.0.1:6082'));
+  $timeout = wally_variable_get('warnish_socket_timeout', WARNISH_DEFAULT_TIMETOUT);
   $seconds = (int)($timeout / 1000);
   $milliseconds = (int)($timeout % 1000 * 1000);
   foreach ($terminals as $terminal) {
@@ -430,11 +430,11 @@ function _warnish_terminal_run($commands) {
         continue;
       }
       // If there is a CLI banner message (Varnish >= 2.1.x), try to read it and move on.
-      if(variable_get('warnish_legacy', 0) != 1) {
+      if(wally_variable_get('warnish_legacy', 0) != 1) {
         $status = _warnish_read_socket($client);
         // Do we need to authenticate?
         if ($status['code'] == 107) { // Require authentication
-          $secret = variable_get('warnish_control_key', '');
+          $secret = wally_variable_get('warnish_control_key', '');
           $challenge = substr($status['msg'], 0, 32);
           $pack = $challenge ."\x0A". $secret ."\x0A". $challenge ."\x0A";
           $key = hash('sha256', $pack);

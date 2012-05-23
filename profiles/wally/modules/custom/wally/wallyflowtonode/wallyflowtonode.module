@@ -118,14 +118,14 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
   }
 
   // Fetch the cron semaphore
-  $semaphore = variable_get('wallyflowtonode_cron_semaphore', FALSE);
+  $semaphore = wally_variable_get('wallyflowtonode_cron_semaphore', FALSE);
 
   if ($semaphore) {
     if (time() - $semaphore > 3600) {
       // Either cron has been running for more than an hour or the semaphore
       // was not reset due to a database error.
       // Release cron semaphore
-      variable_del('wallyflowtonode_cron_semaphore');
+      wally_variable_del('wallyflowtonode_cron_semaphore');
     }
 
     // Set error message;
@@ -139,7 +139,7 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
     register_shutdown_function('wallyflowtonode_cron_cleanup');
 
     // Lock cron semaphore
-    variable_set('wallyflowtonode_cron_semaphore', time());
+    wally_variable_set('wallyflowtonode_cron_semaphore', time());
 
     // Call the function calling the flows
     $return = _wallyflowtonode_callallfeeds($flow_key, $force);
@@ -148,7 +148,7 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
     variable_set('wallyflowtonode_cron_last', time());
 
     // Release cron semaphore
-    variable_del('wallyflowtonode_cron_semaphore');
+    wally_variable_del('wallyflowtonode_cron_semaphore');
 
     if (strstr($_GET['q'], '/wally/')) {
       return $return;
@@ -163,9 +163,9 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
  */
 function wallyflowtonode_cron_cleanup() {
   // See if the semaphore is still locked.
-  if (variable_get('wallyflowtonode_cron_semaphore', FALSE)) {
+  if (wally_variable_get('wallyflowtonode_cron_semaphore', FALSE)) {
     // Release cron semaphore
-    variable_del('wallyflowtonode_cron_semaphore');
+    wally_variable_del('wallyflowtonode_cron_semaphore');
   }
 }
 

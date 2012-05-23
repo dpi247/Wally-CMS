@@ -14,8 +14,8 @@ function wallyextra_page_admin_form ($form_state) {
     '#type' => 'textfield',
     '#title' => t('Remove files older than (in days)'),
     '#description' => t('The WallyExtra cron will remove files older than this amount of days'),
-    '#default_value' => variable_get('wallyextra_flowmix_files_days_limit', 7),
+    '#default_value' => wally_variable_get('wallyextra_flowmix_files_days_limit', 7),
   );
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }

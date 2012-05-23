@@ -14,13 +14,13 @@ function wallyexport_page_admin_form($form_state) {
     '#type'          => 'textfield',
     '#title'         => t('Export destination directory path'),
     '#description'   => t('This must be an existing and writable path where zipped data is written.'),
-    '#default_value' => variable_get('wallyexport_admin_source', 'sites/default/files/export'),
+    '#default_value' => wally_variable_get('wallyexport_admin_source', 'sites/default/files/export'),
     '#size'          => 80,
     '#maxlength'     => 512,
     '#required'      => TRUE,
   );
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }
 
 /**

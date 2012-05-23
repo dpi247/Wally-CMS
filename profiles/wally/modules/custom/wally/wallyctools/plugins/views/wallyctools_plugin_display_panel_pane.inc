@@ -216,7 +216,7 @@ class wallyctools_plugin_display_panel_pane extends views_plugin_display {
         $form['#title'] .= t('Authorized Layout');
         
         $options = array();
-        $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
+        $layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
         foreach ($layouts as $layout)
           $options[$layout] = ucfirst($layout);
         

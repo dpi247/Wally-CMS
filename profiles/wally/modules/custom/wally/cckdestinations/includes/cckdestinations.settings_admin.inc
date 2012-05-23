@@ -162,7 +162,7 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
   $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Global rank\'s range'),
-    '#default_value' => variable_get('cckdestinations_rank_limit', 10),
+    '#default_value' => wally_variable_get('cckdestinations_rank_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
@@ -189,7 +189,7 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
         'reserved' => 5,
         'delta_t' => 1,
       );
-      $dest_settings = variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'], $defaults);
+      $dest_settings = wally_variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'], $defaults);
 
       $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']] = array(
         '#type' => 'fieldset',
@@ -253,7 +253,7 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
   $form['cckdestinations_layout']['cckdestinations_layouts'] = array(
     '#type' => 'textarea',
     '#title' => t('Available layouts'),
-    '#default_value' => variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
+    '#default_value' => wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
     '#required' => TRUE,
   );
   
@@ -300,8 +300,8 @@ function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
   if ($values['op'] == $values['buttons']['submit']) {
-    variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
-    variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
+    wally_variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
+    wally_variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
     
     foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
       if (is_array($dest)) {
@@ -312,7 +312,7 @@ function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
             'reserved' => $block[$dest_name.'_'.$block_name.'_reserved'],
             'delta_t' => $block[$dest_name.'_'.$block_name.'_delta_t'],
           );
-          variable_set($dest_name.'_'.$block_name, $temp_dest);
+          wally_variable_set($dest_name.'_'.$block_name, $temp_dest);
         }
       }
     }
@@ -332,7 +332,7 @@ function cckdestinations_page_taxonomy_autocomplete_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Limit of terms'),
     '#description' => t('If the amount of proposed terms is greater thant this limit, the select box will be replaced by a suggestion autocomplete text field.'),
-    '#default_value' => variable_get('cckdestinations_taxonomy_limit', 10),
+    '#default_value' => wally_variable_get('cckdestinations_taxonomy_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
   );
@@ -341,12 +341,12 @@ function cckdestinations_page_taxonomy_autocomplete_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Displayed matching terms'),
     '#description' => t('The autocomplete field will display this amount of matching terms.'),
-    '#default_value' => variable_get('cckdestinations_display_limit', 10),
+    '#default_value' => wally_variable_get('cckdestinations_display_limit', 10),
     '#size' => 80,
     '#maxlength' => 512,
   );
 
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }
 
 function cckdestinations_page_taxonomy_autocomplete_form_validate($form, &$form_state) {

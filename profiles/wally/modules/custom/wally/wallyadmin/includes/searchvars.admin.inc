@@ -1,19 +1,11 @@
 <?php
 
 /**
- * HTML code for the search vars admin page.
+ * Form for the variables export page.
  */
-function search_vars_admin() {
-  $return = '';
-  $return .= drupal_get_form('search_vars_admin_form');
+function export_vars_admin_form(&$form_state) {
+  $form = array();
   
-  return $return;
-}
-
-/**
- * Form for the search vars admin page.
- */
-function search_vars_admin_form(&$form_state) {
   $form['search_vars'] = array(
     '#title' => t('Type the text to search'),
     '#type' => 'textfield',
@@ -27,125 +19,196 @@ function search_vars_admin_form(&$form_state) {
   return $form;
 }
 
-function search_vars_admin_form_submit(&$form, &$form_state) {
-  $form['#redirect'] = 'admin/wally/searchvars/key/'.$form_state['values']['search_vars'];
+function export_vars_admin_form_submit(&$form, &$form_state) {
+  $form['#redirect'] = 'admin/wally/searchvars/export/confirm/'.$form_state['values']['search_vars'];
 }
 
 /**
- * HTML code for the selection of variables to export.
+ * Choose which variables to export amongst the matches
  */
- 
-function export_vars_admin($key) {
-  $return = '';
-  $return .= drupal_get_form('export_vars_admin_form', $key);
+function export_vars_confirm_form($form_state, $key) {
+  $form = array(
+    '#method' => 'POST',
+    '#attributes' => array(
+      'enctype' => 'multipart/form-data',
+    ),
+  );
   
-  return $return;
-}
-
-/**
- * Form for the selected variables admin page.
- */
-function export_vars_admin_form(&$form_state, $key) {
-  $list = db_query('SELECT name FROM {variable} WHERE `name` LIKE "%%%s%%" ORDER BY `name`', $key);
-  while ($elem = db_fetch_array($list)) {
-    $form['blocks_vars'][$elem['name']] = array(
-      '#type' => 'checkbox',
-      '#title' => $elem['name'],
-      '#default_value' => 0,
+  $system_db_vars = db_query('SELECT name FROM {variable} WHERE name LIKE "%%%s%%" ORDER BY name', $key);
+  $system_vars = array();
+  while ($system_db_var = db_fetch_array($system_db_vars)) {
+    $system_vars[$system_db_var['name']] = $system_db_var['name'];
+  }
+  
+  if (!empty($system_vars)) {
+    $form['system_vars'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('System variables'),
+      '#options' => $system_vars,
+      '#default_value' => $system_vars,
     );
   }
-    
-  if(!isset($form['blocks_vars'])) {
-    drupal_set_message('No result for '.$key);
+  
+  $wally_db_vars = db_query('SELECT name FROM {wally_variable_fast} WHERE name LIKE "%%%s%%" ORDER BY name', $key);
+  $wally_vars = array();
+  while ($wally_db_var = db_fetch_array($wally_db_vars)) {
+    $wally_vars[$wally_db_var['name']] = $wally_db_var['name'];
+  }
+  
+  if (!empty($wally_vars)) {
+    $form['wally_vars'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Wally fast variables'),
+      '#options' => $wally_vars,
+      '#default_value' => $wally_vars,
+    );
+  }
+
+  if (empty($form)) {
+    drupal_set_message(t('No result for @key', array('@key' => $key)));
   } else {
     $form['submit'] = array(
       '#type' => 'submit',
-      '#title' => t('Export selected variables'),
       '#value' => t('Export selected variables'),
     );
   }
-  $form['#prefix'] =  $form_state['storage']['output'];
   
   return $form;
 }
 
-/**
- * Validation for form for the delete selected cache admin page.
- */
-function export_vars_admin_form_validate($form, &$form_state) {
-  foreach ($form['blocks_vars'] as $name => $value) {
-    if (substr($name, 0, 1) != '#' && $value['#value'] == 1)
-      return;
-  }
-  form_set_error('blocks_vars', t('Select at least one block.'));
-}
-
-/**
- * Submit actions for form for the delete selected cache admin page.
- */
-function export_vars_admin_form_submit(&$form, &$form_state) {
-  $code = '';
-  foreach ($form['blocks_vars'] as $name => $value) {
-    if (substr($name, 0, 1) != '#' && $value['#value'] == 1) {
-      $code .= $name.' '.serialize(variable_get($name, NULL)).PHP_EOL;
+function export_vars_confirm_form_validate($form, &$form_state) {
+  $empty = TRUE;
+  $values = $form_state['values'];
+  $vars = array_merge(isset($values['system_vars']) ? $values['system_vars'] : array(), isset($values['wally_vars']) ? $values['wally_vars'] : array());
+  foreach ($vars as $key => $value) {
+    if ($key == $value) {
+      $empty = FALSE;
     }
   }
-  $toExport = array(
-    '#title' => t('Exported'),
-    '#type' => 'textarea',
-    '#id' => 'export-textarea',
-    '#name' => 'export-textarea',
-    '#rows' => 30,
-    '#value' => $code,
-    '#parents' => array('dummy'),
-    '#required' => FALSE,
-  );
-  
-  $form_state['storage']['output'] = theme('textarea', $toExport);
+  if ($empty) {
+    form_set_error('', t('Select at least one variable to export.'));
+  }
 }
 
-function import_vars_admin(){
-  $return = '';
-  $return = drupal_get_form('import_vars_admin_form');
-  
-  return $return;
+function export_vars_confirm_form_submit(&$form, &$form_state) {
+  $dom = _wallyadmin_export_generate_dom($form_state['values']);
+
+  $site_name = str_replace(' ', '-', strtolower(variable_get('site_name', '')));
+  $date = date('Y-m-d');
+  $filename = 'vars-export-'.$site_name.'-'.$date;
+  $files = array(
+    array(
+      'name' => $filename,
+      'extension' => '.xml',
+      'content' => $dom->saveXML(),
+    ),
+    array(
+      'name' => '',
+      'extension' => '.xml',
+      'content' => '',
+    ),
+  );
+
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_export_files_to_tar($files, $filename.'.tar');
 }
 
 /**
- * Form for the search cache admin page.
+ * Form for the variables import page.
  */
 function import_vars_admin_form(&$form_state) {
-  $form = array();
-  
-  $form['import_vars'] = array(
-    '#title' => t('Import'),
-    '#type' => 'textarea',
-    '#id' => 'export-textarea',
-    '#name' => 'export-textarea',
-    '#rows' => 30,
-    '#value' => $code,
-    '#parents' => array('dummy'),
-    '#required' => FALSE,
+  $form = array(
+    '#method' => 'POST',
+    '#attributes' => array(
+      'enctype' => 'multipart/form-data',
+    ),
   );
-  
-  $form['import_submit'] = array(
+
+  $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit'
+    '#value' => t('Import'),
+    '#prefix' => t('Choose a tar file to import:').' <input type="file" name="uploadedfile" /><br/>',
   );
   
   return $form;
 }
 
-/**
- * Submit actions for form for the delete selected cache admin page.
- */
-function import_vars_admin_form_submit(&$form, &$form_state) {
-  $code = explode(PHP_EOL, $form['#post']['export-textarea']);
-  foreach($code as $elem){
-    if(!empty($elem)){
-      $exp_elem = explode(' ', $elem, 2);
-      variable_set($exp_elem[0], unserialize($exp_elem[1]));
-      drupal_set_message('Variable "'.$exp_elem[0].'" imported.');
+function import_vars_admin_form_validate($form, $form_state) {
+  if (!isset($_FILES['uploadedfile']) || empty($_FILES['uploadedfile']) || $_FILES['uploadedfile']['error'] > 0) {
+    form_set_error('', t('No files to import'));
+  }
+}
+
+function import_vars_admin_form_submit($form, $form_state) {
+  $post_file = $_FILES['uploadedfile'];
+
+  if (file_exists($post_file['tmp_name'])) {
+    $filename = $post_file['name'];
+    $tmp_path = $post_file['tmp_name'];
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    $return = wallytoolbox_tar_extract_dom($filename, $tmp_path);
+    if ($return['error']) {
+      drupal_set_message($return['error_msg'], 'error');
+    } else {
+      _wallyadmin_import_import_from_dom($return['content']);
+      drupal_set_message(t('Import done'));
+    }
+  }
+}
+
+function _wallyadmin_export_generate_dom($values) {
+  $dom = new DomDocument('1.0', 'UTF-8');
+  $vars_export = $dom->appendChild($dom->createElement('VarsExport'));
+  $dom_system_vars = $vars_export->appendChild($dom->createElement('SystemVars'));
+  $dom_wally_vars = $vars_export->appendChild($dom->createElement('WallyVars'));
+
+  if (isset($values['system_vars']) && is_array($values['system_vars'])) {
+    foreach ($values['system_vars'] as $key => $value) {
+      if ($key == $value) {
+        $system_var = variable_get($key, 0);
+        $dom_system_var = $dom_system_vars->appendChild($dom->createElement('Variable'));
+        $dom_system_var->appendChild($dom->createCDATASection(serialize($system_var)));
+        $dom_system_var->setAttribute('name', $key);
+      }
+    }
+  }
+
+  if (isset($values['wally_vars']) && is_array($values['wally_vars'])) {
+    foreach ($values['wally_vars'] as $key => $value) {
+      if ($key == $value) {
+        $wally_var = wally_variable_get($key, 0);
+        $dom_wally_var = $dom_wally_vars->appendChild($dom->createElement('Variable'));
+        $dom_wally_var->appendChild($dom->createCDATASection(serialize($wally_var)));
+        $dom_wally_var->setAttribute('name', $key);
+      }
+    }
+  }
+
+  return $dom;
+}
+
+function _wallyadmin_import_import_from_dom($dom) {
+  $dom_system_vars = $dom->getElementsByTagName('SystemVars');
+  if ($dom_system_vars->item(0)) {
+    $dom_system_var = $dom_system_vars->item(0)->getElementsByTagName('Variable');
+    if ($dom_system_var->item(0)) {
+      foreach ($dom_system_var as $dom_var) {
+        $key = $dom_var->getAttributeNode('name')->value;
+        $value = unserialize($dom_var->nodeValue);
+        variable_set($key, $value);
+      }
+    }
+  }
+
+  $dom_wally_vars = $dom->getElementsByTagName('WallyVars');
+  if ($dom_wally_vars->item(0)) {
+    $dom_wally_var = $dom_wally_vars->item(0)->getElementsByTagName('Variable');
+    if ($dom_wally_var->item(0)) {
+      foreach ($dom_wally_var as $dom_var) {
+        $key = $dom_var->getAttributeNode('name')->value;
+        $value = unserialize($dom_var->nodeValue);
+        wally_variable_set($key, $value);
+      }
     }
   }
 }

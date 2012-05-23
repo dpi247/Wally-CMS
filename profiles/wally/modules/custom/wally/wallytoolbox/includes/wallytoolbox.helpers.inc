@@ -28,21 +28,37 @@ function wallytoolbox_flush_memcached($bins = NULL) {
  *
  * @see variable_get(), variable_set(), variable_del()
  */
-function wallytoolbox_variable_del_like($name) {
-  global $conf, $db_prefix;
+function wallytoolbox_variable_del_like($name, $type = 'both') {
+  if ($type == 'system' || $type == 'both') {
+    global $conf, $db_prefix;
 
-  db_query("DELETE FROM {variable} WHERE name LIKE '%s%'", $name);
+    $db_res = db_query("SELECT name FROM {variable} WHERE name LIKE '%s%'", $name);
 
-  unset($conf[$name]);
+    while ($res = db_fetch_array($db_res)) {
+      db_query("DELETE FROM {variable} WHERE name = '%s'", $res['name']);
+      unset($conf[$res['name']]);
+    }
 
-  // The write-through rebuild optimization isn't compatible with SimpleTest.
-  // Because array-based prefixes don't work with SimpleTest, we can assume
-  // that a non-string prefix indicates lack of SimpleTest operations.
-  if (is_string($db_prefix) && strpos($db_prefix, 'simpletest') === 0) {
-    cache_clear_all('variables', 'cache');
+    // The write-through rebuild optimization isn't compatible with SimpleTest.
+    // Because array-based prefixes don't work with SimpleTest, we can assume
+    // that a non-string prefix indicates lack of SimpleTest operations.
+    if (is_string($db_prefix) && strpos($db_prefix, 'simpletest') === 0) {
+      cache_clear_all('variables', 'cache');
+    }
+
+    variable_cache_rebuild();
   }
-  
-  variable_cache_rebuild();
+
+  if ($type == 'wally' || $type == 'both') {
+    global $wally_vars;
+
+    $db_res = db_query("SELECT name FROM {wally_variable_fast} WHERE name LIKE '%s%'", $name);
+
+    while ($res = db_fetch_array($db_res)) {
+      db_query("DELETE FROM {wally_variable_fast} WHERE name = '%s'", $res['name']);
+      unset($wally_vars[$res['name']]);
+    }
+  }
 }
 
 /**
@@ -53,12 +69,25 @@ function wallytoolbox_variable_del_like($name) {
  *
  * @see variable_get(), variable_set(), variable_del()
  */
-function wallytoolbox_variable_get_like($get_name, $remove_common = FALSE) {
-  global $conf;
+function wallytoolbox_variable_get_like($get_name, $remove_common = FALSE, $type = 'both') {
+  switch ($type) {
+    case 'system' :
+      global $conf;
+      $variables = $conf;
+      break;
+    case 'wally' :
+      $variables = wally_variable_get_all();
+      break;
+    case 'both' :
+    default :
+      global $conf;
+      $variables = array_merge($conf, wally_variable_get_all());
+      break;
+  }
 
   $return = array();
 
-  foreach ($conf as $name => $value) {
+  foreach ($variables as $name => $value) {
     if (strpos($name, $get_name) === 0) {
       if ($remove_common) {
         $name = str_replace($get_name, '', $name);
@@ -398,12 +427,64 @@ function wallytoolbox_tar_create($name, $contents) {
   $tar .= $binary_data_first;
   $tar .= pack("a8", sprintf("%6s ", decoct($checksum)));
   $tar .= $binary_data_last;
-
+  
   $buffer = str_split($contents, 512);
   foreach ($buffer as $item) {
     $tar .= pack("a512", $item);
   }
+
   return $tar;
+}
+
+function wallytoolbox_tar_extract_dom($filename, $tmp_path) {
+  set_error_handler('_wallytoolbox_extract_tar_error');
+  include_once 'Archive/Tar.php';
+  restore_error_handler();
+  
+  $return = array(
+    'error' => FALSE,
+    'error_msg' => '',
+    'content' => NULL,
+  );
+
+  if (class_exists('Archive_Tar')) {
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    $dir = '/tmp/';
+
+    //Check file extension
+    if($ext == 'tar') {
+      //Open file to read
+      $tar = new Archive_Tar($tmp_path, TRUE);
+
+      //Extract the file using Pear library
+      if($tar->extract($dir)) {
+        $list_content = $tar->listContent();
+        $local_path = $dir.$list_content[0]['filename'];
+        $handle = fopen($local_path, 'r');
+
+        if (!$handle) {
+          $return['error'] = TRUE;
+          $return['error_msg'] = t('The XML file (!xml_file) isn\'t readable', array('!xml_file' => $local_path));
+        } else {
+          $contents = fread($handle, filesize($local_path));
+          $dom = new DomDocument();
+          $dom->LoadXML(trim($contents));
+          $return['content'] = $dom;
+        }
+      } else {
+        $return['error'] = TRUE;
+        $return['error_msg'] = t('Unable to extract tar file contents');
+      }
+    } else {
+      $return['error'] = TRUE;
+      $return['error_msg'] = t('Given file is not a tar file');
+    }
+  } else {
+    $return['error'] = TRUE;
+    $return['error_msg'] = t('Class "Archive_Tar" not found');
+  }
+
+  return $return;
 }
 
 /**
@@ -528,7 +609,7 @@ function arrayRecursiveDiff($aArray1, $aArray2) {
  */
 function wallytoolbox_destinations_items_array(){
   $all_dests = cckdestinations_get_classes_and_options();
-  $rank_limit = variable_get('cckdestinations_rank_limit', '10');
+  $rank_limit = wally_variable_get('cckdestinations_rank_limit', '10');
   for ($i=0; $i<=$rank_limit; $i++) {
     $ranks_list[] = $i;
   }
@@ -655,5 +736,11 @@ function wallytoolbox_delete_photofile($photofile) {
     $filepath = $photofile['filepath'];
     file_delete($filepath);
     db_query('DELETE FROM files WHERE filepath = "%s"', $filepath);
+  }
+}
+
+function _wallytoolbox_extract_tar_error($errno, $errstr, $errfile, $errline) {
+  if ($errno === 2) {
+    drupal_set_message(t('The "Archive_Tar" package need to be installed on your system to use this functionality (see !link for further informations)', array('!link' => l('here', 'http://pear.php.net/package/Archive_Tar/redirected'))), 'error');
   }
 }

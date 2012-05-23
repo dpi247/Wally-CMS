@@ -5,7 +5,7 @@ function wallyctools_page_default_target_form($form_state) {
 
   drupal_set_message(t('You can choose, for every variant of the taxonomy term page, which redacblock will be used as default'));
 
-  $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+  $default_redacblocks = wally_variable_get('wallyctools_default_redacblocks', array());
 
   $form['rows'] = array();
 
@@ -49,7 +49,7 @@ function wallyctools_page_default_target_form($form_state) {
 }
 
 function wallyctools_page_default_target_form_submit($form, $form_state) {
-  variable_set('wallyctools_default_redacblocks', $form_state['values']['rows']);
+  wally_variable_set('wallyctools_default_redacblocks', $form_state['values']['rows']);
 }
 
 function wallyctools_page_reorder_settings_form($form_state) {
@@ -58,10 +58,10 @@ function wallyctools_page_reorder_settings_form($form_state) {
   $form['wallyctools_reorder_check_conflict'] = array(
     '#type' => 'checkbox',
     '#title' => t('Check conflicts before applying reorder'),
-    '#default_value' => variable_get('wallyctools_reorder_check_conflict', 1),
+    '#default_value' => wally_variable_get('wallyctools_reorder_check_conflict', 1),
   );
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }
 
 function wallyctools_page_destinations_tree_caching_form($form_state) {

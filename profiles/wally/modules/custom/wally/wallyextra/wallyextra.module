@@ -123,7 +123,7 @@ function wallyextra_cron() {
   $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
 
   $flows_path = 'sites/default/files/Flows/';
-  $days_limit = variable_get('wallyextra_flowmix_files_days_limit', 7);
+  $days_limit = wally_variable_get('wallyextra_flowmix_files_days_limit', 7);
   if ($removed_files = db_fetch_array(db_query("SELECT COUNT(*) FROM {files} WHERE filepath LIKE '%s%' AND FROM_UNIXTIME(timestamp) < NOW() - INTERVAL %d DAY", $flows_path, $days_limit))) {
     if ($removed_files['COUNT(*)'] > 0) {
       if (db_query("DELETE FROM {files} WHERE filepath LIKE '%s%' AND FROM_UNIXTIME(timestamp) < NOW() - INTERVAL %d DAY", $flows_path, $days_limit)) {

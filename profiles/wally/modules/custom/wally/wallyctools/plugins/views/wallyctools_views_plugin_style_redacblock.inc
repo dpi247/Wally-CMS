@@ -157,7 +157,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       'reserved' => 5,
       'delta_t' => 1,
     );
-    $dest_settings = variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
+    $dest_settings = wally_variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
     $sort_method = $dest_settings['sort_method'];
 
     if ($sort_method == 'interval') {
