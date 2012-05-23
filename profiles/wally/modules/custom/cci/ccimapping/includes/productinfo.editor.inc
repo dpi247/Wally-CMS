@@ -42,9 +42,9 @@ function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
 
 function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
   if($form_state['clicked_button']['#name'] == 'send') {
-    $wsdl_uri = variable_get('ccimapping_ws_wsdluri', '');
-    $newsroom = variable_get('ccimapping_newsroom', '');
-    $product_name = variable_get('ccimapping_product_name', '');
+    $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
+    $newsroom = wally_variable_get('ccimapping_newsroom', '');
+    $product_name = wally_variable_get('ccimapping_product_name', '');
 
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
@@ -70,9 +70,9 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
  * @return the result of the call from the  WS: an XML structure in string format wich describe the packagetype
  */
 function ccimap_get_productinfo_fromWS() {
-  $wsdl_uri=variable_get('ccimapping_ws_wsdluri', '');
-  $newsroom=variable_get('ccimapping_newsroom', '');
-  $product_name=variable_get('ccimapping_product_name', '');
+  $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
+  $newsroom = wally_variable_get('ccimapping_newsroom', '');
+  $product_name = wally_variable_get('ccimapping_product_name', '');
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
@@ -113,7 +113,7 @@ function ccimap_build_productinfo_xml(&$dom, $hierarchies_array, $nested_taxonom
   $leafname = $baseinfo->appendChild($dom->createElement('leafname'));
   $leafname->setAttribute('name', 'Target');
   $mainpriorities = $baseinfo->appendChild($dom->createElement('mainpriorities'));
-  $rank_limit = variable_get('cckdestinations_rank_limit', 10);
+  $rank_limit = wally_variable_get('cckdestinations_rank_limit', 10);
   for ($i = 1; $i <= $rank_limit; $i++) {
     $mainpriority = $mainpriorities->appendChild($dom->createElement('mainpriority'));
     $mainpriority->setAttribute('name', 'Rank '.$i);
