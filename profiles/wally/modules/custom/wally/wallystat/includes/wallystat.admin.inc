@@ -11,7 +11,7 @@ function wallystat_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Stats content refresh time'),
     '#description' => t('Time in minutes'),
-    '#default_value' => variable_get('wallystat_stats_content_refresh_time', 15),
+    '#default_value' => wally_variable_get('wallystat_stats_content_refresh_time', 15),
     '#size' => 80,
     '#maxlength' => 512,
   );
@@ -84,14 +84,16 @@ function wallystat_page_admin_form($form_state) {
 function wallystat_page_admin_form_validate($form, &$form_state) {
   $values = $form_state['values'];
   
-  if (!is_numeric($values['wallystat_stats_content_refresh_time']) || $values['wallystat_stats_content_refresh_time'] < 0)
+  if (!is_numeric($values['wallystat_stats_content_refresh_time']) || $values['wallystat_stats_content_refresh_time'] < 0) {
     form_set_error('wallystat_stats_content_refresh_time', t('The refresh time must be a numeric value greater than 0.'));
+  }
   
   if ($values['op'] == $values['buttons']['submit']) {
     for ($i=1; $i<=10; $i++) {
       $param = $values['wallystat_params']['wallystat_param_'.$i];
-      if ($param['wallystat_callback_'.$i] == 'wallystat_get_node_field' && $param['wallystat_get_node_field_param_0'] == '')
+      if ($param['wallystat_callback_'.$i] == 'wallystat_get_node_field' && $param['wallystat_get_node_field_param_0'] == '') {
         form_set_error('wallystat_params][wallystat_param_'.$i.'][wallystat_get_node_field_param_0', t('Please enter a field name.'));
+      }
     }
   }
 }
@@ -102,7 +104,7 @@ function wallystat_page_admin_form_validate($form, &$form_state) {
 function wallystat_page_admin_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   
-  variable_set('wallystat_stats_content_refresh_time', $values['wallystat_stats_content_refresh_time']);
+  wally_variable_set('wallystat_stats_content_refresh_time', $values['wallystat_stats_content_refresh_time']);
   
   if ($values['op'] == $values['buttons']['submit']) {
     for ($i=1; $i<=10; $i++) {
@@ -122,6 +124,7 @@ function wallystat_page_admin_form_submit($form, &$form_state) {
     }
     drupal_set_message(t('The configuration options have been saved.'));
   } elseif ($values['op'] == $values['buttons']['reset']) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_variable_del_like('wallystat_');
     drupal_set_message(t('The configuration options have been reset to their default values.'));
   }
