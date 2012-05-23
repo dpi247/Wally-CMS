@@ -68,7 +68,7 @@ function ccimapping_perm() {
 }
 
 function ccimap_type_converter($type){
-  $mappings=variable_get('ccimapping_type','');
+  $mappings=wally_variable_get('ccimapping_type','');
   $mappings=explode("\n", $mappings);
   foreach ($mappings as $mapping){
     $temp=explode("|", $mapping);
