@@ -4,8 +4,10 @@
 /**
  * Settings form.
  */
-function pub_page_admin_form($form_state) {  
-  $form['website'] = array(
+function pub_page_admin_form($form_state) {
+  $form = array();
+
+  $form['pub_website'] = array(
     '#type' => 'textfield',
     '#title' => t('Website name'),
     '#description' => t('The website name used to the ads requests.'),
@@ -15,7 +17,7 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $form['provider'] = array(
+  $form['pub_provider'] = array(
     '#type' => 'textfield',
     '#title' => t('Ads provider'),
     '#description' => t('The ads provider (Examples : AdTech, AOS).'),
@@ -25,7 +27,7 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $form['get_xml'] = array(
+  $form['pub_get_xml'] = array(
     '#type' => 'textfield',
     '#title' => t('URL used for getting blocks informations'),
     '#default_value' => variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'),
@@ -34,7 +36,7 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $form['webserv'] = array(
+  $form['pub_webserv'] = array(
     '#type' => 'textfield',
     '#title' => t('URL of the webservice returning the ads'),
     '#default_value' => variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail'),
@@ -43,7 +45,7 @@ function pub_page_admin_form($form_state) {
     '#required' => TRUE,
   );
   
-  $form['header'] = array(
+  $form['pub_header'] = array(
     '#type' => 'textfield',
     '#title' => t('URL of the webservice returning the header javascript content'),
     '#default_value' => variable_get('pub_header', ''),
@@ -51,26 +53,7 @@ function pub_page_admin_form($form_state) {
     '#maxlength' => 512,
   );
   
-  $form['pub_submit'] = array(
-    '#type' => 'submit',
-    '#title' => t('Save'),
-    '#value' => t('Save'),
-  );
-  
-  return $form;
-}
-
-/**
- * Submit function for the settings form.
- */
-function pub_page_admin_form_submit($form, &$form_state) {
-  $values = $form_state['values'];
-  variable_set('pub_website', $values['website']);
-  variable_set('pub_provider', $values['provider']);
-  variable_set('pub_get_xml', $values['get_xml']);
-  variable_set('pub_webserv', $values['webserv']);
-  variable_set('pub_header', $values['header']);
-  drupal_set_message('Configuration saved', 'notice');
+  return system_settings_form($form);
 }
 
 /**
@@ -109,7 +92,7 @@ function pub_cron_run() {
     register_shutdown_function('pub_cron_cleanup');
 
     // Lock cron semaphore
-    variable_set('cronrsstonode_semaphore', time());
+    variable_set('cronpub_semaphore', time());
 
     // Call the function calling the RSS feeds
     $return = _pub_callalltags();
@@ -318,7 +301,7 @@ function pub_blocks_admin_form_submit($form, &$form_state) {
       break;
     case 'delete':*/
       foreach (element_children($form['blocks']) as $name) {
-        db_query('DELETE FROM {zz_pub_UMI} WHERE `position` = "%s"', $name);
+        db_query('DELETE FROM {zz_pub_UMI} WHERE position = "%s"', $name);
       }
       /*break;
     default:
@@ -345,7 +328,7 @@ function pub_cache_admin_form(&$form_state) {
     '#options' => array(),
   );
   
-  $pub_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "pub_%" ORDER BY `cid`');
+  $pub_list = db_query('SELECT * FROM {cache} WHERE cid LIKE "pub_%" ORDER BY cid');
   while ($pub_elem = db_fetch_array($pub_list)) {
     $expl_id = explode('-', $pub_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -355,7 +338,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $analytic_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "analytic_%" ORDER BY `cid`');
+  $analytic_list = db_query('SELECT * FROM {cache} WHERE cid LIKE "analytic_%" ORDER BY cid');
   while ($analytic_elem = db_fetch_array($analytic_list)) {
     $expl_id = explode('-', $analytic_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -365,7 +348,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $xiti_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "xiti_%" ORDER BY `cid`');
+  $xiti_list = db_query('SELECT * FROM {cache} WHERE cid LIKE "xiti_%" ORDER BY cid');
   while ($xiti_elem = db_fetch_array($xiti_list)) {
     $expl_id = explode('-', $xiti_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
@@ -375,7 +358,7 @@ function pub_cache_admin_form(&$form_state) {
     );
   }
   
-  $metriweb_list = db_query('SELECT * FROM {cache} WHERE `cid` LIKE "metriweb_%" ORDER BY `cid`');
+  $metriweb_list = db_query('SELECT * FROM {cache} WHERE cid LIKE "metriweb_%" ORDER BY cid');
   while ($metriweb_elem = db_fetch_array($metriweb_list)) {
     $expl_id = explode('-', $metriweb_elem['cid']);
     $form['blocks_cache'][$expl_id[0]] = array(
