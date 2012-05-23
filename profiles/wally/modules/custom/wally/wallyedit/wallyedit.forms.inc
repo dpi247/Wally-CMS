@@ -1,5 +1,9 @@
 <?php
 
+module_load_include('inc', 'wallyedit', 'includes/Prenode');
+module_load_include('inc', 'wallyedit', 'includes/config_api');
+module_load_include('inc', 'node', 'node.pages');
+
 /**
  **************************
  * MAIN NODE EDITION FORM *
@@ -9,7 +13,7 @@
 function wallyedit_form_node_edition_form(&$form_state) {
   if (empty($_POST)) {
     global $user;
-    variable_del('wallyedit_current_tab_'.$user->uid);
+    wally_variable_del('wallyedit_current_tab_'.$user->uid);
   }
 
   $cache_name = $form_state['cache name'];
@@ -50,7 +54,7 @@ function wallyedit_form_node_edition_form(&$form_state) {
       '#wydit_op_type' => 'action',
       '#name' => 'save_global',
       '#value'=> t('Save'),
-    	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+      '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
       '#next_parents' => (sizeof($parents) == 1) ? $parents : array_slice($parents, 0, sizeof($parents) - 2),
     );
   
@@ -737,6 +741,10 @@ function wydit_form_submit_action_cancel_global($form_state) {
 }
 
 function wydit_form_submit_action_reset_global(&$form_state) {
+  // Store prenodes in a specific table so we can inspect them later
+  db_query("DELETE FROM {wallyedit_stored_prenodes} WHERE pid = '%s'", $form_state['cache name']);
+  db_query("INSERT INTO {wallyedit_stored_prenodes} (pid, created, data) VALUES ('%s', %d, %b)", $form_state['cache name'], time(), serialize($form_state));
+  // Clean the rest
   prenode_delete($form_state);
   $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   ctools_ajax_render($commands);
@@ -849,11 +857,11 @@ function wydit_form_submit_action_publish_global($form_state) {
     wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id']);
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   } else {
     drupal_set_message(t('Node not published'), 'error');
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
   }
-
-  $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
 
   return $commands;
 }
@@ -1172,7 +1180,7 @@ function wydit_clean_form_state($form_state){
 
 function wydit_save_form_state($clean_form_state) {
   global $user;
-  $clean_form_state['current_tab'] = variable_get('wallyedit_current_tab_'.$user->uid, NULL);
+  $clean_form_state['current_tab'] = wally_variable_get('wallyedit_current_tab_'.$user->uid, NULL);
   prenode_save($clean_form_state);
 }
 
@@ -1243,6 +1251,15 @@ function wydit_convert_type_to_title($type) {
   $expl_type = explode('_', $type);
   $expl_type = explode('object', $expl_type[1]);
   return ucfirst($expl_type[0]);
+}
+
+function wydit_get_inline_type($referencable_types) {
+  foreach($referencable_types as $key => $value) {
+    if($value) {
+      return $value;
+    }
+  }
+  return NULL;
 }
 
 function wydit_get_fil_ariane($form_state) {

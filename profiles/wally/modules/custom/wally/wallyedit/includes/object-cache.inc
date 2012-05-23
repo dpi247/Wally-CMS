@@ -85,7 +85,7 @@ function wallyedit_object_cache_clear_all() {
  */
 function wallyedit_object_cache_clean($age = NULL) {
   if (empty($age)) {
-    $age = 86400 * variable_get('wallyedit_outdated_prenodes', 7); // 7 days
+    $age = 86400 * wally_variable_get('wallyedit_outdated_prenodes', 7); // 7 days
   }
   db_query("DELETE FROM {wallyedit_object_cache} WHERE updated < %d", time() - $age);
 }

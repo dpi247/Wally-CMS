@@ -7,6 +7,7 @@
 function wallyedit_add_more_js($type_name_url, $field_name) {
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
+  module_load_include('inc', 'wallyedit', 'wallyedit.forms');
 
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
@@ -26,7 +27,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
     drupal_json(array('data' => ''));
     exit;
   }
-  
+
   // We don't simply return a new empty widget to append to existing ones, because
   // - ahah.js won't simply let us add a new row to a table
   // - attaching the 'draggable' behavior won't be easy
@@ -42,7 +43,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   $form_state_copy = $form_state;
 
   $form_copy['#post'] = $_POST;
-  
+
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
 
@@ -112,7 +113,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
   if ($form['#tree']) {
     unset($redirect_path[0]);
   }
-  $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+  //$form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
   $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'wydit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
   wydit_add_elem_at_target($form, $form_element[$field_name], $path);
@@ -144,7 +145,7 @@ function wallyedit_add_more_js($type_name_url, $field_name) {
 
   //$field_form[$field_name]['#parents']=$parents;
   $field_form['#parents'] = $parents;
-  $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
+  //$field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'wallyedit_add_more_submit_proxy';
   $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'wydit/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
 
   if (isset($field_form[$delta])) {
