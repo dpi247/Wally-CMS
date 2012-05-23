@@ -123,5 +123,5 @@ function wallyimportpackage_page_admin_form($form_state) {
     '#required' => TRUE,
   );  
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form);
 }
