@@ -202,10 +202,13 @@ function theme_wallyedit_admin($rows = array(), $headers) {
   return $output;
 }
 
-function theme_wallyedit_page_editmode($form, $form_prev) {
+function theme_wallyedit_page_editmode($locked, $form, $form_prev) {
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   
   $output = '<div id="wallyedit_messages">';
+  $output .= '</div>';
+  $output .= '<div id="wallyedit_locked">';
+  $output .= $locked;
   $output .= '</div>';
   $output .= '<div id="wallyedit_container">';
   $output .= $form;
@@ -357,5 +360,21 @@ function theme_wallyedit_form_tabs_overview_form($form) {
   $output = theme('table', $tabs_header, $tabs_rows, array('id' => 'example-table'), $tabs_caption);
   $output .= drupal_render($form);
   
+  return $output;
+}
+
+/**
+ * Draw the "this task is locked from editing" box.
+ */
+function theme_wallyedit_lock($form_state) {
+  $account  = user_load($form_state['locked']['uid']);
+  $name     = theme('username', $account);
+  $lock_age = format_interval(time() - $form_state['locked']['updated']);
+  $break    = url(wydit_get_url_action('edit_prenode', $form_state['cache name']), array('query' => 'break=1'));
+
+  ctools_add_css('ctools');
+  $output = '<div class="ctools-locked">';
+  $output .= t('This node is being edited by user !user, and is therefore locked from editing by others. This lock is !age old. Click here to <a href="!break">break this lock</a>.', array('!user' => $name, '!age' => $lock_age, '!break' => $break));
+  $output .= '</div>';
   return $output;
 }

@@ -158,6 +158,7 @@ function wallyedit_form_config_import_export_form_export_submit($form, $form_sta
       'content' => $dom->saveXML(),
     ),
   );
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_export_files_to_tar($files, $filename.'.tar');
 }
 
@@ -173,7 +174,8 @@ function wallyedit_form_config_import_export_form_import_submit($form, $form_sta
   if (file_exists($post_file['tmp_name'])) {
     $filename = $post_file['name'];
     $tmp_path = $post_file['tmp_name'];
-    $return = _wallyedit_import_export_extract_dom_from_tar($filename, $tmp_path);
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    $return = wallytoolbox_tar_extract_dom($filename, $tmp_path);
     if ($return['error']) {
       drupal_set_message($return['error_msg'], 'error');
     } else {
@@ -241,7 +243,7 @@ function _wallyedit_import_export_generate_dom($export_profiles, $export_content
       }
     }
     
-    $interfaces = variable_get('wallyedit_content_types_interface_type_'.$profile['pid'], array());
+    $interfaces = wally_variable_get('wallyedit_content_types_interface_type_'.$profile['pid'], array());
     $dom_interface = $dom_interfaces->appendChild($dom->createElement('Interface'));
     $dom_interface->setAttribute('pid', $profile['pid']);
     foreach ($interfaces as $content_type => $interface) {
@@ -254,57 +256,6 @@ function _wallyedit_import_export_generate_dom($export_profiles, $export_content
   }
   
   return $dom;
-}
-
-function _wallyedit_import_export_extract_dom_from_tar($filename, $tmp_path) {
-  set_error_handler('_wallyedit_import_export_tar_error');
-  include_once 'Archive/Tar.php';
-  restore_error_handler();
-  
-  $return = array(
-    'error' => FALSE,
-    'error_msg' => '',
-    'content' => NULL,
-  );
-
-  if (class_exists('Archive_Tar')) {
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $dir = '/tmp/';
-
-    //Check file extension
-    if($ext == 'tar') {
-      //Open file to read
-      $tar = new Archive_Tar($tmp_path, TRUE);
-
-      //Extract the file using Pear library
-      if($tar->extract($dir)) {
-        $list_content = $tar->listContent();
-        $local_path = $dir.$list_content[0]['filename'];
-        $handle = fopen($local_path, 'r');
-
-        if (!$handle) {
-          $return['error'] = TRUE;
-          $return['error_msg'] = t('The XML file (!xml_file) isn\'t readable', array('!xml_file' => $local_path));
-        } else {
-          $contents = fread($handle, filesize($local_path));
-          $dom = new DomDocument();
-          $dom->LoadXML(trim($contents));
-          $return['content'] = $dom;
-        }
-      } else {
-        $return['error'] = TRUE;
-        $return['error_msg'] = t('Unable to extract tar file contents');
-      }
-    } else {
-      $return['error'] = TRUE;
-      $return['error_msg'] = t('Given file is not a tar file');
-    }
-  } else {
-    $return['error'] = TRUE;
-    $return['error_msg'] = t('Class "Archive_Tar" not found');
-  }
-
-  return $return;
 }
 
 function _wallyedit_import_export_import_from_dom($dom) {
@@ -446,19 +397,13 @@ function _wallyedit_import_export_import_from_dom($dom) {
     if ($dom_interface->item(0)) {
       foreach ($dom_interface as $dom_int) {
         $pid = $pid_mapping[$dom_int->getAttributeNode('pid')->value];
-        $current_interfaces = variable_get('wallyedit_content_types_interface_type_'.$pid, array());
+        $current_interfaces = wally_variable_get('wallyedit_content_types_interface_type_'.$pid, array());
         foreach ($dom_int->getElementsByTagName('ContentType') as $dom_content_type) {
           $content_type = $dom_content_type->getAttributeNode('name')->value;
           $current_interfaces[$content_type] = $dom_content_type->getElementsByTagName('type')->item(0)->nodeValue;
         }
-        variable_set('wallyedit_content_types_interface_type_'.$pid, $current_interfaces);
+        wally_variable_set('wallyedit_content_types_interface_type_'.$pid, $current_interfaces);
       }
     }
-  }
-}
-
-function _wallyedit_import_export_tar_error($errno, $errstr, $errfile, $errline) {
-  if ($errno === 2) {
-    drupal_set_message(t('The "Archive_Tar" package need to be installed on your system to use this functionality (see !link for further informations)', array('!link' => l('here', 'http://pear.php.net/package/Archive_Tar/redirected'))), 'error');
   }
 }

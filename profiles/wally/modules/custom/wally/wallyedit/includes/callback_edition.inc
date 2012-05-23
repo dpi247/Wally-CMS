@@ -6,14 +6,12 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     drupal_goto('node/'.$prenode->cache_name.'/edit');
   }
 
-  global $custom_theme;
-  $custom_theme = variable_get('admin_theme', 'rubik');
-  
   if ($_POST['form_id'] == 'views_bulk_operations_form__1') {
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
   }
 
+  module_load_include('inc', 'wallyedit', 'wallyedit.forms');
   wydit_ctools_include();
 
   $form_state = $prenode->getFormState();
@@ -27,6 +25,12 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     $form_state['action'] = wydit_string_args_translate($action, $args);
   }
 
+  if ($form_state['locked']) {
+    $locked = theme('wallyedit_lock', $form_state);
+  } else {
+    $locked = '';
+  }
+
   $form = ctools_build_form($form_id, $form_state, $current_profile);
   if ($preview && sizeof($form_state['parents']) == 1) {
     $form_prev = drupal_get_form('wydit_form_preview_form', $form_state['cache name']);
@@ -37,6 +41,7 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
   if($js) {
     //AJAX rendering
     $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
+    $commands[] = ctools_ajax_command_html('#wallyedit_locked', $locked);
     $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
     $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
@@ -44,6 +49,6 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     return FALSE;
   } else {
     drupal_set_title(wydit_get_fil_ariane($form_state));
-    return theme('wallyedit_page_editmode', $form, $form_prev, $form_state['cache name']);
+    return theme('wallyedit_page_editmode', $locked, $form, $form_prev);
   }
 }

@@ -25,7 +25,7 @@
  *   The data that was cached.
  */
 function wallyedit_object_cache_get($name, $skip_cache = FALSE) {
-  $cache = &ctools_static(__FUNCTION__, array());
+  $cache = &ctools_static('wallyedit_object_cache', array());
   if ($skip_cache) {
     unset($cache[$name]);
   }
@@ -61,7 +61,7 @@ function wallyedit_object_cache_set($name, $cache) {
 function wallyedit_object_cache_clear($name) {
   db_query("DELETE FROM {wallyedit_object_cache} WHERE name = '%s'", $name);
   // Ensure the static cache is emptied of this name set.
-  $cache = &ctools_static('wallyedit_object_cache_get', array());
+  $cache = &ctools_static('wallyedit_object_cache', array());
   unset($cache[$name]);
 }
 
@@ -71,7 +71,7 @@ function wallyedit_object_cache_clear($name) {
 function wallyedit_object_cache_clear_all() {
   db_query("TRUNCATE TABLE {wallyedit_object_cache}");
   // Ensure the static cache is emptied.
-  $cache = &ctools_static('wallyedit_object_cache_get', array());
+  $cache = &ctools_static('wallyedit_object_cache', array());
   $cache = array();
 }
 
@@ -85,7 +85,7 @@ function wallyedit_object_cache_clear_all() {
  */
 function wallyedit_object_cache_clean($age = NULL) {
   if (empty($age)) {
-    $age = 86400 * 7; // 7 days
+    $age = 86400 * wally_variable_get('wallyedit_outdated_prenodes', 7); // 7 days
   }
   db_query("DELETE FROM {wallyedit_object_cache} WHERE updated < %d", time() - $age);
 }
