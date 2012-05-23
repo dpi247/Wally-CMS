@@ -10,10 +10,10 @@ function wallyadmin_page_form_login_redirection_form ($form_state) {
         '#type' => 'textfield',
         '#title' => $rlabel,
         '#description' => t('Enter the redirection path to use for this role login'),
-        '#default_value' => variable_get('wallyadmin_redirection_'.$rid, ''),
+        '#default_value' => wally_variable_get('wallyadmin_redirection_'.$rid, ''),
       );
     }
   }
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }

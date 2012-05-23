@@ -65,7 +65,7 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
  */
 function wallydam_cron(){
   //Packages
-  $max_number = variable_get('wallydam_cronmaxnumber', 50);
+  $max_number = wally_variable_get('wallydam_cronmaxnumber', 50);
   $result = db_query("SELECT nid
   					  FROM {wallydam_packagestosend} 
   					  ORDER BY timestamp ASC LIMIT %d", $max_number);
@@ -102,9 +102,9 @@ function wallydam_posturl($node){
     $node->path = 'node/'.$node->nid;
   }
   $node_url = url($node->path, array('absolute' => TRUE));
-  $node_id = variable_get('wallydam_wallyprefix', NULL).$node->nid;
+  $node_id = wally_variable_get('wallydam_wallyprefix', NULL).$node->nid;
   $package_id = $node->field_externalreference[0]['value'];
-  $request = variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
+  $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
   $postargs = 'nodeId='.$node_id.'&packageId='.$package_id.'&url='.$node_url;
 
   //GET
@@ -191,9 +191,9 @@ function wallydam_postpackage($nid){
   $result = wallyexport_export_packages(array($nid));
   if ($result[0] == 'Zip success : '.$nid){
     //Send package in POST
-    $target_url = variable_get('wallydam_updatepackageurl', '');
+    $target_url = wally_variable_get('wallydam_updatepackageurl', '');
     if ($target_url != ''){
-      $path_to_file = variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
+      $path_to_file = wally_variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
       $file_length = filesize($path_to_file);
       $sent = wallydam_post($postfields, $target_url, $file_length);

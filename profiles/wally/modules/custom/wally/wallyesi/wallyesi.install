@@ -4,4 +4,5 @@ function wallyesi_uninstall(){
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('esi_');
   wallytoolbox_variable_del_like('wallyesi_');
+  wallytoolbox_variable_del_like('local_esi_');
 }

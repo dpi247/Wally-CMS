@@ -309,7 +309,7 @@ function wallyctools_ccimapping_productinfo_alter(&$dom, $op) {
     $dest_vid = variable_get('wallymport_destinationpath', 0);
     $depth = 0;
     $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
-    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+    $default_redacblocks = wally_variable_get('wallyctools_default_redacblocks', array());
     $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
 
     $level = 1;
@@ -432,7 +432,7 @@ function wallyctools_get_hierarchies() {
 
     $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
     $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
-    $default_redacblocks = variable_get('wallyctools_default_redacblocks', array());
+    $default_redacblocks = wally_variable_get('wallyctools_default_redacblocks', array());
 
     foreach($tid_did_mapping as $tid => $did_infos) {
       $tid_did_mapping[$tid]['redacblocks'] = $temp_mapping = array();

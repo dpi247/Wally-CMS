@@ -58,27 +58,41 @@ function wallyadmin_menu() {
   );
   
   $items['admin/wally/searchvars'] = array(
-    'title' => t('Search and export variables'),
-    'page callback' => 'search_vars_admin',
+    'title' => t('Export and import variables'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_admin_form'),
     'access arguments' => array('manage variables'),
-    'description' => t('Allows administrators to search and export variables.'),
+    'description' => t('Export and import variables.'),
     'file' => 'includes/searchvars.admin.inc',
   );
   
-  $items['admin/wally/searchvars/key/%'] = array(
-    'page callback' => 'export_vars_admin',
+  $items['admin/wally/searchvars/export'] = array(
+    'title' => t('Export'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_admin_form'),
     'access arguments' => array('manage variables'),
-    'page arguments' => array(4),
+    'file' => 'includes/searchvars.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/wally/searchvars/export/confirm'] = array(
+    'title' => t('Choose variables to export'), 
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_confirm_form'),
+    'access arguments' => array('manage variables'),
+    'file' => 'includes/searchvars.admin.inc',
     'type' => MENU_CALLBACK,
-    'file' => 'includes/searchvars.admin.inc',
   );
   
-  $items['admin/wally/importvars'] = array(
-    'title' => t('Import variables'),
-    'page callback' => 'import_vars_admin',
+  $items['admin/wally/searchvars/import'] = array(
+    'title' => t('Import'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('import_vars_admin_form'),
     'access arguments' => array('manage variables'),
-    'description' => t('Allows administrators to search and export variables.'),
     'file' => 'includes/searchvars.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
   );
   
   $items['admin/wally/loginredirect'] = array(
@@ -199,7 +213,7 @@ function wallyadmin_user($op, &$edit, &$account, $category = NULL) {
       while (count($user_roles) && (!array_key_exists($rid, $roles) || $account->roles[$rid] == 'anonymous user' || $account->roles[$rid] == 'authenticated user')) {
         $rid = array_shift($user_roles);
       }
-      $redirect_path = variable_get('wallyadmin_redirection_'.$rid, FALSE);
+      $redirect_path = wally_variable_get('wallyadmin_redirection_'.$rid, FALSE);
       if ($redirect_path) {
         drupal_goto($redirect_path);
       }
@@ -215,4 +229,88 @@ function wallyadmin_clear_cache() {
   drupal_flush_all_caches();
   drupal_set_message('Cache cleared.');
   drupal_goto($_SERVER['HTTP_REFERER']);
+}
+
+/**
+ * Alias to _wally_variable_get
+ *
+ * @param $name
+ *   The name of the variable to return.
+ * @param $default
+ *   The default value to use if this variable has never been set.
+ * @return
+ *   The value of the variable.
+ *
+ * @see _wally_variable_get(), wally_variable_del(), wally_variable_set(), wally_variable_get_all()
+ */
+function wally_variable_get($name, $default, $regenerate = FALSE) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_variable_get($name, $default, $regenerate);
+}
+
+/**
+ * Alias to _wally_variable_get_all
+ *
+ * @return
+ *   The value of the variables.
+ *
+ * @see wally_variable_get_all(), wally_variable_get(), wally_variable_del(), wally_variable_set()
+ */
+function wally_variable_get_all() {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_variable_get_all();
+}
+
+/**
+ * Alias to _wally_variable_set
+ *
+ * @param $name
+ *   The name of the variable to set.
+ * @param $value
+ *   The value to set. This can be any PHP data type; these functions take care
+ *   of serialization as necessary.
+ *
+ * @see _wally_variable_set(), wally_variable_del(), wally_variable_get(), wally_variable_get_all()
+ */
+function wally_variable_set($name, $value) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_variable_set($name, $value);
+}
+
+/**
+ * Alias to _wally_variable_del
+ *
+ * @param $name
+ *   The name of the variable to undefine.
+ *
+ * @see _wally_variable_del(), wally_variable_get(), wally_variable_set(), wally_variable_get_all()
+ */
+function wally_variable_del($name) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_variable_del($name);
+}
+
+/**
+ * Alias to _wally_system_settings_form
+ *
+ * @param $form
+ *   An associative array containing the structure of the form.
+ * @return
+ *   The form structure.
+ *
+ * @see _wally_system_settings_form()
+ */
+function wally_system_settings_form($form, $fast = FALSE) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_system_settings_form($form, $fast);
+}
+
+/**
+ * Alias to _wally_system_settings_form_submit
+ *
+ * @see _wally_system_settings_form_submit()
+ */
+function wally_system_settings_form_submit($form, &$form_state) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_system_settings_form_submit($form, $form_state);
 }

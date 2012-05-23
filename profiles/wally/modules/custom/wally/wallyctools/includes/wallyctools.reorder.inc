@@ -108,7 +108,7 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
     );
 
     $conflict = FALSE;
-    if (variable_get('wallyctools_reorder_check_conflict', 1)) {
+    if (wally_variable_get('wallyctools_reorder_check_conflict', 1)) {
       if (isset($form_state['post']['saved_rows']) || (isset($form_state['post']['rows']) && _wallyctools_form_reorder_destination_form_compare_results($results, $form_state['post']['rows'], $limit))) {
         // This means we got a conflict
         $conflict = TRUE;
@@ -266,7 +266,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
     'reserved' => 5,
     'delta_t' => 1,
   );
-  $dest_settings = variable_get('cckdestinations_destination_'.$tid.'_'.$target, $defaults);
+  $dest_settings = wally_variable_get('cckdestinations_destination_'.$tid.'_'.$target, $defaults);
   $sort_method = $dest_settings['sort_method'];
 
   $order_by_weight = array();
