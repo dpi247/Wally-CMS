@@ -105,8 +105,8 @@ function wallystat_cron(){
   
   //Count the number of term
   $term_counts = array();
-  $result = db_query("SELECT cid,data FROM {cache_wallystat_tempdata}");
-  //foreach $node 
+  $result = db_query("SELECT cid, data FROM {cache_wallystat_tempdata}");
+
   $last_tstamp = time();
   while ($obj = db_fetch_object($result)){
     $data = unserialize($obj->data);
@@ -134,8 +134,7 @@ function wallystat_cron(){
     }
   }
   
-  while ($last_tstamp != FALSE && $last_tstamp < $current_tstamp){
-    
+  while ($last_tstamp != FALSE && $last_tstamp < $current_tstamp) {
     $truncated_tstmp_start = $last_tstamp - (date('i', $last_tstamp) * 60 + date('s', $last_tstamp));
     $truncated_tstmp_end = ($current_tstamp > $truncated_tstmp_start + 60*60) ? $truncated_tstmp_start - 1 + 60 * 60 : $current_tstamp-1;
     
@@ -225,15 +224,6 @@ function wallystat_cron(){
   echo('Finished : '.date('Y-m-d H:i:s', time()).'<br/>');
 }
 
-/**
- * Implementation of hook_preprocess_page().
- */
-/*function wallystat_preprocess_page(&$vars) {
-	if(isset($vars['node'])) {
-	  _wallystat_add_updater_callback($vars);
-	}
-}*/
-
 function wallystat_init(){
   if (arg(0) == 'node'){
     if (arg(1) != ''){
@@ -261,7 +251,7 @@ function wallystat_views_api() {
 function wallystat_show_stats() {
   $href_value = $_GET['hrefvalue'];
   $cached_content = cache_get('wallystat_stats_content_'.$href_value);
-  $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
+  $refresh_time = wally_variable_get('wallystat_stats_content_refresh_time', 15);
   
   if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
     // This cache doesn't exists or is too old, create it
@@ -287,7 +277,7 @@ function wallystat_show_stats() {
 function wallystat_show_stats_with_return() {
   $href_value = $_GET['hrefvalue'];
   $cached_content = cache_get('wallystat_stats_content_'.$href_value);
-  $refresh_time = variable_get('wallystat_stats_content_refresh_time', 15);
+  $refresh_time = wally_variable_get('wallystat_stats_content_refresh_time', 15);
   
   // This cache doesn't exists or is too old, create it
   $last_48h = theme('wallystat_show_stats_48h',60,25, false);

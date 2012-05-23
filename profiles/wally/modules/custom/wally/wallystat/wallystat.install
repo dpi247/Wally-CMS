@@ -6,6 +6,7 @@ function wallystat_install() {
 
 function wallystat_uninstall() {
   drupal_uninstall_schema('wallystat');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_variable_del_like('wallystat_');
 }
 
@@ -360,8 +361,10 @@ function wallystat_schema() {
       'timestamp' => array('timestamp'),
     ),
   );
+
   $schema['cache_wallystat_tempdata'] = drupal_get_schema_unprocessed('system', 'cache');
   $schema['cache_wallystat_tempdata']['description'] = 'Cache table for wallystat.';
+
   return $schema;
 }
 
