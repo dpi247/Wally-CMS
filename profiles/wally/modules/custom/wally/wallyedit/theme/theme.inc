@@ -370,7 +370,7 @@ function theme_wallyedit_lock($form_state) {
   $account  = user_load($form_state['locked']['uid']);
   $name     = theme('username', $account);
   $lock_age = format_interval(time() - $form_state['locked']['updated']);
-  $break    = url(wydit_get_url_action('edit', $form_state['cache name']), array('query' => 'break=1'));
+  $break    = url(wydit_get_url_action('edit_prenode', $form_state['cache name']), array('query' => 'break=1'));
 
   ctools_add_css('ctools');
   $output = '<div class="ctools-locked">';

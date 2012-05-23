@@ -6,14 +6,12 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     drupal_goto('node/'.$prenode->cache_name.'/edit');
   }
 
-  global $custom_theme;
-  $custom_theme = variable_get('admin_theme', 'rubik');
-  
   if ($_POST['form_id'] == 'views_bulk_operations_form__1') {
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
   }
 
+  module_load_include('inc', 'wallyedit', 'wallyedit.forms');
   wydit_ctools_include();
 
   $form_state = $prenode->getFormState();

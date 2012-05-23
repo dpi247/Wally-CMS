@@ -37,32 +37,29 @@ function wallyedit_page_list_prenodes($limit = 25) {
   global $custom_theme, $user;
   $custom_theme = variable_get('admin_theme','rubik');
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
-  
-  $count_query = "SELECT count(*) from {wallyedit_object_cache}";
-  $result = pager_query("SELECT * from {wallyedit_object_cache}", $limit, 0, $count_query);
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
+  $count_query = "SELECT count(*) from {wallyedit_prenodes}";
+  $result = pager_query("SELECT * from {wallyedit_prenodes} ORDER BY updated DESC", $limit, 0, $count_query);
+  
   while($obj = db_fetch_object($result)) {
-    $temp_array = unserialize($obj->data);
-    if ($temp_array[$temp_array['type']]['#node']->title) {
-      if ($temp_array['locked']) {
-        if ($temp_array['locked']['uid'] == $user->uid) {
-          $row['title']['class'] = 'wallyedit-prenode-locked';
-          $row['title']['title'] = t('This page is currently locked for editing by you. Nobody else may edit this page until these changes are saved or canceled.');
-        }
-        else {
-          $row['title']['class'] = 'wallyedit-prenode-locked-other';
-          $row['title']['title'] = t('This page is currently locked for editing by another user. You may not edit this page without breaking the lock.');
-        }
-      }
-      $row['title']['data'] = $temp_array[$temp_array['type']]['#node']->title;
-      $row['name'] = $obj->name;
-      $row['type'] = $temp_array[$temp_array['type']]['#node']->type;
-      $row['actions'] = l(t('Edit'), wydit_get_url_action('edit', $obj->name));
-      $row['actions'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete', $obj->name));
-      $rows[] = $row;
+    $prenode = prenode_get($obj->pid);
+    if ($prenode['locked'] && $prenode['locked']['uid'] != $user->uid) {
+      $row['title']['class'] = '';
+      $row['title']['title'] = t('This page is currently locked for editing by you. Nobody else may edit this page until these changes are saved or canceled.');
+    } else {
+      $row['title']['class'] = 'wallyedit-prenode-locked-other';
+      $row['title']['title'] = t('This page is currently locked for editing by another user. You may not edit this page without breaking the lock.');
     }
+    $row['title']['data'] = $obj->title;
+    $row['id'] = $obj->pid;
+    $row['type'] = $obj->type;
+    $row['last_update'] = date('Y-m-d H:i:s', $obj->updated);
+    $row['action_urls'] = l(t('Edit'), wydit_get_url_action('edit_prenode', $obj->pid));
+    $row['action_urls'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete', $obj->pid));
+    $rows[] = $row;
   }
-  $headers = array(t('Title'), t('Cache ID'), t('Type'), t('Action(s)'));
+  $headers = array(t('Title'), t('ID'), t('Type'), t('Last update'), t('Action(s)'));
 
   return theme('table', $headers, $rows);
 }
@@ -85,7 +82,9 @@ function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL) {
 
 function wallyedit_prenode_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
+    module_load_include('inc', 'wallyedit', 'includes/Prenode');
     prenode_delete($form_state);
+    drupal_set_message(t('The item has been deleted.'));
   }
   $form_state['redirect'] = 'admin/content/wallyedit';
   return;
@@ -106,6 +105,7 @@ function wallyedit_prenode_delete_all_confirm(&$form_state) {
 
 function wallyedit_prenode_delete_all_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
+    module_load_include('inc', 'wallyedit', 'includes/Prenode');
     prenode_delete_all();
   }
   $form_state['redirect'] = 'admin/content/wallyedit';
@@ -119,9 +119,9 @@ function wallyedit_page_cron_config_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Maximum age of PreNodes (in days)'),
     '#description' => t('At cron run, all PreNodes which have not been modified for more than this amount of days will be deleted.'),
-    '#default_value' => variable_get('wallyedit_outdated_prenodes', 7),
+    '#default_value' => wally_variable_get('wallyedit_outdated_prenodes', 7),
     '#required' => TRUE,
   );
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }

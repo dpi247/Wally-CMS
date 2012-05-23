@@ -1,5 +1,5 @@
 <?php
-  module_load_include('inc', 'wallyedit', 'includes/page_form_display_tabs');
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
   $onglets_struct = wyditadmin_get_fields_tree($profile_id, $node_type);
   $type = wydit_get_infos_type($node_type);
   $extra_fields = array();

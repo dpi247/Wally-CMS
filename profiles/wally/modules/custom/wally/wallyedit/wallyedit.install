@@ -219,6 +219,62 @@ function wallyedit_schema(){
     ),
     'primary key' => array('name'),
   );
+  
+  $schema['wallyedit_prenodes'] = array(
+    'description' => t('Keep trace of existing prenodes with some informations'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'description' => 'The ID of the prenode',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this prenode was created or updated',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'description' => 'Node type',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  $schema['wallyedit_stored_prenodes'] = array(
+    'description' => t('Store prenodes after reset'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'description' => 'The ID of the prenode',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
 
   return $schema;
 }
@@ -250,5 +306,17 @@ function wallyedit_update_6002() {
   $schemas = wallyedit_schema();
   $ret = array();
   db_create_table($ret, 'wallyedit_object_cache', $schemas['wallyedit_object_cache']);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the storing and prenodes table.
+ */
+function wallyedit_update_6003() {
+  $schemas = wallyedit_schema();
+  $ret = array();
+  db_create_table($ret, 'wallyedit_prenodes', $schemas['wallyedit_prenodes']);
+  db_create_table($ret, 'wallyedit_stored_prenodes', $schemas['wallyedit_stored_prenodes']);
   return $ret;
 }

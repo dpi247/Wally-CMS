@@ -41,7 +41,7 @@ function wallyedit_form_tabs_content_types_overview_form (&$form_state, $profile
   );
 
   if (is_numeric($profile_id)) {
-    $interface_types = variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+    $interface_types = wally_variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
     
     if (empty($interface_types)) {
       drupal_set_message(t('Edition types not saved, the classical Drupal node edition will always be used.'), 'notice');
@@ -113,7 +113,7 @@ function wallyedit_form_tabs_content_types_overview_form_submit ($form, &$form_s
     $content_editions[$content_key] = $content_values['edition'];
   }
   
-  variable_set('wallyedit_content_types_interface_type_'.$values['profile_id'], $content_editions);
+  wally_variable_set('wallyedit_content_types_interface_type_'.$values['profile_id'], $content_editions);
   drupal_set_message(t('Configuration saved.'));
 }
 

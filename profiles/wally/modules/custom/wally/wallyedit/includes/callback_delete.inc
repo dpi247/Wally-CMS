@@ -6,6 +6,8 @@ function wallyedit_callback_delete($prenode, $js = FALSE, $current_profile = 0){
     drupal_goto('node/'.$prenode->cache_name.'/edit');
   }
 
+  module_load_include('inc', 'wallyedit', 'wallyedit.forms');
+  
   $js = $js ? 'ajax' : 0;
   if ($_POST['confirm_delete']) {
     $form_state = $prenode->getFormState();
