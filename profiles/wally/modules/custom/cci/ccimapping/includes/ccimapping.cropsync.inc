@@ -35,9 +35,9 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
 }
 
 function ccimapping_cropsync_form_cropings_editor_form_submit($form, $form_state) {
-  $wsdl_uri = variable_get('ccimapping_ws_wsdluri', '');
-  $newsroom = variable_get('ccimapping_newsroom', '');
-  $product_name = variable_get('ccimapping_product_name', '');
+  $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
+  $newsroom = wally_variable_get('ccimapping_newsroom', '');
+  $product_name = wally_variable_get('ccimapping_product_name', '');
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,
@@ -65,9 +65,9 @@ dsm($client->__getLastResponseHeaders(), 'submit rephead');*/
  * @return the result of the call from the  WS: an XML structure in string format wich describe the cropings
  */
 function ccimapping_cropsync_get_cropings_fromWS() {
-  $wsdl_uri = variable_get('ccimapping_ws_wsdluri', '');
-  $newsroom = variable_get('ccimapping_newsroom', '');
-  $product_name = variable_get('ccimapping_product_name', '');
+  $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
+  $newsroom = wally_variable_get('ccimapping_newsroom', '');
+  $product_name = wally_variable_get('ccimapping_product_name', '');
   $parameters_array = array(
     'newsroom' => $newsroom,
     'productname' => $product_name,

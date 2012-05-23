@@ -33,9 +33,9 @@ function ccimapping_form_packagetype_editor_form($form_state,$wally_type=NULL){
 
 function ccimapping_form_packagetype_editor_form_submit($form,$form_state){
   if($form_state['clicked_button']["#name"]=="send"){
-    $wsdl_uri=variable_get('ccimapping_ws_wsdluri','');
-    $newsroom=variable_get('ccimapping_newsroom','');
-    $product_name=variable_get('ccimapping_product_name','');
+    $wsdl_uri=wally_variable_get('ccimapping_ws_wsdluri','');
+    $newsroom=wally_variable_get('ccimapping_newsroom','');
+    $product_name=wally_variable_get('ccimapping_product_name','');
 
     $client = new SoapClient($wsdl_uri,array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
@@ -61,9 +61,9 @@ function ccimapping_form_packagetype_editor_form_submit($form,$form_state){
  */
 function ccimap_get_packagetype_fromWS($wally_type){
   $cci_type=ccimap_type_converter($type);
-  $wsdl_uri=variable_get('ccimapping_ws_wsdluri','');
-  $newsroom=variable_get('ccimapping_newsroom','');
-  $product_name=variable_get('ccimapping_product_name','');
+  $wsdl_uri=wally_variable_get('ccimapping_ws_wsdluri','');
+  $newsroom=wally_variable_get('ccimapping_newsroom','');
+  $product_name=wally_variable_get('ccimapping_product_name','');
 
   $client = new SoapClient($wsdl_uri,array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
