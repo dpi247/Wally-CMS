@@ -16,7 +16,7 @@ function wallydam_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('URL to send the informations of the node'),
     '#description' => t('URL to send the information of the node.'),
-    '#default_value' => variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl'),
+    '#default_value' => wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl'),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
@@ -26,7 +26,7 @@ function wallydam_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('URL to send the updated packages'),
     '#description' => t('URL to send the updated package.'),
-    '#default_value' => variable_get('wallydam_updatepackageurl', ''),
+    '#default_value' => wally_variable_get('wallydam_updatepackageurl', ''),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
@@ -36,7 +36,7 @@ function wallydam_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Maximum number of packages sent in a post'),
     '#description' => t('Maximum number of packages sent in a post'),
-    '#default_value' => variable_get('wallydam_cronmaxnumber', 50),
+    '#default_value' => wally_variable_get('wallydam_cronmaxnumber', 50),
     '#size' => 80,
     '#maxlenght' => 512,
     '#required' => TRUE,
@@ -46,13 +46,13 @@ function wallydam_page_admin_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Wally Prefix'),
     '#description' => t('Used in Pandam to identified de source web site'),
-    '#default_value' => variable_get('wallydam_wallyprefix', ''),
+    '#default_value' => wally_variable_get('wallydam_wallyprefix', ''),
     '#size' => 80,
     '#maxlength' => 512,
     '#required' => TRUE,
   );
 
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }
 
 /**

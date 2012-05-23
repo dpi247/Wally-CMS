@@ -32,8 +32,9 @@ function cckdestinations_node_admin_nodes() {
     }
   }
   
-  if (sizeof($field_dest_tid))
-    $where_query = ' WHERE '.implode(variable_get('cckdestinations_and_or_or', ' AND '), $field_dest_tid);
+  if (sizeof($field_dest_tid)) {
+    $where_query = ' WHERE '.implode(wally_variable_get('cckdestinations_and_or_or', ' AND '), $field_dest_tid);
+  }
 
   $result = pager_query(db_rewrite_sql('SELECT `nid` FROM {content_field_destinations}'.$where_query.' ORDER BY `field_destinations_time_rank` DESC'), 50, 0, NULL, $filter['args']);
 	
@@ -86,7 +87,7 @@ function cckdestinations_node_filter_form() {
   $session = is_array($session) ? $session : array();
   $filters = cckdestinations_node_filters();
   
-  $and_or_or = variable_get('cckdestinations_and_or_or', ' AND ');
+  $and_or_or = wally_variable_get('cckdestinations_and_or_or', ' AND ');
 
   $i = 0;
   $form['filters'] = array(
@@ -205,7 +206,7 @@ function cckdestinations_node_filter_form_submit($form, &$form_state) {
 	$target=$boxtarget['#post']['selectboxtarget'];
 	$form_state[redirect]= 'admin/wallyctools/reorder/'.$dest.'/'.$target;
     case t('Filter'):
-      variable_set('cckdestinations_and_or_or', $form_state['values']['and_or_or']);
+      wally_variable_set('cckdestinations_and_or_or', $form_state['values']['and_or_or']);
     case t('Add'):
     case t('Refine'):
       if (isset($form_state['values']['filter'])) {
@@ -242,7 +243,7 @@ function theme_cckdestinations_node_filters($form) {
     }
   }
   
-  $and_or_or = variable_get('cckdestinations_and_or_or', ' AND ');
+  $and_or_or = wally_variable_get('cckdestinations_and_or_or', ' AND ');
 
   $output .= '<li><dl class="multiselect">'. (!empty($form['current']) ? '<dt><em>'. t(strtolower(trim($and_or_or))) .'</em> '. t('where') .'</dt>' : '') .'<dd class="a">';
   foreach (element_children($form['filter']) as $key) {
