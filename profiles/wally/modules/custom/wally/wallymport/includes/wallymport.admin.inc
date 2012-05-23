@@ -440,17 +440,17 @@ function wallymport_page_general_settings_form($form_state) {
     '#type' => 'textfield',
     '#title' => t('Folder semaphore period'),
     '#description' => t('Period during which the import folder with be locked (minutes)'),
-    '#default_value' => variable_get('wallymport_process_folder_semaphore_period', 5),
+    '#default_value' => wally_variable_get('wallymport_process_folder_semaphore_period', 5),
   );
   
   $form['semaphore']['wallymport_process_file_semaphore_duration'] = array(
     '#type' => 'textfield',
     '#title' => t('File semaphore period'),
     '#description' => t('Period during which a processed file with be locked (minutes)'),
-    '#default_value' => variable_get('wallymport_process_file_semaphore_period', 1),
+    '#default_value' => wally_variable_get('wallymport_process_file_semaphore_period', 1),
   );
   
-  return system_settings_form($form);
+  return wally_system_settings_form($form, TRUE);
 }
 
 /**

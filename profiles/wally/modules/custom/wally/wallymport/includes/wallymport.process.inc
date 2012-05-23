@@ -11,8 +11,8 @@
  */
 function wallymport_check_process_folder($importer_name) {
   // Fetch the cron semaphore
-  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
-  $semaphore_period = variable_get('wallymport_process_folder_semaphore_period', 5);
+  $semaphore = wally_variable_get('wallymport_process_folder_semaphore', FALSE);
+  $semaphore_period = wally_variable_get('wallymport_process_folder_semaphore_period', 5);
 
   // Try to allocate enough time to run import process.
   if (function_exists('set_time_limit')) {
@@ -27,7 +27,7 @@ function wallymport_check_process_folder($importer_name) {
     register_shutdown_function('wallymport_process_folder_cleanup');
 
     // Lock cron semaphore
-    variable_set('wallymport_process_folder_semaphore', time());
+    wally_variable_set('wallymport_process_folder_semaphore', time());
 
     $importer = wallymport_getimporterbyname($importer_name);
     if ($importer != NULL){
@@ -38,10 +38,10 @@ function wallymport_check_process_folder($importer_name) {
     }
 
     // Record cron time
-    variable_set('wallymport_process_folder_last', time());
+    wally_variable_set('wallymport_process_folder_last', time());
 
     // Release cron semaphore
-    variable_del('wallymport_process_folder_semaphore');
+    wally_variable_del('wallymport_process_folder_semaphore');
   }
 
   $content = '';
@@ -63,10 +63,10 @@ function wallymport_check_process_folder($importer_name) {
  */
 function wallymport_check_process_file($importer_name, $file_name) {
   // Fetch the cron semaphores
-  $semaphore = variable_get('wallymport_process_folder_semaphore', FALSE);
-  $semaphore_period = variable_get('wallymport_process_folder_semaphore_period', 5);
-  $file_semaphore = variable_get('wallymport_process_file_semaphore_'.$file_name, FALSE);
-  $file_semaphore_period = variable_get('wallymport_process_file_semaphore_period', 1);
+  $semaphore = wally_variable_get('wallymport_process_folder_semaphore', FALSE);
+  $semaphore_period = wally_variable_get('wallymport_process_folder_semaphore_period', 5);
+  $file_semaphore = wally_variable_get('wallymport_process_file_semaphore_'.$file_name, FALSE);
+  $file_semaphore_period = wally_variable_get('wallymport_process_file_semaphore_period', 1);
 
   // Try to allocate enough time to run import process.
   if (function_exists('set_time_limit')) {
@@ -83,7 +83,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     register_shutdown_function('wallymport_process_folder_cleanup');
 
     // Lock cron semaphore
-    variable_set('wallymport_process_file_semaphore_'.$file_name, time());
+    wally_variable_set('wallymport_process_file_semaphore_'.$file_name, time());
 
     $importer = wallymport_getimporterbyname($importer_name);
     if ($importer != NULL){
@@ -94,7 +94,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     }
 
     // Release cron semaphore
-    variable_del('wallymport_process_file_semaphore_'.$file_name);
+    wally_variable_del('wallymport_process_file_semaphore_'.$file_name);
   }
 
   $content = '';
@@ -110,11 +110,11 @@ function wallymport_check_process_file($importer_name, $file_name) {
  */
 function wallymport_process_folder_cleanup() {
   // See if the semaphore is still locked.
-  if (variable_get('wallymport_process_folder_semaphore', FALSE)) {
+  if (wally_variable_get('wallymport_process_folder_semaphore', FALSE)) {
     watchdog('Wallymport', 'Process folder task run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
 
     // Release semaphore
-    variable_del('wallymport_process_folder_semaphore');
+    wally_variable_del('wallymport_process_folder_semaphore');
   }
 }
 

@@ -302,7 +302,7 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
  *   The importer object used for the import
  * @param $callback
  * @return
- *   the node object that has been build
+ *   The node object that has been build
  */
 function wimprt_process_type($dom, &$log, $importer, $callback = NULL){
   module_load_include('inc', 'wallymport', 'includes/wallymport.process');
