@@ -44,7 +44,7 @@ function wallyedit_page_list_prenodes($limit = 25) {
   
   while($obj = db_fetch_object($result)) {
     $prenode = prenode_get($obj->pid);
-    if ($prenode['locked'] && $prenode['locked']['uid'] != $user->uid) {
+    if (!$prenode['locked'] || $prenode['locked']['uid'] == $user->uid) {
       $row['title']['class'] = '';
       $row['title']['title'] = t('This page is currently locked for editing by you. Nobody else may edit this page until these changes are saved or canceled.');
     } else {
