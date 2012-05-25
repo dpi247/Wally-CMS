@@ -988,8 +988,10 @@ function wydit_get_fields_infos_for_typename($type_name, $profile_id, $fields = 
 }
 
 function prenode_arg_load($nid, $args) {
-  global $custom_theme;
-  $custom_theme = variable_get('admin_theme', 'rubik');
+  if (!strstr($nid, 'wallymport_preview_')) {
+    global $custom_theme;
+    $custom_theme = variable_get('admin_theme', 'rubik');
+  }
   module_load_include('inc', 'wallyedit', 'includes/Prenode');
   return prenode_load($nid, $args);
 }
