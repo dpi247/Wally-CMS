@@ -19,10 +19,11 @@
 function _wally_variable_get($name, $default, $regenerate = FALSE) {
   global $wally_vars;
 
-  if (!isset($variables[$name]) || $regenerate) {
+  if (!isset($wally_vars[$name]) || $regenerate) {
     $result = db_query('SELECT value FROM {wally_variable_fast} WHERE name = "%s"', $name);
-    $variable = db_fetch_array($result);
-    $wally_vars[$name] = unserialize($variable['value']);
+    if($variable = db_fetch_array($result)) {
+      $wally_vars[$name] = unserialize($variable['value']);
+    }
   }
 
   return isset($wally_vars[$name]) ? $wally_vars[$name] : $default;
@@ -39,7 +40,7 @@ function _wally_variable_get($name, $default, $regenerate = FALSE) {
 function _wally_variable_get_all() {
   global $wally_vars;
 
-  if (!isset($variables[$name]) || $regenerate) {
+  if (!isset($wally_vars[$name]) || $regenerate) {
     $result = db_query('SELECT * FROM {wally_variable_fast}');
     while($variable = db_fetch_array($result)) {
       $wally_vars[$name] = unserialize($variable['value']);
