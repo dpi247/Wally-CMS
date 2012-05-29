@@ -48,7 +48,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
     $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
     $bypass_cache = isset($settings['bypass_cache']) ? $settings['bypass_cache'] : FALSE;
 
-    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, drupal_get_path('module', 'wallyextra').'/plugins/content_types/flowmix.inc', $ajax, $bypass_cache);
+    $feed = wallyextra_get_cache_or_create($cid, '_wallyextra_flowmix_setcache', $settings, $subtype, $context, $default_theme, 'flowmix', $ajax, $bypass_cache);
     
     if (is_string($feed))
       $block->content = $feed;
