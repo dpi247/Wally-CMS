@@ -4,6 +4,8 @@
  * Settings form.
  */
 function wallystat_page_admin_form($form_state) {
+  module_load_include('inc', 'wallystat', 'includes/wallystat.updater_helpers');
+  
   $form = array();
   $form['#tree'] = TRUE;
   
@@ -14,6 +16,12 @@ function wallystat_page_admin_form($form_state) {
     '#default_value' => wally_variable_get('wallystat_stats_content_refresh_time', 15),
     '#size' => 80,
     '#maxlength' => 512,
+  );
+  
+  $form['wallystat_display_follower'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display statistics in destination blocks'),
+    '#default_value' => wally_variable_get('wallystat_display_follower', 0),
   );
   
   $params_functions = array('none' => t('Not used')) + wallystat_available_params_function();
@@ -105,6 +113,7 @@ function wallystat_page_admin_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   
   wally_variable_set('wallystat_stats_content_refresh_time', $values['wallystat_stats_content_refresh_time']);
+  wally_variable_set('wallystat_display_follower', $values['wallystat_display_follower']);
   
   if ($values['op'] == $values['buttons']['submit']) {
     for ($i=1; $i<=10; $i++) {
