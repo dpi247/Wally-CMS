@@ -514,7 +514,27 @@ function cckdestinations_ccimapping_productinfo_alter(&$dom, $op) {
     $multiple_dests = cckdestinations_get_multiple_dests();
     $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
     foreach ($multiple_dests as $multi_dest) {
-      $dom_level = $budgettemplate->appendChild($dom->createElement('level1'));
+      $dom_level = NULL;
+      if (is_numeric($multi_dest['parent']) && $multi_dest['parent'] != 0) {
+        $parent_path = wallytoolbox_taxonomy_get_path_by_tid_or_term($multi_dest['parent']);
+        $parents = explode('/', $parent_path);
+        $depth = sizeof($parents);
+        $parent = array_pop($parents);
+        $levels = $budgettemplate->getElementsByTagName('level'.$depth);
+        if ($levels->item(0)) {
+          foreach ($levels as $level) {
+            if ($level->getAttributeNode('name')->value == $parent) {
+              $depth++;
+              $dom_level = $level->appendChild($dom->createElement('level'.$depth));
+              break;
+            }
+          }
+        }
+      }
+      if (!$dom_level) {
+        $dom_level = $budgettemplate->appendChild($dom->createElement('level1'));
+      }
+
       $dom_level->setAttribute('name', $multi_dest['virtual']);
       $target_intersect = cckdestinations_multiple_dests_get_target_intersect($multi_dest['reals']);
       $first = TRUE;
@@ -1136,6 +1156,9 @@ function cckdestinations_theme() {
     'cckdestinations_page_multiple_destinations_table_reals' => array(
       'arguments' => array('element' => array()),
     ),
+    'cckdestinations_page_multiple_destinations_table_parent' => array(
+      'arguments' => array('element' => array()),
+    ),
   );
 }
 
@@ -1533,7 +1556,7 @@ function cckdestinations_autocomplete_load($vid, $multiple, $string = '') {
 
   if ($load) {
     $display_limit = wally_variable_get('cckdestinations_display_limit', 10);
-    
+
     // Get current list of tids
     $current_tids = cckdestinations_autocomplete_tags_get_tids($string, $vid);
     $current_tids = isset($current_tids['existing_tids']) ? $current_tids['existing_tids'] : array();

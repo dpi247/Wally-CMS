@@ -7,6 +7,7 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
   $form = array();
 
   $current_multiple_dests = cckdestinations_get_multiple_dests();
+  $dest_vid = variable_get('wallymport_destinationpath', 0);
 
   $form['rows'] = array();
 
@@ -21,6 +22,12 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
       '#value' => $cur_multi_dest['reals'],
       '#theme' => 'cckdestinations_page_multiple_destinations_table_reals',
     );
+
+    $form['rows'][$cur_multi_dest['id']]['parent'] = array(
+      '#type' => 'markup',
+      '#value' => $cur_multi_dest['parent'],
+      '#theme' => 'cckdestinations_page_multiple_destinations_table_parent',
+    );
   }
 
   if ($op == 'edit' && $key && isset($current_multiple_dests[$key])) {
@@ -28,11 +35,11 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
     foreach ($edit_reals as $edit_real) {
       $defaults_reals[$edit_real['tid']] = (object)$edit_real;
     }
-    $dest_vid = variable_get('wallymport_destinationpath', 0);
     $default_reals = cckdestinations_autocomplete_merge_tags($defaults_reals, $dest_vid);
     $defaults = array(
       'name' => $key,
       'reals' => $default_reals,
+      'parent' => $current_multiple_dests[$key]['parent'],
     );
 
     $form['edit_id'] = array(
@@ -43,6 +50,7 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
     $defaults = array(
       'name' => '',
       'reals' => '',
+      'parent' => '',
     );
   }
 
@@ -56,6 +64,7 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
     '#title' => t('Name'),
     '#default_value' => $defaults['name'],
     '#required' => TRUE,
+    '#weight' => -17,
   );
 
   $form['new']['reals'] = array(
@@ -66,7 +75,10 @@ function cckdestinations_page_multiple_destinations_form($form_state, $op = NULL
     '#required' => TRUE,
     '#vid' => variable_get('wallymport_destinationpath', 0),
     '#multiple' => TRUE,
+    '#weight' => -16,
   );
+  
+  $form['new']['parent'] = _taxonomy_term_select(t('Parent'), 'parent', $defaults['parent'], $dest_vid, t('Parent term') .'.', 0, '<'. t('root') .'>');
 
   $form['new']['submit'] = array(
     '#type' => 'submit',
@@ -85,11 +97,13 @@ function cckdestinations_page_multiple_destinations_form_validate($form, $form_s
   if (wallytoolbox_taxonomy_get_path_by_tid_or_term($values['name'], $dest_vid)) {
     form_set_error('name', t('This is name already exists as real destination'));
   }
-  
-  $intersect = cckdestinations_multiple_dests_get_target_intersect($values['reals']);
-  unset($intersect['none']);
-  if (empty($intersect)) {
-    form_set_error('reals', t('The given destinations have no common target'));
+
+  if (is_array($values['reals'])) {
+    $intersect = cckdestinations_multiple_dests_get_target_intersect($values['reals']);
+    unset($intersect['none']);
+    if (empty($intersect)) {
+      form_set_error('reals', t('The given destinations have no common target'));
+    }
   }
 }
 
@@ -97,7 +111,9 @@ function cckdestinations_page_multiple_destinations_form_submit($form, $form_sta
   $values = $form_state['values'];
   $mapping = array(
     'virtual' => $values['name'],
+    'parent' => is_numeric($values['parent']) ? $values['parent'] : 0,
   );
+
   foreach ($values['reals'] as $tid) {
     $term = (array)taxonomy_get_term($tid);
     $term['hierarchic_name'] = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid);
@@ -375,13 +391,14 @@ function theme_cckdestinations_page_multiple_destinations_form($form) {
       $rows[] = array(
         drupal_render($form['rows'][$row_id]['name']),
         drupal_render($form['rows'][$row_id]['reals']),
+        drupal_render($form['rows'][$row_id]['parent']),
         _cckdestinations_multiple_destinations_table_operations($form['rows'][$row_id]['name']['#value']),
       );
     }
 
     //Make sure the header count matches the column count
     $header = array(
-      t('Virtual destinations'), t('Mapped real destinations'), t('Operations'),
+      t('Virtual destinations'), t('Mapped real destinations'), t('Parent'), t('Operations'),
     );
   
     $output = theme('table', $header, $rows);
@@ -398,6 +415,16 @@ function theme_cckdestinations_page_multiple_destinations_table_reals($element) 
   foreach ($items as $item) {
     $ret .= '<b>'.$item['name'].'</b>';
     $ret .= ' ('.$item['hierarchic_name'].')<br>';
+  }
+  return $ret;
+}
+
+function theme_cckdestinations_page_multiple_destinations_table_parent($element) {
+  $parent_tid = $element['#value'];
+  if (is_numeric($parent_tid) && $parent_tid != 0) {
+    $ret = wallytoolbox_taxonomy_get_path_by_tid_or_term($parent_tid);
+  } else {
+    $ret = '';
   }
   return $ret;
 }
