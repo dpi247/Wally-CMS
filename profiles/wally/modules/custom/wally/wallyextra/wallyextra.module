@@ -401,7 +401,7 @@ function wallyextra_refresh_block($infos, $settings) {
  * @param $subtype {String} given in the render function.
  * @param $context {StdObject} given in the render function.
  * @param $default_theme {String} the default theming function, if no override is set (or possible).
- * @param $plugin {String} the path of the plugin's ".inc" file to include to be able to call the callback.
+ * @param $plugin {String} the name of the plugin, used to include the plugin's ".inc" file to be able to call the callback.
  * @param $ajax {Boolean} telling whether or not to use AJAX load (default to FALSE, so you have to explicitely choose it).
  * @return Datas
  */
