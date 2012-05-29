@@ -24,10 +24,20 @@ function wallystat_menu() {
     'file' => 'includes/wallystat.admin.inc',
   );
   
-  $items['wallystat/showstats'] = array(
+  $items['wallystat/showstats/%'] = array(
     'page callback' => 'wallystat_show_stats',
+    'page arguments' => array(2),
     'access arguments' => array('access statistics'),
     'type' => MENU_CALLBACK,
+    'file' => 'includes/wallystat.stats_follower.inc',
+  );
+  
+  $items['wallystat/setdisplayfollower/%'] = array(
+    'page callback' => 'wallystat_set_display_follower',
+    'page arguments' => array(2),
+    'access arguments' => array('access statistics'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallystat.stats_follower.inc',
   );
   
   return $items;
@@ -37,201 +47,68 @@ function wallystat_menu() {
  * Implementation of hook_theme()
  */
 function wallystat_theme() {
- return array(
-    'wallystat_show_stats_48h' => array(
-      'arguments' => array('width' => 240, 'height' => 150, 'display_title' => TRUE),
+  $module_path = drupal_get_path('module', 'wallystat');
+  $base = array(
+    'path' => $module_path.'/templates',
+    //'file' => 'theme.inc',
+  );
+  
+  return array(
+    'wallystat_show_stats_48h' => $base + array(
+      'arguments' => array('nid' => NULL, 'width' => 350, 'height' => 300, 'display_title' => TRUE),
       'template' => 'wallystat-show-stats-48h',
-      'preprocess functions' => array(),
-      'path' => drupal_get_path('module', 'wallystat') . '/templates',
     ),
-    
-    'wallystat_show_stats_param' => array(
-      'arguments' => array('param_i' => 0, 'params_callback' => array(), 'width' => 240, 'height' => 150),
+    'wallystat_show_stats_param' => $base + array(
+      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 240, 'height' => 150),
       'template' => 'wallystat-show-stats-param',
-      'preprocess functions' => array(),
-      'path' => drupal_get_path('module', 'wallystat') . '/templates',
     ),
   );
-}
-
-/**
- * Implemenation of hook_block()
- */
-function wallystat_block($op = 'list', $delta = 0, $edit = array()) {
-  switch ($op) {
-    case 'list':
-      $blocks['show_stats'] = array(
-        'info' => t('Stats lightbox'),
-        'cache' => BLOCK_CACHE_PER_PAGE,
-      );
-      return $blocks;
-    case 'configure':
-      $form = array();
-      return $form;
-    case 'save':
-      break;
-    case 'view':
-      switch ($delta) {
-        case 'show_stats':
-          $block = array(
-            'subject' => t(''), 
-            'content' => _wallystat_get_stats_block_content(),
-          );
-          break;
-      }
-      return $block;
-  }
 }
 
 /**
  * Implementation of hook_cron()
  */
 function wallystat_cron(){
-  $current_tstamp = time() - date('i')*60 - date('s');
-  echo('Started : '.date('Y-m-d H:i:s').'<br/>');
-  $current_tstamp = time();
-  $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_node_counter} ORDER BY timestamp DESC", 0, 1));
-  if ($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
-    db_query('UPDATE {wallystat_node_counter} SET '.$placeholder);
-    echo($placeholder.' for wallystat_node_counter <br/>');
-  }
-  
-  $last_tstamp = db_result(db_query_range("SELECT timestamp FROM {wallystat_term_counter} ORDER BY timestamp DESC", 0, 1));
-  if ($placeholder = _wallystat_get_placeholder($last_tstamp, $current_tstamp)){
-    db_query('UPDATE {wallystat_term_counter} SET '.$placeholder);
-    echo($placeholder.' for wallystat_term_counter <br/>');
-  }
-  
-  
-  //Count the number of term
-  $term_counts = array();
-  $result = db_query("SELECT cid, data FROM {cache_wallystat_tempdata}");
+  print t('WallyStat started : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
 
-  $last_tstamp = time();
-  while ($obj = db_fetch_object($result)){
-    $data = unserialize($obj->data);
-    if ($data['timestamp'] < $current_tstamp){
-      //explode terms to get an array of terms
-      $terms = explode(' ', $data['terms']);
-      //foreach term add 1 in the array
-      foreach ($terms as $term){
-        $term_counts[$term] += 1;
-      }
-    }
-    //Get the older entry
-    if ($data['timestamp'] < $last_tstamp){
-      $last_tstamp = $data['timestamp'];
-    }
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('wallystat_cron_semaphore', FALSE);
+
+  if ($semaphore && (time() - $semaphore) > 3600) {
+    // Either cron has been running for more than an hour or the semaphore
+    // was not reset due to a database error.
+    // Release cron semaphore
+    wally_variable_del('wallystat_cron_semaphore');
+  } elseif ($semaphore) {
+    print t('Process already running.');
+  } else {
+    module_load_include('inc', 'wallystat', 'includes/wallystat.process');
+
+    // Register shutdown callback
+    register_shutdown_function('_wallystat_cron_cleanup');
+
+    // Lock cron semaphore
+    wally_variable_set('wallystat_cron_semaphore', time());
+
+    // Call the function calling the flows
+    _wallystat_process_cron();
+
+    // Release cron semaphore
+    wally_variable_del('wallystat_cron_semaphore');
   }
-  
-  
-  foreach ($term_counts as $tid => $term_count){
-    db_query("UPDATE {wallystat_term_counter} SET daycount = daycount + %d, weekcount = weekcount + %d, monthcount = monthcount + %d, yearcount = yearcount + %d, totalcount = totalcount + %d, timestamp = %d WHERE tid = %d",
-              $term_count, $term_count, $term_count, $term_count, $term_count, $current_tstamp, $tid);
-    if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-	  db_query("INSERT INTO {wallystat_term_counter} (tid, daycount, weekcount, monthcount, yearcount, totalcount, timestamp) VALUES (%d, %d, %d, %d, %d, %d, %d)",
-      $tid, $term_count, $term_count, $term_count, $term_count, $term_count, $current_tstamp);
-    }
-  }
-  
-  while ($last_tstamp != FALSE && $last_tstamp < $current_tstamp) {
-    $truncated_tstmp_start = $last_tstamp - (date('i', $last_tstamp) * 60 + date('s', $last_tstamp));
-    $truncated_tstmp_end = ($current_tstamp > $truncated_tstmp_start + 60*60) ? $truncated_tstmp_start - 1 + 60 * 60 : $current_tstamp-1;
-    
-    $result = db_query("SELECT cid,data FROM {cache_wallystat_tempdata}");
-    $node_array = array();
-    //Get all view node and sort them by param (if params are equal, it iterate node_count)
-    while ($obj = db_fetch_object($result)){
-      $data = unserialize($obj->data);
-      if ( $truncated_tstmp_start < $data['timestamp'] & $data['timestamp'] < $truncated_tstmp_end){
-        $param_array = array (
-          'param01' => $data['param01'],
-          'param02' => $data['param02'],
-          'param03' => $data['param03'],
-          'param04' => $data['param04'],
-          'param05' => $data['param05'],
-          'param06' => $data['param06'],
-          'param07' => $data['param07'],
-          'param08' => $data['param08'],
-          'param09' => $data['param09'],
-          'param10' => $data['param10'],
-          'title'    => $data['title'],
-          'node_count' => 1,
-        );
-        $param_exist = FALSE;
-        if (isset($node_array[$data['nid']])){
-          foreach ($node_array[$data['nid']] as $key => $param_array2){
-            if ($param_array == $param_array2){
-              $param_exist = TRUE;
-              $node_array[$data['nid']][$key]['node_count'] ++;
-            }
-          }
-        }
-        if (!$param_exist | !isset($node_array[$data['nid']])){
-          $node_array[$data['nid']][] = $param_array;
-        } 
-      }
-    }
-    //Pour chaque noeud vu (celon les paramètre), modifie le nombre de fois que le noeud a été vu dans les tables.
-	foreach ($node_array as $key_nid => $node_array2){
-      foreach ($node_array2 as $node_infos){
-        db_query("UPDATE {wallystat_node_counter} SET daycount = daycount + %d, weekcount = weekcount + %d, monthcount = monthcount + %d, yearcount = yearcount + %d, totalcount = totalcount + %d, timestamp = %d, title = '%s'
-                  WHERE nid = %d AND param01 = '%s' AND param02 = '%s' AND param03 = '%s' AND param04 = '%s' AND param05 = '%s' AND param06 = '%s' AND param07 = '%s' AND param08 = '%s' AND param09 = '%s' AND param10 = '%s'", 
-                  $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $current_tstamp, $node_infos['title'], $key_nid, $node_infos['param01'], $node_infos['param02'], $node_infos['param03'], $node_infos['param04'], $node_infos['param05'], $node_infos['param06'], $node_infos['param07'], $node_infos['param08'], $node_infos['param09'], $node_infos['param10']);
-        
-        if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-          db_query("INSERT INTO {wallystat_node_counter} (nid, title, daycount, weekcount, monthcount, yearcount, totalcount, timestamp, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10)
-                    VALUES (%d, '%s', %d, %d, %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')", 
-                    $key_nid, $node_infos['title'], $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $node_infos['node_count'], $current_tstamp, $node_infos['param01'], $node_infos['param02'], $node_infos['param03'], $node_infos['param04'], $node_infos['param05'], $node_infos['param06'], $node_infos['param07'], $node_infos['param08'], $node_infos['param09'], $node_infos['param10']);
-        }
-        db_query("UPDATE {wallystat_node_hourly_counter} SET count = count + %d, title = '%s'
-                  WHERE nid = %d AND timestamp = %d AND param01 = '%s' AND param02 = '%s' AND param03 = '%s' AND param04 = '%s' AND param05 = '%s' AND param06 = '%s' AND param07 = '%s' AND param08 = '%s' AND param09 = '%s' AND param10 = '%s'",
-                  $node_infos['node_count'], $node_infos['title'], $key_nid, $truncated_tstmp_start, $node_infos['param01'], $node_infos['param02'], $node_infos['param03'], $node_infos['param04'], $node_infos['param05'], $node_infos['param06'], $node_infos['param07'], $node_infos['param08'], $node_infos['param09'], $node_infos['param10']); 
-        if (!db_affected_rows()) {//si l'update n'a rien affecté, on insert un nouveau record
-          db_query("INSERT INTO {wallystat_node_hourly_counter} (nid, title, timestamp, count, param01, param02, param03, param04, param05, param06, param07, param08, param09, param10)
-                    VALUES (%d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-                    $key_nid, $node_infos['title'], $truncated_tstmp_start, $node_infos['node_count'], $node_infos['param01'], $node_infos['param02'], $node_infos['param03'], $node_infos['param04'], $node_infos['param05'], $node_infos['param06'], $node_infos['param07'], $node_infos['param08'], $node_infos['param09'], $node_infos['param10']);
-        }
-      }
-    }
-    
-    //Supprimer les noeuds de la table de cache
-    $result->data_seek(0);
-    while ($obj = db_fetch_object($result)){
-      $data = unserialize($obj->data);
-      if ($data['timestamp'] <= $truncated_tstmp_end){
-        db_query("DELETE FROM {cache_wallystat_tempdata} WHERE cid = '%s'", $obj->cid);
-      }
-    }
-    
-    //Récupère le noeud le plus anciennement placé dans la table temporaire
-    $result = db_query("SELECT cid,data FROM {cache_wallystat_tempdata}");
-    $last_tstamp = time();
-    while ($obj = db_fetch_object($result)){
-      $data = unserialize($obj->data);
-      if ($data['timestamp'] < $last_tstamp){
-        $last_tstamp = $data['timestamp'];
-      }
-    }
-    $last_tstamp = FALSE;
-  }
-  
-  // Time limit of 48h
-  $limit_tstamp = $current_tstamp - 48*60*60;
-  $query = "DELETE FROM {wallystat_node_hourly_counter} WHERE timestamp < ".$limit_tstamp;
-	db_query($query);
-  
-  echo('Finished : '.date('Y-m-d H:i:s', time()).'<br/>');
+
+	print t('WallyStat finished : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
 }
 
-function wallystat_init(){
-  if (arg(0) == 'node'){
-    if (arg(1) != ''){
-      if (arg(2) == NULL){
-    	$vars['node'] = node_load(arg(1));
-     	_wallystat_add_updater_callback($vars);
-	  }
-	}
+function wallystat_init() {
+  if (arg(0) == 'node') {
+    if (arg(1) != '') {
+      if (arg(2) == NULL) {
+        module_load_include('inc', 'wallystat', 'includes/wallystat.updater_helpers');
+        $vars['node'] = node_load(arg(1));
+        _wallystat_add_updater_callback($vars);
+      }
+    }
   }
 }
 
@@ -246,281 +123,40 @@ function wallystat_views_api() {
 }
 
 /**
- * Return the HTML of the stats for a node
+ * Theme preprocess function for views-view-row-unformatted.tpl.php
  */
-function wallystat_show_stats() {
-  $href_value = $_GET['hrefvalue'];
-  $cached_content = cache_get('wallystat_stats_content_'.$href_value);
-  $refresh_time = wally_variable_get('wallystat_stats_content_refresh_time', 15);
-  
-  if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
-    // This cache doesn't exists or is too old, create it
-    $last_48h = theme('wallystat_show_stats_48h');
-    $params = array();
-    for ($i = 1; $i <= 10; $i++) {
-      if ($params_callback = variable_get('wallystat_param_'.$i, FALSE))
-        $params[] = theme('wallystat_show_stats_param', $i, $params_callback);
-    }
-    
-    $content = $last_48h.implode('', $params);
-    cache_set('wallystat_stats_content_'.$href_value, $content, 'cache');
+function wallystat_preprocess_wallyctools_row_redacblock(&$vars) {
+  if (wally_variable_get('wallystat_display_follower', 0)) {
+    $nid = $vars['row']->{$vars['field_alias']};
+    $vars['node'] = '<div class = "wallystat_follower" id = "'.$nid.'">'.$vars['node'].'</div>';
+    drupal_add_js(drupal_get_path('module', 'wallystat').'/scripts/display_stats_follower.js');
+  }
+}
+
+/**
+ * Implementation of hook_views_admin_links_alter()
+ * Add link to activate the statistics follower
+ */
+function wallystat_views_admin_links_alter(&$vars, $view) {
+  if (isset($view->wallyedit_preview) && $view->wallyedit_preview) {
+    $vars = array();
   } else {
-    // The object exists in cache and is not too old
-    $content = $cached_content->data;
-  }
-  
-  print $content;
-}
-/**
- * Return the HTML of the stats for a node
- */
-function wallystat_show_stats_with_return() {
-  $href_value = $_GET['hrefvalue'];
-  $cached_content = cache_get('wallystat_stats_content_'.$href_value);
-  $refresh_time = wally_variable_get('wallystat_stats_content_refresh_time', 15);
-  
-  // This cache doesn't exists or is too old, create it
-  $last_48h = theme('wallystat_show_stats_48h',60,25, false);
-  
-  $content = $last_48h.implode('', $params);
-  
-  return $content;
-}
-
-/**
- * Return the list of all available functions which return a statistic's parameter.
- */
-function wallystat_available_params_function() {
-  return array(
-    'wallystat_get_url_argument' => t('One of the URL arguments'),
-    'wallystat_get_node_field' => t('The value of one of the node fields'),
-    'wallystat_get_eval' => t('PHP code'),
-  );
-}
-
-/**
- * Return an URL argument
- */
-function wallystat_get_url_argument($node, $i) {
-  return arg($i);
-}
-
-/**
- * Return the form element(s) for this callback
- */
-function wallystat_get_url_argument_form() {
-  $form = array();
-  
-  $form[] = array(
-    '#type' => 'select',
-    '#title' => t('Argument ID in URL'),
-    '#options' => array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-  );
-  
-  return $form;
-}
-
-/**
- * Return the value of a node field
- */
-function wallystat_get_node_field($node, $field) {
-  $node_field = isset($node->$field) ? $node->$field : NULL;
-  return isset($node_field) ? $node_field[0]['value'] : '';
-}
-
-/**
- * Return the form element(s) for this callback
- */
-function wallystat_get_node_field_form() {
-  $form = array();
-  
-  $form[] = array(
-    '#type'      => 'textfield',
-    '#title'     => t('Field name'),
-    '#size'      => 80,
-    '#maxlength' => 512,
-  );
-  
-  return $form;
-}
-
-/**
- * Return the evaluated code
- */
-function wallystat_get_eval($node, $code) {
-  return eval($code);
-}
-
-/**
- * Return the form element(s) for this callback
- */
-function wallystat_get_eval_form() {
-  $form = array();
-  
-  $form[] = array(
-    '#type'        => 'textarea',
-    '#description' => t('The $node variable is available.'),
-    '#title'       => t('PHP Code'),
-    '#rows'        => 5,
-  );
-  
-  return $form;
-}
-
-/**
- * Interal function to get the placeholder to put in the query
- * reseting some of the count fields depending on the difference of 
- * time between two timestamps
- */
-function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
-  if (!is_numeric($last_tstamp) || !is_numeric($current_tstamp))
-    return FALSE;
-  
-  $placeholder = array();
-  if (date('z', $current_tstamp) != date('z', $last_tstamp))
-    $placeholder[] = 'daycount = 0';
-  
-  if (date('W', $current_tstamp) != date('W', $last_tstamp))
-    $placeholder[] = 'weekcount = 0';
-  
-  if (date('m', $current_tstamp) != date('m', $last_tstamp))
-    $placeholder[] = 'monthcount = 0';
-  
-  if (date('Y', $current_tstamp) != date('Y', $last_tstamp))
-    $placeholder[] = 'yearcount = 0';
-  
-  if (!empty($placeholder)){
-    return implode(', ', $placeholder);
-  } else {
-    return FALSE;
-  }
-}
-
-/**
- * Add the stat AJAX updater callback to node pages
- */
-function _wallystat_add_updater_callback(&$vars) {
-  $current_id = $vars['node']->nid;
-  $title = $vars['node']->title;
-  $current_terms = '';
-  if (isset($vars['node']->field_destinations) && is_array($vars['node']->field_destinations)){
-    foreach ($vars['node']->field_destinations as $dest)
-      $current_terms .= $dest['tid'].'+';
-  }
-  $query = "SELECT tid FROM {term_node} WHERE nid = ".$current_id;
-  $result = db_query($query);
-  while ($row = db_fetch_array($result))
-    $current_terms .= $row['tid'].'+';
-
-  $params_array = array();
-  for ($i = 1; $i <= 10; $i++) {
-    $params_callback = variable_get('wallystat_param_'.$i, array());
-    $current_callback = isset($params_callback['current_callback']) ? $params_callback['current_callback'] : 'none';
-
-    unset($params_callback[$current_callback]['name']);
-    if ($current_callback != 'none') {
-      $param_value = call_user_func_array($current_callback, array($vars['node']) + $params_callback[$current_callback]);
-      $param_value = rawurldecode($param_value);
-      $params_array[] = ($i == 10) ? 'param'.$i.'='.$param_value : 'param0'.$i.'='.$param_value;
-    } else {
-      $params_array[] = ($i == 10) ? 'param'.$i.'=' : 'param0'.$i.'=';
-    }
-  }
-
-  $current_terms = trim($current_terms, '+');
-  drupal_add_js("$(document).ready(function(){
-    									updateStats();
-									});
-									
-									function updateStats(){
-										$.ajax({
-                						      url: \""."/".drupal_get_path('module', 'wallystat')."/updater.php?nid=".$current_id."&title=".$title."&terms=".$current_terms."&".implode('&', $params_array)."\",
-                						      cache: false,
-                						      async: false
-                						    })
-									}
-									", "inline");
-}
-
-/**
- * Get content for the stat block
- */
-function _wallystat_get_stats_block_content() {
-  drupal_add_js('
-    $(document).ready(function(){
-      var browser = "other";
-      $.each($.browser, function(i, val) {
-        if (i == "mozilla" && val == true)
-          browser = "mozilla";
-      });
-    
-      $("div.outerwrap div.wrapper").before("<div id=\'follower\' style=\'z-index:999\'></div>");
-      $("#follower").hide();
-      var tstamp = 0;
-      var cur_href, cur_nodelink;
-      
-      if (browser == "mozilla") {
-        $("div.content").mouseover(function(e) {
-          cur_nodelink = $(this).find("h2 a");
-          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
-            cur_href = $(cur_nodelink).attr("href");
-            tstamp = e.timeStamp;
-          }
-        });
-        
-        $("#follower").mouseover(function(e) {
-          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
-            cur_href = $(cur_nodelink).attr("href");
-            tstamp = e.timeStamp;
-          }
-        });
+    if (get_class($view) == 'redac_view') {
+      if (wally_variable_get('wallystat_display_follower', 0)) {
+        $vars[] = array(
+          'title' => t('Disable live statistics'),
+          'alt' => t('Disable statistics displayer'),
+          'href' => 'wallystat/setdisplayfollower/0',
+          'query' => 'destination='.$_GET['q'],
+        );
       } else {
-        $("div.content").mousemove(function(e) {
-          cur_nodelink = $(this).find("h2 a");
-          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
-            cur_href = $(cur_nodelink).attr("href");
-            tstamp = e.timeStamp;
-          }
-        });
-        
-        $("#follower").mousemove(function(e) {
-          if (updateFollower(e, tstamp, cur_nodelink, cur_href)) {
-            cur_href = $(cur_nodelink).attr("href");
-            tstamp = e.timeStamp;
-          }
-        });
+        $vars[] = array(
+          'title' => t('Enable live statistics'),
+          'alt' => t('Enable statistics displayer'),
+          'href' => 'wallystat/setdisplayfollower/1',
+          'query' => 'destination='.$_GET['q'],
+        );
       }
-      
-      $("div.content").mouseout(function(e){
-        $("#follower").hide();
-      });
-    });
-    
-    function updateFollower(e, tstamp, cur_nodelink, cur_href){
-      var update = false;
-      if ($(cur_nodelink).attr("href")) {
-        if ((e.timeStamp > (tstamp + 5*1000)) || ($(cur_nodelink).attr("href") != cur_href)) {
-          update = true;
-          $.ajax({
-            url: "/wallystat/showstats?hrefvalue="+encodeURIComponent($(cur_nodelink).attr("href")),
-            cache: false,
-            async: false,
-            complete: function(data) {
-              $("#follower").html(data.responseText);
-            }
-          });
-        }
-        $("#follower").show();
-        $("#follower").css({
-          position: "absolute",
-          display: "block",
-          top: e.pageY + "px",
-          left: e.pageX + "px"
-        });
-      }
-      return update;
     }
-  ', 'inline');
-  
-  return '';
+  }
 }
