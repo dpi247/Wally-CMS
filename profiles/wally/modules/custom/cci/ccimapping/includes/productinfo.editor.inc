@@ -52,7 +52,9 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
 
     //if ($dom->schemaValidate(drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')){
       $xml = $dom->saveXML();
-//return;
+/*module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+dsm(formatXmlString($xml));
+return;*/
       $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
       $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
@@ -136,6 +138,8 @@ function ccimap_build_productinfo_xml_hierarchy_items($dom, &$dom_element, $hier
     $level = $term->depth + 1;
     $dom_level = $dom_element->appendChild($dom->createElement('level'.$level));
     $dom_level->setAttribute('name', $hierarchies[$term->tid]['term_name']);
+
+    unset($hierarchies[$term->tid]['redacblocks']['none']);
     foreach ($hierarchies[$term->tid]['redacblocks'] as $redack_machine_name => $redacblock) {
       $leaf = $dom_level->appendChild($dom->createElement('leaf'));
       $leaf->setAttribute('name', $redack_machine_name);

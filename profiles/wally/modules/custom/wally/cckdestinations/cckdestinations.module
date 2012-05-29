@@ -537,6 +537,7 @@ function cckdestinations_ccimapping_productinfo_alter(&$dom, $op) {
 
       $dom_level->setAttribute('name', $multi_dest['virtual']);
       $target_intersect = cckdestinations_multiple_dests_get_target_intersect($multi_dest['reals']);
+      unset($target_intersect['none']);
       $first = TRUE;
       foreach ($target_intersect as $redack_machine_name => $redacblock) {
         $leaf = $dom_level->appendChild($dom->createElement('leaf'));
