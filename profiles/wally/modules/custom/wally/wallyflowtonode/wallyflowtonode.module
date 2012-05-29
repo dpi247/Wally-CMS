@@ -260,7 +260,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
       if ($valid_dom) {
         $importer = wallymport_getimporterbyname($feed_infos['importer']);
         $tmp_folder = $importer->temp_directory_path;
-dsm($feed_infos);
+
         $tempFile = $tmp_folder.'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
         
