@@ -455,7 +455,7 @@ function wallyextra_refresh_block($infos, $settings) {
  * @param $ajax {Boolean} telling whether or not to use AJAX load (default to FALSE, so you have to explicitely choose it).
  * @return Datas
  */
-function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin = '', $ajax = FALSE, $bypass_cache = FALSE) {
+function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
@@ -472,7 +472,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
               'subtype' => $subtype,
               'context' => addslashes(serialize($context)),
               'default_theme' => $default_theme,
-              'plugin' => $plugin,
+              'plugin_name' => $plugin_name,
               'cid' => $cid,
               'bypass_cache' => $bypass_cache,
             ),
@@ -486,8 +486,11 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
     } else {
       // Load plugin if necessary
-      if ($plugin != '') {
-        require_once $plugin;
+      if ($plugin_name != '') {
+        ctools_include('plugins');
+        if ($plugin = ctools_get_plugins('ctools', 'content_types', $plugin_name)) {
+          require_once './'.$plugin['path'].'/'.$plugin['file'];
+        }
       }
 
       // Call the given callback to get datas
@@ -523,7 +526,7 @@ function _wallyextra_content_types_ajax_callback() {
   $subtype = $_POST['subtype'];
   $context = unserialize($_POST['context']);
   $default_theme = $_POST['default_theme'];
-  $plugin = $_POST['plugin'];
+  $plugin_name = $_POST['plugin_name'];
   $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
 
   // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
@@ -531,8 +534,11 @@ function _wallyextra_content_types_ajax_callback() {
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // Load plugin if necessary
-    if ($plugin != '') {
-      require_once $plugin;
+    if ($plugin_name != '') {
+      ctools_include('plugins');
+      if ($plugin = ctools_get_plugins('ctools', 'content_types', $plugin_name)) {
+        require_once './'.$plugin['path'].'/'.$plugin['file'];
+      }
     }
 
     // Get contents to be passed to theming function

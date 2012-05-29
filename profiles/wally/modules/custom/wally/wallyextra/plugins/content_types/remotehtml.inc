@@ -289,7 +289,7 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $cid = $settings['caid'];
   $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
 
-  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', drupal_get_path('module', 'wallyextra').'/plugins/content_types/remotehtml.inc', $ajax);
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', 'remotehtml', $ajax);
   
   if (is_string($htmlblock))
     $block->content = $htmlblock;
