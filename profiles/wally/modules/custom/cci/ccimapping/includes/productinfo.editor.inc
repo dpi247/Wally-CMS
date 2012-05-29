@@ -130,6 +130,8 @@ function ccimap_build_productinfo_xml_hierarchy_items($dom, &$dom_element, $hier
     $level = $term->depth + 1;
     $dom_level = $dom_element->appendChild($dom->createElement('level'.$level));
     $dom_level->setAttribute('name', $hierarchies[$term->tid]['term_name']);
+
+    unset($hierarchies[$term->tid]['redacblocks']['none']);
     foreach ($hierarchies[$term->tid]['redacblocks'] as $redack_machine_name => $redacblock) {
       $leaf = $dom_level->appendChild($dom->createElement('leaf'));
       $leaf->setAttribute('name', $redack_machine_name);
