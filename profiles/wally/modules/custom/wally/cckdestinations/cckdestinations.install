@@ -80,6 +80,13 @@ function cckdestinations_schema() {
         'description' => 'Serialized informations about mapped real destinations',
         'serialize' => TRUE,
       ),
+      'parent' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Term ID of the parent',
+      ),
     ),
     'primary key' => array('id'),
   );
@@ -160,5 +167,17 @@ function cckdestinations_update_6004() {
   $ret = array();
   $schemas = cckdestinations_schema();
   db_create_table($ret, 'cckdestinations_multiple_destinations', $schemas['cckdestinations_multiple_destinations']);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add "parent" column to table cckdestinations_multiple_destinations
+ */
+function cckdestinations_update_6005() {
+  $ret = array();
+  $schemas = cckdestinations_schema();
+  $spec = $schemas['cckdestinations_multiple_destinations']['fields']['parent'];
+  db_add_field($ret, 'cckdestinations_multiple_destinations', 'parent', $spec);
   return $ret;
 }
