@@ -76,25 +76,18 @@ function theme_wallycontenttypes_wallycrop($element) {
  *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_wallycrop_image(&$image, $data) {
-	$fid = db_fetch_object(db_query("SELECT `fid` FROM {files} WHERE `filepath` = '%s'", $image->source));
-  if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `field_photofile_fid` = '%s'", $fid->fid));
-  } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid')) {
-    $nid = db_fetch_object(db_query("SELECT `nid` FROM {content_field_photofile} WHERE `field_photofile_fid` = '%s'", $fid->fid));
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `nid` = '%s'", $nid->nid));
-  }
+  if ($imgcropings = _wallycontenttypes_get_cropings_values($image, $data)) {
+    $preset = imagecache_preset($data['presetid']);
+    $presetname = $preset['presetname'];
 
-  $preset = imagecache_preset($data['presetid']);
-  $presetname = $preset['presetname'];
-  $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-
-  if (isset($imgcropings[$presetname])) {
-    $crop = array();
-    $crop = $imgcropings[$presetname];
-    $data['xoffset'] = $crop[0];
-    $data['yoffset'] = $crop[1];
-    $data['width'] = $crop[2];
-    $data['height'] = $crop[3];
+    if (isset($imgcropings[$presetname])) {
+      $crop = array();
+      $crop = $imgcropings[$presetname];
+      $data['xoffset'] = $crop[0];
+      $data['yoffset'] = $crop[1];
+      $data['width'] = $crop[2];
+      $data['height'] = $crop[3];
+    }
   }
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
@@ -189,33 +182,27 @@ function theme_wallycontenttypes_cropcopy($element) {
  *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_cropcopy_image(&$image, $data) {
-	$fid = db_fetch_object(db_query("SELECT `fid` FROM {files} WHERE `filepath` = '%s'", $image->source));
-  if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `field_photofile_fid` = '%s'", $fid->fid));
-  } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid')) {
-    $nid = db_fetch_object(db_query("SELECT `nid` FROM {content_field_photofile} WHERE `field_photofile_fid` = '%s'", $fid->fid));
-    $cropings = db_fetch_object(db_query("SELECT `field_croping_value` FROM {content_type_wally_photoobject} WHERE `nid` = '%s'", $nid->nid));
-  }
-
-  $copied_preset = imagecache_preset($data['copied_preset']);
-  $copied_presetname = $copied_preset['presetname'];
-  $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-  $actions_ids = $data['actions_ids'];
-  $data['action_id'] = $actions_ids[$data['copied_preset']];
-
-  $crop = array();
-  if (isset($imgcropings[$copied_presetname])) {
-    $crop = $imgcropings[$copied_presetname];
-    $data['xoffset'] = $crop[0];
-    $data['yoffset'] = $crop[1];
-    $data['width'] = $crop[2];
-    $data['height'] = $crop[3];
-  } else {
-    $crop = $copied_preset['actions'][$data['action_id']]['data'];
-    $data['xoffset'] = $crop['xoffset'];
-    $data['yoffset'] = $crop['yoffset'];
-    $data['width'] = $crop['width'];
-    $data['height'] = $crop['height'];
+  if ($imgcropings = _wallycontenttypes_get_cropings_values($image, $data)) {
+    $copied_preset = imagecache_preset($data['copied_preset']);
+    $copied_presetname = $copied_preset['presetname'];
+    $imgcropings = json_decode($cropings->field_croping_value, TRUE);
+    $actions_ids = $data['actions_ids'];
+    $data['action_id'] = $actions_ids[$data['copied_preset']];
+  
+    $crop = array();
+    if (isset($imgcropings[$copied_presetname])) {
+      $crop = $imgcropings[$copied_presetname];
+      $data['xoffset'] = $crop[0];
+      $data['yoffset'] = $crop[1];
+      $data['width'] = $crop[2];
+      $data['height'] = $crop[3];
+    } else {
+      $crop = $copied_preset['actions'][$data['action_id']]['data'];
+      $data['xoffset'] = $crop['xoffset'];
+      $data['yoffset'] = $crop['yoffset'];
+      $data['width'] = $crop['width'];
+      $data['height'] = $crop['height'];
+    }
   }
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
@@ -232,4 +219,24 @@ function wallycontenttypes_cropcopy_image(&$image, $data) {
  	} 
 
   return TRUE;
+}
+
+function _wallycontenttypes_get_cropings_values($image, $data) {
+  $imgcropings = NULL;
+
+	$fid = db_fetch_object(db_query("SELECT fid FROM {files} WHERE filepath = '%s'", $image->source));
+  if (db_column_exists('content_type_wally_photoobject', 'field_photofile_fid')) {
+    $cropings = db_fetch_object(db_query("SELECT field_croping_value FROM {content_type_wally_photoobject} WHERE field_photofile_fid = %d", $fid->fid));
+    $imgcropings = json_decode($cropings->field_croping_value, TRUE);
+  } elseif (db_column_exists('content_field_photofile', 'field_photofile_fid')) {
+    $nid = db_fetch_object(db_query("SELECT nid FROM {content_field_photofile} WHERE field_photofile_fid = %d", $fid->fid));
+    $cropings = db_fetch_object(db_query("SELECT field_croping_value FROM {content_type_wally_photoobject} WHERE nid = %d", $nid->nid));
+    $imgcropings = json_decode($cropings->field_croping_value, TRUE);
+  }
+
+  if (!$imgcropings) {
+    $imgcropings = module_invoke_all('wallycrop_cropings', $image, $fid->fid, $data);
+  }
+
+  return $imgcropings;
 }
