@@ -227,9 +227,20 @@ function wallytoolbox_supercron_call($cid) {
   }
   
   while ($block = db_fetch_array($blocks_list)) {
-    while (is_string($block['settings']))
+    while (is_string($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
-    $output = module_invoke_all('refresh_block', $block['cid'], $block['settings']);
+    }
+    $block_infos = explode(':', $block['cid']);
+    $block_infos = array(
+      'page' => $block_infos[0],
+      'handler' => $block_infos[1],
+      'type' => $block_infos[2],
+      'subtype' => $block_infos[3],
+      'panel' => $block_infos[4],
+      'pid' => $block_infos[5],
+    );
+    // Invoke hook_refresh_block
+    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
     if (!empty($output)) {
       $block['output'] .= serialize($output);
       db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
