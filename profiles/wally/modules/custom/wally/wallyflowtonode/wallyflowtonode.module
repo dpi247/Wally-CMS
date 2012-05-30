@@ -264,7 +264,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
         $tempFile = $tmp_folder.'/'.$file_name.'.xml';
         $valid_dom->save($tempFile);
         
-        module_load_include('inc', 'wallymport', 'wallymport.process');
+        module_load_include('inc', 'wallymport', 'includes/wallymport.process');
 
         if (!empty($files_to_zip)) {
           $files_to_zip[] = $tempFile;
@@ -290,7 +290,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
 
-        $return .= $temp_return['error'] ? 'Import error (@error_msg)' : 'Import done';
+        $return .= $temp_return['error'] ? 'Import error (@msg)' : 'Import done';
         $return .= ' for file : "@tmp_file"';
         $return_substion['@tmp_file'] = $tempFile;
         $return_substion['@msg'] = $temp_return['error_msg'];
