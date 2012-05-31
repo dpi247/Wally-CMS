@@ -1,4 +1,29 @@
 <?php
+
+
+
+/**
+ * Try to find the package's first photoObject. 
+ * If not, return false
+ * 
+ */
+function custom_sp_get_first_photoEmbededObject_from_package($embededObjects_array){ 
+  if(is_array($embededObjects_array)){
+		foreach($embededObjects_array as $embededObject){  
+	   if ($embededObject->type == "wally_photoobject"){
+	     $photoObject = $embededObject;
+	     break;
+	   }
+	  }
+  }
+  if (isset($photoObject)){
+    return $photoObject; 
+  }else{
+    return false;
+  }
+}
+/*
+
 /*
  * Renvoi les résultats d'un poll
  */
