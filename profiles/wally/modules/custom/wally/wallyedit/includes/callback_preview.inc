@@ -6,7 +6,8 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
   } else {
     $node = $prenode->ReturnPopulated();
   }
-  
+print 'coucou';
+var_dump($prenode);
   $node->preview=TRUE;
   if ($dest == 'disabled') {
     return NULL;
