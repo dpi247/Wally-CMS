@@ -332,14 +332,14 @@ function _wallyextra_flowmix_ctools_content_type($content) {
 function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
   $feed = array();
 
-  if (isset($settings['own_schema']) && !empty($settings['own_schema'])) {
+  if ($settings['mix_schema'] == 'mix' && isset($settings['own_schema']) && !empty($settings['own_schema'])) {
     $mix_schema = explode(',', $settings['own_schema']);
   } else {
     if ($settings['mix_schema'] == 'alt') {
       $mix_schema = array();
       for ($i=0; $i<sizeof($settings['flows']); $i++) $mix_schema[] = $i+1;
     } else {
-      $mix_schema = explode(',', $settings['mix_schema']);
+      $mix_schema = array('any');
     }
   }
 
@@ -355,9 +355,15 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
       $empty_feed = TRUE;
     }
   }
-  
+
   if ($empty_feed && !empty($old_feed)) {
     return $old_feed;
+  }
+
+  if ($settings['mix_schema'] == 'ran' && $mix_schema == array('any')) {
+    // In case of random : merge all feeds and shuffle result
+    $feed_array = array(call_user_func_array('array_merge', $feed_array));
+    shuffle($feed_array[0]);
   }
 
   $maxitem_global = $settings['maxitem_global'];
@@ -374,16 +380,16 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
 
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
-      $elem_package = $feed[$i];
-      $md5_string = $elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'];
-      $md5_string .= isset($elem_package['MainStory']['TextBody']['value']) ? $elem_package['MainStory']['TextBody']['value'] : '';
-      $feed[$i]['feed_md5'] = md5($md5_string);
-      if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5'])) {
-        $modif = TRUE;
-        break;
-      }
+    $elem_package = $feed[$i];
+    $md5_string = $elem_package['PublicationDate'].$elem_package['PackageTitle']['value'].$elem_package['ExternalURI']['value'];
+    $md5_string .= isset($elem_package['MainStory']['TextBody']['value']) ? $elem_package['MainStory']['TextBody']['value'] : '';
+    $feed[$i]['feed_md5'] = md5($md5_string);
+    if (!isset($old_feed[$i]['feed_md5']) || ($feed[$i]['feed_md5'] != $old_feed[$i]['feed_md5'])) {
+      $modif = TRUE;
+      break;
+    }
   }
-  
+
   if ($modif) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
@@ -542,9 +548,10 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
   );
 
   $mix_schemas = array(
-    'alt'               => 'Alternate',
-    'any'               => 'Most Recent',
-    'mix'               => 'Define custom schema'
+    'alt'               => t('Alternate'),
+    'any'               => t('Most Recent'),
+    'ran'               => t('Random'),
+    'mix'               => t('Define custom schema'),
   );
 
   ctools_include('dependent');
