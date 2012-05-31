@@ -120,7 +120,7 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
-      module_load_include('inc', 'wallyedi', 'includes/Prenode');
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
       ctools_include('object-cache');
 
       $prenode = new Prenode();
