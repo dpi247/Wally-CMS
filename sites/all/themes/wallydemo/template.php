@@ -22,6 +22,59 @@ function custom_sp_get_first_photoEmbededObject_from_package($embededObjects_arr
     return false;
   }
 }
+
+
+/**
+ * Extract the strapline from an Article
+ * If the article's chapofield is empty, return a teaser
+ * 
+ * @param $node
+ *  package
+ * 
+ * @param $textObject
+ *  the main textObject. Often the mainstory
+ * 
+ * @param $size
+ *  max size for the strapline. 
+ *  If no max size is wanted, indicate 0 as value
+ * 
+ */
+
+function _custom_sudpresse_get_strapline($textObject=NULL, $node, $size){
+  
+	$strapline = "";
+	if($textObject == NULL){
+	 $mainstory = $node;
+	} else {
+    $mainstory = $textObject;
+	}
+  if ($mainstory->type == "wally_textobject"){
+   $strapline = $mainstory->field_textchapo[0]['value'];
+  } else {
+   $strapline = $mainstory->field_summary[0]['value'];
+  }
+    
+  if ($strapline != "" && $size == 0){
+    return $strapline;
+  }
+  
+  if ($strapline != "" && drupal_strlen($strapline) <= $size) {
+    return $strapline;
+  } else {
+ 	$strapline = _custom_sudpresse_cut_string($strapline, $size);
+  }
+ 	
+  if ($strapline == ""){
+    $teaser_length = $size;
+    $teaser = theme("wallyct_teaser", $mainstory->field_textbody[0]['value'], $teaser_length, $node);
+    $strapline = $teaser;
+    if($size > 0 && drupal_strlen($mainstory->field_textbody[0]['value']) > $size) $strapline .=" [...]";
+  }
+   return $strapline;
+}
+
+
+
 /*
 
 /*
