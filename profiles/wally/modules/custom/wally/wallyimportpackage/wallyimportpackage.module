@@ -1207,7 +1207,7 @@ function wallyimportpackage_set_field_poll(&$node, $dom, &$log, $importer){
  */
 function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $importer){
   // Embeded objects
-  $results = array();
+  /*$results = array();
   $node->field_embededobjects = array();
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
@@ -1223,6 +1223,31 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
     }
   }
   
+  ksort($arraytemporaire);
+  //Place object in the correct order (depend of the embeddedobjectorder)
+  foreach ($arraytemporaire as $array_key => $array_value){
+    array_push($node->field_embededobjects, $array_value);
+  }*/
+
+  // Embeded objects
+  static $i = 100;
+  $results = array();
+  $node->field_embededobjects = array();
+  $node->field_embededobjects_nodes = array();
+  $arraytemporaire = array();
+  if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
+    foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
+      if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
+        $results[$result->nid] = $result->nid;
+        $embedobjectsorder = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
+        $arraytemporaire[$embedobjectsorder]['nid'] = $result->nid;
+        if ($importer->wallymport_preview){
+          $node->field_embededobjects_nodes[] = $result;
+        }
+      }
+    }
+  }
+
   ksort($arraytemporaire);
   //Place object in the correct order (depend of the embeddedobjectorder)
   foreach ($arraytemporaire as $array_key => $array_value){
@@ -1847,7 +1872,7 @@ function wallyimportpackage_process_object_link(&$node, $dom, &$log, $importer){
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri->nodeValue);
 
-  if ($uri['scheme'] == "externalRef"){
+  if ($uri['scheme'] == "extref"){
     $ext_ref = $uri['host'];
 
     if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
@@ -1888,7 +1913,7 @@ function wallyimportpackage_process_type_link(&$node, $dom, &$log, $importer){
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri->nodeValue);
     
-  if ($uri['scheme'] == "externalRef"){
+  if ($uri['scheme'] == "extref"){
     $ext_ref = $uri['host'];
     
     if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
