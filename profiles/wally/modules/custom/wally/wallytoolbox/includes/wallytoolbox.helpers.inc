@@ -640,7 +640,7 @@ function wallytoolbox_destinations_items_array(){
 /**
  * Flush the page cache for the given internal url.
  */
-function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FALSE, $flush_type = 'drupal') {
+function _wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FALSE, $flush_type = 'drupal') {
   global $base_url;
   $varnish_pages_to_flush = array();
   
