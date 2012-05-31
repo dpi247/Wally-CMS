@@ -10,7 +10,13 @@
  * All Drupal code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
  */
-
+function coucou() {
+  $last_error = error_get_last();
+  if ($last_error['type'] <= E_PARSE) {
+    var_dump($last_error);
+  }
+}
+register_shutdown_function('coucou');
 require_once './includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
