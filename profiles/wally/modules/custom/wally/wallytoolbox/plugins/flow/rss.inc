@@ -739,6 +739,6 @@ function _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $cai
   }
 
   $new_file_path = 'Flows/'.$caid.'-'.date('Ymd', time());
-  module_load_include('inc', 'wallymport', 'includes/wallymport.fieldhelpers');
+  module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
   return _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
 }
