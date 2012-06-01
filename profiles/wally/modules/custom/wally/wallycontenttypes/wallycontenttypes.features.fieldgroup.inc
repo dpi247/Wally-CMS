@@ -1325,7 +1325,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '3',
+        'weight' => '0',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1370,7 +1370,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '1',
+        'weight' => '-3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1398,7 +1398,8 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'weight' => '-3',
     'fields' => array(
       '0' => 'field_summary',
-      '1' => 'field_polldate',
+      '1' => 'field_body',
+      '2' => 'field_polldate',
     ),
   );
 
@@ -1414,7 +1415,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '4',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1460,7 +1461,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '2',
+        'weight' => '-1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',

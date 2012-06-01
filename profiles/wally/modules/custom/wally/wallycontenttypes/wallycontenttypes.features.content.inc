@@ -11248,6 +11248,69 @@ character',
     ),
   );
 
+  // Exported field: field_body
+  $fields['wally_pollobject-field_body'] = array(
+    'field_name' => 'field_body',
+    'type_name' => 'wally_pollobject',
+    'display_settings' => array(
+      'weight' => '62',
+      'parent' => 'group_poll',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_body][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Body',
+      'weight' => '62',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_byline
   $fields['wally_pollobject-field_byline'] = array(
     'field_name' => 'field_byline',
@@ -12425,7 +12488,7 @@ character',
     'field_name' => 'field_polldate',
     'type_name' => 'wally_pollobject',
     'display_settings' => array(
-      'weight' => '-1',
+      'weight' => '63',
       'parent' => 'group_poll',
       'label' => array(
         'format' => 'above',
@@ -12482,7 +12545,7 @@ character',
       'year_range' => '-3:+3',
       'label_position' => 'above',
       'label' => 'Poll Dates',
-      'weight' => '-1',
+      'weight' => '63',
       'description' => '',
       'type' => 'date_text',
       'module' => 'date',
@@ -12494,7 +12557,7 @@ character',
     'field_name' => 'field_summary',
     'type_name' => 'wally_pollobject',
     'display_settings' => array(
-      'weight' => '-2',
+      'weight' => '61',
       'parent' => 'group_poll',
       'label' => array(
         'format' => 'above',
@@ -12541,7 +12604,7 @@ character',
       ),
       'default_value_php' => NULL,
       'label' => 'Poll Summary',
-      'weight' => '-2',
+      'weight' => '61',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -17907,6 +17970,7 @@ Free',
   t('Authors');
   t('Autopublish');
   t('Barette');
+  t('Body');
   t('ByLine');
   t('Byline');
   t('Channels');

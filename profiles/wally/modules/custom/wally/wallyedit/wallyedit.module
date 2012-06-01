@@ -649,6 +649,25 @@ function wallyedit_access($profile_id, $reset = FALSE) {
   return isset($perm[$account->uid][$string]);
 }
 
+function wallyedit_wallycrop_cropings($image, $fid, $data) {
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
+  $result = db_query("SELECT pid from {wallyedit_prenodes} WHERE pid LIKE 'wallymport_preview_%' ORDER BY updated DESC");
+  while($obj = db_fetch_object($result)) {
+    $prenode = prenode_get($obj->pid);
+    $embed_nodes = isset($prenode[$prenode['type']]['#node']->field_embededobjects_nodes) ? $prenode[$prenode['type']]['#node']->field_embededobjects_nodes : array();
+    foreach ($embed_nodes as $embed_node) {
+      if ($embed_node->type == 'wally_photoobject') {
+        if (isset($embed_node->field_photofile[0]['fid']) && $embed_node->field_photofile[0]['fid'] == $fid) {
+          variable_set('debug', $embed_node);
+          return json_decode($embed_node->field_croping[0]['value'], TRUE);
+        }
+      }
+    }
+  }
+
+  return NULL;
+}
+
 /**
  * Invoke a hook_prenodeapi() operation in all modules.
  *
