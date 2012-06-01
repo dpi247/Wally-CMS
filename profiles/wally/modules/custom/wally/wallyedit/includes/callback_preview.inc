@@ -6,7 +6,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled'){
   } else {
     $node = $prenode->ReturnPopulated();
   }
-
+  
   $node->preview=TRUE;
   if ($dest == 'disabled') {
     return NULL;
