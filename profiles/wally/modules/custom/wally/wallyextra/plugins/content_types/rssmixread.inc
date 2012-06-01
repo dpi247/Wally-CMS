@@ -234,6 +234,7 @@ function wallyextra_rssmixread_content_type_edit_form_submit(&$form, &$form_stat
     $content = wallyextra_newctoolsexport('wallyextra_rssmixread_content', 'rssmixread');
     _wallyextra_rssmixread_content_type_edit_save($content, $form_state['values']);
     $form_state['conf']['name'] = $content->name;
+    $form_state['pane']->subtype = $content->name;
   }
 }
 

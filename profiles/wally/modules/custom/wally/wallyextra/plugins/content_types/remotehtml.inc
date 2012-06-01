@@ -125,25 +125,27 @@ function wallyextra_remotehtml_content_type_edit_form_validate(&$form, &$form_st
  * Submitting the configuration form of a Remote Html Block
  */
 function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_state) {
+  $values = $form_state['values'];
+
   if ($form_state['settings']['remotehtml_type'] == 'fixed') {
     _wallyextra_remotehtml_content_type_edit_save($form_state['settings']['content'], $form_state);
-  } else if (!empty($form_state['values']['reusable'])) {
+  } else if (!empty($values['reusable'])) {
     // If the 'reusable' checkbox was checked, we will create a new
     // remotehtml content and give it the proper values.
     $content = wallyextra_newctoolsexport('wallyextra_remotehtml_content', 'remotehtml');
-    $content->name = $form_state['values']['name'];
+    $content->name = $values['name'];
     _wallyextra_remotehtml_content_type_edit_save($content, $form_state);
     $form_state['conf']['name'] = $content->name;
+    $form_state['pane']->subtype = $content->name;
   } else {
-    //@todo WTF #value?? => remplacer par $form_state['values']
     // Otherwise, just save values into $conf normally.
-    cache_clear_all($cid = $form['caid']['#value'], $table = 'cache');
-    $form_state['conf']['uri']=$form['uri']['#value'];
-    $form_state['conf']['override_theme']=$form['override_theme']['#value'];
-    $form_state['conf']['override_theme_text']=$form['override_theme_text']['#value'];
-    $form_state['conf']['use_ajax']=$form['use_ajax']['#value'];
-    $form_state['conf']['bypass_cache']=$form['bypass_cache']['#value'];
-    $form_state['conf']['caid'] = $form['caid']['#value'];
+    cache_clear_all($values['caid'], 'cache');
+    $form_state['conf']['uri'] = $values['uri'];
+    $form_state['conf']['override_theme'] = $values['override_theme'];
+    $form_state['conf']['override_theme_text'] = $values['override_theme_text'];
+    $form_state['conf']['use_ajax'] = $values['use_ajax'];
+    $form_state['conf']['bypass_cache'] = $values['bypass_cache'];
+    $form_state['conf']['caid'] = $values['caid'];
   }
 }
 
