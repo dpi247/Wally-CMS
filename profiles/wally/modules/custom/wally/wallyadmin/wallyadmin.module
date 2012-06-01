@@ -24,10 +24,11 @@ function wallyadmin_menu() {
   
   $items['admin/content/clearcache'] = array(
     'title' => t('Clear cache'),
-    'page callback' => 'wallyadmin_clear_cache',
     'description' => t('Clear the CSS cache and all database cache tables which store page, node, theme and variable caches.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_clear_cache_form'),
     'access arguments' => array('manage cache'),
-    'menu_name' => 'Clear Cache',
+    'file' => 'includes/wallyadmin.clear_cache.inc',
   );
   
   $items['admin/wally/searchcache'] = array(
@@ -220,15 +221,6 @@ function wallyadmin_user($op, &$edit, &$account, $category = NULL) {
       break;
     default:
   }
-}
-
-/**
-* Ability to flush all caches even if devel module is not installed (i.e. in production).
-*/
-function wallyadmin_clear_cache() {
-  drupal_flush_all_caches();
-  drupal_set_message('Cache cleared.');
-  drupal_goto($_SERVER['HTTP_REFERER']);
 }
 
 /**
