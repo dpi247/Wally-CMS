@@ -7,7 +7,7 @@ if ($nid) {
 
   while ($stat = db_fetch_array($node_stats_db)) {
     $node_stats[] = $stat['SUM(totalcount)'];
-    $labels[] = ($stat[$param_name_id] == '') ? 'Not set' : $stat[$param_name_id];
+    $labels[] = ($stat[$param_name_id] == '') ? t('Not set') : $stat[$param_name_id];
   }
 
   $chart = array(

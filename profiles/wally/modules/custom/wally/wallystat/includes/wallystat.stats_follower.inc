@@ -34,6 +34,7 @@ function wallystat_show_stats($nid) {
 }
 
 function wallystat_set_display_follower($val) {
+  cache_clear_all('wallystat_stats_content_', 'cache', TRUE);
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wally_variable_set('wallystat_display_follower', wallytoolbox_toboolean($val));
   $redirect = isset($_GET['destination']) ? $_GET['destination'] : '';

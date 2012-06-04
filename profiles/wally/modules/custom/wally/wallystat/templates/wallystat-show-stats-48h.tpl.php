@@ -17,7 +17,7 @@ if ($nid) {
   
   $chart = array(
     '#chart_id' => 'node_views_48h',
-    '#title' => t('Node views in the last 48h'),
+    '#title' => t('Node views for 48h'),
     '#type' => CHART_TYPE_LINE,
     '#size' => chart_size($width, $height),
     '#data' => array('node_views' => $node_hours_stats),
