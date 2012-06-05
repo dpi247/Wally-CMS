@@ -502,6 +502,14 @@ function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
 }
 
 /**
+ * Flush the page cache for the given internal url.
+ */
+function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FALSE, $flush_type = 'drupal') {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  return _wallytoolbox_flush_all_pages($internal_urls, $flush_aliases , $flush_type);
+}
+
+/**
  * Create vocabulary from vocabulary name 
  *
  * @param $name
