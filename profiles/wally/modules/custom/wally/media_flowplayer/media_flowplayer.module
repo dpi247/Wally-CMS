@@ -12,6 +12,14 @@ function media_flowplayer_emfield_providers($module, $provider = NULL) {
       return $found;
     }
   }
+
+  if ($module == 'emimage' && (!isset($provider) || $provider == 'flickr')) {
+    $found = drupal_system_listing("(flickr)\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
+    if (is_array($found) && !empty($found)) {
+      return $found;
+    }
+  }
+
   if ($module == 'emother' && (!isset($provider) || ($provider == 'document'||$provider == 'googlemaps'))) {
     $found = drupal_system_listing("(document)|(googlemaps)\.inc$", drupal_get_path('module', 'media_flowplayer') ."/providers/$module", 'name', 0);
     if (is_array($found) && !empty($found)) {
