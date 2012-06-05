@@ -5,7 +5,7 @@ if (isset($_GET['nid']) && is_numeric($_GET['nid'])) {
   function wallystat_cache_entry($cid, $datas) {
     $cache_inc = variable_get('cache_inc', './includes/cache.inc');
 
-    if (true||strstr($cache_inc, '/memcache.inc')) {
+    if (strstr($cache_inc, '/memcache.inc')) {
       $cached_lock = cache_get('wallystat_lock');
       if ($cached_lock && isset($cached_lock->data) && !empty($cached_lock->data) && is_numeric($cached_lock->data)) {
         $lock = $cached_lock->data;
