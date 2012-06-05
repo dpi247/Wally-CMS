@@ -71,7 +71,7 @@ function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL) {
     $form_state['cache name'] = $prenode->cache_name;
     return confirm_form(
       $form,
-      t('Are you sure you want to delete the PreNode with title : "'.$prenode->form_state[$prenode->form_state['type']]['#node']->title.'" and ID : "'.$prenode->cache_name.'"?'),
+      t('Are you sure you want to delete the PreNode with title : "@title" and ID : "@ID"?', array('@title' => $prenode->form_state[$prenode->form_state['type']]['#node']->title, '@ID' => $prenode->cache_name)),
       'admin/content/wallyedit',
       t('This action cannot be undone.'),
       t('Delete'),
