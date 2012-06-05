@@ -465,6 +465,20 @@ function wallyedit_cron() {
 }
 
 /**
+ * Implementation of hook_nodeapi()
+ * At node update, flush associated prenode
+ */
+function wallyedit_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+  switch ($op) {
+    case 'update':
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
+      $prenode = array('cache name' => $node->nid);
+      prenode_delete($prenode);
+      break;
+  }
+}
+
+/**
  * Implementation of hook_form_alter()
  */
 function wallyedit_form_alter(&$form, &$form_state, $form_id) {
