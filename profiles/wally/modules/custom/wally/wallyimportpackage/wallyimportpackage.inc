@@ -76,7 +76,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
   }
 
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
@@ -711,8 +710,6 @@ function wallyimportpackage_set_field_editions(&$node, $dom, $log, $importer) {
   $terms = array();
   $vid = variable_get('wallymport_edition', NULL);
   if ($vid) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-
     // Read all terms from vocabulary and set if to False (default);
     $terms = taxonomy_get_tree($vid);
     foreach ($terms as $term) {
@@ -868,7 +865,6 @@ function wallyimportpackage_set_field_commentsallowed(&$node, $dom, &$log, $impo
  *   Nothing
  */
 function wallyimportpackage_set_field_freeaccess(&$node, $dom, &$log, $importer){
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
     $node->field_freeaccess[0]['value'] = NULL; 
@@ -1866,7 +1862,7 @@ function wallyimportpackage_create_or_load_object_link($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1894,7 +1890,7 @@ function wallyimportpackage_create_or_load_type_link($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -2256,7 +2252,7 @@ function wallyimportpackage_process_type_location(&$node, $dom, &$log, $importer
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
 
   // UID
-  $node->uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   //  External Reference Supprimé
   //  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value));
@@ -2493,7 +2489,6 @@ function wallyimportpackage_set_field_taxonomy(&$node, $dom, $log, $importer) {
 function wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid) {
   // $freetagtaxonomy_vid = variable_get('wallymport_freetagtaxonomy',NULL);
   // $classifiedtagtaxonomy_vid = variable_get('wallymport_classifiedtagtaxonomy',NULL);
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $taxonomy_recursive = wallytoolbox_toboolean(variable_get('wallymport_taxonomy_recusive', TRUE));
 
   $vocabulary_name = $vocabulary->getAttributeNode("VocabularyName")->value;
@@ -2693,7 +2688,7 @@ function wallyimportpackage_process_type_entity(&$node, $dom, &$log, $importer){
   //$node->field_externalreference = array(array("value" => $dom->getAttributeNode("EntityID")->value));
 
   // Node UID
-  $node->uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
@@ -2942,7 +2937,7 @@ function wallyimportpackage_process_type_person(&$node, $dom, &$log, $importer){
   // $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("PersonID")->value));
 
   // Node UID
-  $node->uid = variable_get('wallymport_defaultuser', 1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;

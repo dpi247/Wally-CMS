@@ -20,7 +20,7 @@ function wallyimportpackage_wallymport_importer(){
     ),
     'wallyimportpackageV15' => array(
       array(
-        'importer_type' => 'packages',
+        'importer_type' => 'packagesV15',
         'importer_functions' => array(
           'wallyimportpackageV15',
   		    'wallyimportpackage',
@@ -33,7 +33,7 @@ function wallyimportpackage_wallymport_importer(){
     ),
     'wallyimportpackageV16' => array(
       array(
-        'importer_type' => 'packages',
+        'importer_type' => 'packagesV16',
         'importer_functions' => array(
           'wallyimportpackageV16',
           'wallyimportpackageV15',
