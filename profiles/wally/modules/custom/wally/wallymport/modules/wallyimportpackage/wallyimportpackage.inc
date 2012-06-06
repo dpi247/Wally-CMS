@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+
 /**
  * Process the packages element of a wally DomDocument object.
  * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
@@ -74,12 +76,11 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
-      module_load_include('inc', 'wallyedi', 'includes/Prenode');
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
      
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
-
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
       prenode_save($form_state_prenode);
@@ -371,6 +372,7 @@ function wallyimportpackage_node_process_galleryPackageType(&$node, $dom_element
       $node->status = 0;
     }
   }
+  
   //Map XML element
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
   
@@ -1496,7 +1498,6 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
 
   _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emimage', 'wally_photoobject', 'field_photofile', 'field_photo3rdparty');
 
-
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
   if ($dom->getElementsByTagName("Caption")->length) {
@@ -1558,7 +1559,6 @@ function wallyimportpackage_node_create_or_load_audioobjecttype($dom, &$log, $im
  *   Nothing
  */
 function wallyimportpackage_node_process_audioobjecttype(&$node, $dom, &$log, $importer){
-
   $value = $dom->nodeValue;
   
   //put common attributes
@@ -1821,7 +1821,7 @@ function wallyimportpackage_node_create_or_load_link($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -2183,7 +2183,7 @@ function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer
   wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
 
   // UID
-  $node->uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   //  External Reference Supprimé
   //  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value));
@@ -2640,7 +2640,7 @@ function wallyimportpackage_node_process_entity(&$node, $dom, &$log, $importer){
   //$node->field_externalreference = array(array("value" => $dom->getAttributeNode("EntityID")->value));
 
   // Node UID
-  $node->uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
@@ -2826,7 +2826,6 @@ function wallyimportpackage_node_create_or_load_person($dom, $log, $importer){
  *   A node object
  */
 function wallyimportpackage_node_create_or_load_author($dom, $log, $importer){	
-
   if (!($vid = variable_get('wallymport_author',NULL))) {
     // TO DO FATAL :: No location taxonomy vocabulary
     $error_msg = t('Author Taxonomy Vocabulary  not Found. See admin.');
@@ -2893,7 +2892,7 @@ function wallyimportpackage_node_process_person(&$node, $dom, &$log, $importer){
   // $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("PersonID")->value));
 
   // Node UID
-  $node->uid = variable_get('wallymport_defaultuser', 1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
   // Node Title
   $node->title = $dom->getAttributeNode("Name")->value;
