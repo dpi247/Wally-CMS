@@ -64,7 +64,7 @@ function wallyctools_default_page_manager_handlers() {
     $pane->configuration = array(
       'links' => 0,
       'page' => 0,
-      'no_extras' => 1,
+      'no_extras' => 0,
       'override_title' => 0,
       'override_title_text' => '',
       'identifier' => '',
