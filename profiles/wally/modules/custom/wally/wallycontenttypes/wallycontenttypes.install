@@ -6,6 +6,9 @@
 function wallycontenttypes_install() {
   _wallycontenttypes_install_presets();
   drupal_install_schema('wallycontenttypes');
+  if (module_exists('webform')) {
+    variable_set('webform_node_types', array('wally_pollobject'));
+  }
 }
 
 /**
