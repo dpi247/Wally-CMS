@@ -111,7 +111,6 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
   }
 }
 
-
 /**
  * Process article package from DOM.
  * 
@@ -142,10 +141,10 @@ function wallyimportpackageV16_node_process_link(&$node, $dom, &$log, $importer)
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri_value);
 
-  if (strtolower($uri['scheme']) == "extref"){
+  if (strtolower($uri['scheme']) == 'extref'){
     $ext_ref = $uri['host'];
 
-    if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
+    if ($link = wallytoolbox_get_node_by_cckfield(array('field_externalreference' => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
       }

@@ -159,7 +159,7 @@ function wimprt_create_or_load_preprocesspackage($dom, &$node, $importer){
       break;
   }
   
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 }
 /**
@@ -1092,7 +1092,7 @@ function wimprt_create_or_load_object_textobject($dom, &$log, $importer){
     $node = $node_temp[0];
   }
   
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
   
   return $node;
@@ -1197,7 +1197,7 @@ function wimprt_create_or_load_object_pollobjecttype($dom, &$log, $importer){
     $node = $node_temp[0];
   }
   
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
   
   return $node;
@@ -1262,7 +1262,7 @@ function wimprt_create_or_load_object_photoobjecttype($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1366,7 +1366,7 @@ function wimprt_create_or_load_object_audioobjecttype($dom,&$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1440,7 +1440,7 @@ function wimprt_create_or_load_object_videoobjecttype($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1516,7 +1516,7 @@ function wimprt_create_or_load_object_digitalobjecttype($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1645,7 +1645,7 @@ function wimprt_create_or_load_object_linkslist($dom, &$log, $importer){
     $node = $node_temp[0];
   }
   
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -1673,7 +1673,7 @@ function wimprt_create_or_load_type_link($dom, &$log, $importer){
     $node = $node_temp[0];
   }
 
-  $uid = variable_get('wallymport_defaultuser',1);
+  $uid = $importer->default_user ? $importer->default_user : 1;
   $node->uid = $uid;
 
   return $node;
@@ -2019,7 +2019,7 @@ function wimprt_process_type_location(&$node, $dom, &$log, $importer){
   wimprt_typetype_preprocess(&$node, $dom, $importer);
 
   // UID
-  $node->uid = variable_get('wallymport_defaultuser',1);
+  $node->uid = $importer->default_user ? $importer->default_user : 1;
 
 //  External Reference Supprimé
 //  $node->field_externalreference = array(array("value"=>$dom->getAttributeNode("LocationID")->value)); 
