@@ -715,6 +715,30 @@ function wallyedit_change_current_tab($user_id, $current_tab) {
   wally_variable_set('wallyedit_current_tab_'.$user_id, $current_tab);
 }
 
+/**
+ * Add submit function during after build process to be sure to pass after cck
+ */
+function wallyedit_form_change_profile_form_after_build ($form, &$form_state) {
+  array_unshift($form['#validate'], 'wallyedit_form_change_profile_form_validate');
+  return $form;
+}
+
+/**
+ * Redirect to chosen profile
+ */
+function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['confirm_profile'] && $values['choose_profile'] != $form_state['profile_id']) {
+    drupal_get_messages();
+    if (strstr($form['#action'], 'add')) {
+      drupal_goto('node/add/'.str_replace('_', '-', $values['type']).'/'.$values['choose_profile']);
+    } else {
+      $redirect_id = isset($form_state['cache name']) ? $form_state['cache name'] : $form['#node']->nid;
+      drupal_goto('node/'.$redirect_id.'/edit/'.$values['choose_profile']);
+    }
+  }
+}
+
 function wallyedit_form_node_form_after_build(&$form) {
   // Iterate over element children; resetting array keys to access last index.
   if ($children = array_values(element_children($form))) {
@@ -766,30 +790,6 @@ function wallyedit_form_node_form_after_build(&$form) {
   }
 
   return $form;
-}
-
-/**
- * Add submit function during after build process to be sure to pass after cck
- */
-function wallyedit_form_change_profile_form_after_build ($form, &$form_state) {
-  array_unshift($form['#validate'], 'wallyedit_form_change_profile_form_validate');
-  return $form;
-}
-
-/**
- * Redirect to chosen profile
- */
-function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
-  $values = $form_state['values'];
-  if ($values['op'] == $values['confirm_profile'] && $values['choose_profile'] != $form_state['profile_id']) {
-    drupal_get_messages();
-    if (strstr($form['#action'], 'add')) {
-      drupal_goto('node/add/'.str_replace('_', '-', $values['type']).'/'.$values['choose_profile']);
-    } else {
-      $redirect_id = isset($form_state['cache name']) ? $form_state['cache name'] : $form['#node']->nid;
-      drupal_goto('node/'.$redirect_id.'/edit/'.$values['choose_profile']);
-    }
-  }
 }
 
 function wallyedit_node_operations() {
