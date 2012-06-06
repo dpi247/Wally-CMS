@@ -36,6 +36,7 @@ function wallyimportpackage_wallymport_importer(){
         'importer_type' => 'packages',
         'importer_functions' => array(
           'wallyimportpackageV16',
+          'wallyimportpackageV15',
   		    'wallyimportpackage',
         ),
         'includes' => array(
