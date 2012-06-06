@@ -31,6 +31,20 @@ function wallyimportpackage_wallymport_importer(){
         ),
       ),
     ),
+    'wallyimportpackageV16' => array(
+      array(
+        'importer_type' => 'packages',
+        'importer_functions' => array(
+          'wallyimportpackageV16',
+  		    'wallyimportpackage',
+        ),
+        'includes' => array(
+          $module_path.'/wallyimportpackageV16.inc',
+          $module_path.'/wallyimportpackageV15.inc',
+          $module_path.'/wallyimportpackage.inc',
+        ),
+      ),
+    ),
   );
 }
 
