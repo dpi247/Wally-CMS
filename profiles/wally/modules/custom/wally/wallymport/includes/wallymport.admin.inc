@@ -216,8 +216,8 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     $form['wallymport']['name']['#value'] = $importer->name;
     $form['wallymport']['importer_name']['#disabled'] = TRUE;
     $form['wallymport']['importer_name']['#value'] = $importer->importer_name;
-    
   }
+
   return $form;
 }
 
