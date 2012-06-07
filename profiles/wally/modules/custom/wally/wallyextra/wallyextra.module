@@ -431,13 +431,14 @@ function wallyextra_refresh_block($infos, $settings) {
   if (in_array($plugin, $handled_plugins)) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
-    $plugin_return = $refresh_function($settings);
-    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
-    $output .= !empty($plugin_return) ? $plugin_return : '';
-    $return[] = $output;
+    $datas = $refresh_function($settings);
+    if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+      cache_set($cid, $datas, 'cache');
+    }
+    $return[] = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $caid, '!date' => date('Y-m-d H:i:s')));
     return $return;
   }
-  
+
   return;
 }
 
@@ -460,19 +461,16 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND callback = "s:0:\"\";" AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
     while ($block = db_fetch_array($blocks_list)) {
-      while (is_string($block['settings'])) {
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
         $block['settings'] = unserialize($block['settings']);
       }
-      $conf_keys = array_keys($block['settings']);
-      if (is_object($block['settings'][$conf_keys[0]])) {
-        $caid = isset($block['settings'][$conf_keys[0]]->caid) ? $block['settings'][$conf_keys[0]]->caid : NULL;
-      } else {
-        $caid = isset($block['settings']['caid']) ? $block['settings']['caid'] : NULL;
-      }
+      $caid = _wallytoolbox_get_setting($block['settings'], 'caid');
       if ($caid == $cid) {
         $callback_array = array(
           'callback' => $callback,
           'plugin' => $plugin_name,
+          'cid' => $cid,
+          'table' => 'cache',
         );
         db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
         break;
