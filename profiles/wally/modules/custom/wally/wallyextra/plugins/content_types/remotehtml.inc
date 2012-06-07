@@ -139,7 +139,7 @@ function wallyextra_remotehtml_content_type_edit_form_submit(&$form, &$form_stat
     $form_state['pane']->subtype = $content->name;
   } else {
     // Otherwise, just save values into $conf normally.
-    cache_clear_all($values['caid'], 'cache');
+    cache_clear_all($values['caid'], 'cache_wally_blocks');
     $form_state['conf']['uri'] = $values['uri'];
     $form_state['conf']['override_theme'] = $values['override_theme'];
     $form_state['conf']['override_theme_text'] = $values['override_theme_text'];
@@ -377,7 +377,10 @@ function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
  * Custom refresh action for Remote HTML blocks
  */
 function wallyextra_remotehtml_refresh_block($settings) {
-  _wallyextra_remotehtml_setcache($settings);
+  $datas = _wallyextra_remotehtml_setcache($settings);
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
+  }
 }
 
 /**

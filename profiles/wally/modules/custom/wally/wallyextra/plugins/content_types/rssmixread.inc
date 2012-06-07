@@ -478,9 +478,12 @@ function wallyextra_rssmixread_content_type_admin_info($subtype, $conf) {
 function wallyextra_rssmixread_refresh_block($settings) {
   $old_feed = cache_get($settings['caid']);
   if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
-    _wallyextra_rssmixread_setcache($settings, $old_feed->data);
+    $datas = _wallyextra_rssmixread_setcache($settings, $old_feed->data);
   } else {
-    _wallyextra_rssmixread_setcache($settings);
+    $datas = _wallyextra_rssmixread_setcache($settings);
+  }
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
   }
 }
 
