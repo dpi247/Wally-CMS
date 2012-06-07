@@ -146,7 +146,7 @@ function wallytoolbox_cron(){
   }
   
   // Select blocks where last run is too old according to their refresh time
-  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
+  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run <= %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
     if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
@@ -955,12 +955,7 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
             $block['rule'] = $blocks_list[$block['cid']]['rule'];
           } else {
-            $conf_keys = array_keys($config);
-            if (is_object($config[$conf_keys[0]])) {
-              $wally_rule = isset($config[$conf_keys[0]]->wally_rule) ? $config[$conf_keys[0]]->wally_rule : 15;
-            } else {
-              $wally_rule = isset($config['wally_rule']) ? $config['wally_rule'] : 15;
-            }
+            $wally_rule = _wallytoolbox_get_setting($config, 'wally_rule', 15);
             $block['rule'] = 60*$wally_rule;
           }
 
@@ -1130,6 +1125,16 @@ function wallytoolbox_convert_taxonomy_flat_to_tree(& $array_of_terms_flat) {
   }
 
   return $map;
+}
+
+function _wallytoolbox_get_setting($settings, $name, $default = NULL) {
+  $conf_keys = array_keys($settings);
+  if (is_object($settings[$conf_keys[0]])) {
+    $setting = isset($settings[$conf_keys[0]]->$name) ? $settings[$conf_keys[0]]->$name : $default;
+  } else {
+    $setting = isset($settings[$name]) ? $settings[$name] : $default;
+  }
+  return $setting;
 }
 
 /**
