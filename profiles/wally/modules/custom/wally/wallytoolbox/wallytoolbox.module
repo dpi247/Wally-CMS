@@ -957,7 +957,7 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
             $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
             $block['rule'] = $blocks_list[$block['cid']]['rule'];
-            $block['callback'] = $blocks_list[$block['cid']]['callback'];
+            $block['callback'] = unserialize($blocks_list[$block['cid']]['callback']);
           } else {
             $conf_keys = array_keys($config);
             if (is_object($config[$conf_keys[0]])) {
