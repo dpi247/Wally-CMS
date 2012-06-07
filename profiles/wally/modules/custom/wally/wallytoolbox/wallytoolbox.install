@@ -24,10 +24,6 @@ function wallytoolbox_uninstall() {
  * Implementation of hook_schema
  */
 function wallytoolbox_schema() {
-  return wallytoolbox_schema_1();
-}
-
-function wallytoolbox_schema_1() {
   $schema['cache_wally_object'] = drupal_get_schema_unprocessed('system', 'cache');
   $schema['cache_wally_object']['description'] = 'Cache table for caching populated nodes.';
   
@@ -81,6 +77,7 @@ function wallytoolbox_schema_1() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Adding schema used for the nodes non-volatile cache system.
  */
 function wallytoolbox_update_6001() {
@@ -89,6 +86,7 @@ function wallytoolbox_update_6001() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add 'nid' index to object_cache table
  */
 function wallytoolbox_update_6002() {
@@ -98,17 +96,19 @@ function wallytoolbox_update_6002() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add table wallytoolbox_content_types_cache (to content types CTools caching system)
  */
 function wallytoolbox_update_6003() {
   $ret = array();
-  $schemas = wallytoolbox_schema_1();
+  $schemas = wallytoolbox_schema();
   db_create_table($ret, 'wallytoolbox_content_types_cache', $schemas['wallytoolbox_content_types_cache']);
   wallytoolbox_refresh_cache_list();
   return $ret;
 }
 
 /**
+ * Implementation of hook_update_N
  * Replace wallytoolbox_object_cache with a standard Drupal cache table
  */
 function wallytoolbox_update_6004() {
