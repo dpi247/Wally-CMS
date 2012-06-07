@@ -458,6 +458,27 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND callback = "" AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
+    while ($block = db_fetch_array($blocks_list)) {
+      while (is_string($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      $conf_keys = array_keys($block['settings']);
+      if (is_object($block['settings'][$conf_keys[0]])) {
+        $caid = isset($block['settings'][$conf_keys[0]]->caid) ? $block['settings'][$conf_keys[0]]->caid : NULL;
+      } else {
+        $caid = isset($block['settings']['caid']) ? $block['settings']['caid'] : NULL;
+      }
+      if ($caid == $cid) {
+        $callback_array = array(
+          'callback' => $callback,
+          'plugin' => $plugin_name,
+        );
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
+        break;
+      }
+    }
+
     // This cache doesn't exists, create it
     if ($ajax) {
       // Adding the AJAX call
@@ -479,7 +500,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
         ),
       );
       drupal_add_js($js_settings, 'setting');
-      
+
       // Temporary HTML content
       // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
@@ -494,6 +515,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 
       // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
+      cache_set($cid, $datas, 'cache');
       if (is_string($datas)) {
         $datas = array('content' => $datas);
       }
@@ -501,11 +523,12 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;
+    cache_set($cid, $datas, 'cache');
     if (is_string($datas)) {
       $datas = array('content' => $datas);
     }
   }
-  
+
   return $datas;
 }
 
@@ -542,6 +565,7 @@ function _wallyextra_content_types_ajax_callback() {
 
     // Get contents to be passed to theming function
     $datas = call_user_func_array($callback, array($settings));
+    cache_set($cid, $datas, 'cache');
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;

@@ -669,7 +669,6 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_flush_all_pages($internal_url, TRUE);
-    cache_set($settings['caid'], $feed, 'cache', CACHE_PERMANENT);//, NULL, 'rssmix');
   }
   
   return $feed;
