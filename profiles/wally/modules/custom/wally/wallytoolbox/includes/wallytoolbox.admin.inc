@@ -260,14 +260,19 @@ function _wallytoolbox_process_block_refresh(&$block) {
 
   $output = array();
   if (isset($block['callback']) && !empty($block['callback'])) {
-    if (isset($block['callback']['plugin']) && !empty($block['callback']['plugin'])) {
+    $callback_datas = $block['callback'];
+    if (isset($callback_datas['plugin']) && !empty($callback_datas['plugin'])) {
       ctools_include('plugins');
-      if ($plugin = ctools_get_plugins('ctools', 'content_types', $block['callback']['plugin'])) {
+      if ($plugin = ctools_get_plugins('ctools', 'content_types', $callback_datas['plugin'])) {
         require_once './'.$plugin['path'].'/'.$plugin['file'];
       }
     }
-    if (function_exists($block['callback']['callback'])) {
-      $output = call_user_func_array($block['callback']['callback'], array($block['settings']));
+    if (function_exists($callback_datas['callback'])) {
+      $datas = call_user_func_array($callback_datas['callback'], array($block['settings']));
+      if (isset($callback_datas['cid']) && !empty($callback_datas['cid'])) {
+        $table = (isset($callback_datas['table']) && !empty($callback_datas['table'])) ? $callback_datas['table'] : 'cache';
+        cache_set($callback_datas['cid'], $datas, $table);
+      }
     }
   } else {
     // Invoke hook_refresh_block
