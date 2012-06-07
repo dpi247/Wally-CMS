@@ -24,10 +24,6 @@ function wallytoolbox_uninstall() {
  * Implementation of hook_schema
  */
 function wallytoolbox_schema() {
-  return wallytoolbox_schema_1();
-}
-
-function wallytoolbox_schema_1() {
   $schema['cache_wally_object'] = drupal_get_schema_unprocessed('system', 'cache');
   $schema['cache_wally_object']['description'] = 'Cache table for caching populated nodes.';
   
@@ -55,6 +51,13 @@ function wallytoolbox_schema_1() {
       	'not null' => TRUE,
         'default' => 0,
       ),
+      'callback' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+      ),
       'settings' => array(
         'type' => 'text',
         'size' => 'big',
@@ -81,6 +84,7 @@ function wallytoolbox_schema_1() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Adding schema used for the nodes non-volatile cache system.
  */
 function wallytoolbox_update_6001() {
@@ -89,6 +93,7 @@ function wallytoolbox_update_6001() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add 'nid' index to object_cache table
  */
 function wallytoolbox_update_6002() {
@@ -98,17 +103,19 @@ function wallytoolbox_update_6002() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add table wallytoolbox_content_types_cache (to content types CTools caching system)
  */
 function wallytoolbox_update_6003() {
   $ret = array();
-  $schemas = wallytoolbox_schema_1();
+  $schemas = wallytoolbox_schema();
   db_create_table($ret, 'wallytoolbox_content_types_cache', $schemas['wallytoolbox_content_types_cache']);
   wallytoolbox_refresh_cache_list();
   return $ret;
 }
 
 /**
+ * Implementation of hook_update_N
  * Replace wallytoolbox_object_cache with a standard Drupal cache table
  */
 function wallytoolbox_update_6004() {
@@ -117,5 +124,17 @@ function wallytoolbox_update_6004() {
   $schema['description'] = 'Cache table for caching populated nodes.';
   db_create_table($ret, 'cache_wally_object', $schema);
   db_drop_table($ret, 'wallytoolbox_object_cache');
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add callback column to wallytoolbox_content_types_cache table
+ */
+function wallytoolbox_update_6005() {
+  $ret = array();
+  $schemas = wallytoolbox_schema();
+  $spec = $schemas['wallytoolbox_content_types_cache']['fields']['callback'];
+  db_add_field($ret, 'wallytoolbox_content_types_cache', 'callback', $spec);
   return $ret;
 }
