@@ -22,18 +22,21 @@ function wallyextra_menu() {
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
   );
+
   $items['wallyextra/customcontent/form/%/ajax'] = array(
     'page callback'    => 'wallyextra_ajax_customcontentform',
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
     'page arguments'   => array(3),
   );
+
   $items['wallyextra/customcontent/getversion/%/ajax'] = array(
     'page callback'    => 'wallyextra_ajax_customcontentgetversion',
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
     'page arguments'   => array(3),
   );
+
   $items['wallyextra/customcontent/formreplace/%/ajax'] = array(
     'page callback'    => 'wallyextra_ajax_customcontentformreplace',
     'access arguments' => array('access content'),
@@ -130,13 +133,15 @@ function wallyextra_theme(&$var) {
       'arguments' => array(),
       'template' => 'wallyextra-loading-content-type',
     ),
+
     'wallyextra_custom_version_content_type_edit_form' => $base + array(
       'arguments' => array('form' => NULL),
     ),
+
     'wallyextra_custom_content_type_listversion' => $base + array(
       'arguments' => array('versions' => NULL),
     ),
-   );
+  );
 }
 
 /**
@@ -431,11 +436,10 @@ function wallyextra_refresh_block($infos, $settings) {
   if (in_array($plugin, $handled_plugins)) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
-    $datas = $refresh_function($settings);
-    if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
-      cache_set($cid, $datas, 'cache');
-    }
-    $return[] = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $caid, '!date' => date('Y-m-d H:i:s')));
+    $plugin_return = $refresh_function($settings);
+    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
+    $output .= !empty($plugin_return) ? $plugin_return : '';
+    $return[] = $output;
     return $return;
   }
 
@@ -456,10 +460,10 @@ function wallyextra_refresh_block($infos, $settings) {
  * @return Datas
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
-  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
-    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND callback = "s:0:\"\";" AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND (callback = "s:0:\"\";" OR callback = "") AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
     while ($block = db_fetch_array($blocks_list)) {
       if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
         $block['settings'] = unserialize($block['settings']);
@@ -470,7 +474,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
           'callback' => $callback,
           'plugin' => $plugin_name,
           'cid' => $cid,
-          'table' => 'cache',
+          'table' => 'cache_wally_blocks',
         );
         db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
         break;
@@ -513,7 +517,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 
       // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
-      cache_set($cid, $datas, 'cache');
+      cache_set($cid, $datas, 'cache_wally_blocks');
       if (is_string($datas)) {
         $datas = array('content' => $datas);
       }
@@ -521,7 +525,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;
-    cache_set($cid, $datas, 'cache');
+    cache_set($cid, $datas, 'cache_wally_blocks');
     if (is_string($datas)) {
       $datas = array('content' => $datas);
     }
@@ -550,7 +554,7 @@ function _wallyextra_content_types_ajax_callback() {
   $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
 
   // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
-  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // Load plugin if necessary
@@ -563,7 +567,7 @@ function _wallyextra_content_types_ajax_callback() {
 
     // Get contents to be passed to theming function
     $datas = call_user_func_array($callback, array($settings));
-    cache_set($cid, $datas, 'cache');
+    cache_set($cid, $datas, 'cache_wally_blocks');
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;

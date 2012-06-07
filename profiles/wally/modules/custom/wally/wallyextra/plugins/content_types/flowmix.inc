@@ -173,15 +173,10 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
  */
 function wallyextra_flowmix_refresh_block(&$settings) {
   $time_start = time();
-
-  $settings = (array)$settings['flow_obj'];
-  $old_feed = cache_get($settings['caid']);
-  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed) && $old_feed->data) {
-    _wallyextra_flowmix_setcache($settings, $old_feed->data);
-  } else {
-    _wallyextra_flowmix_setcache($settings);
+  $datas = _wallyextra_flowmix_setcache($settings);
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
   }
-
   $time_stop = time();
   $delta_t = $time_stop - $time_start;
   return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t - 3600);
@@ -329,7 +324,15 @@ function _wallyextra_flowmix_ctools_content_type($content) {
  *   The array containing the differents items of the flow mix feed 
  * 	 which will be displayed.
  */
-function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
+function _wallyextra_flowmix_setcache($settings) {
+  if (isset($settings['flow_obj'])) {
+    $settings = (array)$settings['flow_obj'];
+    $cached_old_feed = cache_get($settings['caid']);
+    if (is_object($cached_old_feed) && isset($cached_old_feed) && !empty($cached_old_feed) && $cached_old_feed->data) {
+      $old_feed = $cached_old_feed->data;
+    }
+  }
+  
   $feed = array();
 
   if ($settings['mix_schema'] == 'mix' && isset($settings['own_schema']) && !empty($settings['own_schema'])) {

@@ -18,6 +18,9 @@ function wallyextra_uninstall() {
 
 function wallyextra_schema() {
   $schema = array();
+  
+  $schema['cache_wally_blocks'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_wally_blocks']['description'] = 'Cache table for blocks datas.';
 
   $schema['wallyextra_rssmixread_content'] = array(
     'description' => 'Contains exportable RSS mix reader content for this site.',
@@ -385,6 +388,7 @@ function wallyextra_schema() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add table wallyextra_cache_torefresh
  */
 function wallyextra_update_6001() {
@@ -413,6 +417,7 @@ function wallyextra_update_6001() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add fields to wallyextra_cache_torefresh
  */
 function wallyextra_update_6002() {
@@ -454,6 +459,7 @@ function wallyextra_update_6002() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Remove table wallyextra_cache_torefresh
  */
 function wallyextra_update_6003() {
@@ -463,6 +469,7 @@ function wallyextra_update_6003() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Remove the RSS read plugin.
  */
 function wallyextra_update_6004() {
@@ -472,67 +479,16 @@ function wallyextra_update_6004() {
 }
 
 /**
+ * Implementation of hook_update_N
  * Add table wallyextra_flowmix_content
  */
 function wallyextra_update_6005() {
-  $schema['wallyextra_flowmix_content'] = array(
-    'description' => 'Contains exportable flow mix content for this site.',
-    'export' => array(
-      'identifier' => 'wallyextra_flowmix',
-      'bulk export' => TRUE,
-      'primary key' => 'cid',
-      'key'=>'name',
-      'default hook' => 'wallyextra_flowmix_content_obj',
-      'api' => array(
-        'owner' => 'wallyextra',
-        'api' => 'wallyextra_flowmix_content',
-        'minimum_version' => 1,
-        'current_version' => 1,
-      ),
-//      'create callback' => 'wallyextra_content_type_new',
-    ),
-    'fields' => array(
-      'cid' => array(
-        'type' => 'serial',
-        'description' => 'A database primary key to ensure uniqueness',
-        'not null' => TRUE,
-        'no export' => TRUE,
-      ),
-      'name' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Unique ID for this content. Used to identify it programmatically.',
-      ),
-      'admin_title' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Administrative title for this content.',
-      ),
-      'admin_description' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Administrative description for this content.',
-        'object default' => '',
-      ),
-      'category' => array(
-        'type' => 'varchar',
-        'length' => '255',
-        'description' => 'Administrative category for this content.',
-      ),
-      'settings' => array(
-        'type' => 'text',
-        'size' => 'big',
-        'description' => 'Serialized settings for the actual content to be used',
-        'serialize' => TRUE,
-        'object default' => array(),
-      ),
-    ),
-    'primary key' => array('cid'),
-  );
   $ret = array();
-  db_create_table($ret, 'wallyextra_flowmix_content', $schema['wallyextra_flowmix_content']);
+  $schemas = wallyextra_schema();
+  db_create_table($ret, 'wallyextra_flowmix_content', $schemas['wallyextra_flowmix_content']);
   return $ret;
 }
+
 function wallyextra_update_6006() {
   $schema = array();
   
@@ -607,5 +563,16 @@ function wallyextra_update_6006() {
     //The panel pane is modified to add the id and version informations
     drupal_write_record('panels_pane', $panel, array('pid'));
   }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table cache_wally_blocks
+ */
+function wallyextra_update_6007() {
+  $ret = array();
+  $schemas = wallyextra_schema();
+  db_create_table($ret, 'cache_wally_blocks', $schemas['cache_wally_blocks']);
   return $ret;
 }

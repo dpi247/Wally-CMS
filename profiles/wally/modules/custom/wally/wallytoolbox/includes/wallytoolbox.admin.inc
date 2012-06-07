@@ -270,7 +270,7 @@ function _wallytoolbox_process_block_refresh(&$block) {
     if (function_exists($callback_datas['callback'])) {
       $datas = call_user_func_array($callback_datas['callback'], array($block['settings']));
       if (isset($callback_datas['cid']) && !empty($callback_datas['cid'])) {
-        $table = (isset($callback_datas['table']) && !empty($callback_datas['table'])) ? $callback_datas['table'] : 'cache';
+        $table = (isset($callback_datas['table']) && !empty($callback_datas['table'])) ? $callback_datas['table'] : 'cache_wally_blocks';
         cache_set($callback_datas['cid'], $datas, $table);
       }
     }
