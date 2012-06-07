@@ -101,13 +101,10 @@ function wallystat_cron(){
 }
 
 function wallystat_init() {
-  if (arg(0) == 'node') {
-    if (arg(1) != '') {
-      if (arg(2) == NULL) {
-        module_load_include('inc', 'wallystat', 'includes/wallystat.updater_helpers');
-        $vars['node'] = node_load(arg(1));
-        _wallystat_add_updater_callback($vars);
-      }
+  if (arg(0) == 'node' && arg(1) != '' && is_numeric(arg(1)) && arg(2) == NULL) {
+    if ($vars['node'] = node_load(arg(1))) {
+      module_load_include('inc', 'wallystat', 'includes/wallystat.updater_helpers');
+      _wallystat_add_updater_callback($vars);
     }
   }
 }
