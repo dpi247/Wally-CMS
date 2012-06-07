@@ -134,15 +134,6 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter()
- * 
- * Add submit callback to refresh the wallytoolbox_content_types_cache table after saving a page contents.
- */
-function wallytoolbox_form_panels_panel_context_edit_content_alter(&$form, $form_state) {
-  wallytoolbox_refresh_cache_list();
-}
-
-/**
  * Implementation of hook_cron().
  */ 
 function wallytoolbox_cron(){
