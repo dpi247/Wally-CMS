@@ -458,7 +458,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
-    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND callback = "" AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND callback = "s:0:\"\";" AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
     while ($block = db_fetch_array($blocks_list)) {
       while (is_string($block['settings'])) {
         $block['settings'] = unserialize($block['settings']);
