@@ -387,7 +387,7 @@ function wallyextra_refresh_block($infos, $settings) {
     $return[] = $output;
     return $return;
   }
-  
+
   return;
 }
 
@@ -405,7 +405,7 @@ function wallyextra_refresh_block($infos, $settings) {
  * @return Datas
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
-  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // This cache doesn't exists, create it
@@ -479,7 +479,7 @@ function _wallyextra_content_types_ajax_callback() {
   $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
 
   // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
-  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache');
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // Load plugin if necessary
