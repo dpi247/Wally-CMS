@@ -8,7 +8,7 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   
   $form['invoke-all'] = array(
     '#type' => 'item',
-    '#value' => l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run all crons').'" title="'.t('Run all crons').'"> '.t('Run all'), 'admin/wally/wallytoolbox/supercron/call/all', array('attributes' => array(), 'html' => TRUE)),
+    '#value' => l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run all crons').'" title="'.t('Run all crons').'"> '.t('Run all'), 'admin/wally/wallytoolbox/supercron/call/all', array('html' => TRUE, 'query' => 'destination='.$_GET['q'])),
   );
   
   $form['go_to'] = array(
@@ -136,7 +136,7 @@ function theme_wallytoolbox_supercron_settings_form($form) {
     
     $row = array();
     $row[] = '';
-    $row[] = l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('attributes' => array(), 'html' => TRUE));
+    $row[] = l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('html' => TRUE, 'query' => 'destination='.$_GET['q']));
     $row[] = check_plain($expl_cid[0]);
     $row[] = check_plain($expl_cid[1]);
     $row[] = check_plain($expl_cid[2]);
@@ -191,20 +191,19 @@ function wallytoolbox_supercron_settings_form_submit($form, &$form_state) {
 /**
  * Specific submit for the wallytoolbox "Supercron" settings form to change page and block type
  */
-function wallytoolbox_supercron_settings_form_go_to_submit($form, &$form_state) {
+function wallytoolbox_supercron_settings_form_go_to_submit(&$form, &$form_state) {
   $values = $form_state['values'];
   $goto = 'admin/wally/wallytoolbox/supercron/'.$values['page'];
   $goto .= !empty($values['block_type']) ? '/'.$values['block_type'] : '';
-  drupal_goto($goto);
+  $form['#redirect'] = $goto;
 }
 
 /**
  * Specific submit for the wallytoolbox "Supercron" settings form to force the refresh of the cached datas
  */
 function wallytoolbox_supercron_settings_form_force_refresh_submit($form, $form_state) {
-  wallytoolbox_get_handlers(TRUE);
+  wallytoolbox_refresh_cache_list();
   drupal_set_message(t('Datas refreshed'));
-  drupal_goto('admin/wally/wallytoolbox/supercron');
 }
 
 /**
@@ -225,22 +224,14 @@ function wallytoolbox_supercron_call($cid) {
   } else {
     $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid);
   }
-  
+
   while ($block = db_fetch_array($blocks_list)) {
-    while (is_string($block['settings'])) {
+    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
     }
-    $block_infos = explode(':', $block['cid']);
-    $block_infos = array(
-      'page' => $block_infos[0],
-      'handler' => $block_infos[1],
-      'type' => $block_infos[2],
-      'subtype' => $block_infos[3],
-      'panel' => $block_infos[4],
-      'pid' => $block_infos[5],
-    );
-    // Invoke hook_refresh_block
-    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
+    
+    $output = _wallytoolbox_process_block_refresh($block);
+
     if (!empty($output)) {
       $block['output'] .= serialize($output);
       db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
@@ -249,5 +240,21 @@ function wallytoolbox_supercron_call($cid) {
     db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
   }
 
-  drupal_goto('admin/wally/wallytoolbox/supercron');
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/wally/wallytoolbox/supercron';
+  drupal_goto($redirect);
+}
+
+function _wallytoolbox_process_block_refresh(&$block) {
+  $block_infos = explode(':', $block['cid']);
+  $block_infos = array(
+    'page' => $block_infos[0],
+    'handler' => $block_infos[1],
+    'type' => $block_infos[2],
+    'subtype' => $block_infos[3],
+    'panel' => $block_infos[4],
+    'pid' => $block_infos[5],
+  );
+
+  // Invoke hook_refresh_block
+  $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
 }

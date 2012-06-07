@@ -290,8 +290,9 @@ function wallyextra_remotehtml_content_type_render($subtype, $conf, $panel_args,
   $block->title = 'HTML Block';
   $cid = $settings['caid'];
   $ajax = isset($settings['use_ajax']) ? $settings['use_ajax'] : TRUE;
+  $bypass_cache = isset($settings['bypass_cache']) ? $settings['bypass_cache'] : TRUE;
 
-  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', 'remotehtml', $ajax);
+  $htmlblock = wallyextra_get_cache_or_create($cid, '_wallyextra_remotehtml_setcache', $settings, $subtype, $context, 'wallyct_remotehtml', 'remotehtml', $ajax, $bypass_cache);
   
   if (is_string($htmlblock))
     $block->content = $htmlblock;

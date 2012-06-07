@@ -429,7 +429,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
         ),
       );
       drupal_add_js($js_settings, 'setting');
-      
+
       // Temporary HTML content
       // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
@@ -455,7 +455,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       $datas = array('content' => $datas);
     }
   }
-  
+
   return $datas;
 }
 

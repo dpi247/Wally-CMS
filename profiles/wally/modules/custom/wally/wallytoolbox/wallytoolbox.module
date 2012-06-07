@@ -148,20 +148,13 @@ function wallytoolbox_cron(){
   // Select blocks where last run is too old according to their refresh time
   $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run < %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
-    while (is_string($block['settings'])) {
+    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
     }
-    $block_infos = explode(':', $block['cid']);
-    $block_infos = array(
-      'page' => $block_infos[0],
-      'handler' => $block_infos[1],
-      'type' => $block_infos[2],
-      'subtype' => $block_infos[3],
-      'panel' => $block_infos[4],
-      'pid' => $block_infos[5],
-    );
-    // Invoke hook_refresh_block
-    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
+    
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.admin');
+    $output = _wallytoolbox_process_block_refresh($block);
+
     if (!empty($output)) {
       $block['output'] .= serialize($output);
       db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
@@ -924,10 +917,10 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
     }
 
     // Get previous settings from DB to save the cron config
-    $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s%%"', $display_name);
+    $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%%"', $display_name);
 
     // Restart from an empty table
-    db_query('DELETE FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s%%"', $display_name);
+    db_query('DELETE FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%%"', $display_name);
   } else {
     // Get all blocks, from DB or features
     $handlers = wallytoolbox_get_handlers(TRUE);
