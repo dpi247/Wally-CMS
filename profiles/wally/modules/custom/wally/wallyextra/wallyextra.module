@@ -186,31 +186,10 @@ function wallyextra_cron() {
   print $return;
 }
 
-/**
- * Implementation of hook_perm()
- */
-function wallyextra_rssmixread_content_perm() {
-  return array(
-    'administer rssmixread content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallyextra_taxonomylist_content_perm() {
-  return array(
-    'administer taxonomylist content',
-  );
-}
-
-/**
- * Implementation of hook_perm()
- */
-function wallyextra_twitread_content_perm() {
-  return array(
-    'administer twitread content',
-  );
+function wallyextra_page_manager_variant_operations_alter(&$operations, $handler) {
+  if (isset($operations['children']['actions']['children']['clone'])) {
+    unset($operations['children']['actions']['children']['clone']);
+  }
 }
 
 /**
