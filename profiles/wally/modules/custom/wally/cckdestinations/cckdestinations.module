@@ -510,7 +510,7 @@ function cckdestinations_schema_alter (&$schema) {
  * Add the multiple destinations to product info
  */
 function cckdestinations_ccimapping_productinfo_alter(&$dom, $op) {
-  if (true||$op == 'before_send') {
+  if ($op == 'before_send') {
     $multiple_dests = cckdestinations_get_multiple_dests();
     $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
     foreach ($multiple_dests as $multi_dest) {
