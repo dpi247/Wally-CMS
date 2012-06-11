@@ -80,7 +80,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
-      ctools_include('object-cache');
 
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
@@ -90,7 +89,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
       $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
-      ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name,'disabled');
       $return['content'] = $content;
