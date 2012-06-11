@@ -29,7 +29,7 @@ foreach ($node->field_embededobjects_nodes as $embeds){
   }
 }
 
-$presetname='gallery_preset';
+/*$presetname='gallery_preset';
 
 foreach ($imgstory as $n) {
   if ($n->type == "wally_photoobject") {
@@ -41,7 +41,7 @@ foreach ($imgstory as $n) {
     $title_img[] = $n->title;
     $summary[]= $n->field_summary[0]['value'];
   }
-}
+}*/
 drupal_add_js('
   $(document).ready(function() {
     diapo("gal_node_'.$node->nid.'");
@@ -69,7 +69,7 @@ drupal_add_js('
   <div class="photos">
     <?php foreach ($imgstory as $image):?>
 	  <div class="gallerie_photo">
-        <?php print theme('imagecache', 'unebis_medium_180x120',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->title );?>
+        <?php print theme('imagecache', 'unebis_medium_180x120',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->field_summary[0]['value']);?>
   	  </div>
     <?php endforeach;?>
   </div>
