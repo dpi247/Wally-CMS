@@ -41,8 +41,9 @@ function ccimapping_form_packagetype_editor_form_submit($form,$form_state){
 
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
-
-    if ($dom->schemaValidate(drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')){
+    
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    if (wallytoolbox_validate_xml($dom, drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')) {
       $xml = $dom->saveXML();
 
       $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
