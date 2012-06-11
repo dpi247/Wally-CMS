@@ -168,7 +168,7 @@ function wallytoolbox_cron() {
     }
     $block['last_run'] = time();
     db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
-    $return .= t('Block "!cid" with runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
+    $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
   }
 
   print $return;
