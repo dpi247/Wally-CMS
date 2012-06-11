@@ -56,8 +56,8 @@ function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
 dsm(formatXmlString($xml));
 return;*/
       $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
-
       $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
+
       try {
         $result = $client->setProductTemplate($parameters_array);
         drupal_set_message(t('The productinfo has been sent to CCI'));
@@ -65,7 +65,7 @@ return;*/
         drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
         dsm($exception);
       }
-  /*  } else {
+    /*} else {
       drupal_set_message(t('XML not validated'));
     }*/
   }
@@ -80,7 +80,7 @@ function ccimap_get_productinfo_fromWS() {
   $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
   $newsroom = wally_variable_get('ccimapping_newsroom', '');
   $product_name = wally_variable_get('ccimapping_product_name', '');
-//return '';
+return '';
   $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
 
   try {
