@@ -739,8 +739,30 @@ function wallytoolbox_delete_photofile($photofile) {
   }
 }
 
-function _wallytoolbox_extract_tar_error($errno, $errstr, $errfile, $errline) {
+function wallytoolbox_validate_xml($dom, $xsd_path) {
+  set_error_handler('_wallytoolbox_validate_xml_error', E_WARNING);
+  return $dom->schemaValidate($xsd_path);
+}
+
+function _wallytoolbox_extract_tar_error($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array()) {
   if ($errno === 2) {
     drupal_set_message(t('The "Archive_Tar" package need to be installed on your system to use this functionality (see !link for further informations)', array('!link' => l('here', 'http://pear.php.net/package/Archive_Tar/redirected'))), 'error');
+  }
+}
+
+function _wallytoolbox_validate_xml_error($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array()) {
+  if (strpos($errstr, 'DOMDocument::schemaValidate') === 0) {
+    switch ($errno) {
+      case 1:
+        $mess_type = 'error';
+        break;
+      case 2:
+        $mess_type = 'warning';
+        break;
+      default:
+        $mess_type = 'status';
+        break;
+    }
+    drupal_set_message(check_plain($errstr), $mess_type);
   }
 }
