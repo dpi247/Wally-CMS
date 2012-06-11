@@ -84,7 +84,10 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
 
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
-      $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+      $old_cache_name = $prenode->form_state['cache name'];
+      $fake_fs = array('cache name' => $old_cache_name);
+      prenode_delete($fake_fs);
+      $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
       ctools_object_cache_set('prenode', $prenode->cache_name, $form_state_prenode);

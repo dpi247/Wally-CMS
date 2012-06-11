@@ -531,10 +531,13 @@ function wallymport_getimporterbyname($name){
  * Previews cleanup at cron
  */
 function wimprt_cron_previews_cleanup() {
-  $list = db_query('SELECT name, data FROM {ctools_object_cache} WHERE name LIKE "wallymport_preview_%" AND FROM_UNIXTIME(updated) < NOW( ) - INTERVAL 1 HOUR', time() - 3600);
+  $list = db_query('SELECT * FROM {wallyedit_prenodes} WHERE pid LIKE "wallymport_preview_%" AND FROM_UNIXTIME(updated) < NOW( ) - INTERVAL 3 HOUR', time() - 3600);
   $return = array();
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
   while ($elem = db_fetch_array($list)) {
-    $data = unserialize($elem['data']);
+    $data = prenode_get($elem['pid']);
+    prenode_delete($data);
+
     foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
       if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
         module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
@@ -542,8 +545,7 @@ function wimprt_cron_previews_cleanup() {
       }
     }
 
-    db_query('DELETE FROM {ctools_object_cache} WHERE name = %d', $elem['name']);
-    $return[] = t('Preview cache deleted for : @elem_name on !date', array('@elem_name' => $elem['name'], '!date' => date('Y-m-d H:i:s', time())));
+    $return[] = t('Preview cache deleted for : "@elem_name" on !date', array('@elem_name' => $data[$data['type']]['#node']->title, '!date' => date('Y-m-d H:i:s', time())));
   }
   return $return;
 }
