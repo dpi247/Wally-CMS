@@ -77,13 +77,15 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
-     
+
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
-      $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+      $old_cache_name = $prenode->form_state['cache name'];
+      $fake_fs = array('cache name' => $old_cache_name);
+      prenode_delete($fake_fs);
+      $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
-      prenode_save($form_state_prenode);
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
       $log['content'] =  $content;
