@@ -155,21 +155,22 @@ function wallytoolbox_toboolean($v, $def=NULL) {
   return $def;
 }
 
-function wallytoolbox_set_microtime_step($step = '') {
+function wallytoolbox_set_microtime_step($step = '', $print = TRUE, $restart = FALSE) {
   static $begin_time = 0;
   static $first = TRUE;
 
-  if ($first) {
+  if ($first || $restart) {
     $begin_time = microtime(TRUE);
     $first = FALSE;
   } else {
     $end_time = microtime(TRUE);
     $t = $end_time - $begin_time;
-    $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
-
-    $formatted = $d->format('i:s.u');
-    dsm($formatted, $step);
+    if ($print) {
+      $micro = sprintf('%06d', ($t - floor($t)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $t));
+      $formatted = $d->format('i:s.u');
+      dsm($formatted, $step);
+    }
     return $t;
   }
 }
