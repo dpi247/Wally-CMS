@@ -163,7 +163,7 @@ function wallymport_menu() {
  * Implementation of hook_cron().
  */ 
 function wallymport_cron() {
-  /*$prev_cleanup_ret = wimprt_cron_previews_cleanup();
+  $prev_cleanup_ret = wimprt_cron_previews_cleanup();
   if (empty($prev_cleanup_ret)){
     $prev_cleanup_ret[] = t('No preview prenodes deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
   }
@@ -173,7 +173,7 @@ function wallymport_cron() {
   if (empty($logs_cleanup_ret)){
     $logs_cleanup_ret[] = t('No logs deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
   }
-  print_r($logs_cleanup_ret);*/
+  print_r($logs_cleanup_ret);
 
   //Run wallymport cron.
   if (db_table_exists('wallymport_importer')){
@@ -485,6 +485,41 @@ function wallymport_getimporterbyname($name){
     }
   }
   return $importer;
+}
+
+/**
+ * Previews cleanup at cron
+ */
+function wimprt_cron_previews_cleanup() {
+  $list = db_query('SELECT * FROM {wallyedit_prenodes} WHERE pid LIKE "wallymport_preview_%" AND FROM_UNIXTIME(updated) < NOW( ) - INTERVAL 3 HOUR', time() - 3600);
+  $return = array();
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
+  while ($elem = db_fetch_array($list)) {
+    $data = prenode_get($elem['pid']);
+    prenode_delete($data);
+
+    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        wallytoolbox_delete_photofile($embed->field_photofile[0]);
+      }
+    }
+
+    $return[] = t('Preview cache deleted for : "@elem_name" on !date', array('@elem_name' => $data[$data['type']]['#node']->title, '!date' => date('Y-m-d H:i:s', time())));
+  }
+  return $return;
+}
+
+/**
+ * Logs cleanup at cron
+ */
+function wimprt_cron_logs_cleanup() {
+  $return = array();
+  $removed_logs = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY"));
+  if (db_query("DELETE FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY") && $removed_logs['COUNT(*)'] > 0) {
+    $return[] = t('!num_logs logs removed.', array('!num_logs' => $removed_logs['COUNT(*)']));
+  }
+  return $return;
 }
 
 /**
