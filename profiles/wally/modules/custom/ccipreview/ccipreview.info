@@ -1,6 +1,0 @@
-; $Id$
-name = CCI Preview
-description = Get at preview to CCI NewsGate
-core = 6.x
-package = CCI
-
