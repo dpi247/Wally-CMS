@@ -2071,7 +2071,7 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
         if ($photo['size'] > 0){
           $photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],strip_tags($photo['summary']),strip_tags($photo['summary']));
           $photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
-          $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],strip_tags($photo['summary']),strip_tags($photo['summary']));
+          $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filepath'],strip_tags($photo['summary']),strip_tags($photo['summary']));
         }
         break;
     }
