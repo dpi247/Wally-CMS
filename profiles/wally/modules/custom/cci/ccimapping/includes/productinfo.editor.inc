@@ -62,7 +62,7 @@ return;*/
         $result = $client->setProductTemplate($parameters_array);
         drupal_set_message(t('The productinfo has been sent to CCI'));
       } catch (SoapFault $exception) {
-        drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+        drupal_set_message(t('WebService Error when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
         dsm($exception);
       }
     /*} else {
@@ -86,7 +86,7 @@ return '';
   try {
     $result = $client->getProductTemplate(array('newsroom' => $newsroom, 'productname' => $product_name));
   } catch (SoapFault $exception) {
-    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+    drupal_set_message(t('WebService Error when getting the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
     dsm($exception);
   }
   return $result->return;
