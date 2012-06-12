@@ -107,10 +107,19 @@ function wallyadmin_menu() {
   
   $items['admin/wally/menurestore'] = array(
     'title' => t('Restore menus'),
+    'description' => t('Backup the menus tables or restore them.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallyadmin_page_form_menu_restore_form'),
-    'access arguments' => array('access administration pages'),
-    'description' => t('Backup the menus tables or restore them.'),
+    'access arguments' => array('administer menu'),
+    'file' => 'includes/wallyadmin.menu_restore.inc',
+  );
+  
+  $items['admin/wally/menurebuild'] = array(
+    'title' => t('Rebuild menus'),
+    'description' => t('Rebuild menu based on hook_menu() and revert any custom changes. All menu items return to their default settings.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_menu_rebuild_form'),
+    'access arguments' => array('administer menu'),
     'file' => 'includes/wallyadmin.menu_restore.inc',
   );
   
