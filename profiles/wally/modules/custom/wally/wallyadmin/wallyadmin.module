@@ -106,7 +106,7 @@ function wallyadmin_menu() {
   );
   
   $items['admin/wally/menurestore'] = array(
-    'title' => t('Restore menus'),
+    'title' => t('Backup/Restore menus'),
     'description' => t('Backup the menus tables or restore them.'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('wallyadmin_page_form_menu_restore_form'),
