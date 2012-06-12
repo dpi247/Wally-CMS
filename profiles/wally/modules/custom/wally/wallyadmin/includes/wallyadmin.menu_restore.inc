@@ -58,6 +58,19 @@ function wallyadmin_page_form_menu_restore_form_submit_restore ($form, $form_sta
   }
 }
 
+function wallyadmin_page_form_menu_rebuild_form($form_state) {
+  $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin';
+  $question = t('Are you sure you want to rebuild all menus?');
+  $form = confirm_form(array(), $question, $redirect);
+  $form['#redirect'] = $redirect;
+  return $form;
+}
+
+function wallyadmin_page_form_menu_rebuild_form_submit($form, $form_state) {
+  menu_rebuild();
+  drupal_set_message(t('The menu router has been rebuilt.'));
+}
+
 function _wydmin_copy_table ($from, $to) {
   if (db_table_exists($to)) {
     return (db_query("TRUNCATE TABLE {%s}", $to) && db_query("INSERT {%s} SELECT * FROM {%s}", $to, $from));
