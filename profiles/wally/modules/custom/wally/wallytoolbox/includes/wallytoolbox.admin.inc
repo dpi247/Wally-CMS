@@ -257,4 +257,6 @@ function _wallytoolbox_process_block_refresh(&$block) {
 
   // Invoke hook_refresh_block
   $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
+
+  return $output;
 }
