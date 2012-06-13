@@ -508,7 +508,8 @@ function wallymport_page_process_file($xml_file, $importer){
     $dom->LoadXML($contents);
     $log = array();
     $return = array('error' => FALSE);
-    if (!$dom->schemaValidate($importer->xsd_path)){
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    if (!wallytoolbox_validate_xml($dom, $importer->xsd_path)) {
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
       $return = array('error' => TRUE, 'error_msg' => $error_msg);
