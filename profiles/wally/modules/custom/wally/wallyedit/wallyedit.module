@@ -1091,7 +1091,7 @@ function wallyedit_install_default_config() {
   wydit_install_default_table($wallyedit_profiles, 'wallyedit_profiles');
   wydit_install_default_table($wallyedit_tabs, 'wallyedit_tabs');
   foreach ($wallyedit_variables as $elem) {
-    drupal_write_record('variable', $elem);
+    drupal_write_record('wally_variable_fast', $elem);
   }
 }
 
