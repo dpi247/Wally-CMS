@@ -24,3 +24,13 @@ function cciadmin_menu() {
 
   return $items;
 }
+
+/**
+ * Implementation of hook_perm().
+ */
+function cciadmin_perm() {
+  return array(
+    'administer cci',
+    'edit synchronization datas',
+  );
+}
