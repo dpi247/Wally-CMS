@@ -503,6 +503,7 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
     db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     
     $temp_terms = taxonomy_get_tree($vid);
+    $terms = array();
     foreach($temp_terms as $term) {
       $terms[$term->tid] = $term;
     }
