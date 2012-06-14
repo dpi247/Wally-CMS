@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Implementation of hook_uninstall().
  */
@@ -14,6 +13,7 @@ function wallypressfilters_uninstall(){
 function wallypressfilters_install() {
   drupal_install_schema('wallypressfilters');
 }
+
 /**
  * Implementation of hook_schema().
  */
@@ -44,6 +44,7 @@ function wallypressfilters_schema() {
     ),
     'primary key' => array('fid'),//primary key
   );
+
   $schema['wallypressfilters_tags'] = array(
     'description' => 'Contains all the tags',
     'fields' => array(
@@ -53,13 +54,7 @@ function wallypressfilters_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'tag' => array(
-        'description' => 'The tag',
-        'type' => 'text',
-        'size' => 'medium',
-        'not null' => TRUE,
-      ),
-  	  'filter' => array(
+      'filter' => array(
         'description' => 'The filter',
         'type' => 'text',
         'size' => 'medium',
@@ -71,20 +66,59 @@ function wallypressfilters_schema() {
       	'unsigned' => TRUE,
       	'not null' => FALSE,
       ),
-      'html_tag' => array(
-        'description' => 'The translation of the tag in html',
+      'type' => array(
+        'description' => 'Type of the tag',
         'type' => 'text',
-        'size' => 'normal',
+        'size' => 'medium',
         'not null' => TRUE,
       ),
-      'classes' => array(
-        'description' => 'The class to add to the element',
+      'tag' => array(
+        'description' => 'The tag',
         'type' => 'text',
-        'size' => 'normal',
-        'not null' => FALSE,
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings',
+        'serialize' => TRUE,
       ),
     ),
     'primary key' => array('tid'),//primary key
   );
   return $schema;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Remove columns "html_tag" and "classes" and add column "settings"
+ */
+function wallypressfilters_update_6001() {
+  $ret = array();
+  
+  $db_filters = db_query('SELECT * FROM {wallypressfilters_tags}');
+  
+  db_drop_field($ret, 'wallypressfilters_tags', 'html_tag');
+  db_drop_field($ret, 'wallypressfilters_tags', 'classes');
+  $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
+  db_add_field($ret, 'wallypressfilters_tags', 'settings', $schema['fields']['settings']);
+  db_add_field($ret, 'wallypressfilters_tags', 'type', $schema['fields']['type']);
+  
+  while($filter = db_fetch_array($db_filters)) {
+    $new_filter = $filter;
+    unset(
+      $new_filter['html_tag'],
+      $new_filter['classes']
+    );
+    $new_filter['type'] = 'tag';
+    $new_filter['settings'] = array(
+      'operation' => 'replace',
+      'html_tag' => $filter['html_tag'],
+      'classes' => $filter['classes'],
+    );
+    drupal_write_record('wallypressfilters_tags', $new_filter, array('tid'));
+  }
+  
+  return $ret;
 }
