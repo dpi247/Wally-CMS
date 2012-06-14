@@ -247,6 +247,9 @@ function _wallytoolbox_arraytowallyxml_filllinkslist(&$valid_dom, &$linkslist_no
     if (isset($links_array['Link'])){
       foreach ($links_array['Link'] as $link_array){
         $link_node = $links_node->appendChild($valid_dom->createElement('Link'));
+        if (isset($link_array['EmbeddedObjectsOrder']) && $link_array['EmbeddedObjectsOrder'] != NULL && $link_array['EmbeddedObjectsOrder'] != ''){
+          $link_node->setAttribute('EmbeddedObjectsOrder', $link_array['EmbeddedObjectsOrder']['value']);
+        }
         $link_node->appendChild($valid_dom->createElement('ExternalReference', $link_array['ExternalReference']['value']));  
         $link_node->appendChild($valid_dom->createElement('Title', $link_array['Title']['value']));  
         $link_node->appendChild($valid_dom->createElement('Description', $link_array['Description']['value']));  
@@ -275,6 +278,9 @@ function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node
   $object_node->setAttribute('PublicationDate', $object_array['PublicationDate']);
   $object_node->setAttribute('CreationDate', $object_array['CreationDate']);
   $object_node->setAttribute('LastUpdateDate', $object_array['LastUpdateDate']);
+  if (isset($object_array['EmbeddedObjectsOrder']) && $object_array['EmbeddedObjectsOrder'] != NULL && $object_array['EmbeddedObjectsOrder'] != ''){
+    $object_node->setAttribute('EmbeddedObjectsOrder', $object_array['EmbeddedObjectsOrder']['value']);
+  }
   
   $object_node->appendChild($valid_dom->createElement('Title', $object_array['Title']['value']));
   $object_node->appendChild($valid_dom->createElement('ExternalReference', $object_array['ExternalReference']['value']));
@@ -285,13 +291,6 @@ function _wallytoolbox_arraytowallyxml_fillObjectType(&$valid_dom, &$object_node
   }
 
   $object_node->appendChild($valid_dom->createElement('Copyright', $object_array['Copyright']['value'])); 
-  
-  if (isset($object_array['EmbeddedObjectsOrder']) & $object_array['EmbeddedObjectsOrder'] != NULL & $object_array['EmbeddedObjectsOrder'] != ''){
-    $object_node->appendChild($valid_dom->createElement('EmbeddedObjectsOrder', $object_array['EmbeddedObjectsOrder']['value']));
-  } else {
-    $embeddedobjectorder = $object_node->appendChild($valid_dom->createElement('EmbeddedObjectsOrder'));
-    $embeddedobjectorder->setAttribute('xsi:nil','true');
-  }
 }
 
 /**
