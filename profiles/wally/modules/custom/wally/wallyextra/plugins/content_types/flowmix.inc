@@ -378,6 +378,15 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     }
   }
 
+  // Apply filter to body
+  foreach ($feed as $id => $item) {
+    if (isset($item['MainStory']['TextBody']['value'])) {
+      $format = $settings['flows'][$item['__flow_id']]->body_html;
+      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($item['MainStory']['TextBody']['value'], $format));
+      $feed[$id]['MainStory']['TextBody']['value'] = $cleaned_body;
+    }
+  }
+
   $modif = FALSE;
   for ($i=0; $i<sizeof($feed); $i++) {
     $elem_package = $feed[$i];
@@ -808,15 +817,10 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form
     );
   
     $body_html_options = array();
-    $body_html_query = db_query("SELECT * FROM {filter_formats}");
-    $i = 0;
-    while ($body_html_element = db_fetch_array($body_html_query)) {
-      $body_html_options[] = $body_html_element['name'];
-      if ($body_html_element['name'] == $default_form_values['body_html'])
-      $default_body_html = $i;
-      $i++;
+    $formats = filter_formats();
+    foreach ($formats as $format) {
+      $body_html_options[$format->format] = $format->name;
     }
-  
     $form['body_html'] = array(
       '#type' => 'select',
       '#title' => t('Use HTML in the text body'),
@@ -853,6 +857,7 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form,
       // because of all that work we did in the form_info array
       $edited_flow->$value = $submitted[$value];
     }
+    dsm($edited_flow);
   }
 }
 
