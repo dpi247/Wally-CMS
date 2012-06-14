@@ -857,7 +857,6 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form_submit(&$form,
       // because of all that work we did in the form_info array
       $edited_flow->$value = $submitted[$value];
     }
-    dsm($edited_flow);
   }
 }
 
