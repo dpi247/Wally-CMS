@@ -1,0 +1,19 @@
+*** esi.theme.inc	2012-03-01 04:29:43.000000000 +0100
+--- esi.theme.inc	2012-06-15 14:03:39.928973412 +0200
+***************
+*** 81,87 ****
+      $src = "esi/panels_pane/{$theme_key}:{$data->did}:{$data->pid}";
+      $css_id = "{$theme_key}-{$data->did}-{$data->pid}";
+      $scope = isset($data->cache['settings']['scope']) ? $data->cache['settings']['scope'] : (int)variable_get('esi_panel_default_scope', ESI_PANEL_DEFAULT_SCOPE);
+!     if (!empty($data->configuration['context']) && is_string($data->configuration['context'])) {
+        $display = panels_get_current_page_display();
+        // The cache-key variable is set by the panel-context render function.
+        list($context, $task_name, $handler_name) = explode(':', $display->cache_key);
+--- 81,87 ----
+      $src = "esi/panels_pane/{$theme_key}:{$data->did}:{$data->pid}";
+      $css_id = "{$theme_key}-{$data->did}-{$data->pid}";
+      $scope = isset($data->cache['settings']['scope']) ? $data->cache['settings']['scope'] : (int)variable_get('esi_panel_default_scope', ESI_PANEL_DEFAULT_SCOPE);
+!     if (!empty($data->configuration['context'])) {// && is_string($data->configuration['context'])) {
+        $display = panels_get_current_page_display();
+        // The cache-key variable is set by the panel-context render function.
+        list($context, $task_name, $handler_name) = explode(':', $display->cache_key);
