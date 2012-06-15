@@ -11,7 +11,7 @@ function _wallystat_process_cron() {
 
   $cache_inc = variable_get('cache_inc', './includes/cache.inc');
   switch (true) { // memcache.inc needs less bootstrap than cache.inc
-    case strstr($cache_inc, '/cache.inc') :
+    case strstr($cache_inc, '/memcache.inc') :
       $cached_lock = cache_get('wallystat_lock');
       if ($cached_lock && isset($cached_lock->data) && !empty($cached_lock->data) && is_numeric($cached_lock->data)) {
         $lock = $cached_lock->data;
