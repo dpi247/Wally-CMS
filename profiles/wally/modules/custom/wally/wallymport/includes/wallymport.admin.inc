@@ -33,7 +33,7 @@ function wallymport_page_list_importers(){
       $yesno[$importer->processed_by_post].$post,
       $yesno[$importer->processed_by_cron].$logs,
           '<a href = "/admin/wally/wallymport/settings/links/'.$importer->name.'">'.$importer->name.' links</a>',
-          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process/'.$importer->name, array('absolute' => TRUE)).'</a>',
+          '<a href = "/wallymport/process/'.$importer->name.'">'.url('wallymport/process_folder/'.$importer->name, array('absolute' => TRUE)).'</a>',
           '<a href = "/wallymport/process_file/'.$importer->name.'/exemple.ext/run">'.url('wallymport/process_file/'.$importer->name.'/exemple.ext/run', array('absolute' => TRUE)).'</a>',
           '<a href = "/admin/wally/wallymport/settings/logs/'.$importer->iid.'">Logs</a>',          
           '<a href = "/admin/wally/wallymport/settings/edit/'.$importer->iid.'">'.t('edit').'</a>, <a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('delete').'</a>',
