@@ -3,8 +3,17 @@
 /**
  * Implementation of hook_menu().
  */
-function dynamicfeedback_menu(){
+function dynamicfeedback_menu() {
   $items = array();
+  
+  $items['admin/cci/dynamicfeedback'] = array(
+    'title' => t('Dynamic Feedback Settings'),
+    'description' => t('Manage informations to display in the dynamic feedback.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dynamicfeedback_form_admin_form'),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/dynamicfeedback.admin.inc',
+  );
 
   $items['dynamicfeedback/%'] = array(
     'title' => t('Dynamic feedback'),
@@ -12,6 +21,7 @@ function dynamicfeedback_menu(){
     'page arguments' => array(1),
     'access callback' => TRUE,
     'file' => 'includes/page_render.inc',
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -20,16 +30,16 @@ function dynamicfeedback_menu(){
 /**
  * Implementation of hooktheme().
  */
-function dynamicfeedback_theme(){
+function dynamicfeedback_theme() {
   $path = drupal_get_path('module', 'dynamicfeedback');
   $base = array(
     'file' => 'theme.inc',
-    'path' => "$path/theme",
+    'path' => $path.'/theme',
   );
-  
+
   return array(
-  'dynamicfeedback_page_render'=>$base+array(
-    'arguments'=>array('array_of_informations'=>array()),
+    'dynamicfeedback_page_render' => $base + array(
+      'arguments' => array('datas' => array()),
     ),
   ); 
 }

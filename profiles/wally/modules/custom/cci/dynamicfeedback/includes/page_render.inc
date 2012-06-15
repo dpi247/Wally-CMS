@@ -1,28 +1,45 @@
 <?php
-function dynamicfeedback_page_render($package_id){
+
+function dynamicfeedback_page_render($ext_ref) {
   $GLOBALS['conf']['cache'] = FALSE;
-  $array_of_nodes=wallytoolbox_get_node_by_cckfield(array('field_packageid'=>$package_id));
+  $options = wally_variable_get('dynamicfeedback_display_options', array());
+
+  if (is_numeric($ext_ref)) {
+    // If it's a numeric value it's probably a nid
+    $nid = $ext_ref;
+  } else {
+    $array_of_nodes = wallytoolbox_get_node_by_cckfield(array('field_externalreference' => $ext_ref));
+    if ($array_of_nodes && count($array_of_nodes) != 1) {
+      $nid = FALSE;
+    } else {
+      $node = $array_of_nodes[0];
+      $nid = $node->nid;
+    }
+  }
   
-  if(count($array_of_nodes)!=1) {
-    print '';
+  $datas = array();
+  if ($nid) {
+    if($full_node = node_load($nid)) {
+      $datas['options'] = array();
+
+      foreach ($options as $option) {
+        if ($option) {
+          $tmp_datas = module_invoke_all('dynamicfeedback_options', 'content', $option, $full_node);
+          if (!empty($tmp_datas)) {
+            $datas['options'][$option] = $tmp_datas;
+          }
+        }
+      }
+      
+      $datas['title'] = $full_node->title;
+      $datas['nid'] = $nid;
+      $datas['base_url'] = $_SERVER['HTTP_HOST'];
+    }
   }
-  else {
-    $node=$array_of_nodes[0];
+
+  if (empty($datas)) {
+    $datas = array('nid' => FALSE);
   }
 
-  $full_node=node_load($node->nid);
-
-  $comment_count=$full_node->comment;
-  $title=$full_node->title;
-  $nodeId=$node->nid;
-  $_GET['hrefvalue']='node/'.$full_node->nid;
-  $array=array(
-     'title' => $title,
-     'comment_count' => $comment_count,
-     'nodeId' => $nodeId,
-     'base_url' => $_SERVER['HTTP_HOST'],
- //    'stat_graph'=> wallystat_show_stats_with_return(),
-  );
-
-  print theme('dynamicfeedback_page_render',$array);
+  print theme('dynamicfeedback_page_render', $datas);
 }

@@ -457,6 +457,8 @@ class panels_renderer_standard {
 
     // First, render all the panes into little boxes.
     $this->rendered['panes'] = array();
+/*wallytoolbox_set_microtime_step();
+include '/var/www/xhprof-0.9.2/footer.php';*/
     foreach ($this->prepared['panes'] as $pid => $pane) {
       $content = $this->render_pane($pane);
       if ($content) {
@@ -477,7 +479,18 @@ class panels_renderer_standard {
    *  A Panels pane object, as loaded from the database.
    */
   function render_pane(&$pane) {
+/*$a = wallytoolbox_set_microtime_step($pane->type);
+include '/var/www/xhprof-0.9.2/header.php';*/
     $content = $this->render_pane_content($pane);
+/*print $pane->type.' ';
+$b = wallytoolbox_set_microtime_step();
+$micro = sprintf('%06d', (($b - $a) - floor($b - $a)) * 1000000);
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $b - $a));
+
+    $formatted = $d->format('i:s.u');
+    dsm($formatted, 'diff');
+include '/var/www/xhprof-0.9.2/footer.php';
+print '<br>';*/
     if ($this->display->hide_title == PANELS_TITLE_PANE && !empty($this->display->title_pane) && $this->display->title_pane == $pane->pid) {
 
       // If the user selected to override the title with nothing, and selected

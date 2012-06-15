@@ -15,7 +15,7 @@ function wallyesi__ctoolscontenttype_config_save($form, $form_state) {
   _wallyesi__ctoolscontenttype_settings($type, $subtype,$form_state['pane']->pid, $config);
 }
 
-function _wallyesi__ctoolscontenttype_settings($type, $subtype, $pid,$config = NULL) {
+function _wallyesi__ctoolscontenttype_settings($type, $subtype, $pid, $config = NULL) {
   $key = "ctoolscontenttype_{$type}_{$subtype}_{$pid}";
   
   $global = variable_get('esi_ctoolscontenttype_config', array());

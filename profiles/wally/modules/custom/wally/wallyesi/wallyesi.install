@@ -1,8 +1,54 @@
 <?php
 
-function wallyesi_uninstall(){
+function wallyesi_uninstall() {
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  wallytoolbox_variable_del_like('esi_');
-  wallytoolbox_variable_del_like('wallyesi_');
-  wallytoolbox_variable_del_like('local_esi_');
+
+  if (module_exists('esi')) {
+    $panels_config = variable_get('esi_ctoolscontenttype_config', array());
+    foreach ($panels_config as $key => $settings) {
+      if (isset($settings->enabled) && $settings->enabled) {
+        $expl_key = explode('_', $key);
+        $pid = array_pop($expl_key);
+        if ($pane_cache = db_result(db_query('SELECT cache FROM {panels_pane} WHERE pid = %d', $pid))) {
+          $old_cache_settings = unserialize($pane_cache);
+          if (empty($old_cache_settings)) {
+            $new_cache_settings = array(
+              'method' => 'esi',
+              'settings' => array(
+                'scope' => ESI_PANEL_DEFAULT_SCOPE,
+                'max_age' => $settings->ttl,
+                'external' => 0,
+                'external_text' => '',
+                'context' => 1,
+            ),
+            );
+            db_query('UPDATE {panels_pane} SET cache = "%s" WHERE pid = %d', serialize($new_cache_settings), $pid);
+          }
+        }
+      }
+    }
+
+    $blocks_config = variable_get('esi_block_config', array());
+    $new_blocks_config = array();
+
+    wallytoolbox_variable_del_like('esi_');
+    wallytoolbox_variable_del_like('wallyesi_');
+    wallytoolbox_variable_del_like('local_esi_');
+
+    foreach ($blocks_config as $key => $settings) {
+      if (is_object($settings)) {
+        if (isset($settings->enabled) && $settings->enabled) {
+          $new_key = str_replace('block_', '', $key);
+          $new_settings = array(
+            'max_age' => (int)$settings->ttl,
+            'scope' => ESI_PANEL_DEFAULT_SCOPE,
+          );
+          $new_blocks_config[$new_key] = $new_settings;
+        }
+      } elseif (is_array($settings)) {
+        $new_blocks_config[$key] = $settings;
+      }
+    }
+    variable_set('esi_block_config', $new_blocks_config);
+  }
 }
