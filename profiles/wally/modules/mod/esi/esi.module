@@ -1,0 +1,887 @@
+<?php
+
+/**
+ * @file
+ *   Adds support for ESI (Edge-Side-Include) integration, allowing blocks to be\
+ *   delivered by ESI, with support for per-block cache times.
+ */
+
+// Tested against 1.7.2 of the ctools API.
+define('ESI_REQUIRED_CTOOLS_API', '1.7.2');
+
+// Default setting: enabled & ESI.
+define('ESI_MODE', TRUE);
+
+// Default to using ajax as a fallback if ESI is disabled.
+define('ESI_AJAX_FALLBACK', TRUE);
+
+// Default to not using a CDN for AJAX fragments.
+define('ESI_CDN_AJAX', FALSE);
+
+// Default to using the cache_page bin to hold ESI html for fast delevery.
+define('ESI_PAGE_CACHE', TRUE);
+
+// Default interval for rotating the seed key: defaults to change-daily.
+define('ESI_SEED_ROTATION_INTERVAL', 86400);
+
+// Default value to see if the CACHE=* is inplace when the page is served.
+define('ESI_ROLE_USER_DIRECT_INJECTION', FALSE);
+
+// Default max age for blocks: 5 minutes.
+define('ESI_BLOCK_DEFAULT_MAX_AGE', 300);
+
+// Default scope for blocks: Disabled.
+define('ESI_BLOCK_DEFAULT_SCOPE', 0);
+
+// Default max age for panels: 5 minutes.
+define('ESI_PANEL_DEFAULT_MAX_AGE', 300);
+
+// Default scope for panels: User Role.
+define('ESI_PANEL_DEFAULT_SCOPE', 4);
+
+// ESI setting constants.
+define('ESI__CONFIG_ESI', 1);
+define('ESI__CONFIG_SSI', 2);
+define('ESI__CONFIG_AJAX', 3);
+
+/**
+ * Implementation of hook_theme().
+ */
+function esi_theme() {
+  return array(
+    'esi_tag' => array(
+      'arguments' => array(
+        'type' => NULL,
+        'data' => NULL,
+      ),
+      'file' => 'esi.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_theme_registry_alter().
+ * Override theme('blocks') to apply our ESI handler.
+ */
+function esi_theme_registry_alter(&$theme_registry) {
+  if (!variable_get('esi_mode', ESI_MODE)) {
+    return;
+  }
+  $path = drupal_get_path('module', 'esi');
+
+  $panels_callbacks = array(
+    'block',
+    'panels_pane',
+    'panels_stylizer_stylizer_style_render_pane',
+    'panels_rounded_corners_style_render_pane',
+  );
+  foreach ($panels_callbacks as $pane_callback) {
+    // override the default theme function for theme('panels_pane').
+    if (isset($theme_registry[$pane_callback])) {
+      $theme_registry['esi_alt_' . $pane_callback] = $theme_registry[$pane_callback];
+      $theme_registry[$pane_callback]['function'] = 'esi_theme_' . $pane_callback;
+      $theme_registry[$pane_callback]['file'] = 'esi.theme.inc';
+      $theme_registry[$pane_callback]['include files'] = array( "./{$path}/esi.theme.inc");
+      $theme_registry[$pane_callback]['theme path']  = $path;
+      $theme_registry[$pane_callback]['theme paths'] = array($path);
+    }
+  }
+
+
+  if (module_exists('context')) {
+    $name = 'context';
+    $context_path = drupal_get_path('module', $name) . '/' . $name . '.info';
+    $info = drupal_parse_info_file($context_path);
+    if (isset($info['version']) && strpos($info['version'], '6.x-3.') !== FALSE) {
+      return;
+    }
+  }
+  // override the default theme function for theme('blocks').
+  $theme_registry['blocks']['function'] = 'esi__theme_blocks';
+  $theme_registry['blocks']['file'] = 'esi.theme.inc';
+  $theme_registry['blocks']['include files'] = array( "./{$path}/esi.theme.inc");
+  $theme_registry['blocks']['theme path']  = $path;
+  $theme_registry['blocks']['theme paths'] = array($path);
+}
+
+/**
+ * See if the block/pane has been esi-ed.
+ *
+ * @param $content
+ *   html that gets passed to the theme function.
+ */
+function esi_theme_is_esied($content) {
+  if (   strpos($content, '<esi:include src=') !== FALSE
+      || strpos($content, 'class="esi-ajax"></div>') !== FALSE
+      || strpos($content, '<!--# include virtual=') !== FALSE) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function esi_init() {
+  // Set RSESS/USESS cookie if not set and user is logged in.
+  global $user;
+  if (!empty($user->uid) && (empty($_COOKIE['R' . session_name()]) || empty($_COOKIE['U' . session_name()]))) {
+    $edit = '';
+    esi_user('login', $edit, $user);
+  }
+
+  // If ESI or AJAX Fallback is disabled then do not add in the esi.js file.
+  if (!variable_get('esi_mode', ESI_MODE) || !variable_get('esi_ajax_fallback', ESI_AJAX_FALLBACK)) {
+    return;
+  }
+  drupal_add_js(drupal_get_path('module', 'esi') . '/esi.js');
+}
+
+/**
+ * Implementation of hook_menu().
+ *   Define a menu-handler.
+ */
+function esi_menu() {
+  $items = array();
+  $items['esi/block/%'] = array(
+    'title' => 'ESI handler',
+    'page callback' => 'esi__block_handler',
+    'page arguments' => array(2,3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  $items['esi/panels_pane/%'] = array(
+    'title' => 'ESI handler',
+    'page callback' => 'esi__panel_pane_handler',
+    'page arguments' => array(2,3,4,5),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  $items['admin/settings/esi'] = array(
+    'title' => 'ESI Settings',
+    'description' => 'Configure ESI Default Settings',
+    'page callback' => 'esi_admin_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'esi.admin.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin_menu/flush-cache/esi'] = array(
+    'page callback' => 'esi_admin_flush_cache',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('administer site configuration'),
+    'file' => 'esi.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_admin_menu().
+ *
+ * Add in a cache flush for esi.
+ */
+function esi_admin_menu(&$deleted) {
+  $links = array();
+
+  $links[] = array(
+    'title' => 'ESI: cache_page',
+    'path' => 'admin_menu/flush-cache/esi',
+    'query' => 'destination',
+    'parent_path' => 'admin_menu/flush-cache',
+  );
+
+  return $links;
+}
+
+/**
+ * Implementation of hook_admin_menu_output_alter().
+ *
+ * Add in a cache flush for esi.
+ */
+function esi_admin_menu_output_alter(&$content) {
+  if (!empty($content['icon']['icon']['flush-cache']['#access']) && !empty($content['icon']['icon']['flush-cache']['requisites']) && empty($content['icon']['icon']['flush-cache']['esi'])) {
+    $content['icon']['icon']['flush-cache']['esi'] = $content['icon']['icon']['flush-cache']['requisites'];
+    $content['icon']['icon']['flush-cache']['esi']['#title'] = t('ESI: cache_page');
+    $content['icon']['icon']['flush-cache']['esi']['#href'] = 'admin_menu/flush-cache/esi';
+  }
+}
+
+/**
+ * Implementation of hook_cron().
+ * Every interval, rotate the seed (used to generate the role-cookie).
+ * (Each rotation will invalidate the varnish-cache for cached pre-role blocks).
+ */
+function esi_cron() {
+  $age = time() - variable_get('esi_seed_key_last_changed', 0);
+  $interval = variable_get('esi_seed_key_rotation_interval', ESI_SEED_ROTATION_INTERVAL);
+  if ($age > $interval) {
+    require_once(drupal_get_path('module', 'esi') . '/esi.inc');
+    _esi__rotate_seed_key();
+  }
+}
+
+/**
+ * Implementation of hook_user().
+ *   For maximum cache-efficiency, the proxy must be able to identify the roles
+ *   held by a user.  A cookie is used which provides a consistent hash for
+ *   all users who share the same roles.
+ *   For security, the hash uses a random seed which is rotated (by hook_cron)
+ *   at regular intervals - defaults to daily.
+ */
+function esi_user($op, &$edit, &$account, $category = NULL) {
+  // only respond to login/logout.
+  if (!($op == 'login' || $op == 'logout')) {
+    return;
+  }
+
+  // Drupal session cookies use the name 'SESS' followed by an MD5 hash.
+  // The role-cookie is the same, prefixes with the letter 'R'.
+  $role_cookie = array('name' => 'R' . session_name());
+  $user_cookie = array('name' => 'U' . session_name());
+
+  if ($op == 'login') {
+    require_once(drupal_get_path('module', 'esi') . '/esi.inc');
+    $role_hash = _esi__get_roles_hash(array_keys($account->roles));
+    $user_hash = esi_get_user_hash($account->uid);
+    $lifespan = max(variable_get('esi_seed_key_rotation_interval', ESI_SEED_ROTATION_INTERVAL), ini_get('session.cookie_lifetime'));
+    $role_cookie += array(
+      'value' => $role_hash,
+      'expire' => time() + $lifespan,
+    );
+    $user_cookie += array(
+      'value' => $user_hash,
+      'expire' => time() + $lifespan,
+    );
+  }
+  else {
+    $role_cookie += array(
+      'value' => 'deleted',
+      'expire' => 1,
+    );
+    $user_cookie += array(
+      'value' => 'deleted',
+      'expire' => 1,
+    );
+  }
+  setcookie($role_cookie['name'], $role_cookie['value'], $role_cookie['expire'], ini_get('session.cookie_path'));
+  setcookie($user_cookie['name'], $user_cookie['value'], $user_cookie['expire'], ini_get('session.cookie_path'));
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * for block_admin_configure
+ *   Add ESI-configuration options to the block-config pages.
+ */
+function esi_form_block_admin_configure_alter(&$form, $form_state) {
+  // TODO: describe how the cache configs can be configured as defaults in code.
+
+  // load our helper functions
+  require_once(drupal_get_path('module', 'esi') . '/esi.inc');
+
+  $module = $form['module']['#value'];
+  $delta  = $form['delta']['#value'];
+  $config = esi_get_settings($module . '_' . $delta);
+
+  $element['esi_config'] = array(
+    '#title'        => t('ESI settings'),
+    '#type'         => 'fieldset',
+    '#description'  => t('Control how this block is cached on an ESI-enabled reverse proxy.'),
+    '#tree'         => TRUE,
+  );
+  $element['esi_config']['scope'] = array(
+    '#title'          => t('Cache Scope'),
+    '#type'           => 'select',
+    '#options'        => array(
+      0 => 'Disabled',
+      1 => 'Not Cached',
+      2 => 'Global',
+      3 => 'Page',
+      4 => 'User Role',
+      5 => 'User Role/Page',
+      6 => 'User ID',
+      7 => 'User ID/Page',
+    ),
+    '#default_value'  => $config['scope'],
+    '#description'    => t('Disabled - Do not use ESI. <br />Not Cached - Use ESI, but never cache the content. <br />Global - Content is same on every page. <br />Page - Content changes based on the URL. <br />User Role - Content changes based on the user role. <br />User Role/Page - Content changes based on the user role as well as the URL. <br />User ID - Content changes based on the UID; otherwise it is the same as global. <br />User ID/Page - Content changes based on the UID and based on the URL.'),
+  );
+  $max_age = $config['max_age'];
+  $element['esi_config']['max_age'] = array(
+    '#title' => t('Cache Maximum Age (TTL)'),
+    '#type' => 'select',
+    '#options' => esi_max_age_options($max_age),
+    '#default_value' => $max_age,
+    '#description' => t('External page caches (proxy/browser) will not deliver cached paged older than this setting; time to live in short.'),
+  );
+
+  $widget_vis = "
+$(esi_update_visibility);
+$(function(){ $('#edit-esi-config-scope').change(function (){esi_update_visibility();})});
+function esi_update_visibility() {
+  var esi_scope = $('#edit-esi-config-scope').val();
+  if (esi_scope == '0' || esi_scope == '1') {
+    $('#edit-esi-config-max-age-wrapper').hide();
+  }
+  else {
+    $('#edit-esi-config-max-age-wrapper').show();
+  }
+}";
+  drupal_add_js($widget_vis, 'inline');
+
+  // inject our ESI config-fieldset onto the form,
+  // just after the 'block_settings' fieldset.
+  $i = 1;
+  foreach ($form as $key => $value) {
+    if ($key == 'block_settings') {
+      break;
+    }
+    $i++;
+  }
+  $f = array_slice($form, 0, $i);
+  $f += $element;
+  $f += array_slice($form, $i);
+  $form = $f;
+
+  // add a submit-handler to save our config.
+  $form['#submit'][] = 'esi__block_config_save';
+}
+
+/**
+ * Form-submit handler for ESI settings in block-config
+ */
+function esi__block_config_save($form, $form_state) {
+  require_once(drupal_get_path('module', 'esi') . '/esi.inc');
+
+  $module = $form_state['values']['module'];
+  $delta  = $form_state['values']['delta'];
+
+  $config = array();
+  $config['max_age'] = (int)$form_state['values']['esi_config']['max_age'];
+  $config['scope'] = (int)$form_state['values']['esi_config']['scope'];
+
+  // Save the settings.
+  esi_get_settings($module . '_' . $delta, $config);
+}
+
+/**
+ * Menu handler for ESIs
+ *
+ * Render a particular block.
+ */
+function esi__block_handler($bid, $page = NULL) {
+  // Expect the bid format to be theme:region:module:delta
+  if (substr_count($bid, ':') !== 3) {
+    return FALSE;
+  }
+  list($passed_theme, $region, $module, $delta) = explode(':', $bid);
+
+  require_once(drupal_get_path('module', 'esi')  . '/esi.inc');
+  global $custom_theme, $theme_key, $user;
+
+  // Save this page's internal URL.
+  $last_arg = explode('/', $_GET['q']);
+  $last_arg = array_pop($last_arg);
+
+  // Block content may change per-page.
+  // If this is true for the current block, the origin page url should be
+  // provided as an argument.
+  if (isset($page) && strpos($page, 'CACHE=') !== 0) {
+    $q = base64_decode($page);
+    if ($q == "") {
+      $q = variable_get('site_frontpage', 'node');
+    }
+    $_GET['q'] = $q;
+  }
+
+  // Load up the ESI configuration for this block.
+  $config = esi_get_settings($module . '_' . $delta);
+  $current_user = $user;
+  // Use user 0 if the scope is global or page.
+  if ($config['scope'] == 2 || $config['scope'] == 3) {
+    $user = user_load(0);
+  }
+
+  // Theme set-up.
+  // We need to do this manually, because output is echo'd instead of returned.
+  $custom_theme = $passed_theme;
+  $theme_key = $passed_theme;
+  init_theme();
+
+  // Get the block and theme it.
+  $block = _esi__get_block($passed_theme, $region, $module, $delta);
+  if (!empty($block)) {
+    $output = theme('block', $block);
+  }
+  else {
+    $output = esi_fast404('block');
+  }
+
+  // Pass PER-USER or PER-ROLE cache info to varnish.
+  // No-cache is header max age (TTL) controlled.
+  // Per-page is passed as a url argument.
+  esi_add_cache_headers($config['scope'], $config['max_age']);
+  echo $output;
+  $user = $current_user;
+  esi_set_page_cache($output, $config['scope'], $last_arg);
+  exit;
+}
+
+function esi_add_cache_headers($scope, $max_age) {
+  // Nginx follows rfc2616 section 14.9.1 correctly and will not cache if
+  // header is set to private. The given Varnish VCL does not follow the RFC,
+  // and for ajax we want to use private.
+  $user_cache_control_header = variable_get('esi_mode', ESI_MODE) == ESI__CONFIG_SSI ? 'public' : 'private';
+  switch ($scope) {
+    // Disabled.
+    case 0:
+    // Do no cache.
+    case 1:
+      drupal_set_header("Cache-Control: must-revalidate, max-age=0");
+      break;
+
+    // Global Scope.
+    case 2:
+    // Page Scope.
+    case 3:
+      drupal_set_header("Cache-Control: public, max-age=$max_age");
+      break;
+
+    // User Role.
+    case 4:
+    // User Role/Page.
+    case 5:
+      drupal_set_header("Cache-Control: $user_cache_control_header, max-age=$max_age");
+      drupal_set_header("X-BLOCK-CACHE: " . BLOCK_CACHE_PER_ROLE);
+      break;
+
+    // User ID.
+    case 6:
+    // User ID/Page.
+    case 7:
+      drupal_set_header("Cache-Control: $user_cache_control_header, max-age=$max_age");
+      drupal_set_header("X-BLOCK-CACHE: " . BLOCK_CACHE_PER_USER);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function esi_ctools_plugin_directory($module, $plugin) {
+  // Safety: go away if CTools is not at an appropriate version.
+  if (!module_invoke('ctools', 'api_version', ESI_REQUIRED_CTOOLS_API)) {
+    return;
+  }
+  if ($module == 'page_manager' || $module == 'panels' || $module == 'ctools') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+ * Implementation of hook_pane_content_alter().
+ *
+ * If the pane isn't being served up by the ESI menu handler, and is set to use
+ * ESI-caching, replace with ESI tag.
+ * This needs to be handled in hook_pane_content_alter() - i.e. after the
+ * content has been processed - because the cache object needs the meta-data
+ * provided by ctype-render handler, such as module, delta, etc.
+ * Subsequent requests are pulled from the system-cache.
+ */
+function esi_panels_pane_content_alter(&$content, $pane, $args, $context) {
+  require_once(drupal_get_path('module', 'esi') . '/esi.theme.inc');
+  // Bail out if it's not handled by ESI.
+  if (   empty($pane->cache['method'])
+      || $pane->cache['method'] != 'esi'
+      || !variable_get('esi_mode', ESI_MODE)
+      || !is_object($content)
+      || (isset($content->content) && esi_theme_is_esied($content->content))
+        ) {
+    return;
+  }
+
+  // Code for external ESI blocks
+  if ($pane->cache['settings']['external'] === 1) {
+    $content->content = theme('esi_tag', 'external', $pane);
+  }
+  else {
+    $content->content = theme('esi_tag', 'panel', $pane);
+  }
+  if (!isset($content->module)) {
+    $content->module = $pane->type;
+  }
+  if (!isset($content->delta)) {
+    $content->delta = $pane->subtype;
+  }
+  return;
+}
+
+/**
+ * Menu handler to serve individual panel-panes via ESI.
+ *
+ * If the pane uses context, the task_name, context_string and q variables will
+ * be set.
+ */
+function esi__panel_pane_handler($bid, $page = NULL, $task_name = NULL, $context_string = NULL) {
+  // Expect the bid format to be theme:display_id:pane_id
+  if (substr_count($bid, ':') !== 2) {
+    return FALSE;
+  }
+  list($passed_theme, $display_id, $pane_id) = explode(':', $bid);
+
+  global $custom_theme, $theme_key, $user;
+
+  // Save this page's internal URL.
+  $last_arg = explode('/', $_GET['q']);
+  $last_arg = array_pop($last_arg);
+
+  // Set context.
+  if (isset($page) && strpos($page, 'CACHE=') !== 0) {
+    $q = base64_decode($page);
+    if ($q == "") {
+      $q = variable_get('site_frontpage', 'node');
+    }
+    $_GET['q'] = $q;
+  }
+
+  // theme set-up.
+  // we need to do this manually, because output is echo'd instead of returned.
+  $custom_theme = $passed_theme;
+  $theme_key = $passed_theme;
+  init_theme();
+
+  $display = panels_load_display($display_id);
+
+  if (!is_null($task_name)) {
+    // Get the context for this pane.
+    list($args, $contexts) = esi__panels_get_task_context($task_name);
+
+    $display->context = $contexts;
+    $display->args = $args;
+  }
+
+  // Switch ESI off so the contents of the pane are served.
+  $config = $display->content[$pane_id]->cache;
+  unset($display->content[$pane_id]->cache);
+
+  // Load in defaults if missing.
+  if (!isset($config['settings']['max_age'])) {
+    $config['settings']['max_age'] = (int)variable_get('esi_panel_default_max_age', ESI_PANEL_DEFAULT_MAX_AGE);
+  }
+  if (!isset($config['settings']['scope'])) {
+    $config['settings']['scope'] = (int)variable_get('esi_panel_default_scope', ESI_PANEL_DEFAULT_SCOPE);
+  }
+
+  $current_user = $user;
+  // Use user 0 if the scope is global or page.
+  if ($config['settings']['scope'] == 2 || $config['settings']['scope'] == 3) {
+    $user = user_load(0);
+  }
+
+  if (!function_exists('panels_get_renderer_handler')) {
+    require_once(drupal_get_path('module', 'panels') . '/includes/plugins.inc');
+  }
+
+  // Use the standard renderer to render the pane.
+  $renderer = panels_get_renderer_handler('standard', $display);
+  if (!empty($renderer->display->content[$pane_id]->access['plugins'])) {
+    $renderer->display->content[$pane_id]->access['plugins'] = array_filter($renderer->display->content[$pane_id]->access['plugins'], "filter_out_path_visibility_access");
+  }
+  $renderer->prepare_panes($renderer->display->content);
+  $output = '';
+  if (!empty($renderer->prepared['panes'][$pane_id])) {
+    $output .= $renderer->render_pane($renderer->prepared['panes'][$pane_id]);
+  }
+  else {
+    $output .= esi_fast404('panel');
+  }
+
+  esi_add_cache_headers($config['settings']['scope'], $config['settings']['max_age']);
+  echo $output;
+  $user = $current_user;
+
+  // Cache the ESI output.
+  esi_set_page_cache($output, $config['settings']['scope'], $last_arg);
+  exit;
+}
+
+function filter_out_path_visibility_access($e) {
+  return $e['name'] != "path_visibility";
+}
+
+/**
+ * Each of the panel task plugins provides a default context based on the menu
+ * path.
+ * This function looks up the menu handler for a URL, and provides the contexts
+ * for the menu-handler.
+ */
+function esi__panels_get_task_context($task_name) {
+  $task = page_manager_get_task($task_name);
+
+  // Invoke the module's hook_esi_get_context_arguments to get the context
+  // provided by that task.
+  $context_arguments = module_invoke($task['module'], 'esi_get_context_arguments', $task['name']);
+
+  // Parse the arguments into context objects.
+  ctools_include('context');
+  ctools_include('context-task-handler');
+  $contexts = ctools_context_handler_get_task_contexts($task, '', $context_arguments);
+
+  return array($context_arguments, $contexts);
+}
+
+/**
+ * Implementation of hook_esi_get_context, provided for page_manager.
+ */
+function page_manager_esi_get_context_arguments($task_name) {
+  switch ($task_name) {
+    // The blog, poll, and contact_site tasks don't provide default context.
+    case 'blog':
+    case 'poll':
+    case 'contact_site':
+      return array();
+
+    // The blog_user, and contact_user tasks provide a user-object.
+    case 'blog_user':
+    case 'contact_user':
+      $uid = arg(1);
+      $account = user_load($uid);
+      return array($account);
+
+    // The comment_reply task provide a node object and a comment CID.
+    case 'comment_reply':
+      // Path is comment/reply/%node
+      $nid = arg(2);
+      $pid = arg(3);
+      $node = node_load($nid);
+      return array($node, $pid);
+
+      // The node_edit and node_view tasks provide a node object.
+    case 'node_edit':
+    case 'node_view':
+      $nid = arg(1);
+      $node = node_load($nid);
+      return array($node);
+
+    case 'search':
+      // @TODO.
+      // return array($keys);
+
+    case 'term_view':
+      $tid = arg(2);
+      $depth = arg(3);
+      return array($tid, $depth);
+      // @TODO.
+      //  return array($terms, $depth);
+  }
+}
+
+/**
+ * Implements hook_context_plugins to define our custom block context plugin
+ *
+ * @return array
+ */
+function esi_context_plugins() {
+  $plugins = array();
+  $plugins['context_reaction_esi_block'] = array(
+    'handler' => array(
+      'path' => drupal_get_path('module', 'esi') .'/plugins',
+      'file' => 'context_reaction_esi_block.inc',
+      'class' => 'context_reaction_esi_block',
+      'parent' => 'context_reaction_block',
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
+ * Implements hook_context_registry_alter to use our custom block context plugin
+ * to output ESI tags instead of the block
+ *
+ * @param $registry array
+ */
+function esi_context_registry_alter(&$registry) {
+  if (isset($registry['reactions']['block'])) {
+    $registry['reactions']['block']['plugin'] = 'context_reaction_esi_block';
+  }
+}
+
+/**
+ * Generate a fast 404
+ *
+ * @return
+ *   Blank page.
+ */
+function esi_fast404($msg = '') {
+  global $base_path;
+  if (!headers_sent()) {
+    drupal_set_header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+    drupal_set_header('X-ESI: Failed To Render. ' . $msg);
+  }
+  $output = '';
+
+//   $output .= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">' . "\n";
+//   $output .= '<html>';
+//   $output .= '<head><title>404 Not Found</title></head>';
+//   $output .= '<body><h1>Not Found</h1>';
+//   $output .= '<p>The requested URL was not found on this server.</p>';
+//   $output .= '<p><a href="' . $base_path . '">Home</a></p>';
+  $output .= '<!-- esi_fast404 -->';
+//   $output .= '</body></html>';
+
+  return $output;
+}
+
+function esi_set_page_cache($data, $scope, $last_arg) {
+  global $base_root;
+  if (!variable_get('esi_page_cache', ESI_PAGE_CACHE)) {
+    return FALSE;
+  }
+  if (!variable_get('esi_mode', ESI_MODE)) {
+    return FALSE;
+  }
+
+  require_once(drupal_get_path('module', 'esi')  . '/esi.inc');
+  switch ($scope) {
+    // Disabled or not cached.
+    case 0:
+    case 1:
+      return FALSE;
+      break;
+
+    // Global or page.
+    case 2:
+    case 3:
+      break;
+
+    // User level.
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+      // Cache only if the last argument of the URL contains CACHE=*.
+      if (strpos($last_arg, 'CACHE=') !== 0) {
+        return FALSE;
+      }
+      break;
+  }
+
+  if (variable_get('page_compression', TRUE) && extension_loaded('zlib')) {
+    $data = gzencode($data, 9, FORCE_GZIP);
+  }
+
+  if (_esi_get_drupal_distribution() !== 'drupal') {
+    $cache = (object) array(
+      'cid' => 'esi:' . $base_root . request_uri(),
+      'data' => $data,
+      'expire' => CACHE_TEMPORARY,
+      'created' => $_SERVER['REQUEST_TIME'],
+      'headers' => array(),
+    );
+
+    // Restore preferred header names based on the lower-case names returned
+    // by drupal_get_header().
+    $header_names = _drupal_set_preferred_header_name();
+    foreach (drupal_get_header() as $name_lower => $value) {
+      $cache->headers[$header_names[$name_lower]] = $value;
+    }
+    return cache_set($cache->cid, $cache->data, 'cache_page', $cache->expire, serialize($cache->headers));
+  }
+  else {
+    return cache_set('esi:' . $base_root . request_uri(), $data, 'cache_page', CACHE_TEMPORARY, drupal_get_headers());
+  }
+}
+
+function esi_get_page_cache() {
+  global $base_root;
+  if (!variable_get('esi_page_cache', ESI_PAGE_CACHE)) {
+    return NULL;
+  }
+  if (!variable_get('esi_mode', ESI_MODE)) {
+    return NULL;
+  }
+
+  $cid = 'esi:' . $base_root . request_uri();
+  // Only try the cache for these paths.
+  if (   strpos($cid, '/esi/block/') === FALSE
+      && strpos($cid, '/esi/panels_pane/') === FALSE
+        ) {
+    return NULL;
+  }
+
+  // See if this is cached.
+  $cache = cache_get($cid, 'cache_page');
+  if (empty($cache)) {
+    header('X-Drupal-ESI-Cache: MISS');
+    return NULL;
+  }
+
+  // Unserialize headers if they are serialized.
+  $headers = @unserialize($cache->headers);
+  if ($headers === FALSE && $cache->headers !== 'b:0;') {
+    $headers = $cache->headers;
+  }
+  if (!is_array($headers)) {
+    $headers = explode("\n", $headers);
+  }
+
+  // Parse headers.
+  $max_age = -1;
+  foreach ($headers as $key => $header) {
+    // Get the max age.
+    if ((stripos($header, 'Cache-Control: ') === 0 && stripos($header, 'max-age=') !== FALSE) || (strcasecmp($key, 'Cache-Control') == 0 && stripos($header, 'max-age=') !== FALSE)) {
+      $max_age = (int)substr($header, strpos($header, 'max-age=') + 8);
+    }
+    // Set the server protocol.
+    if (strpos($header, ':status: ') === 0) {
+      $header = str_replace(':status:', $_SERVER['SERVER_PROTOCOL'], $header);
+    }
+    if (strcasecmp($key, ':status') == 0) {
+      $headers[$_SERVER['SERVER_PROTOCOL']] = $header;
+      unset($headers[$key]);
+    }
+  }
+
+  // Check the max age.
+  $time = (int)isset($_SERVER['REQUEST_TIME']) ? $_SERVER['REQUEST_TIME'] : time();
+  if (empty($max_age) || ($time - (int)$cache->created) > $max_age) {
+    header('X-Drupal-ESI-Cache: EXPIRED' . $max_age);
+    return NULL;
+  }
+
+  // Deal with compression.
+  $page_compression = variable_get('page_compression', TRUE) && extension_loaded('zlib');
+  $return_compressed =  variable_get('page_compression', TRUE) && extension_loaded('zlib') && isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
+  $headers[] = 'Etag: "' . $cache->created . '-' . intval($return_compressed) . '"';
+  if ($page_compression) {
+    header('Vary: Accept-Encoding', FALSE);
+    // If page_compression is enabled, the cache contains gzipped data.
+    if ($return_compressed) {
+      ini_set('zlib.output_compression', '0');
+      $headers[] = ('Content-Encoding: gzip');
+    }
+    else {
+      // The client does not support compression, so unzip the data in the
+      // cache. Strip the gzip header and run uncompress.
+      $cache->data = gzinflate(substr(substr($cache->data, 10), 0, -8));
+      $headers[] = ('X-PF-Uncompressing: 1');
+    }
+  }
+
+  // Send contents if everything works out.
+  $headers[] = 'X-Drupal-ESI-Cache: HIT';
+  foreach ($headers as $key => $header) {
+    if (is_numeric($key)) {
+      header($header);
+    }
+    else {
+      header($key . ': '. $header);
+    }
+  }
+  return $cache->data;
+}
+
+function esi_boot() {
+  if ($cache = esi_get_page_cache()) {
+    echo $cache;
+    exit;
+  }
+}
