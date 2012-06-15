@@ -127,7 +127,7 @@ function wallyesi_form_alter($form,$form_state,$form_id){
       if($type!=""){
         $subtype  = $form_state['pane']->subtype;
 
-        $config = _wallyesi__ctoolscontenttype_settings($type, $subtype,$form_state['pane']->pid);
+        $config = _wallyesi__ctoolscontenttype_settings($type, $subtype, $form_state['pane']->pid);
 
         $form['esi_config']['#tree']=TRUE;
 
