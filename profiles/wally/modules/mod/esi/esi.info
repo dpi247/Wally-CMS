@@ -1,0 +1,13 @@
+name = ESI - Edge Side Includes
+description = "Allow Drupal blocks and panels to be delivered via ESI (Edge-Side Includes), SSI (Server Side Includes), or AJAX (JavaScript)."
+package = Performance and scalability
+recommends[] = varnish
+core = 6.x
+php = 5.1
+
+; Information added by drupal.org packaging script on 2012-03-01
+version = "6.x-2.0-beta1"
+core = "6.x"
+project = "esi"
+datestamp = "1330573542"
+
