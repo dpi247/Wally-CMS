@@ -1,0 +1,14 @@
+*** esi.module	2012-03-01 04:29:43.000000000 +0100
+--- esi.module	2012-06-15 14:03:40.040973415 +0200
+***************
+*** 665,670 ****
+--- 665,673 ----
+        // return array($keys);
+  
+      case 'term_view':
++       $tid = arg(2);
++       $depth = arg(3);
++       return array($tid, $depth);
+        // @TODO.
+        //  return array($terms, $depth);
+    }
