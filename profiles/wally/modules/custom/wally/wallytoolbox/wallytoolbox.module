@@ -1134,6 +1134,11 @@ function wallytoolbox_convert_taxonomy_flat_to_tree(& $array_of_terms_flat) {
   return $map;
 }
 
+function wallytoolbox_get_all_aliases($internal_url) {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  return _wallytoolbox_get_all_aliases($internal_url);
+}
+
 function _wallytoolbox_get_setting($settings, $name, $default = NULL) {
   $conf_keys = array_keys($settings);
   if (is_object($settings[$conf_keys[0]])) {

@@ -694,7 +694,7 @@ function _wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FA
 /**
  * Return an array of all existing aliases for an internal url.
  */
-function wallytoolbox_get_all_aliases($internal_url) {
+function _wallytoolbox_get_all_aliases($internal_url) {
   $db_aliases = db_query('SELECT dst FROM {url_alias} WHERE src = "%s" ORDER BY pid DESC', $internal_url);
   $return_aliases = array();
 
