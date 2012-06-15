@@ -1,11 +1,7 @@
 <?php
 
 if ($nid) {
-  $temp_node_hours_stats = array();
-  $node_hours_stats_db = db_query('SELECT timestamp, SUM(count) FROM {wallystat_node_hourly_counter} WHERE nid = "%s" GROUP BY timestamp ORDER BY timestamp ASC', $nid);
-  while ($stat = db_fetch_array($node_hours_stats_db)) {
-    $temp_node_hours_stats[$stat['timestamp']] = $stat['SUM(count)'];
-  }
+  $temp_node_hours_stats = wallystat_node_get_hourly_counts($nid);
   
   $current_tstamp = time() - date('i')*60 - date('s');
   $last_tstamp = $current_tstamp - 48*60*60;
