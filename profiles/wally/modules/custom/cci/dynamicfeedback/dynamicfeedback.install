@@ -1,0 +1,6 @@
+<?php
+
+function dynamicfeedback_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('dynamicfeedback_');
+}
