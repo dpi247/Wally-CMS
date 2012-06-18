@@ -215,6 +215,7 @@ function wally_profile_tasks(&$task, $url) {
       $batch['operations'][] = array('_wally_install_menus', array());
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
       $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
+      $batch['operations'][] = array('_wally_install_presets', array());
       $batch['operations'][] = array('_wally_placeholder_content', array());
     }
 
@@ -747,6 +748,75 @@ function _wally_setup_taxonomymenu($vid, $menu_name) {
     $menu_link = menu_link_load($mlid);
     $menu_link['hidden'] = 0;
     menu_link_save($menu_link);
+  }
+}
+
+/**
+ * Install demo presets
+ */
+function _wally_install_presets() {
+  if (!imagecache_preset_by_name('slider_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'slider_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+
+  if (!imagecache_preset_by_name('theme_medium_article_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_medium_article_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 90, 'height' => 90, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+
+  if (!imagecache_preset_by_name('theme_large_article_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'theme_large_article_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => "center", 'yoffset' => "center", 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+
+  if (!imagecache_preset_by_name('gallery_preset')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale';
+    $imagecacheaction->data = array('width' => 75, 'height' => 75, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
   }
 }
 
