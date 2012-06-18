@@ -337,8 +337,8 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
   }
 
   module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'after_process');
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  if (!empty($node) && !$node->rejected && wallytoolbox_check_is_node($node)){
+  module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+  if (!empty($node) && !$node->rejected && _wimprthelp_check_is_node($node)){
     $node->doNotPullUp = TRUE;
     node_save($node);
     module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
@@ -500,8 +500,8 @@ function wimprt_cron_previews_cleanup() {
 
     foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
       if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
-        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-        wallytoolbox_delete_photofile($embed->field_photofile[0]);
+        module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+        _wimprthelp_delete_photofile($embed->field_photofile[0]);
       }
     }
 

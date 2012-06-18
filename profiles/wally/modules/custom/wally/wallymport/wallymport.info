@@ -4,5 +4,3 @@ package = "Wally"
 core = "6.x"
 version = "6.x-2.0"
 project = "Wally"
-
-dependencies[] = "wallytoolbox"

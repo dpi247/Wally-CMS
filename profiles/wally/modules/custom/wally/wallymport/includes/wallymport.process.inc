@@ -431,10 +431,10 @@ function wallymport_preprocess_zip($file, &$importer, &$return){
 
   $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
     $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
     $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
-    file_check_directory_recursive($temp_subdir, 1);
+    _wimprthelp_file_check_directory_recursive($temp_subdir, 1);
     if (is_dir($temp_subdir)) {
       $importer->temp_subdir = $temp_subdir;
       $zip->extractTo($temp_subdir);
@@ -505,8 +505,8 @@ function wallymport_process_xmlfile($xml_file, $importer){
     //If you edit the root of the dom, do not forget to reload the dom ($content = dom->saveXML(); $dom->LoadXML(content))
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
     
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    if (!wallytoolbox_validate_xml($dom, $importer->xsd_path)) {
+    module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+    if (!_wimprthelp_validate_xml($dom, $importer->xsd_path)) {
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
       $return = array('error' => TRUE, 'error_msg' => $error_msg);
