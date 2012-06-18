@@ -245,7 +245,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
       $good_uri_host = str_replace($badcar, '_', $uri['host']);
       $file_temp_path = $temp_folder.'/'.$uri['host'];
       $file_dir = file_directory_path().'/'.$new_file_path;
-      file_check_directory_recursive($file_dir, 1);
+      _wimprthelp_file_check_directory_recursive($file_dir, 1);
       $file_dest_path = $file_dir.'/'.rand().'_'.$good_uri_host;
 
       if (!@copy($file_temp_path, $file_dest_path)) {
@@ -274,7 +274,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
           break;
         }
         $file_temp_dir = file_directory_path().'/'.$new_file_path;
-        file_check_directory_recursive($file_temp_dir, 1);
+        _wimprthelp_file_check_directory_recursive($file_temp_dir, 1);
         $file_temp_path = $file_temp_dir.'/'.md5($file_uri).'_'.$good_file_name;
         if(!@copy($file_uri, $file_temp_path)) {
           chmod($file_temp_path, octdec("0777"));
@@ -302,4 +302,157 @@ function _wimprthelp_create_file($filepath, $uid){
   drupal_write_record('files', $file);
   $return = field_file_load($filepath);
   return $return;
+}
+
+function _wimprthelp_check_is_node($node) {
+  if(isset($node->type) && !empty($node->type) && isset($node->title) && !empty($node->title)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Delete the Drupal file and remove the physical file of a photo.
+ * 
+ * @param array $photofile
+ *   A Drupal file array.
+ */
+function _wimprthelp_delete_photofile($photofile) {
+  if (isset($photofile['filepath'])) {
+    $filepath = $photofile['filepath'];
+    file_delete($filepath);
+    db_query('DELETE FROM files WHERE filepath = "%s"', $filepath);
+  }
+}
+
+/**
+ * Unsets all persistent variables beginning with the given string.
+ *
+ * @param $name
+ *   The name of the variable to undefine.
+ *
+ * @see variable_get(), variable_set(), variable_del()
+ */
+function _wimprthelp_variable_del_like($name, $type = 'both') {
+  if ($type == 'system' || $type == 'both') {
+    global $conf, $db_prefix;
+
+    $db_res = db_query("SELECT name FROM {variable} WHERE name LIKE '%s%'", $name);
+
+    while ($res = db_fetch_array($db_res)) {
+      db_query("DELETE FROM {variable} WHERE name = '%s'", $res['name']);
+      unset($conf[$res['name']]);
+    }
+
+    // The write-through rebuild optimization isn't compatible with SimpleTest.
+    // Because array-based prefixes don't work with SimpleTest, we can assume
+    // that a non-string prefix indicates lack of SimpleTest operations.
+    if (is_string($db_prefix) && strpos($db_prefix, 'simpletest') === 0) {
+      cache_clear_all('variables', 'cache');
+    }
+
+    variable_cache_rebuild();
+  }
+
+  if ($type == 'wally' || $type == 'both') {
+    global $wally_vars;
+
+    $db_res = db_query("SELECT name FROM {wally_variable_fast} WHERE name LIKE '%s%'", $name);
+
+    while ($res = db_fetch_array($db_res)) {
+      db_query("DELETE FROM {wally_variable_fast} WHERE name = '%s'", $res['name']);
+      unset($wally_vars[$res['name']]);
+    }
+  }
+}
+
+/**
+ * Checks whether a directory exists and is writable.
+ *
+ * Furthermore, the directory can optionally be created if it does not exist,
+ * and/or be set to writable if it is currently not. Directories need to have
+ * execute permission to be considered a directory by FTP servers.
+ *
+ * @param $directory
+ *   A string representing the directory path.
+ * @param $mode
+ *   An optional bitmask containing the actions, if any, to be carried out on
+ *   the directory. Any combination of the actions FILE_CREATE_DIRECTORY and
+ *   FILE_MODIFY_PERMISSIONS is allowed.
+ * @param $form_item
+ *   An optional string containing the name of a form item that any errors
+ *   will be attached to. Useful when the function validates a directory path
+ *   entered as a form value. An error will consequently prevent form submit
+ *   handlers from running, and instead display the form along with the
+ *   error messages.
+ *
+ * @return
+ *   FALSE if the directory does not exist or is not writable, even after
+ *   any optional actions have been carried out. Otherwise, TRUE is returned.
+ */
+function _wimprthelp_file_check_directory_recursive(&$directory, $mode = 0, $form_item = NULL) {
+  $directory = rtrim($directory, '/\\');
+
+  // Check if directory exists.
+  if (!is_dir($directory)) {
+    if (($mode & FILE_CREATE_DIRECTORY) && @mkdir($directory, 0775, TRUE)) {
+      drupal_set_message(t('The directory %directory has been created.', array('%directory' => $directory)));
+      @chmod($directory, 0775); // Necessary for non-webserver users.
+    }
+    else {
+      if ($form_item) {
+        form_set_error($form_item, t('The directory %directory does not exist.', array('%directory' => $directory)));
+      }
+      return FALSE;
+    }
+  }
+
+  // Check to see if the directory is writable.
+  if (!is_writable($directory)) {
+    if (($mode & FILE_MODIFY_PERMISSIONS) && @chmod($directory, 0775)) {
+      drupal_set_message(t('The permissions of directory %directory have been changed to make it writable.', array('%directory' => $directory)));
+    }
+    else {
+      form_set_error($form_item, t('The directory %directory is not writable', array('%directory' => $directory)));
+      watchdog('file system', 'The directory %directory is not writable, because it does not have the correct permissions set.', array('%directory' => $directory), WATCHDOG_ERROR);
+      return FALSE;
+    }
+  }
+
+  if ((file_directory_path() == $directory || file_directory_temp() == $directory) && !is_file("$directory/.htaccess")) {
+    $htaccess_lines = "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\nOptions None\nOptions +FollowSymLinks";
+    if (($fp = fopen("$directory/.htaccess", 'w')) && fputs($fp, $htaccess_lines)) {
+      fclose($fp);
+      chmod($directory .'/.htaccess', 0664);
+    }
+    else {
+      $variables = array('%directory' => $directory, '!htaccess' => '<br />'. nl2br(check_plain($htaccess_lines)));
+      form_set_error($form_item, t("Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables));
+      watchdog('security', "Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables, WATCHDOG_ERROR);
+    }
+  }
+
+  return TRUE;
+}
+
+function _wimprthelp_validate_xml($dom, $xsd_path) {
+  set_error_handler('_wimprthelp_validate_xml_error', E_WARNING);
+  return $dom->schemaValidate($xsd_path);
+}
+
+function _wimprthelp_validate_xml_error($errno, $errstr, $errfile = '', $errline = 0, $errcontext = array()) {
+  if (strpos($errstr, 'DOMDocument::schemaValidate') === 0) {
+    switch ($errno) {
+      case 1:
+        $mess_type = 'error';
+        break;
+      case 2:
+        $mess_type = 'warning';
+        break;
+      default:
+        $mess_type = 'status';
+        break;
+    }
+    drupal_set_message(check_plain($errstr), $mess_type);
+  }
 }

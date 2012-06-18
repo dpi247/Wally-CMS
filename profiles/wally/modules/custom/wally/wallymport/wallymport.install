@@ -5,8 +5,8 @@
  */
 function wallymport_uninstall(){
   drupal_uninstall_schema('wallymport');
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  wallytoolbox_variable_del_like('wallymport_');
+  module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+  _wimprthelp_variable_del_like('wallymport_');
 }
 
 /**
