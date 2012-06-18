@@ -1168,4 +1168,3 @@ function wallycontenttypes_delete_orphans_objects($node){
 /**
  * @} End of "defgroup wallycontenttypes".
  */
-
