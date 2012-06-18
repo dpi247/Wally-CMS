@@ -800,8 +800,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
 
-  if (!$form_state['locked']) {
-    wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id']);
+  if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'])) {
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
     $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
@@ -1157,20 +1156,39 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
       $field_name = $field['name'];
       if(isset($form_state[$field_name])) {
         foreach($form_state[$field_name] as $key => $value) {
-          $nid = wydit_publish_prenode($form_state[$field_name][$key], TRUE);
-          unset($form_state[$field_name][$key]);
-          $form_state[$field_name][$key]['nid'] = $nid;
+          if ($nid = wydit_publish_prenode($form_state[$field_name][$key], TRUE)) {
+            unset($form_state[$field_name][$key]);
+            $form_state[$field_name][$key]['nid'] = $nid;
+          }
         }
       }
       $form_state['#node']->$field_name = $form_state[$field_name] ? $form_state[$field_name] : array();
     }
   }
-  
+
   if (is_array($form_state['#node']->path) && isset($form_state['#node']->path['pathauto_perform_alias'])) {
     $form_state['#node']->pathauto_perform_alias = $form_state['#node']->path['pathauto_perform_alias'];
     unset($form_state['#node']->path);
   }
-  
+
+  switch ($form_state['type']) {
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+    default:
+      $main_object_type = FALSE;
+      break;
+  }
+  if ($main_object_type && (!isset($form_state['#node']->$main_object_type) || empty($form_state['#node']->$main_object_type))) {
+    return FALSE;
+  }
+
   return wydit_publish_prenode_save($form_state, $sub_level);
 }
 
