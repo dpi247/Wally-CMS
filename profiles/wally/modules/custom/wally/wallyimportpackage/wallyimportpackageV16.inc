@@ -33,9 +33,10 @@ function wallyimportpackageV16_set_field_EmbeddedContent(&$node, $dom, &$log, $i
       if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
         $results[$result->nid] = TRUE;
         $order = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
-        $arraytemporaire[$order]['nid'] = $result->nid;
         if ($importer->wallymport_preview){
           $arraytemporaire_nodes[$order] = $result;
+        } else {
+          $arraytemporaire[$order]['nid'] = $result->nid;
         }
       }
     }
@@ -45,9 +46,10 @@ function wallyimportpackageV16_set_field_EmbeddedContent(&$node, $dom, &$log, $i
   ksort($arraytemporaire_nodes);
   // Place object in the correct order (depend of the embeddedobjectorder)
   foreach ($arraytemporaire as $array_key => $array_value){
-    array_push($node->field_embededobjects, $array_value);
     if ($importer->wallymport_preview){
       array_push($node->field_embededobjects_nodes, $arraytemporaire_nodes[$array_key]);
+    } else {
+      array_push($node->field_embededobjects, $array_value);
     }
   }
 
