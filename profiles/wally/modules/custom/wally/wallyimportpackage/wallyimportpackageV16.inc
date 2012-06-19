@@ -291,11 +291,19 @@ function wallyimportpackageV16_process_object_link(&$node, $dom, &$log, $importe
  */
 function wallyimportpackageV16_process_object_pollobjecttype(&$node, $dom, &$log, $importer){
   static $proceed_file_path;
-
   //put common attribute
   wallyimportpackageV16_objecttype_preprocess($node, $dom, $importer);
 
   wimprt_process_node_default($node, $dom, $log, $importer);
+
+  //Exception for PollObject
+  if ($dom->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
+    $node->title = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+  }
+
+  if ($dom->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value" => $dom->getElementsByTagName("Title")->item(0)->nodeValue));
+  }
    
   //Exception for TextObject
   $date1 = NULL;
