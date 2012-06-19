@@ -751,7 +751,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
   if (!($b = wydit_get_target_from_parents($form_state['values'], $parents))) {
     wydit_populate_form_state($a[$type_name], $node, $form_state['profile_id']);
   } else {
-    $a[$type_name]['#node'] = (object)(wydit_merge_arrays((array)$node, (array)node_submit($b)));
+    $a[$type_name]['#node'] = (object)(wydit_merge_arrays((array)$node, (array)node_submit($b), $node->type));
     $sub_form_state = array();
     $sub_form_state[$type_name] = wydit_get_target_from_parents($form_state, $parents);
     $sub_form_state['values'] = wydit_get_target_from_parents($form_state['values'], $parents);
@@ -762,15 +762,16 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
       if($field['display'] == 2 || $field['display'] == 3) {
         if(isset($sub_form_state[$type_name][$field_name])) {
           foreach($sub_form_state[$type_name][$field_name] as $key => $value) {
-            //avoid the weight_.$key element
+            // Avoid the weight_.$key element
             if(is_numeric($key)) {
-              //determine index, if no weight -inline element- use $key value
+              // Determine index, if no weight -inline element- use $key value
               if(isset($sub_form_state['values'][$field_name]['weight_'.$key])) {
                 $index = $sub_form_state['values'][$field_name]['weight_'.$key];
               } else {
                 $index = $key;
               }
-              $a[$type_name][$field_name][$index]['#node'] = (object)(wydit_merge_arrays((array)$sub_form_state[$type_name][$field_name][$key]['#node'], (array)node_submit($sub_form_state['values'][$field_name][$key])));
+
+              $a[$type_name][$field_name][$index]['#node'] = (object)(wydit_merge_arrays((array)$sub_form_state[$type_name][$field_name][$key]['#node'], (array)node_submit($sub_form_state['values'][$field_name][$key]), $sub_form_state[$type_name][$field_name][$key]['type']));
               $subtype = $a[$type_name][$field_name][$index]['#node']->type;
               $a[$type_name][$field_name][$index]['type'] = $subtype;
 
@@ -1051,6 +1052,11 @@ function wydit_merge_arrays() {
     return;
   }
   $arrays = func_get_args();
+  $type = array_pop($arrays);
+  if (is_array($type)) {
+    array_push($arrays, $type);
+    $type = FALSE;
+  }
   $merged = array();
   while ($arrays) {
     $array = array_shift($arrays);
@@ -1063,8 +1069,15 @@ function wydit_merge_arrays() {
     }
     foreach ($array as $key => $value) {
       if (is_string($key) || is_numeric($key)) {
-        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]) && !array_key_exists($key.'_add_more', $value)) {
-          $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value);
+        $multiple = FALSE;
+        if ($type) {
+          module_load_include('inc', 'wallyedit', 'includes/config_api');
+          if ($field_infos = wyditadmin_get_existing_fields($type, $key)) {
+            $multiple = $field_infos['multiple'];
+          }
+        }
+        if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]) && !$multiple) {
+          $merged[$key] = call_user_func(__FUNCTION__, $merged[$key], $value, $type);
         } else {
           $merged[$key] = $value;
         }
@@ -1099,7 +1112,7 @@ function wydit_clean_form_state($form_state){
         foreach($form_state[$type_name][$field_name] as $key => $value) {
           if(is_numeric($key)) {
             if(isset($form_state[$type_name][$field_name][$key]['#node']) && isset($form_state['values'][$type_name][$field_name][$key])){
-              $a[$type_name][$field_name][$key]['#node'] = (object)(wydit_merge_arrays((array)$form_state[$type_name][$field_name][$key]['#node'], (array)node_submit($form_state['values'][$type_name][$field_name][$key])));
+              $a[$type_name][$field_name][$key]['#node'] = (object)(wydit_merge_arrays((array)$form_state[$type_name][$field_name][$key]['#node'], (array)node_submit($form_state['values'][$type_name][$field_name][$key]), $form_state[$type_name][$field_name][$key]['type']));
               $a[$type_name][$field_name][$key]['type'] = $a[$type_name][$field_name][$key]['#node']->type;
             } else {
               $a[$type_name][$field_name][$key]['#node'] = $form_state[$type_name][$field_name][$key]['#node'];
