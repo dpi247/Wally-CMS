@@ -52,8 +52,8 @@ function wallytoolbox_schema() {
         'default' => 0,
       ),
       'callback' => array(
-        'type' => 'varchar',
-        'length' => '255',
+      	'type' => 'text',
+      	'size' => 'big',
         'not null' => TRUE,
         'default' => '',
         'serialize' => TRUE,
