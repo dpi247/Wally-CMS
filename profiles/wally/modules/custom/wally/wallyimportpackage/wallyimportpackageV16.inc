@@ -291,6 +291,7 @@ function wallyimportpackageV16_process_object_link(&$node, $dom, &$log, $importe
  */
 function wallyimportpackageV16_process_object_pollobjecttype(&$node, $dom, &$log, $importer){
   static $proceed_file_path;
+
   //put common attribute
   wallyimportpackageV16_objecttype_preprocess($node, $dom, $importer);
 
