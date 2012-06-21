@@ -353,30 +353,34 @@ function preprocess_node_article_dispatch_top_bottom($vars,$allItems,&$top, &$bo
   $node=$vars['node'];
 
   //First we set the top
-  foreach($node->field_embededobjects_nodes as $nid=>$embed){
-    if($item=$allItems[$embed->nid]){
-      switch ($item['group_type']){
-        case 'photo':
-          $top[$embed->nid]=$item;
-          break;
-        case 'video':
-          if($switch!=TRUE and $item['provider']!='slideshare'){
+  if (is_array($node->field_embededobjects_nodes)) {
+    foreach($node->field_embededobjects_nodes as $nid=>$embed){
+      if($item=$allItems[$embed->nid]){
+        switch ($item['group_type']){
+          case 'photo':
             $top[$embed->nid]=$item;
-            $switch=TRUE;
-          }
-          break;
-        case 'link':
-          break;
+            break;
+          case 'video':
+            if($switch!=TRUE and $item['provider']!='slideshare'){
+              $top[$embed->nid]=$item;
+              $switch=TRUE;
+            }
+            break;
+          case 'link':
+            break;
+        }
       }
     }
   }
 
   //First we set the top
-  foreach($node->field_embededobjects_nodes as $nid=>$embed){
-    if($item=$allItems[$embed->nid]){
-      //We simply put on bottom all content not include in top ...
-      if(!isset($top[$embed->nid])){
-        $bottom[$embed->nid]=$item;
+  if (is_array($node->field_embededobjects_nodes)) {
+    foreach($node->field_embededobjects_nodes as $nid=>$embed){
+      if($item=$allItems[$embed->nid]){
+        //We simply put on bottom all content not include in top ...
+        if(!isset($top[$embed->nid])){
+          $bottom[$embed->nid]=$item;
+        }
       }
     }
   }
@@ -432,30 +436,33 @@ function wallydemo_preprocess_node(&$vars) {
   if($node->type=="wally_articlepackage" ||$node->type=="wally_pollpackage" || $node->type=="wally_gallerypackage"){
 
     $pub_date = $node->field_publicationdate[0];
-    $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
+    if ($form_date = date_make_date($pub_date['value'], $pub_date['timezone_db'])) {
+      $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
+      $form_date = unserialize(serialize($form_date));
+      $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
+    }
 
     $editorial_update = $node->field_editorialupdatedate[0];
-    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
+    if($form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db'])) {
+      $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
+      $form_date = unserialize(serialize($form_date));
+      $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
+    }
   }
 
-  if($node->type=="wally_articlepackage"){
-    if($node->nid==arg(1) or $node->preview or TRUE){
+  if($node->type == 'wally_articlepackage') {
+    if($node->nid == arg(1) or $node->preview or TRUE){
       
-      $vars['bool_node_page']=true;
-      wallycontenttypes_packagepopulate($node);
-      node_build_content($node);
-      
+      $vars['bool_node_page'] = TRUE;
+
       if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
         foreach ($node->field_embededobjects_nodes as $delta => $embed) {
           // Fake nid in case of preview
           $node->field_embededobjects_nodes[$delta]->nid = $delta;
         }
+      } else {
+        node_build_content($node);
+        wallycontenttypes_packagepopulate($node);
       }
 
       wallydemo_preprocess_node_build_embedded_links($vars);
@@ -544,6 +551,8 @@ function wallydemo_preprocess_spscoop_html_form(&$vars){
 function wallydemo_preprocess_page(&$vars){
   $domain_url = $_SERVER["SERVER_NAME"];
   $domain = 'sudinfo';
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   //ajoute un candidat template utilisé pour le contexte mobile
   if ($domain == "mobile"){
@@ -554,6 +563,9 @@ function wallydemo_preprocess_page(&$vars){
   $site_url = variable_get($domain.'_site_url', NULL);
   $associated_brand = variable_get($domain.'_associated_brand', NULL);
   $current_path = wallydemo_get_current_path();
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  
   $current_path_alias = wallytoolbox_get_all_aliases($current_path);
   //$vars['head'] = _set_meta_general($site_name, $site_url, $associated_brand, $domain);
   $args = arg();
@@ -722,6 +734,7 @@ function _set_meta_fornode($node, $site_name=NULL, $site_url=NULL, $associated_b
   }
 
   //$aliases = wallytoolbox_get_path_aliases("node/".$node->nid);
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
   $node_path = $aliases[0];
 
@@ -1776,47 +1789,49 @@ function _wallydemo_get_trimmed_string($string){
 
 function _wallydemo_get_sorted_links($node){
   $allLinks = array();
-  $listLinks = $node->field_linkedobjects_nodes;	
-  foreach ($listLinks as $ll) {
-	$lLinks = array();
-	$lLinks["title"] = $ll->title;
-	$i = 0;   
-	if (isset($ll->field_links_list_nodes)){
-  	  foreach ($ll->field_links_list_nodes as $l) {			
-  	    if ($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
-	      $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
-	      $package_layout = taxonomy_get_term($package_layout);
-	      $package_layout_name = $package_layout->name;
-	    }
-		// teste s'il s'agit d'un lien interne
-		if ($l->field_internal_link[0]["nid"] != NULL) {
-		  $nodeTarget = node_load($l->field_internal_link[0]["nid"]);
-	      $lLinks["links"][$i]["internal"] = 1;
-		  $lLinks["links"][$i]["title"] = $nodeTarget->title;
-	      $lLinks["links"][$i]["target"] = NULL;
-	      $lLinks["links"][$i]["status"] = $l->status;				
-		  $lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
-		  if ($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
-		} else {
-		  if ($l->files) {
-			$att = array_pop($l->files);
-			$lLinks["links"][$i]["url"] = "/".$att->filepath;
-			$lLinks["links"][$i]["title"] = $l->title;
-		  } else {
-		    $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
-		    if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
-			  $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
-		    } else {
-			  $lLinks["links"][$i]["title"] = $l->title;
-		    }
-		    $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
-		  } 
-		  $lLinks["links"][$i]["status"] = $l->status;
-	    }
-	    $lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);			
-	    $i++;
-	  }
-	  array_push($allLinks,$lLinks);
+  $listLinks = $node->field_linkedobjects_nodes;
+  if (is_array($listLinks)) {
+    foreach ($listLinks as $ll) {
+      $lLinks = array();
+      $lLinks["title"] = $ll->title;
+      $i = 0;
+      if (isset($ll->field_links_list_nodes)){
+        foreach ($ll->field_links_list_nodes as $l) {
+          if ($l->field_internal_link_nodes[0]->field_packagelayout[0]["value"]) {
+            $package_layout = $l->field_internal_link_nodes[0]->field_packagelayout[0]["value"];
+            $package_layout = taxonomy_get_term($package_layout);
+            $package_layout_name = $package_layout->name;
+          }
+          // teste s'il s'agit d'un lien interne
+          if ($l->field_internal_link[0]["nid"] != NULL) {
+            $nodeTarget = node_load($l->field_internal_link[0]["nid"]);
+            $lLinks["links"][$i]["internal"] = 1;
+            $lLinks["links"][$i]["title"] = $nodeTarget->title;
+            $lLinks["links"][$i]["target"] = NULL;
+            $lLinks["links"][$i]["status"] = $l->status;
+            $lLinks["links"][$i]["url"] = "/".drupal_get_path_alias("node/".$nodeTarget->nid);
+            if ($package_layout_name) $lLinks["links"][$i]["packagelayout"] = $package_layout_name;
+          } else {
+            if ($l->files) {
+              $att = array_pop($l->files);
+              $lLinks["links"][$i]["url"] = "/".$att->filepath;
+              $lLinks["links"][$i]["title"] = $l->title;
+            } else {
+              $lLinks["links"][$i]["url"] = $l->field_link_item[0]["url"];
+              if (isset($l->field_link_item[0]["title"]) && ($l->field_link_item[0]["title"])!="" ) {
+                $lLinks["links"][$i]["title"] = $l->field_link_item[0]["title"];
+              } else {
+                $lLinks["links"][$i]["title"] = $l->title;
+              }
+              $lLinks["links"][$i]["target"] = $l->field_link_item[0]["attributes"]["target"];
+            }
+            $lLinks["links"][$i]["status"] = $l->status;
+          }
+          $lLinks["links"][$i] = _wallydemo_get_link_type(&$lLinks["links"][$i]);
+          $i++;
+        }
+        array_push($allLinks,$lLinks);
+      }
     }
   }
   return $allLinks;
@@ -1978,7 +1993,7 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
         if ($photo['size'] > 0){
           $photo['main_size'] = theme('imagecache', 'article_300x200',$photo['filepath'],strip_tags($photo['summary']),strip_tags($photo['summary']));
           $photo['main_url'] = imagecache_create_url('article_300x200', $photo['fullpath']);
-          $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filename'],strip_tags($photo['summary']),strip_tags($photo['summary']));
+          $photo['mini'] = theme('imagecache', 'article_48x32', $photo['filepath'],strip_tags($photo['summary']),strip_tags($photo['summary']));
         }
         break;
     }
