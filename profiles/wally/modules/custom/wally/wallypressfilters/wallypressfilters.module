@@ -435,7 +435,7 @@ function wallypressfilters_filter_process($fid, $text, $format){
     $settings = $tag->settings;
     $process_function = 'wallypressfilters_'.$settings['operation'].'_tags';
     if (function_exists($process_function)) {
-      $text = $process_function($tag->tag, $settings, $text);
+      $text = $process_function($tag->tag, $settings, $text, $tag->type);
     }
   }
 
@@ -448,7 +448,7 @@ function wallypressfilters_filter_process($fid, $text, $format){
  * @param array $settings settings of this replacement
  * @param string $text text to process
  */
-function wallypressfilters_replace_tags($tag, $settings, $text) {
+function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
   $classes = (isset($settings['classes']) && !empty($settings['classes'])) ? $settings['classes'] : '';
   $new_tag = $settings['html_tag'];
   
@@ -458,11 +458,15 @@ function wallypressfilters_replace_tags($tag, $settings, $text) {
   preg_match_all($class_regex, $text, $class_matches);
   $i = 0;
   for ($i = 0; isset($class_matches[0][$i]); $i++) {
-    $text = str_replace($class_matches[0][$i], '<'.$new_tag.$class_matches[1][$i].'class="'.$class_matches[4][$i].' '.$classes.'"'.$class_matches[5][$i].'>', $text);
+    $replace_string = '<'.$new_tag.$class_matches[1][$i].'class="'.$class_matches[4][$i].' '.$classes.'"'.$class_matches[5][$i];
+    $replace_string .= $type == 'marker' ? '/>' : '>';
+    $text = str_replace($class_matches[0][$i], $replace_string, $text);
   }
   
   // Then we manage the classless tags and the end tags
-  $text = preg_replace('@<'.$tag.'(.*)>@U', '<'.$new_tag.' class="'.$classes.'"${2}>', $text);
+  $replace_string = '<'.$new_tag.' class="'.$classes.'"${2}';
+  $replace_string .= $type == 'marker' ? '/>' : '>';
+  $text = preg_replace('@<'.$tag.'(.*)>@U', $replace_string, $text);
   $text = preg_replace('@<\/'.$tag.'>@U', '</'.$new_tag.'>', $text);
   
   return $text;
