@@ -143,7 +143,7 @@ function wallyctools_preprocess_views_view(&$vars){
     $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
     $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
 
-    $funcs = $view->theme_functions();
+    $funcs = views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
 
     $new_funcs = array();
     foreach($funcs as $func) {
