@@ -172,7 +172,7 @@ function _emvideo_dailymotion_request($src_url){
   $id = $urlT[1]; 
 
   $embedly_result = array();
-  $url = "http://www.dailymotion.com/services/oembed?url=$src_url&format=xml";
+  $url = 'http://www.dailymotion.com/services/oembed?url='.strtok($src_url, '?').'&format=xml';
   $xml = simplexml_load_file($url);  
 
   $embedly_result = array(
