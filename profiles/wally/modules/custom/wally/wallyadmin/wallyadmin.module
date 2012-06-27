@@ -123,7 +123,7 @@ function wallyadmin_menu() {
     'file' => 'includes/wallyadmin.menu_restore.inc',
   );
   
-  $items['admin/content/rebuildtheme'] = array(
+  $items['admin/wally/rebuildtheme'] = array(
     'title' => t('Rebuild Theme Registry'),
     'description' => t('Force the rebuild of the theme registry.'),
     'page callback' => 'drupal_get_form',
