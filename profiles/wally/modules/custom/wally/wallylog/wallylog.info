@@ -1,0 +1,8 @@
+core = "6.x"
+dependencies[] = "wallytoolbox"
+dependencies[] = "wallyadmin"
+description = "This module provides informations about your Wally system state such as good practice configurations, logs, etc."
+name = "Wally Log"
+package = "Wally"
+project = "wallylog"
+version = "6.x-1.0-rc1"

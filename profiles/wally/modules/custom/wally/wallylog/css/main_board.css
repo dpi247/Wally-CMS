@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+
+.error legend span.fieldset-title {
+	background-color: #FCC;
+}
+
+.error legend span.fieldset-title a {
+	background: transparent;
+	color: #333;
+}
+
+.error div {
+  color: #333;
+}
+
+.error h3 {
+  color: #333;
+}

@@ -1,0 +1,39 @@
+
+#edit-type-wrapper, #edit-severity-wrapper {
+  float: left; /* LTR */
+  padding-right: .8em; /* LTR */
+  margin: 0.1em;
+  /**
+   * In Opera 9, DOM elements with the property of "overflow: auto"
+   * will partially hide its contents with unnecessary scrollbars when
+   * its immediate child is floated without an explicit width set.
+   */
+  width: 15em;
+}
+#wallylog-filter-form .form-item select.form-select {
+  width: 100%;
+}
+tr.wallylog-user {
+  background: #ffd;
+}
+tr.wallylog-user .active {
+  background: #eed;
+}
+tr.wallylog-content {
+  background: #ddf;
+}
+tr.wallylog-content .active {
+  background: #cce;
+}
+tr.wallylog-page-not-found, tr.wallylog-access-denied {
+  background: #dfd;
+}
+tr.wallylog-page-not-found .active, tr.wallylog-access-denied .active {
+  background: #cec;
+}
+tr.wallylog-error {
+  background: #ffc9c9;
+}
+tr.wallylog-error .active {
+  background: #eeb9b9;
+}

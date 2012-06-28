@@ -371,7 +371,7 @@ function wallymport_page_importer_logs($iid){
  */
 function wallymport_page_importerlogs($iid){
   $importer = wallymport_getimporter($iid);
-  $count_tot = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs}"));
+  $count_tot = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs} logs WHERE logs.importer_name = '%s'",  $importer->name));
   $result = db_query("SELECT * FROM {wallymport_logs} logs WHERE logs.importer_name = '%s' ORDER BY logs.date DESC LIMIT 0,500", $importer->name);
   $header = array(t('Date'), t('Filename'), t('Filelocation'), t('Success'), t('Message'));
   while ($obj = db_fetch_object($result)){
@@ -514,4 +514,115 @@ function wallymport_page_destinations_items($short = FALSE) {
   }
   
   print $dom_dests->saveXML(); 
+}
+
+function _wallymport_show_status(&$error) {
+  $checks = array();
+  
+  $checks['installed_importers'] = array('title' => t('Installed importers'));
+
+  if ($available_importers = module_invoke_all('wallymport_importer')) {
+    $installed_names = array();
+    foreach ($available_importers as $imps){
+      foreach ($imps as $imp){
+        $installed_names[] = $imp['importer_type'];
+      }
+    }
+    $checks['installed_importers']['value'] = implode(', ', $installed_names);
+    $checks['installed_importers']['severity'] = REQUIREMENT_OK;
+    
+    $importers = wallymport_getimporters();
+    $checks['defined_importers'] = array('title' => t('Defined importers'));
+
+    if ($importers == NULL) {
+      $checks['defined_importers']['value'] = t('None, <a href="@url">define one</a>', array('@url' => '/admin/wally/wallymport/settings/add'));
+      $checks['defined_importers']['severity'] = REQUIREMENT_WARNING;
+    } else {
+      $defined_names = array();
+      foreach ($importers as $importer) {
+        $defined_names[] = $importer->name;
+      }
+      $checks['defined_importers']['value'] = implode(', ', $defined_names);
+      $checks['defined_importers']['severity'] = REQUIREMENT_OK;
+
+      foreach ($importers as $importer) {
+        $checks['importer_'.$importer->iid] = _wallymport_check_importer_status($importer, $error);
+      }
+    }
+  } else {
+    $checks['installed_importers']['value'] = t('None, <a href="@url">install one</a>', array('@url' => '/admin/build/modules'));
+    $checks['installed_importers']['severity'] = REQUIREMENT_WARNING;
+  }
+  
+  return theme('status_report', $checks);
+}
+
+function _wallymport_check_importer_status($importer, &$error) {
+  // @todo : rendre plus d'infos
+  $check = array(
+    'title' => t('Importer : "@importer_name"', array('@importer_name' => $importer->name)),
+    'value' => '',
+    'severity' => REQUIREMENT_OK,
+  );
+  if ($importer->processed_by_cron) {
+    $check['value'] .= t('Last run : @last_run', array('@last_run' => date('Y-m-d H:i:s'))).'<br/>';
+  }
+
+  $source_files = file_scan_directory($importer->source_directory_path, '.*\..*' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
+  $amount_source_files = sizeof($source_files);
+  $check['value'] .= t('Amount of files in source directory ("@src_dir") : @amount_files', array('@src_dir' => $importer->source_directory_path, '@amount_files' => $amount_source_files)).'<br/>';
+  if ($amount_source_files > 1000) {
+    $check['severity'] = REQUIREMENT_WARNING;
+    if ($amount_source_files > 5000) {
+      $check['severity'] = REQUIREMENT_ERROR;
+      $error = TRUE;
+    }
+  }
+
+  $done_files = file_scan_directory($importer->done_directory_path, '.*\..*' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
+  $amount_done_files = sizeof($done_files);
+  $check['value'] .= t('Amount of files in done directory ("@src_dir") : @amount_files', array('@src_dir' => $importer->done_directory_path, '@amount_files' => $amount_done_files)).'<br/>';
+  if ($amount_done_files > 1000) {
+    $check['severity'] = REQUIREMENT_WARNING;
+    if ($amount_done_files > 5000) {
+      $check['severity'] = REQUIREMENT_ERROR;
+      $error = TRUE;
+    }
+  }
+  
+  $error_files = file_scan_directory($importer->error_directory_path, '.*\..*' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
+  $amount_error_files = sizeof($error_files);
+  $check['value'] .= t('Amount of files in error directory ("@src_dir") : @amount_files', array('@src_dir' => $importer->error_directory_path, '@amount_files' => $amount_error_files)).'<br/>';
+  if ($amount_error_files > 1000) {
+    $check['severity'] = REQUIREMENT_WARNING;
+    if ($amount_error_files > 5000) {
+      $check['severity'] = REQUIREMENT_ERROR;
+      $error = TRUE;
+    }
+  }
+
+  if (trim($importer->temp_directory_path, '/') != 'tmp') {
+    $temp_files = file_scan_directory($importer->temp_directory_path, '.*\..*' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
+    $amount_temp_files = sizeof($temp_files);
+    $check['value'] .= t('Amount of files in error directory ("@src_dir") : @amount_files', array('@src_dir' => $importer->temp_directory_path, '@amount_files' => $amount_temp_files)).'<br/>';
+    if ($amount_temp_files > 1000) {
+      $check['severity'] = REQUIREMENT_WARNING;
+      if ($amount_temp_files > 5000) {
+        $check['severity'] = REQUIREMENT_ERROR;
+        $error = TRUE;
+      }
+    }
+  }
+  
+  $logs_count = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs} logs WHERE logs.importer_name = '%s'",  $importer->name));
+  $check['value'] .= t('Logs recorded : @logs_count', array('@logs_count' => $logs_count['COUNT(*)'])).'<br/>';
+  if ($logs_count['COUNT(*)'] > 10000) {
+    $check['severity'] = REQUIREMENT_WARNING;
+    if ($amount_error_files > 50000) {
+      $check['severity'] = REQUIREMENT_ERROR;
+      $error = TRUE;
+    }
+  }
+  
+  return $check;
 }

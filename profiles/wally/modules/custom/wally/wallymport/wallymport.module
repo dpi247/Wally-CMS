@@ -218,6 +218,34 @@ function wallymport_theme(){
 }
 
 /**
+ * Implementation of hook_wallylog_board().
+ */
+function wallymport_wallylog_board($op, $delta = '') {
+  switch ($op) {
+    case 'list':
+      return array(
+        'wallymport' => 'Wallymport',
+      );
+      
+    case 'content':
+      $status = array();
+      switch ($delta) {
+        case 'wallymport':
+          $error = FALSE;
+          module_load_include('inc', 'wallymport', 'includes/wallymport.admin');
+          $status['wallymport'] = array(
+            'title' => t('Wallymport'),
+            'description' => l(t('Wallymport settings page'), 'admin/wally/wallymport/settings'),
+            'content' => _wallymport_show_status($error),
+            'error' => $error,
+          );
+          return $status;
+      }
+      break;
+  }
+}
+
+/**
  * Implementation of hook_panels_pane_content_alter
  * Remove admin links in case of preview
  */
