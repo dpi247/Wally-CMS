@@ -1,46 +1,62 @@
 <?php
 
-function ccimapping_form_productinfo_editor_form($form_state,$type=NULL){
+function ccimapping_form_productinfo_editor_form($form_state) {
   $form = array();
 
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   
+  $generated_dom = ccimap_build_productinfo();
+  
   $form['xml'] = array(
     '#type' => 'textarea',
     '#title' => t('XML Mapping'),
-    '#default_value' => formatXmlString(ccimap_build_productinfo($type)),
+    '#default_value' => formatXmlString($generated_dom->saveXML()),
     '#disabled' => !user_access('edit synchronization datas'),
   );
 
   $form['type'] = array(
     '#type' => 'value',
-    '#weight'=>9,
+    '#weight' => 9,
     '#value' => $type,
   );
   
-  $form['fieldset']=array(
-    '#type'=>'fieldset',
-    '#title'=>t("XML actuel"),
+  $form['actual_xml_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Current version of the XML from CCI-Newsgate'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
 
-  $form['fieldset']['actual_xml'] = array(
+  $form['actual_xml_fieldset']['actual_xml'] = array(
     '#type' => 'markup',
-    '#weight'=>999,
-    '#value' =>'<pre>'.htmlentities(formatXmlString(ccimap_get_productinfo_fromWS($type))).'</pre>',
+    '#weight' => 999,
+    '#value' => '<pre>'.htmlentities(formatXmlString(ccimap_get_productinfo_fromWS())).'</pre>',
+  );
+  
+  $form['xml_to_be_sent_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('XML that will be sent to CCI'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  drupal_alter('ccimapping_productinfo', $generated_dom, 'before_send');
+  $form['xml_to_be_sent_fieldset']['xml_to_be_sent'] = array(
+    '#type' => 'markup',
+    '#weight' => 1000,
+    '#value' => '<pre>'.htmlentities(formatXmlString($generated_dom->saveXML())).'</pre>',
   );
   
   $form['send'] = array(
     '#type' => 'submit',
-    '#name'=>'send',
+    '#name' => 'send',
     '#value' => t('Save & Send to CCI'),
   );
 
   return $form;
 }
 
-function ccimapping_form_productinfo_editor_form_submit($form,$form_state){
+function ccimapping_form_productinfo_editor_form_submit($form, $form_state) {
   if($form_state['clicked_button']['#name'] == 'send') {
     $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
     $newsroom = wally_variable_get('ccimapping_newsroom', '');
@@ -96,7 +112,7 @@ function ccimap_build_productinfo(){
   $dom = new DomDocument('1.0', 'UTF-8');
   ccimap_build_productinfo_xml($dom, $hierarchies_array, $nested_taxonomy_tree);
   drupal_alter('ccimapping_productinfo', $dom, 'generate');
-  return $dom->saveXML();
+  return $dom;
 }
 
 function ccimap_build_productinfo_xml(&$dom, $hierarchies_array, $nested_taxonomy_tree) {
