@@ -592,37 +592,41 @@ function _wallylog_page_syslog_build_logs() {
     drupal_set_message(t('No log files in the given directory ("@dir").', array('@dir' => $log_dir)), 'error');
     return FALSE;
   }
-  $file = array_shift($files);
+  ksort($files);
+  // Limit display at 5 days
+  $files = array_slice($files, -5, 5, TRUE);
 
-  $handle = fopen($file->filename, 'r');
-  if (!$handle) {
-    drupal_set_message(t('The log file (!log_file) isn\'t readable', array('!log_file' => $file->filename)), 'error');
-    return FALSE;
-  }
-  
   global $base_url;
-
   $rows = array();
-  while($contents = fgets($handle)) {
-    if (strstr($contents, $syslog_id.': ')) {
-      list($a, $raw_log) = explode($syslog_id.': ', $contents);
 
-      $log = array();
-      list($log_url,
-        $log['severity'],
-        $log['timestamp'],
-        $log['type'],
-        $log['ip'],
-        $log['request_uri'],
-        $log['referer'],
-        $log['uid'],
-        $log['link'],
-        $log['message']) = explode('|', $raw_log);
+  foreach ($files as $file) {
+    $handle = fopen($file->filename, 'r');
+    if (!$handle) {
+      drupal_set_message(t('The log file (!log_file) isn\'t readable', array('!log_file' => $file->filename)), 'error');
+      continue;
+    }
 
-      $log_usr = user_load($log['uid']);
+    while($contents = fgets($handle)) {
+      if (strstr($contents, $syslog_id.': ')) {
+        list($a, $raw_log) = explode($syslog_id.': ', $contents);
 
-      if ($log_url == $base_url) {
-        $rows[] = $log;
+        $log = array();
+        list($log_url,
+          $log['severity'],
+          $log['timestamp'],
+          $log['type'],
+          $log['ip'],
+          $log['request_uri'],
+          $log['referer'],
+          $log['uid'],
+          $log['link'],
+          $log['message']) = explode('|', $raw_log);
+
+        $log_usr = user_load($log['uid']);
+
+        if ($log_url == $base_url) {
+          $rows[] = $log;
+        }
       }
     }
   }
