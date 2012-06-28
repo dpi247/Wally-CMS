@@ -167,6 +167,7 @@ function emimage_flickr_data($field, $item) {
     $data['width'] = $width ;
     $data['height'] = $height ;
   }
+
   $data['emimage_data_version'] = EMIMAGE_FLICKR_DATA_VERSION;
   return $data;
 }
