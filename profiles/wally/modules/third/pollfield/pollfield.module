@@ -1,5 +1,5 @@
 <?php
-// $Id: pollfield.module,v 1.2.4.11.2.68 2010/06/26 14:05:06 marioprkos Exp $
+// $Id: pollfield.module,v 1.2.4.11.2.71 2011/01/24 17:30:07 marioprkos Exp $
 
 /**
 * views api init
@@ -93,7 +93,7 @@ function pollfield_theme() {
     'user_vote' => array(
       'arguments' => array('node', 'comment'),
     ),
-		
+
   );
 }
 
@@ -104,7 +104,7 @@ function pollfield_theme() {
  * @return unknown
  */
 function theme_pollfield($element) {
- 
+
  $element['#attributes']['class'] .= 'pollfield-form';
  $fieldset = array(
     '#type' => 'fieldset',
@@ -114,7 +114,7 @@ function theme_pollfield($element) {
     '#attributes' => $element['#attributes'],
     '#children' => $element['#children'],
   );
-  
+
   return theme('fieldset', $fieldset);
 
 }
@@ -152,41 +152,44 @@ function theme_pollfield_formatter_default($element) {
   $is_results_allow=$poll_features['ResultsAllow'];
 	//*********    aggragate translation votes ****************
 	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
-	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
- 
-  while ($t_nodes = db_fetch_object($t_nodes_results)) {
-	 
-		if ($node->nid<>$t_nodes->nid){
-			$t_nodes_nid[]=$t_nodes->nid;
-			//find start value choices
-			//get table name
-			$fields = content_fields();
-			$db_info = content_database_info($fields[$field_name]);
-			$table_content = $db_info['table'];
-			$column_choice = $field_name ."_choice";
-			$column_question = $field_name ."_question";
-			$column = 'delta';
-			$is_delta_exist = db_column_exists($table_content, $column);
-			if ($is_delta_exist) {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
-
-			}
-			else {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
-			}		 
-			$choices_start=unserialize($choices_start_unser);
-			if (is_array($choices_start)){
-			  foreach($choices_start as $value){
-				  $count_translate_votes[]=$value['votes'];
-			  }
-			}
-		}		
-
+	// $tnid is 0 for untranslated nodes. We don't want to aggregate all those.
+	if ($tnid) {
+  	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
+  
+    while ($t_nodes = db_fetch_object($t_nodes_results)) {
+  
+  		if ($node->nid<>$t_nodes->nid){
+  			$t_nodes_nid[]=$t_nodes->nid;
+  			//find start value choices
+  			//get table name
+  			$fields = content_fields();
+  			$db_info = content_database_info($fields[$field_name]);
+  			$table_content = $db_info['table'];
+  			$column_choice = $field_name ."_choice";
+  			$column_question = $field_name ."_question";
+  			$column = 'delta';
+  			$is_delta_exist = db_column_exists($table_content, $column);
+  			if ($is_delta_exist) {
+  				//get choices
+  				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+  
+  			}
+  			else {
+  				//get choices
+  				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+  			}
+  			$choices_start=unserialize($choices_start_unser);
+  			if (is_array($choices_start)){
+  			  foreach($choices_start as $value){
+  				  $count_translate_votes[]=$value['votes'];
+  			  }
+  			}
+  		}
+  
+  	}
 	}
-	
-	
+
+
 	//************* end of aggregate translated votes ********************
 
 
@@ -198,33 +201,35 @@ function theme_pollfield_formatter_default($element) {
         $show_form = TRUE;
         $choices_array[] = check_plain($choice['choice']);
 				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
-		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));
 				$count_translate=0;
-			  foreach($t_nodes_nid as $tnode){
-					
+				if (!empty($t_nodes_nid)){
+					foreach($t_nodes_nid as $tnode){
+
 		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
 		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
 		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
-					$count_translate=$count_translate+$count_temp;				
+					$count_translate=$count_translate+$count_temp;
+					}	
 				}
-				$count=$count_node+$count_translate;
+			  $count=$count_node+$count_translate;
         $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
         $sum = $sum+$count+$choice['votes']+$count_translate_votes[$delta];//countig all votes
       }
     }
   }
-	
+
   //geting results
   $i=0;
   $poll_result='<div id="pollfield">';
-
+  $poll_result_not_allowed = '<ul>';
   while (!empty($choices_array[$i]) && $sum>0) {
     $percent = floatval(($votes[$i]*100.0)/$sum);
     $percent = round($percent, 1);
     //$votes[$i]=$percent;
     //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
 		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
-		
+
     //check user voted
     $is_this_user_vote = FALSE;
     if (is_array($user_votes)) {
@@ -240,20 +245,21 @@ function theme_pollfield_formatter_default($element) {
       $poll_result .= "<div class='pollfield-row pollfield-chosen'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'><div
       class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
       $percent_string ."</div></div>";
+      $poll_result_not_allowed .= '<li class="pollfield-chosen">'.$choices_array[$i].'</li>';
     }
     else {
       $poll_result .= "<div class='pollfield-row'><div class='text'>". $choices_array[$i] ."</div><div class='barcell'>
       <div class='bar'><div class='pollfield-foreground' style='width: ". $percent ."%;'></div></div></div><div class='pollfield-percent'>".
       $percent_string ."</div></div>";
-
+      $poll_result_not_allowed .= '<li>'.$choices_array[$i].'</li>';
     }
     $i++;
   }
   $poll_result .= "</div>";
+  $poll_result_not_allowed .= '</ul>';
 
-  
   if ($show_form) {
-    
+
     $form = pollfield_build_voting_form($element);
     $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
 
@@ -261,13 +267,18 @@ function theme_pollfield_formatter_default($element) {
       $out .= '<div class="pollfield-title">'. check_plain($element['#item']['question']) .'</div>';
     }
 
-    $out .= $form;
+    //$out .= $form;
     $permission='view pollfield results '. $field_name;
+    
     if (user_access($permission)) {
       if ( $is_vote || $is_results_allow) {
-        $out .= $poll_result;
+        $out = $out.$poll_result;
       }
+    }else{
+    	if ($is_vote)
+    		$out = $out.$poll_result_not_allowed;
     }
+    $out .= $form;
     $out .= '</div>';
     return $out;
   }
@@ -306,41 +317,44 @@ function theme_pollfield_formatter_block_default($element) {
   $is_results_allow=$poll_features['ResultsAllow'];
 	//*********    aggragate translation votes ****************
 	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
-	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
- 
-  while ($t_nodes = db_fetch_object($t_nodes_results)) {
-	 
-		if ($node->nid<>$t_nodes->nid){
-			$t_nodes_nid[]=$t_nodes->nid;
-			//find start value choices
-			//get table name
-			$fields = content_fields();
-			$db_info = content_database_info($fields[$field_name]);
-			$table_content = $db_info['table'];
-			$column_choice = $field_name ."_choice";
-			$column_question = $field_name ."_question";
-			$column = 'delta';
-			$is_delta_exist = db_column_exists($table_content, $column);
-			if ($is_delta_exist) {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
 
-			}
-			else {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
-			}		 
-			$choices_start=unserialize($choices_start_unser);
-			if (is_array($choices_start)){
-			  foreach($choices_start as $value){
-				  $count_translate_votes[]=$value['votes'];
-			  }
-			}
-		}		
+	// $tnid is 0 for untranslated nodes. We don't want to aggregate all those.
+	if ($tnid) {
+    $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
 
-	}
-	
-	
+    while ($t_nodes = db_fetch_object($t_nodes_results)) {
+
+      if ($node->nid<>$t_nodes->nid){
+        $t_nodes_nid[]=$t_nodes->nid;
+        //find start value choices
+        //get table name
+        $fields = content_fields();
+        $db_info = content_database_info($fields[$field_name]);
+        $table_content = $db_info['table'];
+        $column_choice = $field_name ."_choice";
+        $column_question = $field_name ."_question";
+        $column = 'delta';
+        $is_delta_exist = db_column_exists($table_content, $column);
+        if ($is_delta_exist) {
+          //get choices
+          $choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+
+        }
+        else {
+          //get choices
+          $choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+        }
+        $choices_start=unserialize($choices_start_unser);
+        if (is_array($choices_start)){
+          foreach($choices_start as $value){
+            $count_translate_votes[]=$value['votes'];
+          }
+        }
+      }
+
+    }
+  }//end - if tnid
+
 	//************* end of aggregate translated votes ********************
 
 
@@ -352,14 +366,14 @@ function theme_pollfield_formatter_block_default($element) {
         $show_form = TRUE;
         $choices_array[] = check_plain($choice['choice']);
 				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
-		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));
 				$count_translate=0;
 			  foreach($t_nodes_nid as $tnode){
-					
+
 		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
 		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
 		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
-					$count_translate=$count_translate+$count_temp;				
+					$count_translate=$count_translate+$count_temp;
 				}
 				$count=$count_node+$count_translate;
         $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
@@ -367,7 +381,7 @@ function theme_pollfield_formatter_block_default($element) {
       }
     }
   }
-	
+
   //geting results
   $i=0;
   $poll_result='<div id="pollfield">';
@@ -378,7 +392,7 @@ function theme_pollfield_formatter_block_default($element) {
     //$votes[$i]=$percent;
     //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
 		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
-		
+
     //check user voted
     $is_this_user_vote = FALSE;
     if (is_array($user_votes)) {
@@ -405,9 +419,9 @@ function theme_pollfield_formatter_block_default($element) {
   }
   $poll_result .= "</div>";
 
-  
+
   if ($show_form) {
-    
+
     $form = pollfield_build_voting_form($element);
     $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
 
@@ -420,7 +434,7 @@ function theme_pollfield_formatter_block_default($element) {
       $node_link=l($node_title,"node/".$nid);
       $out .= '<div class="pollfield-title">'. $node_link .'</div>';
     }
-    
+
     $out .= $form;
     $permission='view pollfield results '. $field_name;
     if (user_access($permission)) {
@@ -460,41 +474,43 @@ function theme_pollfield_formatter_results($element) {
   $is_results_allow=$poll_features['ResultsAllow'];
 	//*********    aggragate translation votes ****************
 	$tnid=db_result(db_query("SELECT tnid FROM {node} WHERE nid = %d",$node->nid));
-	$t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
- 
-  while ($t_nodes = db_fetch_object($t_nodes_results)) {
-	 
-		if ($node->nid<>$t_nodes->nid){
-			$t_nodes_nid[]=$t_nodes->nid;
-			//find start value choices
-			//get table name
-			$fields = content_fields();
-			$db_info = content_database_info($fields[$field_name]);
-			$table_content = $db_info['table'];
-			$column_choice = $field_name ."_choice";
-			$column_question = $field_name ."_question";
-			$column = 'delta';
-			$is_delta_exist = db_column_exists($table_content, $column);
-			if ($is_delta_exist) {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+	// $tnid is 0 for untranslated nodes. We don't want to aggregate all those.
+	if ($tnid) {
+    $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
 
-			}
-			else {
-				//get choices
-				$choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
-			}		 
-			$choices_start=unserialize($choices_start_unser);
-			if (is_array($choices_start)){
-			  foreach($choices_start as $value){
-				  $count_translate_votes[]=$value['votes'];
-			  }
-			}
-		}		
+    while ($t_nodes = db_fetch_object($t_nodes_results)) {
 
-	}
-	
-	
+      if ($node->nid<>$t_nodes->nid){
+        $t_nodes_nid[]=$t_nodes->nid;
+        //find start value choices
+        //get table name
+        $fields = content_fields();
+        $db_info = content_database_info($fields[$field_name]);
+        $table_content = $db_info['table'];
+        $column_choice = $field_name ."_choice";
+        $column_question = $field_name ."_question";
+        $column = 'delta';
+        $is_delta_exist = db_column_exists($table_content, $column);
+        if ($is_delta_exist) {
+          //get choices
+          $choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $column_choice, $table_content,$t_nodes->nid, $field_name_delta));
+
+        }
+        else {
+          //get choices
+          $choices_start_unser = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d", $column_choice, $table_content, $t_nodes->nid));
+        }
+        $choices_start=unserialize($choices_start_unser);
+        if (is_array($choices_start)){
+          foreach($choices_start as $value){
+            $count_translate_votes[]=$value['votes'];
+          }
+        }
+      }
+
+    }
+  }//end - if tnid
+
 	//************* end of aggregate translated votes ********************
 
 
@@ -506,14 +522,14 @@ function theme_pollfield_formatter_results($element) {
         $show_form = TRUE;
         $choices_array[] = check_plain($choice['choice']);
 				$count_node = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d AND delta=%d
-		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));		
+		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",$node->nid, $delta, $type, $field, $field_name_delta));
 				$count_translate=0;
 			  foreach($t_nodes_nid as $tnode){
-					
+
 		      $count_temp = db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid= %d AND delta=%d
 		          AND field_table='%s' AND field_name='%s' AND field_name_delta=%d",
 		          $tnode,$node->nid, $delta, $type, $field, $field_name_delta));
-					$count_translate=$count_translate+$count_temp;				
+					$count_translate=$count_translate+$count_temp;
 				}
 				$count=$count_node+$count_translate;
         $votes[] = $count+$choice['votes']+$count_translate_votes[$delta];
@@ -521,7 +537,7 @@ function theme_pollfield_formatter_results($element) {
       }
     }
   }
-	
+
   //geting results
   $i=0;
   $poll_result='<div id="pollfield">';
@@ -532,7 +548,7 @@ function theme_pollfield_formatter_results($element) {
     //$votes[$i]=$percent;
     //$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
 		$percent_string = $percent .'% ('.format_plural($votes[$i],'1 vote','@count votes').')';
-		
+
     //check user voted
     $is_this_user_vote = FALSE;
     if (is_array($user_votes)) {
@@ -559,9 +575,9 @@ function theme_pollfield_formatter_results($element) {
   }
   $poll_result .= "</div>";
 
-  
+
   if ($show_form) {
-    
+
     $form = pollfield_build_voting_form($element);
     $out = '<div id="pollfield-'.$node->nid.'-'.$field_name_delta.'" class="pollfield-form">';
 
@@ -757,7 +773,7 @@ function theme_user_vote($node, $comment) {
       $column_question = $key ."_question";
       $column = 'delta';
       $is_delta_exist = db_column_exists($table_content, $column);
-      $poll_result = db_query("SELECT * FROM {%s} INNER JOIN `node` ON {%s}.nid = node.nid WHERE {%s}.nid = %d AND {%s}.vid = node.vid", 	
+      $poll_result = db_query("SELECT * FROM {%s} INNER JOIN `node` ON {%s}.nid = node.nid WHERE {%s}.nid = %d AND {%s}.vid = node.vid",
 															$table_content, $table_content, $table_content, $node->nid, $table_content);
 
       while ($pollfield = db_fetch_object($poll_result)) {
@@ -776,13 +792,13 @@ function theme_user_vote($node, $comment) {
               $node->nid, $field_name_delta, $node->type, $key, $comment->uid));
 
         //get user vote
-				
+
         $user_choice_result = db_query("SELECT delta FROM {pollfield_votes} WHERE nid = %d AND field_name_delta=%d
               AND field_table='%s' AND field_name='%s' AND uid=%d",
               $node->nid, $field_name_delta, $node->type, $key, $comment->uid);
 				while ($user_choice = db_fetch_object($user_choice_result)) {
-						
-	
+
+
 		      $user_choice_response=$choices[$user_choice->delta]['choice'];
 
 		      if ($is_vote>0) {
@@ -857,7 +873,7 @@ function pollfield_voting_form($element) {
         $form['table'] = array('#type' => 'hidden', '#value' => $table);
         $form['cancel'] = array('#type' => 'hidden', '#value' => $cancel);
         $form['#type'] = 'form';
-       
+
       }
     }
     else{
@@ -873,7 +889,7 @@ function pollfield_voting_form($element) {
           $form['table'] = array('#type' => 'hidden', '#value' => $table);
           $form['cancel'] = array('#type' => 'hidden', '#value' => $cancel);
           $form['#type'] = 'form';
-         
+
         }
       }
     }
@@ -908,7 +924,7 @@ function pollfield_voting_form($element) {
 
     }
 
-    
+
     $cancel = 0;
     $form['field_name_delta'] = array('#type' => 'hidden', '#value' => $field_name_delta);
     $form['field_name'] = array('#type' => 'hidden', '#value' => $field_name);
@@ -930,7 +946,7 @@ function pollfield_voting_form($element) {
     $is_active=$pollfield->active;
   }
   if ($is_active==1) {
-   
+
 		return $form;
   }
 
@@ -941,14 +957,14 @@ function pollfield_voting_form($element) {
 *build form function
 */
 function pollfield_build_voting_form($element){
-	
+
 	return drupal_get_form('pollfield_voting_function_form',$element);
 }
 /**
 *form function
 */
 function pollfield_voting_function_form(&$form_sate,$element){
-	 
+
    $form_1 = pollfield_voting_form($element);
    return $form_1;
 }
@@ -956,9 +972,9 @@ function pollfield_voting_function_form(&$form_sate,$element){
 *submit function for voting form
 */
 function pollfield_voting_function_form_submit(&$form_values,$element){
- 
+
 	pollfield_vote();
-	
+
 }
 /**
  * Implementation of hook_field_info().
@@ -1077,7 +1093,7 @@ function pollfield_field($op, &$node, $field, &$items, $teaser, $page) {
 				db_query("DELETE FROM {pollfield_votes} WHERE nid = %d
         AND field_table='%s' AND field_name='%s' AND field_name_delta=%d", $node->nid, $field_table, $field_name,$key);
 			}
-			
+
       // get total votes
       $total_votes = $total_votes+db_result(db_query("SELECT count(*) FROM {pollfield_votes} WHERE nid = %d
         AND field_table='%s' AND field_name='%s'", $node->nid, $field_table, $field_name));
@@ -1166,7 +1182,7 @@ function pollfield_field_formatter_info() {
       'field types' => array('pollfield'),
       'multiple values' => CONTENT_HANDLE_CORE,
     ),
-    
+
     'choices' => array(
       'label' => 'All choices',
       'field types' => array('pollfield'),
@@ -1230,7 +1246,7 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 		$access= true;
   }
   //*********************************
-	
+
   $field = $cols[0];
   $element[$field] = array(
     '#type' => 'textfield',
@@ -1286,14 +1302,14 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
     $cancel_vote_allow = $poll_features['CancelVote_Allow'];
     $result_allow = $poll_features['ResultsAllow'];
     $poll_type = $poll_features['PollType'];
-   
+
   }
   // we are on default value mode and we use default mode value
   else{
     $cancel_vote_allow = $element['#value'][$cols[6]]['CancelVote_Allow'];
     $result_allow = $element['#value'][$cols[6]]['ResultsAllow'];
     $poll_type = $element['#value'][$cols[6]]['PollType'];// add poll type
-		
+
   }
 
   // allow or disallow cancel voting
@@ -1349,7 +1365,7 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
   $wrapper="pollfield-choice-wrapper-".$type_name."-".$field_name."-".$delta;
   //**********************************************************************
 
-	
+
 
 
 	$answers = unserialize($element['#value']['choice']);
@@ -1357,9 +1373,9 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 	if ($value_choice) {
 		//$max = max($blank_fields, intval(sizeof($answers)-1));
 		$max=intval(sizeof($answers)-1);
-		
+
 	}
-	else {//default 
+	else {//default
 		if (isset($element['#value']['group'])) {
 		  // choices is not serialzed in default value settings
 		  $value_choice = $element['#value']['group'][$delta]['choice'];
@@ -1367,7 +1383,7 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 			//$max = max($blank_fields, intval(sizeof($value_choice)-1));
       $max=intval(sizeof($element['#value']['group'])-1);
 		}
-	}	
+	}
 	//not using ahah for default values
 	if ($is_default_values){
 		$max = max($blank_fields, intval(sizeof($value_choice)-1));
@@ -1378,19 +1394,19 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 		  $max = 0;
 		  $no_fields=TRUE;
 		}
-	
+
 	}
-  
+
   // Container for just the poll choices.
   $element['group'] = array(
     '#prefix' => '<div id="'.$wrapper.'">',
     '#suffix' => '</div>',
   );
-  
+
 	$nid=$form_state['values']['nid'];$max_number=0;
- 
+
   foreach (range(0, $max+$max_number) as $delta) {
-    
+
     $value_choice = $answers[$delta]['choice'];
     $value_vote = $answers[$delta]['votes'];
     if ($value_choice) {
@@ -1402,11 +1418,11 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
         $value_vote = $element['#value']['group'][$delta]['votes'];
       }
     }
-    
+
     $first_empty=FALSE;
     if ($delta==0 && $first_empty=strlen($value_choice)<1)
        $first_empty=TRUE;
-    
+
     if (strlen($value_choice)>1 || $no_fields || $is_default_values || $first_empty){
 		  $element['group'][$delta] = array(
 		    '#type' => 'fieldset',
@@ -1431,7 +1447,7 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 		  $number++;
     }
   }
-	
+
   //check if more choice button submit
   if (strcmp($form_state['clicked_button']['#name'],$nid."-".$path)==0){
     if (strlen($element['group'][$number-1]['choice'])>1){
@@ -1458,7 +1474,7 @@ function pollfield_pollfield_process($element, $edit, $form_state, $form) {
 				$number++;
 		}
 		else{
-				
+
 		}
 	}
 	if (!$is_default_values){
@@ -1496,13 +1512,14 @@ function pollfield_add_choice(){
   $splits_get=$nid_parse=preg_split('/\//',$_GET['q']);
   $field_name=$splits_get[3];
 	$field_name_delta=$splits_get[4];
-	
+
 	include_once 'modules/node/node.pages.inc';
   $form_state = array('storage' => NULL, 'submitted' => FALSE);
   $form_build_id = $_POST['form_build_id'];
   // Get the form from the cache.
   $form = form_get_cache($form_build_id, $form_state);
   $args = $form['#parameters'];
+
 
   $form_id = array_shift($args);
   // We will run some of the submit handlers so we need to disable redirecting.
@@ -1517,32 +1534,9 @@ function pollfield_add_choice(){
   // This call recreates the form relying solely on the form_state that the
   // drupal_process_form set up.
   $form = drupal_rebuild_form($form_id, $form_state, $args, $form_build_id);
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  //When rebuild we don't get the right values
-  
-  
-  
-  
-  
-  
+
   // Render the new output.
-//  $form_choices=$form["group_poll"][$field_name][$field_name_delta]['group'];
   $form_choices=$form[$field_name][$field_name_delta]['group'];
-        
 	if (is_array($form_choices)){
 		$delta=0;
 		while (!empty($form_choices[$delta])){
@@ -1550,11 +1544,9 @@ function pollfield_add_choice(){
 		}
 		$is_choice_set=strlen($form_choices[$delta-1]['choice']['#value'])>1;
 	}
-	
+
 
   $_delta=$delta-1;
-  
-  
   //genereting new ids and names
   $name_choice=$form_choices[$_delta]['choice']['#name'];
   $id_choice=$form_choices[$_delta]['choice']['#id'];
@@ -1564,7 +1556,7 @@ function pollfield_add_choice(){
   $id_choice=str_replace($_delta.'-choice',$delta.'-choice',$id_choice);
 	$name_votes=str_replace('['.$_delta.'][votes]','['.$delta.'][votes]',$name_votes);
   $id_votes=str_replace($_delta.'-votes',$delta.'-votes',$id_votes);
-  
+
   if ($is_choice_set){
   	$element = array(
       '#type' => 'fieldset',
@@ -1590,16 +1582,16 @@ function pollfield_add_choice(){
       '#size' => 10,
       '#weight' => floatval($field1['widget']['weight'] + ($delta / 10) + .1),
     );
-  
-	
+
+
   	$form_choices[$delta]=$element;
   }
- 
+
   unset($form_choices['#prefix'], $form_choices['#suffix']); // Prevent duplicate wrappers.
   $output = drupal_render($form_choices);
-  
+
   drupal_json(array('status' => TRUE, 'data' => $output));
-  	
+
 }
 
 /*
@@ -1608,7 +1600,7 @@ function pollfield_add_choice(){
 function pollfield_more_choices_submit($form, &$form_state){
   // Set the form to rebuild and run submit handlers.
    node_form_submit_build_node($form, $form_state);
-	
+
 }
 
 /**
@@ -1793,7 +1785,7 @@ function pollfield_save_single_choice($form_values, $cookie_db) {
 
   // is user voted
   $voted = pollfield_user_voted($node, $field_table, $field_name, $field_name_delta);
-	
+
 	if (!isset($choice)){
 		drupal_set_message(t('Choice is not selected. Select your answer and vote.'));
 		return 0;
@@ -1859,7 +1851,7 @@ function pollfield_cancel_single_choice($form_values, $cookie_db) {
 	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
 	}
 	while ($t_nodes = db_fetch_object($t_nodes_results)) {//check all translations
-		
+
 		if ($is_delta_exist) {
 		  $field_votes = $field_name .'_votes';
 		  $total_votes = db_result(db_query("SELECT %s FROM {%s} WHERE nid=%d AND delta=%d", $field_votes, $table_content, $t_nodes->nid, $field_name_delta));
@@ -1916,7 +1908,7 @@ function pollfield_vote() {
   $field_table = $form_values['table'];
   $cancel = $form_values['cancel'];
   $node = node_load($nid);
-  
+
   // set add cookie**************************
   $cookie = pollfield_cookie_id_generator();
   if ($cookie != 0) {
@@ -1971,7 +1963,7 @@ function pollfield_vote() {
   $query=$_GET['q'];
   if (isset($_GET['page']))
 		$page='page='.$_GET['page'];
-	
+
   drupal_goto($query,$page,'pollfield-'.$nid.'-'.$field_name_delta);
   pollfield_clear($node);
 
@@ -2041,7 +2033,7 @@ function pollfield_user_voted($node, $field_table, $field_name, $field_name_delt
   $table_content = $db_info['table'];
   $column = 'delta';
   $is_delta_exist = db_column_exists($table_content, $column);
-	
+
 	$tnid = db_result(db_query("SELECT tnid FROM {node} WHERE nid=%d",$nid));
 	if ($tnid==0){//there is no translation
 	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE nid = %d",$nid);
@@ -2098,7 +2090,7 @@ function pollfield_user_voted($node, $field_table, $field_name, $field_name_delt
 	}
 
 
- 
+
   return $is_voted;
 }
 /**
@@ -2106,7 +2098,7 @@ function pollfield_user_voted($node, $field_table, $field_name, $field_name_delt
  */
 function pollfield_user_votes($node, $field_table, $field_name, $field_name_delta) {
   global $user;
-  
+
   $nid = $node->nid;
   $uid = $user->uid;
   $hostname = $_SERVER['REMOTE_ADDR'];
@@ -2124,7 +2116,7 @@ function pollfield_user_votes($node, $field_table, $field_name, $field_name_delt
 	}else{//there is translation
 	  $t_nodes_results=db_query("SELECT nid FROM {node} WHERE tnid = %d",$tnid);
 	}
-	
+
 	while ($t_nodes = db_fetch_object($t_nodes_results)) {//check all translations
 		$t_nid=$t_nodes->nid;
 		if ($is_delta_exist) {
@@ -2205,7 +2197,4 @@ function pollfield_views_query_substitutions($view){
   }
   return $replace;
 }
-
-
-
 
