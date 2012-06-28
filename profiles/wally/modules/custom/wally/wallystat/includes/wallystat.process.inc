@@ -74,9 +74,10 @@ function _wallystat_process_entry($res, &$term_counts, &$node_counts, $current_t
   $dtstamp = $res['created'];
   if ($dtstamp < $current_tstamp) {
     list($type, $a) = explode('_', $res['cid'], 2);
+    $data = is_string($res['data']) ? unserialize($res['data']) : $res['data'];
+
     switch ($type) {
       case 'wallystat' :
-        $data = is_string($res['data']) ? unserialize($res['data']) : $res['data'];
         $trunc_dtstamp = $dtstamp - (date('i', $dtstamp) * 60 + date('s', $dtstamp));
 
         // Create merged arrays containing all structured datas
@@ -84,7 +85,17 @@ function _wallystat_process_entry($res, &$term_counts, &$node_counts, $current_t
         break;
 
       case 'error' :
-        // @todo : manage errors (watchdog ?)
+        $mapping_errors = array(
+          E_ERROR => WATCHDOG_ERROR,
+          E_WARNING => WATCHDOG_WARNING,
+          E_PARSE => WATCHDOG_ERROR,
+        );
+        $vars = array(
+          '%message' => $data['message'],
+          '%file' => $data['file'],
+          '%line' => $data['line'],
+        );
+        watchdog('WallyStat', 'PHP : %message in %file on line %line.', $vars, $mapping_errors[$data['type']]);
         break;
     }
     cache_clear_all($res['cid'], 'cache_wallystat_tempdata');
