@@ -30,7 +30,7 @@ function ccimapping_form_productinfo_editor_form($form_state) {
   $form['actual_xml_fieldset']['actual_xml'] = array(
     '#type' => 'markup',
     '#weight' => 999,
-    '#value' => '<pre>'.htmlentities(formatXmlString(ccimap_get_productinfo_fromWS())).'</pre>',
+    '#value' => '<pre>'.htmlspecialchars(formatXmlString(ccimap_get_productinfo_fromWS())).'</pre>',
   );
   
   $form['xml_to_be_sent_fieldset'] = array(
@@ -44,7 +44,7 @@ function ccimapping_form_productinfo_editor_form($form_state) {
   $form['xml_to_be_sent_fieldset']['xml_to_be_sent'] = array(
     '#type' => 'markup',
     '#weight' => 1000,
-    '#value' => '<pre>'.htmlentities(formatXmlString($generated_dom->saveXML())).'</pre>',
+    '#value' => '<pre>'.htmlspecialchars(formatXmlString($generated_dom->saveXML())).'</pre>',
   );
   
   $form['send'] = array(
