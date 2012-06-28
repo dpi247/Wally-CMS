@@ -123,6 +123,15 @@ function wallyadmin_menu() {
     'file' => 'includes/wallyadmin.menu_restore.inc',
   );
   
+  $items['admin/wally/rebuildtheme'] = array(
+    'title' => t('Rebuild Theme Registry'),
+    'description' => t('Force the rebuild of the theme registry.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_theme_registry_form'),
+    'access arguments' => array('manage cache'),
+    'file' => 'includes/wallyadmin.theme_registry.inc',
+  );
+  
   return $items;
 }
 
