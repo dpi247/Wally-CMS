@@ -138,18 +138,20 @@ function _wally_system_settings_form($form, $fast = FALSE) {
  */
 function _wally_system_settings_form_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
+  $fast = $form_state['values']['fast'];
+  unset($form_state['values']['fast']);
 
   // Exclude unnecessary elements.
   unset($form_state['values']['submit'], $form_state['values']['reset'], $form_state['values']['form_id'], $form_state['values']['op'], $form_state['values']['form_token'], $form_state['values']['form_build_id']);
 
   foreach ($form_state['values'] as $key => $value) {
     if ($op == t('Reset to defaults')) {
-      $form_state['values']['fast'] ? wally_variable_del($key) : variable_del($key);
+      $fast ? wally_variable_del($key) : variable_del($key);
     } else {
       if (is_array($value) && isset($form_state['values']['array_filter'])) {
         $value = array_keys(array_filter($value));
       }
-      $form_state['values']['fast'] ? wally_variable_set($key, $value) : variable_set($key, $value);
+      $fast ? wally_variable_set($key, $value) : variable_set($key, $value);
     }
   }
   if ($op == t('Reset to defaults')) {
