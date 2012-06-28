@@ -203,49 +203,19 @@ function wallylog_page_event_details($type, $id) {
       break;
 
     case 'syslog':
-      $syslog_id = variable_get('syslog_identity', 'drupal');
-      $log_dir = variable_get('syslog_log_dir', '/var/log');
+      $log_rows = _wallylog_page_syslog_build_logs();
+      if ($log_rows === FALSE || !is_array($log_rows)) {
+        return $output;
+      }
+
       list($log_file, $lid) = explode(':', $id);
-      $files = file_scan_directory($log_dir, $log_file.'\.log' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
-      if (empty($files)) {
-        drupal_set_message(t('No log files in the given directory ("@dir").', array('@dir' => $log_dir), 'error'));
-        return $output;
-      }
-      $file = array_shift($files);
-
-      $handle = fopen($file->filename, 'r');
-      if (!$handle) {
-        drupal_set_message(t('The log file (!log_file) isn\'t readable', array('!log_file' => $file->filename), 'error'));
-        return $output;
-      }
-
-      global $base_url;
       $i = 0;
-
-      while($contents = fgets($handle)) {
-        if (strstr($contents, $syslog_id.': ')) {
-          list($a, $raw_log) = explode($syslog_id.': ', $contents);
-
-          $log = array();
-            list($log_url,
-            $log['severity'],
-            $log['timestamp'],
-            $log['type'],
-            $log['ip'],
-            $log['request_uri'],
-            $log['referer'],
-            $log['uid'],
-            $log['link'],
-            $log['message']) = explode('|', $raw_log);
-
-          if ($log_url == $base_url) {
-            if ($i == $lid) {
-              $dblog = (object)$log;
-              break;
-            }
-            $i++;
-          }
+      while($log = array_pop($log_rows)) {
+        if ($i == $lid) {
+          $dblog = (object)$log;
+          break;
         }
+        $i++;
       }
       break;
       
@@ -568,26 +538,69 @@ function _wallylog_page_logs_display_logs($table, $header, $filter, $icons, $cla
 }
 
 function _wallylog_page_syslog_display_logs($header, $icons, $classes) {
+  $log_rows = _wallylog_page_syslog_build_logs();
+  if ($log_rows === FALSE || !is_array($log_rows)) {
+    return '';
+  }
+  
+  global $pager_page_array, $pager_total, $pager_total_items;
+  $page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
+  $pager_page_array[0] = $page;
+  $limit = 50;
+  $i = 0;
+
+  $rows = array();
+  while ($log = array_pop($log_rows)) {
+    if ($i >= $page*$limit && $i < ($page*$limit + $limit)) {
+      $dblog = (object)$log;
+
+      $rows[] = array('data' =>
+        array(
+          // Cells
+          $icons[$dblog->severity],
+          t($dblog->type),
+          format_date($dblog->timestamp, 'small'),
+          l(truncate_utf8(_wallylog_format_message($dblog), 56, TRUE, TRUE), 'admin/reports/wallylog/event/syslog/'.$file->name.':'.$i, array('html' => TRUE)),
+          theme('username', $log_usr),
+          filter_xss($dblog->link),
+        ),
+        // Attributes for tr
+        'class' => "wallylog-". preg_replace('/[^a-z]/i', '-', $dblog->type) .' '. $classes[$dblog->severity]
+      );
+    }
+
+    $i++;
+  }
+
+  if (empty($rows)) {
+    $rows[] = array(array('data' => t('No log messages available.'), 'colspan' => 6));
+  }
+
+  $pager_total[0] = ceil($i/$limit);
+  $pager_total_items[0] = sizeof($i);
+
+  $output = theme('table', $header, $rows, array('id' => 'admin-wallylog'));
+  $output .= theme('pager', NULL, $limit, 0);
+  return $output;
+}
+
+function _wallylog_page_syslog_build_logs() {
   $syslog_id = variable_get('syslog_identity', 'drupal');
   $log_dir = variable_get('syslog_log_dir', '/var/log');
   $files = file_scan_directory($log_dir, '.*\.log' .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);
   if (empty($files)) {
-    drupal_set_message(t('No log files in the given directory ("@dir").', array('@dir' => $log_dir), 'error'));
-    return '';
+    drupal_set_message(t('No log files in the given directory ("@dir").', array('@dir' => $log_dir)), 'error');
+    return FALSE;
   }
   $file = array_shift($files);
 
   $handle = fopen($file->filename, 'r');
   if (!$handle) {
-    drupal_set_message(t('The log file (!log_file) isn\'t readable', array('!log_file' => $file->filename), 'error'));
-    return '';
+    drupal_set_message(t('The log file (!log_file) isn\'t readable', array('!log_file' => $file->filename)), 'error');
+    return FALSE;
   }
-
-  global $base_url, $pager_page_array, $pager_total, $pager_total_items;
-  $page = isset($_GET['page']) ? (int)$_GET['page'] : 0;
-  $pager_page_array[0] = $page;
-  $limit = 50;
-  $i = 0;
+  
+  global $base_url;
 
   $rows = array();
   while($contents = fgets($handle)) {
@@ -605,43 +618,16 @@ function _wallylog_page_syslog_display_logs($header, $icons, $classes) {
         $log['uid'],
         $log['link'],
         $log['message']) = explode('|', $raw_log);
-        
+
       $log_usr = user_load($log['uid']);
 
       if ($log_url == $base_url) {
-        if ($i >= $page*$limit && $i < ($page*$limit + $limit)) {
-          $dblog = (object)$log;
-
-          $rows[] = array('data' =>
-            array(
-              // Cells
-              $icons[$dblog->severity],
-              t($dblog->type),
-              format_date($dblog->timestamp, 'small'),
-              l(truncate_utf8(_wallylog_format_message($dblog), 56, TRUE, TRUE), 'admin/reports/wallylog/event/syslog/'.$file->name.':'.$i, array('html' => TRUE)),
-              theme('username', $log_usr),
-              filter_xss($dblog->link),
-            ),
-            // Attributes for tr
-            'class' => "wallylog-". preg_replace('/[^a-z]/i', '-', $dblog->type) .' '. $classes[$dblog->severity]
-          );
-        }
-        
-        $i++;
+        $rows[] = $log;
       }
     }
   }
 
-  if (empty($rows)) {
-    $rows[] = array(array('data' => t('No log messages available.'), 'colspan' => 6));
-  }
-
-  $pager_total[0] = ceil($i/$limit);
-  $pager_total_items[0] = sizeof($i);
-
-  $output = theme('table', $header, $rows, array('id' => 'admin-wallylog'));
-  $output .= theme('pager', NULL, $limit, 0);
-  return $output;
+  return $rows;
 }
 
 /**
