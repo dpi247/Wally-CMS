@@ -418,7 +418,20 @@ function _wallycontenttypes_getusablecropsanddefaults($explimgcrops, $photo_path
 function _wallycontenttypes_checkautopublish(&$node){
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')){
     if ($node->field_autopublish[0]['value'] == 'Autopublish'){
-      if (strtotime($node->field_embargodatetime[0]['value']) <= time() && ($node->field_unpublishdate[0]['value'] == NULL || strtotime($node->field_unpublishdate[0]['value']) >= time())){
+      $embargo_date = $node->field_embargodatetime[0];
+      if ($form_date = date_make_date($embargo_date['value'], $embargo_date['timezone_db'])) {
+        $form_date = (object)date_timezone_set($form_date, timezone_open($embargo_date['timezone']));
+        $form_date = unserialize(serialize($form_date));
+        $safe_embargo_date = $form_date->date;
+      }
+      $unpublish_date = $node->field_unpublishdate[0];
+      if ($form_date = date_make_date($unpublish_date['value'], $unpublish_date['timezone_db'])) {
+        $form_date = (object)date_timezone_set($form_date, timezone_open($unpublish_date['timezone']));
+        $form_date = unserialize(serialize($form_date));
+        $safe_unpublish_date = $form_date->date;
+      }
+
+      if (strtotime($safe_embargo_date) <= time() && ($node->field_unpublishdate[0]['value'] == NULL || strtotime($safe_unpublish_date) >= time())){
         $node->status = 1;
       } else {
         $node->status = 0;

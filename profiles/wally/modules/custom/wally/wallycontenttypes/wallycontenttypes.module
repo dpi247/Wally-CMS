@@ -721,12 +721,12 @@ function wallycontenttypes_cron() {
   $return = '<b>'.t('Run on !date :', array('!date' => date('Y-m-d H:i:s'))).'</b></br>';
 
   //Reset the temp table once a day
-  $today = strtotime(date('d-m-y'));
+  $today = strtotime(date('Y-m-d'));
   $last_run_timestamp = wally_variable_get('wallycontenttypes_embargo_last_run', time() - 86400);
 
-  if ($last_run_timestamp < $today){
+  if ($last_run_timestamp < $today) {
     wally_variable_set('wallycontenttypes_embargo_last_run', $today);
-    
+
     if (variable_get('wallycontenttypes_packagepopulate_cache', 1)) {
       $flush_time_days = variable_get('wallycontenttypes_packagepopulate_flush_frequency', 7);
       if ($flush_time_days && !empty($flush_time_days)) {
@@ -747,10 +747,8 @@ function wallycontenttypes_cron() {
         $return .= '</br>';
       }
     }
-    
-    if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
-      $return .= '<b>'.t('Autopublication :').'</b></br>';
 
+    if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
       db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
       //We need to build the table
 
@@ -766,24 +764,42 @@ function wallycontenttypes_cron() {
               					   )
               					   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
               					   AND auto.field_autopublish_value = 'Autopublish' 
-              					   "); 
+              					   ");
 
       while ($obj = db_fetch_object($results)){
         drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
       }
+    }
+  }
 
-      //look at the node who their umbargo date or unpublish date are lower than current time
-      $result = db_query("SELECT *
-                					FROM {wallycontenttypes_temp_nodetopublish}
-                					WHERE (
-                				      (field_embargodatetime_value < NOW() AND field_embargodatetime_value IS NOT NULL)
-                					OR
-                					  (field_unpublishdate_value < NOW() ANd field_unpublishdate_value IS NOT NULL) 
-                					)");
-      while ($obj = db_fetch_object($result)){
-        //node to publish
-        if ($obj->field_embargodatetime_value && strtotime($obj->field_embargodatetime_value) < time()){
-          if ($obj->status != 1){
+  if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
+    $return .= '<b>'.t('Autopublish :').'</b></br>';
+
+    //look at the node who their umbargo date or unpublish date are lower than current time
+    $result = db_query("SELECT *
+                  			FROM {wallycontenttypes_temp_nodetopublish}
+                  			WHERE (
+                  		    (field_embargodatetime_value < UTC_TIMESTAMP() AND field_embargodatetime_value IS NOT NULL)
+                  			OR
+                  		  	(field_unpublishdate_value < UTC_TIMESTAMP() ANd field_unpublishdate_value IS NOT NULL) 
+                  			)");
+    while ($obj = db_fetch_object($result)) {
+      //@todo remove this to get real timezone of the fields
+      if (module_exists('date_timezone')) {
+        $zones = date_timezone_names(FALSE, TRUE);
+        $timezone = $zones[variable_get('date_default_timezone_name', 0)];
+      } else {
+        $zones = _system_zonelist();
+        $timezone = $zones[variable_get('date_default_timezone', 0)];
+      }
+
+      //node to publish
+      if ($obj->field_embargodatetime_value && $obj->status != 1) {
+        if ($form_date = date_make_date($obj->field_embargodatetime_value, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_embargo_date = $form_date->date;
+          if (strtotime($safe_embargo_date) < time()) {
             $node = node_load(array('nid' => $obj->nid));
             node_publish_action($node);
             cckdestinations_force_dnc($node);
@@ -791,26 +807,31 @@ function wallycontenttypes_cron() {
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
           }
         }
-
-        //node to unpublish
-        if ($obj->field_unpublishdate_value && $obj->field_unpublishdate_value < date("Y-m-d H:i:s")){
-          if ($obj->status != 0){
-            $node = node_load($obj->nid);
+      }
+      
+      //node to unpublish
+      if ($obj->field_unpublishdate_value && $obj->status != 0) {
+        if ($form_date = date_make_date($obj->field_unpublishdate_value, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_unpublish_date = $form_date->date;
+          if (strtotime($safe_unpublish_date) < time()) {
+            $node = node_load(array('nid' => $obj->nid));
             node_unpublish_action($node);
             cckdestinations_force_dnc($node);
             node_save($node);
             $return .= t('Node !nid unpublished', array('!nid' => $node->nid)).'</br>';
           }
         }
-
-        //delete node from the temp table
-        db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
       }
-      
-      $return .= '</br>';
+
+      //delete node from the temp table
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
     }
+
+    $return .= '</br>';
   }
-  
+
   print $return;
 }
 
