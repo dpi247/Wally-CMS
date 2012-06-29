@@ -451,7 +451,7 @@ function wallypressfilters_filter_process($fid, $text, $format){
 function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
   $classes = (isset($settings['classes']) && !empty($settings['classes'])) ? $settings['classes'] : '';
   $new_tag = $settings['html_tag'];
-  
+dsm($settings, $tag);
   // First we need to check tag which already have some classes
   $class_regex = '@<'.$tag.'(.*)class(\s?)=(\s?)"(.*)"(.*)>@U';
   $class_matches = array();
