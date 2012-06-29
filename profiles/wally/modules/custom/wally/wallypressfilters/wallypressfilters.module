@@ -430,7 +430,7 @@ function wallypressfilters_getallowedhtmltagforformat($format){
 function wallypressfilters_filter_process($fid, $text, $format){
   $filter = wallypressfilters_getfilterbyid($fid);
   $tags = wallypressfilters_gettagsfromfilterandformat($filter->name, $format);
-
+dsm($tags, $format);
   foreach ($tags as $tag) {
     $settings = $tag->settings;
     $process_function = 'wallypressfilters_'.$settings['operation'].'_tags';
