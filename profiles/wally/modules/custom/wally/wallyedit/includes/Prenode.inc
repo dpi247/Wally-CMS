@@ -210,7 +210,7 @@ function prenode_delete_all() {
   wallyedit_invoke_prenodeapi($fake_prenode, 'delete_all');
 
   if(function_exists('memcache_variable_set')) {
-  	cache_clear_all('*', 'prenode');
+  	cache_clear_all('*', 'prenode', TRUE);
   } else {
     module_load_include('inc', 'wallyedit', 'includes/object-cache');
   	wallyedit_object_cache_clear_all();
