@@ -469,7 +469,12 @@ function wallytoolbox_tar_extract_dom($filename, $tmp_path) {
         } else {
           $contents = fread($handle, filesize($local_path));
           $dom = new DomDocument();
-          $dom->LoadXML(trim($contents));
+          if ($dom->LoadXML(trim($contents))) {
+            $return['content'] = $dom;
+          } else {
+            $return['error'] = TRUE;
+            $return['error_msg'] = t('Unable to create DOM Document.');
+          }
           $return['content'] = $dom;
         }
       } else {
@@ -661,7 +666,7 @@ function _wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FA
     foreach($url_to_flush as $url) {
       if ($flush_type == 'drupal' || $flush_type == 'both') {
         if ($url == '*') {
-          cache_clear_all($url, 'cache_page');
+          cache_clear_all($url, 'cache_page', TRUE);
         } else {
           cache_clear_all($base_url.'/'.$url, 'cache_page');
         }

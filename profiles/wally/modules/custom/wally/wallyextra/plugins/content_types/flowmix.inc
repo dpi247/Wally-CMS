@@ -189,7 +189,7 @@ function _wallyextra_flowmix_content_type_save_reusable(&$form_state) {
     $form_state['conf']['flow_obj']->flows[] = $flow;
   }
   
-  cache_clear_all($form_state['values']['caid']);
+  cache_clear_all($form_state['values']['caid'], 'cache_wally_blocks');
   if ($form_state['settings']->flowmix_type == 'fixed') {
     $content = ctools_export_crud_load('wallyextra_flowmix_content', $form_state['subtype']['name']);
     _wallyextra_flowmix_content_type_edit_save($content, $form_state['conf']['flow_obj']);
