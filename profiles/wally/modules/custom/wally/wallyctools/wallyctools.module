@@ -174,7 +174,7 @@ function wallyctools_preprocess_views_view(&$vars){
   }
 }
 
-function wallyctools_preprocess_node_custo(&$vars) {
+function wallyctools_preprocess_node(&$vars) {
   if (isset($vars['node']->node_view_destination)) {
     $taxonomy_term = taxonomy_get_term($vars['node']->node_view_destination);
     $taxonomy_term_name = strtolower($taxonomy_term->name);
@@ -183,8 +183,7 @@ function wallyctools_preprocess_node_custo(&$vars) {
     if (!empty($vars['node']->node_view_layout) && !empty($vars['node']->view->name)) {
       $vars['view'] = &$vars['node']->view;
 
-      //$vars['template_files'][] = 'node-view-' . $vars['node']->node_view_layout;
-      $vars['template_files'][] = 'node-view-' . $taxonomy_term_name;
+      $vars['template_files'][] = 'node-view-' . $vars['node']->node_view_layout;
       $vars['template_files'][] = 'node-view-' . $taxonomy_term_name.'-'.$vars['node']->node_view_layout;
 
       $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
@@ -635,10 +634,6 @@ function wallyctools_theme() {
       'arguments' => array('form' => array()),
     ),
   );
-}
-
-function wallyctools_theme_registry_alter(&$registry) {
-  $registry['node']['preprocess functions'][] = 'wallyctools_preprocess_node_custo';
 }
 
 function wallyctools_redacblock_load($name){
