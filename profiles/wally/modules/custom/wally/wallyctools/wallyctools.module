@@ -187,6 +187,7 @@ function wallyctools_preprocess_node(&$vars) {
       $vars['template_files'][] = 'node-view-' . $taxonomy_term_name.'-'.$vars['node']->node_view_layout;
 
       $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$vars['node']->node_view_layout;
+      $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$taxonomy_term_name;
       $vars['template_files'][] = 'node-view-' . $vars['node']->view->name.'-'.$taxonomy_term_name.'-'.$vars['node']->node_view_layout;
 
       if(!empty($vars['node']->view->current_display)) {
