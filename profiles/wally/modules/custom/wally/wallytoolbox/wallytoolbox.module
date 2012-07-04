@@ -606,18 +606,17 @@ function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight 
  * @return
  *   Array of Node ID. 
  */
-function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC'){
-
+function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC') {
   $r = array();
 
   if (count($tids) > 0) {
-    
+
     // For each term ID, generate an array of descendant term IDs to the right depth.
     $descendant_tids = array();
     if ($depth === 'all') {
       $depth = NULL;
     }
-    
+
     foreach ($tids as $index => $tid) {
       $term = taxonomy_get_term($tid);
       if (isset($term->vid)) {
@@ -625,47 +624,49 @@ function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $dep
         $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
       }
     }
-    
-    if ($operator == 'or') {
-      $args = !empty($descendant_tids) ? call_user_func_array('array_merge', $descendant_tids) : '';
-      $placeholders = db_placeholders($args, 'int');
-      $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
-      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
-    } else {
-      $joins = '';
-      $wheres = '';
-      $args = array();
-      foreach ($descendant_tids as $index => $tids) {
-        $joins .= ' INNER JOIN {term_node} tn' . $index . ' ON n.vid = tn' . $index . '.vid';
-        $wheres .= ' AND tn' . $index . '.tid IN (' . db_placeholders($tids, 'int') . ')';
-        $args = array_merge($args, $tids);
+
+    if (count($descendant_tids) > 0) {
+      if ($operator == 'or') {
+        $args = call_user_func_array('array_merge', $descendant_tids);
+        $placeholders = db_placeholders($args, 'int');
+        $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+        $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+      } else {
+        $joins = '';
+        $wheres = '';
+        $args = array();
+        foreach ($descendant_tids as $index => $tids) {
+          $joins .= ' INNER JOIN {term_node} tn' . $index . ' ON n.vid = tn' . $index . '.vid';
+          $wheres .= ' AND tn' . $index . '.tid IN (' . db_placeholders($tids, 'int') . ')';
+          $args = array_merge($args, $tids);
+        }
+        $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created  FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+        $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
       }
-      $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created  FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
-      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+
+      if ($type) {
+        $sql = $sql . ' AND n.type = "'.$type.'"';
+        $sql_count = $sql_count . ' AND n.type = "'.$type.'"';
+      }
+
+      // add Order Clause
+      $sql = $sql . ' ORDER BY ' . $order; 
+
+      $sql = db_rewrite_sql($sql);
+      $sql_count = db_rewrite_sql($sql_count);
+
+      if ($pager) {
+        $results = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
+      } else {
+        $results = db_query($sql, $args);
+      }
+
+      while ($result = db_fetch_object($results)) {
+        $r[] = $result->nid;
+      }
     }
-
-    if ($type) {
-      $sql = $sql . ' AND n.type = "'.$type.'"';
-      $sql_count = $sql_count . ' AND n.type = "'.$type.'"';
-    }
-
-    // add Order Clause
-    $sql = $sql . ' ORDER BY ' . $order; 
-
-    $sql = db_rewrite_sql($sql);
-    $sql_count = db_rewrite_sql($sql_count);
-
-    if ($pager) {
-      $results = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
-    } else {
-      $results = db_query($sql, $args);
-    }
-
-    while ($result = db_fetch_object($results)) {
-      $r[] = $result->nid;
-    }
-
   }
+
   return $r;
 }
 
