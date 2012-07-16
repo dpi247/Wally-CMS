@@ -566,10 +566,12 @@ function wimprt_cron_previews_cleanup() {
     $data = prenode_get($elem['pid']);
     prenode_delete($data);
 
-    foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
-      if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
-        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-        wallytoolbox_delete_photofile($embed->field_photofile[0]);
+    if (count($data[$data['type']]['#node']->field_embededobjects_nodes)) {
+      foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+        if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
+          module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+          wallytoolbox_delete_photofile($embed->field_photofile[0]);
+        }
       }
     }
 
