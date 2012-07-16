@@ -200,8 +200,6 @@ function prenode_delete($prenode) {
     module_load_include('inc', 'wallyedit', 'includes/object-cache');
   	wallyedit_object_cache_clear($prenode['cache name']);
   }
-  
-  drupal_set_message(t('PreNode has been cleared'));
 }
 
 function prenode_delete_all() {
