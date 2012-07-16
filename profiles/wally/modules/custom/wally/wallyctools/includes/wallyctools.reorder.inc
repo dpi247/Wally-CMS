@@ -301,6 +301,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
       $elem_node->field_destinations[$delta] = $dest;
     }
 
+    $elem_node->pathauto_perform_alias = 0;
     node_save($elem_node);
   }
 }
@@ -369,6 +370,7 @@ function _wallyctools_form_reorder_destination_form_compare_results($new_results
     $current_nids[] = $res->nid;
   }
 
+  $limit = min(sizeof($old_results), $limit);
   if (sizeof(array_intersect($orig_nids, $current_nids)) < $limit) {
     // The results of the view are not the same as during the construction of the form, at least one node has been inserted
     return TRUE;
