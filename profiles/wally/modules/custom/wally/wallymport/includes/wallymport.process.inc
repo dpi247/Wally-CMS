@@ -283,10 +283,10 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
   drupal_get_messages();
   $prenode = new Prenode($cache_name);
 
-  if (!empty($prenode->form_state)){
-    $options = array('no_dest' => 'Node', );
-    foreach ($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta => $dest){
-      if ($delta !== 'field_destinations_add_more'){
+  if (!empty($prenode->form_state)) {
+    $options = array('no_dest' => t('Preview of the package\'s page'), );
+    foreach ($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta => $dest) {
+      if ($delta !== 'field_destinations_add_more') {
         $dest_name = taxonomy_get_term($dest['tid'])->name;
         $options += array($delta => $dest_name.' - Target : '.$dest['target'].' - Layout : '.$dest['layout'].' - Rank : '.$dest['rank'], );
       }
