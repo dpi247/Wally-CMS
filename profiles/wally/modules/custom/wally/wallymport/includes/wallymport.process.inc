@@ -268,21 +268,16 @@ function wallymport_process_file($importer, $file_name){
  * Return the form containing the preview iframe and the select box to choose the destination preview
  */
 function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') {
-  global $base_url;
-  $prev_js = '$(document).ready(function() {
-            var temp = "'.$base_url.'/node/'.$cache_name.'/preview2/"+$("#edit-select-preview").val();
-            $("#prev_iframe").attr("src", temp);
-            
-            $("#edit-select-preview").change(function () {
-              temp = "'.$base_url.'/node/'.$cache_name.'/preview2/"+$(this).val();
-              $("#prev_iframe").attr("src", temp);
-            });
-          });';
-
-  drupal_add_js($prev_js, 'inline');
+  $force_refresh_js = '
+    Drupal.behaviors.forceRefreshPreview = function(context) {
+      $("#edit-select-preview").trigger("change");
+    };';
+  drupal_add_js(array('cache_name' => $cache_name), 'setting');
+  drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/refresh_preview.js');
+  drupal_add_js($force_refresh_js, 'inline');
   drupal_get_messages();
-  $prenode = new Prenode($cache_name);
 
+  $prenode = new Prenode($cache_name);
   if (!empty($prenode->form_state)) {
     $options = array('no_dest' => t('Preview of the package\'s page'), );
     foreach ($prenode->form_state[$prenode->form_state['type']]['#node']->field_destinations as $delta => $dest) {
