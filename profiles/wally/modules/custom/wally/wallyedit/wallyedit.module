@@ -669,6 +669,9 @@ function wallyedit_wallycrop_cropings($image, $fid, $data) {
   while($obj = db_fetch_object($result)) {
     $prenode = prenode_get($obj->pid);
     $embed_nodes = isset($prenode[$prenode['type']]['#node']->field_embededobjects_nodes) ? $prenode[$prenode['type']]['#node']->field_embededobjects_nodes : array();
+    if ($prenode['type'] == 'wally_gallerypackage' && ($prenode[$prenode['type']]['#node']->field_mainobject_nodes[0]->type == 'wally_photoobject')) {
+      array_unshift($embed_nodes, $prenode[$prenode['type']]['#node']->field_mainobject_nodes[0]);
+    }
     foreach ($embed_nodes as $embed_node) {
       if ($embed_node->type == 'wally_photoobject') {
         if (isset($embed_node->field_photofile[0]['fid']) && $embed_node->field_photofile[0]['fid'] == $fid) {
