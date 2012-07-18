@@ -310,7 +310,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * @return $result of the post
  * 
  * */
-function wallymport_post($importer_name){
+function wallymport_post($importer_name, $preview = FALSE) {
   $returns = NULL;
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
@@ -324,13 +324,13 @@ function wallymport_post($importer_name){
     $object_file = new stdClass();
     
     //Get the file
-    foreach ($_FILES as $key => $input){
+    foreach ($_FILES as $key => $input) {
       $object_file->name = $input['name'];
       $object_file->filename = $input['tmp_name'];
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
-    if ($nb_file == 0){
+    if ($nb_file == 0) {
       $temp = variable_get('wallymport_preview_temp', file_directory_temp());
       $file_name = 'wally_curl_input_'.rand();
       $file_path = $temp.'/'.$file_name.'.'.$format;
@@ -379,6 +379,10 @@ function wallymport_post($importer_name){
       }
     }
   }
+
+  if ($preview) {
+    drupal_set_header('Cache-Control', 'no-cache');
+  }
   $js = '<script>
 $("div.wallymport_result ul").hide();
 $("div#wallyedit_preview h1").hide();
@@ -387,7 +391,7 @@ $("div.wallymport_result .logs").click(function(){
 });
 </script>';
   $content = '';
-  foreach ($returns as $return){
+  foreach ($returns as $return) {
     $return['date'] = time();
     $content .= theme('status_messages').theme('wallymport_logs', $return).$return['content'].$js;
   }
