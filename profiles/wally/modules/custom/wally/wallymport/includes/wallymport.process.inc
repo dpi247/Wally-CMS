@@ -327,7 +327,7 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * @return $result of the post
  * 
  * */
-function wallymport_post($importer_name){
+function wallymport_post($importer_name, $preview = FALSE) {
   $returns = NULL;
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
@@ -370,6 +370,10 @@ function wallymport_post($importer_name){
       $returns[] = $return;
       wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
+  }
+
+  if ($preview) {
+    drupal_set_header('Cache-Control', 'no-cache');
   }
   $js = '<script>
 $("div.wallymport_result ul").hide();

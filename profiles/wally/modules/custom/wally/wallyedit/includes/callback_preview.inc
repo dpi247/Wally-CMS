@@ -1,13 +1,15 @@
 <?php
 
-function wallyedit_callback_preview($prenode, $dest = 'disabled'){
+function wallyedit_callback_preview($prenode, $dest = 'disabled') {
+  drupal_set_header('Cache-Control', 'no-cache');
+  
   if ($prenode->form_state['DoNotPopulate'] === TRUE) {
     $node = $prenode->form_state[$prenode->form_state['type']]['#node'];
   } else {
     $node = $prenode->ReturnPopulated();
   }
   
-  $node->preview=TRUE;
+  $node->preview = TRUE;
   if ($dest == 'disabled') {
     return NULL;
   } elseif ($dest == 'no_dest') {
