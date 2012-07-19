@@ -503,6 +503,9 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     }
   }
   $settings = wallyextra_flowmix_content_type_get_conf($form_state['subtype'], $form_state['conf']);
+  if (array_key_exists('temp_flow', $settings->flows)) {
+    unset($settings->flows['temp_flow']);
+  }
   $form_state['settings'] = $settings;
 
   $creation_infos = isset($form_state['conf']['flow_obj']) ? $form_state['conf']['flow_obj']->caid : $form_state['plugin']['defaults']->caid;
