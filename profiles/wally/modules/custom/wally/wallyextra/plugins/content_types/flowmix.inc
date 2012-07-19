@@ -41,7 +41,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
   
   if ($complete_subtype) {
     $settings = (array)wallyextra_flowmix_content_type_get_conf($complete_subtype, $conf);
-  
+
     $feed = array();
     $cid = $settings['caid'];
     $default_theme = 'wallyct_flowmix';
@@ -57,7 +57,7 @@ function wallyextra_flowmix_content_type_render($subtype, $conf, $panel_args, $c
     else
       $block->content = theme($default_theme, $subtype, $context, $feed, $settings);
   } else {
-   $block->content = ''; 
+    $block->content = ''; 
   }
   
   return $block;
@@ -550,6 +550,13 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     '#required'         => TRUE,
     '#weight'           => 0,
   );
+  
+  $form['url'] = array(
+    '#type'             => 'textfield',
+    '#title'            => t('URL'),
+    '#description'      => t('The title of the block will point to this URL.'),
+    '#default_value'    => $settings->url,
+  );
 
   $form['maxitem_global'] = array (
     '#type'             => 'textfield',
@@ -688,6 +695,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
 function _wallyextra_flowmix_content_type_form_summary_defaults() {  
   $defaults = new stdClass();
   $defaults->title = '';
+  $defaults->url = '';
   $defaults->maxitem_global = '';
   $defaults->mix_schema = 'alt';
   $defaults->own_schema = '';
@@ -711,6 +719,7 @@ function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form
   } else {
     $save_values = array(
       'title',
+      'url',
       'maxitem_global',
       'mix_schema',
       'own_schema',
