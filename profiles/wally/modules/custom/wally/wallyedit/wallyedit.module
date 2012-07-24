@@ -592,6 +592,9 @@ function wallyedit_elements() {
     'content_taxonomy_autocomplete' => array(
       '#process' => array('wydit_elements_process'),
     ),
+    'link' => array(
+      '#process' => array('wydit_elements_process'),
+    ),
   );
 }
 
@@ -838,6 +841,14 @@ function wydit_elements_process($element, $edit, &$form_state, $form) {
     if (($element['#type'] == 'date_combo') || strstr($element['#type'], 'optionwidgets_') || $element['#type'] == 'content_taxonomy_autocomplete') {
       $element['#force_validate'] = TRUE;
     }
+    if ($element['#type'] == 'link') {
+      unset(
+        $element['url'],
+        $element['title'],
+        $element['attributes']
+      );
+    }
+
     $orig_process = $element['#process'][0];
     $element = $orig_process($element, $edit, &$form_state, $form[$form['type']['#value']]);
   }
