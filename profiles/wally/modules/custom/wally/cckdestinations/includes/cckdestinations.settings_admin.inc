@@ -341,10 +341,17 @@ function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
   }
 }
 
-function cckdestinations_page_taxonomy_autocomplete_form($form_state) {
+function cckdestinations_page_other_settings_form($form_state) {
   $form = array();
+  
+  $form['taxonomy_autocomplete'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy Autocomplete'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
 
-  $form['cckdestinations_taxonomy_limit'] = array(
+  $form['taxonomy_autocomplete']['cckdestinations_taxonomy_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Limit of terms'),
     '#description' => t('If the amount of proposed terms is greater thant this limit, the select box will be replaced by a suggestion autocomplete text field.'),
@@ -353,7 +360,7 @@ function cckdestinations_page_taxonomy_autocomplete_form($form_state) {
     '#maxlength' => 512,
   );
 
-  $form['cckdestinations_display_limit'] = array(
+  $form['taxonomy_autocomplete']['cckdestinations_display_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Displayed matching terms'),
     '#description' => t('The autocomplete field will display this amount of matching terms.'),
@@ -361,11 +368,32 @@ function cckdestinations_page_taxonomy_autocomplete_form($form_state) {
     '#size' => 80,
     '#maxlength' => 512,
   );
+  
+  $form['next_prev'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Next/Prev'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['next_prev']['cckdestinations_display_next'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display "Next" button'),
+    '#description' => t('This only applies for the node detail page. The next node will be chosen on the basis of the main destination of the viewed node.'),
+    '#default_value' => wally_variable_get('cckdestinations_display_next', 0),
+  );
+  
+  $form['next_prev']['cckdestinations_display_prev'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display "Prev" button'),
+    '#description' => t('This only applies for the node detail page. The previous node will be chosen on the basis of the main destination of the viewed node.'),
+    '#default_value' => wally_variable_get('cckdestinations_display_prev', 0),
+  );
 
   return wally_system_settings_form($form, TRUE);
 }
 
-function cckdestinations_page_taxonomy_autocomplete_form_validate($form, &$form_state) {
+function cckdestinations_page_other_settings_form_validate($form, &$form_state) {
   $values = $form_state['values'];
   
   if ($values['op'] == $values['submit']) {

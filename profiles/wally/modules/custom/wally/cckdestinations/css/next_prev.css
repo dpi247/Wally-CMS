@@ -1,0 +1,31 @@
+@CHARSET "UTF-8";
+
+div.next_prev {
+	background-color: white;
+	position: fixed;
+	top: '';
+	bottom: 5px;
+	width: 18%;
+	padding: 5px;
+	border: 2px solid gray;
+	border-radius: 5px;
+}
+
+#prev {
+  left: 5px;
+  right: '';
+}
+
+#next {
+  right: 5px;
+  left: '';
+  text-align: right;
+}
+
+div.next_prev a {
+  color: black;
+}
+
+div.next_prev hr {
+  height: 0px;
+}
