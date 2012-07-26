@@ -181,3 +181,13 @@ function cckdestinations_update_6005() {
   db_add_field($ret, 'cckdestinations_multiple_destinations', 'parent', $spec);
   return $ret;
 }
+
+/**
+ * Implementation of hook_update_N
+ * Add index on time_rank column
+ */
+function cckdestinations_update_6006() {
+  $ret = array();
+  db_add_index($ret, 'content_field_destinations', 'field_destinations_time_rank', array('field_destinations_time_rank'));
+  return $ret;
+}
