@@ -29,7 +29,7 @@ function wallyimportpackageV16_node_set_field_EmbeddedContent(&$node, $dom, &$lo
   $node->field_embededobjects = $arraytemporaire = array();
   $node->field_embededobjects_nodes = $arraytemporaire_nodes = array();
   if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
-    foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
+    foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result) {
       if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
         $results[$result->nid] = TRUE;
         $order = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
