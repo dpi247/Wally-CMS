@@ -361,7 +361,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
       if ($xml_file != NULL & $return == NULL){
         //Proccess xml
         $return = wallymport_process_xmlfile($xml_file, $importer);
-        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        $file_location = wallymport_movefiles($importer, $object_file, $xml_file, $return);
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
