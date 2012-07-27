@@ -768,19 +768,19 @@ function wallyimportpackage_node_set_field_editions(&$node, $dom, $log, $importe
  *   Nothing
  */
 function wallyimportpackage_node_set_field_channels(&$node, $dom, $log, $importer) {
-
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process Channels: '.$dom->nodeName;
   }
+
   $result = array();
   // Get edition from DOM & update array.
   foreach($dom->getElementsByTagName('Channel') as $channel) {
     $channelName = $channel->getAttributeNode("Name")->value;
-    $result[] = $channelName;
+    $result[] = array('value' => $channelName);
   }
 
   if (!empty($result)) {
-    $node->field_channels = array(array("value" => serialize($result)));
+    $node->field_channels = $result;
   } else {
     $node->rejected = '';
     $error_msg = t('No channels found. Package rejected');
@@ -843,6 +843,7 @@ function wallyimportpackage_node_set_field_commentsallowed(&$node, $dom, &$log, 
  *   Nothing
  */
 function wallyimportpackage_node_set_field_freeaccess(&$node, $dom, &$log, $importer){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
     $node->field_freeaccess[0]['value'] = NULL; 
@@ -1014,7 +1015,7 @@ function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $impor
       $node->node_term_to_save = $object->node_term_to_save;
     }
   } else {
-    $node->rejected = TRUE;
+    //$node->rejected = TRUE;
   }
 }
 
@@ -1051,7 +1052,7 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
         $node->field_mainobject_nodes[0] = $object;
       }
     } else {
-      $node->rejected = TRUE;
+      //$node->rejected = TRUE;
     }
   }
 }
@@ -1109,7 +1110,7 @@ function wallyimportpackage_node_set_field_EmbeddedContent(&$node, $dom, &$log, 
   $node->field_embededobjects_nodes = array();
   $arraytemporaire = array();
   if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
-    foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
+    foreach(wimprt_node_process_list($embedobjects, $log, $importer) as $result) {
       if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
         $results[$result->nid] = $result->nid;
         $embedobjectsorder = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
