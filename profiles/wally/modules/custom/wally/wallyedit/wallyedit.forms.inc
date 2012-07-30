@@ -801,7 +801,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
 
-  if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'])) {
+  if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'], $form_state['values'])) {
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
     drupal_set_message(t('PreNode has been cleared'));
@@ -1161,7 +1161,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
   return $new_form_state;
 }
 
-function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALSE){
+function wydit_publish_prenode(&$form_state, $current_profile, $values = array()) {
   $type_name = $form_state['type'];
   $fields = wyditadmin_get_fields_flat($current_profile, $type_name);
 
@@ -1170,7 +1170,7 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
       $field_name = $field['name'];
       if(isset($form_state[$field_name])) {
         foreach($form_state[$field_name] as $key => $value) {
-          if ($nid = wydit_publish_prenode($form_state[$field_name][$key], TRUE)) {
+          if ($nid = wydit_publish_prenode($form_state[$field_name][$key], $current_profile)) {
             unset($form_state[$field_name][$key]);
             $form_state[$field_name][$key]['nid'] = $nid;
           }
@@ -1203,12 +1203,12 @@ function wydit_publish_prenode(&$form_state, $current_profile, $sub_level = FALS
     return FALSE;
   }
 
-  return wydit_publish_prenode_save($form_state, $sub_level);
+  return wydit_publish_prenode_save($form_state, $values);
 }
 
-function wydit_publish_prenode_save(&$form_state) {
+function wydit_publish_prenode_save(&$form_state, $values) {
   global $user;
-  $b = $form_state['#node'];
+  $b = (object)array_merge($values, (array)$form_state['#node']);
   $b->doNotPullUp = TRUE;
   $b->uid = $user->uid;
   node_save($b);
