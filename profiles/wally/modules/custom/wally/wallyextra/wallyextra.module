@@ -385,6 +385,7 @@ function wallyextra_refresh_block($infos, $settings) {
  * @return Datas
  */
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
+  // Fetching datas from cache
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
@@ -414,6 +415,8 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
     } else {
+      // Here we directly call the content building callback
+
       // Load plugin if necessary
       if ($plugin_name != '') {
         ctools_include('plugins');
@@ -477,9 +480,10 @@ function _wallyextra_content_types_ajax_callback() {
     $datas = $cached_datas->data;
   }
 
+  // We have to add the specific js/css that could be added for this block
+  // To avoid double inclusions we make a diff to treat only specifically added js/css
   $js_before = drupal_add_js();
   $css_before = drupal_add_css();
-  
   drupal_add_js('Drupal.attachBehaviors();', 'inline');
 
   // Usual theming
@@ -491,7 +495,7 @@ function _wallyextra_content_types_ajax_callback() {
 
   $js_after = drupal_add_js();
   $css_after = drupal_add_css();
-
+  // Here is the diff
   $scripts = drupal_get_js('header', arrayRecursiveDiff($js_after, $js_before));
   $styles = drupal_get_css(arrayRecursiveDiff($css_after, $css_before));
   
