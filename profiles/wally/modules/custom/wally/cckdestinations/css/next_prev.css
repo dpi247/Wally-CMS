@@ -3,9 +3,9 @@
 div.next_prev {
 	background-color: white;
 	position: fixed;
-	top: '';
+	top: auto;
 	bottom: 5px;
-	width: 18%;
+	width: 340px;
 	padding: 5px;
 	border: 2px solid gray;
 	border-radius: 5px;
@@ -13,12 +13,12 @@ div.next_prev {
 
 #prev {
   left: 5px;
-  right: '';
+  right: auto;
 }
 
 #next {
   right: 5px;
-  left: '';
+  left: auto;
   text-align: right;
 }
 
@@ -26,6 +26,15 @@ div.next_prev a {
   color: black;
 }
 
+div.next_prev h2 {
+  font-size: 14px;
+}
+
+div.next_prev h3 {
+  font-size: 13px;
+}
+
 div.next_prev hr {
   height: 0px;
+  margin: 3px 0 5px;
 }

@@ -13,21 +13,21 @@
   switch ($type):
     case 'next':
 ?>
-<h2>
+<h3>
   <a href="<?php print $path; ?>">
     <?php print t('NEXT'); ?>
   </a>
-</h2>
+</h3>
 <hr>
 <?php
       break;
     case 'prev':
 ?>
-<h2>
+<h3>
   <a href="<?php print $path; ?>">
     <?php print t('PREVIOUS'); ?>
   </a>
-</h2>
+</h3>
 <hr>
 <?php
       break;
@@ -39,7 +39,6 @@
     <?php print $title; ?>
   </a>
 </h2>
-<hr>
 <a href="<?php print $path; ?>">
   <?php print $content; ?>
 </a>

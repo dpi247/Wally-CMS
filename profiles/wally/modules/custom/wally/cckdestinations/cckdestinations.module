@@ -585,36 +585,51 @@ function cckdestinations_preprocess_node(&$vars) {
     $current_tid = $vars['field_destinations'][0]['tid'];
     $current_target = $vars['field_destinations'][0]['target'];
     $current_time_rank = $vars['field_destinations'][0]['time_rank'];
-    $db_next = db_query("SELECT nid FROM {content_field_destinations}
-      WHERE field_destinations_time_rank > %d AND field_destinations_tid = %d AND field_destinations_target = '%s' AND delta = 0
-      ORDER BY field_destinations_time_rank ASC
-      LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
-    $db_prev = db_query("SELECT nid FROM {content_field_destinations}
-      WHERE field_destinations_time_rank < %d AND field_destinations_tid = %d AND field_destinations_target = '%s' AND delta = 0
-      ORDER BY field_destinations_time_rank DESC
-      LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
 
-    $next_nid = db_result($db_next);
-    $prev_nid = db_result($db_prev);
-
-    $vars['prev_nid'] = $prev_nid;
-    $vars['next_nid'] = $next_nid;
+    $vars['next_nid'] = FALSE;
+    $vars['prev_nid'] = FALSE;
+    $vars['next_box'] = '';
+    $vars['prev_box'] = '';
 
     drupal_add_css(drupal_get_path('module', 'cckdestinations').'/css/next_prev.css');
     drupal_add_js(drupal_get_path('module', 'cckdestinations').'/js/next_prev.js');
     $next_prev_settings = array();
-    if ($next_nid && wally_variable_get('cckdestinations_display_next', 0)) {
-      $next_prev_settings['next'] = array(
+    $next_prev_settings['div_selector'] = 'div.next-prev-content';
+
+    if (wally_variable_get('cckdestinations_display_next', 0)) {
+      $db_next = db_query("SELECT nid FROM {content_field_destinations}
+        WHERE field_destinations_time_rank > %d AND field_destinations_tid = %d AND field_destinations_target = '%s' AND delta = 0
+        ORDER BY field_destinations_time_rank ASC
+        LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
+      if ($next_nid = db_result($db_next)) {
+        $vars['next_nid'] = $next_nid;
+        $next_node = node_load($next_nid);
+        $vars['next_box'] = "<div id='next' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $next_node, 'next')."</div>";
+      }
+
+      $next_prev_settings['boxes']['next'] = array(
         'div_id' => 'next',
-        'nid' => $next_nid,
+        //'nid' => $next_nid,
       );
     }
-    if ($prev_nid && wally_variable_get('cckdestinations_display_prev', 0)) {
-      $next_prev_settings['prev'] = array(
+
+    if (wally_variable_get('cckdestinations_display_prev', 0)) {
+      $db_prev = db_query("SELECT nid FROM {content_field_destinations}
+        WHERE field_destinations_time_rank < %d AND field_destinations_tid = %d AND field_destinations_target = '%s' AND delta = 0
+        ORDER BY field_destinations_time_rank DESC
+        LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
+      if ($prev_nid = db_result($db_prev)) {
+        $vars['prev_nid'] = $prev_nid;
+        $prev_node = node_load($prev_nid);
+        $vars['prev_box'] = "<div id='prev' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $prev_node, 'prev')."</div>";
+      }
+      
+      $next_prev_settings['boxes']['prev'] = array(
         'div_id' => 'prev',
-        'nid' => $prev_nid,
+        //'nid' => $prev_nid,
       );
     }
+
     drupal_add_js(array('next_prev' => $next_prev_settings), 'setting');
   }
 }
