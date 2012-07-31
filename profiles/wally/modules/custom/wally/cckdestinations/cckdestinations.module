@@ -568,7 +568,7 @@ function cckdestinations_next_prev_ajax_callback($node, $type) {
   print '';
 }
 
-function cckdestinations_preprocess_cckdestinations_next_prev_box (&$vars) {
+/*function cckdestinations_preprocess_cckdestinations_next_prev_box (&$vars) {
   $node = $vars['node'];
   wallycontenttypes_packagepopulate($node);
   $vars['path'] = '/'.$node->path;
@@ -578,7 +578,7 @@ function cckdestinations_preprocess_cckdestinations_next_prev_box (&$vars) {
       $vars['content'] = substr($node->field_mainstory_nodes[0]->field_textbody[0]['value'], 0, 150).'...';
       break;
   }
-}
+}*/
 
 function cckdestinations_preprocess_node(&$vars) {
   if (isset($vars['field_destinations'][0]) && !empty($vars['field_destinations'][0]) && (!isset($vars['view']->name) || empty($vars['view']->name))) {
@@ -603,8 +603,8 @@ function cckdestinations_preprocess_node(&$vars) {
         LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
       if ($next_nid = db_result($db_next)) {
         $vars['next_nid'] = $next_nid;
-        $next_node = node_load($next_nid);
-        $vars['next_box'] = "<div id='next' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $next_node, 'next')."</div>";
+        //$next_node = node_load($next_nid);
+        //$vars['next_box'] = "<div id='next' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $next_node, 'next')."</div>";
       }
 
       $next_prev_settings['boxes']['next'] = array(
@@ -620,8 +620,8 @@ function cckdestinations_preprocess_node(&$vars) {
         LIMIT 0,1", $current_time_rank, $current_tid, $current_target);
       if ($prev_nid = db_result($db_prev)) {
         $vars['prev_nid'] = $prev_nid;
-        $prev_node = node_load($prev_nid);
-        $vars['prev_box'] = "<div id='prev' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $prev_node, 'prev')."</div>";
+        //$prev_node = node_load($prev_nid);
+        //$vars['prev_box'] = "<div id='prev' class='next_prev' style='display: none;'>".theme('cckdestinations_next_prev_box', $prev_node, 'prev')."</div>";
       }
       
       $next_prev_settings['boxes']['prev'] = array(
@@ -630,7 +630,7 @@ function cckdestinations_preprocess_node(&$vars) {
       );
     }
 
-    drupal_add_js(array('next_prev' => $next_prev_settings), 'setting');
+    //drupal_add_js(array('next_prev' => $next_prev_settings), 'setting');
   }
 }
 
@@ -1242,11 +1242,11 @@ function cckdestinations_theme() {
     'cckdestinations_page_multiple_destinations_table_parent' => array(
       'arguments' => array('element' => array()),
     ),
-    'cckdestinations_next_prev_box' => array(
+    /*'cckdestinations_next_prev_box' => array(
       'arguments' => array('node' => NULL, 'type' => ''),
       'path' => drupal_get_path('module', 'cckdestinations').'/theme',
       'template' => 'cckdestinations-next-prev-box',
-    ),
+    ),*/
   );
 }
 
