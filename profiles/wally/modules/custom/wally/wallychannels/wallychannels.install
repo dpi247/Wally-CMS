@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * Implementation of the hook_install();
+ */
+function wallychannels_install() {
+  drupal_install_schema('wallychannels');
+  if (module_exists('pathauto')) {
+    $weight = db_result(db_query("SELECT weight FROM {system} WHERE name = 'pathauto'")) + 1;
+  } else {
+    $weight = 2;
+  }
+  db_query("UPDATE {system} SET weight = %d WHERE name = 'wallychannels'", $weight);
+}
+
+/**
+ * Implementation of the hook_uninstall();
+ */
+function wallychannels_uninstall() {
+  drupal_uninstall_schema('wallychannels');
+}
+
+function wallychannels_schema() {
+  $schema = array();
+  
+  $schema['wallychannels_channels'] = array(
+    'description' => 'Contains exportable channels definitions.',
+    'export' => array(
+      'identifier' => 'wallychannels_channels',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'key' => 'cid',
+      'default hook' => 'wallychannels_channels_obj',
+      'api' => array(
+        'owner' => 'wallychannels',
+        'api' => 'wallychannels_channels',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'channel' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Channel type.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Name for this channel',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the channel',
+      ),
+      'description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Description for this channel.',
+        'object default' => '',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual channel to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  return $schema;
+}
