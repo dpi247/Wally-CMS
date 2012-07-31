@@ -216,6 +216,8 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   if (empty($file_uri)) {
     return NULL;
   }
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   global $proceed_file_path;
   global $base_path;
