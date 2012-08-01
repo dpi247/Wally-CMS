@@ -71,6 +71,8 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     }
   
     module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'after_process');
+  
+    drupal_alter('wimprt_package_after_process', $node);
   }
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
