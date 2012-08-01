@@ -64,16 +64,18 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
   if (variable_get('wallymport_debug',0) or TRUE){
     $log['log'][] = 'process package: '.$dom->nodeName;
   }
-  
+
   if (!isset($node->rejected) & !isset($node->wallymport_delete)){
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process',$importer);
-  
+
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
     if (function_exists("wallyimportpackage_process_package_".$callback)){
       call_user_func("wallyimportpackage_process_package_".$callback, &$node, $dom, &$log, $importer);
     }
-  
+
     module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
+    
+    drupal_alter('wimprt_package_after_process', $node);
   }
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
