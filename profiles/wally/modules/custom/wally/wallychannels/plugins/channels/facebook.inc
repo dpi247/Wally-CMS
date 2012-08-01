@@ -146,13 +146,21 @@ function wallychannels_facebook_channels_settings_form(&$form, &$form_state) {
 function wallychannels_facebook_channels_settings_form_submit(&$form, &$form_state) {
   $values = $form_state['values']['settings'];
   if (empty($values['access_token']) || empty($values['token_expires']) || (time() > $values['token_expires'])) {
+    global $base_url;
     module_load_include('php', 'wallychannels', 'plugins/channels/wallyfacebook');
     // Create our Application instance
     $facebook = new WallyFacebook(array(
       'appId'  => $values['app_id'],
       'secret' => $values['app_secret'],
     ));
-    $form_state['redirect'] = $facebook->getLoginUrl(array('scope' => 'publish_stream'));
+    $current_path = $_GET['q'];
+    if (strstr($current_path, '/add/')) {
+      $new_id = db_result(db_query("SELECT MAX(cid) FROM {wallychannels_channels}")) + 1;
+      $destination = str_replace('/add/', '/list/'.$new_id.'/edit/', $current_path);
+    } else {
+      $destination = $current_path;
+    }
+    $form_state['redirect_after_save'] = $facebook->getLoginUrl(array('scope' => 'publish_stream'), $base_url.'/'.$destination);
   }
 }
 

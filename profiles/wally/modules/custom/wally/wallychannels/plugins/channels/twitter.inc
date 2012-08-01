@@ -164,8 +164,15 @@ function wallychannels_twitter_channels_settings_form_submit(&$form, &$form_stat
     global $base_url;
     module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
     $twitteroauth = new TwitterOAuth($values['consumer_key'], $values['consumer_secret']);
-    $token = $twitteroauth->getRequestToken($base_url.'/'.$_GET['q']);
-    $form_state['redirect'] = $twitteroauth->getAuthorizeURL($token);
+    $current_path = $_GET['q'];
+    if (strstr($current_path, '/add/')) {
+      $new_id = db_result(db_query("SELECT MAX(cid) FROM {wallychannels_channels}")) + 1;
+      $destination = str_replace('/add/', '/list/'.$new_id.'/edit/', $current_path);
+    } else {
+      $destination = $current_path;
+    }
+    $token = $twitteroauth->getRequestToken($base_url.'/'.$destination);
+    $form_state['redirect_after_save'] = $twitteroauth->getAuthorizeURL($token);
   }
 }
 

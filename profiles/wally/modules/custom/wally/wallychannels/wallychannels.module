@@ -308,7 +308,7 @@ function wallychannels_get_plugin_by_name($plugin_name) {
   return $plugin;
 }
 
-function wallychannels_get_instances_of_channel($by_name = FALSE, $channel = '', $reset = FALSE) {
+function wallychannels_get_instances_of_channel($by_name = FALSE, $display_msg = TRUE, $channel = '', $reset = FALSE) {
   static $instances = array();
   
   if (empty($instances) || $reset) {
@@ -323,7 +323,7 @@ function wallychannels_get_instances_of_channel($by_name = FALSE, $channel = '',
         } else {
           $instances[$instance->channel][$instance->cid] = $instance;
         }
-      } else {
+      } elseif ($display_msg) {
         drupal_set_message(t('The instance "@instance" of channel "@channel" has not been authenticated.', array('@instance' => $instance->title, '@channel' => $plugins[$instance->channel]['title'])), 'warning');
       }
     }
