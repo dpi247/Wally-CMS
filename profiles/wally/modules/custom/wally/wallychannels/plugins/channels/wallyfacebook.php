@@ -205,4 +205,36 @@ class WallyFacebook extends Facebook
 
     return $response_params;
   }
+  
+  /**
+   * Get a Login URL for use with redirects. By default, full page redirect is
+   * assumed. If you are using the generated URL with a window.open() call in
+   * JavaScript, you can pass in display=popup as part of the $params.
+   *
+   * The parameters:
+   * - redirect_uri: the url to go to after a successful login
+   * - scope: comma separated list of requested extended perms
+   *
+   * @param array $params Provide custom parameters
+   * @return string The URL for the login flow
+   */
+  public function getLoginUrl($params = array(), $redirect_uri = '') {
+    $this->establishCSRFTokenState();
+    $currentUrl = $redirect_uri ? $redirect_uri : $this->getCurrentUrl();
+
+    // if 'scope' is passed as an array, convert to comma separated list
+    $scopeParams = isset($params['scope']) ? $params['scope'] : null;
+    if ($scopeParams && is_array($scopeParams)) {
+      $params['scope'] = implode(',', $scopeParams);
+    }
+
+    return $this->getUrl(
+      'www',
+      'dialog/oauth',
+      array_merge(array(
+                    'client_id' => $this->getAppId(),
+                    'redirect_uri' => $currentUrl, // possibly overwritten
+                    'state' => $this->state),
+                  $params));
+  }
 }

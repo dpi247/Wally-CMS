@@ -72,7 +72,7 @@ function wallychannels_channels_form_basicsettings_form(&$form, &$form_state) {
   $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('Machine Name'),
-    '#description' => t(''),
+    '#description' => '',
     '#required' => TRUE,
     '#default_value' => $defaults['name'],
   );
@@ -80,14 +80,15 @@ function wallychannels_channels_form_basicsettings_form(&$form, &$form_state) {
   $form['title'] = array(
     '#type' => 'textfield',
     '#title' => t('Human Readable Name'),
-    '#description' => t(''),
+    '#description' => t('This is the name that will be displayed to users.'),
+    '#required' => TRUE,
     '#default_value' => $defaults['title'],
   );
   
   $form['description'] = array(
     '#type' => 'textarea',
     '#title' => t('Description'),
-    '#description' => t(''),
+    '#description' => '',
     '#default_value' => $defaults['description'],
   );
   
@@ -109,7 +110,10 @@ function wallychannels_channels_form_basicsettings_form(&$form, &$form_state) {
 
 function wallychannels_channels_form_basicsettings_form_validate($form, $form_state) {
   $submitted = $form_state['values'];
-  // @todo : empecher de sauver 2 channels avec le meme nom machine
+  $instances = wallychannels_get_instances_of_channel(TRUE, FALSE);
+  if (array_key_exists($submitted['name'], $instances)) {
+    form_set_error('name', t('This machine name has already been used.'));
+  }
 }
 
 function wallychannels_channels_form_basicsettings_form_submit($form, &$form_state) {
