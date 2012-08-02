@@ -35,7 +35,7 @@ body {
 }
 
 #wallyedit_container {
-  padding-top: 10px;
+	padding-top: 10px;
 }
 
 #wallyedit_preview_container {
@@ -226,20 +226,27 @@ table.sticky-header {
 	position: relative;
 }
 
+#wallyedit_container form fieldset.altered-fieldset {
+	display: inline;
+	width: 100%;
+}
+
 .group_content {
 	padding-bottom: 200px;
 }
 
 td.wallyedit-prenode-locked {
-  font-style: italic;
-  color: green;
-  padding-left: 22px; /* LTR */
-  background: url(../images/locked.png) no-repeat scroll left center; /* LTR */
+	font-style: italic;
+	color: green;
+	padding-left: 22px; /* LTR */
+	background: url(../images/locked.png) no-repeat scroll left center;
+	/* LTR */
 }
 
 td.wallyedit-prenode-locked-other {
-  font-style: italic;
-  color: red;
-  padding-left: 22px; /* LTR */
-  background: url(../images/locked-other.png) no-repeat scroll left center; /* LTR */
+	font-style: italic;
+	color: red;
+	padding-left: 22px; /* LTR */
+	background: url(../images/locked-other.png) no-repeat scroll left center;
+	/* LTR */
 }
