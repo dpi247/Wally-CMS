@@ -1,9 +1,4 @@
 <?php
-  module_load_include('inc', 'wallyedit', 'includes/config_api');
-  $type = wydit_get_infos_type($node_type);
-  $extra_fields = array();
-  wallyedit_get_extra_fields($extra_fields, $form[$node_type], array_keys($type['fields']));
-  $cck_fields = $type['fields'] + $extra_fields;
   $meta_tab_name = 'meta_'.$profile_id.'_'.$node_type;
   $no_tab_name = 'no_tab';
 ?>

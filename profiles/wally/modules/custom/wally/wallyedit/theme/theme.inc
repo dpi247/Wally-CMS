@@ -47,17 +47,50 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form(&$variables) {
 }
 
 function wallyedit_preprocess_wallyedit_node_form(&$vars) {
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
+
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/tab_slider.js');
   drupal_add_js(array('profile_id' => $vars['profile_id'], 'current_tab' => $vars['form']['current_tab']['#value']), 'setting');
-  
-  module_load_include('inc', 'wallyedit', 'includes/config_api');
+
   $profile_id = $vars['profile_id'] = $vars['form']['profile_id']['#value'];
   $node_type = $vars['node_type'] = $vars['form']['type']['#value'];
-  $onglets_struct = $vars['onglets_struct'] = wyditadmin_get_fields_tree($profile_id, $node_type);
-  
   $global_form = &$vars['form'];
   $form = &$vars['form'][$node_type];
+  $onglets_struct = wyditadmin_get_fields_tree($profile_id, $node_type);
+  $type = $vars['type'] = wydit_get_infos_type($node_type);
+  $extra_fields = array();
+  wallyedit_get_extra_fields($extra_fields, $form, array_keys($type['fields']));
+  $cck_fields = $vars['cck_fields'] = $type['fields'] + $extra_fields;
+  $flat_fields = wyditadmin_get_fields_flat($profile_id, $node_type);
+
+  $hardcoded_fields = array(
+    'title',
+    'revision_information',
+    'author',
+    'options',
+    'comment_settings',
+    'menu',
+    'path',
+    'attachments',
+  );
+  
+  foreach ($cck_fields as $field_name => $field) {
+    if (isset($field['display_settings']['parent']) && in_array($field['display_settings']['parent'], $hardcoded_fields)) {
+      foreach($onglets_struct as $onglet => $onglet_content) {
+        foreach($onglet_content['elements'] as $group_id => $group_content) {
+          foreach($group_content['fields'] as $element_name => $element_content) {
+            if ($element_name == $field_name) {
+              $onglets_struct[$onglet]['elements'][$group_id]['fields'][$field['display_settings']['parent']] = $element_content;
+              break 3;
+            }
+          }
+        }
+      }
+    }
+  }
+  $vars['onglets_struct'] = $onglets_struct;
+
   if (module_exists('fieldgroup')) {
     // Flatten the form so we do not dependent on the groups
     $groups = fieldgroup_groups($node_type);
@@ -74,31 +107,20 @@ function wallyedit_preprocess_wallyedit_node_form(&$vars) {
   }
 
   $no_display = '';
+  $no_display_struct = array();
   foreach($onglets_struct['no_tab']['elements'] as $group_id => $group_content) {
     foreach($onglets_struct['no_tab']['elements'][$group_id]['fields'] as $element_name => $element_content) {
       $no_display .= drupal_render($form[$element_name]);
     }
-  }
-  $hardcoded_fields = array(
-    'title',
-    'revision_information',
-    'author',
-    'options',
-    'comment_settings',
-    'menu',
-    'path',
-    'attachments',
-  );
-  $no_display_struct = array();
-  foreach($onglets_struct['no_tab']['elements'] as $group_content) {
     $no_display_struct = array_merge($no_display_struct, array_keys($group_content['fields']));
   }
   foreach ($hardcoded_fields as $field) {
     if (isset($form[$field])) {
-      list($tmp_no_display, $rendered) = _wallyedit_preprocess_no_display($form[$field], $no_display_struct);
+      list($tmp_no_display, $rendered) = _wallyedit_preprocess_no_display($form[$field], $no_display_struct, $flat_fields);
       $no_display .= $tmp_no_display;
     }
   }
+
   $no_display .= drupal_render($global_form['profile_id']);
   $no_display .= drupal_render($global_form['type']);
   $vars['no_display'] = $no_display;
@@ -133,7 +155,7 @@ function _wallyedit_preprocess_no_display(&$subform, $struct) {
     }
   }
   $rendered_subform = FALSE;
-  if ($rendered_elem == sizeof($children)) {
+  if (sizeof($children) && $rendered_elem == sizeof($children)) {
     $no_display .= drupal_render($subform);
     $rendered_subform = TRUE;
   }
