@@ -91,7 +91,7 @@ $current = $node->view->row_index;
 
 if ($tid != 20) { 
 	if($photo == TRUE){ 
-	$photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_filename, $photoObject_summary, $photoObject_summary);}
+	$photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);}
 	else { $photoObject_img = "<img src=\"".$theme_path."/images/default_pic_78x52.png\">"; }}
   
 /*  Récupération de la date de publication du package -> $node_publi_date
@@ -116,7 +116,7 @@ $date_edition = "<span class=\"time\">" ._wallydemo_date_edition_diplay($node_pu
 ?>
  <li<?php print $classlast ; ?>>
  	<?php print $photoObject_img; ?><?php print $date_edition; ?>
-	 <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
+	 <a href="<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
  </li>  
  
  <?php 

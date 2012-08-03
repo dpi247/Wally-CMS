@@ -1,86 +1,130 @@
 <?php
-/*
- *
- * 
- */
+
+drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/article.css','file','screen');
+drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
+drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
+drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-article.js');
+drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-gallery.js');
+
 $mainobject = $node->field_mainobject_nodes[0];
-$main_title = $mainobject->title;
+$main_title = $node->title;
 
 $themeroot = drupal_get_path('theme', 'wallydemo');
-drupal_add_css($themeroot . '/css/gallery.css');
 $embededobjects = $node->field_embededobjects_nodes;
 array_unshift($embededobjects, $node->field_mainobject_nodes[0]);
 $sorted_embededobjects = wallycontenttypes_sort_embededobjects($embededobjects);
 $imgstory = $sorted_embededobjects['wally_photoobject'];
 $videostory = $sorted_embededobjects['wally_videoobject'];
 $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
-$main_summary = $field_summary[0]['value'];
+$main_summary = $node->field_summary[0]['safe'];
 
-$main_desc = $field_objectdescription [0]['value'];
-$textstory = NULL;
-foreach ($node->field_embededobjects_nodes as $embeds){
-  if ($embeds->type == 'wally_textobject'){
-    $text  = '<div class = "gallerytextembed">';
-    $text .= '<h3>'.$embeds->title.'</h3>';
-    $text .= '<p class = "chapeau">'.$embeds->field_textchapo[0]['value'].'</p>';
-    $text .= $embeds->field_textbody[0]['value'];
-    $text .= '</div>';
-    $textstory[] = $text;
-  }
+/*
+* Date de publication
+*/
+$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
+$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
+
+$nb_comment = $node->comment_count;
+if ($nb_comment == 0){
+  $reagir = "réagir";
+} elseif ($nb_comment == 1){
+  $reagir = $nb_comment."&nbsp;réaction";
+} else {
+  $reagir = $nb_comment."&nbsp;réactions";
 }
+/*
+ * Génération des liens de partage
+*/
+$socialSharingBaseUrl = wallydemo_get_social_sharing_base_url($mainDestination, $domain);
+if ($node_publi_date < 1333443600){
+  $socialSharingDomainAndPathUrl = $socialSharingBaseUrl."/".$node_path;
+} else {
+  $socialSharingDomainAndPathUrl = $socialSharingBaseUrl."/node/".$node_id;
+}
+$fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
 
-/*$presetname='gallery_preset';
-
-foreach ($imgstory as $n) {
-  if ($n->type == "wally_photoobject") {
-    $file_path = $n->field_photofile[0]['filepath'];
-    $alt = $n->field_summary[0]['value'];
-    $explfilepath = explode('/', $file_path );
-    $file_img[] = theme('imagecache', $presetname,  $file_path, $alt );//, array('class'=>'img'));
-    $path_photo[] = imagecache_create_url($presetname, $file_path);
-    $title_img[] = $n->title;
-    $summary[]= $n->field_summary[0]['value'];
-  }
-}*/
-drupal_add_js('
-  $(document).ready(function() {
-    diapo("gal_node_'.$node->nid.'");
-  });
-', 'inline');
 ?>
-<div id="gal_node_<?php print $node->nid; ?>" class="gallery">
-
-<h2><?php print $main_title;?></h2>
-<?php print $main_summary ; ?> <br/>
-<?php print $main_desc ; ?>
-
-		
-  <div id = "embedded_text"class="text_thumb">
-    <ul>
-      
-      <?php foreach ($textstory as $text) { ?>
-        <?php print $text; ?>
-      <?php } ?>
-  	
+<div id="article" class="gallery"><?php echo $breadcrumb;?>
+  <ul class="liensutiles">
+    <li class="envoyer"><?php print forward_modal_link("node/".$node->nid, wallydemo_check_plain($main_title), "<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?></li>
+    <li class="imprimer"><a href="javascript:window.print();"><img src="/<?php echo $theme_path; ?>/images/ico_imprimer2.gif" alt="Imprimer" title="Imprimer"  width="22" height="20" /></a></li>
+    <li class="reagir"><a href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></li>
+    <li class="facebook">
+      <div id="fb-root"></div>
+      <script src="http://connect.facebook.net/fr_FR/all.js#appId=276704085679009&amp;xfbml=1"></script>
+      <fb:like href="<?php print $socialSharingDomainAndPathUrl; ?>" send="true" layout="button_count" width="90" show_faces="false" action="like" font="arial" ref="article_sudpresse"></fb:like>
+    </li>
+    <li class="linkedin"> 
+      <script src="http://platform.linkedin.com/in.js" type="text/javascript"></script> 
+      <script type="IN/Share" data-url="<?php print $socialSharingDomainAndPathUrl; ?>"></script></li>
+    <li class="twitter"> 
+      <script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+      <div>
+        <a href="http://twitter.com/share" class="twitter-share-button"
+          data-url="<?php print $socialSharingDomainAndPathUrl; ?>"
+     	  data-via="sudpresseonline"
+     	  data-text="<?php print str_replace('"', '', $main_title); ?>"
+     	  data-related="lameuse.be:Toute l'information du La Meuse,LaGazette_be:Toute l'information de La Nouvelle Gazette,xalambert:Responsable de la rédaction de Sudpresse.be"
+     	  data-count="horizontal"      
+     	  data-lang="fr">Tweet</a></div>
+    </li>
+    <li class="google">
+      <div class="g-plusone" data-size="medium" data-href="<?php print $socialSharingDomainAndPathUrl; ?>"></div>
+    </li>
   </ul>
+  <div class="emb_package emb_package_gallery">
+    <div class="ico_pic"><span>Galerie photo. </span><?php print $date_edition;?></div>
+    
+      <h1><?php print $main_title;?></h1>
+      <div class="emb_package_text"><?php print $main_summary; ?></div>
+    <?php 
+
+      $count = 0;
+      $class = '';
+      foreach ($imgstory as $img){
+        if ($count > 0){
+          $class = 'hidden';
+        }
+        $images .= '<div class="emb_package_bpic '.$class.'" id="'.$img->nid.'">';
+        $images .= theme('imagecache', 'pagallery_450x300', $img->field_photofile[0]['filepath'], $img->title, $img->title);
+        $images .= '<p class="pic_description">'.$img->title.'</p>';
+        $images .= '<p class="credit"><span>'.$img->field_copyright[0]['value'].'</span></p>';
+        $images .= '</div>';
+        $thumbnails .= '<li id="'.$img->nid.'">'.theme('imagecache', 'divers_120x80', $img->field_photofile[0]['filepath'], $img->title, $img->title).'</li>';
+        $count++;
+        if ($count > 9){
+          break;
+        }
+      } 
+    ?>
+ 	<?php print $images;?>
+  	<div class="emb_package_thumbs">
+      <ul>
+    	<?php print $thumbnails;?>
+      </ul>
+  	</div>
   </div>
   
-  <p><br/><br/></p>
-  <div class="photos">
-    <?php foreach ($imgstory as $image):?>
-	  <div class="gallerie_photo">
-        <?php print theme('imagecache', 'unebis_medium_180x120',$image->field_photofile[0]['filepath'],$image->field_photofile[0]['filename'], $image->field_summary[0]['value']);?>
-  	  </div>
-    <?php endforeach;?>
-  </div>
-  <div class = "clear"></div>
-  <div class="video_thumb">
-    <ul>
-      <?php foreach ($videostory as $video) { ?>
-        <?php print theme('node', $video); ?>
-      <?php } ?>
-    </ul>
-  </div>
+	  
+
+<!-- FACEBOOK REACTIONS -->
+  <?php if ($node->comment == 2) { ?>
+    <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>
+    <?php print theme("spreactions_facebook", $node_id, $socialSharingBaseUrl, $socialSharingDomainAndPathUrl, $socialSharingDomainAndPathUrl); ?>
+  <?php } ?>
   
-</div>
-<?php print $links ?>
+  <!-- Pour Googleplus --> 
+  <script type="text/javascript">
+  window.___gcfg = {lang: 'fr'};
+
+  (function() {
+   var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+   po.src = 'https://apis.google.com/js/plusone.js';
+   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+  </script>
+  </div> 
+
+  
+  
+  

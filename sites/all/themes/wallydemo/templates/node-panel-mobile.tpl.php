@@ -312,7 +312,9 @@ $linkTwitter = "http://twitter.com/share?text=$main_title";
 <?php echo $breadcrumb; ?>
 <div class="liensutiles">
   <ul>
+    <?php if($node->comment != 0){ ?>
     <li class="reagir"><a href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></li>
+    <?php } ?>
     <li class="facebook">
       <div id="fb-root"></div>
       <script src="http://connect.facebook.net/fr_FR/all.js#appId=276704085679009&amp;xfbml=1"></script>
@@ -341,6 +343,7 @@ $linkTwitter = "http://twitter.com/share?text=$main_title";
   <?php if($bottomVideosBlock) print $bottomVideosBlock ; ?>
   <?php if($bottomDigitalElements) print $bottomDigitalElements ; ?>
   <?php /* $fid = 'http://www-dev.sudpresse.be/node/'.$node->nid; */ ?>
+  <?php if($node->comment != 0){ ?>
   <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" />
   <div id="commentaires">
     <div id="fb-root"></div>
@@ -356,6 +359,7 @@ $linkTwitter = "http://twitter.com/share?text=$main_title";
     <script src="http://connect.facebook.net/fr_FR/all.js#xfbml=1"></script>
     <fb:comments href="<?php print $fixedDomainAndPathUrl; ?>" num_posts="10" width="300" />
   </div>
+  <?php } ?>
   <!-- Facebook social bar 
   <script>(function(d){
 	  var js, id = 'facebook-jssdk'; if (d.getElementById(id)) {return;}

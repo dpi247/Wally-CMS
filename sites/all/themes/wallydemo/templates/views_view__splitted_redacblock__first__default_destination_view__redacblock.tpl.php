@@ -2,7 +2,7 @@
     $tid  = $variables["view"]->args[0];
     $dest = taxonomy_get_term($tid);
     $parents = array_reverse(taxonomy_get_parents_all($tid));
-    $rssurl =   "/feed";
+    $rssurl =   "/feed";    
     foreach ($parents as $p) {
       $rssurl .= "/".$p->name;
     }
@@ -10,9 +10,9 @@
     $path = "/".drupal_get_path("theme", "wallydemo")."/images/";
     $breadcrumb = _wallydemo_breadcrumb_display($tid);
 
-    //dsm($variables);
-    ?>
+    //dsm($variables["view"],"vzerzerzer");
 
+    ?>
 <div id="une_bis" class="<?php print $destName; ?>">
   <div class="titre_une_bis">
     <?php echo $breadcrumb; ?> 

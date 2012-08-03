@@ -68,7 +68,7 @@ if (!function_exists('wallydemo_menu_item_link')) {
  */
 function wallydemo_menu_item_link($link) {
     // note pur PSP : dsm($link); pour avoir toutes les infos.
-    if($link['has_children'] == 0){
+    if($link['depth'] != 1){
       $class="edition";
     } else {
       $class="s_titre";

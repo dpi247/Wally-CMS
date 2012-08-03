@@ -80,28 +80,28 @@ $title = $mainstory->title;
 <?php switch($row_index){
 	case 0: 
      if($photo == TRUE){
-		 $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+		 $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
      print($photoObject_img);
      } ?>
-          <a href="<?php print $node_path; ?>">  
+          <a href="/<?php print check_url($node_path); ?>">  
             <h3><?php print wallydemo_check_plain($title); ?></h3>
           </a>
 	<?php break;
 	case 1 : ?>
 	         <ul>
             <li>
-              <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
+              <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
             </li>		
   <?php break;
 	case 3: ?>
             <li>
-              <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
+              <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
             </li>
            </ul> 		
 	<?php break;
 	default:	?>
 		        <li>
-		          <a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a>
+		          <a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a>
 		        </li>
 <?php } 
 ?>

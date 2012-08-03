@@ -7,9 +7,10 @@
 	color: #003366;
 	text-decoration:none;
 }
-#header #block-pub-horizontal_top {
+#header #block-pub-horizontal_top, #header .content {
 	margin-bottom: 10px;
 	text-align: center;
+	display:block;
 }
 
 /*-------------------------- Top Header --------------------------------*/

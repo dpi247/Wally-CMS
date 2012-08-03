@@ -109,7 +109,7 @@ foreach ($feed as $item){
   $html .= "<div class=\"item clearfix\">";
   if($photo == TRUE){
   $html .= "<a href=\"".$node_path."\" target=\"_blank\">";
-    $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+    $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
     $html .= $photoObject_img;
   $html .= "</a>";  
   }

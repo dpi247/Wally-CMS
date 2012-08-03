@@ -41,22 +41,29 @@ $theme_path = drupal_get_path('theme','wallydemo');
  * $photoObject_img = theme('imagecache', '???presetImagecache???', $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], $explfilepath[sizeof($explfilepath)-1], array('class'=>'postimage2')); ?>
  * print($photoObject_img);
  */
+$package_class = '';
+$title = '';
 $photo = FALSE;
 $photoObject_path = "";
-if($node->type == "wally_articlepackage"){
+if ($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
+  $title = $mainstory->title;
 } else {  
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
-  if($mainstory_type == "wally_photoobject"){ 
+  $title = $node->title;
+  if ($node->type == "wally_gallerypackage"){ 
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $photoObject_summary = $mainstory->field_summary[0]['value'];
     $photoObject_filename = $mainstory->field_photofile[0]["filename"];
     $explfilepath = explode('/', $photoObject_path);
-    $photoObject_size == $mainstory->field_photofile[0]['filesize'];
+    $photoObject_size = $mainstory->field_photofile[0]['filesize'];
     if (isset($photoObject_path) && $photoObject_size > 0) {
-    	$photo = TRUE;
+      $photo = TRUE;
     }
+    $package_class = 'media-photo';
+  } elseif ($node->type == 'wally_pollpackage'){
+    $package_class = 'media-pool';
   }
 }
 
@@ -75,12 +82,6 @@ if ($photoObject_path == ""){
   }
 }
 
-
-/* Récupération du titre de l'object principal donc du package à l'affichage -> $title
- * 
- * print($title);
- */  
-$title = $mainstory->title;
 
 /*  Récupération de la date de publication du package -> $node_publi_date
  */
@@ -145,39 +146,50 @@ else $reagir = $nb_comment."&nbsp;réactions";
 $links = _wallydemo_get_sorted_links($node);
 $embeds = wallydemo_bracket_embeddedObjects_from_package($node);
 $links_html = "";
-if(count($links)>0 || count($embeds['videos'])>0 || count($embeds['audios'])>0 || count($embeds['digital'])>0){
+if (count($links) > 0 | count($embeds['videos']) > 0 | count($embeds['audios']) > 0 | count($embeds['digital']) > 0 | count($embeds['package']) > 0){
 	$links_html = "<ul>";
-	if(count($embeds['videos'])>0 || count($embeds['audios'])>0 || count($embeds['digital'])>0){
-	 if(count($embeds['videos']>0)){
-	   foreach($embeds['videos'] as $video){
+	if (count($embeds['package']) > 0){
+	  foreach ($embeds['package'] as $pack){
+	    $link_path = $pack->path;
+	    $pack_class = '';
+	    switch ($pack->type){
+	      case 'wally_articlepackage':$pack_class = 'media-press';$link_title = $pack->field_mainstory_nodes[0]->title;break;
+	      case 'wally_gallerypackage':$pack_class = 'media-photo';$link_title = $pack->title;break;
+	      case 'wally_pollpackage': $pack_class = 'media-pool';$link_title = $pack->title;break;
+	    }
+	    $links_html .= '<li class="'.$pack_class.'"><a href="/'.$link_path.'">'.$link_title.'</a></li>';
+	  }
+	}
+	if (count($embeds['videos']) > 0 || count($embeds['audios'])>0 || count($embeds['digital'])>0){
+	 if (count($embeds['videos'] > 0)){
+	   foreach ($embeds['videos'] as $video){
 	   	$link_nid = $video->nid;
 	   	$link_title = $video->title;
 	   	$links_html .= "<li class=\"media-video\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
 	   }
 	 }
-	 if(count($embeds['audios'])>0){
-	    foreach($embeds['audios'] as $son){
+	 if (count($embeds['audios']) > 0){
+	    foreach ($embeds['audios'] as $son){
     	 $link_nid = $son->nid;
 		 $link_title = $son->title;
       	 $links_html .= "<li class=\"media-audio\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
 	   }	   
 	 }
-	 if(count($embeds['digital'])>0){
-    	foreach($embeds['digital'] as $dig){
-      	 $link_nid = $dig->nid;
+	 if (count($embeds['digital']) > 0){
+    	foreach ($embeds['digital'] as $dig){
+      	  $link_nid = $dig->nid;
       	  $link_title = $dig->title; 
 		  $type_digital = $embeds ['digital'][0] -> field_object3rdparty[0]['provider'];
-			if($type_digital == "coveritlive"){
-		      $links_html .= "<li class=\"media-live\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
-				}
-		    else {
-      		  $links_html .= "<li class=\"arrow\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
-	  		}
-    	}    
-   	}	 
+		  if($type_digital == "coveritlive"){
+		    $links_html .= "<li class=\"media-live\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
+		  } else {
+      		$links_html .= "<li class=\"arrow\"><a href=\"".$node_path."#".$link_nid."\">".$link_title."</a></li>";
+	  	  }
+    	}  
+   	  }	 
 	}
 
-	if(count($links)>0){
+	if (count($links)>0){
 		foreach($links as $linksList){
 			if(isset($linksList["links"])){
 				foreach($linksList["links"] as $link){
@@ -201,30 +213,28 @@ if(count($links)>0 || count($embeds['videos'])>0 || count($embeds['audios'])>0 |
  * Génération du breadcrumb
  */
 $breadcrumb = _wallydemo_breadcrumb_display($node->field_destinations[0]["tid"],'une');
-?>
-
-<?php 
 
 switch ($row_index) {
 	case 0:
 ?>
-<div class="article gd clearfix">
+<div class="article gd clearfix <?php print $package_class;?>">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="<?php print $node_path; ?>">
-  <?php if($photo == TRUE){ 
-  $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_path, $photoObject_summary, $photoObject_summary);
-  			} 
-		else { 
-  $photoObject_img = "<img src=\"".$theme_path."/images/default_pic.png\" width=\"217\" height=\"145\" />";
-  			} 
-  print $photoObject_img;
+  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="<?php print $node_url; ?>">
+  <?php if ($photo == TRUE){ 
+          $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_path, $photoObject_summary, $photoObject_summary);
+  		} else { 
+          $photoObject_img = "<img src=\"".$theme_path."/images/default_pic.png\" width=\"217\" height=\"145\" />";
+  		} 
+        print $photoObject_img;
 		?>
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php } ?>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -236,11 +246,11 @@ switch ($row_index) {
 	case 7:
 	case 13:
 ?>
-<div class="article md clearfix">
+<div class="article md clearfix <?php print $package_class;?>">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="<?php print $node_path; ?>">
+  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="<?php print $node_url; ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
@@ -252,7 +262,9 @@ switch ($row_index) {
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php } ?>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -263,11 +275,11 @@ switch ($row_index) {
 	case 12:
 	case 18:
 ?>
-<div class="article md clearfix noborder">
+<div class="article md clearfix noborder <?php print $package_class;?>">
   <p class="time time_une"><?php print $date_edition; ?></p>
   <span class="ariane_une"><?php print $breadcrumb; ?></span>
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="<?php print $node_path; ?>">
+  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="<?php print $node_url; ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
@@ -279,7 +291,9 @@ switch ($row_index) {
   </a>
 
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+  <?php } ?>
   <?php if($links_html != ""){
   print $links_html;
   } ?>
@@ -293,11 +307,11 @@ switch ($row_index) {
 ?>
 <div class="wrap-columns clearfix">
   <div class="intern-col first column limit">
-    <div class="article md clearfix">
+    <div class="article md clearfix <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="<?php print $node_path; ?>">
+		  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_url; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -309,7 +323,9 @@ switch ($row_index) {
           </a>
           
 		  <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-		  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+		  <?php if($node->comment != 0){ ?>
+		  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+		  <?php } ?>
 		  <?php if($links_html != ""){
 			print $links_html;
 			} ?>
@@ -321,11 +337,11 @@ switch ($row_index) {
 	case 9:
 	case 15:
 ?>
-    <div class="article md clearfix noborder">
+    <div class="article md clearfix noborder <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="<?php print $node_path; ?>">
+		  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_url; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -337,7 +353,9 @@ switch ($row_index) {
           </a>
           
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php if($node->comment != 0){ ?>
+      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php } ?>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
@@ -350,11 +368,11 @@ switch ($row_index) {
 	case 16:
 ?>
   <div class="intern-col last column">
-    <div class="article md clearfix">
+    <div class="article md clearfix <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="<?php print $node_path; ?>">
+		  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_url; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -366,7 +384,9 @@ switch ($row_index) {
           </a>
           
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php if($node->comment != 0){ ?>
+      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php } ?>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
@@ -377,11 +397,11 @@ switch ($row_index) {
 	case 11:
 	case 17:
 ?>
-    <div class="article md clearfix noborder">
+    <div class="article md clearfix noborder <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
-		  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-          <a href="<?php print $node_path; ?>">
+		  <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+          <a href="<?php print $node_url; ?>">
           <?php if($photo == TRUE){ 
           $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
                     } 
@@ -393,7 +413,9 @@ switch ($row_index) {
           </a>
         
       <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-      <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php if($node->comment != 0){ ?>
+      <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></p>
+      <?php } ?>
       <?php if($links_html != ""){
       print $links_html;
       } ?>
