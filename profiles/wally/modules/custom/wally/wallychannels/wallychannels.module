@@ -119,6 +119,7 @@ function wallychannels_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
       }
       break;
     
+    case 'insert':
     case 'update':
       if (isset($node->channels) && !empty($node->channels)) {
         $type = $node->type;
@@ -285,6 +286,15 @@ function wallychannels_get_plugins() {
   return $available_types;
 }
 
+function wallychannels_get_plugin_by_name($plugin_name) {
+  ctools_include('plugins');
+  $module = 'wallychannels';
+  $type = 'channels';
+
+  $plugin = ctools_get_plugins($module, $type, $plugin_name);
+  return $plugin;
+}
+
 function wallychannels_get_plugins_that_handle_type($type) {
   ctools_include('plugins');
   
@@ -299,36 +309,27 @@ function wallychannels_get_plugins_that_handle_type($type) {
   return $available_types;
 }
 
-function wallychannels_get_plugin_by_name($plugin_name) {
-  ctools_include('plugins');
-  $module = 'wallychannels';
-  $type = 'channels';
+function wallychannels_get_instances_of_channel($by_name = FALSE, $display_msg = TRUE, $channel = '') {
+  $instances = array();
 
-  $plugin = ctools_get_plugins($module, $type, $plugin_name);
-  return $plugin;
-}
+  ctools_include('export');
 
-function wallychannels_get_instances_of_channel($by_name = FALSE, $display_msg = TRUE, $channel = '', $reset = FALSE) {
-  static $instances = array();
-  
-  if (empty($instances) || $reset) {
-    ctools_include('export');
-
-    $plugins = wallychannels_get_plugins();
-    $all_instances = ctools_export_crud_load_all('wallychannels_channels');
-    foreach ($all_instances as $instance) {
-      if (wallychannels_get_access_of_plugin($plugins[$instance->channel], $instance->settings)) {
-        if ($by_name) {
+  $plugins = wallychannels_get_plugins();
+  $all_instances = ctools_export_crud_load_all('wallychannels_channels');
+  foreach ($all_instances as $instance) {
+    if (wallychannels_get_access_of_plugin($plugins[$instance->channel], $instance->settings)) {
+      if ($by_name) {
+        if (!$channel || ($channel && $instance->channel == $channel)) {
           $instances[$instance->name] = $instance;
-        } else {
-          $instances[$instance->channel][$instance->cid] = $instance;
         }
-      } elseif ($display_msg) {
-        drupal_set_message(t('The instance "@instance" of channel "@channel" has not been authenticated.', array('@instance' => $instance->title, '@channel' => $plugins[$instance->channel]['title'])), 'warning');
+      } else {
+        $instances[$instance->channel][$instance->cid] = $instance;
       }
+    } elseif ($display_msg) {
+      drupal_set_message(t('The instance "@instance" of channel "@channel" has not been authenticated.', array('@instance' => $instance->title, '@channel' => $plugins[$instance->channel]['title'])), 'warning');
     }
   }
-  
+
   $ret_instances = array();
   if (!$by_name && !empty($channel) && isset($instances[$channel])) {
     $ret_instances = $instances[$channel];

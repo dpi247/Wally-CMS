@@ -111,7 +111,7 @@ function wallychannels_channels_form_basicsettings_form(&$form, &$form_state) {
 function wallychannels_channels_form_basicsettings_form_validate($form, $form_state) {
   $submitted = $form_state['values'];
   $instances = wallychannels_get_instances_of_channel(TRUE, FALSE);
-  if (array_key_exists($submitted['name'], $instances)) {
+  if (array_key_exists($submitted['name'], $instances) && $instances[$submitted['name']]->cid != $submitted['cid']) {
     form_set_error('name', t('This machine name has already been used.'));
   }
 }

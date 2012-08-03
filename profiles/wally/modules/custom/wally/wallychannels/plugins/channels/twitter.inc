@@ -13,10 +13,10 @@ $plugin = array(
     'wally_gallerypackage',
     'wally_pollpackage',
   ),
-  'form settings submit' => 'wallychannels_twitter_channels_settings_form_submit',
 );
 
 function wallychannels_twitter_channels_process($settings, $node) {
+  // Get the text to be send value
   $main_target = explode('/', $settings['field']);
   $text_field = _wallychannels_get_value_from_text_target($node, $main_target);
   if (empty($text_field)) {
@@ -25,6 +25,7 @@ function wallychannels_twitter_channels_process($settings, $node) {
   }
 
   if (!empty($text_field)) {
+    // Build the short URL to join to the text if required
     $short_url = '';
     if ($settings['short_url']) {
       global $base_url;
@@ -41,12 +42,14 @@ function wallychannels_twitter_channels_process($settings, $node) {
       }
     }
     
+    // Limit size to 140
     if (strlen($text_field) > (140 - 1 - strlen($short_url))) {
       $text_field = substr($text_field, 0, 140 - 4 - strlen($short_url)).'... '.$short_url;
     } else {
       $text_field = $text_field.' '.$short_url;
     }
 
+    // Send to Twitter
     module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
     $twitteroauth = new TwitterOAuth($settings['consumer_key'], $settings['consumer_secret'], $settings['oauth_token'], $settings['oauth_token_secret']);
     $params = array('status' => $text_field);
@@ -68,6 +71,9 @@ function wallychannels_twitter_channels_access($settings) {
 
 function wallychannels_twitter_channels_settings_form(&$form, &$form_state) {
   $conf = wallychannels_twitter_channels_settings_default($form_state);
+  
+  // After Twitter authentication we are redirected here with some GET parameters
+  // These parameters will allow us to get the permanent access token
   if (isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])) {
     module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
     $conf['oauth_token'] = $_GET['oauth_token'];
@@ -76,11 +82,15 @@ function wallychannels_twitter_channels_settings_form(&$form, &$form_state) {
     $token = $twitteroauth->getAccessToken($conf['oauth_verifier']);
     $conf['oauth_token'] = $token['oauth_token'];
     $conf['oauth_token_secret'] = $token['oauth_token_secret'];
+    
+    // Important! let the user know that he has to save the form again
     drupal_set_message(t('Authentication granted, please save this form again to save access token.'), 'warning');
   }
 
   // @todo : ajouter un bouton pour reseter les oauth_token et oauth_verifier
 
+  // The consumer_key and consumer_secret are given by the Twitter application
+  // We need these values to tell Twitter which application we use
   $form['consumer_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Consumer Key'),
@@ -95,6 +105,7 @@ function wallychannels_twitter_channels_settings_form(&$form, &$form_state) {
     '#default_value' => $conf['consumer_secret'],
   );
   
+  // These three values are to be saved but must not be edited by the user
   $form['oauth_token'] = array(
     '#type' => 'hidden',
     '#title' => '',
@@ -113,6 +124,7 @@ function wallychannels_twitter_channels_settings_form(&$form, &$form_state) {
     '#default_value' => $conf['oauth_verifier'],
   );
 
+  // We build an array of options containing all text fields defined in the handled content types (recursively)
   $avail_fields = array();
   $types = array(
     'wally_articlepackage',
