@@ -1007,6 +1007,14 @@ function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) 
   if (!$object->rejected OR TRUE) {
     if ($importer->wallymport_preview) {
       $node->field_mainstory_nodes[0] = $object;
+      $node->taxonomy = $object->taxonomy;
+      $node->field_markers = $object->field_markers;
+      $node->field_locations = $object->field_locations;
+      $node->field_entities = $object->field_entities;
+      $node->field_persons = $object->field_persons;
+      $node->field_free_tags = $object->field_free_tags;
+      $node->field_concepts = $object->field_concepts;
+      $node->field_iptc = $object->field_iptc;
     }
     if (isset($object->nid) && !empty($object->nid)) {
       $node->field_mainstory[0]['nid'] = $object->nid;
