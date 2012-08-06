@@ -273,6 +273,7 @@ function ctools_content_render($type, $subtype, $conf, $keywords = array(), $arg
   if (!$function) {
     $function = ctools_plugin_get_function($plugin, 'render callback');
   }
+  dsm($function);
 
   if ($function) {
     $pane_context = ctools_content_select_context($plugin, $subtype, $conf, $context);
