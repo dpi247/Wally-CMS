@@ -80,7 +80,7 @@ function page_manager_node_view_menu_alter(&$items, $task) {
 function page_manager_node_view($node) {
   // Load my task plugin
   $task = page_manager_get_task('node_view');
-
+dsm($node, 'node');
   // Load the node into a context.
   ctools_include('context');
   ctools_include('context-task-handler');
@@ -100,7 +100,7 @@ function page_manager_node_view($node) {
       break;
     }
   }
-
+dsm($function, 'func');
   // Otherwise, fall back.
   return $function($node);
 }
