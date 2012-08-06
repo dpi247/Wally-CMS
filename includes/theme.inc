@@ -726,9 +726,6 @@ function theme() {
     }
 
     if ($suggestions) {
-      if ($hook == 'node') {
-        dsm($info['theme paths']);
-      }
       $template_file = drupal_discover_template($info['theme paths'], $suggestions, $extension);
     }
 
