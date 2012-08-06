@@ -48,7 +48,7 @@ drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-article.js'
 drupal_add_css($themeroot . '/css/article.css');
 
 // Give the index of the row into the view.
-$themeroot = drupal_get_path('theme', 'wallydemor');
+$themeroot = drupal_get_path('theme', 'wallydemo');
 
 // Get the string name of the current domain
 $domain_url = $_SERVER["SERVER_NAME"];
