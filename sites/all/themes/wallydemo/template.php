@@ -1329,6 +1329,10 @@ function _wallydemo_get_trimmed_string($string){
   return $trimmed_string;
 }
 
+function _custom_sudpresse_get_sorted_links($node) {
+  return _wallydemo_get_sorted_links($node);
+}
+
 function _wallydemo_get_sorted_links($node){
   $allLinks = array();
   $listLinks = $node->field_linkedobjects_nodes;
@@ -1417,19 +1421,7 @@ function _wallydemo_get_link_type(&$link){
  * 
  */
 function custom_sp_get_first_photoEmbededObject_from_package($embededObjects_array){
-  if(is_array($embededObjects_array)){
-		foreach($embededObjects_array as $embededObject){  
-	   if ($embededObject->type == "wally_photoobject"){
-	     $photoObject = $embededObject;
-	     break;
-	   }
-	  }
-  }
-  if (isset($photoObject)){
-    return $photoObject; 
-  }else{
-    return false;
-  }
+  return wallydemo_get_first_photoEmbededObject_from_package($embededObjects_array);
 }
 
 /**
