@@ -41,8 +41,6 @@
  * @see template_preprocess()
  * @see template_preprocess_node()
  */
-dsm($node);
-
 //drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/article.css','file','screen');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
@@ -50,7 +48,7 @@ drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-article.js'
 drupal_add_css($themeroot . '/css/article.css');
 
 // Give the index of the row into the view.
-$themeroot = drupal_get_path('theme', 'wallydemo');
+$themeroot = drupal_get_path('theme', 'wallydemor');
 
 // Get the string name of the current domain
 $domain_url = $_SERVER["SERVER_NAME"];
