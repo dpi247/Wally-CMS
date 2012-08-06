@@ -973,6 +973,10 @@ function _wallydemo_breadcrumb_display($main_destination_tid, $type = NULL){
 
 }
 
+function _custom_sudpresse_breadcrumbStaticPage_display(){
+  return _wallydemo_breadcrumbStaticPage_display();
+}
+
 /**
  * Display the breadcrumb ( for static blank page ) 
  * return the current destination and his different parents ( it use the menu hierarchy )
@@ -1026,6 +1030,10 @@ function getItem($tab,$name) {
 	  }
   }
   return $html;
+}
+
+function _custom_sudpresse_get_strapline($textObject=NULL, $node, $size){
+  return _wallydemo_get_strapline($textObject, $node, $size);
 }
 
 /**
@@ -1595,6 +1603,10 @@ function wallydemo_get_digitalobject_infos_and_display($digitalObject){
   
 }
 
+function custom_sp_get_video_infos_and_display($videoObject){
+  return wallydemo_get_video_infos_and_display($videoObject);
+}
+
 /**
  * Render an array with a videoObject's infos for theming operations
  * 
@@ -1725,6 +1737,9 @@ function wallydemo_menu_get_cache($menu_name){
   return $data;
 }
 
+function _custom_sp_get_logo_data() {
+  return _wallydemo_get_logo_data();
+}
 
 /**
  * 
