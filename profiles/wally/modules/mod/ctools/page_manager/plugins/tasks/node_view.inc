@@ -80,7 +80,7 @@ function page_manager_node_view_menu_alter(&$items, $task) {
 function page_manager_node_view($node) {
   // Load my task plugin
   $task = page_manager_get_task('node_view');
-if ($node->wallymport_node) variable_set('debug_preview', $node);
+
   // Load the node into a context.
   ctools_include('context');
   ctools_include('context-task-handler');
