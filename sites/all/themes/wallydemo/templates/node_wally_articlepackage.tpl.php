@@ -41,6 +41,8 @@
  * @see template_preprocess()
  * @see template_preprocess_node()
  */
+dsm($node);
+
 //drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/article.css','file','screen');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
