@@ -2057,10 +2057,10 @@ function wallydemo_preprocess_node(&$vars) {
       wallydemo_preprocess_node_build_embedded_videos($vars);
       wallydemo_preprocess_node_build_embedded_documents($vars);
       wallydemo_preprocess_node_build_embedded_audios($vars);
-      $merged_medias = preprocess_node_article_merge_medias($vars);
+      $merged_medias = wallydemo_preprocess_node_article_merge_medias($vars);
       $mediaboxItems = array();
       $bottomItems = array();
-      preprocess_node_article_dispatch_top_bottom($vars, $merged_medias, $mediaboxItems, $bottomItems);
+      wallydemo_preprocess_node_article_dispatch_top_bottom($vars, $merged_medias, $mediaboxItems, $bottomItems);
       
       $linkslist = _wallydemo_get_sorted_links($vars['node']);
       $mainMediaboxObject_html = theme_wallydemo_article_mediaboxobject($mediaboxItems);
