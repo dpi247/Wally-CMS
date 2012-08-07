@@ -1,7 +1,6 @@
 $(document).ready(function() {
 	$('.connect-box-open a').removeAttr('href');
 	$('.connect-box-open').click(function() {
-		alert('coucou');
 		$('#connect-overlay').fadeIn('fast',function() {
 			$('#connect-box').animate({'top':'160px'}, 500);
 		});
