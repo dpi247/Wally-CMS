@@ -8,7 +8,7 @@ $(document).ready(function() {
 	});
 	$('.connect-box-close').click(function() {
 		$('#connect-box').fadeOut('fast');
-		$('#connect-box').animate({'top':'-200px'});
+		$('#connect-box').animate({'top':'-200px'}, 10);
 		$('#connect-overlay').fadeOut('fast');
 	});
 });
