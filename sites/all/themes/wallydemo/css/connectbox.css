@@ -1,43 +1,7 @@
 @CHARSET "UTF-8";
 
-body {
-	background: transparent url(title.png) no-repeat top center;
-	font-family: Arial;
-	height: 2000px;
-}
-
-.header {
-	width: 600px;
-	height: 56px;
-	position: absolute;
-	top: 0px;
-	left: 25%;
-	background: #fff url(title.png) no-repeat top left;
-}
-
-a.back {
-	width: 256px;
-	height: 73px;
-	position: fixed;
-	bottom: 15px;
-	right: 15px;
-	background: #fff url(codrops_back.png) no-repeat top left;
-	z-index: 1;
-	cursor: pointer;
-}
-
-a.activator {
-	width: 153px;
-	height: 150px;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	background: #fff url(clickme.png) no-repeat top left;
-	z-index: 1;
-	cursor: pointer;
-}
 /* Style for overlay and box */
-.overlay {
+.connect-overlay {
 	background: transparent url(images/overlay.png) repeat top left;
 	position: fixed;
 	top: 0px;
@@ -47,7 +11,7 @@ a.activator {
 	z-index: 100;
 }
 
-.box {
+.connect-box {
 	position: fixed;
 	top: -200px;
 	left: 30%;
@@ -64,7 +28,7 @@ a.activator {
 	z-index: 101;
 }
 
-.box h1 {
+.connect-box h1 {
 	border-bottom: 1px dashed #7F7F7F;
 	margin: -20px -20px 0px -20px;
 	padding: 10px;
@@ -77,7 +41,7 @@ a.activator {
 	-khtml-border-top-right-radius: 20px;
 }
 
-a.boxclose {
+a.connect-box-close {
 	float: right;
 	width: 26px;
 	height: 26px;

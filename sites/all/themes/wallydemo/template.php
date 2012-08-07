@@ -104,7 +104,7 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
   
-  dsm($vars);
+  $vars['SPmenutop'] .= '<div class="connect-overlay" id="connect-overlay" style="display:none;"></div>';
 }
 
 function wallydemo_preprocess_sp_block_foot_regional(&$vars) {

@@ -1,12 +1,12 @@
 $(document).ready(function() {
-	$('.connectboxopen').click(function(){
-        $('#overlay').fadeIn('fast',function(){
-            $('#connectbox').animate({'top':'160px'},500);
+	$('.connect-box-open').click(function() {
+        $('#connect-overlay').fadeIn('fast',function() {
+            $('#connect-box').animate({'top':'160px'}, 500);
         });
     });
-    $('#connectboxclose').click(function(){
-        $('#box').animate({'top':'-200px'},500,function(){
-            $('#overlay').fadeOut('fast');
+    $('#connect-box-close').click(function() {
+        $('#connect-box').animate({'top':'-200px'}, 500, function() {
+            $('#connect-overlay').fadeOut('fast');
         });
     });
 });
