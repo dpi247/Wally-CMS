@@ -104,7 +104,7 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
   
-  $connect = (object)user_block('view');
+  $connect = (object)user_block('view', 0);
   $connect->delta = 0;
   $connect->cache = BLOCK_NO_CACHE;
   $vars['SPmenutop'] .= '<div id="connect-overlay" style="display:none;"></div>';
