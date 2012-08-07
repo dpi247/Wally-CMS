@@ -6,8 +6,6 @@
        	$menu = wallydemo_menu_get_cache("menu-selectboxeditions");
        	print theme("sp_regions_date",$menu); ?>
       	<? print theme("sp_recherche_menu"); ?>
-      	<? print theme("sp_carburant"); ?>
-		<? print theme("sp_trafic"); ?>
 	</ul>
 </div>	
 <? /* print theme("sp_menu"); */?>
