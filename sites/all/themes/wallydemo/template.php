@@ -2111,7 +2111,7 @@ function wallydemo_preprocess_node(&$vars) {
         if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
           foreach ($node->field_embededobjects_nodes as $delta => $embed) {
             // Fake nid in case of preview
-            $node->field_embededobjects_nodes[$delta]->nid = $delta;
+            $node->field_embededobjects_nodes[$delta]->nid = $delta + 1;
           }
         }
         $node->field_mainpoll_nodes[0]->nid = 1;
