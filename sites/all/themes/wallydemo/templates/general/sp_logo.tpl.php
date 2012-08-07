@@ -1,7 +1,7 @@
 <?php 
 $path = drupal_get_path('theme', 'wallydemo');
 $my_data = _wallydemo_get_logo_data();
-dsm($my_data);
+
 //dsm($my_data);
 
 if($my_data["default"] == 1){

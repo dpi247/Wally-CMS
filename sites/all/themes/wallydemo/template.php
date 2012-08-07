@@ -1749,7 +1749,7 @@ function _custom_sp_get_logo_data() {
 function _wallydemo_get_logo_data(){
   $domain_url = $_SERVER["SERVER_NAME"];
   $domain = 'sudinfo';
-  $settings = variable_get('theme_wallydemo_settings','theme_settings');
+  $settings = variable_get('theme_wallydemo_settings',array());
   $theme_path = drupal_get_path('theme','wallydemo');
   $data = array();
   switch ($domain){
