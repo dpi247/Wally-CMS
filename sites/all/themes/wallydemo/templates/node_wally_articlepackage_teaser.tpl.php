@@ -120,12 +120,9 @@ $chapeau = "";
 if (isset($strapline)){
   $chapeau = "<p class=\"chapeau\">" .$strapline ."</p>";
 }
-dsm($mainstory);
-if (isset($mainstory->field_textchapo[0]['safe']) && !empty($mainstory->field_textchapo[0]['safe'])) {
-  $texte_article = $mainstory->field_textchapo[0]['safe'];
-} else {
-  $texte_article = substr($mainstory->field_textbody[0]['safe'], 0, 500) . '</a> ...</p>';
-}
+
+$texte_article = substr($mainstory->field_textbody[0]['safe'], 0, 500) . '</a> ...</p>';
+
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
 
 drupal_add_css($themeroot . '/css/article.css');
