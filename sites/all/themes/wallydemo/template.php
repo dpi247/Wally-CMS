@@ -104,7 +104,13 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
 
-  drupal_add_js(array('connect_content' => 'cocuou'), 'setting');
+  global $user;
+  if ($user->uid) {
+    $connect_content = '<span>'.t('Bonjour @user_name', array('@user_name' => $user->name)).'</span>';
+  } else {
+    $connect_content = '<a class="connect-box-open">'.t('Connectez-vous').'</a>';
+  }
+  drupal_add_js(array('connect_content' => $connect_content), 'setting');
   $connect = (object)user_block('view', 0);
   $connect->delta = 0;
   $connect->cache = BLOCK_NO_CACHE;
