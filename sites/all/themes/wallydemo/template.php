@@ -110,7 +110,7 @@ function wallydemo_preprocess_page(&$vars){
   } else {
     $connect_content = '<a>'.t('Connectez-vous').'</a>';
   }
-  drupal_add_js(array('connect_content' => $connect_content, 'connect_content_destination' =>$_GET['q']), 'setting');
+  drupal_add_js(array('connect_content' => $connect_content, 'connect_content_destination' => $_GET['q']), 'setting');
   $connect = (object)user_block('view', 0);
   $connect->delta = 0;
   $connect->cache = BLOCK_NO_CACHE;
