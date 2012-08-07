@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$('.connect-box-open a').unbind('click');
+	$('.connect-box-open a').removeAttr('href');
 	$('.connect-box-open').click(function() {
 		alert('coucou');
 		$('#connect-overlay').fadeIn('fast',function() {
