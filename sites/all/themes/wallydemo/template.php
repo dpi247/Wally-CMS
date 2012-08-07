@@ -2107,11 +2107,14 @@ function wallydemo_preprocess_node(&$vars) {
   } elseif ($node->type == "wally_pollpackage"){
     if ($node->nid == arg(1) | $node->preview){
       $vars['bool_node_page'] = TRUE;
-      if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-        foreach ($node->field_embededobjects_nodes as $delta => $embed) {
-          // Fake nid in case of preview
-          $node->field_embededobjects_nodes[$delta]->nid = $delta;
+      if ($node->preview) {
+        if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+          foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+            // Fake nid in case of preview
+            $node->field_embededobjects_nodes[$delta]->nid = $delta;
+          }
         }
+        $node->field_mainpoll_nodes[0]->nid = 1;
       }
       wallydemo_preprocess_node_build_embedded_photos($vars);
       $merged_medias = $vars['node']->embed_photos;
