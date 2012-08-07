@@ -1019,9 +1019,9 @@ function node_delete($nid) {
  */
 function node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE) {
   $node = (object)$node;
-if ($node->type == 'wally_pollobject') dsm($node, 'start');
+
   $node = node_build_content($node, $teaser, $page);
-if ($node->type == 'wally_pollobject') dsm($node, 'builded');
+
   if ($links) {
     $node->links = module_invoke_all('link', 'node', $node, $teaser);
     drupal_alter('link', $node->links, $node);
