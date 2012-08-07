@@ -1021,7 +1021,8 @@ function node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE) {
   $node = (object)$node;
 
   $node = node_build_content($node, $teaser, $page);
-
+if ($node->type == 'wally_pollpackage')
+dsm($node);
   if ($links) {
     $node->links = module_invoke_all('link', 'node', $node, $teaser);
     drupal_alter('link', $node->links, $node);
