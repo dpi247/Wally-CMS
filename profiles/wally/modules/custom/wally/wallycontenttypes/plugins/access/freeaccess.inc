@@ -1,9 +1,8 @@
 <?php
-// $Id: subdomain.inc,v 1.7.2.2 2009/11/13 00:44:16 merlinofchaos Exp $
 
 /**
  * @file
- * Plugin to provide access control based upon field_free_access value.
+ * Plugin to provide access control based upon field_freeaccess value.
  */
 
 /**
@@ -16,6 +15,7 @@ $plugin = array(
   'callback' => 'wallycontenttypes_freeaccess_ctools_access_check',
   'default' => array(),
   'summary' => 'wallycontenttypes_freeaccess_ctools_access_summary',
+  'required context' => new ctools_context_required(t('Node'), 'node'),
 );
 
 /**
