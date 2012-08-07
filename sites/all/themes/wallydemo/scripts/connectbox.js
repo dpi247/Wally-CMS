@@ -4,6 +4,7 @@ $(document).ready(function() {
 	var popupWidth = $('#connect-box').width();
 	var popupLeft = (wWidth/2) - (popupWidth/2);
 	$('#connect-box').css({'left': popupLeft});
+	$('#connect-box').attr('action', '/user?destination='+Drupal.settings.connect_content_destination);
 
 	$('.connect-box-open').click(function() {
 		$('#connect-overlay').show();
