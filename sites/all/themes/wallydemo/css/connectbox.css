@@ -5,7 +5,7 @@
 }
 
 /* Style for overlay and box */
-.connect-overlay {
+#connect-overlay {
 	background: transparent url(../images/overlay.png) repeat top left;
 	position: fixed;
 	top: 0px;
