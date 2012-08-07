@@ -104,7 +104,7 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
   
-  $vars['SPmenutop'] .= '<div class="connect-overlay" style="display:none;"></div>';
+  $vars['SPmenutop'] .= '<div id="connect-overlay" style="display:none;"></div>';
   $vars['SPmenutop'] .= '<div id="connect-box" style="display:none;">'.'coucou'.'</div>';
 }
 
