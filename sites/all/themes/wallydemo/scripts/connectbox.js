@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$('#topmenu li.sudinfo').after('<li>'+Drupal.settings.connect_content+'</li>');
+	$('#topmenu li.sudinfo').after('<li class="connect-box-open">'+Drupal.settings.connect_content+'</li>');
 	
 	$('.connect-box-open').click(function() {
 		$('#connect-overlay').fadeIn('fast',function() {

@@ -108,7 +108,7 @@ function wallydemo_preprocess_page(&$vars){
   if ($user->uid) {
     $connect_content = '<span>'.t('Bonjour @user_name', array('@user_name' => $user->name)).'</span>';
   } else {
-    $connect_content = '<a class="connect-box-open">'.t('Connectez-vous').'</a>';
+    $connect_content = '<a>'.t('Connectez-vous').'</a>';
   }
   drupal_add_js(array('connect_content' => $connect_content), 'setting');
   $connect = (object)user_block('view', 0);
