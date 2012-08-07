@@ -99,13 +99,13 @@ function ctools_node_content_render_node($node, $conf) {
   else {
     $node = node_prepare($node, $teaser);
   }
-if ($node->type == 'wally_pollpackage')
+if ($node->type == 'wally_pollobject')
 dsm($node, 'prepared');
   if (empty($conf['no_extras'])) {
     // Allow modules to make their own additions to the node.
     node_invoke_nodeapi($node, 'view', $teaser, $conf['page']);
   }
-if ($node->type == 'wally_pollpackage')
+if ($node->type == 'wally_pollobject')
 dsm($node, 'nodeapi view');
   if ($conf['links']) {
     $node->links = module_invoke_all('link', 'node', $node, $teaser);
