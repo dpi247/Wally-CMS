@@ -7,8 +7,11 @@ $(document).ready(function() {
 		});
 	});
 	$('.connect-box-close').click(function() {
-		$('#connect-box').fadeOut('fast');
-		$('#connect-box').animate({'top':'-200px'}, 10);
+		$('#connect-box').fadeOut('fast', function() {
+			$('#connect-box').animate({'top':'-200px'}, 10, function() {
+				$('#connect-box').fadeIn('fast');
+			});
+		});
 		$('#connect-overlay').fadeOut('fast');
 	});
 });
