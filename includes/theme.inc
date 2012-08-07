@@ -1988,7 +1988,7 @@ function template_preprocess_node(&$variables) {
   else {
     $variables['taxonomy'] = array();
   }
-dsm($variables, 'vars');
+
   if ($variables['teaser'] && $node->teaser) {
     $variables['content'] = $node->teaser;
   }
