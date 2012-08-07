@@ -8,7 +8,6 @@
       	<? print theme("sp_recherche_menu"); ?>
       	<? print theme("sp_carburant"); ?>
 		<? print theme("sp_trafic"); ?>
-		<? print theme("sp_meteo"); ?>
 	</ul>
 </div>	
 <? /* print theme("sp_menu"); */?>
