@@ -22,6 +22,9 @@
 #connect-box {
 	position: fixed;
 	top: -200px;
+	left: auto;
+	right: auto;
+	background-color: white;
 	color: #7F7F7F;
 	padding: 20px;
 	border: 2px solid #ccc;
