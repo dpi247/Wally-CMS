@@ -1,5 +1,10 @@
 $(document).ready(function() {
 	$('#topmenu li.sudinfo').after('<li class="connect-box-open">'+Drupal.settings.connect_content+'</li>');
+	var wWidth = $(window).width();
+	var popupWidth = $('#connect-box').width();
+	var popupTop = (wHeight/2) - (popupHeight/2);
+	$('#connect-box').css({'left': popupLeft});
+
 	$('.connect-box-open').click(function() {
 		$('#connect-overlay').show();
 		$('#connect-overlay').fadeIn('fast', function() {
