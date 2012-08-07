@@ -868,7 +868,7 @@ function wallyimportpackage_node_set_field_freeaccess(&$node, $dom, &$log, $impo
 *   Nothing
 */
 function wallyimportpackage_node_set_field_autopublish(&$node, $dom, &$log, $importer){
-
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   if (wallytoolbox_toboolean($dom->nodeValue)){ 
     $node->field_autopublish[0]['value'] = "Autopublish";
   } else {
