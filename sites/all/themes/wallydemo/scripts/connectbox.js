@@ -7,7 +7,7 @@ $(document).ready(function() {
 		});
 	});
 	$('.connect-box-close').click(function() {
-		$('#connect-box').animate({'top':'-200px'}, 1000, function() {
+		$('#connect-box').fadeOut(function() {
 			$('#connect-overlay').fadeOut('fast');
 		});
 	});
