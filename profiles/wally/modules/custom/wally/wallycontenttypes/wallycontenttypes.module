@@ -161,6 +161,16 @@ function wallycontenttypes_imagecache_actions() {
 }
 
 /**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return 'plugins/'.$plugin;
+  }
+}
+
+/**
  * Implementation of hook_nodeapi().
  */
 function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
