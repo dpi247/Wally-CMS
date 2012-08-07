@@ -120,6 +120,7 @@ $chapeau = "";
 if (isset($strapline)){
   $chapeau = "<p class=\"chapeau\">" .$strapline ."</p>";
 }
+dsm($mainstory);
 $texte_article = $mainstory->field_textbody[0]['safe'];
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
 
@@ -163,7 +164,6 @@ if (is_array($node->embed_package)){
 ?>
 
 <div id="article">
-CCOCOCOCOCOOCOOCOCOCOCOOC
 <?php echo $breadcrumb; ?>
   <ul class="liensutiles">
     <li class="envoyer"><?php print forward_modal_link("node/".$node->nid, wallydemo_check_plain($main_title), "<img src=\"/".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\" width=\"19\" height=\"16\" />"); ?></li>
