@@ -104,6 +104,7 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
 
+  drupal_add_js(array('connect_content' => 'cocuou'), 'setting');
   $connect = (object)user_block('view', 0);
   $connect->delta = 0;
   $connect->cache = BLOCK_NO_CACHE;
