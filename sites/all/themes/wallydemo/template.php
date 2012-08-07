@@ -107,15 +107,18 @@ function wallydemo_preprocess_page(&$vars){
   global $user;
   if ($user->uid) {
     $connect_content = '<span>'.t('Bonjour @user_name', array('@user_name' => $user->name)).'</span>';
+    $connect_box = '';
   } else {
+    $connect = (object)user_block('view', 0);
+    $connect->delta = 0;
+    $connect->cache = BLOCK_NO_CACHE;
     $connect_content = '<a>'.t('Connectez-vous').'</a>';
+    $connect_box = theme('block', $connect);
   }
   drupal_add_js(array('connect_content' => $connect_content, 'connect_content_destination' => $_GET['q']), 'setting');
-  $connect = (object)user_block('view', 0);
-  $connect->delta = 0;
-  $connect->cache = BLOCK_NO_CACHE;
+
   $vars['SPmenutop'] .= '<div id="connect-overlay" style="display:none;"></div>';
-  $vars['SPmenutop'] .= '<div id="connect-box"><a class="connect-box-close"></a>'.theme('block', $connect).'</div>';
+  $vars['SPmenutop'] .= '<div id="connect-box"><a class="connect-box-close"></a>'.$connect_box.'</div>';
 }
 
 function wallydemo_preprocess_sp_block_foot_regional(&$vars) {
