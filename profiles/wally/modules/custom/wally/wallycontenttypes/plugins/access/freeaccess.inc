@@ -22,8 +22,10 @@ $plugin = array(
  * Check for access.
  */
 function wallycontenttypes_freeaccess_ctools_access_check($conf, $context) {
-  dsm($context, 'context');
-  
+  $node = $context->data;
+  if (isset($node->field_freeaccess[0]['value']) && !empty($node->field_freeaccess[0]['value']) && $node->field_freeaccess[0]['value'] == 'Free') {
+    return TRUE;
+  }
   return FALSE;
 }
 
