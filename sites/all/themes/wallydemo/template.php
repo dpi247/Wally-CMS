@@ -101,8 +101,10 @@ function wallydemo_preprocess_page(&$vars){
        $vars['head_title'] = $page['subtask']['admin title']." - ".$site_url;	   	
 	   	 $vars['head'] .= _set_meta_forpages($page, $site_name, $site_url, $associated_brand, $domain, $current_path_alias); 
 	  }
-  } 
+  }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
+  
+  dsm($vars);
 }
 
 function wallydemo_preprocess_sp_block_foot_regional(&$vars) {
