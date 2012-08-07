@@ -1313,7 +1313,7 @@ function webform_form_submit($form, &$form_state) {
 function webform_node_view(&$node, $teaser, $page) {
   global $user;
   // If empty, a teaser, or a new node (during preview) do not display.
-  if (empty($node->webform['components']) || ($teaser && !$node->webform['teaser'])/* || empty($node->nid)*/) {
+  if (empty($node->webform['components']) || ($teaser && !$node->webform['teaser']) || empty($node->nid)) {
     return;
   }
 
