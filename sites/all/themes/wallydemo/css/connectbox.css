@@ -1,5 +1,9 @@
 @CHARSET "UTF-8";
 
+.connect-box-open a {
+	cursor: pointer;
+}
+
 /* Style for overlay and box */
 .connect-overlay {
 	background: transparent url(images/overlay.png) repeat top left;
