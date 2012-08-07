@@ -104,15 +104,11 @@ function wallydemo_preprocess_page(&$vars){
   }
   $vars['head_title'] = strip_tags(html_entity_decode($vars['head_title']));
   
+  $connect = (object)user_block('view');
+  $connect->delta = 0;
+  $connect->cache = BLOCK_NO_CACHE;
   $vars['SPmenutop'] .= '<div id="connect-overlay" style="display:none;"></div>';
-  $vars['SPmenutop'] .= '<div id="connect-box">
-              <a class="connect-box-close"></a>
-            <h1>Important message</h1>
-            <p>
-                Here comes a very important message for your user.
-                Turn this window off by clicking the cross.
-            </p>
-    </div>';
+  $vars['SPmenutop'] .= '<div id="connect-box"><a class="connect-box-close"></a>'.theme('block', $connect).'</div>';
 }
 
 function wallydemo_preprocess_sp_block_foot_regional(&$vars) {
