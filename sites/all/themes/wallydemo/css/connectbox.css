@@ -12,7 +12,7 @@
 	bottom: 0px;
 	left: 0px;
 	right: 0px;
-	z-index: 100;
+	z-index: 1000;
 }
 
 #connect-box {
@@ -29,7 +29,7 @@
 	-khtml-border-radius: 20px;
 	-moz-box-shadow: 0 1px 5px #333;
 	-webkit-box-shadow: 0 1px 5px #333;
-	z-index: 101;
+	z-index: 1001;
 }
 
 #connect-box h1 {
