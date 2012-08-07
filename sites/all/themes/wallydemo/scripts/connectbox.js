@@ -5,7 +5,7 @@ $(document).ready(function() {
 			$('#connect-box').animate({'top':'300px'}, 1000);
 		});
 	});
-	$('#connect-box-close').click(function() {
+	$('.connect-box-close').click(function() {
 		$('#connect-box').animate({'top':'-200px'}, 1000, function() {
 			$('#connect-overlay').fadeOut('fast');
 		});
