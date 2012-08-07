@@ -15,6 +15,10 @@
 	z-index: 1000;
 }
 
+#topmenu {
+	z-index: 1000;
+}
+
 #connect-box {
 	position: fixed;
 	top: -200px;
