@@ -1,5 +1,5 @@
 $(document).ready(function() {
-	$('.connect-box-open a').removeAttr('href');
+	$('#topmenu li.sudinfo').after('<li><a class="connect-box-open"></a></li>');
 	$('.connect-box-open').click(function() {
 		$('#connect-overlay').fadeIn('fast',function() {
 			$('#connect-box').animate({'top':'300px'}, 1000);
