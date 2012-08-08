@@ -72,7 +72,7 @@ function drupal_get_form($form_id) {
 
   $args = func_get_args();
   $cacheable = FALSE;
-
+dsm($_POST, 'post');
   if (isset($_SESSION['batch_form_state'])) {
     // We've been redirected here after a batch processing : the form has
     // already been processed, so we grab the post-process $form_state value
