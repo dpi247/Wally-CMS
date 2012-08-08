@@ -204,7 +204,7 @@ function wallyadmin_form_user_login_alter(&$form, $form_state) {
   $form['#submit'][] = 'wallyadmin_form_user_login_alter_submit';
 }
 
-function wallyadmin_form_user_login_alter(&$form, $form_state) {
+function wallyadmin_form_user_login_alter_submit(&$form, $form_state) {
   global $user;
   if ($user->uid && $_GET['destination']) {
     $form['#redirect'] = $_GET['destination'];
