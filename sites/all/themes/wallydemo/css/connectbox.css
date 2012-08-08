@@ -18,13 +18,13 @@
 a.connect-box-open {
 	cursor: pointer;
 	color: #338D00;
-	text-align: center;
 }
 
 div.article-connect-box {
 	border: solid 2px #369600;
 	background-color: #C9DCBE;
 	padding: 10px;
+	text-align: center;
 }
 
 /* Style for overlay and box */
