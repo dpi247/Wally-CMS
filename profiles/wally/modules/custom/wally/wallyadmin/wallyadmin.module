@@ -234,7 +234,7 @@ function wallyadmin_user($op, &$edit, &$account, $category = NULL) {
       }
       $redirect_path = wally_variable_get('wallyadmin_redirection_'.$rid, FALSE);
       if ($redirect_path) {
-        drupal_goto($redirect_path);
+        //drupal_goto($redirect_path);
       }
       break;
     default:
