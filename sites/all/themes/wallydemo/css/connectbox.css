@@ -4,17 +4,6 @@
 	cursor: pointer;
 }
 
-/* Style for overlay and box */
-#connect-overlay {
-	background: transparent url(../images/overlay.png) repeat top left;
-	position: fixed;
-	top: 0px;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	z-index: 1000;
-}
-
 #topmenu {
 	z-index: 1002;
 }
@@ -24,6 +13,28 @@
 	text-decoration: none;
 	color: white !important;
 	font-weight: normal;
+}
+
+a.connect-box-open {
+	cursor: pointer;
+}
+
+div.article-connect-box {
+	width: 100%;
+	border: solid 2px;
+	background-color: red;
+	padding: 10px;
+}
+
+/* Style for overlay and box */
+#connect-overlay {
+	background: transparent url(../images/overlay.png) repeat top left;
+	position: fixed;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	z-index: 1000;
 }
 
 #connect-box {
