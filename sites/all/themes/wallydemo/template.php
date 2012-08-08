@@ -113,7 +113,7 @@ function wallydemo_preprocess_page(&$vars){
     $connect->delta = 0;
     $connect->cache = BLOCK_NO_CACHE;
     $connect_content = '<a>'.t('Connectez-vous').'</a>';
-    $connect_box = theme('block', $connect);
+    $connect_box = drupal_get_form('user_login');
   }
   drupal_add_js(array('connect_content' => $connect_content, 'connect_content_destination' => $_GET['q']), 'setting');
 
