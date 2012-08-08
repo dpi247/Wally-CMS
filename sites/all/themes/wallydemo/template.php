@@ -109,9 +109,6 @@ function wallydemo_preprocess_page(&$vars){
     $connect_content = '<span>'.t('Bonjour @user_name', array('@user_name' => $user->name)).'</span>';
     $connect_box = '';
   } else {
-    $connect = (object)user_block('view', 0);
-    $connect->delta = 0;
-    $connect->cache = BLOCK_NO_CACHE;
     $connect_content = '<a>'.t('Connectez-vous').'</a>';
     $connect_box = drupal_get_form('user_login');
   }
