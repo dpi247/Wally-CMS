@@ -17,12 +17,13 @@
 
 a.connect-box-open {
 	cursor: pointer;
+	color: #338D00;
 }
 
 div.article-connect-box {
 	width: 100%;
-	border: solid 2px;
-	background-color: red;
+	border: solid 2px #369600;
+	background-color: #C9DCBE;
 	padding: 10px;
 }
 
