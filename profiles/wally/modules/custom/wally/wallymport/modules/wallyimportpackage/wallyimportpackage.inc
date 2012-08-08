@@ -1009,6 +1009,14 @@ function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $impor
   if (!$object->rejected) {
     if ($importer->wallymport_preview) {
       $node->field_mainstory_nodes[0] = $object;
+      $node->taxonomy = $object->taxonomy;
+      $node->field_markers = $object->field_markers;
+      $node->field_locations = $object->field_locations;
+      $node->field_entities = $object->field_entities;
+      $node->field_persons = $object->field_persons;
+      $node->field_free_tags = $object->field_free_tags;
+      $node->field_concepts = $object->field_concepts;
+      $node->field_iptc = $object->field_iptc;
     }
     if (isset($object->nid) && !empty($object->nid)) {
       $node->field_mainstory[0]['nid'] = $object->nid;
@@ -1052,6 +1060,14 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
       $node->field_mainobject[0]['nid'] = $object->nid;
       if ($importer->wallymport_preview) {
         $node->field_mainobject_nodes[0] = $object;
+        $node->taxonomy = $object->taxonomy;
+        $node->field_markers = $object->field_markers;
+        $node->field_locations = $object->field_locations;
+        $node->field_entities = $object->field_entities;
+        $node->field_persons = $object->field_persons;
+        $node->field_free_tags = $object->field_free_tags;
+        $node->field_concepts = $object->field_concepts;
+        $node->field_iptc = $object->field_iptc;
       }
     } else {
       //$node->rejected = TRUE;
@@ -1761,10 +1777,10 @@ function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
   $uri_value = $uri->nodeValue;
   $uri = parse_url($uri_value);
 
-  if (strtolower($uri['scheme']) == "extref"){
+  if (strtolower($uri['scheme']) == 'extref'){
     $ext_ref = $uri['host'];
 
-    if ($link = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref))) {
+    if ($link = wallytoolbox_get_node_by_cckfield(array('field_externalreference' => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
       }
