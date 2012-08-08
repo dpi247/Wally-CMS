@@ -408,6 +408,9 @@ function pub_cache_admin_form_submit($form, &$form_state) {
 function _pub_callalltags() {
   $xml_list = drupal_http_request(variable_get('pub_get_xml', 'http://gps1.intranet.rossel/private/script/ZZsqls.cgi?key=dumpTagsAdtech&format=xml'));
   $website = variable_get('pub_website', '');
+  if ($website == 'LESOIR') {
+    $website = 'LESOIRV6_FR';
+  }
 
   if ($xml_list->code == 200) {
     $dom = new DomDocument();
