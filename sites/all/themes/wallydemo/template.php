@@ -113,7 +113,6 @@ function wallydemo_preprocess_page(&$vars){
     $connect_box = drupal_get_form('user_login');
   }
   drupal_add_js(array('connect_content' => $connect_content, 'connect_content_destination' => $_GET['q']), 'setting');
-
   $vars['SPmenutop'] .= '<div id="connect-overlay" style="display:none;"></div>';
   $vars['SPmenutop'] .= '<div id="connect-box"><a class="connect-box-close"></a>'.$connect_box.'</div>';
 }

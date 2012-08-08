@@ -123,6 +123,8 @@ if (isset($strapline)){
 
 $texte_article = substr($mainstory->field_textbody[0]['safe'], 0, 500) . '</a> ...</p>';
 
+$connect_box = '<div class="article-connect-box"><a class="connect-box-open">'.t('Connectez-vous pour lire la suite de l\'article.').'</a></div>';
+
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
 
 drupal_add_css($themeroot . '/css/article.css');
@@ -202,7 +204,8 @@ if (is_array($node->embed_package)){
         print $signature; 
         print $embed_package_anchor;
         print $date_edition; 
-        print $texte_article; 
+        print $texte_article;
+        print $connect_box;
         print $htmltags_html; 
         print $bottom_html; ?>
   
