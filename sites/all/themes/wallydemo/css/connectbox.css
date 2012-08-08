@@ -18,7 +18,7 @@
 a.connect-box-open {
 	cursor: pointer;
 	color: #338D00;
-	align: center;
+	text-align: center;
 }
 
 div.article-connect-box {
