@@ -2452,7 +2452,7 @@ function wallydemo_preprocess_node_build_embedded_videos(&$vars){
   }
 }
 
-function wallydemo_preprocess_node_build_embedded_documents(&vars){
+function wallydemo_preprocess_node_build_embedded_documents(&$vars){
   $node = &$vars['node'];
   $node->embed_documents = array();
 
