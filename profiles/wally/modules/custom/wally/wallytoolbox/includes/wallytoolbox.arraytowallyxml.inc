@@ -426,7 +426,8 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
     }
     $object_array['FileURI']['value'] = $processed_uri;
   }
-
+dsm($object_array, 'object');
+dsm($files_to_zip, 'files');
   _wallytoolbox_arraytowallyxml_fillMultimediaObjectType($valid_dom, $object_node, $object_array);
 
   $crops_node = $object_node->appendChild($valid_dom->createElement('Crops'));
