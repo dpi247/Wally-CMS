@@ -13,26 +13,26 @@
 	text-decoration: none;
 	color: white !important;
 	font-weight: normal;
-	font-size: 1.2em;
 }
 
 div.article-connect-box {
-  border: solid 2px #369600;
-  background-color: #C9DCBE;
-  text-align: center;
+	border: solid 2px #369600;
+	background-color: #C9DCBE;
+	text-align: center;
 }
 
 div.article-connect-box p#p-connect-box {
-  text-align: center;
-  padding: 10px;
-  margin: 0;
+	text-align: center;
+	padding: 10px;
+	margin: 0;
 }
 
 div.article-connect-box span {
 	display: block;
 	color: #338D00;
-  border-bottom: dashed 1px #369600;
-  padding: 10px;
+	border-bottom: dashed 1px #369600;
+	padding: 10px;
+	font-size: 1.2em;
 }
 
 a.connect-box-open {
