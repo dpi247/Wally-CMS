@@ -1557,6 +1557,25 @@ function wallydemo_bracket_embeddedObjects_from_package($node){
 }
 
 /**
+ * Render an array with a texts's (package) infos for theming operations
+ * 
+ */
+function wallydemo_get_texts_infos_and_display($node,$template="default"){
+	
+	$mainstory = $node->field_mainstory_nodes[0];
+  $text = array();
+  $text["nid"] = $node->nid;
+  $text["title"] = $mainstory->title;
+	$text["chapeau"] = $mainstory->field_textchapo[0]['value'];
+  $text["text"] = check_markup($mainstory->field_textbody[0]['value'],$mainstory->field_textbody[0]['format']);
+	
+  $photo = wallydemo_get_first_photoEmbededObject_from_package($node->field_embededobjects_nodes); 
+	if ($photo) $text["photo"][] = wallydemo_get_photo_infos_and_display($photo); 
+	return $text;
+	
+}
+
+/**
  * Render an array with a photoObject's infos for theming operations
  * 
  */
@@ -1567,11 +1586,20 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
     $photo["title"] = $photoObject->title;
     $photo["type"] = $photoObject->type;
     $photo['credit'] = $photoObject->field_copyright[0]['value'];
+    $photo['caption'] = $photoObject->field_summary[0]['value'];
     $photo['summary'] = $photoObject->field_summary[0]['value'];
     $photo['fullpath'] = $photoObject->field_photofile[0]['filepath'];
     $photo['size'] = $photoObject->field_photofile[0]['filesize'];
     $photo['filename'] = $photoObject->field_photofile[0]["filename"];
     $photo['filepath'] = $photoObject->field_photofile[0]["filepath"];
+    $photo['large'] = "";
+    $photo['medium'] = "";
+
+    if($photoObject->field_photofile[0]['filesize'] > 0){		  	
+		  $photo['large'] = imagecache_create_url('ereader_large', $photoObject->field_photofile[0]['filepath']);
+		  $photo['medium'] = imagecache_create_url('ereader_medium', $photoObject->field_photofile[0]['filepath']);	
+		  $photo['thumb'] = imagecache_create_url('ereaderthumbnail', $photoObject->field_photofile[0]['filepath']);	 	  	
+		}	
 
     switch ($template){
       case "default":
@@ -1607,8 +1635,15 @@ function wallydemo_get_digitalobject_infos_and_display($digitalObject){
   $digital['summary'] = $digitalObject->field_summary[0]['value'];
   $digital['credit'] = $digitalObject->field_copyright[0]['value'];
   $digital['link'] = l($digitalObject->field_link[0]["title"], $digitalObject->field_link[0]["url"]);
+  $digital['linkType'] = $digitalObject->field_objectfile[0]['filemime'];
+  $digital['url'] = $digitalObject->field_objectfile[0]['filepath'];
+  $digital['mime'] = $digitalObject->field_thumbnail[0]['filepath']; 
   $digital['title'] = $digitalObject->title;
-  $digital['thumbnail'] = $digitalObject->field_digital3rdparty[0]['data']['thumbnail']["url"];  
+  $digital['thumbnail'] = $digitalObject->field_digital3rdparty[0]['data']['thumbnail']["url"];
+  $digital['thumbnail_img'] = "";
+  if($digitalObject->field_thumbnail[0]['filesize'] > 0){
+    $digital['thumbnail_img'] = imagecache_create_url('ereaderthumbnail', $digital['thumbnail']);
+  }
   $digital['provider'] = $digitalObject->field_object3rdparty[0]['provider'];
   
   return $digital;
@@ -1643,19 +1678,39 @@ function wallydemo_get_video_infos_and_display($videoObject){
  * 
  */
 function wallydemo_get_audio_infos_and_display($audioObject){
+  global $base_url;
 
   $audio = array();
   $audio["nid"] = $audioObject->nid;
   $audio["type"] = $audioObject->type;
+  $audio['filemime'] = $audioObject->field_audiofile[0]['filemime'];
   $audio['emcode'] = $audioObject->content['group_audio']['group']['field_audio3rdparty']['field']['items'][0]['#children'];
   $audio['title'] = $audioObject->title;
   $audio['summary'] = $audioObject->field_summary[0]['value'];
   $audio['credit'] = $audioObject->field_copyright[0]['value'];
+  $audio['link'] = $base_url.'/'.$audioObject->field_audiofile[0]['filepath'];
+  $audio['thumbnail'] = $base_url.'/'.$audioObject->field_thumbnail[0]['filepath'];
 
   return $audio;
   
 }
 
+function wallydemo_get_linkobject_infos_and_display($linkObject){
+
+  $link = array();
+  $link["nid"] = $linkObject->nid;
+  
+  if($linkObject->field_internal_link[0]["nid"]){
+    $n=node_load($linkObject->field_internal_link[0]["nid"]);
+    if($n->field_mainstory[0]["nid"]){
+      $n=node_load($n->field_mainstory[0]["nid"]);
+      $link['title'] = $n->title;
+      $link['summary'] = $n->field_textbody[0]['value'];
+    }
+  }
+  return $link;
+  
+}
 
 // theme the crap out of the comment form
 function wallydemo_comment_form($form) {
@@ -2236,6 +2291,7 @@ function wallydemo_preprocess_node_build_embedded_links(&$vars){
           //Link item to a package
           $package = node_load($embed->field_internal_link[0]['nid']);
           wallycontenttypes_packagepopulate($package);
+          $content = node_view($package);
           $photo_object = NULL;
           $mainobject = NULL;
           $text = '';
@@ -2274,6 +2330,13 @@ function wallydemo_preprocess_node_build_embedded_links(&$vars){
             'photo_object' => $photo_object,
             'text' => $text,
             'signature' => $package_signature = _wallydemo_get_package_signature($mainobject),
+            'nid' => $embed->nid,
+            'content' => $content, 
+            'thumb' => '',
+            'group_type' => 'extref',
+            'type' => $embed->type,
+            'module' => '',
+            'provider' => ''
           );
         }
       }
@@ -2389,8 +2452,7 @@ function wallydemo_preprocess_node_build_embedded_videos(&$vars){
   }
 }
 
-function wallydemo_preprocess_node_build_embedded_documents(&$vars){
-  $node = &$vars['node'];
+function custom_ereader_preprocess_node_build_embedded_documents(&$node){
   $node->embed_documents = array();
 
   if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
@@ -2398,24 +2460,13 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
       if ($embed->type == 'wally_digitalobject') {
         node_view($embed);
         if ($embed->field_object3rdparty[0]['value']){
-          $node->embed_videos[$embed->nid] = wallydemo_get_digitalobject_infos_and_display($embed);
+          $node->embed_videos[$embed->nid] = custom_sp_get_digitalobject_infos_and_display($embed);
           $content = $embed->field_object3rdparty[0]["view"];
           $title = $node->embed_videos[$embed->nid]['title'];
           $thumb = "<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
           $module = "";
           $provider = "";
-        } else {
-          $width = '600px';
-          $height = '400px';
-          $url = url($embed->field_objectfile[0]["filepath"], array('absolute'=>TRUE));
-          $content = '<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
-          $title = $node->embed_videos[$embed->nid]['title'];
-          $thumb = "<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
-          $module = "";
-          $provider = "";
-
-        }
-        $node->embed_videos[$embed->nid] = array(
+          $node->embed_videos[$embed->nid] = array(
           	'title' => $title,
             'nid' => $embed->nid,
           	'emcode' => $content,
@@ -2425,7 +2476,28 @@ function wallydemo_preprocess_node_build_embedded_documents(&$vars){
           	'type' => $embed->type,
           	'module' => $module,
           	'provider' => $provider
-        );
+          );
+        } else {
+          $width = '600px';
+          $height = '400px';
+          $url = url($embed->field_objectfile[0]["filepath"], array('absolute'=>TRUE));
+          $content = '<iframe src="http://docs.google.com/viewer?url='.$url.'&embedded=true" width="'.$width.'" height="'.$height.'" style="border: none;"></iframe>';
+          $title = $node->embed_videos[$embed->nid]['title'];
+          $thumb = "<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
+          $module = "";
+          $provider = "";
+          $node->embed_documents[$embed->nid] = array(
+          	'title' => $title,
+            'nid' => $embed->nid,
+          	'emcode' => $content,
+          	'content' => $content, 
+          	'thumb' => $thumb,
+          	'group_type' => 'document',
+          	'type' => $embed->type,
+          	'module' => $module,
+          	'provider' => $provider
+          );
+        }
       }
     }
   }
