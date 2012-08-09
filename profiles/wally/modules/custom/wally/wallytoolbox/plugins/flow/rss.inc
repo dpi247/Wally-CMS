@@ -101,6 +101,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
 
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
+dsm($feed_infos, 'feed infos');
           if (strstr('Flow2Node_', $feed_infos['caid']) && isset($feed_infos['conf']['get_distant_img'])) {
             // Do not import image to local folder for Flow2Node
             $feed_infos['conf']['get_distant_img'] = 0;
