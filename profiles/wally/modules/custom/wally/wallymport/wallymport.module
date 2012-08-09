@@ -222,7 +222,7 @@ function wallymport_theme(){
  */
 function wallymport_preprocess_node(&$vars) {
   $node = &$vars['node'];
-  if ($node->preview && ($node->type == "wally_articlepackage" || $node->type == "wally_pollpackage" || $node->type == "wally_gallerypackage")){
+  if ($node->preview && ($node->type == 'wally_articlepackage' || $node->type == 'wally_pollpackage' || $node->type == 'wally_gallerypackage')){
     switch ($node->type){
       case 'wally_articlepackage':
         $main_object_type = 'field_mainstory_nodes';
@@ -234,19 +234,25 @@ function wallymport_preprocess_node(&$vars) {
         $main_object_type = 'field_mainpoll_nodes';
         break;
     }
-    $node->{$main_object_type}[0]->nid = 1;
+    if (!isset($node->{$main_object_type}[0]->nid) || empty($node->{$main_object_type}[0]->nid)) {
+      $node->{$main_object_type}[0]->nid = 1;
+    }
 
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
       foreach ($node->field_embededobjects_nodes as $delta => $embed) {
         // Fake nid in case of preview
-        $node->field_embededobjects_nodes[$delta]->nid = $delta + 1;
+        if (!isset($node->field_embededobjects_nodes[$delta]->nid) || empty($node->field_embededobjects_nodes[$delta]->nid)) {
+          $node->field_embededobjects_nodes[$delta]->nid = $delta + 1;
+        }
       }
     }
 
     if (isset($node->field_linkedobjects_nodes) && !empty($node->field_linkedobjects_nodes)) {
       foreach ($node->field_linkedobjects_nodes as $delta => $linked) {
         // Fake nid in case of preview
-        $node->field_linkedobjects_nodes[$delta]->nid = $delta + 1;
+        if (!isset($node->field_linkedobjects_nodes[$delta]->nid) || empty($node->field_linkedobjects_nodes[$delta]->nid)) {
+          $node->field_linkedobjects_nodes[$delta]->nid = $delta + 1;
+        }
       }
     }
   }
