@@ -240,7 +240,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
       $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
     }
     $feed_infos['caid'] = 'Flow2Node_'.$feed_infos['flow_key'];
-
+dsm($feed_infos);
     $struct_array = $function($feed_infos);
     foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
       $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
@@ -248,7 +248,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
       $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($package_array['MainStory']['TextBody']['value'], $format_number));
       $struct_array['Packages']['Package'][$id]['MainStory']['TextBody']['value'] = $cleaned_body;
     }
-
+dsm($struct_array, 'array');
     if (!empty($struct_array['Packages']['Package'])) {
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
