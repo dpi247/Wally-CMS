@@ -123,7 +123,10 @@ if (isset($strapline)){
 
 $texte_article = substr($mainstory->field_textbody[0]['safe'], 0, 500) . '</a> ...</p>';
 
-$connect_box = '<div class="article-connect-box"><a class="connect-box-open">'.t('Connectez-vous pour lire la suite de l\'article.').'</a></div>';
+$connect_box = '<div class="article-connect-box">
+    <span class="connect-box-title">'.t('Ceci est un article payant.').'</span>
+    <p><a class="connect-box-open">'.t('Pour lire la suite de cet article connectez-vous à votre compte.').'</a><p>
+  </div>';
 
 $signature = "<p class=\"auteur\">".$package_signature."</p>";
 

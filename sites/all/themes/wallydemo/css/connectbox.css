@@ -15,16 +15,21 @@
 	font-weight: normal;
 }
 
+div.article-connect-box {
+  border: solid 2px #369600;
+  background-color: #C9DCBE;
+  padding: 10px;
+  text-align: center;
+}
+
+div.article-connect-box span {
+  border-bottom: dashed 1px #369600;
+  padding-bottom: 10px;
+}
+
 a.connect-box-open {
 	cursor: pointer;
 	color: #338D00;
-}
-
-div.article-connect-box {
-	border: solid 2px #369600;
-	background-color: #C9DCBE;
-	padding: 10px;
-	text-align: center;
 }
 
 /* Style for overlay and box */
