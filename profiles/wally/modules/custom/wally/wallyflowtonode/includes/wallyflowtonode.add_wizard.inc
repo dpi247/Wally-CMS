@@ -204,7 +204,7 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
   $body_html_query = db_query("SELECT * FROM {filter_formats}");
   $i = 0;
   while ($body_html_element = db_fetch_array($body_html_query)) {
-    $body_html_options[] = $body_html_element['name'];
+    $body_html_options[$body_html_element['filter']] = $body_html_element['name'];
     if ($body_html_element['name'] == $default_form_values['body_html'])
       $default_body_html = $i;
     $i++;
