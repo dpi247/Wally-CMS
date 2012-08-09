@@ -24,6 +24,7 @@ div.article-connect-box {
 div.article-connect-box p#p-connect-box {
   text-align: center;
   padding: 5px 10px 10px 10px;
+  margin: 0;
 }
 
 div.article-connect-box span {
