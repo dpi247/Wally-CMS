@@ -12,9 +12,10 @@ $row_view_index=$variables["view"]->row_index;
 $view_offset = $variables["view"]->pager["offset"];
 $row_index=$row_view_index+$view_offset;
 
+$vars = array('node' => &$node);
 
 $field_mainstory_nodes = $node->field_mainstory_nodes[0];
-wallydemo_preprocess_node_build_embedded_links(&$node);
+wallydemo_preprocess_node_build_embedded_links($vars);
 //custom_ereader_preprocess_node_build_embedded_videos(&$node);
 
 
