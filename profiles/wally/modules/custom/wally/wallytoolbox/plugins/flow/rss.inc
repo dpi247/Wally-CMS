@@ -199,12 +199,12 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
       }
     }
   }
-  
+dsm($feed_infos, 'feed infos');
   // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && $no_photo) {
     wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
   }
-
+dsm($array_package, 'array');
   // Get the channel image
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['conf']['channel_img'] && $no_photo && $channel_img->item(0)) {
