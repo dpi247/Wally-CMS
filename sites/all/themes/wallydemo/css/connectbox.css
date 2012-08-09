@@ -21,6 +21,10 @@ div.article-connect-box {
   text-align: center;
 }
 
+div.article-connect-box p {
+  text-align: center;
+}
+
 div.article-connect-box span {
 	width: 100%;
 	color: #338D00;
