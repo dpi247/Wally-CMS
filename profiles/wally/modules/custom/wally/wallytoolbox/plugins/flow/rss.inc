@@ -101,8 +101,8 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
 
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
-dsm($feed_infos, 'feed infos');
-          if (strstr('Flow2Node_', $feed_infos['caid']) && isset($feed_infos['conf']['get_distant_img'])) {
+
+          if (strstr($feed_infos['caid'], 'Flow2Node_') && isset($feed_infos['conf']['get_distant_img'])) {
             // Do not import image to local folder for Flow2Node
             $feed_infos['conf']['get_distant_img'] = 0;
           }
@@ -200,12 +200,12 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
       }
     }
   }
-dsm($feed_infos, 'feed infos');
+
   // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && $no_photo) {
     wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
   }
-dsm($array_package, 'array');
+
   // Get the channel image
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['conf']['channel_img'] && $no_photo && $channel_img->item(0)) {
@@ -230,7 +230,7 @@ dsm($array_package, 'array');
       }
     }
   }
-dsm($array_package, 'array');
+
   return $array_package;
 }
 
