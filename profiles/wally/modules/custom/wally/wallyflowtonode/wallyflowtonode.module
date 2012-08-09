@@ -244,7 +244,8 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
     $struct_array = $function($feed_infos);
     foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
       $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
-      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($package_array['MainStory']['TextBody']['value'], $feed_infos['body_html']));
+      $format_number = db_result(db_query("SELECT format FROM {filter_formats} WHERE name = '%s'", $feed_infos['body_html']));
+      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($package_array['MainStory']['TextBody']['value'], $format_number));
       $struct_array['Packages']['Package'][$id]['MainStory']['TextBody']['value'] = $cleaned_body;
     }
 
