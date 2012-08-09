@@ -99,7 +99,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
         $feed_name = check_plain($feed_infos['name']);
         $channel_last_build = strtotime(_wallytoolbox_checkifelementexists($channels->item(0), 'lastBuildDate'));
 
-        if (true||$channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
+        if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
           if (strstr('Flow2Node_', $feed_infos['caid']) && isset($feed_infos['conf']['get_distant_img'])) {
             // Do not import image to local folder for Flow2Node
@@ -108,7 +108,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
           while (isset($feed_infos['feeds_md5']) && is_string($feed_infos['feeds_md5'])) {
             $feed_infos['feeds_md5'] = unserialize($feed_infos['feeds_md5']);
           }
-          $feeds_md5 = array();//isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
+          $feeds_md5 = isset($feed_infos['feeds_md5']) ? $feed_infos['feeds_md5'] : array();
           $new_feeds_md5 = array();
           $temp_struct_array = array();
 
