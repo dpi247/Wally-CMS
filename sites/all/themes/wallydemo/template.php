@@ -2452,7 +2452,7 @@ function wallydemo_preprocess_node_build_embedded_videos(&$vars){
   }
 }
 
-function custom_ereader_preprocess_node_build_embedded_documents(&$node){
+function wallydemo_preprocess_node_build_embedded_documents(&$node){
   $node->embed_documents = array();
 
   if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
@@ -2460,7 +2460,7 @@ function custom_ereader_preprocess_node_build_embedded_documents(&$node){
       if ($embed->type == 'wally_digitalobject') {
         node_view($embed);
         if ($embed->field_object3rdparty[0]['value']){
-          $node->embed_videos[$embed->nid] = custom_sp_get_digitalobject_infos_and_display($embed);
+          $node->embed_videos[$embed->nid] = wallydemo_get_digitalobject_infos_and_display($embed);
           $content = $embed->field_object3rdparty[0]["view"];
           $title = $node->embed_videos[$embed->nid]['title'];
           $thumb = "<img width=\"48\" height=\"32\" src=\"".$node->embed_videos[$embed->nid]['thumbnail']."\">";
