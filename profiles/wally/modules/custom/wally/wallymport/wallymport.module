@@ -218,6 +218,41 @@ function wallymport_theme(){
 }
 
 /**
+ * Implementation of hook_preprocess_node
+ */
+function wallymport_preprocess_node(&$vars) {
+  $node = &$vars['node'];
+  if ($node->preview && ($node->type == "wally_articlepackage" || $node->type == "wally_pollpackage" || $node->type == "wally_gallerypackage")){
+    switch ($node->type){
+      case 'wally_articlepackage':
+        $main_object_type = 'field_mainstory_nodes';
+        break;
+      case 'wally_gallerypackage':
+        $main_object_type = 'field_mainobject_nodes';
+        break;
+      case 'wally_pollpackage':
+        $main_object_type = 'field_mainpoll_nodes';
+        break;
+    }
+    $node->{$main_object_type}[0]->nid = 1;
+
+    if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+      foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+        // Fake nid in case of preview
+        $node->field_embededobjects_nodes[$delta]->nid = $delta + 1;
+      }
+    }
+
+    if (isset($node->field_linkedobjects_nodes) && !empty($node->field_linkedobjects_nodes)) {
+      foreach ($node->field_linkedobjects_nodes as $delta => $linked) {
+        // Fake nid in case of preview
+        $node->field_linkedobjects_nodes[$delta]->nid = $delta + 1;
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_wallylog_board().
  */
 function wallymport_wallylog_board($op, $delta = '') {
