@@ -30,6 +30,7 @@ div.article-connect-box span {
 a.connect-box-open {
 	cursor: pointer;
 	color: #338D00;
+	padding-top: 10px;
 }
 
 /* Style for overlay and box */
