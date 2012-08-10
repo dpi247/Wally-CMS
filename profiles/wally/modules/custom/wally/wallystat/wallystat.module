@@ -59,7 +59,7 @@ function wallystat_theme() {
       'template' => 'wallystat-show-stats-48h',
     ),
     'wallystat_show_stats_param' => $base + array(
-      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 350, 'height' => 250),
+      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 400, 'height' => 250),
       'template' => 'wallystat-show-stats-param',
     ),
   );
