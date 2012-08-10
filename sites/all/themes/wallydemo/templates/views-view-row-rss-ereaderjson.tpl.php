@@ -7,7 +7,7 @@
  * @ingroup views_templates
  */
 
-print_r($row_index);
+print_r($view);
 
 //var_dump($node);
 $row_view_index=$variables["view"]->row_index;
@@ -260,12 +260,9 @@ foreach($node->field_linkedobjects_nodes as $liensObjects){
 	}
 }
 
-static $i = FALSE;
-var_dump($i);
-if ($i) {
-  print ',';
+if($row_index > 0){ 
+print (",");
 }
-$i = TRUE;
 print drupal_to_js($json);
 
 ?>
