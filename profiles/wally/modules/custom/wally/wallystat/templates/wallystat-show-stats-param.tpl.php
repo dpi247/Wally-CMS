@@ -9,7 +9,7 @@ if ($nid) {
     $node_stats[] = $stat['SUM(totalcount)'];
     $labels[] = ($stat[$param_name_id] == '') ? t('Not set') : $stat[$param_name_id];
   }
-
+print_r($node_stats);
   $chart = array(
     '#chart_id' => 'node_views_'.$param_name_id,
     '#title' => t($params_callback[$params_callback['current_callback']]['name']),
