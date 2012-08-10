@@ -101,7 +101,8 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
 
         if ($channel_last_build > $sql_last_build || empty($channel_last_build) || !isset($channel_last_build) || $channel_last_build == 0) {
           $feed_infos['last_build'] = $channel_last_build;
-          if (strstr('Flow2Node_', $feed_infos['caid']) && isset($feed_infos['conf']['get_distant_img'])) {
+
+          if (strstr($feed_infos['caid'], 'Flow2Node_') && isset($feed_infos['conf']['get_distant_img'])) {
             // Do not import image to local folder for Flow2Node
             $feed_infos['conf']['get_distant_img'] = 0;
           }
@@ -199,7 +200,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
       }
     }
   }
-  
+
   // Get embeded images in the text body
   if ($feed_infos['conf']['embed_img'] && $no_photo) {
     wallytoolbox_rss_item_to_array_set_embeded_image($array_package, $item);
