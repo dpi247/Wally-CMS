@@ -261,6 +261,7 @@ foreach($node->field_linkedobjects_nodes as $liensObjects){
 }
 
 static $i = FALSE;
+var_dump($i);
 if ($i) {
   print ',';
 }
