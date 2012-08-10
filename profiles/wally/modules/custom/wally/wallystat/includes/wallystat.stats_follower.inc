@@ -6,8 +6,6 @@
 function wallystat_show_stats($nid) {
   $cached_content = cache_get('wallystat_stats_content_'.$nid, 'cache');
   $refresh_time = wally_variable_get('wallystat_stats_content_refresh_time', 15);
-  
-  drupal_add_css('/'.drupal_get_path('module', 'wallystat').'/css/follower.css');
 
   if (!is_object($cached_content) || !isset($cached_content) || empty($cached_content) || ($cached_content->created + $refresh_time*60) < time()) {
     if (module_exists('chart')) {
