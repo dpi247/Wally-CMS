@@ -55,11 +55,11 @@ function wallystat_theme() {
 
   return array(
     'wallystat_show_stats_48h' => $base + array(
-      'arguments' => array('nid' => NULL, 'width' => 350, 'height' => 300, 'display_title' => TRUE),
+      'arguments' => array('nid' => NULL, 'width' => 300, 'height' => 250, 'display_title' => TRUE),
       'template' => 'wallystat-show-stats-48h',
     ),
     'wallystat_show_stats_param' => $base + array(
-      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 350, 'height' => 300),
+      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 350, 'height' => 250),
       'template' => 'wallystat-show-stats-param',
     ),
   );
