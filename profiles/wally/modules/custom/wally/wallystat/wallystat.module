@@ -257,7 +257,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = 
     while ($res = db_fetch_object($db_res)) {
       db_query("DELETE FROM {wallystat_node_counter} WHERE nid = %d", $res->nid);
       db_query("DELETE FROM {wallystat_node_hourly_counter} WHERE nid = %d", $res->nid);
-      db_query("DELETE FROM {wallystat_term_counter} WHERE nid = %d", $res->nid);
+      //db_query("DELETE FROM {wallystat_term_counter} WHERE nid = %d", $res->nid);
 
       if (!isset($options['param01'])) {
         $options['param01'] = array('');
