@@ -7,8 +7,6 @@
  * @ingroup views_templates
  */
 
-print_r($view);
-
 //var_dump($node);
 $row_view_index=$variables["view"]->row_index;
 $view_offset = $variables["view"]->pager["offset"];
