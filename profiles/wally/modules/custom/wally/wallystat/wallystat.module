@@ -285,7 +285,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = 
           $res->timestamp = $current_hour - $i * 3600;
           $min = isset($options['hourly_count']['min']) ? $options['hourly_count']['min'] : $default_options['hourly_count']['min'];
           $max = isset($options['hourly_count']['max']) ? $options['hourly_count']['max'] : $default_options['hourly_count']['max'];
-          $res->hourly_count = rand($min, $max);
+          $res->count = rand($min, $max);
           drupal_write_record('wallystat_node_hourly_counter', $res);
         }
       }
