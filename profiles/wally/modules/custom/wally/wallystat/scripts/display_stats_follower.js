@@ -11,7 +11,7 @@ $(document).ready(function(){
 	var nid, cur_nid;
 
 	if (browser == "mozilla") {
-		$("div.wallystat_follower").mouseover(function(e) {
+		$("span.wallystat_follower").mouseover(function(e) {
 			nid = this.id;
 			if (updateFollower(e, tstamp, nid, cur_nid)) {
 				cur_nid = nid;
@@ -26,7 +26,7 @@ $(document).ready(function(){
 			}
 		});
 	} else {
-		$("div.wallystat_follower").mousemove(function(e) {
+		$("span.wallystat_follower").mousemove(function(e) {
 			nid = this.id;
 			if (updateFollower(e, tstamp, nid, cur_nid)) {
 				cur_nid = nid;
@@ -42,7 +42,7 @@ $(document).ready(function(){
 		});
 	}
 
-	$("div.wallystat_follower").mouseout(function(e){
+	$("span.wallystat_follower").mouseout(function(e){
 		$("#follower").hide();
 	});
 });
