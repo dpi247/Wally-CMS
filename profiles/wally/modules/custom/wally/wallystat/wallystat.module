@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Implementation of hook_perm().
@@ -14,7 +14,7 @@ function wallystat_perm() {
  */
 function wallystat_menu() {
   $items = array();
-  
+
   $items['admin/wally/wallystat/settings'] = array(
     'title' => t('Wally Statistics Settings'),
     'page callback' => 'drupal_get_form',
@@ -23,7 +23,7 @@ function wallystat_menu() {
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallystat.admin.inc',
   );
-  
+
   $items['wallystat/showstats/%'] = array(
     'page callback' => 'wallystat_show_stats',
     'page arguments' => array(2),
@@ -31,7 +31,7 @@ function wallystat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/wallystat.stats_follower.inc',
   );
-  
+
   $items['wallystat/setdisplayfollower/%'] = array(
     'page callback' => 'wallystat_set_display_follower',
     'page arguments' => array(2),
@@ -39,7 +39,7 @@ function wallystat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/wallystat.stats_follower.inc',
   );
-  
+
   return $items;
 }
 
@@ -50,18 +50,18 @@ function wallystat_theme() {
   $module_path = drupal_get_path('module', 'wallystat');
   $base = array(
     'path' => $module_path.'/templates',
-    //'file' => 'theme.inc',
+  //'file' => 'theme.inc',
   );
-  
+
   return array(
     'wallystat_show_stats_48h' => $base + array(
       'arguments' => array('nid' => NULL, 'width' => 350, 'height' => 300, 'display_title' => TRUE),
       'template' => 'wallystat-show-stats-48h',
-    ),
+  ),
     'wallystat_show_stats_param' => $base + array(
       'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 240, 'height' => 150),
       'template' => 'wallystat-show-stats-param',
-    ),
+  ),
   );
 }
 
@@ -97,7 +97,7 @@ function wallystat_cron(){
     wally_variable_del('wallystat_cron_semaphore');
   }
 
-	print t('WallyStat finished : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
+  print t('WallyStat finished : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
 }
 
 function wallystat_init() {
@@ -166,7 +166,7 @@ function wallystat_dynamicfeedback_options($op, $delta = '', $node = NULL) {
         'views_count' => t('Total views count'),
         'hourly_count' => t('Last hour count'),
       );
-      
+
     case 'content':
       $datas = array();
       switch ($delta) {
@@ -176,7 +176,7 @@ function wallystat_dynamicfeedback_options($op, $delta = '', $node = NULL) {
             'value' => $node->comment_count,
           );
           break;
-    
+
         case 'views_count':
           $counts = wallystat_node_get_counts($node->nid);
           if (isset($counts['totalcount'])) {
@@ -227,7 +227,7 @@ function wallystat_node_get_hourly_counts($nid) {
   return $return_counts;
 }
 
-function wallystat_generate_stats($tids, $targets, $node_amout, $options = array()) {
+function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = array()) {
   if (is_numeric($tids)) {
     $tids = array($tids);
   }
@@ -246,7 +246,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout, $options = array
     'yearcount' => array('min' => 7000, 'max' => 9000),
     'totalcount' => array('min' => 9000, 'max' => 10000),
   );
-  
+
   foreach ($tids as $tid) {
     $target = $targets[$tid];
     $db_res = db_query("SELECT DISTINCT(n.nid), n.title
@@ -259,12 +259,20 @@ function wallystat_generate_stats($tids, $targets, $node_amout, $options = array
       db_query("DELETE FROM {wallystat_node_hourly_counter} WHERE nid = %d", $res->nid);
       db_query("DELETE FROM {wallystat_term_counter} WHERE nid = %d", $res->nid);
 
-      foreach ($default_options as $option_key => $option) {
-        $min = isset($option['min']) ? $option['min'] : $default_options[$option_key]['min'];
-        $max = isset($option['max']) ? $option['max'] : $default_options[$option_key]['max'];
-        $res->{$option_key} = rand($min, $max);
+      if (!isset($options['param01'])) {
+        $options['param01'] = array('');
       }
-      drupal_write_record('wallystat_node_counter', $res);
+
+      foreach ($options['param01'] as $param) {
+        $res->param01 = $param;
+        foreach ($default_options as $option_key => $option) {
+          $min = isset($option['min']) ? $option['min'] : $default_options[$option_key]['min'];
+          $max = isset($option['max']) ? $option['max'] : $default_options[$option_key]['max'];
+          $res->{$option_key} = rand($min, $max);
+        }
+
+        drupal_write_record('wallystat_node_counter', $res);
+      }
     }
   }
 }
