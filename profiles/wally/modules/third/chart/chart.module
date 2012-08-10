@@ -121,7 +121,7 @@ function chart_menu() {
 function chart_render($chart, $attributes = array()) {
   if ($chart_query_string = chart_build($chart)){
     $attributes['id'] = 'chart-' . $chart['#chart_id'];
-
+print $chart_query_string;
     if (!isset($attributes['class'])) {
       $attributes['class'] = '';
     }
