@@ -226,3 +226,45 @@ function wallystat_node_get_hourly_counts($nid) {
   }
   return $return_counts;
 }
+
+function wallystat_generate_stats($tids, $targets, $node_amout, $options = array()) {
+  if (is_numeric($tids)) {
+    $tids = array($tids);
+  }
+  if (is_string($targets)) {
+    $target = $targets;
+    $targets = array();
+    foreach ($tids as $tid) {
+      $targets[$tid] = $target;
+    }
+  }
+
+  $default_options = array(
+    'daycount' => array('min' => 300, 'max' => 1000),
+    'weekcount' => array('min' => 3000, 'max' => 5000),
+    'monthcount' => array('min' => 5000, 'max' => 7000),
+    'yearcount' => array('min' => 7000, 'max' => 9000),
+    'totalcount' => array('min' => 9000, 'max' => 10000),
+  );
+  
+  foreach ($tids as $tid) {
+    $target = $targets[$tid];
+    $db_res = db_query("SELECT DISTINCT(n.nid), n.title
+      FROM {content_field_destinations} cfd INNER JOIN {node} n ON cfd.nid = n.nid 
+      WHERE cfd.field_destinations_tid = %d AND cfd.field_destinations_target = '%s' 
+      ORDER BY cfd.field_destinations_time_rank DESC 
+      LIMIT 0, %d", $tid, $target, $node_amout);
+    while ($res = db_fetch_object($db_res)) {
+      db_query("DELETE FROM {wallystat_node_counter} WHERE nid = %d", $res->nid);
+      db_query("DELETE FROM {wallystat_node_hourly_counter} WHERE nid = %d", $res->nid);
+      db_query("DELETE FROM {wallystat_term_counter} WHERE nid = %d", $res->nid);
+
+      foreach ($default_options as $option_key => $option) {
+        $min = isset($option['min']) ? $option['min'] : $default_options[$option_key]['min'];
+        $max = isset($option['max']) ? $option['max'] : $default_options[$option_key]['max'];
+        $res->{$option_key} = rand($min, $max);
+      }
+      drupal_write_record('wallystat_node_counter', $res);
+    }
+  }
+}
