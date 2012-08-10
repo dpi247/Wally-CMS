@@ -267,6 +267,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = 
         $res->{'param0'.$i} = '';
       }
       $res->param10 = '';
+      $res->timestamp = time();
 
       foreach ($options['param01'] as $param) {
         $res->param01 = $param;
