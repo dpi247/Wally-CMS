@@ -87,6 +87,8 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
       'url' => FALSE,
     );
     wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $target, array($destination_tid), $conf);
+    $view->pager['total_items_per_page'] = $conf['nodes_per_page'];
+    $view->pager['items_per_page'] = $conf['nodes_per_page'];
 
     $view->execute();
     $results = $view->result;
