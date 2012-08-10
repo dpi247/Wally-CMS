@@ -543,7 +543,7 @@ function wallycontenttypes_form_wallyedit_form_fields_overview_form_alter(&$form
 
 function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
-  if (in_array($form_state['type'], $pack_types)) {
+  if (sizeof($form_state['parents']) == 1 && in_array($form_state['type'], $pack_types)) {
     array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
 
     // Editorial Update Date gestion
