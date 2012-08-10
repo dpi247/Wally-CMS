@@ -46,6 +46,7 @@ class views_content_plugin_style_ctools_context extends views_plugin_style {
     // method if they wish some other way of handling grouping.
     $output = '';
     foreach ($sets as $title => $records) {
+var_dump(array_keys($records));
       foreach ($records as $row_index => $row) {
         $this->view->row_index = $row_index;
         $this->rows[$row_index] = $this->row_plugin->render($row);
