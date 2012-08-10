@@ -259,11 +259,6 @@ foreach($node->field_linkedobjects_nodes as $liensObjects){
 }
 
 if($row_index > 0){ 
-print (",");
+  print (",");
 }
 print drupal_to_js($json);
-
-?>
-
-
-
