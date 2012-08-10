@@ -277,7 +277,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = 
         foreach ($default_options as $option_key => $option) {
           $min = isset($option['min']) ? $option['min'] : $default_options[$option_key]['min'];
           $max = isset($option['max']) ? $option['max'] : $default_options[$option_key]['max'];
-          $res->{$option_key} = rand($min, $max);
+          $res->{$option_key} = rand($min, $max) / rand(1, sizeof($options['param01']));
         }
         drupal_write_record('wallystat_node_counter', $res);
         
@@ -285,7 +285,7 @@ function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = 
           $res->timestamp = $current_hour - $i * 3600;
           $min = isset($options['hourly_count']['min']) ? $options['hourly_count']['min'] : $default_options['hourly_count']['min'];
           $max = isset($options['hourly_count']['max']) ? $options['hourly_count']['max'] : $default_options['hourly_count']['max'];
-          $res->count = rand($min, $max);
+          $res->count = rand($min, $max) / rand(1, sizeof($options['param01']));
           drupal_write_record('wallystat_node_hourly_counter', $res);
         }
       }
