@@ -27,11 +27,8 @@ drupal_set_header('Content-Type: application/json; charset=utf-8');
       "url":"<?php print $url; ?>",
       "link":"<?php print $link; ?>"
     },
-    "items":[
-    <?php 
+    "items":[<?php 
 echo $items;
-
-    ?>
-    ]
+    ?>]
   }
 }
