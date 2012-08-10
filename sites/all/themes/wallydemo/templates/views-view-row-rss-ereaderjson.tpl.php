@@ -260,6 +260,11 @@ foreach($node->field_linkedobjects_nodes as $liensObjects){
 	}
 }
 
+static $i = FALSE;
+if ($i) {
+  print ',';
+}
+$i = TRUE;
 print drupal_to_js($json);
 
 ?>
