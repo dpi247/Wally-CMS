@@ -57,6 +57,16 @@ function ccimapping_theme(){
   );
 }
 
+function ccimapping_load_soapclient($wsdl_uri) {
+  try {
+    $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS, 'trace' => TRUE));
+    return $client;
+  } catch (SoapFault $exception) {
+    drupal_set_message(t('WebService error while creating SOAP client: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)), 'error');
+  }
+  return FALSE;
+}
+
 function ccimap_type_converter($type){
   $mappings=wally_variable_get('ccimapping_type','');
   $mappings=explode("\n", $mappings);
