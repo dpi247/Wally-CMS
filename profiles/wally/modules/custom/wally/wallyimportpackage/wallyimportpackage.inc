@@ -82,7 +82,9 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
     if ($importer->wallymport_preview) {
       $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
-
+global $user;
+if ($user->uid == 1 && $node->type == 'wally_gallerypackage')
+dsm($node, 'node');
       $prenode = new Prenode();
       $prenode->ConvertNodeToPrenode($node);
       $old_cache_name = $prenode->form_state['cache name'];
