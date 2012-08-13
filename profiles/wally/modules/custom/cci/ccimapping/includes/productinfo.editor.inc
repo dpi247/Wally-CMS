@@ -65,18 +65,26 @@ function ccimapping_form_productinfo_editor_form_submit($form, $form_state) {
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
     drupal_alter('ccimapping_productinfo', $dom, 'before_send');
-    $xml = $dom->saveXML();
 
-    $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
-
-    $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
-    try {
-      $result = $client->setProductTemplate($parameters_array);
-      drupal_set_message(t('The productinfo has been sent to CCI'));
-    } catch (SoapFault $exception) {
-      drupal_set_message(t('WebService Error when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
-      dsm($exception);
-    }
+    //if ($dom->schemaValidate(drupal_get_path('module', 'ccimapping').'/definitions/CCIPackageTypeXML.xsd')){
+      $xml = $dom->saveXML();
+/*module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+dsm(formatXmlString($xml));
+return;*/
+      if ($client = ccimapping_load_soapclient($wsdl_uri)) {
+        $parameters_array = array('newsroom' => $newsroom, 'productname' => $product_name, 'xml' => $xml);
+  
+        try {
+          $result = $client->setProductTemplate($parameters_array);
+          drupal_set_message(t('The productinfo has been sent to CCI'));
+        } catch (SoapFault $exception) {
+          drupal_set_message(t('WebService Error when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+          dsm($exception);
+        }
+      }
+    /*} else {
+      drupal_set_message(t('XML not validated'));
+    }*/
   }
 }
 
@@ -89,15 +97,18 @@ function ccimap_get_productinfo_fromWS() {
   $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
   $newsroom = wally_variable_get('ccimapping_newsroom', '');
   $product_name = wally_variable_get('ccimapping_product_name', '');
-  $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS));
-
-  try {
-    $result = $client->getProductTemplate(array('newsroom' => $newsroom, 'productname' => $product_name));
-  } catch (SoapFault $exception) {
-    drupal_set_message(t('WebService Error when getting the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
-    dsm($exception);
+//return '';
+  if ($client = ccimapping_load_soapclient($wsdl_uri)) {
+    try {
+      $result = $client->getProductTemplate(array('newsroom' => $newsroom, 'productname' => $product_name));
+      return $result->return;
+    } catch (SoapFault $exception) {
+      drupal_set_message(t('WebService Error when getting the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+      dsm($exception);
+    }
   }
-  return $result->return;
+
+  return '';
 }
 
 /**
