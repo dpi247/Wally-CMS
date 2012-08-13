@@ -44,19 +44,20 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form, $form_state
     'xml' => $form_state['values']['xml'],
   );
 
-  $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS, 'trace' => TRUE));
-
-  try {
-    $result = $client->setImageSettings($parameters_array);
-    drupal_set_message(t('The cropings have been sent to CCI'));
-  } catch (SoapFault $exception) {
-    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
-    dsm($exception);
+  if ($client = ccimapping_load_soapclient($wsdl_uri)) {
+    try {
+      $result = $client->setImageSettings($parameters_array);
+      drupal_set_message(t('The cropings have been sent to CCI'));
+    } catch (SoapFault $exception) {
+      drupal_set_message(t('WebService error while sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+      dsm($exception);
+    }
+    
+    /*dsm($client->__getLastRequest(), 'submit req');
+    dsm($client->__getLastRequestHeaders(), 'submit reqhead');
+    dsm($client->__getLastResponse(), 'submit rep');
+    dsm($client->__getLastResponseHeaders(), 'submit rephead');*/
   }
-/*dsm($client->__getLastRequest(), 'submit req');
-dsm($client->__getLastRequestHeaders(), 'submit reqhead');
-dsm($client->__getLastResponse(), 'submit rep');
-dsm($client->__getLastResponseHeaders(), 'submit rephead');*/
 }
 
 /**
@@ -73,20 +74,24 @@ function ccimapping_cropsync_get_cropings_fromWS() {
     'productname' => $product_name,
   );
   
-  $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS, 'trace' => TRUE));
-//dsm($client->__getFunctions(), 'fct');
-//dsm($client->__getTypes(), 'types');
-  try {
-    $result = $client->getImageSettings($parameters_array);
-  } catch (SoapFault $exception) {
-    drupal_set_message(t('WebService Errror when sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
-    dsm($exception);
+  if ($client = ccimapping_load_soapclient($wsdl_uri)) {
+    //dsm($client->__getFunctions(), 'fct');
+    //dsm($client->__getTypes(), 'types');
+    try {
+      $result = $client->getImageSettings($parameters_array);
+      return $result->return;
+    } catch (SoapFault $exception) {
+      drupal_set_message(t('WebService error while getting the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+      dsm($exception);
+    }
+    
+    /*dsm($client->__getLastRequest(), 'req');
+    dsm($client->__getLastRequestHeaders(), 'reqhead');
+    dsm($client->__getLastResponse(), 'rep');
+    dsm($client->__getLastResponseHeaders(), 'rephead');*/
   }
-/*dsm($client->__getLastRequest(), 'req');
-dsm($client->__getLastRequestHeaders(), 'reqhead');
-dsm($client->__getLastResponse(), 'rep');
-dsm($client->__getLastResponseHeaders(), 'rephead');*/
-  return $result->return;
+
+  return '';
 }
 
 function ccimapping_cropsync_get_cropings_xml() {
