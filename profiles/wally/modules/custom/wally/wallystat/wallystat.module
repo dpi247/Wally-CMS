@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 /**
  * Implementation of hook_perm().
@@ -14,7 +14,7 @@ function wallystat_perm() {
  */
 function wallystat_menu() {
   $items = array();
-  
+
   $items['admin/wally/wallystat/settings'] = array(
     'title' => t('Wally Statistics Settings'),
     'page callback' => 'drupal_get_form',
@@ -23,7 +23,7 @@ function wallystat_menu() {
     'description' => 'Allows administrators to set paramaters for this module to function properly.',
     'file' => 'includes/wallystat.admin.inc',
   );
-  
+
   $items['wallystat/showstats/%'] = array(
     'page callback' => 'wallystat_show_stats',
     'page arguments' => array(2),
@@ -31,7 +31,7 @@ function wallystat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/wallystat.stats_follower.inc',
   );
-  
+
   $items['wallystat/setdisplayfollower/%'] = array(
     'page callback' => 'wallystat_set_display_follower',
     'page arguments' => array(2),
@@ -39,7 +39,7 @@ function wallystat_menu() {
     'type' => MENU_CALLBACK,
     'file' => 'includes/wallystat.stats_follower.inc',
   );
-  
+
   return $items;
 }
 
@@ -52,14 +52,14 @@ function wallystat_theme() {
     'path' => $module_path.'/templates',
     //'file' => 'theme.inc',
   );
-  
+
   return array(
     'wallystat_show_stats_48h' => $base + array(
-      'arguments' => array('nid' => NULL, 'width' => 350, 'height' => 300, 'display_title' => TRUE),
+      'arguments' => array('nid' => NULL, 'width' => 300, 'height' => 250, 'display_title' => TRUE),
       'template' => 'wallystat-show-stats-48h',
     ),
     'wallystat_show_stats_param' => $base + array(
-      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 240, 'height' => 150),
+      'arguments' => array('nid' => NULL, 'param_i' => 0, 'params_callback' => array(), 'width' => 400, 'height' => 250),
       'template' => 'wallystat-show-stats-param',
     ),
   );
@@ -97,7 +97,7 @@ function wallystat_cron(){
     wally_variable_del('wallystat_cron_semaphore');
   }
 
-	print t('WallyStat finished : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
+  print t('WallyStat finished : @date', array('@date' => date('Y-m-d H:i:s'))).'<br/>';
 }
 
 function wallystat_init() {
@@ -123,9 +123,10 @@ function wallystat_views_api() {
  * Theme preprocess function for views-view-row-unformatted.tpl.php
  */
 function wallystat_preprocess_wallyctools_row_redacblock(&$vars) {
-  if (wally_variable_get('wallystat_display_follower', 0) && user_access('access statistics')) {
+  if (module_exists('chart') && wally_variable_get('wallystat_display_follower', 0) && user_access('access statistics')) {
+    drupal_add_css(drupal_get_path('module', 'wallystat').'/css/follower.css');
     $nid = $vars['row']->{$vars['field_alias']};
-    $vars['node'] = '<div class = "wallystat_follower" id = "'.$nid.'">'.$vars['node'].'</div>';
+    $vars['node'] = '<span class = "wallystat_follower" id = "'.$nid.'">'.$vars['node'].'</span>';
     drupal_add_js(drupal_get_path('module', 'wallystat').'/scripts/display_stats_follower.js');
   }
 }
@@ -165,8 +166,10 @@ function wallystat_dynamicfeedback_options($op, $delta = '', $node = NULL) {
         'comments_count' => t('Comments count'),
         'views_count' => t('Total views count'),
         'hourly_count' => t('Last hour count'),
+        //'48h_chart' => t('Last 48 hours chart'),
+        //'param1_chart' => t('First parameter chart'),
       );
-      
+
     case 'content':
       $datas = array();
       switch ($delta) {
@@ -176,7 +179,7 @@ function wallystat_dynamicfeedback_options($op, $delta = '', $node = NULL) {
             'value' => $node->comment_count,
           );
           break;
-    
+
         case 'views_count':
           $counts = wallystat_node_get_counts($node->nid);
           if (isset($counts['totalcount'])) {
@@ -197,6 +200,23 @@ function wallystat_dynamicfeedback_options($op, $delta = '', $node = NULL) {
             );
           }
           break;
+        /*  
+        case '48h_chart':
+          $datas = array(
+            'label' => '',
+            'value' => theme('wallystat_show_stats_48h', $node->nid),
+          );
+          break;
+          
+        case 'param1_chart':
+          if ($params_callback = variable_get('wallystat_param_1', FALSE)) {
+            $datas = array(
+              'label' => '',
+              'value' => theme('wallystat_show_stats_param', $node->nid, 1, $params_callback),
+            );
+          }
+          break;
+          */
       }
       return $datas;
   }
@@ -225,4 +245,70 @@ function wallystat_node_get_hourly_counts($nid) {
     }
   }
   return $return_counts;
+}
+
+function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = array()) {
+  if (is_numeric($tids)) {
+    $tids = array($tids);
+  }
+  if (is_string($targets)) {
+    $target = $targets;
+    $targets = array();
+    foreach ($tids as $tid) {
+      $targets[$tid] = $target;
+    }
+  }
+
+  $default_options = array(
+    'daycount' => array('min' => 300, 'max' => 1000),
+    'weekcount' => array('min' => 3000, 'max' => 5000),
+    'monthcount' => array('min' => 5000, 'max' => 7000),
+    'yearcount' => array('min' => 7000, 'max' => 9000),
+    'totalcount' => array('min' => 9000, 'max' => 10000),
+    'hourly_count' => array('min' => 200, 'max' => 500),
+  );
+  $timestamp = time();
+  $current_hour = $timestamp - (date('i', $timestamp) * 60 + date('s', $timestamp));
+
+  foreach ($tids as $tid) {
+    $target = $targets[$tid];
+    $db_res = db_query("SELECT DISTINCT(n.nid), n.title
+      FROM {content_field_destinations} cfd INNER JOIN {node} n ON cfd.nid = n.nid 
+      WHERE cfd.field_destinations_tid = %d AND cfd.field_destinations_target = '%s' 
+      ORDER BY cfd.field_destinations_time_rank DESC 
+      LIMIT 0, %d", $tid, $target, $node_amout);
+    while ($res = db_fetch_object($db_res)) {
+      db_query("DELETE FROM {wallystat_node_counter} WHERE nid = %d", $res->nid);
+      db_query("DELETE FROM {wallystat_node_hourly_counter} WHERE nid = %d", $res->nid);
+      //db_query("DELETE FROM {wallystat_term_counter} WHERE nid = %d", $res->nid);
+
+      if (!isset($options['param01'])) {
+        $options['param01'] = array('');
+      }
+      
+      for ($i = 2; $i < 10; $i++) {
+        $res->{'param0'.$i} = '';
+      }
+      $res->param10 = '';
+      foreach ($options['param01'] as $param) {
+        $res->param01 = $param;
+        
+        // Node counter
+        foreach ($default_options as $option_key => $option) {
+          $min = isset($option['min']) ? $option['min'] : $default_options[$option_key]['min'];
+          $max = isset($option['max']) ? $option['max'] : $default_options[$option_key]['max'];
+          $res->{$option_key} = rand($min, $max) / rand(1, sizeof($options['param01']));
+        }
+        drupal_write_record('wallystat_node_counter', $res);
+        
+        for ($i = 0; $i <=48; $i++) {
+          $res->timestamp = $current_hour - $i * 3600;
+          $min = isset($options['hourly_count']['min']) ? $options['hourly_count']['min'] : $default_options['hourly_count']['min'];
+          $max = isset($options['hourly_count']['max']) ? $options['hourly_count']['max'] : $default_options['hourly_count']['max'];
+          $res->count = rand($min, $max) / rand(1, sizeof($options['param01']));
+          drupal_write_record('wallystat_node_hourly_counter', $res);
+        }
+      }
+    }
+  }
 }
