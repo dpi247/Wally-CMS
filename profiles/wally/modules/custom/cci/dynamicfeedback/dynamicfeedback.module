@@ -19,7 +19,7 @@ function dynamicfeedback_menu() {
     'title' => t('Dynamic feedback'),
     'page callback' => 'dynamicfeedback_page_render',
     'page arguments' => array(1),
-    'access callback' => TRUE,
+    'access callback' => 1,
     'file' => 'includes/page_render.inc',
     'type' => MENU_CALLBACK,
   );
