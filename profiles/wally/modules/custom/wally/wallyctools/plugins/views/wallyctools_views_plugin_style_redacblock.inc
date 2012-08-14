@@ -121,7 +121,8 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       }
     }
 
-    foreach ($this->view->result as $row) {
+    foreach ($this->view->result as $row_index => $row) {
+      $this->view->row_index = $row_index;
       $rows[] = $this->row_plugin->render($row);
     }
 
