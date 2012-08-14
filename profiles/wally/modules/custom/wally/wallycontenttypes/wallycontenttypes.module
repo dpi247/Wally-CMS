@@ -567,22 +567,6 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, 
     module_load_include('inc', 'wallyedit', 'includes/config_api');
     $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
 
-    // Force the package title with the main object title
-    if ($flat_fields['title']['display'] == 0) {
-      switch ($type_name){
-        case 'wally_articlepackage':
-          $main_object_type = 'field_mainstory';
-          break;
-        case 'wally_gallerypackage':
-          $main_object_type = 'field_mainobject';
-          break;
-        case 'wally_pollpackage':
-          $main_object_type = 'field_mainpoll';
-          break;
-      }
-      $form_state['values'][$type_name]['title'] = $form_state['values'][$type_name][$main_object_type][0]['title'];
-    }
-
     // Force update of the editorial update date
     if (($form_state['clicked_button']['#name'] == 'publish_global') && is_array($flat_fields) && isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4) && $form_state['values'][$type_name]['field_editorialupdatedate'][1]) {
       $type = wydit_get_infos_type($type_name);
