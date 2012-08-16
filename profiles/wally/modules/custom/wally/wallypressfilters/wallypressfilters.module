@@ -350,7 +350,7 @@ function wallypressfilters_form_filter_settings_form_validate($form, &$form_stat
       if ($type != 'format') {
         foreach ($tags as $tag_id => $tag_infos){
           if (!in_array($tag_infos['html_tag'], $allowed_tags)){
-            form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $tag_infos['html_tag'])));
+            //form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $tag_infos['html_tag'])));
           }
         }
       }
