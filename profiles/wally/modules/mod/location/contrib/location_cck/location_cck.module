@@ -1,5 +1,4 @@
 <?php
-// $Id: location_cck.module,v 1.5.2.19 2010/03/25 07:00:07 ankur Exp $
 
 /**
  * @file
@@ -130,8 +129,9 @@ function location_cck_field_settings($op, $field) {
  */
 function location_cck_field($op, &$node, $field, &$items, $teaser, $page) {
   switch ($op) {
+
     case 'insert':
-   case 'update':
+    case 'update':
       // Store instances of locations by field name and vid.
       $genid = 'cck:'. $field['field_name'] .':'. $node->vid;
       $tempvid = $node->vid;
@@ -146,6 +146,19 @@ function location_cck_field($op, &$node, $field, &$items, $teaser, $page) {
         $locations[] = location_load_location($item['lid']);
       }
       return array($field['field_name'] => $locations);
+
+    case 'sanitize':
+      // Get the location information for the lid if it hasn't already been
+      // loaded (in the hook_field() load $op using location_load_location()).
+      // This is necessary for Views and any other modules that use the
+      // content_format() function to render CCK fields because content_format()
+      // doesn't call the "load" $op.
+      foreach ($items as $delta => $item) {
+        if (!isset($item['latitude'])) {
+          $items[$delta] = array_merge($items[$delta], location_load_location($item['lid']));
+        }
+      }
+      break;
 
     case 'delete':
       // Use the CCK storage to figure out the vids that need to be deleted,
@@ -217,6 +230,7 @@ function location_cck_widget_info() {
 function location_cck_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   if ($field['widget']['type'] == 'location') {
     $settings = $field['location_settings'];
+
     // Load location data for existing locations.
     if (isset($items[$delta]['lid']) && $items[$delta]['lid']) {
       // Are we in a node preview?
