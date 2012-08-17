@@ -110,8 +110,9 @@ function wallyctools_taxonomy($op, $type, $array = NULL) {
   if ($type == 'term') {
     $dest_vid = variable_get('wallymport_destinationpath', 0);
     $depth = 0;
+
     if (isset($array['vid']) && $array['vid'] == $dest_vid) {
-      cache_clear_all('wallyctools_term_handler_mapping_'.$dest_vid.'_'.$depth, 'cache');
+      cache_clear_all('wallyctools_term_handler_mapping_'.$dest_vid.'_'.$depth, 'cache', TRUE);
       db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $dest_vid, $depth);
     }
   }
