@@ -420,6 +420,27 @@ function wallyctools_get_view_info_from_redacblock ($redacblock) {
   return db_fetch_array(db_query('SELECT view_name, view_id FROM {wallyctools} WHERE name = "%s"', $redacblock));
 }
 
+function wallyctools_get_default_target($tid) {
+  $dest_vid = variable_get('wallymport_destinationpath', 0);
+  $depth = 0;
+  $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
+  $default_redacblocks = wally_variable_get('wallyctools_default_redacblocks', array());
+  $did = $tid_did_mapping[$tid]['did'];
+  
+  $default_redacblock = NULL;
+  if (isset($default_redacblocks[$did]['default_redacblock']) && !empty($default_redacblocks[$did]['default_redacblock'])) {
+    $default_redacblock = $default_redacblocks[$did]['default_redacblock'];
+  } else {
+    $hierarchies_array = wallyctools_get_hierarchies();
+    if (isset($hierarchies_array[$tid]['redacblocks']) && !empty($hierarchies_array[$tid]['redacblocks'])) {
+      $first_redacblock = array_shift($hierarchies_array[$tid]['redacblocks']);
+      $default_redacblock = $first_redacblock['name'];
+    }
+  }
+  
+  return $default_redacblock;
+}
+
 /**
  * Helper function that provide informations about mappings between destinations terms,
  * variant that handle that term and the redacblock available on that variant and the layout associated with the views binded to the redacblock.
