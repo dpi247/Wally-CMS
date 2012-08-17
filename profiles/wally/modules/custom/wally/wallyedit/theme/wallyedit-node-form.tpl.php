@@ -55,6 +55,10 @@
   <div id="meta-header">
     <span><?php print $onglets_struct[$meta_tab_name]['label']; ?></span>
   </div>
+  
+  <div id="upper-buttons">
+    <?php print $buttons;?>
+  </div>
 
   <?php if(count($onglets_struct[$meta_tab_name]['elements']['no_group']['fields'])>0):?>
   <div class="group">

@@ -34,6 +34,10 @@ body {
 	float: left;
 }
 
+#buttons,#upper-buttons {
+	padding-bottom: 10px;
+}
+
 #wallyedit_container {
 	padding-top: 10px;
 }
