@@ -51,7 +51,6 @@ function updateFollower(e, tstamp, nid, cur_nid){
 	var update = false;
 	if ((e.timeStamp > (tstamp + 5*1000)) || (nid != cur_nid)) {
 		update = true;
-		$("#follower").html("<img src='/misc/progress.gif' alt='Loading..'>");
 		$.ajax({
 			url: "/wallystat/showstats/"+nid,
 			cache: false,
