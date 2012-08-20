@@ -479,6 +479,34 @@ function wallyedit_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 }
 
 /**
+ * Implementation of hook_node_type()
+ * When a new content type is created we create default tabs (Main and Meta)
+ */
+function wallyedit_node_type($op, $info) {
+  switch ($op) {
+    case 'insert':
+      module_load_include('inc', 'wallyedit', 'includes/config_api');
+      $profiles = wyditadmin_get_profiles();
+      $tabs = array('main' => 'Main', 'meta' => 'Meta');
+      $type = $info->type;
+
+      foreach ($profiles as $pid => $profile) {
+        foreach ($tabs as $name => $label) {
+          $new_tab['name'] = $name.'_'.$pid.'_'.$type;
+          $new_tab['label'] = $label;
+          $new_tab['weight'] = 0;
+          $new_tab['pid'] = $pid;
+          $new_tab['content_type'] = $type;
+          $new_tab['erasable'] = 0;
+
+          drupal_write_record('wallyedit_tabs', $new_tab);
+        }
+      }
+      break;
+  }
+}
+
+/**
  * Implementation of hook_form_alter()
  */
 function wallyedit_form_alter(&$form, &$form_state, $form_id) {
