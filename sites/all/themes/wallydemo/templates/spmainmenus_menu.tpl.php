@@ -117,7 +117,7 @@ function spmainmenus_mainmenu_tree_output($tree, $menuid="menu-primary-links", $
 	 * En cas de premier passage, on ajoute les JS nécessaire au menu SuperFich. Si le menu ne devait pas utiliser superfish
 	 * il faudrait alros remplacer par le bon pluggin et remmplacer la fonction par : 
 	 * 
-	 * drupal_add_js(drupal_get_path('theme', 'wallydemov3') . '/scripts/xxxxxxx.js', 'theme');
+	 * drupal_add_js(drupal_get_path('theme', 'wallydemo') . '/scripts/xxxxxxx.js', 'theme');
 	 * 
 	 * si la CSS du menu était dans un fichier séparé de la home/autres pages il suffit de préciser ici le chemin vers
 	 * cette css. 

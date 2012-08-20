@@ -122,8 +122,6 @@ $strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 switch ($row_index) {
 	case 0:
 ?>
-<div class="article md clearfix">
-  
   <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
@@ -139,15 +137,11 @@ switch ($row_index) {
   <p class="text"><?php print wallydemo_check_plain($strapline); ?>
   <?php if($node->comment != 0){ ?>
   <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-  <?php } ?>
-</div>
+  <?php }
 
-<?php 
 	break;
 	case 1:
 ?>
-
-<div class="article md clearfix">
   <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
@@ -163,14 +157,11 @@ switch ($row_index) {
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
   <?php if($node->comment != 0){ ?>
   <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-  <?php } ?>
-</div>
+  <?php }
 
-<?php 
   break;
   case 2:
   ?>
-<div class="article lt clearfix">
   <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
 
   <a href="/<?php print check_url($node_path); ?>">
@@ -187,10 +178,8 @@ switch ($row_index) {
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
   <?php if($node->comment != 0){ ?>
   <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-  <?php } ?>
-</div>
+  <?php }
 
-<?php
   /*
 	$cache_url = $_SERVER['HTTP_HOST'].'/'.$_GET['q'];
 	$delta = 'large_rectangle_middle'; // ta position (rectangle_top par exemple)
@@ -199,7 +188,6 @@ switch ($row_index) {
 	break;
 	default:
 	?>
-<div class="article lt clearfix">
   <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
 
   <a href="/<?php print check_url($node_path); ?>">
@@ -216,10 +204,7 @@ switch ($row_index) {
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
   <?php if($node->comment != 0){ ?>
   <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-  <?php } ?>
-</div>
-
-<?php 
+  <?php }
 }
 unset($node);
 unset($mainstory);

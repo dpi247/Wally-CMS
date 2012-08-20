@@ -70,7 +70,7 @@ if ($node->type == "wally_articlepackage"){
 if ($photoObject_path == ""){
   $embeded_objects = $node->field_embededobjects_nodes;
   $photoObject = wallydemo_get_first_photoEmbededObject_from_package($embeded_objects);
-  If ($photoObject) {
+  if ($photoObject) {
     $photoObject_path = $photoObject->field_photofile[0]['filepath'];
     $photoObject_summary = $photoObject->field_summary[0]['value'];
     $photoObject_filename = $photoObject->field_photofile[0]["filename"];
@@ -305,8 +305,6 @@ switch ($row_index) {
 	case 8:
 	case 14:
 ?>
-<div class="wrap-columns clearfix">
-  <div class="intern-col first column limit">
     <div class="article md clearfix <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
@@ -360,14 +358,12 @@ switch ($row_index) {
       print $links_html;
       } ?>
     </div>
-  </div>
     <?php 
 	break;
 	case 4:
 	case 10:
 	case 16:
 ?>
-  <div class="intern-col last column">
     <div class="article md clearfix <?php print $package_class;?>">
       <p class="time time_une"><?php print $date_edition; ?></p>
       <span class="ariane_une"><?php print $breadcrumb; ?></span>
@@ -420,8 +416,6 @@ switch ($row_index) {
       print $links_html;
       } ?>
     </div>
-  </div>
-</div>
 
 <?php 
 	break;

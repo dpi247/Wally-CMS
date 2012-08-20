@@ -18,11 +18,29 @@ $videostory = $sorted_embededobjects['wally_videoobject'];
 $destination_term = theme("wallyct_destinationlist", $node->field_destinations, " | " , "", "");
 $main_summary = $node->field_summary[0]['safe'];
 
-/*
-* Date de publication
-*/
+if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
+  $editorialupdatedate = strtotime($field_editorialupdatedate);
+} else {
+  $field_editorialupdatedate=FALSE;
+}
+
+/*  
+ * Récupération de la date de publication du package -> $node_publi_date
+ */
 $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
+
+/* Affichage de la date au format souhaité
+ * Les formats sont:
+ * 
+ * 'filinfo' -> '00h00'
+ * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
+ * 'default' -> 'publié le 26/05 à 15h22'
+ * 
+ */ 
+$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
+$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._custom_sudpresse_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
+$date_edition .= "</p>";
 
 $nb_comment = $node->comment_count;
 if ($nb_comment == 0){
@@ -76,25 +94,26 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
     <div class="ico_pic"><span>Galerie photo. </span><?php print $date_edition;?></div>
     
       <h1><?php print $main_title;?></h1>
-      <div class="emb_package_text"><?php print $main_summary; ?></div>
+      <div class="emb_package_text"><?php print $embedtext_html; ?></div>
     <?php 
 
       $count = 0;
       $class = '';
       foreach ($imgstory as $img){
+        $caption = $img->field_summary[0]['safe'];
         if ($count > 0){
           $class = 'hidden';
         }
         $images .= '<div class="emb_package_bpic '.$class.'" id="'.$img->nid.'">';
-        $images .= theme('imagecache', 'pagallery_450x300', $img->field_photofile[0]['filepath'], $img->title, $img->title);
-        $images .= '<p class="pic_description">'.$img->title.'</p>';
-        $images .= '<p class="credit"><span>'.$img->field_copyright[0]['value'].'</span></p>';
+        $images .= theme('imagecache', 'pagallery_450x300', $img->field_photofile[0]['filepath'], $caption, $caption);
+        $images .= '<p class="pic_description">'.$caption.'</p>';
+        $images .= '<p class="credit"><span>'.$img->field_copyright[0]['safe'].'</span></p>';
         $images .= '</div>';
-        $thumbnails .= '<li id="'.$img->nid.'">'.theme('imagecache', 'divers_120x80', $img->field_photofile[0]['filepath'], $img->title, $img->title).'</li>';
+        $thumbnails .= '<li id="'.$img->nid.'">'.theme('imagecache', 'divers_120x80', $img->field_photofile[0]['filepath'], $caption, $caption).'</li>';
         $count++;
-        if ($count > 9){
+        /*if ($count > 9){
           break;
-        }
+        }*/
       } 
     ?>
  	<?php print $images;?>

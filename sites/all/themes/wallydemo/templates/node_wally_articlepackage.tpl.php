@@ -79,6 +79,13 @@ $node_path = $aliases[0];
  */
 $theme_path = drupal_get_path('theme', 'wallydemo');
 
+if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
+  $editorialupdatedate = strtotime($field_editorialupdatedate);
+} else {
+  $field_editorialupdatedate=FALSE;
+}
+
 /*  
  * Récupération de la date de publication du package -> $node_publi_date
  */
@@ -92,9 +99,9 @@ $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
  * 'default' -> 'publié le 26/05 à 15h22'
  * 
  */ 
- 
-$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
- 
+$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
+$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._custom_sudpresse_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
+$date_edition .= "</p>";
 
 /*
 * Récupération du mainstory
@@ -191,6 +198,7 @@ if (is_array($node->embed_package)){
     </li>
   </ul>
   <h1><?php print wallydemo_check_plain($main_title); ?></h1>
+  <div class="ico_pic"><?php print $date_edition; ?></div>
   <div id="picture"> 
     <?php print $mediabox_html; ?>
     <?php print '<div id = "link">'.$linkslist_html.'</div>'; ?> 
@@ -233,19 +241,20 @@ if (is_array($node->embed_package)){
             $images = '';
             $thumbnails = '';
             foreach ($emb_pack['photo_object'] as $img){
+              $caption = $img->field_summary[0]['safe'];
               if ($count > 0){
                 $class = 'hidden';
               }
               $images .= '<div class="emb_package_bpic '.$class.'" id="'.$emb_pack['package']->nid.$img->nid.'">';
-              $images .= theme('imagecache', 'pagallery_450x300', $img->field_photofile[0]['filepath'], $img->title, $img->title);
-              $images .= '<p class="pic_description">'.$img->title.'</p>';
-              $images .= '<p class="credit"><span>'.$img->field_copyright[0]['value'].'</span></p>';
+              $images .= theme('imagecache', 'pagallery_450x300', $img->field_photofile[0]['filepath'], $caption, $caption);
+              $images .= '<p class="pic_description">'.$caption.'</p>';
+              $images .= '<p class="credit"><span>'.$img->field_copyright[0]['safe'].'</span></p>';
               $images .= '</div>';
-              $thumbnails .= '<li id="'.$emb_pack['package']->nid.$img->nid.'">'.theme('imagecache', 'divers_120x80', $img->field_photofile[0]['filepath'], $img->title, $img->title).'</li>';
+              $thumbnails .= '<li id="'.$emb_pack['package']->nid.$img->nid.'">'.theme('imagecache', 'divers_120x80', $img->field_photofile[0]['filepath'], $caption, $caption).'</li>';
               $count++;
-              if ($count > 9){
+              /*if ($count > 9){
                 break;
-              }
+              }*/
             } 
           ?>
        	<?php print $images;?>

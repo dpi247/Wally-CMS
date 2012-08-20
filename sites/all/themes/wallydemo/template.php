@@ -2127,10 +2127,10 @@ function wallydemo_preprocess_node(&$vars) {
     $form_date = unserialize(serialize($form_date));
     $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
 
+    $editorial_update = $node->field_editorialupdatedate[0];
     if ($editorial_update == NULL){
       $node->field_editorialupdatedate[0] = $node->field_publicationdate[0];
     }
-    $editorial_update = $node->field_editorialupdatedate[0];
     $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
     $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
     $form_date = unserialize(serialize($form_date));
@@ -2142,6 +2142,7 @@ function wallydemo_preprocess_node(&$vars) {
     //Ne faire le traitement que si on voit le noeud
     if ($node->nid == arg(1) | $node->preview){
       $vars['bool_node_page'] = TRUE;
+
       wallydemo_preprocess_node_build_embedded_links($vars);
       wallydemo_preprocess_node_build_embedded_photos($vars);
       wallydemo_preprocess_node_build_embedded_videos($vars);
@@ -2165,9 +2166,26 @@ function wallydemo_preprocess_node(&$vars) {
         $vars['htmltags_html'] .= "<div class=\"tags\"><h2>Termes associés : </h2>".$htmltags."</div>";
       }
     }
+  } elseif ($node->type == "wally_gallerypackage") {
+    node_build_content($node->field_mainobject_nodes[0], $vars['teaser'], $vars['page']);
+    
+    $text = '';
+    foreach ($node->field_embededobjects_nodes as $embed){
+      node_build_content($embed, $vars['teaser'], $vars['page']);
+      switch ($embed->type){
+        case 'wally_textobject':
+          if (empty($text)) {
+            $text = !empty($embed->field_textchapo[0]['safe']) ? '<p class = "chapeau">'.$embed->field_textchapo[0]['safe'].'</p>' : '';
+            $text .= $embed->field_textbody[0]['safe'];
+          }
+          break;
+      }
+    }
+    $vars['embedtext_html'] = empty($text) ? $node->field_summary[0]['safe'] : $text;
   } elseif ($node->type == "wally_pollpackage"){
     if ($node->nid == arg(1) | $node->preview){
       $vars['bool_node_page'] = TRUE;
+
       wallydemo_preprocess_node_build_embedded_photos($vars);
       $merged_medias = $vars['node']->embed_photos;
       $mediaboxItems = array();
@@ -2185,8 +2203,8 @@ function wallydemo_preprocess_node(&$vars) {
       }
     }
   }
-
 }
+
 function wallydemo_preprocess_node_build_embedded_links(&$vars){
   if (isset($vars['node'])) {
     $node = &$vars['node'];
@@ -2276,7 +2294,6 @@ function wallydemo_preprocess_node_build_embedded_links(&$vars){
           //Link item to a package
           $package = node_load($embed->field_internal_link[0]['nid']);
           wallycontenttypes_packagepopulate($package);
-          $content = node_view($package);
           $photo_object = NULL;
           $mainobject = NULL;
           $text = '';
@@ -2292,6 +2309,7 @@ function wallydemo_preprocess_node_build_embedded_links(&$vars){
             }
           } elseif ($package->type == 'wally_pollpackage'){
             $mainobject = $package->field_mainpoll_nodes[0];
+            node_build_content($mainobject);
             $text = $package->field_summary[0]['safe'];
             foreach ($package->field_embededobjects_nodes as $package_embeds){
               if ($package_embeds->type == 'wally_photoobject'){
@@ -2300,16 +2318,28 @@ function wallydemo_preprocess_node_build_embedded_links(&$vars){
             }
           } elseif ($package->type == 'wally_gallerypackage'){
             $mainobject = $package->field_mainobject_nodes[0];
-            $text = $package->field_summary[0]['safe'];
+            node_build_content($mainobject);
+            $text = '';
             $photo_object[] = $mainobject;
             foreach ($package->field_embededobjects_nodes as $package_embeds){
-              if ($package_embeds->type == 'wally_photoobject'){
-                $photo_object[] = $package_embeds;
+              node_build_content($package_embeds, $vars['teaser'], $vars['page']);
+              switch ($package_embeds->type){
+                case 'wally_textobject':
+                  if (empty($text)) {
+                    $text = !empty($package_embeds->field_textchapo[0]['safe']) ? '<p class = "chapeau">'.$package_embeds->field_textchapo[0]['safe'].'</p>' : '';
+                    $text .= $package_embeds->field_textbody[0]['safe'];
+                  }
+                  break;
+
+                case 'wally_photoobject':
+                  $photo_object[] = $package_embeds;
+                  break;
               }
             }
+            $text = empty($text) ? $package->field_summary[0]['safe'] : $text;
           }
           $node->embed_package[$embed->nid] = array(
-            'title' => $mainobject->title,
+            'title' => $package->title,
             'package' => $package,
             'mainobject' => $mainobject,
             'photo_object' => $photo_object,

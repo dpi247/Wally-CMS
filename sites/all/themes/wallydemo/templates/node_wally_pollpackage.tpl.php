@@ -72,6 +72,13 @@ $node_id = $node->nid;
 $aliases = wallytoolbox_get_all_aliases("node/".$node->nid);
 $node_path = $aliases[0];
 
+if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
+  $editorialupdatedate = strtotime($field_editorialupdatedate);
+} else {
+  $field_editorialupdatedate=FALSE;
+}
+
 /*  
  * Récupération de la date de publication du package -> $node_publi_date
  */
@@ -85,8 +92,9 @@ $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
  * 'default' -> 'publié le 26/05 à 15h22'
  * 
  */ 
- 
-$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
+$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
+$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._custom_sudpresse_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
+$date_edition .= "</p>";
  
 /*
 * Récupération du mainpoll
@@ -181,13 +189,7 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
   </div>
   <?php print $htmltags_html; ?>
   <?php print $bottom_html; ?>
-  
-  
-  
-  
-  
-  
-  
+
   <!-- FACEBOOK REACTIONS -->
   <?php if ($node->comment == 2) { ?>
     <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>

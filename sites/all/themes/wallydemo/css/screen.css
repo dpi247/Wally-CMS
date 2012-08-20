@@ -109,6 +109,7 @@ a:visited {
 	clear: both;
 	background-color:#fff;
 	padding: 35px 10px 10px;
+	cursor:auto;
 }
 #content {
 	padding: 4px 0 0 0;
