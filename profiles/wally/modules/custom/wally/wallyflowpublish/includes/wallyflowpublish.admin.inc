@@ -11,21 +11,24 @@ function wallyflowpublish_settings_form(){
   $form['#tree'] = TRUE;
   
   $db_datas = db_query('SELECT * FROM {wallyflowpublish_dests}');
-  while ($db_result = db_fetch_array($db_datas))
+  while ($db_result = db_fetch_array($db_datas)) {
     $datas[$db_result['tid']] = $db_result;
+  }
   
   $dest_vid = variable_get('wallymport_destinationpath', 0);
   $taxos = taxonomy_get_tree($dest_vid);
+  $hierarchies = wallyctools_get_hierarchies();
 
   foreach ($taxos as $taxo){
     $tid = $taxo->tid;
     $data = $datas[$tid];
-    while(is_string($data['mediafed']))
+    while(is_string($data['mediafed'])) {
       $data['mediafed'] = unserialize($data['mediafed']);
-    
+    }
+
     $dest = str_replace(' ', '-', $taxo->name);
     $name = empty($data['title']) ? $dest : $data['title'];
-    $link_name = wallytoolbox_taxonomy_get_path_by_tid_or_term($taxo->tid, $dest_vid);
+    $link_name = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid, $dest_vid);
     $descr = empty($data['description']) ? $taxo->description : $data['description'];
     $copy = empty($data['copyright']) ? t('Copyright') : $data['copyright'];
 
@@ -35,7 +38,12 @@ function wallyflowpublish_settings_form(){
     $expl_path = explode('/%/', $view_path);
     $link = '/'.$expl_path[0].'/'.$link_name;
     $link = (isset($expl_path[1]) && $expl_path[1] != '') ? $link.'/'.$expl_path[1] : $link;
-    $feed_link ='<a href="'.$link.'">'.t('View !dest feed', array('!dest' => $dest)).' ('.$base_url.$link.')</a>';
+    $feed_link = t('View !dest feeds :', array('!dest' => $dest));
+    $redacblocks = $hierarchies[$tid]['redacblocks'];
+    foreach ($redacblocks as $redacblock) {
+      $redac_link = $link.'/'.$redacblock['name'];
+      $feed_link .= '<br><a href="'.$redac_link.'">'.$redacblock['title'].' : '.$base_url.$redac_link.'</a>';
+    }
 
     $form[$tid] = array(
 	    '#type' => 'fieldset',
