@@ -868,6 +868,7 @@ function wallyimportpackage_set_field_commentsallowed(&$node, $dom, &$log, $impo
  *   Nothing
  */
 function wallyimportpackage_set_field_freeaccess(&$node, $dom, &$log, $importer){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   (wallytoolbox_toboolean($dom->nodeValue)) ? 
     $node->field_freeaccess[0]['value'] = "Free" : 
     $node->field_freeaccess[0]['value'] = NULL; 
