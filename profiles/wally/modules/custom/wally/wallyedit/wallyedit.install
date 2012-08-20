@@ -18,8 +18,8 @@ function wallyedit_uninstall() {
   drupal_uninstall_schema('wallyedit');
 
   // Delete all variables beginning with "wallyedit_"
-  db_query("DELETE FROM {variable} WHERE name LIKE '%s%'", 'wallyedit_');
-  variable_cache_rebuild();
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallyedit_');
   
   $ret = array();
   db_drop_field($ret, 'users', 'wydit_default_profile');
