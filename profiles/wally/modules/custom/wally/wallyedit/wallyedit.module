@@ -479,33 +479,66 @@ function wallyedit_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
 }
 
 /**
+ * Implementation of hook_node_type()
+ * When a new content type is created we create default tabs (Main and Meta)
+ */
+function wallyedit_node_type($op, $info) {
+  switch ($op) {
+    case 'insert':
+      module_load_include('inc', 'wallyedit', 'includes/config_api');
+      $profiles = wyditadmin_get_profiles();
+      $tabs = array('main' => 'Main', 'meta' => 'Meta');
+      $type = $info->type;
+
+      foreach ($profiles as $pid => $profile) {
+        foreach ($tabs as $name => $label) {
+          $new_tab['name'] = $name.'_'.$pid.'_'.$type;
+          $new_tab['label'] = $label;
+          $new_tab['weight'] = 0;
+          $new_tab['pid'] = $pid;
+          $new_tab['content_type'] = $type;
+          $new_tab['erasable'] = 0;
+
+          drupal_write_record('wallyedit_tabs', $new_tab);
+        }
+      }
+      break;
+  }
+}
+
+/**
  * Implementation of hook_form_alter()
  */
 function wallyedit_form_alter(&$form, &$form_state, $form_id) {
-  if (($form_id == 'wallyedit_form_node_edition_form' && (sizeof($form_state['parents']) == 1)) || strstr($form_id, '_node_form')) {
+  if (($form_id == 'wallyedit_form_node_edition_form' && (sizeof($form_state['parents']) == 1)) || (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id)) {
     module_load_include('inc', 'wallyedit', 'includes/config_api');
-    $available_profiles = wallyedit_get_available_profiles();
-    if (sizeof($available_profiles) > 1) {
-      $options_profiles = array();
-      foreach ($available_profiles as $av_prof) {
-        $options_profiles[$av_prof['pid']] = $av_prof['label'];
+    $type = $form['type']['#value'];
+    $profile_id = isset($form_state['profile_id']) ? $form_state['profile_id'] : wallyedit_get_default_profile();
+    $interface_types = wally_variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+    if (($form_id == 'wallyedit_form_node_edition_form' && $interface_types[$type] == 'wally') || (strstr($form_id, '_node_form') && $interface_types[$type] == 'drupal')) {
+      $available_profiles = wallyedit_get_available_profiles();
+      if (sizeof($available_profiles) > 1) {
+        $options_profiles = array();
+        foreach ($available_profiles as $av_prof) {
+          $options_profiles[$av_prof['pid']] = $av_prof['label'];
+        }
+        $form['choose_profile'] = array(
+          '#type' => 'select',
+          '#title' => t('Choose profile'),
+          '#options' => $options_profiles,
+          '#default_value' => $profile_id,
+          '#weight' => -100,
+        );
+  
+        $form['confirm_profile'] = array(
+          '#type' => 'submit',
+          '#title' => t('Confirm profile change'),
+          '#value' => t('Confirm profile change'),
+          '#weight' => -99,
+        );
+  
+        $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
       }
-      $form['choose_profile'] = array(
-        '#type' => 'select',
-        '#title' => t('Choose profile'),
-        '#options' => $options_profiles,
-        '#default_value' => $form_state['profile_id'],
-        '#weight' => -100,
-      );
-
-      $form['confirm_profile'] = array(
-        '#type' => 'submit',
-        '#title' => t('Confirm profile change'),
-        '#value' => t('Confirm profile change'),
-        '#weight' => -99,
-      );
-
-      $form['#after_build'][] = 'wallyedit_form_change_profile_form_after_build';
     }
   }
 
