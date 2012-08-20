@@ -311,6 +311,7 @@ function chart_build($chart) {
   _chart_append('chbh',  $chart['#bar_size'],                $data);
   _chart_append('chld',  $chart['#countries'],               $data);
   _chart_append('chtm',  $chart['#georange'],                $data);
+  $data['chds'] = 'a';
 
   $charts[$chart['#chart_id']] = drupal_query_string_encode($data);
 
