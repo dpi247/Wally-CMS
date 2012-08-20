@@ -2128,7 +2128,7 @@ function wallydemo_preprocess_node(&$vars) {
     $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
 
     $editorial_update = $node->field_editorialupdatedate[0];
-    if ($editorial_update == NULL){
+    if ($editorial_update['value'] == NULL){
       $node->field_editorialupdatedate[0] = $node->field_publicationdate[0];
     }
     $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
