@@ -50,12 +50,6 @@ function wallyimportpackageV15_node_process_articlepackagetype(&$node, $dom_elem
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -63,11 +57,17 @@ function wallyimportpackageV15_node_process_articlepackagetype(&$node, $dom_elem
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
@@ -132,12 +132,6 @@ function wallyimportpackageV15_node_process_galleryPackageType(&$node, $dom_elem
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -145,11 +139,17 @@ function wallyimportpackageV15_node_process_galleryPackageType(&$node, $dom_elem
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
@@ -213,12 +213,6 @@ function wallyimportpackageV15_node_process_pollpackagetype(&$node, $dom_element
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -226,11 +220,17 @@ function wallyimportpackageV15_node_process_pollpackagetype(&$node, $dom_element
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
