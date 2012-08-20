@@ -20,6 +20,11 @@
 	5.1 Photo
 	5.2 Vidéo
 	5.3 Textes	
+
+6. embedded Package
+	6.1 
+	6.2 
+	6.3 
 	
 /* -----------------------------------------------------------------------------------*/
 /* -------------------------------- 1. Page article --------------------------------- */
@@ -45,6 +50,12 @@ blockquote.chapeau, /*archives*/
 	margin: 0 0 10px;
 	text-align: justify;
 }
+#article p a {
+	text-decoration:underline;
+}
+#article p.fil_ariane a, #article ul.liensutiles a, #article #picture a {
+	text-decoration:none;
+}
 #content .plusdinfo {
 	background: url('../images/separator_horizontal4.gif') repeat-x top;
 	padding: 8px 0 0;
@@ -60,6 +71,7 @@ blockquote.chapeau, /*archives*/
 	font-family:Arial, Helvetica, sans-serif; /*archives*/
 	font-size:12px; /*archives*/
 	font-style:normal; /*archives*/
+	text-align: justify;
 }
 .article_archive .st_signature, /*archives*/
 #article p.auteur {
@@ -124,60 +136,48 @@ blockquote.chapeau, /*archives*/
 /* ------------------------ 1.3 Bloc Photo + articles liés ----------------------------*/
 
 .article_archive #wrap_illu, /*archives*/
-#article #picture,
-#article #links {
+#article #picture {
 	position:relative;
 	float: left;
 	padding-right: 10px;
 	width: 300px;
 }
-
 .article_archive #wrap_illu p { /*archives*/
 	margin:0;
 }
-#article #picture .allMedias,
-#article #links .allMedias {
+#article #picture .allMedias {
 	width: 300px;
 	background: white;
 	overflow: hidden;
 }
-#article #picture .wrappAllMedia object,
-#article #links .wrappAllMedia object {
+#article #picture .wrappAllMedia object {
 	width: 300px;
 	height: 200px;
 }
-#article #picture .wrappAllMedia .item_media,
-#article #links .wrappAllMedia .item_media {
+#article #picture .wrappAllMedia .item_media {
 	width: 300px;
 	float: left;
 	background: white;
 	overflow: hidden;
-	height: 200px;
 }
-#article #picture p,
-#article #links p {
+#article #picture p {
 	margin: 0;
 }
-#article #picture h2,
-#article #links h2 {
+#article #picture h2 {
 	color:#FFF;
 }
 .article_archive #wrap_illu img, /*archives*/
-#article #picture img,
-#article #links img {
+#article #picture img {
 	display: block;
 }
-#picture .bloc-01 ul, #picture .bloc-01,
-#links .bloc-01 ul, #links .bloc-01{
+#picture .bloc-01 ul, #picture .bloc-01{
 	padding-top: 0;
 	clear:both;
 }
-#picture .credit,
-#links .credit {
+#picture .credit {
 	display:none;
 }
-#picture .divCurrent .credit,
-#links .divCurrent .credit {
+#picture .divCurrent .credit {
 	display:block;
 	background: transparent url('../images/bg_noir_50pc.png');
 	color: #CCC;
@@ -191,8 +191,7 @@ blockquote.chapeau, /*archives*/
 	line-height:19px;
 }
 .article_archive #wrap_illu em.credit, /*archives*/
-#picture .pic_description, .article_archive #picture .credit,
-#links .pic_description, .article_archive #links .credit {
+#picture .pic_description, .article_archive #picture .credit {
 	padding: 3px 10px;
 	width: 280px;
 	background-color: #f0ecdf;
@@ -201,21 +200,17 @@ blockquote.chapeau, /*archives*/
 	display:block; /*archives*/
 	font-style:normal; /*archives*/
 }
-.article_archive #picture .credit
-.article_archive #links .credit {
+.article_archive #picture .credit {
 	display:block;
 }
-#picture .emvideo object,
-#links .emvideo object {
+#picture .emvideo object {
 	display:block;
 }
-#picture .pf_article,
-#links .pf_article {
+#picture .pf_article {
 	float:left;
 	margin-top:10px;
 }
-#picture .pf_article .inner-bloc,
-#links .pf_article .inner-bloc {
+#picture .pf_article .inner-bloc {
 	padding: 10px 0 0 10px;
 	clear:both;
 	float:left;
@@ -223,8 +218,7 @@ blockquote.chapeau, /*archives*/
 	width:290px;
 	background-color:#0F0F0F;
 }
-#picture .pf_article .inner-bloc li,
-#links .pf_article .inner-bloc li {
+#picture .pf_article .inner-bloc li {
 	padding: 0;
 	background:none;
 	margin: 0 9px 9px 0;
@@ -557,16 +551,195 @@ blockquote.chapeau, /*archives*/
 #page_object.embed_text h1 {
 	line-height:27px;
 }
-#embedded_package{
-	padding: 10px;
-	background-color: #EDEDED;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	box-shadow: 0 2px 2px #858585;
+
+/* -----------------------------------------------------------------------------------*/
+/* ------------------------------ 6. embedded Package ------------------------------- */
+/* -----------------------------------------------------------------------------------*/
+
+.emb_package {
+	float: left;
+	margin-bottom:20px;
+	position:relative;
+	width:630px;
 }
-#embedded_package div.bloc_sondage_results{
-	background-color: #EDEDED;
+.emb_package.emb_package_article {
+	width:628px;
 }
-.clear{
+.emb_package .ico_pic {
+	height: 24px;
+	margin: 15px 0 5px;
+	padding-left: 30px;
+	width: auto;
+	color: #999;
+	padding-top: 2px;
+}
+.emb_package_gallery.emb_package .ico_pic {
+	background: url('../images/ico_pack_gallery1.png') no-repeat 0 0 transparent;
+}
+.emb_package_poll.emb_package .ico_pic {
+	background: url('../images/ico_pack_poll1.png') no-repeat 0 0 transparent;
+}
+.emb_package .ico_pic span {
+	display:none;
+}
+.emb_package.emb_package_article .ico_pic {
+	position:absolute;
+	top:-8px;
+	left:-8px;
+	width:0px;
+	height:27px;
+	padding-left:32px;
+	overflow:hidden;
+	margin:0;
+}
+.emb_package_gallery.emb_package.emb_package_article .ico_pic {
+	background: url('../images/ico_pack_gallery2.png') no-repeat 0 0 transparent;
+}
+.emb_package_poll.emb_package.emb_package_article .ico_pic {
+	background: url('../images/ico_pack_poll2.png') no-repeat 0 0 transparent;
+}
+.emb_package.emb_package_article {
+	border: 1px solid #d9d9d9;
+	background:#f7f7f7;
+	-moz-border-radius:0 5px 0 0;
+	border-radius: 0 5px 0 0;
+	border-bottom-color:#CCC;
+	margin-top:20px;
+}
+.emb_package h2 {
+	margin: 15px 5px 10px !important;
+	clear:both;
+}
+.emb_package.emb_package_article  h2 {
+	margin: 15px 20px 10px !important;
+}
+.emb_package_text {
+	margin: 0 5px 10px;
+	clear:both;
+}
+.emb_package_article .emb_package_text {
+	margin: 0 20px 10px;
+}
+.emb_package_bpic img, .emb_package_thumbs img {
+	display:block;
+}
+.emb_package_thumbs ul, .emb_package_thumbs li {
+	float: left;
+}
+
+/* ---------------------------------- 6.1 Galeries ------------------------------------ */
+
+.emb_package_bpic {
 	clear: both;
+	padding: 10px 0 0 90px;
+	position:relative;
+}
+.emb_package_article .emb_package_bpic {
+	padding: 10px 0 0 89px;
+}
+.emb_package_bpic p.pic_description {
+	background-color: #e8e4d8;
+	color: #383838;
+	display: block;
+	padding: 3px 10px;
+	width: 430px;
+	text-align:center;
+	margin-bottom:20px;
+}
+.emb_package_bpic p.credit {
+	background-color:#000000;
+	-moz-opacity:0.50;
+	opacity:.50;
+	filter:alpha(opacity = 50);
+	position: absolute;
+	top: 291px;
+	right:90px;
+	z-index: 99;
+	width: auto;
+	padding: 0 4px;
+	height:19px;
+	line-height:19px;
+}
+.emb_package_article .emb_package_bpic p.credit {
+	right:89px;
+}
+.emb_package_bpic p.credit span {
+	-moz-opacity:1;
+	opacity:1;
+	filter:alpha(opacity = 1);
+	color: #CCC;
+}
+.emb_package_gallery .emb_package_thumbs ul {
+	padding: 0 0 2px 6px;
+}
+.emb_package_gallery .emb_package_thumbs li {
+	margin: 0px 4px 4px 0px;
+}
+
+/* ---------------------------------- 6.2 Sondages ------------------------------------ */
+
+.emb_package_poll .emb_package_thumbs {
+	margin-top:10px;
+}
+.emb_package_poll .emb_package_thumbs ul {
+	padding: 0 0 0px 6px;
+	margin-bottom:10px;
+}
+.emb_package_poll .emb_package_thumbs li {
+	margin: 0px 6px 6px 0px;
+}
+.emb_package_poll .emb_package_item {
+	margin:10px 0px 10px 5px;
+	float:left;
+}
+.emb_package_article.emb_package_poll .emb_package_item {
+	margin:10px 20px;
+}
+.emb_package_poll form {
+	margin:0px 5px;
+}
+.emb_package_article.emb_package_poll form {
+	margin:0px 20px 20px;
+}
+.emb_package_poll label {
+	font-size:18px;
+	font-weight:normal;
+    border-top: 1px dotted #999;
+    padding-top: 10px;
+}
+.emb_package_poll .form-radios label, 
+.emb_package_poll .form-checkboxes label {
+	font-size:13px;
+    border-top: none;
+    padding-top: 0;
+}
+.emb_package_poll .form-radios .form-item, 
+.emb_package_poll .form-checkboxes .form-item {
+	margin:0;
+}
+
+/* ---------------------------------- 6.3 Bear ------------------------------------ */
+
+.emb_package.emb_package_bear.emb_package_article {
+	-moz-border-radius:0;
+	border-radius:0;
+}
+.emb_package_article.emb_package_bear .emb_package_bpic {
+	padding: 0;
+	clear:none;
+	float:left;
+	margin:0 10px 5px 20px;
+}
+.emb_package_bear .emb_package_bpic p.pic_description {
+	width: 196px;
+	text-align:left;
+}
+.emb_package_bear .emb_package_bpic p.credit {
+	top: 126px;
+	right:0px;
+}
+.emb_package_bear.emb_package_article .emb_package_text {
+	margin: 0 20px 20px;
+	clear:none;
+	text-align:justify;
 }

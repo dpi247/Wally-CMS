@@ -4,6 +4,7 @@
  * Render the html for the header
  * @param $xml
  */
+if (function_exists('spcarburant_getCachedData')) :
 $my_data = spcarburant_getCachedData("carburant_header_bloc"); 
 //dsm($my_data);
 ?>
@@ -14,3 +15,4 @@ $my_data = spcarburant_getCachedData("carburant_header_bloc");
   <?php print($my_data['legende']); ?>
  </a>
 </li>
+<?php endif; ?>

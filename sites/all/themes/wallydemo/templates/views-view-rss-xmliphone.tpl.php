@@ -7,42 +7,39 @@
  * @ingroup views_templates
  */
 
-// Ne marche pas, theme va chercher views-view-rss.tpl.php de views
-//drupal_set_header('Content-Type: application/rss+xml; charset=utf-8');
-
-
-$tid = explode('/', $link);
-$nbTmp = count($tid)-1;
-$tid = $tid[$nbTmp];
-$destName = taxonomy_get_term($tid);
-
-
 drupal_set_header('Content-Type: text/xml; charset=utf-8');
 print '<?xml version="1.0" encoding="utf-8" ?>';
 print "\n";
+$tid = $variables["view"]->args[0];
+$tObject = taxonomy_get_term($tid);
+$tname = $tObject->name;
+// Get the string name of the current domain
+$domain_url = $_SERVER["SERVER_NAME"];
+$domain = spdatastructure_getdomain($domain_url);
+$namespaces = str_replace('xmlns:dc="http://purl.org/dc/elements/1.1/"','',$namespaces);
 ?>
 <rss version="2.0" xml:base="<?php print $link; ?>"<?php print $namespaces; ?>>
-	<channel>
-		<title>sudinfo.be-iPhone: <?php print $destName->name; ?></title>
-		<link><?php print $link; ?></link>
-		<description><?php print $destName->name; ?></description> 
-		<language>fr</language>
-		<copyright>Rossel et Cie SA,  Sud presse, Bruxelles, 2005</copyright>
-		<pubDate>Thu, 27 Oct 2011 16:28:00 +0200</pubDate>
-		<lastBuildDate>Thu, 27 Oct 2011 16:28:00 +0200</lastBuildDate>
-		<docs>http://backend.userland.com/rss</docs>
-		<generator>GPS-SELRSS v2.0</generator>
-		<managingEditor>redaction@sudpresse.be</managingEditor>
-		<webMaster>redaction@sudpresse.be</webMaster>
-		<ttl>1</ttl>
-        <image>
-        <title>Sudpresse.be</title>
-        <width>180</width>
-        <height>39</height>
-        <link>http://www.sudinfo.be</link>
-        <url>http://www.sudinfo.be/sites/all/themes/wallydemo/images/logos/logo_sudinfo.gif</url> 
-        </image> 	
-        <?php print $channel_elements; ?>
-        <?php print $items; ?>
-  	</channel>
+  <channel>
+    <title><?php print $tname ?> - <?php print $domain; ?>.be</title>
+    <link><?php print drupal_get_path_alias($link); ?></link>
+    <description>Flux d'informations de la catégorie <?php print strtolower($tname); ?> du site <?php print $domain; ?>.be.</description>
+    <language><?php print $langcode; ?></language>
+    <copyright>Sudpresse - <?php print date('Y',time()); ?></copyright>
+    <pubDate><?php print date('r',time()); ?></pubDate>
+    <lastBuildDate><?php print date('r',time()); ?></lastBuildDate>
+    <docs>http://cyber.law.harvard.edu/rss/rss.html</docs>
+    <generator>Sudpresse - 1.5</generator>
+    <managingEditor>webmaster@sudpresse.be (Webmaster Sudpresse)</managingEditor>
+    <webMaster>webmaster@sudpresse.be (Webmaster Sudpresse)</webMaster>    
+    <ttl>3</ttl>
+    <image>
+      <title><?php print $domain; ?>.be</title>
+      <url>http://www.sudinfo.be/sites/all/themes/wallydemo/images/logos/logo_<?php print $domain; ?>.gif</url>
+      <link><?php print $link; ?></link>
+      <width>91</width>
+      <height>29</height>
+    </image>
+    <?php print $channel_elements; ?>
+    <?php print $items; ?>
+  </channel>
 </rss>

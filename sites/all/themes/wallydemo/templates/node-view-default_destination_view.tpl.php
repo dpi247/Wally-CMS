@@ -5,9 +5,7 @@
 $row_view_index=$variables["view"]->row_index;
 $view_offset = $variables["view"]->pager["offset"];
 $row_index=$row_view_index+$view_offset;
-//dsm($my_data);
 
-//print "<h1>$row_index</h1>";
 
 // Le package -> $node 
 
@@ -45,26 +43,29 @@ $node_path = wallydemo_get_node_uri($node);
  */
 $photo = FALSE;
 $photoObject_path = "";
-if($node->type == "wally_articlepackage"){
+if ($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
-} else {  
+} elseif ($node->type == "wally_gallerypackage") {  
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
-  if($mainstory_type == "wally_photoobject"){ 
+  if ($mainstory_type == "wally_photoobject"){ 
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $photoObject_summary = $mainstory->field_summary[0]['value'];
     $photoObject_filename = $mainstory->field_photofile[0]["filename"];
+    $photoObject_filepath = $mainstory->field_photofile[0]['filepath'];
     $explfilepath = explode('/', $photoObject_path);
-    $photoObject_size == $mainstory->field_photofile[0]['filesize'];
-    if (isset($photoObject_path) && $photoObject_size > 0) {
+    $photoObject_size = $mainstory->field_photofile[0]['filesize'];
+    if ($photoObject_path != "" && $photoObject_size > 0) {
       $photo = TRUE;
     }
   }
+} elseif ($node->type == 'wally_pollpackage'){
+  $mainstory = $node->field_mainpoll_nodes[0];
 }
 if ($photoObject_path == ""){
   $embeded_objects = $node->field_embededobjects_nodes;
   $photoObject = wallydemo_get_first_photoEmbededObject_from_package($embeded_objects);
-  If ($photoObject) {
+  if ($photoObject) {
     $photoObject_path = $photoObject->field_photofile[0]['filepath'];
     $photoObject_summary = $photoObject->field_summary[0]['value'];
     $photoObject_filename = $photoObject->field_photofile[0]["filename"];
@@ -76,7 +77,6 @@ if ($photoObject_path == ""){
     }    
   }
 }
-
 /* Récupération du titre de l'object principal donc du package à l'affichage -> $title
  * 
  * print($title);
@@ -122,10 +122,8 @@ $strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 switch ($row_index) {
 	case 0:
 ?>
-<div class="article md clearfix">
-  
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="<?php print $node_path; ?>">
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_filepath, $photoObject_summary, $photoObject_summary);
   			} 
@@ -137,17 +135,15 @@ switch ($row_index) {
   </a>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-</div>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php }
 
-<?php 
 	break;
 	case 1:
 ?>
-
-<div class="article md clearfix">
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
-  <a href="<?php print $node_path; ?>">
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'unebis_medium_180x120', $photoObject_filepath, $photoObject_summary, $photoObject_summary);
   			} 
@@ -159,17 +155,16 @@ switch ($row_index) {
   </a>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-</div>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php }
 
-<?php 
   break;
   case 2:
   ?>
-<div class="article lt clearfix">
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
 
-  <a href="<?php print $node_path; ?>">
+  <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'unebis_small_90x66', $photoObject_filepath, $photoObject_summary, $photoObject_summary);
         } 
@@ -181,10 +176,10 @@ switch ($row_index) {
   </a>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-</div>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php }
 
-<?php
   /*
 	$cache_url = $_SERVER['HTTP_HOST'].'/'.$_GET['q'];
 	$delta = 'large_rectangle_middle'; // ta position (rectangle_top par exemple)
@@ -193,10 +188,9 @@ switch ($row_index) {
 	break;
 	default:
 	?>
-<div class="article lt clearfix">
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
 
-  <a href="<?php print $node_path; ?>">
+  <a href="/<?php print check_url($node_path); ?>">
   <?php if($photo == TRUE){ 
   $photoObject_img = theme('imagecache', 'unebis_small_90x66', $photoObject_filepath, $photoObject_summary, $photoObject_summary);
   			} 
@@ -208,10 +202,9 @@ switch ($row_index) {
   </a>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
-</div>
-
-<?php 
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php }
 }
 unset($node);
 unset($mainstory);

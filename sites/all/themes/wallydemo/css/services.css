@@ -32,6 +32,8 @@
 7. Agenda
 
 8. Voyages
+
+9. Abonnement libraires
 		
 ---------------------------- */
 
@@ -669,6 +671,12 @@ html.js .pages_service .col-02 input.form-autocomplete {
 #copyright_text {
 	text-align:justify;
 }
+#copyright_text a {
+	text-decoration:underline;
+}
+#copyright_text a:visited {
+	color:#036;
+}
 #ancien_numero h1, #copyright_text h1, #aide h1 {
     color: #999999;
     font-size: 19px;
@@ -1043,8 +1051,7 @@ p.sms {
 	display:none;
 }
 #blogs h2 {
-	color:#000;
-    background: #196DAB url("../images/bg_title_blue3.gif") 0 0 no-repeat;
+    background: #196DAB url("../mediastore/bg_title_ing.gif") 0 0 no-repeat;
     color: white;
     font-size: 12px;
     font-weight: 400;
@@ -1116,7 +1123,14 @@ p.sms {
 	z-index:100;
 	width:300px;
 }
-
+#blogs .ing {
+	margin:0 0 20px 10px; 
+	text-align:center;
+	width:300px;
+}
+.page-blogs #sp_rubriques h2 {
+    background: #196DAB url("../mediastore/bg_title_ing.gif") 0 0 no-repeat;
+}
 /* -----------------------------------------------------------------------------------*/
 /* ------------------------------------ 7. Agenda ----------------------------------- */
 /* -----------------------------------------------------------------------------------*/
@@ -1363,3 +1377,57 @@ ul.bordure_list_mad li .date {
     color: #000;
     font-size: 18px;
 }
+
+/* ---------------------------------------------------------------------------------- */
+/* --------------------------- 9. Abonnement libraires ------------------------------ */
+/* ---------------------------------------------------------------------------------- */
+
+li.lib {
+	width:268px;
+	padding:11px 15px;
+	margin:10px;
+	float:left;
+	border:1px solid #e5e5e5;
+	font-size:13px;
+	height:67px;
+}
+li.lib h2 {
+	color:#000;
+	font-size:13px;
+}
+li.lib p.street, li.lib p.cp_city {
+	color:#4c4c4c;
+}
+li.lib p.code_dl {
+	color:#e43117;
+}
+.view-id-AboLibraires form > div{
+	background:url('../images/bg_search_abo_libraire.png') no-repeat 10px 0 transparent;
+    height: 59px;
+    padding: 0;
+	position:relative;
+}
+.view-id-AboLibraires .views-widget {
+    left: 580px;
+    position: absolute;
+    top: 13px;
+}
+#views-exposed-form-AboLibraires-panel-pane-1 .views-exposed-form label {
+    left: 207px;
+    position: absolute;
+    top: 15px;
+}
+.view-id-AboLibraires .views-exposed-form .views-exposed-widget {
+	margin:0;
+	padding:0;
+}
+.view-id-AboLibraires .views-exposed-form .views-exposed-widget .form-submit {
+    margin-top: -2px;
+	display:none;
+}
+.view-id-AboLibraires .map_libraire {
+	float:right;
+	background:url('../images/ico_pointeur_google_map.gif') no-repeat 0 0 transparent;
+	padding:0 0 7px 19px;
+}
+

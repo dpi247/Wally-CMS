@@ -153,9 +153,11 @@ function wallydemo_get_photo_wiki($photoObject,$template="default",$thumbnail=FA
   $photo['credit'] = $photoObject->field_copyright[0]['value'];
   $photo['summary'] = $photoObject->field_summary[0]['value'];
   if($thumbnail == TRUE){
+  $photo['filepath'] = $photoObject->field_thumbnail[0]['filepath'];	
   $photo['filename'] = $photoObject->field_thumbnail[0]['filename'];
   $photo['size'] = $photoObject->field_thumbnail[0]['filesize'];
   }else{
+  $photo['filepath'] = $photoObject->field_photofile[0]['filepath'];	
   $photo['filename'] = $photoObject->field_photofile[0]['filename'];
   $photo['size'] = $photoObject->field_photofile[0]['filesize'];
   }
@@ -165,8 +167,8 @@ function wallydemo_get_photo_wiki($photoObject,$template="default",$thumbnail=FA
       $photo['main_size'] = "";
       $photo['mini'] = "";			
 		  if($photo['size'] > 0){
-		    $photo['main_size'] = theme('imagecache', 'wiki_940x120', $photo['filename'],$photo['summary'],$photo['summary']); 
-		    $photo['mini'] = theme('imagecache', 'article_48x32', $photo["filename"],$photo['summary'],$photo['summary']); 
+		    $photo['main_size'] = theme('imagecache', 'wiki_940x120', $photo['filepath'],$photo['summary'],$photo['summary']); 
+		    $photo['mini'] = theme('imagecache', 'article_48x32', $photo["filepath"],$photo['summary'],$photo['summary']); 
 		  }
 	  break;	
 	}
@@ -293,7 +295,9 @@ $fixedDomainAndPathUrl = "http://www.sudpresse.be/$node_path";
   <ul class="liensutiles">
     <li class="envoyer"><?php print forward_modal_link("node/".$node->nid,wallydemo_check_plain($main_title),"<img src=\"".$theme_path."/images/ico_envoyer2.gif\" alt=\"Envoyer à\" title=\"Envoyer à\"  width=\"19\" height=\"16\" />"); ?>
 </li>
+    <?php if($node->comment != 0){ ?>
     <li class="reagir"> <a href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a> </li>
+    <?php } ?>
     <li class="facebook">
       <div id="fb-root"></div>
       <script src="http://connect.facebook.net/fr_FR/all.js#appId=276704085679009&amp;xfbml=1"></script>

@@ -1,6 +1,6 @@
 <?php 
-$class = "regionsjobs";
-$target = "http://www.regionsjobs.be/";
+$class = "jobsregions";
+$target = "http://www.jobsregions.be/";
 $title = "regionsjobs.be";
 ?>
 <div class="sitesrossel <?php print $class ; ?>">

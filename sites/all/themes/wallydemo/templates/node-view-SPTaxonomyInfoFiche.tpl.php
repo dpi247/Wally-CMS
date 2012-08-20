@@ -101,7 +101,7 @@ $texte = $mainstory->field_textbody[0]['value'];
 $date_changed = "- Mis à jour le&nbsp;" ._wallydemo_date_edition_diplay($changed, 'date_jour_heure') ."&nbsp;-";
 
 ?>
-	<?php $photoObject_img = theme('imagecache', 'info_fiche_150x150', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+	<?php $photoObject_img = theme('imagecache', 'info_fiche_150x150', $photoObject_path, $photoObject_summary, $photoObject_summary);
     print $photoObject_img; ?>
     <?php print $links_html; ?>
     <h1><?php print wallydemo_check_plain($title) ?></h1>
