@@ -55,7 +55,7 @@
       		<td style="width:300px;">
       			<a href="<?php echo $node_path; ?>" target="_blank">
       			<?php 
-      			  $photoObject_img = theme('imagecache', 'article_300x200', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+      			  $photoObject_img = theme('imagecache', 'article_300x200', $photoObject_path, $photoObject_summary, $photoObject_summary);
 				  $photoObject_img = str_replace(">"," border=\"0\">",$photoObject_img);
       			  print($photoObject_img); 
       			?>
@@ -101,7 +101,7 @@
                                 	<a href="<?php echo $node_path; ?>" target="_blank">
 
                         			<?php 
-                        			  $photoObject_img = theme('imagecache', 'unebis_medium_180x120', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+                        			  $photoObject_img = theme('imagecache', 'unebis_medium_180x120', $photoObject_path, $photoObject_summary, $photoObject_summary);
 									  $photoObject_img = str_replace(">"," border=\"0\">",$photoObject_img);
 									  
                         			  print($photoObject_img);
@@ -180,7 +180,7 @@
                         <td style="width:78px;" valign="top">
                         	<a href="<?php echo $node_path; ?>" target="_blank">
                         	<?php 
-                        	  $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+                        	  $photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);
 							  $photoObject_img = str_replace(">"," border=\"0\" style=\"display:block\">",$photoObject_img);
                         	  print($photoObject_img);
                         	?>

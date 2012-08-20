@@ -117,16 +117,18 @@ switch ($row_index) {
 ?>
 <div class="article md clearfix">
   
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <?php if($photo == TRUE){ ?>
-  <a href="<?php print $node_path; ?>">
-  <?php $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+  <a href="/<?php print check_url($node_path); ?>">
+  <?php $photoObject_img = theme('imagecache', 'une_manchette_217x145', $photoObject_path, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>
   <?php } ?>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php } ?>
 </div>
 
 <?php 
@@ -135,16 +137,18 @@ switch ($row_index) {
 ?>
 
 <div class="article md clearfix">
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <?php if($photo == TRUE){ ?>
-  <a href="<?php print $node_path; ?>">
-  <?php $photoObject_img = theme('imagecache', 'unebis_medium_180x120', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+  <a href="/<?php print check_url($node_path); ?>">
+  <?php $photoObject_img = theme('imagecache', 'unebis_medium_180x120', $photoObject_path, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>
   <?php } ?>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+ <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php } ?>
 </div>
 
 <?php 
@@ -152,16 +156,18 @@ switch ($row_index) {
   default:
   ?>
 <div class="article lt clearfix">
-  <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+  <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <?php if($photo == TRUE){ ?>
-  <a href="<?php print $node_path; ?>">
-  <?php $photoObject_img = theme('imagecache', 'unebis_small_90x66', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+  <a href="/<?php print check_url($node_path); ?>">
+  <?php $photoObject_img = theme('imagecache', 'unebis_small_90x66', $photoObject_path, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>
   <?php } ?>
   <p class="time time_unebis"><?php print $date_edition; ?></p>
   <p class="text"><?php print wallydemo_check_plain($strapline); ?></p>
-  <p class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php if($node->comment != 0){ ?>
+  <p class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print($reagir) ?></a></p>
+  <?php } ?>
 </div>
 
 <?php 

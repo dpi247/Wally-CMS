@@ -26,6 +26,7 @@
 		2.4.08 Imu Nos Clubs
 		2.4.09 Bloc Facebook
 		2.4.10 Widget en mémoire
+		2.4.11 Blocs résultats sportifs Idalgo
 	2.5 Colonne 03 droite
 		2.5.1 Promos
 		2.5.2 Sudtop
@@ -33,6 +34,12 @@
 		2.5.4 pdf
 		2.5.5 Fil info
 		2.5.6 Je m'abonne
+	2.6 Liens typés
+		2.6.1 unes et articles
+			2.6.1.1 unes classiques 
+			2.6.1.2 Unes Super event 
+		2.6.2 Unes régionales 
+		2.6.3 articles 
 
 3. Bottom
 	3.1 One more thing 
@@ -102,6 +109,7 @@ a:visited {
 	clear: both;
 	background-color:#fff;
 	padding: 35px 10px 10px;
+	cursor:auto;
 }
 #content {
 	padding: 4px 0 0 0;
@@ -331,47 +339,6 @@ div.wrap-columns .intern-col {
 .comment {
 	text-align: right;
 }
-.comment a {
-	background: transparent url('../images/ico_reagir_transparent.gif') no-repeat 0 3px;
-	padding-left: 15px;
-}
-.article ul {
-	clear: both;
-	padding-top: 5px;
-}
-li.media-video, li.media-press, li.media-audio, li.media-folder {
-	padding: 0 0 4px 17px;
-	line-height:14px;
-}
-li.media-video {
-	background: transparent url('../images/ico_video_transparent.gif') no-repeat 0 2px;
-}
-li.media-press {
-	background: transparent url('../images/ico_article_transparent.gif') no-repeat 0 2px;
-}
-li.media-audio {
-	background: transparent url('../images/ico_audio_transparent.gif') no-repeat 0 2px;
-}
-li.media-folder {
-	background: transparent url('../images/ico_galerie_transparent.gif') no-repeat 0 2px;
-}
-li.arrow {
-	background: url('../images/ico_arrow_transparent.gif') no-repeat 0 5px;
-	padding: 0 0 4px 8px;
-	line-height:14px;
-}
-li.media-dossier {
-    background: url("../images/ico_dossier.png") no-repeat scroll 0 1px transparent;
-    font-weight: bold;
-    height: 16px;
-	padding: 2px 0 4px 23px;
-	line-height:14px;
-}
-.article li.media-live {
-	background: transparent url('../images/ico_live.png') no-repeat 0 0;
-	line-height:14px;
-	padding: 0 0 4px 27px;
-}
 #une_bis .fil_ariane {
 	float:left;
 }
@@ -400,7 +367,7 @@ li.media-dossier {
 	float: left;
 	width: 26px;
 	height: 100px;
-	text-indent: -999em;
+	text-indent: -9999em;
 }
 .exergue h1 a:focus {
 	outline: 0;
@@ -425,7 +392,7 @@ li.media-dossier {
 	padding: 0 10px 0 10px;
 	background: transparent url('../images/separator_vertical3.gif') repeat-y top left;
 }
-.buzz ul, .others {
+#content .buzz ul, .others {
 	float: left;
 	padding-top: 10px;
 	margin: 0 10px 0 36px;
@@ -436,15 +403,15 @@ li.media-dossier {
 .others {
 	margin: 0 10px 8px 36px;
 }
-.buzz li, .item li {
+#content .buzz li, .item li {
 	padding-left: 7px;
 	background: transparent url('../images/ico_arrow_transparent.gif') no-repeat 0 7px;
 	zoom: 1;
 }
-.buzz li, .others li {
+#content .buzz li, .others li {
 	padding-bottom: 5px;
 }
-.buzz {
+#content .buzz {
 	background: transparent url('../images/title_buzz.gif') no-repeat top left;
 }
 .folder {
@@ -515,22 +482,6 @@ li.media-dossier {
 .super_event .time_super_event {
 	color:#999;
 }
-.super_event .comment a {
-	background: transparent url('../images/ico_reagir_super_event.gif') no-repeat 0 3px;
-	padding-left: 15px;
-}
-.super_event li.media-video {
-	background: transparent url('../images/ico_video_super_event.gif') no-repeat 0 2px;
-}
-.super_event li.media-press {
-	background: transparent url('../images/ico_article_super_event.gif') no-repeat 0 2px;
-}
-.super_event li.media-audio {
-	background: transparent url('../images/ico_audio_super_event.gif') no-repeat 0 2px;
-}
-.super_event li.media-folder {
-	background: transparent url('../images/ico_galerie_super_event.gif') no-repeat 0 2px;
-}
 
 /* ---------------------------- 2.4 Colonne 02 milieu ------------------------------- */
 
@@ -555,7 +506,7 @@ li.media-dossier {
 	float: left;
 	width: 21px;
 	height: 85px;
-	text-indent: -999em;
+	text-indent: -9999em;
 }
 .info-region .item span {
     color: #B3B3B3;
@@ -576,6 +527,9 @@ li.media-dossier {
 }
 .info-region .item h2 a {
 	font-weight: 900;
+}
+.pane-flowmix-titres-sp {
+	margin-bottom:5px;
 }
 
 /* en page d'accueil */ 
@@ -649,7 +603,7 @@ li.media-dossier {
 	background: url("../images/title_mons.gif") no-repeat scroll 0 0 transparent;
 	width:290px;
 	height:23px;
-	text-indent:-999px;
+	text-indent:-9999px;
 }
 
 /* ------------------------------ 2.4.02 Bloc medias ------------------------------- */
@@ -1116,13 +1070,7 @@ table.foot {
 
 div#imu_nosclubs {
     float: left;
-    height: 254px;
     margin-bottom: 10px;
-    width: 300px;
-}
-/*div#imu_nosclubs {
-	width:300px;
-	height:260px; pour 4 clubs */
 }
 div#imu_nosclubs img {
     float: left;
@@ -1136,6 +1084,46 @@ div#imu_nosclubs img {
 }
 .bloc-fb iframe {
 	display:block;
+}
+#global .bloc-fb h2 {
+	background: url('../images/bg_title_fb.gif') no-repeat left top;
+    color: white;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 3px 10px;
+}
+#global .bloc-fb h2.too_long {
+	background: url('../images/bg_title_fb_too_long.gif') no-repeat left top;
+}
+#global .bloc-fb h2 a {
+    color: white;
+}
+.bloc-fb  .animateur_fb {
+	width: 266px;
+	height: 27px;
+	line-height: 27px;
+	padding-left: 34px;
+}
+.bloc-fb .fb_LM .animateur_fb {
+	background: url('../images/bg_animateur_fb_LM.png') no-repeat 0 0;
+}
+.bloc-fb .fb_LG .animateur_fb {
+	background: url('../images/bg_animateur_fb_LG.png') no-repeat 0 0;
+}
+.bloc-fb .fb_LP .animateur_fb {
+	background: url('../images/bg_animateur_fb_LP.png') no-repeat 0 0;
+}
+.bloc-fb .fb_NE .animateur_fb {
+	background: url('../images/bg_animateur_fb_NE.png') no-repeat 0 0;
+}
+.bloc-fb .fb_LC .animateur_fb {
+	background: url('../images/bg_animateur_fb_LC.png') no-repeat 0 0;
+}
+.bloc-fb .fb_SI .animateur_fb {
+	background: url('../images/bg_animateur_fb_SI.png') no-repeat 0 0;
+}
+.bloc-fb  .animateur_fb a {
+	color:#036;
 }
 
 /* -------------------------- 2.4.10 Widget en mémoire ------------------------------ */
@@ -1225,6 +1213,15 @@ div#imu_nosclubs img {
 	margin-top: 6px;
 	padding-left: 7px;
 	width: 258px;
+}
+
+/* --------------------- 2.4.11 Blocs résultats sportifs Idalgo --------------------- */
+
+.bloc_idalgo {
+	border:1px solid #CCCCCC;
+	background: #edeff2;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f7f8fa), to(#e6e9ed));
+	background: -moz-linear-gradient(top, #f7f8fa, #e6e9ed);
 }
 
 /* ----------------------------- 2.5 Colonne 03 droite ------------------------------ */
@@ -1418,7 +1415,180 @@ div#imu_nosclubs img {
 	display:block;
 }
 
+/* ------------------------------- 2.6 Liens typés ---------------------------------- */
 
+li.arrow {
+	background: url('../images/ico_arrow_transparent.gif') no-repeat 0 5px;
+	padding: 0 0 4px 8px;
+	line-height:14px;
+}
+
+/* ---------------------------------- 2.6.1 unes ------------------------------------ */
+
+.comment a {
+	background: transparent url('../images/ico_reagir_transparent.gif') no-repeat 0 3px;
+	padding-left: 15px;
+}
+.article ul {
+	clear: both;
+	padding-top: 5px;
+}
+li.media-video, li.media-press, li.media-audio, li.media-photo, li.media-pool, li.media-dossier {
+	padding: 0 0 4px 17px;
+	line-height:14px;
+}
+
+/* ---------------------------- 2.6.1.1 unes classiques ------------------------------ */
+
+.article li.media-press {
+	background: transparent url('../images/ico_art1_article.gif') no-repeat 0 2px;
+}
+.article li.media-video {
+	background: transparent url('../images/ico_art1_video.gif') no-repeat 0 2px;
+}
+.article li.media-audio {
+	background: transparent url('../images/ico_art1_audio.gif') no-repeat 0 2px;
+}
+.article li.media-photo {
+	background: transparent url('../images/ico_art1_photo.gif') no-repeat 0 2px;
+}
+.article li.media-pool {
+	background: transparent url('../images/ico_art1_pool.gif') no-repeat 0 2px;
+}
+.article li.media-dossier {
+    background: transparent url("../images/ico_dossier.png") no-repeat scroll 0 1px;
+	padding: 2px 0 4px 23px;
+	line-height:14px;
+}
+.article li.media-live {
+	background: transparent url('../images/ico_live.png') no-repeat 0 0;
+	line-height:14px;
+	padding: 0 0 4px 27px;
+}
+
+/* package */
+
+.article.media-photo span, .article.media-pool span {
+    background: none;
+    padding-left: 0;
+}
+.article.media-photo p.fil_ariane, .article.media-pool p.fil_ariane {
+    margin-top: -5px;
+    padding: 5px 0 5px 26px;
+}
+.article.media-photo h2, .article.media-pool h2 {
+    padding: 0 0 5px;
+}
+.article.media-photo .time_une, .article.media-pool .time_une {
+    margin-top: 5px;
+}
+.article.media-photo p.fil_ariane {
+	background: transparent url('../images/ico_une_pack_gallery.png') no-repeat 0 2px;
+}
+.article.media-pool p.fil_ariane {
+	background: transparent url('../images/ico_une_pack_pool.png') no-repeat 0 0;
+}
+
+
+/* --------------------------- 2.6.1.2 Unes Super event  ----------------------------- */
+
+.super_event .comment a {
+	background: transparent url('../images/ico_super_event_reagir.gif') no-repeat 0 3px;
+	padding-left: 15px;
+}
+.super_event li.media-press {
+	background: transparent url('../images/ico_super_event_article.gif') no-repeat 0 2px;
+}
+.super_event li.media-video {
+	background: transparent url('../images/ico_super_event_video.gif') no-repeat 0 2px;
+}
+.super_event li.media-audio {
+	background: transparent url('../images/ico_super_event_audio.gif') no-repeat 0 2px;
+}
+.super_event li.media-photo {
+	background: transparent url('../images/ico_super_event_photo.gif') no-repeat 0 2px;
+}
+.super_event li.media-dossier {
+	background: transparent url('../images/ico_super_event_dossier.gif') no-repeat 0 2px;
+}
+.super_event li.media-pool {
+	background: transparent url('../images/ico_super_event_pool.gif') no-repeat 0 2px;
+}
+.super_event li.media-live {
+	background: transparent url('../images/ico_live.png') no-repeat 0 0;
+	line-height:14px;
+	padding: 0 0 4px 27px;
+}
+
+/* ---------------------------- 2.6.2 Unes régionales ------------------------------- */
+
+.article2 li.media-press {
+	background: url('../images/bg_art2_ico_article.png') no-repeat right center;
+}
+.article2 li.media-video, .article2 li.media-audio, .article2 li.media-photo, .article2 li.media-dossier, .article2 li.media-pool {
+	background: url('../images/bg_art2_ico.png') no-repeat right center;
+}
+.article2 li.media-press a, .article2 li.media-video a, .article2 li.media-audio a, .article2 li.media-photo a, .article2 li.media-dossier a, .article2 li.media-pool a {
+	display:block;
+	padding: 0 5px 0 20px;
+	color:#FFF !important;
+	text-decoration:none;
+	height:18px;
+	line-height:18px;
+}
+.article2 li.media-press a {
+	background: url('../images/ico_art2_article.png') no-repeat left top;
+}
+.article2 li.media-video a {
+	background: url('../images/ico_art2_video.png') no-repeat left top;
+}
+.article2 li.media-audio a {
+	background: url('../images/ico_art2_audio.png') no-repeat left top;
+}
+.article2 li.media-photo a {
+	background: url('../images/ico_art2_photo.png') no-repeat left top;
+}
+.article2 li.media-dossier a {
+	background: url('../images/ico_art2_dossier.png') no-repeat left top;
+}
+.article2 li.media-pool a {
+	background: url('../images/ico_art2_pool.png') no-repeat left top;
+}
+.article2 li.media-live a {
+	background: url('../images/ico_art2_live.png') no-repeat left top;
+	display:block;
+	width:27px;
+	height:23px;
+}
+
+/* -------------------------------- 2.6.3 articles ----------------------------------- */
+
+.media-press span, .media-video span, .media-audio span, .media-photo span, .media-pool span {
+	padding-left:16px;
+}
+.media-press span {
+	background: transparent url('../images/ico_art1_article.gif') no-repeat 0 3px;
+}
+.media-video span {
+	background: transparent url('../images/ico_art1_video.gif') no-repeat 0 3px;
+}
+.media-audio span {
+	background: transparent url('../images/ico_art1_audio.gif') no-repeat 0 3px;
+}
+.media-photo span {
+	background: transparent url('../images/ico_art1_photo.gif') no-repeat 0 3px;
+}
+.media-pool span {
+	background: transparent url('../images/ico_art1_pool.gif') no-repeat 0 3px;
+}
+.media-dossier span {
+    background: transparent url("../images/ico_dossier.png") no-repeat 0 1px;
+	padding-left:23px;
+}
+.media-live span {
+	background: transparent url('../images/ico_live.png') no-repeat 0 1px;
+	padding-left:28px;
+}
 
 /* ----------------------------------- 3. Bottom ------------------------------------ */
 
@@ -1485,7 +1655,7 @@ div#imu_nosclubs img {
 	display: block;
 }
 .sitesrossel h2 a {
-	text-indent: -999em;
+	text-indent: -9999em;
 	display: block;
 	height: 23px;
 	width: 223px;
@@ -1514,8 +1684,8 @@ div#imu_nosclubs img {
 .sitesrossel.starnews h2 a {
 	background:url('../images/starnews.gif') no-repeat;
 }
-.sitesrossel.regionsjobs h2 a {
-	background:url('../images/regionsjob.gif') no-repeat;
+.sitesrossel.jobsregions h2 a {
+	background:url('../images/jobsregions.gif') no-repeat;
 }
 .sitesrossel ul {
 	background: url('../images/bg_sitesrossel.gif') bottom;
@@ -1801,15 +1971,10 @@ h3.Con_QuestText {
 /* ---------------------------------- 4.2 Politique ---------------------------------- */
 
 #pol_indiscretions h2 {
-    background: url("../images/bg_title_indiscretions.gif") no-repeat scroll 0 0 #000;
+    background: url('../images/bg_title_indiscretions.gif') no-repeat scroll 0 0 #000;
 }
 #pol_opinions h2 {
-    background: url("../images/bg_title_opinions.gif") no-repeat scroll 0 0 #000;
-}
-.couleurs_pol h2 {
-	text-indent: -999em;
-	height:23px;
-	padding:0;
+    background: url('../images/bg_title_opinions.gif') no-repeat scroll 0 0 #000;
 }
 
 /* ---------------------------- 4.3 Toutes les régions ------------------------------- */
@@ -1923,41 +2088,6 @@ h3.Con_QuestText {
 	margin:7px 0 0 5px;
 	color: #999;
 }
-.article2 li.media-press {
-	background: url('../images/bg_art2_ico_article.png') no-repeat right center;
-}
-.article2 li.media-video, .article2 li.media-audio, .article2 li.media-dossier, .article2 li.media-photo {
-	background: url('../images/bg_art2_ico.png') no-repeat right center;
-}
-.article2 li.media-video a, .article2 li.media-audio a, .article2 li.media-dossier a, .article2 li.media-photo a, .article2 li.media-press a {
-	display:block;
-	padding: 0 5px 0 20px;
-	color:#FFF !important;
-	text-decoration:none;
-	height:18px;
-	line-height:18px;
-}
-.article2 li.media-press a {
-	background: url('../images/ico_art2_article.png') no-repeat left center;
-}
-.article2 li.media-video a {
-	background: url('../images/ico_art2_video.png') no-repeat left center;
-}
-.article2 li.media-audio a {
-	background: url('../images/ico_art2_audio.png') no-repeat left center;
-}
-.article2 li.media-dossier a {
-	background: url('../images/ico_art2_dossier.png') no-repeat left center;
-}
-.article2 li.media-photo a {
-	background: url('../images/ico_art2_photo.png') no-repeat left center;
-}
-.article2 li.media-live a {
-	background: url('../images/ico_art2_live.png') no-repeat left top;
-	display:block;
-	width:27px;
-	height:23px;
-}
 .article2 li.comment {
 	float:right;
 	padding-right:5px;
@@ -1971,7 +2101,7 @@ h3.Con_QuestText {
 	padding:0;
 	text-align:center;
 	text-decoration:none;
-	font-size:13px
+	line-height:17px;
 }
 .article2 li.comment img {
 	margin: 4px 0 0;

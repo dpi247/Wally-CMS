@@ -22,7 +22,6 @@ $theme_path = drupal_get_path('theme', 'wallydemo');
 <?php print $scripts ?>
 </head>
 <body class="<?php print $variables['body_classes']; ?>">
-<?php print $SPMetriweb; ?>
 <div id="splash">
    	<div id="header">
     	<a href="javascript:document.location.href = LireCookie('splash_active');"><img src="<?php print $theme_path ?>/images/splash-header.gif" width="630" height="61" alt="" /></a>
@@ -34,7 +33,7 @@ $theme_path = drupal_get_path('theme', 'wallydemo');
 		</script>
   	</div>  	
   	<div id="footer">    
-	 	<p><a class="entrance" href="javascript:document.location.href = LireCookie('splash_active');">Entrez</a><br />avec <a href="http://www.rosseladvertising.be/online/fr/index.php" title="http://www.rosseladvertising.be/online/fr/index.php">Rossel Advertising</a></p>
+	 	<p><a class="entrance" href="javascript:document.location.href = LireCookie('splash_active');">Entrez</a><br />avec <a href="http://www.rosseladvertising.be/fr/corporate/" title="http://www.rosseladvertising.be/fr/corporate/">Rossel Advertising</a></p>
   	</div>    
 </div>
 </body>

@@ -142,7 +142,7 @@ foreach ($feed as $item){
   $html .= "<h1><a href=\"".$destination_path."\" title=\"Aller vers ".$destination_name."\" target=\"_blank\">".$destination_name."</a></h1>";  
   $html .= "<a href=\"".$node_path."\" target=\"_blank\">";
   if($photo == TRUE){ 
-	$photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+	$photoObject_img = theme('imagecache', 'une_medium_127x85', $photoObject_path, $photoObject_summary, $photoObject_summary);
 			} 
 		else { 
 	$photoObject_img = "<img src=\"".$theme_path."/images/default_pic.png\" width=\"127\" height=\"85\" />";

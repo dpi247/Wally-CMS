@@ -46,7 +46,7 @@ body {
 	margin:0 auto;
 	border: 1px solid #d9d9d9;
 	border-top:0 none;
-	background:url("http://studio.sudinfo.be/_sandbox/_services/maintenance/cle_plate.png") no-repeat scroll 511px 17px transparent;
+	background:url("http://studio.sudinfo.be/_sandbox/_services/maintenance/cle_plate.png") no-repeat scroll 510px 20px transparent;
 }
 #maintenance #header {
 	background:#d9d9d9;

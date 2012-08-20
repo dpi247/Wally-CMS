@@ -1,5 +1,5 @@
 <?php 
-
+if (function_exists('sptrafic_getCachedData')) {
   $my_data = sptrafic_getCachedData('trafic_header_bloc');
   
 ?>
@@ -7,4 +7,5 @@
 <?php 
 //unset variables
 unset($my_data);
+}
 ?>

@@ -72,12 +72,12 @@ $title = $mainstory->title;
 
 
 <div class="octetFun">
-  <a href="<?php print $node_path; ?>">
+  <a href="<?php print $node_url; ?>">
     <h3><?php print wallydemo_check_plain($title); ?></h3>
   </a>
   <?php if($photo == TRUE){ ?>
-  <a href="<?php print $node_path; ?>">
-     <?php $photoObject_img = theme('imagecache', 'divers_160x107', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+  <a href="<?php print $node_url; ?>">
+     <?php $photoObject_img = theme('imagecache', 'divers_160x107', $photoObject_path, $photoObject_summary, $photoObject_summary);
      print($photoObject_img); ?>
   </a>
   <?php } 

@@ -111,57 +111,60 @@ $date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'date_courte');
 $strapline_length = 0;
 $strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 
-$countarticle=0;
-$countdossier=0;
-foreach($node->field_linkedobjects_nodes as $f){
-  //dsm($f->field_links_list_nodes);
-  foreach($f->field_links_list_nodes as $g) {
-    //dsm($g);
+/* Nombres d'articles et d'objets liés */
+
+/*$linkedobjects = count($node->field_linkedobjects_nodes[0]->field_links_list);
+if($linkedobjects > 0 ){
+    $countlinkedobjects = "<li class=\"media-press\"><a href=\"/".$node_path."\">".$linkedobjects."</a></li>";
+}    */
+
+$countarticle = 0;
+$countdossier = 0;
+foreach ($node->field_linkedobjects_nodes as $f){
+  foreach ($f->field_links_list_nodes as $g) {
     $value = $g->field_internal_link_nodes[0]->field_packagelayout[0]['value'];
-    //dsm($value);
     $valuearticle = taxonomy_get_term($value);
-    if($valuearticle->name=='Article Wiki'){
+    if ($valuearticle->name == 'Article Wiki'){
       $countdossier++;
-    } 
-    else {
+    } else {
       $countarticle++;
     }   
   }
-
 }
-//dsm('ZZZZ = '.$countarticle.' - '.$countdossier);
-if($countarticle > 0) $countlinkedobjects = "<li class=\"media-press\"><a href=\"".$node_path."\">".$countarticle."</a></li>";
+$embeds = wallydemo_bracket_embeddedObjects_from_package($node);
+$countarticle += count($embeds['package']);
+
+if($countarticle > 0) $countlinkedobjects = "<li class=\"media-press\"><a href=\"/".$node_path."\">".$countarticle."</a></li>";
 else $countarticle = "";
-if($countdossier > 0)$countlinkedossier = "<li class=\"media-dossier\"><a href=\"".$node_path."\">".$countdossier."</a></li>";
+if($countdossier > 0)$countlinkedossier = "<li class=\"media-dossier\"><a href=\"/".$node_path."\">".$countdossier."</a></li>";
 else $countdossier = "";
 
-$embeds = wallydemo_bracket_embeddedObjects_from_package($node);
 
 $videosobjects = count($embeds[videos]);
 if($videosobjects > 0 ){
-    $countvideosobjects = "<li class=\"media-video\"><a href=\"".$node_path."\">".$videosobjects."</a></li>";
+    $countvideosobjects = "<li class=\"media-video\"><a href=\"/".$node_path."\">".$videosobjects."</a></li>";
 }    
 $photosobjects = count($embeds[photos]);
 if($photosobjects > 1 ){
-    $countphotosobjects = "<li class=\"media-photo\"><a href=\"".$node_path."\">".$photosobjects."</a></li>";
+    $countphotosobjects = "<li class=\"media-photo\"><a href=\"/".$node_path."\">".$photosobjects."</a></li>";
 }    
 $audiosobjects = count($embeds[audios]);
 if($audiosobjects > 0 ){
-    $countaudiosobjects = "<li class=\"media-audio\"><a href=\"".$node_path."\">".$audiosobjects."</a></li>";
+    $countaudiosobjects = "<li class=\"media-audio\"><a href=\"/".$node_path."\">".$audiosobjects."</a></li>";
 }
 $type_digital = $embeds ['digital'][0] -> field_object3rdparty[0]['provider'];
 $digitalobjects = count($type_digital);
 if(($digitalobjects > 0 )&&($type_digital == "coveritlive")){
-    $countdigitalobjects = "<li class=\"media-live\"><a href=\"".$node_path."\"></a></li>";
+    $countdigitalobjects = "<li class=\"media-live\"><a href=\"/".$node_path."\"></a></li>";
 
 }
 
 ?>
 <div class="article2 gd2 clearfix">
 
-  <a href="<?php print $node_path; ?>">
+  <a href="<?php print $node_url; ?>">
   <?php if($photo == TRUE){ 
-  $photoObject_img = theme('imagecache', 'article_300x200', $photoObject_filename, $photoObject_summary, $photoObject_summary);
+  $photoObject_img = theme('imagecache', 'article_300x200', $photoObject_path, $photoObject_summary, $photoObject_summary);
   			} 
 		else { 
   $photoObject_img = "<img src=\"".$theme_path."/images/default_pic.png\" width=\"300\" height=\"200\" />";
@@ -173,7 +176,7 @@ if(($digitalobjects > 0 )&&($type_digital == "coveritlive")){
 
   
   
-   <h2><a href="<?php print $node_path; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
+   <h2><a href="<?php print $node_url; ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
         <ul>
           <?php print $countdigitalobjects; ?>
           <?php print $countlinkedossier; ?>
@@ -182,7 +185,7 @@ if(($digitalobjects > 0 )&&($type_digital == "coveritlive")){
           <?php print $countphotosobjects; ?>
           <?php print $countaudiosobjects; ?>
          <li class="time"><?php print $date_edition; ?></li>
-          <li class="comment"><a title="Commentez cet article !" href="<?php print $node_path; ?>#ancre_commentaires"><?php print $reagir; ?></a></li>
+          <li class="comment"><a title="Commentez cet article !" href="/<?php print check_url($node_path); ?>#ancre_commentaires"><?php print $reagir; ?></a></li>
         </ul>
 </div>
 

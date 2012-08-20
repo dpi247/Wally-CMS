@@ -19,6 +19,6 @@ print($sp_footer);
 ?>
 </p>
 <p class="rossel">
-  <a href="http://www.rosseladvertising.be/" target="_blank" title="Rossel Advertising"><img src="/<?php print $path; ?>/images/logos/rad.jpg" alt="Rossel Advertising" title="Rossel Advertising" width="150" height="72" border="0" />
+  <a href="http://www.rosseladvertising.be/" target="_blank" title="Rossel Advertising"><img src="/<?php print $path; ?>/images/logos/rad.gif" alt="Rossel Advertising" title="Rossel Advertising" width="167" height="55" border="0" />
   </a>
 </p>

@@ -15,6 +15,19 @@
  * to visit the Forward settings page to enable use of the new
  * template system.
  */
+$domain_url = $_SERVER["SERVER_NAME"];
+$domain = spdatastructure_getdomain($domain_url);
+$site_name = variable_get($domain.'_site_name', NULL);
+$site_url = variable_get($domain.'_site_url', NULL);
+$associated_brand = variable_get($domain.'_associated_brand', NULL);
+$path = drupal_get_path('theme', 'wallydemo');
+$my_data = _wallydemo_get_logo_data();
+if($my_data["default"] == 1){
+  $logo_src = $my_data["html_target"].'/'.$my_data["default_path"];
+}else{
+  $logo_src = $my_data["html_target"].'/'.$my_data["eve_path"];
+}
+$logo = "<img src=\"".$logo_src."\" alt=\"".$site_name."\" title=\"".$site_name."\">";
 ?>
 <html>
   <body>
@@ -22,7 +35,7 @@
       <thead>
         <tr>
           <td>
-            <h1 style="font-family:Arial,Helvetica,sans-serif; font-size:18px;"><a href="<?php print $site_url; ?>" title="<?php print $site_title; ?>"><?php print $logo; ?> <?php print $site_name; ?></a></h1>
+            <h1 style="font-family:Arial,Helvetica,sans-serif; font-size:18px;"><a href="<?php print $site_url; ?>" title="<?php print $associated_brand; ?>"><?php print $logo; ?></a></h1>
           </td>
         </tr>
       </thead>
