@@ -39,7 +39,7 @@ $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
  * 
  */ 
 $date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
-$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._custom_sudpresse_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
+$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._wallydemo_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
 $date_edition .= "</p>";
 
 $nb_comment = $node->comment_count;

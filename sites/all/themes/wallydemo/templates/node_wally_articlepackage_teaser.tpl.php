@@ -79,6 +79,13 @@ $node_path = $aliases[0];
  */
 $theme_path = drupal_get_path('theme', 'wallydemo');
 
+if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
+  $editorialupdatedate = strtotime($field_editorialupdatedate);
+} else {
+  $field_editorialupdatedate=FALSE;
+}
+
 /*  
  * Récupération de la date de publication du package -> $node_publi_date
  */
@@ -92,9 +99,9 @@ $node_publi_date = strtotime($node->field_publicationdate[0]['value']);
  * 'default' -> 'publié le 26/05 à 15h22'
  * 
  */ 
- 
-$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure') ."</p>";
- 
+$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
+$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._wallydemo_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
+$date_edition .= "</p>";
 
 /*
 * Récupération du mainstory
