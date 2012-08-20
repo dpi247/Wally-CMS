@@ -213,7 +213,7 @@ if (count($links) > 0 | count($embeds['videos']) > 0 | count($embeds['audios']) 
  * Génération du breadcrumb
  */
 $breadcrumb = _wallydemo_breadcrumb_display($node->field_destinations[0]["tid"],'une');
-dsm($row_index);
+
 switch ($row_index) {
 	case 0:
 ?>
