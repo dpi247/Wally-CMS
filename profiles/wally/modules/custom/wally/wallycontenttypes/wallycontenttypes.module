@@ -292,14 +292,19 @@ function wallycontenttypes_wimprt_process_package($node, $dom, $log, $op, $impor
  *  Implémentation du hook_preprocess_page(); 
  */
 function wallycontenttypes_preprocess_page(&$variables) {
-  $suggestion = array(); 
+  $suggestion = array();
 
   // For all Nodes types with a destination field.
   if (isset($variables['node']->field_destinations) && false) {
     $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'page'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
-} 
+  
+  $menu_item = menu_get_item();
+  if ($menu_item['page_callback'] == 'page_manager_page_execute') {
+    array_unshift($variables['template_files'], 'page-'.$menu_item['page_arguments'][0]);
+  }
+}
 
 /**
  *  Implémentation du hook_preprocess_node(); 
