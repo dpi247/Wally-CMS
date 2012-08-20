@@ -2132,6 +2132,7 @@ function wallydemo_preprocess_node(&$vars) {
       $node->field_editorialupdatedate[0] = $node->field_publicationdate[0];
     }
     $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
+dsm($node);
     $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
     $form_date = unserialize(serialize($form_date));
     $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
