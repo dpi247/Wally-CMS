@@ -1,4 +1,99 @@
-<?php 
+<?php
+
+/**
+ * Process the packages element of a wally DomDocument object.
+ * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ * @param $importer
+ *   The importer object used to import
+ * @return
+ *   the log object
+ */
+function wallyimportpackageV15_process_packages($dom, &$log, $importer){
+  $return = array();
+  module_invoke_all('wimprt_process_packages', $dom, $log, 'before_process');
+  foreach($dom->getElementsByTagName('Package') as $package_element){
+    $return = wallyimportpackageV15_process_package($package_element, $log, $importer);
+  }
+  module_invoke_all('wimprt_process_packages', $dom, $log, 'after_process');
+  $return['log'] = $log;
+  return $return;
+}
+
+/**
+ * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
+ * 
+ * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
+ * if no specific function found nothing is done.
+ *
+ * @param $node$importer,
+ *   The Node that's being build
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ */
+function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback = NULL) {
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+  $callback = wimprt_set_callback($dom, $callback);
+  $node = wimprt_create_or_load($dom, $importer, 'package', $callback, $log);
+  $return = array();
+  //@todo: place in walymportlog module
+  if (variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process package: '.$dom->nodeName;
+  }
+
+  if (!isset($node->rejected) & !isset($node->wallymport_delete)){
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'before_process',$importer);
+
+    // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+    if (function_exists("wallyimportpackageV15_process_package_".$callback)){
+      call_user_func("wallyimportpackageV15_process_package_".$callback, &$node, $dom, &$log, $importer);
+    }
+
+    module_invoke_all('wimprt_process_package', $node, $dom, $log, 'after_process',$importer);
+    
+    drupal_alter('wimprt_package_after_process', $node);
+  }
+
+  if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
+    if ($importer->wallymport_preview) {
+      $node->preview=TRUE;
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
+
+      $prenode = new Prenode();
+      $prenode->ConvertNodeToPrenode($node);
+      $old_cache_name = $prenode->form_state['cache name'];
+      $fake_fs = array('cache name' => $old_cache_name);
+      prenode_delete($fake_fs);
+      $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
+      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode['DoNotPopulate'] = TRUE;
+
+      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name,'disabled');
+      $return['content'] = $content;
+    } elseif (isset($node->wallymport_delete)){
+      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
+    } else {
+      $node->wallymport_node = TRUE;
+      node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'postsave');
+    }
+  } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
+    wallycontenttypes_delete_orphans_objects($node);
+  }
+
+  $log['node'] = array('current' => $node,'next' => $log['node']);
+  
+  return $return;
+}
 
 /**
  * Process article package from DOM.
@@ -50,12 +145,6 @@ function wallyimportpackageV15_process_package_articlepackagetype(&$node, $dom_e
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -63,11 +152,17 @@ function wallyimportpackageV15_process_package_articlepackagetype(&$node, $dom_e
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
@@ -132,12 +227,6 @@ function wallyimportpackageV15_process_package_galleryPackageType(&$node, $dom_e
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -145,11 +234,17 @@ function wallyimportpackageV15_process_package_galleryPackageType(&$node, $dom_e
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
@@ -213,12 +308,6 @@ function wallyimportpackageV15_process_package_pollpackagetype(&$node, $dom_elem
       $node->status = 0;
     }
   }
-  if ($dom_element->hasAttribute("ForceLastUpdate")) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
-  } else {
-    $force_edit_update = FALSE;
-  }
   if ($dom_element->hasAttribute('Action')){
     $action = $dom_element->getAttribute('Action');
   } else {
@@ -226,11 +315,17 @@ function wallyimportpackageV15_process_package_pollpackagetype(&$node, $dom_elem
   }
   switch($action){
     case 'CreateReplace':
-    case 'Preview':
       $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       break;
+    case 'Preview':
     case 'CreateUpdate':
     case 'Update':
+      if ($dom_element->hasAttribute("ForceLastUpdate")) {
+        module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+        $force_edit_update = wallytoolbox_toboolean($dom_element->getAttributeNode("ForceLastUpdate")->value);
+      } else {
+        $force_edit_update = FALSE;
+      }
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
