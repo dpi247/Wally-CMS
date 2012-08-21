@@ -17,7 +17,7 @@ function wallyctools_views_plugins() {
     'display' => array(
       'redacblock' => array(
         'title' => t('Destination block'),
-        'help' => t('TODO....'),
+        'help' => t('View display used for the default redacblock, use this as a basis for custom destination views and redacblocks.'),
         'handler' => 'wallyctools_plugin_display_panel_pane',
         'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
         'theme path' => drupal_get_path('module', 'views') . '/theme',
