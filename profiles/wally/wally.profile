@@ -2,7 +2,7 @@
 /**
  * @file wally.profile
  * 
- * Wally installation profiles
+ * Wally installation profile
  */
 
 /**
