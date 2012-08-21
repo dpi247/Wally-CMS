@@ -141,6 +141,49 @@ function wallycontenttypes_theme_registry_alter(&$theme_registry) {
 }
 
 /**
+ * Implementation of hook_action_info().
+ */
+function wallycontenttypes_action_info() {
+  $actions = array(
+    'wallycontenttypes_publish_nodes' => array(
+      'type' => 'node',
+      'description' => t('Publish package'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks' => array(
+        'nodeapi' => array('presave'),
+        'comment' => array('insert', 'update'),
+      ),
+    ),
+    'wallycontenttypes_unpublish_nodes' => array(
+      'type' => 'node',
+      'description' => t('Unpublish package'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks' => array(
+        'nodeapi' => array('presave'),
+        'comment' => array('insert', 'update'),
+      ),
+    ),
+  );
+  return $actions;
+}
+
+function wallycontenttypes_publish_nodes(&$node, $context = array()) {
+  $node->status = 1;
+  if ($node->field_autopublish && $node->field_autopublish[0]['value'] == 'No') {
+    $node->field_autopublish[0]['value'] = 'Autopublish';
+  }
+}
+
+function wallycontenttypes_unpublish_nodes(&$node, $context = array()) {
+  $node->status = 0;
+  if ($node->field_autopublish && $node->field_autopublish[0]['value'] == 'Autopublish') {
+    $node->field_autopublish[0]['value'] = 'No';
+  }
+}
+
+/**
  * Implementation of hook_imagecache_actions().
  */
 function wallycontenttypes_imagecache_actions() {
