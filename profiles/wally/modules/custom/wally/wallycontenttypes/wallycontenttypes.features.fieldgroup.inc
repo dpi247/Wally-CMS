@@ -850,8 +850,9 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
     'weight' => '-2',
     'fields' => array(
-      '0' => 'field_summary',
-      '1' => 'field_links_list',
+      '0' => 'field_displayed_title',
+      '1' => 'field_summary',
+      '2' => 'field_links_list',
     ),
   );
 
