@@ -11,10 +11,9 @@ function wallyflowtonode_views_default_views() {
   $view->name = 'flow_to_node_queue';
   $view->description = 'Get latest unpublished nodes for a flow to node feed';
   $view->tag = 'Node queue for a flow to node feed';
-  $view->view_php = '';
   $view->base_table = 'node';
-  $view->is_cacheable = FALSE;
-  $view->api_version = 2;
+  $view->core = 0;
+  $view->api_version = '2';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('fields', array(
@@ -62,7 +61,7 @@ function wallyflowtonode_views_default_views() {
       'field' => 'field_externalreference_value',
       'validate_user_argument_type' => 'uid',
       'validate_user_roles' => array(
-        '2' => 0,
+        2 => 0,
       ),
       'relationship' => 'none',
       'default_options_div_prefix' => '',
@@ -89,16 +88,16 @@ function wallyflowtonode_views_default_views() {
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
-        '1' => 0,
-        '2' => 0,
-        '3' => 0,
-        '4' => 0,
-        '5' => 0,
-        '6' => 0,
-        '10' => 0,
-        '7' => 0,
-        '8' => 0,
-        '9' => 0,
+        1 => 0,
+        2 => 0,
+        3 => 0,
+        4 => 0,
+        5 => 0,
+        6 => 0,
+        10 => 0,
+        7 => 0,
+        8 => 0,
+        9 => 0,
       ),
       'validate_argument_type' => 'tid',
       'validate_argument_transform' => 0,
@@ -136,6 +135,7 @@ function wallyflowtonode_views_default_views() {
     'override' => 1,
     'sticky' => 0,
     'order' => 'asc',
+    'summary' => '',
     'columns' => array(
       'title' => 'title',
       'field_publicationdate_value' => 'field_publicationdate_value',
@@ -152,54 +152,209 @@ function wallyflowtonode_views_default_views() {
     ),
     'default' => '-1',
     'execution_type' => '1',
+    'max_performance' => 0,
     'display_type' => '1',
-    'hide_select_all' => 0,
-    'skip_confirmation' => 0,
+    'hide_selector' => 0,
+    'preserve_selection' => 1,
     'display_result' => 1,
     'merge_single_action' => 1,
-    'selected_operations' => array(
-      'wallyflowtonode_publish_nodes' => 'wallyflowtonode_publish_nodes',
-      'wallyflowtonode_reject_nodes' => 'wallyflowtonode_reject_nodes',
-      'cckdestinations_batch_dest_add' => 0,
-      'wallyedit_node_operations_selector_action' => 0,
-      'cckdestinations_batch_dest_change' => 0,
-      'node_assign_owner_action' => 0,
-      'node_mass_update:a27b9efabcd054685a549378b174ad11' => 0,
-      'system_message_action' => 0,
-      'system_send_email_action' => 0,
-      'views_bulk_operations_ruleset_action_rules_set_1' => 0,
-      'views_bulk_operations_action' => 0,
-      'views_bulk_operations_script_action' => 0,
-      'flag_node_action' => 0,
-      'imagecache_flush_action' => 0,
-      'imagecache_generate_all_action' => 0,
-      'imagecache_generate_action' => 0,
-      'node_make_sticky_action' => 0,
-      'node_make_unsticky_action' => 0,
-      'node_mass_update:c4d3b28efb86fd703619a50b74d43794' => 0,
-      'views_bulk_operations_taxonomy_action' => 0,
-      'views_bulk_operations_fields_action' => 0,
-      'views_bulk_operations_argument_selector_action' => 0,
-      'node_promote_action' => 0,
-      'node_mass_update:14de7d028b4bffdf2b4a266562ca18ac' => 0,
-      'node_mass_update:9c585624b9b3af0b4687d5f97f35e047' => 0,
-      'node_publish_action' => 0,
-      'system_goto_action' => 0,
-      'emfield_operations_reload' => 0,
-      'cckdestinations_batch_dest_remove' => 0,
-      'node_unpromote_action' => 0,
-      'node_mass_update:8ce21b08bb8e773d10018b484fe4815e' => 0,
-      'node_save_action' => 0,
-      'views_bulk_operations_delete_node_action' => 0,
-      'node_mass_update:0ccad85c1ebe4c9ceada1aa64293b080' => 0,
-      'node_unpublish_action' => 0,
-      'node_unpublish_by_keyword_action' => 0,
-      'pathauto_node_update_alias_multiple:620e193b20ba9caa374fea9ca0ad38f0' => 0,
-    ),
-    'views_bulk_operations_fields_action' => array(
-      'php_code' => 0,
-      'display_fields' => array(
-        '_all_' => '_all_',
+    'operations' => array(
+      'cckdestinations_batch_dest_add' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallyedit_node_operations_selector_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'cckdestinations_batch_dest_change' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_assign_owner_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_delete_node_action' => array(
+        'selected' => 1,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-a27b9efabcd054685a549378b174ad11' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'system_message_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_script_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'imagecache_flush_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'imagecache_generate_all_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'imagecache_generate_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_make_sticky_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_make_unsticky_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-c4d3b28efb86fd703619a50b74d43794' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_content_taxonomy_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_fields_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+        'settings' => array(
+          'php_code' => 0,
+          'show_tokens' => 0,
+          'display_fields' => array(
+            '_all_' => '_all_',
+          ),
+        ),
+      ),
+      'views_bulk_operations_taxonomy_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'views_bulk_operations_argument_selector_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_promote_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-14de7d028b4bffdf2b4a266562ca18ac' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-9c585624b9b3af0b4687d5f97f35e047' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallyflowtonode_publish_nodes' => array(
+        'selected' => 1,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallycontenttypes_publish_nodes' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_publish_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'system_goto_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallyflowtonode_reject_nodes' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'emfield_operations_reload' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'cckdestinations_batch_dest_remove' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_unpromote_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-8ce21b08bb8e773d10018b484fe4815e' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_save_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'system_send_email_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_mass_update-0ccad85c1ebe4c9ceada1aa64293b080' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallycontenttypes_unpublish_nodes' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_unpublish_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'node_unpublish_by_keyword_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'pathauto_node_update_alias_multiple-620e193b20ba9caa374fea9ca0ad38f0' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
       ),
     ),
   ));

@@ -531,21 +531,31 @@ function cckdestinations_views_default_views() {
     'override' => 1,
     'sticky' => 0,
     'order' => 'asc',
+    'summary' => '',
     'columns' => array(
       'title' => 'title',
-      'field_publicationdate_value' => 'field_publicationdate_value',
       'field_destinations_aggregation' => 'field_destinations_aggregation',
+      'status' => 'status',
+      'changed' => 'changed',
+      'edit_node' => 'edit_node',
     ),
     'info' => array(
       'title' => array(
         'sortable' => 0,
         'separator' => '',
       ),
-      'field_publicationdate_value' => array(
+      'field_destinations_aggregation' => array(
+        'separator' => '',
+      ),
+      'status' => array(
         'sortable' => 0,
         'separator' => '',
       ),
-      'field_destinations_aggregation' => array(
+      'changed' => array(
+        'sortable' => 0,
+        'separator' => '',
+      ),
+      'edit_node' => array(
         'separator' => '',
       ),
     ),
@@ -560,11 +570,6 @@ function cckdestinations_views_default_views() {
     'operations' => array(
       'cckdestinations_batch_dest_add' => array(
         'selected' => 1,
-        'skip_confirmation' => 0,
-        'label' => '',
-      ),
-      'wallyedit_selector_action' => array(
-        'selected' => 0,
         'skip_confirmation' => 0,
         'label' => '',
       ),
@@ -676,6 +681,16 @@ function cckdestinations_views_default_views() {
         'label' => '',
       ),
       'node_mass_update-9c585624b9b3af0b4687d5f97f35e047' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallyflowtonode_publish_nodes' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallycontenttypes_publish_nodes' => array(
         'selected' => 1,
         'skip_confirmation' => 0,
         'label' => '',
@@ -700,6 +715,11 @@ function cckdestinations_views_default_views() {
         'skip_confirmation' => 0,
         'label' => '',
       ),
+      'cckdestinations_batch_dest_remove' => array(
+        'selected' => 1,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
       'node_unpromote_action' => array(
         'selected' => 0,
         'skip_confirmation' => 0,
@@ -721,6 +741,11 @@ function cckdestinations_views_default_views() {
         'label' => '',
       ),
       'node_mass_update-0ccad85c1ebe4c9ceada1aa64293b080' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
+      'wallycontenttypes_unpublish_nodes' => array(
         'selected' => 1,
         'skip_confirmation' => 0,
         'label' => '',
