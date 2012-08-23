@@ -712,6 +712,25 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
   return $defaults;
 }
 
+function wallyextra_flowmix_content_type_form_summary_form_validate(&$form, &$form_state) {
+  $values = $form_state['values'];
+
+  if (!is_numeric($values['maxitem_global'])) {
+    form_set_error('maxitem_global', t('The max item displayed field must be a number.'));
+  }
+
+  if ($values['maxitem_global'] <= 0) {
+    form_set_error('maxitem_global', t('The max item displayed field must be greater than 0.'));
+  }
+
+  if (!empty($values['url'])) {
+    $check_url = drupal_http_request($values['url'], array(), 'HEAD');
+    if ($check_url->code != 200) {
+      form_set_error('url', t('The URL doesn\'t respond.'));
+    }
+  }
+}
+
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
