@@ -404,38 +404,55 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
  * Implementation of hook_form_FORM_ID_alter()
  */
 function cckdestinations_form_taxonomy_form_term_alter(&$form, &$form_state) {
-  $dest_vid = variable_get('wallymport_destinationpath', 0);
-  
   $form['#validate'][] = 'cckdestinations_form_taxonomy_form_term_alter_validate';
 
-  if (isset($form['tid']) && $form['#vocabulary']['vid'] != $dest_vid) {
-    cckdestinations_form_election_form($form, $form_state, $dest_vid);
+  if (isset($form_state['confirm_delete'])) {
+    $term = $form['#term'];
+    if (isset($term['topic_destination']) && $term['topic_destination'] != 0) {
+      drupal_set_message(t('This term is linked to an elected destination term. Removal of this term will not delete the destination term but will break the election link.'), 'warning');
+    }
+  } else {
+    $dest_vid = variable_get('wallymport_destinationpath', 0);
+    if (isset($form['tid']) && $form['#vocabulary']['vid'] != $dest_vid) {
+      cckdestinations_form_election_form($form, $form_state, $dest_vid);
+    }
   }
 }
 
 function cckdestinations_form_taxonomy_form_term_alter_validate(&$form, &$form_state) {
   $values = &$form_state['values'];
-  
-  if (strstr($values['name'], '/')) {
-    form_set_error('name', t('The name of the taxonomy term can\'t contain any slashes ("/")'));
-  }
 
-  if ($values['op'] == $values['submit'] && isset($form['advanced']['election'])) {
-    $vocabulary = $form['#vocabulary'];
-    $term = $form['#term'];
-    if ($values['topic_destination']) {
-      $new_term = _cckdestinations_create_or_update_topic_destination($values, $term);
-      
-      /*if (is_array($new_term) && $values['recup_old']) {
-         $recup_tids = array($term['tid']);
-         if ($values['apply_to_child']) {
-           $childrens = taxonomy_get_children($term['tid']);
-           $recup_tids = array_merge($recup_tids, array_keys($childrens));
-         }
-       	_cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids);
-       }*/
-    } else {
-      _cckdestinations_remove_topic_destination($values, $vocabulary, $term);
+  if ($form_state['clicked_button']['#value'] == t('Delete')) {
+    if ($values['delete'] === TRUE) {
+      $term = $form['#term'];
+      if (isset($term['topic_destination']) && $term['topic_destination'] != 0) {
+        $elected_term = (array)taxonomy_get_term($term['topic_destination']);
+        $elected_term['topic_destination'] = 0;
+        taxonomy_save_term($elected_term);
+      }
+    }
+  } else {
+    if (strstr($values['name'], '/')) {
+      form_set_error('name', t('The name of the taxonomy term can\'t contain any slashes ("/")'));
+    }
+
+    if ($values['op'] == $values['submit'] && isset($form['advanced']['election'])) {
+      $vocabulary = $form['#vocabulary'];
+      $term = $form['#term'];
+      if ($values['topic_destination']) {
+        $new_term = _cckdestinations_create_or_update_topic_destination($values, $term);
+        
+        /*if (is_array($new_term) && $values['recup_old']) {
+           $recup_tids = array($term['tid']);
+           if ($values['apply_to_child']) {
+             $childrens = taxonomy_get_children($term['tid']);
+             $recup_tids = array_merge($recup_tids, array_keys($childrens));
+           }
+         	_cckdestinations_apply_topic_destination_to_nodes($new_term, $recup_tids);
+         }*/
+      } else {
+        _cckdestinations_remove_topic_destination($values, $vocabulary, $term);
+      }
     }
   }
 }
