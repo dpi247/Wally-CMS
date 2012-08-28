@@ -158,7 +158,7 @@ function wallytoolbox_cron() {
       $block['callback'] = unserialize($block['callback']);
     }
 
-    wallytoolbox_set_microtime_step('', FALSE, TRUE);
+    wallytoolbox_set_microtime_step('', FALSE, 'default',TRUE);
     $output = _wallytoolbox_process_block_refresh($block);
     $delta_t = wallytoolbox_set_microtime_step('', FALSE);
     $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
