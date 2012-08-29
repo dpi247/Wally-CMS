@@ -3,11 +3,17 @@ Drupal.behaviors.refreshPreview = function(context) {
 	$("#wallyedit_preview_container").bind("DOMFocusIn", function () {
 		buildList();
 	});
+	
+	
+
 };
 
 function buildList() {
+
 	$("#edit-select-preview").bind("change", function() {
-		$("#loading_preview").html('<img src="/misc/progress.gif" alt="<?php print t(\'Loading...\'); ?>">');
+		$("#loading_preview").show();
+		$("#prev_iframe").hide();
+
 
 		var temp = "";
 		if ($(this).val() != "disabled") {
@@ -22,6 +28,8 @@ function buildList() {
 	});
 
 	$("#prev_iframe").load(function() {
-		$("#loading_preview").html("");
+		$("#loading_preview").hide();
+		$("#prev_iframe").show();
+
 	});
 }
