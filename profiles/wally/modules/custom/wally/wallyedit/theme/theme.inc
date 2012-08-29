@@ -143,7 +143,7 @@ function _wallyedit_preprocess_no_display(&$subform, $struct) {
   $rendered_elem = 0;
   $children = element_children($subform);
   foreach ($children as $elem) {
-    if (in_array($elem, $struct)) {
+    if (in_array($elem, $struct, TRUE)) {
       $no_display .= drupal_render($subform[$elem]);
       $rendered_elem++;
     } else {
