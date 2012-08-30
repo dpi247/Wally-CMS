@@ -844,7 +844,7 @@ function wallyedit_node_operations() {
 function wallyedit_node_operations_selector_action($nodes, $context, $b, $c) {
   module_load_include('inc', 'wallyedit', 'wallyedit.forms');
   $cache_name = $context['arguments'][0];
-  $next_parents = explode('__', str_replace('-', '_', $context['arguments'][1]));
+  $next_parents = explode('__', str_replace('-', '_', $context['arguments'][2]));
 
   module_load_include('inc', 'wallyedit', 'includes/Prenode');
   $prenode = new Prenode($cache_name);
