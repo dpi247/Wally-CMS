@@ -31,7 +31,7 @@ function wallypressfilters_menu() {
     'access arguments' => array('administer custom press filter'),
     'description'      => t('Allows administrators to create custom press filter.'),
     'file'             => 'includes/wallypressfilters.admin.inc',
-    'weight'           => -3,
+    'weight'           => 0,
     'type'             => MENU_DEFAULT_LOCAL_TASK,
   );
   
@@ -42,6 +42,18 @@ function wallypressfilters_menu() {
     'access arguments' => array('administer custom press filter'),
     'description'      => t('Allows administrators to create custom press filter.'),
     'file'             => 'includes/wallypressfilters.admin.inc',
+    'weight'           => 1,
+    'type'             => MENU_LOCAL_TASK,
+  );
+  
+  $items['admin/wally/wallypressfilters/settings/import-export'] = array(
+    'title'            => t('Import/Export'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallypressfilters_form_config_import_export_form'),
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Import and export filters settings.'),
+    'file'             => 'includes/wallypressfilters.import_export.inc',
+    'weight'           => 2,
     'type'             => MENU_LOCAL_TASK,
   );
   
@@ -70,6 +82,15 @@ function wallypressfilters_menu() {
     'access callback'  => 1,
     'file'             => 'includes/wallypressfilters.mapping.inc',
     'type'             => MENU_CALLBACK,
+  );
+  
+  $items['wallypressfilters/config/export/%'] = array(
+      'title'            => t('Filters export'),
+      'page callback'    => 'wallypressfilters_config_export',
+      'page arguments'   => array(3),
+      'access callback'  => 1,
+      'file'             => 'includes/wallypressfilters.import_export.inc',
+      'type'             => MENU_CALLBACK,
   );
 
   return $items;
@@ -170,7 +191,25 @@ function wallypressfilters_getfilterbyid($fid){
 }
 
 /**
- * Return all tag of a filter
+ * Return all tags of a filter
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_getalltagsfromfilter($filter_name){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s'", $filter_name);
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Return default tags of a filter
  *
  * @param $filter_name
  *   The name of the filter
@@ -188,7 +227,7 @@ function wallypressfilters_gettagsfromfilter($filter_name){
 }
 
 /**
- * Return all tag of a filter and a format
+ * Return all tags of a filter and a format
  * 
  * If the tag does not exist for a format, it return the default tag
  *
@@ -240,6 +279,26 @@ function wallypressfilters_gettagbynameandfilter($tag, $filter){
 }
 
 /**
+ * Return tags objects from its name and its filter
+ *
+ * @param $name
+ *   The name of the tag
+ * @param $filter
+ * 	The filter of the tag
+ * @return
+ *   The tag object
+ */
+function wallypressfilters_gettagsbynameandfilter($tag, $filter){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s'", $tag, $filter);
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
  * Fonction de déclation du formulaire de préférences pour le remplacement des balises HErmes
  * On déclare quelles balises doivent etre remplacées par quelles balises html
  */
@@ -279,16 +338,18 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     foreach ($tags as $tag) {
       $tag_form = array(
     		'#type'        => 'fieldset',
-    		'#title'       => $tag->tag,
+    		'#title'       => $tag->description.' ('.$tag->tag.')',
     		'#collapsible' => TRUE,
     		'#collapsed'   => TRUE,
       );
 
       $settings = $tag->settings;
       $defaults = array(
-        'operation' => 'replace',
+        'operation' => 'strip',
         'html_tag' => '',
         'classes' => '',
+        'attributes' => '',
+        'convert_text' => '',
       );
       $defaults = array_merge($defaults, $settings);
 
@@ -299,6 +360,8 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
       );
       if ($tag->type == 'tag') {
         $types['strip_contents'] = t('Strip and Strip Contents');
+      } elseif ($tag->type == 'marker') {
+        $types['convert'] = t('Convert to text');
       }
       $tag_form['operation'] = array(
         '#type'          => 'select',
@@ -324,6 +387,29 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     		'#maxlength'     => 1024,
     		'#description'   => t('Choose the classes to add to the !tag_type. Seperate classes with a white space " "', array('!tag_type' => $tag->type)),
         '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
+        '#process'       => array('ctools_dependent_process'),
+      );
+
+      $tag_form['attributes'] = array(
+        '#type'          => 'textarea',
+        '#title'         => t('Attributes management'),
+        '#default_value' => $defaults['attributes'],
+        '#description'   => t('This area determine how the attributes of the original tag will be managed.<br>
+            The purpose of this management is to reuse attribute\'s values while changing their name.<br>
+            For example you could transform "<i><code>!ex_code_1</code></i>" into "<i><code>!ex_code_2</code></i>".<br>
+            Please enter one attribute per line, following schema "<i>attribute_name</i>|<i>new_attribute_name</i>" 
+            (in this example "foo|bar").',
+            array('!ex_code_1' => htmlentities('<cci:ex foo="val">'), '!ex_code_2' => htmlentities('<cci:ex bar="val">'))),
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
+        '#process'       => array('ctools_dependent_process'),
+      );
+
+      $tag_form['convert_text'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
+        '#default_value' => $defaults['convert_text'],
+        '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
         '#process'       => array('ctools_dependent_process'),
       );
 
@@ -371,7 +457,6 @@ function wallypressfilters_form_filter_settings_form_validate($form, &$form_stat
  * Submit of the form wallypressfilters_form_filter_settings_form
  */
 function wallypressfilters_form_filter_settings_form_submit($form, &$form_state){
-dsm($form_state['values']);
   foreach ($form_state['values']['filter'] as $filter_name => $filter){
     $filter_infos = wallypressfilters_getfilterbyname($filter_name);
     $format = $form_state['values']['filter'][$filter_name]['format'];
@@ -381,12 +466,15 @@ dsm($form_state['values']);
         foreach ($tags as $tag_id => $tag_infos){
           $obj = new stdClass();
           $obj->tag = $tag_infos['tag'];
+          $obj->description = $tag_infos['description'];
           $obj->filter = $filter_name;
           $obj->type = $type;
           $settings = array(
             'operation' => $tag_infos['operation'],
             'html_tag' => $tag_infos['html_tag'],
             'classes' => $tag_infos['classes'],
+            'attributes' => $tag_infos['attributes'],
+            'convert_text' => $tag_infos['convert_text'],
           );
           $obj->settings = $settings;
           if ($tag_infos['format'] == NULL){
@@ -437,7 +525,9 @@ function wallypressfilters_getallowedhtmltagforformat($format){
  * @return
  * The text replaced with the tags
  */
-function wallypressfilters_filter_process($fid, $text, $format){
+function wallypressfilters_filter_process($fid, $text, $format) {
+  module_load_include('inc', 'wallypressfilters', 'includes/wallypressfilters.filters');
+  
   $filter = wallypressfilters_getfilterbyid($fid);
   $tags = wallypressfilters_gettagsfromfilterandformat($filter->name, $format);
 
@@ -449,57 +539,5 @@ function wallypressfilters_filter_process($fid, $text, $format){
     }
   }
 
-  return $text;
-}
-
-/**
- * Replace tags with others
- * @param string $tag tag to replace
- * @param array $settings settings of this replacement
- * @param string $text text to process
- */
-function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
-  $classes = (isset($settings['classes']) && !empty($settings['classes'])) ? $settings['classes'] : '';
-  $new_tag = $settings['html_tag'];
-  
-  // First we need to check tag which already have some classes
-  $class_regex = '@<'.$tag.'(.*)class(\s?)=(\s?)"(.*)"(.*)>@U';
-  $class_matches = array();
-  preg_match_all($class_regex, $text, $class_matches);
-  $i = 0;
-  for ($i = 0; isset($class_matches[0][$i]); $i++) {
-    $replace_string = '<'.$new_tag.$class_matches[1][$i].'class="'.$class_matches[4][$i].' '.$classes.'"'.$class_matches[5][$i];
-    $replace_string .= $type == 'marker' ? '/>' : '>';
-    $text = str_replace($class_matches[0][$i], $replace_string, $text);
-  }
-  
-  // Then we manage the classless tags and the end tags
-  $replace_string = '<'.$new_tag.' class="'.$classes.'"${2}';
-  $replace_string .= $type == 'marker' ? '/>' : '>';
-  $text = preg_replace('@<'.$tag.'(.*)>@U', $replace_string, $text);
-  $text = preg_replace('@<\/'.$tag.'>@U', '</'.$new_tag.'>', $text);
-  
-  return $text;
-}
-
-/**
- * Remove tags and their content
- * @param string $tag tag to remove
- * @param array $settings settings of this replacement
- * @param string $text text to process
- */
-function wallypressfilters_strip_tags($tag, $settings, $text) {
-  $text = preg_replace('@<(\/)?'.$tag.'.*>@U', '', $text);
-  return $text;
-}
-
-/**
- * Remove tags' content
- * @param string $tag tag to remove
- * @param array $settings settings of this replacement
- * @param string $text text to process
- */
-function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
-  $text = preg_replace('@<'.$tag.'.*>.*<\/'.$tag.'>@', '', $text);
   return $text;
 }

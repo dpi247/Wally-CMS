@@ -31,14 +31,14 @@ function wallypressfilters_schema() {
       ),
       'name' => array(
         'description' => 'The name of the filter.',
-        'type' => 'text',
-        'size' => 'medium',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => TRUE,
       ),
       'description' => array(
         'description' => 'The description of the filter.',
-        'type' => 'text',
-        'size' => 'medium',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => FALSE,
       ),
     ),
@@ -56,8 +56,8 @@ function wallypressfilters_schema() {
       ),
       'filter' => array(
         'description' => 'The filter',
-        'type' => 'text',
-        'size' => 'medium',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => TRUE,
       ),
   	  'format' => array(
@@ -68,19 +68,25 @@ function wallypressfilters_schema() {
       ),
       'type' => array(
         'description' => 'Type of the tag',
-        'type' => 'text',
-        'size' => 'medium',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => TRUE,
       ),
       'tag' => array(
         'description' => 'The tag',
-        'type' => 'text',
-        'size' => 'medium',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => '255',
         'not null' => TRUE,
       ),
       'settings' => array(
         'type' => 'text',
-        'size' => 'big',
+        'size' => 'medium',
         'description' => 'Serialized settings',
         'serialize' => TRUE,
       ),
@@ -120,5 +126,34 @@ function wallypressfilters_update_6001() {
     drupal_write_record('wallypressfilters_tags', $new_filter, array('tid'));
   }
   
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Reinstall tables with new text settings and add column "description"
+ */
+function wallypressfilters_update_6002() {
+  $ret = array();
+
+  $db_filters = db_query('SELECT * FROM {wallypressfilters}');
+  $db_tags = db_query('SELECT * FROM {wallypressfilters_tags}');
+  
+  db_drop_table($ret, 'wallypressfilters');
+  db_drop_table($ret, 'wallypressfilters_tags');
+
+  $schema_filters = drupal_get_schema('wallypressfilters', TRUE);
+  $schema_tags = drupal_get_schema('wallypressfilters_tags', TRUE);
+
+  db_create_table($ret, 'wallypressfilters', $schema_filters);
+  db_create_table($ret, 'wallypressfilters_tags', $schema_tags);
+  
+  while($filter = db_fetch_array($db_filters)) {
+    drupal_write_record('wallypressfilters', $filter);
+  }
+  while($tag = db_fetch_array($db_tags)) {
+    drupal_write_record('wallypressfilters_tags', $tag);
+  }
+
   return $ret;
 }
