@@ -30,14 +30,21 @@ $(document).ready(function() {
 </head>
 <body>
 <?php 
-
-if(true){
-  $icon='<i class="icon-ok"></i>';
+if(isset($return['error']) and $return['error']){
+  $error=true;
+  
 }
-else{
+if($error){
   $icon='<i class="icon-remove"></i>';
   
 }
+else{
+  $icon='<i class="icon-ok"></i>';
+  
+}
+
+//icon is useless
+$icon="";
 ?>
 
 <!-- 
@@ -59,7 +66,32 @@ $("div.wallymport_result ul").toggle();
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="preview">  
-        <?php print $return['log']['content']?>
+      <?php if($error):?>
+          <div class="alert alert-error">
+           <p><strong><?php print t('An error occured during the preview process...')?></strong></p>
+           <dl class="dl-horizontal">
+             <dt><?php print t('Error message')?></dt>
+             <dd><?php print $return['error_msg'] ?></dd>
+           </dl>
+           
+           <p>
+             <?php print t('Please ensure the followings');?>:
+             <ul>
+               <li><?php print t('The content type of your package is correctly set (e.g: Article, Poll, Gallery).');?></li>
+               <li><?php print t('Your package contains at least one existing destination.');?></li>
+               <li><?php print t('Your package has a title.');?></li>
+               <li><?php print t('Your package has a text.');?></li>
+               <li><?php print t('If your package is a poll then the start&stop time and the mutiplicity of the poll are defined.');?></li>
+               </ul>
+           </p>
+           <p>
+           
+           <?php print t('You can also check the logs for more informations.')?>
+           </p>
+          </div>
+        <?php else:?>
+          <?php  print $return['log']['content']?>
+        <?php endif;?>
       </div>
       <div class="tab-pane" id="profile">
 
@@ -84,6 +116,7 @@ $("div.wallymport_result ul").toggle();
 			</div>
 		  </div>
         </div>
+        <!-- 
 		<div class="accordion-group">
 		  <div class="accordion-heading">
 		    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree"> Time </a>
@@ -94,6 +127,7 @@ $("div.wallymport_result ul").toggle();
 			</div>
 		  </div>
 	    </div>
+	     -->
 	  </div>
     </div>
   </div>

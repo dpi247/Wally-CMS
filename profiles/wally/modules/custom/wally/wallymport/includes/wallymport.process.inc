@@ -328,6 +328,8 @@ function wallymport_preview_form(&$form_state, $cache_name, $dest = 'disabled') 
  * 
  * */
 function wallymport_post($importer_name, $preview = FALSE) {
+  
+  
   $returns = NULL;
   $importer = wallymport_getimporterbyname($importer_name);
   if ($importer == NULL){
@@ -355,43 +357,42 @@ function wallymport_post($importer_name, $preview = FALSE) {
       $error_msg = 'There is no file in the POST';
       $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
+      
       $return = NULL;
       $xml_file = wallymport_preprocess_file($object_file, $importer, $return);
+      
+      
       $file_location = '';
       if ($xml_file != NULL & $return == NULL){
         //Proccess xml
         $return = wallymport_process_xmlfile($xml_file, $importer);
+        
+        
         $file_location = wallymport_movefiles($importer, $object_file, $xml_file, $return);
+        
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return['log']['node']);
       } else {
         $file_location = $importer->error_directory_path.'/'.$file->name;
       }
+      $return['date'] = time();
+      
       $returns[] = $return;
       wallymport_save_log($importer, time(), $file_location, serialize($return));
+      
     }
   }
 
   if ($preview) {
     drupal_set_header('Cache-Control', 'no-cache');
   }
-  $js = '<script>
-$("div.wallymport_result ul").hide();
-$("div#wallyedit_preview h1").hide();
-$("div.wallymport_result .logs").click(function(){
-  $("div.wallymport_result ul").toggle();
-});
-</script>';
-  $content = '';
-  foreach ($returns as $return){
-    $return['date'] = time();
-    $content .= theme('status_messages').theme('wallymport_logs', $return).$return['log']['content'].$js;
-  }
+
+  $content=theme('wallymport_post',$return);
   print $content;
 }
 
 /**
- * Process one file.
+ * Abstraction function to return the xml file independently if the importer use a zipped structure or not 
  * 
  * @param stdObject $file
  *   File object to be processed.
