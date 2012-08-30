@@ -1,4 +1,4 @@
-<h1><?php print t('Preview (Will be displayed in all the destination views of the page)'); ?>: </h1>
+
 
 <div id="prev_iframe_container">
   <div id="loading_preview" style="background-color:#000" >
