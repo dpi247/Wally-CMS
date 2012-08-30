@@ -152,39 +152,41 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
     $current_results = $this->view->result;
     $item = $preview_infos = $this->view->wallyedit_preview;
 
-    $defaults = array(
-      'sort_method' => 'absolute',
-      'behavior' => 'top',
-      'reserved' => 5,
-      'delta_t' => 1,
-    );
-    $dest_settings = wally_variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
-    $sort_method = $dest_settings['sort_method'];
+    if (!strstr($node->field_destinations[$preview_infos['key']]['rank'], 'DNC')) {
+      $defaults = array(
+        'sort_method' => 'absolute',
+        'behavior' => 'top',
+        'reserved' => 5,
+        'delta_t' => 1,
+      );
+      $dest_settings = wally_variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
+      $sort_method = $dest_settings['sort_method'];
+  
+      if ($sort_method == 'interval') {
+        $item['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * $dest_settings['delta_t']);
+      } else {
+        // Set params for this destination
+        $behavior = $dest_settings['behavior'];
+        $reserved = $dest_settings['reserved'] - $this->view->pager['offset'];
+        $temp_time_rank = 0;
+        $rank = $item['rank'];
 
-    if ($sort_method == 'interval') {
-      $item['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * $dest_settings['delta_t']);
-    } else {
-      // Set params for this destination
-      $behavior = $dest_settings['behavior'];
-      $reserved = $dest_settings['reserved'] - $this->view->pager['offset'];
-      $temp_time_rank = 0;
-      $rank = $item['rank'];
-
-      if ($rank == 0) {
-        if ($behavior == 'bottom') {
+        if ($rank == 0) {
+          if ($behavior == 'bottom') {
+            $rank = $reserved + 1;
+          } else {
+            $rank = 1;
+          }
+        } elseif ($rank > $reserved) {
           $rank = $reserved + 1;
-        } else {
-          $rank = 1;
         }
-      } elseif ($rank > $reserved) {
-        $rank = $reserved + 1;
+        --$rank;
+  
+        $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = isset($current_results[$rank - 1]) ? $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank : $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank + 30;
+        $item['time_rank'] = ($current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank) / 2;
       }
-      --$rank;
-
-      $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = isset($current_results[$rank - 1]) ? $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank : $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank + 30;
-      $item['time_rank'] = ($current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + $current_results[$rank]->node_data_field_destinations_field_destinations_time_rank) / 2;
+  
+      $node->field_destinations[$preview_infos['key']]['time_rank'] = $item['time_rank'];
     }
-
-    $node->field_destinations[$preview_infos['key']]['time_rank'] = $item['time_rank'];
   }
 }
