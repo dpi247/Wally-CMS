@@ -162,7 +162,7 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
       $update = array();
       $form_state['values']['wallypresstags'][$marker] = array(
         'tag' => $marker,
-        'description' => $description,
+        'description' => $description ? $description : '',
         'filter' => $form_state['values']['wallypressfilters']['name'],
         'type' => 'marker',
         'update' => $update,
@@ -191,7 +191,7 @@ function wallypressfilters_form_addfilter_form_submit($form, &$form_state){
         }
         $action = 'updated';
       } else {
-        $tag['setttings'] = _wallypressfilters_settings_defaults();
+        $tag['settings'] = _wallypressfilters_settings_defaults();
         $result = drupal_write_record('wallypressfilters_tags', $tag);
         $action = 'created';
       }
