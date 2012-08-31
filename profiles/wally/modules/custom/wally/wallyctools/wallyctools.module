@@ -102,6 +102,12 @@ function wallyctools_form_alter($form, $form_state, $form_id) {
   }
 }
 
+function wallyctools_form_page_manager_handler_rearrange_alter(&$form, $form_state) {
+  if ($form_state['task_name'] == 'term_view') {
+    $form['#submit'][] = 'wallyctools_page_manager_rearrange_submit';
+  }
+}
+
 /**
  * Implementation of hook_taxonomy.
  * force refresh of destinations tree cache after modification of a destination term
@@ -123,6 +129,14 @@ function wallyctools_taxonomy($op, $type, $array = NULL) {
  */
 function wallyctools_panels_display_save($display) {
   wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
+}
+
+/**
+ * Refresh destination tree after variants rearrangement
+ */
+function wallyctools_page_manager_rearrange_submit() {
+  db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", variable_get('wallymport_destinationpath', 0), $depth);
+  cache_clear_all('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, 'cache', TRUE);
 }
 
 /**
