@@ -327,7 +327,7 @@ function _wallyextra_flowmix_ctools_content_type($content) {
 function _wallyextra_flowmix_setcache($settings) {
   if (isset($settings['flow_obj'])) {
     $settings = (array)$settings['flow_obj'];
-    $cached_old_feed = cache_get($settings['caid']);
+    $cached_old_feed = cache_get($settings['caid'], 'cache_wally_blocks');
     if (is_object($cached_old_feed) && isset($cached_old_feed) && !empty($cached_old_feed) && $cached_old_feed->data) {
       $old_feed = $cached_old_feed->data;
     }
@@ -375,8 +375,8 @@ function _wallyextra_flowmix_setcache($settings) {
     $available_items = _wallyextra_flowmix_get_available_items_from_schema($schema_elem, $feed_array);
     $most_recent_index = _wallyextra_flowmix_get_most_recent_from_availables($available_items);
     $item = array_shift($feed_array[$most_recent_index]);
-    $item['__flow_id'] = $most_recent_index;
     if (isset($item)){
+      $item['__flow_id'] = $most_recent_index;
       array_push($feed, $item);
     }
   }
@@ -436,7 +436,7 @@ function _wallyextra_flowmix_create_array_from_uri($flow) {
       return $struct_array['Packages']['Package'];
     }
   }
-  
+
   return FALSE;
 }
 
@@ -710,6 +710,25 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
   $defaults->flows = array();
   
   return $defaults;
+}
+
+function wallyextra_flowmix_content_type_form_summary_form_validate(&$form, &$form_state) {
+  $values = $form_state['values'];
+
+  if (!is_numeric($values['maxitem_global'])) {
+    form_set_error('maxitem_global', t('The max item displayed field must be a number.'));
+  }
+
+  if ($values['maxitem_global'] <= 0) {
+    form_set_error('maxitem_global', t('The max item displayed field must be greater than 0.'));
+  }
+
+  if (!empty($values['url'])) {
+    $check_url = drupal_http_request($values['url'], array(), 'HEAD');
+    if ($check_url->code != 200) {
+      form_set_error('url', t('The URL doesn\'t respond.'));
+    }
+  }
 }
 
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
