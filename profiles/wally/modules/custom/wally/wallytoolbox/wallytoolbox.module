@@ -1148,6 +1148,16 @@ function _wallytoolbox_get_setting($settings, $name, $default = NULL) {
   return $setting;
 }
 
+function _wallytoolbox_set_setting(&$settings, $name, $value) {
+  $conf_keys = array_keys($settings);
+  if (is_object($settings[$conf_keys[0]])) {
+    $settings[$conf_keys[0]]->$name = $value;
+  } else {
+    $settings[$name] = $value;
+  }
+  return;
+}
+
 /**
  * @} End of "defgroup wallytoolbox".
  */
