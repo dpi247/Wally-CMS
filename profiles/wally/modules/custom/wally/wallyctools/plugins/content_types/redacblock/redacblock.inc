@@ -8,6 +8,8 @@
  * right in the config, so each custom content is unique.
  */
 
+ctools_include('context');
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
