@@ -181,6 +181,12 @@ function wallytoolbox_supercron_settings_form_validate($form, &$form_state) {
  */
 function wallytoolbox_supercron_settings_form_submit($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
+    if ($row['rule'] != _wallytoolbox_get_setting($row['settings'], 'wally_rule')) {
+      _wallytoolbox_set_setting($row['settings'], 'wally_rule', $row['rule']);
+      list($a, $b, $c, $d, $e, $pid) = explode(':', $row['cid']);
+      db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE pid = %d", serialize($row['settings']), $pid);
+    }
+    
     $row['rule'] *= 60;
     drupal_write_record('wallytoolbox_content_types_cache', $row, 'cid');
   }
