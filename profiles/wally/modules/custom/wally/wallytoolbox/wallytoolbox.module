@@ -124,11 +124,11 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
         '#type'             => 'textfield',
         '#title'            => t('Refresh time (minutes)'),
         '#description'      => t('This is the frequency with which the hook_refresh_block will be called for this content.'),
-        '#default_value'    => isset($form_state['conf']['wally_rule']) ? $form_state['conf']['wally_rule'] : 15,
+        '#default_value'    => _wallytoolbox_get_setting($form_state['conf'], 'wally_rule', 15),
       );
-      
+
       $form['#validate'][] = 'wallytoolbox_content_type_form_validate';
-      $form['#submit'][] = 'wallytoolbox_content_type_form_submit';
+      array_unshift($form['#submit'], 'wallytoolbox_content_type_form_submit');
     }
   }
 }
@@ -964,13 +964,11 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
             $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
             $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
-            $block['rule'] = $blocks_list[$block['cid']]['rule'];
             $block['callback'] = unserialize($blocks_list[$block['cid']]['callback']);
-          } else {
-            $wally_rule = _wallytoolbox_get_setting($config, 'wally_rule', 15);
-            $block['rule'] = 60*$wally_rule;
           }
 
+          $wally_rule = _wallytoolbox_get_setting($config, 'wally_rule', 15);
+          $block['rule'] = 60*$wally_rule;
           $block['settings'] = $config;
 
           drupal_write_record('wallytoolbox_content_types_cache', $block);
