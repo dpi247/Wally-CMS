@@ -375,6 +375,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
             $returns[0]['error_msg'][] = t('An error occured during file copy to done directory.');
           }
         }
+        $returns[0]['date'] = time();
         file_delete($xml_file);
       }
     }
@@ -383,18 +384,8 @@ function wallymport_post($importer_name, $preview = FALSE) {
   if ($preview) {
     drupal_set_header('Cache-Control', 'no-cache');
   }
-  $js = '<script>
-$("div.wallymport_result ul").hide();
-$("div#wallyedit_preview h1").hide();
-$("div.wallymport_result .logs").click(function(){
-  $("div.wallymport_result ul").toggle();
-});
-</script>';
-  $content = '';
-  foreach ($returns as $return) {
-    $return['date'] = time();
-    $content .= theme('status_messages').theme('wallymport_logs', $return).$return['content'].$js;
-  }
+
+  $content = theme('wallymport_post', $returns[0]);
   print $content;
 }
 
