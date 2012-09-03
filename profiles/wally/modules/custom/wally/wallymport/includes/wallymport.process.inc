@@ -367,6 +367,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
       } else {
         $file_location = $importer->error_directory_path.'/'.$file->name;
       }
+      $return['date'] = time();
       $returns[] = $return;
       wallymport_save_log($importer, time(), $file_location, serialize($return));
     }
@@ -375,23 +376,13 @@ function wallymport_post($importer_name, $preview = FALSE) {
   if ($preview) {
     drupal_set_header('Cache-Control', 'no-cache');
   }
-  $js = '<script>
-$("div.wallymport_result ul").hide();
-$("div#wallyedit_preview h1").hide();
-$("div.wallymport_result .logs").click(function(){
-  $("div.wallymport_result ul").toggle();
-});
-</script>';
-  $content = '';
-  foreach ($returns as $return){
-    $return['date'] = time();
-    $content .= theme('status_messages').theme('wallymport_logs', $return).$return['log']['content'].$js;
-  }
+
+  $content = theme('wallymport_post', $return);
   print $content;
 }
 
 /**
- * Process one file.
+ * Abstraction function to return the xml file independently if the importer use a zipped structure or not 
  * 
  * @param stdObject $file
  *   File object to be processed.
