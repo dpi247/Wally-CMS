@@ -147,44 +147,83 @@ function wallyctools_page_manager_rearrange_submit() {
  * we haven't got a chance to load that file before Drupal builds the
  * node portion of the theme registry.
  */
-function wallyctools_preprocess_views_view(&$vars){
-  //if redacblock is splitted we need to tweak the pager
-  if(isset($vars['view']->split_index_count) && !empty($vars['view']->split_index_count) && is_numeric($vars['view']->split_index_count) && ($vars['view']->split_index_count > 0)) {
-    global $pager_total;
-    $pager_total[$vars['view']->pager['element']] = (int)(($vars['view']->total_rows + $vars['view']->pager['offset'] + $view->split_index_count) / $vars['view']->split_total_count) + 1;
+function wallyctools_preprocess_views_view(&$vars) {
+  if (get_class($vars['view']) == 'redac_view') {
     $view = $vars['view'];
-    $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
-    $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
-    $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
+ 
+    //if redacblock is splitted we need to tweak the pager
+    if(isset($view->split_index_count) && !empty($view->split_index_count) && is_numeric($view->split_index_count) && ($view->split_index_count > 0)) {
+      global $pager_total;
+      $pager_total[$view->pager['element']] = (int)(($view->total_rows + $view->pager['offset'] + $view->split_index_count) / $view->split_total_count) + 1;
+      $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
+      $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
+      $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
+  
+      $funcs = views_theme_functions('views_view', $view, $view->display[$view->current_display]);
+  
+      $new_funcs = array();
+      foreach($funcs as $func) {
+        if($func != 'views_view__' && isset($view->split_index_count) && $view->split_index_count != '' && $view->split_index_count != NULL) {
+          $needle=str_replace('views_view','',$func);
+          if($needle=='') {
+            $new_funcs[]='views_view__splitted_redacblock';
+            if($vars['view']->split_index_count==1) {
+              $new_funcs[]='views_view__splitted_redacblock__first';
+            }
+            if($vars['view']->split_index_count==$vars['view']->split_total_count) {
+              $new_funcs[]='views_view__splitted_redacblock__last';
+            }
+          } else {
+            $new_funcs[]='views_view__splitted_redacblock'.$needle;
+            if($vars['view']->split_index_count==1) {
+              $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
+            }
+            if($vars['view']->split_index_count==$vars['view']->split_total_count) {
+              $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
+            }
+          }
+        }
+      }
+  
+      $result = array_merge($new_funcs, $funcs);
+      $vars['template_files'] = array_merge($result, $vars['template_files']);
+    }
 
-    $funcs = views_theme_functions('views_view', $vars['view'], $vars['view']->display[$vars['view']->current_display]);
+    // Add reorder link
+    if (user_access('administer nodes')) {
+      $handlers = $view->display_handler->handlers;
+      foreach($handlers['argument'] as $key => $value){
+        if($key == 'field_destinations_tid') {
+          $destination_tid = $value->value[0];
+          break;
+        }
+      }
+      if ($destination_tid) {
+        foreach($handlers['filter'] as $key => $value) {
+          if($key == 'field_destinations_target') {
+            $target = $value->value;
+            if (is_array($target)) {
+              $target = $target[0];
+            }
+            break;
+          }
+        }
+        if ($target) {
+          foreach ($view->argument as $arg_name => $argument) {
+            if (strstr($arg_name, 'field_destination')) {
+              $vars['admin_links_raw'][] = array(
+                'title' => t('Reorder'),
+                'alt' => t('Reorder the view'),
+                'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
+              );
 
-    $new_funcs = array();
-    foreach($funcs as $func) {
-      if($func != 'views_view__' && isset($vars['view']->split_index_count) && $vars['view']->split_index_count != '' && $vars['view']->split_index_count != NULL) {
-        $needle=str_replace('views_view','',$func);
-        if($needle=='') {
-          $new_funcs[]='views_view__splitted_redacblock';
-          if($vars['view']->split_index_count==1) {
-            $new_funcs[]='views_view__splitted_redacblock__first';
-          }
-          if($vars['view']->split_index_count==$vars['view']->split_total_count) {
-            $new_funcs[]='views_view__splitted_redacblock__last';
-          }
-        } else {
-          $new_funcs[]='views_view__splitted_redacblock'.$needle;
-          if($vars['view']->split_index_count==1) {
-            $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
-          }
-          if($vars['view']->split_index_count==$vars['view']->split_total_count) {
-            $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
+              $vars['admin_links'] = theme('links', $vars['admin_links_raw']);
+              break;
+            }
           }
         }
       }
     }
-
-    $result = array_merge($new_funcs, $funcs);
-    $vars['template_files'] = array_merge($result, $vars['template_files']);
   }
 }
 

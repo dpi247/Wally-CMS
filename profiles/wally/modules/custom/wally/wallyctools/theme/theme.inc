@@ -32,43 +32,6 @@ function template_preprocess_wallyctools_style_redacblock(&$vars) {
   }
 }
 
-function wallyctools_views_admin_links_alter(&$vars,$view){
-  if (isset($view->wallyedit_preview) && $view->wallyedit_preview) {
-    $vars = array();
-  } else {
-    $handlers=$view->display_handler->handlers;
-    foreach($handlers['argument'] as $key=>$value){
-      if($key=='field_destinations_tid'){
-        $destination_tid=$value->value[0];
-        break;
-      }
-    }
-    if ($destination_tid) {
-      foreach($handlers['filter'] as $key=>$value){
-        if($key=='field_destinations_target'){
-          $target=$value->value;
-          if (is_array($target)) {
-            $target = $target[0];
-          }
-          break;
-        }
-      }
-      if ($target) {
-        foreach ($view->argument as $arg_name => $argument) {
-          if (strstr($arg_name, 'field_destination')) {
-            $vars[] = array(
-              'title' => t('Reorder'),
-              'alt' => t("Reorder the view"),
-              'href' => "admin/wally/wallyctools-operations/reorder/25/$destination_tid/$target",
-            );
-            break;
-          }
-        }
-      }
-    }
-  }
-}
-
 /**
  * Theme preprocess function for views-view-row-unformatted.tpl.php
  */
