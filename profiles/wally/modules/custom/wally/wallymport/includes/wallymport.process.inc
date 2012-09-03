@@ -390,7 +390,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
 }
 
 /**
- * Process one file.
+ * Abstraction function to return the xml file independently if the importer use a zipped structure or not 
  * 
  * @param stdObject $file
  *   File object to be processed.

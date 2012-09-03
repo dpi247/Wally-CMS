@@ -589,8 +589,10 @@ function wallymport_getimporterbyname($name){
       foreach ($module_importers as $module_importer){
         if ($module_importer['importer_type'] == $importer->importer_type){
           $importer->importer_functions = $module_importer['importer_functions'];
-          foreach ($module_importer['includes'] as $include) {
-            require_once $include;
+          if (isset($module_importer['includes']) && is_array($module_importer['includes'])) {
+            foreach ($module_importer['includes'] as $include) {
+              require_once $include;
+            }
           }
           break 2;
         }
