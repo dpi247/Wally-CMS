@@ -100,7 +100,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
           if($this->view->pager['current_page'] == 0) {//useful if more than one view in a page.
             $inserted_previews[$this->view->current_display] = FALSE;
           }
-  
+
           // Determine new time_rank
           $this->_insert_node_in_results($node);
 
