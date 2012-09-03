@@ -152,6 +152,7 @@ function wallypressfilters_update_6002() {
     drupal_write_record('wallypressfilters', $filter);
   }
   while($tag = db_fetch_array($db_tags)) {
+    $tag['settings'] = unserialize($tag['settings']);
     drupal_write_record('wallypressfilters_tags', $tag);
   }
 

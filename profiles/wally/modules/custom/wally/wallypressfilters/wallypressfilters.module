@@ -404,14 +404,16 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         '#process'       => array('ctools_dependent_process'),
       );
 
-      $tag_form['convert_text'] = array(
-        '#type'          => 'textfield',
-        '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
-        '#default_value' => $defaults['convert_text'],
-        '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
-        '#process'       => array('ctools_dependent_process'),
-      );
+      if ($tag->type == 'marker') {
+        $tag_form['convert_text'] = array(
+          '#type'          => 'textfield',
+          '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
+          '#default_value' => $defaults['convert_text'],
+          '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
+          '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
+          '#process'       => array('ctools_dependent_process'),
+        );
+      }
 
       $tag_form['format'] = array(
         '#type'  => 'value',

@@ -75,7 +75,7 @@ function wallypressfilters_config_export($fid) {
   $dom = _wallypressfilters_import_export_generate_dom($filter, $tags);
   
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  print formatXmlString($dom->saveXML());
+  print $dom->saveXML();
 }
 
 function _wallypressfilters_import_export_generate_dom($filter, $tags) {
@@ -85,13 +85,14 @@ function _wallypressfilters_import_export_generate_dom($filter, $tags) {
   $dom_name = $dom_filter->appendChild($dom->createElement('Name', $filter->name));
   $dom_description = $dom_filter->appendChild($dom->createElement('Description', $filter->description));
   $dom_tags = $dom_filter->appendChild($dom->createElement('Tags'));
-  
+
   foreach ($tags as $tag) {
     $dom_tag = $dom_tags->appendChild($dom->createElement('Tag'));
     $dom_tag->setAttribute('tid', $tag->tid);
     $dom_tag->appendChild($dom->createElement('Format', is_null($tag->format) ? 0 : $tag->format));
     $dom_tag->appendChild($dom->createElement('Type', $tag->type));
     $dom_tag->appendChild($dom->createElement('TagName', $tag->tag));
+    $dom_tag->appendChild($dom->createElement('TagDescription', $tag->description));
     /*$settings = $dom->createCDATASection(serialize($tag->settings));
     $dom_settings = $dom_tag->appendChild($dom->createElement('Settings'));
     $dom_settings->appendChild($settings);*/
@@ -126,6 +127,7 @@ function _wallypressfilters_import_export_import_from_dom($dom) {
         $new_tag->format = ($format == 0) ? NULL : $format;
         $new_tag->type = $tag->getElementsByTagName('Type')->item(0)->nodeValue;
         $new_tag->tag = $tag->getElementsByTagName('TagName')->item(0)->nodeValue;
+        $new_tag->description = $tag->getElementsByTagName('TagDescription')->item(0)->nodeValue;
         $new_tag->settings = unserialize($tag->getElementsByTagName('Settings')->item(0)->nodeValue);
         drupal_write_record('wallypressfilters_tags', $new_tag);
       }
