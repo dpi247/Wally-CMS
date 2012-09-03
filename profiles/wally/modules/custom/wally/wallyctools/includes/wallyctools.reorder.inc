@@ -18,6 +18,7 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $limit
     $form['destination'] = array(
       '#type' => 'fieldset',
       '#title' => t('Change destination path and target'),
+      '#attributes' => array('id' => 'field-destinations-items'),
     );
   
     $form['destination']['tid'] = array(
@@ -53,7 +54,7 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $limit
     
     $form['destination']['submit'] = array(
       '#type'             => 'submit',
-      '#value'            => t('Change'),
+      '#value'            => $destination_tid ? t('Change') : t('Charge'),
     );
     
     $form['redirect_path'] = array(

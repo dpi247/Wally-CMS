@@ -63,6 +63,7 @@ function wallyctools_menu() {
     'description'                   => t('Reorder destinations and apply some modifications to nodes in destinations'),
     'page callback'                 => 'wallyctools_page_reorder_destination',
     'page arguments'                => array(),
+    '_number_parts'                 => 4,
     'access arguments'              => array('administer nodes'),
     'type'                          => MENU_CALLBACK,
     'file'                          => 'includes/wallyctools.reorder.inc',
