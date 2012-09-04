@@ -80,14 +80,6 @@ function cckdestinations_menu() {
     'file' => 'includes/cckdestinations.node_admin.inc',
   );
   
-  $items['admin/wally/cckdestinations/batch'] = array(
-    'title' => t('Batch destinations change'),
-    'page callback' => 'cckdestinations_batch_destinations',
-    'access arguments' => array('administer nodes'),
-    'description' => 'Change nodes destination in a batch process.',
-    'file' => 'includes/cckdestinations.batch_dest.inc',
-  );
-  
   $items['cckdestinations/autocomplete'] = array(
     'title' => t('Autocomplete'),
     'page callback' => 'cckdestinations_autocomplete_load',
