@@ -45,6 +45,7 @@ class channels_ui extends ctools_export_ui {
     $details = wallychannels_get_admin_preview_of_plugin(wallychannels_get_plugin_by_name($channel['name']), $item->settings);
     $this->rows[$key]['data'][] = array('data' => $details, 'class' => 'ctools-export-ui-details');
     $this->rows[$key]['data'][] = array('data' => check_plain($item->type), 'class' => 'ctools-export-ui-storage');
+    drupal_add_css(drupal_get_path('module', 'wallychannels').'/css/export-admin.css');
     $this->rows[$key]['data'][] = array('data' => theme('links', $operations), 'class' => 'ctools-export-ui-operations');
     
     // Add an automatic mouseover of the description if one exists.
