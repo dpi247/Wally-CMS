@@ -217,3 +217,9 @@ function wallychannels_twitter_channels_admin_preview($settings) {
 
   return $output;
 }
+
+function wallychannels_twitter_channels_reset_authentication(&$settings) {
+  $settings['oauth_token'] = '';
+  $settings['oauth_verifier'] = '';
+  $settings['oauth_token_secret'] = '';
+}

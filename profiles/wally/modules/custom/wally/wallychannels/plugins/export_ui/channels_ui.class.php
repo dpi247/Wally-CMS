@@ -125,4 +125,48 @@ class channels_ui extends ctools_export_ui {
     }
     return $output;
   }
+  
+  /**
+   * Page callback to reset authentication for an exportable item.
+   */
+  function reset_page($js, $input, $item) {
+    $form_state = array(
+      'plugin' => $this->plugin,
+      'object' => &$this,
+      'ajax' => $js,
+      'item' => $item,
+      'op' => 'reset',
+      'rerender' => TRUE,
+      'no_redirect' => TRUE,
+    );
+  
+    ctools_include('form');
+
+    $output = ctools_build_form('ctools_export_ui_delete_confirm_form', $form_state);
+    if (!empty($form_state['executed'])) {
+      $channel = wallychannels_get_plugin_by_name($item->channel);
+      $channel_plugin = wallychannels_get_plugin_by_name($channel['name']);
+      if(wallychannels_has_reset_function_of_plugin($channel_plugin)) {
+        $reset_function = wallychannels_get_reset_function_of_plugin($channel_plugin);
+        $reset_function($item->settings);
+        if ($result = ctools_export_crud_save($this->plugin['schema'], $item)) {
+          $message_op = 'success';
+          $message_type = 'status';
+        } else {
+          $message_op = 'fail';
+          $message_type = 'error';
+        }
+      } else {
+        $message_op = 'fail';
+        $message_type = 'error';
+      }
+
+      $export_key = $this->plugin['export']['key'];
+      $message = str_replace('%title', check_plain($item->{$export_key}), $this->plugin['strings']['confirmation'][$form_state['op']][$message_op]);
+      drupal_set_message($message, $message_type);
+      drupal_goto(ctools_export_ui_plugin_base_path($this->plugin));
+    }
+
+    return $output;
+  }
 }

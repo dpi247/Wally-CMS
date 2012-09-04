@@ -251,6 +251,9 @@ function wallychannels_channels_process(&$plugin, $info){
 
   if (!isset($plugin['admin preview']) && function_exists($function_base . 'admin_preview'))
     $plugin['admin preview'] = $function_base . 'admin_preview';
+  
+  if (!isset($plugin['reset authentication']) && function_exists($function_base . 'reset_authentication'))
+    $plugin['reset authentication'] = $function_base . 'reset_authentication';
 }
 
 /**
@@ -428,6 +431,30 @@ function wallychannels_get_admin_preview_of_plugin($plugin, $settings) {
   }
 
   return FALSE;
+}
+
+/**
+ * Determine if a channel has a reset authentication function.
+ */
+function wallychannels_has_reset_function_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['reset authentication']) ) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a channel has a reset authentication function and if true, return the function.
+ */
+function wallychannels_get_reset_function_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['reset authentication']) ) {
+    return FALSE;
+  }
+
+  return $plugin['reset authentication'];
 }
 
 function _wallychannels_get_instance_settings($channel_type, $div_id) {

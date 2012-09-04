@@ -19,6 +19,16 @@ $plugin = array(
         'type' => MENU_LOCAL_TASK,
         'weight' => 10,
       ),
+      'reset' => array(
+        'path' => 'list/%ctools_export_ui/reset',
+        'title' => t('Reset'),
+        'page callback' => 'ctools_export_ui_switcher_page',
+        'page arguments' => array('channels', 'reset', 4),
+        'load arguments' => array('channels'),
+        'access callback' => 'ctools_export_ui_task_access',
+        'access arguments' => array('channels', 'reset', 4),
+        'type' => MENU_CALLBACK,
+      ),
     ),
   ),
 
@@ -26,6 +36,10 @@ $plugin = array(
   'title singular proper' => t('Channel'),
   'title plural' => t('channels'),
   'title plural proper' => t('Channels'),
+  
+  'allowed operations' => array(
+    'reset' => array('title' => t('Reset authentication')),
+  ),
 
   'handler' => array(
     'class' => 'channels_ui',
@@ -35,6 +49,16 @@ $plugin = array(
   'export' => array(
     'admin_title' => 'title',
     'admin_description' => 'description',
+  ),
+  
+  'strings' => array(
+    'confirmation' => array(
+      'reset' => array(
+        'question' => t('Are you sure you want to reset %title authentication?'),
+        'success' => t('The authentication has been resetted.'),
+        'fail' => t('The authentication couldn\'t be resetted.'),
+      ),
+    ),
   ),
   
   'use wizard' => TRUE,

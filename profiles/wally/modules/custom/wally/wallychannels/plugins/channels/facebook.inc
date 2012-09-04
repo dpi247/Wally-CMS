@@ -192,3 +192,8 @@ function wallychannels_facebook_channels_admin_preview($settings) {
 
   return $output;
 }
+
+function wallychannels_facebook_channels_reset_authentication(&$settings) {
+  $settings['access_token'] = '';
+  $settings['token_expires'] = '';
+}
