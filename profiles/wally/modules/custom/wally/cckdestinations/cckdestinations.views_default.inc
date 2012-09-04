@@ -740,6 +740,11 @@ function cckdestinations_views_default_views() {
         'skip_confirmation' => 0,
         'label' => '',
       ),
+      'cckdestinations_batch_dest_setmain' => array(
+        'selected' => 1,
+        'skip_confirmation' => 0,
+        'label' => '',
+      ),
       'node_mass_update-0ccad85c1ebe4c9ceada1aa64293b080' => array(
         'selected' => 0,
         'skip_confirmation' => 0,
