@@ -90,7 +90,7 @@ $("div.wallymport_result ul").toggle();
            </p>
           </div>
         <?php else:?>
-          <?php  print $return['log']['content']?>
+          <?php print $return['content']?>
         <?php endif;?>
       </div>
       <div class="tab-pane" id="profile">

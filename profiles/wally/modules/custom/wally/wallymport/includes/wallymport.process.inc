@@ -385,7 +385,8 @@ function wallymport_post($importer_name, $preview = FALSE) {
     drupal_set_header('Cache-Control', 'no-cache');
   }
 
-  $content = theme('wallymport_post', $returns[0]);
+  $return = current($returns);
+  $content = theme('wallymport_post',$return);
   print $content;
 }
 
