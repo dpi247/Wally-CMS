@@ -9,7 +9,7 @@ function wallyctools_page_reorder_destination($limit = 25, $destination_tid = NU
 function wallyctools_form_change_destination_form($form_state, $redirect, $limit, $destination_tid = NULL, $target = NULL) {
   $form = array();
 
-  if (!isset($form_state['post']['operation']) && !isset($form_state['post']['time_rank']) && !isset($form_state['post']['rows'])) {
+  if (!isset($form_state['post']['operation']) && !isset($form_state['post']['time_rank']) && !isset($form_state['post']['rows']) && !isset($form_state['post']['destinations'])) {
     drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
     
     $options_and_classe = cckdestinations_get_classes_and_options();
