@@ -38,11 +38,18 @@ function wallychannels_menu() {
  */
 function wallychannels_form_alter(&$form, &$form_state, $form_id) {
   if (($form_id == 'wallyedit_form_node_edition_form' && (sizeof($form_state['parents']) == 1)) || (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id)) {
-    module_load_include('inc', 'wallyedit', 'includes/config_api');
-    $type = $form['type']['#value'];
-    $profile_id = isset($form_state['profile_id']) ? $form_state['profile_id'] : wallyedit_get_default_profile();
-    $interface_types = wally_variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
-    if (($form_id == 'wallyedit_form_node_edition_form' && $interface_types[$type] == 'wally') || (strstr($form_id, '_node_form') && $interface_types[$type] == 'drupal')) {
+    if (module_exists('wallyedit')) {
+      module_load_include('inc', 'wallyedit', 'includes/config_api');
+      $type = $form['type']['#value'];
+      $profile_id = isset($form_state['profile_id']) ? $form_state['profile_id'] : wallyedit_get_default_profile();
+      $interface_types = wally_variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+      if (($form_id == 'wallyedit_form_node_edition_form' && $interface_types[$type] == 'wally') || (strstr($form_id, '_node_form') && $interface_types[$type] == 'drupal')) {
+        $channels_form = wallychannels_build_channels_form($form['type']['#value']);
+        if (sizeof(element_children($channels_form)) > 0) {
+          $form['channels'] = $channels_form;
+        }
+      }
+    } else {
       $channels_form = wallychannels_build_channels_form($form['type']['#value']);
       if (sizeof(element_children($channels_form)) > 0) {
         $form['channels'] = $channels_form;
