@@ -2043,13 +2043,24 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           $reserved = $dest_settings['reserved'];
           $temp_time_rank = 0;
           $rank = $item['rank'];
+          
+          if ($rank == 0) {
+            if ($behavior == 'bottom') {
+              $rank = $reserved + 1;
+            } else {
+              $rank = 1;
+            }
+          } elseif ($rank > $reserved) {
+            $rank = $reserved + 1;
+          }
 
           // Get destination view results without the current node
           $view_infos = wallyctools_get_view_info_from_redacblock($item['target']);
           $view = views_get_view($view_infos['view_name']);
           $conf = array(
             'override_pager_settings' => TRUE,
-            'nodes_per_page' => $reserved + 2,
+            'nodes_per_page' => $rank + 2,
+            'total_nodes_per_page' => $rank + 2,
             'offset' => 0,
             'use_pager' => FALSE,
             'pager_id' => 0,
@@ -2064,21 +2075,10 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           }
 
           $current_results = array();
-
           foreach ($temp_results as $result) {
             if ($result->nid != $node->nid) {
               $current_results[] = $result;
             }
-          }
-
-          if ($rank == 0) {
-            if ($behavior == 'bottom') {
-              $rank = $reserved + 1;
-            } else {
-              $rank = 1;
-            }
-          } elseif ($rank > $reserved) {
-            $rank = $reserved + 1;
           }
 
           $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;

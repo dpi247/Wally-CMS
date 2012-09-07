@@ -34,10 +34,6 @@ function wallyedit_form_node_edition_form(&$form_state) {
   $a = array('#tree' => TRUE);
   $a = drupal_retrieve_form($type_name.'_node_form', $a, $node);
   $a['#tree'] = TRUE;
-  if ($type_name != 'page') {
-    $old_var = variable_get('menu_override_parent_selector', FALSE);
-    variable_set('menu_override_parent_selector', TRUE);
-  }
   drupal_prepare_form($type_name.'_node_form', $a, $current_form_state);
 
   unset($a['#type']);
@@ -51,9 +47,6 @@ function wallyedit_form_node_edition_form(&$form_state) {
 
   $temp_b = $form[$type_name];
   wydit_prepare_primary_package_form($form[$type_name], $current_form_state, $type_name, $parents, $temp_b);
-  if ($type_name != 'page') {
-    variable_set('menu_override_parent_selector', $old_var);
-  }
 
   if (!$form_state['locked']) {
     $form['save_global'] = array(
@@ -809,6 +802,9 @@ function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
 
   if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'], $form_state['values'])) {
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
     drupal_set_message(t('PreNode has been cleared'));

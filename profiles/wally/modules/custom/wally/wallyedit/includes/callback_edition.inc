@@ -31,6 +31,9 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     $locked = '';
   }
 
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $form = ctools_build_form($form_id, $form_state, $current_profile);
   if ($preview && sizeof($form_state['parents']) == 1) {
     $form_prev = drupal_get_form('wydit_form_preview_form', $form_state['cache name']);

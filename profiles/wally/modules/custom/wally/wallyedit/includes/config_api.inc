@@ -231,7 +231,10 @@ function wyditadmin_get_existing_fields($type_name, $field = NULL) {
     $node->name = '';
     module_load_include('inc', 'node', 'node.pages');
     $form = node_form($form_state, $node);
-    $modules = array('comment', 'menu', 'path', 'upload', 'pathauto');
+    $modules = array('comment', 'path', 'upload', 'pathauto');
+    if (!variable_get('menu_override_parent_selector', FALSE)) {
+      $modules[] = 'menu';
+    }
     foreach ($modules as $module) {
       if (module_exists($module)) {
         $function = $module.'_form_alter';
@@ -294,7 +297,7 @@ function wyditadmin_get_existing_fields($type_name, $field = NULL) {
         'label' => $form['comment_settings']['#title'],
       );
     }
-    if (module_exists('menu')) {
+    if (module_exists('menu') && isset($form['menu'])) {
       $existing_fields[$type_name]['link_title'] = array(
         'type' => $form['menu']['link_title']['#type'],
         'widget' => $form['menu']['link_title']['#type'],
