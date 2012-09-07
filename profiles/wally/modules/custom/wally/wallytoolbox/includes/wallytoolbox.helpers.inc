@@ -203,6 +203,20 @@ function wallytoolbox_check_is_node($node) {
 }
 
 /**
+ * Get numeric keys of a structured array tree element.
+ */
+function wallytoolbox_element_children_numeric($element) {
+  return array_filter(array_keys((array) $element), 'wallytoolbox_element_child_numeric');
+}
+
+/**
+ * Check if the key is a numeric child.
+ */
+function wallytoolbox_element_child_numeric($key) {
+  return is_numeric($key);
+}
+
+/**
  *  Add "$element" in the structure of the $array based on the path of target 
  * 
  * @param: $array
