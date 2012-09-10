@@ -141,6 +141,10 @@ function ccimap_build_productinfo_xml(&$dom, $hierarchies_array, $nested_taxonom
   $leafname->setAttribute('name', 'Target');
   $mainpriorities = $baseinfo->appendChild($dom->createElement('mainpriorities'));
   $rank_limit = wally_variable_get('cckdestinations_rank_limit', 10);
+  $mainpriority = $mainpriorities->appendChild($dom->createElement('mainpriority'));
+  $mainpriority->setAttribute('name', 'Rank 0');
+  $mainpriority->setAttribute('value', '0');
+  $mainpriority->setAttribute('default', 'true');
   for ($i = 1; $i <= $rank_limit; $i++) {
     $mainpriority = $mainpriorities->appendChild($dom->createElement('mainpriority'));
     $mainpriority->setAttribute('name', 'Rank '.$i);
