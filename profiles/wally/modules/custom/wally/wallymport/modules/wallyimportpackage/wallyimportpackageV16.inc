@@ -374,7 +374,7 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
   if ($dom->hasAttribute('LastUpdateDate')){
     $node->changed = _wimprthelp_date_to_timestamp($dom->getAttributeNode('LastUpdateDate')->value);
   }
-  if ($importer->wallymport_preview){
+  if (FALSE && $importer->wallymport_preview){
     $node->rejected = TRUE;
   }
 }
