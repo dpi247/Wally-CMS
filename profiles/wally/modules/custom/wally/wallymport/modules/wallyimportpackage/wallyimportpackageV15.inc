@@ -1,6 +1,96 @@
 <?php 
 
 /**
+ * Process the packages element of a wally DomDocument object.
+ * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ * @param $importer
+ *   The importer object used to import
+ * @return
+ *   the log object
+ */
+function wallyimportpackageV15_process_packages($dom, &$log, $importer){
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'before_process');
+  foreach ($dom->getElementsByTagName('Package') as $package_element){
+    wallyimportpackageV15_process_package($package_element, $log, $importer);
+  }
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_packages', 'after_process');
+
+  //To not browse the DOM
+  return FALSE;
+}
+
+/**
+ * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
+ *
+ * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
+ * if no specific function found nothing is done.
+ *
+ * @param $node$importer,
+ *   The Node that's being build
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ */
+function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback = NULL) {
+  $callback = wimprt_set_callback($dom, $importer, $callback);
+  $node = wimprt_node_create_or_load($dom, $importer, $callback, $log);
+  //@todo: place in walymportlog module
+  if (variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process package: '.$dom->nodeName;
+  }
+
+  if (!isset($node->rejected) & !isset($node->wallymport_delete)){
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'before_process');
+    // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+    if (function_exists("wallyimportpackageV15_node_process_".$callback)){
+      call_user_func("wallyimportpackageV15_node_process_".$callback, &$node, $dom, &$log, $importer);
+    }
+
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'after_process');
+
+    drupal_alter('wimprt_package_after_process', $node);
+  }
+
+  if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
+    if ($importer->wallymport_preview) {
+      $node->preview=TRUE;
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
+
+      $prenode = new Prenode();
+      $prenode->ConvertNodeToPrenode($node);
+      $old_cache_name = $prenode->form_state['cache name'];
+      $fake_fs = array('cache name' => $old_cache_name);
+      prenode_delete($fake_fs);
+      $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
+      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode['DoNotPopulate'] = TRUE;
+
+      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
+      $log['content'] =  $content;
+    } elseif (isset($node->wallymport_delete)){
+      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
+    } else {
+      $node->wallymport_node = TRUE;
+      node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'postsave');
+    }
+  } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
+    wallycontenttypes_delete_orphans_objects($node);
+  }
+
+  $log['node'] = array('current' => $node,'next' => $log['node']);
+}
+
+/**
  * Process article package from DOM.
  * 
  * MAP fields of the article package content type
