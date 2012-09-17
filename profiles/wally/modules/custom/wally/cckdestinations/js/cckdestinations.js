@@ -18,11 +18,15 @@ $(document).ready(function() {
 function updateList() {
 	$(".tid").each(function(index) {
 		taxo = this.id;
-		
+
 		targ = taxo.replace(str_to_replace, "target");
 		lay = taxo.replace(str_to_replace, "layout");
-		var selected_targ = $("#"+targ).find("option:selected").attr("value");
-		var selected_lay = $("#"+lay).find("option:selected").attr("value");
+		var selected_targ = '';
+		var selected_lay = '';
+		if (this.value) {
+			selected_targ = $("#"+targ).find("option:selected").attr("value");
+			selected_lay = $("#"+lay).find("option:selected").attr("value");
+		}
 		makeSublist(taxo, targ, selected_targ);
 		makeSublist(targ, lay, selected_lay);
 	});
