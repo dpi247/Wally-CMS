@@ -161,6 +161,8 @@ function wallytoolbox_opml_blogspirit_item_to_array($head, $item, $feed_infos = 
   
   // Copy distant images to local
   if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
+    module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+    
     $new_file_path = 'Flows/';
     $file_temp_dir = file_directory_path().'/'.$new_file_path;
     file_check_directory($file_temp_dir, 1);
