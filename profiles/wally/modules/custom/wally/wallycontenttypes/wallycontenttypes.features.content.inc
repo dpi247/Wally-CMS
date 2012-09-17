@@ -7565,69 +7565,6 @@ Free',
     ),
   );
 
-  // Exported field: field_displayed_title
-  $fields['wally_linkslistobject-field_displayed_title'] = array(
-    'field_name' => 'field_displayed_title',
-    'type_name' => 'wally_linkslistobject',
-    'display_settings' => array(
-      'weight' => '31',
-      'parent' => 'group_linkslist',
-      'label' => array(
-        'format' => 'above',
-      ),
-      'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '4' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '2' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      '3' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-      'token' => array(
-        'format' => 'default',
-        'exclude' => 0,
-      ),
-    ),
-    'widget_active' => '1',
-    'type' => 'text',
-    'required' => '0',
-    'multiple' => '0',
-    'module' => 'text',
-    'active' => '1',
-    'text_processing' => '0',
-    'max_length' => '255',
-    'allowed_values' => '',
-    'allowed_values_php' => '',
-    'widget' => array(
-      'rows' => 5,
-      'size' => '60',
-      'default_value' => array(
-        '0' => array(
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
-        ),
-      ),
-      'default_value_php' => NULL,
-      'label' => 'Displayed title',
-      'weight' => '31',
-      'description' => '',
-      'type' => 'text_textfield',
-      'module' => 'text',
-    ),
-  );
-
   // Exported field: field_externalreference
   $fields['wally_linkslistobject-field_externalreference'] = array(
     'field_name' => 'field_externalreference',
@@ -18045,7 +17982,6 @@ Free',
   t('Creation Date');
   t('Croping');
   t('Destinations');
-  t('Displayed title');
   t('Editions');
   t('Editorial Update Date');
   t('EmbargoDateTime');
