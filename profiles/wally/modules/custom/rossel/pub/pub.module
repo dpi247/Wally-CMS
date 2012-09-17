@@ -122,6 +122,11 @@ function pub_theme() {
       'template' => 'metriweb-content',
       'path' => drupal_get_path('module', 'pub') . '/templates',
     ),
+    'metriwebspring_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriwebspring-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
   );
 }
 
@@ -161,6 +166,11 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       
       $blocks['metriweb_block'] = array(
         'info' => t('MetriWeb'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['metriwebspring_block'] = array(
+        'info' => t('MetriWebSpring'),
         'cache' => BLOCK_CACHE_PER_PAGE,
       );
       
@@ -204,6 +214,9 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
         case 'metriweb_block':
           variable_set('metriweb_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
           break;
+        case 'metriwebspring_block':
+          variable_set('metriwebspring_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
         default:
           variable_set('pub_block_'.$delta.'_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
       }
@@ -234,6 +247,12 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
           $block = array(
             'subject' => t('MetriWeb block.'), 
             'content' => _pub_get_block_content($cache_url, 'metriweb', 'Metriweb'),
+          );
+          break;
+        case 'metriwebspring_block':
+          $block = array(
+            'subject' => t('MetriWebSpring block.'),
+            'content' => _pub_get_block_content($cache_url, 'metriwebspring', 'MetriwebSpring'),
           );
           break;
         default:
@@ -563,7 +582,7 @@ function _pub_getheadercontent($cache_url) {
  */
 function _pub_get_block_content($cache_url, $type, $script_type, $delta = '') {
   $orig_url = $_GET['q'];
-  $cached_pub = cache_get($type.'_block_temp-'.$cache_url);
+  $cached_pub = cache_get($type.'_block_temp-'.$cache_url, 'cache');
   $cache_time = variable_get($type.'_block_refresh_time', 24);
   
   if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
@@ -584,12 +603,12 @@ function _pub_get_block_content($cache_url, $type, $script_type, $delta = '') {
     if ($content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params)) {
       $metriweb_content = $content_from_webservice;
     } else {
-      $cached_pub = cache_get($type.'_block_perm-'.$cache_url);
+      $cached_pub = cache_get($type.'_block_perm-'.$cache_url, 'cache');
       $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
     }
     
     cache_set($type.'_block_temp-'.$cache_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
-    cache_set($type.'_block_perm-'.$cache_url, $metriweb_content);
+    cache_set($type.'_block_perm-'.$cache_url, $metriweb_content, 'cache');
   } else {
     $metriweb_content = $cached_pub->data;
   }
