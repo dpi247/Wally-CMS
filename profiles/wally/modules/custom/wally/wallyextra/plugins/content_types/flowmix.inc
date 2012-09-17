@@ -676,7 +676,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     );
   }
 
-  $current_max_key = max(array_keys($settings->flows)) + 1;
+  $current_max_key = (!isset($settings->flows) || empty($settings->flows)) ? 1 : max(array_keys($settings->flows)) + 1;
   $form['buttons']['add_flow'] = array(
     '#type'=>'submit',
     '#value'=>t('Add a new flow'),
