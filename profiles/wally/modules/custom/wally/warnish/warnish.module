@@ -224,13 +224,16 @@ function warnish_form_alter(&$form, $form_state, $form_id) {
  * Helper function to quickly flush one (or a list of) page(s) cache for the current site.
  */
 function warnish_purge_page($paths) {
-  $host = _warnish_get_host();
-  if (is_string($paths))
+  //$host = _warnish_get_host();
+  if (is_string($paths)) {
     $paths = array($paths);
+  }
 
   $command = array();
-  foreach ($paths as $path)
-    $command[] = "purge req.http.host ~ $host && req.url == $path";
+  foreach ($paths as $path) {
+    //$command[] = "purge req.http.host ~ $host && req.url == $path";
+    $command[] = "purge req.url == $path";
+  }
   
   _warnish_terminal_run($command);
 }

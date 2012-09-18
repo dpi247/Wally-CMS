@@ -709,7 +709,7 @@ function _wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FA
         if ($url == '*' && module_exists('warnish')) {
           warnish_purge_all_pages();
         } else {
-          $varnish_pages_to_flush[] = $url;
+          $varnish_pages_to_flush[] = '/'.$url;
         }
       }
     }
