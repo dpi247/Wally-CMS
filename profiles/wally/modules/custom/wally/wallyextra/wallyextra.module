@@ -226,7 +226,7 @@ function wally_get_tpl_suggestions_from_plugins(&$variables) {
  */
 function wallyextra_getsuggestions_from_plugins(&$variables) {
   $context = isset($variables['context']) ? $variables['context'] : array();
-  $context_keys = array_keys($context);
+  $context_keys = @array_keys($context);
   $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
   $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
   $destinations = array();
