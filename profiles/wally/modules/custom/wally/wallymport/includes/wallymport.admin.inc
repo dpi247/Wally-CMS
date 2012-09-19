@@ -52,9 +52,7 @@ function wallymport_page_list_importers(){
 function wallymport_page_importer_form($form_state, $edit_id = NULL){
   ctools_include('dependent');
   ctools_add_js('dependent');
-  if ($edit_id != NULL){
-    wallymport_getimporter($edit_id);
-  }
+
   $form['wallymport']['#tree'] = TRUE;
   
   $importers_name = array();
