@@ -31,6 +31,7 @@ function wallyflowpublish_settings_form(){
     $link_name = wallytoolbox_taxonomy_get_path_by_tid_or_term($tid, $dest_vid);
     $descr = empty($data['description']) ? $taxo->description : $data['description'];
     $copy = empty($data['copyright']) ? t('Copyright') : $data['copyright'];
+    $items_limit = empty($data['items_limit']) ? 20 : $data['items_limit'];
 
     $view = views_get_view('default_destination_view_feed');
     $display = $view->display['feed_1'];
@@ -94,6 +95,12 @@ function wallyflowpublish_settings_form(){
     	'#default_value' => $copy,
     );
     
+    $form[$tid]['items_limit'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Amout of items to display'),
+      '#default_value' => $items_limit,
+    );
+    
     ctools_include('dependent');
     ctools_add_js('dependent');
     $mediafed_defaults = $data['mediafed'];
@@ -117,7 +124,7 @@ function wallyflowpublish_settings_form(){
       '#description' => t('The MediaFed URL where the users will be redirected.'),
       '#default_value' => $mediafed_defaults['redirect_url'],
       '#process' => array('ctools_dependent_process'),
-      '#dependency' => array('edit-activate' => array(1)),
+      '#dependency' => array('edit-'.$tid.'-mediafed-activate' => array(1)),
     );
     
     $form[$tid]['mediafed']['user_agent'] = array(
@@ -126,7 +133,7 @@ function wallyflowpublish_settings_form(){
       '#description' => t('The user agent used by MediaFed, this user agent will bypass the redirection. Regex allowed (without delimiters).'),
       '#default_value' => $mediafed_defaults['user_agent'],
       '#process' => array('ctools_dependent_process'),
-      '#dependency' => array('edit-activate' => array(1)),
+      '#dependency' => array('edit-'.$tid.'-mediafed-activate' => array(1)),
     );
     
     if (isset($data['flow_key']) && !empty($data['flow_key'])) {

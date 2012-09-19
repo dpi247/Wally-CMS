@@ -93,22 +93,34 @@ function wallyflowpublish_views_pre_execute(&$view) {
   if ($view->display[$current_display]->display_plugin == 'feed' && array_key_exists('field_destinations_tid', $view->display[$current_display]->handler->handlers['argument'])) {
     $tid = $view->args[0];
 
-    $data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid));
-    while (is_string($data['mediafed'])) {
-      $data['mediafed'] = unserialize($data['mediafed']);
-    }
-    $mediafed = $data['mediafed'];
-
-    if (!isset($_GET['format']) && $mediafed['activate']) {
-      $user_agent = $_SERVER['HTTP_USER_AGENT'];
-      $delimiters = array('@', '+', '#');
-      foreach ($delimiters as $delimiter) {
-        if (!strstr($mediafed['user_agent'], $delimiter)) {
-          $regex_agent = $delimiter.$mediafed['user_agent'].$delimiter;
-          if (preg_match($regex_agent, $user_agent)) {
-            drupal_goto($mediafed['redirect_url']);
+    if ($data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid))) {
+      $items_limit = $data['items_limit'];
+      if (method_exists($view, 'init_pager')) {
+        // Views 3 version
+        $view->set_items_per_page($items_limit);
+      } else {
+        $view->display_handler->set_option('items_per_page', $items_limit);
+        $view->set_items_per_page($items_limit);
+        $view->pager['total_items_per_page'] = $items_limit;
+        $view->pager['items_per_page'] = $items_limit;
+      }
+      
+      while (is_string($data['mediafed'])) {
+        $data['mediafed'] = unserialize($data['mediafed']);
+      }
+      $mediafed = $data['mediafed'];
+  
+      if (!isset($_GET['format']) && $mediafed['activate']) {
+        $user_agent = $_SERVER['HTTP_USER_AGENT'];
+        $delimiters = array('@', '+', '#');
+        foreach ($delimiters as $delimiter) {
+          if (!strstr($mediafed['user_agent'], $delimiter)) {
+            $regex_agent = $delimiter.$mediafed['user_agent'].$delimiter;
+            if (preg_match($regex_agent, $user_agent)) {
+              drupal_goto($mediafed['redirect_url']);
+            }
+            break;
           }
-          break;
         }
       }
     }
@@ -151,7 +163,7 @@ function wallyflowpublish_preprocess_views_view_rss(&$vars) {
   $view     = &$vars['view'];
   $options  = &$vars['options'];
   $items    = &$vars['rows'];
-  $presetname='flowpublish_preset';
+  $presetname = 'flowpublish_preset';
 
   $name = '';
   foreach ($view->args as $arg) {
