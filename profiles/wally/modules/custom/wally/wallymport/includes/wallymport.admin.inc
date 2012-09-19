@@ -210,10 +210,6 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
       '#type' => 'markup',
       '#value' => '<a href = "/admin/wally/wallymport/settings/delete/'.$importer->iid.'">'.t('Delete').'</a>',
     );
-    //$form['wallymport']['name']['#disabled'] = TRUE;
-    $form['wallymport']['name']['#default_value'] = $importer->name;
-    $form['wallymport']['importer_name']['#disabled'] = TRUE;
-    $form['wallymport']['importer_name']['#value'] = $importer->importer_name;
   }
 
   return $form;
