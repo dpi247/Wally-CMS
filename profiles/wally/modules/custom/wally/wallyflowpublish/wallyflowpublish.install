@@ -74,41 +74,40 @@ function wallyflowpublish_schema() {
     'description' => 'The table containing the feeds informations for the wallyflowpublish module.',
     'fields' => array(
       'flow_key' => array(
-        'description' => 'The primary identifier', 
+        'description' => 'The primary identifier',
         'type' => 'serial',
-        'unsigned' => TRUE, 
+        'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'tid' => array(
-        'description' => 'tid', 
+        'description' => 'tid',
         'type' => 'int',
-        'length' => 512, 
-        'not null' => TRUE, 
+        'not null' => TRUE,
         'default' => 0,
       ),
       'title' => array(
-        'description' => 'Title', 
+        'description' => 'Title',
         'type' => 'varchar',
-        'length' => 512, 
-        'not null' => TRUE, 
+        'length' => 512,
+        'not null' => TRUE,
         'default' => '',
       ),
       'description' => array(
-        'description' => 'Description', 
-        'type' => 'varchar', 
-        'length' => 512, 
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => 512,
         'default' => '',
       ),
       'imagefile' => array(
-        'description' => 'Imagefile', 
-        'type' => 'varchar', 
-        'length' => 512, 
+        'description' => 'Imagefile',
+        'type' => 'varchar',
+        'length' => 512,
         'default' => '',
       ),
       'copyright' => array(
-        'description' => 'Copyright', 
-        'type' => 'varchar', 
-        'length' => 512, 
+        'description' => 'Copyright',
+        'type' => 'varchar',
+        'length' => 512,
         'default' => '',
       ),
       'mediafed' => array(
@@ -117,6 +116,12 @@ function wallyflowpublish_schema() {
         'description' => 'Serialized settings for MediaFed config',
         'serialize' => TRUE,
         'object default' => array(),
+      ),
+      'items_limit' => array(
+        'description' => 'Amount of items to send',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 20,
       ),
     ),
     'primary key' => array('flow_key'),
@@ -139,5 +144,21 @@ function wallyflowpublish_update_6001() {
     'object default' => array(),
   );
   db_add_field($ret, 'wallyflowpublish_dests', 'mediafed', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N()
+ * Add limit column
+ */
+function wallyflowpublish_update_6002() {
+  $ret = array();
+  $spec = array(
+    'description' => 'Amount of items to send',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 20,
+  );
+  db_add_field($ret, 'wallyflowpublish_dests', 'items_limit', $spec);
   return $ret;
 }
