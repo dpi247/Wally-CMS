@@ -7986,7 +7986,7 @@ Free',
       'wally_videoobject' => 0,
       'wally_linkslistobject' => 0,
     ),
-    'advanced_view' => '--',
+    'advanced_view' => 'node_autocomp_publication_date',
     'advanced_view_args' => '',
     'widget' => array(
       'autocomplete_match' => 'contains',
