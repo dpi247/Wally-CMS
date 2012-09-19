@@ -769,10 +769,11 @@ function wallycontenttypes_cron() {
   if ($last_run_timestamp < $today) {
     wally_variable_set('wallycontenttypes_embargo_last_run', $today);
 
-    if (variable_get('wallycontenttypes_packagepopulate_cache', 1)) {
+    if (!function_exists('memcache_variable_set') && variable_get('wallycontenttypes_packagepopulate_cache', 1)) {
       $flush_time_days = variable_get('wallycontenttypes_packagepopulate_flush_frequency', 7);
       if ($flush_time_days && !empty($flush_time_days)) {
         $return .= '<b>'.t('Cached contents flush :').'</b></br>';
+
         if ($removed_contents = db_fetch_array(db_query("SELECT COUNT(*) FROM {cache_wally_object} WHERE created < NOW() - INTERVAL %d DAY", $flush_time_days))) {
           if ($removed_contents['COUNT(*)'] > 0) {
             if (db_query("DELETE FROM {cache_wally_object} WHERE created < NOW() - INTERVAL %d DAY", $flush_time_days)) {
