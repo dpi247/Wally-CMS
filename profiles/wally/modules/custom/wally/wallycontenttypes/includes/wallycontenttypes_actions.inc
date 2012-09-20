@@ -182,27 +182,30 @@ function theme_wallycontenttypes_cropcopy($element) {
  *   TRUE in case of success, FALSE in case of failure.
  */ 
 function wallycontenttypes_cropcopy_image(&$image, $data) {
+  $copied_preset = imagecache_preset($data['copied_preset']);
+  $copied_presetname = $copied_preset['presetname'];
+  $actions_ids = $data['actions_ids'];
+  $data['action_id'] = $actions_ids[$data['copied_preset']];
+  $crop = array();
+  $datas_found = FALSE;
+
   if ($imgcropings = _wallycontenttypes_get_cropings_values($image, $data)) {
-    $copied_preset = imagecache_preset($data['copied_preset']);
-    $copied_presetname = $copied_preset['presetname'];
-    $imgcropings = json_decode($cropings->field_croping_value, TRUE);
-    $actions_ids = $data['actions_ids'];
-    $data['action_id'] = $actions_ids[$data['copied_preset']];
-  
-    $crop = array();
     if (isset($imgcropings[$copied_presetname])) {
+      $datas_found = TRUE;
       $crop = $imgcropings[$copied_presetname];
       $data['xoffset'] = $crop[0];
       $data['yoffset'] = $crop[1];
       $data['width'] = $crop[2];
       $data['height'] = $crop[3];
-    } else {
-      $crop = $copied_preset['actions'][$data['action_id']]['data'];
-      $data['xoffset'] = $crop['xoffset'];
-      $data['yoffset'] = $crop['yoffset'];
-      $data['width'] = $crop['width'];
-      $data['height'] = $crop['height'];
     }
+  }
+
+  if (!$datas_found) {
+    $crop = $copied_preset['actions'][$data['action_id']]['data'];
+    $data['xoffset'] = $crop['xoffset'];
+    $data['yoffset'] = $crop['yoffset'];
+    $data['width'] = $crop['width'];
+    $data['height'] = $crop['height'];
   }
 
   // Si l'action a un center_max comme parametre, alors on doit maximiser le crop dans l image
