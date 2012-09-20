@@ -2053,7 +2053,7 @@ function wallyimportpackage_node_set_field_textbody(&$node, $dom, &$log, $import
 }
 
 function wallyimportpackage_get_default_format(){
-  return 2;
+  return variable_get('filter_default_format', 1);
 }
 
 /**
