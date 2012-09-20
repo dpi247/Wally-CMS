@@ -255,7 +255,7 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
       if ($importer->zip == 0){
         foreach ($return['log']['filetomove'] as $media_file){
           if (!file_move($media_file, $importer->done_directory_path)){
-            $error_msg = t('An error occured during file copy to done dorectory (file : '.$media_file.')');
+            $error_msg = t('An error occured during file copy to done directory (file : @media_file)', array('@media_file' => $media_file));
           }
         }
       }
@@ -270,14 +270,24 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
       if ($importer->zip == 0){
         foreach ($return['log']['filetomove'] as $media_file){
           if (!file_move($media_file, $importer->error_directory_path)){
-            $error_msg = t('An error occured during file copy to done dorectory (file : '.$media_file.')');
+            $error_msg = t('An error occured during file copy to error directory (file : @media_file)', array('@media_file' => $media_file));
           }
         }
       }
     }
   }
-  //save log in db
-  file_delete($xml_file);
+
+  if (variable_get('wallymport_delete_file',1) == 1) {
+    if ($importer->zip == 1) {
+      module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+      $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+      $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+      _wimprthelp_rrmdir($temp_subdir);
+    } else {
+      file_delete($xml_file);
+    }
+  }
+
   return $file_location;
 }
 

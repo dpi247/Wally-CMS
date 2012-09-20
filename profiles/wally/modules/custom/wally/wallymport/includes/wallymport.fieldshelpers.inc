@@ -435,6 +435,22 @@ function _wimprthelp_file_check_directory_recursive(&$directory, $mode = 0, $for
   return TRUE;
 }
 
+/**
+ * Recursively remove a dir.
+ */
+function _wimprthelp_rrmdir($dir) {
+  if ($dir && isset($dir) && is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+      }
+    }
+    reset($objects);
+    _wimprthelp_rrmdir($dir);
+  }
+}
+
 function _wimprthelp_validate_xml($dom, $xsd_path) {
   set_error_handler('_wimprthelp_validate_xml_error', E_WARNING);
   return $dom->schemaValidate($xsd_path);
