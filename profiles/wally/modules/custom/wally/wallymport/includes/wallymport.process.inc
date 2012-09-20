@@ -172,8 +172,18 @@ function wallymport_process_folder($importer){
           $return['error'] = TRUE;
           $return[0]['log'][] = $error_msg;
         }
-        
-        file_delete($xml_file);
+
+        if (variable_get('wallymport_delete_file',1) == 1) {
+          if ($importer->zip == 1) {
+            module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+            $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+            $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+            rrmdir($temp_subdir);
+          } else {
+            file_delete($xml_file);
+          }
+        }
+
         $returns[] = $return;
         $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
         unset($return[0]['log']['node']);
@@ -253,7 +263,18 @@ function wallymport_process_file($importer, $file_name){
           $file_location = $importer->error_directory_path.'/'.$file->name;
         }
       }
-      file_delete($xml_file);
+
+      if (variable_get('wallymport_delete_file',1) == 1) {
+        if ($importer->zip == 1) {
+          module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+          $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+          $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+          rrmdir($temp_subdir);
+        } else {
+          file_delete($xml_file);
+        }
+      }
+
       $returns[] = $return;
       $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
       unset($return[0]['log']['node']);
@@ -376,7 +397,17 @@ function wallymport_post($importer_name, $preview = FALSE) {
           }
         }
         $returns[0]['date'] = time();
-        file_delete($xml_file);
+        
+        if (variable_get('wallymport_delete_file',1) == 1) {
+          if ($importer->zip == 1) {
+            module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+            $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+            $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+            rrmdir($temp_subdir);
+          } else {
+            file_delete($xml_file);
+          }
+        }
       }
     }
   }
