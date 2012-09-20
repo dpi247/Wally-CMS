@@ -774,7 +774,7 @@ function cckdestinations_cckdestinations_widget_after_build ($form, $form_state)
   $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
   if (isset($field_values[$delta]) && !empty($field_values[$delta])) {
     $hook_is_empty = $field['module'].'_content_is_empty';
-    if ($hook_is_empty($field_values[$delta], $field)) {
+    if (function_exists($hook_is_empty) && $hook_is_empty($field_values[$delta], $field)) {
       foreach (element_children($form) as $key) {
         if (isset($form[$key]['#needs_validation'])) {
           unset($form[$key]['#needs_validation']);
@@ -809,9 +809,11 @@ function cckdestinations_batch_dest_form($context, $op) {
   $form['destinations'] = (array) content_field_form($form, $form_state, $destinations);
   $form['destinations']['#tree'] = TRUE;
   $form['destinations']['#weight'] = 3;
+  $form['destinations']['field_destinations'][0]['#type_name'] = 'destinations';
   $form['destinations']['field_destinations']['field_destinations_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $form['destinations']['field_destinations']['field_destinations_add_more']['#ahah']['path'] = str_replace('//', '/', 'cckdestinations/js_add_more/destinations/field_destinations/destinations/field_destinations');
   $form['destinations']['field_destinations']['#parents'] = array('destinations', 'field_destinations');
+  $form['destinations']['#field_info']['field_destinations']['display_settings']['parent'] = 'destinations';
 
   switch ($op) {
     case 'add':
@@ -912,10 +914,10 @@ function cckdestinations_batch_dest_add($node, $context, $a, $b) {
 
   if ($context['set_main_dest']) {
     $new_dest = array(
-        'tid' => $context['new_dests'][0]['tid'],
-        'target' => $context['new_dests'][0]['target'],
-        'layout' => $context['new_dests'][0]['layout'],
-        'rank' => $context['new_dests'][0]['rank'],
+      'tid' => $context['new_dests'][0]['tid'],
+      'target' => $context['new_dests'][0]['target'],
+      'layout' => $context['new_dests'][0]['layout'],
+      'rank' => $context['new_dests'][0]['rank'],
     );
     array_unshift($node->field_destinations, $new_dest);
     unset($context['new_dests'][0]);
@@ -923,10 +925,10 @@ function cckdestinations_batch_dest_add($node, $context, $a, $b) {
 
   foreach ($context['new_dests'] as $posted_dest) {
     $new_dest = array(
-        'tid' => $posted_dest['tid'],
-        'target' => $posted_dest['target'],
-        'layout' => $posted_dest['layout'],
-        'rank' => $posted_dest['rank'],
+      'tid' => $posted_dest['tid'],
+      'target' => $posted_dest['target'],
+      'layout' => $posted_dest['layout'],
+      'rank' => $posted_dest['rank'],
     );
     $node->field_destinations[] = $new_dest;
   }
@@ -1869,13 +1871,15 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $field_name = 'field_destinations';
   module_load_include('module', 'content');
   module_load_include('inc', 'content', 'includes/content.node_form');
-  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
+  $field['type_name'] = $type_name_url;
 
-  if (empty($_POST['form_build_id'])) {
+  if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
     // Invalid request.
-    print drupal_to_js(array('status' => FALSE, 'data' => ''));
+    drupal_json(array('data' => ''));
     exit;
   }
   
@@ -1885,7 +1889,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $form = form_get_cache($form_build_id, $form_state);
   if (!$form) {
     // Invalid form_build_id.
-    print drupal_to_js(array('status' => FALSE, 'data' => ''));
+    drupal_json(array('data' => ''));
     exit;
   }
   
@@ -1904,10 +1908,9 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $form_state_copy = $form_state;
 
   $form_copy['#post'] = array();
-  module_load_include('inc', 'wallyedit', 'wallyedit.forms');
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
- 
+
   $form_state['values'] = $form_state_copy['values'];
   
   // Reset cached ids, so that they don't affect the actual form we output.
@@ -1915,8 +1918,10 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
 
   $q = $_GET['q'];
   $path = array_slice(explode('/', $q), 4);
-  $path = isset($form[$type_name_url]) ? array_merge(array($type_name_url), $path) : $path;
-  
+  if ($form['#tree']) {
+    $path = array_merge(array($type_name_url), $path);
+  }
+
   $form_element = $form;
   foreach($path as $path_item){
     $form_element = $form_element[$path_item];
@@ -1926,7 +1931,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   if (!isset($form_state_ref[$parents[0]]['field_destinations']) && $parents[0] != 'field_destinations') {
     $parents[0] = 'group_destinations';
   }
-  
+
   $_POST_ref = $_POST;
   foreach($parents as $path_item) {
     $form_state_array[] = $form_state_ref[$path_item];
@@ -1952,11 +1957,11 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
 
   // Build our new form element for the whole field, asking for one more element.
   $form_state_ref['item_count'] = array($field_name => count($_POST_ref));
-  
+
   $temp = array();
   $temp['values'][$field_name] = $form_state_ref;
   $form_element = content_field_form($form_t, $temp, $field);
-  
+
   unset($form_state_ref['item_count']);
   $new_keys = array_keys($form_state_ref);
   $form_element_copy = $form_element[$field_name];
@@ -1990,7 +1995,6 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $form_element[$field_name][$field_name.'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_add_elem_at_target($form, $form_element[$field_name], $path);
 
   /**********************/
@@ -2004,7 +2008,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
     '#programmed' => FALSE,
   );
   $form = form_builder($_POST['form_id'], $form, $form_state);
-  
+
   // Render the new output.
   $field_form = $form;
   foreach($path as $path_item){
@@ -2014,7 +2018,7 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
   $field_form['#parents'] = $parents;
   $field_form[$field_form['#field_name'].'_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $field_form[$field_form['#field_name'].'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $parents);
-  
+
   // Prevent duplicate wrapper.
   unset($field_form['#prefix'], $field_form['#suffix']);
 

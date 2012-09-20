@@ -11,6 +11,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
 
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
+  $field['type_name'] = $type_name_url;
 
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
     // Invalid request.
@@ -41,9 +42,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
   // so we use copies of $form and $form_data.
   $form_copy = $form;
   $form_state_copy = $form_state;
-
   $form_copy['#post'] = $_POST;
-  
   form_builder($_POST['form_id'], $form_copy, $form_state_copy);
   // Just grab the data we need.
 
@@ -117,7 +116,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
   $form_element[$field_name][$field_name.'_add_more']['#ahah']['path'] = 'cckdestinations/js_add_more/'.$type_name_url.'/'.$field_name.'/'.implode('/', $redirect_path);
   
   wallytoolbox_add_elem_at_target($form, $form_element[$field_name], $path);
-  
+
   /**********************/
   // Save the new definition of the form.
   $form_state['values'] = array();
@@ -127,7 +126,7 @@ function cckdestinations_add_more_js($type_name_url, $field_name) {
   // render the new element.
   $delta = max(array_keys($_POST_ref)) + 1;
   $_POST_ref[$delta]['_weight'] = $delta;
-  
+
   wallytoolbox_add_elem_at_target($_POST, $_POST_ref, $path, 1);
   
   $form_state = array('submitted' => FALSE);
