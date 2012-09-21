@@ -158,6 +158,14 @@ function wallyextra_cron() {
   print $return;
 }
 
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Css to add so space between operations in export admin
+ */
+function wallyextra_form_ctools_export_ui_list_form_alter($form, $form_state) {
+  drupal_add_css(drupal_get_path('module', 'wallyextra').'/css/export-admin.css');
+}
+
 function wallyextra_page_manager_variant_operations_alter(&$operations, $handler) {
   if (isset($operations['children']['actions']['children']['clone'])) {
     unset($operations['children']['actions']['children']['clone']);
