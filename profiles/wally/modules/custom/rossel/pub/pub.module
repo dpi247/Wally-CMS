@@ -223,7 +223,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
       break;
     case 'view':
       $cache_url = $_SERVER['HTTP_HOST'].'/'.$_GET['q'];
-  dsm('ccoo');
+      
       switch ($delta) {
         case 'pub_header':
           $block = array(
@@ -414,7 +414,7 @@ function _pub_getpubcontent($delta, $cache_url) {
   $orig_url = $_GET['q'];
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
-  dsm('coucou');
+
   $block_settings = pub_load_block($delta);
   switch ($block_settings['builder']) {
     case 'purl':
