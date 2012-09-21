@@ -423,6 +423,10 @@ function _pub_getpubcontent($delta, $cache_url) {
     case 'openx':
       $builder = '_openx';
       break;
+    case 'adtech':
+      $builder = '';
+      drupal_add_js(drupal_get_path('module', 'pub').'/scripts/ad_tech.js');
+      break;
     default:
       $builder = '';
   }
