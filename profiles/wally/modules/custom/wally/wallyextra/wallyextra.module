@@ -22,6 +22,24 @@ function wallyextra_menu() {
     'access arguments' => array('access content'),
     'type'             => MENU_CALLBACK,
   );
+  
+  $items['admin/build/ctools-content/list/%ctools_export_ui/hide'] = array(
+    'title' => t('Hide in all pages'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyextra_custom_content_confirm_hide_form', 4),
+    'load arguments' => array('ctools_custom_content'),
+    'access arguments' => array('administer custom content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['admin/build/ctools-content/list/%ctools_export_ui/show'] = array(
+    'title' => t('Show in all pages'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyextra_custom_content_confirm_show_form', 4),
+    'load arguments' => array('ctools_custom_content'),
+    'access arguments' => array('administer custom content'),
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
@@ -160,10 +178,44 @@ function wallyextra_cron() {
 
 /**
  * Implementation of hook_form_FORM_ID_alter().
- * Css to add so space between operations in export admin
+ * Css to add so space between operations in export admin and add "Hide" and "Show" links
  */
-function wallyextra_form_ctools_export_ui_list_form_alter($form, $form_state) {
+function wallyextra_form_ctools_export_ui_list_form_alter(&$form, &$form_state) {
   drupal_add_css(drupal_get_path('module', 'wallyextra').'/css/export-admin.css');
+
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content') {
+    $form_state['object']->plugin['allowed operations']['hide'] = array('title' => t('Hide in all pages'));
+    $form_state['object']->plugin['menu']['items']['hide'] = array(
+      'path' => 'list/%ctools_export_ui/hide',
+      'title' => t('Hide in all pages'),
+      'page callback' => 'wallyextra_custom_content_hide',
+      'page arguments' => array(4),
+      'load arguments' => array($form_state['object']->plugin['name']),
+      'access arguments' => array('administer custom content'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $form_state['object']->plugin['allowed operations']['show'] = array('title' => t('Show in all pages'));
+    $form_state['object']->plugin['menu']['items']['show'] = array(
+      'path' => 'list/%ctools_export_ui/show',
+      'title' => t('Show in all pages'),
+      'page callback' => 'wallyextra_custom_content_show',
+      'page arguments' => array(4),
+      'load arguments' => array($form_state['object']->plugin['name']),
+      'access arguments' => array('administer custom content'),
+      'type' => MENU_CALLBACK,
+    );
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Delete all instances of a custom content when it is deleted
+ */
+function wallyextra_form_ctools_export_ui_delete_confirm_form_alter(&$form, $form_state) {
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content' && isset($form_state['post']['confirm']) && $form_state['post']['confirm']) {
+    db_query('DELETE FROM {panels_pane} WHERE subtype = "%s"', $form_state['item']->name);
+  }
 }
 
 function wallyextra_page_manager_variant_operations_alter(&$operations, $handler) {
@@ -198,6 +250,58 @@ function wallyextra_ctools_plugin_api($module, $api) {
   
   if ($module == 'page_manager' && $api == 'pages_default') {
     return array('version' => 1);
+  }
+}
+
+function wallyextra_custom_content_confirm_hide_form($form_state, $plugin) {
+  $question = t('Are you sure you want to hide this content?');
+  
+  $add_form = array();
+  $add_form['plugin_name'] = array(
+    '#type' => 'value',
+    '#value' => $plugin->name,
+  );
+  
+  $form = confirm_form($add_form, $question, 'admin/build/ctools-content', '');
+  $form['#redirect'] = 'admin/build/ctools-content';
+  
+  return $form;
+}
+
+function wallyextra_custom_content_confirm_hide_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+  $plugin_name = $values['plugin_name'];
+
+  if (db_query('UPDATE {panels_pane} SET shown = 0 WHERE subtype = "%s"', $plugin_name)) {
+    drupal_set_message(t('Content hidden.'));
+  } else {
+    drupal_set_message(t('No content to hide or unable to hide.'), 'warning');
+  }
+}
+
+function wallyextra_custom_content_confirm_show_form($form_state, $plugin) {
+  $question = t('Are you sure you want to show this content?');
+
+  $add_form = array();
+  $add_form['plugin_name'] = array(
+    '#type' => 'value',
+    '#value' => $plugin->name,
+  );
+
+  $form = confirm_form($add_form, $question, 'admin/build/ctools-content', '');
+  $form['#redirect'] = 'admin/build/ctools-content';
+
+  return $form;
+}
+
+function wallyextra_custom_content_confirm_show_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+  $plugin_name = $values['plugin_name'];
+
+  if (db_query('UPDATE {panels_pane} SET shown = 1 WHERE subtype = "%s"', $plugin_name)) {
+    drupal_set_message(t('Content hidden.'));
+  } else {
+    drupal_set_message(t('No content to show or unable to show.'), 'warning');
   }
 }
 
