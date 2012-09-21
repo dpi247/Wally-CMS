@@ -200,14 +200,6 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_form_FORM_ID_alter().
- * Css to add so space between operations in export admin
- */
-function wallyadmin_form_ctools_export_ui_list_form_alter($form, $form_state) {
-  drupal_add_css(drupal_get_path('module', 'wallyadmin').'/css/export-admin.css');
-}
-
-/**
  * Implementation of hook_node_form_sidebar().
  *
  * This is an integration with the Slate theme of the Admin module.
