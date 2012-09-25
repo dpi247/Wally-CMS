@@ -170,8 +170,11 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
       $args = array(&$form_state);
       $commands = call_user_func_array($function_name, $args);
     }
-  
+
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
     ctools_ajax_render($commands);
   }
   
@@ -605,6 +608,9 @@ function wydit_form_node_main_treatment_validate($form_state, $commands = array(
   if(form_get_errors()) {
     wydit_ctools_include();
     $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
     ctools_ajax_render($commands);
   }
 }
@@ -654,10 +660,16 @@ function wydit_form_node_main_treatment_forced_validate($elements, &$form_state)
  */
 
 function wydit_form_submit_action_delete_global(&$form_state) {
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $confirm_form = ctools_build_form('wydit_form_delete_node_and_prenode_form', $form_state);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $confirm_form);
   $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   ctools_ajax_render($commands);
 }
 
@@ -673,6 +685,9 @@ function wydit_form_submit_action_cancel_global($form_state) {
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
   $new_form_state['action'] = '/node/'.$cache_name.'/edit2/ajax/'.$current_profile;
 
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $edit_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
   if (sizeof($form_state['parents']) == 1) {
@@ -683,7 +698,9 @@ function wydit_form_submit_action_cancel_global($form_state) {
   
   $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
   $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
-  
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   ctools_ajax_render($commands);
 }
 
@@ -694,6 +711,9 @@ function wydit_form_submit_action_reset_global(&$form_state) {
   // Clean the rest
   prenode_delete($form_state);
   $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   ctools_ajax_render($commands);
 }
 
@@ -823,7 +843,13 @@ function wydit_form_submit_action_edit($form_state) {
   $current_profile = $form_state['profile_id'];
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
 
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $edit_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $edit_form);
   $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
@@ -842,7 +868,13 @@ function wydit_form_submit_action_add_new($form_state) {
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
   $new_form_state['action'] = '/node/'.$cache_name.'/wydit_typeselector/ajax/'.$current_profile;
 
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $form_type_selector = ctools_build_form('wydit_form_nodetypeselector_form', $new_form_state);
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $form_type_selector);
   $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
 
@@ -896,8 +928,14 @@ function wydit_form_submit_action_next($form_state) {
   } else {
     $new_form_state['action'] = '/node/add2/'.$type_name.'/ajax/'.$current_profile.'/'.$cache_name;
   }
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $new_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state);
-
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
+  
   $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
   $commands[] = ctools_ajax_command_html('#wallyedit_container', $new_form);
   $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
@@ -922,7 +960,13 @@ function wydit_form_submit_action_save_global($form_state) {
   if (sizeof($new_form_state['parents']) == 1) {
     $commands[] = ctools_ajax_command_redirect('node/'.$cache_name.'/edit2/0/'.$current_profile);
   } else {
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', TRUE);
+    }
     $form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
   }
   
   $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
@@ -942,7 +986,13 @@ function wydit_form_submit_action_remove($form_state) {
   wydit_clean_and_save_form_state($form_state_copy);
 
   $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', TRUE);
+  }
   $new_form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
   if (sizeof($form_state['parents']) == 1) {
     $form_prev = drupal_get_form('wydit_form_preview_form', $form_state['cache name']);
   } else {
