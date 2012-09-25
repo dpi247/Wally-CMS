@@ -40,6 +40,9 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
   } else {
     $form_prev = '';
   }
+  if ($form_state['type'] != 'page') {
+    variable_set('menu_override_parent_selector', FALSE);
+  }
 
   if($js) {
     //AJAX rendering
