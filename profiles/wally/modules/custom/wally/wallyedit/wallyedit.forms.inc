@@ -802,9 +802,6 @@ function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
 
   if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'], $form_state['values'])) {
-    if ($form_state['type'] != 'page') {
-      variable_set('menu_override_parent_selector', FALSE);
-    }
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
     drupal_set_message(t('PreNode has been cleared'));
