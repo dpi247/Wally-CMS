@@ -17,7 +17,7 @@
 $plugin = array(
   'title' => t('Custom content Versionable'),
   'no title override' => TRUE,
-  'defaults' => array('admin_title' => '', 'title' => '', 'body' => '', 'format' => FILTER_FORMAT_DEFAULT, 'substitute' => TRUE),
+  'defaults' => array('admin_title' => '', 'title' => '', 'body' => '', 'format' => variable_get('filter_default_format', 1), 'substitute' => TRUE),
   'js' => array('misc/autocomplete.js', 'misc/textarea.js', 'misc/collapse.js'),
   // Make sure the edit form is only used for some subtypes.
   'edit form' => '',
@@ -107,7 +107,6 @@ function _wallyextra_custom_version_content_type_content_type($content) {
  */
 function wallyextra_custom_version_content_type_get_conf($subtype, $conf) { 
   if ($subtype['name'] != 'custom_version') {
-
     $settings = $subtype['content']->settings;
     $settings['custom_type'] = 'fixed';
     $settings['content'] = $subtype['content'];
@@ -152,8 +151,7 @@ function wallyextra_custom_version_content_type_get_conf($subtype, $conf) {
   return $settings;
 }
 
-function wallyextra_custom_version_content_type_editable($content_type, $subtype, $conf) { 
-
+function wallyextra_custom_version_content_type_editable($content_type, $subtype, $conf) {
   return TRUE;
 }
 
@@ -244,16 +242,16 @@ function wallyextra_custom_version_content_type_edit_form(&$form, &$form_state) 
   if (!db_table_exists('wallyextra_custom_content_version')){
     $form['warning'] = array(
       '#type'  => 'markup',
-      '#value' => t('You must update the module "Wallyextra" to enable this functionality'),
+      '#value' => t('You must update the module "WallyExtra" to enable this functionality'),
     );
   } else {
     $settings = wallyextra_custom_version_content_type_get_conf($form_state['subtype'], $form_state['conf']);
     $form_state['settings'] = $settings;
-  
+
     foreach ($form_state['conf'] as $key => $value){
       $form['conf']['#'.$key] = $value; 
     }
-    if ($form_state['subtype_name'] != 'custom_version' & !isset($form_state['conf']['id'])){
+    if ($form_state['subtype_name'] != 'custom_version' && !isset($form_state['conf']['id'])){
       $form['reusable'] = array(
         '#type' => 'value',
         '#value' => 'reusable',
@@ -326,7 +324,7 @@ function wallyextra_custom_version_content_type_edit_form(&$form, &$form_state) 
     ctools_include('dependent');
     ctools_add_js('dependent');
   
-    if ($form_state['subtype_name'] == 'custom_version' & $form_state['settings']['custom_type'] == 'local'){
+    if ($form_state['subtype_name'] == 'custom_version' && $form_state['settings']['custom_type'] == 'local'){
       $form['reusable'] = array(
         '#type'          => 'checkbox',
         '#title'         => t('Make this content reusable'),

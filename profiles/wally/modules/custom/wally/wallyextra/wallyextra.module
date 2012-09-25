@@ -43,6 +43,13 @@ function wallyextra_menu() {
     'type'             => MENU_CALLBACK,
     'page arguments'   => array(3),
   );
+  
+  $items['wallyextra/customcontent/versionpicker/%'] = array(
+    'page callback'    => 'wallyextra_custom_content_version_picker',
+    'access arguments' => array('administer custom content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
 
   $items['admin/build/ctools-content/list/%ctools_export_ui/hide'] = array(
     'title' => t('Hide in all pages'),
@@ -61,7 +68,7 @@ function wallyextra_menu() {
     'access arguments' => array('administer custom content'),
     'type' => MENU_CALLBACK,
   );
-
+  
   return $items;
 }
 
@@ -294,7 +301,7 @@ function wallyextra_form_alter(&$form, $form_state, $form_id) {
     }
   }
   
-  if ($form_id == 'ctools_custom_content_type_edit_form' & db_table_exists('wallyextra_custom_content_version')){
+  if ($form_id == 'ctools_custom_content_type_edit_form' && db_table_exists('wallyextra_custom_content_version')) {
     unset($form['buttons']['return']);
     unset($form['admin_title']);
     unset($form['title']);
@@ -358,6 +365,71 @@ function wallyextra_custom_content_confirm_show_form_submit($form, $form_state) 
   } else {
     drupal_set_message(t('No content to show or unable to show.'), 'warning');
   }
+}
+
+function wallyextra_custom_content_version_select_version_form($form_state, $plugin) {
+  $form = array();
+  
+  ctools_include('ajax');
+  drupal_add_js(drupal_get_path('module', 'wallyextra').'/scripts/version_picker.js');
+
+  $versions = wallyextra_custom_content_type_getversions($plugin->settings['id']);
+  $options = array();
+  foreach ($versions as $version) {
+    $options[$version->vid] = t('Version').' '.$version->version.' : '.format_date($version->date);
+    if ($version->version == sizeof($versions)) {
+      $options[$version->vid] .= ' <b>('.t('current version').')</b>';
+    }
+  }
+  $form['version'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose a version'),
+    '#options' => $options,
+    '#attributes' => array('class' => 'version-picker'),
+    '#suffix' => '<div id="wallyextra_version"></div>'
+  );
+  
+  $form['plugin_name'] = array(
+    '#type' => 'hidden',
+    '#value' => $plugin->name,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  
+  $form['cancel'] = array(
+    '#value' => l(t('Cancel'), 'admin/build/wallyextra/custom-content/list'),
+  );
+  
+  return $form;
+}
+
+function wallyextra_custom_content_version_select_version_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  
+  $plugin = ctools_export_crud_load('wallyextra_custom_content', $values['plugin_name']);
+  $version = wallyextra_custom_content_type_getversion($values['version']);
+  $version->settings = unserialize($version->settings);
+  $plugin->settings = $version->settings;
+  ctools_export_crud_save('wallyextra_custom_content', $plugin);
+  
+  $new_version_id = db_result(db_query("SELECT MAX(version) FROM {wallyextra_custom_content_version} WHERE cid = %d", $plugin->settings['id'])) + 1;
+  $version->version = $new_version_id;
+  $version->date = time();
+  drupal_write_record('wallyextra_custom_content_version', $version);
+  
+  drupal_set_message(t('Version changed.'));
+  
+  $form_state['redirect'] = 'admin/build/wallyextra/custom-content/list';
+}
+
+function wallyextra_custom_content_version_picker($version) {
+  $version = wallyextra_custom_content_type_getversion($version);
+  $settings = unserialize($version->settings);
+  $content  = '<textarea class = "form-textarea resizable textarea-processed" rows="5" cols = "60">'.$settings['body'].'</textarea>';
+  print $content;
 }
 
 /**
@@ -789,10 +861,10 @@ function wallyextra_ajax_customcontentformreplace($version_id){
  */
 function wallyextra_custom_content_type_getversions($id){
   $items = array();
-  if ($id !== NULL){
+  if ($id !== NULL) {
     $result = db_query("SELECT v.vid, v.date, v.version
-    					  FROM {wallyextra_custom_content_version} v
-    				      WHERE v.cid = %d", $id);
+    					          FROM {wallyextra_custom_content_version} v
+    				            WHERE v.cid = %d", $id);
     while ($version = db_fetch_object($result)){
       $items[] = $version;
     }

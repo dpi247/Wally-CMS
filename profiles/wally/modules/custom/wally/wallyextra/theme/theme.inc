@@ -1,4 +1,8 @@
-<?php function theme_wallyextra_custom_version_content_type_edit_form($form){
+<?php
+
+function theme_wallyextra_custom_version_content_type_edit_form($form) {
+  ctools_include('ajax');
+
   $content = '';
   $content .= '<div>';
   $content .= '<ul class = "tabs primary">';
@@ -19,7 +23,7 @@
   return $content;
 }
 
-function theme_wallyextra_custom_content_type_listversion($versions){
+function theme_wallyextra_custom_content_type_listversion($versions) {
   if ($versions != NULL){
     $content = '<ul>';
     foreach ($versions  as $version){
