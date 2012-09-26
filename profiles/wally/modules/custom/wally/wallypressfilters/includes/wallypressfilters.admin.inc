@@ -63,6 +63,17 @@ function wallypressfilters_form_addfilter_form($form_state, $fid = NULL){
     '#type'          => 'textarea',
     '#title'         => t('List of the markers'),
     '#description'   => t('The markers who will be filtered. Enter one value per line, without the "&lt;", "&gt;".<br>
+        You can also add a label, following schema "<i>marker|label</i>".'),
+    '#default_value' => '',
+    '#cols'          => 10,
+    '#rows'          => 15,
+    '#resizable'     => TRUE,
+  );
+  
+  $form['wallypressfilters']['attr-rel-tags'] = array(
+    '#type'          => 'textarea',
+    '#title'         => t('List of the attributes related tags'),
+    '#description'   => t('The tags who will be filtered. Enter one value per line, without the "&lt;", "&gt;".<br>
         You can also add a label, following schema "<i>tag|label</i>".'),
     '#default_value' => '',
     '#cols'          => 10,
@@ -77,19 +88,29 @@ function wallypressfilters_form_addfilter_form($form_state, $fid = NULL){
     $form['wallypressfilters']['name']['#default_value'] = $filter->name;
     $form['wallypressfilters']['description']['#default_value'] = $filter->description;
     
-    $tags_default_value = $markers_default_value = '';
-    $tag_space = $marker_space = '';
+    $tags_default_value = $markers_default_value = $attr_rel_tags_default_value = '';
+    $tag_space = $marker_space = $attr_rel_tags_space = '';
     foreach ($tags as $tag) {
-      if ($tag->type == 'tag') {
-        $tags_default_value .= $tag_space.$tag->tag.'|'.$tag->description;
-        $tag_space = "\n";
-      } elseif ($tag->type == 'marker') {
-        $markers_default_value .= $marker_space.$tag->tag.'|'.$tag->description;
-        $marker_space = "\n";
+      switch ($tag->type) {
+        case 'tag':
+          $tags_default_value .= $tag_space.$tag->tag.'|'.$tag->description;
+          $tag_space = "\n";
+          break;
+          
+        case 'marker':
+          $markers_default_value .= $marker_space.$tag->tag.'|'.$tag->description;
+          $marker_space = "\n";
+          break;
+          
+        case 'attr-rel-tag':
+          $attr_rel_tags_default_value .= $attr_rel_tags_space.$tag->tag.'|'.$tag->description;
+          $attr_rel_tags_space = "\n";
+          break;
       }
     }
     $form['wallypressfilters']['tags']['#default_value'] = $tags_default_value;
     $form['wallypressfilters']['markers']['#default_value'] = $markers_default_value;
+    $form['wallypressfilters']['attr-rel-tags']['#default_value'] = $attr_rel_tags_default_value;
   }
 
   $form['sumbit'] = array(
@@ -121,9 +142,10 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
     }
     $form_state['values']['update'] = array();
   }
+  
+  $form_state['values']['wallypresstags'] = array();
 
   $tags = explode("\r\n", $form_state['values']['wallypressfilters']['tags']);
-  $form_state['values']['wallypresstags'] = array();
   foreach ($tags as $tmp_tag) {
     list($tag, $description) = explode('|', $tmp_tag);
 
@@ -147,7 +169,6 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
   }
   
   $markers = explode("\r\n", $form_state['values']['wallypressfilters']['markers']);
-  $form_state['values']['wallypressmarkers'] = array();
   foreach ($markers as $tmp_marker) {
     list($marker, $description) = explode('|', $tmp_marker);
     
@@ -165,6 +186,29 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
         'description' => $description ? $description : '',
         'filter' => $form_state['values']['wallypressfilters']['name'],
         'type' => 'marker',
+        'update' => $update,
+      );
+    }
+  }
+  
+  $attr_rel_tags = explode("\r\n", $form_state['values']['wallypressfilters']['attr-rel-tags']);
+  foreach ($attr_rel_tags as $tmp_attr_rel_tag) {
+    list($attr_rel_tag, $description) = explode('|', $tmp_attr_rel_tag);
+  
+    // Check if the marker is correct
+    if ($attr_rel_tag == '') {
+      ;
+    }
+    // Check is the marker exists two times
+    elseif (array_key_exists($attr_rel_tag, $form_state['values']['wallypresstags'])) {
+      form_set_error('wallypressfilters][attr-rel-tags', t('There can not be two identical attributes related tags.'));
+    } else {
+      $update = array();
+      $form_state['values']['wallypresstags'][$attr_rel_tag] = array(
+        'tag' => $attr_rel_tag,
+        'description' => $description ? $description : '',
+        'filter' => $form_state['values']['wallypressfilters']['name'],
+        'type' => 'attr-rel-tag',
         'update' => $update,
       );
     }
@@ -255,5 +299,6 @@ function _wallypressfilters_settings_defaults () {
     'classes' => '',
     'attributes' => '',
     'convert_text' => '',
+    'attributes-replacement' => '',
   );
 }

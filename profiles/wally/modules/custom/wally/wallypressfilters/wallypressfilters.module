@@ -330,10 +330,36 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     '#title'       => t('Markers'),
     '#collapsible' => TRUE,
   );
+  
+  $form['filter'][$filter->name]['attr-rel-tag'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Atributes related tags'),
+    '#collapsible' => TRUE,
+  );
 
   if (!empty($tags)) {
     ctools_include('dependent');
     ctools_add_js('dependent');
+    
+    $types = array(
+      'tag' => array(
+        'ignore' => t('Ignore'),
+        'replace' => t('Replace'),
+        'strip' => t('Strip'),
+        'strip_contents' => t('Strip and Strip Contents'),
+      ),
+      'marker' => array(
+        'ignore' => t('Ignore'),
+        'replace' => t('Replace'),
+        'strip' => t('Strip'),
+        'convert' => t('Convert to text'),
+      ),
+      'attr-rel-tag' => array(
+        'ignore' => t('Ignore'),
+        'attr_replace' => t('Replace following attributes'),
+        'strip' => t('Strip'),
+      ),
+    );
 
     foreach ($tags as $tag) {
       $tag_form = array(
@@ -350,23 +376,14 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         'classes' => '',
         'attributes' => '',
         'convert_text' => '',
+        'attributes-replacement' => '',
       );
       $defaults = array_merge($defaults, $settings);
 
-      $types = array(
-        'ignore' => t('Ignore'),
-        'replace' => t('Replace'),
-        'strip' => t('Strip'),
-      );
-      if ($tag->type == 'tag') {
-        $types['strip_contents'] = t('Strip and Strip Contents');
-      } elseif ($tag->type == 'marker') {
-        $types['convert'] = t('Convert to text');
-      }
       $tag_form['operation'] = array(
         '#type'          => 'select',
         '#title'         => t('Operation'),
-        '#options'       => $types,
+        '#options'       => $types[$tag->type] ? $types[$tag->type] : array(),
         '#default_value' => $defaults['operation'],
       );
 
@@ -404,16 +421,28 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         '#process'       => array('ctools_dependent_process'),
       );
 
-      if ($tag->type == 'marker') {
-        $tag_form['convert_text'] = array(
-          '#type'          => 'textfield',
-          '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
-          '#default_value' => $defaults['convert_text'],
-          '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
-          '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
-          '#process'       => array('ctools_dependent_process'),
-        );
-      }
+      $tag_form['convert_text'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
+        '#default_value' => $defaults['convert_text'],
+        '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
+        '#process'       => array('ctools_dependent_process'),
+      );
+      
+      $tag_form['attributes-replacement'] = array(
+        '#type'          => 'textarea',
+        '#title'         => t('Attributes management'),
+        '#default_value' => $defaults['attributes-replacement'],
+        '#description'   => t('This area determine how the original tag will be replaced.<br>
+            You can choose the new tag value according to an attribute value.<br>
+            For example you could transform "<i><code>!ex_code_1</code></i>" into "<i><code>!ex_code_2</code></i>" and "<i><code>!ex_code_3</code></i>" into "<i><code>!ex_code_4</code></i>".<br>
+            Please enter one replacement set per line, following schema "<i>attribute_name</i>|<i>attribute_value</i>|<i>new_tag_value</i>"
+            (in this example "foo|val1|bar1" and "foo|val2|bar2", on two separated lines).',
+            array('!ex_code_1' => htmlentities('<cci:ex foo="val1">'), '!ex_code_2' => htmlentities('<bar1>'), '!ex_code_3' => htmlentities('<cci:ex foo="val2">'), '!ex_code_4' => htmlentities('<bar2>'))),
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('attr_replace')),
+        '#process'       => array('ctools_dependent_process'),
+      );
 
       $tag_form['format'] = array(
         '#type'  => 'value',
@@ -423,6 +452,11 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
       $tag_form['tag'] = array(
         '#type'  => 'value',
         '#value' => $tag->tag,
+      );
+      
+      $tag_form['description'] = array(
+        '#type'  => 'value',
+        '#value' => $tag->description,
       );
 
       $form['filter'][$filter->name][$tag->type][$tag->tid] = $tag_form;
@@ -477,6 +511,7 @@ function wallypressfilters_form_filter_settings_form_submit($form, &$form_state)
             'classes' => $tag_infos['classes'],
             'attributes' => $tag_infos['attributes'],
             'convert_text' => $tag_infos['convert_text'],
+            'attributes-replacement' => $tag_infos['attributes-replacement'],
           );
           $obj->settings = $settings;
           if ($tag_infos['format'] == NULL){
