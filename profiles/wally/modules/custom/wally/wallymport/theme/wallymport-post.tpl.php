@@ -1,5 +1,7 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel="stylesheet" type="text/css" href="/<?php print drupal_get_path('module','wallytoolbox').'/twitter_bootstrap/bootstrap/css/bootstrap.min.css'?>" />
+<link rel="stylesheet" type="text/css" href="/<?php print drupal_get_path('module','wallytoolbox').'/twitter_bootstrap/bootstrap/css/bootstrap.css'?>" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="/<?php print drupal_get_path('module','wallytoolbox').'/twitter_bootstrap/bootstrap/js/bootstrap.min.js'?>"></script>
 <style type="text/css">
@@ -135,3 +137,4 @@ $("div.wallymport_result ul").toggle();
   
 </div>
 </body>
+</html>
