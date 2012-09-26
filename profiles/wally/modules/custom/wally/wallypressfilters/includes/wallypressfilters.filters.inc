@@ -19,7 +19,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
   }
 
   // Get all attributes
-  $tag_regex = '@<'.$tag.'\s*(.*)\s*>@U';
+  $tag_regex = "@<$tag\s*(.*)\s*>@U";
   $tag_matches = array();
   preg_match_all($tag_regex, $text, $tag_matches);
   
@@ -44,13 +44,13 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
       }
     }
 
-    $replace_string = '<'.$new_tag.$new_attr.' class="'.$old_classes.' '.$classes.'"';
+    $replace_string = "<$new_tag$new_attr class=\"$old_classes $classes\"";
     $replace_string .= $type == 'marker' ? '/>' : '>';
     $text = str_replace($tag_match, $replace_string, $text);
   }
 
   // Then we manage the end tags
-  $text = preg_replace('@<\/'.$tag.'>@U', '</'.$new_tag.'>', $text);
+  $text = preg_replace("@<\/$tag>@U", "</$new_tag>", $text);
 
   return $text;
 }
@@ -62,7 +62,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_tags($tag, $settings, $text) {
-  $text = preg_replace('@<(\/)?'.$tag.'.*>@U', '', $text);
+  $text = preg_replace("@<(\/)?$tag.*>@U", '', $text);
   return $text;
 }
 
@@ -73,7 +73,7 @@ function wallypressfilters_strip_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
-  $text = preg_replace('@<'.$tag.'.*>.*<\/'.$tag.'>@', '', $text);
+  $text = preg_replace("@<$tag.*>.*<\/$tag>@", '', $text);
   return $text;
 }
 
@@ -84,6 +84,33 @@ function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_convert_tags($tag, $settings, $text) {
-  $text = preg_replace('@<'.$tag.'(.*)>@U', $settings['convert_text'], $text);
+  $text = preg_replace("@<$tag(.*)>@U", $settings['convert_text'], $text);
+  return $text;
+}
+
+/**
+ * Replace tags with others according to mapping
+ * @param string $tag tag to replace
+ * @param array $settings settings of this replacement
+ * @param string $text text to process
+ */
+function wallypressfilters_attr_replace_tags($tag, $settings, $text) {
+  if (!empty($settings['attributes-replacement'])) {
+    // Mapping between old and new tags
+    $settings_attr = explode(PHP_EOL, $settings['attributes-replacement']);
+    foreach ($settings_attr as $set_attr) {
+      $tmp_attr = explode('|', $set_attr);
+      if (sizeof($tmp_attr) == 3) {
+        $attr = $tmp_attr[0];
+        $val = $tmp_attr[1];
+        $new_tag = $tmp_attr[2];
+        
+        $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
+        $new_str = "<$new_tag$1$2>$3</$new_tag>";
+        $text = preg_replace($str_to_find, $new_str, $text);
+      }
+    }
+  }
+
   return $text;
 }
