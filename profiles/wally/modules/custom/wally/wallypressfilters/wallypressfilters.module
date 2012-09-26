@@ -228,6 +228,39 @@ function wallypressfilters_gettagsfromfilter($filter_name){
 
 /**
  * Return all tags of a filter and a format
+ *
+ * If the tag does not exist for a format, it return the default tag
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @param $format
+ * 	The format
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_gettagsfromfilterandformat_admin($filter_name, $format){
+    $result = db_query("SELECT t.*
+                        FROM {wallypressfilters_tags} t
+                        WHERE t.filter = '%s'
+                        AND (t.format = %d OR t.format IS NULL)
+                        AND t.tid IN (
+                        SELECT max(tid) FROM {wallypressfilters_tags}
+                          WHERE filter = '%s'
+                          AND (format = %d OR format IS NULL)
+                          GROUP BY tag
+                        )
+                        ", $filter_name, $format, $filter_name, $format);
+
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Return all tags of a filter and a format
  * 
  * If the tag does not exist for a format, it return the default tag
  *
@@ -239,17 +272,13 @@ function wallypressfilters_gettagsfromfilter($filter_name){
  *   an array containing all the tag of the filter
  */
 function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
-  $result = db_query("SELECT t.*
-  					  FROM {wallypressfilters_tags} t
-  					  WHERE t.filter = '%s'
-  					  AND (t.format = %d OR t.format IS NULL)
-  					  AND t.tid IN (
-  					  	SELECT max(tid) FROM {wallypressfilters_tags}
-  					  	WHERE filter = '%s'
-  					  	AND (format = %d OR format IS NULL)
-  					  	GROUP BY tag
-  					  )
-  					  ", $filter_name, $format, $filter_name, $format);
+  $result = db_query("SELECT MAX( t.tid ) , t.filter, t.format, t.type, t.tag, t.description, t.settings
+                      FROM {wallypressfilters_tags} t
+                      WHERE t.filter = '%s'
+                      AND (t.format = %d)
+                      GROUP BY tag
+                      ", $filter_name, $format);
+
   $tags = array();
   while ($obj = db_fetch_object($result)){
     $obj->settings = unserialize($obj->settings);
