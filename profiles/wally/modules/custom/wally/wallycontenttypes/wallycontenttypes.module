@@ -1096,6 +1096,8 @@ function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
   }
 
   (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
+  
+  if ($variables['teaser'] && $variables['node']->teaser) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_teaser';
  
   if ($package_layout) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
 
