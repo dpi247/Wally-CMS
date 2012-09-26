@@ -7,8 +7,7 @@ Drupal.behaviors.refreshPreview = function(context) {
 
 function buildList() {
 	$("#edit-select-preview").bind("change", function() {
-		$("#loading_preview").show();
-		$("#prev_iframe").hide();
+		$("#loading_preview").hide();
 
 		var temp = "";
 		if ($(this).val() != "disabled") {
@@ -20,10 +19,5 @@ function buildList() {
 			temp = "/node/"+cache_name+"/preview2/"+$(this).val();
 		}
 		$("#prev_iframe").attr("src", temp);
-	});
-
-	$("#prev_iframe").load(function() {
-		$("#loading_preview").hide();
-		$("#prev_iframe").show();
 	});
 }
