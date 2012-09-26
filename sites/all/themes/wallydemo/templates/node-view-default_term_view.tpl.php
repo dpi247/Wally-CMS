@@ -84,21 +84,7 @@ if ($nb_comment == 0) $reagir = "réagir";
 else if ($nb_comment == 1) $reagir = $nb_comment."&nbsp;réaction";
 else $reagir = $nb_comment."&nbsp;réactions";
 
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- * 'filinfo' -> '00h00'
- * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publié le 26/05 à 15h22'
- * 
- * print($date_edition);
- */ 
- 
-$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'unebis');
+$date_edition = _wallydemo_get_edition_date($node, 'unebis');
  
 /* Récupération du chapeau de l'article -> $strapline
  * Le nombre de caractères attendus pour ce chapeau est spécifié dans $strapline_length
@@ -159,7 +145,7 @@ switch ($row_index) {
   <h2><a href="/<?php print check_url($node_path); ?>"><?php print wallydemo_check_plain($title); ?></a></h2>
   <?php if($photo == TRUE){ ?>
   <a href="/<?php print check_url($node_path); ?>">
-  <?php $photoObject_img = theme('imagecache', 'unebis_small_90x66', $photoObject_path, $photoObject_summary, $photoObject_summary);
+  <?php $photoObject_img = theme('imagecache', 'unebis_small_90x60', $photoObject_path, $photoObject_summary, $photoObject_summary);
   print $photoObject_img; ?>
   </a>
   <?php } ?>

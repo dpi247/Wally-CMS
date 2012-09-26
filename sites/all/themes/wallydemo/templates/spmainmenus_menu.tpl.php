@@ -129,6 +129,7 @@ function spmainmenus_mainmenu_tree_output($tree, $menuid="menu-primary-links", $
     if ($firstpass==1) {
 	  $first_level_class = " first_level";
       drupal_add_js(drupal_get_path('theme', 'wallydemo') . '/scripts/superfish.js','theme');
+      drupal_add_js(drupal_get_path('theme', 'wallydemo') . '/scripts/scripts.js','theme');
 
       /*
        * C'est le déclencheur Jquery. 

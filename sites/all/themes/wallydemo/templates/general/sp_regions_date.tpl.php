@@ -131,4 +131,5 @@ $main_menu = wallydemo_menu_tree_output($menu, "selectboxeditions", 1);
 //ici unset variables
 unset($menu);
 unset($main_menu);
+unset($my_data);
 ?>

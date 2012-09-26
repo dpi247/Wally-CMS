@@ -91,21 +91,8 @@ if ($nb_comment == 0) $reagir = "réagir";
 else if ($nb_comment == 1) $reagir = $nb_comment."&nbsp;réaction";
 else $reagir = $nb_comment."&nbsp;réactions";
 
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
 
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- * 'filinfo' -> '00h00'
- * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publié le 26/05 à 15h22'
- * 
- * print($date_edition);
- */ 
- 
-$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'unebis');
+$date_edition = _wallydemo_get_edition_date($node, 'unebis');
  
 /* Récupération du chapeau de l'article -> $strapline
  * Le nombre de caractères attendus pour ce chapeau est spécifié dans $strapline_length
@@ -114,7 +101,18 @@ $date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'unebis');
  * print($strapline);
  */
 $strapline_length = 0;
-$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
+if ($node->type == 'wally_articlepackage'){
+  $strapline = _wallydemo_get_strapline($mainstory, $node, $strapline_length);
+} else{
+  $strapline = '';
+  foreach ($node->field_embededobjects_nodes as $embed){
+    if ($embed->type == 'wally_textobject'){
+      $textobject = $embed;
+      $strapline = _wallydemo_get_strapline($textobject, $node, $strapline_length);
+      break;
+    }
+  }
+}
 
 ?>
 

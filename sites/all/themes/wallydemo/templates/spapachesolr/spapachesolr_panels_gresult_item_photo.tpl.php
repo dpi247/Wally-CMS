@@ -24,7 +24,7 @@
 	switch($type) {
 		// main
 		case "main_size":
-			$photo_display = theme('imagecache', 'unebis_small_90x66', $embed_photo['filename'], $embed_photo['title'],$embed_photo['title'].$embed_photo['credit']);
+			$photo_display = theme('imagecache', 'unebis_small_90x60', $embed_photo['filename'], $embed_photo['title'],$embed_photo['title'].$embed_photo['credit']);
 			$html .= "<a href='".$node_path."'>".$photo_display."</a>";
 			break;
 

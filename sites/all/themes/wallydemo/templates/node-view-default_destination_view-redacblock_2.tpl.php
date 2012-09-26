@@ -48,10 +48,14 @@ $photoObject_path = "";
 if ($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
   $title = $mainstory->title;
+  $strapline_length = 0;
+  $strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 } else {  
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
   $title = $node->title;
+  $strapline_length = 200;
+  $strapline = wallydemo_get_textTeaser($embedtext_html,$strapline_length);  
   if ($node->type == "wally_gallerypackage"){ 
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $photoObject_summary = $mainstory->field_summary[0]['value'];
@@ -82,20 +86,6 @@ if ($photoObject_path == ""){
   }
 }
 
-
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- * 'filinfo' -> '00h00'
- * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publié le 26/05 à 15h22'
- * 
- * print($date_edition);
- */ 
  
 switch($row_index){
 	case 0:
@@ -105,7 +95,10 @@ switch($row_index){
 	case 12:
 	case 13:
 	case 18:
-		$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'default');
+		$date_edition = _wallydemo_get_edition_date($node, 'default');
+		if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+		  $date_edition = str_replace('publié', 'mis a jour', $date_edition);
+		}
 	break;
 	case 2:
 	case 3:
@@ -119,17 +112,9 @@ switch($row_index){
 	case 15:
 	case 16:
 	case 17:
-		$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'date_courte');
+		$date_edition = _wallydemo_get_edition_date($node, 'date_courte');
 	break;	
 }
-/* Récupération du chapeau de l'article -> $strapline
- * Le nombre de caractères attendus pour ce chapeau est spécifié dans $strapline_length
- * Si aucune limitation n'est attendue, laisser la valeur de $strapline_length à 0
- * 
- * print($strapline);
- */
-$strapline_length = 0;
-$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 
 /* Récupération du nombre de réactions sur la package
  * 

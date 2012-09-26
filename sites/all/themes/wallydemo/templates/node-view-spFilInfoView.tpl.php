@@ -2,8 +2,7 @@
 	$node_path = wallydemo_get_node_uri($node);
 	$mainstory = $node->field_mainstory_nodes[0];
 	$title = $mainstory->title;
-	$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-	$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'filinfo');
+	$date_edition = _wallydemo_get_edition_date($node, 'filinfo');
 ?>
 <li>
 	<p>

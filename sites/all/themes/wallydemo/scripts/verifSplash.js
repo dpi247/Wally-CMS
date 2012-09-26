@@ -10,5 +10,5 @@ $.ajax({
 
 
 function wSplash(data) {
-	if(data == 'true')  $('head').append('<script src="/sites/all/themes/wallydemo/scripts/splash.js" type="text/javascript"></script>');
+	if(data == 'true')  $('head').append('<script src="/sites/all/themes/custom_sp/scripts/splash.js" type="text/javascript"></script>');
 }

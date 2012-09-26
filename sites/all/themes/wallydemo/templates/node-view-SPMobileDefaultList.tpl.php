@@ -94,23 +94,9 @@ if ($tid != 20) {
 	$photoObject_img = theme('imagecache', 'une_small_78x52', $photoObject_path, $photoObject_summary, $photoObject_summary);}
 	else { $photoObject_img = "<img src=\"".$theme_path."/images/default_pic_78x52.png\">"; }}
   
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
 
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- *  'filinfo' -> '00:00'
- *  'unebis' -> 'lundi 01 janvier 2011, 00h00'
- *  'date_courte' -> '30/05 - 13h24'
- *  'default' -> 'publié le 01/01 à 00h00'
- * 
- * print($date_edition);
- */ 
- 
 if ($tid == 20) { 
-$date_edition = "<span class=\"time\">" ._wallydemo_date_edition_diplay($node_publi_date, 'date_courte') ."</span>&nbsp;";
+$date_edition = "<span class=\"time\">" ._wallydemo_get_edition_date($node, 'date_courte') ."</span>&nbsp;";
 }
 
 ?>

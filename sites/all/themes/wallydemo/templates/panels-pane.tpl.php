@@ -28,7 +28,6 @@ $title_fitre = "<div class=\"search title_fitre\"><h2>".$title."</h2></div>";
   <div class="admin-links panel-hide"> <?php print $admin_links; ?> </div>
   <?php endif; ?>
   <?php if (substr( $pane->subtype, 0, 22) == "apachesolr_search-type" || substr( $pane->subtype, 0, 25) == "apachesolr_search-created" || substr( $pane->subtype, 0, 26) == "apachesolr_search-im_vid_6" || substr( $pane->subtype, 0, 26) == "apachesolr_search-im_vid_7" || substr( $pane->subtype, 0, 26) == "apachesolr_search-im_vid_8" || substr( $pane->subtype, 0, 15) == "apachesolr_form") {
-	  drupal_add_css(drupal_get_path('theme', 'wallydemo').'/css/services.css','file','screen');
 	print $title_fitre;
 		}
   ?>

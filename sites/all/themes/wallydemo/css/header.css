@@ -26,8 +26,13 @@
 	font-family: Arial, Helvetica, sans-serif;
 	color:#999;
 	height: 20px;
-	margin-left:10px;
 	font-size:12px;
+}
+#top_header .li_s_titre {
+	float:left;
+	padding:7px 8px 0 0;
+	border-top:1px dotted #CCC;
+	margin-left:10px;
 }
 #top_header .titre_region, #top_header div.date {
 	margin-left:10px;
@@ -42,11 +47,19 @@
 }
 #top_header .date {
 	line-height:11px;
-	margin-bottom:5px;
 	font-size: 11px;
 	padding-bottom: 6px;
-	background: url("../images/separator_horizontal1.gif") repeat-x scroll left bottom transparent;
 	color:#999;
+}
+.social_menu {
+	float:left;
+	padding-top:8px;
+	padding-left:4px;
+	border-top:1px dotted #CCC;
+	border-left:1px dotted #CCC;
+}
+#top_header .social_menu li {
+	padding-left: 5px;
 }
 
 /* services */

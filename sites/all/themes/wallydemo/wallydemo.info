@@ -4,20 +4,15 @@ version = 1
 core = 6.x
 engine = phptemplate
 
-scripts[] = scripts/verifSplash.js
-
 stylesheets[screen][] = css/reset_of_death.css
 stylesheets[screen][] = css/topmenu.css
 stylesheets[screen][] = css/header.css
 stylesheets[screen][] = css/screen.css
-stylesheets[screen][] = css/services.css
 stylesheets[screen][] = css/footer_sp.css
 stylesheets[screen][] = css/connectbox.css
 stylesheets[print][] = css/print.css
 
-scripts[] = scripts/superfish.js
 scripts[] = scripts/connectbox.js
-scripts[] = scripts/scripts.js
 scripts[] = scripts/adtech.js
 
 api[panels][styles][version] = 2

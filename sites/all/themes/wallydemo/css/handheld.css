@@ -1,0 +1,124 @@
+/* media="handheld, only screen and (max-device-width: 640px) */
+
+html body #topmenu {
+	display:none !important;
+	top:-1000px;
+}
+html #global {
+    padding-top: 10px;
+	overflow:hidden;
+}
+#global #sp_rubriques,
+#global #widget_boutique,
+#global .folder.exergue,
+#global #imu_nosclubs,
+#global .groupolitan,
+#global .bloc-fb,
+#global .enmemoire,
+#global .bloc-fb {
+	display:none !important;
+}
+
+/* ------------------ articles en Unes ----------------- */
+
+#global .article {
+	border-bottom:1px dotted #999;
+}
+.article .time_une, .article .ariane_une {
+    font-size: 13px;
+    line-height: normal;
+}
+.article .comment a {
+	background-position:0 center;
+}
+.accueil .article li.media-video, .accueil .article li.media-press, .accueil .article li.media-audio, .accueil .article li.media-photo, .accueil .article li.media-pool, .accueil .article li.media-dossier {
+	background:none;
+	list-style:inside disc;
+	padding-left:0;
+}
+
+/* groupe de 4 articles  */
+
+#global div.wrap-columns .intern-col {
+    display: block;
+    float: none;
+}
+#global div.wrap-columns .last {
+    background: none;
+}
+#global .intern-col {
+    padding: 0px;
+    width: auto;
+}
+#global .intern-col .noborder {
+    margin: 0 0 10px;
+    padding: 0 0 11px;
+	border-bottom:1px dotted #999;
+}
+#global .wrap-columns {
+    border-bottom: none;
+    padding:10 px 0 0;
+}
+
+/* ----------------------- Buzz ----------------------- */
+
+#global #content .buzz {
+    background:none #fff;
+    border: 1px solid #CD0044;
+    padding:0 0 10px;
+	margin-top:-5px;
+}
+.buzz.exergue h1 {
+    float: none;
+    margin:0;
+    width: auto;
+	background: #cc0044;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f01860), to(#cc0044));
+	background: -moz-linear-gradient(top, #f01860, #cc0044);
+	padding: 3px 0 3px 10px;
+}
+.buzz.exergue h1 a, .buzz.exergue h1 a:visited {
+    float:none;
+    height: auto;
+    text-indent:0;
+    width:auto;
+	color:#fff !important;
+	font-size:18px;
+}
+.buzz.exergue .item.column {
+    float:none;
+	clear:both;
+	display:block;
+	width:auto;
+	padding-bottom:10px;
+	border-bottom:1px dotted #999;
+	min-height:85px;
+	margin:10px 10px 0;
+}
+.buzz.exergue .item img {
+	float:left;
+	margin: 0 10px 5px 0;
+}
+.buzz.exergue .coince, .buzz.exergue .dernier {
+    background: none;
+    padding: 0;
+}
+.buzz.exergue .item.column.dernier {
+	border-bottom: none;
+	padding-bottom:0;
+}
+#content .buzz.exergue ul {
+    background: none;
+    float: none;
+    margin: 0 10px;;
+    padding-top: 10px;
+    width:auto;
+	display:block;
+}
+#content .buzz.exergue li {
+	border-top:1px dotted #999;
+	padding:10px 0;
+}
+#content .buzz.exergue li, .buzz .item li {
+    background: none;
+}

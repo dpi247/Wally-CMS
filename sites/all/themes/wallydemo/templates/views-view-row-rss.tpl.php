@@ -46,10 +46,10 @@ if ($photo == TRUE){
   $photoSummary = preg_replace('/&(.*);/iU', '', $photoSummary);
   $photoType = $photoObject->field_photofile[0]['filemime'];
 }
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-// HOTFIX RED #7055
-$node_publi_date = $node_publi_date + 7200;
-$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'flux_rss');
+
+_wallydemo_prepare_publication_dates($node);
+$date_edition = _wallydemo_get_edition_date($node, 'flux_rss');
+
 if ($mainstory->type == "wally_textobject"){
    $strapline = preg_replace('/<(.*)>/iU', '', $mainstory->field_textchapo[0]['value']);
 }else{
