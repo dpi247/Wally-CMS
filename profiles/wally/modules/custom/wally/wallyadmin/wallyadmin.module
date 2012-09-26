@@ -199,6 +199,17 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
   }
 }
 
+function wallyadmin_form_user_login_alter(&$form, $form_state) {
+  $form['#submit'][] = 'wallyadmin_form_user_login_alter_submit';
+}
+
+function wallyadmin_form_user_login_alter_submit($form, &$form_state) {
+  global $user;
+  if ($user->uid && $_GET['destination']) {
+    $form_state['redirect'] = $_GET['destination'];
+  }
+}
+
 /**
  * Implementation of hook_node_form_sidebar().
  *
