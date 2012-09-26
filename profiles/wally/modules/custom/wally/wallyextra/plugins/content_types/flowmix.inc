@@ -820,7 +820,7 @@ function wallyextra_flowmix_content_type_form_basicsetttings_form(&$form, &$form
       '#maxlength' => 512,
       '#required' => TRUE,
       '#weight' => 0,
-      '#id' => 'edit-name-not-dependent', // Necessary to avoir dependency conflict with the "name" field of wallyextra_flowmix_content_type_form_summary_form
+      '#id' => 'edit-name-not-dependent', // Necessary to avoid dependency conflict with the "name" field of wallyextra_flowmix_content_type_form_summary_form
     );
   
     $form['type'] = array(
