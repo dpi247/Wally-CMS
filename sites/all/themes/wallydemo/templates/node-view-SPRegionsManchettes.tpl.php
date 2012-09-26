@@ -85,22 +85,7 @@ else {
   $reagir = $nb_comment;
 }
 
-
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- * 'filinfo' -> '00h00'
- * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publié le 26/05 à 15h22'
- * 
- * print($date_edition);
- */ 
- 
-$date_edition = _wallydemo_date_edition_diplay($node_publi_date, 'date_courte');
+$date_edition = _wallydemo_get_edition_date($node, 'date_courte');
  
 /* Récupération du chapeau de l'article -> $strapline
  * Le nombre de caractères attendus pour ce chapeau est spécifié dans $strapline_length

@@ -45,7 +45,6 @@
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.scrollTo-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/jquery.localscroll-min.js');
 drupal_add_js(drupal_get_path('theme', 'wallydemo').'/scripts/script-article.js');
-drupal_add_css($themeroot . '/css/article.css');
 
 // Give the index of the row into the view.
 $themeroot = drupal_get_path('theme', 'wallydemo');
@@ -79,29 +78,12 @@ $node_path = $aliases[0];
  */
 $theme_path = drupal_get_path('theme', 'wallydemo');
 
+$date_edition = _wallydemo_get_edition_date($node, 'date_jour_heure');
 if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
-  $field_editorialupdatedate=$node->field_editorialupdatedate[0]['safe'];
-  $editorialupdatedate = strtotime($field_editorialupdatedate);
+  $date_edition = "<p class=\"publiele\">Mis à jour le " .$date_edition."</p>";
 } else {
-  $field_editorialupdatedate=FALSE;
+  $date_edition = "<p class=\"publiele\">Publié le " .$date_edition."</p>";
 }
-
-/*  
- * Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-
-/* Affichage de la date au format souhaité
- * Les formats sont:
- * 
- * 'filinfo' -> '00h00'
- * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
- * 'default' -> 'publié le 26/05 à 15h22'
- * 
- */ 
-$date_edition = "<p class=\"publiele\">Publié le " ._wallydemo_date_edition_diplay($node_publi_date, 'date_jour_heure');
-$date_edition .= $field_editorialupdatedate ? " (mis à jour le " ._wallydemo_date_edition_diplay($editorialupdatedate, 'date_jour_heure').")" : "";
-$date_edition .= "</p>";
 
 /*
 * Récupération du mainstory
@@ -145,6 +127,7 @@ if ($nb_comment == 0){
  * Génération des liens de partage
  */
 $socialSharingBaseUrl = wallydemo_get_social_sharing_base_url($mainDestination, $domain);
+$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
 if ($node_publi_date < 1333443600){
   $socialSharingDomainAndPathUrl = $socialSharingBaseUrl."/".$node_path;
 } else {
@@ -198,7 +181,6 @@ if (is_array($node->embed_package)){
     </li>
   </ul>
   <h1><?php print wallydemo_check_plain($main_title); ?></h1>
-  <div class="ico_pic"><?php print $date_edition; ?></div>
   <div id="picture"> 
     <?php print $mediabox_html; ?>
     <?php print '<div id = "link">'.$linkslist_html.'</div>'; ?> 
@@ -206,7 +188,7 @@ if (is_array($node->embed_package)){
   <?php print $chapeau; 
         print $signature; 
         print $embed_package_anchor;
-        print $date_edition; 
+        print $date_edition;
         print $texte_article; 
         print $htmltags_html; 
         print $bottom_html; ?>
@@ -283,11 +265,6 @@ if (is_array($node->embed_package)){
   <?php }
   }?>
   
-  <!-- FACEBOOK REACTIONS -->
-  <?php if ($node->comment == 2) { ?>
-    <a id="ancre_commentaires" name="ancre_commentaires" href="#ancre_commentaires" /></a>
-    <?php print theme("spreactions_facebook", $node_id, $socialSharingBaseUrl, $socialSharingDomainAndPathUrl, $socialSharingDomainAndPathUrl); ?>
-  <?php } ?>
   
   <!-- Pour Googleplus --> 
   <script type="text/javascript">

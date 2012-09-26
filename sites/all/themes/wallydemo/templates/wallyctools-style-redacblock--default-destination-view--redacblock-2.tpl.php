@@ -55,7 +55,6 @@ switch ($id) :
 
 // Second and third blocks
   case 2:
-  case 3:
     foreach ($rows as $row_id => $row) :
       switch ($row_id) :
         case 4:
@@ -91,7 +90,43 @@ switch ($id) :
       endswitch;
     endforeach;
     break;
-// End of second and third blocks
-
+// End of second blocks
+  case 3:
+  case 4:
+    foreach ($rows as $row_id => $row) :
+      switch ($row_id) :
+        case 0:
+        case 5:
+          print $row;
+          break;
+        case 1:
+      ?>
+    <div class="wrap-columns clearfix">
+      <div class="intern-col first column limit">
+    <?php
+              print $row;
+              break;
+            case 2:
+              print $row;
+    ?>
+      </div>
+    <?php
+              break;
+            case 3:
+    ?>
+      <div class="intern-col last column">
+    <?php
+              print $row;
+              break;
+            case 4:
+              print $row;
+    ?>
+      </div>
+    </div>
+    <?php
+              break;
+          endswitch;
+        endforeach;
+    break;
 endswitch;
 ?>

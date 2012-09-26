@@ -62,7 +62,6 @@ function wallydemo_preprocess_page(&$vars){
   $site_url = variable_get($domain.'_site_url', NULL);
   $associated_brand = variable_get($domain.'_associated_brand', NULL);
   $current_path = wallydemo_get_current_path();
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $current_path_alias = wallytoolbox_get_all_aliases($current_path);  
   $vars['head'] = _set_meta_general($site_name, $site_url, $associated_brand, $domain);  
 	$args = arg();
@@ -71,7 +70,7 @@ function wallydemo_preprocess_page(&$vars){
 		$vars['head_title'] = str_replace(" | ".$default_site_name," - ".$site_url,$vars['head_title']);
     $tid = $vars['node']->field_destinations[0]['tid'];
 		$body_classes = wallydemo_get_trimmed_taxonomy_term_path($tid);
-		$vars['body_classes'] .= $body_classes;
+		$vars['body_classes'] .= " ".$body_classes;
 		$vars['head'] .= _set_meta_fornode($vars["node"], $site_name, $site_url, $associated_brand, $domain, $current_path_alias);
 
 	} else if($args[0] == 'meteo') {  
@@ -90,7 +89,7 @@ function wallydemo_preprocess_page(&$vars){
 	     $term = taxonomy_get_term($tid);
 	     $vars['head_title'] = str_replace("/", " - ", wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid,2))." - ".$site_url;
        $body_classes = wallydemo_get_trimmed_taxonomy_term_path($term->tid);
-       $vars['body_classes'] .= $body_classes;
+       $vars['body_classes'] .= " ".$body_classes;
        $vars['head'] .= _set_meta_fortaxonomies($page, $term, $site_name, $site_url, $associated_brand, $domain,$current_path_alias); 
 	     //ajoute un candidat template utilisé pour les pages HDA
 	     //if($tid == 287){
@@ -346,6 +345,39 @@ function _set_meta_fornode($node,$site_name=NULL,$site_url=NULL,$associated_bran
   return $html;
 }
 
+
+
+function wallydemo_form_element($element, $value) {
+  // This is also used in the installer, pre-database setup.
+  $t = get_t();
+
+  $output = '<div class="form-item"';
+  if (!empty($element['#id'])) {
+    $output .= ' id="' . $element['#id'] . '-wrapper"';
+  }
+  $output .= ">\n";
+  $required = !empty($element['#required']) ? '<span class="form-required" title="' . $t('This field is required.') . '">*</span>' : '';
+
+  if (!empty($element['#title'])) {
+    $title = $element['#title'];
+    if (!empty($element['#id'])) {
+      $output .= ' <label for="' . $element['#id'] . '">' . $t('!title: !required', array('!title' => filter_xss_admin($title), '!required' => $required)) . "</label>\n";
+    }
+    else {
+      $output .= ' <label>' . $t('!title !required', array('!title' => filter_xss_admin($title), '!required' => $required)) . "</label>\n";
+    }
+  }
+
+  $output .= " $value\n";
+
+  if (!empty($element['#description'])) {
+    $output .= ' <div class="description">' . $element['#description'] . "</div>\n";
+  }
+
+  $output .= "</div>\n";
+
+  return $output;
+}
 
 /**
  * Build meta tags for meteo page
@@ -1097,6 +1129,16 @@ function _wallydemo_get_strapline($textObject=NULL, $node, $size){
 }
 
 
+function wallydemo_get_textTeaser($text,$size){
+  if ($text != "" && drupal_strlen($text) <= $size) {
+    return $text;
+  } else {
+    $text = _wallydemo_cut_string($text, $size);
+    return $text;
+  } 
+
+}
+
 /**
  * Render a cut string
  * 
@@ -1166,6 +1208,64 @@ function _wallydemo_cut_string($str,$size) {
  if($strapline) $strapline .=" [...]";
    
   return $strapline;
+}
+
+/**
+ * Convert publication and editorial update values from UTC to timezone.
+ * The converted value can be found in the "safe" element.
+ * 
+ * @param &$node
+ */
+function _wallydemo_prepare_publication_dates(&$node) {
+  $pub_date = $node->field_publicationdate[0];
+  $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
+  $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
+  $form_date = unserialize(serialize($form_date));
+  $node->field_publicationdate[0]['safe'] = $form_date->date;
+  
+  $editorial_update = $node->field_editorialupdatedate[0];
+  if ($editorial_update['value'] != NULL){
+    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
+    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
+    $form_date = unserialize(serialize($form_date));
+    $node->field_editorialupdatedate[0]['safe'] = $form_date->date;
+  }
+}
+
+/**
+ * Get edition date (publication or edtiorial update) from node
+ * 
+ * @param $node
+ * @param $display
+ */
+function _wallydemo_get_edition_date($node, $display = 'default') {
+  if(isset($node->field_editorialupdatedate[0]['safe']) && !empty($node->field_editorialupdatedate[0]['safe'])) {
+    $field_editorialupdatedate = $node->field_editorialupdatedate[0]['safe'];
+    $editorialupdatedate = strtotime($field_editorialupdatedate);
+  } else {
+    $field_editorialupdatedate = FALSE;
+  }
+
+  /*
+   * Récupération de la date de publication du package -> $node_publi_date
+   */
+  $node_publi_date = strtotime($node->field_publicationdate[0]['safe'] ? $node->field_publicationdate[0]['safe'] : $node->field_publicationdate[0]['value']);
+  
+  /* 
+   * Affichage de la date au format souhaité
+   * Les formats sont:
+   *
+   * 'filinfo' -> '00h00'
+   * 'unebis' -> 'jeudi 26 mai 2011, 15:54'
+   * 'default' -> 'publié le 26/05 à 15h22'
+   */
+  if ($field_editorialupdatedate) {
+    $date_edition = _wallydemo_date_edition_diplay($editorialupdatedate, $display);
+  } else {
+    $date_edition = _wallydemo_date_edition_diplay($node_publi_date, $display);
+  }
+  
+  return $date_edition;
 }
 
 /**
@@ -1587,7 +1687,7 @@ function wallydemo_get_photo_infos_and_display($photoObject,$template="default")
     $photo["type"] = $photoObject->type;
     $photo['credit'] = $photoObject->field_copyright[0]['value'];
     $photo['caption'] = $photoObject->field_summary[0]['value'];
-    $photo['summary'] = $photoObject->field_summary[0]['value'];
+    $photo['summary'] = html_entity_decode($photoObject->field_summary[0]['value']);
     $photo['fullpath'] = $photoObject->field_photofile[0]['filepath'];
     $photo['size'] = $photoObject->field_photofile[0]['filesize'];
     $photo['filename'] = $photoObject->field_photofile[0]["filename"];
@@ -1752,13 +1852,15 @@ function wallydemo_taxonomy_tags_particle($main_story){
           $htmltags = "";
           if (is_array($main_story->taxonomy)) {
             foreach($main_story->taxonomy as $termclass){
+              //afficher que les terms Location, Persons, Free tags et entities 
+            if ($termclass->vid == 7 |$termclass->vid ==  8 | $termclass->vid == 6 | $termclass->vid == 5){
               if($cpt != 1){
-                
                 $htmltags .= ", ";
               }
             
               $htmltags .= "<a href=\"".url(taxonomy_term_path(taxonomy_get_term($termclass->tid)))."\" class=\"".$voclass[$termclass->vid]."\">".$termclass->name."</a>";
               $cpt++;         
+            }        
             }
           }
           return $htmltags;
@@ -1829,8 +1931,10 @@ function _wallydemo_get_logo_data(){
     	$data["default_path"] = variable_get('logo_lameuse',$theme_path.'/images/logos/logo_lameuse.gif');
     	$data["eve_path"] = $settings["logo_lameuse_eve_path"];
     	$data["html_id"] = "la_meuse";
-    	$data["html_alt"] = "Lameuse";
+    	$data["html_alt"] = "La Meuse";
     	$data["html_target"] = "http://www.lameuse.be";
+    	$data["fb_target"] = "http://www.facebook.com/lameuse";
+      	$data["twitter_target"] = "https://twitter.com/LaMeuse_be";      
       break;
     case "lacapitale":
       if(isset($settings["logo_lacapitale_default"])){
@@ -1841,8 +1945,10 @@ function _wallydemo_get_logo_data(){
       $data["default_path"] = variable_get('logo_lacapitale',$theme_path.'/images/logos/logo_lacapitale.gif');
       $data["eve_path"] = $settings["logo_lameuse_eve_path"];
       $data["html_id"] = "la_capitale";
-      $data["html_alt"] = "Lacapitale";
+      $data["html_alt"] = "La Capitale";
       $data["html_target"] = "http://www.lacapitale.be";      
+      $data["fb_target"] = "http://www.facebook.com/lacapitale";      
+      $data["twitter_target"] = "https://twitter.com/LaCapitale_be";      
       break;
     case "lanouvellegazette":
       if(isset($settings["logo_lanouvellegazette_default"])){
@@ -1853,8 +1959,10 @@ function _wallydemo_get_logo_data(){
       $data["default_path"] = variable_get('logo_lanouvellegazette',$theme_path.'/images/logos/logo_lanouvellegazette.gif');
       $data["eve_path"] = $settings["logo_lanouvellegazette_eve_path"];
       $data["html_id"] = "la_nouvellegazette";
-      $data["html_alt"] = "Lanouvellegazette";
+      $data["html_alt"] = "La Nouvelle Gazette";
       $data["html_target"] = "http://www.lanouvellegazette.be";      
+      $data["fb_target"] = "http://www.facebook.com/lanouvellegazette";      
+      $data["twitter_target"] = "https://twitter.com/LaGazette_be";      
       break;
     case "laprovince":
       if(isset($settings["logo_laprovince_default"])){
@@ -1865,8 +1973,10 @@ function _wallydemo_get_logo_data(){
       $data["default_path"] = variable_get('logo_laprovince',$theme_path.'/images/logos/logo_laprovince.gif');
       $data["eve_path"] = $settings["logo_laprovince_eve_path"];
       $data["html_id"] = "la_province";
-      $data["html_alt"] = "Laprovince";
+      $data["html_alt"] = "La Province";
       $data["html_target"] = "http://www.laprovince.be";      
+      $data["fb_target"] = "http://www.facebook.com/laprovince";      
+      $data["twitter_target"] = "https://twitter.com/LaProvince_be";      
       break;
     case "nordeclair":
       if(isset($settings["logo_nordeclair_default"])){
@@ -1877,8 +1987,10 @@ function _wallydemo_get_logo_data(){
       $data["default_path"] = variable_get('logo_nordeclair',$theme_path.'/images/logos/logo_nordeclair.gif');
       $data["eve_path"] = $settings["logo_nordeclair_eve_path"];
       $data["html_id"] = "nord_eclair";
-      $data["html_alt"] = "Nordeclair";
+      $data["html_alt"] = "Nord Eclair";
       $data["html_target"] = "http://www.nordeclair.be";      
+      $data["fb_target"] = "http://www.facebook.com/nordeclair";      
+      $data["twitter_target"] = "https://twitter.com/Nord_Eclair_be";      
       break;
     default:
       if(isset($settings["logo_sudinfo_default"])){
@@ -1891,6 +2003,8 @@ function _wallydemo_get_logo_data(){
       $data["html_id"] = "sudinfo";
       $data["html_alt"] = "Sudinfo";
       $data["html_target"] = "http://www.sudinfo.be";      
+      $data["fb_target"] = "http://www.facebook.com/sudpresse";      
+      $data["twitter_target"] = "https://twitter.com/sudpresseonline";      
       break;
   }     
   return $data;
@@ -2120,22 +2234,7 @@ function wallydemo_preprocess_node(&$vars) {
   
   $node = &$vars['node'];
   if ($node->type == "wally_articlepackage" || $node->type == "wally_pollpackage" || $node->type == "wally_gallerypackage"){
-
-    $pub_date = $node->field_publicationdate[0];
-    $form_date = date_make_date($pub_date['value'], $pub_date['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($pub_date['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_publicationdate[0]['safe'] = $form_date->date;
-
-    $editorial_update = $node->field_editorialupdatedate[0];
-    if ($editorial_update['value'] == NULL){
-      $editorial_update = $node->field_editorialupdatedate[0] = $node->field_publicationdate[0];
-    }
-    $form_date = date_make_date($editorial_update['value'], $editorial_update['timezone_db']);
-    $form_date = (object)date_timezone_set($form_date, timezone_open($editorial_update['timezone']));
-    $form_date = unserialize(serialize($form_date));
-    $vars['node']->field_editorialupdatedate[0]['safe'] = $form_date->date;
-    
+    _wallydemo_prepare_publication_dates($node);
   }
 
   if ($node->type == "wally_articlepackage"){
@@ -2202,6 +2301,20 @@ function wallydemo_preprocess_node(&$vars) {
         $vars['htmltags_html'] .= "<div class=\"tags\"><h2>Termes associés : </h2>".$htmltags."</div>";
       }
     }
+    $text = '';
+    foreach ($node->field_embededobjects_nodes as $embed){
+      node_build_content($embed, $vars['teaser'], $vars['page']);
+      switch ($embed->type){
+        case 'wally_textobject':
+          if (empty($text)) {
+            $text = !empty($embed->field_textchapo[0]['safe']) ? '<p class = "chapeau">'.$embed->field_textchapo[0]['safe'].'</p>' : '';
+            $text .= $embed->field_textbody[0]['safe'];
+          }
+          break;
+      }
+    }
+    $vars['embedtext_html'] = empty($text) ? $node->field_summary[0]['safe'] : $text;
+    
   }
 }
 

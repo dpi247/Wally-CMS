@@ -83,13 +83,7 @@ if ($photoObject_path == ""){
 
 $title = $mainstory->title;
 
-/*  Récupération de la date de publication du package -> $node_publi_date
- */
-$node_publi_date = strtotime($node->field_publicationdate[0]['value']);
-
-/* Affichage de la date au format souhaité */ 
-
-$date_edition = "<p class=\"time time_une\">" ._wallydemo_date_edition_diplay($node_publi_date, 'filinfo') ."</p>";
+$date_edition = "<p class=\"time time_une\">" ._wallydemo_get_edition_date($node, 'filinfo') ."</p>";
 
 /* Génération du breadcrumb  
 Pour le dernier uniquement :

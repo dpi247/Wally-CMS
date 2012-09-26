@@ -37,9 +37,13 @@ $photo = FALSE;
 $photoObject_path = "";
 if($node->type == "wally_articlepackage"){
   $mainstory = $node->field_mainstory_nodes[0];
+  $strapline_length = 0;
+  $strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);  
 } else {  
   $mainstory = $node->field_mainobject_nodes[0];
   $mainstory_type = $mainstory->type;
+  $strapline_length = 200;
+  $strapline = wallydemo_get_textTeaser($embedtext_html,$strapline_length);    
   if($mainstory_type == "wally_photoobject"){ 
     $photoObject_path = $mainstory->field_photofile[0]['filepath'];
     $photoObject_summary = $mainstory->field_summary[0]['value'];
@@ -83,7 +87,6 @@ $title = $mainstory->title;
 //$strapline = _wallydemo_get_strapline($mainstory,$node,$strapline_length);
 
 $mainstory->type == "wally_textobject";
-$strapline = $mainstory->field_textchapo[0]['value'];
 
 $chapeau = "";
 if(isset($strapline)){

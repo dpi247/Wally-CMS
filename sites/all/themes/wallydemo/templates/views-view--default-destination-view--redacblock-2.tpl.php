@@ -29,7 +29,6 @@
  * @ingroup views_templates
  */
 
-
 ?>
 
   <?php if ($admin_links): ?>

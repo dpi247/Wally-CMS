@@ -1,5 +1,5 @@
 html body {
-	background: white url(/sites/all/themes/wallydemo/mediastore/voo/fond_voo.gif) repeat-y center top;
+	background: white url(/sites/all/themes/custom_sp/mediastore/voo/fond_voo.gif) repeat-y center top;
 }
 #header #la_capitale a, 
 #header #la_meuse a, 
@@ -11,37 +11,37 @@ html body {
 	display:block;
 }
 #header #la_capitale a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_lc.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_lc.gif) no-repeat top;
 	width:285px;
 	height:63px;
 }
 #header #la_meuse a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_lm.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_lm.gif) no-repeat top;
 	width:265px;
 	height:63px;
 }
 #header #nouvelle_gazette a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_lg.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_lg.gif) no-repeat top;
 	width:279px;
 	height:63px;
 }
 #header #nord_eclair a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_ne.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_ne.gif) no-repeat top;
 	width:283px;
 	height:63px;
 }
 #header #la_province a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_lp.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_lp.gif) no-repeat top;
 	width:292px;
 	height:63px;
 }
 #header #sudpresse a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_sp.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_sp.gif) no-repeat top;
 	width:286px;
 	height:63px;
 }
 #header #sudinfo a {
-	background: url(/sites/all/themes/wallydemo/mediastore/voo/voo_si.gif) no-repeat top;
+	background: url(/sites/all/themes/custom_sp/mediastore/voo/voo_si.gif) no-repeat top;
 	width:254px;
 	height:63px;
 }
@@ -56,7 +56,7 @@ html body {
 	left:-9999em;
 }
 .col-02 .bloc-01 h2, .col-03 .bloc-01 h2, #global #rubriques h2 {
-	background: #D6007F url(/sites/all/themes/wallydemo/mediastore/voo/bg_title_voo.gif) no-repeat 0 0;
+	background: #D6007F url(/sites/all/themes/custom_sp/mediastore/voo/bg_title_voo.gif) no-repeat 0 0;
 	padding: 3px 10px;
 }
 .exergue {
@@ -65,10 +65,10 @@ html body {
 	border-right: 1px solid #2074b1;
 }
 .col-01 .buzz {
-	background: transparent url(/sites/all/themes/wallydemo/mediastore/voo/title_buzz_voo.gif) no-repeat top left;
+	background: transparent url(/sites/all/themes/custom_sp/mediastore/voo/title_buzz_voo.gif) no-repeat top left;
 }
 .col-01 .folder {
-	background: transparent url(/sites/all/themes/wallydemo/mediastore/voo/title_dossiers_voo.gif) no-repeat top left;
+	background: transparent url(/sites/all/themes/custom_sp/mediastore/voo/title_dossiers_voo.gif) no-repeat top left;
 }
 #top_header div.date {
 	max-width:190px;
@@ -77,7 +77,7 @@ html body {
 	padding-bottom:10px;
 }
 html #header .services.recherche_menu {
-    background: #DD197A url(/sites/all/themes/wallydemo/mediastore/voo/bg_search_voo.gif) no-repeat right top ;
+    background: #DD197A url(/sites/all/themes/custom_sp/mediastore/voo/bg_search_voo.gif) no-repeat right top ;
  }
 html #header li.recherche_menu label {
     color: #FFFFFF;
@@ -98,7 +98,7 @@ body #navcontainer .sf-menu li.first_level.partner_enable {
 	font-weight:normal;
 }
 #navcontainer .sf-menu li.first_level.partner_enable a {
-    background: #FFF url(/sites/all/themes/wallydemo/mediastore/voo/enable.gif) no-repeat left 11px;
+    background: #FFF url(/sites/all/themes/custom_sp/mediastore/voo/enable.gif) no-repeat left 11px;
 	padding: 10px 0 0 20px;
 }
 #navcontainer .sf-menu li.first_level.partner_enable a:hover {
