@@ -1,0 +1,218 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function ereaderjson_menu(){
+  $items = array();
+
+  $items['ereader/sections'] = array(
+    'title' => t('Json sections ereader'),
+    'page callback'    => 'ereaderjson_sections_page_render',
+    'page arguments'   => array(),
+    'access callback'  => 1,
+  );
+
+  //Page to json list of destinations
+  $items['ereader/product/%'] = array(
+    'title'            => t('List all destination for a product'),
+    'page callback'    => 'ereaderjson_sections_list_page_render',
+    'page arguments'   => array(2),
+    'access callback'  => 1,
+  );
+
+  //------------------------------------------------------------------------
+
+  //Admin settings Page
+  $items['admin/rossel/ereader/settings'] = array(
+    'title'            => t('Ereader Settings'),
+    'page callback'    => 'ereaderjson_page_list_product',
+    'access arguments' => array('administer ereader'),
+    'description'      => t('Manage Ereader Product and general settings'),
+    'file'             => 'includes/ereaderjson.admin.inc',
+  );
+
+  //Page to list products
+  $items['admin/rossel/ereader/settings/list'] = array(
+    'title'            => t('Products List'),
+    'page callback'    => 'ereaderjson_page_list_product',
+    'access arguments' => array('administer ereader'),
+    'file'             => 'includes/ereaderjson.admin.inc',
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 0,
+  );
+
+  //Page to add a product
+  $items['admin/rossel/ereader/settings/add'] = array(
+    'title'            => t('Create product'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ereaderjson_page_product_form'),
+    'access arguments' => array('administer ereader'),
+    'file'             => 'includes/ereaderjson.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 1,
+  );
+
+  //Page to delete a product
+  $items['admin/rossel/ereader/settings/delete/%'] = array(
+    'title'            => t('Delete product'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ereaderjson_page_productdelete_form', 5),
+    'access arguments' => array('administer ereader'),
+    'description'      => t('Allows administrators to delete a product.'),
+    'file'             => 'includes/ereaderjson.admin.inc',
+  );
+  
+  //General settings
+  $items['admin/rossel/ereader/settings/settings'] = array(
+    'title'            => t('General settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('ereaderjson_page_general_settings_form'),
+    'access arguments' => array('administer ereader'),
+    'file'             => 'includes/ereaderjson.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function ereaderjson_perm() {
+  return array(
+    'administer ereader',
+  );
+}
+
+/**
+ * Get products info
+ *
+ * @return
+ *   an array of products
+ */
+function ereaderjson_getproducts(){
+  $result = db_query("SELECT * FROM {ereaderjson_product}");
+  $products = NULL;
+  while ($product = db_fetch_object($result)){
+    $products[] = $product;
+  }
+  return $products;
+}
+
+/**
+ * Get one products info
+ *
+ * @return
+ *   a product
+ */
+function ereaderjson_getproduct($pid){
+  $result = db_query("SELECT * FROM {ereaderjson_product} WHERE pid = %d", $pid);
+  $product = NULL;
+  while ($obj = db_fetch_object($result)){
+    $product = $obj;
+  }
+  return $product;
+}
+
+/**
+ * Fonction de rendu de la page des sections.
+ */
+function ereaderjson_sections_page_render() {
+  $sections = array();
+  if ($main_menu = variable_get('ereader_product_main_menu', 0)) {
+    $sections = menu_tree_all_data($main_menu);
+    $sections = _ereaderjson_sections_menu_data($sections);
+  }
+  print theme('ereaderjson_sections', $sections);
+}
+
+/**
+ * Fonction de rendu de la page de la liste des sections d'un produit.
+ */
+function ereaderjson_sections_list_page_render($pid = FALSE) {
+  $sections = array();
+
+  if (!$pid) {
+    print theme('ereaderjson_sections', $sections);
+  } else {
+    $sections = _ereaderjson_sections_product_data(ereaderjson_getproduct($pid));
+    print theme('ereaderjson_sections', $sections);
+  }
+}
+
+/**
+ * _ereaderdatastructure_sections_product_data
+ *  Génère une array compatible avec le format Json attendu.
+ */
+function _ereaderjson_sections_product_data($product) {
+  $json = array();
+  $destinations = unserialize($product->settings);
+
+  foreach ($destinations as $destination ) {
+    if (is_array($destination)) {
+      $term  = taxonomy_get_term($destination["tid"]);
+      $json_item["id"] = $destination["tid"].$destination["target"];
+      $json_item["label"] = $term->name;
+      $json_item["feed"] = "/feed/".$destination["tid"]."/".$destination["target"]."?format=ereaderjson";
+      $json["sections"][] = $json_item;
+    }
+  }
+  return $json;
+}
+
+/**
+ * _ereaderdatastructure_sections_menu_data
+ *  Génère une array compatible avec le format Json attendu.
+ */
+function _ereaderjson_sections_menu_data($sections = array()) {
+  $json = array();
+
+  foreach($sections as $section) {
+    $json_item = array();
+
+    if($section["link"]["hidden"] != TRUE) {
+      if (strstr(drupal_get_normal_path($section["link"]["href"]), "taxonomy/term")) {
+        $path = explode("/", drupal_get_normal_path($section["link"]["href"]));
+        $term  = taxonomy_get_term(end($path));
+        if ($term->vid == "2") {
+          $json_item["id"]  = $term->tid;
+          $json_item["label"]  = $section["link"]["title"];
+          $json_item["feed"]  =  "/feed/".$term->tid."/".wallyctools_get_default_target($term->tid)."?format=ereaderjson";
+
+          if ($section["below"]) {
+            $sub_json = _ereaderjson_sections_menu_data($section["below"]);
+            $json_item["sections"] = $sub_json["sections"];
+          }
+          $json["sections"][] = $json_item;
+        }
+      }
+    }
+  }
+
+  return $json;
+}
+
+/**
+ * Implementation of hooktheme().
+ */
+function ereaderjson_theme(){
+  $path = drupal_get_path('module', 'ereaderjson');
+  $base = array(
+    'path' => $path.'/templates',
+    'file' => 'theme.inc',
+  );
+
+  return array(
+    'ereaderjson_sections' => $base + array(
+      'arguments' => array('sections' => array()),
+      'template' => 'ereaderjson_sections',
+    ),
+  );
+}
+
+function ereaderjson_theme_registry_alter(&$theme_registry) {
+  array_unshift($theme_registry['views_view_rss']['theme paths'], drupal_get_path('module', 'ereaderjson').'/templates');
+  array_unshift($theme_registry['views_view_row_rss']['theme paths'], drupal_get_path('module', 'ereaderjson').'/templates');
+}

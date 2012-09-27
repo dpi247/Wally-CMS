@@ -1,0 +1,133 @@
+<?php
+
+/**
+ * Implementation of the hook_install();
+ */
+function ereaderjson_install() {
+  _ereaderjson_install_presets();
+  drupal_install_schema('ereaderjson');
+}
+
+function ereaderjson_uninstall(){
+  drupal_uninstall_schema('ereaderjson');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function ereaderjson_schema() {
+  $schema = array();
+
+  $schema['ereaderjson_product'] = array(
+    'description' => 'Contains de informations of the products',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'Product Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'description' => 'The settings of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('pid'),//primary key
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function ereaderjson_update_6001(){
+  $schema = drupal_get_schema('ereaderjson_product', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('ereaderjson_product')) {
+    db_create_table($ret, 'ereaderjson_product', $schema);
+  }
+  return $ret;
+}
+
+/**
+ * Installation des preset d'image cache 
+ * spécifiques à SoirMag
+ */
+function _ereaderjson_install_presets() {
+	
+  if (!imagecache_preset_by_name('ereader_article_300x200')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'ereader_article_300x200'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];//récupéré part le save 2 lignes plus haut
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 300, 'height' => 200, 'xoffset' => 'center_max', 'yoffset' => 'center_max', 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale_and_crop';
+    $imagecacheaction->data = array('width' => 300, 'height' => 200, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  if (!imagecache_preset_by_name('ereaderlarge')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'ereaderlarge'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];//récupéré part le save 2 lignes plus haut
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 780, 'height' => 1024, 'xoffset' => 'center_max', 'yoffset' => 'center_max', 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale_and_crop';
+    $imagecacheaction->data = array('width' => 780, 'height' => 1024, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  if (!imagecache_preset_by_name('ereadermedium')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'ereadermedium'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];//récupéré part le save 2 lignes plus haut
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 420, 'height' => 680, 'xoffset' => 'center_max', 'yoffset' => 'center_max', 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale_and_crop';
+    $imagecacheaction->data = array('width' => 420, 'height' => 680, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+  if (!imagecache_preset_by_name('ereaderthumbnail')) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'ereaderthumbnail'));
+    $imagecacheaction = new stdClass ();
+    $imagecacheaction->presetid = $imagecachepreset['presetid'];//récupéré part le save 2 lignes plus haut
+    $imagecacheaction->module = 'wallycontenttypes';
+    $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+    $imagecacheaction->data = array('width' => 79, 'height' => 102, 'xoffset' => 'center_max', 'yoffset' => 'center_max', 'presetid' => $imagecachepreset['presetid']);
+    $imagecacheaction->weight = 0;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+    $imagecacheaction->module = 'imagecache';
+    $imagecacheaction->action = 'imagecache_scale_and_crop';
+    $imagecacheaction->data = array('width' => 79, 'height' => 102, 'upscale' => true);
+    $imagecacheaction->weight = 1;
+    drupal_write_record('imagecache_action', $imagecacheaction);
+  }
+}
