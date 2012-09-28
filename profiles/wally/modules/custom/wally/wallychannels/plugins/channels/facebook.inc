@@ -22,6 +22,8 @@ function wallychannels_facebook_channels_process($settings, $node) {
     $fallback_target = explode('/', $settings['fallback_field']);
     $text_field = str_replace('#', '', _wallychannels_get_value_from_text_target($node, $fallback_target));
   }
+  
+  $text_field = strip_tags($text_field);
 
   if (!empty($text_field) && $settings['access_token']) {
     global $base_url;

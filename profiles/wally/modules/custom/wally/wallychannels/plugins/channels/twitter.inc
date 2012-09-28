@@ -23,6 +23,8 @@ function wallychannels_twitter_channels_process($settings, $node) {
     $fallback_target = explode('/', $settings['fallback_field']);
     $text_field = _wallychannels_get_value_from_text_target($node, $fallback_target);
   }
+  
+  $text_field = strip_tags($text_field);
 
   if (!empty($text_field)) {
     // Build the short URL to join to the text if required
@@ -50,7 +52,9 @@ function wallychannels_twitter_channels_process($settings, $node) {
     }
 
     // Send to Twitter
-    module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    if (!class_exists('TwitterOAuth')) {
+      module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    }
     $twitteroauth = new TwitterOAuth($settings['consumer_key'], $settings['consumer_secret'], $settings['oauth_token'], $settings['oauth_token_secret']);
     $params = array('status' => $text_field);
     $twitteroauth->post('statuses/update', $params);
@@ -75,7 +79,9 @@ function wallychannels_twitter_channels_settings_form(&$form, &$form_state) {
   // After Twitter authentication we are redirected here with some GET parameters
   // These parameters will allow us to get the permanent access token
   if (isset($_GET['oauth_token']) && isset($_GET['oauth_verifier'])) {
-    module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    if (!class_exists('TwitterOAuth')) {
+      module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    }
     $conf['oauth_token'] = $_GET['oauth_token'];
     $conf['oauth_verifier'] = $_GET['oauth_verifier'];
     $twitteroauth = new TwitterOAuth($conf['consumer_key'], $conf['consumer_secret'], $conf['oauth_token'], $conf['oauth_verifier']);
@@ -174,7 +180,9 @@ function wallychannels_twitter_channels_settings_form_submit(&$form, &$form_stat
   $values = $form_state['values']['settings'];
   if (empty($values['oauth_token']) || empty($values['oauth_token_secret']) || empty($values['oauth_verifier'])) {
     global $base_url;
-    module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    if (!class_exists('TwitterOAuth')) {
+      module_load_include('php', 'wallychannels', 'plugins/channels/twitteroauth/twitteroauth');
+    }
     $twitteroauth = new TwitterOAuth($values['consumer_key'], $values['consumer_secret']);
     $current_path = $_GET['q'];
     if (strstr($current_path, '/add/')) {
