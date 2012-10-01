@@ -30,9 +30,17 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
     '#default_value' => $page,
   );
   
+  ctools_include('plugins');
+  $existing_plugins = ctools_get_plugins('ctools', 'content_types');
+  $options_plugins = array();
+  foreach ($existing_plugins as $exst_plug) {
+    $options_plugins[$exst_plug['name']] = $exst_plug['name'];
+  }
+  ksort($options_plugins);
   $form['go_to']['block_type'] = array(
-    '#type' => 'textfield',
+    '#type' => 'select',
     '#title' => t('Block type'),
+    '#options' => $options_plugins,
     '#default_value' => $block_type,
   );
   
