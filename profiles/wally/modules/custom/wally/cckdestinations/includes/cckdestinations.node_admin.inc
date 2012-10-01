@@ -10,7 +10,6 @@ function cckdestinations_node_admin_content($form_state) {
   }
   $form = cckdestinations_node_filter_form();
 
-  $form['#theme'] = 'node_filter_form';
   $form['admin']  = cckdestinations_node_admin_nodes();
 
   return $form;
@@ -86,8 +85,49 @@ function cckdestinations_node_filter_form() {
   $session = &$_SESSION['node_overview_filter'];
   $session = is_array($session) ? $session : array();
   $filters = cckdestinations_node_filters();
-  
   $and_or_or = wally_variable_get('cckdestinations_and_or_or', ' AND ');
+
+  $form = array();
+
+  $name = $filters['category']['title'];
+  $mem = array();
+  $targets = array();
+  $options_and_classe = cckdestinations_get_classes_and_options();
+  foreach ($options_and_classe['target']['#options'] as $option){
+    array_push($mem, $option);
+  }
+  foreach ($mem as $option){
+    if (!in_array($option, $targets)){
+      array_push($targets, $option);
+    }
+  }
+  
+  $form['reorder']=array(
+    '#type' => 'fieldset',
+    '#title' => t('Reorder by'),
+    '#prefix' => '<div class="container-inline" style="margin-bottom:20px;">',
+    '#suffix' => '</div>',
+  );
+  
+  $form['reorder']['selectbox']=array(
+    '#title' => t('Destination'),
+    '#type' => 'select',
+    '#options' => $filters['category']['options']
+  );
+  
+  $form['reorder']['selectboxtarget']=array(
+    '#title' => t('Target'),
+    '#type' => 'select',
+    '#options' => $targets,
+    // specify theming callback & add a new #attribute to the element.
+    '#theme' => 'cckdestinations_cascading_select',
+    '#attributes' => array('class' => 'target'),
+  );
+  
+  $form['reorder']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Reorder'),
+  );
 
   $i = 0;
   $form['filters'] = array(
@@ -95,7 +135,6 @@ function cckdestinations_node_filter_form() {
     '#title' => t('Show only items where'),
     '#theme' => 'cckdestinations_node_filters',
   );
-  $form['#submit'][] = 'cckdestinations_node_filter_form_submit';
   
   foreach ($session as $filter) {
     list($type, $value) = $filter;
@@ -126,46 +165,7 @@ function cckdestinations_node_filter_form() {
   } else {
     $filter_button_value = t('Filter');
   }
-  
-  $name = $filters['category']['title'];
-  $mem = array();
-  $targets=array();
-  
-  $options_and_classe = cckdestinations_get_classes_and_options();
-  
-  	foreach ($options_and_classe['target']['#options'] as $option){
-  		array_push($mem,$option);
-  	}
-  	foreach ($mem as $option){
-  		if(!in_array($option,$targets)){
-  			array_push($targets,$option);
-  		}
-  }
-  
-  $form['reorder']=array(
-	  '#type' => 'fieldset',
-      '#title' => t('Reorder by'),
-      '#prefix' => '<div class="container-inline">',
-      '#suffix' => '</div>',
-    );
-  $form['reorder']['selectbox']=array(
-    '#title'            => t( 'Destination' ),
-    '#type' => 'select',
-    '#options'=> $filters['category']['options']
-  );
-  $form['reorder']['selectboxtarget']=array(
-    '#title'            => t( 'Target' ),
-    '#type'             => 'select',
-    '#options'          => $targets,
-     // specify theming callback & add a new #attribute to the element.
-    '#theme'            => 'cckdestinations_cascading_select',
-    '#attributes'       => array('class' => 'target'),
-  );
-  $form['reorder']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Reorder'),
-  );
-  
+
   $form['filters']['status']['category'] = array('#type' => 'select', '#options' => $filters['category']['options']);
   $form['filters']['filter'] = array('#type' => 'radios', '#options' => array('category' => $name), '#default_value' => 'category');
   $form['filters']['buttons']['submit'] = array('#type' => 'submit', '#value' => $filter_button_value);
@@ -178,6 +178,7 @@ function cckdestinations_node_filter_form() {
 
   drupal_add_js('misc/form.js', 'core');
 
+  $form['#submit'][] = 'cckdestinations_node_filter_form_submit';
   return $form;
 }
 
@@ -197,26 +198,24 @@ function cckdestinations_node_filters() {
  * Process result from node administration filter form.
  */
 function cckdestinations_node_filter_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
   $filters = node_filters();
-  switch ($form_state['values']['op']) {
+
+  switch ($values['op']) {
   	case t('Reorder'):
-	$box= $form[reorder][selectbox];
-	$dest= $box['#post']['selectbox'];
-	$boxtarget=$form[reorder][selectboxtarget];
-	$target=$boxtarget['#post']['selectboxtarget'];
-	$form_state[redirect]= 'admin/wallyctools/reorder/'.$dest.'/'.$target;
+    	$form_state['redirect'] = 'admin/wally/wallyctools-operations/reorder/25/'.$values['selectbox'].'/'.$values['selectboxtarget'];
+    	break;
+
     case t('Filter'):
-      wally_variable_set('cckdestinations_and_or_or', $form_state['values']['and_or_or']);
+      wally_variable_set('cckdestinations_and_or_or', $values['and_or_or']);
     case t('Add'):
     case t('Refine'):
-      if (isset($form_state['values']['filter'])) {
-        $filter = $form_state['values']['filter'];
-
+      if (isset($values['filter'])) {
+        $filter = $values['filter'];
         // Flatten the options array to accommodate hierarchical/nested options.
         $flat_options = form_options_flatten($filters[$filter]['options']);
-
         if (isset($flat_options[$form_state['values'][$filter]])) {
-          $_SESSION['node_overview_filter'][] = array($filter, $form_state['values'][$filter]);
+          $_SESSION['node_overview_filter'][] = array($filter, $values[$filter]);
         }
       }
       break;
@@ -250,14 +249,11 @@ function theme_cckdestinations_node_filters($form) {
     $output .= drupal_render($form['filter'][$key]);
   }
   $output .= '</dd>';
-
   $output .= '<dt>'. t('is') .'</dt><dd class="b">';
-
   foreach (element_children($form['status']) as $key) {
     $output .= drupal_render($form['status'][$key]);
   }
   $output .= '</dd>';
-
   $output .= '</dl>';
   $output .= '<div class="container-inline" id="node-admin-buttons">'. drupal_render($form['buttons']) .'</div>';
   $output .= '</li></ul>';
