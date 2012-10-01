@@ -132,6 +132,7 @@ function theme_wallytoolbox_supercron_settings_form($form) {
   $header[] = t('Subtype');
   $header[] = t('Panel');
   $header[] = t('PID');
+  $header[] = t('Title');
   $header[] = t('Last run');
   $header[] = t('Output');
   $header[] = t('Enabled');
@@ -151,6 +152,7 @@ function theme_wallytoolbox_supercron_settings_form($form) {
     $row[] = check_plain($expl_cid[3]);
     $row[] = check_plain($expl_cid[4]);
     $row[] = check_plain($expl_cid[5]);
+    $row[] = _wallytoolbox_get_setting($form_row['settings']['#value'], 'title', '');
     $row[] = $form_row['last_run']['#value'] ? date('Y-m-d H:i:s', $form_row['last_run']['#value']) : t('never');
     $row[] = l(t('Output'), 'admin/wally/wallytoolbox/supercron/output/'.$cid);
     $row[] = drupal_render($form_row['enabled']);
