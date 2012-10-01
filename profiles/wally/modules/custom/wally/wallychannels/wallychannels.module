@@ -161,8 +161,9 @@ function wallychannels_wallymport_nodeprocess($node, $dom, $log, $importer, $typ
             $defined_instances = wallychannels_get_instances_of_channel(TRUE);
 
             foreach ($node->field_channels as $node_channel) {
-              if (array_key_exists($node_channel['value'], $defined_instances)) {
-                $instance = $defined_instances[$node_channel['value']];
+              list($channel_name, $plugin_name) = explode('_', $node_channel['value'], 2);
+              if (array_key_exists($channel_name, $avail_channels) && array_key_exists($plugin_name, $defined_instances)) {
+                $instance = $defined_instances[$plugin_name];
                 if ($process_function = ctools_plugin_get_function(wallychannels_get_plugin_by_name($avail_channels[$instance->channel]['name']), 'process')) {
                   $process_function($instance->settings, $node);
                 }
@@ -172,6 +173,30 @@ function wallychannels_wallymport_nodeprocess($node, $dom, $log, $importer, $typ
           break;
       }
       break;
+  }
+}
+
+/**
+ * Implementation of hook_ccimapping_productinfo_alter
+ * Add the channels informations to product info
+ */
+function wallychannels_ccimapping_productinfo_alter(&$dom, $op) {
+  if ($op == 'before_send') {
+    $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
+    $dom_channels = $budgettemplate->appendChild($dom->createElement('level1'));
+    $dom_channels->setAttribute('name', 'Channels');
+
+    $avail_channels = wallychannels_get_plugins();
+    $defined_instances = wallychannels_get_instances_of_channel();
+    foreach ($avail_channels as $avail_channel) {
+      $dom_channel = $dom_channels->appendChild($dom->createElement('level2'));
+      $dom_channel->setAttribute('name', $avail_channel['name']);
+      
+      foreach ($defined_instances[$avail_channel['name']] as $def_inst) {
+        $dom_instance = $dom_channel->appendChild($dom->createElement('level3'));
+        $dom_instance->setAttribute('name', $avail_channel['name'].'_'.$def_inst->name);
+      }
+    }
   }
 }
 
