@@ -443,11 +443,11 @@ function _wimprthelp_rrmdir($dir) {
     $objects = scandir($dir);
     foreach ($objects as $object) {
       if ($object != "." && $object != "..") {
-        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+        if (filetype($dir."/".$object) == "dir") _wimprthelp_rrmdir($dir."/".$object); else unlink($dir."/".$object);
       }
     }
     reset($objects);
-    _wimprthelp_rrmdir($dir);
+    rmdir($dir);
   }
 }
 
