@@ -184,6 +184,25 @@ function wallycontenttypes_unpublish_nodes(&$node, $context = array()) {
 }
 
 /**
+ * Implementation of hook_node_operations().
+ */
+function wallycontenttypes_node_operations() {
+  $operations = array(
+    'wallycontenttypes_publish_nodes' => array(
+      'label' => t('Publish package'),
+      'callback' => 'node_mass_update',
+      'callback arguments' => array('updates' => array('status' => 1, 'field_autopublish' => array(0 => array('value' => 'Autopublish')))),
+    ),
+    'wallycontenttypes_unpublish_nodes' => array(
+      'label' => t('Unpublish package'),
+      'callback' => 'node_mass_update',
+      'callback arguments' => array('updates' => array('status' => 0, 'field_autopublish' => array(0 => array('value' => 'No')))),
+    ),
+  );
+  return $operations;
+}
+
+/**
  * Implementation of hook_imagecache_actions().
  */
 function wallycontenttypes_imagecache_actions() {
