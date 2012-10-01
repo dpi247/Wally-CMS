@@ -646,6 +646,26 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, 
 }
 
 /**
+ * Alter delete form of a preset, do not allow to delete if another as a copy crop action based on this preset
+ */
+function wallycontenttypes_form_imagecache_ui_preset_delete_form_alter(&$form, $form_state) {
+  $db_copy_crops = db_query("SELECT * FROM {imagecache_action} WHERE action = 'wallycontenttypes_cropcopy'");
+  while ($res_copy_crop = db_fetch_array($db_copy_crops)) {
+    $dependent_presetnames = '';
+    $settings = unserialize($res_copy_crop['data']);
+    if ($settings['copied_preset'] == $form['presetid']['#value']) {
+      $dependent_preset = imagecache_preset($res_copy_crop['presetid']);
+      $dependent_presetnames[] = $dependent_preset['presetname'];
+    }
+  }
+
+  if (!empty($dependent_presetnames)) {
+    drupal_set_message(t('Some presets have copy crop actions defined following this preset (concerned preset(s) : !preset_list)', array('!preset_list' => implode(', ', $dependent_presetnames))), 'error');
+    drupal_goto('admin/build/imagecache');
+  }
+}
+
+/**
  * Implementation of hook_schema_alter()
  * Add some indexes in tables
  */
