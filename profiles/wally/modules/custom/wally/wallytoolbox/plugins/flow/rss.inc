@@ -82,7 +82,7 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, 1, 2);
   if ($feed_xml && $feed_xml->code == '200') {
     set_error_handler('_wallytoolbox_rss_flow_handle_errors');
 
@@ -128,21 +128,21 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
           }
 
           if (empty($struct_array['Packages']['Package'])) {
-            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'No modifications', $return_substion));
+            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, 'unchanged', t($return_msg.'No modifications', $return_substion));
           }
 
           $feed_infos['feeds_md5'] = $new_feeds_md5;
         } else {
-          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'Channel not rebuild', $return_substion));
+          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, 'unchanged', t($return_msg.'Channel not rebuild', $return_substion));
         }
       } else {
-        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No channel', $return_substion));
+        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'structure', t($return_msg.'No channel', $return_substion));
       }
     } else {
-      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No "rss" tag', $return_substion));
+      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'structure', t($return_msg.'No "rss" tag', $return_substion));
     }
   } else {
-    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No HTTP response', $return_substion));
+    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'http-notfound', t($return_msg.'No HTTP response', $return_substion));
   }
 
   return $struct_array;
@@ -693,10 +693,11 @@ function _wallytoolbox_rss_flow_handle_errors($errno, $errstr, $errfile, $errlin
   }
 }
 
-function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {
+function _wallytoolbox_rss_flow_set_log(&$item, $success, $type, $msg, $severity = 'notice') {
   drupal_set_message($msg, $severity);
   $item['__log']['success'] = $success;
   $item['__log']['msg'] = $msg;
+  $item['__log']['type'] = $type;
 }
 
 function _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $caid) {

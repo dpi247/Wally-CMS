@@ -166,6 +166,10 @@ function prenode_save(&$form_state) {
     'uid' => $user->uid,
     'updated' => time(),
   );
+  
+  if (!$form_state['cache name']) {
+    return FALSE;
+  }
 
   // Let modules modify the prenode before it is saved to the database.
   wallyedit_invoke_prenodeapi($form_state, 'presave');
@@ -185,6 +189,8 @@ function prenode_save(&$form_state) {
   }
   // Let modules reacts after the prenode is saved to the database
   wallyedit_invoke_prenodeapi($form_state, 'save');
+  
+  return TRUE;
 }
 
 function prenode_delete($prenode) {

@@ -500,7 +500,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   // Fetching datas from cache
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
     // This cache doesn't exists, create it
     if ($ajax) {
       // Adding the AJAX call
@@ -526,6 +526,9 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       // Temporary HTML content
       // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
+      
+      // Prevent from caching in Varnish
+      drupal_set_header('X-Content-Types-Cache', 'no-cache');
     } else {
       // Here we directly call the content building callback
 

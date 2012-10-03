@@ -1,6 +1,8 @@
 <?php
 // $Id: wallyextra_plugin_ui.class.php,v 1.1.2.1 2010/07/14 01:57:42 merlinofchaos Exp $
 
+module_load_include('class.php', 'ctools', 'plugins/export_ui/ctools_export_ui');
+
 class wallyextra_plugin_ui extends ctools_export_ui {
   function list_form(&$form, &$form_state) {
     $this->list_form_submit($form, $form_state);
@@ -13,7 +15,6 @@ class wallyextra_plugin_ui extends ctools_export_ui {
   function list_build_row($item, &$form_state, $operations) {
     $this->sorts[$item->name] = $item->admin_title;
 
-    //$operations = array('delete' => $operations['delete']);
     $this->rows[$item->name] = array(
       'data' => array(
         array('data' => check_plain($item->name), 'class' => 'ctools-export-ui-name'),
@@ -33,6 +34,22 @@ class wallyextra_plugin_ui extends ctools_export_ui {
       array('data' => t('Category'), 'class' => 'ctools-export-ui-category'),
       array('data' => t('Operations'), 'class' => 'ctools-export-ui-operations'),
     );
+  }
+  
+  // ------------------------------------------------------------------------
+  // These methods are the API for adding/editing exportable items
+  
+  function add_page($js, $input, $step = NULL) {
+    module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$this->plugin['name']);
+    return parent::add_page($js, $input, $step);
+  }
+  
+  /**
+   * Main entry point to edit an item.
+   */
+  function edit_page($js, $input, $item, $step = NULL) {
+    module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$this->plugin['name']);
+    return parent::edit_page($js, $input, $item, $step);
   }
   
   /**

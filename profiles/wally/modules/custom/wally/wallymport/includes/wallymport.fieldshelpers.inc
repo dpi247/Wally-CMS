@@ -259,26 +259,28 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
     case 'http':
       $expl_path = explode('/', $uri['path']);
       $file_name = $expl_path[count($expl_path)-1];
-      $http_req = drupal_http_request($file_uri);
-      if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
-        if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
-          $good_file_name = str_replace($badcar, '_', $file_name);
-        } elseif ($http_req->headers['Content-Disposition']) {
-          $content_disp = $http_req->headers['Content-Disposition'];
-          $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
-          $good_file_name = str_replace($badcar, "_", substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
-        } else {
-          break;
-        }
-        $file_temp_dir = file_directory_path().'/'.$new_file_path;
-        file_check_directory_recursive($file_temp_dir, 1);
-        $file_temp_path = $file_temp_dir.'/'.md5($file_uri).'_'.$good_file_name;
-        if(!@copy($file_uri, $file_temp_path)) {
-          chmod($file_temp_path, octdec("0777"));
-          drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
-        } else {
-          $return = _wimprthelp_create_file($file_temp_path, $uid);
-          return $return;
+      $http_req = drupal_http_request($file_uri, array(), 'GET', NULL, 1, 2);
+      if ($http_req && $http_req->code == '200') {
+        if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
+          if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
+            $good_file_name = str_replace($badcar, '_', $file_name);
+          } elseif ($http_req->headers['Content-Disposition']) {
+            $content_disp = $http_req->headers['Content-Disposition'];
+            $sub_cont_disp = substr(strstr($content_disp, 'filename="'), strlen('filename="'));
+            $good_file_name = str_replace($badcar, "_", substr($sub_cont_disp, 0, strlen($sub_cont_disp) - 1));
+          } else {
+            break;
+          }
+          $file_temp_dir = file_directory_path().'/'.$new_file_path;
+          file_check_directory_recursive($file_temp_dir, 1);
+          $file_temp_path = $file_temp_dir.'/'.md5($file_uri).'_'.$good_file_name;
+          if(!@copy($file_uri, $file_temp_path)) {
+            chmod($file_temp_path, octdec("0777"));
+            drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
+          } else {
+            $return = _wimprthelp_create_file($file_temp_path, $uid);
+            return $return;
+          }
         }
       }
       break;
