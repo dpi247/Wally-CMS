@@ -244,7 +244,7 @@ function wallypressfilters_gettagsfromfilterandformat_admin($filter_name, $forma
                         WHERE t.filter = '%s'
                         AND (t.format = %d OR t.format IS NULL)
                         AND t.tid IN (
-                        SELECT max(tid) FROM {wallypressfilters_tags}
+                        SELECT MAX(tid) FROM {wallypressfilters_tags}
                           WHERE filter = '%s'
                           AND (format = %d OR format IS NULL)
                           GROUP BY tag
@@ -333,7 +333,7 @@ function wallypressfilters_gettagsbynameandfilter($tag, $filter){
  */
 function wallypressfilters_form_filter_settings_form($fid, $format){
   $filter = wallypressfilters_getfilterbyid($fid);
-  $tags = wallypressfilters_gettagsfromfilterandformat($filter->name, $format);
+  $tags = wallypressfilters_gettagsfromfilterandformat_admin($filter->name, $format);
 
   $form['filter']['#tree'] = TRUE;
 
@@ -359,34 +359,41 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     '#title'       => t('Markers'),
     '#collapsible' => TRUE,
   );
-  
-  $form['filter'][$filter->name]['attr-rel-tag'] = array(
-    '#type'        => 'fieldset',
-    '#title'       => t('Atributes related tags'),
-    '#collapsible' => TRUE,
-  );
 
   if (!empty($tags)) {
     ctools_include('dependent');
     ctools_add_js('dependent');
-    
-    $types = array(
+
+    $operations = array(
       'tag' => array(
         'ignore' => t('Ignore'),
         'replace' => t('Replace'),
+        'attr_replace' => t('Replace following attributes'),
         'strip' => t('Strip'),
         'strip_contents' => t('Strip and Strip Contents'),
       ),
       'marker' => array(
         'ignore' => t('Ignore'),
         'replace' => t('Replace'),
+        'attr_replace' => t('Replace following attributes'),
         'strip' => t('Strip'),
         'convert' => t('Convert to text'),
       ),
-      'attr-rel-tag' => array(
-        'ignore' => t('Ignore'),
-        'attr_replace' => t('Replace following attributes'),
-        'strip' => t('Strip'),
+    );
+    
+    $sub_operations = array(
+      'tag' => array(
+        'attr_replace' => array(
+          'to_tag' => t('Convert to another tag'),
+          'to_marker' => t('Convert to marker'),
+          'convert' => t('Convert to string'),
+        ),
+      ),
+      'marker' => array(
+        'attr_replace' => array(
+          'to_marker' => t('Convert to another marker'),
+          'convert' => t('Convert to string'),
+        ),
       ),
     );
 
@@ -405,14 +412,15 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         'classes' => '',
         'attributes' => '',
         'convert_text' => '',
-        'attributes-replacement' => '',
+        'attributes-replacement-sub-operation' => 0,
+        'attributes-replacement-settings' => '',
       );
       $defaults = array_merge($defaults, $settings);
 
       $tag_form['operation'] = array(
         '#type'          => 'select',
         '#title'         => t('Operation'),
-        '#options'       => $types[$tag->type] ? $types[$tag->type] : array(),
+        '#options'       => $operations[$tag->type] ? $operations[$tag->type] : array(),
         '#default_value' => $defaults['operation'],
       );
 
@@ -459,12 +467,21 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         '#process'       => array('ctools_dependent_process'),
       );
       
-      $tag_form['attributes-replacement'] = array(
+      $tag_form['attributes-replacement-sub-operation'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Replacement method'),
+        '#options'       => $sub_operations[$tag->type]['attr_replace'] ? $sub_operations[$tag->type]['attr_replace'] : array(),
+        '#default_value' => $defaults['attributes-replacement-sub-operation'],
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('attr_replace')),
+        '#process'       => array('ctools_dependent_process'),
+      );
+      
+      $tag_form['attributes-replacement-settings'] = array(
         '#type'          => 'textarea',
         '#title'         => t('Attributes management'),
-        '#default_value' => $defaults['attributes-replacement'],
+        '#default_value' => $defaults['attributes-replacement-settings'],
         '#description'   => t('This area determine how the original tag will be replaced.<br>
-            You can choose the new tag value according to an attribute value.<br>
+            You can choose the replacement value according to an attribute value.<br>
             For example you could transform "<i><code>!ex_code_1</code></i>" into "<i><code>!ex_code_2</code></i>" and "<i><code>!ex_code_3</code></i>" into "<i><code>!ex_code_4</code></i>".<br>
             Please enter one replacement set per line, following schema "<i>attribute_name</i>|<i>attribute_value</i>|<i>new_tag_value</i>"
             (in this example "foo|val1|bar1" and "foo|val2|bar2", on two separated lines).',
@@ -540,7 +557,8 @@ function wallypressfilters_form_filter_settings_form_submit($form, &$form_state)
             'classes' => $tag_infos['classes'],
             'attributes' => $tag_infos['attributes'],
             'convert_text' => $tag_infos['convert_text'],
-            'attributes-replacement' => $tag_infos['attributes-replacement'],
+            'attributes-replacement-sub-operation' => $tag_infos['attributes-replacement-sub-operation'],
+            'attributes-replacement-settings' => $tag_infos['attributes-replacement-settings'],
           );
           $obj->settings = $settings;
           if ($tag_infos['format'] == NULL){

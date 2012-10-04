@@ -94,20 +94,40 @@ function wallypressfilters_convert_tags($tag, $settings, $text) {
  * @param array $settings settings of this replacement
  * @param string $text text to process
  */
-function wallypressfilters_attr_replace_tags($tag, $settings, $text) {
-  if (!empty($settings['attributes-replacement'])) {
+function wallypressfilters_attr_replace_tags($tag, $settings, $text, $type) {
+  if (!empty($settings['attributes-replacement-settings'])) {
     // Mapping between old and new tags
-    $settings_attr = explode(PHP_EOL, $settings['attributes-replacement']);
+    $settings_attr = explode(PHP_EOL, $settings['attributes-replacement-settings']);
     foreach ($settings_attr as $set_attr) {
       $tmp_attr = explode('|', $set_attr);
       if (sizeof($tmp_attr) == 3) {
         $attr = $tmp_attr[0];
         $val = $tmp_attr[1];
         $new_tag = $tmp_attr[2];
-        
-        $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
-        $new_str = "<$new_tag$1$2>$3</$new_tag>";
-        $text = preg_replace($str_to_find, $new_str, $text);
+
+        switch ($settings['attributes-replacement-sub-operation']) {
+          case 'to_tag':
+            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
+            $new_str = "<$new_tag$1$2>$3</$new_tag>";
+            $text = preg_replace($str_to_find, $new_str, $text);
+            break;
+
+          case 'to_marker':
+            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
+            $new_str = "<$new_tag$1$2>";
+            $new_str .= ($type == 'tag') ? "$3" : "";
+            $text = preg_replace($str_to_find, $new_str, $text);
+            break;
+
+          case 'convert':
+            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
+            $new_str = $new_tag;
+            $new_str .= ($type == 'tag') ? "$3" : "";
+            $text = preg_replace($str_to_find, $new_str, $text);
+            break;
+        }
       }
     }
   }
