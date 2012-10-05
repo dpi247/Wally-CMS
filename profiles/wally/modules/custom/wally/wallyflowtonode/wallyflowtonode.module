@@ -280,7 +280,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
           $importer->source_directory_path = $tmp_folder;
           $temp_return = wallymport_process_file($importer, 'zip_'.$file_name.'.zip');
         } else {
-          $temp_return = wallymport_page_process_file($tempFile, $importer);
+          $temp_return = wallymport_process_file($importer, $tempFile);
           //file_delete($tempFile);
         }
 
