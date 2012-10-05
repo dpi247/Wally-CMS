@@ -8,7 +8,7 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
   $form['xml'] = array(
     '#type' => 'textarea',
     '#title' => t('XML Cropings'),
-    '#default_value' => ccimapping_cropsync_get_cropings_fromWS(),
+    '#default_value' => formatXmlString(ccimapping_cropsync_get_cropings_xml()),
     '#disabled' => !user_access('edit synchronization datas'),
   );
 
@@ -28,7 +28,7 @@ function ccimapping_cropsync_form_cropings_editor_form($form_state) {
   
   $form['fyi']['markup'] = array(
     '#type' => 'markup',
-    '#value' => '<pre>'.htmlentities(formatXmlString(ccimapping_cropsync_get_cropings_xml())).'</pre>',
+    '#value' => '<pre>'.htmlentities(ccimapping_cropsync_get_cropings_fromWS()).'</pre>',
   );
 
   return $form;
