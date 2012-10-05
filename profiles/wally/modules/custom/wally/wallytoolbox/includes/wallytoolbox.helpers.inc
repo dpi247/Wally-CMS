@@ -134,6 +134,77 @@ function wallytoolbox_string_args_translate($string, $args) {
   return strtr($string, $args);
 }
 
+
+/**
+ * Save or update a file in the Drupal file table and his associate file in the directory structure using a subdirectory and a subsubdirectory
+ * 
+ * We use sub and subsub directory to avoid to much files in a same directory.
+ * Tippically the subtype should be a type eg. Flows and subsub should be  a type instance like flows A, Flows B etc ..
+ * In extra we also use a third level with the day of the month...
+ * We only check the existance of a file in the third level of the structure ... eg: for the same day !
+ * 
+ *
+ * @param $file_uri
+ *   A string containing the file uri.
+ * @param  $subdirectory
+ *   A string containing the file uri.
+ * @param $subsubdirectory
+ *   A string containing the file uri.
+ * @param $file_temp_directory
+ *   A string containing the root of the Drupal file system (commonly: sites/default/files).
+ */
+function wallytoolbox_create_or_update_file($file_uri, $subdirectory, $subsubdirectory ,$file_temp_dir='sites/default/files') {
+  //$new_file_path = relatively to drupal files directory
+  $new_file_path = $subdirectory.'/'.$subsubdirectory.'/'.date('Ymd', time());
+  
+  $uri = parse_url($file_uri);
+  $expl_path = explode('/', $uri['path']);
+  $file_name = $expl_path[count($expl_path)-1];
+  
+  $badcar = array('+', ' ');
+  $good_file_name = str_replace($badcar, '_', $file_name);
+  //use md5 fo file_uri to get a nuique photo_name
+  $photo_name = md5($file_uri).'_'.$good_file_name;
+  
+  
+  $matching_photos = file_scan_directory($file_temp_dir.'/'.$new_file_path, $photo_name);
+  $matching_photo = NULL;
+  
+  foreach ($matching_photos as $match) {
+    $match_path = $match->filename;
+    $expl_match_path = explode('/', $match_path);
+    $not_found = TRUE;
+    while($not_found) {
+      $a = array_shift($expl_match_path);
+      if ($a == $subdirectory) {
+        $match_dir = array_shift($expl_match_path);
+        $match_name = array_pop($expl_match_path);
+        $not_found = FALSE;
+      }
+      if (empty($expl_match_path)) {
+        $not_found = FALSE;
+      }
+    }
+    if ($match_name == $photo_name) {
+      $matching_photo = $match;
+      break;
+    }
+  }
+
+  if ($matching_photo) {
+    $db_matching_photos = db_query("SELECT fid, filepath FROM {files} WHERE filepath = '%s'", $matching_photo->filename);
+    while($file = db_fetch_object($db_matching_photos)) {
+      if (!field_file_delete($file)) {
+        db_query('DELETE FROM {files} WHERE fid = %d', $file->fid);
+        _field_file_cache(NULL, $file); // delete the file from the cache
+      }
+    }
+  }
+
+  module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+  return _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+}
+
 /**
  * A true boolean conversion function.
  * 
