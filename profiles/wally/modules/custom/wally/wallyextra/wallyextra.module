@@ -8,15 +8,6 @@ include_once('wallyextra.features.inc');
 function wallyextra_menu() {
   $items = array();
 
-  $items['admin/wally/wallyextra'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyextra_page_admin_form',),
-    'access arguments' => array('administer page manager'),
-    'file' => 'includes/page_admin.inc',
-    'title' => t('Wally Extra Settings'),
-    'description' => t('Configure WallyExtra (including global settings for CTools content types such as flowmix, remoteHTML, ...)'),
-  );
-
   $items['wallyextra/contenttypesajax'] = array(
     'page callback'    => '_wallyextra_content_types_ajax_callback',
     'access arguments' => array('access content'),
@@ -131,49 +122,6 @@ function wallyextra_theme(&$var) {
       'template' => 'wallyextra-loading-content-type',
     ),
   );
-}
-
-/**
- * Implementation of hook_cron()
- * Flush old files coming from FlowMix
- */
-function wallyextra_cron() {
-  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
-
-  $flows_path = 'sites/default/files/Flows/';
-  $days_limit = wally_variable_get('wallyextra_flowmix_files_days_limit', 7);
-  $old_timestamp = time() - $days_limit*86400;
-  if ($removed_files = db_fetch_array(db_query("SELECT COUNT(*) FROM {files} WHERE filepath LIKE '%s%' AND timestamp < %d", $flows_path, $old_timestamp))) {
-    if ($removed_files['COUNT(*)'] > 0) {
-      if (db_query("DELETE FROM {files} WHERE filepath LIKE '%s%' AND timestamp < %d", $flows_path, $old_timestamp)) {
-        $return .= t('!num_files files removed.', array('!num_files' => $removed_files['COUNT(*)']));
-
-        // Now remove files on disk
-        /*$folders = file_scan_directory('sites/default/files/Flows', './*', array('.', '..'), 0, FALSE);
-        foreach ($folders as $path => $folder) {
-          $folder_name = $folder->basename;
-          list($a, $folder_date) = explode('-', $folder_name);
-          $year = substr($folder_date, 0, 4);
-          $month = substr($folder_date, 4, 2);
-          $date = substr($folder_date, 6, 2);
-          $folder_created = strtotime($year.'-'.$month.'-'.$date);
-          $days_diff = (mktime(0, 0, 0) - $folder_created)/86400; // Folder age in days
-          if ($days_diff > $days_limit) {
-            module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-            rrmdir($path);
-          }
-        }*/
-      } else {
-        $return .= t('SQL error during files removal.');
-      }
-    } else {
-      $return .= t('No files to remove.');
-    }
-  } else {
-    $return .= t('SQL error during files count.');
-  }
-
-  print $return;
 }
 
 /**
@@ -500,8 +448,9 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
   // Fetching datas from cache
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
     // This cache doesn't exists, create it
+
     if ($ajax) {
       // Adding the AJAX call
       drupal_add_js(drupal_get_path('module', 'wallyextra').'/scripts/get_cache_or_create.js');
