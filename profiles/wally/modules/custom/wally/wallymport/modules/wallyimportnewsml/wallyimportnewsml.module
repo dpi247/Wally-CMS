@@ -266,6 +266,7 @@ function wallyimportnewsml_node_set_field_title(&$node, $dom, &$log, $importer){
 *   Nothing
 */
 function wallyimportnewsml_node_set_field_lead(&$node, $dom, &$log, $importer){
+  module_load_include('inc', 'wallyimportpackage', 'wallyimportpackage');
   if ($node->type != 'wally_articlepackage'){
     $value = $dom->getElementsByTagName('DataContent')->item(0)->nodeValue;
     $node->field_textchapo[0]['value'] = $value;
