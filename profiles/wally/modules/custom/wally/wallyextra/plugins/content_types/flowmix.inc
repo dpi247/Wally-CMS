@@ -359,8 +359,8 @@ function _wallyextra_flowmix_setcache($settings) {
     }
   }
 
-  if ($empty_feed && !empty($old_feed)) {
-    return $old_feed;
+  if ($empty_feed) {
+    return !empty($old_feed) ? $old_feed : array();
   }
 
   if ($settings['mix_schema'] == 'ran' && $mix_schema == array('any')) {

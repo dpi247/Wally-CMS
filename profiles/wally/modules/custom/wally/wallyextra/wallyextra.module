@@ -8,15 +8,6 @@ include_once('wallyextra.features.inc');
 function wallyextra_menu() {
   $items = array();
 
-  $items['admin/wally/wallyextra'] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallyextra_page_admin_form',),
-    'access arguments' => array('administer page manager'),
-    'file' => 'includes/page_admin.inc',
-    'title' => t('Wally Extra Settings'),
-    'description' => t('Configure WallyExtra (including global settings for CTools content types such as flowmix, remoteHTML, ...)'),
-  );
-
   $items['wallyextra/contenttypesajax'] = array(
     'page callback'    => '_wallyextra_content_types_ajax_callback',
     'access arguments' => array('access content'),
@@ -170,51 +161,10 @@ function wallyextra_theme(&$var) {
 }
 
 /**
- * Implementation of hook_cron()
- * Flush old files coming from FlowMix
- */
-function wallyextra_cron() {
-  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
-
-  $flows_path = 'sites/default/files/Flows/';
-  $days_limit = wally_variable_get('wallyextra_flowmix_files_days_limit', 7);
-  $old_timestamp = time() - $days_limit*86400;
-  if ($removed_files = db_fetch_array(db_query("SELECT COUNT(*) FROM {files} WHERE filepath LIKE '%s%' AND timestamp < %d", $flows_path, $old_timestamp))) {
-    if ($removed_files['COUNT(*)'] > 0) {
-      if (db_query("DELETE FROM {files} WHERE filepath LIKE '%s%' AND timestamp < %d", $flows_path, $old_timestamp)) {
-        $return .= t('!num_files files removed.', array('!num_files' => $removed_files['COUNT(*)']));
-
-        // Now remove files on disk
-        /*$folders = file_scan_directory('sites/default/files/Flows', './*', array('.', '..'), 0, FALSE);
-        foreach ($folders as $path => $folder) {
-          $folder_name = $folder->basename;
-          list($a, $folder_date) = explode('-', $folder_name);
-          $year = substr($folder_date, 0, 4);
-          $month = substr($folder_date, 4, 2);
-          $date = substr($folder_date, 6, 2);
-          $folder_created = strtotime($year.'-'.$month.'-'.$date);
-          $days_diff = (mktime(0, 0, 0) - $folder_created)/86400; // Folder age in days
-          if ($days_diff > $days_limit) {
-            module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-            rrmdir($path);
-          }
-        }*/
-      } else {
-        $return .= t('SQL error during files removal.');
-      }
-    } else {
-      $return .= t('No files to remove.');
-    }
-  } else {
-    $return .= t('SQL error during files count.');
-  }
-
-  print $return;
-}
-
-/**
  * Implementation of hook_form_FORM_ID_alter().
  * Css to add so space between operations in export admin and add "Hide" and "Show" links
+ * 
+ * @todo : documenter sur palurd
  */
 function wallyextra_form_ctools_export_ui_list_form_alter(&$form, &$form_state) {
   drupal_add_css(drupal_get_path('module', 'wallyextra').'/css/export-admin.css');
@@ -257,6 +207,29 @@ function wallyextra_form_ctools_export_ui_delete_confirm_form_alter(&$form, $for
 function wallyextra_page_manager_variant_operations_alter(&$operations, $handler) {
   if (isset($operations['children']['actions']['children']['clone'])) {
     unset($operations['children']['actions']['children']['clone']);
+  }
+}
+
+function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
+  $existing_cid = array();
+
+  if ($build_type != 'full') {
+    $db_blocks = db_query("SELECT cid FROM {wallytoolbox_content_types_cache}");
+    while ($res_block = db_fetch_array($db_blocks)) {
+      list($a, $b, $tmp_type, $tmp_subtype, $c, $d) = explode(':', $res_block['cid']);
+      $existing_cid[] = $tmp_type.'@@'.$tmp_subtype;
+    }
+  }
+
+  foreach ($blocks as $cid => $block) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
+    if ($type != $subtype) {
+      if (in_array($type.'@@'.$subtype, $existing_cid, TRUE)) {
+        unset($blocks[$cid]);
+      } else {
+        $existing_cid[] = $type.'@@'.$subtype;
+      }
+    }
   }
 }
 
@@ -678,6 +651,9 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       // Temporary HTML content
       // The div has a specific id to be able to fill it with the right contents
       $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
+      
+      // Prevent from caching in Varnish
+      drupal_set_header('X-Content-Types-Cache', 'no-cache');
     } else {
       // Here we directly call the content building callback
 
@@ -729,7 +705,10 @@ function _wallyextra_content_types_ajax_callback() {
   // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
 
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
+    // Avoid multiple runs caused by Varnish
+    cache_set($cid, array(), 'cache_wally_blocks');
+
     // Load plugin if necessary
     if ($plugin_name != '') {
       ctools_include('plugins');
