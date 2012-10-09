@@ -768,6 +768,7 @@ function wallycontenttypes_cron() {
   if ($last_run_timestamp < $today) {
     wally_variable_set('wallycontenttypes_embargo_last_run', $today);
 
+    // If Memcached is used we don't try to flush old packages, Memcached do it itself.
     if (!function_exists('memcache_variable_set') && variable_get('wallycontenttypes_packagepopulate_cache', 1)) {
       $flush_time_days = variable_get('wallycontenttypes_packagepopulate_flush_frequency', 7);
       if ($flush_time_days && !empty($flush_time_days)) {
