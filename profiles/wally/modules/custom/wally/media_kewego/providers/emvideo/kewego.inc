@@ -127,7 +127,7 @@ function emvideo_kewego_video($video_id, $width, $height, $field, $item, $node, 
   $options['videoformat'] = media_kewego_variable_get('videoformat', 'old');
   $options['width'] = media_kewego_variable_get('width', 400);
   $options['height'] = media_kewego_variable_get('height', 300);
-  $options['autostart'] = isset($options['autostart']) ? $options['autostart'] : media_kewego_variable_get('autostart') == 1 ? 'true' : $autoplay;
+  $options['autostart'] = isset($options['autostart']) ? $options['autostart'] : media_kewego_variable_get('autostart') == 1 ? 'true' : 'false';
   $options['fullscreen'] = media_kewego_variable_get('fullscreen', 0) == 1 ? 'true' : 'false';
   $options['wmode'] = media_kewego_variable_get('wmode', 'opaque');
   $options['advertise'] = media_kewego_variable_get('advertise', 0) == 1 ? 'true' : 'false';
@@ -137,7 +137,7 @@ function emvideo_kewego_video($video_id, $width, $height, $field, $item, $node, 
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
   $options['item'] = isset($options['item']) ? $options['item'] : $item;
   $options['node'] = isset($options['node']) ? $options['node'] : $node;
-  
+
   $output = theme('media_kewego_default', $options);
   return $output;
 }
