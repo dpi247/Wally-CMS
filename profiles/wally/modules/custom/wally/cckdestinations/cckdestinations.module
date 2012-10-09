@@ -623,7 +623,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $rank_classes = array();
   $rank_limit = wally_variable_get('cckdestinations_rank_limit', '10');
 
-  if (!cckdestinations_content_is_empty($defaults, array()) && ($defaults['target'] != 'none') && isset($defaults['rank']) && $defaults['rank'] != '' && isset($defaults['time_rank']) && $defaults['time_rank'] != '') {
+  if (!cckdestinations_content_is_empty($defaults, array()) && isset($defaults['rank']) && $defaults['rank'] != '' && isset($defaults['time_rank']) && $defaults['time_rank'] != '') {
     $default_value=current(explode('DNC',$defaults['rank']));
     $default_value=next(explode('DNC',$defaults['rank'])).$default_value;
     $defaults['rank'] = $default_value;
@@ -686,13 +686,12 @@ function cckdestinations_cckdestinations_widget_after_build ($form, $form_state)
   $field_name = $form['#field_name'];
   $pack_type = $form['#type_name'];
   $delta = $form['#delta'];
-  $field = content_fields($field_name, $pack_type);
 
   $values = $form_state['values'];
   $field_values = isset($values[$pack_type][$field_name]) ? $values[$pack_type][$field_name] : $values[$field_name];
   if (isset($field_values[$delta]) && !empty($field_values[$delta])) {
-    $hook_is_empty = $field['module'].'_content_is_empty';
-    if (function_exists($hook_is_empty) && $hook_is_empty($field_values[$delta], $field)) {
+    $hook_is_empty = 'cckdestinations_content_is_empty';
+    if ($hook_is_empty($field_values[$delta], array())) {
       foreach (element_children($form) as $key) {
         if (isset($form[$key]['#needs_validation'])) {
           unset($form[$key]['#needs_validation']);
@@ -727,11 +726,14 @@ function cckdestinations_batch_dest_form($context, $op) {
   $form['destinations'] = (array) content_field_form($form, $form_state, $destinations);
   $form['destinations']['#tree'] = TRUE;
   $form['destinations']['#weight'] = 3;
+
+  // This is needed for the "add new" and "remove" operations, to find the element in the form tree.
+  // This happens when we are not in a package edition context
   $form['destinations']['field_destinations'][0]['#type_name'] = 'destinations';
-  $form['destinations']['field_destinations']['field_destinations_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
-  $form['destinations']['field_destinations']['field_destinations_add_more']['#ahah']['path'] = str_replace('//', '/', 'cckdestinations/js_add_more/destinations/field_destinations/destinations/field_destinations');
   $form['destinations']['field_destinations']['#parents'] = array('destinations', 'field_destinations');
   $form['destinations']['#field_info']['field_destinations']['display_settings']['parent'] = 'destinations';
+  $form['destinations']['field_destinations']['field_destinations_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
+  $form['destinations']['field_destinations']['field_destinations_add_more']['#ahah']['path'] = str_replace('//', '/', 'cckdestinations/js_add_more/destinations/field_destinations/destinations/field_destinations');
 
   switch ($op) {
     case 'add':
@@ -1788,6 +1790,8 @@ function cckdestinations_remove_ahah($type_name_url, $rem_delta) {
 
   $type = content_types($type_name_url);
   $field = content_fields($field_name, $type['type']);
+  // This is needed for the "add new" and "remove" operations, to find the element in the form tree.
+  // This happens when we are not in a package edition context
   $field['type_name'] = $type_name_url;
 
   if (($field['multiple'] != 1) || empty($_POST['form_build_id'])) {
