@@ -58,7 +58,7 @@ function wallytoolbox_opml_flow_build(&$feed_infos) {
   
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri']);
-  if ($feed_xml && $feed_xml->code == '200') {
+  if ($feed_xml && ($feed_xml->code == '200' OR $feed_xml->redirect_code=='200')) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
     $head = $dom->getElementsByTagName('head');
