@@ -54,7 +54,14 @@ function wallyflowtonode_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE, 
         'default' => 0,
-      ), 
+      ),
+      'last_run' => array(
+        'description' => 'Last time the cron turned.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'delta_t' => array(
         'description' => 'Time (minutes) between updates.', 
         'type' => 'int', 
@@ -163,5 +170,22 @@ function wallyflowtonode_update_6002() {
     'not null' => TRUE,
   );
   db_add_field($ret, 'wallyflowtonode_flows', 'importer', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N()
+ * Add last_run parameter
+ */
+function wallyflowtonode_update_6003() {
+  $ret = array();
+  $spec = array(
+    'description' => 'Last time the cron turned.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field($ret, 'wallyflowtonode_flows', 'last_run', $spec);
   return $ret;
 }
