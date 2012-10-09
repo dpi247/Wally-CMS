@@ -261,6 +261,10 @@ function wallytoolbox_supercron_call($cid) {
 }
 
 function _wallytoolbox_process_block_refresh(&$block) {
+  // When called from supercron the theme is set to admin theme, we have to force front theme to get correct templates suggestions.
+  global $custom_theme;
+  $custom_theme = variable_get('theme_default', 'garland');
+  
   $block_infos = explode(':', $block['cid']);
   $block_infos = array(
     'page' => $block_infos[0],
@@ -276,3 +280,24 @@ function _wallytoolbox_process_block_refresh(&$block) {
 
   return $output;
 }
+
+function wallytoolbox_page_settings_form ($form_state) {
+  $form = array();
+  
+  $form['images_flush'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Files flush settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['images_flush']['wallytoolbox_files_days_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Remove files older than (in days)'),
+    '#description' => t('The cron will remove files older than this amount of days'),
+    '#default_value' => wally_variable_get('wallytoolbox_files_days_limit', 7),
+  );
+  
+  return wally_system_settings_form($form, TRUE);
+}
+
