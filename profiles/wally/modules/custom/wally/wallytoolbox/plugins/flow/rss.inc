@@ -83,8 +83,8 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
   $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, 1, 2);
-  if ($feed_xml && $feed_xml->code == '200') {
-    set_error_handler('_wallytoolbox_rss_flow_handle_errors');
+  if ($feed_xml && ($feed_xml->code == '200' OR $feed_xml->redirect_code=='200')) {
+      set_error_handler('_wallytoolbox_rss_flow_handle_errors');
 
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);
