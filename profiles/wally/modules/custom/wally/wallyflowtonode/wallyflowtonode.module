@@ -153,7 +153,12 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
     if (strstr($_GET['q'], '/wally/')) {
       return $return;
     } else {
-      print_r($return);
+      $print_return = '<b>'.t('Run').' '.$return['date'].' :</b></br>';
+      unset($return['date']);
+      foreach ($return as $ret) {
+        $print_return .= $ret.'</br>';
+      }
+      print $print_return;
     }
   }
 }
@@ -217,7 +222,10 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL, $force = FALSE) {
   $return = array();
   $return['date'] = date('Y-m-d H:i:s');
   foreach ($feeds_infos as $feed_infos) {
-    $return[] = _wallyflowtonode_callonefeed($feed_infos, $force);
+    if ($force || (time() - $feed_infos['last_run']) > (60 * $feed_infos['delta_t'])) {
+      $return[] = _wallyflowtonode_callonefeed($feed_infos, $force);
+      db_query("UPDATE {wallyflowtonode_flows} SET last_run = %d WHERE flow_key = %d", time(), $feed_infos['flow_key']);
+    }
   }
   
   return $return;
@@ -226,7 +234,7 @@ function _wallyflowtonode_callallfeeds($flow_key = NULL, $force = FALSE) {
 function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
   $return = 'Flow "@flow_name": ';
   $return_substion = array('@flow_name' => $feed_infos['name']);
-  
+
   ctools_include('plugins');
   if ($function = ctools_plugin_get_function(wallytoolbox_get_plugin_by_name($feed_infos['plugin_name']), 'build')) {
     if ($force) {
@@ -280,7 +288,8 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
           $importer->source_directory_path = $tmp_folder;
           $temp_return = wallymport_process_file($importer, 'zip_'.$file_name.'.zip');
         } else {
-          $temp_return = wallymport_process_file($importer, $tempFile);
+          $importer->source_directory_path = $tmp_folder;
+          $temp_return = wallymport_process_file($importer, $file_name.'.xml');
           //file_delete($tempFile);
         }
 
@@ -310,6 +319,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
   } else {
     $return .= 'No matching plugin';
   }
+
   return t($return, $return_substion);
 }
 
