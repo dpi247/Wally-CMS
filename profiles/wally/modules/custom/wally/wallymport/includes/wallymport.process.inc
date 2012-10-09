@@ -210,7 +210,7 @@ function wallymport_process_file($importer, $file_name){
 
   if (!file_exists($file->filename)) {
     $error_msg = t('Input file doesn\'t exists');
-    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+    $returns = array('error' => TRUE, 'error_msg' => $error_msg);
   }
   if ($returns == NULL){
     $return = NULL;
@@ -427,7 +427,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
  * @return $xml_file (name of the xml file to process)
  */
 function wallymport_preprocess_file($file, &$importer, &$return) {
-  if ($importer->zip == 1){
+  if ($importer->zip == 1 && strstr($file, '.zip')){
     $xml_file = wallymport_preprocess_zip($file, $importer, $return);
   } else {
     $xml_file = $file->filename;
@@ -529,7 +529,7 @@ function wallymport_process_xmlfile($xml_file, $importer){
     //If you edit the root of the dom, do not forget to reload the dom ($content = dom->saveXML(); $dom->LoadXML(content))
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
     
-    module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+    module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
     if (!_wimprthelp_validate_xml($dom, $importer->xsd_path)) {
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
