@@ -82,8 +82,8 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['conf']['uri'],array(), 'GET', NULL, 1, 3);
-  if ($feed_xml && ($feed_xml->code == '200' OR $feed_xml->redirect_code=='200')) {
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, 1, 3);
+  if ($feed_xml && $feed_xml->code == '200') {
     set_error_handler('_wallytoolbox_rss_flow_handle_errors');
 
     $dom = new DomDocument();
@@ -128,21 +128,21 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
           }
 
           if (empty($struct_array['Packages']['Package'])) {
-            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'No modifications', $return_substion));
+            _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, 'unchanged', t($return_msg.'No modifications', $return_substion));
           }
 
           $feed_infos['feeds_md5'] = $new_feeds_md5;
         } else {
-          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, t($return_msg.'Channel not rebuild', $return_substion));
+          _wallytoolbox_rss_flow_set_log($struct_array['Packages'], TRUE, 'unchanged', t($return_msg.'Channel not rebuild', $return_substion));
         }
       } else {
-        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No channel', $return_substion));
+        _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'structure', t($return_msg.'No channel', $return_substion));
       }
     } else {
-      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No "rss" tag', $return_substion));
+      _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'structure', t($return_msg.'No "rss" tag', $return_substion));
     }
   } else {
-    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, t($return_msg.'No HTTP response', $return_substion));
+    _wallytoolbox_rss_flow_set_log($struct_array['Packages'], FALSE, 'http-notfound', t($return_msg.'No HTTP response', $return_substion));
   }
 
   return $struct_array;
@@ -214,19 +214,20 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   
   // Copy distant images to local
   if ($feed_infos['conf']['get_distant_img'] == 1 && isset($array_package['EmbeddedContent'])) {
-    $file_temp_dir = file_directory_path().'/Flows/';
+    $file_temp_dir = file_directory_path();
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    file_check_directory_recursive($file_temp_dir, 1);
     
     foreach ($array_package['EmbeddedContent']['EmbeddedObjects']['Object'] as $object_key => $object) {
       if ($object['type'] == 'PhotoObjectType') {
         $file_uri = $object['FileURI']['value'];
-        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = wallytoolbox_create_or_update_file($file_uri, 'Flows', $feed_infos['caid'], $file_temp_dir, $feed_infos['caid']);
+        //$array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
       }
       
       if (isset($object['Thumbnail'])) {
         $file_uri = $object['Thumbnail']['URI'];
-        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
+        $array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = wallytoolbox_create_or_update_file($file_uri, 'Flows', $feed_infos['caid'], $file_temp_dir, $feed_infos['caid']);
+        //$array_package['EmbeddedContent']['EmbeddedObjects']['Object'][$object_key]['Thumbnail']['LocaleImage'] = _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $feed_infos['caid']);
       }
     }
   }
@@ -693,20 +694,24 @@ function _wallytoolbox_rss_flow_handle_errors($errno, $errstr, $errfile, $errlin
   }
 }
 
-function _wallytoolbox_rss_flow_set_log(&$item, $success, $msg, $severity = 'notice') {
+function _wallytoolbox_rss_flow_set_log(&$item, $success, $type, $msg, $severity = 'notice') {
   drupal_set_message($msg, $severity);
   $item['__log']['success'] = $success;
   $item['__log']['msg'] = $msg;
+  $item['__log']['type'] = $type;
 }
 
 function _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $caid) {
+  $new_file_path = 'Flows/'.$caid.'-'.date('Ymd', time());
+
   $uri = parse_url($file_uri);
   $expl_path = explode('/', $uri['path']);
   $file_name = $expl_path[count($expl_path)-1];
   $badcar = array('+', ' ');
   $good_file_name = str_replace($badcar, '_', $file_name);
   $photo_name = md5($file_uri).'_'.$good_file_name;
-  $matching_photos = file_scan_directory($file_temp_dir, $photo_name);
+  //$matching_photos = file_scan_directory($file_temp_dir, $photo_name);
+  $matching_photos = file_scan_directory($file_temp_dir.'/'.$new_file_path, $photo_name);
   $matching_photo = NULL;
   foreach ($matching_photos as $match) {
     $match_path = $match->filename;
@@ -739,7 +744,6 @@ function _wallytoolbox_rss_create_or_update_file($file_uri, $file_temp_dir, $cai
     }
   }
 
-  $new_file_path = 'Flows/'.$caid.'-'.date('Ymd', time());
   module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
   return _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
 }

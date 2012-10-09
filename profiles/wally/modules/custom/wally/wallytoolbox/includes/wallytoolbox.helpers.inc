@@ -134,6 +134,56 @@ function wallytoolbox_string_args_translate($string, $args) {
   return strtr($string, $args);
 }
 
+
+/**
+ * Save or update a file in the Drupal file table and his associate file in the directory structure using a subdirectory and a subsubdirectory
+ * 
+ * We use sub and subsub directory to avoid to much files in a same directory.
+ * Tippically the subtype should be a type eg. Flows and subsub should be a type instance like Flow A, Flow B, etc.
+ * In extra we also use a third level with the day of the month...
+ * 
+ * @param string $file_uri
+ *   A string containing the file uri.
+ * @param string $subdirectory
+ *   A string containing the file uri.
+ * @param string $subsubdirectory
+ *   A string containing the file uri.
+ * @param string $file_temp_directory
+ *   A string containing the root of the Drupal file system (commonly: sites/default/files).
+ * @param boolean $replace
+ *   If the given URI already exists, replace current with new one or not
+ */
+function wallytoolbox_create_or_update_file($file_uri, $subdirectory, $subsubdirectory, $file_temp_dir = 'sites/default/files', $requestor = NULL, $replace = TRUE) {
+  // $new_file_path = relatively to drupal files directory
+  $new_file_path = $subdirectory.'/'.$subsubdirectory.'/'.date('Ymd', time());
+
+  module_load_include('inc', 'filefield', 'field_file');
+  $select_fid_query = "SELECT fid FROM {wallytoolbox_external_files} WHERE uri = '%s'";
+  $select_fid_query .= $requestor ? "AND requestor = '%s'" : "AND requestor IS NULL";
+  $db_files = db_query($select_fid_query, $file_uri, $requestor);
+  while ($existing_fid = db_fetch_array($db_files)) {
+    $existing_file = field_file_load($existing_fid['fid']);
+    if ($replace) {
+      if (!field_file_delete($existing_file)) {
+        db_query('DELETE FROM {files} WHERE fid = %d', $existing_fid['fid']);
+        _field_file_cache(NULL, $existing_file); // delete the file from the cache
+      }
+      db_query("DELETE FROM {wallytoolbox_external_files} WHERE fid = %d", $existing_fid['fid']);
+    } else {
+      return $existing_file;
+    }
+  }
+
+  module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
+  $new_file = _wimprthelp_create_file_from_uri($file_uri, $new_file_path);
+  $new_file_obj = new stdClass();
+  $new_file_obj->fid = $new_file['fid'];
+  $new_file_obj->uri = $file_uri;
+  if ($requestor) $new_file_obj->requestor = $requestor;
+  drupal_write_record('wallytoolbox_external_files', $new_file_obj);
+  return $new_file;
+}
+
 /**
  * A true boolean conversion function.
  * 
@@ -170,13 +220,13 @@ function wallytoolbox_toboolean($v, $def=NULL) {
  * @return
  *   the difference between the time between the  first call of this fuction for this namespace and the current call of this function for this namespace
  */
-function wallytoolbox_set_microtime_step($step = '',$print = TRUE, $namespace = "default", $restart = FALSE) {
+function wallytoolbox_set_microtime_step($step = '', $print = TRUE, $namespace = "default", $restart = FALSE) {
   static $begin_time ;
   static $first;
   
-  if(!isset($begin_time[$namespace])){
-    $begin_time[$namespace]=0;
-    $first[$namespace]=TRUE;
+  if(!isset($begin_time[$namespace])) {
+    $begin_time[$namespace] = 0;
+    $first[$namespace] = TRUE;
   }
   
   if ($first[$namespace] || $restart) {

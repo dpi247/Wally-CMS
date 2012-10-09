@@ -22,13 +22,24 @@ function wallytoolbox_perm() {
 function wallytoolbox_menu() {
   $items = array();
   
-  $items['admin/wally/wallytoolbox/supercron'] = array(
+  $items['admin/wally/wallytoolbox'] = array(
     'title'             => t('Wally Toolbox "Supercon" Settings'),
     'page callback'     => 'drupal_get_form',
-    'page arguments'	=> array('wallytoolbox_supercron_settings_form'),
+    'page arguments'	  => array('wallytoolbox_supercron_settings_form'),
     'access arguments'  => array('manage cache'),
-    'description'       => t('Allows administrators to set paramaters for this module to function properly.'),
+    'description'       => t('Manage blocks refresh system.'),
     'file'              => 'includes/wallytoolbox.admin.inc',
+  );
+  
+  $items['admin/wally/wallytoolbox/supercron'] = array(
+    'title'             => t('Blocks list'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'	  => array('wallytoolbox_supercron_settings_form'),
+    'access arguments'  => array('manage cache'),
+    'description'       => t('Manage blocks refresh system.'),
+    'file'              => 'includes/wallytoolbox.admin.inc',
+    'type'              => MENU_DEFAULT_LOCAL_TASK,
+    'weight'            => 0,
   );
   
   $items['admin/wally/wallytoolbox/supercron/output/%'] = array(
@@ -45,6 +56,16 @@ function wallytoolbox_menu() {
     'access arguments' => array('manage cache'),
     'type'             => MENU_CALLBACK,
     'file'             => 'includes/wallytoolbox.admin.inc',
+  );
+  
+  $items['admin/wally/wallytoolbox/settings'] = array(
+    'title'            => t('Other Settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallytoolbox_page_settings_form',),
+    'access arguments' => array('manage cache'),
+    'file'             => 'includes/wallytoolbox.admin.inc',
+    'type'              => MENU_LOCAL_TASK,
+    'weight'            => 1,
   );
   
   $items['admin/wally/wallytoolbox/plugins'] = array(
@@ -70,8 +91,8 @@ function wallytoolbox_menu() {
  * Implementation of hook_menu_link_alter()
  */
 function wallytoolbox_menu_link_alter(&$item, $menu){
-  if($item['module']=='taxonomy_menu' && !isset($item['updated'])){
-    $item['hidden']=1;
+  if($item['module']=='taxonomy_menu' && !isset($item['updated'])) {
+    $item['hidden'] = 1;
   }
 }
 
@@ -137,42 +158,16 @@ function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
  * Implementation of hook_cron().
  */ 
 function wallytoolbox_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.admin');
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
-  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  // Flush old files from table wallytoolbox_external_files and table files
+  _wallytoolbox_cron_flush_files($return);
 
-  // Check if the table is not empty, and build it if necessary
-  $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
-  if ($count['COUNT(*)'] == '0') {
-    wallytoolbox_refresh_cache_list();
-  }
-
-  // Select blocks where last run is too old according to their refresh time
-  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run <= %d - rule ORDER BY weight ASC, cid ASC', time());
-  while ($block = db_fetch_array($blocks_list)) {
-    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
-      $block['settings'] = unserialize($block['settings']);
-    }
-    if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
-      $block['callback'] = unserialize($block['callback']);
-    }
-
-    wallytoolbox_set_microtime_step('', FALSE, 'default', TRUE);
-    $output = _wallytoolbox_process_block_refresh($block);
-    $delta_t = wallytoolbox_set_microtime_step('', FALSE);
-    $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
-    $formatted = $d->format('i:s.u');
-
-    if (!empty($output)) {
-      $block['output'] .= serialize($output);
-      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
-    }
-    $block['last_run'] = time();
-    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
-    $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
-  }
+  // Refresh process for all blocks using get_cache_or_create
+  _wallytoolbox_cron_blocks_refresh($return);
 
   print $return;
 }
@@ -374,8 +369,8 @@ function wallytoolbox_content_type_form_validate(&$form, &$form_state) {
 
   if (isset($values['wally_rule']) && !is_numeric($values['wally_rule'])) {
     form_set_error('wally_rule', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($values['wally_rule']) && ($values['wally_rule'] < 0 || $values['wally_rule'] >= 60)) {
-    form_set_error('wally_rule', t('The refresh time must be greater or equal to 0 and smaller than 60 minutes'));
+  } elseif (isset($values['wally_rule']) && $values['wally_rule'] < 0) {
+    form_set_error('wally_rule', t('The refresh time must be greater or equal to 0 minutes'));
   }
 }
 
@@ -948,6 +943,7 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
     $blocks_list[$temp_block['cid']] = $temp_block;
   }
 
+  $blocks = array();
   // Transform the list to get the same structure as the table and add an entry to the table
   foreach ($handlers as $page_name => $page_handlers) {
     if (is_array($page_handlers) && !empty($page_handlers)) {
@@ -971,10 +967,16 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
           $block['rule'] = 60*$wally_rule;
           $block['settings'] = $config;
 
-          drupal_write_record('wallytoolbox_content_types_cache', $block);
+          $blocks[$block['cid']] = $block;
         }
       }
     }
+  }
+  
+  drupal_alter('wallytoolbox_blocks', $blocks, ($display_name || $display) ? 'partial' : 'full');
+  
+  foreach ($blocks as $block) {
+    drupal_write_record('wallytoolbox_content_types_cache', $block);
   }
 }
 
@@ -1140,6 +1142,83 @@ function wallytoolbox_convert_taxonomy_flat_to_tree(& $array_of_terms_flat) {
 function wallytoolbox_get_all_aliases($internal_url) {
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   return _wallytoolbox_get_all_aliases($internal_url);
+}
+
+function _wallytoolbox_cron_flush_files(&$return) {
+  // Flush old files once a day
+  $today = strtotime(date('Y-m-d'));
+  $last_run_timestamp = wally_variable_get('wallytoolbox_embargo_last_run', time() - 86400);
+  if ($last_run_timestamp < $today) {
+    wally_variable_set('wallytoolbox_embargo_last_run', $today);
+
+    $days_limit = wally_variable_get('wallytoolbox_files_days_limit', 7);
+    $old_timestamp = time() - $days_limit*86400;
+
+    $count_query = 'SELECT COUNT(*) FROM {wallytoolbox_external_files} wef
+                    LEFT JOIN {files} f ON wef.fid = f.fid
+                    WHERE f.timestamp < %d';
+    if ($removed_files = db_fetch_array(db_query($count_query, $old_timestamp))) {
+      if ($removed_files['COUNT(*)'] > 0) {
+        $to_delete_query = 'SELECT * FROM {wallytoolbox_external_files} wef
+                            LEFT JOIN {files} f ON wef.fid = f.fid
+                            WHERE f.timestamp < %d';
+        $files_to_remove = db_query($to_delete_query, $old_timestamp);
+        // Now remove files on disk
+        while($file_to_remove = db_fetch_array($files_to_remove)) file_delete($file_to_remove['filepath']);
+
+        $delete_query = 'DELETE wef, f FROM {wallytoolbox_external_files} wef
+                         LEFT JOIN {files} f ON wef.fid = f.fid
+                         WHERE f.timestamp < %d';
+        db_query($delete_query, $old_timestamp);
+
+        $return .= t('!num_files old files removed.', array('!num_files' => $removed_files['COUNT(*)'])).'</br>';
+      }
+    } else {
+      $return .= t('SQL error during old files count.').'</br>';
+    }
+  }
+}
+
+function _wallytoolbox_cron_blocks_refresh(&$return) {
+  wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_global');
+
+  // Check if the table is not empty, and build it if necessary
+  $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
+  if ($count['COUNT(*)'] == '0') {
+    wallytoolbox_refresh_cache_list();
+  }
+
+  // Select blocks where last run is too old according to their refresh time
+  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run <= %d - rule ORDER BY weight ASC, cid ASC', time());
+  while ($block = db_fetch_array($blocks_list)) {
+    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+      $block['settings'] = unserialize($block['settings']);
+    }
+    if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
+      $block['callback'] = unserialize($block['callback']);
+    }
+
+    wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
+    $output = _wallytoolbox_process_block_refresh($block);
+    $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
+    $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
+    $formatted = $d->format('i:s.u');
+
+    if (!empty($output)) {
+      $block['output'] .= serialize($output);
+      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
+    }
+    $block['last_run'] = time();
+    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
+    $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
+  }
+
+  $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_global');
+  $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+  $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+  $formatted = $d->format('i:s.u');
+  $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
 }
 
 function _wallytoolbox_get_setting($settings, $name, $default = NULL) {
