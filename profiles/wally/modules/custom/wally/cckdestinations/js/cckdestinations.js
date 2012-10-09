@@ -1,10 +1,19 @@
 var str_to_replace = "tid";
 
 $(document).ready(function() {
-	var one_taxo = $(".tid:first").attr("id");
-	var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
-	if (last_char.match('^(0|[1-9][0-9]*)$')) {
-		str_to_replace = "tid-"+last_char;
+	var one_taxo = '';
+	$(".tid").each(function(index) {
+		var tmp_taxo = this.id;
+		if (tmp_taxo != '') {
+			one_taxo = tmp_taxo;
+			return false;
+		}
+	});
+	if (typeof one_taxo != "undefined" && one_taxo != '') {
+		var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
+		if (last_char.match('^(0|[1-9][0-9]*)$')) {
+			str_to_replace = "tid-"+last_char;
+		}
 	}
 
 	updateList();
@@ -17,18 +26,15 @@ $(document).ready(function() {
 
 function updateList() {
 	$(".tid").each(function(index) {
-		taxo = this.id;
-
-		targ = taxo.replace(str_to_replace, "target");
-		lay = taxo.replace(str_to_replace, "layout");
-		var selected_targ = '';
-		var selected_lay = '';
-		if (this.value) {
-			selected_targ = $("#"+targ).find("option:selected").attr("value");
-			selected_lay = $("#"+lay).find("option:selected").attr("value");
+		var taxo = this.id;
+		if (taxo != '') {
+			targ = taxo.replace(str_to_replace, "target");
+			lay = taxo.replace(str_to_replace, "layout");
+			var selected_targ = $("#"+targ).find("option:selected").attr("value");
+			var selected_lay = $("#"+lay).find("option:selected").attr("value");
+			makeSublist(taxo, targ, selected_targ);
+			makeSublist(targ, lay, selected_lay);
 		}
-		makeSublist(taxo, targ, selected_targ);
-		makeSublist(targ, lay, selected_lay);
 	});
 }
 
