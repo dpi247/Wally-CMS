@@ -1,4 +1,4 @@
-Drupal 6.26, 2012-05-02
+Drupal 6.26, 2012-05-02 -222
 ----------------------
 - Fixed a small number of bugs.
 - Made code documentation improvements.
