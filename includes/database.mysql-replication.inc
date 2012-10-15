@@ -109,7 +109,11 @@ function _db_is_slave_query(&$query, &$prefixed_query, &$args) {
  */
 function _db_is_write_query ($query) {
   // Quick and dirty: only SELECT statements are considered read-only.
-  $query = ltrim($query, "\t (");
+  $query = ltrim($query, "\t (\r\n");
+  if ($query[0] === '/' && $query[1] === '*') {
+    $end_comment = strpos($query, '*/');
+    $query = ltrim(substr($query, $end_comment), "\t (\r\n");
+  }
   $word = strtoupper(substr(trim($query), 0, 6));
   return 'SELECT' != $word;
 }
