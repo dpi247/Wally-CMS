@@ -1,19 +1,21 @@
 <?php
+// $Id: views_bulk_operations.views_default.inc,v 1.1.2.10 2010/09/29 19:26:22 kratib Exp $
 
 function views_bulk_operations_views_default_views() {
   // Admin content.
   $view = new view;
   $view->name = 'admin_content';
-  $view->description = 'Emulates the Drupal content administration page.';
+  $view->description = t('Emulates the Drupal content administration page.');
   $view->tag = '';
+  $view->view_php = '';
   $view->base_table = 'node';
-  $view->core = 0;
-  $view->api_version = '2';
-  $view->disabled = TRUE;
-  $handler = $view->new_display('default', 'Default', 'default');
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', t('Default'), 'default');
   $handler->override_option('fields', array(
     'title' => array(
-      'label' => 'Title',
+      'label' => t('Title'),
       'link_to_node' => 1,
       'exclude' => 0,
       'id' => 'title',
@@ -25,7 +27,7 @@ function views_bulk_operations_views_default_views() {
       ),
     ),
     'timestamp' => array(
-      'label' => 'New?',
+      'label' => t('New?'),
       'link_to_node' => 0,
       'comments' => 0,
       'exclude' => 0,
@@ -38,7 +40,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'type' => array(
-      'label' => 'Type',
+      'label' => t('Type'),
       'link_to_node' => 0,
       'exclude' => 0,
       'id' => 'type',
@@ -50,7 +52,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'name' => array(
-      'label' => 'Author',
+      'label' => t('Author'),
       'link_to_user' => 1,
       'exclude' => 0,
       'id' => 'name',
@@ -62,7 +64,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'status' => array(
-      'label' => 'Published',
+      'label' => t('Published'),
       'type' => 'yes-no',
       'not' => 0,
       'exclude' => 0,
@@ -75,7 +77,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'edit_node' => array(
-      'label' => 'Edit',
+      'label' => t('Edit'),
       'text' => '',
       'exclude' => 0,
       'id' => 'edit_node',
@@ -110,7 +112,7 @@ function views_bulk_operations_views_default_views() {
         'use_operator' => 0,
         'operator' => 'title_op',
         'identifier' => 'title',
-        'label' => 'Title contains',
+        'label' => t('Title contains'),
         'optional' => 1,
         'remember' => 0,
       ),
@@ -132,7 +134,7 @@ function views_bulk_operations_views_default_views() {
         'use_operator' => 0,
         'operator' => 'type_op',
         'identifier' => 'type',
-        'label' => 'Type',
+        'label' => t('Type'),
         'optional' => 1,
         'single' => 1,
         'remember' => 0,
@@ -154,7 +156,7 @@ function views_bulk_operations_views_default_views() {
       'expose' => array(
         'operator' => '',
         'identifier' => 'promote',
-        'label' => 'Promoted',
+        'label' => t('Promoted'),
         'optional' => 1,
         'remember' => 0,
       ),
@@ -174,7 +176,7 @@ function views_bulk_operations_views_default_views() {
       'expose' => array(
         'operator' => '',
         'identifier' => 'status',
-        'label' => 'Published',
+        'label' => t('Published'),
         'optional' => 1,
         'remember' => 0,
       ),
@@ -194,7 +196,7 @@ function views_bulk_operations_views_default_views() {
       'expose' => array(
         'operator' => '',
         'identifier' => 'sticky',
-        'label' => 'Sticky',
+        'label' => t('Sticky'),
         'optional' => 1,
         'remember' => 0,
       ),
@@ -214,8 +216,8 @@ function views_bulk_operations_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('title', 'Content');
-  $handler->override_option('empty', 'There are no objects satisfying the filter settings. Try changing them to get some results.');
+  $handler->override_option('title', t('Content'));
+  $handler->override_option('empty', t('There are no objects satisfying the filter settings. Try changing them to get some results.'));
   $handler->override_option('empty_format', '1');
   $handler->override_option('items_per_page', 20);
   $handler->override_option('use_pager', '1');
@@ -261,78 +263,24 @@ function views_bulk_operations_views_default_views() {
     'execution_type' => '1',
     'display_type' => '0',
     'hide_select_all' => 0,
+    'skip_confirmation' => 0,
     'display_result' => 1,
     'merge_single_action' => 0,
-    'operations' => array(
-      'node_assign_owner_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_delete_node_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_script_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_make_sticky_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_make_unsticky_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_fields_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_taxonomy_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_promote_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_publish_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_unpromote_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'node_unpublish_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
+    'selected_operations' => array(
+      'node_assign_owner_action' => 'node_assign_owner_action',
+      'views_bulk_operations_delete_node_action' => 'views_bulk_operations_delete_node_action',
+      'views_bulk_operations_script_action' => 'views_bulk_operations_script_action',
+      'node_make_sticky_action' => 'node_make_sticky_action',
+      'node_make_unsticky_action' => 'node_make_unsticky_action',
+      'views_bulk_operations_fields_action' => 'views_bulk_operations_fields_action',
+      'views_bulk_operations_taxonomy_action' => 'views_bulk_operations_taxonomy_action',
+      'node_promote_action' => 'node_promote_action',
+      'node_publish_action' => 'node_publish_action',
+      'node_unpromote_action' => 'node_unpromote_action',
+      'node_unpublish_action' => 'node_unpublish_action',
     ),
   ));
-  $handler = $view->new_display('page', 'Page', 'page');
+  $handler = $view->new_display('page', t('Page'), 'page');
   $handler->override_option('path', 'admin/content/node2');
   $handler->override_option('menu', array(
     'type' => 'none',
@@ -346,23 +294,23 @@ function views_bulk_operations_views_default_views() {
     'title' => '',
     'description' => '',
     'weight' => 0,
-    'name' => 'navigation',
   ));
   $views[$view->name] = $view;
 
   // Admin users.
   $view = new view;
   $view->name = 'admin_users';
-  $view->description = 'Emulates the Drupal user administration page.';
+  $view->description = t('Emulates the Drupal user administration page.');
   $view->tag = '';
+  $view->view_php = '';
   $view->base_table = 'users';
-  $view->core = 0;
-  $view->api_version = '2';
-  $view->disabled = TRUE;
-  $handler = $view->new_display('default', 'Default', 'default');
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', t('Default'), 'default');
   $handler->override_option('fields', array(
     'name' => array(
-      'label' => 'Username',
+      'label' => t('Username'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -394,7 +342,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'status' => array(
-      'label' => 'Active',
+      'label' => t('Active'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -425,7 +373,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'rid' => array(
-      'label' => 'Roles',
+      'label' => t('Roles'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -456,7 +404,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'created' => array(
-      'label' => 'Member for',
+      'label' => t('Member for'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -487,7 +435,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'access' => array(
-      'label' => 'Last access',
+      'label' => t('Last access'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -518,7 +466,7 @@ function views_bulk_operations_views_default_views() {
       'relationship' => 'none',
     ),
     'edit_node' => array(
-      'label' => 'Operations',
+      'label' => t('Operations'),
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -552,7 +500,7 @@ function views_bulk_operations_views_default_views() {
     'uid' => array(
       'operator' => 'not in',
       'value' => array(
-        0 => 0,
+        '0' => 0,
       ),
       'group' => '0',
       'exposed' => FALSE,
@@ -574,7 +522,7 @@ function views_bulk_operations_views_default_views() {
         'use_operator' => 0,
         'operator' => 'rid_op',
         'identifier' => 'rid',
-        'label' => 'Role',
+        'label' => t('Role'),
         'optional' => 1,
         'single' => 1,
         'remember' => 0,
@@ -597,7 +545,7 @@ function views_bulk_operations_views_default_views() {
       'expose' => array(
         'operator' => '',
         'identifier' => 'status',
-        'label' => 'Active',
+        'label' => t('Active'),
         'optional' => 1,
         'remember' => 0,
       ),
@@ -661,48 +609,26 @@ function views_bulk_operations_views_default_views() {
     'execution_type' => '1',
     'display_type' => '0',
     'hide_select_all' => 0,
+    'skip_confirmation' => 0,
     'display_result' => 1,
     'merge_single_action' => 1,
-    'operations' => array(
-      'user_user_operations_block' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_delete_user_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_script_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'views_bulk_operations_user_roles_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'system_send_email_action' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
-      'user_user_operations_unblock' => array(
-        'selected' => TRUE,
-        'label' => NULL,
-        'settings' => NULL,
-        'skip_confirmation' => 0,
-      ),
+    'selected_operations' => array(
+      'user_user_operations_block' => 'user_user_operations_block',
+      'views_bulk_operations_delete_user_action' => 'views_bulk_operations_delete_user_action',
+      'views_bulk_operations_script_action' => 'views_bulk_operations_script_action',
+      'views_bulk_operations_user_roles_action' => 'views_bulk_operations_user_roles_action',
+      'system_send_email_action' => 'system_send_email_action',
+      'user_user_operations_unblock' => 'user_user_operations_unblock',
+      'user_block_ip_action' => 0,
+      'user_block_user_action' => 0,
+      'system_message_action' => 0,
+      'views_bulk_operations_action' => 0,
+      'views_bulk_operations_profile_action' => 0,
+      'views_bulk_operations_argument_selector_action' => 0,
+      'system_goto_action' => 0,
     ),
   ));
-  $handler = $view->new_display('page', 'Page', 'page_1');
+  $handler = $view->new_display('page', t('Page'), 'page_1');
   $handler->override_option('path', 'admin/user/user2');
   $handler->override_option('menu', array(
     'type' => 'none',
@@ -716,9 +642,9 @@ function views_bulk_operations_views_default_views() {
     'title' => '',
     'description' => '',
     'weight' => 0,
-    'name' => 'navigation',
   ));
   $views[$view->name] = $view;
 
   return $views;
 }
+
