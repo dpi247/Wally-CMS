@@ -1,3 +1,4 @@
+// $Id: fields.action.js,v 1.1.2.5 2009/12/08 00:50:39 kratib Exp $
 (function ($) {
 // START jQuery
 
@@ -24,7 +25,7 @@ Drupal.behaviors.vbo_fieldsAction = function(context) {
       Drupal.vbo.fieldsAction.updateToggler(this, false);
     });
   });
-
+  
   // Disable all those whose checkboxes are off.
   $('.fields-action-togglable', context).each(function() {
     if ($('.fields-action-toggler', $(this).parents('tr:first')).attr('checked')) {
@@ -38,3 +39,4 @@ Drupal.behaviors.vbo_fieldsAction = function(context) {
 
 // END jQuery
 })(jQuery);
+
