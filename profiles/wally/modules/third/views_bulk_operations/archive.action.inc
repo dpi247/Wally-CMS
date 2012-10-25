@@ -1,4 +1,5 @@
 <?php
+// $Id: archive.action.inc,v 1.1.2.1 2010/03/08 08:15:48 kratib Exp $
 
 function views_bulk_operations_archive_action_info() {
   return array('views_bulk_operations_archive_action' => array(
@@ -12,8 +13,7 @@ function views_bulk_operations_archive_action_info() {
 function views_bulk_operations_archive_action($fids, $context) {
   // Iterate on files.
   $files = array();
-  $placeholders = db_placeholders($fids);
-  $f = db_query("SELECT * FROM {files} WHERE fid IN ($placeholders)", $fids);
+  $f = db_query("SELECT * FROM {files} WHERE fid IN (%s)", implode(',', $fids));
   while ($file = db_fetch_object($f)) {
     $files[] = $file;
   }
@@ -46,3 +46,4 @@ function views_bulk_operations_archive_action_do($files, $context) {
   unlink($zipfile);
   exit;
 }
+
