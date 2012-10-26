@@ -32,6 +32,12 @@ function media_qualifio_settings() {
  */
 function media_qualifio_admin_form() {
   $form = array();
+  $form[media_qualifio_variable_name('allowed_url')] = array(
+    '#type' => 'textarea',
+    '#title' => t('Allowed URLs'),
+    '#default_value' => media_qualifio_variable_get('allowed_url'),
+    '#description' => t('Enter here the URL from which the Qualifio may come. One URL by line.'),
+  );
   $form['full'] = array(
     '#type' => 'fieldset',
     '#title' => t('Full display settings'),
