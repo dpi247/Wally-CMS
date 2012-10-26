@@ -524,11 +524,15 @@ function wallymport_process_xmlfile($xml_file, $importer){
   } else {
     $contents = fread($handle, filesize($xml_file));
     $contents = wallymport_convertEntities($contents);
-
+    
+    
+    
     $dom = new DomDocument();
     $dom->LoadXML($contents);
+    
     $log = array();
     $return = array('error' => FALSE);
+    
     
     //If you edit the root of the dom, do not forget to reload the dom ($content = dom->saveXML(); $dom->LoadXML(content))
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
@@ -540,7 +544,6 @@ function wallymport_process_xmlfile($xml_file, $importer){
       $return = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
       module_load_include('inc', 'wallymport', 'includes/wallymport.fields');
-
       foreach ($dom->childNodes as $child){
         $return = call_user_func("wimprt_process_entrypoint_generic", $dom, &$log, $importer);
       }
@@ -549,6 +552,8 @@ function wallymport_process_xmlfile($xml_file, $importer){
         $return['error_msg'] = $return['log']['error_msg'];
       }
     }
+    $return['log']['xml_content']=$dom->saveXML();
+    
   }
   return $return;
 }
