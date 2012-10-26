@@ -269,7 +269,7 @@ function pub_block($op = 'list', $delta = 0, $edit = array()) {
  * Hook preprocess for meta tags.
  */
 function pub_preprocess_page(&$variables) {
-  $variables['meta'] = pub_get_meta();	
+  $variables['meta'] .= pub_get_meta();
 }
 
 /**
@@ -454,6 +454,9 @@ function _pub_getpubcontent($delta, $cache_url) {
     cache_set('pub_'.$delta.'_perm-'.$cache_url, $pub_content);
   } else {
     $pub_content = $cached_pub->data;
+    if ($pub_content['meta'] && !empty($pub_content['meta']['content'])) {
+      pub_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+    }
   }
 
   return theme('pub'.$builder.'_content', $pub_content, $delta);
