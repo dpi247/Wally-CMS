@@ -9,7 +9,7 @@
 body {margin:1em;}
 #preview-tabs{margin-bottom:0}
 .tab-content{
-min-height:500px;
+min-height:700px;
 padding:10px;
 border-bottom: 1px solid #DDD;
 border-left: 1px solid #DDD;
@@ -115,6 +115,15 @@ $("div.wallymport_result ul").toggle();
 		  <div id="collapseTwo" class="accordion-body collapse ">
 		    <div class="accordion-inner">
 			  <?php print theme('wallymport_logs', $return);?>
+			</div>
+		  </div>
+		  <div class="accordion-group">
+		    <div class="accordion-heading">
+			  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">  XML File </a>
+			</div>
+		  <div id="collapseThree" class="accordion-body collapse ">
+		    <div class="accordion-inner">
+			  <?php print $return['log']['xml_content'];?>
 			</div>
 		  </div>
         </div>
