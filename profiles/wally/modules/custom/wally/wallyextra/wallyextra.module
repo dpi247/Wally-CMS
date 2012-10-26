@@ -221,9 +221,21 @@ function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
     }
   }
 
+  $handled_plugins = array('flowmix', 'remotehtml', 'rssmixread');
   foreach ($blocks as $cid => $block) {
     list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
     if ($type != $subtype) {
+      if (in_array($type, $handled_plugins)) {
+        ctools_include('export');
+        if ($reus_settings = ctools_export_crud_load('wallyextra_'.$type.'_content', $subtype)) {
+          if (is_array($reus_settings->settings)) {
+            $blocks[$cid]['settings'] = $reus_settings->settings;
+          } else {
+            $blocks[$cid]['settings'] = array('flow_obj' => $reus_settings->settings);
+          }
+        }
+      }
+      
       if (in_array($type.'@@'.$subtype, $existing_cid, TRUE)) {
         unset($blocks[$cid]);
       } else {
@@ -403,6 +415,20 @@ function wallyextra_custom_content_version_picker($version) {
   $settings = unserialize($version->settings);
   $content  = '<textarea class = "form-textarea resizable textarea-processed" rows="5" cols = "60">'.$settings['body'].'</textarea>';
   print $content;
+}
+
+function wallyextra_form_wallytoolbox_supercron_settings_form_alter(&$form, $form_state) {
+  array_unshift($form['#submit'], 'wallyextra_form_wallytoolbox_supercron_settings_form_alter_submit');
+}
+
+function wallyextra_form_wallytoolbox_supercron_settings_form_alter_submit($form, $form_state) {
+  foreach ($form_state['values']['rows'] as $row) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $row['cid']);
+    if ($type != $subtype && $row['rule'] != _wallytoolbox_get_setting($row['settings'], 'wally_rule')) {
+      _wallytoolbox_set_setting($row['settings'], 'wally_rule', $row['rule']);
+      db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE type = '%s' AND subtype = '%s'", serialize($row['settings']), $type, $subtype);
+    }
+  }
 }
 
 /**
@@ -624,7 +650,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
     }
   }
 
-  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
     // This cache doesn't exists, create it
 
     if ($ajax) {
