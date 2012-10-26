@@ -358,7 +358,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
       $nb_file ++;
     }
     if ($nb_file == 0) {
-        $format = 'xml';
+      $format = 'xml';
       if ($importer->zip == 1){
         $format = 'zip';
       }      
