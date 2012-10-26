@@ -59,12 +59,27 @@ function emother_qualifio_settings() {
  */
 function emother_qualifio_extract($parse) {
   $matches = NULL;
-  if (preg_match('@qualifio\.com/.*id=([^/"&]+)@i', $parse, $matches)) { //Get the qualifio code, can be normal or from embed link
+  $allowed_urls = media_qualifio_variable_get('allowed_url');
+  $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
+  $allowed_urls[] = 'http://www.qualifio.com';
+
+  $match = FALSE;
+  foreach ($allowed_urls as $allowed_url) {
+    $allowed_url = str_replace('.', '\.', $allowed_url);
+    if (preg_match('@'.$allowed_url.'/.*id=([^/"&]+)@i', $parse, $matches)) {
+      //Get the qualifio code, can be normal or from embed link
+      $match = $matches[1];
+    }
+  }
+  
+  /*ancienne technique
+  if (preg_match('@concours\.lesoir\.com/.*id=([^/"&]+)@i', $parse, $matches)) { //Get the qualifio code, can be normal or from embed link
     return $matches[1];
   }
   else {
     return FALSE;
-  }
+  }*/
+  return $match;
 }
 
  /**
