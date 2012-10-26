@@ -334,15 +334,15 @@ function wallyimportpackageV16_node_process_videoobjecttype(&$node, $dom, &$log,
 function wallyimportpackageV16_node_process_textobjecttype(&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
-  
   wallyimportpackageV16_objecttype_preprocess($node, $dom_element, $importer);
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
+  
   //Exception for TextObject
-  if ($dom_element->getElementsByTagName("TextTitle")->item(0)->length) {
-    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+  if (strlen($dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue)>>0) {
+  	$node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
   
-  if ($dom_element->getElementsByTagName("Title")->length) {
+  if (strlen($dom_element->getElementsByTagName("Title")->nodeValue)>>0) {
     $node->field_objecttitle = array(array("value" => $dom_element->getElementsByTagName("Title")->item(0)->nodeValue));
   }
 }
