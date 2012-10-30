@@ -650,7 +650,7 @@
 
 	<xsd:simpleType name="URIType">
 		<xsd:restriction base="xsd:string">
-			<xsd:pattern value="(embed|http|extref)://[^\s]*" />
+			<xsd:pattern value="(embed|http|https|extref)://[^\s]*" />
 		</xsd:restriction>
 	</xsd:simpleType>
 
