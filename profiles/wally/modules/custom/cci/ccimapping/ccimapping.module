@@ -57,6 +57,19 @@ function ccimapping_theme(){
   );
 }
 
+function ccimapping_wimprt_object_after_process_alter(&$node) {
+  if ($node->type == 'wally_textobject') {
+    $array_node = (array)$node;
+    foreach ($array_node as $field_name => $field) {
+      if (is_array($field) && is_array($field[0]) && isset($field[0]['format'])) {
+        $node->{$field_name}[0]['value'] = _ccimapping_convert_marker_to_tags($field[0]['value']);
+      }
+    }
+  }
+  
+  return;
+}
+
 function ccimapping_load_soapclient($wsdl_uri) {
   try {
     $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS, 'trace' => TRUE));
@@ -79,4 +92,17 @@ function ccimap_type_converter($type){
   } else {
     return $type;
   }
+}
+
+function _ccimapping_convert_marker_to_tags($text) {
+  $regex = "@<(cci.*)/?>@U";
+  $matches = array();
+  preg_match_all($regex, $text, $matches);
+  foreach ($matches[0] as $key => $match) {
+    if (substr($match, -2, 1) == '/') {
+      $tag_content = $matches[1][$key];
+      $text = str_replace($match, '<'.$tag_content.'></'.$tag_content.'>', $text);
+    }
+  }
+  return $text;
 }
