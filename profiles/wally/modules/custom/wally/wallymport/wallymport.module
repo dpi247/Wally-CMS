@@ -349,6 +349,8 @@ function wimprt_process_object($dom, &$log, $importer, $callback = NULL){
   }
   
   module_invoke_all('wimprt_process_object', $node, $dom, $log, 'after_process');
+  
+  drupal_alter('wimprt_object_after_process', $node);
 
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   if (!empty($node) && !$node->rejected && wallytoolbox_check_is_node($node)){
