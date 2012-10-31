@@ -245,6 +245,9 @@ function wallytoolbox_supercron_call($cid) {
     if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
       $block['settings'] = unserialize($block['settings']);
     }
+    if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
+      $block['callback'] = unserialize($block['callback']);
+    }
     
     $output = _wallytoolbox_process_block_refresh($block);
 
@@ -275,9 +278,27 @@ function _wallytoolbox_process_block_refresh(&$block) {
     'pid' => $block_infos[5],
   );
 
-  // Invoke hook_refresh_block
-  $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
-
+  $output = array();
+  if (isset($block['callback']) && !empty($block['callback'])) {
+    $callback_datas = $block['callback'];
+    if (isset($callback_datas['plugin']) && !empty($callback_datas['plugin'])) {
+      ctools_include('plugins');
+      if ($plugin = ctools_get_plugins('ctools', 'content_types', $callback_datas['plugin'])) {
+        require_once './'.$plugin['path'].'/'.$plugin['file'];
+      }
+    }
+    if (function_exists($callback_datas['callback'])) {
+      $datas = call_user_func_array($callback_datas['callback'], array($block['settings']));
+      if (isset($callback_datas['cid']) && !empty($callback_datas['cid'])) {
+        $table = (isset($callback_datas['table']) && !empty($callback_datas['table'])) ? $callback_datas['table'] : 'cache_wally_blocks';
+        cache_set($callback_datas['cid'], $datas, $table);
+      }
+    }
+  } else {
+    // Invoke hook_refresh_block
+    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
+  }
+  
   return $output;
 }
 

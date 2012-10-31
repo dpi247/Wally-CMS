@@ -377,7 +377,10 @@ function wallyextra_remotehtml_content_type_admin_info($subtype, $conf) {
  * Custom refresh action for Remote HTML blocks
  */
 function wallyextra_remotehtml_refresh_block($settings) {
-  _wallyextra_remotehtml_setcache($settings);
+  $datas = _wallyextra_remotehtml_setcache($settings);
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
+  }
 }
 
 /**
@@ -414,8 +417,6 @@ function _wallyextra_remotehtml_setcache($settings) {
 
   $block_uri = $settings['uri'];
   $htmlblock = file_get_contents($block_uri);
-
-  cache_set($settings['caid'], $htmlblock, 'cache_wally_blocks');
   
   return $htmlblock;
 }

@@ -173,15 +173,10 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
  */
 function wallyextra_flowmix_refresh_block(&$settings) {
   $time_start = time();
-
-  $settings = (array)$settings['flow_obj'];
-  $old_feed = cache_get($settings['caid']);
-  if (is_object($old_feed) && isset($old_feed) && !empty($old_feed) && $old_feed->data) {
-    _wallyextra_flowmix_setcache($settings, $old_feed->data);
-  } else {
-    _wallyextra_flowmix_setcache($settings);
+  $datas = _wallyextra_flowmix_setcache($settings);
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
   }
-
   $time_stop = time();
   $delta_t = $time_stop - $time_start;
   return 'FlowMix '.$settings['caid'].' execution time : '.date('H:i:s', $delta_t - 3600);
@@ -329,7 +324,15 @@ function _wallyextra_flowmix_ctools_content_type($content) {
  *   The array containing the differents items of the flow mix feed 
  * 	 which will be displayed.
  */
-function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
+function _wallyextra_flowmix_setcache($settings) {
+  if (isset($settings['flow_obj'])) {
+    $settings = (array)$settings['flow_obj'];
+    $cached_old_feed = cache_get($settings['caid'], 'cache_wally_blocks');
+    if (is_object($cached_old_feed) && isset($cached_old_feed) && !empty($cached_old_feed) && $cached_old_feed->data) {
+      $old_feed = $cached_old_feed->data;
+    }
+  }
+  
   $feed = array();
 
   if ($settings['mix_schema'] == 'mix' && isset($settings['own_schema']) && !empty($settings['own_schema'])) {
@@ -357,9 +360,7 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
   }
 
   if ($empty_feed) {
-    $feed = !empty($old_feed) ? $old_feed : array();
-    cache_set($settings['caid'], $feed, 'cache_wally_blocks', CACHE_PERMANENT);
-    return $feed;
+    return !empty($old_feed) ? $old_feed : array();
   }
 
   if ($settings['mix_schema'] == 'ran' && $mix_schema == array('any')) {
@@ -405,7 +406,6 @@ function _wallyextra_flowmix_setcache($settings, $old_feed = array()) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_flush_all_pages($internal_url, TRUE);
-    cache_set($settings['caid'], $feed, 'cache_wally_blocks', CACHE_PERMANENT);//, NULL, 'flowmix');
   }
 
   return $feed;

@@ -496,6 +496,30 @@ function wallyextra_refresh_block($infos, $settings) {
 function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
   // Fetching datas from cache
   $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
+  
+  if (empty($subtype)) {
+    $subtype = $cid;
+  }
+  if (db_result(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND (callback = "b:0;" OR callback = "s:0:\"\";" OR callback = "") AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype)) > 0) {
+    // We update the wallytoolbox_content_types_cache table to add the callback informations to the right block
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND (callback = "b:0;" OR callback = "s:0:\"\";" OR callback = "") AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
+    while ($block = db_fetch_array($blocks_list)) {
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      $caid = _wallytoolbox_get_setting($block['settings'], 'caid');
+      if (($subtype == $cid) || $caid == $cid) {
+        // We need to store these informations to be able to use the callback
+        $callback_array = array(
+            'callback' => $callback,
+            'plugin' => $plugin_name,
+            'cid' => $cid,
+            'table' => 'cache_wally_blocks',
+        );
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
+      }
+    }
+  }
 
   if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
     // This cache doesn't exists, create it
@@ -540,6 +564,7 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
 
       // Call the given callback to get datas
       $datas = call_user_func_array($callback, array($settings));
+      cache_set($cid, $datas, 'cache_wally_blocks');
       if (is_string($datas)) {
         $datas = array('content' => $datas);
       }
@@ -591,6 +616,7 @@ function _wallyextra_content_types_ajax_callback() {
 
     // Get contents to be passed to theming function
     $datas = call_user_func_array($callback, array($settings));
+    cache_set($cid, $datas, 'cache_wally_blocks');
   } else {
     // The object exists in cache
     $datas = $cached_datas->data;

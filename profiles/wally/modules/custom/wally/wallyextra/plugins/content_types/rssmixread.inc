@@ -478,9 +478,12 @@ function wallyextra_rssmixread_content_type_admin_info($subtype, $conf) {
 function wallyextra_rssmixread_refresh_block($settings) {
   $old_feed = cache_get($settings['caid']);
   if (is_object($old_feed) && isset($old_feed) && !empty($old_feed)) {
-    _wallyextra_rssmixread_setcache($settings, $old_feed->data);
+    $datas = _wallyextra_rssmixread_setcache($settings, $old_feed->data);
   } else {
-    _wallyextra_rssmixread_setcache($settings);
+    $datas = _wallyextra_rssmixread_setcache($settings);
+  }
+  if ($cid = _wallytoolbox_get_setting($settings, 'caid')) {
+    cache_set($cid, $datas, 'cache_wally_blocks');
   }
 }
 
@@ -669,7 +672,6 @@ function _wallyextra_rssmixread_setcache($settings, $old_feed = array()) {
     $internal_url = drupal_get_normal_path(trim($_SERVER[REQUEST_URI], '/'));
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
     wallytoolbox_flush_all_pages($internal_url, TRUE);
-    cache_set($settings['caid'], $feed, 'cache_wally_blocks', CACHE_PERMANENT);//, NULL, 'rssmix');
   }
   
   return $feed;
