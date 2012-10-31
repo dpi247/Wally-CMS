@@ -341,6 +341,7 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
   }
 
   module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'after_process');
+  drupal_alter('wimprt_object_after_process', $node);
   module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
   if (!empty($node) && !$node->rejected && _wimprthelp_check_is_node($node)){
     $node->doNotPullUp = TRUE;
