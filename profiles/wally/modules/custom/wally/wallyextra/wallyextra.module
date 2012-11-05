@@ -166,10 +166,21 @@ function wallyextra_form_ctools_export_ui_delete_confirm_form_alter(&$form, $for
   }
 }
 
-function wallyextra_page_manager_variant_operations_alter(&$operations, $handler) {
-  if (isset($operations['children']['actions']['children']['clone'])) {
-    unset($operations['children']['actions']['children']['clone']);
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Add submit function to save admin_title field
+ */
+function wallyextra_form_ctools_export_ui_edit_item_form_alter(&$form, $form_state) {
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content') {
+    array_unshift($form['#submit'], 'wallyextra_form_ctools_export_ui_edit_item_form_alter_submit');
   }
+}
+
+/**
+ * Save admin_title field
+ */
+function wallyextra_form_ctools_export_ui_edit_item_form_alter_submit($form, &$form_state) {
+  $form_state['item']->settings['admin_title'] = $form_state['values']['admin_title'];
 }
 
 function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
