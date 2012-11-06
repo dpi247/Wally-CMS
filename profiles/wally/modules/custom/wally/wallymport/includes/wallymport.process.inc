@@ -119,6 +119,21 @@ function wallymport_process_folder_cleanup() {
 }
 
 /**
+ * Check whether the import is blocked or not.
+ */
+function wallymport_check_import_is_blocked() {
+  $blocked = FALSE;
+  $hooks_blocked = module_invoke_all('wallymport_process_blocked');
+  foreach ($hooks_blocked as $hook_blocked) {
+    if ($hook_blocked) {
+      $blocked = TRUE;
+      break;
+    }
+  }
+  return $blocked;
+}
+
+/**
  * Process all zip files from the import folder. 
  * Page Callback of the processing of the import folder and call for each XML element the wallymport_process_xmlfile().
  * 
@@ -128,42 +143,47 @@ function wallymport_process_folder_cleanup() {
  * @return errors, logs
  */
 function wallymport_process_folder($importer){
-
   $returns = NULL;
   
-  $folder = $importer->source_directory_path;
-  $format = 'xml';
-  if ($importer->zip == 1){
-    $format = 'zip';
-  }
-  $files = file_scan_directory($folder, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all files
-  
-  if (count($files) == 0 ) {
-    $error_msg = t('No input files found.');
-    drupal_set_header('HTTP/1.1 517 '.$error_msg);
+  if (!wallymport_check_import_is_blocked()) {
+    $folder = $importer->source_directory_path;
+    $format = 'xml';
+    if ($importer->zip == 1){
+      $format = 'zip';
+    }
+    $files = file_scan_directory($folder, '.*\.'. $format .'$', array('.', '..', 'CVS'), 0, FALSE, 'name', 0);// get list of all files
+    
+    if (count($files) == 0 ) {
+      $error_msg = t('No input files found.');
+      drupal_set_header('HTTP/1.1 517 '.$error_msg);
+      $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
+    } else {
+      ksort($files);
+      // Process each files from folder.
+      foreach ($files as $file) {
+        //Unzip the file if its zipped
+        $return = NULL;
+        $xml_file = wallymport_preprocess_file($file, $importer, $return);
+        $file_location = '';
+        if ($xml_file != NULL){
+          //Process the file
+          $return = wallymport_process_xmlfile($xml_file, $importer);
+          $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+          $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
+          unset($return['log']['node']);
+        } else {
+          $file_location = $importer->error_directory_path.'/'.$file->name;
+        }
+        $returns[] = $return;
+        wallymport_save_log($importer, time(), $file_location, serialize($return));
+      }
+    }
+  } else {
+    $error_msg = t('Import temporarily blocked. Try again later in !time.', array('!time' => gmdate('H:i:s', 60*wally_variable_get('wallymport_process_blocked_delay', 60))));
+    drupal_set_header('HTTP/1.1 217 '.$error_msg);
     $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
-  ksort($files);
-  if ($returns == NULL){
-    // Process each files from folder.
-    foreach ($files as $file) {
-      //Unzip the file if its zipped
-      $return = NULL;
-      $xml_file = wallymport_preprocess_file($file, $importer, $return);
-      $file_location = '';
-      if ($xml_file != NULL){
-        //Process the file
-        $return = wallymport_process_xmlfile($xml_file, $importer);
-        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
-        $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
-        unset($return['log']['node']);
-      } else {
-        $file_location = $importer->error_directory_path.'/'.$file->name;
-      }
-      $returns[] = $return;
-      wallymport_save_log($importer, time(), $file_location, serialize($return));
-    }
-  }
+
   return $returns;
 }
 
@@ -200,34 +220,41 @@ function wallymport_save_log($importer, $date, $file_location, $log) {
  */
 function wallymport_process_file($importer, $file_name){
   $returns = NULL;
-  
-  $folder = $importer->source_directory_path;
 
-  $file = new stdClass();  
-  $file->name = $file_name;
-  $file->filename = $folder."/".$file_name;
-  $file->basename = $file_name;
+  if (!wallymport_check_import_is_blocked()) {
+    $folder = $importer->source_directory_path;
 
-  if (!file_exists($file->filename)) {
-    $error_msg = t('Input file doesn\'t exists');
-    $returns = array('error' => TRUE, 'error_msg' => $error_msg);
-  }
-  if ($returns == NULL){
-    $return = NULL;
-    $xml_file = wallymport_preprocess_file($file, $importer, $return);
-    $file_location = '';
-    if ($xml_file != NULL){
-      //Process the file
-      $return = wallymport_process_xmlfile($xml_file, $importer);
-      $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
-      $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
-      unset($return['log']['node']);
-    } else {
-      $file_location = $importer->error_directory_path.'/'.$file->name;
+    $file = new stdClass();
+    $file->name = $file_name;
+    $file->filename = $folder."/".$file_name;
+    $file->basename = $file_name;
+
+    if (!file_exists($file->filename)) {
+      $error_msg = t('Input file doesn\'t exists');
+      $returns = array('error' => TRUE, 'error_msg' => $error_msg);
     }
-    $returns[] = $return;
-    wallymport_save_log($importer, time(), $file_location, serialize($return));
+    if ($returns == NULL){
+      $return = NULL;
+      $xml_file = wallymport_preprocess_file($file, $importer, $return);
+      $file_location = '';
+      if ($xml_file != NULL){
+        //Process the file
+        $return = wallymport_process_xmlfile($xml_file, $importer);
+        $file_location = wallymport_movefiles($importer, $file, $xml_file, $return);
+        $return['log']['extref'] = $return['log']['node']['current']->field_externalreference[0]['value'];
+        unset($return['log']['node']);
+      } else {
+        $file_location = $importer->error_directory_path.'/'.$file->name;
+      }
+      $returns[] = $return;
+      wallymport_save_log($importer, time(), $file_location, serialize($return));
+    }
+  } else {
+    $error_msg = t('Import temporarily blocked. Try again later in !time.', array('!time' => gmdate('H:i:s', 60*wally_variable_get('wallymport_process_blocked_delay', 60))));
+    drupal_set_header('HTTP/1.1 217 '.$error_msg);
+    $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
   }
+
   return $returns;
 }
 
@@ -524,16 +551,13 @@ function wallymport_process_xmlfile($xml_file, $importer){
   } else {
     $contents = fread($handle, filesize($xml_file));
     $contents = wallymport_convertEntities($contents);
-    
-    
-    
+
     $dom = new DomDocument();
     $dom->LoadXML($contents);
     
     $log = array();
     $return = array('error' => FALSE);
-    
-    
+
     //If you edit the root of the dom, do not forget to reload the dom ($content = dom->saveXML(); $dom->LoadXML(content))
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
     

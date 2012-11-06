@@ -414,6 +414,33 @@ function wallymport_page_links_form($form_state, $importer_name){
 function wallymport_page_general_settings_form($form_state) {
   $form = array();
   
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $form['block_import'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Block import process'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['block_import']['wallymport_process_is_blocked'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Block all import processes'),
+    '#description' => t('This will block all import processes, untill unchecked no packages will be imported!'),
+    '#default_value' => wally_variable_get('wallymport_process_is_blocked', 0),
+    '#id' => 'wallymport-process-is-blocked-checkbox',
+  );
+  
+  $form['block_import']['wallymport_process_blocked_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Duration of the block'),
+    '#description' => t('Period during which the import process with be blocked (minutes)'),
+    '#default_value' => wally_variable_get('wallymport_process_blocked_delay', 0),
+    '#dependency' => array('wallymport-process-is-blocked-checkbox' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+  );
+  
   $form['semaphore'] = array(
     '#type' => 'fieldset',
     '#title' => t('Semaphores'),
