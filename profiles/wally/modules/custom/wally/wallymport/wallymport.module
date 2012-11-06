@@ -218,6 +218,56 @@ function wallymport_theme(){
 }
 
 /**
+ * Implementation of hook_form_FORM_ID_alter
+ * Add a "block import" checkbox in the maintenance form
+ */
+function wallymport_form_system_site_maintenance_settings_alter(&$form, $form_state) {
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $form['wallymport_process_is_blocked'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Block all import processes'),
+    '#description' => t('This will block all import processes, untill unchecked no packages will be imported!'),
+    '#default_value' => wally_variable_get('wallymport_process_is_blocked', 0),
+    '#dependency' => array('radio:site_offline' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+    '#weight' => 1,
+    '#id' => 'wallymport-process-is-blocked-checkbox',
+  );
+  
+  $form['wallymport_process_blocked_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Duration of the block'),
+    '#description' => t('Period during which the import process with be blocked (minutes)'),
+    '#default_value' => wally_variable_get('wallymport_process_blocked_delay', 60),
+    '#dependency' => array('wallymport-process-is-blocked-checkbox' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+    '#weight' => 2,
+  );
+  
+  $form['site_offline']['#weight'] = 0;
+  $form['site_offline_message']['#weight'] = 3;
+  
+  array_unshift($form['#submit'], 'wallymport_form_system_site_maintenance_settings_alter_submit');
+}
+
+/**
+ * Save the "block import" variable
+ */
+function wallymport_form_system_site_maintenance_settings_alter_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['wallymport_process_is_blocked'] && $values['site_offline']) {
+    wally_variable_set('wallymport_process_is_blocked', 1);
+    wally_variable_set('wallymport_process_blocked_delay', $values['wallymport_process_blocked_delay']);
+  } else {
+    wally_variable_set('wallymport_process_is_blocked', 0);
+  }
+  unset($form_state['values']['wallymport_process_is_blocked']);
+  unset($form_state['values']['wallymport_process_blocked_delay']);
+}
+
+/**
  * Implementation of hook_panels_pane_content_alter
  * Remove admin links in case of preview
  */
@@ -237,6 +287,14 @@ function wallymport_views_api() {
     'api'  => 2.0,
 	'path' => drupal_get_path('module', 'wallymport') . '/plugins/views',
   );
+}
+
+/**
+ * Implementation of hook_wallymport_process_blocked()
+ * By default import must process.
+ */
+function wallymport_wallymport_process_blocked() {
+  return wally_variable_get('wallymport_process_is_blocked', 0);
 }
 
 /**
