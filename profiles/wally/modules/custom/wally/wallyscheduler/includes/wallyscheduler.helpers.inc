@@ -107,10 +107,11 @@ function _wallyscheduler_process_switch($snapshot_id){
     
     //@todo: cache_clear of remote site ???? how to ??? (MD5 callback+ secret passphrase on settings.php ?)
     
-    //@todo: put the table id in the variable that define the current prodution snaphsot
-	//put site online
+    //Put the table id in the variable that define the current prodution snaphsot
     wally_variable_set('wallyscheduler_production',$snapshot->sid);
 	
+
+    //put site online
     variable_set("site_offline",FALSE);
     
 
