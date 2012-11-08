@@ -26,6 +26,15 @@ function wallyscheduler_menu(){
 			'access arguments' => array('wallyscheduler create snapshot'),
 			'file' => 'includes/wallyscheduler.forms.inc',
 	);
+	
+	//@todo: Check with access callback if a rollback is possible (beware of rollback on rollback),
+	$items['admin/wally/wallyscheduler/overwrite_with_working_copy/%'] = array(
+			'title' => t('WallyScheduler Overwrite this snapshot with working copy'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_overwritesnapshot_form'),
+			'access arguments' => array('wallyscheduler overwrite snapshot'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+	);
 	$items['admin/wally/wallyscheduler/rollback'] = array(
 			'title' => t('WallyScheduler Dashboard'),
 			'description' => t('Manage settings related to destinations snapshots'),
