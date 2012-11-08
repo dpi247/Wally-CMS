@@ -117,6 +117,28 @@ function _wallyscheduler_process_switch($snapshot_id){
 
 }
 
+function _wallyscheduler_process_overwrite($snapshot_id){
+
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+
+	
+	//call hook_wallyscheduler_snapshot_switch_before
+	module_invoke_all('wallyscheduler_process_overwrite_before',$snapshot);
+
+
+	//make the switch
+	db_query("TRUNCATE TABLE {".$snapshot->destination_table."} ;");
+	db_query("INSERT {". $snapshot->destination_table."} SELECT * FROM {wallyscheduler_destinations};");
+	watchdog('wallyscheduler', t("Overrwrite !machine_name at !time with working copy",array('!machine_name'=>$snapshot->machine_name,'!time'=>date("Y-m-d h:i",$snapshot->time_of_execution))));
+	
+
+	//call hook_wallyscheduler_snapshot_switch_after
+	module_invoke_all('wallyscheduler_process_overwrite_after',$snapshot);
+
+
+
+}
+
 function _wallyscheduler_process_rollback($snapshot_id){
 
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
@@ -171,9 +193,11 @@ function wallyscheduler_snapshot_create(&$snapshot_object){
 	module_invoke_all('wallyscheduler_snapshot_create_after',$snapshot_object);
 	if($snapshot_object->sid){
       watchdog('wallyscheduler', t("Working copy saved as !machine_name at !time",array('!machine_name'=>$snapshot_object->machine_name,'!time'=>date("Y-m-d h:i",$snapshot_object->time_of_execution))));
+      return TRUE;
 	}
 	else{
 		watchdog('wallyscheduler', t("Failed to create !machine_name at !time",array('!machine_name'=>$snapshot_object->machine_name,'!time'=>date("Y-m-d h:i",$snapshot_object->time_of_execution))));
+	  return FALSE;
 	}
 }
 /*

@@ -35,6 +35,8 @@ function wallyscheduler_form_createsnapshot_form($form, &$form_state){
   		'#value' => t('Create Snapshot'),
   );
   
+  $form['#redirect']="admin/wally/wallyscheduler/dashboard";
+  
   return $form;
 
 }
@@ -65,9 +67,59 @@ function wallyscheduler_form_createsnapshot_form_submit($form, &$form_state){
 	$snapshot->updated=time();
 	
 	//save snapshot
-	wallyscheduler_snapshot_create($snapshot);
+	if(	wallyscheduler_snapshot_create($snapshot)){
+		drupal_set_message(t("The snapshot has been created"));
+	}
+	else{
+		drupal_set_message(t("The snapshot has not been created"),'warning');
+	}
 	
+}
+
+
+function wallyscheduler_form_overwritesnapshot_form($form, &$form_state,$b){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
 	
+	$form=array();
+	dsm($b,b);
+	dsm($form_state,fs);
+	dsm(arg(4),'arg');
 	
+	$snapshot_id=arg(4);
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+	if(!isset($snapshot->sid)){
+		drupal_not_found();
+	}
+	$form['markup'] = array(
+			'#type' => 'markup',
+			'#value' => t('Are you sure you want to override this snaphot with the current working copy ?'),
+			'#prefix'=>'<div>',
+			'#suffix'=>'</div>',
+	);
+	$form['sid'] = array(
+			'#type' => 'value',
+			'#value' => $snapshot->sid,
+	);
+	$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Yes ! Overwrite the Snapshot'),
+	);
+    $form['#redirect']="admin/wally/wallyscheduler/dashboard";
+	return $form;
+
+}
+
+
+function wallyscheduler_form_overwritesnapshot_form_submit($form, &$form_state,$b){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
+
+	$form=array();
+	dsm($form_state,fs);
+
+	$snapshot_id=$form_state['values']['sid'];
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
 	
+	_wallyscheduler_process_overwrite($snapshot_id);
+	drupal_set_message(t("The snapshot has been overrwrited."));
+
 }

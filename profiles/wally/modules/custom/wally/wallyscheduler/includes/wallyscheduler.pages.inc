@@ -78,7 +78,7 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 			array('data' => t('Operations')),
 	);
 	$now=time();
-	$sql = "SELECT s.machine_name, s.destination_table, s.timestamp_of_execution, u.name FROM {wallyscheduler_snapshot_list} s INNER JOIN {users} u ON s.uid = u.uid WHERE s.timestamp_of_execution >".$now;
+	$sql = "SELECT s.sid,s.machine_name, s.destination_table, s.timestamp_of_execution, u.name FROM {wallyscheduler_snapshot_list} s INNER JOIN {users} u ON s.uid = u.uid WHERE s.timestamp_of_execution >".$now;
 	$tablesort = tablesort_sql($header);
 	
 	$result = pager_query($sql . $tablesort, 50);
@@ -94,8 +94,8 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 		}
 		
 		$actions_list=array(
-		  array('title'=>t('Overwrite with working copy'),'href'=>'/admin/wallyscheduler/overwrite-with-working-copy/'.$snapshot->id),
-		  array('title'=>t('Rollback'),'href'=>'/admin/wallyscheduler/rollback/'.$snapshot->id),
+		  array('title'=>t('Overwrite with working copy'),'href'=>'admin/wally/wallyscheduler/overwrite_with_working_copy/'.$snapshot->sid),
+		  array('title'=>t('Rollback'),'href'=>'/admin/wallyscheduler/rollback/'.$snapshot->sid),
 		);
 		$actions=theme('links',$actions_list);
 	
