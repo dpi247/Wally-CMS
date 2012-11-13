@@ -180,8 +180,20 @@ function wallytoolbox_update_6005() {
  * Add table wallytoolbox_external_files (to content types informations about files fetched from outside)
  */
 function wallytoolbox_update_6006() {
-  $ret = array();
-  $schemas = wallytoolbox_schema();
-  db_create_table($ret, 'wallytoolbox_external_files', $schemas['wallytoolbox_external_files']);
-  return $ret;
+	$ret = array();
+	$schemas = wallytoolbox_schema();
+	db_create_table($ret, 'wallytoolbox_external_files', $schemas['wallytoolbox_external_files']);
+	return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table wallytoolbox_external_files (to content types informations about files fetched from outside)
+ */
+function wallytoolbox_update_6007() {
+	$ret = array();
+	wally_variable_set('wallytoolbox_remotecache_secret',rand());
+	return $ret;
+	
+	
 }

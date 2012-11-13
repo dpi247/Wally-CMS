@@ -83,8 +83,40 @@ function wallytoolbox_menu() {
     'menu_name'        => 'devel',
     'file'             => 'includes/wallytoolbox.helpers.inc',
   );
-  
+  $items['wallytoolbox/remote_cacheclear/%/%'] = array(
+  		'title'             => t('Blocks list'),
+  		'page callback'     => 'wallytoolbox_page_remote_cache_clear',
+  		'page arguments'	  => array(2,3),
+  		'access callback'     => 'wallytoolbox_page_remote_cache_clear_access',
+  		'access arguments'  => array(2,3),
+  		'description'       => t('Remote Clear Cache.'),
+  		'file'              => 'includes/wallytoolbox.pages.inc',
+  		'type'              => MENU_DEFAULT_LOCAL_TASK,
+  		'weight'            => 0,
+  );
   return $items;
+}
+
+function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
+	if($challenge-time()>120){
+		watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+
+	if($secret==NULL){
+		watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	if(md5($challenge.$secret)!=$answer){
+		watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	else{
+		return TRUE;
+	}
+	return FALSE;
+
 }
 
 /**
