@@ -716,7 +716,7 @@ function wallyextra_flowmix_content_type_form_summary_form_validate(&$form, &$fo
   $values = $form_state['values'];
 
   if (!empty($values['url'])) {
-    $check_url = drupal_http_request($values['url'], array(), 'HEAD');
+    $check_url = drupal_http_request($values['url'], array(), 'HEAD',NULL, 1, 3);
     if ($check_url->code != 200) {
       form_set_error('url', t('The URL doesn\'t respond.'));
     }
