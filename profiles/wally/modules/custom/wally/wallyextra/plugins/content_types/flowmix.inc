@@ -703,7 +703,6 @@ function _wallyextra_flowmix_content_type_form_summary_defaults() {
   
   return $defaults;
 }
-
 function wallyextra_flowmix_content_type_form_summary_form_submit(&$form, &$form_state) {
   $flowmix_item = &$form_state['conf']['flow_obj'];
   $submitted = $form_state['values'];
