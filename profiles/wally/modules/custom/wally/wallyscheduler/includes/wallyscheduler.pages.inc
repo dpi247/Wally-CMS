@@ -1,6 +1,5 @@
 <?php
 function wallyscheduler_page_dashboard(){
-	
 	$variables=array();
 	
 	//build status
@@ -84,7 +83,6 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 	$result = pager_query($sql . $tablesort, 50);
 	
 	while ($snapshot = db_fetch_object($result)) {
-	    dsm($snapshot);
 		$row_count=db_query("SELECT count(sid) FROM {%s}",$snapshot->table);
 		if($row_count>0){
 			$row_class="wallyscheduler_row_not_empty";
@@ -95,7 +93,8 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 		
 		$actions_list=array(
 		  array('title'=>t('Overwrite with working copy'),'href'=>'admin/wally/wallyscheduler/overwrite_with_working_copy/'.$snapshot->sid),
-		  array('title'=>t('Rollback'),'href'=>'/admin/wallyscheduler/rollback/'.$snapshot->sid),
+		  array('title'=>t('Delete'),'href'=>'admin/wally/wallyscheduler/delete_snapshot/'.$snapshot->sid),
+		  //array('title'=>t('Rollback'),'href'=>'admin/wallyscheduler/rollback/'.$snapshot->sid),
 		);
 		$actions=theme('links',$actions_list);
 	

@@ -11,10 +11,22 @@ function wallyscheduler_menu(){
 
 	$items['admin/wally/wallyscheduler/dashboard'] = array(
 			'title' => t('WallyScheduler Dashboard'),
-			'description' => t('Manage settings related to destinations snapshots'),
 			'page callback' => 'wallyscheduler_page_dashboard',
 			'access arguments' => array('administer wallyscheduler'),
 			'file' => 'includes/wallyscheduler.pages.inc',
+			'type' => MENU_DEFAULT_LOCAL_TASK,
+			'weight'=>7
+				
+	);
+	$items['admin/wally/wallyscheduler/config'] = array(
+			'title' => t('Config'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_config_form'),
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+			'type' => MENU_LOCAL_TASK,
+			'weight'=>8
+				
 	);
 	
 	//@todo: Check with access callback if a rollback is possible (beware of rollback on rollback),  
@@ -33,6 +45,13 @@ function wallyscheduler_menu(){
 			'page callback' => 'drupal_get_form',
 			'page arguments' => array('wallyscheduler_form_overwritesnapshot_form'),
 			'access arguments' => array('wallyscheduler overwrite snapshot'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+	);
+	$items['admin/wally/wallyscheduler/delete_snapshot/%'] = array(
+			'title' => t('WallyScheduler Delete the snapshot '),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_deletesnapshot_form'),
+			'access arguments' => array('wallyscheduler delete snapshot'),
 			'file' => 'includes/wallyscheduler.forms.inc',
 	);
 	$items['admin/wally/wallyscheduler/rollback'] = array(
@@ -78,10 +97,11 @@ function wallyscheduler_init(){
 function wallyscheduler_cron(){
 	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
 	
-	_wallyscheduler_clean_old_snapshot();
 	//check if it is time tom make a switch
-    _wallyscheduler_switch_check();
-}
+	_wallyscheduler_process_switchcheck();
+	
+	_wallyscheduler_clean_old_snapshot();
+	}
 
 
 /**

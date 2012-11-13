@@ -18,8 +18,18 @@ Un truc comme ca devrait permetre de r�utiliser le schema ... pour cr�er des
 /*
  * Check in the if it is time to switch the destination table
  */
-function _wallyscheduler_switch_check(){
+function _wallyscheduler_process_switchcheck(){
 	
+	$snapshot_id=db_result(db_query("SELECT sid,max(timestamp_of_execution) FROM {wallyscheduler_snapshot_list} WHERE timestamp_of_execution<= %d ;",array(time())));
+	dsm($a,time());
+	
+	//Nothin to do
+	if(wally_variable_set('wallyscheduler_production',NULL)==$snapshot_id){
+		
+	} // Ok need to make a switch
+	else{
+		_wallyscheduler_process_switch($snapshot_id);
+	}
 	
 }
 
@@ -74,11 +84,11 @@ function wallyscheduler_get_destinations_original_schema(){
 	$schema['fields']["vid"]=$schema['columns']['tid'];
     $schema['fields']["delta"]=$schema['columns']['tid'];
 
-    $schema['fields']["tid"]=$schema['columns']['tid'];
-    $schema['fields']["target"]=$schema['columns']['target'];
-    $schema['fields']["layout"]=$schema['columns']['layout'];
-    $schema['fields']["rank"]=$schema['columns']['rank'];
-    $schema['fields']["time_rank"]=$schema['columns']['time_rank'];
+    $schema['fields']["field_destinations_tid"]=$schema['columns']['tid'];
+    $schema['fields']["field_destinations_target"]=$schema['columns']['target'];
+    $schema['fields']["field_destinations_layout"]=$schema['columns']['layout'];
+    $schema['fields']["field_destinations_rank"]=$schema['columns']['rank'];
+    $schema['fields']["field_destinations_time_rank"]=$schema['columns']['time_rank'];
     
     
     return $schema;
@@ -97,15 +107,17 @@ function _wallyscheduler_process_switch($snapshot_id){
 	
     
     //make the switch
-    db_query("TRUNCATE TABLE {wallyscheduler_destinations} ;");
-    db_query("INSERT {wallyscheduler_destinations} SELECT * FROM {". $snapshot->destination_table."};");
+    db_query("TRUNCATE TABLE {wallyscheduler_content_field_destinations} ;");
+    db_query("INSERT {wallyscheduler_content_field_destinations} SELECT * FROM {". $snapshot->destination_table."};");
     
 	
 	//call hook_wallyscheduler_snapshot_switch_after
     module_invoke_all('wallyscheduler_process_switch_after',$snapshot);
     
+    watchdog('wallyscheduler',t('Switch: prodution now reflect : !machine_name',array('!machine_name'=>$snapshot->machine_name)));
     
-    //@todo: cache_clear of remote site ???? how to ??? (MD5 callback+ secret passphrase on settings.php ?)
+    // cache_clear of remote site 
+    wallyscheduler_remote_cache_clear();
     
     //Put the table id in the variable that define the current prodution snaphsot
     wally_variable_set('wallyscheduler_production',$snapshot->sid);
@@ -116,24 +128,59 @@ function _wallyscheduler_process_switch($snapshot_id){
     
 
 }
-
+function wallyscheduler_remote_cache_clear(){
+	
+	$challenge=time();
+	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+	$production_site_url=wally_variable_get('wallyscheduler_production_site_url','');
+	$url=$production_site_url.'/wallytoolbox/remote_cacheclear/'.$challenge."/".md5($challenge.$secret);
+	$call=drupal_http_request($url);
+	if($call->code == '200'){
+		watchdog('wallyscheduler','Remotly cache clear of production site' );
+		return true;
+	}else{
+		watchdog('wallyscheduler','Remotly cache clear of production site FAILED', array(), WATCHDOG_WARNING );
+		return FALSE;
+		
+	}
+}
 function _wallyscheduler_process_overwrite($snapshot_id){
 
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
 
-	
+
 	//call hook_wallyscheduler_snapshot_switch_before
 	module_invoke_all('wallyscheduler_process_overwrite_before',$snapshot);
 
 
 	//make the switch
 	db_query("TRUNCATE TABLE {".$snapshot->destination_table."} ;");
-	db_query("INSERT {". $snapshot->destination_table."} SELECT * FROM {wallyscheduler_destinations};");
+	db_query("INSERT {". $snapshot->destination_table."} SELECT * FROM {wallyscheduler_content_field_destinations};");
 	watchdog('wallyscheduler', t("Overrwrite !machine_name at !time with working copy",array('!machine_name'=>$snapshot->machine_name,'!time'=>date("Y-m-d h:i",$snapshot->time_of_execution))));
-	
+
 
 	//call hook_wallyscheduler_snapshot_switch_after
 	module_invoke_all('wallyscheduler_process_overwrite_after',$snapshot);
+
+
+
+}
+
+
+function _wallyscheduler_process_delete($snapshot_id){
+
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+
+	//call hook_wallyscheduler_snapshot_switch_before
+	module_invoke_all('wallyscheduler_process_delete_before',$snapshot);
+
+	//make the switch
+	db_query("DROP TABLE {".$snapshot->destination_table."} ;");
+	db_query("DELETE FROM  {wallyscheduler_snapshot_list}  WHERE sid = %d",$snapshot->sid);
+	watchdog('wallyscheduler', t("Delete snapshot !machine_name ",array('!machine_name'=>$snapshot->machine_name,'!time'=>date("Y-m-d h:i",$snapshot->time_of_execution))));
+
+	//call hook_wallyscheduler_snapshot_switch_after
+	module_invoke_all('wallyscheduler_process_delete_after',$snapshot);
 
 
 
