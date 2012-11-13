@@ -6,8 +6,9 @@ function wallyscheduler_install(){
   
   
   drupal_install_schema('wallyscheduler');
-
-  //@todo: copy content_field_destination in wallyscheduler_destinations
+  //copy content_field_destination in wallyscheduler_content_field_destinations
+  db_query("INSERT wallyscheduler_content_field_destinations SELECT * FROM content_field_destinations ;");
+  
   
 }
 
@@ -87,8 +88,8 @@ function wallyscheduler_schema() {
   $schema['wallyscheduler_rollback']=wallyscheduler_get_destinations_original_schema();
   $schema['wallyscheduler_rollback']['table']='wallyscheduler_rollback';
   
-  $schema['wallyscheduler_destinations']= $schema['wallyscheduler_rollback'];
-  $schema['wallyscheduler_destinations']['table']='wallyscheduler_destinations';
+  $schema['wallyscheduler_content_field_destinations']= $schema['wallyscheduler_rollback'];
+  $schema['wallyscheduler_content_field_destinations']['table']='wallyscheduler_content_field_destinations';
   
   return $schema;
 }

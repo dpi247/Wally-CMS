@@ -81,9 +81,6 @@ function wallyscheduler_form_overwritesnapshot_form($form, &$form_state,$b){
 	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
 	
 	$form=array();
-	dsm($b,b);
-	dsm($form_state,fs);
-	dsm(arg(4),'arg');
 	
 	$snapshot_id=arg(4);
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
@@ -114,7 +111,6 @@ function wallyscheduler_form_overwritesnapshot_form_submit($form, &$form_state,$
 	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
 
 	$form=array();
-	dsm($form_state,fs);
 
 	$snapshot_id=$form_state['values']['sid'];
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
@@ -122,4 +118,77 @@ function wallyscheduler_form_overwritesnapshot_form_submit($form, &$form_state,$
 	_wallyscheduler_process_overwrite($snapshot_id);
 	drupal_set_message(t("The snapshot has been overrwrited."));
 
+}
+
+
+
+
+function wallyscheduler_form_deletesnapshot_form($form, &$form_state,$b){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
+
+	$form=array();
+
+	$snapshot_id=arg(4);
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+	if(!isset($snapshot->sid)){
+		drupal_not_found();
+	}
+	$form['markup'] = array(
+			'#type' => 'markup',
+			'#value' => t('Are you sure you want to delete this snaphot ?'),
+			'#prefix'=>'<div>',
+			'#suffix'=>'</div>',
+	);
+	$form['sid'] = array(
+			'#type' => 'value',
+			'#value' => $snapshot->sid,
+	);
+	$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Yes ! Delete the Snapshot'),
+	);
+	$form['#redirect']="admin/wally/wallyscheduler/dashboard";
+	return $form;
+
+}
+
+
+function wallyscheduler_form_deletesnapshot_form_submit($form, &$form_state,$b){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
+
+	$form=array();
+
+	$snapshot_id=$form_state['values']['sid'];
+	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+
+	_wallyscheduler_process_delete($snapshot_id);
+	drupal_set_message(t("The snapshot has been deleted."));
+
+}
+
+function wallyscheduler_form_config_form($form, &$form_state){
+
+	$form=array();
+
+	$form['production_site_url'] = array(
+			'#type' => 'textfield',
+			'#title' => t('Production site\'s url'),
+			'#default_value' => wally_variable_get('wallyscheduler_production_site_url',''),
+	);
+	$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => t('Save'),
+			
+	);
+	$form['#redirect']="admin/wally/wallyscheduler/dashboard";
+	
+	return $form;
+
+}
+
+
+function wallyscheduler_form_config_form_submit($form, &$form_state){
+	$production_site_url=$form_state['values']['production_site_url'];
+	wally_variable_set('wallyscheduler_production_site_url',$production_site_url);
+	
 }
