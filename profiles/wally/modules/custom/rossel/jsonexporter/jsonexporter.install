@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * Implementation of the hook_install();
+ */
+function jsonexporter_install() {
+  if (module_exists('ereaderjson')) {
+    drupal_uninstall_module('ereaderjson');
+  }
+  drupal_install_schema('jsonexporter');
+}
+
+function jsonexporter_uninstall(){
+  drupal_uninstall_schema('jsonexporter');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('jsonexporter_');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function jsonexporter_schema() {
+  $schema = array();
+
+  $schema['jsonexporter_product'] = array(
+    'description' => 'Contains de informations of the products',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'Product Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'description' => 'The settings of the product.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+     'presets' => array(
+        'description' => 'The presets availlable.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('pid'),//primary key
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function jsonexporter_update_6001(){
+  $schema = drupal_get_schema('jsonexporter_product', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('jsonexporter_product')) {
+    db_create_table($ret, 'jsonexporter_product', $schema);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ * New column "presets" on "jsonexporter_product" table
+ */
+function jsonexporter_update_6002(){
+  $schema = drupal_get_schema('jsonexporter_product', TRUE);
+  $ret = array();
+  db_add_field($ret, 'jsonexporter_product', 'presets', array(
+      'type' => 'text',
+      'not null' => FALSE,
+      'size' => 'medium',
+      'description' => 'The presets availlable.',
+    )
+  );
+  return $ret;
+}

@@ -1,0 +1,9 @@
+@CHARSET "UTF-8";
+
+#field_destinations_values tr div.form-item:nth-child(4) {
+	display: none;
+}
+
+#field_destinations_values tr div.form-item:nth-child(5) {
+  display: none;
+}
