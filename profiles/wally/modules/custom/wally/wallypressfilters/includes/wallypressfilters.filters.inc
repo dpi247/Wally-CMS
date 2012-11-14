@@ -19,7 +19,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
   }
 
   // Get all attributes
-  $tag_regex = "@<$tag\s*(.*)\s*>@U";
+  $tag_regex = "@<$tag\s\s*(.*)\s*>@U";
   $tag_matches = array();
   preg_match_all($tag_regex, $text, $tag_matches);
   
@@ -44,7 +44,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
       }
     }
 
-    $replace_string = "<$new_tag$new_attr class=\"$old_classes $classes\"";
+    $replace_string = "<$new_tag $new_attr class=\"$old_classes $classes\"";
     $replace_string .= $type == 'marker' ? '/>' : '>';
     $text = str_replace($tag_match, $replace_string, $text);
   }
@@ -62,7 +62,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_tags($tag, $settings, $text) {
-  $text = preg_replace("@<(\/)?$tag.*>@U", '', $text);
+  $text = preg_replace("@<(\/)?$tag\s.*>@U", '', $text);
   return $text;
 }
 
@@ -73,7 +73,7 @@ function wallypressfilters_strip_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
-  $text = preg_replace("@<$tag.*>.*<\/$tag>@", '', $text);
+  $text = preg_replace("@<$tag\s.*>.*<\/$tag>@", '', $text);
   return $text;
 }
 
@@ -84,7 +84,7 @@ function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_convert_tags($tag, $settings, $text) {
-  $text = preg_replace("@<$tag(.*)>@U", $settings['convert_text'], $text);
+  $text = preg_replace("@<$tag\s(.*)>@U", $settings['convert_text'], $text);
   return $text;
 }
 
@@ -107,21 +107,21 @@ function wallypressfilters_attr_replace_tags($tag, $settings, $text, $type) {
 
         switch ($settings['attributes-replacement-sub-operation']) {
           case 'to_tag':
-            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
-            $new_str = "<$new_tag$1$2>$3</$new_tag>";
+            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
+            $new_str = "<$new_tag $1$2>$3</$new_tag>";
             $text = preg_replace($str_to_find, $new_str, $text);
             break;
 
           case 'to_marker':
-            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>";
             $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
-            $new_str = "<$new_tag$1$2>";
+            $new_str = "<$new_tag $1$2>";
             $new_str .= ($type == 'tag') ? "$3" : "";
             $text = preg_replace($str_to_find, $new_str, $text);
             break;
 
           case 'convert':
-            $str_to_find = "@<$tag(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>";
             $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
             $new_str = $new_tag;
             $new_str .= ($type == 'tag') ? "$3" : "";
