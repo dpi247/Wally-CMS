@@ -519,15 +519,32 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
  * Validation of the form wallypressfilters_form_filter_settings_form
  */
 function wallypressfilters_form_filter_settings_form_validate($form, &$form_state) {
-  foreach ($form_state['values']['filter'] as $filter_name => $filter){
-    $allowed_tags = wallypressfilters_getallowedhtmltagforformat($form_state['values']['filter'][$filter_name]['format']);
-    $filter_infos = wallypressfilters_getfilterbyname($filter_name);
+  $values = $form_state['values'];
+  $format_id = $values['format'];
+  
+  // Get allowed tags list
+  $allowed_tags = array();
+  if (isset($values['filter_html_'.$format_id]) && $values['filter_html_'.$format_id] == 1 && isset($values['allowed_html_'.$format_id])) {
+    $allowed_tags = explode(' ', $values['allowed_html_'.$format_id]);
+  }
 
+  foreach ($values['filter'] as $filter_name => $filter) {
     foreach ($filter as $type => $tags) {
       if ($type != 'format') {
         foreach ($tags as $tag_id => $tag_infos){
-          if (!in_array($tag_infos['html_tag'], $allowed_tags)){
-            //form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $tag_infos['html_tag'])));
+          // Following chosen operation the validation may differ
+          switch ($tag_infos['operation']) {
+            case 'replace':
+              // Check if replacement tags are not empty
+              if (empty($tag_infos['html_tag'])) {
+                form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The replacement tag set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+              }
+              
+              // Check if replacement tags are allowed
+              if (!empty($allowed_tags) && !in_array('<'.$tag_infos['html_tag'].'>', $allowed_tags)){
+                form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $tag_infos['html_tag'])));
+              }
+              break;
           }
         }
       }
