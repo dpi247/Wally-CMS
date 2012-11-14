@@ -260,7 +260,7 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
       $expl_path = explode('/', $uri['path']);
       $file_name = $expl_path[count($expl_path)-1];
       $http_req = drupal_http_request($file_uri, array(), 'GET', NULL, 1, 2);
-      if ($http_req && $http_req->code == '200') {
+      if ($http_req && $http_req->code == '200' OR $http_reql->redirect_code=='200') {
         if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
           if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
             $good_file_name = str_replace($badcar, '_', $file_name);
