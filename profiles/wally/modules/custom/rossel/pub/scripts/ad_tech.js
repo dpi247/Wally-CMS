@@ -14,7 +14,10 @@ function adtech_generate_tag(placementId,sizeId,kvinfo,keywords,other) {
 	if (keywords.length>0) {
 		tag+= 'key=';
 		for (var i=0; i < keywords.length; ++i) {
-			tag+=escape(keywords[i])+'+';
+			tag+=escape(keywords[i])
+			if(i < keywords.length -1) {
+				tag+='+';
+			}
 		}
 		tag+=';';
 	}
