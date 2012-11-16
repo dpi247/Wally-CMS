@@ -169,6 +169,19 @@ function jsonexporter_get_video_infos_and_display($videoObject){
 }
 
 /**
+ * Render an array with a videoObject's infos for theming operations
+ */
+function jsonexporter_get_text_infos_and_display($textObject){
+  $text = array();
+  $text["nid"] = $textObject->nid;
+  $text["type"] = $textObject->type;
+  $text['title'] = $textObject->title;
+  $text['chapo'] = $textObject->field_textchapo[0]['value'];
+  $text['body'] = $textObject->field_textbody[0]['value'];
+  return $text;
+}
+
+/**
  * Render an array with a audioObject's infos for theming operations
  */
 function jsonexporter_get_audio_infos_and_display($audioObject){
