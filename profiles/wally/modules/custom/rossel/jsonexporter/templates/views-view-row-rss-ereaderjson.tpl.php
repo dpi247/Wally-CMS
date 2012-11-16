@@ -141,6 +141,21 @@ foreach($node->field_embededobjects_nodes as $one){
     		$json['relatedObjects'][] = $videoobject;
 
     		break;
+    
+    case "wally_textobject":
+      $embed_one = jsonexporter_get_text_infos_and_display($one);
+
+    		$textobject= array(
+    		    //$json['relatedObjects'][] = array(
+    		    'nid'=> $embed_one["nid"],
+    		    'type'=> 'wally_textobject',
+    		    'titre'=> $embed_one["title"],
+            'chapo' => $embed_one['chapo'],
+            'body' => $embed_one['body'],
+    		);
+
+      $json['relatedObjects'][] = $textobject;
+      break;
 
     case "wally_audioobject":
       $embed_one = jsonexporter_get_audio_infos_and_display($one);
