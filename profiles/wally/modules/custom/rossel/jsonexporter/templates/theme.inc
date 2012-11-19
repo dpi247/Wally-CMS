@@ -9,6 +9,12 @@ function jsonexporter_build_embedded_links(&$node) {
 
         $modules = array('emvideo', 'emother', 'emimage', 'emaudio', 'embonus', 'emimport', 'eminline', 'emthumb', 'emwave', 'image_ncck', 'video_cck', 'slideshare');
         $emfield = FALSE;
+        
+        //default values
+        $thumb = NULL;
+        $module = "";
+        $provider = "";
+        
         foreach ($modules as $module) {
           $item = _emfield_field_submit_id($field, $item, $module);
 
@@ -35,8 +41,6 @@ function jsonexporter_build_embedded_links(&$node) {
 
               if ($element['#item']['data']['thumbnail']['url'] != NULL & $element['#item']['data']['thumbnail']['url'] != ''){
                 $thumb = $element['#item']['data']['thumbnail']['url'];
-              } else {
-                $thumb = "";
               }
             }
 
@@ -73,9 +77,6 @@ function jsonexporter_build_embedded_links(&$node) {
           }
           $content = '<a '.$target.' href = "'.$embed->field_link_item[0]['url'].'">'.$embed->field_link_item[0]['title'].'</a>';
           $title = $embed->field_link_item[0]['title'];
-          $thumb = "";
-          $module = "";
-          $provider = "";
           $node->embed_links[$embed->nid] = array(
               'title' => $title,
               'nid' => $embed->nid,
@@ -92,9 +93,6 @@ function jsonexporter_build_embedded_links(&$node) {
         $package = node_load($embed->field_internal_link[0]['nid']);
         $content = node_view($package);
         $title = $package->title;
-        $thumb = "";
-        $module = "";
-        $provider = "";
         $node->embed_links[$embed->nid] = array(
             'title' => $title,
             'nid' => $embed->nid,

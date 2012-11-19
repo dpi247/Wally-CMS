@@ -201,7 +201,7 @@ foreach($node->embed_links as $two){
       'nid'=> $two["nid"],
       'titre'=> $two["title"],
       'type'=> 'wally_videoobject',
-      //'thumb'=>$two["thumb"],
+      'thumb'=>$two["thumb"],
       'content'=>$two["content"],
       'module'=>$two["module"],
       'provider'=>$two["provider"]
