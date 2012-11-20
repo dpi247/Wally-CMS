@@ -20,6 +20,7 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   
   $pages = page_manager_get_tasks_by_type('page');
   $page_options = array();
+  $page_options['any'] = t('Any');
   foreach ($pages as $page_name => $page_infos) {
     $page_options[$page_name] = $page_name;
   }
@@ -33,6 +34,7 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   ctools_include('plugins');
   $existing_plugins = ctools_get_plugins('ctools', 'content_types');
   $options_plugins = array();
+  $options_plugins['any'] = t('Any');
   foreach ($existing_plugins as $exst_plug) {
     $options_plugins[$exst_plug['name']] = $exst_plug['name'];
   }
@@ -51,7 +53,13 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
     '#submit' => array('wallytoolbox_supercron_settings_form_go_to_submit'),
   );
 
-  if ($page) {
+  if ($page != 'any' || $block_type != 'any') {
+    if ($page == 'any') {
+      $page = '%%';
+    }
+    if ($block_type == 'any') {
+      $block_type == '%%';
+    }
     if ($block_type) {
       $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%:%s:%" ORDER BY weight ASC, cid ASC', $page, $block_type);
     } else {
@@ -80,19 +88,19 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
         '#type' => 'checkbox',
         '#default_value' => $block['enabled'],
       );
-  
+      
+      $form['rows'][$block['cid']]['rule']=array(
+        '#type' => 'textfield',
+        '#size' => 10,
+        '#default_value' => round($block['rule']/60, 2),
+        '#description' => t('It will be called every minute if set between 0 and 1.'),
+      );
+      
       $form['rows'][$block['cid']]['weight']=array(
         '#type' => 'textfield',
         '#size' => 5,
-        '#default_value' => $module->weight,
-        '#attributes' => array('class' => 'weight'),
-      );
-      
-      $form['rows'][$block['cid']]['rule']=array(
-        '#type'          => 'textfield',
-        '#size'          => 10,
-        '#default_value' => round($block['rule']/60, 2),
-        '#description'   => t('It will be called every minute if set between 0 and 1.'),
+        '#default_value' => $block['weight'],
+        '#description' => t('The lowest weight will be executed first'),
       );
       
       while (is_string($block['settings'])) {
@@ -103,6 +111,8 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
         '#value' => $block['settings'],
       );
     }
+  } else {
+    drupal_set_message(t('One of the search criterias must be other than "Any".'), 'warning');
   }
   
   $form['submit'] = array(
@@ -137,7 +147,7 @@ function theme_wallytoolbox_supercron_settings_form($form) {
   $header[] = t('Output');
   $header[] = t('Enabled');
   $header[] = t('Run frequency (min)');
-  $header[] = '';
+  $header[] = t('Weight');
 
   foreach (element_children($form['rows']) as $cid) {
     $form_row = &$form['rows'][$cid];
@@ -159,11 +169,9 @@ function theme_wallytoolbox_supercron_settings_form($form) {
     $row[] = drupal_render($form_row['rule']);
     $row[] = drupal_render($form_row['weight']);
 
-    $rows[] = array('data' => $row, 'class' => 'draggable');
+    $rows[] = array('data' => $row);
     unset($form['rows'][$cid]);
   }
-
-  drupal_add_tabledrag('wallytoolbox-supercron-table', 'order', 'sibling', 'weight');
 
   $output .= drupal_render($form['invoke-all']);
   $output .= drupal_render($form['go_to']);
@@ -228,7 +236,17 @@ function wallytoolbox_supercron_settings_form_force_refresh_submit($form, $form_
 function wallytoolbox_supercron_output($cid) {
   $output = db_fetch_array(db_query('SELECT output FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid));
   drupal_set_title(drupal_get_title().' '.$cid);
-  return unserialize($output['output']);
+  $unser_output = unserialize($output['output']);
+  $to_print = '';
+  foreach ($unser_output as $out_time => $out) {
+    $item_to_print = '<b>On '.date('Y-m-d H:i:s', $out_time).' :</b><br>';
+    foreach ($out as $out_id => $out_message) {
+      $item_to_print .= $out_message.'<br>';
+    }
+    $item_to_print .= '<br>';
+    $to_print = $item_to_print.$to_print;
+  }
+  return $to_print;
 }
 
 /**
@@ -240,6 +258,8 @@ function wallytoolbox_supercron_call($cid) {
   } else {
     $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid);
   }
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   while ($block = db_fetch_array($blocks_list)) {
     if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
@@ -249,11 +269,19 @@ function wallytoolbox_supercron_call($cid) {
       $block['callback'] = unserialize($block['callback']);
     }
     
+    wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
     $output = _wallytoolbox_process_block_refresh($block);
-
+    $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
+    $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
+    $formatted = $d->format('i:s.u');
+    
     if (!empty($output)) {
-      $block['output'] .= serialize($output);
-      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
+      $output[] = 'Runtime : '.$formatted;
+      $block['output'] = unserialize($block['output']);
+      $block['output'][time()] = $output;
+      $block['output'] = array_slice($block['output'], -50, 50, TRUE);
+      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
     }
     $block['last_run'] = time();
     db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
@@ -289,14 +317,17 @@ function _wallytoolbox_process_block_refresh(&$block) {
     }
     if (function_exists($callback_datas['callback'])) {
       $datas = call_user_func_array($callback_datas['callback'], array($block['settings']));
-      if (isset($callback_datas['cid']) && !empty($callback_datas['cid'])) {
+      if ($datas && !empty($datas) && isset($callback_datas['cid']) && !empty($callback_datas['cid'])) {
         $table = (isset($callback_datas['table']) && !empty($callback_datas['table'])) ? $callback_datas['table'] : 'cache_wally_blocks';
         cache_set($callback_datas['cid'], $datas, $table);
+        $output[] = 'Process complete.';
+      } else {
+        $output[] = 'Process uncomplete, something went wrong during callback process.';
       }
     }
   } else {
     // Invoke hook_refresh_block
-    $output = module_invoke_all('refresh_block', $block_infos, $block['settings']);
+    $output[] = module_invoke_all('refresh_block', $block_infos, $block['settings']);
   }
   
   return $output;
