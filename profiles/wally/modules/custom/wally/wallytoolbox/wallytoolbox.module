@@ -1243,8 +1243,11 @@ function _wallytoolbox_cron_blocks_refresh(&$return) {
     $formatted = $d->format('i:s.u');
 
     if (!empty($output)) {
-      $block['output'] .= serialize($output);
-      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', $block['output'], $block['cid']);
+      $output[] = 'Runtime : '.$formatted;
+      $block['output'] = unserialize($block['output']);
+      $block['output'][time()] = $output;
+      $block['output'] = array_slice($block['output'], -50, 50, TRUE);
+      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
     }
     $block['last_run'] = time();
     db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
