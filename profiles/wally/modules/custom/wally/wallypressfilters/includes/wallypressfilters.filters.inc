@@ -19,11 +19,17 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
   }
 
   // Get all attributes
-  $tag_regex = "@<$tag\s\s*(.*)\s*>@U";
+  $tag_regex = "@<$tag\s*(.*)\s*>@U";
   $tag_matches = array();
   preg_match_all($tag_regex, $text, $tag_matches);
-  
+
   foreach ($tag_matches[0] as $tag_key => $tag_match) {
+    // Extra test needed to only replace exact match
+    $extracted_tag_regex = "@<(.*)[\s>]@U";
+    $extracted_tag_match = array();
+    preg_match_all($extracted_tag_regex, $tag_match, $extracted_tag_match);
+    if ($extracted_tag_match[1][0] != $tag) continue;
+
     $new_attr = '';
     $old_classes = '';
 
@@ -43,8 +49,15 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
         $new_attr .= ' '.$attr_matches[0][$attr_key];
       }
     }
+    
+    $new_classes_array = array();
+    if (!empty($old_classes)) $new_classes_array[] = $old_classes;
+    if (!empty($classes)) $new_classes_array[] = $classes;
+    $new_classes = empty($new_classes_array) ? '' : implode(' ', $new_classes_array);
 
-    $replace_string = "<$new_tag $new_attr class=\"$old_classes $classes\"";
+    $replace_string = "<$new_tag";
+    $replace_string .= empty($new_attr) ? "" : " $new_attr";
+    $replace_string .= empty($new_classes) ? "" : " class=\"$new_classes\"";
     $replace_string .= $type == 'marker' ? '/>' : '>';
     $text = str_replace($tag_match, $replace_string, $text);
   }
@@ -62,7 +75,20 @@ function wallypressfilters_replace_tags($tag, $settings, $text, $type) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_tags($tag, $settings, $text) {
-  $text = preg_replace("@<(\/)?$tag\s.*>@U", '', $text);
+  $tag_regex = "@<(\/)?$tag.*>@U";
+  $tag_matches = array();
+  preg_match_all($tag_regex, $text, $tag_matches);
+
+  foreach ($tag_matches[0] as $tag_key => $tag_match) {
+    // Extra test needed to only replace exact match
+    $extracted_tag_regex = "@$tag"."[\s>\/]@U";
+    $extracted_tag_match = array();
+    preg_match_all($extracted_tag_regex, $tag_match, $extracted_tag_match);
+    if (empty($extracted_tag_match) || empty($extracted_tag_match[0])) continue;
+
+    $text = str_replace($tag_match, '', $text);
+  }
+
   return $text;
 }
 
@@ -73,7 +99,7 @@ function wallypressfilters_strip_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
-  $text = preg_replace("@<$tag\s.*>.*<\/$tag>@", '', $text);
+  $text = preg_replace("@<$tag"."[\s>].*<\/$tag>@", '', $text);
   return $text;
 }
 
@@ -84,7 +110,20 @@ function wallypressfilters_strip_contents_tags($tag, $settings, $text) {
  * @param string $text text to process
  */
 function wallypressfilters_convert_tags($tag, $settings, $text) {
-  $text = preg_replace("@<$tag\s(.*)>@U", $settings['convert_text'], $text);
+  $tag_regex = "@<$tag.*>@U";
+  $tag_matches = array();
+  preg_match_all($tag_regex, $text, $tag_matches);
+  
+  foreach ($tag_matches[0] as $tag_key => $tag_match) {
+    // Extra test needed to only replace exact match
+    $extracted_tag_regex = "@$tag"."[\s\/]@U";
+    $extracted_tag_match = array();
+    preg_match_all($extracted_tag_regex, $tag_match, $extracted_tag_match);
+    if (empty($extracted_tag_match) || empty($extracted_tag_match[0])) continue;
+  
+    $text = str_replace($tag_match, $settings['convert_text'], $text);
+  }
+
   return $text;
 }
 
