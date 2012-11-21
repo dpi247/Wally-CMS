@@ -159,7 +159,7 @@ function wallyextra_flowmix_content_type_admin_info($subtype, $conf) {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
     if (!empty($settings->body)) {
-      $block->content = filter_xss_admin(check_markup($settings->body, $settings->format));
+      $block->content = filter_xss_admin(check_markup($settings->body, $settings->format, FALSE));
     } else {
       $block->content = t("n/a");
     }
@@ -385,7 +385,7 @@ function _wallyextra_flowmix_setcache($settings) {
   foreach ($feed as $id => $item) {
     if (isset($item['MainStory']['TextBody']['value'])) {
       $format = $settings['flows'][$item['__flow_id']]->body_html;
-      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($item['MainStory']['TextBody']['value'], $format));
+      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($item['MainStory']['TextBody']['value'], $format, FALSE));
       $feed[$id]['MainStory']['TextBody']['value'] = $cleaned_body;
     }
   }
