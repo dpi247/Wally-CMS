@@ -83,12 +83,6 @@ function _wallyflowtonode_build_feeds_list() {
       $db_result['conf'] = unserialize($db_result['conf']);
     
     $pack_layout = taxonomy_get_term($db_result['package_layout']);
-    $body_html_options = array();
-    $body_html_query = db_query("SELECT * FROM {filter_formats}");
-    $i = 0;
-    while ($body_html_element = db_fetch_array($body_html_query)) {
-      $body_html_options[] = $body_html_element['name'];
-    }
     $temp_row = array();
     $temp_row['name'] = check_plain($db_result['name']);
     $temp_row['type'] = check_plain($db_result['type']);
@@ -97,7 +91,7 @@ function _wallyflowtonode_build_feeds_list() {
     $temp_row['delta_t'] = check_plain($db_result['delta_t']);
     $temp_row['destination'] = check_plain($db_result['destination']);
     $temp_row['package_layout'] = $pack_layout->name;
-    $temp_row['body_html'] = $body_html_options[$db_result['body_html']];
+    $temp_row['body_html'] = db_result(db_query("SELECT name FROM {filter_formats} WHERE format = %d" ,$db_result['body_html']));
     $temp_row['importer'] = $db_result['importer'];
     $temp_row['publish'] = _wallyflowtonode_html_table_queue($db_result);
     $temp_row['actions'] = _wallyflowtonode_html_table_actions($db_result);
