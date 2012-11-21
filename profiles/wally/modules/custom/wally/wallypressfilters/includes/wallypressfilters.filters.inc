@@ -146,13 +146,13 @@ function wallypressfilters_attr_replace_tags($tag, $settings, $text, $type) {
 
         switch ($settings['attributes-replacement-sub-operation']) {
           case 'to_tag':
-            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
+            $str_to_find = "@<$tag([^>]*)$attr\s?=\s?\"$val\"(.*)>(.*)<\/$tag>@U";
             $new_str = "<$new_tag $1$2>$3</$new_tag>";
             $text = preg_replace($str_to_find, $new_str, $text);
             break;
 
           case 'to_marker':
-            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find = "@<$tag([^>]*)$attr\s?=\s?\"$val\"(.*)>";
             $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
             $new_str = "<$new_tag $1$2>";
             $new_str .= ($type == 'tag') ? "$3" : "";
@@ -160,7 +160,7 @@ function wallypressfilters_attr_replace_tags($tag, $settings, $text, $type) {
             break;
 
           case 'convert':
-            $str_to_find = "@<$tag\s(.*)$attr\s?=\s?\"$val\"(.*)>";
+            $str_to_find = "@<$tag([^>]*)$attr\s?=\s?\"$val\"(.*)>";
             $str_to_find .= ($type == 'tag') ? "(.*)<\/$tag>@U" : "@U";
             $new_str = $new_tag;
             $new_str .= ($type == 'tag') ? "$3" : "";
