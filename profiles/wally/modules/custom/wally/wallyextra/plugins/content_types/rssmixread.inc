@@ -463,7 +463,7 @@ function wallyextra_rssmixread_content_type_admin_info($subtype, $conf) {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
     if (!empty($settings['body'])) {
-      $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+      $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format'], FALSE));
     } else {
       $block->content = t("n/a");
     }

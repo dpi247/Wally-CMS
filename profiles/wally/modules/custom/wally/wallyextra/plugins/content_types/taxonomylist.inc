@@ -331,7 +331,7 @@ function wallyextra_taxonomylist_content_type_admin_info($subtype, $conf) {
   else {
     // We also need to filter through XSS admin because <script> tags can
     // cause javascript which will interfere with our ajax.
-    $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format']));
+    $block->content = filter_xss_admin(check_markup($settings['body'], $settings['format'], FALSE));
   }
   return $block;
 }
