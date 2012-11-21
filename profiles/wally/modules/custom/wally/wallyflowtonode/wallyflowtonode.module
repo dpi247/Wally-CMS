@@ -252,11 +252,13 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
     $struct_array = $function($feed_infos);
     foreach ($struct_array['Packages']['Package'] as $id => $package_array) {
       $struct_array['Packages']['Package'][$id]['AutoPublish']['value'] = $feed_infos['publish'];
-      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($package_array['MainStory']['TextBody']['value'], $feed_infos['body_html']));
+      $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($package_array['MainStory']['TextBody']['value'], $feed_infos['body_html'], FALSE));
       $struct_array['Packages']['Package'][$id]['MainStory']['TextBody']['value'] = $cleaned_body;
     }
 
     if (!empty($struct_array['Packages']['Package'])) {
+      $struct_array['Packages']['Package'] = array_reverse($struct_array['Packages']['Package']);
+      
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
       $file_name = $feed_infos['flow_key'].'_'.time();
@@ -406,7 +408,7 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $mainStory->appendChild($valid_dom->createElement('Copyright', ($feed_infos['signature'] != '') ? $feed_infos['signature'] : $array_valid_dom['Package']['MainStory']['Copyright']['value']));
     $mainStory->appendChild($valid_dom->createElement('TextTitle', $array_valid_dom['Package']['MainStory']['TextTitle']['value']));
     $format_number = db_result(db_query("SELECT `format` FROM {filter_formats} WHERE `name` = '%s'", $feed_infos['body_html']));
-    $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number));
+    $cleaned_body = str_replace(array('<p>', '</p>'), '', check_markup($array_valid_dom['Package']['MainStory']['TextBody']['value'], $format_number, FALSE));
     $mainStory->appendChild($valid_dom->createElement('TextBody', $cleaned_body));
 
     if (isset($array_valid_dom['Package']['EmbeddedContent']['EmbeddedObjects']['Object'])) {
