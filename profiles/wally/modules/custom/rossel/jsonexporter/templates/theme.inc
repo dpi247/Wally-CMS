@@ -227,7 +227,7 @@ function jsonexporter_get_package_signature($signature_field){
   if ($signature_field->field_copyright[0]["value"] != ""){
     $package_signature = '';
     list($first, $rest) = explode(',', $signature_field->field_copyright[0]["value"]);
-    if (ctype_upper($first)){
+    if (ctype_upper(str_replace(' ', '', $first))){
       //Hermes signature
       $virgule = '';
       $authors = explode(';', $signature_field->field_copyright[0]["value"]);
