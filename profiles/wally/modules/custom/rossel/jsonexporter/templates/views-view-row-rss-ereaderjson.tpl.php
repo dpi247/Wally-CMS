@@ -213,14 +213,30 @@ foreach($node->embed_links as $two){
       $embed_pack= node_load(array('nid'=>$embed_link->field_internal_link[0]["nid"]));
       wallycontenttypes_packagepopulate($embed_pack);
        
+      //authors
+      $embed_pack_authors_list = NULL;
+      if (count($embed_pack->authors) > 0) {
+        //gestion CCI
+        foreach ($embed_pack->authors as $author) {
+          $embed_pack_authors_list[] = check_plain($author->title);
+        }
+      } else {
+        //gestion Hermes
+        $signature = jsonexporter_get_package_signature($embed_pack->field_mainstory_nodes[0]);
+        if (!empty($signature)) {
+          $embed_pack_authors_list[] = $signature;
+        }
+      }
+      
       // $json['relatedObjects'][] = array(
       $extref= array(
-      				'nid'=> $embed_pack->nid,
-      				'titre'=> $embed_pack->title,
-      				'type'=> $embed_pack->type,
-          'title'=> $embed_pack->field_mainstory_nodes[0]->title,
-          'chapo'=> $embed_pack->field_mainstory_nodes[0]->field_textchapo[0]['value'],
-          'body'=> $embed_pack->field_mainstory_nodes[0]->field_textbody[0]['value']
+      	'nid'=> $embed_pack->nid,
+      	'titre'=> $embed_pack->title,
+      	'type'=> $embed_pack->type,
+        'title'=> $embed_pack->field_mainstory_nodes[0]->title,
+        'chapo'=> $embed_pack->field_mainstory_nodes[0]->field_textchapo[0]['value'],
+        'body'=> $embed_pack->field_mainstory_nodes[0]->field_textbody[0]['value'],
+        'authors' => $embed_pack_authors_list,
       );
 
       foreach($embed_pack->field_embededobjects_nodes as $one){
