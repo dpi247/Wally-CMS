@@ -8,5 +8,5 @@
  */
 ?>
 
-<iframe src='http://embed.scribblelive.com/Embed/v5.aspx?Id=<?php print $media?>&ThemeId=7346' width='<?php print $width; ?>' height='<?php print $height; ?>' frameborder='0' style='border: 1px solid #000'></iframe>
+<iframe src='http://embed.scribblelive.com/Embed/v5.aspx?Id=<?php print $media?>&ThemeId=<?php print $theme_number?>' width='<?php print $width; ?>' height='<?php print $height; ?>' frameborder='0' style='border: 1px solid #000'></iframe>
 
