@@ -231,7 +231,7 @@ foreach($node->embed_links as $two){
                 //$json['relatedObjects'][] = array(
                 'nid'=> $embed_one["nid"],
                 'type'=> 'wally_photoobject',
-                'caption'=> $embed_one["caption"],
+                'caption'=> $embed_one["summary"],
                 'credit'=> $embed_one["credit"]
             );
             if (is_array($json_product->presets)) {
