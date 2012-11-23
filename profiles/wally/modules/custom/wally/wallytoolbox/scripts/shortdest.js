@@ -26,8 +26,10 @@ function shortUpdateList() {
 	$(".tid").each(function(index) {
 		var taxo = this.id;
 		if (taxo != '') {
-			targ = taxo.replace(short_str_to_replace, "target");
-			var selected_targ = $("#"+targ).find("option:selected").attr("value");
+			var selected_targ = '';
+			if (this.value) {
+				selected_targ = $("#"+targ).find("option:selected").attr("value");
+			}
 			shortMakeSublist(taxo, targ, selected_targ);
 		}
 	});
