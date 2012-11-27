@@ -104,6 +104,7 @@ function media_scribble_variable_default($name = NULL) {
     $defaults = array(
       'full_width' => 470,
       'full_height' => 550,
+      'theme_number' => 7346,
       'preview_width' => 300,
       'preview_height' => 385,
     );

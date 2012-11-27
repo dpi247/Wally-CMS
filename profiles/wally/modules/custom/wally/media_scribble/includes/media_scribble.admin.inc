@@ -39,6 +39,12 @@ function media_scribble_admin_form() {
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
+  $form['full'][media_scribble_variable_name('theme_number')] = array(
+    '#type' => 'textfield',
+    '#title' => t('Theme number'),
+    '#default_value' => media_scribble_variable_get('theme_number'),
+    '#description' => t('The theme number'),
+  );
   $form['full'][media_scribble_variable_name('full_width')] = array(
     '#type' => 'textfield',
     '#title' => t('Width'),
@@ -83,10 +89,14 @@ function media_scribble_admin_form_validate($form, &$form_state) {
   if(!is_numeric($form_state['values'][media_scribble_variable_name('full_width')]) || intval($form_state['values'][media_scribble_variable_name('full_width')]) != $form_state['values'][media_scribble_variable_name('full_width')] || $form_state['values'][media_scribble_variable_name('full_width')] < 300) {
     form_set_error(media_scribble_variable_name('full_width'), t('"Full width" must be an integer superior to 300.'));
   }
+  
   if(!is_numeric($form_state['values'][media_scribble_variable_name('full_height')]) || intval($form_state['values'][media_scribble_variable_name('full_height')]) != $form_state['values'][media_scribble_variable_name('full_height')] ||$form_state['values'][media_scribble_variable_name('full_height')] < 385) {
     form_set_error(media_scribble_variable_name('full_height'), t('"Full height" must be an integer superior to 385.'));
   }
- if(!is_numeric($form_state['values'][media_scribble_variable_name('preview_width')]) || intval($form_state['values'][media_scribble_variable_name('preview_width')]) != $form_state['values'][media_scribble_variable_name('preview_width')] ||$form_state['values'][media_scribble_variable_name('preview_width')] < 300) {
+  if(!is_numeric($form_state['values'][media_scribble_variable_name('theme_number')]) ) {
+    form_set_error(media_scribble_variable_name('full_width'), t('"Theme number" must be an integer'));
+  }
+  if(!is_numeric($form_state['values'][media_scribble_variable_name('preview_width')]) || intval($form_state['values'][media_scribble_variable_name('preview_width')]) != $form_state['values'][media_scribble_variable_name('preview_width')] ||$form_state['values'][media_scribble_variable_name('preview_width')] < 300) {
     form_set_error(media_scribble_variable_name('preview_width'), t('"Preview width" must be an integer superior to 300.'));
   }
   if(!is_numeric($form_state['values'][media_scribble_variable_name('preview_height')]) || intval($form_state['values'][media_scribble_variable_name('preview_height')]) != $form_state['values'][media_scribble_variable_name('preview_height')] ||$form_state['values'][media_scribble_variable_name('preview_height')] < 385) {

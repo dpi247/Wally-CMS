@@ -101,6 +101,7 @@ function emother_scribble_embedded_link($code) {
 function emother_scribble_other($embed, $width, $height, $field, $item, $node, $autoplay, $options = array()) {
   $options['width'] = isset($options['width']) ? $options['width'] : media_scribble_variable_get('full_width');
   $options['height'] = isset($options['height']) ? $options['height'] : media_scribble_variable_get('full_height');
+  $options['theme_number'] = isset($options['theme_number']) ? $options['theme_number'] : media_scribble_variable_get('theme_number');
   $options['field'] = isset($options['field']) ? $options['field'] : $field;
   $options['item'] = isset($options['item']) ? $options['item'] : $item;
   $options['node'] = isset($options['node']) ? $options['node'] : $node;
