@@ -248,9 +248,10 @@ function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
       }
       
       if (in_array($type.'@@'.$subtype, $existing_cid, TRUE)) {
-        unset($blocks[$cid]);
+        $blocks[$cid] = $existing_cid[$type.'@@'.$subtype];
+        $blocks[$cid]['runable'] = 0;
       } else {
-        $existing_cid[] = $type.'@@'.$subtype;
+        $existing_cid[$type.'@@'.$subtype] = $block;
       }
     }
   }
