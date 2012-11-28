@@ -90,6 +90,12 @@ function wallypressfilters_schema() {
         'description' => 'Serialized settings',
         'serialize' => TRUE,
       ),
+      'weight' => array(
+        'description' => 'Weight of the tag',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
     ),
     'primary key' => array('tid'),//primary key
   );
@@ -156,5 +162,16 @@ function wallypressfilters_update_6002() {
     drupal_write_record('wallypressfilters_tags', $tag);
   }
 
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add a 'weight' column to wallypressfilters_tags
+ */
+function wallypressfilters_update_6003() {
+  $ret = array();
+  $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
+  db_add_field($ret, 'wallypressfilters_tags', 'weight', $schema['fields']['weight']);
   return $ret;
 }
