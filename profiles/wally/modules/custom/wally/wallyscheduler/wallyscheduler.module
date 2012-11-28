@@ -8,7 +8,14 @@ function wallyscheduler_menu(){
 	
 	$items = array();
 	
-
+	$items['admin/wally/wallyscheduler'] = array(
+			'title' => t('WallyScheduler'),
+			'page callback' => 'wallyscheduler_page_dashboard',
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.pages.inc',
+			'access arguments' => array('administer wallyscheduler'),
+	
+	);
 	$items['admin/wally/wallyscheduler/dashboard'] = array(
 			'title' => t('WallyScheduler Dashboard'),
 			'page callback' => 'wallyscheduler_page_dashboard',
@@ -37,6 +44,7 @@ function wallyscheduler_menu(){
 			'page arguments' => array('wallyscheduler_form_createsnapshot_form'),
 			'access arguments' => array('wallyscheduler create snapshot'),
 			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
 	);
 	
 	//@todo: Check with access callback if a rollback is possible (beware of rollback on rollback),
@@ -46,6 +54,8 @@ function wallyscheduler_menu(){
 			'page arguments' => array('wallyscheduler_form_overwritesnapshot_form'),
 			'access arguments' => array('wallyscheduler overwrite snapshot'),
 			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
+				
 	);
 	$items['admin/wally/wallyscheduler/delete_snapshot/%'] = array(
 			'title' => t('WallyScheduler Delete the snapshot '),
@@ -53,6 +63,8 @@ function wallyscheduler_menu(){
 			'page arguments' => array('wallyscheduler_form_deletesnapshot_form'),
 			'access arguments' => array('wallyscheduler delete snapshot'),
 			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
+				
 	);
 	$items['admin/wally/wallyscheduler/rollback'] = array(
 			'title' => t('WallyScheduler Dashboard'),
@@ -60,6 +72,8 @@ function wallyscheduler_menu(){
 			'page callback' => 'wally_scheduler_page_dashboard',
 			'access arguments' => array('administer wallyscheduler'),
 			'file' => 'includes/wallyscheduler.pages.inc',
+			'type'=>MENU_CALLBACK
+				
 	);
 		$items['admin/wally/wallyscheduler/rollbackrevert'] = array(
 			'title' => t('WallyScheduler Dashboard'),
@@ -67,6 +81,8 @@ function wallyscheduler_menu(){
 			'page callback' => 'wally_scheduler_page_dashboard',
 			'access arguments' => array('administer wallyscheduler'),
 			'file' => 'includes/wallyscheduler.pages.inc',
+			'type'=>MENU_CALLBACK
+				
 	);
 	return $items;
 }

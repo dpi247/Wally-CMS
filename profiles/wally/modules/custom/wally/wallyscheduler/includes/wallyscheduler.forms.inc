@@ -3,7 +3,7 @@
 function wallyscheduler_form_createsnapshot_form($form, &$form_state){
   $form=array();
   $format = 'Y-m-d H:i';
-  $date =date( $format,time()+60*15);
+  $date =date( $format,time()+60*15+variable_get('date_default_timezone', 0));
   $form['timestamp_of_execution'] = array(
   		'#type' => 'date_select',
   		'#title' => t('Executin time'),
@@ -51,7 +51,7 @@ function wallyscheduler_form_createsnapshot_form_submit($form, &$form_state){
 	
 	$snapshot=new stdClass();
 	
-	$snapshot->timestamp_of_execution=strtotime($form_state['values']['timestamp_of_execution']);
+	$snapshot->timestamp_of_execution=strtotime($form_state['values']['timestamp_of_execution'])+variable_get('date_default_timezone', 0);
 	
 	$pseudo_machine_name=str_replace(' ','_',  $snapshot->timestamp_of_execution);
 	$pseudo_machine_name=str_replace(':','-', $pseudo_machine_name);

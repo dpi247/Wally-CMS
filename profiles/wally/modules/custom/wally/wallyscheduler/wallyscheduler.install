@@ -10,6 +10,10 @@ function wallyscheduler_install(){
   db_query("INSERT wallyscheduler_content_field_destinations SELECT * FROM content_field_destinations ;");
   
   
+  foreach(wallyscheduler_caching_table_to_duplicate() as $table){
+    $duplicate_table= 'wallyscheduler_'.$table;
+  	db_query("CREATE TABLE $duplicate_table LIKE $table");
+  }
 }
 
 /**
@@ -20,8 +24,19 @@ function wallyscheduler_uninstall(){
   wallytoolbox_variable_del_like('wallyscheduler_');
   drupal_uninstall_schema('wallyscheduler');
   
+  
+  foreach(wallyscheduler_caching_table_to_duplicate() as $table){
+  	$duplicate_table=  'wallyscheduler_'.$table;
+  	db_query("DROP TABLE $duplicate_table");
+  }
+  
 }
+function wallyscheduler_caching_table_to_duplicate(){
+	
+	$caching_table=array('cache','cache_filter',"cache_content",'cache_page','cache_views',"wallyedit_object_cache");
+	return   $caching_table;
 
+}
 
 /**
  * Implementation of hook_schema
@@ -90,6 +105,9 @@ function wallyscheduler_schema() {
   
   $schema['wallyscheduler_content_field_destinations']= $schema['wallyscheduler_rollback'];
   $schema['wallyscheduler_content_field_destinations']['table']='wallyscheduler_content_field_destinations';
+  
+  
+  
   
   return $schema;
 }
