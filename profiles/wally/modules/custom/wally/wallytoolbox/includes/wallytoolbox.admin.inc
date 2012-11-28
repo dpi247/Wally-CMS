@@ -89,6 +89,11 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
         '#default_value' => $block['enabled'],
       );
       
+      $form['rows'][$block['cid']]['runable'] = array(
+        '#type' => 'value',
+        '#value' => $block['runable'],
+      );
+      
       $form['rows'][$block['cid']]['rule']=array(
         '#type' => 'textfield',
         '#size' => 10,
@@ -148,14 +153,14 @@ function theme_wallytoolbox_supercron_settings_form($form) {
   $header[] = t('Enabled');
   $header[] = t('Run frequency (min)');
   $header[] = t('Weight');
-
+dsm($form);
   foreach (element_children($form['rows']) as $cid) {
     $form_row = &$form['rows'][$cid];
     $expl_cid = explode(':', $cid);
     
     $row = array();
     $row[] = '';
-    $row[] = l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('html' => TRUE, 'query' => 'destination='.$_GET['q']));
+    $row[] = $form_row['runable']['#value'] ? l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('html' => TRUE, 'query' => 'destination='.$_GET['q'])) : '';
     $row[] = check_plain($expl_cid[0]);
     $row[] = check_plain($expl_cid[1]);
     $row[] = check_plain($expl_cid[2]);

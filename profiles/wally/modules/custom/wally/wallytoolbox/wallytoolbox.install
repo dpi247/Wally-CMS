@@ -41,6 +41,11 @@ function wallytoolbox_schema() {
       	'not null' => TRUE,
       	'default' => 1
       ),
+      'runable' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1
+      ),
       'weight' => array(
       	'type' => 'int',
       	'not null' => TRUE,
@@ -188,12 +193,21 @@ function wallytoolbox_update_6006() {
 
 /**
  * Implementation of hook_update_N
- * Add table wallytoolbox_external_files (to content types informations about files fetched from outside)
  */
 function wallytoolbox_update_6007() {
 	$ret = array();
-	wally_variable_set('wallytoolbox_remotecache_secret',rand());
+	wally_variable_set('wallytoolbox_remotecache_secret', rand());
 	return $ret;
-	
-	
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add runable column to wallytoolbox_content_types_cache table
+ */
+function wallytoolbox_update_6008() {
+  $ret = array();
+  $schemas = wallytoolbox_schema();
+  $spec = $schemas['wallytoolbox_content_types_cache']['fields']['runable'];
+  db_add_field($ret, 'wallytoolbox_content_types_cache', 'runable', $spec);
+  return $ret;
 }
