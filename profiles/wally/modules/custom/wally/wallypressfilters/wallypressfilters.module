@@ -199,7 +199,7 @@ function wallypressfilters_getfilterbyid($fid){
  *   an array containing all the tag of the filter
  */
 function wallypressfilters_getalltagsfromfilter($filter_name){
-  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s'", $filter_name);
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s' ORDER BY weight ASC", $filter_name);
   $tags = array();
   while ($obj = db_fetch_object($result)){
     $obj->settings = unserialize($obj->settings);
@@ -217,7 +217,7 @@ function wallypressfilters_getalltagsfromfilter($filter_name){
  *   an array containing all the tag of the filter
  */
 function wallypressfilters_gettagsfromfilter($filter_name){
-  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s' AND format IS NULL", $filter_name);
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s' AND format IS NULL ORDER BY weight ASC", $filter_name);
   $tags = array();
   while ($obj = db_fetch_object($result)){
     $obj->settings = unserialize($obj->settings);
@@ -249,6 +249,7 @@ function wallypressfilters_gettagsfromfilterandformat_admin($filter_name, $forma
                           AND (format = %d OR format IS NULL)
                           GROUP BY tag
                         )
+                        ORDER BY weight ASC
                         ", $filter_name, $format, $filter_name, $format);
 
   $tags = array();
@@ -277,6 +278,7 @@ function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
                       WHERE t.filter = '%s'
                       AND (t.format = %d)
                       GROUP BY tag
+                      ORDER BY weight ASC
                       ", $filter_name, $format);
 
   $tags = array();
@@ -298,7 +300,7 @@ function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
  *   The tag object
  */
 function wallypressfilters_gettagbynameandfilter($tag, $filter){
-  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s'", $tag, $filter);
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s' ORDER BY weight ASC", $tag, $filter);
   $tag = NULL;
   while ($obj = db_fetch_object($result)){
     $tag = $obj;
@@ -318,7 +320,7 @@ function wallypressfilters_gettagbynameandfilter($tag, $filter){
  *   The tag object
  */
 function wallypressfilters_gettagsbynameandfilter($tag, $filter){
-  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s'", $tag, $filter);
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s' ORDER BY weight ASC", $tag, $filter);
   $tags = array();
   while ($obj = db_fetch_object($result)){
     $obj->settings = unserialize($obj->settings);
@@ -348,53 +350,50 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     '#value' => $format,
   );
   
-  $form['filter'][$filter->name]['tag'] = array(
+  /*$form['filter'][$filter->name]['tag'] = array(
     '#type'        => 'fieldset',
     '#title'       => t('Tags'),
     '#collapsible' => TRUE,
-  );
+  );*/
   
-  $form['filter'][$filter->name]['marker'] = array(
+  /*$form['filter'][$filter->name]['marker'] = array(
     '#type'        => 'fieldset',
     '#title'       => t('Markers'),
     '#collapsible' => TRUE,
-  );
+  );*/
 
   if (!empty($tags)) {
     ctools_include('dependent');
     ctools_add_js('dependent');
 
     $operations = array(
-      'tag' => array(
-        'ignore' => t('Ignore'),
+      //'tag' => array(
         'replace' => t('Replace'),
-        'attr_replace' => t('Replace following attributes'),
         'strip' => t('Strip'),
-        'strip_contents' => t('Strip and Strip Contents'),
-      ),
-      'marker' => array(
+        'skip' => t('Skip'),
+      //),
+      /*'marker' => array(
         'ignore' => t('Ignore'),
         'replace' => t('Replace'),
         'attr_replace' => t('Replace following attributes'),
         'strip' => t('Strip'),
         'convert' => t('Convert to text'),
-      ),
+      ),*/
     );
     
     $sub_operations = array(
-      'tag' => array(
-        'attr_replace' => array(
-          'to_tag' => t('Convert to another tag'),
-          'to_marker' => t('Convert to marker'),
-          'convert' => t('Convert to string'),
+      //'tag' => array(
+        'replace' => array(
+          'basic' => t('Basic'),
+          'advanced' => t('Advanced'),
         ),
-      ),
-      'marker' => array(
+      //),
+      /*'marker' => array(
         'attr_replace' => array(
           'to_marker' => t('Convert to another marker'),
           'convert' => t('Convert to string'),
         ),
-      ),
+      ),*/
     );
 
     foreach ($tags as $tag) {
@@ -405,88 +404,52 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
     		'#collapsed'   => TRUE,
       );
 
-      $settings = $tag->settings;
-      $defaults = array(
-        'operation' => 'strip',
-        'html_tag' => '',
-        'classes' => '',
-        'attributes' => '',
-        'convert_text' => '',
-        'attributes-replacement-sub-operation' => 0,
-        'attributes-replacement-settings' => '',
-      );
-      $defaults = array_merge($defaults, $settings);
+      $settings = $tag->settings ? $tag->settings : array();
+      $defaults = array_merge(_wallypressfilters_settings_defaults(), $settings);
 
       $tag_form['operation'] = array(
         '#type'          => 'select',
         '#title'         => t('Operation'),
-        '#options'       => $operations[$tag->type] ? $operations[$tag->type] : array(),
+        '#options'       => $operations ? $operations : array(),
         '#default_value' => $defaults['operation'],
       );
-
-      $tag_form['html_tag'] = array(
-    		'#type'          => 'textfield',
-    		'#title'         => t('The html tag used to replace the !tag_type "@tag"', array('!tag_type' => $tag->type, '@tag' => $tag->tag)),
-    		'#default_value' => $defaults['html_tag'],
-    		'#description'   => t('The html tag used to replace the !tag_type.', array('!tag_type' => $tag->type)),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
-        '#process'       => array('ctools_dependent_process'),
-      );
-
-      $tag_form['classes'] = array(
-    		'#type'          => 'textfield',
-    		'#title'         => t('Classes CSS to add to the !tag_type', array('!tag_type' => $tag->type)),
-    		'#default_value' => $defaults['classes'],
-    		'#size'          => 64,
-    		'#maxlength'     => 1024,
-    		'#description'   => t('Choose the classes to add to the !tag_type. Seperate classes with a white space " "', array('!tag_type' => $tag->type)),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
-        '#process'       => array('ctools_dependent_process'),
-      );
-
-      $tag_form['attributes'] = array(
-        '#type'          => 'textarea',
-        '#title'         => t('Attributes management'),
-        '#default_value' => $defaults['attributes'],
-        '#description'   => t('This area determine how the attributes of the original tag will be managed.<br>
-            The purpose of this management is to reuse attribute\'s values while changing their name.<br>
-            For example you could transform "<i><code>!ex_code_1</code></i>" into "<i><code>!ex_code_2</code></i>".<br>
-            Please enter one attribute per line, following schema "<i>attribute_name</i>|<i>new_attribute_name</i>" 
-            (in this example "foo|bar").',
-            array('!ex_code_1' => htmlentities('<cci:ex foo="val">'), '!ex_code_2' => htmlentities('<cci:ex bar="val">'))),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
-        '#process'       => array('ctools_dependent_process'),
-      );
-
-      $tag_form['convert_text'] = array(
-        '#type'          => 'textfield',
-        '#title'         => t('The text used to replace the marker "@tag"', array('@tag' => $tag->tag)),
-        '#default_value' => $defaults['convert_text'],
-        '#description'   => t('The text used to replace the marker.', array('!tag_type' => $tag->type)),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.'marker-'.$tag->tid.'-operation' => array('convert')),
-        '#process'       => array('ctools_dependent_process'),
-      );
       
-      $tag_form['attributes-replacement-sub-operation'] = array(
+      $tag_form['replace-method'] = array(
         '#type'          => 'select',
         '#title'         => t('Replacement method'),
-        '#options'       => $sub_operations[$tag->type]['attr_replace'] ? $sub_operations[$tag->type]['attr_replace'] : array(),
-        '#default_value' => $defaults['attributes-replacement-sub-operation'],
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('attr_replace')),
+        '#options'       => $sub_operations['replace'] ? $sub_operations['replace'] : array(),
+        '#default_value' => $defaults['replace-method'],
+        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
         '#process'       => array('ctools_dependent_process'),
       );
       
-      $tag_form['attributes-replacement-settings'] = array(
+      $tag_form['basic-pattern'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Pattern used to replace the !tag_type "@tag"', array('!tag_type' => $tag->type, '@tag' => $tag->tag)),
+        '#default_value' => $defaults['basic-pattern'],
+        '#description'   => t('Recognized patterns are $tag.body and $tag.attr-name<br>
+            Where $tag.body is the content of the tag and $tag.attr-name is the value of the attribute named "attr-name".<br>
+            Any non-pattern string is also accepted and will be added without modifications.<br>
+            Example : <i><code>!ex_code</code></i>', array('!ex_code' => htmlentities('<x class="$tag.myclass new-class">$tag.body</x>'))),
+        '#dependency'    => array(
+            'edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace'),
+            'edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-replace-method' => array('basic')),
+        '#dependency_count' => 2,
+        '#process'       => array('ctools_dependent_process'),
+      );
+      
+      $tag_form['advanced-php'] = array(
         '#type'          => 'textarea',
-        '#title'         => t('Attributes management'),
-        '#default_value' => $defaults['attributes-replacement-settings'],
-        '#description'   => t('This area determine how the original tag will be replaced.<br>
-            You can choose the replacement value according to an attribute value.<br>
-            For example you could transform "<i><code>!ex_code_1</code></i>" into "<i><code>!ex_code_2</code></i>" and "<i><code>!ex_code_3</code></i>" into "<i><code>!ex_code_4</code></i>".<br>
-            Please enter one replacement set per line, following schema "<i>attribute_name</i>|<i>attribute_value</i>|<i>new_tag_value</i>"
-            (in this example "foo|val1|bar1" and "foo|val2|bar2", on two separated lines).',
-            array('!ex_code_1' => htmlentities('<cci:ex foo="val1">'), '!ex_code_2' => htmlentities('<bar1>'), '!ex_code_3' => htmlentities('<cci:ex foo="val2">'), '!ex_code_4' => htmlentities('<bar2>'))),
-        '#dependency'    => array('edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('attr_replace')),
+        '#title'         => t('PHP code'),
+        '#default_value' => $defaults['advanced-php'],
+        '#description'   => t('User <i>return $string;</i> at the end of your code,
+            the matching tag (and its content) will be replaced by this string.<br>
+            <b style="color:red;">Use this with caution! This code will be executed every time the filter is applied.</b>'),
+        '#rows'          => 15,
+        '#dependency'    => array(
+            'edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace'),
+            'edit-filter-'.$filter->name.'-'.$tag->type.'-'.$tag->tid.'-replace-method' => array('advanced')),
+        '#dependency_count' => 2,
         '#process'       => array('ctools_dependent_process'),
       );
 
@@ -535,15 +498,42 @@ function wallypressfilters_form_filter_settings_form_validate($form, &$form_stat
           // Following chosen operation the validation may differ
           switch ($tag_infos['operation']) {
             case 'replace':
-              // Check if replacement tags are not empty
-              if (empty($tag_infos['html_tag'])) {
-                form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The replacement tag set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+              if ($tag_infos['replace-method'] == 'basic') {
+                // Check if replacement tags are not empty
+                if (empty($tag_infos['basic-pattern'])) {
+                  form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The replacement pattern set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                } else {
+                  // Check if replacement tags are allowed
+                  $new_tags_match_regex = '@<([^\/]*)[\s>]@U';
+                  $new_tags_match = array();
+                  preg_match_all($new_tags_match_regex, $tag_infos['basic-pattern'], $new_tags_match);
+                  foreach ($new_tags_match[1] as $new_tag) {
+                    if (!empty($allowed_tags) && !in_array('<'.$new_tag.'>', $allowed_tags)){
+                      form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $new_tag)));
+                    }
+                  }
+                }
+              } elseif ($tag_infos['replace-method'] == 'advanced') {
+                // Check if replacement tags are not empty
+                if (empty($tag_infos['advanced-php'])) {
+                  form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The PHP code set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                } else {
+                  // Check if PHP code is correct
+                  $exception = eval($tag_infos['advanced-php']);
+                  if ($exception === FALSE) {
+                    form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The PHP code set for !tag_type "@tag_to_replace" is not valid', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                  }
+
+                  // Check if there's a return
+                  $return_match_regex = '@return\s+[\$\'\"]@U';
+                  $return_match = array();
+                  preg_match_all($return_match_regex, $tag_infos['advanced-php'], $return_match);
+                  if (empty($return_match[0])){
+                    form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('No return found in the PHP code set for !tag_type "@tag_to_replace"', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                  }
+                }
               }
               
-              // Check if replacement tags are allowed
-              if (!empty($allowed_tags) && !in_array('<'.$tag_infos['html_tag'].'>', $allowed_tags)){
-                form_set_error('filter]['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $tag_infos['html_tag'])));
-              }
               break;
           }
         }
@@ -570,12 +560,9 @@ function wallypressfilters_form_filter_settings_form_submit($form, &$form_state)
           $obj->type = $type;
           $settings = array(
             'operation' => $tag_infos['operation'],
-            'html_tag' => $tag_infos['html_tag'],
-            'classes' => $tag_infos['classes'],
-            'attributes' => $tag_infos['attributes'],
-            'convert_text' => $tag_infos['convert_text'],
-            'attributes-replacement-sub-operation' => $tag_infos['attributes-replacement-sub-operation'],
-            'attributes-replacement-settings' => $tag_infos['attributes-replacement-settings'],
+            'replace-method' => $tag_infos['replace-method'],
+            'basic-pattern' => $tag_infos['basic-pattern'],
+            'advanced-php' => $tag_infos['advanced-php'],
           );
           $obj->settings = $settings;
           if ($tag_infos['format'] == NULL){
@@ -589,28 +576,6 @@ function wallypressfilters_form_filter_settings_form_submit($form, &$form_state)
       }
     }
   }
-}
-
-/**
- * Return allowed html tags for this format
- * 
- * @param $format
- * the format
- * 
- * @return 
- * an array with all the tags allowed
- */
-function wallypressfilters_getallowedhtmltagforformat($format){
-  $filters = filter_list_format($format);
-  if (array_key_exists('filter/0', $filters)){
-    $tags = variable_get('allowed_html_'.$format, '<a> <em> <strong> <cite> <code> <ul> <ol> <li> <dl> <dt> <dd>');
-    $tags = explode('> <', $tags);
-    $tags = str_replace('<', '', $tags);
-    $html_tags = str_replace('>', '', $tags);
-  } else {
-    $html_tags = array('b','big','br','center', 'cite', 'dd', 'div', 'dl', 'dt', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'menu', 'ol', 'p', 'small', 'span', 'strike', 'strong', 'u', 'ul');
-  }
-  return $html_tags;
 }
 
 /** 
@@ -634,11 +599,29 @@ function wallypressfilters_filter_process($fid, $text, $format) {
 
   foreach ($tags as $tag) {
     $settings = $tag->settings;
-    $process_function = 'wallypressfilters_'.$settings['operation'].'_tags';
-    if (function_exists($process_function)) {
-      $text = $process_function($tag->tag, $settings, $text, $tag->type);
+    switch ($settings['operation']) {
+      case 'replace':
+        $text = wallypressfilters_replace_tags($tag->tag, $settings, $text);
+        break;
+
+      case 'strip':
+        $text = wallypressfilters_strip_tags($tag->tag, $settings, $text);
+        break;
+
+      case 'skip':
+        $text = wallypressfilters_skip_tags($tag->tag, $settings, $text);
+        break;
     }
   }
 
   return $text;
+}
+
+function _wallypressfilters_settings_defaults () {
+  return array(
+    'operation' => 'strip',
+    'replace-method' => 'basic',
+    'basic-pattern' => '',
+    'advanced-php' => '',
+  );
 }

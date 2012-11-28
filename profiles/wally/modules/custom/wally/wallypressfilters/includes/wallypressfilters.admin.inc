@@ -55,10 +55,11 @@ function wallypressfilters_form_addfilter_form($form_state, $fid = NULL){
         You can also add a label, following schema "<i>tag|label</i>".'),
     '#default_value' => '',
     '#cols'          => 10,
-    '#rows'          => 15,
+    '#rows'          => 30,
     '#resizable'     => TRUE,
   );
   
+  /*
   $form['wallypressfilters']['markers'] = array(
     '#type'          => 'textarea',
     '#title'         => t('List of the markers'),
@@ -69,6 +70,7 @@ function wallypressfilters_form_addfilter_form($form_state, $fid = NULL){
     '#rows'          => 15,
     '#resizable'     => TRUE,
   );
+  */
 
   if ($fid != NULL){
     $filter = wallypressfilters_getfilterbyid($fid);
@@ -76,24 +78,24 @@ function wallypressfilters_form_addfilter_form($form_state, $fid = NULL){
     $tags = wallypressfilters_gettagsfromfilter($filter->name);
     $form['wallypressfilters']['name']['#default_value'] = $filter->name;
     $form['wallypressfilters']['description']['#default_value'] = $filter->description;
-    
+
     $tags_default_value = $markers_default_value = $attr_rel_tags_default_value = '';
     $tag_space = $marker_space = $attr_rel_tags_space = '';
     foreach ($tags as $tag) {
-      switch ($tag->type) {
-        case 'tag':
+    //  switch ($tag->type) {
+    //    case 'tag':
           $tags_default_value .= $tag_space.$tag->tag.'|'.$tag->description;
           $tag_space = "\n";
-          break;
+    //      break;
           
-        case 'marker':
+    /*    case 'marker':
           $markers_default_value .= $marker_space.$tag->tag.'|'.$tag->description;
           $marker_space = "\n";
-          break;
-      }
+          break;*/
+    //  }
     }
     $form['wallypressfilters']['tags']['#default_value'] = $tags_default_value;
-    $form['wallypressfilters']['markers']['#default_value'] = $markers_default_value;
+    //$form['wallypressfilters']['markers']['#default_value'] = $markers_default_value;
   }
 
   $form['sumbit'] = array(
@@ -128,16 +130,18 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
   
   $form_state['values']['wallypresstags'] = array();
 
+  $weight = 0;
   $tags = explode("\r\n", $form_state['values']['wallypressfilters']['tags']);
   foreach ($tags as $tmp_tag) {
     list($tag, $description) = explode('|', $tmp_tag);
 
     // Check if the tag is correct
     if ($tag == '') {
-      ;
+      continue;
     }
+    
     // Check is the tag exists two times
-    elseif (array_key_exists($tag, $form_state['values']['wallypresstags'])) {
+    if (array_key_exists($tag, $form_state['values']['wallypresstags'])) {
       form_set_error('wallypressfilters][tags', t('There can not be two identical tags.'));
     } else {
       $update = array();
@@ -147,10 +151,11 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
         'filter' => $form_state['values']['wallypressfilters']['name'],
         'type' => 'tag',
         'update' => $update,
+        'weight' => $weight++,
       );
     }
   }
-  
+  /*
   $markers = explode("\r\n", $form_state['values']['wallypressfilters']['markers']);
   foreach ($markers as $tmp_marker) {
     list($marker, $description) = explode('|', $tmp_marker);
@@ -173,6 +178,7 @@ function wallypressfilters_form_addfilter_form_validate($form, &$form_state){
       );
     }
   }
+  */
 }
 
 /**
@@ -250,16 +256,4 @@ function wallypressfilters_form_deletefilter_form_submit($form, &$form_state){
   } else {
     drupal_set_message(t('The filter couldn\'t be correctly deleted'));
   }
-}
-
-function _wallypressfilters_settings_defaults () {
-  return array(
-    'operation' => 'strip',
-    'html_tag' => 'span',
-    'classes' => '',
-    'attributes' => '',
-    'convert_text' => '',
-    'attributes-replacement-sub-operation' => 0,
-    'attributes-replacement-settings' => '',
-  );
 }
