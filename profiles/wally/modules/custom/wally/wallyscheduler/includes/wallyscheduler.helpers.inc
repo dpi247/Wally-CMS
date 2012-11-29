@@ -21,23 +21,20 @@ Un truc comme ca devrait permetre de r�utiliser le schema ... pour cr�er des
 function _wallyscheduler_process_switchcheck(){
 	
 	
-	$snapshot_id = db_result(db_query("SELECT sid
+  $snapshot_id = db_result(db_query("SELECT sid
 			FROM {wallyscheduler_snapshot_list}
 			WHERE timestamp_of_execution < %d
-			AND timestamp_of_execution IN (select max(timestamp_of_execution) FROM {wallyscheduler_snapshot_list} WHERE timestamp_of_execution < %d ) ;", array(time(), time())));
+			AND timestamp_of_execution IN (select max(timestamp_of_execution) 
+									       FROM {wallyscheduler_snapshot_list} 
+										   WHERE timestamp_of_execution < %d )", 
+	        array(time(), time())));
 	
 	
-	//Nothin to do
-	if(wally_variable_set('wallyscheduler_production',NULL)==$snapshot_id){
-		
-	} // Ok need to make a switch
-	else{
-		_wallyscheduler_process_switch($snapshot_id);
-	}
-	
+  //if the snapshot id is not the one in the stored variable, we make the switch
+  if (wally_variable_set('wallyscheduler_production',NULL) != $snapshot_id){
+    _wallyscheduler_process_switch($snapshot_id);
+  }
 }
-
-
 
 /*
  * Replace destination table with values from the values contained in the table  reffered by the snapshot
@@ -46,7 +43,7 @@ function _wallyscheduler_process_switchcheck(){
 
 function _wallyscheduler_clean_process_switch($snapshot_id){
 
-	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+	$snapshot = wallyscheduler_get_snapshot($snapshot_id);
     //make site offline
 	
 	//invoke_hook_wallyscheduler_switch_before
@@ -77,24 +74,23 @@ function _wallyscheduler_clean_old_snapshot(){
 */
 
 function wallyscheduler_get_destinations_original_schema(){
-	$type_name='wally_articlepackage';
+	$type_name = 'wally_articlepackage';
 	module_load_include('inc', 'content', 'includes/content.crud');
 	$content_fields = content_field_instance_read(array('type_name' => $type_name));
-	$field=$content_fields['12'];
-	$schema=content_database_info($field);
+	$field = $content_fields['12'];
+	$schema = content_database_info($field);
     
     //adding special cck fields
-    $schema['fields']["nid"]=$schema['columns']['tid'];
-	$schema['fields']["vid"]=$schema['columns']['tid'];
-    $schema['fields']["delta"]=$schema['columns']['tid'];
+    $schema['fields']["nid"] = $schema['columns']['tid'];
+	$schema['fields']["vid"] = $schema['columns']['tid'];
+    $schema['fields']["delta"] = $schema['columns']['tid'];
 
-    $schema['fields']["field_destinations_tid"]=$schema['columns']['tid'];
-    $schema['fields']["field_destinations_target"]=$schema['columns']['target'];
-    $schema['fields']["field_destinations_layout"]=$schema['columns']['layout'];
-    $schema['fields']["field_destinations_rank"]=$schema['columns']['rank'];
-    $schema['fields']["field_destinations_time_rank"]=$schema['columns']['time_rank'];
-    
-    
+    $schema['fields']["field_destinations_tid"] = $schema['columns']['tid'];
+    $schema['fields']["field_destinations_target"] = $schema['columns']['target'];
+    $schema['fields']["field_destinations_layout"] = $schema['columns']['layout'];
+    $schema['fields']["field_destinations_rank"] = $schema['columns']['rank'];
+    $schema['fields']["field_destinations_time_rank"] = $schema['columns']['time_rank'];
+     
     return $schema;
 }
 
@@ -134,19 +130,20 @@ function _wallyscheduler_process_switch($snapshot_id){
 }
 function wallyscheduler_remote_cache_clear(){
 	
-	$challenge=time();
-	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
-	$production_site_url=wally_variable_get('wallyscheduler_production_site_url','');
-	$url=$production_site_url.'/wallytoolbox/remote_cacheclear/'.$challenge."/".md5($challenge.$secret);
-	$call=drupal_http_request($url);
-	if($call->code == '200'){
-		watchdog('wallyscheduler','Remotly cache clear of production site' );
-		return true;
-	}else{
-		watchdog('wallyscheduler','Remotly cache clear of production site FAILED', array(), WATCHDOG_WARNING );
-		return FALSE;
-		
+	$challenge = time();
+	$secret = wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+	$production_site_url = wally_variable_get('wallyscheduler_production_site_url','');
+	
+	$url = 'http://'.$production_site_url.'/wallytoolbox/remote_cacheclear/'.$challenge."/".md5($challenge.$secret);
+	$call = drupal_http_request($url);
+	if ($call->code == '200'){
+	  watchdog('wallyscheduler','Remotly cache clear of production site' );
+	  $return = TRUE;
+	} else {
+	  watchdog('wallyscheduler','Remotly cache clear of production site FAILED', array(), WATCHDOG_WARNING );
+	  $return = FALSE;
 	}
+	return $return;
 }
 function _wallyscheduler_process_overwrite($snapshot_id){
 
