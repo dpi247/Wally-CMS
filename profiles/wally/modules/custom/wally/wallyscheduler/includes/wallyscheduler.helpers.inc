@@ -20,7 +20,12 @@ Un truc comme ca devrait permetre de r�utiliser le schema ... pour cr�er des
  */
 function _wallyscheduler_process_switchcheck(){
 	
-	$snapshot_id=db_result(db_query("SELECT sid,max(timestamp_of_execution) FROM {wallyscheduler_snapshot_list} WHERE timestamp_of_execution<= %d ;",array(time())));
+	
+	$snapshot_id = db_result(db_query("SELECT sid
+			FROM {wallyscheduler_snapshot_list}
+			WHERE timestamp_of_execution < %d
+			AND timestamp_of_execution IN (select max(timestamp_of_execution) FROM {wallyscheduler_snapshot_list} WHERE timestamp_of_execution < %d ) ;", array(time(), time())));
+	
 	
 	//Nothin to do
 	if(wally_variable_set('wallyscheduler_production',NULL)==$snapshot_id){
