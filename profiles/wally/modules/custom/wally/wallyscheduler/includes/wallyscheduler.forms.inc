@@ -40,10 +40,27 @@ function wallyscheduler_form_createsnapshot_form($form, &$form_state){
   return $form;
 
 }
-function wallyscheduler_form_createsnapshot_form_validate($form_state){
+function wallyscheduler_form_createsnapshot_form_validate($form,$form_state){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
 	
 	//@todo: check that the created snapshot isn't too close of an existing snapshot
 	//avoid too many switch (min 15 min interval)
+	$snapshot=new stdClass();
+	$snapshot->timestamp_of_execution=strtotime($form_state['values']['timestamp_of_execution'])+variable_get('date_default_timezone', 0);
+	
+	$pseudo_machine_name=str_replace(' ','_',  $snapshot->timestamp_of_execution);
+	$pseudo_machine_name=str_replace(':','-', $pseudo_machine_name);
+	$pseudo_machine_name="wallyscheduler_".$pseudo_machine_name;
+	foreach(array('machine_name','destination_table') as $key){
+		if($form_state['values']['$key']==""){
+			$snapshot->{$key}=$pseudo_machine_name;
+		}
+	}
+	if(wallyscheduler_table_exist($snapshot->destination_table)){
+		form_set_error("timestamp_of_execution",'Un snaphot est déjà défini à cet instant. veuilez soit supprimer le timestamp existant, soit l\' overwriter ...');
+	}
+	
+	
 }
 function wallyscheduler_form_createsnapshot_form_submit($form, &$form_state){
 	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
