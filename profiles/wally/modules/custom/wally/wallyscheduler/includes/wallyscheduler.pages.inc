@@ -83,7 +83,7 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 	$result = pager_query($sql . $tablesort, 50);
 	
 	while ($snapshot = db_fetch_object($result)) {
-		$row_count=db_query("SELECT count(sid) FROM {%s}",$snapshot->table);
+		$row_count=db_query("SELECT count(*) FROM {%s}",$snapshot->destination_table);
 		if($row_count>0){
 			$row_class="wallyscheduler_row_not_empty";
 		}
@@ -102,7 +102,7 @@ function wallyscheduler_page_dashboard_get_future_snaphots(&$header,&$rows){
 				array(
 						// Cells
 						$snapshot->machine_name,
-						$snapshot->table,
+						$snapshot->destination_table,
 						format_date($snapshot->timestamp_of_execution, 'small'),
 						theme('username', $snapshot),
 						$actions,

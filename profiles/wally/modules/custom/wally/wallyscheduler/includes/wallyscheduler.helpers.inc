@@ -258,7 +258,12 @@ function wallyscheduler_snapshot_save(&$snapshot_object){
   db_query("INSERT {". $snapshot_object->destination_table."} SELECT * FROM {content_field_destinations};");
 
 }
-
+function wallyscheduler_table_exist($destination_table){
+	if(db_result(db_query("SHOW TABLES LIKE '".$destination_table."'"))){
+		return TRUE;
+	}
+	return FALSE;
+}
 
 function wallyscheduler_get_snapshot($snapshot_id){
 	$result=db_query("SELECT * FROM {wallyscheduler_snapshot_list} WHERE sid=%d ;",array($snapshot_id));
