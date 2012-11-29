@@ -2090,7 +2090,8 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
           }
 
           $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
-          if (sizeof($current_results) >= $reserved) {
+          //SEE: http://rossel.audaxis.com/jira/browse/WALLY-795
+          if (TRUE OR sizeof($current_results) >= $reserved) {
             $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
   
             for ($i = ($rank - 1); $i > 0; $i--) {
