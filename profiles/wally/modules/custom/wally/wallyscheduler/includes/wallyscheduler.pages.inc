@@ -133,7 +133,7 @@ function wallyscheduler_page_dashboard_get_history(& $header, & $rows){
 			array('data' => t('Operations')),
 	);
 	
-	$sql = "SELECT w.wid, w.uid, w.severity, w.type, w.timestamp, w.message, w.variables, w.link, u.name FROM {watchdog} w INNER JOIN {users} u ON w.uid = u.uid WHERE w.type=\"wallyscheduler\"";
+	$sql = "SELECT w.wid, w.uid, w.severity, w.type, w.timestamp, w.message, w.variables, w.link, u.name FROM {watchdog} w LEFT OUTER JOIN {users} u ON w.uid = u.uid WHERE w.type=\"wallyscheduler\"";
 	$tablesort = tablesort_sql($header);
 	$result = pager_query($sql . $tablesort, 50);
 	$timezone = date_default_timezone_name(FALSE);
