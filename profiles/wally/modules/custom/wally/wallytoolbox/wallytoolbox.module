@@ -861,7 +861,12 @@ function wallytoolbox_get_meta() {
  * Hook preprocess for meta tags.
  */
 function wallytoolbox_preprocess_page(&$variables) {
-  $variables['meta'] .= wallytoolbox_get_meta();	
+  if($variables['meta']){
+    $variables['meta'] .= wallytoolbox_get_meta();	
+  }
+  else{
+  	$variables['meta'] = wallytoolbox_get_meta();
+  }
 }
 
 /**

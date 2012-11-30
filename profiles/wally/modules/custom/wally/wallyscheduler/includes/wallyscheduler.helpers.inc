@@ -31,7 +31,7 @@ function _wallyscheduler_process_switchcheck(){
 	
 	
   //if the snapshot id is not the one in the stored variable, we make the switch
-  if (wally_variable_set('wallyscheduler_production',NULL) != $snapshot_id){
+  if (wally_variable_get('wallyscheduler_production',NULL) != $snapshot_id){
     _wallyscheduler_process_switch($snapshot_id);
   }
 }
@@ -100,7 +100,7 @@ function _wallyscheduler_process_switch($snapshot_id){
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
 	
 	//put site offline
-	variable_set("site_offline",TRUE);
+	variable_set("site_offline", 1);
 	
 	//call hook_wallyscheduler_snapshot_switch_before
     module_invoke_all('wallyscheduler_process_switch_before',$snapshot);
@@ -124,7 +124,7 @@ function _wallyscheduler_process_switch($snapshot_id){
 	
 
     //put site online
-    variable_set("site_offline",FALSE);
+    variable_set("site_offline", 0);
     
 
 }
