@@ -140,53 +140,6 @@ function wallytoolbox_theme(&$var) {
 }
 
 /**
- * Implementation of hook_form_alter()
- */
-function wallytoolbox_form_alter(&$form, $form_state, $form_id) {
-  if (strstr($form_id, '_content_type_')) {
-    $form_to_alter = FALSE;
-    if (strstr($form_id, '_content_type_edit_form')) {
-      // The form id respects the standard structure, easy to recognize
-      $form_to_alter = TRUE;
-    } else {
-      // The form id has another structure, we have to search through all available plugins
-      $plugins = panels_common_get_allowed_types('panels_page');
-      $edit_forms = array();
-      foreach ($plugins as $plugin) {
-        foreach ($plugin as $subtype) {
-          if (isset($subtype['edit form'])) {
-            if (is_array($subtype['edit form'])) {
-              // This is in case of multistep forms
-              $keys = array_keys($subtype['edit form']);
-              $edit_forms[] = $keys[0];
-            } else {
-              $edit_forms[] = $subtype['edit form'];
-            }
-          }
-        }
-      }
-
-      if (in_array($form_id, $edit_forms)) {
-        $form_to_alter = TRUE;
-      }
-    }
-    
-    if ($form_to_alter) {
-      // We add a rule field to every CTools content type configuration form.
-      $form['wally_rule'] = array (
-        '#type'             => 'textfield',
-        '#title'            => t('Refresh time (minutes)'),
-        '#description'      => t('This is the frequency with which the hook_refresh_block will be called for this content.'),
-        '#default_value'    => _wallytoolbox_get_setting($form_state['conf'], 'wally_rule', 15),
-      );
-
-      $form['#validate'][] = 'wallytoolbox_content_type_form_validate';
-      array_unshift($form['#submit'], 'wallytoolbox_content_type_form_submit');
-    }
-  }
-}
-
-/**
  * Implementation of hook_cron().
  */ 
 function wallytoolbox_cron() {
@@ -391,32 +344,6 @@ function wallytoolbox_get_settings_form_of_plugin($plugin, &$form, &$form_state)
   }
 
   return FALSE;
-}
-
-/**
- * Validation for the refresh rule added to CTools content types.
- */
-function wallytoolbox_content_type_form_validate(&$form, &$form_state) {
-  $values = $form_state['values'];
-
-  if (isset($values['wally_rule']) && !is_numeric($values['wally_rule'])) {
-    form_set_error('wally_rule', t('The refresh time isn\'t a numeric value'));
-  } elseif (isset($values['wally_rule']) && $values['wally_rule'] < 0) {
-    form_set_error('wally_rule', t('The refresh time must be greater or equal to 0 minutes'));
-  }
-}
-
-/**
- * Submit for the refresh rule added to CTools content types.
- */
-function wallytoolbox_content_type_form_submit(&$form, &$form_state) {
-  $conf = $form_state['conf'];
-  $conf_keys = array_keys($conf);
-  if (is_object($conf[$conf_keys[0]])) {
-    $form_state['conf'][$conf_keys[0]]->wally_rule = $form_state['values']['wally_rule'];
-  } else {
-    $form_state['conf']['wally_rule'] = $form_state['values']['wally_rule'];
-  }
 }
 
 /**
@@ -988,27 +915,39 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
         $check_existing = db_result(db_query('SELECT cid FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $block['cid']));
         if (!$check_existing) {
           if (isset($blocks_list[$block['cid']])) {
-            $block['output'] = $blocks_list[$block['cid']]['output'];
+            $block['output'] = unserialize($blocks_list[$block['cid']]['output']);
             $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
             $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
             $block['callback'] = unserialize($blocks_list[$block['cid']]['callback']);
+            $block['rule'] = $blocks_list[$block['cid']]['rule'];
+          } elseif ($handler->type != $handler->subtype) {
+            $db_vers_block = db_fetch_array(db_query("SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE '%%:%%:%s:%s:%%:%%' LIMIT 0,1", $handler->type, $handler->subtype));
+            if ($db_vers_block) {
+              $block['output'] = unserialize($db_vers_block['output']);
+              $block['last_run'] = $db_vers_block['last_run'];
+              $block['enabled'] = $db_vers_block['enabled'];
+              $block['weight'] = $db_vers_block['weight'];
+              $block['callback'] = unserialize($db_vers_block['callback']);
+              $block['rule'] = $db_vers_block['rule'];
+            }
           }
 
-          $wally_rule = _wallytoolbox_get_setting($config, 'wally_rule', 15);
-          $block['rule'] = 60*$wally_rule;
           $block['settings'] = $config;
-
           $blocks[$block['cid']] = $block;
         }
       }
     }
   }
-  
+
   drupal_alter('wallytoolbox_blocks', $blocks, ($display_name || $display) ? 'partial' : 'full');
-  
+
   foreach ($blocks as $block) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $block['cid']);
     drupal_write_record('wallytoolbox_content_types_cache', $block);
+    if ($type != $subtype) {
+      db_query("UPDATE {wallytoolbox_content_types_cache} SET settings = '%s' WHERE cid LIKE '%%:%%:%s:%s:%%:%%'", serialize($block['settings']), $type, $subtype);
+    }
   }
 }
 
@@ -1219,34 +1158,52 @@ function _wallytoolbox_cron_blocks_refresh(&$return) {
   if ($count['COUNT(*)'] == '0') {
     wallytoolbox_refresh_cache_list();
   }
+  
+  $processed = array();
 
   // Select blocks where last run is too old according to their refresh time
   $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run <= %d - rule ORDER BY weight ASC, cid ASC', time());
   while ($block = db_fetch_array($blocks_list)) {
-    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
-      $block['settings'] = unserialize($block['settings']);
-    }
-    if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
-      $block['callback'] = unserialize($block['callback']);
-    }
+    $cid = $block['cid'];
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
+    $multiple_id = ($type == $subtype) ? $cid : $type.'::'.$subtype;
 
-    wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
-    $output = _wallytoolbox_process_block_refresh($block);
-    $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
-    $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
-    $formatted = $d->format('i:s.u');
+    if (!in_array($multiple_id, $processed)) {
+      $processed[] = $multiple_id;
 
-    if (!empty($output)) {
-      $output[] = 'Runtime : '.$formatted;
-      $block['output'] = unserialize($block['output']);
-      $block['output'][time()] = $output;
-      $block['output'] = array_slice($block['output'], -50, 50, TRUE);
-      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
+        $block['callback'] = unserialize($block['callback']);
+      }
+  
+      wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
+      $output = _wallytoolbox_process_block_refresh($block);
+      $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
+      $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
+      $formatted = $d->format('i:s.u');
+  
+      if (!empty($output)) {
+        $output[] = 'Runtime : '.$formatted;
+        $block['output'] = unserialize($block['output']);
+        $block['output'][time()] = $output;
+        $block['output'] = array_slice($block['output'], -50, 50, TRUE);
+        if ($type == $subtype) {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
+        } else {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', serialize($block['output']), $type, $subtype);
+        }
+      }
+      $block['last_run'] = time();
+      if ($type == $subtype) {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
+      } else {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', $block['last_run'], $type, $subtype);
+      }
+      $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
     }
-    $block['last_run'] = time();
-    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
-    $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
   }
 
   $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_global');
