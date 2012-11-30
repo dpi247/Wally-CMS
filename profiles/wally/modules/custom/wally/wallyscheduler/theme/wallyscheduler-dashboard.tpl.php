@@ -1,4 +1,3 @@
-<?php dsm($variables);?>
 <div>
   <div id="wallyscheduler_status">
   <h2><?php print t("Status")?></h2>
