@@ -113,8 +113,12 @@ foreach($node->field_embededobjects_nodes as $one){
           if($preset_id!=0){
             $preset=imagecache_preset($preset_id);
             $presetname=$preset["presetname"];
+            $url = '';
+            if ($embed_one["fullpath"] != ""){
+              $url = imagecache_create_path($presetname, $embed_one["fullpath"]);
+            }
             $photoobject['crop'][$presetname]= array(
-                'url'=> ($base_url."/sites/default/files/imagecache/". $presetname."/".$embed_one["fullpath"])
+              'url' => $url,
             );
           }
         }
@@ -201,7 +205,7 @@ foreach($node->embed_links as $two){
       'nid'=> $two["nid"],
       'titre'=> $two["title"],
       'type'=> 'wally_videoobject',
-      'thumb'=>$two["thumb"],
+      'thumbnail'=>$two["thumb"],
       'content'=>$two["content"],
       'module'=>$two["module"],
       'provider'=>$two["provider"]
@@ -255,8 +259,12 @@ foreach($node->embed_links as $two){
                 if($preset_id!=0){
                   $preset=imagecache_preset($preset_id);
                   $presetname=$preset["presetname"];
+                  $url = '';
+                  if ($embed_one["fullpath"] != ""){
+                    $url = imagecache_create_path($presetname, $embed_one["fullpath"]);
+                  }
                   $photoobject['crop'][$presetname]= array(
-                      'url'=> ($base_url."/sites/default/files/imagecache/". $presetname."/".$embed_one["fullpath"])
+                    'url' => $url,
                   );
                 }
               }
