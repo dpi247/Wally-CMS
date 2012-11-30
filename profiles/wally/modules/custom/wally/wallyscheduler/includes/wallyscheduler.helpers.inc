@@ -31,7 +31,7 @@ function _wallyscheduler_process_switchcheck(){
 	
 	
   //if the snapshot id is not the one in the stored variable, we make the switch
-  if (wally_variable_set('wallyscheduler_production',NULL) != $snapshot_id){
+  if (wally_variable_get('wallyscheduler_production',NULL) != $snapshot_id){
     _wallyscheduler_process_switch($snapshot_id);
   }
 }
