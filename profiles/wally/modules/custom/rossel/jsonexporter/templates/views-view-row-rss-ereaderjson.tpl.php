@@ -115,7 +115,7 @@ foreach($node->field_embededobjects_nodes as $one){
             $presetname=$preset["presetname"];
             $url = '';
             if ($embed_one["fullpath"] != ""){
-              $url = imagecache_create_path($presetname, $embed_one["fullpath"]);
+              $url = $base_url.'/'.imagecache_create_path($presetname, $embed_one["fullpath"]);
             }
             $photoobject['crop'][$presetname]= array(
               'url' => $url,
@@ -261,7 +261,7 @@ foreach($node->embed_links as $two){
                   $presetname=$preset["presetname"];
                   $url = '';
                   if ($embed_one["fullpath"] != ""){
-                    $url = imagecache_create_path($presetname, $embed_one["fullpath"]);
+                    $url = $base_url.'/'.imagecache_create_path($presetname, $embed_one["fullpath"]);
                   }
                   $photoobject['crop'][$presetname]= array(
                     'url' => $url,
