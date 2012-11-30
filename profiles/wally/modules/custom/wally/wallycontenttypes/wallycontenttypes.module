@@ -888,8 +888,20 @@ function wallycontenttypes_cron() {
             cckdestinations_force_dnc($node);
             node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
+            
+            
+            $form_date = date_make_date($obj->field_unpublishdate_value, 'UTC');
+            $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
+            $form_date = unserialize(serialize($form_date));
+            $safe_unpublish_date = $form_date->date;
+            if(date("d-m-Y",strtotime($safe_unpublish_date))==date("d-m-Y")){
+            	$still_need_this_row=TRUE;
+            }
+            
           }
         }
+        
+        
       }
       
       //node to unpublish
@@ -907,9 +919,13 @@ function wallycontenttypes_cron() {
           }
         }
       }
-
-      //delete node from the temp table
-      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
+      if($still_need_this_row==TRUE){      	 
+      	db_query("UPDATE {wallycontenttypes_temp_nodetopublish} SET status = 1 WHERE nid = %d", $obj->nid);
+      }else{
+      	//delete node from the temp table
+      	db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
+      	 
+      }
     }
 
     $return .= '</br>';
