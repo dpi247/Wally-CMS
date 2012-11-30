@@ -70,6 +70,7 @@ function wallytoolbox_schema() {
       	'size' => 'big',
       	'not null' => TRUE,
         'default' => '',
+        'serialize' => TRUE,
       ),
       'last_run' => array(
       	'type' => 'int',
@@ -183,17 +184,5 @@ function wallytoolbox_update_6006() {
   $schemas = wallytoolbox_schema();
   $spec = $schemas['wallytoolbox_content_types_cache']['fields']['callback'];
   db_add_field($ret, 'wallytoolbox_content_types_cache', 'callback', $spec);
-  return $ret;
-}
-
-/**
- * Implementation of hook_update_N
- * Add runable column to wallytoolbox_content_types_cache table
- */
-function wallytoolbox_update_6007() {
-  $ret = array();
-  $schemas = wallytoolbox_schema();
-  $spec = $schemas['wallytoolbox_content_types_cache']['fields']['runable'];
-  db_add_field($ret, 'wallytoolbox_content_types_cache', 'runable', $spec);
   return $ret;
 }

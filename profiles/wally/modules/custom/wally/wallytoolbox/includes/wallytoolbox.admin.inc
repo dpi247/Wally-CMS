@@ -19,10 +19,11 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
   );
   
   $pages = page_manager_get_tasks_by_type('page');
+
   $page_options = array();
   $page_options['any'] = t('Any');
   foreach ($pages as $page_name => $page_infos) {
-    $page_options[$page_name] = $page_name;
+    $page_options[$page_name] = $page_infos['admin title'] ? $page_infos['admin title'] : $page_infos['title'];
   }
   $form['go_to']['page'] = array(
     '#type' => 'select',
@@ -88,12 +89,7 @@ function wallytoolbox_supercron_settings_form ($form_state, $page = NULL, $block
         '#type' => 'checkbox',
         '#default_value' => $block['enabled'],
       );
-      
-      $form['rows'][$block['cid']]['runable'] = array(
-        '#type' => 'value',
-        '#value' => $block['runable'],
-      );
-      
+
       $form['rows'][$block['cid']]['rule']=array(
         '#type' => 'textfield',
         '#size' => 10,
@@ -153,20 +149,31 @@ function theme_wallytoolbox_supercron_settings_form($form) {
   $header[] = t('Enabled');
   $header[] = t('Run frequency (min)');
   $header[] = t('Weight');
-dsm($form);
+  
+  $pages = page_manager_get_tasks_by_type('page');
+  ctools_include('context');
+
   foreach (element_children($form['rows']) as $cid) {
     $form_row = &$form['rows'][$cid];
     $expl_cid = explode(':', $cid);
     
+    $actions = l('<img src="/'.drupal_get_path('module', 'wallytoolbox').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('html' => TRUE, 'query' => 'destination='.$_GET['q']));
+    $actions .= ($expl_cid[2] != $expl_cid[3]) ? ' <div class="form-item" style="padding:0;float:right;">
+        <img src="/'.drupal_get_path('module', 'wallytoolbox').'/images/help.png" alt="'.t('Help').'" title="'.t('Help').'">
+        <div class="description" style="max-width:none;">'.t('This is a reusable block, any changes to its properties will be applied to each instance of the block.').'</div>
+      </div>' : '';
+    
+    $page = page_manager_get_page_cache($expl_cid[0]);
+
     $row = array();
     $row[] = '';
-    $row[] = $form_row['runable']['#value'] ? l('<img src="/'.drupal_get_path('module', 'supercron').'/images/cog_go.png" alt="'.t('Run').'" title="'.t('Run').'">', 'admin/wally/wallytoolbox/supercron/call/'.$cid, array('html' => TRUE, 'query' => 'destination='.$_GET['q'])) : '';
-    $row[] = check_plain($expl_cid[0]);
-    $row[] = check_plain($expl_cid[1]);
-    $row[] = check_plain($expl_cid[2]);
-    $row[] = check_plain($expl_cid[3]);
-    $row[] = check_plain($expl_cid[4]);
-    $row[] = check_plain($expl_cid[5]);
+    $row[] = $actions;
+    $row[] = $pages[$expl_cid[0]]['admin title'] ? $pages[$expl_cid[0]]['admin title'] : $pages[$expl_cid[0]]['title'];
+    $row[] = $page->handlers[$expl_cid[1]]->conf['title'];
+    $row[] = $expl_cid[2];
+    $row[] = $expl_cid[3];
+    $row[] = $expl_cid[4];
+    $row[] = $expl_cid[5];
     $row[] = _wallytoolbox_get_setting($form_row['settings']['#value'], 'title', '');
     $row[] = $form_row['last_run']['#value'] ? date('Y-m-d H:i:s', $form_row['last_run']['#value']) : t('never');
     $row[] = l(t('Output'), 'admin/wally/wallytoolbox/supercron/output/'.$cid);
@@ -204,14 +211,46 @@ function wallytoolbox_supercron_settings_form_validate($form, &$form_state) {
  */
 function wallytoolbox_supercron_settings_form_submit($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
-    if ($row['rule'] != _wallytoolbox_get_setting($row['settings'], 'wally_rule')) {
+    list($a, $b, $type, $subtype, $e, $pid) = explode(':', $row['cid']);
+    dsm($row['cid']);
+    dsm($type);
+    dsm($subtype);
+    dsm($row['settings'], $row['rule']);
+    if ($row['rule'] != $form['rows'][$row['cid']]['rule']['#default_value']) {
       _wallytoolbox_set_setting($row['settings'], 'wally_rule', $row['rule']);
-      list($a, $b, $c, $d, $e, $pid) = explode(':', $row['cid']);
-      db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE pid = %d", serialize($row['settings']), $pid);
+      dsm($row['cid']);
+      if ($type == $subtype) {
+        db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE pid = %d", serialize($row['settings']), $pid);
+      } else {
+        dsm($row['settings'],$row['cid'].' '.$row['rule']);
+        db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE type = '%s' AND subtype = '%s'", serialize($row['settings']), $type, $subtype);
+      }
     }
     
     $row['rule'] *= 60;
-    drupal_write_record('wallytoolbox_content_types_cache', $row, 'cid');
+    if ($type == $subtype) {
+      drupal_write_record('wallytoolbox_content_types_cache', $row, 'cid');
+    } else {
+      $query_values = array();
+      $query_args = array();
+      if ($row['enabled'] != $form['rows'][$row['cid']]['enabled']['#default_value']) {
+        $query_values[] = 'enabled = %d';
+        $query_args[] = $row['enabled'];
+      }
+      if ($row['weight'] != $form['rows'][$row['cid']]['weight']['#default_value']) {
+        $query_values[] = 'weight = %d';
+        $query_args[] = $row['weight'];
+      }
+      if ($row['rule']/60 != $form['rows'][$row['cid']]['rule']['#default_value']) {
+        $query_values[] = 'rule = %d';
+        $query_args[] = $row['rule'];
+      }
+      $query_args[] = $type;
+      $query_args[] = $subtype;
+      if (!empty($query_values)) {
+        db_query("UPDATE {wallytoolbox_content_types_cache} SET ".implode($query_values, ', ')." WHERE cid LIKE '%%:%%:%s:%s:%%:%%'", $query_args);
+      }
+    }
   }
   
   drupal_set_message(t('Configuration saved'));
@@ -242,11 +281,18 @@ function wallytoolbox_supercron_output($cid) {
   $output = db_fetch_array(db_query('SELECT output FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid));
   drupal_set_title(drupal_get_title().' '.$cid);
   $unser_output = unserialize($output['output']);
+  dsm($unser_output);
   $to_print = '';
   foreach ($unser_output as $out_time => $out) {
     $item_to_print = '<b>On '.date('Y-m-d H:i:s', $out_time).' :</b><br>';
     foreach ($out as $out_id => $out_message) {
-      $item_to_print .= $out_message.'<br>';
+      if (is_array($out_message)) {
+        foreach ($out_message as $out_mess) {
+          $item_to_print .= $out_mess.'<br>';
+        }
+      } else {
+        $item_to_print .= $out_message.'<br>';
+      }
     }
     $item_to_print .= '<br>';
     $to_print = $item_to_print.$to_print;
@@ -265,31 +311,56 @@ function wallytoolbox_supercron_call($cid) {
   }
   
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  
+  $processed = $output = array();
 
   while ($block = db_fetch_array($blocks_list)) {
-    if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
-      $block['settings'] = unserialize($block['settings']);
+    $cid = $block['cid'];
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
+    $multiple_id = ($type == $subtype) ? $cid : $type.'::'.$subtype;
+
+    if (!in_array($multiple_id, $processed)) {
+      $processed[] = $multiple_id;
+
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
+        $block['callback'] = unserialize($block['callback']);
+      }
+      
+      wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
+      $tmp_output = _wallytoolbox_process_block_refresh($block);
+      if (is_string($tmp_output)) {
+        $output[] = $tmp_output;
+      } elseif (is_array($tmp_output)) {
+        $output += $tmp_output;
+      }
+      $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
+      $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
+      $formatted = $d->format('i:s.u');
+      
+      list($a, $b, $type, $subtype, $c, $d) = explode(':', $block['cid']);
+      
+      if (!empty($output)) {
+        $output[] = 'Runtime : '.$formatted;
+        $block['output'] = unserialize($block['output']);
+        $block['output'][time()] = $output;
+        $block['output'] = array_slice($block['output'], -50, 50, TRUE);
+        if ($type == $subtype) {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
+        } else {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', serialize($block['output']), $type, $subtype);
+        }
+      }
+      $block['last_run'] = time();
+      if ($type == $subtype) {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
+      } else {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', $block['last_run'], $type, $subtype);
+      }
     }
-    if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
-      $block['callback'] = unserialize($block['callback']);
-    }
-    
-    wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
-    $output = _wallytoolbox_process_block_refresh($block);
-    $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
-    $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
-    $formatted = $d->format('i:s.u');
-    
-    if (!empty($output)) {
-      $output[] = 'Runtime : '.$formatted;
-      $block['output'] = unserialize($block['output']);
-      $block['output'][time()] = $output;
-      $block['output'] = array_slice($block['output'], -50, 50, TRUE);
-      db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
-    }
-    $block['last_run'] = time();
-    db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
   }
 
   $redirect = isset($_GET['destination']) ? $_GET['destination'] : 'admin/wally/wallytoolbox/supercron';

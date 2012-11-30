@@ -184,16 +184,6 @@ function wallyextra_form_ctools_export_ui_edit_item_form_alter_submit($form, &$f
 }
 
 function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
-  $existing_cid = array();
-
-  if ($build_type != 'full') {
-    $db_blocks = db_query("SELECT cid FROM {wallytoolbox_content_types_cache}");
-    while ($res_block = db_fetch_array($db_blocks)) {
-      list($a, $b, $tmp_type, $tmp_subtype, $c, $d) = explode(':', $res_block['cid']);
-      $existing_cid[] = $tmp_type.'@@'.$tmp_subtype;
-    }
-  }
-
   $handled_plugins = array('flowmix', 'remotehtml', 'rssmixread');
   foreach ($blocks as $cid => $block) {
     list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
@@ -207,13 +197,6 @@ function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
             $blocks[$cid]['settings'] = array('flow_obj' => $reus_settings->settings);
           }
         }
-      }
-      
-      if (in_array($type.'@@'.$subtype, $existing_cid, TRUE)) {
-        $blocks[$cid] = $existing_cid[$type.'@@'.$subtype];
-        $blocks[$cid]['runable'] = 0;
-      } else {
-        $existing_cid[$type.'@@'.$subtype] = $block;
       }
     }
   }
@@ -473,8 +456,6 @@ function wallyextra_rate_templates() {
  * Implementation of hook_refresh_block()
  */
 function wallyextra_refresh_block($infos, $settings) {
-  $return = array();
-  
   $plugin = $infos['type'];
   $handled_plugins = array('rssmixread', 'flowmix', 'remotehtml');
 
@@ -483,10 +464,9 @@ function wallyextra_refresh_block($infos, $settings) {
     module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
     $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
     $plugin_return = $refresh_function($settings);
-    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => $settings['caid'], '!date' => date('Y-m-d H:i:s')));
+    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => _wallytoolbox_get_setting($settings, 'caid', 'unknown'), '!date' => date('Y-m-d H:i:s')));
     $output .= !empty($plugin_return) ? $plugin_return : '';
-    $return[] = $output;
-    return $return;
+    return $output;
   }
 
   return;
@@ -523,12 +503,18 @@ function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $c
       if (($subtype == $cid) || $caid == $cid) {
         // We need to store these informations to be able to use the callback
         $callback_array = array(
-            'callback' => $callback,
-            'plugin' => $plugin_name,
-            'cid' => $cid,
-            'table' => 'cache_wally_blocks',
+          'callback' => $callback,
+          'plugin' => $plugin_name,
+          'cid' => $cid,
+          'table' => 'cache_wally_blocks',
         );
-        db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
+        
+        list($a, $b, $type, $subtype, $c, $d) = explode(':', $block['cid']);
+        if ($type == $subtype) {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
+        } else {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', serialize($callback_array), $type, $subtype);
+        }
       }
     }
   }
