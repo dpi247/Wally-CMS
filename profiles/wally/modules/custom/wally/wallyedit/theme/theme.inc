@@ -343,6 +343,7 @@ function theme_wydit_selector_theme($form) {
   $output = theme('table', $header, $rows, array('id' => $table_id));
   $output .= drupal_render($form['add_existing']);
   $output .= drupal_render($form['add_new']);
+  $output .= drupal_render($form['batch_import']);
 
   return  $output;
 }
