@@ -191,13 +191,50 @@ function _jsonexporter_sections_product_data($product) {
       $term  = taxonomy_get_term($destination["tid"]);
       $json_item["id"] = $destination["tid"].$destination["target"];
       $json_item["label"] = $term->name;
+      $json_item["publabel"] = _jsonexporter_clean_string($term->name);
       $json_item["feed"] = "/feed/".$destination["tid"]."/".$destination["target"]."/".$product->pid."?format=ereaderjson";
       $json["sections"][] = $json_item;
     }
   }
   return $json;
 }
-
+/**
+ * Clean the title for the publabel
+ * */
+function _jsonexporter_clean_string($string){
+  $content = str_replace(' ', '-', $string);
+  $content = strtolower($content);
+  $content = str_replace(
+  array(
+				'à', 'â', 'ä', 'á', 'ã', 'å',
+				'î', 'ï', 'ì', 'í', 
+				'ô', 'ö', 'ò', 'ó', 'õ', 'ø', 
+				'ù', 'û', 'ü', 'ú', 
+				'é', 'è', 'ê', 'ë', 
+				'ç', 'ÿ', 'ñ',
+				'À', 'Â', 'Ä', 'Á', 'Ã', 'Å',
+				'Î', 'Ï', 'Ì', 'Í', 
+				'Ô', 'Ö', 'Ò', 'Ó', 'Õ', 'Ø', 
+				'Ù', 'Û', 'Ü', 'Ú', 
+				'É', 'È', 'Ê', 'Ë', 
+				'Ç', 'Ÿ', 'Ñ'
+  ),
+  array(
+				'a', 'a', 'a', 'a', 'a', 'a', 
+				'i', 'i', 'i', 'i', 
+				'o', 'o', 'o', 'o', 'o', 'o', 
+				'u', 'u', 'u', 'u', 
+				'e', 'e', 'e', 'e', 
+				'c', 'y', 'n', 
+				'A', 'A', 'A', 'A', 'A', 'A', 
+				'I', 'I', 'I', 'I', 
+				'O', 'O', 'O', 'O', 'O', 'O', 
+				'U', 'U', 'U', 'U', 
+				'E', 'E', 'E', 'E', 
+				'C', 'Y', 'N'
+  ), $content);
+  return $content;
+}
 /**
  * Generate an array, this array is compatible with waited JSON format
  */
