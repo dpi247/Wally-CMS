@@ -61,7 +61,10 @@ function jsonexporter_page_product_form($form_state, $edit_id = NULL){
 
   // Configurations to retrieve elements in the form, necessary for the "add new" and "remove" operations
   $form['jsonexporter']['#tree'] = TRUE;
-  $form['jsonexporter']['field_destinations'][0]['#type_name'] = 'jsonexporter';
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  foreach (wallytoolbox_element_children_numeric($form['jsonexporter']['field_destinations']) as $dest_id) {
+    $form['jsonexporter']['field_destinations'][$dest_id]['#type_name'] = 'jsonexporter';
+  }
   $form['jsonexporter']['field_destinations']['field_destinations_add_more']['#submit'][0] = 'cckdestinations_add_more_submit_proxy';
   $form['jsonexporter']['field_destinations']['field_destinations_add_more']['#ahah']['path'] = str_replace('//', '/', 'cckdestinations/js_add_more/jsonexporter/field_destinations/jsonexporter/field_destinations');
   $form['jsonexporter']['field_destinations']['#parents'] = array('jsonexporter', 'field_destinations');
