@@ -131,7 +131,7 @@ function wallypressfilters_filter($op, $delta = 0, $format = -1, $text = '') {
       return wallypressfilters_filter_process($delta, $text, $format);
 
     case 'no cache':  
-	    return TRUE; //doit etre à FALSE en production
+	    return FALSE; //doit etre à FALSE en production
 
     case 'settings':
       return wallypressfilters_form_filter_settings_form($delta, $format);
@@ -273,7 +273,12 @@ function wallypressfilters_gettagsfromfilterandformat_admin($filter_name, $forma
  *   an array containing all the tag of the filter
  */
 function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
-  $result = db_query("SELECT MAX( t.tid ) , t.filter, t.format, t.type, t.tag, t.description, t.settings
+  static $tags;
+  if(isset($tags[$filter_name][$format])){
+	return $tags[$filter_name][$format];
+  }
+  else{
+  	$result = db_query("SELECT MAX( t.tid ) , t.filter, t.format, t.type, t.tag, t.description, t.settings
                       FROM {wallypressfilters_tags} t
                       WHERE t.filter = '%s'
                       AND (t.format = %d)
@@ -281,12 +286,13 @@ function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
                       ORDER BY weight ASC
                       ", $filter_name, $format);
 
-  $tags = array();
-  while ($obj = db_fetch_object($result)){
-    $obj->settings = unserialize($obj->settings);
-    $tags[] = $obj;
+	$tags[$filter_name][$format] = array();
+	while ($obj = db_fetch_object($result)){
+	  $obj->settings = unserialize($obj->settings);
+	  $tags[$filter_name][$format][] = $obj;
+	}
   }
-  return $tags;
+  return $tags[$filter_name][$format];
 }
 
 /**
