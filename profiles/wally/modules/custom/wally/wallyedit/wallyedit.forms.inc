@@ -538,7 +538,7 @@ function wydit_form_nodetypeselector_form(&$form_state) {
     '#name' => 'cancel_global',
     '#value' => t('Cancel'),
     '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-    '#next_parents' => array_slice($parents, 0, sizeof($parents) - 2),
+    '#next_parents' => array_slice($parents, 0, -2),
   );
   
   $form['next'] = array(
@@ -688,7 +688,7 @@ function wydit_form_batchimportselector_form ($form_state) {
     '#type' => 'submit',
     '#wydit_op_type' => 'action',
     '#value' => t('Save'),
-    '#name' => 'save_batch_upload',
+    '#name' => 'save_batch_upload__'.$parents[count($parents)-1],
     '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
     '#next_parents' => array_slice($parents, 0, -1),
   );
@@ -1061,7 +1061,7 @@ function wydit_form_submit_action_add_existing($form_state) {
     $type_name = $form_state['type'];
     $cache_name = $form_state['cache name'];
     if (sizeof($parents) > 3) {
-      $tmp_parents = array_slice($parents, 0, sizeof($parents) - 1);
+      $tmp_parents = array_slice($parents, 0, -1);
       $tmp_parents[sizeof($tmp_parents)] = 'type';
       $field_type = wydit_get_target_from_parents($form_state, $tmp_parents);
       $ref_parents = array_merge(array($field_type), array_slice($parents, sizeof($parents) - 1));
@@ -1180,7 +1180,6 @@ function wydit_form_submit_action_save_batch_upload($form_state) {
   $commands = array();
   
   $parents = $form_state['parents'];
-  var_dump($parents);
   $values = &$form_state['values'];
   $input = $form_state['input'];
   $i=0;
@@ -1195,15 +1194,15 @@ function wydit_form_submit_action_save_batch_upload($form_state) {
           $new_object['field_externalreference'] = array(
             array('value' => 'WallyEdit_batch_'.time().'_'.$in_val['basename']),
           );
-          $new_object['summary'] = array(
+          $new_object['field_summary'] = array(
             array(
               'value' => $in_val['caption'],
               'format' => variable_get('filter_default_format', 1),
             ),
           );
           if ($photofile = wydit_create_file('wally_photoobject', 'field_photofile', $in_val['path'], $in_val['basename'])) {
-            $new_object['field_photofile'] = (array)$photofile;
-            $new_object['field_photofile']['data'] = array(
+            $new_object['field_photofile'][] = (array)$photofile;
+            $new_object['field_photofile'][0]['data'] = array(
               'title' => $in_val['title'],
               'alt' => $in_val['caption'],
             );
@@ -1213,9 +1212,12 @@ function wydit_form_submit_action_save_batch_upload($form_state) {
       }
       
       if (!empty($new_object)) {
-        wydit_add_elem_at_target($values, $new_object, $parents, TRUE);
+        list($a, $target_parent) = explode('__', $form_state['clicked_button']['#name']);
+        $target_parents = $parents;
+        $target_parents[] = $target_parent;
+        wydit_add_elem_at_target($values, $new_object, $target_parents, TRUE);
         $object_new_object = array('#node' => (object)$new_object);
-        wydit_add_elem_at_target($form_state, $object_new_object, $parents, TRUE);
+        wydit_add_elem_at_target($form_state, $object_new_object, $target_parents, TRUE);
       }
     }
   }
@@ -1804,23 +1806,24 @@ function wydit_create_file($type, $field_name, $src, $file_name) {
   $dest = filefield_widget_file_path($field);
   $dest_path = $dest.'/'.$file_name;
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  $orig_src = $src;
   
-  if (!file_check_directory_recursive($dest, 1) || !@copy($src, $dest_path)) {
-    watchdog('WallyEdit file', t('File copy from @from to @to failed', array('@from' => $src, '@to' => $dest)), array(), WATCHDOG_ERROR);
+  if (!file_check_directory_recursive($dest, 1) || !file_copy($src, $dest_path)) {
+    watchdog('WallyEdit file', t('File copy from @from to @to failed', array('@from' => $orig_src, '@to' => $dest)), array(), WATCHDOG_ERROR);
   } else {
     global $user;
     $uid = $user->uid;
     
     $file = new stdClass();
     $file->filename = $file_name;
-    $file->filepath = $dest_path;
-    $file->filemime = file_get_mimetype($dest_path);
-    $file->filesize = filesize($dest_path);
+    $file->filepath = $src;
+    $file->filemime = file_get_mimetype($src);
+    $file->filesize = filesize($src);
     $file->uid = $uid;
-    $file->status = FILE_STATUS_PERMANENT;
+    $file->status = FILE_STATUS_TEMPORARY;
     $file->timestamp = time();
     drupal_write_record('files', $file);
-    $return = field_file_load($dest_path);
+    $return = field_file_load($src);
     return $return;
   }
   
