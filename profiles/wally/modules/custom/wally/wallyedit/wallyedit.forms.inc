@@ -123,8 +123,7 @@ function wallyedit_form_node_edition_form(&$form_state) {
 function wallyedit_form_node_form_validate(&$form, &$form_state) {
   $commands = array();
 
-  $action = split('__', $form_state['clicked_button']['#name']);
-  $action = $action[0];
+  list($action, $b) = explode('__', $form_state['clicked_button']['#name'], 2);
   $function_name = 'wydit_form_validate_action_'.$action;
   if (function_exists($function_name)) {
     $args = array($form_state);
@@ -153,18 +152,19 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
   }
 
   if ($form_state['clicked_button']['#wydit_op_type'] == 'pre_treat') {
-    $pre_treat_function_name = 'wydit_form_submit_action_'.$form_state['clicked_button']['#name'];
+    list($action, $b) = explode('__', $form_state['clicked_button']['#name'], 2);
+    $pre_treat_function_name = 'wydit_form_submit_action_'.$action;
     if (function_exists($pre_treat_function_name)) {
       $pre_treat_function_name($form_state);
       return;
     }
   } elseif ($form_state['clicked_button']['#wydit_op_type'] == 'action') {
     //This is the important line !!!
+    
     wydit_form_node_main_treatment_submit($form_state);
-
+    
     $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
-    $action = split('__', $form_state['clicked_button']['#name']);
-    $action = $action[0];
+    list($action, $b) = explode('__', $form_state['clicked_button']['#name'], 2);
     $function_name = 'wydit_form_submit_action_'.$action;
     if (function_exists($function_name)) {
       $args = array(&$form_state);
@@ -401,7 +401,7 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
 	$form['add_existing'] = array(
 	  '#type' => 'submit',
 	  '#wydit_op_type' => 'action',
-	  '#value' => 'add existing one',
+	  '#value' => t('Add existing one'),
 	  '#name' => 'add_existing__'.$parents[count($parents)-1],
 	  '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
 	  '#next_parents' => $parents,
@@ -413,12 +413,28 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
   $form['add_new'] = array(
     '#type' => 'submit',
     '#wydit_op_type' => 'action',
-    '#value' => 'add new one',
+    '#value' => t('Add new one'),
     '#name' => 'add_new__'.$parents[count($parents)-1],
     '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
     '#next_parents' => array_merge($parents, array($new_key)),
     '#skip validation' => TRUE,
   );
+
+  if ($element == 'field_embededobjects') {
+    if (module_exists('jquery_update')) {
+      $form['batch_import'] = array(
+        '#type' => 'submit',
+        '#wydit_op_type' => 'action',
+        '#value' => t('Batch import'),
+        '#name' => 'batch_import__'.$parents[count($parents)-1],
+        '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+        '#next_parents' => $parents,
+        '#skip validation' => TRUE,
+      );
+    } else {
+      drupal_set_message(t('Install jquery update module to use the batch upload feature.'), 'notice');
+    }
+  }
   
   $form_element = array_merge(array('#parents' => $form_element['#parents']), $form);
 }
@@ -514,6 +530,8 @@ function wydit_form_nodetypeselector_form(&$form_state) {
       $options[$type] = $content_types[$type]->name;
     }
   }
+  
+  $form = array();
 
   $form['type'] = array(
     '#type' => 'radios',
@@ -527,7 +545,7 @@ function wydit_form_nodetypeselector_form(&$form_state) {
     '#name' => 'cancel_global',
     '#value' => t('Cancel'),
     '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-    '#next_parents' => array_slice($parents, 0, sizeof($parents) - 2),
+    '#next_parents' => array_slice($parents, 0, -2),
   );
   
   $form['next'] = array(
@@ -556,6 +574,185 @@ function wydit_form_nodetypeselector_form(&$form_state) {
     $form['#action'] = $form_state['action'];
   }
 
+  return $form;
+}
+
+function wydit_form_batchimport_form(&$form_state) {
+  wydit_ctools_include();
+  
+  $parents = wydit_get_parents_from_form_state($form_state);
+  
+  $form = array();
+  $form['#attributes'] = array('enctype' => 'multipart/form-data');
+  
+  $form['zipped_file'] = array(
+    '#type' => 'file',
+    '#title' => t('Choose a zip file to upload'),
+    '#name' => 'zipped_file',
+  );
+  
+  $form['batch_upload_zip'] = array(
+    '#type' => 'submit',
+    '#wydit_op_type' => 'pre_treat',
+    '#value' => t('Upload'),
+    '#name' => 'batch_upload_zip',
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#next_parents' => $parents,
+  );
+
+  $form['cancel_global'] = array(
+    '#type' => 'submit',
+    '#wydit_op_type' => 'pre_treat',
+    '#name' => 'cancel_global',
+    '#value' => t('Cancel'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#next_parents' => array_slice($parents, 0, -1),
+  );
+  
+  $form['profile_id'] = array('#value' => $current_profile);
+  $form['#tree'] = TRUE;
+  $form['#no_cache'] = TRUE;
+  $form['#validate'] = array('wallyedit_form_node_form_validate');
+  $form['#submit'] = array('wallyedit_form_node_form_submit');
+  if ($form_state['action']) {
+    $form['#action'] = $form_state['action'];
+  }
+  
+  return $form;
+}
+
+function wydit_form_batchimportselector_form ($form_state) {
+  wydit_ctools_include();
+  $parents = wydit_get_parents_from_form_state($form_state);
+  $form = array();
+  
+  $post_file = $_FILES['zipped_file'];
+  if (file_exists($post_file['tmp_name'])) {
+    $filename = $post_file['name'];
+    $tmp_path = $post_file['tmp_name'];
+    $object_file = new stdClass();
+    $object_file->name = $filename;
+    $object_file->filename = $tmp_path;
+    $object_file->basename = $tmp_path;
+    $return = array();
+    $zipped_objects = wydit_preprocess_batch_upload_zip($object_file, $return);
+  
+    if ($return['error']) {
+      drupal_set_message($return['error_msg'], 'error');
+    } else {
+      $allowed_extensions = array(
+        'photo' => array(),
+      );
+      $photo_field = content_fields('field_photofile', 'wally_photoobject');
+      if ($photo_field) {
+        $allowed_extensions['photo'] = explode(' ', strtolower($photo_field['widget']['file_extensions']));
+      }
+      
+      foreach ($zipped_objects as $zip_id => $zipped_object) {
+        $form_pic = array();
+        
+        switch ($zipped_object->type) {
+          case 'photo':
+            $file_ext = strtolower(pathinfo($zipped_object->filename, PATHINFO_EXTENSION));
+            if (in_array($file_ext, $allowed_extensions['photo'])) {
+              $form_pic['thumb'] = array(
+                '#type' => 'markup',
+                '#value' => '<img src="/'.$zipped_object->filename.'" width="100px" />',
+                '#weight' => 1,
+              );
+              
+              $form_pic['title'] = array(
+                '#type' => 'textfield',
+                '#title' => t('Title'),
+                '#default_value' => $zipped_object->name,
+                '#size' => 30,
+                '#keep_size' => TRUE,
+                '#required' => TRUE,
+                '#weight' => 2,
+              );
+              
+              $form_pic['caption'] = array(
+                '#type' => 'textfield',
+                '#title' => t('Summary'),
+                '#default_value' => $zipped_object->name,
+                '#size' => 60,
+                '#keep_size' => TRUE,
+                '#weight' => 3,
+              );
+            } else {
+              drupal_set_message(t('The extension !extension is not allowed', array('!extension' => $file_ext)), 'error');
+            }
+
+            break;
+        }
+        
+        if (!empty($form_pic)) {
+          $form_pic['#type'] = 'fieldset';
+          $form_pic['#title'] = $zipped_object->basename;
+          $form_pic['#collapsible'] = FALSE;
+          
+          $form_pic['selected'] = array(
+            '#type' => 'checkbox',
+            '#title' => '',
+            '#default_value' => 1,
+            '#weight' => 0,
+          );
+          
+          $form_pic['path'] = array(
+            '#type' => 'hidden',
+            '#value' => $zipped_object->filename,
+          );
+          
+          $form_pic['basename'] = array(
+            '#type' => 'hidden',
+            '#value' => $zipped_object->basename,
+          );
+          
+          $form_pic['type'] = array(
+            '#type' => 'hidden',
+            '#value' => $zipped_object->type,
+          );
+          
+          $form['picture_'.$zip_id] = $form_pic;
+        }
+      }
+    }
+    
+    $temp_subdir = strstr($filename, '.zip') ? str_replace('.zip', '', $filename) : $filename;
+    $temp_subdir = file_directory_path().'/tmp_batch_upload/'.$temp_subdir;
+    $form['zip_tmp_dir'] = array(
+      '#type' => 'hidden',
+      '#value' => $temp_subdir,
+    );
+  }
+  
+  $form['save_batch_upload'] = array(
+    '#type' => 'submit',
+    '#wydit_op_type' => 'pre_treat',
+    '#value' => t('Save'),
+    '#name' => 'save_batch_upload',
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#next_parents' => array_slice($parents, 0, -1),
+  );
+  
+  $form['cancel_global'] = array(
+    '#type' => 'submit',
+    '#wydit_op_type' => 'pre_treat',
+    '#name' => 'cancel_global',
+    '#value' => t('Cancel'),
+    '#attributes' => array('class' => 'form-submit ctools-use-ajax'),
+    '#next_parents' => array_slice($parents, 0, -1),
+  );
+  
+  $form['profile_id'] = array('#value' => $current_profile);
+  $form['#tree'] = TRUE;
+  $form['#no_cache'] = TRUE;
+  $form['#validate'] = array('wallyedit_form_node_form_validate');
+  $form['#submit'] = array('wallyedit_form_node_form_submit');
+  if ($form_state['action']) {
+    $form['#action'] = $form_state['action'];
+  }
+  
   return $form;
 }
 
@@ -635,6 +832,20 @@ function wydit_form_validate_action_next($form_state) {
   return array(FALSE, $commands);
 }
 
+function wydit_form_validate_action_batch_upload_zip($form_state) {
+  $commands = array();
+
+  if (!isset($_FILES['zipped_file']) || empty($_FILES['zipped_file']) || $_FILES['zipped_file']['error'] > 0) {
+    form_set_error('zipped_file', t('No files to import'));
+  }
+  
+  if ($_FILES['zipped_file']['type'] != 'application/zip') {
+    form_set_error('zipped_file', t('The uploaded file is not a zip file.'));
+  }
+
+  return array(FALSE, $commands);
+}
+
 function wydit_form_node_main_treatment_forced_validate($elements, &$form_state) {
   // Recurse through all children.
   foreach (element_children($elements) as $key) {
@@ -697,6 +908,7 @@ function wydit_form_submit_action_cancel_global($form_state) {
     
     $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
     $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
     if ($form_state['type'] != 'page') {
       variable_set('menu_override_parent_selector', FALSE);
     }
@@ -725,7 +937,7 @@ function wydit_form_submit_action_reset_global(&$form_state) {
 function wydit_form_node_main_treatment_submit(&$form_state) {
   wydit_ctools_include();
   $parents = wydit_get_parents_from_form_state($form_state);
-
+  
   //*********
   //Prepare form_state for input element
   //*********
@@ -770,7 +982,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
       }
     }
   }
-
+  
   $a = array();
   if (!($b = wydit_get_target_from_parents($form_state['values'], $parents))) {
     wydit_populate_form_state($a[$type_name], $node, $form_state['profile_id']);
@@ -817,7 +1029,7 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
       }
     }
   }
-
+  
   $a[$type_name]['type'] = $type_name;
   wydit_add_elem_at_target($form_state, $a[$type_name], $parents);
 }
@@ -901,7 +1113,7 @@ function wydit_form_submit_action_add_existing($form_state) {
     $type_name = $form_state['type'];
     $cache_name = $form_state['cache name'];
     if (sizeof($parents) > 3) {
-      $tmp_parents = array_slice($parents, 0, sizeof($parents) - 1);
+      $tmp_parents = array_slice($parents, 0, -1);
       $tmp_parents[sizeof($tmp_parents)] = 'type';
       $field_type = wydit_get_target_from_parents($form_state, $tmp_parents);
       $ref_parents = array_merge(array($field_type), array_slice($parents, sizeof($parents) - 1));
@@ -916,12 +1128,39 @@ function wydit_form_submit_action_add_existing($form_state) {
     $output = $view->preview();
   
     $commands[] = ctools_ajax_command_html('#wallyedit_container', $output);
+    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
   } else {
     drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
     wydit_form_reset_form_to_first_level($commands, $form_state);
   }
 
-  $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+  return $commands;
+}
+
+function wydit_form_submit_action_batch_import($form_state) {
+  $commands = array();
+  
+  $form_state['parents'] = $parents = $form_state['clicked_button']['#next_parents'];
+  $form_state_copy = $form_state;
+  if (wydit_clean_and_save_form_state($form_state_copy)) {
+    $cache_name = $form_state['cache name'];
+    $current_profile = $form_state['profile_id'];
+    $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
+    $new_form_state['action'] = '/node/'.$cache_name.'/wydit_batchimport/ajax/'.$current_profile;
+    
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', TRUE);
+    }
+    $form_batch_import = ctools_build_form('wydit_form_batchimport_form', $new_form_state);
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
+    $commands[] = ctools_ajax_command_html('#wallyedit_container', $form_batch_import);
+    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+  } else {
+    drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
+    wydit_form_reset_form_to_first_level($commands, $form_state);
+  }
 
   return $commands;
 }
@@ -951,7 +1190,6 @@ function wydit_form_submit_action_next($form_state) {
     
     $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
     $commands[] = ctools_ajax_command_html('#wallyedit_container', $new_form);
-    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
     $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
   } else {
     drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
@@ -961,11 +1199,127 @@ function wydit_form_submit_action_next($form_state) {
   return $commands;
 }
 
+function wydit_form_submit_action_batch_upload_zip($form_state) {
+  $commands = array();
+  
+  $form_state['parents'] = $parents = $form_state['clicked_button']['#next_parents'];
+  $form_state_copy = $form_state;
+  if (wydit_clean_and_save_form_state($form_state_copy)) {
+    $cache_name = $form_state['cache name'];
+    $current_profile = $form_state['profile_id'];
+    $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
+    $new_form_state['action'] = '/node/'.$cache_name.'/wydit_batchimportselector/ajax/'.$current_profile;
+    
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', TRUE);
+    }
+    $form_batch_import_selector = ctools_build_form('wydit_form_batchimportselector_form', $new_form_state);
+    if ($form_state['type'] != 'page') {
+      variable_set('menu_override_parent_selector', FALSE);
+    }
+    $commands[] = ctools_ajax_command_html('#wallyedit_container', $form_batch_import_selector);
+    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', '');
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
+  } else {
+    drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
+    wydit_form_reset_form_to_first_level($commands, $form_state);
+  }
+
+  ctools_ajax_render($commands);
+}
+
+function wydit_form_submit_action_save_batch_upload($form_state) {
+  $commands = array();
+  
+  $parents = $form_state['parents'];
+  $values = &$form_state['values'];
+  $input = $form_state['input'];
+  $i=0;
+  foreach ($input as $in_name => $in_val) {
+    if (substr($in_name, 0, 8) == 'picture_' && $in_val['selected']) {
+      $new_object = array();
+      
+      switch ($in_val['type']) {
+        case 'photo':
+          $new_object['type'] = 'wally_photoobject';
+          $new_object['title'] = $in_val['title'];
+          $new_object['field_externalreference'] = array(
+            array('value' => 'WallyEdit_batch_'.time().'_'.$in_val['basename']),
+          );
+          $new_object['field_summary'] = array(
+            array(
+              'value' => $in_val['caption'],
+              'format' => variable_get('filter_default_format', 1),
+            ),
+          );
+          if ($photofile = wydit_create_file('wally_photoobject', 'field_photofile', $in_val['path'], $in_val['basename'])) {
+            $new_object['field_photofile'][] = (array)$photofile;
+            $new_object['field_photofile'][0]['data'] = array(
+              'title' => $in_val['title'],
+              'alt' => $in_val['caption'],
+            );
+          }
+          
+          break;
+      }
+      
+      if (!empty($new_object)) {
+        wydit_add_elem_at_target($values, $new_object, $parents, TRUE);
+        $object_new_object = array('#node' => (object)$new_object);
+        wydit_add_elem_at_target($form_state, $object_new_object, $parents, TRUE);
+      }
+    }
+  }
+
+  // Remove tmp files
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  rrmdir($input['zip_tmp_dir']);
+
+  $form_state['parents'] = $parents = $form_state['clicked_button']['#next_parents'];
+  $form_state_copy = $form_state;
+  if (wydit_clean_and_save_form_state($form_state_copy)) {
+    $cache_name = $form_state['cache name'];
+    $current_profile = $form_state['profile_id'];
+    $type_name = $form_state['type'];
+    $new_form_state = wydit_get_canonical_form_state($form_state, TRUE);
+  
+    if (sizeof($new_form_state['parents']) == 1) {
+      $commands[] = ctools_ajax_command_redirect('node/'.$cache_name.'/edit2/0/'.$current_profile);
+    } else {
+      if (isset($form_state[$type_name]['#node']->nid) && $form_state[$type_name]['#node']->nid == $cache_name) {
+        $new_form_state['action'] = '/node/'.$cache_name.'/edit2/ajax/'.$current_profile;
+      } else {
+        $new_form_state['action'] = '/node/add2/'.$type_name.'/ajax/'.$current_profile.'/'.$cache_name;
+      }
+      $form = $form_prev = '';
+      
+      if ($form_state['type'] != 'page') {
+        variable_set('menu_override_parent_selector', TRUE);
+      }
+      $form = ctools_build_form('wallyedit_form_node_edition_form', $new_form_state, $current_profile);
+      if ($form_state['type'] != 'page') {
+        variable_set('menu_override_parent_selector', FALSE);
+      }
+      
+      $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
+      $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+      $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
+    }
+  } else {
+    drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
+    wydit_form_reset_form_to_first_level($commands, $form_state);
+  }
+  
+  ctools_ajax_render($commands);
+}
+
 function wydit_form_submit_action_save_global($form_state) {
   $commands = array();
 
   $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
   $form_state_copy = $form_state;
+    
   if (wydit_clean_and_save_form_state($form_state_copy)) {
     $cache_name = $form_state['cache name'];
     $current_profile = $form_state['profile_id'];
@@ -983,11 +1337,11 @@ function wydit_form_submit_action_save_global($form_state) {
       if ($form_state['type'] != 'page') {
         variable_set('menu_override_parent_selector', FALSE);
       }
+      
+      $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
+      $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
+      $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
     }
-    
-    $commands[] = ctools_ajax_command_html('#page-title h2', wydit_get_fil_ariane($form_state));
-    $commands[] = ctools_ajax_command_html('#wallyedit_container', $form);
-    $commands[] = ctools_ajax_command_html('#wallyedit_preview_container', $form_prev);
   } else {
     drupal_set_message(t('Unable to save prenode, please try again.'), 'error');
     wydit_form_reset_form_to_first_level($commands, $form_state);
@@ -1437,4 +1791,94 @@ function wydit_get_parents_from_form_state ($form_state) {
  ********************************************
  * END OF FORM AND FORM_STATE MANIPULATIONS *
  ********************************************
+ */
+
+/**
+ *****************
+ * MISCELLANEOUS *
+ *****************
+ */
+
+function wydit_preprocess_batch_upload_zip($file, &$return){
+  $zipped_objects = array();
+  $zip_error = FALSE;
+  $error_msg = FALSE;
+
+  // Unzip input file to the temp directory
+  $zip = new ZipArchive;
+  $res = $zip->open($file->filename);
+  if ($res === TRUE) {
+    $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
+    $temp_subdir = file_directory_path().'/tmp_batch_upload/'.$file_name;
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    file_check_directory_recursive($temp_subdir, 1);
+
+    if (is_dir($temp_subdir)) {
+      $zip->extractTo($temp_subdir);
+      $zipped_files = file_scan_directory($temp_subdir, '.*');
+      if (is_array($zipped_files)) {
+        foreach ($zipped_files as $zipped_file) {
+          if (strstr(mime_content_type($zipped_file->filename), 'image')) {
+            $zipped_file->type = 'photo';
+          } else {
+            $zipped_file->type = 'other';
+          }
+          $zipped_objects[] = $zipped_file;
+        }
+      }
+      
+      if (count($zipped_objects) == 0) {
+        $zip_error = TRUE;
+        $error_msg = t('No files found in the import: !file.', array('!file' => $file->basename));
+        $return = array('error' => TRUE, 'error_msg' => $error_msg);
+      }
+      
+      $zip->close();
+    } else {
+      $zip_error = TRUE;
+      $error_msg = t('Input file !file could not be unzipped to !subdir. Error code !res', array('!file' => $file->filename, '!subdir' => $temp_subdir, '!res' => $res));
+      $return = array('error' => TRUE, 'error_msg' => $error_msg);
+    }
+  } else {
+    $zip_error = TRUE;
+    $error_msg = t('Cant UnZip file: !file', array('!file' => $file->filename));
+    $return = array('error' => TRUE, 'error_msg' => $error_msg);
+  }
+
+  return $zipped_objects;
+}
+
+function wydit_create_file($type, $field_name, $src, $file_name) {
+  $field = content_fields($field_name, $type);
+  $dest = filefield_widget_file_path($field);
+  $dest_path = $dest.'/'.$file_name;
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  $orig_src = $src;
+  
+  if (!file_check_directory_recursive($dest, 1) || !file_copy($src, $dest_path)) {
+    watchdog('WallyEdit file', t('File copy from @from to @to failed', array('@from' => $orig_src, '@to' => $dest)), array(), WATCHDOG_ERROR);
+  } else {
+    global $user;
+    $uid = $user->uid;
+    
+    $file = new stdClass();
+    $file->filename = $file_name;
+    $file->filepath = $src;
+    $file->filemime = file_get_mimetype($src);
+    $file->filesize = filesize($src);
+    $file->uid = $uid;
+    $file->status = FILE_STATUS_TEMPORARY;
+    $file->timestamp = time();
+    drupal_write_record('files', $file);
+    $return = field_file_load($src);
+    return $return;
+  }
+  
+  return FALSE;
+}
+
+/**
+ ************************
+ * END OF MISCELLANEOUS *
+ ************************
  */

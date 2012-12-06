@@ -253,6 +253,24 @@ function wallyedit_menu(){
     'file' => 'includes/callback_typeselector.inc',
     'load arguments' => array('%map'),
   );
+  
+  $items['node/%prenode_arg/wydit_batchimport/%ctools_js/%'] = array(
+    'page callback' => 'wallyedit_callback_batchimport',
+    'page arguments' => array(1, 3, 4),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file' => 'includes/callback_batchimport.inc',
+    'load arguments' => array('%map'),
+  );
+  
+  $items['node/%prenode_arg/wydit_batchimportselector/%ctools_js/%'] = array(
+    'page callback' => 'wallyedit_callback_batchimportselector',
+    'page arguments' => array(1, 3, 4),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'file' => 'includes/callback_batchimportselector.inc',
+    'load arguments' => array('%map'),
+  );
 
   $items['node/%prenode_arg/deleteglobal/%'] = array(
     'page callback' => 'wallyedit_callback_delete',
@@ -578,7 +596,7 @@ function wallyedit_form_views_bulk_operations_form__1_alter(&$form, &$form_state
       '#name' => 'cancel_global',
       '#value' => t('Back to node edition'),
     	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-      '#next_parents' => array_slice($parents, 0, sizeof($parents) - 1),
+      '#next_parents' => array_slice($parents, 0, -1),
     );
   }
 }
@@ -856,7 +874,7 @@ function wallyedit_node_operations_selector_action($nodes, $context, $b, $c) {
     wydit_add_elem_at_target($form_state, $element, $next_parents, TRUE);
   }
 
-  $form_state['parents'] = array_slice($next_parents, 0, sizeof($next_parents) - 1);
+  $form_state['parents'] = array_slice($next_parents, 0, -1);
   wydit_clean_and_save_form_state($form_state);
 }
 

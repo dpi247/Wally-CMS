@@ -254,3 +254,19 @@ td.wallyedit-prenode-locked-other {
 	background: url(../images/locked-other.png) no-repeat scroll left center;
 	/* LTR */
 }
+
+/*
+BATCH UPLOAD SELECT IMAGES
+*/
+#wydit-form-batchimportselector-form div.fieldset-content div.form-item {
+  float: left;
+}
+
+#wydit-form-batchimportselector-form div.fieldset-content div.form-item-labeled {
+  width: 60%;
+}
+
+#wydit-form-batchimportselector-form div.fieldset-content img {
+  float: left;
+  margin: 10px;
+}
