@@ -596,7 +596,7 @@ function wallyedit_form_views_bulk_operations_form__1_alter(&$form, &$form_state
       '#name' => 'cancel_global',
       '#value' => t('Back to node edition'),
     	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
-      '#next_parents' => array_slice($parents, 0, sizeof($parents) - 1),
+      '#next_parents' => array_slice($parents, 0, -1),
     );
   }
 }
@@ -874,7 +874,7 @@ function wallyedit_node_operations_selector_action($nodes, $context, $b, $c) {
     wydit_add_elem_at_target($form_state, $element, $next_parents, TRUE);
   }
 
-  $form_state['parents'] = array_slice($next_parents, 0, sizeof($next_parents) - 1);
+  $form_state['parents'] = array_slice($next_parents, 0, -1);
   wydit_clean_and_save_form_state($form_state);
 }
 
