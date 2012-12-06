@@ -43,6 +43,9 @@ function wallypressfilters_schema() {
       ),
     ),
     'primary key' => array('fid'),//primary key
+  		'indexes' => array(
+  		  'name' => array('name'),
+  		),
   );
 
   $schema['wallypressfilters_tags'] = array(
@@ -98,6 +101,11 @@ function wallypressfilters_schema() {
       ),
     ),
     'primary key' => array('tid'),//primary key
+  	'indexes' => array(
+  	  'filter' => array('filter'),
+  	  'format' => array('format'),
+  	  'tag' => array('tag'),
+  	),
   );
   return $schema;
 }
@@ -174,4 +182,13 @@ function wallypressfilters_update_6003() {
   $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
   db_add_field($ret, 'wallypressfilters_tags', 'weight', $schema['fields']['weight']);
   return $ret;
+}
+
+function wallypressfilters_update_6004(){
+	$ret = array();
+	db_add_index($ret, 'wallypressfilters_tags', 'tag', array('tag'));
+	db_add_index($ret, 'wallypressfilters_tags', 'format', array('format'));
+	db_add_index($ret, 'wallypressfilters_tags', 'filter', array('filter'));
+	return $ret;
+	
 }
