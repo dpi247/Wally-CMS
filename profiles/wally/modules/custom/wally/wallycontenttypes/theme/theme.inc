@@ -4,7 +4,7 @@
  * Override of theme('textfield').
  */
 function wallycontenttypes_rubik_textfield($element) {
-  if ($element['#size'] >= 30) {
+  if ($element['#size'] >= 30 && !$element['#keep_size']) {
     $element['#size'] = '';
     $element['#attributes']['class'] = isset($element['#attributes']['class']) ? "{$element['#attributes']['class']} fluid" : "fluid";
   }
