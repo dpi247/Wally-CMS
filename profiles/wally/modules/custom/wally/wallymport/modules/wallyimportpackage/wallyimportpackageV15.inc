@@ -62,7 +62,6 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
       $prenode = new Prenode();
@@ -77,7 +76,7 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
       $log['content'] =  $content;
     } elseif (isset($node->wallymport_delete)){
-      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
+      drupal_set_message(t('The package @ext_ref has been deleted', array('@ext_ref' => $node->ext_ref)));
     } else {
       $node->wallymport_node = TRUE;
       node_save($node);
@@ -87,7 +86,7 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
     wallycontenttypes_delete_orphans_objects($node);
   }
 
-  $log['node'] = array('current' => $node,'next' => $log['node']);
+  $log['node'] = array('current' => $node, 'next' => $log['node']);
 }
 
 /**

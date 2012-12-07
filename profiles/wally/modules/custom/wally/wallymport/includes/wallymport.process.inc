@@ -384,6 +384,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
+    
     if ($nb_file == 0) {
       $format = 'xml';
       if ($importer->zip == 1){
@@ -458,7 +459,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
  * @return $xml_file (name of the xml file to process)
  */
 function wallymport_preprocess_file($file, &$importer, &$return) {
-  if ($importer->zip == 1 && strstr($file->filename, '.zip')){
+  if ($importer->zip == 1 && strstr($file->name, '.zip')){
     $xml_file = wallymport_preprocess_zip($file, $importer, $return);
   } else {
     $xml_file = $file->filename;
@@ -576,7 +577,7 @@ function wallymport_process_xmlfile($xml_file, $importer){
         $return['error_msg'] = $return['log']['error_msg'];
       }
     }
-    $return['log']['xml_content']=$dom->saveXML();
+    $return['log']['xml_content'] = $dom->saveXML();
     
   }
   return $return;
