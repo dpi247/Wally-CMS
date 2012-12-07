@@ -34,7 +34,6 @@ function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer,
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
-      $node->preview = TRUE;
     }
   }
 }
@@ -77,7 +76,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
       $prenode = new Prenode();
@@ -1006,7 +1004,7 @@ function wallyimportpackage_node_set_field_packagecopyright(&$node, $dom, &$log,
 function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_node_process($dom, $log, $importer, 'textobjecttype');
-  if (!$object->rejected) {
+  if (!$object->rejected && _wimprthelp_check_is_node($object)) {
     if ($importer->wallymport_preview) {
       $node->field_mainstory_nodes[0] = $object;
       $node->taxonomy = $object->taxonomy;
@@ -1017,15 +1015,14 @@ function wallyimportpackage_node_set_field_mainstory(&$node, $dom, &$log, $impor
       $node->field_free_tags = $object->field_free_tags;
       $node->field_concepts = $object->field_concepts;
       $node->field_iptc = $object->field_iptc;
-    }
-    if (isset($object->nid) && !empty($object->nid)) {
+    } else {
       $node->field_mainstory[0]['nid'] = $object->nid;
     }
     if (isset($object->node_term_to_save)){
       $node->node_term_to_save = $object->node_term_to_save;
     }
   } else {
-    //$node->rejected = TRUE;
+    $node->rejected = TRUE;
   }
 }
 
@@ -1051,13 +1048,12 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
       $object = wimprt_node_process($dom, $log, $importer, 'photoobjecttype');
     elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'audioobjecttype')
       $object = wimprt_node_process($dom, $log, $importer, 'audioobjecttype');
-    elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'MultimediaObjectType')
+    elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'multimediaobjecttype')
       $object = wimprt_node_process($dom, $log, $importer, 'digitalobjecttype');
     elseif (strtolower($dom->getAttributeNode('xsi:type')->value) == 'videoobjecttype')
       $object = wimprt_node_process($dom, $log, $importer, 'videoobjecttype');
-        
-    if (isset($object->nid) && !empty($object->nid) && !$object->rejected) {
-      $node->field_mainobject[0]['nid'] = $object->nid;
+    
+    if (!$object->rejected && _wimprthelp_check_is_node($object)) {
       if ($importer->wallymport_preview) {
         $node->field_mainobject_nodes[0] = $object;
         $node->taxonomy = $object->taxonomy;
@@ -1068,9 +1064,11 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
         $node->field_free_tags = $object->field_free_tags;
         $node->field_concepts = $object->field_concepts;
         $node->field_iptc = $object->field_iptc;
+      } else {
+        $node->field_mainobject[0]['nid'] = $object->nid;
       }
     } else {
-      //$node->rejected = TRUE;
+      $node->rejected = TRUE;
     }
   }
 }
@@ -1093,9 +1091,15 @@ function wallyimportpackage_node_set_field_mainobject(&$node, $dom, &$log, $impo
 function wallyimportpackage_node_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
   $object = wimprt_node_process($dom, $log, $importer, 'pollobjecttype');
-  $node->field_mainpoll[0]['nid'] = $object->nid;
-  if ($importer->wallymport_preview) {
-    $node->field_mainpoll_nodes[0] = $object;
+
+  if (!$object->rejected && _wimprthelp_check_is_node($object)) {
+    if ($importer->wallymport_preview) {
+      $node->field_mainpoll_nodes[0] = $object;
+    } else {
+      $node->field_mainpoll[0]['nid'] = $object->nid;
+    }
+  } else {
+    $node->rejected = TRUE;
   }
 }
 
@@ -2578,7 +2582,6 @@ function wallyimportpackage_node_set_field_entities(&$node, $dom, &$log, $import
  */
 function wallyimportpackage_typetype_preprocess(&$node, $dom, $importer){
   if ($importer->wallymport_preview){
-    $node->rejected = TRUE;
     $node->preview = TRUE;
   }
 }

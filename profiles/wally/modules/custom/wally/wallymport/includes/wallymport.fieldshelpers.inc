@@ -307,7 +307,9 @@ function _wimprthelp_create_file($filepath, $uid){
 }
 
 function _wimprthelp_check_is_node($node) {
-  if(isset($node->type) && !empty($node->type) && isset($node->title) && !empty($node->title)) {
+  if(isset($node->type) && !empty($node->type) &&
+     isset($node->title) && !empty($node->title) &&
+     isset($node->field_externalreference) && !empty($node->field_externalreference[0]['value'])) {
     return TRUE;
   }
   return FALSE;

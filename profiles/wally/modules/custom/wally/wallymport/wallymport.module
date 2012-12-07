@@ -403,13 +403,15 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
   module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
   if (!empty($node) && !$node->rejected && _wimprthelp_check_is_node($node)){
     $node->doNotPullUp = TRUE;
-    node_save($node);
-    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
+    if (!$importer->wallymport_preview) {
+      node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
+    }
   } else {
     $node->rejected = TRUE;
   }
 
-  $log['node'] = array('current' => $node,'next' => $log['node']);
+  $log['node'] = array('current' => $node, 'next' => $log['node']);
 
   return $node;
 }
@@ -618,11 +620,20 @@ function wimprt_check_semaphore($semaphore_name, $semaphore_period, $type) {
   }
 }
 
-function wallymport_page_test($importeur){
-  $content .= '<form enctype="multipart/form-data" action="/wallymport/post/'.$importeur.'/preview" method="POST">
+function wallymport_page_test($importer_name) {
+  $content = '';
+
+  $importer = wallymport_getimporterbyname($importer_name);
+  if ($importer == NULL) {
+    drupal_set_message(t('This importer does not exist'), 'error');
+  } elseif ($importer->processed_by_post != 1) {
+    drupal_set_message(t('This importer does not accept POST'), 'error');
+  } else {
+    $content .= '<form enctype="multipart/form-data" action="/wallymport/post/'.$importer_name.'/preview" method="POST">
         Choose a file to upload: <input name="uploadedfile" type="file" /><br />
         <input type="submit" value="Upload File" />
       </form>';
+  }
 
   return $content;
 }
