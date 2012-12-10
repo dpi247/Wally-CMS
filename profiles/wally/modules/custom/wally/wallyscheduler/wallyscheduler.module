@@ -93,7 +93,10 @@ function wallyscheduler_menu(){
 function wallyscheduler_perm(){
 
 	return array(
-	  'administer wallyscheduler',"make rollback","wallyscheduler create snapshot"		
+	  'administer wallyscheduler',
+	  'make rollback',
+	  'wallyscheduler create snapshot',
+	  'wallyscheduler delete snapshot',
 	);
 }
 
