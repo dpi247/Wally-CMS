@@ -15,4 +15,53 @@ class cckdestinations_views_handler_filter_tid extends views_handler_filter_term
     $field = $this->content_field;
     $this->value_title = $field['widget']['label'];
   }
+  
+  function value_form(&$form, &$form_state) {
+    if ($this->options['type'] == 'textfield') {
+      $vocabulary = taxonomy_vocabulary_load($this->options['vid']);
+      if (empty($vocabulary) && $this->options['limit']) {
+        $form['markup'] = array(
+          '#prefix' => '<div class="form-item">',
+          '#suffix' => '</div>',
+          '#value' => t('An invalid vocabulary is selected. Please change it in the options.'),
+        );
+        return;
+      }
+      
+      $default = '';
+      if ($this->value) {
+        $terms = array();
+        foreach ($this->value as $val_tid) {
+          $terms[] = taxonomy_get_term($val_tid);
+        }
+        $default = cckdestinations_autocomplete_merge_tags($terms, $vocabulary->vid);
+      }
+      
+      $form['value'] = array(
+        '#title' => $this->options['limit'] ? t('Select terms from vocabulary @voc', array('@voc' => $vocabulary->name)) : t('Select terms'),
+        '#type' => 'textfield',
+        '#default_value' => $default,
+      );
+      
+      if ($this->options['limit']) {
+        $form['value']['#autocomplete_path'] = 'cckdestinations/autocomplete/' . $vocabulary->vid . '/multiple';
+      }
+    } else {
+      parent::value_form($form, $form_state);
+    }
+  }
+  
+  function value_validate(&$form, &$form_state) {
+    // We only validate if they've chosen the text field style.
+    if ($this->options['type'] != 'textfield') {
+      return;
+    }
+
+    $vocabulary = taxonomy_vocabulary_load($this->options['vid']);
+    $extracted_ids = cckdestinations_autocomplete_tags_get_tids($form_state['values']['options']['value'], $vocabulary->vid, 'multiple');
+    
+    if ($extracted_ids) {
+      $form_state['values']['options']['value'] = $extracted_ids['existing_tids'];
+    }
+  }
 }
