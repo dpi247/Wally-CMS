@@ -86,11 +86,11 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
 
 /**
  * Implementation of hook_views_pre_execute()
- * Catch the view process before execution to handle MediaFed redirection.
+ * Catch the view process before query build to handle pager and MediaFed redirection
  */
-function wallyflowpublish_views_pre_execute(&$view) {
+function wallyflowpublish_views_pre_build(&$view) {
   $current_display = $view->current_display;
-  if ($view->display[$current_display]->display_plugin == 'feed' && array_key_exists('field_destinations_tid', $view->display[$current_display]->handler->handlers['argument'])) {
+  if ($view->display[$current_display]->display_plugin == 'feed' && array_key_exists('field_destinations_tid', $view->display['default']->display_options['arguments'])) {
     $tid = $view->args[0];
 
     if ($data = db_fetch_array(db_query('SELECT * FROM {wallyflowpublish_dests} WHERE tid = %d', $tid))) {
@@ -98,13 +98,27 @@ function wallyflowpublish_views_pre_execute(&$view) {
       if (method_exists($view, 'init_pager')) {
         // Views 3 version
         $view->set_items_per_page($items_limit);
+        $view->set_offset($conf['offset']);
+        
+        $pager = $view->display_handler->get_option('pager');
+        $pager['type'] = 'full';
+        $view->display_handler->set_option('pager', $pager);
+        $view->pager = $pager;
       } else {
+        $view->set_use_pager(TRUE);
+        if(isset($_GET['page']) && !empty($_GET['page']) && is_numeric($_GET['page'])) {
+          $page = $_GET['page'];
+        } else{
+          $page = 0;
+        }
+
         $view->display_handler->set_option('items_per_page', $items_limit);
         $view->set_items_per_page($items_limit);
+        $view->set_current_page($page);
         $view->pager['total_items_per_page'] = $items_limit;
         $view->pager['items_per_page'] = $items_limit;
       }
-      
+
       while (is_string($data['mediafed'])) {
         $data['mediafed'] = unserialize($data['mediafed']);
       }
