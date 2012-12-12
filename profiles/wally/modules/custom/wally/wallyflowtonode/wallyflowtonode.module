@@ -261,37 +261,41 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
       
       //$valid_dom = _wallyflowtonode_create_valid_dom_from_array($struct_array, $feed_infos);
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.arraytowallyxml');
-      $file_name = $feed_infos['flow_key'].'_'.time();
+      $xml_file_name = $feed_infos['flow_key'].'_'.time();
       $files_to_zip = array();
       $valid_dom = new DomDocument('1.0', 'UTF-8');
       wallytoolbox_arraytowallyxml($struct_array, $valid_dom, $files_to_zip);
 
       if ($valid_dom) {
         $importer = wallymport_getimporterbyname($feed_infos['importer']);
-        $tmp_folder = $importer->temp_directory_path;
+        $importer->source_directory_path = $importer_tmp_folder = $importer->temp_directory_path;
 
-        $tempFile = $tmp_folder.'/'.$file_name.'.xml';
-        $valid_dom->save($tempFile);
+        $tmp_xml_file = '/tmp/'.$xml_file_name.'.xml';
+        $valid_dom->save($tmp_xml_file);
         
         module_load_include('inc', 'wallymport', 'includes/wallymport.process');
 
         if (!empty($files_to_zip)) {
-          $files_to_zip[] = $tempFile;
+          $files_to_zip[] = $tmp_xml_file;
+          
           // Zip files
-          $zip_file = $tmp_folder.'/zip_'.$file_name.'.zip';
+          $zip_file_name = 'zip_'.$xml_file_name.'.zip';
+          $zip_file = $importer_tmp_folder.'/'.$zip_file_name;
           $zip = new ZipArchive;
           $zip->open($zip_file, ZipArchive::CREATE);
           foreach ($files_to_zip as $file_to_zip) {
-            $localname = str_replace($tmp_folder.'/', '', $file_to_zip);
+            $localname = str_replace('/tmp/', '', $file_to_zip);
             $zip->addFile($file_to_zip, $localname);
           }
           $zip->close();
 
-          $importer->source_directory_path = $tmp_folder;
-          $temp_return = wallymport_process_file($importer, 'zip_'.$file_name.'.zip');
+          $temp_return = wallymport_process_file($importer, $zip_file_name);
+          
+          foreach ($files_to_zip as $file_to_zip) {
+            unlink($file_to_zip);
+          }
         } else {
-          $temp_return = wallymport_page_process_file($tempFile, $importer);
-          //file_delete($tempFile);
+          $temp_return = wallymport_page_process_file($xml_file_name.'.xml', $importer);
         }
 
         if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return[0]['error']) {
@@ -301,7 +305,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
 
         $return .= $temp_return['error'] ? 'Import error (@msg)' : 'Import done';
         $return .= ' for file : "@tmp_file"';
-        $return_substion['@tmp_file'] = $tempFile;
+        $return_substion['@tmp_file'] = $tmp_xml_file;
         $return_substion['@msg'] = $temp_return['error_msg'];
       } else {
         if (is_string($valid_dom)) {
