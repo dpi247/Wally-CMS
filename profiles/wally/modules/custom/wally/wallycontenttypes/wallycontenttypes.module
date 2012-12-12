@@ -885,8 +885,7 @@ function wallycontenttypes_cron() {
           if (strtotime($safe_embargo_date) < time()) {
             $node = node_load(array('nid' => $obj->nid));
             node_publish_action($node);
-            cckdestinations_force_dnc($node);
-            node_save($node);
+             node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
             
             
