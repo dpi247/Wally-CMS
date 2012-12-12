@@ -96,7 +96,8 @@ function wallyscheduler_get_destinations_original_schema(){
 
 
 function _wallyscheduler_process_switch($snapshot_id){
-
+	watchdog('wallyscheduler',t('Switch Begin for !machine_name',array('!machine_name'=>$snapshot->machine_name)));
+	
 	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
 	
 	//put site offline
@@ -125,6 +126,7 @@ function _wallyscheduler_process_switch($snapshot_id){
 
     //put site online
     variable_set("site_offline", 0);
+    watchdog('wallyscheduler',t('Switch Ending for !machine_name',array('!machine_name'=>$snapshot->machine_name)));
     
 
 }
