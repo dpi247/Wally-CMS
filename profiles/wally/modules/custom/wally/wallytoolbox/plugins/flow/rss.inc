@@ -209,7 +209,7 @@ function wallytoolbox_rss_item_to_array($channel, $item, $media_namespace = 'htt
   // Get the channel image
   $channel_img = $channel->getElementsByTagName('image');
   if ($feed_infos['conf']['channel_img'] && $no_photo && $channel_img->item(0)) {
-    wallytoolbox_rss_item_to_array_set_image($array_package, $channel_img->item(0));
+    wallytoolbox_rss_item_to_array_set_channel_image($array_package, $channel_img->item(0));
   }
   
   // Copy distant images to local
@@ -605,7 +605,7 @@ function wallytoolbox_rss_item_to_array_set_embeded_image(&$array_item, $item) {
  * @param domElement $channel_img
  *   The image domElement from the XML RSS feed item.
  */
-function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
+function wallytoolbox_rss_item_to_array_set_channel_image(&$array_item, $channel_img) {
   static $chan_img_num = 100;
   if (!isset($array_item['EmbeddedContent'])) {
     $array_item['EmbeddedContent'] = array();
@@ -618,16 +618,16 @@ function wallytoolbox_rss_item_to_array_set_image(&$array_item, $channel_img) {
   $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
   $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
   $tempobject['MimeType'] = 'image';
-  $media_title = $channel_img->getAttribute('title');
+  $media_title = _wallytoolbox_checkifelementexists($channel_img, 'title');
   $tempobject['Title']['value'] = ($media_title == '') ? $tempobject['ObjectID'].'_image_'.$chan_img_num : $media_title;
   $chan_img_num++;
-  $tempobject['ExternalReference']['value'] = $channel_img->getAttribute('url');
-  $img_url = $channel_img->getAttribute('url');
+  $img_url = _wallytoolbox_checkifelementexists($channel_img, 'url');
   $img_url = urldecode(html_entity_decode($img_url));
+  $tempobject['ExternalReference']['value'] = $img_url;
   $tempobject['FileURI']['value'] = $img_url;
   $tempobject['FileSize']['value'] = 0;
-  $tempobject['LinkTitle']['value'] = $channel_img->getAttribute('title');
-  $tempobject['LinkURI']['value'] = $channel_img->getAttribute('link');
+  $tempobject['LinkTitle']['value'] = _wallytoolbox_checkifelementexists($channel_img, 'title');
+  $tempobject['LinkURI']['value'] = _wallytoolbox_checkifelementexists($channel_img, 'link');
   $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
 }
 
