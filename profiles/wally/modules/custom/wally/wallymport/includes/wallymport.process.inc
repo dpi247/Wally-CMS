@@ -311,7 +311,7 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
       $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
       _wimprthelp_rrmdir($temp_subdir);
     } else {
-      file_delete($xml_file);
+      unlink($xml_file);
     }
   }
 
