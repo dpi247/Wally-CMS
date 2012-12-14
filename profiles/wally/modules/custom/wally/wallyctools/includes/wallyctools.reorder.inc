@@ -278,12 +278,17 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   }
 
    
-  if(wally_variable_get("reorder_global_behavior", TRUE)){
+  if(wally_variable_get("reorder_local_behavior", TRUE)){
   	ksort($order_by_weight);
-
-  	$switch_start_index=FALSE;
-  	$switch_end_index=FALSE;
+     
+  	$switch_start_timerank=time();
+  	$switch_start_index=key($order_by_weight);
+  	//if we reorder element for the first place  we need special treatement
+  	$first_element_key=key($order_by_weight);
+    $switch_end_index=FALSE;
   	$switch_need_change=FALSE;
+  	
+  	 
   	foreach($order_by_weight as $weight=>$row){
   		if(abs($row['weight'])+abs($row['original_weight'])!=$values['pager_limit']){
   			$switch_need_change=TRUE;
@@ -294,17 +299,24 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   				$switch_start_timerank=$row['time_rank'];
   			}
   			elseif($switch_end_index===FALSE){
-  				//watchdog('reorder',"set end".$weight);
-
+  				
   				$switch_end_timerank=$row['time_rank'];
   				$switch_end_index=$weight;
+  				
   				//We need to process previous element from 	$switch_start_index to $switch_end_index
-  				$total_node_to_process=abs($switch_end_index-$switch_start_index);
+  				$total_node_to_process=abs($switch_end_index-$switch_start_index)+1;
   				$step=abs((int) (($switch_start_timerank-$switch_end_timerank)/$total_node_to_process));
 
   				$j=1;
 
-  				for($i=$switch_start_index+1;$i<=$switch_end_index-1;$i++){
+  				//if we reorder element for the first place  we need special treatement
+  				if($switch_start_index==$first_element_key){
+  					$jump=0;
+  				}else{
+  					$jump=1;
+  				}
+  				
+  				for($i=$switch_start_index+$jump;$i<=$switch_end_index-1;$i++){
   					$time_rank=abs($switch_start_timerank)-($j*$step);
   					 
   					$elem_nid = $order_by_weight[$i]["nid"];
