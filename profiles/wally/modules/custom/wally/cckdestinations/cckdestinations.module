@@ -2020,7 +2020,8 @@ function cckdestinations_force_dnc(&$node) {
  * @param array &$items
  *   The cckdestinations fields.
  */
-function _cckdestinations_set_new_time_ranks($node, &$items) {
+function _cckdestinations_set_new_time_ranks(&$node, &$items) {
+	
   $rank_limit = wally_variable_get('cckdestinations_rank_limit', 10);
 
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
@@ -2029,7 +2030,8 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
     if (!cckdestinations_content_is_empty($item, array()) && ($item['target'] != 'none')) {
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
         $items[$delta]['rank'] = substr($item['rank'], 3);
-      } else {
+      } 
+      else {
         $defaults = array(
           'sort_method' => 'absolute',
           'behavior' => 'top',
@@ -2088,30 +2090,48 @@ function _cckdestinations_set_new_time_ranks($node, &$items) {
               $current_results[] = $result;
             }
           }
-
-          $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
-          //SEE: http://rossel.audaxis.com/jira/browse/WALLY-795
-          if (TRUE OR sizeof($current_results) >= $reserved) {
-            $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
-  
-            for ($i = ($rank - 1); $i > 0; $i--) {
-              if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
-                $elem_nid = $current_results[$i - 1]->nid;
-                $elem_node = node_load($elem_nid);
-                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
-  
-                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
-                  $dest['rank'] = 'DNC'.$dest['rank'];
-                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
-                    $dest['time_rank'] = $new_time_rank[$elem_nid];
-                  }
-                  $elem_node->field_destinations[$elem_delta] = $dest;
-                }
-                
-                node_save($elem_node);
-              }
-            }
+          
+          if(wally_variable_get("reorder_local_behavior", TRUE)){
+           	if($rank>1){
+          	  $time_rank=(int)(($current_results[$rank - 2]->node_data_field_destinations_field_destinations_time_rank+$current_results[$rank- 1]->node_data_field_destinations_field_destinations_time_rank)/2);
+          	}
+          	if($rank==1){
+          		$time_rank=time();
+          	}
+          	foreach ($node->field_destinations as $elem_delta => $dest) {
+          		if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+          			$dest['time_rank'] = $time_rank;
+          		}
+          		$items[$elem_delta]=$dest;
+          	}
+          	
+          }
+          else{
+	          
+	          $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
+	          //SEE: http://rossel.audaxis.com/jira/browse/WALLY-795
+	          if (TRUE OR sizeof($current_results) >= $reserved) {
+	            $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
+	  
+	            for ($i = ($rank - 1); $i > 0; $i--) {
+	              if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
+	                $elem_nid = $current_results[$i - 1]->nid;
+	                $elem_node = node_load($elem_nid);
+	                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
+	                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
+	  
+	                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
+	                  $dest['rank'] = 'DNC'.$dest['rank'];
+	                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+	                    $dest['time_rank'] = $new_time_rank[$elem_nid];
+	                  }
+	                  $elem_node->field_destinations[$elem_delta] = $dest;
+	                }
+	                
+	                node_save($elem_node);
+	              }
+	            }
+	          }
           }
         }
       }
