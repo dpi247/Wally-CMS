@@ -369,10 +369,9 @@ function cckdestinations_form_field_destinations_validate ($element, $form_state
   unset($field_values['field_destinations_add_more']);
 
   $empty = TRUE;
-  $hook_is_empty = $field['module'].'_content_is_empty';
   $check_double = array();
   foreach ($field_values as $delta => $field_value) {
-    if (!$hook_is_empty($field_value, $field)) {
+    if (!cckdestinations_content_is_empty($field_value, $field)) {
       $empty = FALSE;
       
       if (!in_array($field_value['tid'].':'.$field_value['target'], $check_double)) {
@@ -581,44 +580,62 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
-  $options_and_classe = cckdestinations_get_classes_and_options();
+  $hierarchies = wallyctools_get_hierarchies();
+  
+  static $first_dest = TRUE;
+  if ($first_dest) {
+    $first_dest = FALSE;
+    drupal_add_js(array('cckdestchoices' => $hierarchies), 'setting');
+    drupal_add_js(drupal_get_path('module', 'cckdestinations') .'/js/cckdestinations.js');
+  }
+  
+  if ($defaults['tid'] && !empty($defaults['tid']) && !is_numeric($defaults['tid'])) {
+    $splitted_tid = cckdestinations_autocomplete_split_tags($defaults['tid']);
+    $defaults['tid'] = $splitted_tid[0];
+  }
 
+  $tid_options = array('Not Set');
+  foreach ($hierarchies as $id => $val) $tid_options[$id] = $val['hierarchic_name'];
   $element['tid'] = array(
     '#title'            => t( 'Destination Path' ),
     '#type'             => 'select',
     '#default_value'    => $defaults['tid'],
-    '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
+    '#options'          => $tid_options,
     '#required'         => FALSE,
     '#weight'           => 1,
-    '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'tid'),
     '#vid'              => $vocabulary_id,
   );
 
+  $target_options = array();
+  if ($defaults['tid'] && is_numeric($defaults['tid']) && isset($hierarchies[$defaults['tid']]['redacblocks'])) {
+    foreach ($hierarchies[$defaults['tid']]['redacblocks'] as $id => $val) $target_options[$id] = $val['title'];
+  }
   $element['target'] = array(
     '#title'            => t( 'Target' ),
     '#type'             => 'select',
     '#default_value'    => $defaults['target'],
-    '#options'          => $options_and_classe['target']['#options'],
-    '#classes'          => $options_and_classe['target']['#classes'],
+    '#options'          => $target_options,
     '#required'         => FALSE,
     '#weight'           => 3,
-    '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'target'),
   );
   
+  $layout_options = array();
+  if ($defaults['tid'] && is_numeric($defaults['tid']) && isset($hierarchies[$defaults['tid']]['redacblocks']) &&
+      $defaults['target'] && isset($hierarchies[$defaults['tid']]['redacblocks'][$defaults['target']]['layouts'])) {
+    foreach ($hierarchies[$defaults['tid']]['redacblocks'][$defaults['target']]['layouts'] as $id => $val) $layout_options[$id] = $val['name'];
+  }
   $element['layout'] = array(
     '#title'            => t( 'Layout' ),
     '#type'             => 'select',
     '#default_value'    => $defaults['layout'],
-    '#options'          => $options_and_classe['layout']['#options'],
-    '#classes'          => $options_and_classe['layout']['#classes'],
+    '#options'          => $layout_options,
     '#required'         => FALSE,
     '#weight'           => 4,
-    '#theme'            => 'cckdestinations_cascading_select',
     '#attributes'       => array('class' => 'layout'),
   );
-  
+
   $rank_values = array();
   $rank_classes = array();
   $rank_limit = wally_variable_get('cckdestinations_rank_limit', '10');
@@ -912,7 +929,7 @@ function cckdestinations_batch_dest_setmain($node, $context, $a, $b) {
  * @return an array with  "target" and "layout" key both are array with #options 
  * and #classes keys to put in the form definition
  */
-function cckdestinations_get_classes_and_options(){
+function cckdestinations_get_classes_and_options() {
   $result['tid']['#options'] = array();
   $result['target']['#options'] = array();
   $result['target']['#classes'] = array();
@@ -920,14 +937,16 @@ function cckdestinations_get_classes_and_options(){
   $result['layout']['#classes'] = array();
 
   $hierarchies = wallyctools_get_hierarchies();
-  foreach($hierarchies as $tid => $hierarchie){
+  foreach($hierarchies as $tid => $hierarchie) {
+    $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
+    
     // Target
-    foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock){
+    foreach($hierarchie['redacblocks'] as $redacblock_id => $redacblock) {
+      $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
+      $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
+      
       // Layout
-      foreach($redacblock['layouts'] as $layout_id => $name){
-        $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
-        $result['target']['#options'][$tid.$redacblock_id] = array($redacblock_id => $redacblock['title']);
-        $result['target']['#classes'][$tid.$redacblock_id] = array($redacblock_id => $tid);
+      foreach($redacblock['layouts'] as $layout_id => $name) {
         $result['layout']['#options'][$tid.$redacblock_id.$layout_id] = array($layout_id => $name['name']);
         $result['layout']['#classes'][$tid.$redacblock_id.$layout_id] = array($layout_id => $tid.$redacblock_id);
       }
@@ -950,58 +969,6 @@ function theme_cckdestinations_cascading_select($element) {
   _form_set_class($element, array('form-select'));
   $multiple = $element['#multiple'];
   return theme('form_element', $element, '<select name="'. $element['#name'] .''. ($multiple ? '[]' : '') .'"'. ($multiple ? ' multiple="multiple" ' : '') . drupal_attributes($element['#attributes']) .' id="'. $element['#id'] .'" '. $size .'>'. cckdestinations_cascading_select_options($element) .'</select>');
-}
-
-/**
- * Specific theming function for Options on Cascading Selects.
- * 
- * Purpose is to add a html class attribute: sub_xxxx so, jquery can
- * act on these specials options (hide or show). 
- *
- * @return HTML options form elements. 
- */
-function cckdestinations_cascading_select_options($element, $choices = NULL) {
-  $choices = $element['#options'];
-  $classes = $element['#classes'];
-
-  $module_path = drupal_get_path('module', 'cckdestinations') .'/';
-  drupal_add_js($module_path .'js/cckdestinations.js');
-
-  // array_key_exists() accommodates the rare event where $element['#value'] is NULL.
-  // isset() fails in this situation.
-  $value_valid = isset($element['#value']) || array_key_exists('#value', $element);
-  $value_is_array = is_array($element['#value']);
-  foreach ($choices as $k => $c) {
-    $key = array_keys($c);
-    $key = $key[0];
-    $choice = $c[$key];
-
-    if ($classes[$k]) {
-      $class = 'class="sub_'.$classes[$k][$key].'" ';
-    }
-  
-    if (is_array($choice)) {
-      $options .= '<optgroup label="'. $key .'">';
-      $options .= form_select_options($element, $choice);
-      $options .= '</optgroup>';
-    }
-    elseif (is_object($choice)) {
-      $options .= form_select_options($element, $choice->option);
-    }
-    else {
-      $key = (string)$key;
-      if ($value_valid && (!$value_is_array && (string)$element['#value'] === $key || ($value_is_array && in_array($key, $element['#value'])))) {
-        $selected = ' selected="selected"';
-      }
-      else {
-        $selected = '';
-      }
-      $option = '<option '.$class.'title="'.check_plain($k).'" value="'. check_plain($key) .'"'. $selected .'>'. check_plain($choice) .'</option>\n';
-      $options .= $option;
-      
-    }
-  }
-  return $options;
 }
 
 /**
@@ -1544,26 +1511,24 @@ function cckdestinations_autocomplete_value($element, $edit = FALSE) {
 }
 
 function cckdestinations_select_process($element, $edit, $form_state, $form) {
-  if (isset($element['#theme'])) {
-    if (!$element['#vid'] && isset($element['#options'][0]->option) && is_array($element['#options'][0]->option)) {
-      $options_keys = array_keys($element['#options'][0]->option);
-      if (is_numeric($options_keys[0])) {
-        $tmp_term = taxonomy_get_term($options_keys[0]);
-        $element['#vid'] = $tmp_term->vid;
-      }
+  if (!$element['#vid'] && isset($element['#options'][0]->option) && is_array($element['#options'][0]->option)) {
+    $options_keys = array_keys($element['#options'][0]->option);
+    if (is_numeric($options_keys[0])) {
+      $tmp_term = taxonomy_get_term($options_keys[0]);
+      $element['#vid'] = $tmp_term->vid;
     }
+  }
 
-    if ($element['#vid'] && sizeof($element['#options']) > wally_variable_get('cckdestinations_taxonomy_limit', 10)) {
-      $element['#type'] = 'cckdestinations_autocomplete';
-      $element['#value_callback'] = 'cckdestinations_autocomplete_value';
-      $element['#processed'] = FALSE;
-      $element['#process'] = array('cckdestinations_autocomplete_process');
-      unset($element['#theme']);
-      unset($element['#options']);
-      unset($element['#value']);
-      $form_id = str_replace('-', '_', $form['#id']);
-      _form_builder_handle_input_element($form_id, $element, $form_state, $form);
-    }
+  if ($element['#vid'] && sizeof($element['#options']) > wally_variable_get('cckdestinations_taxonomy_limit', 10)) {
+    $element['#type'] = 'cckdestinations_autocomplete';
+    $element['#value_callback'] = 'cckdestinations_autocomplete_value';
+    $element['#processed'] = FALSE;
+    $element['#process'] = array('cckdestinations_autocomplete_process');
+    unset($element['#theme']);
+    unset($element['#options']);
+    unset($element['#value']);
+    $form_id = str_replace('-', '_', $form['#id']);
+    _form_builder_handle_input_element($form_id, $element, $form_state, $form);
   }
 
   return $element;
