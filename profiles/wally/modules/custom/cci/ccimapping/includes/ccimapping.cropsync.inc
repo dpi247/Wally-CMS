@@ -111,7 +111,7 @@ function ccimapping_cropsync_get_cropings_xml() {
     $dimension->setAttribute('height', $crop['height']);
     $dimension->setAttribute('type', $crop['type']);
     
-    $gallerySetting = $imageSettings->appendChild($dom->createElement('gallerysetting'));
+    $gallerySetting = $imageSettings->appendChild($dom->createElement('gallerySetting'));
     $gallerySetting->setAttribute('id', $crop['id']);
     $gallerySetting->setAttribute('validate', $crop['validate']);
     $gallerySetting->appendChild($dom->createElement('label', $crop['label']));
