@@ -721,7 +721,7 @@ function _wallyextra_content_types_ajax_callback() {
   $callback = $_POST['callback'];
   $settings = str_replace('|@@@|', '\n', unserialize(stripslashes($_POST['settings'])));
   $subtype = $_POST['subtype'];
-  $context = unserialize($_POST['context']);
+  $context = unserialize(stripslashes($_POST['context']));
   $default_theme = $_POST['default_theme'];
   $plugin_name = $_POST['plugin_name'];
   $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
