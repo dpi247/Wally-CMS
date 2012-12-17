@@ -28,67 +28,53 @@ function updateList() {
 	$(".tid").each(function(index) {
 		var taxo = this.id;
 		if (taxo != '') {
-			targ = taxo.replace(str_to_replace, "target");
-			lay = taxo.replace(str_to_replace, "layout");
-			var selected_targ = $("#"+targ).find("option:selected").attr("value");
-			var selected_lay = $("#"+lay).find("option:selected").attr("value");
-			makeSublist(taxo, targ, selected_targ);
-			makeSublist(targ, lay, selected_lay);
+			var targ = taxo.replace(str_to_replace, "target");
+			var lay = taxo.replace(str_to_replace, "layout");
+
+			$(this).bind("change", function(event) {
+				makeSublist(taxo, targ, lay);
+			});
 		}
 	});
-}
-
-function makeSublist(parent, child, childVal) {
-	if ($("#"+parent+child).length==0) {
-		$("body").append("<select style='display:none' id='"+parent+child+"'></select>");
-		$("#"+parent+child).html($("#"+child+" option"));
-	}
 	
-	if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
-		var parentValue = $("#"+parent).find("option:selected").attr("title");
-	} else {
-		var term_value = $("#"+parent).val();
-		term_value = term_value.substring(0, term_value.length - 1);
-		var expl_term_value = term_value.split('[');
-		var parentValue = expl_term_value[expl_term_value.length - 1];
-	}
-	
-	$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-	childVal = (typeof childVal == "undefined") ? "" : childVal ;
-	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-
 	$("#field-destinations-items").bind("DOMNodeRemoved", function(event) {
 		if (event.target.id == "autocomplete") {
-			if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
-				var parentValue = $("#"+parent).find("option:selected").attr("title");
-			} else {
-				var term_value = $("#"+parent).val();
-				term_value = term_value.substring(0, term_value.length - 1);
-				var expl_term_value = term_value.split('[');
-				var parentValue = expl_term_value[expl_term_value.length - 1];
-			}
-
-			$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-			childVal = (typeof childVal == "undefined") ? "" : childVal ;
-			$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-			$("#"+child).trigger("change");
+			var taxo = event.target.owner.input.id;
+			var targ = taxo.replace(str_to_replace, "target");
+			var lay = taxo.replace(str_to_replace, "layout");
+			makeSublist(taxo, targ, lay);
 		}
-	});
-	
-	$("#"+parent).bind("change", function(event) {
-		if (str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != str_to_replace)) {
-			var parentValue = $("#"+parent).find("option:selected").attr("title");
-		} else {
-			var term_value = $("#"+parent).val();
-			term_value = term_value.substring(0, term_value.length - 1);
-			var expl_term_value = term_value.split('[');
-			var parentValue = expl_term_value[expl_term_value.length - 1];
-		}
-
-		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-		childVal = (typeof childVal == "undefined") ? "" : childVal ;
-		$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-		$("#"+child).trigger("change");
 	});
 }
 
+function makeSublist(taxo, targ, lay) {
+	if (str_to_replace == "tid" || (taxo.substring(taxo.length - 3, taxo.length) != "tid" && taxo.substring(taxo.length - 5, taxo.length) != str_to_replace)) {
+		var selected_tid = $("#"+taxo).find("option:selected").val();
+	} else {
+		var term_value = $("#"+taxo).val();
+		term_value = term_value.substring(0, term_value.length - 1);
+		var expl_term_value = term_value.split('[');
+		var selected_tid = expl_term_value[expl_term_value.length - 1];
+	}
+
+	var selected_targ = $("#"+targ).find("option:selected").val();
+	var selected_lay = $("#"+lay).find("option:selected").val();
+
+	if (selected_tid > 0) {
+		var select_options = Drupal.settings.cckdestchoices;
+
+		$("#"+targ).html('');
+		var targ_options = select_options[selected_tid].redacblocks;
+		$.each(targ_options, function() {
+			$("#"+targ).append('<option value="'+this.name+'">'+this.title+'</option>');
+		});
+		$("#"+targ+' option[value="'+selected_targ+'"]').attr("selected", "selected");
+		
+		$("#"+lay).html('');
+		var lay_options = select_options[selected_tid].redacblocks[$("#"+targ).find("option:selected").val()].layouts;
+		$.each(lay_options, function() {
+			$("#"+lay).append('<option value="'+this.name+'">'+this.name+'</option>');
+		});
+		$("#"+lay+' option[value="'+selected_lay+'"]').attr("selected", "selected");
+	}
+}
