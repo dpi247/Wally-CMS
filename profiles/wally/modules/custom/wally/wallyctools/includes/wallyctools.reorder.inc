@@ -277,35 +277,104 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
     $order_by_weight[$data['weight']] = $data;
   }
 
-  $new_time_rank = array();
-  $weights = array_keys($order_by_weight);
-  $min_weight = min($weights);
-  $max_weight = max($weights);
-  $order_by_weight[$max_weight+1]['time_rank'] = $order_by_weight[$max_weight]['time_rank'] - 30;
-  for($i = $max_weight; $i >= $min_weight; $i--) {
-    $elem_nid = $order_by_weight[$i]['nid'];
-    $elem_node = node_load($elem_nid);
+   
+  if(wally_variable_get("reorder_local_behavior", TRUE)){
+  	ksort($order_by_weight);
+     
+  	$switch_start_timerank=time();
+  	$switch_start_index=key($order_by_weight);
+  	//if we reorder element for the first place  we need special treatement
+  	$first_element_key=key($order_by_weight);
+    $switch_end_index=FALSE;
+  	$switch_need_change=FALSE;
+  	
+  	 
+  	foreach($order_by_weight as $weight=>$row){
+  		if(abs($row['weight'])+abs($row['original_weight'])!=$values['pager_limit']){
+  			$switch_need_change=TRUE;
+  		}
+  		else{
+  			if($switch_need_change===FALSE){
+  				$switch_start_index=$weight;
+  				$switch_start_timerank=$row['time_rank'];
+  			}
+  			elseif($switch_end_index===FALSE){
+  				
+  				$switch_end_timerank=$row['time_rank'];
+  				$switch_end_index=$weight;
+  				
+  				//We need to process previous element from 	$switch_start_index to $switch_end_index
+  				$total_node_to_process=abs($switch_end_index-$switch_start_index)+1;
+  				$step=abs((int) (($switch_start_timerank-$switch_end_timerank)/$total_node_to_process));
 
-    if ($sort_method == 'interval') {
-      //$rank = ($i < 0) ? (-$limit/2 - $i) : ($limit/2 - $i);
-      $rank = ($i < 0) ? (-$i - $limit) : (-$i);
-      $new_time_rank[$elem_nid] = $time + ($rank * 60 * 60 * $dest_settings['delta_t']);
-    } else {
-      $new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
-    }
+  				$j=1;
 
-    $order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
+  				//if we reorder element for the first place  we need special treatement
+  				if($switch_start_index==$first_element_key){
+  					$jump=0;
+  				}else{
+  					$jump=1;
+  				}
+  				
+  				for($i=$switch_start_index+$jump;$i<=$switch_end_index-1;$i++){
+  					$time_rank=abs($switch_start_timerank)-($j*$step);
+  					 
+  					$elem_nid = $order_by_weight[$i]["nid"];
+  					$elem_node = node_load($elem_nid);
+  						
+  					foreach ($elem_node->field_destinations as $delta => $dest) {
+  						//Need to set a DNC to avoid rel
+  						$dest['rank'] = 'DNC'.$dest['rank'];
+  						if ($dest['tid'] == $tid && $dest['target'] == $target) {
+  							$dest['time_rank'] = $time_rank;
+  						}
+  						$elem_node->field_destinations[$delta] = $dest;
+  					}
 
-    foreach ($elem_node->field_destinations as $delta => $dest) {
-      $dest['rank'] = 'DNC'.$dest['rank'];
-      if ($dest['tid'] == $tid && $dest['target'] == $target) {
-        $dest['time_rank'] = $new_time_rank[$elem_nid];
-      }
-      $elem_node->field_destinations[$delta] = $dest;
-    }
+  					$elem_node->pathauto_perform_alias = 0;
+  					node_save($elem_node);	
+  						
+  					$j++;
+  				}
 
-    $elem_node->pathauto_perform_alias = 0;
-    node_save($elem_node);
+  				$switch_end_index=$switch_start_index=$switch_need_change=FALSE;
+  			}
+
+  		}
+  			
+  	}
+  }
+  else{
+  	$new_time_rank = array();
+  	$weights = array_keys($order_by_weight);
+  	$min_weight = min($weights);
+  	$max_weight = max($weights);
+  	$order_by_weight[$max_weight+1]['time_rank'] = $order_by_weight[$max_weight]['time_rank'] - 30;
+  	for($i = $max_weight; $i >= $min_weight; $i--) {
+  		$elem_nid = $order_by_weight[$i]['nid'];
+  		$elem_node = node_load($elem_nid);
+
+  		if ($sort_method == 'interval') {
+  			//$rank = ($i < 0) ? (-$limit/2 - $i) : ($limit/2 - $i);
+  			$rank = ($i < 0) ? (-$i - $limit) : (-$i);
+  			$new_time_rank[$elem_nid] = $time + ($rank * 60 * 60 * $dest_settings['delta_t']);
+  		} else {
+  			$new_time_rank[$elem_nid] = $order_by_weight[$i+1]['time_rank'] + 30;
+  		}
+
+  		$order_by_weight[$i]['time_rank'] = $new_time_rank[$elem_nid];
+
+  		foreach ($elem_node->field_destinations as $delta => $dest) {
+  			$dest['rank'] = 'DNC'.$dest['rank'];
+  			if ($dest['tid'] == $tid && $dest['target'] == $target) {
+  				$dest['time_rank'] = $new_time_rank[$elem_nid];
+  			}
+  			$elem_node->field_destinations[$delta] = $dest;
+  		}
+
+  		$elem_node->pathauto_perform_alias = 0;
+  		node_save($elem_node);
+  	}
   }
 }
 
