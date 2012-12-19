@@ -251,7 +251,12 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
         //drupal_set_message('Cant copy image file.'.$file_temp_path, "error");
       	watchdog('Wallymport file', t('File copy form @from to @to failed', array('@from' => $file_temp_path, '@to' => $file_dest_path)), array(), WATCHDOG_ERROR);
       } else {
-        $return = _wimprthelp_create_file($file_dest_path, $uid);
+        if ($importer && $importer->wallymport_preview) {
+          $status = FILE_STATUS_TEMPORARY;
+        } else {
+          $status = FILE_STATUS_PERMANENT;
+        }
+        $return = _wimprthelp_create_file($file_dest_path, $uid, $status);
         return $return;
       }
       break;
@@ -278,7 +283,12 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
             chmod($file_temp_path, octdec("0777"));
             drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
           } else {
-            $return = _wimprthelp_create_file($file_temp_path, $uid);
+            if ($importer && $importer->wallymport_preview) {
+              $status = FILE_STATUS_TEMPORARY;
+            } else {
+              $status = FILE_STATUS_PERMANENT;
+            }
+            $return = _wimprthelp_create_file($file_temp_path, $uid, $status);
             return $return;
           }
         }
@@ -289,16 +299,39 @@ function _wimprthelp_create_file_from_uri($file_uri, $new_file_path = '', $impor
   return $return;
 }
 
-function _wimprthelp_create_file($filepath, $uid){
+function _wimprthelp_create_file($filepath, $uid, $status = FILE_STATUS_PERMANENT){
   $file = new stdClass();
   $file->filename = basename($filepath);
   $file->filepath = $filepath;
   $file->filemime = file_get_mimetype($filepath);
   $file->filesize = filesize($filepath);
   $file->uid = $uid;
-  $file->status = FILE_STATUS_PERMANENT;
+  $file->status = $status;
   $file->timestamp = time();
   drupal_write_record('files', $file);
   $return = field_file_load($filepath);
   return $return;
+}
+
+function _wimprthelp_check_is_node($node) {
+  if(isset($node->type) && !empty($node->type) &&
+     isset($node->title) && !empty($node->title) &&
+     isset($node->field_externalreference) && !empty($node->field_externalreference[0]['value'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Delete the Drupal file and remove the physical file of a photo.
+ * 
+ * @param array $photofile
+ *   A Drupal file array.
+ */
+function _wimprthelp_delete_photofile($photofile) {
+  if (isset($photofile['filepath'])) {
+    $filepath = $photofile['filepath'];
+    file_delete($filepath);
+    db_query('DELETE FROM files WHERE filepath = "%s"', $filepath);
+  }
 }

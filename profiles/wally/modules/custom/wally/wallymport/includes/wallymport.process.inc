@@ -351,7 +351,12 @@ function wallymport_post($importer_name, $preview = FALSE) {
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
+    
     if ($nb_file == 0) {
+      $format = 'xml';
+      if ($importer->zip == 1){
+        $format = 'zip';
+      }      
       $temp = variable_get('wallymport_preview_temp', file_directory_temp());
       $file_name = 'wally_curl_input_'.rand();
       $file_path = $temp.'/'.$file_name.'.'.$format;
@@ -433,7 +438,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
  * @return $xml_file (name of the xml file to process)
  */
 function wallymport_preprocess_file($file, &$importer, &$returns){
-  if ($importer->zip == 1){
+  if ($importer->zip == 1 && strstr($file->name, '.zip')){
     $xml_file = wallymport_preprocess_zip($file, $importer, $returns);
   } else {
     $xml_file = $file->filename;

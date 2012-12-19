@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 /**
  * Process the packages element of a wally DomDocument object.
@@ -26,7 +26,7 @@ function wallyimportpackageV15_process_packages($dom, &$log, $importer){
 
 /**
  * Call an apropriate function to process the childs of the package element depending the attribute callback of the child element.
- * 
+ *
  * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
  * if no specific function found nothing is done.
  *
@@ -65,7 +65,6 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
       $prenode = new Prenode();
@@ -76,11 +75,10 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
       $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
       $form_state_prenode = $prenode->setFormState();
       $form_state_prenode['DoNotPopulate'] = TRUE;
-
-      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name,'disabled');
+      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
       $return['content'] = $content;
     } elseif (isset($node->wallymport_delete)){
-      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
+      drupal_set_message(t('The package @ext_ref has been deleted', array('@ext_ref' => $node->ext_ref)));
     } else {
       $node->wallymport_node = TRUE;
       node_save($node);

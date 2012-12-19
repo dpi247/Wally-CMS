@@ -25,62 +25,78 @@ function wallyimportpackageV16_set_field_EmbeddedContent(&$node, $dom, &$log, $i
   static $i = 100;
 
   // Embeded objects
-  $results = array();
-  $node->field_embededobjects = $arraytemporaire = array();
-  $node->field_embededobjects_nodes = $arraytemporaire_nodes = array();
+  if ($importer->wallymport_preview) {
+    $node->field_embededobjects_nodes = $arraytemporaire_nodes = array();
+  } else {
+    $results = array();
+    $node->field_embededobjects = $arraytemporaire = array();
+  }
   if($embedobjects = $dom->getElementsByTagName('EmbeddedObjects')->item(0)) {
     foreach(wimprt_process_list($embedobjects, $log, $importer, 'object') as $result) {
-      if ((true||!$result->rejected) && (!array_key_exists($result->nid, $results) || $importer->wallymport_preview)) {
-        $results[$result->nid] = TRUE;
+      if (!$result->rejected) {
         $order = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
-        $arraytemporaire[$order]['nid'] = $result->nid;
         if ($importer->wallymport_preview){
           $arraytemporaire_nodes[$order] = $result;
+        } elseif (!array_key_exists($result->nid, $results)) {
+          $results[$result->nid] = TRUE;
+          $arraytemporaire[$order]['nid'] = $result->nid;
         }
       }
     }
   }
 
-  ksort($arraytemporaire);
-  ksort($arraytemporaire_nodes);
-  // Place object in the correct order (depend of the embeddedobjectorder)
-  foreach ($arraytemporaire as $array_key => $array_value){
-    array_push($node->field_embededobjects, $array_value);
-    if ($importer->wallymport_preview){
-      array_push($node->field_embededobjects_nodes, $arraytemporaire_nodes[$array_key]);
+  if ($importer->wallymport_preview) {
+    // Place object in the correct order (depend of the embeddedobjectorder)
+    ksort($arraytemporaire_nodes);
+    foreach ($arraytemporaire_nodes as $array_value) {
+      array_push($node->field_embededobjects_nodes, $array_value);
+    }
+  } else {
+    // Place object in the correct order (depend of the embeddedobjectorder)
+    ksort($arraytemporaire);
+    foreach ($arraytemporaire as $array_value){
+      array_push($node->field_embededobjects, $array_value);
     }
   }
 
   // Linkslists objects
-  $links = array();
-  $node->field_linkedobjects = $arraytemporaire = array();
-  $node->field_linkedobjects_nodes = $arraytemporaire_nodes = array();
+  if ($importer->wallymport_preview) {
+    $node->field_linkedobjects_nodes = $arraytemporaire_nodes = array();
+  } else {
+    $links = array();
+    $node->field_linkedobjects = $arraytemporaire = array();
+  }
   $linkslists = $dom->getElementsByTagName('LinksLists')->item(0);
   $linkslist = $dom->getElementsByTagName('LinksList')->item(0);
-  if ($linkslists && $linkslist){
-    if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
-      foreach (wimprt_process_list($linkslists, $log, $importer, 'object') as $result) {
-        if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
-          $links[$result->nid] = TRUE;
+  if ($linkslists && $linkslist) {
+    if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL) {
+      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result) {
+        if (!$result->rejected) {
           $order = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
-          $arraytemporaire[$order]['nid'] = $result->nid;
-          if ($importer->wallymport_preview){
+          if ($importer->wallymport_preview) {
             $arraytemporaire_nodes[$order] = $result;
+          } elseif (!array_key_exists($result->nid, $links)) {
+            $links[$result->nid] = TRUE;
+            $arraytemporaire[$order]['nid'] = $result->nid;
           }
         }
       }
     } else {
-      drupal_set_message('WARNING: No LinksList found in LinksLists element. Skipping LinksLists process.','notice');
+      drupal_set_message(t('No LinksList found in LinksLists element. Skipping LinksLists process.'), 'warning');
     }
   }
   
-  ksort($arraytemporaire);
-  ksort($arraytemporaire_nodes);
-  // Place object in the correct order (depend of the embeddedobjectorder)
-  foreach ($arraytemporaire as $array_key => $array_value){
-    array_push($node->field_linkedobjects, $array_value);
-    if ($importer->wallymport_preview){
-      array_push($node->field_linkedobjects_nodes, $arraytemporaire_nodes[$array_key]);
+  if ($importer->wallymport_preview) {
+    // Place object in the correct order (depend of the embeddedobjectorder)
+    ksort($arraytemporaire_nodes);
+    foreach ($arraytemporaire_nodes as $array_value) {
+      array_push($node->field_linkedobjects_nodes, $array_value);
+    }
+  } else {
+    // Place object in the correct order (depend of the embeddedobjectorder)
+    ksort($arraytemporaire);
+    foreach ($arraytemporaire as $array_value){
+      array_push($node->field_linkedobjects, $array_value);
     }
   }
 }
@@ -151,7 +167,7 @@ function wallyimportpackageV16_process_object_photoobjecttype(&$node, $dom, &$lo
   //Link
   $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
   $link_uri = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
-  if ($link_title != NULL | $link_uri != NULL){
+  if ($link_title != NULL || $link_uri != NULL){
     $node->field_link[0]['url'] = $link_uri;
     $node->field_link[0]['title'] = $link_title;
   }
@@ -379,9 +395,9 @@ function wallyimportpackageV16_process_object_videoobjecttype(&$node, $dom, &$lo
 function wallyimportpackageV16_process_object_textobjecttype (&$node, $dom_element, &$log, $importer){
   //Map XML Attributes 
   //put common attributes
-  
   wallyimportpackageV16_objecttype_preprocess($node, $dom_element, $importer);
   wimprt_process_node_default($node, $dom_element, $log, $importer);
+  
   //Exception for TextObject
   if ($dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue) {
     $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
@@ -418,9 +434,6 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
   $node->created = _wimprthelp_date_to_timestamp($dom->getAttributeNode('CreationDate')->value);
   if ($dom->hasAttribute('LastUpdateDate')){
     $node->changed = _wimprthelp_date_to_timestamp($dom->getAttributeNode('LastUpdateDate')->value);
-  }
-  if ($importer->wallymport_preview){
-    $node->rejected = TRUE;
   }
 }
 

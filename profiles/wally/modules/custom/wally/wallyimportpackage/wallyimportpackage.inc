@@ -34,7 +34,6 @@ function wallyimportpackage_wimprt_process_package($node, $dom, $log, $type, $im
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
-      $node->preview = TRUE;
     }
   }
 }
@@ -80,7 +79,6 @@ function wallyimportpackage_process_package($dom, &$log, $importer, $callback = 
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      $node->preview=TRUE;
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
       $prenode = new Prenode();
@@ -1003,9 +1001,7 @@ function wallyimportpackage_set_field_packagecopyright(&$node, $dom, &$log, $imp
 function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) {
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'TextObjectType');
-
-  //TODO ODM need to make a distinction between  rejected and not_to_saved
-  if (!$object->rejected OR TRUE) {
+  if (!$object->rejected && _wimprthelp_check_is_node($object)) {
     if ($importer->wallymport_preview) {
       $node->field_mainstory_nodes[0] = $object;
       $node->taxonomy = $object->taxonomy;
@@ -1016,15 +1012,11 @@ function wallyimportpackage_set_field_mainstory(&$node, $dom, &$log, $importer) 
       $node->field_free_tags = $object->field_free_tags;
       $node->field_concepts = $object->field_concepts;
       $node->field_iptc = $object->field_iptc;
-    }
-    if (isset($object->nid) && !empty($object->nid)) {
+    } else {
       $node->field_mainstory[0]['nid'] = $object->nid;
     }
   } else {
-    
-    //TODO ODM need to make a distinction between  rejected and not_to_saved
-    // $node->rejected = TRUE;
-        
+    $node->rejected = TRUE;
   }
 }
 
@@ -1056,8 +1048,7 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
       $object = wimprt_process_object($dom, $log, $importer, 'videoobjecttype');
     }
         
-    if (isset($object->nid) && !empty($object->nid) && !$object->rejected OR TRUE) {
-      $node->field_mainobject[0]['nid'] = $object->nid;
+    if (!$object->rejected && _wimprthelp_check_is_node($object)) {
       if ($importer->wallymport_preview) {
         $node->field_mainobject_nodes[0] = $object;
         $node->taxonomy = $object->taxonomy;
@@ -1068,6 +1059,8 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
         $node->field_free_tags = $object->field_free_tags;
         $node->field_concepts = $object->field_concepts;
         $node->field_iptc = $object->field_iptc;
+      } else {
+        $node->field_mainobject[0]['nid'] = $object->nid;
       }
     } else {
       $node->rejected = TRUE;
@@ -1093,9 +1086,15 @@ function wallyimportpackage_set_field_mainobject(&$node, $dom, &$log, $importer)
 function wallyimportpackage_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
   $object = wimprt_process_object($dom, $log, $importer, 'pollobjecttype');
-  $node->field_mainpoll[0]['nid'] = $object->nid;
-  if ($importer->wallymport_preview) {
-    $node->field_mainpoll_nodes[0] = $object;
+
+  if (!$object->rejected && _wimprthelp_check_is_node($object)) {
+    if ($importer->wallymport_preview) {
+      $node->field_mainpoll_nodes[0] = $object;
+    } else {
+      $node->field_mainpoll[0]['nid'] = $object->nid;
+    }
+  } else {
+    $node->rejected = TRUE;
   }
 }
 
@@ -1155,7 +1154,7 @@ function wallyimportpackage_set_field_EmbeddedContent(&$node, $dom, &$log, $impo
   if ($linkslists && $linkslist){
     if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL){
       foreach (wimprt_process_list($linkslists, $log, $importer, 'object') as $result) {
-        if ((true||!$result->rejected) && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
+        if (!$result->rejected && (!array_key_exists($result->nid, $links) || $importer->wallymport_preview)) {
           $links[$result->nid] = $result->nid;
           $node->field_linkedobjects[]['nid'] = $result->nid;
           if ($importer->wallymport_preview){
