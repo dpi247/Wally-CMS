@@ -407,8 +407,6 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
       node_save($node);
       module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
     }
-  } else {
-    $node->rejected = TRUE;
   }
 
   $log['node'] = array('current' => $node, 'next' => $log['node']);
