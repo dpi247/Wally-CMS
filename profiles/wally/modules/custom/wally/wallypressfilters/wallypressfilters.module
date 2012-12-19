@@ -165,11 +165,17 @@ function wallypressfilters_getfilters(){
  *   The filter object
  */
 function wallypressfilters_getfilterbyname($name){
+  static $cache;
+  
+  if(isset($cache[$name])){
+	return $cache[$name];
+  }
   $result = db_query("SELECT * FROM {wallypressfilters} WHERE name = '%s'", $name);
   $filter = NULL;
   while ($obj = db_fetch_object($result)){
     $filter = $obj;
   }
+  $cache[$name]=$filter;
   return $filter;
 }
 
@@ -182,11 +188,17 @@ function wallypressfilters_getfilterbyname($name){
  *   The filter object
  */
 function wallypressfilters_getfilterbyid($fid){
+  static $cache;
+  if(isset($cache[$name])){
+  	return $cache[$name];
+  }
   $result = db_query("SELECT * FROM {wallypressfilters} WHERE fid = '%s'", $fid);
   $filter = NULL;
   while ($obj = db_fetch_object($result)){
     $filter = $obj;
   }
+  $cache[$name]=$filter;
+  
   return $filter;
 }
 
