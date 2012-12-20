@@ -411,7 +411,11 @@ function pub_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_voc = FALSE
  *   Hook_block
  */
 function _pub_getpubcontent($delta, $cache_url) {
-  $orig_url = $_GET['q'];
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
   $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
   $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
 
@@ -538,7 +542,11 @@ function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $
  *   Hook_block
  */
 function _pub_getheadercontent($cache_url) {
-  $orig_url = $_GET['q'];
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
   $cached_pub = cache_get('header_temp-'.$cache_url);
   $cache_time = variable_get('header_refresh_time', 24);
   
@@ -588,7 +596,11 @@ function _pub_getheadercontent($cache_url) {
  *   Hook_block
  */
 function _pub_get_block_content($cache_url, $type, $script_type, $delta = '') {
-  $orig_url = $_GET['q'];
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
   $cached_pub = cache_get($type.'_block_temp-'.$cache_url, 'cache');
   $cache_time = variable_get($type.'_block_refresh_time', 24);
   
