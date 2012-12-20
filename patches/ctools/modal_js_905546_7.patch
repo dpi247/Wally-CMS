@@ -1,0 +1,18 @@
+### Eclipse Workspace Patch 1.0
+#P ctools-D6-DEV-HEAD
+Index: js/modal.js
+===================================================================
+RCS file: /cvs/drupal/contributions/modules/ctools/js/modal.js,v
+retrieving revision 1.17.2.19
+diff -u -r1.17.2.19 modal.js
+--- js/modal.js	1 Sep 2010 22:12:31 -0000	1.17.2.19
++++ js/modal.js	20 Oct 2010 16:56:19 -0000
+@@ -354,7 +354,7 @@
+         event = window.event;
+         target = event.srcElement;
+       }
+-      if( $(target).filter('*:visible').parents('#modalContent').size()) {
++      if( $(target).filter('*:visible').parents('#modalContent,.cke_dialog').size()) {
+         // allow the event only if target is a visible child node of #modalContent
+         return true;
+       }
