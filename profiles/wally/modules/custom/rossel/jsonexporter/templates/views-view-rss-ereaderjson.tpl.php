@@ -12,6 +12,7 @@ drupal_set_header('Content-Type: application/json; charset=utf-8');
   "main":{
     "title":"<?php print $title; ?>",
     "link":"<?php print $link; ?>",
+    "id":"<?php print $section_id; ?>",
     "description":"<?php print $description; ?>",
     "language":"<?php print $langcode; ?>",
     "copyright":"<?php print $copyright; ?>",
