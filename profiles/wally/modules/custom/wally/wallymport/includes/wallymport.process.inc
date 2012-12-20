@@ -437,9 +437,9 @@ function wallymport_post($importer_name, $preview = FALSE) {
  *   Results of the import.
  * @return $xml_file (name of the xml file to process)
  */
-function wallymport_preprocess_file($file, &$importer, &$returns){
-  if ($importer->zip == 1 && strstr($file->name, '.zip')){
-    $xml_file = wallymport_preprocess_zip($file, $importer, $returns);
+function wallymport_preprocess_file($file, &$importer, &$return) {
+  if ($importer->zip == 1 && strstr($file->basename, '.zip')){
+    $xml_file = wallymport_preprocess_zip($file, $importer, $return);
   } else {
     $xml_file = $file->filename;
   }
