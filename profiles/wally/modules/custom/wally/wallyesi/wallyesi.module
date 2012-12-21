@@ -305,7 +305,7 @@ function wallyesi_preprocess_block(&$variables) {
     $esi=array(
       'action'=>'include',
       'attributes'=> array(
-        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/blockcore/".$variables['block']->module."/".$variables['block']->delta.'?drupal_path='.$_GET['q'],
+        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/blockcore/".$variables['block']->module."/".$variables['block']->delta.'?drupal_path='.filter_xss($_GET['q'],array()),
         'onerror'=>'continue',
         'alt'=>NULL,
         'timeout'=>20,
@@ -326,7 +326,7 @@ function wallyesi_preprocess_panels_pane(&$variables) {
     $esi=array(
       'action'=>'include',
       'attributes'=> array(
-        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/ctoolscontenttype/".$variables['pane']->type."/".$variables['pane']->subtype.'?drupal_path='.$_GET['q'],
+        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/ctoolscontenttype/".$variables['pane']->type."/".$variables['pane']->subtype.'?drupal_path='.filter_xss($_GET['q'],array()),
         'onerror'=>'continue',
         'alt'=>NULL,
         'timeout'=>20,
