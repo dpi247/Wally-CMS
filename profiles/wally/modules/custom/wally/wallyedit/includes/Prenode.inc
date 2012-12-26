@@ -124,7 +124,13 @@ class Prenode{
         'locked' => FALSE,
       );
 
+      if ($type_name != 'page') {
+        variable_set('menu_override_parent_selector', TRUE);
+      }
       wydit_populate_form_state($form_state[$type_name], $this->node, $this->profile_id);
+      if ($type_name != 'page') {
+        variable_set('menu_override_parent_selector', FALSE);
+      }
     }
 
     wydit_clean_and_save_form_state($form_state);
