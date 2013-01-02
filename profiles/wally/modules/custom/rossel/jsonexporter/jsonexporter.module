@@ -169,6 +169,13 @@ function jsonexporter_sections_list_page_render($pid = FALSE) {
   }
 }
 
+function jsonexporter_preprocess_views_view_rss(&$vars) {
+  if($_GET['format']== 'ereaderjson') {
+    $view = $vars['view'];
+    $vars['section_id'] = $view->args[0].'_'.$view->args[1];
+  }
+}
+
 function jsonexporter_preprocess_views_view_row_rss(&$vars) {
   if($_GET['format']== 'ereaderjson'){
     if(isset($vars['view']->args[2])){

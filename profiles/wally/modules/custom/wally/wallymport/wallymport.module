@@ -161,6 +161,11 @@ function wallymport_menu() {
 
 /**
  * Implementation of hook_cron().
+ * 
+ * Remove old preview files.
+ * Remove old logs.
+ * Run folder process.
+ * Remove old temporary files.
  */ 
 function wallymport_cron() {
   $prev_cleanup_ret = wimprt_cron_previews_cleanup();
@@ -192,6 +197,20 @@ function wallymport_cron() {
       }
       drupal_write_record('wallymport_importer', $importer, array('iid'));
     }
+  }
+  
+  // Remove temporary files that are older than DRUPAL_MAXIMUM_TEMP_FILE_AGE.
+  $result = db_query('SELECT * FROM {files} WHERE status = %d and timestamp < %d', FILE_STATUS_TEMPORARY, time() - 3600);
+  while ($file = db_fetch_object($result)) {
+    if (file_exists($file->filepath)) {
+      // If files that exist cannot be deleted, continue so the database remains
+      // consistent.
+      if (!file_delete($file->filepath)) {
+        watchdog('file system', 'Could not delete temporary file "%path" during garbage collection', array('%path' => $file->filepath), 'error');
+        continue;
+      }
+    }
+    db_query('DELETE FROM {files} WHERE fid = %d', $file->fid);
   }
 }
 
@@ -407,8 +426,6 @@ function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
       node_save($node);
       module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
     }
-  } else {
-    $node->rejected = TRUE;
   }
 
   $log['node'] = array('current' => $node, 'next' => $log['node']);
