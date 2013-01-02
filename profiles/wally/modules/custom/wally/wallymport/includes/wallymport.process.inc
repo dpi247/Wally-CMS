@@ -390,7 +390,11 @@ function wallymport_post($importer_name, $preview = FALSE) {
       if ($importer->zip == 1){
         $format = 'zip';
       }      
-      $temp = variable_get('wallymport_preview_temp', file_directory_temp());
+
+      //For compatibility reason .. need to fix this see wallymport_preprocess_file
+      //$temp = variable_get('wallymport_preview_temp', file_directory_temp());
+      $temp =$importer->temp_directory_path;
+      
       $file_name = 'wally_curl_input_'.rand();
       $file_path = $temp.'/'.$file_name.'.'.$format;
       $fwrite = TRUE;
