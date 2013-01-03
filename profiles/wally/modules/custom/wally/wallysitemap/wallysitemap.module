@@ -7,9 +7,18 @@ function wallysitemap_cron() {
   _wallysitemap_generate_sitemap_xml($site_infos, $settings);
 }
 
-function wallysitemap_update_index($paths, $namespaces, $settings) {
-  $index_local_path = $settings['wallysitemap_path'].'/sitemapindex.xml';
+function wallysitemap_generate_xmlfile($dom_sitemap, $namespaces, $site_infos, $folder_path, $file_name) {
+  // @todo : gérer la compression gzip des xmls
+
+  $sitemap_local_path = $folder_path.'/'.$file_name;
   $sitemap_full_path = $site_infos['base_url'].'/'.$sitemap_local_path;
+  $dom_sitemap->save($sitemap_local_path);
+
+  wallysitemap_update_index(array($sitemap_full_path), $namespaces, $folder_path);
+}
+
+function wallysitemap_update_index($paths, $namespaces, $folder_path) {
+  $index_local_path = $folder_path.'/sitemapindex.xml';
 
   $dom_index = new DOMDocument('1.0', 'UTF-8');
   _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
@@ -55,6 +64,14 @@ function wallysitemap_get_namespaces() {
     'image' => 'http://www.google.com/schemas/sitemap-image/1.1/',
     'video' => 'http://www.google.com/schemas/sitemap-video/1.1/',
   );
+}
+
+function _wallysitemap_get_or_create_index(&$dom, $sitemapNS, $index_path) {
+  if (file_exists($index_path)) {
+    $dom->load($index_path);
+  } else {
+    $dom->appendChild($dom->createElementNS($sitemapNS, 'sitemapindex'));
+  }
 }
 
 function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {

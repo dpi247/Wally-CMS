@@ -1,7 +1,6 @@
 <?php
 
 function wallynewssitemap_cron() {
-  return;
   $site_infos = wallysitemap_get_site_infos();
   $settings = wally_variable_get('wallynewssitemap_sitemaps_settings', wallynewssitemap_default_settings());
   module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
@@ -13,6 +12,7 @@ function wallynewssitemap_cron() {
  */
 function wallynewssitemap_default_settings() {
   return array(
+    'wallynewssitemap_path' => 'sites/default/files/sitemaps',
     'wallynewssitemap_consolidate_sitemap' => 0,
     'wallynewssitemap_add_images' => 0,
     'wallynewssitemap_add_videos' => 0,

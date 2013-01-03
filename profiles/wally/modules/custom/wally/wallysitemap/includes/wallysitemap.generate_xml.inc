@@ -18,7 +18,8 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
   
   $dest_terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));
   _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, $urlset, $site_infos, $settings, $dest_terms);
-  _wallysitemap_generate_xmlfile($dom, $namespaces, $site_infos, $settings);
+  
+  wallysitemap_generate_xmlfile($dom, $namespaces, $site_infos, $settings['wallysitemap_path'], 'sitemapmain.xml');
 }
 
 function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos, $settings, $menu_infos) {
@@ -55,24 +56,6 @@ function _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, &$urlset, $site_i
     $url = $urlset->appendChild($dom->createElement('url'));
     $nice_path = wallytoolbox_get_main_alias('taxonomy/term/'.$term->tid);
     $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$nice_path));
-  }
-}
-
-function _wallysitemap_generate_xmlfile($dom_sitemap, $namespaces, $site_infos, $settings) {
-  // @todo : gérer la compression gzip des xmls
-  
-  $sitemap_local_path = $settings['wallysitemap_path'].'/sitemapmain.xml';
-  $sitemap_full_path = $site_infos['base_url'].'/'.$sitemap_local_path;
-  $dom_sitemap->save($sitemap_local_path);
-  
-  wallysitemap_update_index(array($sitemap_full_path), $namespaces, $settings);
-}
-
-function _wallysitemap_get_or_create_index(&$dom, $sitemapNS, $index_path) {
-  if (file_exists($index_path)) {
-    $dom->load($index_path);
-  } else {
-    $dom->appendChild($dom->createElementNS($sitemapNS, 'sitemapindex'));
   }
 }
 
