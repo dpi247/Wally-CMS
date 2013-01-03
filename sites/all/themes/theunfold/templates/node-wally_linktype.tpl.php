@@ -1,0 +1,1 @@
+<?php print theme('widget_media', $widget)?>
