@@ -1,0 +1,27 @@
+<?php
+
+function wallynewssitemap_cron() {
+  return;
+  $site_infos = wallysitemap_get_site_infos();
+  $settings = wally_variable_get('wallynewssitemap_sitemaps_settings', wallynewssitemap_default_settings());
+  module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
+  _wallynewssitemap_generate_sitemap_xml($site_infos, $settings);
+}
+
+/**
+ * Will be called by wallynewssitemap to build default settings.
+ */
+function wallynewssitemap_default_settings() {
+  return array(
+    'wallynewssitemap_consolidate_sitemap' => 0,
+    'wallynewssitemap_add_images' => 0,
+    'wallynewssitemap_add_videos' => 0,
+    'wallynewssitemap_publication_name' => variable_get('site_name', ''),
+    'wallynewssitemap_tags_fields' => array(),
+    'wallynewssitemap_image_preset' => '',
+    'wallynewssitemap_image_license' => '',
+    'wallynewssitemap_video_preset' => '',
+    'wallynewssitemap_default_img' => drupal_get_path('module', 'wallynewssitemap').'/images/default_img.jpg',
+    'wallynewssitemap_allow_embed' => 'no',
+  );
+}

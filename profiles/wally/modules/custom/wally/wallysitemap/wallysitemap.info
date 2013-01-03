@@ -1,0 +1,6 @@
+core = "6.x"
+description = ""
+name = "Wally Sitemap"
+package = "Wally"
+project = "wallysitemap"
+version = "6.x-1.0"

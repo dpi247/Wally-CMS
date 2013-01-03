@@ -1,0 +1,79 @@
+<?php
+
+function wallysitemap_cron() {
+  $site_infos = wallysitemap_get_site_infos();
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', wallysitemap_default_settings());
+  module_load_include('inc', 'wallysitemap', 'includes/wallysitemap.generate_xml');
+  _wallysitemap_generate_sitemap_xml($site_infos, $settings);
+}
+
+function wallysitemap_update_index($paths, $namespaces, $settings) {
+  $index_local_path = $settings['wallysitemap_path'].'/sitemapindex.xml';
+  $sitemap_full_path = $site_infos['base_url'].'/'.$sitemap_local_path;
+
+  $dom_index = new DOMDocument('1.0', 'UTF-8');
+  _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+
+  foreach ($paths as $path) {
+    _wallysitemap_update_entry_in_index($dom_index, $dom_sitemapindex, $path);
+  }
+
+  $dom_index->save($index_local_path);
+}
+
+/**
+ * Get informations about the site which are necessary to build the sitemap.
+ */
+function wallysitemap_get_site_infos() {
+  global $language, $base_url;
+  return array(
+    'language' => $language->language,
+    'base_url' => $base_url,
+  );
+}
+
+/**
+ * Build default settings.
+ */
+function wallysitemap_default_settings($activated_modules) {
+  $settings = array(
+    'wallysitemap_handled_menus' => array(
+      'primary-links',
+      'secondary-links',
+    ),
+    'wallysitemap_path' => 'sites/default/files/sitemaps',
+  );
+  return $settings;
+}
+
+function wallysitemap_get_namespaces() {
+  return array(
+    'w3' => 'http://www.w3.org/2000/xmlns/',
+    'sitemap' => 'http://www.sitemaps.org/schemas/sitemap/0.9/',
+    'news' => 'http://www.google.com/schemas/sitemap-news/0.9/',
+    'image' => 'http://www.google.com/schemas/sitemap-image/1.1/',
+    'video' => 'http://www.google.com/schemas/sitemap-video/1.1/',
+  );
+}
+
+function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+  // Remove reference to old sitemap
+  $found = FALSE;
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      if ($sitemap_loc == $path) {
+        $found = TRUE;
+        $dom_old_lastmod = $dom_sitemap->getElementsByTagName('lastmod')->item(0);
+        $dom_old_lastmod->nodeValue = date('Y-m-d\TH:i:sP');
+      }
+    }
+  }
+  if (!$found) {
+    $dom_new_sitemap = $dom_sitemapindex->appendChild($dom_index->createElement('sitemap'));
+    $dom_new_sitemap->appendChild($dom_index->createElement('loc', $path));
+    $dom_new_sitemap->appendChild($dom_index->createElement('lastmod', date('Y-m-d\TH:i:sP')));
+  }
+}
