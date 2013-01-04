@@ -765,7 +765,8 @@ function wallycontenttypes_cron() {
   $today = strtotime(date('Y-m-d'));
   $last_run_timestamp = wally_variable_get('wallycontenttypes_embargo_last_run', time() - 86400);
 
-  if ($last_run_timestamp < $today) {
+  if ($last_run_timestamp < $today ) {
+    
     wally_variable_set('wallycontenttypes_embargo_last_run', $today);
 
     // If Memcached is used we don't try to flush old packages, Memcached do it itself.
@@ -791,25 +792,49 @@ function wallycontenttypes_cron() {
       }
     }
 
+    //Build the wallycontenttypes_temp_nodetopublish table once a day
     if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
       db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
-      //We need to build the table
-
-      $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value, cfu.field_unpublishdate_value
-              					   FROM {node} n 
-              					   LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid 
-              					   LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
-              					   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
-              					   WHERE (
-              					     (DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() 
-              					   OR 
-              					     (DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE())
-              					   )
-              					   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
-              					   AND auto.field_autopublish_value = 'Autopublish' 
-              					   ");
+      //Get the timezone of the field_embargodatetime
+      $embargo_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_embargodatetime'");
+      $embargo_global_settings = db_fetch_array($embargo_result);
+      $embargo_global_settings = unserialize($embargo_global_settings['global_settings']);
+      $embargo_timezone = date_get_timezone($embargo_global_settings['tz_handling']);
+      //Get the node where their embargo date is today
+      $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value as date
+              			   FROM {node} n 
+              			   LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid
+              			   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+              			   WHERE (
+              			   DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() 
+              			   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage' OR n.type = 'wally_pollpackage')
+              			   AND auto.field_autopublish_value = 'Autopublish' 
+              			   ");
 
       while ($obj = db_fetch_object($results)){
+        $obj->action = 1;
+        $obj->date_timezone = $embargo_timezone;
+        drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+      }
+      
+      //Get the timezone of the field_unpublishdate
+      $unpublish_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_unpublishdate'");
+      $unpublish_global_settings = db_fetch_array($unpublish_result);
+      $unpublish_global_settings = unserialize($unpublish_global_settings['global_settings']);
+      $unpublish_timezone = date_get_timezone($unpublish_global_settings['tz_handling']);
+      //Get the node where their unpublish date is today
+      $results = db_query("SELECT DISTINCT n.nid, n.status, cfu.field_unpublishdate_value as date
+                    	   FROM {node} n 	   
+                    	   LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
+                    	   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+                    	   WHERE DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE()
+                    	   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
+                    	   AND auto.field_autopublish_value = 'Autopublish' 
+                    	   ");
+      
+      while ($obj = db_fetch_object($results)){
+        $obj->action = 0;
+        $obj->date_timezone = $unpublish_timezone;
         drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
       }
     }
@@ -818,54 +843,34 @@ function wallycontenttypes_cron() {
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
     $return .= '<b>'.t('Autopublish :').'</b></br>';
 
-    //look at the node who their umbargo date or unpublish date are lower than current time
+    //look at the node who their embargo date or unpublish date are lower than current time
     $result = db_query("SELECT *
-                  			FROM {wallycontenttypes_temp_nodetopublish}
-                  			WHERE (
-                  		    (field_embargodatetime_value < UTC_TIMESTAMP() AND field_embargodatetime_value IS NOT NULL)
-                  			OR
-                  		  	(field_unpublishdate_value < UTC_TIMESTAMP() ANd field_unpublishdate_value IS NOT NULL) 
-                  			)");
+                  		FROM {wallycontenttypes_temp_nodetopublish}
+                  		WHERE date < UTC_TIMESTAMP() 
+    					AND date IS NOT NULL
+    					ORDER BY date ASC");
     while ($obj = db_fetch_object($result)) {
-      //@todo remove this to get real timezone of the fields
-      if (module_exists('date_timezone')) {
-        $zones = date_timezone_names(FALSE, TRUE);
-        $timezone = $zones[variable_get('date_default_timezone_name', 0)];
-      } else {
-        $zones = _system_zonelist();
-        $timezone = $zones[variable_get('date_default_timezone', 0)];
-      }
+      $timezone = $obj->date_timezone;
 
       //node to publish
-      if ($obj->field_embargodatetime_value && $obj->status != 1) {
-        if ($form_date = date_make_date($obj->field_embargodatetime_value, 'UTC')) {
+      if ($obj->action == 1) {
+        if ($form_date = date_make_date($obj->date, 'UTC')) {
           $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
           $form_date = unserialize(serialize($form_date));
           $safe_embargo_date = $form_date->date;
           if (strtotime($safe_embargo_date) < time()) {
             $node = node_load(array('nid' => $obj->nid));
             node_publish_action($node);
-             node_save($node);
+            node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
-            
-            
-            $form_date = date_make_date($obj->field_unpublishdate_value, 'UTC');
-            $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
-            $form_date = unserialize(serialize($form_date));
-            $safe_unpublish_date = $form_date->date;
-            if(date("d-m-Y",strtotime($safe_unpublish_date))==date("d-m-Y")){
-            	$still_need_this_row=TRUE;
-            }
             
           }
         }
-        
-        
       }
       
       //node to unpublish
-      if ($obj->field_unpublishdate_value && $obj->status != 0) {
-        if ($form_date = date_make_date($obj->field_unpublishdate_value, 'UTC')) {
+      if ($obj->action == 0) {
+        if ($form_date = date_make_date($obj->date, 'UTC')) {
           $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
           $form_date = unserialize(serialize($form_date));
           $safe_unpublish_date = $form_date->date;
@@ -878,15 +883,9 @@ function wallycontenttypes_cron() {
           }
         }
       }
-      if($still_need_this_row==TRUE){      	 
-      	db_query("UPDATE {wallycontenttypes_temp_nodetopublish} SET status = 1 WHERE nid = %d", $obj->nid);
-      }else{
-      	//delete node from the temp table
-      	db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $obj->nid);
-      	 
-      }
+      //delete node from the temp table
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d AND action = %d AND date = '%s'", $obj->nid, $obj->action, $obj->date);
     }
-
     $return .= '</br>';
   }
 
