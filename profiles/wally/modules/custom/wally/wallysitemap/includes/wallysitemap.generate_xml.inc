@@ -9,15 +9,15 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
   $namespaces = wallysitemap_get_namespaces();
   $dom = new DOMDocument('1.0', 'UTF-8');
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
+  
+  $dest_terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));
+  _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, $urlset, $site_infos, $settings, $dest_terms);
 
   $menus = $settings['wallysitemap_handled_menus'];
   foreach ($menus as $menu_name) {
     $menu_infos = menu_tree_all_data($menu_name, NULL);
     _wallysitemap_generate_sitemap_xml_for_menu($dom, $urlset, $site_infos, $settings, $menu_infos);
   }
-  
-  $dest_terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));
-  _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, $urlset, $site_infos, $settings, $dest_terms);
   
   wallysitemap_generate_xmlfile($dom, $namespaces, $site_infos, $settings['wallysitemap_path'], 'sitemapmain.xml');
 }
@@ -32,7 +32,9 @@ function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos
     if ($menu_item['link']['router_path'] == 'taxonomy/term/%') {
       $expl_path = explode('/', $menu_item['link']['link_path']);
       $tid = $expl_path[2];
-      if (in_array($tid, $processed_dest_tids)) {
+      $term = taxonomy_get_term($tid);
+      $dest_vid = variable_get('wallymport_destinationpath', 2);
+      if ($term->vid == $dest_vid || in_array($tid, $processed_dest_tids)) {
         continue;
       } else {
         $processed_dest_tids[] = $tid;
@@ -42,13 +44,24 @@ function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos
     $url = $urlset->appendChild($dom->createElement('url'));
     $nice_path = wallytoolbox_get_main_alias($menu_item['link']['link_path']);
     $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$nice_path));
+    // lastmod not handled yet
+    // changefreq not handled yet
+    // priority not handled yet
   }
 }
 
 function _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, &$urlset, $site_infos, $settings, $terms) {
   $processed_dest_tids = &_wallysitemap_get_static_processed_dest_tids();
+  $terms_settings = $settings['wallysitemap_dests_params'] ? $settings['wallysitemap_dests_params'] : array();
   foreach ($terms as $term) {
-    if (in_array($term->tid, $processed_dest_tids)) {
+    $term_settings = $terms_settings[$term->tid] ?
+      $terms_settings[$term->tid] :
+      array(
+        'check' => 1,
+        'weight' => 0,
+        'freq' => 'daily',
+      );
+    if (!$term_settings['check'] || in_array($term->tid, $processed_dest_tids)) {
       continue;
     } else {
       $processed_dest_tids[] = $term->tid;
@@ -56,6 +69,9 @@ function _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, &$urlset, $site_i
     $url = $urlset->appendChild($dom->createElement('url'));
     $nice_path = wallytoolbox_get_main_alias('taxonomy/term/'.$term->tid);
     $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$nice_path));
+    // lastmod not handled yet
+    $url->appendChild($dom->createElement('changefreq', $term_settings['freq']));
+    $url->appendChild($dom->createElement('priority', $term_settings['weight']));
   }
 }
 

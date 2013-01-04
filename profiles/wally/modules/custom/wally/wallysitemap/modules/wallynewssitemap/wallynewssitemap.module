@@ -1,10 +1,27 @@
 <?php
 
+function wallynewssitemap_menu() {
+  $items = array();
+
+  $items['admin/wally/wallysitemap/newssitemap'] = array(
+    'title'            => t('News Sitemap'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallynewssitemap_admin_settings_page_form'),
+    'access arguments' => array('administer sitemaps'),
+    'file'             => 'includes/wallynewssitemap.admin.inc',
+    'weight'           => 1,
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
 function wallynewssitemap_cron() {
-  $site_infos = wallysitemap_get_site_infos();
-  $settings = wally_variable_get('wallynewssitemap_sitemaps_settings', wallynewssitemap_default_settings());
-  module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
-  _wallynewssitemap_generate_sitemap_xml($site_infos, $settings);
+  if ($settings = wally_variable_get('wallynewssitemap_sitemaps_settings', FALSE)) {
+    $site_infos = wallysitemap_get_site_infos();
+    module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
+    _wallynewssitemap_generate_sitemap_xml($site_infos, $settings);
+  }
 }
 
 /**

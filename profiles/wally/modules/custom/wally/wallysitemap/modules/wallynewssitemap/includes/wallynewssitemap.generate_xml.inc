@@ -77,7 +77,7 @@ function _wallynewssitemap_generate_urlset_xml($dom, &$urlset, $namespaces, $nid
  * </url>
  */
 function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node, $site_infos, $settings) {
-  $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$node->path));
+  _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $sites_infos, $settings);
 
   $main_news = $url->appendChild($dom->createElementNS($namespaces['news'], 'news:news'));
   _wallynewssitemap_generate_newsurl_xml_set_main_news($dom, $main_news, $namespaces['news'], $node, $site_infos, $settings);
@@ -85,20 +85,7 @@ function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node,
   if ($settings['wallynewssitemap_add_images']) {
     wallycontenttypes_packagepopulate($node);
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-      foreach ($node->field_embededobjects_nodes as $embed) {
-        if ($embed->type == 'wally_photoobject') {
-          $image = $url->appendChild($dom->createElement('image:image'));
-          _wallynewssitemap_generate_newsurl_xml_set_image($dom, $image, $namespaces['image'], $embed, $site_infos, $settings);
-        }
-
-        if ($embed->type == 'wally_linktype') {
-          if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'image')) {
-            $image = $url->appendChild($dom->createElement('image:image'));
-            $embed->embed_data = $embed_content;
-            _wallynewssitemap_generate_newsurl_xml_set_linked_image($dom, $image, $namespaces['image'], $embed, $site_infos, $settings);
-          }
-        }
-      }
+      _wallynewssitemap_generate_newsurl_xml_set_images($dom, $url, $namespaces['image'], $node, $site_infos, $settings);
     }
   }
 
@@ -107,26 +94,31 @@ function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node,
       wallycontenttypes_packagepopulate($node);
     }
     if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-      foreach ($node->field_embededobjects_nodes as $embed) {
-        if ($embed->type == 'wally_videoobject') {
-          $video = $url->appendChild($dom->createElement('video:video'));
-          _wallynewssitemap_generate_newsurl_xml_set_video($dom, $video, $namespaces['video'], $embed, $site_infos, $settings);
-        }
-
-        if ($embed->type == 'wally_linktype') {
-          if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'video')) {
-            $video = $url->appendChild($dom->createElement('video:video'));
-            $embed->embed_data = $embed_content;
-            _wallynewssitemap_generate_newsurl_xml_set_linked_video($dom, $video, $namespaces['video'], $embed, $site_infos, $settings);
-          }
-        }
-      }
+      _wallynewssitemap_generate_newsurl_xml_set_videos($dom, $url, $namespaces['video'], $node, $site_infos, $settings);
     }
   }
 }
 
 function _wallynewssitemap_generate_consolidate_xml(&$sitemap_dom, $namespaces, $site_infos, $settings) {
 
+}
+
+function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, $sites_infos, $settings) {
+  $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$node->path));
+  if (isset($node->field_destinations) && !empty($node->field_destinations)) {
+    $tid = $node->field_destinations[0]['tid'];
+    $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+    $dest_settings = $global_sitemap_settings['wallysitemap_dests_params'] ? $global_sitemap_settings['wallysitemap_dests_params'] : array();
+    $term_settings = $dest_settings[$tid] ? $dest_settings[$tid] :
+      array(
+        'check' => 1,
+        'weight' => 0,
+        'freq' => 'daily',
+      );
+    // lastmod not handled yet
+    // changemod not handled yet
+    $url->appendChild($dom->createElement('priority', $term_settings['weight']));
+  }
 }
 
 /**
@@ -191,6 +183,23 @@ function _wallynewssitemap_generate_newsurl_xml_set_main_news($dom, &$main_news,
   }
   if (!empty($sitemap_tags)) {
     $main_news->appendChild($dom->createElementNS($newsNS, 'news:keywords', implode(', ', $sitemap_tags)));
+  }
+}
+
+function _wallynewssitemap_generate_newsurl_xml_set_images($dom, &$url, $imageNS, $node, $site_infos, $settings) {
+  foreach ($node->field_embededobjects_nodes as $embed) {
+    if ($embed->type == 'wally_photoobject') {
+      $image = $url->appendChild($dom->createElement('image:image'));
+      _wallynewssitemap_generate_newsurl_xml_set_image($dom, $image, $imageNS, $embed, $site_infos, $settings);
+    }
+  
+    if ($embed->type == 'wally_linktype') {
+      if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'image')) {
+        $image = $url->appendChild($dom->createElement('image:image'));
+        $embed->embed_data = $embed_content;
+        _wallynewssitemap_generate_newsurl_xml_set_linked_image($dom, $image, $imageNS, $embed, $site_infos, $settings);
+      }
+    }
   }
 }
 
@@ -264,6 +273,23 @@ function _wallynewssitemap_generate_newsurl_xml_set_linked_image($dom, &$image, 
   // image:geo_location unable to be handled
   $image->appendChild($dom->createElementNS($imageNS, 'image:title', $embed->title));
   // image:license not handled yet
+}
+
+function _wallynewssitemap_generate_newsurl_xml_set_videos($dom, &$url, $videoNS, $node, $site_infos, $settings) {
+  foreach ($node->field_embededobjects_nodes as $embed) {
+    if ($embed->type == 'wally_videoobject') {
+      $video = $url->appendChild($dom->createElement('video:video'));
+      _wallynewssitemap_generate_newsurl_xml_set_video($dom, $video, $videoNS, $embed, $site_infos, $settings);
+    }
+  
+    if ($embed->type == 'wally_linktype') {
+      if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'video')) {
+        $video = $url->appendChild($dom->createElement('video:video'));
+        $embed->embed_data = $embed_content;
+        _wallynewssitemap_generate_newsurl_xml_set_linked_video($dom, $video, $videoNS, $embed, $site_infos, $settings);
+      }
+    }
+  }
 }
 
 /**
