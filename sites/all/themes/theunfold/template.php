@@ -279,7 +279,7 @@ function theunfold_preprocess_node(&$vars){
           $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
         }
       }
-dsm($vars);
+      
       $topItems = array();
       $bottomItems = array();
       theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
