@@ -227,6 +227,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $form[$element]['#required'] = FALSE;
       }
     }
+    
     if($form[$element]['#type'] == 'value' && $form[$element]['#value']) {
       continue;
     }
@@ -264,6 +265,16 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
         $filter_parents[] = $filter_key;
 
         $form[$element][$filter_key] = filter_form($format, 1, $filter_parents);
+      }
+
+      if (isset($fields[$element]['text_processing']) && $fields[$element]['text_processing'] == 0) {
+        if ($children = element_children($form[$element])) {
+          foreach ($children as $child) {
+            $form[$element][$child]['#wysiwyg'] = FALSE;
+          }
+        } else {
+          $form[$element]['#wysiwyg'] = FALSE;
+        }
       }
     }
 
