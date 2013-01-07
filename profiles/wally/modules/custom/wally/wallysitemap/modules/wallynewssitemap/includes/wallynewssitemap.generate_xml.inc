@@ -8,7 +8,7 @@ function _wallynewssitemap_generate_sitemap_xml($site_infos, $settings) {
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
 
   $nids = array();
-  $db_nids = db_query("SELECT nid FROM {node} WHERE type = 'wally_articlepackage' ORDER BY created DESC LIMIT 0, 200");
+  $db_nids = db_query("SELECT nid FROM {node} WHERE type = 'wally_articlepackage' ORDER BY created DESC LIMIT 0, 1000");
   while ($db_nid = db_fetch_array($db_nids)) {
     $nids[] = $db_nid['nid'];
   }

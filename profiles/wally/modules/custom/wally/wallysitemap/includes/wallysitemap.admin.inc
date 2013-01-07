@@ -11,6 +11,7 @@ function wallysitemap_admin_settings_page_form($form_state) {
     '#description' => t('Sitemap\'s and sitemap index\'s XMLs will be saved there.<br>
         This must be a writable directory.'),
     '#default_value' => $default_settings['wallysitemap_path'],
+    '#required' => TRUE,
   );
 
   $blacklist_defaults = implode(PHP_EOL, $default_settings['wallysitemap_blacklist']);
@@ -100,7 +101,7 @@ function wallysitemap_admin_settings_page_form_submit($form, $form_state) {
   $tmp_blacklist = explode(PHP_EOL, $values['wallysitemap_blacklist']);
   $settings['wallysitemap_blacklist'] = array();
   foreach ($tmp_blacklist as $tmp_blackelem) {
-    $blackelem = trim($tmp_blackelem);
+    $blackelem = trim(trim($tmp_blackelem), '/');
     if (!empty($blackelem)) $settings['wallysitemap_blacklist'][] = $blackelem;
   }
   $settings['wallysitemap_handled_menus'] = array();

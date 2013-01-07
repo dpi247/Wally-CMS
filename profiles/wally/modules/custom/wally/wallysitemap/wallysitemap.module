@@ -32,7 +32,7 @@ function wallysitemap_menu() {
  * Implementation of hook_theme()
  */
 function wallysitemap_theme() {
-  $theme_path = drupal_get_path('wallysitemap').'/theme/theme.inc';
+  $theme_path = drupal_get_path('module', 'wallysitemap').'/theme/theme.inc';
   return array(
     'wallysitemap_taxonomy_tree' => array(
       'arguments' => array('element'),
@@ -58,11 +58,26 @@ function wallysitemap_theme() {
  * Call the sitemap generation.
  */
 function wallysitemap_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  
   if ($settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+    
     $site_infos = wallysitemap_get_site_infos();
     module_load_include('inc', 'wallysitemap', 'includes/wallysitemap.generate_xml');
     _wallysitemap_generate_sitemap_xml($site_infos, $settings);
+    
+    $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+    $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+    $formatted = $d->format('i:s.u');
+    $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+  } else {
+    $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.');
   }
+  
+  print $return;
 }
 
 /**
