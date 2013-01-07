@@ -49,8 +49,26 @@ function wallycontenttypes_schema() {
         'size' => 'medium',
         'not null' => FALSE,
       ),
+  	  'date' => array(
+        'description' => 'Date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+      //0 : unpublish, 1 publish
+      'action' => array(
+        'type' => 'int',
+        'unsigned' => TRUE, 
+        'not null' => TRUE, 
+        'default' => 0,
+       ),
+       'date_timezone' => array(
+         'description' => 'The timezone of the field date',
+         'type' => 'text',
+         'size' => 'medium',
+         'not null' => FALSE,
+       ),
     ),
-    'primary key' => array('nid'),
   );
 
   $schema['content_field_autopublish'] = array(
@@ -331,5 +349,74 @@ function wallycontenttypes_update_6105() {
     cache_clear_all('content_type_info:'. $language->language, content_cache_tablename());
   }
 
+  return $ret;
+}
+/**
+ * Add two field to the wallycontenttypes_temp_nodetopublish
+ * */
+function wallycontenttypes_update_6106(){
+  $schema = drupal_get_schema('wallycontenttypes_temp_nodetopublish', TRUE);
+  $ret = array();
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'action')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'action', $schema['fields']['action']);
+  }
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'date')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'date', $schema['fields']['date']);
+  }
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'date_timezone')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'date_timezone', $schema['fields']['date_timezone']);
+  }
+  //db_drop_primary_key($ret, 'wallycontenttypes_temp_nodetopublish');
+  if (db_column_exists('wallycontenttypes_temp_nodetopublish', 'field_embargodatetime_value')){
+    db_drop_field($ret, 'wallycontenttypes_temp_nodetopublish', 'field_embargodatetime_value');
+  }
+  if (db_column_exists('wallycontenttypes_temp_nodetopublish', 'field_unpublishdate_value')){
+    db_drop_field($ret, 'wallycontenttypes_temp_nodetopublish', 'field_unpublishdate_value');
+  }
+  //Rebuild the table
+  db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
+  //Get the timezone of the field_embargodatetime
+  $embargo_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_embargodatetime'");
+  $embargo_global_settings = db_fetch_array($embargo_result);
+  $embargo_global_settings = unserialize($embargo_global_settings['global_settings']);
+  $embargo_timezone = date_get_timezone($embargo_global_settings['tz_handling']);
+  //Get the node where their embargo date is today
+  $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value as date
+                			   FROM {node} n 
+                			   LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid
+                			   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+                			   WHERE (
+                			   DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() 
+                			   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage' OR n.type = 'wally_pollpackage')
+                			   AND auto.field_autopublish_value = 'Autopublish' 
+                			   ");
+  
+  while ($obj = db_fetch_object($results)){
+    $obj->action = 1;
+    $obj->date_timezone = $embargo_timezone;
+    drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+  }
+  
+  //Get the timezone of the field_unpublishdate
+  $unpublish_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_unpublishdate'");
+  $unpublish_global_settings = db_fetch_array($unpublish_result);
+  $unpublish_global_settings = unserialize($unpublish_global_settings['global_settings']);
+  $unpublish_timezone = date_get_timezone($unpublish_global_settings['tz_handling']);
+  //Get the node where their unpublish date is today
+  $results = db_query("SELECT DISTINCT n.nid, n.status, cfu.field_unpublishdate_value as date
+                      	   FROM {node} n 	   
+                      	   LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
+                      	   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+                      	   WHERE DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE()
+                      	   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
+                      	   AND auto.field_autopublish_value = 'Autopublish' 
+                      	   ");
+  
+  while ($obj = db_fetch_object($results)){
+    $obj->action = 0;
+    $obj->date_timezone = $unpublish_timezone;
+    drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+  }
+  
   return $ret;
 }

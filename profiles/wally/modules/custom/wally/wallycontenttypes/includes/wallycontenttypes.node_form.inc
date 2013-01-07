@@ -454,12 +454,38 @@ function _wallycontenttypes_insertautopublish($node) {
   if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
     db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d", $node->nid);
     if ($node->field_autopublish[0]['value'] == 'Autopublish') {
+      
       $node_temp = new stdClass();
       $node_temp->nid = $node->nid;
       $node_temp->status = $node->status;
-      $node_temp->field_embargodatetime_value = $node->field_embargodatetime[0]['value'];
-      $node_temp->field_unpublishdate_value = $node->field_unpublishdate[0]['value'];
-      drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+      if ($node->field_embargodatetime[0]['value'] != NULL){
+        $node_temp->date = $node->field_embargodatetime[0]['value'];
+        $node_temp->action = 1;
+        $node_temp->date_timezone = $node->field_embargodatetime[0]['timezone'];
+        if ($form_date = date_make_date($node_temp->date, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($node_temp->date_timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_embargo_date = $form_date->date;
+          //Insert only if the date is not already past.
+          if (strtotime($safe_embargo_date) > time()) {
+            drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+          }
+        }
+      }
+      if ($node->field_unpublishdate[0]['value'] != NULL){
+        $node_temp->action = 0;
+        $node_temp->date = $node->field_unpublishdate[0]['value'];
+        $node_temp->date_timezone = $node->field_unpublishdate[0]['timezone'];
+        if ($form_date = date_make_date($node_temp->date, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($node_temp->date_timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_unpublish_date = $form_date->date;
+          //insert only if the date is not already past.
+          if (strtotime($safe_unpublish_date) > time()) {
+            drupal_write_record('wallycontenttypes_temp_nodetopublish', $node_temp);
+          }
+        }
+      }
     }
   }
 }
