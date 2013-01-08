@@ -15,7 +15,10 @@
 	  <li><span class="title"><?php print t('LastName')?></span> : <span class="description"><?php print $node->field_personlastname[0]['safe'];?></span></li>
     <?php endif;?>
     <?php if ($node->field_personwebsite[0]['url'] != NULL):?>
-	  <li><span class="title"><?php print t('Web Site')?></span> : <span class="description"><a href="<?php print $node->field_personwebsite[0]['url']?>"><?php print $node->field_personwebsite[0]['title'];?></a></span></li>
+      <?php if ($node->field_personwebsite[0]['display_title'] == NULL){
+        $node->field_personwebsite[0]['display_title'] = $node->field_personwebsite[0]['display_url'];
+      }?>
+	  <li><span class="title"><?php print t('Web Site')?></span> : <span class="description"><a href="<?php print $node->field_personwebsite[0]['url']?>"><?php print $node->field_personwebsite[0]['display_title'];?></a></span></li>
     <?php endif;?>
   </ul>
 </div> 
