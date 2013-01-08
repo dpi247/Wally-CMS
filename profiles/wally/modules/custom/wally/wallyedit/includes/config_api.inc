@@ -223,6 +223,9 @@ function wyditadmin_get_existing_fields($type_name, $field = NULL) {
       if ($content_field['type'] ==  'nodereference') {
         $existing_fields[$type_name][$content_field['field_name']]['referenceable_types'] = $content_field['referenceable_types'];
       }
+      if ($content_field['type'] ==  'text' && $content_field['widget']['type'] == 'text_textarea') {
+        $existing_fields[$type_name][$content_field['field_name']]['text_processing'] = $content_field['text_processing'];
+      }
     }
 
     $form_state = array();

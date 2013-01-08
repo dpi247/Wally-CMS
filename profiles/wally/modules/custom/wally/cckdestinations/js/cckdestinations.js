@@ -30,7 +30,8 @@ function updateList() {
 		if (taxo != '') {
 			var targ = taxo.replace(str_to_replace, "target");
 			var lay = taxo.replace(str_to_replace, "layout");
-
+			
+			makeSublist(taxo, targ, lay);
 			$(this).bind("change", function(event) {
 				makeSublist(taxo, targ, lay);
 			});
@@ -56,25 +57,28 @@ function makeSublist(taxo, targ, lay) {
 		var expl_term_value = term_value.split('[');
 		var selected_tid = expl_term_value[expl_term_value.length - 1];
 	}
-
+	
 	var selected_targ = $("#"+targ).find("option:selected").val();
 	var selected_lay = $("#"+lay).find("option:selected").val();
-
+	$("#"+targ).html('');
+	$("#"+lay).html('');
+	
 	if (selected_tid > 0) {
 		var select_options = Drupal.settings.cckdestchoices;
-
-		$("#"+targ).html('');
-		var targ_options = select_options[selected_tid].redacblocks;
-		$.each(targ_options, function() {
-			$("#"+targ).append('<option value="'+this.name+'">'+this.title+'</option>');
-		});
-		$("#"+targ+' option[value="'+selected_targ+'"]').attr("selected", "selected");
 		
-		$("#"+lay).html('');
-		var lay_options = select_options[selected_tid].redacblocks[$("#"+targ).find("option:selected").val()].layouts;
-		$.each(lay_options, function() {
-			$("#"+lay).append('<option value="'+this.name+'">'+this.name+'</option>');
+		updateSublist(select_options[selected_tid].redacblocks, targ, selected_targ);
+		updateSublist(select_options[selected_tid].redacblocks[$("#"+targ).find("option:selected").val()].layouts, lay, selected_lay);
+		$("#"+targ).bind("change", function(event) {
+			selected_lay = $("#"+lay).find("option:selected").val();
+			$("#"+lay).html('');
+			updateSublist(select_options[selected_tid].redacblocks[$("#"+targ).find("option:selected").val()].layouts, lay, selected_lay);
 		});
-		$("#"+lay+' option[value="'+selected_lay+'"]').attr("selected", "selected");
 	}
+}
+
+function updateSublist(options, id, default_option) {
+	$.each(options, function() {
+		$("#"+id).append('<option value="'+this.name+'">'+this.name+'</option>');
+	});
+	$("#"+id+' option[value="'+default_option+'"]').attr("selected", "selected");
 }
