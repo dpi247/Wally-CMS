@@ -538,13 +538,17 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
       if (sizeof($available_profiles) > 1) {
         $options_profiles = array();
         foreach ($available_profiles as $av_prof) {
-          $options_profiles[$av_prof['pid']] = $av_prof['label'];
+        	if($form_state['profile_id']!=$av_prof['pid']){
+              $options_profiles[$av_prof['pid']] = $av_prof['label'];
+        	}
+        	else{
+        		$current_profile_name=$av_prof['label'];
+        	}
         }
         $form['choose_profile'] = array(
           '#type' => 'select',
-          '#title' => t('Choose profile'),
+          '#title' => t('Choose profile (current profile is %current_profile )',array('%current_profile'=>$current_profile_name)),
           '#options' => $options_profiles,
-          '#default_value' => $profile_id,
           '#weight' => -100,
         );
   
