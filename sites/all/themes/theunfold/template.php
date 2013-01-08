@@ -30,6 +30,9 @@ function theunfold_theme(&$var) {
     'theme_package_freetags' => array(
   	  'arguments' => array('vars' => NULL),
     ),
+  	'theme_package_persons' => array(
+  				'arguments' => array('vars' => NULL),
+  	),
     'emaudio_flowplayer_flash' => array(
   	  'arguments' => array('url' => NULL, 'width' => '100%', 'height' => 0, 'field' => NULL, 'data' => array(), 'node' => NULL, 'autoplay' => FALSE),
     ),
@@ -276,7 +279,7 @@ function theunfold_preprocess_node(&$vars){
           $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
         }
       }
-
+      
       $topItems = array();
       $bottomItems = array();
       theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
@@ -288,6 +291,7 @@ function theunfold_preprocess_node(&$vars){
         array('linkslist' => $linkslist, 
         	  'bearItems' => $bearItems, 
         	  'freeTags'  => $vars['field_free_tags'],
+        	  'persons'  => $vars['field_persons'],
         )
       );
     }
@@ -326,7 +330,8 @@ function theunfold_preprocess_node_build(&$node){
   $by = NULL;
   if ($mainstory->field_authors[0]['value'] != NULL){
     foreach ($mainstory->field_authors as $author){
-      $by[] = $author['view'];
+      $author_term = taxonomy_get_term($author['value']);
+      $by[] = $author_term->name;
     }
   }
   if ($mainstory->field_byline[0]['safe'] != NULL){
@@ -463,21 +468,34 @@ function theunfold_theme_package_related_items($vars){
   $content  = '';
   $content .= theme('theme_package_linkslists', array('linkslist' => $vars['linkslist']));
   $content .= theme('theme_package_freetags', array('freeTags' => $vars['freeTags']));
+  $content .= theme('theme_package_persons', array('persons' => $vars['persons']));
   $content .= theme('theme_package_bear_items', array('bearItems' => $vars['bearItems']));
  
   return $content;
 }
-function theunfold_theme_package_freetags($vars){
+function theunfold_theme_package_persons($vars){
   $content = '';
-  if ($vars['freeTags'][0]['value'] != NULL){
-    $content .= '<h2 class="section-title">'.t('Free Tags').'</h2>';
+  if ($vars['persons'][0]['value'] != NULL){
+    $content .= '<h2 class="section-title">'.t('Persons').'</h2>';
     $vir = '';
-    foreach ($vars['freeTags'] as $freetags){
+    foreach ($vars['persons'] as $freetags){
       $content .= $vir.'<a href="/'.drupal_get_path_alias('taxonomy/term/'.$freetags['value']).'">'.$freetags['view'].'</a>';
       $vir = ', ';
     }
   }
   return $content;
+}
+function theunfold_theme_package_freetags($vars){
+	$content = '';
+	if ($vars['freeTags'][0]['value'] != NULL){
+		$content .= '<h2 class="section-title">'.t('Free Tags').'</h2>';
+		$vir = '';
+		foreach ($vars['freeTags'] as $freetags){
+			$content .= $vir.'<a href="/'.drupal_get_path_alias('taxonomy/term/'.$freetags['value']).'">'.$freetags['view'].'</a>';
+			$vir = ', ';
+		}
+	}
+	return $content;
 }
 function theunfold_theme_package_by($vars){
   $content = NULL;
