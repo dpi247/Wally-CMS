@@ -15,6 +15,7 @@ function wallyfundamentals_install() {
 function wallyfundamentals_uninstall() {
   
 }
+
 /**
  * 
  * Implementation of hook_update_N
