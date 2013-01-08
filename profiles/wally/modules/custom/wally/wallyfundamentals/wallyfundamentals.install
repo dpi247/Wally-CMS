@@ -4,8 +4,13 @@
 * Implementation of hook_install();
 */
 function wallyfundamentals_install() {
+  $ret = array();
   if (db_table_exists('content_field_publicationdate')){
     db_add_index($ret, 'content_field_publicationdate', 'idx_field_publicationdate_value', array('field_publicationdate_value'));
+  }
+  if (db_table_exists('node')){
+    db_add_index($ret, 'node', 'node_status_created', array('status', 'created'));
+    db_add_index($ret, 'node', 'node_status_changed', array('status', 'changed'));
   }
 }
 
@@ -25,6 +30,19 @@ function wallyfundamentals_update_6100(){
   $ret = array();
   if (db_table_exists('content_field_publicationdate')){
     db_add_index($ret, 'content_field_publicationdate', 'idx_field_publicationdate_value', array('field_publicationdate_value'));
+  }
+  return $ret;
+}
+/**
+*
+* Implementation of hook_update_N
+* @return multitype:
+*/
+function wallyfundamentals_update_6101(){
+  $ret = array();
+  if (db_table_exists('node')){
+    db_add_index($ret, 'node', 'node_status_created', array('status', 'created'));
+    db_add_index($ret, 'node', 'node_status_changed', array('status', 'changed'));
   }
   return $ret;
 }
