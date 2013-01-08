@@ -26,67 +26,35 @@ function shortUpdateList() {
 	$(".tid").each(function(index) {
 		var taxo = this.id;
 		if (taxo != '') {
-			targ = taxo.replace(short_str_to_replace, "target");
-			var selected_targ = '';
-			if (this.value) {
-				selected_targ = $("#"+targ).find("option:selected").attr("value");
-			}
-			shortMakeSublist(taxo, targ, selected_targ);
+			var targ = taxo.replace(short_str_to_replace, "target");
+			shortMakeSublist(taxo, targ);
+			$(this).bind("change", function(event) {
+				shortMakeSublist(taxo, targ);
+			});
 		}
 	});
 }
 
-function shortMakeSublist(parent, child, childVal) {
-	if ($("#"+parent+child).length==0) {
-		$("body").append("<select style='display:none' id='"+parent+child+"'></select>");
-		$("#"+parent+child).html($("#"+child+" option"));
-	}
-	
-	if (short_str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != short_str_to_replace)) {
-		var parentValue = $("#"+parent).find("option:selected").attr("title");
+function shortMakeSublist(taxo, targ) {
+	if (short_str_to_replace == "tid" || (taxo.substring(taxo.length - 3, taxo.length) != "tid" && taxo.substring(taxo.length - 5, taxo.length) != short_str_to_replace)) {
+		var selected_tid = $("#"+taxo).find("option:selected").val();
 	} else {
-		var term_value = $("#"+parent).val();
+		var term_value = $("#"+taxo).val();
 		term_value = term_value.substring(0, term_value.length - 1);
 		var expl_term_value = term_value.split('[');
-		var parentValue = expl_term_value[expl_term_value.length - 1];
+		var selected_tid = expl_term_value[expl_term_value.length - 1];
 	}
-	
-	$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-	childVal = (typeof childVal == "undefined") ? "" : childVal ;
-	$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
 
-	$("#edit-conf-destination-tid-1-wrapper").bind("DOMNodeRemoved", function(event) {
-		if (event.target.id == "autocomplete") {
-			if (short_str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != short_str_to_replace)) {
-				var parentValue = $("#"+parent).find("option:selected").attr("title");
-			} else {
-				var term_value = $("#"+parent).val();
-				term_value = term_value.substring(0, term_value.length - 1);
-				var expl_term_value = term_value.split('[');
-				var parentValue = expl_term_value[expl_term_value.length - 1];
-			}
+	var selected_targ = $("#"+targ).find("option:selected").val();
 
-			$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-			childVal = (typeof childVal == "undefined") ? "" : childVal ;
-			$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-			$("#"+child).trigger("change");
-		}
-	});
-	
-	$("#"+parent).bind("change", function(event) {
-		if (short_str_to_replace == "tid" || (parent.substring(parent.length - 3, parent.length) != "tid" && parent.substring(parent.length - 5, parent.length) != short_str_to_replace)) {
-			var parentValue = $("#"+parent).find("option:selected").attr("title");
-		} else {
-			var term_value = $("#"+parent).val();
-			term_value = term_value.substring(0, term_value.length - 1);
-			var expl_term_value = term_value.split('[');
-			var parentValue = expl_term_value[expl_term_value.length - 1];
-		}
+	$("#"+targ).html('');
+	if (selected_tid > 0) {
+		var select_options = Drupal.settings.shortcckdestchoices;
 
-		$("#"+child).html($("#"+parent+child+" .sub_"+parentValue).clone());
-		childVal = (typeof childVal == "undefined") ? "" : childVal ;
-		$("#"+child+' option[value="'+ childVal +'"]').attr("selected","selected");
-		$("#"+child).trigger("change");
-	});
+		var targ_options = select_options[selected_tid].redacblocks;
+		$.each(targ_options, function() {
+			$("#"+targ).append('<option value="'+this.name+'">'+this.title+'</option>');
+		});
+		$("#"+targ+' option[value="'+selected_targ+'"]').attr("selected", "selected");
+	}
 }
-

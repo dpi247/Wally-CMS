@@ -10,38 +10,41 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $limit
   $form = array();
 
   if (!isset($form_state['post']['operation']) && !isset($form_state['post']['time_rank']) && !isset($form_state['post']['rows']) && !isset($form_state['post']['destinations'])) {
-    drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
-    
-    $options_and_classe = cckdestinations_get_classes_and_options();
     $vocabulary_id = variable_get('wallymport_destinationpath', 0);
+    $hierarchies = wallyctools_get_hierarchies();
+    
+    drupal_add_js(array('shortcckdestchoices' => $hierarchies), 'setting');
+    drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
   
     $form['destination'] = array(
       '#type' => 'fieldset',
       '#title' => t('Change destination path and target'),
       '#attributes' => array('id' => 'field-destinations-items'),
     );
-  
+    
+    $tid_options = array('Not Set');
+    foreach ($hierarchies as $id => $val) $tid_options[$id] = $val['hierarchic_name'];
     $form['destination']['tid'] = array(
-      '#title'            => t('Destination Path'),
+      '#title'            => t( 'Destination Path' ),
       '#type'             => 'select',
       '#default_value'    => $destination_tid,
-      '#options'          => array(array('Not Set')) + $options_and_classe['tid']['#options'],
+      '#options'          => $tid_options,
       '#required'         => TRUE,
-       // specify theming callback & add a new #attribute to the element.
-      '#theme'            => 'cckdestinations_cascading_select',
+      '#weight'           => 1,
       '#attributes'       => array('class' => 'tid'),
       '#vid'              => $vocabulary_id,
     );
-  
+    
+    $target_options = array('none' => 'none');
+    $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
+    foreach ($array_of_redacblock_panes as $pane) $target_options[$pane->name] = $pane->name;
     $form['destination']['target'] = array(
-      '#title'            => t('Target'),
+      '#title'            => t( 'Target' ),
       '#type'             => 'select',
       '#default_value'    => $target,
-      '#options'          => $options_and_classe['target']['#options'],
-      '#classes'          => $options_and_classe['target']['#classes'],
+      '#options'          => $target_options,
       '#required'         => TRUE,
-       // specify theming callback & add a new #attribute to the element.
-      '#theme'            => 'cckdestinations_cascading_select',
+      '#weight'           => 2,
       '#attributes'       => array('class' => 'target'),
     );
     
@@ -50,11 +53,13 @@ function wallyctools_form_change_destination_form($form_state, $redirect, $limit
       '#type'             => 'textfield',
       '#default_value'    => $limit,
       '#required'         => TRUE,
+      '#weight'           => 3,
     );
     
     $form['destination']['submit'] = array(
       '#type'             => 'submit',
       '#value'            => $destination_tid ? t('Change') : t('Charge'),
+      '#weight'           => 3,
     );
     
     $form['redirect_path'] = array(
