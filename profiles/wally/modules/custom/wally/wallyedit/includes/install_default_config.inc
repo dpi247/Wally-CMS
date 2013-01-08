@@ -41,7 +41,7 @@ $wallyedit_fields = array(
   array('fid'=>32,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>16,'gid'=>0,'type'=>'content_taxonomy','widget'=>'content_taxonomy_select','name'=>'field_packagelayout','label'=>'Package Layout','weight'=>-4,'display'=>1),
   array('fid'=>33,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>16,'gid'=>1,'type'=>'datetime','widget'=>'date_text','name'=>'field_unpublishdate','label'=>'UnpublishDate','weight'=>-7,'display'=>1),
   array('fid'=>34,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'text','widget'=>'optionwidgets_onoff','name'=>'field_freeaccess','label'=>'Free Access','weight'=>6,'display'=>0),
-  array('fid'=>35,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'textfield','widget'=>'textfield','name'=>'title','label'=>'Package Title','weight'=>7,'display'=>0),
+  array('fid'=>35,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>15,'gid'=>0,'type'=>'textfield','widget'=>'textfield','name'=>'title','label'=>'Package Title','weight'=>-11,'display'=>1),
   array('fid'=>36,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'textarea','widget'=>'textarea','name'=>'log','label'=>'Log message','weight'=>8,'display'=>0),
   array('fid'=>37,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'checkbox','widget'=>'checkbox','name'=>'revision','label'=>'Create new revision','weight'=>9,'display'=>0),
   array('fid'=>38,'pid'=>1,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'textfield','widget'=>'textfield','name'=>'date','label'=>'Authored on','weight'=>10,'display'=>0),
@@ -385,7 +385,7 @@ $wallyedit_fields = array(
   array('fid'=>376,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>54,'gid'=>0,'type'=>'content_taxonomy','widget'=>'content_taxonomy_select','name'=>'field_packagelayout','label'=>'Package Layout','weight'=>1,'display'=>1),
   array('fid'=>377,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>54,'gid'=>0,'type'=>'date','widget'=>'date_text','name'=>'field_publicationdate','label'=>'Publication Date','weight'=>-10,'display'=>1),
   array('fid'=>378,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'text','widget'=>'optionwidgets_onoff','name'=>'field_freeaccess','label'=>'Free Access','weight'=>1,'display'=>0),
-  array('fid'=>379,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'textfield','widget'=>'textfield','name'=>'title','label'=>'Package Title','weight'=>2,'display'=>0),
+  array('fid'=>379,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>15,'gid'=>0,'type'=>'textfield','widget'=>'textfield','name'=>'title','label'=>'Package Title','weight'=>-11,'display'=>1),
   array('fid'=>380,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'checkbox','widget'=>'checkbox','name'=>'revision','label'=>'Create new revision','weight'=>3,'display'=>0),
   array('fid'=>381,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>0,'gid'=>0,'type'=>'select','widget'=>'select','name'=>'parent','label'=>'Parent item','weight'=>4,'display'=>0),
   array('fid'=>382,'pid'=>2,'content_type'=>'wally_articlepackage','tid'=>54,'gid'=>0,'type'=>'weight','widget'=>'weight','name'=>'weight','label'=>'Weight','weight'=>-1,'display'=>1),
@@ -718,7 +718,7 @@ $wallyedit_fields = array(
   array('fid'=>709,'pid'=>1,'content_type'=>'wally_videoobject','tid'=>0,'gid'=>0,'type'=>'text','widget'=>'text_textfield','name'=>'field_byline','label'=>'ByLine','weight'=>-10,'display'=>0),
   array('fid'=>710,'pid'=>1,'content_type'=>'wally_videoobject','tid'=>0,'gid'=>0,'type'=>'radios','widget'=>'radios','name'=>'comment','label'=>'Comment settings','weight'=>-10,'display'=>0),
   array('fid'=>711,'pid'=>1,'content_type'=>'wally_videoobject','tid'=>14,'gid'=>0,'type'=>'content_taxonomy','widget'=>'content_taxonomy_tree','name'=>'field_concepts','label'=>'Concepts','weight'=>1,'display'=>1),
-  array('fid'=>712,'pid'=>1,'content_type'=>'wally_videoobject','tid'=>14,'gid'=>0,'type'=>'content_taxonomy','widget'=>'content_taxonomy_tree','name'=>'field_iptc','label'=>'IPTC','weight'=>2,'display'=>1)
+  array('fid'=>712,'pid'=>1,'content_type'=>'wally_videoobject','tid'=>14,'gid'=>0,'type'=>'content_taxonomy','widget'=>'content_taxonomy_tree','name'=>'field_iptc','label'=>'IPTC','weight'=>2,'display'=>1),
 );
 
 global $wallyedit_groups;
