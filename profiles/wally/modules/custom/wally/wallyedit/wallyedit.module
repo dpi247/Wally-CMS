@@ -537,7 +537,10 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
       $available_profiles = wallyedit_get_available_profiles();
       if (sizeof($available_profiles) > 1) {
         $options_profiles = array();
+        //dsm($form_state);
+        
         foreach ($available_profiles as $av_prof) {
+        	if($form_state['profile_id']!=$av_prof['pid'])
           $options_profiles[$av_prof['pid']] = $av_prof['label'];
         }
         $form['choose_profile'] = array(
