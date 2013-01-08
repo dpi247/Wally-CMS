@@ -60,24 +60,58 @@ function wallysitemap_theme() {
 function wallysitemap_cron() {
   $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
   
-  if ($settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
-    
-    $site_infos = wallysitemap_get_site_infos();
-    module_load_include('inc', 'wallysitemap', 'includes/wallysitemap.generate_xml');
-    _wallysitemap_generate_sitemap_xml($site_infos, $settings);
-    
-    $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
-    $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
-    $formatted = $d->format('i:s.u');
-    $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('wallysitemap_cron_semaphore', FALSE);
+  
+  if ($semaphore) {
+    if (time() - $semaphore > 4 * 60) {
+      // Either cron has been running for more 5 minutes or the semaphore
+      // was not reset due to a database error.
+      wally_variable_del('wallysitemap_cron_semaphore');
+    }
+  
+    $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
   } else {
-    $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.');
+    // Register shutdown callback
+    register_shutdown_function('wallysitemap_cron_cleanup');
+    
+    // Lock cron semaphore
+    wally_variable_set('wallysitemap_cron_semaphore', time());
+    
+    // Main process
+    if ($settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+      
+      $site_infos = wallysitemap_get_site_infos();
+      module_load_include('inc', 'wallysitemap', 'includes/wallysitemap.generate_xml');
+      _wallysitemap_generate_sitemap_xml($site_infos, $settings);
+      
+      $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+      $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+      $formatted = $d->format('i:s.u');
+      $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+    } else {
+      $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.').'<br>';
+    }
+    
+    // Release cron semaphore
+    wally_variable_del('wallysitemap_cron_semaphore');
   }
   
   print $return;
+}
+
+/**
+ * Shutdown function for sitemap cron cleanup.
+ */
+function wallysitemap_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (wally_variable_get('wallysitemap_cron_semaphore', FALSE)) {
+    // Release cron semaphore
+    wally_variable_del('wallysitemap_cron_semaphore');
+  }
 }
 
 /**
@@ -93,20 +127,28 @@ function wallysitemap_elements() {
   return $type;
 }
 
-function wallysitemap_generate_xmlfile($dom_sitemap, $namespaces, $site_infos, $folder_path, $file_name) {
+function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
   // @todo : gérer la compression gzip des xmls
+  
+  $site_infos = wallysitemap_get_site_infos();
 
-  $sitemap_local_path = $folder_path.'/'.$file_name;
-  $sitemap_full_path = $site_infos['base_url'].'/'.$sitemap_local_path;
-  $dom_sitemap->save($sitemap_local_path);
+  $sitemaps_full_path = array();
+  foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {
+    $sitemap_local_path = $folder_path.'/'.$xmlfile_to_generate['filename'];
+    $sitemaps_full_path[] = $site_infos['base_url'].'/'.$sitemap_local_path;
+    $xmlfile_to_generate['dom']->save($sitemap_local_path);
+  }
 
-  wallysitemap_update_index(array($sitemap_full_path), $namespaces, $folder_path);
+  wallysitemap_update_index($sitemaps_full_path, $folder_path);
 }
 
-function wallysitemap_update_index($paths, $namespaces, $folder_path) {
+function wallysitemap_update_index($paths, $folder_path) {
+  $namespaces = wallysitemap_get_namespaces();
+  
   $index_local_path = $folder_path.'/sitemapindex.xml';
 
   $dom_index = new DOMDocument('1.0', 'UTF-8');
+  $dom_index->formatOutput = TRUE;
   _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
 
@@ -114,6 +156,22 @@ function wallysitemap_update_index($paths, $namespaces, $folder_path) {
     _wallysitemap_update_entry_in_index($dom_index, $dom_sitemapindex, $path);
   }
 
+  $dom_index->save($index_local_path);
+}
+
+function wallysitemap_remove_files($paths_to_delete, $folder_path) {
+  $namespaces = wallysitemap_get_namespaces();
+  
+  $index_local_path = $folder_path.'/sitemapindex.xml';
+  $dom_index = new DOMDocument('1.0', 'UTF-8');
+  $dom_index->formatOutput = TRUE;
+  _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+  
+  foreach ($paths_to_delete as $path) {
+    _wallysitemap_delete_entry_in_index($dom_index, $dom_sitemapindex, $path);
+  }
+  
   $dom_index->save($index_local_path);
 }
 
@@ -305,7 +363,6 @@ function _wallysitemap_get_or_create_index(&$dom, $sitemapNS, $index_path) {
 }
 
 function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
-  // Remove reference to old sitemap
   $found = FALSE;
   $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
   if ($dom_sitemaps->item(0)) {
@@ -322,5 +379,18 @@ function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $p
     $dom_new_sitemap = $dom_sitemapindex->appendChild($dom_index->createElement('sitemap'));
     $dom_new_sitemap->appendChild($dom_index->createElement('loc', $path));
     $dom_new_sitemap->appendChild($dom_index->createElement('lastmod', date('Y-m-d\TH:i:sP')));
+  }
+}
+
+function _wallysitemap_delete_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      if ($sitemap_loc == $path) {
+        $dom_sitemaps->removeChild($dom_sitemap);
+        break;
+      }
+    }
   }
 }

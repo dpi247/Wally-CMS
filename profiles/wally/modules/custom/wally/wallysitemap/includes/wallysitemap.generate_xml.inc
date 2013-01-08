@@ -8,6 +8,7 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
   
   $namespaces = wallysitemap_get_namespaces();
   $dom = new DOMDocument('1.0', 'UTF-8');
+  $dom->formatOutput = TRUE;
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
   
   $dest_terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));
@@ -19,7 +20,12 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
     _wallysitemap_generate_sitemap_xml_for_menu($dom, $urlset, $site_infos, $settings, $menu_infos);
   }
   
-  wallysitemap_generate_xmlfile($dom, $namespaces, $site_infos, $settings['wallysitemap_path'], 'sitemapmain.xml');
+  $xmlfile_to_generate = array(
+    'dom' => $dom,
+    'filename' => 'sitemapmain.xml',
+  );
+  
+  wallysitemap_generate_xmlfile($xmlfile_to_generate, $settings['wallysitemap_path']);
 }
 
 function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos, $settings, $menu_infos) {

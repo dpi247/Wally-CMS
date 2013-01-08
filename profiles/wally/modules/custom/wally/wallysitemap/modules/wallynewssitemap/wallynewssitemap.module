@@ -19,24 +19,57 @@ function wallynewssitemap_menu() {
 function wallynewssitemap_cron() {
   $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
   
-  if ($settings = wally_variable_get('wallynewssitemap_sitemaps_settings', FALSE)) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
-    
-    $site_infos = wallysitemap_get_site_infos();
-    module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
-    _wallynewssitemap_generate_sitemap_xml($site_infos, $settings);
-    
-    $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
-    $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
-    $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
-    $formatted = $d->format('i:s.u');
-    $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('wallynewssitemap_cron_semaphore', FALSE);
+  
+  if ($semaphore) {
+    if (time() - $semaphore > 4 * 60) {
+      // Either cron has been running for more 5 minutes or the semaphore
+      // was not reset due to a database error.
+      wally_variable_del('wallynewssitemap_cron_semaphore');
+    }
+
+    $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
   } else {
-    $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.');
+    // Register shutdown callback
+    register_shutdown_function('wallynewssitemap_cron_cleanup');
+
+    // Lock cron semaphore
+    wally_variable_set('wallynewssitemap_cron_semaphore', time());
+  
+    // Main process
+    if ($settings = wally_variable_get('wallynewssitemap_sitemaps_settings', FALSE)) {
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
+
+      module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
+      _wallynewssitemap_generate_sitemap_xml($settings);
+
+      $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
+      $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+      $formatted = $d->format('i:s.u');
+      $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+    } else {
+      $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.').'<br>';
+    }
+  
+    // Release cron semaphore
+    wally_variable_del('wallynewssitemap_cron_semaphore');
   }
   
   print $return;
+}
+
+/**
+ * Shutdown function for sitemap cron cleanup.
+ */
+function wallynewssitemap_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (wally_variable_get('wallynewssitemap_cron_semaphore', FALSE)) {
+    // Release cron semaphore
+    wally_variable_del('wallynewssitemap_cron_semaphore');
+  }
 }
 
 /**
@@ -45,6 +78,7 @@ function wallynewssitemap_cron() {
 function wallynewssitemap_default_settings() {
   return array(
     'wallynewssitemap_path' => 'sites/default/files/sitemaps',
+    'wallynewssitemap_delta_hours' => 48,
     'wallynewssitemap_consolidate_sitemap' => 0,
     'wallynewssitemap_add_images' => 0,
     'wallynewssitemap_add_videos' => 0,
