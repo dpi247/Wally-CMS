@@ -279,7 +279,7 @@ function theunfold_preprocess_node(&$vars){
           $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
         }
       }
-
+      
       $topItems = array();
       $bottomItems = array();
       theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
@@ -330,7 +330,8 @@ function theunfold_preprocess_node_build(&$node){
   $by = NULL;
   if ($mainstory->field_authors[0]['value'] != NULL){
     foreach ($mainstory->field_authors as $author){
-      $by[] = $author['view'];
+      $author_term = taxonomy_get_term($author['value']);
+      $by[] = $author_term->name;
     }
   }
   if ($mainstory->field_byline[0]['safe'] != NULL){

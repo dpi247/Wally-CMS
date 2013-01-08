@@ -4115,3 +4115,9 @@ div.bottom-items ul li {
 	list-style:none;
 	margin-left:0px;
 }
+.wally_persontype .article-main ul.article-list{
+	clear:none;
+}
+.wally_persontype .article-main ul.article-list li span.description{
+	color:black;
+}

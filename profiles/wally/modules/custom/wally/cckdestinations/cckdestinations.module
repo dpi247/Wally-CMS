@@ -689,10 +689,9 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#vid'              => $vocabulary_id,
   );
 
-  $target_options = array();
-  if ($defaults['tid'] && is_numeric($defaults['tid']) && isset($hierarchies[$defaults['tid']]['redacblocks'])) {
-    foreach ($hierarchies[$defaults['tid']]['redacblocks'] as $id => $val) $target_options[$id] = $val['title'];
-  }
+  $target_options = array('none' => 'none');
+  $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
+  foreach ($array_of_redacblock_panes as $pane) $target_options[$pane->name] = $pane->name;
   $element['target'] = array(
     '#title'            => t( 'Target' ),
     '#type'             => 'select',
@@ -704,10 +703,8 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   );
   
   $layout_options = array();
-  if ($defaults['tid'] && is_numeric($defaults['tid']) && isset($hierarchies[$defaults['tid']]['redacblocks']) &&
-      $defaults['target'] && isset($hierarchies[$defaults['tid']]['redacblocks'][$defaults['target']]['layouts'])) {
-    foreach ($hierarchies[$defaults['tid']]['redacblocks'][$defaults['target']]['layouts'] as $id => $val) $layout_options[$id] = $val['name'];
-  }
+  $existing_layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
+  foreach ($existing_layouts as $existing_layout) $layout_options[$existing_layout] = $existing_layout;
   $element['layout'] = array(
     '#title'            => t( 'Layout' ),
     '#type'             => 'select',
@@ -1039,21 +1036,6 @@ function cckdestinations_get_classes_and_options() {
 }
 
 /**
- * Implementation of hook_theme() for cascading select.
- * 
- * Call to cckdestinations_cascading_select_options() for theming "option". 
- *
- * @return HTML select form element. 
- */
-function theme_cckdestinations_cascading_select($element) {
-  $select = '';
-  $size = $element['#size'] ? ' size="'. $element['#size'] .'"' : '';
-  _form_set_class($element, array('form-select'));
-  $multiple = $element['#multiple'];
-  return theme('form_element', $element, '<select name="'. $element['#name'] .''. ($multiple ? '[]' : '') .'"'. ($multiple ? ' multiple="multiple" ' : '') . drupal_attributes($element['#attributes']) .' id="'. $element['#id'] .'" '. $size .'>'. cckdestinations_cascading_select_options($element) .'</select>');
-}
-
-/**
  * FAPI theme for an individual text elements.
  */
 function theme_cckdestinations_widget($element) {
@@ -1286,9 +1268,6 @@ function cckdestinations_theme() {
       'arguments' => array('element' => NULL),
     ),
     'cckdestinations_formatter_time_rank' => array(
-      'arguments' => array('element' => NULL),
-    ),
-    'cckdestinations_cascading_select' => array(
       'arguments' => array('element' => NULL),
     ),
     'cckdestinations_node_filters' => array(
