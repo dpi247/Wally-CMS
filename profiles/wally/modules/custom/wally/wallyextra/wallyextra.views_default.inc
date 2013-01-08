@@ -8,7 +8,7 @@ function wallyextra_views_default_views() {
 
   // Exported view: most_view
   $view = new view;
-  $view->name = 'most_view';
+$view->name = 'most_view';
 $view->description = 'most view by destinations';
 $view->tag = '';
 $view->base_table = 'node';
@@ -84,7 +84,7 @@ $handler->override_option('fields', array(
     'empty' => '',
     'hide_empty' => 0,
     'empty_zero' => 0,
-    'link_to_node' => 1,
+    'link_to_node' => 0,
     'exclude' => 1,
     'id' => 'title',
     'table' => 'node',
@@ -92,9 +92,36 @@ $handler->override_option('fields', array(
     'relationship' => 'field_mainstory_nid',
   ),
   'nid' => array(
+    'label' => '',
+    'alter' => array(
+      'alter_text' => 1,
+      'text' => '[title]',
+      'make_link' => 0,
+      'path' => '',
+      'absolute' => 0,
+      'link_class' => '',
+      'alt' => '',
+      'rel' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'target' => '',
+      'help' => '',
+      'trim' => 0,
+      'max_length' => '',
+      'word_boundary' => 1,
+      'ellipsis' => 1,
+      'html' => 0,
+      'strip_tags' => 0,
+    ),
+    'empty' => '',
+    'hide_empty' => 0,
+    'empty_zero' => 0,
+    'link_to_node' => 1,
+    'exclude' => 0,
     'id' => 'nid',
     'table' => 'node',
     'field' => 'nid',
+    'relationship' => 'none',
   ),
 ));
 $handler->override_option('sorts', array(
