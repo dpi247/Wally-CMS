@@ -546,7 +546,8 @@ function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
     "field_entities",
     "field_persons",
     "field_tags",
-    "field_free_tags"
+    "field_free_tags",
+    "field_authors",
   );
 
   foreach ($fields as $field) {

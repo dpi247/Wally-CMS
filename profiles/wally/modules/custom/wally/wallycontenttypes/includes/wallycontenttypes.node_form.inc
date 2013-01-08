@@ -493,6 +493,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
     $packagenode->no_taxonomy_update = TRUE; 
     $packagenode->taxonomy = $node->taxonomy;
     $packagenode->field_markers = $node->field_markers;
+    $packagenode->field_authors = $node->field_authors;
     $packagenode->field_locations = $node->field_locations;
     $packagenode->field_entities = $node->field_entities;
     $packagenode->field_persons = $node->field_persons;
@@ -543,6 +544,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
     if ($objectnode){
       $node->taxonomy = $objectnode->taxonomy;
       $node->field_markers = $objectnode->field_markers;
+      $node->field_authors = $objectnode->field_authors;
       $node->field_locations = $objectnode->field_locations;
       $node->field_entities = $objectnode->field_entities;
       $node->field_persons = $objectnode->field_persons;
@@ -595,6 +597,7 @@ function _wallycontenttypes_update_package_prenode_taxonomy_recursive(&$prenode,
 function _wallycontenttypes_set_taxonomies_from_object_to_prenode(&$prenode_node, $object) {
   $prenode_node->taxonomy = isset($prenode_node->taxonomy) ? array_merge_recursive($prenode_node->taxonomy, $object->taxonomy) : $object->taxonomy;
   $prenode_node->field_markers = isset($object->field_markers) ? $object->field_markers : $prenode_node->field_markers;
+  $prenode_node->field_markers = isset($object->field_authors) ? $object->field_authors : $prenode_node->field_authors;
   $prenode_node->field_locations = isset($object->field_locations) ? $object->field_locations : $prenode_node->field_locations;
   $prenode_node->field_entities = isset($prenode_node->field_entities) ? array_merge_recursive($prenode_node->field_entities, $object->field_entities) : $object->field_entities;
   $prenode_node->field_persons = isset($object->field_persons) ? $object->field_persons : $prenode_node->field_persons;
