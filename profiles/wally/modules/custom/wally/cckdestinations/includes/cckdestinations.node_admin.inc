@@ -88,40 +88,38 @@ function cckdestinations_node_filter_form() {
   $and_or_or = wally_variable_get('cckdestinations_and_or_or', ' AND ');
 
   $form = array();
-
-  $name = $filters['category']['title'];
-  $mem = array();
-  $targets = array();
-  $options_and_classe = cckdestinations_get_classes_and_options();
-  foreach ($options_and_classe['target']['#options'] as $option){
-    array_push($mem, $option);
-  }
-  foreach ($mem as $option){
-    if (!in_array($option, $targets)){
-      array_push($targets, $option);
-    }
-  }
   
-  $form['reorder']=array(
+  $vocabulary_id = variable_get('wallymport_destinationpath', 0);
+  $hierarchies = wallyctools_get_hierarchies();
+  
+  drupal_add_js(array('shortcckdestchoices' => $hierarchies), 'setting');
+  drupal_add_js(drupal_get_path('module', 'wallytoolbox').'/scripts/shortdest.js');
+
+  $form['reorder'] = array(
     '#type' => 'fieldset',
     '#title' => t('Reorder by'),
     '#prefix' => '<div class="container-inline" style="margin-bottom:20px;">',
     '#suffix' => '</div>',
+    '#tree' => TRUE,
   );
   
-  $form['reorder']['selectbox']=array(
-    '#title' => t('Destination'),
+  $tid_options = array('Not Set');
+  foreach ($hierarchies as $id => $val) $tid_options[$id] = $val['hierarchic_name'];
+  $form['reorder']['tid'] = array(
+    '#title' => t('Destination Path'),
     '#type' => 'select',
-    '#options' => $filters['category']['options']
+    '#options' => $tid_options,
+    '#vid' => $vocabulary_id,
+    '#attributes' => array('class' => 'tid'),
   );
-  
-  $form['reorder']['selectboxtarget']=array(
+
+  $target_options = array('none' => 'none');
+  $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
+  foreach ($array_of_redacblock_panes as $pane) $target_options[$pane->name] = $pane->name;
+  $form['reorder']['target'] = array(
     '#title' => t('Target'),
     '#type' => 'select',
-    '#options' => $targets,
-    // specify theming callback & add a new #attribute to the element.
-    '#theme' => 'cckdestinations_cascading_select',
-    '#attributes' => array('class' => 'target'),
+    '#options' => $target_options,
   );
   
   $form['reorder']['submit'] = array(
@@ -167,7 +165,7 @@ function cckdestinations_node_filter_form() {
   }
 
   $form['filters']['status']['category'] = array('#type' => 'select', '#options' => $filters['category']['options']);
-  $form['filters']['filter'] = array('#type' => 'radios', '#options' => array('category' => $name), '#default_value' => 'category');
+  $form['filters']['filter'] = array('#type' => 'radios', '#options' => array('category' => $filters['category']['title']), '#default_value' => 'category');
   $form['filters']['buttons']['submit'] = array('#type' => 'submit', '#value' => $filter_button_value);
   if (count($session)) {
     $form['filters']['buttons']['undo'] = array('#type' => 'submit', '#value' => t('Undo'));
@@ -203,7 +201,7 @@ function cckdestinations_node_filter_form_submit($form, &$form_state) {
 
   switch ($values['op']) {
   	case t('Reorder'):
-    	$form_state['redirect'] = 'admin/wally/wallyctools-operations/reorder/25/'.$values['selectbox'].'/'.$values['selectboxtarget'];
+    	$form_state['redirect'] = 'admin/wally/wallyctools-operations/reorder/25/'.$values['reorder']['tid'].'/'.$values['reorder']['target'];
     	break;
 
     case t('Filter'):
