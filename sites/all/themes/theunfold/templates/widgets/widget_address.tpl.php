@@ -1,4 +1,3 @@
-<?php dsm($widget);?>
 <div class="vcard">
 <p class="fn"><?php $widget['name']?><p>
 <p class="adr">

@@ -1,4 +1,4 @@
-<?php dsm($node);?>
+
 
 <div class="article-main article-group">
   <h2 class="main-title"><?php print t('Location')?></h2>
