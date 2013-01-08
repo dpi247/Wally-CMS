@@ -538,6 +538,7 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
       if (sizeof($available_profiles) > 1) {
         $options_profiles = array();
         foreach ($available_profiles as $av_prof) {
+        	if($form_state['profile_id']!=$av_prof['pid'])
           $options_profiles[$av_prof['pid']] = $av_prof['label'];
         }
         $form['choose_profile'] = array(
@@ -594,7 +595,7 @@ function wallyedit_form_views_bulk_operations_form__1_alter(&$form, &$form_state
       '#type' => 'submit',
       '#wydit_op_type' => 'pre_treat',
       '#name' => 'cancel_global',
-      '#value' => t('Back to node edition'),
+      '#value' => t('Back to edition'),
     	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
       '#next_parents' => array_slice($parents, 0, -1),
     );
@@ -852,7 +853,7 @@ function wallyedit_form_node_form_after_build(&$form) {
 function wallyedit_node_operations() {
   $operations = array(
     'wallyedit_selector_action_batch' => array(
-      'label' => t('Add thoses nodes to the prenode (batch)'),
+      'label' => t('Add this to the package'),
       'callback' => 'wallyedit_node_operations_selector_action',
     ),
   );
