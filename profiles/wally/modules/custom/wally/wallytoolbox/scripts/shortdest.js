@@ -33,6 +33,14 @@ function shortUpdateList() {
 			});
 		}
 	});
+	
+	$("#field-destinations-items").bind("DOMNodeRemoved", function(event) {
+		if (event.target.id == "autocomplete") {
+			var taxo = event.target.owner.input.id;
+			var targ = taxo.replace(short_str_to_replace, "target");
+			shortMakeSublist(taxo, targ);
+		}
+	});
 }
 
 function shortMakeSublist(taxo, targ) {
