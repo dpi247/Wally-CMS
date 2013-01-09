@@ -13,7 +13,7 @@ function _wallynewssitemap_generate_sitemap_xml($settings) {
   wallysitemap_generate_xmlfile($xmlfiles_to_generate, $settings['wallynewssitemap_path']);
 
   _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp - 3600);
-  
+
   if ($settings['wallynewssitemap_consolidate_sitemap']) {
     _wallynewssitemap_generate_consolidate_xml($settings);
   }
@@ -22,13 +22,44 @@ function _wallynewssitemap_generate_sitemap_xml($settings) {
 function _wallynewssitemap_get_nids_to_generate($settings, $timestamp, $limit = 0) {
   $nids = array();
 
+  $select = "SELECT n.nid FROM {node} n";
   $in_content_types = implode("', '", $settings['wallynewssitemap_content_types']);
-  $where = "WHERE type IN ('$in_content_types') AND changed > %d";
-  $order_by = " ORDER BY changed DESC";
+  $where = " WHERE n.type IN ('$in_content_types') AND n.changed > %d";
+  $order_by = " ORDER BY n.changed DESC";
   $limit = $limit ? " LIMIT 0, $limit" : ""; 
-  $db_nids = db_query("SELECT n.nid FROM {node} n $where$order_by$limit", $timestamp);
+  $query = $select.$where.$order_by.$limit;
+  $db_nids = db_query($query, $timestamp);
   while ($db_nid = db_fetch_array($db_nids)) {
     $nids[] = $db_nid['nid'];
+  }
+
+  return $nids;
+}
+
+function _wallynewssitemap_get_destinations_nids_to_generate($settings, $timestamp, $limit) {
+  $nids = array();
+  
+  $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $dest_settings = $global_sitemap_settings['wallysitemap_dests_params'] ? $global_sitemap_settings['wallysitemap_dests_params'] : array();
+
+  $select = "SELECT cfd.nid FROM {content_field_destinations} cfd";
+  $join = " LEFT JOIN {node} n ON n.nid = cfd.nid";
+  $in_content_types = implode("', '", $settings['wallynewssitemap_content_types']);
+  $where = " WHERE cfd.field_destinations_tid = %d AND n.changed > %d AND n.type IN ('$in_content_types')";
+  $order_by = " ORDER BY n.changed DESC";
+  $qlimit = " LIMIT 0, %d";
+  $query = $select.$join.$where.$order_by.$qlimit;
+  
+  $terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));
+  foreach ($terms as $term) {
+    $tid = $term->tid;
+    $term_settings = $dest_settings[$tid] ? $dest_settings[$tid] : array('check' => 1);
+    if ($term_settings['check']) {
+      $db_nids = db_query($query, $tid, $timestamp, $limit);
+      while ($db_nid = db_fetch_array($db_nids)) {
+        $nids[] = $db_nid['nid'];
+      }
+    }
   }
 
   return $nids;
@@ -38,11 +69,13 @@ function _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp) {
   $files_to_delete = array();
   $limit_timestamp = $timestamp - $settings['wallynewssitemap_delta_hours'] * 3600 + 1800;
 
-  $current_files = file_scan_directory($settings['wallynewssitemap_path'], '.*\.xml$');
+  $current_files = file_scan_directory($settings['wallynewssitemap_path'], '.*\.xml');
+  dsm($current_files);
   foreach ($current_files as $current_file) {
-    $expl_name = explode('_', $current_file->name);
-    if (sizeof($expl_name == 2) && $expl_name[0] == 'sitemapnews' && is_numeric($expl_name[1])) {
-      if ($expl_name[1] < $limit_timestamp) {
+    list($sitemap_prefix, $uniq_timestamp) = explode('_', $current_file->name);
+    list($file_timestamp, $a) = explode('-', $uniq_timestamp);
+    if ($sitemap_prefix == 'sitemapnews' && is_numeric($file_timestamp)) {
+      if ($file_timestamp < $limit_timestamp) {
         $files_to_delete[] = $current_file->filename;
       }
     }
@@ -57,9 +90,37 @@ function _wallynewssitemap_generate_consolidate_xml($settings) {
       $nids = _wallynewssitemap_get_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
       break;
     case 'destination':
-      $nids = _wallynewssitemap_get_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
+      $nids = _wallynewssitemap_get_destinations_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
       break;
   }
+
+  $main_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $dom = new DOMDocument('1.0', 'UTF-8');
+  $dom->formatOutput = TRUE;
+  $dom->load($main_settings['wallysitemap_path'].'/sitemapmain.xml');
+  $dom_urlset = $dom->getElementsByTagName('urlset')->item(0);
+  $dom_urls = $dom->getElementsByTagName('url');
+  foreach ($dom_urls as $dom_url) {
+    $dom_lastmod = $dom_url->getElementsByTagName('lastmod');
+    if ($dom_lastmod->item(0)) {
+      $dom_urlset->removeChild($dom_url);
+    }
+  }
+  
+  $site_infos = wallysitemap_get_site_infos();
+  
+  foreach ($nids as $nid) {
+    $node = node_load($nid);
+    $url = $dom_urlset->appendChild($dom->createElement('url'));
+    _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $site_infos, $settings);
+  }
+  
+  $xmlfiles_to_generate = array(array(
+    'dom' => $dom,
+    'filename' => 'sitemapmain.xml',
+  ));
+  
+  wallysitemap_generate_xmlfile($xmlfiles_to_generate, $main_settings['wallysitemap_path']);
 }
 
 /**
@@ -135,7 +196,7 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
  * </url>
  */
 function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node, $site_infos, $settings) {
-  _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $sites_infos, $settings);
+  _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $site_infos, $settings);
 
   $main_news = $url->appendChild($dom->createElementNS($namespaces['news'], 'news:news'));
   _wallynewssitemap_generate_newsurl_xml_set_main_news($dom, $main_news, $namespaces['news'], $node, $site_infos, $settings);

@@ -155,6 +155,8 @@ function wallysitemap_update_index($paths, $folder_path) {
   foreach ($paths as $path) {
     _wallysitemap_update_entry_in_index($dom_index, $dom_sitemapindex, $path);
   }
+  
+  _wallysitemap_check_index($dom_index);
 
   $dom_index->save($index_local_path);
 }
@@ -164,12 +166,14 @@ function wallysitemap_remove_files($paths_to_delete, $folder_path) {
   
   $index_local_path = $folder_path.'/sitemapindex.xml';
   $dom_index = new DOMDocument('1.0', 'UTF-8');
-  $dom_index->formatOutput = TRUE;
+  
   _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
+  $dom_index->formatOutput = TRUE;
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
   
   foreach ($paths_to_delete as $path) {
     _wallysitemap_delete_entry_in_index($dom_index, $dom_sitemapindex, $path);
+    unlink($path);
   }
   
   $dom_index->save($index_local_path);
@@ -382,13 +386,32 @@ function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $p
   }
 }
 
-function _wallysitemap_delete_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+function _wallysitemap_check_index(&$dom_index) {
+  $site_infos = wallysitemap_get_site_infos();
+  
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
   $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
   if ($dom_sitemaps->item(0)) {
     foreach ($dom_sitemaps as $dom_sitemap) {
       $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
-      if ($sitemap_loc == $path) {
-        $dom_sitemaps->removeChild($dom_sitemap);
+      $local_path = str_replace($site_infos['base_url'].'/', '', $sitemap_loc);
+      if (!file_exists($local_path)) {
+        $dom_sitemapindex->removeChild($dom_sitemap);
+      }
+    }
+  }
+}
+
+function _wallysitemap_delete_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+  $site_infos = wallysitemap_get_site_infos();
+  
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      if ($sitemap_loc == $path || $sitemap_loc == $site_infos['base_url'].'/'.$path) {
+        $dom_sitemapindex->removeChild($dom_sitemap);
         break;
       }
     }
