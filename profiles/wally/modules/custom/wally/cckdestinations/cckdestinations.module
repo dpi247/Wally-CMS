@@ -691,7 +691,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
 
   $target_options = array('none' => 'none');
   $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
-  foreach ($array_of_redacblock_panes as $pane) $target_options[$pane->name] = $pane->name;
+  foreach ($array_of_redacblock_panes as $pane) $target_options[$pane->name] = $pane->admin_title;
   $element['target'] = array(
     '#title'            => t( 'Target' ),
     '#type'             => 'select',
