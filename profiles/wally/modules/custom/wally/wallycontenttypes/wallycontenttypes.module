@@ -886,20 +886,12 @@ function wallycontenttypes_cron() {
             $node = node_load(array('nid' => $obj->nid));
             node_publish_action($node);
             
-            //We need to set the editorial update date AND the publication date related to the embargo
-            //@todo:  http://rossel.audaxis.com/jira/browse/WALLY-857
-            // REmove the part about editorial when this one will be resolved
+            //We need to set the publication date related to the embargo
+            
             $type = wydit_get_infos_type($node->type);
             $cck_fields = $type['fields'];
             $format = $cck_fields['field_publicationdate']['widget']['input_format'];
             $node->field_publicationdate[0]['value'] = gmdate($format,strtotime($node->field_embargodatetime[0]['value']));
-            
-            $type = wydit_get_infos_type($node->type);
-            $cck_fields = $type['fields'];
-            $format = $cck_fields['field_editorialupdatedate']['widget']['input_format'];
-            $node->field_editorialupdatedate[0]['value'] = gmdate($format,strtotime($node->field_embargodatetime[0]['value']));
-            
-            
              node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
             
