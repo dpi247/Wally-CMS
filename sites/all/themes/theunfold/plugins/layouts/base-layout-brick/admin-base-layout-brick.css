@@ -1,0 +1,53 @@
+/*
+ * Base-layout-brick.less
+ * Admin-style-css
+ * ----------------------- */
+
+.row {
+	overflow: hidden;
+	display: block;
+	width: 100%;
+}
+
+#main-content {
+	display: block;
+	float: left;
+	width: 66.35707%;
+}
+
+#content-top {
+	display: block;
+	float: left;
+	width: 100%;
+}
+
+#content-bottom {
+	display: block;
+	float: left;
+	width: 100%;
+}
+
+#panel-pane-maincontentleft {
+	float: left;
+	width: 61.97512%;
+}
+
+#panel-pane-maincontentright {
+	float: left;
+	width: 36.62519%;
+}
+
+#panel-pane-complementary {
+	float: left;
+	width: 32.71414%;
+}
+
+#panel-pane-subcontentleft {
+	float: left;
+	width: 66.35707%;
+}
+
+#panel-pane-subcontentright {
+	float: left;
+	width: 32.71414%;
+}
