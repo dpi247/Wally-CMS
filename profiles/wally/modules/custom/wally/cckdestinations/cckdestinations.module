@@ -702,7 +702,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
     '#attributes'       => array('class' => 'target'),
   );
   
-  $layout_options = array();
+  $layout_options = array('none' => 'none');
   $existing_layouts = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim(wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'))));
   foreach ($existing_layouts as $existing_layout) $layout_options[$existing_layout] = $existing_layout;
   $element['layout'] = array(
