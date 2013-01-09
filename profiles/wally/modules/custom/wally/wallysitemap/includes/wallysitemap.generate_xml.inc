@@ -20,12 +20,12 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
     _wallysitemap_generate_sitemap_xml_for_menu($dom, $urlset, $site_infos, $settings, $menu_infos);
   }
   
-  $xmlfile_to_generate = array(
+  $xmlfiles_to_generate = array(array(
     'dom' => $dom,
     'filename' => 'sitemapmain.xml',
-  );
+  ));
   
-  wallysitemap_generate_xmlfile($xmlfile_to_generate, $settings['wallysitemap_path']);
+  wallysitemap_generate_xmlfile($xmlfiles_to_generate, $settings['wallysitemap_path']);
 }
 
 function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos, $settings, $menu_infos) {

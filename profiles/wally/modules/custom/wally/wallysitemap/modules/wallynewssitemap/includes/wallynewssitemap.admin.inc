@@ -17,6 +17,13 @@ function wallynewssitemap_admin_settings_page_form($form_state) {
     '#required' => TRUE,
   );
   
+  $form['wallynewssitemap_delta_hours'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Nodes\' maximum age in hours'),
+    '#default_value' => $default_settings['wallynewssitemap_delta_hours'],
+    '#required' => TRUE,
+  );
+  
   $form['consolidate'] = array(
     '#type' => 'fieldset',
   );
@@ -158,11 +165,30 @@ function wallynewssitemap_admin_settings_page_form($form_state) {
   return $form;
 }
 
-function wallynewssitemap_admin_settings_page_form_validate($form, $form_state) {
-  $values = $form_state['values'];
+function wallynewssitemap_admin_settings_page_form_validate($form, &$form_state) {
+  $values = &$form_state['values'];
 
   if (!file_check_directory($values['wallynewssitemap_path'], 0)) {
     form_set_error('wallynewssitemap_path', t('The provided path is not an existing writable directory.'));
+  }
+  
+  if (!is_numeric($values['wallynewssitemap_delta_hours']) || $values['wallynewssitemap_delta_hours'] <= 0) {
+    form_set_error('wallynewssitemap_delta_hours', t('The nodes\' maximum age must a numeric value greater than 0.'));
+  }
+  
+  if ($values['wallynewssitemap_consolidate_sitemap']) {
+    switch ($values['wallynewssitemap_consolidate_sitemap_type']) {
+      case 'global':
+        if ($values['wallynewssitemap_consolidate_sitemap_amount'] > 1000) {
+          form_set_error('wallynewssitemap_consolidate_sitemap_amount', t('The maximum node amount to be generated in the global type consolidation is 1000.'));
+        }
+        break;
+      case 'destination':
+        if ($values['wallynewssitemap_consolidate_sitemap_amount'] > 10) {
+          form_set_error('wallynewssitemap_consolidate_sitemap_amount', t('The maximum node amount to be generated in the destination type consolidation is 10 per destination.'));
+        }
+        break;
+    }
   }
   
   if (!file_exists($values['wallynewssitemap_default_img'])) {
@@ -175,6 +201,7 @@ function wallynewssitemap_admin_settings_page_form_submit($form, $form_state) {
 
   $settings = array();
   $settings['wallynewssitemap_path'] = $values['wallynewssitemap_path'];
+  $settings['wallynewssitemap_delta_hours'] = $values['wallynewssitemap_delta_hours'];
   $settings['wallynewssitemap_consolidate_sitemap'] = $values['wallynewssitemap_consolidate_sitemap'];
   $settings['wallynewssitemap_consolidate_sitemap_type'] = $values['wallynewssitemap_consolidate_sitemap_type'];
   $settings['wallynewssitemap_consolidate_sitemap_amount'] = $values['wallynewssitemap_consolidate_sitemap_amount'];

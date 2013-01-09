@@ -2,7 +2,7 @@
 
 function _wallynewssitemap_generate_sitemap_xml($settings) {
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  
+
   $time = time();
   $timestamp = $time - $time%3600;
 
@@ -11,28 +11,33 @@ function _wallynewssitemap_generate_sitemap_xml($settings) {
   $xmlfiles_to_generate = _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp);
 
   wallysitemap_generate_xmlfile($xmlfiles_to_generate, $settings['wallynewssitemap_path']);
+
+  _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp - 3600);
   
-  _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp);
+  if ($settings['wallynewssitemap_consolidate_sitemap']) {
+    _wallynewssitemap_generate_consolidate_xml($settings);
+  }
 }
 
-function _wallynewssitemap_get_nids_to_generate($settings, $timestamp) {
+function _wallynewssitemap_get_nids_to_generate($settings, $timestamp, $limit = 0) {
   $nids = array();
-  
+
   $in_content_types = implode("', '", $settings['wallynewssitemap_content_types']);
-  $where = "WHERE type IN ('$in_content_types')";
-  $where .= " AND changed > %d";
-  $db_nids = db_query("SELECT nid FROM {node} $where", $timestamp - 3600);
+  $where = "WHERE type IN ('$in_content_types') AND changed > %d";
+  $order_by = " ORDER BY changed DESC";
+  $limit = $limit ? " LIMIT 0, $limit" : ""; 
+  $db_nids = db_query("SELECT n.nid FROM {node} n $where$order_by$limit", $timestamp);
   while ($db_nid = db_fetch_array($db_nids)) {
     $nids[] = $db_nid['nid'];
   }
-  
+
   return $nids;
 }
 
 function _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp) {
   $files_to_delete = array();
   $limit_timestamp = $timestamp - $settings['wallynewssitemap_delta_hours'] * 3600 + 1800;
-  
+
   $current_files = file_scan_directory($settings['wallynewssitemap_path'], '.*\.xml$');
   foreach ($current_files as $current_file) {
     $expl_name = explode('_', $current_file->name);
@@ -42,8 +47,19 @@ function _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp) {
       }
     }
   }
-  
+
   wallysitemap_remove_files($files_to_delete, $settings['wallynewssitemap_path']);
+}
+
+function _wallynewssitemap_generate_consolidate_xml($settings) {
+  switch ($settings['wallynewssitemap_consolidate_sitemap_type']) {
+    case 'global':
+      $nids = _wallynewssitemap_get_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
+      break;
+    case 'destination':
+      $nids = _wallynewssitemap_get_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
+      break;
+  }
 }
 
 /**
@@ -71,7 +87,7 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
   $site_infos = wallysitemap_get_site_infos();
   $dom = _wallynewssitemap_new_dom();
   $urlset = $dom->getElementsByTagName('urlset')->item(0);
-  
+
   $i = 0;
   $n = 0;
   foreach ($nids as $nid) {
@@ -85,21 +101,17 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
       $urlset = $dom->getElementsByTagName('urlset')->item(0);
     }
     $i++;
-    
+
     $node = node_load($nid);
     $url = $urlset->appendChild($dom->createElement('url'));
     _wallynewssitemap_generate_newsurl_xml($dom, $url, $namespaces, $node, $site_infos, $settings);
   }
-  
+
   $xmlfiles_to_generate[] = array(
     'dom' => $dom,
     'filename' => 'sitemapnews_'.$timestamp.'-'.$n++.'.xml',
   );
 
-  if ($settings['wallynewssitemap_consolidate_sitemap']) {
-    _wallynewssitemap_generate_consolidate_xml($sitemap_dom, $namespaces, $site_infos, $settings);
-  }
-  
   return $xmlfiles_to_generate;
 }
 
@@ -145,10 +157,6 @@ function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node,
   }
 }
 
-function _wallynewssitemap_generate_consolidate_xml(&$sitemap_dom, $namespaces, $site_infos, $settings) {
-
-}
-
 function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, $sites_infos, $settings) {
   $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$node->path));
   if (isset($node->field_destinations) && !empty($node->field_destinations)) {
@@ -161,9 +169,19 @@ function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, 
         'weight' => 0,
         'freq' => 'daily',
       );
-    // lastmod not handled yet
-    // changemod not handled yet
-    $url->appendChild($dom->createElement('priority', $term_settings['weight']));
+    if ($term_settings['check']) {
+      if (isset($node->field_editorialupdatedate[0]) && !empty($node->field_editorialupdatedate[0]['value'])) {
+        $form_date = date_make_date($node->field_editorialupdatedate[0]['value'], 'UTC');
+        $form_date = (object)date_timezone_set($form_date, timezone_open($node->field_editorialupdatedate[0]['timezone']));
+        $form_date = unserialize(serialize($form_date));
+        $lastmod_date = strtotime($form_date->date);
+      } else {
+        $lastmod_date = $node->changed;
+      }
+      $url->appendChild($dom->createElement('lastmod', date('Y-m-d\TH:i:sP', $lastmod_date)));
+      $url->appendChild($dom->createElement('changefreq', $term_settings['freq']));
+      $url->appendChild($dom->createElement('priority', $term_settings['weight']));
+    }
   }
 }
 
@@ -243,7 +261,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_images($dom, &$url, $imageNS
       $image = $url->appendChild($dom->createElement('image:image'));
       _wallynewssitemap_generate_newsurl_xml_set_image($dom, $image, $imageNS, $embed, $site_infos, $settings);
     }
-  
+
     if ($embed->type == 'wally_linktype') {
       if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'image')) {
         $image = $url->appendChild($dom->createElement('image:image'));
@@ -323,7 +341,9 @@ function _wallynewssitemap_generate_newsurl_xml_set_linked_image($dom, &$image, 
   $image->appendChild($dom->createElementNS($imageNS, 'image:caption', $image_caption));
   // image:geo_location unable to be handled
   $image->appendChild($dom->createElementNS($imageNS, 'image:title', $embed->title));
-  // image:license not handled yet
+  if (isset($settings['wallynewssitemap_image_license']) && !empty($settings['wallynewssitemap_image_license'])) {
+    $image->appendChild($dom->createElementNS($imageNS, 'image:license', $settings['wallynewssitemap_image_license']));
+  }
 }
 
 function _wallynewssitemap_generate_newsurl_xml_set_videos($dom, &$url, $videoNS, $node, $site_infos, $settings) {
@@ -332,7 +352,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_videos($dom, &$url, $videoNS
       $video = $url->appendChild($dom->createElement('video:video'));
       _wallynewssitemap_generate_newsurl_xml_set_video($dom, $video, $videoNS, $embed, $site_infos, $settings);
     }
-  
+
     if ($embed->type == 'wally_linktype') {
       if ($embed_content = _wallynewssitemap_build_embed_link($embed, 'video')) {
         $video = $url->appendChild($dom->createElement('video:video'));
@@ -524,7 +544,7 @@ function _wallynewssitemap_build_embed_link($embed, $type) {
 
 function _wallynewssitemap_new_dom() {
   $namespaces = wallysitemap_get_namespaces();
-  
+
   $dom = new DOMDocument('1.0', 'UTF-8');
   $dom->formatOutput = TRUE;
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
@@ -535,23 +555,23 @@ function _wallynewssitemap_new_dom() {
   if ($settings['wallynewssitemap_add_videos']) {
     $urlset->setAttributeNS($namespaces['w3'], 'xmlns:video', $namespaces['video']);
   }
-  
+
   return $dom;
 }
 
 /**
  * Snipet de code pour insérer un DOM node dans un autre DOM document
- * 
+ *
  * $a = '<loc>http://wally.drupal.dev/category/destination-path/home</loc><changefreq>hourly</changefreq><priority>1</priority>';
-$b = '<?xml version="1.0" encoding="UTF-8"?><url>'.$a.'</url>';
-$dom_a = new DomDocument();
-$dom_a->formatOutput = true;
-$dom_a->loadXML($b);
-dsm($dom_a->saveXML($dom_a));
-$dom = new DomDocument();
-$dom->formatOutput = true;
-$c = $dom_a->getElementsByTagName('url')->item(0);
-$url = $dom->appendChild($dom->importNode($c, true));
-dsm($dom->saveXML($dom));
- * 
+ $b = '<?xml version="1.0" encoding="UTF-8"?><url>'.$a.'</url>';
+ $dom_a = new DomDocument();
+ $dom_a->formatOutput = true;
+ $dom_a->loadXML($b);
+ dsm($dom_a->saveXML($dom_a));
+ $dom = new DomDocument();
+ $dom->formatOutput = true;
+ $c = $dom_a->getElementsByTagName('url')->item(0);
+ $url = $dom->appendChild($dom->importNode($c, true));
+ dsm($dom->saveXML($dom));
+ *
  */
