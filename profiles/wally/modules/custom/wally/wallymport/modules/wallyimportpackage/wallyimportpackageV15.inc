@@ -145,9 +145,6 @@ function wallyimportpackageV15_node_process_articlepackagetype(&$node, $dom_elem
     $action = 'CreateReplace';
   }
   switch($action){
-    case 'CreateReplace':
-      $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
-      break;
     case 'Preview':
     case 'CreateUpdate':
     case 'Update':
@@ -157,7 +154,7 @@ function wallyimportpackageV15_node_process_articlepackagetype(&$node, $dom_elem
       } else {
         $force_edit_update = FALSE;
       }
-      if ($node->nid == NULL || $force_edit_update) {
+      if ($node->nid != NULL && $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
       break;
