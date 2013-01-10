@@ -8,7 +8,6 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
   
   $namespaces = wallysitemap_get_namespaces();
   $dom = new DOMDocument('1.0', 'UTF-8');
-  $dom->formatOutput = TRUE;
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
   
   $dest_terms = taxonomy_get_tree(variable_get('wallymport_destinationpath', 2));

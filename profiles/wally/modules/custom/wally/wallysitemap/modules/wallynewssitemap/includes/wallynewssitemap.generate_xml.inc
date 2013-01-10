@@ -95,9 +95,7 @@ function _wallynewssitemap_generate_consolidate_xml($settings) {
 
   $main_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
   $dom = new DOMDocument('1.0', 'UTF-8');
-  
   $dom->load($main_settings['wallysitemap_path'].'/sitemapmain.xml');
-  $dom->formatOutput = TRUE;
   $dom_urlset = $dom->getElementsByTagName('urlset')->item(0);
   $dom_urls = $dom->getElementsByTagName('url');
   foreach ($dom_urls as $dom_url) {
@@ -108,7 +106,6 @@ function _wallynewssitemap_generate_consolidate_xml($settings) {
   }
   
   $site_infos = wallysitemap_get_site_infos();
-  
   foreach ($nids as $nid) {
     $node = node_load($nid);
     if (in_array($node->path, $settings['wallynewssitemap_blacklist'])) {
@@ -224,7 +221,7 @@ function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node,
   }
 }
 
-function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, $sites_infos, $settings) {
+function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, $site_infos, $settings) {
   $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$node->path));
   if (isset($node->field_destinations) && !empty($node->field_destinations)) {
     $tid = $node->field_destinations[0]['tid'];
@@ -617,7 +614,6 @@ function _wallynewssitemap_new_dom() {
   $namespaces = wallysitemap_get_namespaces();
 
   $dom = new DOMDocument('1.0', 'UTF-8');
-  $dom->formatOutput = TRUE;
   $urlset = $dom->appendChild($dom->createElementNS($namespaces['sitemap'], 'urlset'));
   $urlset->setAttributeNS($namespaces['w3'], 'xmlns:news', $namespaces['news']);
   if ($settings['wallynewssitemap_add_images']) {

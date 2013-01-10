@@ -150,7 +150,6 @@ function wallysitemap_update_index($paths, $folder_path) {
   $index_local_path = $folder_path.'/sitemapindex.xml';
 
   $dom_index = new DOMDocument('1.0', 'UTF-8');
-  $dom_index->formatOutput = TRUE;
   _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
 
@@ -170,7 +169,6 @@ function wallysitemap_remove_files($paths_to_delete, $folder_path) {
   $dom_index = new DOMDocument('1.0', 'UTF-8');
   
   _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
-  $dom_index->formatOutput = TRUE;
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
   
   foreach ($paths_to_delete as $path) {
