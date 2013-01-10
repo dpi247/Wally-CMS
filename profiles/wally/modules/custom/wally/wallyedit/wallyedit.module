@@ -889,6 +889,9 @@ function wydit_elements_process($element, $edit, &$form_state, $form) {
     } elseif ($element['#type'] == 'date_combo') {
       $element['#element_validate'] = array('wydit_elements_validate');
     }
+    if ($element['#type'] == 'optionwidgets_buttons') {
+      $element['#value'] = $element['#default_value'];
+    }
     if (($element['#type'] == 'date_combo') || strstr($element['#type'], 'optionwidgets_') || $element['#type'] == 'content_taxonomy_autocomplete') {
       $element['#force_validate'] = TRUE;
     }
