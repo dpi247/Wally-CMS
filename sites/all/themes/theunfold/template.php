@@ -36,10 +36,6 @@ function theunfold_theme(&$var) {
     'emaudio_flowplayer_flash' => array(
   	  'arguments' => array('url' => NULL, 'width' => '100%', 'height' => 0, 'field' => NULL, 'data' => array(), 'node' => NULL, 'autoplay' => FALSE),
     ),
-    'emvideo_flowplayervideo_flash' => array(
-      'arguments' => array('url' => NULL, 'width' => '100%', 'height' => '100%', 'field' => NULL, 'data' => array(), 'node' => NULL, 'autoplay' => FALSE),
-    ),
-    
 
 	// Widget Templates.
     'widget_article_summary' => $base + array(
@@ -1477,24 +1473,7 @@ function theunfold_emaudio_flowplayer_flash($url = NULL, $width = "100%", $heigh
       return "<embed type='application/x-shockwave-flash' flashvars='audioUrl=$url' src='http://www.google.com/reader/ui/3523697345-audio-player.swf' width='100%' height='27' quality='best' autostart='$autoplay'></embed>";
   }
 }
-/**
- * Rewrite the theme function of media player video
- * */
-function theunfold_emvideo_flowplayervideo_flash($url = NULL, $width = "100%", $height = 0, $field = NULL, $data = array(), $node = NULL, $autoplay = FALSE) {
-  
-  // Display the custom URL using the embed tag.
-  switch($data['data']['type']) {
-    case 'mp4':
-      $autoplay = $autoplay ? 'true' : 'false';
-      return '<script src="http://embed.flowplayer.org/5.2.0/embed.min.js">
-   				<div class="flowplayer" style="width: 100%; height: 100%">
-      				<video>
-         				<source type="video/mp4" src="/'.$url.'"/>   
-      				</video>
-   				</div>
-			  </script>';
-  }
-}
+
 
 function theunfold_wallyct_flowmix($subtype, $context, $feed, $options){
   
