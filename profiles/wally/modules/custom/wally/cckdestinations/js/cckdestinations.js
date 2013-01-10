@@ -78,7 +78,7 @@ function makeSublist(taxo, targ, lay) {
 
 function updateSublist(options, id, default_option) {
 	$.each(options, function() {
-		$("#"+id).append('<option value="'+this.name+'">'+this.name+'</option>');
+		$("#"+id).append('<option value="'+this.name+'">'+this.title+'</option>');
 	});
 	$("#"+id+' option[value="'+default_option+'"]').attr("selected", "selected");
 }

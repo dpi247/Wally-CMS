@@ -520,11 +520,11 @@ function wallyctools_get_hierarchies() {
           if (isset($default_redacblocks[$pane->did]) && ($pane->subtype == $default_redacblocks[$pane->did]['default_redacblock'])) {
             $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
             $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
-            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
+            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
           } else {
             $temp_mapping[$pane->name]['title'] = $pane->admin_title;
             $temp_mapping[$pane->name]['name'] = $pane->name;
-            $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id);
+            $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
           }
         }
       }
@@ -532,9 +532,9 @@ function wallyctools_get_hierarchies() {
       $tid_did_mapping[$tid]['redacblocks'] = array_merge($tid_did_mapping[$tid]['redacblocks'], $temp_mapping);
 
       $tid_did_mapping[$tid]['redacblocks']['none'] = array(
-        'title' => 'none',
-        'name' => t('none'),
-        'layouts' => array('none' => array('name' => t('none'))),
+        'title' => t('none'),
+        'name' => 'none',
+        'layouts' => array('none' => array('name' => 'none', 'title' => t('none'))),
       );
     }
   }
