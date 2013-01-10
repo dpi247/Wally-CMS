@@ -134,6 +134,8 @@ function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
 
   $sitemaps_full_path = array();
   foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {
+    drupal_alter('wallysitemap_dom', $dom);
+    
     $sitemap_local_path = $folder_path.'/'.$xmlfile_to_generate['filename'];
     $sitemaps_full_path[] = $site_infos['base_url'].'/'.$sitemap_local_path;
     $xmlfile_to_generate['dom']->save($sitemap_local_path);
@@ -201,6 +203,7 @@ function wallysitemap_default_settings() {
     ),
     'wallysitemap_path' => 'sites/default/files/sitemaps',
     'wallysitemap_blacklist' => array(),
+    'wallysitemap_default_freq' => 'daily',
   );
   return $settings;
 }

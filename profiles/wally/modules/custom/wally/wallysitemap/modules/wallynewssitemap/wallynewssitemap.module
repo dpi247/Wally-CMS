@@ -41,6 +41,7 @@ function wallynewssitemap_cron() {
     if ($settings = wally_variable_get('wallynewssitemap_sitemaps_settings', FALSE)) {
       if ($main_settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
         $settings['wallynewssitemap_blacklist'] = array_merge($settings['wallynewssitemap_blacklist'], $main_settings['wallysitemap_blacklist']);
+        $settings['wallynewssitemap_default_freq'] = $settings['wallysitemap_default_freq'];
       }
 
       module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');

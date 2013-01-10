@@ -34,6 +34,11 @@ function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos
     if (is_array($menu_item['below'])) {
       _wallysitemap_generate_sitemap_xml_for_menu($dom, $urlset, $site_infos, $settings, $menu_item['below']);
     }
+    
+    $menu_item_aliases = wallytoolbox_get_all_aliases($menu_item['link']['link_path']);
+    if (array_intersect($menu_item_aliases, $settings['wallysitemap_blacklist'])) {
+      continue;
+    }
 
     if ($menu_item['link']['router_path'] == 'taxonomy/term/%') {
       $expl_path = explode('/', $menu_item['link']['link_path']);
@@ -45,6 +50,10 @@ function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos
       } else {
         $processed_dest_tids[] = $tid;
       }
+    }
+    
+    if ($menu_item['link']['link_path'] == '<front>') {
+      $menu_item['link']['link_path'] = '';
     }
 
     $url = $urlset->appendChild($dom->createElement('url'));
@@ -60,6 +69,11 @@ function _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, &$urlset, $site_i
   $processed_dest_tids = &_wallysitemap_get_static_processed_dest_tids();
   $terms_settings = $settings['wallysitemap_dests_params'] ? $settings['wallysitemap_dests_params'] : array();
   foreach ($terms as $term) {
+    $dest_term_aliases = wallytoolbox_get_all_aliases('taxonomy/term/'.$term->tid);
+    if (array_intersect($dest_term_aliases, $settings['wallysitemap_blacklist'])) {
+      continue;
+    }
+    
     $term_settings = $terms_settings[$term->tid] ?
       $terms_settings[$term->tid] :
       array(

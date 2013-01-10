@@ -24,6 +24,22 @@ function wallysitemap_admin_settings_page_form($form_state) {
     '#default_value' => $blacklist_defaults,
   );
   
+  $freq_options = array(
+    'always' => t('Always'),
+    'hourly' => t('Hourly'),
+    'daily' => t('Daily'),
+    'weekly' => t('Weekly'),
+    'monthly' => t('Monthly'),
+    'yearly' => t('Yearly'),
+    'never' => t('Never'),
+  );
+  $form['wallysitemap_default_freq'] = array(
+    '#type' => 'select',
+    '#title' => t('Default refresh frequency'),
+    '#options' => $freq_options,
+    '#default_value' => $default_settings['wallysitemap_default_freq'],
+  );
+  
   $form['wallysitemap_handled_menus'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Menus to use for sitemap construction'),
@@ -45,15 +61,6 @@ function wallysitemap_admin_settings_page_form($form_state) {
     '0.9' => '0.9',
     '1' => '1',
   );
-  $dest_freq_options = array(
-    'always' => t('Always'),
-    'hourly' => t('Hourly'),
-    'daily' => t('Daily'),
-    'weekly' => t('Weekly'),
-    'monthly' => t('Monthly'),
-    'yearly' => t('Yearly'),
-    'never' => t('Never'),
-  );
   $form['wallysitemap_dests_params'] = array(
     '#type' => 'wallysitemap_taxonomy_tree',
     //'#type' => 'taxonomy_manager_tree',
@@ -63,7 +70,7 @@ function wallysitemap_admin_settings_page_form($form_state) {
         The bigger the weight the more important the destination is,<br>
         The refresh frequency.'),
     '#select_options' => $dest_weights_options,
-    '#freq_options' => $dest_freq_options,
+    '#freq_options' => $freq_options,
     '#default_value' => $default_settings['wallysitemap_dests_params'],
     '#vid' => variable_get('wallymport_destinationpath', 2),
     '#parent' => 0,
@@ -104,6 +111,7 @@ function wallysitemap_admin_settings_page_form_submit($form, $form_state) {
     $blackelem = trim(trim($tmp_blackelem), '/');
     if (!empty($blackelem)) $settings['wallysitemap_blacklist'][] = $blackelem;
   }
+  $settings['wallysitemap_default_freq'] = $values['wallysitemap_default_freq'];
   $settings['wallysitemap_handled_menus'] = array();
   foreach ($values['wallysitemap_handled_menus'] as $menu) {
     if ($menu) {
