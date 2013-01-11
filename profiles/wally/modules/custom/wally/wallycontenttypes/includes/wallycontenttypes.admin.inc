@@ -32,3 +32,22 @@ function wallycontenttypes_page_admin_form($form_state) {
 
   return system_settings_form($form);
 }
+/**
+ * Render the view admin_content_wally
+ * */
+function wallycontenttypes_page_view_admin_content(){
+  
+  $content = t('Please update the wallyconttypes feature');
+  
+  $view_name = 'admin_content_wally';
+  $display_name = 'default';
+  
+  $view = views_get_view($view_name);
+  if ( is_object($view) ) {
+    $view->set_display($display_name);
+    $view->pre_execute();
+    $content = $view->render($display_name);
+  }
+  
+  return $content;
+}

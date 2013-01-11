@@ -12,6 +12,7 @@
 function _emvideo_flowplayervideo_default_types() {
   return array(
     'mp4' => t('MPEG-4 Part 14 (mp4)'),
+    'mov' => t('Quicktime Movie (mov)'),
   );
 }
 
@@ -112,12 +113,22 @@ function theme_emvideo_flowplayervideo_flash($url = NULL, $width = "100%", $heig
     case 'mp4':
       $autoplay = $autoplay ? 'true' : 'false';
       return '<script src="http://embed.flowplayer.org/5.2.0/embed.min.js">
-   				<div class="flowplayer" style="width: 100%; height: 430px">
+   				<div class="flowplayer" style="width: 100%; height: 100%;">
       				<video>
          				<source type="video/mp4" src="/'.$url.'"/>   
       				</video>
    				</div>
 			  </script>';
+      break;
+    case 'mov':
+      $autoplay = $autoplay ? 'true' : 'false';
+      return '<script src="http://embed.flowplayer.org/5.2.0/embed.min.js">
+               <div class="flowplayer" style="width: 100%; height: 100%;">
+                 <video id="sampleMovie" width="640" height="360" preload controls>
+                   <source  src="/'.$url.'" type=\'video/mp4; codecs="avc1.42E01E, mp4a.40.2"\'/>   
+                 </video>
+               </div>
+             </script>';
   }
 }
 
