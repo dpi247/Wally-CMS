@@ -382,6 +382,7 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
       case 'wally_gallerypackage_node_form' :
       case 'wally_pollpackage_node_form':
         _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
+        _wallycontenttypes_preventpackageselftlink($form, $form_state, $form_id);
         break;
     }
   }
@@ -514,7 +515,39 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
 function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
   $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
 }
+/**
+ * 
+ * Add validation to the node form to prevent tlink to be the package itself
+ * 
+ * @param &$form
+ *   The form currently build
+ * @param $form_state
+ *   A keyed array containing the current state of the form
+ * @param unknown_type $form_id
+ *   String representing the name of the form istself.
+ */
+function _wallycontenttypes_preventpackageselftlink(&$form, $form_state, $form_id){
+  $form['#validate'][] = 'wallycontenttypes_form_node_package_form_validate';
+}
 
+/**
+ * 
+ * Check if a tlink is embed and if its the package itself
+ * @param $form
+ * @param $form_state
+ */
+function wallycontenttypes_form_node_package_form_validate(&$form, &$form_state){
+  
+  foreach ($form_state['values']['field_embededobjects'] as $key => $embed){
+    $node_embed = node_load(array('nid' => $embed['nid']));
+    //Check if the internal link of an embed of type tlink is the package itself
+    if ($node_embed->type == 'wally_linktype' 
+     && $node_embed->field_internal_link[0]['nid'] != NULL 
+     && $node_embed->field_internal_link[0]['nid'] == $form_state['values']['nid']){
+      form_set_error('field_embededobjects]['.$key.'][nid][nid',t('You can\'t embed a package in itself. Please choose another one.'));
+    }
+  }
+}
 /**
  * call back to disable all taxonomy fields on package editing
  * 
@@ -601,7 +634,6 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (sizeof($form_state['parents']) == 1 && in_array($form_state['type'], $pack_types)) {
     array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
-
     // Editorial Update Date gestion
     // Replace the DateTime field with a checkbox
     $type_name = $form_state['type'];
@@ -626,8 +658,25 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &
       }
     }
   }
+  //Add a form validation in case of tlink to check if the embed package is not the package itself
+  if (sizeof($form_state['parents']) == 3 && array_key_exists('wally_linktype', $form)){    
+    $form['#validate'][] = 'wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate';
+  }
 }
+/**
+ * 
+ * Add validation to the package type, check if tlink is not the package itself
+ * @param  $form
+ * @param  $form_state
+ */
+function wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate(&$form, &$form_state){
 
+  $tlink = array_pop($form_state['values']['wally_articlepackage']['field_embededobjects']);
+  //Check if the tlink is the package itself
+  if ($tlink['field_internal_link'][0]['nid'] != NULL && $tlink['field_internal_link'][0]['nid'] == $form_state[$form_state['type']]['#node']->nid){
+    form_set_error($form_state['parents'][0].']['.$form_state['parents'][1].']['.$form_state['parents'][2].'][field_internal_link][0][nid][nid', t('You can\'t embed a package in itself. Please choose another one.'));
+  }
+}
 function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, &$form_state) {
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (in_array($form_state['type'], $pack_types)) {
