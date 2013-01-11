@@ -538,18 +538,17 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
       if (sizeof($available_profiles) > 1) {
         $options_profiles = array();
         foreach ($available_profiles as $av_prof) {
-        	if($form_state['profile_id']!=$av_prof['pid']){
-              $options_profiles[$av_prof['pid']] = $av_prof['label'];
+        	if($form_state['profile_id'] == $av_prof['pid']) {
+        	  $current_profile_name = $av_prof['label'];
         	}
-        	else{
-        		$current_profile_name=$av_prof['label'];
-        	}
+          $options_profiles[$av_prof['pid']] = $av_prof['label'];
         }
         $form['choose_profile'] = array(
           '#type' => 'select',
-          '#title' => t('Choose profile (current profile is %current_profile )',array('%current_profile'=>$current_profile_name)),
+          '#title' => t('Choose profile (current profile is %current_profile)', array('%current_profile' => $current_profile_name)),
           '#options' => $options_profiles,
           '#weight' => -100,
+          '#default_value' => $form_state['profile_id'],
         );
   
         $form['confirm_profile'] = array(
@@ -789,10 +788,10 @@ function wallyedit_form_change_profile_form_after_build ($form, &$form_state) {
  */
 function wallyedit_form_change_profile_form_validate ($form, &$form_state) {
   $values = $form_state['values'];
-  if ($values['op'] == $values['confirm_profile'] && $values['choose_profile'] != $form_state['profile_id']) {
+  if ($values['op'] == $values['confirm_profile']) {
     drupal_get_messages();
     if (strstr($form['#action'], 'add')) {
-      drupal_goto('node/add/'.str_replace('_', '-', $values['type']).'/'.$values['choose_profile']);
+      drupal_goto('node/add/'.str_replace('_', '-', $form['type']['#value']).'/'.$values['choose_profile']);
     } else {
       $redirect_id = isset($form_state['cache name']) ? $form_state['cache name'] : $form['#node']->nid;
       drupal_goto('node/'.$redirect_id.'/edit/'.$values['choose_profile']);
