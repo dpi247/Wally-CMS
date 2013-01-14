@@ -7,7 +7,7 @@
  * @param string $text text to process
  */
 function wallypressfilters_replace_tags($tag, $settings, $text) {
-  $tag_regex = "@<$tag(\s.*)?>(.*)<\/$tag>@U";
+  $tag_regex = "@<$tag(\s.*)?>(.*)<\/$tag(\s.*)?>@sU";
   $tag_matches = array();
   preg_match_all($tag_regex, $text, $tag_matches);
   if (!empty($tag_matches[0])) {
@@ -44,7 +44,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text) {
           break;
       }
 
-      $text = $replacement ? str_replace($match_val, $replacement, $text) : $text;
+      $text = is_string($replacement) ? str_replace($match_val, $replacement, $text) : $text;
     }
   }
 
