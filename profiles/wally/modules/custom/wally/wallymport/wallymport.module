@@ -593,7 +593,7 @@ function wimprt_cron_previews_cleanup() {
       }
     }
 
-    $return[] = t('Preview cache deleted for : "@elem_name" on !date', array('@elem_name' => $data[$data['type']]['#node']->title, '!date' => date('Y-m-d H:i:s', time())));
+    //$return[] = t('Preview cache deleted for : "@elem_name" on !date', array('@elem_name' => $data[$data['type']]['#node']->title, '!date' => date('Y-m-d H:i:s', time())));
   }
   return $return;
 }
