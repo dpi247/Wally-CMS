@@ -64,4 +64,29 @@ class cckdestinations_views_handler_filter_tid extends views_handler_filter_term
       $form_state['values']['options']['value'] = $extracted_ids['existing_tids'];
     }
   }
+  
+  function exposed_validate(&$form, &$form_state) {
+    if (empty($this->options['exposed'])) {
+      return;
+    }
+  
+    $identifier = $this->options['expose']['identifier'];
+  
+    // We only validate if they've chosen the text field style.
+    if ($this->options['type'] != 'textfield') {
+      if ($form_state['values'][$identifier] != 'All')  {
+        $this->validated_exposed_input = (array) $form_state['values'][$identifier];
+      }
+      return;
+    }
+  
+    if (empty($this->options['expose']['identifier'])) {
+      return;
+    }
+    $tids = cckdestinations_autocomplete_tags_get_tids($form_state['values'][$identifier], 2, 'multiple');
+  
+    if ($tids) {
+      $this->validated_exposed_input = $tids['existing_tids'];
+    }
+  }
 }
