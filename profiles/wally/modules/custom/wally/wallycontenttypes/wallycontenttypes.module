@@ -246,6 +246,12 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
       }
       break;
     case 'presave' : 
+      // The default behavior of the pathauto module is "if pathauto_perform_alias is not set consider it as true",
+      // we want the default behavior to be "if pathauto_perform_alias is not set don't do anything".
+      if (!isset($node->pathauto_perform_alias)) {
+        $node->pathauto_perform_alias = 0;
+      }
+      
       if ($node->type == 'wally_articlepackage' || 
         $node->type == 'wally_gallerypackage' ||
         $node->type == 'wally_pollpackage') {
