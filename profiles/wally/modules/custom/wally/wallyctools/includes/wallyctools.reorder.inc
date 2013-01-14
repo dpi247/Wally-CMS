@@ -336,7 +336,6 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   						$elem_node->field_destinations[$delta] = $dest;
   					}
 
-  					$elem_node->pathauto_perform_alias = 0;
   					node_save($elem_node);	
   						
   					$j++;
@@ -377,7 +376,6 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   			$elem_node->field_destinations[$delta] = $dest;
   		}
 
-  		$elem_node->pathauto_perform_alias = 0;
   		node_save($elem_node);
   	}
   }
