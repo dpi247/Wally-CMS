@@ -85,6 +85,31 @@ function wallyflowpublish_block($op = 'list', $delta = 0) {
 }
 
 /**
+ * Implementation of hook_views_plugins
+ */
+function wallyflowpublish_views_plugins() {
+  $plugins = array(
+    'module' => 'wallyflowpublish', // This just tells our themes are elsewhere.
+    'cache' => array(
+      'parent' => array(
+        'no ui' => TRUE,
+        'handler' => 'views_plugin_cache_time',
+        'parent' => '',
+      ),
+      'format-time' => array(
+        'title' => t('Format-based'),
+        'help' => t('Format and time-based caching of data, a new cache entry will be created for each value of the "format" argument.'),
+        'handler' => 'wallyflowpublish_views_plugin_cache_format',
+        'uses options' => TRUE,
+        'help topic' => 'cache-format',
+      ),
+    ),
+  );
+
+  return $plugins;
+}
+
+/**
  * Implementation of hook_views_pre_execute()
  * Catch the view process before query build to handle pager and MediaFed redirection
  */
