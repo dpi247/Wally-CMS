@@ -47,13 +47,7 @@ function wallycontenttypes_menu() {
 
   return $items;
 }
-/*
-function wallycontenttypes_menu_alter(&$items){
-  $items['admin/content/node']['page callback'] = 'wallycontenttypes_page_view_admin_content';
-  unset($items['admin/content/node']['page arguments']);
-  $items['admin/content/node']['file'] = 'includes/wallycontenttypes.admin.inc'; 
-  $items['admin/content/node']['module'] = 'wallycontenttypes';
-}*/
+
 /**
  *  Implémentation du hook_theme(); 
  */
