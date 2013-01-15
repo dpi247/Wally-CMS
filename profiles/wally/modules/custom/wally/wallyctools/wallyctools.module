@@ -155,7 +155,7 @@ function wallyctools_preprocess_views_view(&$vars) {
     //if redacblock is splitted we need to tweak the pager
     if(isset($view->split_index_count) && !empty($view->split_index_count) && is_numeric($view->split_index_count) && ($view->split_index_count > 0)) {
       global $pager_total;
-      $pager_total[$view->pager['element']] = (int)(($view->total_rows + $view->pager['offset'] + $view->split_index_count) / $view->split_total_count) + 1;
+      $pager_total[$view->pager['element']] = (int)($view->total_rows / $view->pager['total_items_per_page']) + 1;
       $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
       $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
       $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
