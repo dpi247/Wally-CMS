@@ -165,9 +165,152 @@ function wallycontenttypes_action_info() {
         'comment' => array('insert', 'update'),
       ),
     ),
+    'wallycontenttypes_batch_set_freeaccess_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set free access'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_unset_freeaccess_nodes' => array(
+      'type' => 'node',
+      'description' => t('Unset free access'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_clear_packagepopulate_cache' => array(
+      'type' => 'node',
+      'description' => t('Clear package populate cache'),
+      'configurable' => FALSE,
+      'hooks' => array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_disable_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Disable comments'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_readonly_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set comments to read only'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_readwrite_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set comments to read/write'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_varnish_flush_cache_nodes' => array(
+      'type' => 'node',
+      'description' => t('Flush varnish cache'),
+      'configurable' => FALSE,
+    ),
+    'wallycontenttypes_batch_addfreetags_nodes' => array(
+      'type' => 'node',
+      'description' => t('Add Free tags'),
+      'configurable' => TRUE,
+      'hooks' => array('any' => TRUE),
+    ),
   );
   return $actions;
 }
+/**
+ * 
+ * Add free tags to a node
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_addfreetags_nodes(&$node, $context = array()){
+
+  if (is_array($context['freetags'])){
+    switch ($node->type){
+      case 'wally_articlepackage':$mainobject_nid = $node->field_mainstory[0]['nid'];break;
+      case 'wally_gallerypackage':$mainobject_nid = $node->field_mainobject[0]['nid'];break;
+      case 'wally_pollpackage':$mainobject_nid = $node->field_mainpoll[0]['nid'];break;
+    }
+    
+    $mainobject = node_load(array('nid' => $mainobject_nid));
+    
+    foreach ($mainobject->field_free_tags as $free_tag){
+      if (in_array($free_tag['value'], $context['freetags'])){
+        unset($context['freetags'][$free_tag['value']]);
+      }
+    }
+    foreach ($context['freetags'] as $tid){
+      $mainobject->field_free_tags[]['value'] = $tid;
+    }
+    node_save($mainobject);
+  }
+  
+}
+function wallycontenttypes_batch_addfreetags_nodes_form($context){
+  $form = array();
+  $form['freetags'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Free Tags',
+    '#autocomplete_path' => 'content_taxonomy/autocomplete/field_free_tags',
+  );
+  return $form; 
+}
+function wallycontenttypes_batch_addfreetags_nodes_submit($form, &$form_state){
+  $terms = content_taxonomy_autocomplete_tags_get_tids($form_state['values']['freetags'], 7);
+  $free_tags['freetags'] = array();
+  if ($terms['existing_tids'] != NULL){
+    $free_tags['freetags'] = $terms['existing_tids'];
+  }
+  if ($terms['non_existing_terms'] != NULL){ 
+    $new_terms = content_taxonomy_autocomplete_insert_tags($terms['non_existing_terms']);
+    if (is_array($new_terms)){
+      $free_tags['freetags'] += $new_terms;
+    }
+  }
+  return $free_tags;
+}
+/**
+ * 
+ * Flush the varnish cache of the node
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_varnish_flush_cache_nodes($node, $context = array()){
+  wallytoolbox_flush_all_pages('node/'.$node->nid, TRUE, 'varnish');
+}
+/**
+ * 
+ * Disable comments
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_disable_comments_nodes(&$node, $context = array()){
+  $node->comment = 0;
+}
+
+/**
+*
+* Set comments to read only
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_readonly_comments_nodes(&$node, $context = array()){
+  $node->comment = 1;
+}
+/**
+*
+* Set comments to read/write
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_readwrite_comments_nodes(&$node, $context = array()){
+  $node->comment = 2;
+}
+
+
 
 function wallycontenttypes_publish_nodes(&$node, $context = array()) {
   $node->status = 1;
@@ -182,6 +325,37 @@ function wallycontenttypes_unpublish_nodes(&$node, $context = array()) {
     $node->field_autopublish[0]['value'] = 'No';
   }
 }
+/**
+ * 
+ * Set free access to "Free"
+ * @param unknown_type $node
+ * @param unknown_type $context
+ */
+function wallycontenttypes_batch_set_freeaccess_nodes(&$node, $context = array()){
+  $node->field_freeaccess[0]['value'] = 'Free';
+}
+/**
+*
+* Set free access to "No"
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_unset_freeaccess_nodes(&$node, $context = array()){
+  $node->field_freeaccess[0]['value'] = 'No';
+}
+
+
+/**
+ * 
+ * Enter description here ...
+ * @param unknown_type $node
+ * @param unknown_type $context
+ */
+function wallycontenttypes_batch_clear_packagepopulate_cache($node, $context){
+  module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+  wallytoolbox_object_cache_clear($node->nid);
+}
+
 
 /**
  * Implementation of hook_node_operations().
@@ -578,7 +752,6 @@ function wallycontenttypes_form_node_package_form_validate(&$form, &$form_state)
  */
 function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
   module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
-
   $fields = array(
     "field_locations",
     "field_markers",

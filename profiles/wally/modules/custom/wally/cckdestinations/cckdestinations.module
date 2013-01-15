@@ -154,6 +154,12 @@ function cckdestinations_action_info() {
       'configurable' => FALSE,
       'hooks'=> array('any' => TRUE),
     ),
+    'cckdestinations_batch_dest_remove_no_context' => array(
+      'type' => 'node',
+      'description' => t('Remove destination'),
+      'configurable' => TRUE,
+      'hooks'=> array('any' => TRUE),
+    ),
   );
 }
 
@@ -976,7 +982,43 @@ function cckdestinations_batch_dest_remove($node, $context, $a, $b) {
     drupal_set_message(t('Node "@title" (nid: @nid) has only this destination, impossible to remove!', array('@title' => $node->title, '@nid' => $node->nid)), 'error');
   }
 }
-
+/**
+ * 
+ * Process of removing a destination from a list of nodes
+ * @param array $node
+ * @param array $context
+ */
+function cckdestinations_batch_dest_remove_no_context($node, $context, $a, $b){
+  
+  foreach ($context['new_dests'] as $destination){
+    $tid = $destination['tid'];
+    $target = $destination['target'];
+    if (count($node->field_destinations) > 1) {
+      foreach ($node->field_destinations as $delta => $dest) {
+        if ($dest['tid'] == $tid && $dest['target'] == $target) {
+          unset($node->field_destinations[$delta]);
+          break;
+        }
+      }
+      cckdestinations_force_dnc($node);
+      node_save($node);
+    } else {
+      drupal_set_message(t('Node "@title" (nid: @nid) has only one destination, impossible to remove!', array('@title' => $node->title, '@nid' => $node->nid)), 'error');
+    } 
+  }
+}
+/**
+ * 
+ * Form to choose witch destination to remove
+ * @param $context
+ * @return form
+ */
+function cckdestinations_batch_dest_remove_no_context_form($context){
+  return cckdestinations_batch_dest_form($context, 'delete');
+}
+function cckdestinations_batch_dest_remove_no_context_submit($form, $form_state) {
+  return cckdestinations_batch_dest_submit($form, $form_state);
+}
 /**
  * Process of setting a destination as main destination from a list of nodes.
  *
