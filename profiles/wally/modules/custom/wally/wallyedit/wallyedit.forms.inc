@@ -1822,6 +1822,10 @@ function wydit_preprocess_batch_upload_zip($file, &$return){
     $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
     $temp_subdir = file_directory_path().'/tmp_batch_upload/'.$file_name;
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    if (is_dir($temp_subdir)) {
+      // Remove previous files
+      rrmdir($temp_subdir);
+    }
     file_check_directory_recursive($temp_subdir, 1);
 
     if (is_dir($temp_subdir)) {
