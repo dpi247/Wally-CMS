@@ -295,7 +295,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
             unlink($file_to_zip);
           }
         } else {
-          $temp_return = wallymport_page_process_file($xml_file_name.'.xml', $importer);
+          $temp_return = wallymport_page_process_file($importer->source_directory_path.'/'.$xml_file_name.'.xml', $importer);
         }
 
         if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return[0]['error']) {
