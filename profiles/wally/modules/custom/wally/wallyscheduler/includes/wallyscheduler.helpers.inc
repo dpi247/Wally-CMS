@@ -63,8 +63,39 @@ function _wallyscheduler_clean_process_switch($snapshot_id){
 function _wallyscheduler_clean_old_snapshot(){
 	
 	
-	//@todo: Dont delete the snapshot used in production ! 
-	
+  //Get the number of day after the snapshot can be deleted
+  $snapshot_expire_time = wally_variable_get('wallyscheduler_snaphot_expire_time', 30);
+  
+  //Get the current snapshot
+  $current_snapshot = wally_variable_get('wallyscheduler_production', 0);
+  
+  $date = time() - 3600*24*$snapshot_expire_time;
+  
+  //Get the snapshot who can be deleted
+  $old_snapshots = _wallyscheduler_getsnapshot_older_than_date($date);
+
+  //delete each old snapshot except if the snapshot is the current one.
+  foreach ($old_snapshots as $sid){
+    if ($sid != $current_snapshot){
+      _wallyscheduler_process_delete($sid);
+    }
+  }
+}
+/**
+ * 
+ * Get the snapshots with execution time is older than de param date
+ * @param timestamp $date
+ */
+function _wallyscheduler_getsnapshot_older_than_date($date){
+  $result = db_query("SELECT s.sid
+  				      FROM {wallyscheduler_snapshot_list} s
+  				      WHERE s.timestamp_of_execution < %d", $date);
+  
+  $snapshots = array();
+  while ($obj = db_fetch_object($result)){
+    $snapshots[] = $obj->sid;
+  }
+  return $snapshots;
 }
 
 
@@ -169,23 +200,25 @@ function _wallyscheduler_process_overwrite($snapshot_id){
 
 }
 
-
+/**
+ * 
+ * Delete a snapshot
+ * @param int $snapshot_id
+ */
 function _wallyscheduler_process_delete($snapshot_id){
 
-	$snapshot=wallyscheduler_get_snapshot($snapshot_id);
+  $snapshot = wallyscheduler_get_snapshot($snapshot_id);
 
-	//call hook_wallyscheduler_snapshot_switch_before
-	module_invoke_all('wallyscheduler_process_delete_before',$snapshot);
+  //call hook_wallyscheduler_snapshot_delete_before
+  module_invoke_all('wallyscheduler_process_delete_before', $snapshot);
 
-	//make the switch
-	db_query("DROP TABLE {".$snapshot->destination_table."} ;");
-	db_query("DELETE FROM  {wallyscheduler_snapshot_list}  WHERE sid = %d",$snapshot->sid);
-	watchdog('wallyscheduler', t("Delete snapshot !machine_name ",array('!machine_name'=>$snapshot->machine_name,'!time'=>date("Y-m-d h:i",$snapshot->time_of_execution))));
+  //make the switch
+  db_query("DROP TABLE {".$snapshot->destination_table."} ;");
+  db_query("DELETE FROM  {wallyscheduler_snapshot_list}  WHERE sid = %d", $snapshot->sid);
+  watchdog('wallyscheduler', t("Delete snapshot !machine_name ", array('!machine_name'=>$snapshot->machine_name,'!time'=>date("Y-m-d h:i",$snapshot->time_of_execution))));
 
-	//call hook_wallyscheduler_snapshot_switch_after
-	module_invoke_all('wallyscheduler_process_delete_after',$snapshot);
-
-
+  //call hook_wallyscheduler_snapshot_delete_after
+  module_invoke_all('wallyscheduler_process_delete_after',$snapshot);
 
 }
 
