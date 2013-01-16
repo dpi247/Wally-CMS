@@ -148,15 +148,16 @@ function _wallyscheduler_process_switch($snapshot_id){
     
     watchdog('wallyscheduler',t('Switch: prodution now reflect : !machine_name',array('!machine_name'=>$snapshot->machine_name)));
     
+    //put site online
+    variable_set("site_offline", 0);
+    
     // cache_clear of remote site 
     wallyscheduler_remote_cache_clear();
     
-    //Put the table id in the variable that define the current prodution snaphsot
+    //Put the table id in the variable that define the current production snaphsot
     wally_variable_set('wallyscheduler_production',$snapshot->sid);
 	
 
-    //put site online
-    variable_set("site_offline", 0);
     watchdog('wallyscheduler',t('Switch Ending for !machine_name',array('!machine_name'=>$snapshot->machine_name)));
     
 
