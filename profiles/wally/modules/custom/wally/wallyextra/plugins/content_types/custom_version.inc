@@ -316,7 +316,7 @@ function wallyextra_custom_version_content_type_edit_form(&$form, &$form_state) 
       $form['contexts']['context'] = array('#value' => theme('table', $header, $rows));
     }
   
-    if (!user_access('administer custom content') || !module_exists('wallyextra')) {
+    if (!user_access('make a widget reusable') || !module_exists('wallyextra')) {
       return;
     }
   
