@@ -61,7 +61,7 @@ function wallyextra_taxonomylist_content_type_edit_form(&$form, &$form_state) {
     '#value'            => $settings['creation_date'],
   );
   
-  if (!user_access('administer taxonomylist content') || $settings['taxonomylist_type'] == 'fixed') {
+  if (!user_access('make a widget reusable') || $settings['taxonomylist_type'] == 'fixed') {
     return;
   }
   
