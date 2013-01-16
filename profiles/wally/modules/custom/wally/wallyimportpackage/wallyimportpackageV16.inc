@@ -70,7 +70,7 @@ function wallyimportpackageV16_set_field_EmbeddedContent(&$node, $dom, &$log, $i
   $linkslist = $dom->getElementsByTagName('LinksList')->item(0);
   if ($linkslists && $linkslist) {
     if ($linkslist->getElementsByTagName('Links')->item(0)->nodeValue != NULL) {
-      foreach (wimprt_process_list($linklists, $log, $importer, 'object') as $result) {
+      foreach (wimprt_process_list($linkslists, $log, $importer, 'object') as $result) {
         if (!$result->rejected) {
           $order = $result->embeddedobjectsorder ? $result->embeddedobjectsorder : $i++;
           if ($importer->wallymport_preview) {
