@@ -623,7 +623,7 @@ function wallyextra_flowmix_content_type_form_summary_form(&$form, &$form_state)
     '#value'            => $settings->caid,
   );
   
-  if (user_access('administer flowmix content') && $settings->flowmix_type == 'local') {
+  if (user_access('make a widget reusable') && $settings->flowmix_type == 'local') {
     $form['reusable'] = array(
       '#type' => 'checkbox',
       '#title' => t('Make this content reusable'),

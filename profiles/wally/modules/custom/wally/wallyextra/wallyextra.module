@@ -125,6 +125,15 @@ function wallyextra_theme(&$var) {
 }
 
 /**
+ * Implementation of hook_perm().
+ */
+function wallyextra_perm() {
+  return array(
+    'make a widget reusable',
+  );
+}
+
+/**
  * Implementation of hook_form_FORM_ID_alter().
  * Css to add so space between operations in export admin and add "Hide" and "Show" links
  */
