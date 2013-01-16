@@ -65,7 +65,7 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
     '#value'            => $settings['caid'],
   );
   
-  if (!user_access('administer rssmixread content') || $settings['remotehtml_type'] == 'fixed') {
+  if (!user_access('make a widget reusable') || $settings['remotehtml_type'] == 'fixed') {
     return;
   }
   
