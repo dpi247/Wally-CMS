@@ -191,27 +191,45 @@ function wallyscheduler_form_deletesnapshot_form_submit($form, &$form_state,$b){
 
 function wallyscheduler_form_config_form($form, &$form_state){
 
-	$form = array();
+  $form = array();
 
-	$form['production_site_url'] = array(
-			'#type' => 'textfield',
-			'#title' => t('Production site\'s url'),
-			'#default_value' => wally_variable_get('wallyscheduler_production_site_url',''),
-	);
-	$form['submit'] = array(
-			'#type' => 'submit',
-			'#value' => t('Save'),
-			
-	);
-	$form['#redirect'] = "admin/wally/wallyscheduler/dashboard";
+  $form['production_site_url'] = array(
+	'#type'          => 'textfield',
+	'#title'         => t('Production site\'s url'),
+	'#default_value' => wally_variable_get('wallyscheduler_production_site_url',''),
+  );
+  
+  $options = array();
+  for ($i = 1; $i < 60; $i++){
+    $options[$i] = $i;
+  }
+  $form['snapshot_expire_time'] = array(
+    '#type'          => 'select',
+    '#title'         => t('Time to live of an old snapshot (in day)'),
+    '#description'   => t('Choose the number of day before an old snapshot is destroy'),
+    '#options'       => $options,
+    '#default_value' => wally_variable_get('wallyscheduler_snaphot_expire_time', 30),
+  );
+  
+  $form['submit'] = array(
+	'#type' => 'submit',
+	'#value' => t('Save'),		
+  );
+  
+  $form['#redirect'] = "admin/wally/wallyscheduler/dashboard";
 	
-	return $form;
+  return $form;
 
 }
 
 
 function wallyscheduler_form_config_form_submit($form, &$form_state){
-	$production_site_url = $form_state['values']['production_site_url'];
-	wally_variable_set('wallyscheduler_production_site_url',$production_site_url);
 	
+  //Set the production url
+  $production_site_url = $form_state['values']['production_site_url'];
+  wally_variable_set('wallyscheduler_production_site_url', $production_site_url);
+	
+  //Set the snapshot expire time
+  $snapshot_expire_time = $form_state['values']['snapshot_expire_time'];
+  wally_variable_set('wallyscheduler_snaphot_expire_time', $snapshot_expire_time);
 }
