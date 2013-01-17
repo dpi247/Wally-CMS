@@ -23,7 +23,7 @@ function wallyfundamentals_views_default_views() {
       'style_options' => array(),
       'wildcard' => 'all',
       'wildcard_substitution' => 'All',
-      'title' => '',
+      'title' => '%1',
       'breadcrumb' => '',
       'default_argument_type' => 'fixed',
       'default_argument' => '',
@@ -61,25 +61,29 @@ function wallyfundamentals_views_default_views() {
         'wally_textobject' => 0,
         'wally_videoobject' => 0,
         'page' => 0,
+        'webform' => 0,
       ),
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
       'validate_argument_vocabulary' => array(
         1 => 0,
+        12 => 0,
         2 => 0,
         3 => 0,
         4 => 0,
         5 => 0,
-        6 => 0,
-        10 => 0,
         7 => 0,
+        6 => 0,
+        11 => 0,
         8 => 0,
         9 => 0,
+        10 => 0,
       ),
       'validate_argument_type' => 'tid',
       'validate_argument_transform' => 0,
       'validate_user_restrict_roles' => 0,
       'validate_argument_php' => '',
+      'not' => 0,
     ),
   ));
   $handler->override_option('filters', array(
@@ -104,7 +108,9 @@ function wallyfundamentals_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('row_plugin', 'node');
+  $handler->override_option('style_plugin', 'redacblock_style');
+  $handler->override_option('row_plugin', 'redacblock_row');
+  $handler->override_option('row_options', NULL);
   $handler = $view->new_display('redacblock', 'Destination block', 'redacblock_1');
   $handler->override_option('sorts', array(
     'field_destinations_time_rank' => array(
@@ -160,8 +166,6 @@ function wallyfundamentals_views_default_views() {
     ),
   ));
   $handler->override_option('use_pager', 'mini');
-  $handler->override_option('row_plugin', 'redacblock_row');
-  $handler->override_option('row_options', NULL);
   $handler->override_option('redacblock_layout', array(
     'small' => 'small',
     'medium' => 'medium',
