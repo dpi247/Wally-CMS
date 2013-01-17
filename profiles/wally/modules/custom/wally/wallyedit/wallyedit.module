@@ -507,17 +507,28 @@ function wallyedit_node_type($op, $info) {
       $profiles = wyditadmin_get_profiles();
       $tabs = array('main' => 'Main', 'meta' => 'Meta');
       $type = $info->type;
+      
+      $db_tabs = wyditadmin_get_all_tabs();
+      $existing_tabs = array();
+      foreach ($db_tabs as $db_tab) {
+        $existing_tabs[] = $db_tab['name'];
+      }
 
       foreach ($profiles as $pid => $profile) {
         foreach ($tabs as $name => $label) {
-          $new_tab['name'] = $name.'_'.$pid.'_'.$type;
-          $new_tab['label'] = $label;
-          $new_tab['weight'] = 0;
-          $new_tab['pid'] = $pid;
-          $new_tab['content_type'] = $type;
-          $new_tab['erasable'] = 0;
-
-          drupal_write_record('wallyedit_tabs', $new_tab);
+          $new_tab_name = $name.'_'.$pid.'_'.$type;
+          if (!in_array($new_tab_name, $existing_tabs)) {
+            $existing_tabs[] = $new_tab_name;
+            
+            $new_tab['name'] = $new_tab_name;
+            $new_tab['label'] = $label;
+            $new_tab['weight'] = 0;
+            $new_tab['pid'] = $pid;
+            $new_tab['content_type'] = $type;
+            $new_tab['erasable'] = 0;
+  
+            drupal_write_record('wallyedit_tabs', $new_tab);
+          }
         }
       }
       break;
