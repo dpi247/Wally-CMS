@@ -1774,7 +1774,7 @@ function wallyimportpackage_node_set_field_thumbnail(&$node, $dom, &$log, $impor
  *   Nothing
  */
 function wallyimportpackage_node_process_link(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   //$node->type='wally_linktype';
   wimprt_node_process_fields($node, $dom, $log, $importer);
@@ -2207,7 +2207,7 @@ function wallyimportpackage_node_create_or_load_location($dom, $log, $importer){
  *   Nothing
  */
 function wallyimportpackage_node_process_location(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   // UID
   $node->uid = $importer->default_user ? $importer->default_user : 1;
@@ -2386,7 +2386,7 @@ function wallyimportpackage_node_set_field_taxonomy(&$node, $dom, $log, $importe
               wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
             }
           }
-          wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+          wallyimportpackage_node_set_field_taxonomy_vocabulary($vocabulary, $result, $vid);
           if (!isset($node->nid)){
             $node->field_free_tags = array();
             $node->field_concepts = array();
@@ -2657,7 +2657,7 @@ function wallyimportpackage_node_create_or_load_entity($dom, $log, $importer){
  *   Nothing
  */
 function wallyimportpackage_node_process_entity(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   // Node type
   $node->type = "wally_entitytype";
@@ -2909,7 +2909,7 @@ function wallyimportpackage_node_create_or_load_author($dom, $log, $importer){
  *   Nothing
  */
 function wallyimportpackage_node_process_person(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   // Node type
   $node->type = "wally_persontype";

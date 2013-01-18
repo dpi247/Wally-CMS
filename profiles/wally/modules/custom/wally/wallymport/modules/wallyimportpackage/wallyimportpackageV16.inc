@@ -409,7 +409,7 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
  *   Nothing
  */
 function wallyimportpackageV16_node_process_link(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   //$node->type='wally_linktype';
   wimprt_node_process_fields($node, $dom, $log, $importer);
