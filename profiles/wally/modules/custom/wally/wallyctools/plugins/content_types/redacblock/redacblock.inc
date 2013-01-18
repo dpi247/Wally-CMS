@@ -688,7 +688,7 @@ function redacblock_new_redacblock_form($form,$form_state){
   //ctools_include('wallyctools.ui.class', 'wallyctools','plugins/export_ui');
 
   $redacblock_export=new wallyctools_ui();
-  $redacblock_export->edit_form(&$form, &$form_state);
+  $redacblock_export->edit_form($form, $form_state);
 
   $form['category'] = array(
     '#type' => 'textfield',

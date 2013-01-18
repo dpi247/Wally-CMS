@@ -352,7 +352,7 @@ function wallycontenttypes_preprocess_page(&$variables) {
 
   // For all Nodes types with a destination field.
   if (isset($variables['node']->field_destinations) && false) {
-    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'page'); 
+    $suggestion = wallycontenttypes_getpackagesuggestions($variables, 'page'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
   
@@ -370,7 +370,7 @@ function wallycontenttypes_preprocess_node(&$variables) {
 
   // For all Nodes types with a destination field.
   if (isset($variables['node']->field_destinations[0])) {
-    $suggestion = wallycontenttypes_getpackagesuggestions(&$variables, 'node'); 
+    $suggestion = wallycontenttypes_getpackagesuggestions($variables, 'node'); 
   }
   if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
 }
