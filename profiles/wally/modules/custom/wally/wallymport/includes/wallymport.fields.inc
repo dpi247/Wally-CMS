@@ -1600,7 +1600,7 @@ function wimprt_set_field_thumbnail(&$node, $dom, &$log, $importer){
  *   Nothing
  *//*
 function wimprt_process_type_link(&$node, $dom, &$log, $importer){
-  wimprt_typetype_preprocess(&$node, $dom, $importer);
+  wimprt_typetype_preprocess($node, $dom, $importer);
   
   //$node->type='wally_linktype';
   wimprt_process_type_default($node, $dom, $log, $importer);
@@ -2016,7 +2016,7 @@ function wimprt_create_or_load_type_location($dom, $log, $importer){
  *   Nothing
  *//*
 function wimprt_process_type_location(&$node, $dom, &$log, $importer){
-  wimprt_typetype_preprocess(&$node, $dom, $importer);
+  wimprt_typetype_preprocess($node, $dom, $importer);
 
   // UID
   $node->uid = $importer->default_user ? $importer->default_user : 1;
@@ -2185,7 +2185,7 @@ function wimprt_set_field_taxonomy(&$node, $dom, $log, $importer) {
   	          wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
   	        }
 	      }
-  		  wimprt_set_field_taxonomy_vocabulary($vocabulary, &$result, $vid);
+  		  wimprt_set_field_taxonomy_vocabulary($vocabulary, $result, $vid);
   		  if (!isset($node->nid)){
   		    $node->field_free_tags = array();
   		    $node->field_concepts = array();
@@ -2438,7 +2438,7 @@ function wimprt_create_or_load_type_entity($dom, $log, $importer){
 function wimprt_process_type_entity(&$node, $dom, &$log, $importer){
  
   
-  wimprt_typetype_preprocess(&$node, $dom, $importer);
+  wimprt_typetype_preprocess($node, $dom, $importer);
 
   // Node type
   $node->type = "wally_entitytype";
@@ -2682,7 +2682,7 @@ function wimprt_create_or_load_type_author($dom, $log, $importer){
  *   Nothing
  *//*
 function wimprt_process_type_person(&$node, $dom, &$log, $importer){
-  wimprt_typetype_preprocess(&$node, $dom, $importer);
+  wimprt_typetype_preprocess($node, $dom, $importer);
 
   // Node type
   $node->type = "wally_persontype";

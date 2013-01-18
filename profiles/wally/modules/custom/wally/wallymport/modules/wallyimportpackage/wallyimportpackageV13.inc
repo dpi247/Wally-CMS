@@ -17,7 +17,7 @@
  *   Nothing
  */
 function wallyimportpackageV13_node_process_link(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
