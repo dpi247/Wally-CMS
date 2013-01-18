@@ -18,7 +18,7 @@ $row_index=$row_view_index+$view_offset;
 
 $field_mainstory_nodes = $node->field_mainstory_nodes[0];
 
-jsonexporter_build_embedded_links(&$node);
+jsonexporter_build_embedded_links($node);
 
 $crea_date = $node->field_creationdate[0];
 $form_crea_date = date_make_date($crea_date['value'], $crea_date['timezone_db']);

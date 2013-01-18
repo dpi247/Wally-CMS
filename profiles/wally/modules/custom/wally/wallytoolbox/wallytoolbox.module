@@ -656,7 +656,7 @@ function wallytoolbox_taxonomy_get_related($tid, $key = 'tid', $bidirect = FALSE
 function wallytoolbox_taxonomy_count_parents(&$count_parents, $terms, $term) {
   if (isset($term->parents[0]) && array_key_exists($term->parents[0], $terms)) {
     ++$count_parents;
-    wallytoolbox_taxonomy_count_parents(&$count_parents, $terms, $terms[$term->parents[0]]);
+    wallytoolbox_taxonomy_count_parents($count_parents, $terms, $terms[$term->parents[0]]);
   }
 }
 

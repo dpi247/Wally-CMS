@@ -268,7 +268,7 @@ function wallyflowpublish_preprocess_views_view_row_rss(&$vars) {
 
   $nid= $item->nid;
   $my_node = node_load($nid);
-  wallycontenttypes_packagepopulate(&$my_node,'show');
+  wallycontenttypes_packagepopulate($my_node);
   $descr = "";
   if ($my_node->type == 'wally_articlepackage'){
     $mainstory = $my_node->field_mainstory_nodes[0];
