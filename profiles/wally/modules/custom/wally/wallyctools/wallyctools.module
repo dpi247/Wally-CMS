@@ -101,11 +101,13 @@ function wallyctools_form_alter($form, $form_state, $form_id) {
       }
     }
   }
-}
-
-function wallyctools_form_page_manager_handler_rearrange_alter(&$form, $form_state) {
-  if ($form_state['task_name'] == 'term_view') {
-    $form['#submit'][] = 'wallyctools_page_manager_rearrange_submit';
+  
+  $page_manager_forms_to_alter = array(
+    'ctools_context_handler_edit_criteria',
+    'page_manager_handler_rearrange',
+  );
+  if (in_array($form_id, $page_manager_forms_to_alter) && $form_state['task_name'] == 'term_view') {
+    $form['#submit'][] = 'wallyctools_page_manager_clear_mapping_submit';
   }
 }
 
@@ -135,8 +137,10 @@ function wallyctools_panels_display_save($display) {
 /**
  * Refresh destination tree after variants rearrangement
  */
-function wallyctools_page_manager_rearrange_submit() {
-  db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", variable_get('wallymport_destinationpath', 0), $depth);
+function wallyctools_page_manager_clear_mapping_submit() {
+  $vid = variable_get('wallymport_destinationpath', 0);
+  $depth = 0;
+  db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
   cache_clear_all('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, 'cache', TRUE);
 }
 
@@ -661,16 +665,16 @@ function wallyctools_get_redacblock_panes(){
   $sql = "Select name, view_name, view_id, admin_title FROM {wallyctools}";
   $results = db_query($sql);
 
-  while($result=db_fetch_object($results)){
-    $redacblocks[$result->name]=$result;
+  while ($result = db_fetch_object($results)) {
+    $redacblocks[$result->name] = $result;
   }
 
-  $handlers=wallytoolbox_get_handlers(FALSE, 'term_view');
+  $handlers = wallytoolbox_get_handlers(FALSE, 'term_view');
 
-  $term_view_handlers=$handlers['term_view'];
-  foreach ($term_view_handlers as $term_view_handler){
-    if($term_view_handler->type=='redacblock'){
-      if(in_array($term_view_handler->subtype, array_keys($redacblocks))){
+  $term_view_handlers = $handlers['term_view'];
+  foreach ($term_view_handlers as $term_view_handler) {
+    if ($term_view_handler->type=='redacblock') {
+      if (in_array($term_view_handler->subtype, array_keys($redacblocks))) {
         $temp_result = $redacblocks[$term_view_handler->subtype];
         $temp_result->did=$term_view_handler->did;
         $temp_result->subtype=$term_view_handler->subtype;
@@ -680,9 +684,9 @@ function wallyctools_get_redacblock_panes(){
         $view->set_display($redacblocks[$term_view_handler->subtype]->view_id);
         $layouts=$view->display[$redacblocks[$term_view_handler->subtype]->view_id]->display_options['redacblock_layout'];
 
-        if(is_array($layouts)){
+        if (is_array($layouts)) {
           foreach ($layouts as $layout) {
-            if($layout){
+            if ($layout) {
               $temp_result['layout_id'] = $layout;
               $array_of_panes[]=(object)$temp_result;
             }
