@@ -212,17 +212,12 @@ function wallytoolbox_supercron_settings_form_validate($form, &$form_state) {
 function wallytoolbox_supercron_settings_form_submit($form, &$form_state) {
   foreach ($form_state['values']['rows'] as $row) {
     list($a, $b, $type, $subtype, $e, $pid) = explode(':', $row['cid']);
-    dsm($row['cid']);
-    dsm($type);
-    dsm($subtype);
-    dsm($row['settings'], $row['rule']);
+
     if ($row['rule'] != $form['rows'][$row['cid']]['rule']['#default_value']) {
       _wallytoolbox_set_setting($row['settings'], 'wally_rule', $row['rule']);
-      dsm($row['cid']);
       if ($type == $subtype) {
         db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE pid = %d", serialize($row['settings']), $pid);
       } else {
-        dsm($row['settings'],$row['cid'].' '.$row['rule']);
         db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE type = '%s' AND subtype = '%s'", serialize($row['settings']), $type, $subtype);
       }
     }
@@ -281,7 +276,6 @@ function wallytoolbox_supercron_output($cid) {
   $output = db_fetch_array(db_query('SELECT output FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $cid));
   drupal_set_title(drupal_get_title().' '.$cid);
   $unser_output = unserialize($output['output']);
-  dsm($unser_output);
   $to_print = '';
   foreach ($unser_output as $out_time => $out) {
     $item_to_print = '<b>On '.date('Y-m-d H:i:s', $out_time).' :</b><br>';
