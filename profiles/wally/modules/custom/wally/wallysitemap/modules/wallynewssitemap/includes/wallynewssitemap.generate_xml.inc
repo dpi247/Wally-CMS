@@ -146,7 +146,7 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
   $xmlfiles_to_generate = array();
   $namespaces = wallysitemap_get_namespaces();
   $site_infos = wallysitemap_get_site_infos();
-  $dom = _wallynewssitemap_new_dom();
+  $dom = _wallynewssitemap_new_dom($settings);
   $urlset = $dom->getElementsByTagName('urlset')->item(0);
 
   $i = $n = 0;
@@ -610,7 +610,7 @@ function _wallynewssitemap_build_embed_link($embed, $type) {
   return FALSE;
 }
 
-function _wallynewssitemap_new_dom() {
+function _wallynewssitemap_new_dom($settings) {
   $namespaces = wallysitemap_get_namespaces();
 
   $dom = new DOMDocument('1.0', 'UTF-8');
