@@ -261,7 +261,7 @@ function wallyimportpackageV16_process_object_audioobjecttype(&$node, $dom, &$lo
  *   Nothing
  */
 function wallyimportpackageV16_process_object_link(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   //$node->type='wally_linktype';
   wimprt_process_type_default($node, $dom, $log, $importer);
@@ -454,7 +454,7 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
  *   Nothing
  */
 function wallyimportpackageV16_process_type_link(&$node, $dom, &$log, $importer){
-  wallyimportpackage_typetype_preprocess(&$node, $dom, $importer);
+  wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
   //$node->type='wally_linktype';
   wimprt_process_type_default($node, $dom, $log, $importer);
