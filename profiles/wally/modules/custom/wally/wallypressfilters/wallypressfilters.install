@@ -179,16 +179,32 @@ function wallypressfilters_update_6002() {
  */
 function wallypressfilters_update_6003() {
   $ret = array();
-  $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
-  db_add_field($ret, 'wallypressfilters_tags', 'weight', $schema['fields']['weight']);
+  if (!db_column_exists('wallypressfilters_tags', 'weight')) {
+    $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
+    db_add_field($ret, 'wallypressfilters_tags', 'weight', $schema['fields']['weight']);
+  }
   return $ret;
 }
 
+/**
+ * Implementation of hook_update_N
+ * Add several indexes to wallypressfilters_tags
+ */
 function wallypressfilters_update_6004(){
 	$ret = array();
-	db_add_index($ret, 'wallypressfilters_tags', 'tag', array('tag'));
-	db_add_index($ret, 'wallypressfilters_tags', 'format', array('format'));
-	db_add_index($ret, 'wallypressfilters_tags', 'filter', array('filter'));
+	$existing_indexes = array();
+	$db_indexes = db_query("SHOW INDEX FROM {wallypressfilters_tags}");
+	while($db_index = db_fetch_array($db_indexes)) {
+	  $existing_indexes[] = $db_index['Column_name'];
+	}
+	if (!in_array('tag', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'tag', array('tag'));
+	}
+	if (!in_array('format', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'format', array('format'));
+	}
+	if (!in_array('filter', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'filter', array('filter'));
+	}
 	return $ret;
-	
 }
