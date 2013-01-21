@@ -256,17 +256,7 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
       continue;
     }
 
-    if($fields[$element]['widget'] == 'text_textarea') {
-      foreach(element_children($form[$element]) as $index){
-        $filter_key = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
-        $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
-        $filter_parents = $form[$element]['#parents'];
-        $filter_parents[] = 0;
-        $filter_parents[] = $filter_key;
-
-        $form[$element][$filter_key] = filter_form($format, 1, $filter_parents);
-      }
-
+    if ($fields[$element]['widget'] == 'text_textarea') {
       if (isset($fields[$element]['text_processing']) && $fields[$element]['text_processing'] == 0) {
         if ($children = element_children($form[$element])) {
           foreach ($children as $child) {
@@ -274,6 +264,16 @@ function wydit_prepare_primary_package_form(&$form, &$form_state, $type, $parent
           }
         } else {
           $form[$element]['#wysiwyg'] = FALSE;
+        }
+      } else {
+        foreach (element_children($form[$element]) as $index) {
+          $filter_key = (count($form[$element][$index]['#columns']) == 2) ? $form[$element][$index]['#columns'][1] : 'format';
+          $format = isset($form[$element][$index]['#value'][$filter_key]) ? $form[$element][$index]['#value'][$filter_key] : FILTER_FORMAT_DEFAULT;
+          $filter_parents = $form[$element]['#parents'];
+          $filter_parents[] = 0;
+          $filter_parents[] = $filter_key;
+        
+          $form[$element][$filter_key] = filter_form($format, 1, $filter_parents);
         }
       }
     }
