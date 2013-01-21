@@ -550,22 +550,24 @@ function wallymport_getimporter($iid){
  * @return
  *   an array of importers
  */
-function wallymport_getimporterbyname($name){
+function wallymport_getimporterbyname($name) {
   $result = db_query("SELECT * FROM {wallymport_importer} WHERE name = '%s'", $name);
   $importer = NULL;
-  while ($obj = db_fetch_object($result)){
+  while ($obj = db_fetch_object($result)) {
     $importer = $obj;
     $modules = module_invoke_all('wallymport_importer');
-    foreach ($modules as $module_importers){
-      foreach ($module_importers as $module_importer){
-        if ($module_importer['importer_type'] == $importer->importer_type){
-          $importer->importer_functions = $module_importer['importer_functions'];
-          if (isset($module_importer['includes']) && is_array($module_importer['includes'])) {
-            foreach ($module_importer['includes'] as $include) {
-              require_once $include;
+    foreach ($modules as $module_importers) {
+      if (is_array($module_importers)) {
+        foreach ($module_importers as $module_importer) {
+          if ($module_importer['importer_type'] == $importer->importer_type && isset($module_importer['importer_functions'])) {
+            $importer->importer_functions = $module_importer['importer_functions'];
+            if (isset($module_importer['includes']) && is_array($module_importer['includes'])) {
+              foreach ($module_importer['includes'] as $include) {
+                require_once $include;
+              }
             }
+            break 2;
           }
-          break 2;
         }
       }
     }
