@@ -38,6 +38,14 @@ body {
 	padding-bottom: 10px;
 }
 
+a.form-submit.ctools-ajaxing,
+input.form-submit.ctools-ajaxing,
+button.form-submit.ctools-ajaxing,
+select.form-submit.ctools-ajaxing {
+  padding-right: 18px !important;
+  background: url(../images/status-active.gif) right center no-repeat;
+}
+
 #wallyedit_container {
 	padding-top: 10px;
 }
