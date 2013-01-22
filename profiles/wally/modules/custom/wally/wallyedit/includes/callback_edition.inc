@@ -55,6 +55,6 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     return FALSE;
   } else {
     drupal_set_title(wydit_get_fil_ariane($form_state));
-    return theme('wallyedit_page_editmode', $locked, $form, $form_prev);
+    return theme('wallyedit_page_editmode', $locked, $form, $form_prev, theme('status_messages'));
   }
 }
