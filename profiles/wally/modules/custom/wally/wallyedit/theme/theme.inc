@@ -48,13 +48,14 @@ function wallyedit_preprocess_wallyedit_form_fields_overview_form(&$variables) {
 
 function wallyedit_preprocess_wallyedit_node_form(&$vars) {
   module_load_include('inc', 'wallyedit', 'includes/config_api');
+  
+  $profile_id = $vars['profile_id'] = $vars['form']['profile_id']['#value'];
+  $node_type = $vars['node_type'] = $vars['form']['type']['#value'];
 
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/tab_slider.js');
-  drupal_add_js(array('profile_id' => $vars['profile_id'], 'current_tab' => $vars['form']['current_tab']['#value']), 'setting');
+  drupal_add_js(array('profile_id' => $profile_id, 'current_tab' => $vars['form']['current_tab']['#value']), 'setting');
 
-  $profile_id = $vars['profile_id'] = $vars['form']['profile_id']['#value'];
-  $node_type = $vars['node_type'] = $vars['form']['type']['#value'];
   $global_form = &$vars['form'];
   $form = &$vars['form'][$node_type];
   $onglets_struct = wyditadmin_get_fields_tree($profile_id, $node_type);
