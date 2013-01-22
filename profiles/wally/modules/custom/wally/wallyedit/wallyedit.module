@@ -428,7 +428,7 @@ function wallyedit_theme(){
       'arguments' => array('rows' => array()),
     ),
     'wallyedit_page_editmode' => $base + array(
-      'arguments' => array('locked' => '', 'form' => '', 'form_prev' => ''),
+      'arguments' => array('locked' => '', 'form' => '', 'form_prev' => '', 'messages' => ''),
     ),
     'wallyedit_nopreview' => array(
       'template' => 'wallyedit-nopreview',
