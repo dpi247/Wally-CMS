@@ -291,10 +291,11 @@ function theme_wallyedit_admin($rows = array(), $headers) {
   return $output;
 }
 
-function theme_wallyedit_page_editmode($locked, $form, $form_prev) {
+function theme_wallyedit_page_editmode($locked, $form, $form_prev, $messages) {
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   
   $output = '<div id="wallyedit_messages">';
+  $output .= $messages;
   $output .= '</div>';
   $output .= '<div id="wallyedit_locked">';
   $output .= $locked;
