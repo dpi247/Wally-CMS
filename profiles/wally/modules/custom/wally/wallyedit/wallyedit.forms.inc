@@ -898,6 +898,8 @@ function wydit_form_submit_action_delete_global(&$form_state) {
 function wydit_form_submit_action_cancel_global($form_state) {
   $commands = array();
 
+  $form_state = wydit_remove_element($form_state, $form_state['parents']);
+
   $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
   unset($form_state['values'][$form_state['type']]);
   if (wydit_clean_and_save_form_state($form_state)) {
@@ -1660,13 +1662,16 @@ function wydit_publish_prenode(&$form_state, $current_profile, $values = array()
 
 function wydit_publish_prenode_save(&$form_state, $values) {
   global $user;
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $b = (object)array_merge($values, (array)$form_state['#node']);
-  $b->doNotPullUp = TRUE;
-  $b->uid = $user->uid;
-  node_save($b);
-  $form_state['#node'] = $b;
-
-  return $b->nid;
+  if (wallytoolbox_check_is_node($b)) {
+    $b->doNotPullUp = TRUE;
+    $b->uid = $user->uid;
+    node_save($b);
+    $form_state['#node'] = $b;
+    return $b->nid;
+  }
+  return FALSE;
 }
 
 /**
