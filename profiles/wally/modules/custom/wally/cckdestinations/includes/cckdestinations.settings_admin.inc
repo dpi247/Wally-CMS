@@ -199,12 +199,7 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
     );
     
     foreach ($hierarchy['redacblocks'] as $redacblock) {
-      $defaults = array(
-        'sort_method' => 'absolute',
-        'behavior' => 'top',
-        'reserved' => 5,
-        'delta_t' => 1,
-      );
+      $defaults = cckdestination_get_default_rank_settings();
       $dest_settings = wally_variable_get('cckdestinations_destination_'.$tid.'_'.$redacblock['name'], $defaults);
 
       $form['cckdestinations_rank']['cckdestinations_destination_'.$tid][$redacblock['name']] = array(
