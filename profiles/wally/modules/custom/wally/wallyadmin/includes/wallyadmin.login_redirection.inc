@@ -15,5 +15,9 @@ function wallyadmin_page_form_login_redirection_form ($form_state) {
     }
   }
   
+  if (empty($form)) {
+    drupal_set_message(t('No other roles thant "anonymous" and "authenticated" defined, click !here_link to create some.', array('!here_link' => l(t('here'), 'admin/user/roles'))), 'notice');
+  }
+  
   return wally_system_settings_form($form, TRUE);
 }

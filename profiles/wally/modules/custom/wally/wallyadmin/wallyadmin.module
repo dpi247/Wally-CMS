@@ -199,12 +199,33 @@ function wallyadmin_form_alter(&$form, $form_state, $form_id) {
   }
 }
 
+/**
+ * Implementation of hook_form_FORM-ID_alter()
+ * Add custom submit to user login form
+ */
 function wallyadmin_form_user_login_alter(&$form, $form_state) {
   $form['#submit'][] = 'wallyadmin_form_user_login_alter_submit';
 }
 
+/**
+ * User login form custom submit
+ * - Implements redirection by role after login
+ * - Allows to use the "destination" param
+ */
 function wallyadmin_form_user_login_alter_submit($form, &$form_state) {
   global $user;
+  
+  $roles = user_roles();
+  $user_roles = array_keys($user->roles);
+  $rid = array_shift($user_roles);
+  while (count($user_roles) && (!array_key_exists($rid, $roles) || $user->roles[$rid] == 'anonymous user' || $user->roles[$rid] == 'authenticated user')) {
+    $rid = array_shift($user_roles);
+  }
+  $redirect_path = wally_variable_get('wallyadmin_redirection_'.$rid, FALSE);
+  if ($redirect_path) {
+    $form_state['redirect'] = $redirect_path;
+  }
+
   if ($user->uid && $_GET['destination']) {
     $form_state['redirect'] = $_GET['destination'];
   }
@@ -227,28 +248,6 @@ function wallyadmin_node_form_sidebar($form, $node) {
     'flag',
     'scheduler_settings',
   );
-}
-
-/**
- * Implementation of hook_user.
- * Implements redirection by role after login
- */
-function wallyadmin_user($op, &$edit, &$account, $category = NULL) {
-  switch ($op) {
-    case 'login':
-      $roles = user_roles();
-      $user_roles = array_keys($account->roles);
-      $rid = array_shift($user_roles);
-      while (count($user_roles) && (!array_key_exists($rid, $roles) || $account->roles[$rid] == 'anonymous user' || $account->roles[$rid] == 'authenticated user')) {
-        $rid = array_shift($user_roles);
-      }
-      $redirect_path = wally_variable_get('wallyadmin_redirection_'.$rid, FALSE);
-      if ($redirect_path) {
-        drupal_goto($redirect_path);
-      }
-      break;
-    default:
-  }
 }
 
 /**
