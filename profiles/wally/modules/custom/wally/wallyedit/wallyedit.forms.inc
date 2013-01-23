@@ -897,7 +897,14 @@ function wydit_form_submit_action_delete_global(&$form_state) {
 function wydit_form_submit_action_cancel_global($form_state) {
   $commands = array();
 
-  $form_state = wydit_remove_element($form_state, $form_state['parents']);
+  $parents = $form_state['parents'];
+  if (sizeof($parents) == 3 || sizeof($parents) == 5) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    $node_parents = array_merge($parents, array('#node'));
+    if (!wallytoolbox_check_is_node(wydit_get_target_from_parents($form_state, $node_parents))) {
+      $form_state = wydit_remove_element($form_state, $parents);
+    }
+  }
 
   $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
   unset($form_state['values'][$form_state['type']]);
