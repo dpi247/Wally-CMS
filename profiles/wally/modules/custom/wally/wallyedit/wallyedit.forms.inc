@@ -160,9 +160,8 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
     }
   } elseif ($form_state['clicked_button']['#wydit_op_type'] == 'action') {
     //This is the important line !!!
-    
     wydit_form_node_main_treatment_submit($form_state);
-    
+
     $form_state['parents'] = $form_state['clicked_button']['#next_parents'];
     list($action, $b) = explode('__', $form_state['clicked_button']['#name'], 2);
     $function_name = 'wydit_form_submit_action_'.$action;

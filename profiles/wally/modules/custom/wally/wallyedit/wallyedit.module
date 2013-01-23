@@ -883,8 +883,8 @@ function wallyedit_node_operations_selector_action($nodes, $context, $b, $c) {
   $form_state = $prenode->getFormState();
   foreach($nodes as $nid) {
     $node = node_load($nid);
-    $element['#node'] = $node;
-    $element['type'] = $node->type;
+    $element = array();
+    wydit_populate_form_state($element, $node, $form_state['profile_id']);
     wydit_add_elem_at_target($form_state, $element, $next_parents, TRUE);
   }
 

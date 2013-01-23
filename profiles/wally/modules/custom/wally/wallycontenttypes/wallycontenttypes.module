@@ -235,90 +235,84 @@ function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
 /**
  * Implementation of hook_nodeapi().
  */
-function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  $packages_types = array(
+    'wally_articlepackage',
+    'wally_gallerypackage',
+    'wally_pollpackage',
+  );
+  $objects_types = array(
+    'wally_textobject',
+    'wally_audioobject',
+    'wally_digitalobject',
+    'wally_photoobject',
+    'wally_videoobject',
+    'wally_linkslistobject',
+    'wally_pollobject',
+    'poll',
+  );
+  $parents_types = array_merge($packages_types, array('wally_linkslistobject'));
+
   switch ($op) {
 
     case 'view':
-      if (($node->type == 'wally_articlepackage' || 
-           $node->type == 'wally_gallerypackage' ||
-           $node->type == 'wally_pollpackage') && 
-           !$node->DoNotPopulate) //DoNotPopulate is for wallyedit preview, since we give it a node already populated
-      { 
+      if (in_array($node->type, $packages_types) && !$node->DoNotPopulate) {
+        //DoNotPopulate is for wallyedit preview, since we give it a node already populated
         wallycontenttypes_packagepopulate($node);
         //$node->inlineobjects = $node->field_embededobjects_nodes;
         //wallycontenttypes_process_inline_objects($node);
       }
       break;
+
     case 'insert':
-      if ($node->type == 'wally_articlepackage' ||
-      $node->type == 'wally_gallerypackage' ||
-      $node->type == 'wally_pollpackage'){
+      if (in_array($node->type, $packages_types)) {
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_insertautopublish($node);
       }
       break;
-    case 'presave' : 
+
+    case 'presave' :
       // The default behavior of the pathauto module is "if pathauto_perform_alias is not set consider it as true",
       // we want the default behavior to be "if pathauto_perform_alias is not set don't do anything".
       if (!isset($node->pathauto_perform_alias)) {
         $node->pathauto_perform_alias = 0;
       }
-      
-      if ($node->type == 'wally_articlepackage' || 
-        $node->type == 'wally_gallerypackage' ||
-        $node->type == 'wally_pollpackage') {
-          module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
-          _wallycontenttypes_addtaxonomywheninserted($node);
-          _wallycontenttypes_checkautopublish($node);
+
+      if (in_array($node->type, $packages_types)) {
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_addtaxonomywheninserted($node);
+        _wallycontenttypes_checkautopublish($node);
       }
       break;
 
     case 'update' :
       module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
-      if ($node->type == 'wally_articlepackage' || 
-          $node->type == 'wally_gallerypackage' ||
-          $node->type == 'wally_pollpackage') 
-      {
+      if (in_array($node->type, $packages_types)) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_insertautopublish($node);
-      } elseif(($node->type == 'wally_textobject' ||
-                $node->type == 'wally_audioobject' ||
-                $node->type == 'wally_digitalobject' || 
-                $node->type == 'wally_photoobject' || 
-                $node->type == 'wally_videoobject' ||
-                $node->type == 'wally_linkslistobject' ||
-                $node->type == 'wally_pollobject' ||
-                $node->type == 'poll') && 
-                !$node->doNotPullUp) 
-      {
+      } elseif(in_array($node->type, $objects_types) && !$node->doNotPullUp) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_addtaxonomywhenupdated($node);
       }
+      if (in_array($node->type, $parents_types)) {
+        wallycontenttypes_delete_orphans_at_update($node);
+      }
       wallytoolbox_object_referencer_cache_clear($node);
       break;
-    
+
     case 'delete' :
       module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
-      if ($node->type == 'wally_articlepackage' || 
-          $node->type == 'wally_gallerypackage' ||
-          $node->type == 'wally_pollpackage') 
-      {
-        wallycontenttypes_delete_orphans_objects($node); 
+      if (in_array($node->type, $packages_types)) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_deletefromtempautopublish($node);
-      } elseif( $node->type == 'wally_textobject' ||
-                $node->type == 'wally_audioobject' ||
-                $node->type == 'wally_digitalobject' || 
-                $node->type == 'wally_photoobject' || 
-                $node->type == 'wally_videoobject' ||
-                $node->type == 'wally_linkslistobject' ||
-                $node->type == 'wally_pollobject' ||
-                $node->type == 'poll') 
-      {
+      } elseif(in_array($node->type, $objects_types)) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      }
+      if (in_array($node->type, $parents_types)) {
+        wallycontenttypes_delete_orphans_objects($node);
       }
       wallytoolbox_object_referencer_cache_clear($node);
       break;
@@ -675,25 +669,27 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &
       }
     }
   }
-  //Add a form validation in case of tlink to check if the embed package is not the package itself
+  
+  // Add a form validation in case of tlink to check if the embed package is not the package itself
   if (sizeof($form_state['parents']) == 3 && array_key_exists('wally_linktype', $form)){    
     $form['#validate'][] = 'wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate';
   }
 }
+
 /**
- * 
  * Add validation to the package type, check if tlink is not the package itself
  * @param  $form
  * @param  $form_state
  */
 function wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate(&$form, &$form_state){
-
   $tlink = array_pop($form_state['values']['wally_articlepackage']['field_embededobjects']);
-  //Check if the tlink is the package itself
+  // Check if the tlink is the package itself
   if ($tlink['field_internal_link'][0]['nid'] != NULL && $tlink['field_internal_link'][0]['nid'] == $form_state[$form_state['type']]['#node']->nid){
     form_set_error($form_state['parents'][0].']['.$form_state['parents'][1].']['.$form_state['parents'][2].'][field_internal_link][0][nid][nid', t('You can\'t embed a package in itself. Please choose another one.'));
   }
+  array_push($form_state['values']['wally_articlepackage']['field_embededobjects'], $tlink);
 }
+
 function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, &$form_state) {
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (in_array($form_state['type'], $pack_types)) {
@@ -1323,28 +1319,65 @@ function wallycontenttypes_delete_orphans_objects($node){
     $main_object = $node->$main_object_type;
     $nids[] = $main_object[0]['nid'];
   }
-  if (isset($node->field_embededobjects) && is_array($node->field_embededobjects)) {
-    foreach($node->field_embededobjects as $emobject){
-      if($emobject['nid']!= NULL && !in_array($emobject['nid'], $nids)){
-        $nids[] = $emobject['nid'];
+  
+  $fields_to_check = array(
+    'field_embededobjects',
+    'field_linkedobjects',
+    'field_links_list',
+  );
+  foreach ($fields_to_check as $field_to_check) {
+    if (isset($node->$field_to_check) && is_array($node->$field_to_check)) {
+      foreach ($node->$field_to_check as $ref) {
+        if ($ref['nid'] != NULL && !in_array($ref['nid'], $nids)) {
+          $nids[] = $ref['nid'];
+        }
       }
     }
   }
-  if (isset($node->field_linkedobjects) && is_array($node->field_linkedobjects)) {
-    foreach($node->field_linkedobjects as $lnobject){
-      if($lnobject['nid']!= NULL && !in_array($lnobject['nid'], $nids)){
-        $nids[] = $lnobject['nid'];
-      }
-    }
-  }
-  foreach($nids as $nid){
+
+  foreach ($nids as $nid) {
     $child = node_load($nid);
-    $parents = wallytoolbox_get_node_by_reference($child);
-    foreach($parents as &$parent) {
-      $parent = $parent['nid'];
-    }
-    if (count($parents) == 1 && in_array($node->nid, $parents)){
+    $parents = wallytoolbox_get_node_by_reference($child, FALSE);
+    if (sizeof($parents) == 1 && $parents[0]['nid'] == $node->nid) {
       node_delete($nid);
+    }
+  }
+}
+
+function wallycontenttypes_delete_orphans_at_update($node) {
+  $old_node = node_load($node->nid);
+  $nids_to_check = array();
+
+  $fields_to_check = array(
+    'field_embededobjects',
+    'field_linkedobjects',
+    'field_links_list',
+  );
+
+  $all_new_refs = array();
+  foreach ($fields_to_check as $field_to_check) {
+    $old_refs = $new_refs = array();
+    if (isset($old_node->$field_to_check) && is_array($old_node->$field_to_check)) {
+      foreach ($old_node->$field_to_check as $old_ref) {
+        $old_refs[] = $old_ref['nid'];
+      }
+    }
+    if (isset($node->$field_to_check) && is_array($node->$field_to_check)) {
+      foreach ($node->$field_to_check as $new_ref) {
+        $new_refs[] = $new_ref['nid'];
+        $all_new_refs[] = $new_ref['nid'];
+      }
+    }
+    $nids_to_check = array_merge($nids_to_check, array_diff($old_refs, $new_refs));
+  }
+
+  foreach ($nids_to_check as $nid) {
+    if (!in_array($nid, $all_new_refs)) {
+      $child = node_load($nid);
+      $parents = wallytoolbox_get_node_by_reference($child, FALSE);
+      if (sizeof($parents) == 1 && $parents[0]['nid'] == $node->nid) {
+        node_delete($nid);
+      }
     }
   }
 }
