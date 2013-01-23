@@ -1,20 +1,17 @@
+// This value is "tid" for a select list and "tid-N" for an autocomplete textfield (N is a numerical value)
 var str_to_replace = "tid";
 
 $(document).ready(function() {
-	var one_taxo = '';
-	$(".tid").each(function(index) {
+	$("#field-destinations-items .tid").each(function(index) {
 		var tmp_taxo = this.id;
-		if (tmp_taxo != '') {
-			one_taxo = tmp_taxo;
+		if (typeof tmp_taxo != "undefined" && tmp_taxo != '') {
+			var last_char = tmp_taxo.substring(tmp_taxo.length - 1, tmp_taxo.length);
+			if (last_char.match('^(0|[1-9][0-9]*)$')) {
+				str_to_replace = "tid-"+last_char;
+			}
 			return false;
 		}
 	});
-	if (typeof one_taxo != "undefined" && one_taxo != '') {
-		var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
-		if (last_char.match('^(0|[1-9][0-9]*)$')) {
-			str_to_replace = "tid-"+last_char;
-		}
-	}
 
 	updateList();
 	$("#field-destinations-items").bind("DOMNodeInserted", function(event) {
@@ -25,9 +22,9 @@ $(document).ready(function() {
 });
 
 function updateList() {
-	$(".tid").each(function(index) {
+	$("#field-destinations-items .tid").each(function(index) {
 		var taxo = this.id;
-		if (taxo != '') {
+		if (typeof taxo != "undefined" && taxo != '') {
 			var targ = taxo.replace(str_to_replace, "target");
 			var lay = taxo.replace(str_to_replace, "layout");
 			

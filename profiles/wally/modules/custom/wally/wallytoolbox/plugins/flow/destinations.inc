@@ -25,6 +25,7 @@ function wallytoolbox_destinations_flow_settings_form(&$form, &$form_state) {
   $form['destination'] = array(
     '#type' => 'fieldset',
     '#title' => t('Destination to extract'),
+    '#attributes' => array('id' => 'field-destinations-items'),
   );
 
   $tid_options = array('Not Set');

@@ -2,30 +2,27 @@ var short_str_to_replace;
 
 Drupal.behaviors.destinationForm = function(context) {
 	$(document).ready(function() {
+		// This value is "tid" for a select list and "tid-N" for an autocomplete textfield (N is a numerical value)
 		short_str_to_replace = "tid";
-
-		var one_taxo = '';
-		$(".tid").each(function(index) {
+		$("#field-destinations-items .tid").each(function(index) {
 			var tmp_taxo = this.id;
-			if (tmp_taxo != '') {
-				one_taxo = tmp_taxo;
+			if (typeof tmp_taxo != "undefined" && tmp_taxo != '') {
+				var last_char = tmp_taxo.substring(tmp_taxo.length - 1, tmp_taxo.length);
+				if (last_char.match('^(0|[1-9][0-9]*)$')) {
+					short_str_to_replace = "tid-"+last_char;
+				}
 				return false;
 			}
 		});
-		if (typeof one_taxo != "undefined" && one_taxo != '') {
-			var last_char = one_taxo.substring(one_taxo.length - 1, one_taxo.length);
-			if (last_char.match('^(0|[1-9][0-9]*)$')) {
-				short_str_to_replace = "tid-"+last_char;
-			}
-		}
+
 		shortUpdateList();
 	});
 };
 
 function shortUpdateList() {
-	$(".tid").each(function(index) {
+	$("#field-destinations-items .tid").each(function(index) {
 		var taxo = this.id;
-		if (taxo != '') {
+		if (taxo != "undefined" && taxo != '') {
 			var targ = taxo.replace(short_str_to_replace, "target");
 			shortMakeSublist(taxo, targ);
 			$(this).bind("change", function(event) {

@@ -98,9 +98,8 @@ function cckdestinations_node_filter_form() {
   $form['reorder'] = array(
     '#type' => 'fieldset',
     '#title' => t('Reorder by'),
-    '#prefix' => '<div class="container-inline" style="margin-bottom:20px;">',
-    '#suffix' => '</div>',
     '#tree' => TRUE,
+    '#attributes' => array('id' => 'field-destinations-items'),
   );
   
   $tid_options = array('Not Set');
