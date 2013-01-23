@@ -743,25 +743,36 @@ function wallytoolbox_get_node_by_tid($tid,$type){
  * @return
  *   Array() of array() of nid
  */
-function wallytoolbox_get_node_by_reference($node) {
+function wallytoolbox_get_node_by_reference($node, $extended = TRUE) {
   $rows = array();
-  if ($node->type == 'wally_linktype'){
-   $res = db_query("SELECT DISTINCT (
-		tr.nid
-		) 
-		FROM {content_field_links_list} tr
-		WHERE {tr.field_links_list_nid} =%d
-		UNION
-		SELECT DISTINCT (
-		tok.nid
-		) AS temp_nid
-		FROM {content_type_wally_articlepackage} tok
-		LEFT JOIN {content_field_linkedobjects tup} ON tok.nid = tup.nid
-		LEFT JOIN {content_field_links_list tik} ON tik.nid = tup.field_linkedobjects_nid
-		WHERE tik.field_links_list_nid =%d
-		    ", $node->nid,$node->nid);
-    while ($row = db_fetch_array($res)) {
-      if (!in_array($row, $rows)) $rows[] = $row;
+  if ($node->type == 'wally_linktype') {
+    // Links in links lists
+    $query = "SELECT DISTINCT (tr.nid)
+  		FROM {content_field_links_list} tr
+  		WHERE {tr.field_links_list_nid} = %d";
+    $query_args = array($node->nid);
+
+    // Related packages
+    if ($extended) {
+      $query .= "UNION SELECT DISTINCT (tok.nid) AS temp_nid
+        FROM {content_type_wally_articlepackage} tok
+        LEFT JOIN {content_field_linkedobjects} tup ON tok.nid = tup.nid
+        LEFT JOIN {content_field_links_list} tik ON tik.nid = tup.field_linkedobjects_nid
+        WHERE tik.field_links_list_nid = %d";
+      $query_args[] = $node->nid;
+    }
+
+    if ($res = db_query($query, $query_args)) {
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    }
+    
+    // Links embeds
+    if ($res = db_query("SELECT DISTINCT(nid) FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
     }
   } else {
     if ($node->type == 'wally_textobject' || $node->type == 'wally_audioobject' || $node->type == 'wally_digitalobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_videoobject'){
@@ -787,11 +798,18 @@ function wallytoolbox_get_node_by_reference($node) {
       while ($row = db_fetch_array($res)) {
         if (!in_array($row, $rows)) $rows[] = $row;
       }
+    } elseif ($node->type == 'wally_linkslistobject') {
+      if ($res = db_query("SELECT DISTINCT(nid) FROM {content_field_linkedobjects} WHERE field_linkedobjects_nid = %d", $node->nid)){
+        while ($row = db_fetch_array($res)) {
+          if (!in_array($row, $rows)) $rows[] = $row;
+        }
+      }
     }
   }
+
   return $rows;
 }
-		
+
 /**
  * Adds a META TAG to the process template queue.
  * 
