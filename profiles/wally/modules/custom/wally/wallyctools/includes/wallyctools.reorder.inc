@@ -268,12 +268,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   $limit = $values['pager_limit'];
   $time = time();
 
-  $defaults = array(
-    'sort_method' => 'absolute',
-    'behavior' => 'top',
-    'reserved' => 5,
-    'delta_t' => 1,
-  );
+  $defaults = cckdestination_get_default_rank_settings();
   $dest_settings = wally_variable_get('cckdestinations_destination_'.$tid.'_'.$target, $defaults);
   $sort_method = $dest_settings['sort_method'];
 

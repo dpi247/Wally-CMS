@@ -153,12 +153,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
     $item = $preview_infos = $this->view->wallyedit_preview;
 
     if (!strstr($node->field_destinations[$preview_infos['key']]['rank'], 'DNC')) {
-      $defaults = array(
-        'sort_method' => 'absolute',
-        'behavior' => 'top',
-        'reserved' => 5,
-        'delta_t' => 1,
-      );
+      $defaults = cckdestination_get_default_rank_settings();
       $dest_settings = wally_variable_get('cckdestinations_destination_'.$item['tid'].'_'.$item['target'], $defaults);
       $sort_method = $dest_settings['sort_method'];
   

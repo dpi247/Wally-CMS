@@ -2084,7 +2084,19 @@ function cckdestinations_force_dnc(&$node) {
     }
   }
 }
-
+/**
+ * 
+ * Return the default rank settings
+ */
+function cckdestination_get_default_rank_settings(){
+  $rank_settings = array(
+    'sort_method' => 'absolute',
+    'behavior'    => 'bottom',
+    'reserved'    => 0,
+    'delta_t'     => 1,
+  );
+  return $rank_settings;
+}
 /**
  * Calculate the new time rank of a node.
  * 
