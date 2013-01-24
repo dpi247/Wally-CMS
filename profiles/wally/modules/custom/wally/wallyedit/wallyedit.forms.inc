@@ -848,8 +848,15 @@ function wydit_form_validate_action_batch_upload_zip($form_state) {
   if (!isset($_FILES['zipped_file']) || empty($_FILES['zipped_file']) || $_FILES['zipped_file']['error'] > 0) {
     form_set_error('zipped_file', t('No files to import'));
   }
-  
-  if ($_FILES['zipped_file']['type'] != 'application/zip') {
+
+  $authorized_types = array(
+    'application/zip',
+    'application/x-zip-compressed',
+    'multipart/x-zip',
+    'application/x-compressed',
+    'application/octet-stream',
+  );
+  if (!in_array($_FILES['zipped_file']['type'], $authorized_types) && pathinfo($_FILES['zipped_file']['name'], PATHINFO_EXTENSION) != 'zip') {
     form_set_error('zipped_file', t('The uploaded file is not a zip file.'));
   }
 
