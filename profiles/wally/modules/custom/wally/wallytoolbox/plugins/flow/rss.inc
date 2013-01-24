@@ -322,26 +322,29 @@ function wallytoolbox_rss_item_to_array_set_mainstory(&$array_item, $item, $feed
  *   The name of the feed being analyzed.
  */
 function wallytoolbox_rss_item_to_array_set_enclosure(&$array_item, $enclosure, $feed_name, $prefix) {
-  if (!isset($array_item['EmbeddedContent'])) {
-    $array_item['EmbeddedContent'] = array();
-    $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
-    $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
-  }
-  $tempobject = wallytoolbox_flow_to_array_new_photoobject();
-  $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
-  $tempobject['PublicationDate'] = $array_item['PublicationDate'];
-  $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
-  $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
-  $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
-  $tempobject['Title']['value'] = $enclosure->item(0)->getAttribute('url');
-  $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
-  if (empty($tempobject['ExternalReference']['value']))
-    $tempobject['ExternalReference']['value'] = $tempobject['Title']['value'];
   $img_url = $enclosure->item(0)->getAttribute('url');
   $img_url = urldecode(html_entity_decode($img_url));
-  $tempobject['FileURI']['value'] = $img_url;
-  $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
-  $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+  if (valid_url($img_url, TRUE)) {
+    if (!isset($array_item['EmbeddedContent'])) {
+      $array_item['EmbeddedContent'] = array();
+      $array_item['EmbeddedContent']['EmbeddedObjects'] = array();
+      $array_item['EmbeddedContent']['EmbeddedObjects']['Object'] = array();
+    }
+
+    $tempobject = wallytoolbox_flow_to_array_new_photoobject();
+    $tempobject['ObjectID'] = _wallytoolbox_checkifelementexists($item, 'title');
+    $tempobject['PublicationDate'] = $array_item['PublicationDate'];
+    $tempobject['LastUpdateDate'] = $array_item['LastUpdateDate'];
+    $tempobject['UnPublishDate'] = $array_item['UnPublishDate'];
+    $tempobject['MimeType'] = $enclosure->item(0)->getAttribute('type');
+    $tempobject['Title']['value'] = $img_url;
+    $tempobject['ExternalReference']['value'] = _wallytoolbox_checkifelementexists($item, 'guid', 'none', 'link', $feed_name, $prefix);
+    if (empty($tempobject['ExternalReference']['value']))
+      $tempobject['ExternalReference']['value'] = $tempobject['Title']['value'];
+    $tempobject['FileURI']['value'] = $img_url;
+    $tempobject['FileSize']['value'] = $enclosure->item(0)->getAttribute('length');
+    $array_item['EmbeddedContent']['EmbeddedObjects']['Object'][] = $tempobject;
+  }
 }
 
 /**
