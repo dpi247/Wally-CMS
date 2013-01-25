@@ -222,6 +222,7 @@ function wallytoolbox_supercron_settings_form_submit($form, &$form_state) {
       }
     }
     
+    $row['output'] = unserialize($row['output']);
     $row['rule'] *= 60;
     if ($type == $subtype) {
       drupal_write_record('wallytoolbox_content_types_cache', $row, 'cid');
