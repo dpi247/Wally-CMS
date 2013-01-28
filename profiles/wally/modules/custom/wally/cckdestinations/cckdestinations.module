@@ -2166,7 +2166,7 @@ function _cckdestinations_set_new_time_ranks(&$node, &$items) {
 	                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
 	  
 	                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
-	                  $dest['rank'] = $dest['rank'];
+	                  $dest['rank'] = 'DNC'.$dest['rank'];
 	                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
 	                    $dest['time_rank'] = $new_time_rank[$elem_nid];
 	                  }
