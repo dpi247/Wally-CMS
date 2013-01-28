@@ -275,7 +275,6 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   foreach($form_state['values']['rows'] as $key => $data) {
     $order_by_weight[$data['weight']] = $data;
   }
-dsm($values);
    
 if(wally_variable_get("reorder_local_behavior", TRUE)){
   	ksort($order_by_weight);
