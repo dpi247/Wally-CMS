@@ -165,7 +165,7 @@ function wallytoolbox_panels_display_save($display) {
   list($a, $display_name) = explode(':', $display->cache_key, 2);
   wallytoolbox_refresh_cache_list($display_name, $display);
   list($page, $handler_name) = explode(':', $display_name);
-  wallytoolbox_get_handlers(TRUE, $page, $handler_name);
+  wallytoolbox_get_handlers(TRUE, $page);
 }
 
 /**
