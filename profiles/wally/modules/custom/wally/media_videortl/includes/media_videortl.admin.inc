@@ -13,7 +13,7 @@ function media_videortl_settings() {
   $form = media_videortl_admin_form();
   $form['settings_info'] = array(
     '#type' => 'item',
-    '#value' => t('These settings specifically affect videos displayed from !videortl. You can also read more about its !api.', array('!videortl' => l(t('rtl.be/videos/'), MEDIA_videortl_MAIN_URL, array('attributes' => array('target' => '_blank'))), '!api' => l(t("developer's API"),  array('attributes' => array('target' => '_blank'))))),
+    '#value' => t('These settings specifically affect videos displayed from !videortl.', array('!videortl' => l(t('rtl.be/videos/'), MEDIA_videortl_MAIN_URL, array('attributes' => array('target' => '_blank'))))),
     '#weight' => -10,
   );
   
