@@ -267,7 +267,6 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   $target = $values['target'];
   $limit = $values['pager_limit'];
   $time = time();
-
   $defaults = cckdestination_get_default_rank_settings();
   $dest_settings = wally_variable_get('cckdestinations_destination_'.$tid.'_'.$target, $defaults);
   $sort_method = $dest_settings['sort_method'];
@@ -276,9 +275,8 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   foreach($form_state['values']['rows'] as $key => $data) {
     $order_by_weight[$data['weight']] = $data;
   }
-
    
-  if(wally_variable_get("reorder_local_behavior", TRUE)){
+if(wally_variable_get("reorder_local_behavior", TRUE)){
   	ksort($order_by_weight);
      
   	$switch_start_timerank=time();
@@ -290,7 +288,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   	
   	 
   	foreach($order_by_weight as $weight=>$row){
-  		if(abs($row['weight'])+abs($row['original_weight'])!=$values['pager_limit']){
+  		if(abs($row['weight'])+abs($row['original_weight'])!=$values['pager_limit']  and $row['weight']!=-1){
   			$switch_need_change=TRUE;
   		}
   		else{
@@ -331,6 +329,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
   						$elem_node->field_destinations[$delta] = $dest;
   					}
 
+  					$elem_node->pathauto_perform_alias = 0;
   					node_save($elem_node);	
   						
   					$j++;
