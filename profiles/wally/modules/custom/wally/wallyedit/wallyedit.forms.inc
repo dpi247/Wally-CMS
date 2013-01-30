@@ -1070,7 +1070,9 @@ function wydit_form_submit_action_publish_global($form_state) {
     $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   } else {
     drupal_set_message(t('Node not published'), 'error');
-    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
+    $redirect_id = $form_state[$form_state['type']]['#node']->nid ? $form_state[$form_state['type']]['#node']->nid : $form_state['cache name'];
+    $current_profile = $form_state['profile_id'];
+    $commands[] = ctools_ajax_command_redirect('node/'.$redirect_id.'/edit2/0/'.$current_profile);
   }
 
   return $commands;
@@ -1684,7 +1686,7 @@ function wydit_publish_prenode_save(&$form_state, $values) {
   global $user;
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $b = (object)array_merge($values, (array)$form_state['#node']);
-  if (wallytoolbox_check_is_node($b)) {
+  if (sizeof($form_state['parents']) == 1 || wallytoolbox_check_is_node($b)) {
     $b->doNotPullUp = TRUE;
     $b->uid = $user->uid;
     node_save($b);
