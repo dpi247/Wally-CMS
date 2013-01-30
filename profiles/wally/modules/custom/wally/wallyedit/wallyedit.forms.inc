@@ -170,7 +170,7 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
       $commands = call_user_func_array($function_name, $args);
     }
 
-    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme_status_messages());
+    $commands[] = ctools_ajax_command_html('#wallyedit_messages', theme('status_messages'));
     if ($form_state['type'] != 'page') {
       variable_set('menu_override_parent_selector', FALSE);
     }
@@ -1070,9 +1070,9 @@ function wydit_form_submit_action_publish_global($form_state) {
     $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   } else {
     drupal_set_message(t('Node not published'), 'error');
-    $redirect_id = $form_state[$form_state['type']]['#node']->nid ? $form_state[$form_state['type']]['#node']->nid : $form_state['cache name'];
-    $current_profile = $form_state['profile_id'];
-    $commands[] = ctools_ajax_command_redirect('node/'.$redirect_id.'/edit2/0/'.$current_profile);
+    if ($form_state[$form_state['type']]['#node']->nid) {
+      $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
+    }
   }
 
   return $commands;
@@ -1672,14 +1672,14 @@ function wydit_publish_prenode(&$form_state, $current_profile, $values = array()
     return FALSE;
   }
 
-  return wydit_publish_prenode_save($form_state, $values);
+  return wydit_publish_prenode_save($form_state, $values, $main_object_type);
 }
 
-function wydit_publish_prenode_save(&$form_state, $values) {
+function wydit_publish_prenode_save(&$form_state, $values, $is_package = FALSE) {
   global $user;
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   $b = (object)array_merge($values, (array)$form_state['#node']);
-  if (sizeof($form_state['parents']) == 1 || wallytoolbox_check_is_node($b)) {
+  if ($is_package || wallytoolbox_check_is_node($b)) {
     $b->doNotPullUp = TRUE;
     $b->uid = $user->uid;
     node_save($b);
