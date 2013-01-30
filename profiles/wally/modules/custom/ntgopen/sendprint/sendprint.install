@@ -1,0 +1,47 @@
+<?php 
+/**
+* Implementation of hook_install().
+*/
+function sendprint_install() {
+  drupal_install_schema('sendprint');
+}
+/**
+* Implementation of hook_uninstall().
+*/
+function sendprint_uninstall(){
+  drupal_uninstall_schema('sendprint');
+}
+/**
+ * 
+ * Implementation of hook_schema
+ * @return array schema
+ */
+function sendprint_schema() {
+  $schema = array();
+
+  $schema['sendprint_logs'] = array(
+    'description' => 'Logs article print',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'description' => 'Send Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'date' => array(
+        'description' => 'Date',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'log' => array(
+        'description' => 'Logs of the Send',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('sid'),//primary key
+  );
+  return $schema;
+}

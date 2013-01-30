@@ -1,0 +1,13 @@
+#print133x185, #print133x90AB{
+	width:372px;
+	float:left;
+	margin-right:10px;
+}
+#print133x185B{
+	clear:both;
+}
+#print133x185B, #print133x185C{
+	width:372px;
+	margin-right:10px;
+	float:left;
+}
