@@ -1,10 +1,12 @@
 #print133x185, #print133x90AB, #print133x90CD{
 	width:50%;
 	float:left;
+	margin:0px;
 }
 #print133x185B{
 	clear:both;
     width:50%;
-	float:left
+	float:left;
+	margin:0px;
 }
 

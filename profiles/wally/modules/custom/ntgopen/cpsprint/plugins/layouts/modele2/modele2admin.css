@@ -1,7 +1,9 @@
 #print133x185, #print133x90AB{
 	width:50%;
 	float:left;
+	margin:0px;
 }
 #print270x185{
 	clear:both;
+	margin:0px;
 }
