@@ -10,6 +10,7 @@ div.cpsprint ol,
 div.cpsprint ul,
 div.cpsprint dl {
 	font-size:12px;
+	margin:0px;
 }
 div.cpsprint div.article-body{
 	text-align:justify;
