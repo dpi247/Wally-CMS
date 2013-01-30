@@ -16,7 +16,7 @@
  */
 ?>
 
-<?php print $node; ?>
+<?php print node_view($node, $teaser, FALSE, $links); ?>
 <?php if ($comments): ?>
   <?php print $comments; ?>
 <?php endif; ?>

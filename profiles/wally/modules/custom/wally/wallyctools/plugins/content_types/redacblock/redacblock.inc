@@ -251,7 +251,10 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   $view_id = $conf['content']->view_id;
 
   $view = wallyctools_get_redac_view($view_name);
-
+  
+  //Add conf info to the view
+  $view->content_type_redacblock_conf = $conf;
+  
   $arguments = explode('/', $_GET['q']);
   $args = $conf['args'];
   foreach ($arguments as $id => $arg) {

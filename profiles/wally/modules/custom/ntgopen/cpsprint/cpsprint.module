@@ -1,0 +1,182 @@
+<?php 
+/**
+ * 
+ * Implementation of hook_menu
+ */
+function cpsprint_menu(){
+  $items['admin/cpsprint'] = array(
+    'title'                         => t('CPS settings'),
+    'page callback'                 => 'drupal_get_form',
+    'page arguments'                => array('cpsprint_page_settings_form'),
+    'access arguments'              => array('CPS Print'),
+    'file'                          => 'includes/cpsprint.admin.inc',
+  );
+  return $items;
+}
+/**
+ * Implementation of hook_theme
+ */
+function cpsprint_theme(){
+  $path = drupal_get_path('module', 'cpsprint');
+  
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path."/theme",
+  );
+  $theme_functions = array(
+    'cpsprint_widget_133x185' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'template' => 'cpsprint_widget_133x185',
+  	  'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_133x185_alternatif' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'template' => 'cpsprint_widget_133x185_alternatif',
+      'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_133x90' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'template' => 'cpsprint_widget_133x90',
+      'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_133x90_alternatif' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'template' => 'cpsprint_widget_133x90_alternatif',
+      'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_preview_133x185' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'template' => 'cpsprint_widget_preview_133x185',
+  	  'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_preview_133x185_alternatif' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'template' => 'cpsprint_widget_preview_133x185_alternatif',
+      'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_preview_133x90' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'template' => 'cpsprint_widget_preview_133x90',
+      'path' => $path.'/templates/widgets',
+    ),
+    'cpsprint_widget_preview_133x90_alternatif' => array(
+      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'template' => 'cpsprint_widget_preview_133x90_alternatif',
+      'path' => $path.'/templates/widgets',
+    ),
+  );
+  return $theme_functions;
+}
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function cpsprint_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'panels' ) {
+    return 'plugins/' . $plugin;
+  }
+}
+
+/**
+* Implementation of hook_ctools_plugin_api().
+*
+* Inform CTools about version information for various plugins implemented by
+* Panels.
+*
+* @param string $owner
+*   The system name of the module owning the API about which information is
+*   being requested.
+* @param string $api
+*   The name of the API about which information is being requested.
+*/
+function cpsprint_ctools_plugin_api($owner, $api) {
+  if ($owner == 'panels' && $api == 'pipelines') {
+    return array(
+      'version' => 1,
+      'path' => drupal_get_path('module', 'cpsprint') . '/includes',
+    );
+  }
+}
+/**
+ * 
+ * Implementation of hook_preprocess_views_view
+ * @param array $vars
+ */
+function cpsprint_preprocess_views_view($vars){
+  if ($vars['view']->content_type_redacblock_conf['cpsprint'] === TRUE 
+   && $vars['view']->name == 'default_destination_view'
+   && arg(3) == 'sendprint'){
+    $vars['template_files'][] = 'cpsprint_views_view_default_destination_view';
+  }
+}
+/**
+ * 
+ * Implementation of hook_preprocess_views_view_unformatted
+ * @param array $vars
+ */
+function cpsprint_preprocess_views_view_unformatted($vars){
+  if ($vars['view']->content_type_redacblock_conf['cpsprint'] === TRUE 
+   && $vars['view']->name == 'default_destination_view'
+   && arg(3) == 'sendprint'){
+    $vars['template_files'][] = 'cpsprint_views_view_unformatted_default_destination_view';
+  }
+}
+/**
+ * 
+ * Implementation of hook_preprocess_wallyctools_row_redacblock
+ * @param array $vars
+ */
+function cpsprint_preprocess_wallyctools_row_redacblock($vars){
+  
+  if ($vars['view']->content_type_redacblock_conf['cpsprint'] === TRUE 
+   && $vars['view']->name == 'default_destination_view'
+   && arg(3) == 'sendprint'){
+    $vars['mainstory'] = node_load(array('nid' => $vars['node']->field_mainstory[0]['nid']));
+    foreach ($vars['node']->field_embededobjects as $embed){
+      $embed_node = node_load(array('nid' => $embed['nid']));
+      if ($embed_node->type == 'wally_photoobject'){
+        $vars['photoobject'] = $embed_node;
+        break;
+      }
+    }
+    $vars['template_files'][] = 'cpsprint_node_view_default_destination_view_'.$vars['view']->content_type_redacblock_conf['panel'];
+    $vars['template_files'][] = 'cpsprint_node_view_default_destination_view_'.$vars['view']->content_type_redacblock_conf['panel'].'_'.$vars['layout'];
+  } elseif ($vars['view']->content_type_redacblock_conf['cpsprint'] === TRUE 
+         && $vars['view']->name == 'default_destination_view'){
+    drupal_add_css(drupal_get_path('module', 'cpsprint').'/css/cpsprint.css');
+    $vars['mainstory'] = node_load(array('nid' => $vars['node']->field_mainstory[0]['nid']));
+    foreach ($vars['node']->field_embededobjects as $embed){
+      $embed_node = node_load(array('nid' => $embed['nid']));
+      if ($embed_node->type == 'wally_photoobject'){
+        $vars['photoobject'] = $embed_node;
+        break;
+      }
+    }
+    $vars['template_files'][] = 'cpsprint_row_redacblock_'.$vars['view']->content_type_redacblock_conf['panel'];
+    $vars['template_files'][] = 'cpsprint_row_redacblock_'.$vars['view']->content_type_redacblock_conf['panel'].'_'.$vars['layout'];
+  }
+}
+/**
+ * 
+ * Implementation of hook_preprocess_page
+ * @param array $vars
+ */
+function cpsprint_preprocess_page($vars){
+  if ($panel_page = page_manager_get_current_page()) {
+    if ($panel_page['handler']->conf['pipeline'] == 'cpsprint' && arg(3) == 'sendprint'){
+      header('Content-Type: text/xml');
+      $vars['template_files'][] = 'cpsprint_page';
+    }
+  }
+}
+/**
+ * 
+ * Implementation of hook_theme_registry_alter
+ * @param array $theme_registry
+ */
+function cpsprint_theme_registry_alter(&$theme_registry) {
+  $theme_registry['views_view']['theme paths'][] = drupal_get_path('module', 'cpsprint') . '/templates';
+  $theme_registry['views_view_unformatted__default_destination_view']['theme paths'][] = drupal_get_path('module', 'cpsprint') . '/templates';
+  $theme_registry['wallyctools_row_redacblock']['theme paths'][] = drupal_get_path('module', 'cpsprint') . '/templates/layouts';
+  $theme_registry['wallyctools_row_redacblock']['theme paths'][] = drupal_get_path('module', 'cpsprint') . '/templates/preview';
+  $theme_registry['page']['theme paths'][] = drupal_get_path('module', 'cpsprint') . '/templates';
+}
