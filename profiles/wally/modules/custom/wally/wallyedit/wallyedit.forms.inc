@@ -1555,9 +1555,10 @@ function wydit_clean_form_state($form_state){
   $a = wydit_get_canonical_form_state($form_state);
   $type_name = $form_state['type'];
   $current_profile = $form_state['profile_id'];
+  
+  wydit_check_or_add_prenid($a[$type_name]['#node']);
 
   $fields = wyditadmin_get_fields_flat($current_profile, $type_name);
-
   foreach($fields as $field) {
     $field_name = $field['name'];
     if($field['display'] == 2 || $field['display'] == 3) {
@@ -1572,13 +1573,19 @@ function wydit_clean_form_state($form_state){
               $a[$type_name][$field_name][$key]['#node'] = $form_state[$type_name][$field_name][$key]['#node'];
               $a[$type_name][$field_name][$key]['type'] = $form_state[$type_name][$field_name][$key]['#node']->type;
             }
-            $subfields = wyditadmin_get_fields_flat($current_profile, $a[$type_name][$field_name][$key]['#node']->type);
             
+            wydit_check_or_add_prenid($a[$type_name][$field_name][$key]['#node']);
+            
+            $subfields = wyditadmin_get_fields_flat($current_profile, $a[$type_name][$field_name][$key]['#node']->type);
             foreach($subfields as $subfield) {
               $subfield_name = $subfield['name'];
               if(($subfield['display'] == 2 || $subfield['display'] == 3) && isset($form_state[$type_name][$field_name][$key][$subfield_name])) {
                 foreach($form_state[$type_name][$field_name][$key][$subfield_name] as $subkey => $subvalue) {
-                  $a[$type_name][$field_name][$key][$subfield_name][$subkey] = $form_state[$type_name][$field_name][$key][$subfield_name][$subkey];
+                  if(is_numeric($subkey)) {
+                    $a[$type_name][$field_name][$key][$subfield_name][$subkey] = $form_state[$type_name][$field_name][$key][$subfield_name][$subkey];
+                    
+                    wydit_check_or_add_prenid($a[$type_name][$field_name][$key][$subfield_name][$subkey]['#node']);
+                  }
                 }
               }
             }
@@ -1814,6 +1821,15 @@ function wydit_get_tmp_fs_from_form_state(&$form_state) {
 
 function wydit_get_parents_from_form_state ($form_state) {
   return (empty($form_state['parents']) || empty($form_state['parents'][0])) ? array($form_state['type']) : $form_state['parents'];
+}
+
+/**
+ * Add a unique ID to temporary objects
+ */
+function wydit_check_or_add_prenid(&$node) {
+  if ((!isset($node->nid) || empty($node->nid)) && (!isset($node->prenid) || empty($node->prenid))) {
+    $node->prenid = uniqid('prenid_');
+  }
 }
 
 /**
