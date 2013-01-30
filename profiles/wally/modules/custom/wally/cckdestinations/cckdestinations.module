@@ -2047,7 +2047,7 @@ function _cckdestinations_set_new_time_ranks(&$node, &$items) {
             }
           }
           
-          if(wally_variable_get("reorder_local_behavior", TRUE)){
+          if(wally_variable_get("reorder_local_behavior_nodesave", FALSE)){
            	if($rank>1){
           	  $time_rank=(int)(($current_results[$rank - 2]->node_data_field_destinations_field_destinations_time_rank+$current_results[$rank- 1]->node_data_field_destinations_field_destinations_time_rank)/2);
           	}
