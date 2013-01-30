@@ -153,5 +153,7 @@ function _cpsprint_uninstall_imagecache_preset(){
  * Implementation of hook_update_N
  */
 function cpsprint_update_6001(){
+  $ret = array();
   _cpsprint_install_imagecache_preset();
+  return $ret;
 }
