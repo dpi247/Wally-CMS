@@ -276,7 +276,7 @@ function wallyctools_form_reorder_destination_form_submit($form, &$form_state) {
     $order_by_weight[$data['weight']] = $data;
   }
    
-if(wally_variable_get("reorder_local_behavior", TRUE)){
+if(wally_variable_get("reorder_local_behavior_reorderpage", TRUE)){
   	ksort($order_by_weight);
      
   	$switch_start_timerank=time();
