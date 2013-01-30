@@ -462,9 +462,19 @@ function wallypressfilters_form_filter_settings_form($fid, $format){
         '#type'          => 'textarea',
         '#title'         => t('PHP code'),
         '#default_value' => $defaults['advanced-php'],
-        '#description'   => t('User <i>return $string;</i> at the end of your code,
+        '#description'   => t('Use <i>return $string;</i> at the end of your code,
             the matching tag (and its content) will be replaced by this string.<br>
-            <b style="color:red;">Use this with caution! This code will be executed every time the filter is applied.</b>'),
+            <b style="color:red;">Use this with caution! This code will be executed every time the filter is applied.</b><br>
+            An associative array is given, this array contains the tag name, body and attributes, for example :<br>
+            $tag = array(<br>
+            &nbsp&nbsp"tag_name" => "name-of-the-tag",<br>
+            &nbsp&nbsp"body" => "body-of-the-tag",<br>
+            &nbsp&nbsp"attributes" => array(<br>
+            &nbsp&nbsp&nbsp&nbsp"a1" => "v1",<br>
+            &nbsp&nbsp&nbsp&nbsp"a2" => "v2",<br>
+            &nbsp&nbsp&nbsp&nbsp...<br>
+            &nbsp&nbsp),<br>
+            );'),
         '#rows'          => 15,
         '#dependency'    => array(
             'edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace'),
