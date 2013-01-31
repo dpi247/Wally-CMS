@@ -86,7 +86,7 @@ function sendprint_send(){
   //Create zip
   if (sendprint_create_zip($destinations_terms) && variable_get('sendprint_ssh_server', '') != ''){
     //send zip
-    //$result = sendprint_ssh_send_zip();
+    $result = sendprint_ssh_send_zip();
     //Save articles in db
     if ($result){
       sendprint_save_log($destinations_terms);
