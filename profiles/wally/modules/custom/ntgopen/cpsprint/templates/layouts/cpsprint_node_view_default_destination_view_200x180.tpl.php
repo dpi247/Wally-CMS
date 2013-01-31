@@ -2,11 +2,13 @@
   <frame type="4" fontsize="22" maxCapacity="74" minCapacity="63" width="570" height="32.25" textlines="1" id="1">
     <![CDATA[<?php if ($mainstory->field_textbarette[0]['value'] != NULL){print $mainstory->field_textbarette[0]['value'].'. ';}print $mainstory->title;?>]]>
   </frame>
-  <?php if ($mainstory->field_textchapo[0]['value'] != NULL){?>
-    <frame type="4" fontsize="16" maxCapacity="87" minCapacity="79" width="570" height="22" textlines="1" id="2">
+  
+  <frame type="4" fontsize="16" maxCapacity="87" minCapacity="79" width="570" height="22" textlines="1" id="2">
+    <?php if ($mainstory->field_textchapo[0]['value'] != NULL){?>
       <![CDATA[<?php print $mainstory->field_textchapo[0]['value'];?>]]>
-    </frame>
-  <?php } if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
+    <?php }?>
+  </frame>
+  <?php if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
     $preset = 'print_376x220';
     imagecache_generate_image($preset, $photoobject->field_photofile[0]['filepath']);
     ?>
@@ -22,9 +24,11 @@
   <frame type="4" fontsize="12.5" maxCapacity="1903" minCapacity="1600" width="182" height="462" textlines="" id="4">
     <![CDATA[<?php print $mainstory->field_textbody[0]['value'];?>]]>
   </frame>
-  <?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
-    <frame type="4" fontsize="10" maxCapacity="87" minCapacity="74" width="361.1278195" height="13" textlines="1" id="5">
+  
+  <frame type="4" fontsize="10" maxCapacity="87" minCapacity="74" width="361.1278195" height="13" textlines="1" id="5">
+    <?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
       <![CDATA[<?php print $photoobject->field_summary[0]['value'];?>]]>
-    </frame>
-  <?php }?>
+    <?php }?>
+  </frame>
+  
 </template>

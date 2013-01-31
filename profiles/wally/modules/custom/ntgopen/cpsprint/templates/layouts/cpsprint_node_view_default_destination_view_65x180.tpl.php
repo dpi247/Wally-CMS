@@ -18,9 +18,10 @@
   <frame type="4" fontsize="12.5" maxCapacity="513" minCapacity="493" width="182" height="264" textlines="" id="3">
     <![CDATA[<?php print $mainstory->field_textbody[0]['value'];?>]]>
   </frame>
-  <?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
-    <frame type="4" fontsize="10" maxCapacity="35" minCapacity="31" width="167.127819548872" height="13" textlines="1" id="4">
+  
+  <frame type="4" fontsize="10" maxCapacity="35" minCapacity="31" width="167.127819548872" height="13" textlines="1" id="4">
+    <?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
       <![CDATA[<?php print $photoobject->field_summary[0]['value'];?>]]>
-    </frame>
-  <?php }?>
+    <?php }?>
+  </frame>
 </template>

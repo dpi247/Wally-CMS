@@ -1,11 +1,13 @@
 <frame type="4" fontsize="30" maxCapacity="41" minCapacity="35" width="376" height="88" textlines="2" id="1">
   <![CDATA[<?php if ($textbarette != NULL){print $textbarette.'. ';}print $title;?>]]>
 </frame>
-<?php if ($textchapo != NULL){?>
-  <frame type="4" fontsize="16" maxCapacity="122" minCapacity="109" width="376" height="44" textlines="2" id="2">
+
+<frame type="4" fontsize="16" maxCapacity="122" minCapacity="109" width="376" height="44" textlines="2" id="2">
+  <?php if ($textchapo != NULL){?>
     <![CDATA[<?php print $textchapo;?>]]>
-  </frame>
-<?php } if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
+  <?php }?>
+</frame>
+<?php if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
   $preset = 'print_182x176';
   imagecache_generate_image($preset, $photoobject->field_photofile[0]['filepath']);
   ?>

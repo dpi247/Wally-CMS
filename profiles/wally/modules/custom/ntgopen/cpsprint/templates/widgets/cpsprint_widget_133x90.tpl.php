@@ -17,8 +17,9 @@
 <frame type="4" fontsize="12.5" maxCapacity="435" minCapacity="377" width="182" height="206" textlines="" id="3">
   <![CDATA[<?php print $textbody;?>]]>
 </frame>
-<?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
-  <frame type="4" fontsize="10" maxCapacity="35" minCapacity="31" width="167.1278195" height="13" textlines="1" id="4">
+
+<frame type="4" fontsize="10" maxCapacity="35" minCapacity="31" width="167.1278195" height="13" textlines="1" id="4">
+  <?php if ($photoobject != NULL && $photoobject->field_summary[0]['value'] != NULL){?>
     <![CDATA[<?php print $photoobject->field_summary[0]['value'];?>]]>
-  </frame>
-<?php }?>
+  <?php }?>
+</frame>
