@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * Implementation of hook_menu
+ */
+function filesmigrate_menu() {
+  $items = array();
+  
+  $items['admin/settings/filesmigrate'] = array(
+    'title' => t('Files migrate settings'),
+    'description' => t('General settings of the files migration.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('filesmigrate_admin_settings_form'),
+    'access arguments' => array('administer files'),
+    'file' => 'includes/filesmigrate.admin.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_cron()
+ */
+function filesmigrate_cron() {
+  static $recurse = FALSE;
+  
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('filesmigrate_cron_semaphore', FALSE);
+
+  if ($semaphore) {
+    if (time() - $semaphore > 600) {
+      // Either cron has been running for more than 10 minutes or the semaphore
+      // was not reset due to a database error.
+      // Release cron semaphore
+      wally_variable_del('filesmigrate_cron_semaphore');
+      
+      if (!$recurse) {
+        // Avoid infinite loop
+        $recurse = TRUE;
+        
+        filesmigrate_cron();
+      }
+    } else {
+      $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'<br>';
+      print $return;
+    }
+  } else {
+    if (_filesmigrate_cron_has_to_run()) {
+      // Lock cron semaphore
+      wally_variable_set('filesmigrate_cron_semaphore', time());
+      
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      wallytoolbox_set_microtime_step('', FALSE, 'filesmigrate_cron');
+  
+      // Call the function calling the flows
+      module_load_include('inc', 'filesmigrate', 'includes/filesmigrate.cron');
+      $cron_return = _filesmigrate_cron();
+      
+      foreach ($cron_return as $ret) {
+        if (is_string($ret) && !empty($ret)) {
+          $return .= $ret.'</br>';
+        }
+      }
+      
+      $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'filesmigrate_cron');
+      $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+      $formatted = $d->format('i:s.u');
+      $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+      
+      // Release cron semaphore
+      wally_variable_del('filesmigrate_cron_semaphore');
+      
+      print $return;
+    }
+  }
+}
+
+/**
+ * Check if the cron process has to run : if it is set to run all day or if we are at night
+ *
+ * @return boolean Whether the cron has to run or not
+ */
+function _filesmigrate_cron_has_to_run() {
+  switch (wally_variable_get('filesmigrate_run_period', 'night')) {
+    case 'all_day':
+      return TRUE;
+      break;
+
+    case 'night':
+      $current_hour = (int)date('G');
+      if ($current_hour >= 0 && $current_hour < 4) {
+        return TRUE;
+      }
+      break;
+  }
+  return FALSE;
+}
