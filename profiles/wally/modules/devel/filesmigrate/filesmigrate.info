@@ -1,0 +1,7 @@
+name = "Files Migrate"
+description = "Migrate files from sites/default/files to a subdirectory"
+core = "6.x"
+package = "Development"
+version = "6.x-1.0-rc1"
+project = "filesmigrate"
+dependencies[] = "wallytoolbox"
