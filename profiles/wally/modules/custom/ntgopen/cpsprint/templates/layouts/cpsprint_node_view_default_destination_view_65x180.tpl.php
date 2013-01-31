@@ -1,6 +1,6 @@
 <template size="2" name="UNE-2-G" articlename="<?php print $node->nid;?>">
   <frame type="4" fontsize="22" maxCapacity="31" minCapacity="28" width="182" height="66" textlines="2" id="1">
-    <![CDATA[<?php print $mainstory->title;?>]]>
+    <![CDATA[<?php if ($mainstory->field_textbarette[0]['value'] != NULL){print $mainstory->field_textbarette[0]['value'].'. ';}print $mainstory->title;?>]]>
   </frame>
   <?php if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
     $preset = 'print_182x176';

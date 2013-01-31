@@ -46,3 +46,6 @@ div.cpsprint div#print270x185{
 div.cpsprint div.article-body.int250{
 	height: 200px;
 }
+div.cpsprint span.headline{
+	color:#B8240D;
+}

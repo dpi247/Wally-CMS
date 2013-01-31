@@ -1,6 +1,6 @@
 <template size="2" name="UNE-2-D" articlename="<?php print $node->nid;?>">
   <frame type="4" fontsize="22" maxCapacity="74" minCapacity="63" width="570" height="32.25" textlines="1" id="1">
-    <![CDATA[<?php print $mainstory->title;?>]]>
+    <![CDATA[<?php if ($mainstory->field_textbarette[0]['value'] != NULL){print $mainstory->field_textbarette[0]['value'].'. ';}print $mainstory->title;?>]]>
   </frame>
   <?php if ($mainstory->field_textchapo[0]['value'] != NULL){?>
     <frame type="4" fontsize="16" maxCapacity="87" minCapacity="79" width="570" height="22" textlines="1" id="2">

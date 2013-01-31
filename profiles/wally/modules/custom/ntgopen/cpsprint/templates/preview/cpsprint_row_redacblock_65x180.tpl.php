@@ -1,4 +1,4 @@
-<h1><a href="/node/<?php print $node->nid?>"><?php print $mainstory->title;?></a></h1>
+<h1><span class="headline"><?php print $mainstory->field_textbarette[0]['value']?>.</span> <a href="/node/<?php print $node->nid?>"><?php print $mainstory->title;?></a></h1>
 
 <div class="article-body">
   <div class="article-description">

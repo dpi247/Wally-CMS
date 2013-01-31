@@ -1,4 +1,4 @@
-<h1><a href="/node/<?php print $nid?>"><?php print $title;?></a></h1>
+<h1><span class="headline"><?php print $textbarette?>.</span> <a href="/node/<?php print $nid?>"><?php print $title;?></a></h1>
 <?php if ($textchapo != NULL){?>
   <h2 class="heading"><?php print $textchapo;?></h2>
 <?php }?>

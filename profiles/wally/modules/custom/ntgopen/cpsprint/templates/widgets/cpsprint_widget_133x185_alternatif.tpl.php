@@ -1,5 +1,5 @@
 <frame type="4" fontsize="30" maxCapacity="41" minCapacity="35" width="376" height="88" textlines="2" id="1">
-  <![CDATA[<?php print $title;?>]]>
+  <![CDATA[<?php if ($textbarette != NULL){print $textbarette.'. ';}print $title;?>]]>
 </frame>
 <?php if ($textchapo != NULL){?>
   <frame type="4" fontsize="16" maxCapacity="122" minCapacity="109" width="376" height="44" textlines="2" id="2">

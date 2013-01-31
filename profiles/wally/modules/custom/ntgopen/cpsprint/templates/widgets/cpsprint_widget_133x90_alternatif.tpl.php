@@ -1,5 +1,5 @@
 <frame type="4" fontsize="22" maxCapacity="45" minCapacity="41" width="376" height="30.75" textlines="1" id="1">
-  <![CDATA[<?php print $title;?>]]>
+  <![CDATA[<?php if ($textbarette != NULL){print $textbarette.'. ';}print $title;?>]]>
 </frame>
 <?php if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
   $preset = 'print_182x110';
