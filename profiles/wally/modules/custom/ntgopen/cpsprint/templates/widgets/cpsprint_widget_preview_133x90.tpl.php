@@ -1,4 +1,4 @@
-<h1><span class="headline"><?php print $textbarette?>.</span> <a href="/node/<?php print $nid?>"><?php print $title;?></a></h1>
+<h1><span class="headline"><?php if ($textbarette != NULL){print $textbarette.'.';}?></span> <a href="/node/<?php print $nid?>"><?php print $title;?></a></h1>
 
 <div class="article-image">
 <?php if ($photoobject != NULL && $photoobject->field_photofile[0]['filename'] != NULL){
