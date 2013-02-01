@@ -270,12 +270,12 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
         $importer = wallymport_getimporterbyname($feed_infos['importer']);
         $importer->source_directory_path = $importer_tmp_folder = $importer->temp_directory_path;
 
-        $tmp_xml_file = '/tmp/'.$xml_file_name.'.xml';
+        $tmp_xml_file = $importer_tmp_folder.'/'.$xml_file_name.'.xml';
         $valid_dom->save($tmp_xml_file);
         
         module_load_include('inc', 'wallymport', 'includes/wallymport.process');
 
-        if (!empty($files_to_zip)) {
+        if (false&&!empty($files_to_zip)) {
           $files_to_zip[] = $tmp_xml_file;
           
           // Zip files
@@ -295,7 +295,13 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
             unlink($file_to_zip);
           }
         } else {
-          $temp_return = wallymport_page_process_file($importer->source_directory_path.'/'.$xml_file_name.'.xml', $importer);
+          $xml_file_path = $importer->source_directory_path.'/'.$xml_file_name.'.xml';
+          $temp_return = wallymport_page_process_file($xml_file_path, $importer);
+          if ($temp_return['error'] == FALSE){
+            file_move($xml_file_path, $importer->done_directory_path);
+          } else {
+            file_move($xml_file_path, $importer->error_directory_path);
+          }
         }
 
         if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return[0]['error']) {
