@@ -150,12 +150,13 @@ function sendprint_get_destinationinprint($tid_did_mapping, $handlers){
     );
     $page_number++;
   }
-  foreach ($tid_did_mapping as $mapping){
+  foreach ($tid_did_mapping as $tid => $mapping){
     if (array_key_exists($mapping['name'], $panel_id)){
-      $term = taxonomy_get_term_by_name($mapping['term_name']);
-      $term[0]->redacblocks = $panel_id[$mapping['name']]['redacblock_panes'];
-      $term[0]->page_number = $panel_id[$mapping['name']]['page_number'];
-      $destinations_terms[] = $term[0];
+      
+      $term = taxonomy_get_term($tid);
+      $term->redacblocks = $panel_id[$mapping['name']]['redacblock_panes'];
+      $term->page_number = $panel_id[$mapping['name']]['page_number'];
+      $destinations_terms[] = $term;
       $panel_id[$mapping['name']]['page_number']++;
     }
   }

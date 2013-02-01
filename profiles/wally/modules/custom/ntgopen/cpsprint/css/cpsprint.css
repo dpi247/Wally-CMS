@@ -10,6 +10,7 @@ div.cpsprint ol,
 div.cpsprint ul,
 div.cpsprint dl {
 	font-size:12px;
+	margin:0px!important;
 }
 div.cpsprint div.article-body{
 	text-align:justify;
@@ -44,4 +45,10 @@ div.cpsprint div#print270x185{
 }
 div.cpsprint div.article-body.int250{
 	height: 200px;
+}
+div.cpsprint span.headline{
+	color:#B8240D;
+}
+div.cpsprint div.clear{
+	clear:both;
 }

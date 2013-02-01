@@ -25,42 +25,42 @@ function cpsprint_theme(){
   );
   $theme_functions = array(
     'cpsprint_widget_133x185' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
       'template' => 'cpsprint_widget_133x185',
   	  'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_133x185_alternatif' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
       'template' => 'cpsprint_widget_133x185_alternatif',
       'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_133x90' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
       'template' => 'cpsprint_widget_133x90',
       'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_133x90_alternatif' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL),
       'template' => 'cpsprint_widget_133x90_alternatif',
       'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_preview_133x185' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
       'template' => 'cpsprint_widget_preview_133x185',
   	  'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_preview_133x185_alternatif' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
       'template' => 'cpsprint_widget_preview_133x185_alternatif',
       'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_preview_133x90' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
       'template' => 'cpsprint_widget_preview_133x90',
       'path' => $path.'/templates/widgets',
     ),
     'cpsprint_widget_preview_133x90_alternatif' => array(
-      'arguments' => array('title' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
+      'arguments' => array('title' => NULL, 'textbarette' => NULL, 'textchapo' => NULL, 'textbody' => NULL, 'photoobject' => NULL, 'nid' => NULL),
       'template' => 'cpsprint_widget_preview_133x90_alternatif',
       'path' => $path.'/templates/widgets',
     ),
