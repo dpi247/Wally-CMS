@@ -275,7 +275,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
         
         module_load_include('inc', 'wallymport', 'includes/wallymport.process');
 
-        if (false&&!empty($files_to_zip)) {
+        if (!empty($files_to_zip)) {
           $files_to_zip[] = $tmp_xml_file;
           
           // Zip files
