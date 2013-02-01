@@ -8,11 +8,32 @@
 function sendprint_page_sendtoprint_form($form_state) {
   $form = array();
 
+  
+  $form['sendprint_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The name of the newspaper'),
+    '#description' => t('The name of the newspaper will figure on the first page'),
+    '#default_value' => variable_get('sendprint_name', 'The Unfold'),
+    '#required' => TRUE,
+  );
+  $form['sendprint_date'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The edition date'),
+    '#description' => t('The date of the edition'),
+    '#default_value' => variable_get('sendprint_date', t(date('j F Y'))),
+    '#required' => TRUE,
+  );
+  $form['sendprint_front'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The name of the first page'),
+    '#description' => t('The name of the first page'),
+    '#default_value' => variable_get('sendprint_front', 'UNE'),
+    '#required' => TRUE,
+  );
   $form['sendtoprint'] = array(
     '#type' => 'submit',
     '#value' => t('Send to print'),
   );
-
   return $form;
 }
 /**
@@ -22,6 +43,9 @@ function sendprint_page_sendtoprint_form($form_state) {
  * @param array $form_state
  */
 function sendprint_page_sendtoprint_form_submit($form, $form_state) {
+  variable_set('sendprint_name', $form_state['values']['sendprint_name']);
+  variable_set('sendprint_date', $form_state['values']['sendprint_date']);
+  variable_set('sendprint_front', $form_state['values']['sendprint_front']);
   sendprint_send();
 }
 /**
@@ -34,27 +58,6 @@ function sendprint_page_settings_form(){
     '#description' => t('The path of the folder where the zip will be stored before sending'),
     '#default_value' => variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export'),
     '#required' => TRUE,
-  );
-  $form['sendprint_name'] = array(
-    '#type' => 'textfield',
-    '#title' => t('The name of the newspaper'),
-    '#description' => t('The name of the newspaper will figure on the first page'),
-    '#default_value' => variable_get('sendprint_name', 'The Unfold'),
-    '#required' => TRUE,
-  );
-  $form['sendprint_date'] = array(
-      '#type' => 'textfield',
-      '#title' => t('The edition date'),
-      '#description' => t('The date of the edition'),
-      '#default_value' => variable_get('sendprint_date', t(date('j F Y'))),
-      '#required' => TRUE,
-  );
-  $form['sendprint_front'] = array(
-        '#type' => 'textfield',
-        '#title' => t('The name of the first page'),
-        '#description' => t('The name of the first page'),
-        '#default_value' => variable_get('sendprint_front', 'UNE'),
-        '#required' => TRUE,
   );
   $form['sendprint_ssh_server'] = array(
     '#type' => 'textfield',
