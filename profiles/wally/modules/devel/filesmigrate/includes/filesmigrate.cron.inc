@@ -60,7 +60,7 @@ function _filesmigrate_copy_files(&$return) {
 function _filesmigrate_copy_and_store_file(&$return, $orig_file) {
   if ($new_path = _filesmigrate_get_new_path($orig_file)) {
     if (!@copy($orig_file['filepath'], $new_path)) {
-      $return[] = t('Couldn\'t copy file "@filepath" to "@new_path"', array('@filepath' => $orig_file['filepath'], '@new_path' => $new_path));
+      //$return[] = t('Couldn\'t copy file "@filepath" to "@new_path"', array('@filepath' => $orig_file['filepath'], '@new_path' => $new_path));
       // Store error file infos
       $stored_file = new stdClass();
       $stored_file->fid = (int)$orig_file['fid'];
