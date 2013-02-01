@@ -4,9 +4,11 @@ function theme_wallymport_logs($log){
 
   $content = '<div class = "wallymport_result">';
   $content .= '<h5 style = "margin:0px;">'.date ('d/m/Y H:i:s',$log['date']).'</h5>';
-  $processed = t('Process succeed');
   if ($log['error']){
     $processed = t('Process failed');
+  }
+  else{
+  	$processed = t('Process succeed');
   }
   $content .= '<div>'.$processed.'</div>';
   if (isset($log['error_msg'])){
