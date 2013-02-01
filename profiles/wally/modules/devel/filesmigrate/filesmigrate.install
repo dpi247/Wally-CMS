@@ -47,6 +47,25 @@ function filesmigrate_schema() {
     ),
     'primary key' => array('fid'),
   );
-
+  
+  $schema['filesmigrate_error_files'] = array(
+    'description' => 'Stores the fids of the files that couldn\'t be copied',
+    'fields' => array(
+      'eid' => array(
+        'description' => 'Primary Key: Unique entry ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'fid' => array(
+        'description' => 'fid on the files table.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('eid'),
+  );
+  
   return $schema;
 }

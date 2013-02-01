@@ -29,7 +29,13 @@ function _filesmigrate_copy_files(&$return) {
   $files_limit = wally_variable_get('filesmigrate_files_limit', 50);
 
   // Get all files that are at the "files root"
-  $db_files = db_query("SELECT fid, filename, filepath FROM {files} WHERE STATUS = 1 AND filepath RLIKE '^sites/default/files/[^/]*$' LIMIT 0 , %d", $files_limit);
+  $db_files = db_query("
+      SELECT f.fid, f.filename, f.filepath
+      FROM {files} f
+      WHERE f.status = %d
+      AND f.filepath RLIKE '^sites/default/files/[^/]*$'
+      AND f.fid NOT IN (SELECT e.fid FROM {filesmigrate_error_files} e)
+      LIMIT 0 , %d", FILE_STATUS_PERMANENT, $files_limit);
 
   $copied_count = 0;
   while ($db_file = db_fetch_array($db_files)) {
@@ -54,7 +60,11 @@ function _filesmigrate_copy_files(&$return) {
 function _filesmigrate_copy_and_store_file(&$return, $orig_file) {
   if ($new_path = _filesmigrate_get_new_path($orig_file)) {
     if (!@copy($orig_file['filepath'], $new_path)) {
-      $return[] = t('Couldn\'t copy file "@filename" to "@new_path', array('@filename' => $orig_file['filename'], '@new_path' => $new_path));
+      $return[] = t('Couldn\'t copy file "@filepath" to "@new_path"', array('@filepath' => $orig_file['filepath'], '@new_path' => $new_path));
+      // Store error file infos
+      $stored_file = new stdClass();
+      $stored_file->fid = (int)$orig_file['fid'];
+      drupal_write_record('filesmigrate_error_files', $stored_file);
     } else {
       // Store old file infos
       $stored_file = new stdClass();
@@ -135,73 +145,4 @@ function _filesmigrate_has_to_delete() {
     return TRUE;
   }
   return FALSE;
-}
-
-/**
- * Checks whether a directory exists and is writable.
- *
- * Furthermore, the directory can optionally be created if it does not exist,
- * and/or be set to writable if it is currently not. Directories need to have
- * execute permission to be considered a directory by FTP servers.
- *
- * @param $directory
- *   A string representing the directory path.
- * @param $mode
- *   An optional bitmask containing the actions, if any, to be carried out on
- *   the directory. Any combination of the actions FILE_CREATE_DIRECTORY and
- *   FILE_MODIFY_PERMISSIONS is allowed.
- * @param $form_item
- *   An optional string containing the name of a form item that any errors
- *   will be attached to. Useful when the function validates a directory path
- *   entered as a form value. An error will consequently prevent form submit
- *   handlers from running, and instead display the form along with the
- *   error messages.
- *
- * @return
- *   FALSE if the directory does not exist or is not writable, even after
- *   any optional actions have been carried out. Otherwise, TRUE is returned.
- */
-function _filesmigrate_file_check_directory_recursive(&$directory, $mode = 0, $form_item = NULL) {
-  $directory = rtrim($directory, '/\\');
-
-  // Check if directory exists.
-  if (!is_dir($directory)) {
-    if (($mode & FILE_CREATE_DIRECTORY) && @mkdir($directory, 0775, TRUE)) {
-      drupal_set_message(t('The directory %directory has been created.', array('%directory' => $directory)));
-      @chmod($directory, 0775); // Necessary for non-webserver users.
-    }
-    else {
-      if ($form_item) {
-        form_set_error($form_item, t('The directory %directory does not exist.', array('%directory' => $directory)));
-      }
-      return FALSE;
-    }
-  }
-
-  // Check to see if the directory is writable.
-  if (!is_writable($directory)) {
-    if (($mode & FILE_MODIFY_PERMISSIONS) && @chmod($directory, 0775)) {
-      drupal_set_message(t('The permissions of directory %directory have been changed to make it writable.', array('%directory' => $directory)));
-    }
-    else {
-      form_set_error($form_item, t('The directory %directory is not writable', array('%directory' => $directory)));
-      watchdog('file system', 'The directory %directory is not writable, because it does not have the correct permissions set.', array('%directory' => $directory), WATCHDOG_ERROR);
-      return FALSE;
-    }
-  }
-
-  if ((file_directory_path() == $directory || file_directory_temp() == $directory) && !is_file("$directory/.htaccess")) {
-    $htaccess_lines = "SetHandler Drupal_Security_Do_Not_Remove_See_SA_2006_006\nOptions None\nOptions +FollowSymLinks";
-    if (($fp = fopen("$directory/.htaccess", 'w')) && fputs($fp, $htaccess_lines)) {
-      fclose($fp);
-      chmod($directory .'/.htaccess', 0664);
-    }
-    else {
-      $variables = array('%directory' => $directory, '!htaccess' => '<br />'. nl2br(check_plain($htaccess_lines)));
-      form_set_error($form_item, t("Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables));
-      watchdog('security', "Security warning: Couldn't write .htaccess file. Please create a .htaccess file in your %directory directory which contains the following lines: <code>!htaccess</code>", $variables, WATCHDOG_ERROR);
-    }
-  }
-
-  return TRUE;
 }
