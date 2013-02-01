@@ -42,6 +42,20 @@ function sendprint_page_settings_form(){
     '#default_value' => variable_get('sendprint_name', 'The Unfold'),
     '#required' => TRUE,
   );
+  $form['sendprint_date'] = array(
+      '#type' => 'textfield',
+      '#title' => t('The edition date'),
+      '#description' => t('The date of the edition'),
+      '#default_value' => variable_get('sendprint_date', t(date('j F Y'))),
+      '#required' => TRUE,
+  );
+  $form['sendprint_front'] = array(
+        '#type' => 'textfield',
+        '#title' => t('The name of the first page'),
+        '#description' => t('The name of the first page'),
+        '#default_value' => variable_get('sendprint_front', 'UNE'),
+        '#required' => TRUE,
+  );
   $form['sendprint_ssh_server'] = array(
     '#type' => 'textfield',
     '#title' => t('FTP Server'),
