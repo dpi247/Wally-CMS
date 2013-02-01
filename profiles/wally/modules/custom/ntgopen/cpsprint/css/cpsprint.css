@@ -49,3 +49,6 @@ div.cpsprint div.article-body.int250{
 div.cpsprint span.headline{
 	color:#B8240D;
 }
+div.cpsprint div.clear{
+	clear:both;
+}

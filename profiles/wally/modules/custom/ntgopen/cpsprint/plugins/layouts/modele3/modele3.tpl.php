@@ -28,4 +28,5 @@
       <?php print $content['133x185C'];?>
     </div>
   <?php }?>
+  <div class="clear"></div>
  </div>
