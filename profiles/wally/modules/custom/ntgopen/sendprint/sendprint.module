@@ -3,24 +3,23 @@
  * Implementation of hook_menu 
  */
 function sendprint_menu(){
-  $items['admin/sendprint'] = array(
+  $items['admin/cps/sendprint'] = array(
     'title'                         => t('Send to print'),
     'page callback'                 => 'drupal_get_form',
     'page arguments'                => array('sendprint_page_sendtoprint_form'),
     'access arguments'              => array('send to print'),
     'file'                          => 'includes/sendprint.admin.inc',
   );
-  $items['admin/sendprint/send'] = array(
+  $items['admin/cps/sendprint/send'] = array(
     'title'                         => t('Send to print'),
     'page callback'                 => 'drupal_get_form',
     'page arguments'                => array('sendprint_page_sendtoprint_form'),
     'access arguments'              => array('send to print'),
     'file'                          => 'includes/sendprint.admin.inc',
-    'type'                          => MENU_DEFAULT_LOCAL_TASK,
     'weight'                        => 0,
   );
   //Page to set settings for the send
-  $items['admin/sendprint/settings'] = array(
+  $items['admin/cps/sendprint/settings'] = array(
     'title'            => t('Settings'),
     'page callback'    => 'drupal_get_form',
     'page arguments'   => array('sendprint_page_settings_form'),
@@ -29,7 +28,7 @@ function sendprint_menu(){
     'type'             => MENU_LOCAL_TASK,
     'weight'           => 1,
   );
-  $items['admin/sendprint/log'] = array(
+  $items['admin/cps/sendprint/log'] = array(
     'title'            => t('Logs'),
     'page callback'    => 'sendprint_page_log',
     'access arguments' => array('administer sendprint'),

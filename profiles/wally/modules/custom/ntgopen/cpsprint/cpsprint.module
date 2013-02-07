@@ -4,7 +4,18 @@
  * Implementation of hook_menu
  */
 function cpsprint_menu(){
-  $items['admin/cpsprint'] = array(
+  $items['admin/cps'] = array(
+    'title' => 'Cloud Publishing Suite',
+    'description' => t('Cloud Publishing Suite links.'),
+    'position' => 'right',
+    'weight' => 6,
+    'page callback' => 'system_admin_menu_block_page',
+    'access callback' => TRUE,
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+	
+  $items['admin/cps/cpsprint'] = array(
     'title'                         => t('CPS settings'),
     'page callback'                 => 'drupal_get_form',
     'page arguments'                => array('cpsprint_page_settings_form'),
