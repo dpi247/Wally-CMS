@@ -59,7 +59,9 @@
 			<?php if ($help) print $help ?>
 			<?php if ($show_messages && $messages): ?>
 			  <?php print $messages; ?>
-			<?php endif; ?>	
+			<?php endif; ?>
+			<?php if ($tabs) print $tabs ?>
+							
       <?php if (!empty($content)): ?>
 			  <?php print $content; ?>
       <?php endif; ?>

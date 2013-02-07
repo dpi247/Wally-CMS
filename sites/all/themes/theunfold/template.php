@@ -669,9 +669,9 @@ function _theunfold_set_js(&$vars) {
  **/
 function _theunfold_general_theme_settings(&$vars) {
 
-	$vars['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'TheUnfold')) : '');
+  $vars['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'TheUnfold')) : '');
   $vars['mission'] = (theme_get_setting('toggle_mission') ? filter_xss_admin(variable_get('site_mission', 'TheUnfold : Happily published by <a href="http://www.dpi247.com">DPI247</a>, a <a href="http://">Drupal</a> media dedicated distribution.')) : ''); 
-
+  $vars['tabs'] = theme('menu_local_tasks');
   $vars['body_class'] = isset($vars['node']) ? $vars['node']->type.' ' : '';
 
 	//Allows specific theming for taxonomy listings
@@ -721,7 +721,7 @@ function _theunfold_general_theme_settings(&$vars) {
  * theunfold_preprocess_page : Hook_Preprocess_Page
  */
 function theunfold_preprocess_page(&$vars){
-
+	
   $vars["theme_path"] = drupal_get_path('theme', 'theunfold');
  
   _theunfold_set_js($vars);
@@ -732,7 +732,6 @@ function theunfold_preprocess_page(&$vars){
  * hook_preprocess_search_result
  * */
 function theunfold_preprocess_search_result(&$vars){
-
   if ($vars['type'] == 'node'){
     //In node case, add a type name
     switch ($vars['result']['node']->type){
