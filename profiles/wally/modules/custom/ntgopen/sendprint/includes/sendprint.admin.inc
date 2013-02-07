@@ -30,6 +30,24 @@ function sendprint_page_sendtoprint_form($form_state) {
     '#default_value' => variable_get('sendprint_front', 'UNE'),
     '#required' => TRUE,
   );
+  
+
+  if(variable_get('sendprint_customer_name', '')!="" and variable_get('sendprint_customer_id', '')!=''){
+  	 
+  	$link='http://vm2030.cloud.seeweb.it:8080/index.jsp?customer='.variable_get('sendprint_customer_id', '').'&customerName='.variable_get('sendprint_customer_name', '');
+  	$markup=l($link,$link);
+  }
+  else{
+  	$markup=t('You need to define the CPS customer id and CPS customer Name to get access to the preview engine.');
+  }
+  
+  $form['sendprint_link_to_render°engine'] = array(
+  		'#type' => 'markup',
+  		'#value' => $markup,
+  		"#prefix"=>'<div class="form-item">',
+  		"#suffix"=>'</div>',
+  );
+  
   $form['sendtoprint'] = array(
     '#type' => 'submit',
     '#value' => t('Send to print'),
@@ -80,6 +98,25 @@ function sendprint_page_settings_form(){
     '#default_value' => variable_get('sendprint_ssh_password', ''),
     '#required' => TRUE,
   );
+  $form['sendprint_customer_id'] = array(
+  		'#type' => 'textfield',
+  		'#title' => t('Customer ID'),
+  		'#description' => t('CPS Customer Name'),
+  		'#default_value' => variable_get('sendprint_customer_id', ''),
+  		'#required' => TRUE,
+  );
+
+  $form['sendprint_customer_name'] = array(
+  		'#type' => 'textfield',
+  		'#title' => t('Customer ID'),
+  		'#description' => t('CPS Customer Name'),
+  		'#default_value' => variable_get('sendprint_customer_name', ''),
+  		'#required' => TRUE,
+  );
+  
+
+  
+  
   return wally_system_settings_form($form);
 }
 /**
