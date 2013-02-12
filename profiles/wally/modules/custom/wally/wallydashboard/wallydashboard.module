@@ -1,0 +1,3 @@
+<?php
+
+include_once('wallydashboard.features.inc');
