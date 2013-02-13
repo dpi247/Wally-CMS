@@ -51,7 +51,7 @@ function wallydashboard_shortcut_content_type_edit_form_submit(&$form, &$form_st
 * Output function for the 'shortcut' content type.
 */
 function wallydashboard_shortcut_content_type_render($subtype, $conf, $panel_args, $context,$a) {
-dsm($conf);
+
   if ($modules = module_invoke_all('wallydashbord_shortcut')) {
     
     $shortcuts_list = array();
@@ -64,8 +64,10 @@ dsm($conf);
     }
     $block->title = t('Shortcut');
     $block->content = theme('wallydashboard_shortcut', $shortcuts_list);
+  } else {
+    $block->title = '';
+    $block->content = '';
   }
-  
   return $block;
 }
 

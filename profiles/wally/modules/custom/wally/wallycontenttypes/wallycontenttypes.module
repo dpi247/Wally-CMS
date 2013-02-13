@@ -148,14 +148,18 @@ function wallycontenttypes_wallydashbord_shortcut(){
   $shortcut['wallycontenttypes']['create_article'] = array(
     'title' => t('Create Article Package'),
     'link'  => 'node/add/wally-articlepackage',
-    'img'   => 'lalala',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/article.png',
   );
   $shortcut['wallycontenttypes']['create_gallery'] = array(
     'title' => t('Create Gallery Package'),
     'link'  => 'node/add/wally-gallerypackage',
-    'img'   => 'lalala',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/gallery.png',
   );
-  
+  $shortcut['wallycontenttypes']['create_poll'] = array(
+    'title' => t('Create Poll Package'),
+    'link'  => 'node/add/wally-pollpackage',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/poll.png',
+  );
   return $shortcut;
 }
 /**
