@@ -43,7 +43,7 @@ $(".actions-t").click(function(){
 
 $(function() {
   // ul.tabs > div.panes
-  $("ul.tabs").tabs("div.panes > div");
+  $("ul.tabs:not(.primary,.secondary)").tabs("div.panes > div");
   $("#tab-nav ul").tabs("#panes > div");
 });
 
