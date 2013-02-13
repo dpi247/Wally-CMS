@@ -139,7 +139,25 @@ function wallycontenttypes_theme_registry_alter(&$theme_registry) {
   $theme_registry['textfield']['file'] = 'theme.inc';
   $theme_registry['textfield']['path'] = drupal_get_path('module', 'wallycontenttypes').'/theme';
 }
-
+/**
+ * 
+ * Implementation of hook_wallydashboard_shortcut
+ */
+function wallycontenttypes_wallydashbord_shortcut(){
+  $shortcut = array();
+  $shortcut['wallycontenttypes']['create_article'] = array(
+    'title' => t('Create Article Package'),
+    'link'  => 'node/add/wally-articlepackage',
+    'img'   => 'lalala',
+  );
+  $shortcut['wallycontenttypes']['create_gallery'] = array(
+    'title' => t('Create Gallery Package'),
+    'link'  => 'node/add/wally-gallerypackage',
+    'img'   => 'lalala',
+  );
+  
+  return $shortcut;
+}
 /**
  * Implementation of hook_action_info().
  */
@@ -220,6 +238,7 @@ function wallycontenttypes_action_info() {
   );
   return $actions;
 }
+
 /**
  * 
  * Add free tags to a node

@@ -6,3 +6,38 @@
 function wallydashboard_views_api() {
   return array('api' => 2.0);
 }
+/**
+* Implementation of hook_ctools_plugin_directory() to let the system know
+* we implement task and task_handler plugins.
+*/
+function wallydashboard_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallydashboard_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+/**
+ * 
+ * Implementation of hook_theme
+ */
+function wallydashboard_theme(){
+  $path = drupal_get_path('module', 'wallydashboard');
+  $base = array(
+      'file' => 'theme.inc',
+      'path' => "$path/theme",
+  );
+  
+  return array(
+    'wallydashboard_shortcut' => $base + array(
+      'arguments' => array("shortcuts_list" => NULL),
+    ),
+  );
+}
