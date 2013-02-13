@@ -118,7 +118,24 @@ function wallystat_views_api() {
     'path' => drupal_get_path('module', 'wallystat') .'/views',
   );
 }
+/**
+* Implementation of hook_ctools_plugin_directory() to let the system know
+* we implement task and task_handler plugins.
+*/
+function wallystat_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
 
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallystat_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
 /**
  * Theme preprocess function for views-view-row-unformatted.tpl.php
  */
