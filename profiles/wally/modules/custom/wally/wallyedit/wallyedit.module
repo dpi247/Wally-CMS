@@ -23,6 +23,16 @@ function wallyedit_views_api() {
 }
 
 /**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallyedit_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
  * Implementation of hook_perm()
  */
 function wallyedit_perm() {
