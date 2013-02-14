@@ -691,6 +691,7 @@ function wallydashboard_views_default_views() {
 
   $views[$view->name] = $view;
 
+
   //dashboard_last_created_article
   $view = new view;
 $view->name = 'dashboard_last_created_article';
@@ -1462,5 +1463,6 @@ $handler->override_option('inherit_panels_path', 0);
   $handler->override_option('link_to_view', 0);
   $handler->override_option('inherit_panels_path', 0);
   $views[$view->name] = $view;
+
   return $views;
 }
