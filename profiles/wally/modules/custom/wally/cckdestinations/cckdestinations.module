@@ -112,7 +112,19 @@ function cckdestinations_menu() {
   
   return $items;
 }
-
+/**
+*
+* Implementation of hook_wallydashboard_shortcut
+*/
+function cckdestinations_wallydashboard_shortcut(){
+  $shortcut = array();
+  $shortcut['cckdestinations']['reorder'] = array(
+    'title' => t('Reorder destinations'),
+    'link'  => 'admin/wally/wallyctools-operations/reorder',
+    'img'   => NULL,
+  );
+  return $shortcut;
+}
 /**
  * Implementation of hook_field_info().
  */
