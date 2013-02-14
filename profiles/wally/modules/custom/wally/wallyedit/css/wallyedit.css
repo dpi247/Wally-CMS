@@ -278,3 +278,6 @@ BATCH UPLOAD SELECT IMAGES
   float: left;
   margin: 10px;
 }
+div.wallyedit_lastprenode table.sticky-header{
+	display:none;
+}
