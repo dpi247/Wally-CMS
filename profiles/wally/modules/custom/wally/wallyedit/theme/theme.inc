@@ -51,10 +51,15 @@ function wallyedit_preprocess_wallyedit_node_form(&$vars) {
   
   $profile_id = $vars['profile_id'] = $vars['form']['profile_id']['#value'];
   $node_type = $vars['node_type'] = $vars['form']['type']['#value'];
+  
+  $js_settings = array(
+    'profile_id' => $profile_id,
+    'current_tab' => $vars['form']['current_tab']['#value'],
+  );
 
   drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/tab_slider.js');
-  drupal_add_js(array('profile_id' => $profile_id, 'current_tab' => $vars['form']['current_tab']['#value']), 'setting');
+  drupal_add_js($js_settings, 'setting');
 
   $global_form = &$vars['form'];
   $form = &$vars['form'][$node_type];

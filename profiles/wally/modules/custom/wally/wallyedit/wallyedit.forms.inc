@@ -19,6 +19,8 @@ function wallyedit_form_node_edition_form(&$form_state) {
   $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
   
+  drupal_add_js(array('cache_name' => $cache_name), 'setting');
+  
   list($tmp_fs, $type_name) = wydit_get_tmp_fs_from_form_state($form_state);
 
   $parents = $form_state['parents'];
@@ -455,7 +457,6 @@ function wydit_form_preview_form(&$form_state, $cache_name = NULL) {
     $form_state['cache name'] = $cache_name;
   }
   
-  drupal_add_js(array('cache_name' => $form_state['cache name']), 'setting');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/refresh_preview.js');
 
   $prenode = new Prenode($form_state['cache name']);
