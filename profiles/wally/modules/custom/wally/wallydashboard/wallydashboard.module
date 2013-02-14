@@ -56,10 +56,12 @@ function wallydashboard_wallydashboard_shortcut(){
     'link'  => 'admin/content/packages',
     'img'   => NULL,
   );
+
   $shortcut['wallydashboard']['manage_pages'] = array(
     'title' => t('Manage Pages'),
     'link'  => 'admin/build/pages',
     'img'   => NULL,
   );
+
   return $shortcut;
 }
