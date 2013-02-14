@@ -143,7 +143,7 @@ function wallycontenttypes_theme_registry_alter(&$theme_registry) {
  * 
  * Implementation of hook_wallydashboard_shortcut
  */
-function wallycontenttypes_wallydashbord_shortcut(){
+function wallycontenttypes_wallydashboard_shortcut(){
   $shortcut = array();
   $shortcut['wallycontenttypes']['create_article'] = array(
     'title' => t('Create Article Package'),

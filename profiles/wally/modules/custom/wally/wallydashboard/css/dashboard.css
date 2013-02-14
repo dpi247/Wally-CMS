@@ -2,3 +2,6 @@ ul.dashboard_shortcut li{
 	float:left;
 	margin:5px;
 }
+div.clear{
+	clear:both;
+}
