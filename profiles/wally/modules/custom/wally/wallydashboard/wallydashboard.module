@@ -41,3 +41,15 @@ function wallydashboard_theme(){
     ),
   );
 }
+/**
+* Implementation of hook_wallydashboard_shortcut
+*/
+function wallydashboard_wallydashboard_shortcut(){
+  $shortcut = array();
+  $shortcut['wallydashboard']['manage_package'] = array(
+    'title' => t('Manage Packages'),
+    'link'  => 'admin/content/packages',
+    'img'   => NULL,
+  );
+  return $shortcut;
+}

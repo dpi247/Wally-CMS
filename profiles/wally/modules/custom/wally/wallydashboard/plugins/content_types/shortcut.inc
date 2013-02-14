@@ -15,7 +15,7 @@ function wallydashboard_shortcut_ctools_content_types() {
 
 function wallydashboard_shortcut_content_type_edit_form(&$form, &$form_state) {
   // The current configuration
-  if ($modules = module_invoke_all('wallydashbord_shortcut')) {
+  if ($modules = module_invoke_all('wallydashboard_shortcut')) {
     $options = array();
     foreach ($modules as $module_name => $shortcuts){
       foreach ($shortcuts as $shortcut_name => $shortcut_info){
@@ -52,7 +52,7 @@ function wallydashboard_shortcut_content_type_edit_form_submit(&$form, &$form_st
 */
 function wallydashboard_shortcut_content_type_render($subtype, $conf, $panel_args, $context,$a) {
 
-  if ($modules = module_invoke_all('wallydashbord_shortcut')) {
+  if ($modules = module_invoke_all('wallydashboard_shortcut')) {
     
     $shortcuts_list = array();
     foreach ($modules as $module_name => $shortcuts) {

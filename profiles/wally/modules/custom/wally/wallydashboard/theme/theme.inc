@@ -6,9 +6,14 @@ function theme_wallydashboard_shortcut($shortcuts_list){
   if (is_array($shortcuts_list)){
     $content .= '<ul class="dashboard_shortcut">';
     foreach ($shortcuts_list as $short){
-      $content .= '<li><a href="'.$short['link'].'"><img src="/'.$short['img'].'"></a></li>';
+      if ($short['img'] != NULL){
+        $content .= '<li><a href="/'.$short['link'].'"><img alt="'.$short['title'].'" src="/'.$short['img'].'"></a></li>';
+      } else {
+        $content .= '<li><a href="/'.$short['link'].'">'.$short['title'].'</a></li>';
+      }
     }
     $content .= '</ul>';
+    $content .= '<div class="clear"></div>';
   }
   return $content;
 }
