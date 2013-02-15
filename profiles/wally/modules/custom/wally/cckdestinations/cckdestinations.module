@@ -121,7 +121,7 @@ function cckdestinations_wallydashboard_shortcut(){
   $shortcut['cckdestinations']['reorder'] = array(
     'title' => t('Reorder destinations'),
     'link'  => 'admin/wally/wallyctools-operations/reorder',
-    'img'   => NULL,
+    'img'   => drupal_get_path('module', 'cckdestinations').'/images/shortcut/reorder.png',
   );
   return $shortcut;
 }
