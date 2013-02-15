@@ -47,6 +47,18 @@ function wallydashboard_theme(){
   );
 }
 /**
+ * Implementation of hook_init
+ */
+function wallydashboard_init(){
+  
+  global $custom_theme;
+  //Adding admin theme on wallydasboard
+  if (arg(3) == 'wallydashboard' || arg(2) == 'wallydashboard') {
+    drupal_add_css(drupal_get_path('module', 'wallydashboard').'/css/dashboard.css');
+    $custom_theme = 'rubik';
+  }
+}
+/**
 * Implementation of hook_wallydashboard_shortcut
 */
 function wallydashboard_wallydashboard_shortcut(){
@@ -54,13 +66,13 @@ function wallydashboard_wallydashboard_shortcut(){
   $shortcut['wallydashboard']['manage_package'] = array(
     'title' => t('Manage Packages'),
     'link'  => 'admin/content/packages',
-    'img'   => NULL,
+    'img'   => drupal_get_path('module', 'wallydashboard').'/images/shortcut/manage_package.png',
   );
 
   $shortcut['wallydashboard']['manage_pages'] = array(
     'title' => t('Manage Pages'),
     'link'  => 'admin/build/pages',
-    'img'   => NULL,
+    'img'   => drupal_get_path('module', 'wallydashboard').'/images/shortcut/manage_pages.png',
   );
 
   return $shortcut;
