@@ -60,7 +60,7 @@ function wallydashboard_status_content_type_render($subtype, $conf, $panel_args,
   drupal_load_updates();
   $requirements = module_invoke_all('requirements', 'runtime');
   usort($requirements, '_system_sort_requirements');
-  dsm($requirements);
+
   $select_requirements = array();
   foreach ($requirements as $require){
     if (array_key_exists($require['title'], $conf['requirements'])){
