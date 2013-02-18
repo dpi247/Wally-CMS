@@ -44,6 +44,9 @@ function wallydashboard_theme(){
     'wallydashboard_shortcut' => $base + array(
       'arguments' => array("shortcuts_list" => NULL),
     ),
+    'wallydashboard_status' => $base + array(
+      'arguments' => array("requirements" => NULL),
+    ),
   );
 }
 /**
