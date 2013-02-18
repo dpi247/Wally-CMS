@@ -1063,7 +1063,9 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 
 function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
-
+  
+  $form_state['values']['cache_name'] = $form_state['cache name'];
+  
   if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'], $form_state['values'])) {
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
@@ -1641,7 +1643,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
 function wydit_publish_prenode(&$form_state, $current_profile, $values = array()) {
   $type_name = $form_state['type'];
   $fields = wyditadmin_get_fields_flat($current_profile, $type_name);
-
+  
   foreach($fields as $field) {
     if($field['display'] == 2 || $field['display'] == 3) {
       $field_name = $field['name'];
