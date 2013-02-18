@@ -17,3 +17,18 @@ function theme_wallydashboard_shortcut($shortcuts_list){
   }
   return $content;
 }
+function theme_wallydashboard_status($requirements){
+  $content = '';
+ 
+  $header = array(t('Status'), t('Title'), t('Value'), t('Description'));
+  $rows = array();
+  foreach ($requirements as $require){
+    if ($require['severity'] === NULL){
+      $require['severity'] = 0;
+    }
+    $img = '<img alt="'.$require['severity'].'" src="/'.drupal_get_path('module', 'wallydashboard').'/images/status/status_'.$require['severity'].'.png">';
+    $rows[] = array($img, $require['title'], $require['value'],$require['description']);
+  }
+  $content = theme('table', $header, $rows);
+  return $content;
+}
