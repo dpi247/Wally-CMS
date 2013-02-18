@@ -468,7 +468,7 @@ $page->default_handlers[$handler->name] = $handler;
   
   
   //Node Dashboard
-  $page = new stdClass;
+$page = new stdClass;
 $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
 $page->api_version = 1;
 $page->name = 'wallydashboard_node';
@@ -484,6 +484,18 @@ $page->access = array(
         'perm' => 'administer dashboard',
       ),
       'context' => 'logged-in-user',
+      'not' => FALSE,
+    ),
+    1 => array(
+      'name' => 'node_type',
+      'settings' => array(
+        'type' => array(
+          'wally_articlepackage' => 'wally_articlepackage',
+          'wally_gallerypackage' => 'wally_gallerypackage',
+          'wally_pollpackage' => 'wally_pollpackage',
+        ),
+      ),
+      'context' => 'argument_nid_1',
       'not' => FALSE,
     ),
   ),
@@ -549,7 +561,7 @@ $display->content = array();
 $display->panels = array();
   $pane = new stdClass;
   $pane->pid = 'new-1';
-  $pane->panel = 'top';
+  $pane->panel = 'left_above';
   $pane->type = 'showstats48h';
   $pane->subtype = 'showstats48h';
   $pane->shown = TRUE;
@@ -567,13 +579,14 @@ $display->panels = array();
   $pane->extras = array();
   $pane->position = 0;
   $display->content['new-1'] = $pane;
-  $display->panels['top'][0] = 'new-1';
+  $display->panels['left_above'][0] = 'new-1';
 $display->hide_title = PANELS_TITLE_FIXED;
 $display->title_pane = '0';
 $handler->conf['display'] = $display;
 $page->default_handlers[$handler->name] = $handler;
   
   $pages[$page->name] = $page;
+  
   //Term Dashboard
 $page = new stdClass;
 $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
