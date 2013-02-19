@@ -1,0 +1,9 @@
+core = "6.x"
+name = "CCI Inline Objects"
+description = "Handle inline objects from and to CCI - NewsGate"
+package = "CCI"
+project = "cciinlineobjects"
+version = "6.x-1.0-rc1"
+
+dependencies[] = "wallycontenttypes"
+dependencies[] = "wallytoolbox"
