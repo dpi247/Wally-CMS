@@ -9,7 +9,7 @@ function cckdestinations_redacblock_settings_ctools_content_types() {
 			'title' => t('Redac Block Settings'),
 			'category' => t('Dashboard'),
 			'description' => t('Display settings of each redac block.'),
-			'required context' => new ctools_context_required(t('Term'), array('taxonomy_term', 'terms')),
+			'required context' => new ctools_context_required(t('Term'), array('taxonomy_term', 'term')),
 			'defaults' => array(),
 			'all contexts' => TRUE,			
 	);
@@ -34,7 +34,7 @@ function cckdestinations_redacblock_settings_content_type_edit_form_submit(&$for
  */
 function cckdestinations_redacblock_settings_content_type_render($subtype, $conf, $panel_args, $context) {
 
-	$dataContext = $context["argument_terms_1"]->data; 
+	$dataContext = $context["argument_term_1"]->data; 
 	$defaults = cckdestination_get_default_rank_settings();
 	$tid = $dataContext->tid;
 	
@@ -77,7 +77,7 @@ function cckdestinations_redacblock_settings_content_type_render($subtype, $conf
 	//if rows is empty
 	if (!$rows) {
 	
-		$rows[] = array(array('data' => t('No logs 403 messages available.'), 'colspan' => 6));
+		$rows[] = array(array('data' => t('No informations available.'), 'colspan' => 6));
 	
 	}
 	
