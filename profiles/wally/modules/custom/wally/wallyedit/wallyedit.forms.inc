@@ -19,6 +19,8 @@ function wallyedit_form_node_edition_form(&$form_state) {
   $cache_name = $form_state['cache name'];
   $current_profile = $form_state['profile_id'];
   
+  drupal_add_js(array('cache_name' => $cache_name), 'setting');
+  
   list($tmp_fs, $type_name) = wydit_get_tmp_fs_from_form_state($form_state);
 
   $parents = $form_state['parents'];
@@ -455,7 +457,6 @@ function wydit_form_preview_form(&$form_state, $cache_name = NULL) {
     $form_state['cache name'] = $cache_name;
   }
   
-  drupal_add_js(array('cache_name' => $form_state['cache name']), 'setting');
   drupal_add_js(drupal_get_path('module', 'wallyedit').'/js/refresh_preview.js');
 
   $prenode = new Prenode($form_state['cache name']);
@@ -1062,7 +1063,9 @@ function wydit_form_node_main_treatment_submit(&$form_state) {
 
 function wydit_form_submit_action_publish_global($form_state) {
   $commands = array();
-
+  
+  $form_state['values']['cache_name'] = $form_state['cache name'];
+  
   if (!$form_state['locked'] && wydit_publish_prenode($form_state[$form_state['type']], $form_state['profile_id'], $form_state['values'])) {
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
@@ -1640,7 +1643,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
 function wydit_publish_prenode(&$form_state, $current_profile, $values = array()) {
   $type_name = $form_state['type'];
   $fields = wyditadmin_get_fields_flat($current_profile, $type_name);
-
+  
   foreach($fields as $field) {
     if($field['display'] == 2 || $field['display'] == 3) {
       $field_name = $field['name'];

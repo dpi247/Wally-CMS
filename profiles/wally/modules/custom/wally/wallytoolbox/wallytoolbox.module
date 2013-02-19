@@ -711,6 +711,39 @@ function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
 }
 
 /**
+ * Update a specific field value
+ * 
+ * @param object $nid
+ *   Node to be updated
+ * @param string $field_name
+ *   Name of the field to be updated
+ * @param string $value
+ *   New value of the field
+ * 
+ * @return int
+ *   Amount of rows affected by the query, should be 1
+ */
+function wallytoolbox_update_node_cckfield($node, $field_name) {
+  $affected_rows = 0;
+  
+  if (db_table_exists('content_'.$field_name)) {
+    $sql = "UPDATE {content_$field_name} ft
+      SET ft.".$field_name."_value = '%s'
+      WHERE ft.nid = %d";
+    db_query($sql, $node->{$field_name}[0]['value'], $node->nid);
+    $affected_rows = db_affected_rows();
+  } elseif (db_column_exists('content_type_'.$node->type, $field_name.'_value')) {
+    $sql = "UPDATE {content_type_$node->type} ct
+      SET ct.".$field_name."_value = '%s'
+      WHERE ct.nid = %d";
+    db_query($sql, $node->{$field_name}[0]['value'], $node->nid);
+    $affected_rows = db_affected_rows();
+  }
+  
+  return $affected_rows;
+}
+
+/**
  * Get all nodes where taxonomy tid and node type match value. 
  *
  * @param $tid
