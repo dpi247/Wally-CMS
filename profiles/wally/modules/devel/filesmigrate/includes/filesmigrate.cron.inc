@@ -115,10 +115,14 @@ function _filesmigrate_delete_files(&$return) {
   
   $delete_count = 0;
   while ($db_file = db_fetch_array($db_files)) {
-    file_delete($db_file['filepath']);
-    // Clear imagecaches files
-    imagecache_image_flush($db_file['filepath']);
-    $delete_count++;
+    if (file_delete($db_file['filepath'])) {
+      // Clear imagecaches files
+      imagecache_image_flush($db_file['filepath']);
+      $delete_count++;
+    } else {
+      //$return[] = t('Couldn\'t delete file "@filepath"', array('@filepath' => $db_file['filepath']));
+      //drupal_write_record('filesmigrate_temp_files', $db_file);
+    }
   }
   
   // Clear the package populate cache to clear references to old paths
