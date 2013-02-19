@@ -1529,7 +1529,7 @@ $handler->override_option('inherit_panels_path', 0);
   ));
   $handler->override_option('link_to_view', 0);
   $handler->override_option('inherit_panels_path', 0);
-  
+  $views[$view->name] = $view;
   
   //last_register_user
 $view = new view;
