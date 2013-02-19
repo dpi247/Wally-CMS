@@ -65,6 +65,9 @@ function filesmigrate_schema() {
       ),
     ),
     'primary key' => array('eid'),
+    'indexes' => array(
+      'fid' => array('fid'),
+    ),
   );
   
   return $schema;
