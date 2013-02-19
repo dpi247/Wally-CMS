@@ -143,7 +143,8 @@ function wallystat_preprocess_wallyctools_row_redacblock(&$vars) {
   if (module_exists('chart') && wally_variable_get('wallystat_display_follower', 0) && user_access('access statistics')) {
     drupal_add_css(drupal_get_path('module', 'wallystat').'/css/follower.css');
     $nid = $vars['row']->{$vars['field_alias']};
-    $vars['node'] = '<span class = "wallystat_follower" id = "'.$nid.'">'.$vars['node'].'</span>';
+    $vars['prefix'] = '<span class = "wallystat_follower" id = "'.$nid.'">'.$vars['prefix'];
+    $vars['suffix'] .= '</span>';
     drupal_add_js(drupal_get_path('module', 'wallystat').'/scripts/display_stats_follower.js');
   }
 }

@@ -15,8 +15,9 @@
  * @ingroup views_templates
  */
 ?>
-
+<?php print $prefix; ?>
 <?php print node_view($node, $teaser, FALSE, $links); ?>
+<?php print $suffix; ?>
 <?php if ($comments): ?>
   <?php print $comments; ?>
 <?php endif; ?>
