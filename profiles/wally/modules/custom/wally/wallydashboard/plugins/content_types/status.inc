@@ -17,7 +17,7 @@ function wallydashboard_status_content_type_edit_form(&$form, &$form_state) {
   // The current configuration
   
   
-  $options = array(
+  $options = $default_value = array(
     'Apache Solr' => 'Apache Solr',
     'Access to update.php' => 'Access to update.php',
     'CTools CSS Cache' => 'CTools CSS Cache',
@@ -28,11 +28,14 @@ function wallydashboard_status_content_type_edit_form(&$form, &$form_state) {
     'Varnish status' => 'Varnish status',
     'Memcache admin' => 'Memcache admin',
   );
-  
+  if ($form_state['conf']['requirements'] != NULL){
+    $default_value = $form_state['conf']['requirements'];
+  }
   $form['requirements'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Select the status you want to observe in the dashboard'),
     '#options' => $options,
+    '#default_value' => $default_value,
   );
 }
 
@@ -43,6 +46,7 @@ function wallydashboard_status_content_type_edit_form_submit(&$form, &$form_stat
   // $form_state['conf'] = $form_state['values'] because values contains
   // buttons, form id and other items we don't want stored. CTools will handle
   // the actual form submission.
+  $form_state['conf']['requirements'] = array();
   foreach ($form_state['values']['requirements'] as $key => $value){
     if ($value !== 0){
       $form_state['conf']['requirements'][$key] = $key;

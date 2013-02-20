@@ -17,16 +17,21 @@ function wallydashboard_shortcut_content_type_edit_form(&$form, &$form_state) {
   // The current configuration
   if ($modules = module_invoke_all('wallydashboard_shortcut')) {
     $options = array();
+    $default_value = array();
     foreach ($modules as $module_name => $shortcuts){
       foreach ($shortcuts as $shortcut_name => $shortcut_info){
         $options[$module_name.'_'.$shortcut_name] = $shortcut_info['title'];
+        $default_value[$module_name.'_'.$shortcut_name] = $module_name.'_'.$shortcut_name;
       }
+    }
+    if ($form_state['conf']['shortcuts'] != NULL){
+      $default_value = $form_state['conf']['shortcuts'];
     }
     $form['shortcuts'] = array(
       '#type' => 'checkboxes',
       '#title' => t('Choose your shorcuts'),
       '#options' => $options,
-      '#default_value' => $form_state['conf']['shortcuts'],
+      '#default_value' => $default_value,
     );
   } else {
     drupal_set_message('error', t('There is no plugin for this content type'));
@@ -40,6 +45,7 @@ function wallydashboard_shortcut_content_type_edit_form_submit(&$form, &$form_st
   // $form_state['conf'] = $form_state['values'] because values contains
   // buttons, form id and other items we don't want stored. CTools will handle
   // the actual form submission.
+  $form_state['conf']['shortcuts'] = array();
   foreach ($form_state['values']['shortcuts'] as $key => $value){
     if ($value !== 0){
       $form_state['conf']['shortcuts'][$key] = $key;
