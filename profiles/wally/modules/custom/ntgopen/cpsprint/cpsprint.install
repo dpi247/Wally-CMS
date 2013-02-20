@@ -149,11 +149,19 @@ function _cpsprint_uninstall_imagecache_preset(){
   }
 }
 /**
- * 
  * Implementation of hook_update_N
  */
 function cpsprint_update_6001(){
   $ret = array();
   _cpsprint_install_imagecache_preset();
+  return $ret;
+}
+/**
+ * Implementation of hook_update_N
+ */
+function cpsprint_update_6002(){
+  $ret = array();
+  wally_variable_set('cpsprint_customer', variable_get('cpsprint_customer', ''));
+  wally_variable_set('cpsprint_pub', variable_get('cpsprint_pub', ''));
   return $ret;
 }
