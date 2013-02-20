@@ -45,3 +45,21 @@ function sendprint_schema() {
   );
   return $schema;
 }
+/**
+ * Implementation of hook_update_N
+ */
+function sendprint_update_6001(){
+  $ret = array();
+  
+  //Change variable_get to wally_variable_get
+  wally_variable_set('sendprint_name', variable_get('sendprint_name', 'The Unfold'));
+  wally_variable_set('sendprint_date', variable_get('sendprint_date', t(date('j F Y'))));
+  wally_variable_set('sendprint_front', variable_get('sendprint_front', 'UNE'));
+  wally_variable_set('sendprint_export_filepath', variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export'));
+  wally_variable_set('sendprint_ssh_server', variable_get('sendprint_ssh_server', ''));
+  wally_variable_set('sendprint_ssh_name', variable_get('sendprint_ssh_name', ''));
+  wally_variable_set('sendprint_ssh_password', variable_get('sendprint_ssh_password', ''));
+  wally_variable_set('sendprint_customer_id', variable_get('sendprint_customer_id', ''));
+  wally_variable_set('sendprint_customer_name', variable_get('sendprint_customer_name', ''));
+  return $ret;
+}

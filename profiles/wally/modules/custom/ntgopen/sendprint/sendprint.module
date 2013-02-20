@@ -15,6 +15,7 @@ function sendprint_menu(){
     'page callback'                 => 'drupal_get_form',
     'page arguments'                => array('sendprint_page_sendtoprint_form'),
     'access arguments'              => array('send to print'),
+    'type'                          => MENU_LOCAL_TASK,
     'file'                          => 'includes/sendprint.admin.inc',
     'type'                          => MENU_DEFAULT_LOCAL_TASK,
     'weight'                        => 0,
@@ -84,14 +85,14 @@ function sendprint_send(){
   //modified the reservation sytem for the destinations before print.
   sendprint_change_destination_rankslayout($destinations_terms, 'before_print');
   //Create zip
-  if (sendprint_create_zip($destinations_terms) && variable_get('sendprint_ssh_server', '') != ''){
+  if (sendprint_create_zip($destinations_terms) && wally_variable_get('sendprint_ssh_server', '') != ''){
     //send zip
     $result = sendprint_ssh_send_zip();
     //Save articles in db
     if ($result){
       sendprint_save_log($destinations_terms);
     }
-  } elseif (variable_get('sendprint_ssh_server', '') == '') {
+  } elseif (wally_variable_get('sendprint_ssh_server', '') == '') {
     drupal_set_message(t('You must configure the ssh server. See <a href="/admin/sendprint/settings">the configuration page</a>'), 'error');
   } else {
     drupal_set_message(t('The zip files could not be created, see an administrator'), 'error');
@@ -227,7 +228,7 @@ function sendprint_create_zip($destinations_terms){
     
     $zip = new ZipArchive;
     $file_name = 'taxonomy_term_'.$term->tid;
-    $res = $zip->open(variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file_name.'.zip', ZipArchive::CREATE);
+    $res = $zip->open(wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file_name.'.zip', ZipArchive::CREATE);
     if ($res === TRUE) {
       
       //Save the destination page in xml and put it in the zip
@@ -256,20 +257,20 @@ function sendprint_create_zip($destinations_terms){
 function sendprint_ssh_send_zip(){
   $ok = TRUE;
   //include('sites/all/libraries/phpseclib0.3.1/Net/SFTP.php');
-  $server = variable_get('sendprint_ssh_server', '');
+  $server = wally_variable_get('sendprint_ssh_server', '');
   if ($server == ''){
     drupal_set_message(t('You must fill the FTP information on admin/sendprint/settings'), 'error');
     $ok = FALSE;
   } else {
-    $user_name = variable_get('sendprint_ssh_name', '');
-    $user_pass = variable_get('sendprint_ssh_password','');
+    $user_name = wally_variable_get('sendprint_ssh_name', '');
+    $user_pass = wally_variable_get('sendprint_ssh_password','');
     
     //connection verification
     //sending files
-    foreach (scandir(variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export')) as $file){
+    foreach (scandir(wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export')) as $file){
       if (strpos($file, '.zip')){
         $destination_file = '/upload/'.$file;
-        $source_file = variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file;
+        $source_file = wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file;
         
         //send file        
         $streamFile = 'ssh2.sftp://'.$user_name.':'.$user_pass.'@'.$server.':22'.$destination_file;
