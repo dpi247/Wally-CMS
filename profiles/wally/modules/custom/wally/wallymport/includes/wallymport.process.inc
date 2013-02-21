@@ -308,8 +308,10 @@ function wallymport_movefiles($importer, $file, $xml_file, $return){
     if ($importer->zip == 1) {
       module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
       $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
-      $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
-      _wimprthelp_rrmdir($temp_subdir);
+      if ($dir_name && !empty($dir_name)) {
+        $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+        _wimprthelp_rrmdir($temp_subdir);
+      }
     } else {
       unlink($xml_file);
     }
