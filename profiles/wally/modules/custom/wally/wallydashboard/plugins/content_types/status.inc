@@ -15,9 +15,17 @@ function wallydashboard_status_ctools_content_types() {
 
 function wallydashboard_status_content_type_edit_form(&$form, &$form_state) {
   // The current configuration
+  include_once './includes/install.inc';
+  drupal_load_updates();
+  $requirements = module_invoke_all('requirements', 'runtime');
+  usort($requirements, '_system_sort_requirements');
+ 
+  $options = array();
+  foreach ($requirements as $require){
+    $options[$require['title']] = $require['title'];
+  }
   
-  
-  $options = $default_value = array(
+  $default_value = array(
     'Apache Solr' => 'Apache Solr',
     'Access to update.php' => 'Access to update.php',
     'CTools CSS Cache' => 'CTools CSS Cache',
