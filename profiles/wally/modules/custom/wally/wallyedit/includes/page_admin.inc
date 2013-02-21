@@ -63,7 +63,40 @@ function wallyedit_page_list_prenodes($limit = 25) {
 
   return theme('table', $headers, $rows);
 }
+function wallyedit_page_list_prenodes_dashboard($limit = 25) {
+  global $custom_theme, $user;
+  $custom_theme = variable_get('admin_theme','rubik');
+  drupal_add_css(drupal_get_path('module', 'wallyedit').'/css/wallyedit.css');
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
 
+  $count_query = "SELECT count(*) from {wallyedit_prenodes}";
+  $result = pager_query("SELECT * from {wallyedit_prenodes} ORDER BY updated DESC", $limit, 0, $count_query);
+
+  while($obj = db_fetch_object($result)) {
+    $prenode = prenode_get($obj->pid);
+    if (!$prenode['locked'] || $prenode['locked']['uid'] == $user->uid) {
+      $row['title']['class'] = '';
+      $row['title']['title'] = t('This page is currently locked for editing by you. Nobody else may edit this page until these changes are saved or canceled.');
+    } else {
+      $row['title']['class'] = 'wallyedit-prenode-locked-other';
+      $row['title']['title'] = t('This page is currently locked for editing by another user. You may not edit this page without breaking the lock.');
+    }
+    $row['title']['data'] = $obj->title;
+    if (preg_match('/[A-Za-z]/', $obj->pid)){
+      $row['id'] = t('new');
+    } else {
+      $row['id'] = t('update');
+    }
+    $row['type'] = $obj->type;
+    $row['last_update'] = date('Y-m-d H:i:s', $obj->updated);
+    $row['action_urls'] = l(t('Edit'), wydit_get_url_action('edit_prenode', $obj->pid));
+    $row['action_urls'] .= ' · '.l(t('Delete'), wydit_get_url_action('delete', $obj->pid));
+    $rows[] = $row;
+  }
+  $headers = array(t('Title'), t('New/Update'), t('Type'), t('Last update'), t('Action(s)'));
+
+  return theme('table', $headers, $rows);
+}
 function wallyedit_prenode_delete_confirm(&$form_state, $prenode = NULL) {
   global $custom_theme;
   $custom_theme = variable_get('admin_theme', 'rubik');
