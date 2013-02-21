@@ -388,7 +388,7 @@ function wallymport_post($importer_name, $preview = FALSE) {
       $returns[] = array('error' => TRUE, 'error_msg' => $error_msg);
     } else {
       $xml_file = wallymport_preprocess_file($object_file, $importer, $returns);
-      if ($xml_file != NULL & $returns == NULL){
+      if ($xml_file != NULL && $returns == NULL){
         //Proccess xml
         $returns[] = wallymport_page_process_file($xml_file, $importer);
         //Move file 
@@ -403,12 +403,14 @@ function wallymport_post($importer_name, $preview = FALSE) {
         }
         $returns[0]['date'] = time();
         
-        if (variable_get('wallymport_delete_file',1) == 1) {
+        if (variable_get('wallymport_delete_file', 1) == 1) {
           if ($importer->zip == 1) {
             module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-            $dir_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
-            $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
-            rrmdir($temp_subdir);
+            $dir_name = strstr($object_file->name, '.zip') ? str_replace('.zip', '', $object_file->name) : $object_file->name;
+            if ($dir_name && !empty($dir_name)) {
+              $temp_subdir = $importer->temp_directory_path.'/'.$dir_name;
+              rrmdir($temp_subdir);
+            }
           } else {
             file_delete($xml_file);
           }
