@@ -1,0 +1,48 @@
+<?php 
+function wallydashboard_requirements($phase){
+  $requirements = array();
+  if ($phase == 'runtime'){
+    //Devel : rebuild theme registry enabled?
+    if (module_exists('devel')){
+      $theme_registry = variable_get('devel_rebuild_theme_registry', FALSE);
+      $requirements['wallydashboard_theme_registry']['title'] = t('Rebuild theme registry on every page load');
+      if ($theme_registry){
+        //Enabled
+        $requirements['wallydashboard_theme_registry']['value'] = t('Enabled');
+        $requirements['wallydashboard_theme_registry']['description'] = t('If you are in production website, you must desabled the theme registry on every page load. See !url', array('!url' => l(t('the devel settings page'), 'admin/settings/devel')));
+        $requirements['wallydashboard_theme_registry']['severity'] = REQUIREMENT_ERROR;
+      } else {
+        //Desabled
+        $requirements['wallydashboard_theme_registry']['value'] = t('Disabled');
+        $requirements['wallydashboard_theme_registry']['severity'] = REQUIREMENT_OK;
+      }
+    }
+    //System : Css Optimize
+    $css_optimize = variable_get('preprocess_css', 0);
+    $requirements['wallydashboard_css_optimize']['title'] = t('CSS files Optimization');
+    if ($css_optimize){
+      //Enabled
+      $requirements['wallydashboard_css_optimize']['value'] = t('Enabled');
+      $requirements['wallydashboard_css_optimize']['severity'] = REQUIREMENT_OK;
+    } else {
+      //Desabled
+      $requirements['wallydashboard_css_optimize']['value'] = t('Disabled');
+      $requirements['wallydashboard_css_optimize']['description'] = t('In a production environment, it is recommended to optimize the CSSfiles, these optional optimizations may reduce server load, bandwidth requirements, and page loading times.. See !url', array('!url' => l(t('the performance page'), 'admin/settings/performance')));
+      $requirements['wallydashboard_css_optimize']['severity'] = REQUIREMENT_WARNING;
+    }
+    //System : JS Optimize
+    $css_optimize = variable_get('preprocess_js', 0);
+    $requirements['wallydashboard_js_optimize']['title'] = t('Javascript files Optimization');
+    if ($css_optimize){
+      //Enabled
+      $requirements['wallydashboard_js_optimize']['value'] = t('Enabled');
+      $requirements['wallydashboard_js_optimize']['severity'] = REQUIREMENT_OK;
+    } else {
+      //Desabled
+      $requirements['wallydashboard_js_optimize']['value'] = t('Disabled');
+      $requirements['wallydashboard_js_optimize']['description'] = t('In a production environment, it is recommended to optimize the Javascript files, these optional optimizations may reduce server load, bandwidth requirements, and page loading times.. See !url', array('!url' => l(t('the performance page'), 'admin/settings/performance')));
+      $requirements['wallydashboard_js_optimize']['severity'] = REQUIREMENT_WARNING;
+    }
+  }
+  return $requirements;
+}

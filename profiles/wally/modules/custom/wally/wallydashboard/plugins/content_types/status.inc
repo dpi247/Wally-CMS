@@ -31,10 +31,13 @@ function wallydashboard_status_content_type_edit_form(&$form, &$form_state) {
     'CTools CSS Cache' => 'CTools CSS Cache',
     'Configuration file' => 'Configuration file',
     'Cron maintenance tasks' => 'Cron maintenance tasks',
+    'CSS files Optimization' => 'CSS files Optimization',
     'Database updates' => 'Database updates',
     'Database updates' => 'Database updates',
+    'Javascript files Optimization' => 'Javascript files Optimization',
     'Varnish status' => 'Varnish status',
     'Memcache admin' => 'Memcache admin',
+    'Rebuild theme registry on every page load' => 'Rebuild theme registry on every page load',
   );
   if ($form_state['conf']['requirements'] != NULL){
     $default_value = $form_state['conf']['requirements'];
