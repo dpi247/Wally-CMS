@@ -41,15 +41,9 @@ function wallysitemap_admin_settings_page_form($form_state) {
     'yearly' => t('Yearly'),
     'never' => t('Never'),
   );
-  $form['wallysitemap_default_freq'] = array(
-    '#type' => 'select',
-    '#title' => t('Default refresh frequency'),
-    '#options' => $freq_options,
-    '#default_value' => $default_settings['wallysitemap_default_freq'],
-  );
   
   $form['wallysitemap_handled_menus'] = array(
-    '#type' => 'checkboxes',
+    '#type' => 'wallysitemap_checkboxes',
     '#title' => t('Menus to use for sitemap construction'),
     '#description' => t('Only menus entries included in the selected menus will be added to the sitemap.'),
     '#options' => menu_get_menus(),

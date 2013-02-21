@@ -34,6 +34,10 @@ function wallysitemap_menu() {
 function wallysitemap_theme() {
   $theme_path = drupal_get_path('module', 'wallysitemap').'/theme/theme.inc';
   return array(
+    'wallysitemap_checkboxes' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
     'wallysitemap_taxonomy_tree' => array(
       'arguments' => array('element'),
       'file' => $theme_path,
@@ -118,6 +122,12 @@ function wallysitemap_cron_cleanup() {
  * Implementation of hook_elements()
  */
 function wallysitemap_elements() {
+  $type['wallysitemap_checkboxes'] = array(
+    '#input' => TRUE,
+    '#process' => array('wallysitemap_checkboxes_process_elements'),
+    '#tree' => TRUE,
+  );
+  
   $type['wallysitemap_taxonomy_tree'] = array(
     '#input' => TRUE,
     '#process' => array('wallysitemap_taxonomy_tree_process_elements'),
@@ -218,6 +228,30 @@ function wallysitemap_get_namespaces() {
     'image' => 'http://www.google.com/schemas/sitemap-image/1.1/',
     'video' => 'http://www.google.com/schemas/sitemap-video/1.1/',
   );
+}
+
+function wallysitemap_checkboxes_process_elements($element) {
+  $value = is_array($element['#value']) ? $element['#value'] : array();
+  $element['#tree'] = TRUE;
+  if (count($element['#options']) > 0) {
+    if (!isset($element['#default_value']) || $element['#default_value'] == 0) {
+      $element['#default_value'] = array();
+    }
+    foreach ($element['#options'] as $key => $choice) {
+      if (!isset($element[$key])) {
+        $element[$key] = array(
+          '#type' => 'checkbox',
+          '#processed' => TRUE,
+          '#title' => 'tot'.$choice,
+          '#return_value' => $key,
+          '#default_value' => isset($value[$key]),
+          '#attributes' => $element['#attributes'],
+          '#ahah' => isset($element['#ahah']) ? $element['#ahah'] : NULL,
+        );
+      }
+    }
+  }
+  return $element;
 }
 
 /**

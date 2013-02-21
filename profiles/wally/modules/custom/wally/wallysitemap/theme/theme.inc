@@ -1,5 +1,9 @@
 <?php
 
+function theme_wallysitemap_checkboxes($element) {
+  return theme('checkboxes', $element);
+}
+
 /**
  * theme function for root element
  *
