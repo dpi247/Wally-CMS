@@ -33,16 +33,7 @@ function wallysitemap_admin_settings_page_form($form_state) {
     'yearly' => t('Yearly'),
     'never' => t('Never'),
   );
-  
-  $form['wallysitemap_handled_menus'] = array(
-    '#type' => 'wallysitemap_checkboxes',
-    '#title' => t('Menus to use for sitemap construction'),
-    '#description' => t('Only menus entries included in the selected menus will be added to the sitemap.'),
-    '#options' => menu_get_menus(),
-    '#default_value' => $default_settings['wallysitemap_handled_menus'],
-  );
-  
-  $dest_weights_options = array(
+  $weights_options = array(
     '0' => '0',
     '0.1' => '0.1',
     '0.2' => '0.2',
@@ -55,6 +46,30 @@ function wallysitemap_admin_settings_page_form($form_state) {
     '0.9' => '0.9',
     '1' => '1',
   );
+  
+  $menus = menu_get_menus();
+  $menus_default_values = $default_settings['wallysitemap_handled_menus'];
+  $menu_default_values = array(
+    'check' => 0,
+    'weight_select' => 0,
+    'freq' => 'daily',
+  );
+  foreach ($menus as $menu_name => $menu_value) {
+    if (!isset($menus_default_values[$menu_name])) {
+      $menus_default_values[$menu_name] = array();
+    }
+    $menus_default_values[$menu_name] = array_merge($menu_default_values, $menus_default_values[$menu_name]);
+  }
+  $form['wallysitemap_handled_menus'] = array(
+    '#type' => 'wallysitemap_checkboxes',
+    '#title' => t('Menus to use for sitemap construction'),
+    '#description' => t('Only menus entries included in the selected menus will be added to the sitemap.'),
+    '#check_options' => $menus,
+    '#select_options' => $weights_options,
+    '#freq_options' => $freq_options,
+    '#default_value' => $menus_default_values,
+  );
+
   $form['wallysitemap_dests_params'] = array(
     '#type' => 'wallysitemap_taxonomy_tree',
     //'#type' => 'taxonomy_manager_tree',
@@ -63,7 +78,7 @@ function wallysitemap_admin_settings_page_form($form_state) {
         The checkbox specifies wheter the destination must be sitemapped or not,<br>
         The bigger the weight the more important the destination is,<br>
         The refresh frequency.'),
-    '#select_options' => $dest_weights_options,
+    '#select_options' => $weights_options,
     '#freq_options' => $freq_options,
     '#default_value' => $default_settings['wallysitemap_dests_params'],
     '#vid' => variable_get('wallymport_destinationpath', 2),
