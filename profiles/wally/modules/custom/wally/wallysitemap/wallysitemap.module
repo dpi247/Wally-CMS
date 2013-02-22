@@ -209,13 +209,12 @@ function wallysitemap_default_settings() {
   global $base_url;
   $settings = array(
     'wallysitemap_handled_menus' => array(
-      'primary-links',
-      'secondary-links',
+      'primary-links' => array('check' => 1, 'weight_select' => 0, 'freq' => 'daily'),
+      'secondary-links' => array('check' => 1, 'weight_select' => 0, 'freq' => 'daily'),
     ),
     'wallysitemap_path' => 'sites/default/files/sitemaps',
     'wallysitemap_base_url' => $base_url,
     'wallysitemap_blacklist' => array(),
-    'wallysitemap_default_freq' => 'daily',
   );
   return $settings;
 }
@@ -231,22 +230,34 @@ function wallysitemap_get_namespaces() {
 }
 
 function wallysitemap_checkboxes_process_elements($element) {
-  $value = is_array($element['#value']) ? $element['#value'] : array();
-  $element['#tree'] = TRUE;
-  if (count($element['#options']) > 0) {
+  if (count($element['#check_options']) > 0) {
     if (!isset($element['#default_value']) || $element['#default_value'] == 0) {
       $element['#default_value'] = array();
     }
-    foreach ($element['#options'] as $key => $choice) {
+    $default_values = $element['#default_value'];
+    foreach ($element['#check_options'] as $key => $choice) {
+      $elem_def_values = isset($default_values[$key]) ? $default_values[$key] : array();
       if (!isset($element[$key])) {
-        $element[$key] = array(
+        $element[$key]['check'] = array(
           '#type' => 'checkbox',
           '#processed' => TRUE,
-          '#title' => 'tot'.$choice,
+          '#title' => $choice,
           '#return_value' => $key,
-          '#default_value' => isset($value[$key]),
+          '#default_value' => $elem_def_values['check'],
           '#attributes' => $element['#attributes'],
-          '#ahah' => isset($element['#ahah']) ? $element['#ahah'] : NULL,
+        );
+        $form[$term->tid]['weight_select'] = array(
+          '#type' => 'select',
+          '#title' => $term->name,
+          '#options' => $element['#select_options'],
+          '#value' => $elem_def_values['weight'],
+          '#theme' => 'wallysitemap_taxonomy_tree_select',
+        );
+        $form[$term->tid]['freq'] = array(
+          '#type' => 'select',
+          '#options' => $element['#freq_options'],
+          '#value' => $elem_def_values['freq'],
+          '#theme' => 'wallysitemap_taxonomy_tree_select',
         );
       }
     }
