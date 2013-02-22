@@ -507,6 +507,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_deletefromtempautopublish($node);
+        _wallycontenttypes_remove_reference_from_internal_link($node->nid, $node->field_externalreference[0]['value']);
       } elseif(in_array($node->type, $objects_types)) {
         wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
       }
@@ -1341,6 +1342,39 @@ function _wallycontenttypes_getpackagesid($node){
     }
   }
   return $rows;
+}
+
+/**
+ * Get packages IDs which references another package trough an internal link and remove these references
+ *
+ * @param int $internal_link
+ *   Node ID of the referenced package
+ */
+function _wallycontenttypes_remove_reference_from_internal_link($internal_link, $linked_ext_ref) {
+  if (is_numeric($internal_link)) {
+    $embeds_sql = "SELECT ctwl.nid FROM {content_type_wally_linktype} ctwl 
+        WHERE ctwl.field_internal_link_nid = %d";
+    $db_results_embeds = db_query($embeds_sql, $internal_link);
+    while($db_result_embeds = db_fetch_array($db_results_embeds)) {
+      $embed_nid = $db_result_embeds['nid'];
+      $remove_ref_sql = "UPDATE {content_type_wally_linktype} ctwl
+          SET ctwl.field_internal_link_nid = NULL
+          WHERE ctwl.nid = %d";
+      db_query($remove_ref_sql, $embed_nid);
+      wallytoolbox_object_cache_clear($embed_nid);
+      cache_clear_all('content:'.$embed_nid, 'cache_content', TRUE);
+      
+      $packages_sql = "SELECT cfe.nid FROM {content_field_embededobjects} cfe
+          WHERE cfe.field_embededobjects_nid = %d";
+      $db_results_packages = db_query($packages_sql, $embed_nid);
+      while ($db_result_packages = db_fetch_array($db_results_packages)) {
+        $referencer_nid = $db_result_packages['nid'];
+        watchdog('Cross References', "Referenced package deleted. Referenced external reference : $linked_ext_ref. Referencer nid : $referencer_nid", array(), WATCHDOG_WARNING);
+        wallytoolbox_object_cache_clear($referencer_nid);
+        cache_clear_all('content:'.$referencer_nid, 'cache_content', TRUE);
+      }
+    }
+  }
 }
 
 /**
