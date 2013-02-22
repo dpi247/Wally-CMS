@@ -105,6 +105,9 @@ function jsonexporter_build_embedded_links(&$node) {
             'module' => $module,
             'provider' => $provider
           );
+        } else {
+          $non_existing_nid = $embed->field_internal_link[0]['nid'];
+          watchdog('Cross References', "Trying to load an non existing package in Json Exporter. Nid : $non_existing_nid", array(), WATCHDOG_WARNING);
         }
       }
     }
