@@ -136,6 +136,18 @@ function wallytoolbox_theme(&$var) {
     'wallytoolbox_supercron_settings_form' => array(
       'arguments' => array('form' => NULL),
     ),
+ 	'wallytoolbox_line_chart'	=> array(
+ 			'file' => 'theme.charts.inc',
+ 			'arguments' => array(
+ 					'data'=>NULL,
+ 					'title'=>NULL,
+ 					'width'=>NULL,
+ 					'height'=>NULL,
+ 					'pointSize'=>NULL,
+ 					'AxeXTitle'=>NULL
+ 					),
+ 			'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
+ 	),
   );
 }
 
