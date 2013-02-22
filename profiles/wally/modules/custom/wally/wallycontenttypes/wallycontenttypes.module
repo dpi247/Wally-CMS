@@ -13,6 +13,29 @@ include_once('wallycontenttypes.features.inc');
  
 
 /**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+	if ($module == 'ctools' && $plugin == 'content_types') {
+		return "plugins/$plugin";
+	}
+}
+
+	/**
+	* Implementation of hook_ctools_plugin_api().
+	*/
+function wallycontenttypes_ctools_plugin_api() {
+		list($module, $api) = func_get_args();
+		if ($module == "page_manager" && $api == "pages_default") {
+			return array("version" => 1);
+		}
+		return array(
+				'version' => 2,
+		);
+}
+
+/**
  * Implementation of hook_perm().
  */
 function wallycontenttypes_perm() {
@@ -161,6 +184,20 @@ function wallycontenttypes_wallydashboard_shortcut(){
     'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/poll.png',
   );
   return $shortcut;
+}
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallycontenttypes_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
 }
 /**
  * Implementation of hook_action_info().
