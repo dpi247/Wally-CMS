@@ -185,6 +185,20 @@ function wallycontenttypes_wallydashboard_shortcut(){
   );
   return $shortcut;
 }
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallycontenttypes_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
 /**
  * Implementation of hook_action_info().
  */

@@ -125,9 +125,15 @@ function _filesmigrate_delete_files(&$return) {
     }
   }
   
-  // Clear the package populate cache to clear references to old paths
-  module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
-  wallytoolbox_object_cache_clear_all();
+  // Clear caches
+  // Don't clear cache_form - in-progress form submissions may break.
+  // Ordered so clearing the page cache will always be the last action.
+  $core = array('cache', 'cache_block', 'cache_filter', 'cache_page');
+  $cache_tables = array_merge(module_invoke_all('flush_caches'), $core);
+  $cache_tables[] = 'cache_wally_blocks';
+  foreach ($cache_tables as $table) {
+    cache_clear_all('*', $table, TRUE);
+  }
   
   $return[] = t('!file_amount file(s) deleted.', array('!file_amount' => $delete_count));
 }

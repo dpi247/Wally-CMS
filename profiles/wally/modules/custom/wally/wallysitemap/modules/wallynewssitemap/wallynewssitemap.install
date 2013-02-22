@@ -45,6 +45,8 @@ function wallynewssitemap_schema() {
  * Add the "Sitemap genre" field to packages
  */
 function wallynewssitemap_install() {
+  drupal_install_schema('wallynewssitemap');
+  
   $voc_genre = array(
     'name' => t('Sitemap Genre'),
     'description' => t('Genres defined by Google to be used in news sitemaps.'),

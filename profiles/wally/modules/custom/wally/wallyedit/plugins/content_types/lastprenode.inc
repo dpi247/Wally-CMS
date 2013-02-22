@@ -43,6 +43,6 @@ function wallyedit_lastprenode_content_type_edit_form_submit(&$form, &$form_stat
 function wallyedit_lastprenode_content_type_render($subtype, $conf, $panel_args, $context,$a) {
   module_load_include('inc', 'wallyedit', 'includes/page_admin');
   $block->title = t('Last prenode');
-  $block->content = '<div class="wallyedit_lastprenode">'.wallyedit_page_list_prenodes($conf['item_number']).'</div>';
+  $block->content = '<div class="wallyedit_lastprenode">'.wallyedit_page_list_prenodes_dashboard($conf['item_number']).'</div>';
   return $block;
 }
