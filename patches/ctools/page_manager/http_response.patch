@@ -1,8 +1,8 @@
-diff --git a/page_manager/plugins/task_handlers/http_response.inc b/page_manager/plugins/task_handlers/http_response.inc
+diff --git a/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc b/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
 index 3a40b17..e3010bf 100644
---- a/page_manager/plugins/task_handlers/http_response.inc
-+++ b/page_manager/plugins/task_handlers/http_response.inc
-@@ -107,7 +107,8 @@ function page_manager_http_response_codes() {
+--- a/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
++++ b/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
+@@ -107,7 +107,8 @@
    return array(
      404 => t('404 Page not found'),
      403 => t('403 Access denied'),
@@ -12,7 +12,7 @@ index 3a40b17..e3010bf 100644
    );
  }
  
-@@ -265,7 +266,7 @@ function page_manager_http_response_render($handler, $base_contexts, $args, $tes
+@@ -265,7 +266,7 @@
    }
  
    $info['response code'] = $handler->conf['code'];
