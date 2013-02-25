@@ -90,10 +90,10 @@ function jsonexporter_build_embedded_links(&$node) {
         }
       } elseif ($embed->field_internal_link[0]['nid'] != NULL){
         //Link item to a package
-        $package = node_load($embed->field_internal_link[0]['nid']);
-        $content = node_view($package);
-        $title = $package->title;
-        $node->embed_links[$embed->nid] = array(
+        if ($package = node_load($embed->field_internal_link[0]['nid'])) {
+          $content = node_view($package);
+          $title = $package->title;
+          $node->embed_links[$embed->nid] = array(
             'title' => $title,
             'nid' => $embed->nid,
             'content' => $content,
@@ -102,7 +102,11 @@ function jsonexporter_build_embedded_links(&$node) {
             'type' => $embed->type,
             'module' => $module,
             'provider' => $provider
-        );
+          );
+        } else {
+          $non_existing_nid = $embed->field_internal_link[0]['nid'];
+          watchdog('Cross References', "Trying to load an non existing package in Json Exporter. Nid : $non_existing_nid", array(), WATCHDOG_WARNING);
+        }
       }
     }
   }
