@@ -253,7 +253,7 @@ function emfield_emfield_field_formatter($field, $item, $formatter, $node, $modu
   }
 
   // Unfortunately, when we come from a view, we don't get all the widget fields.
-  if (!$node->type) {
+  if (!isset($node->type) && isset($field['type_name'])) {
     $type = content_types($field['type_name']);
     $field['widget'] = $type['fields'][$field['field_name']]['widget'];
   }

@@ -5,9 +5,18 @@ Apache Solr Search Integration x.x-x.x, xxxx-xx-xx
 Apache Solr Search Integration 6.x-1.x, xxxx-xx-xx
 ------------------------------
 
+Apache Solr Search Integration 6.x-1.7, 2012-09-21
+------------------------------
+#1084332 by pwolanin, kyle_mathews, elliotttf | robertDouglass: Fixed Drush command to get PHP client can't run.
+#1296206 by Alexander Allen, Nick_vh: Fixed PHP Notice:  Undefined index: #name in Solr_Base_Query.php on line 219.
+#1379108 by cpliakas: Fixed Add the $namespace parameter to the hook_apachesolr_update_index() definition in README.txt.
+#1098038 by pwolanin | mgifford: Fixed Did you mean - shouldn't be a <label> element.
+#1369192 by pwolanin: In schema rename 'partitioned" handler to "drupal" for consistency with 7.x.
+#1320554 by catch: Unnecessary count() in Solr_Base_Query::parse_filters().
+
 Apache Solr Search Integration 6.x-1.6, 2011-11-16
 ------------------------------
-#1097976 by Nick_vhy: Fixed wt=xml from Solr 3.x compatibility when viewing admin files.
+#1097976 by Nick_vh: Fixed wt=xml for Solr 3.x compatibility when viewing admin files.
 #1309252 by kevin.dutra, lazysoundsystem | gateway69: Fixed Undefined Index: ts_vid_names() in Apache_Solr.
 #901376  by LiuShaz: insure UTF-8 encoding is used for POST searches.
 #1224748 by pwolanin, David Lesieur: fix nodeapi params.

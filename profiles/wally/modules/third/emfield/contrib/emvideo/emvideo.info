@@ -4,9 +4,9 @@ description = Defines a field type for displaying third party videos, such as Yo
 core = 6.x
 dependencies[] = emfield
 package = Media
-; Information added by drupal.org packaging script on 2011-05-06
-version = "6.x-2.5"
+; Information added by drupal.org packaging script on 2012-11-20
+version = "6.x-2.6"
 core = "6.x"
 project = "emfield"
-datestamp = "1304705515"
+datestamp = "1353445349"
 
