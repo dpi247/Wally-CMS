@@ -161,6 +161,8 @@ function wallyimportpackageV15_process_package_articlepackagetype(&$node, $dom_e
       if ($node->nid != NULL && $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
+      
+      _wallyimportpackageV15_check_perform_pathauto($node);
       break;
   }
   $node->language = $dom_element->getAttributeNode("Language")->value;
@@ -243,6 +245,8 @@ function wallyimportpackageV15_process_package_galleryPackageType(&$node, $dom_e
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
+      
+      _wallyimportpackageV15_check_perform_pathauto($node);
       break;
   }
   //Map XML element
@@ -324,6 +328,8 @@ function wallyimportpackageV15_process_package_pollpackagetype(&$node, $dom_elem
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
+      
+      _wallyimportpackageV15_check_perform_pathauto($node);
       break;
   }
 
@@ -397,4 +403,22 @@ function wallyimportpackageV15_process_object_pollobjecttype(&$node, $dom, &$log
 function wallyimportpackageV15_set_field_polltitle(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->field_objecttitle = array(array("value" => $value));
+}
+
+function _wallyimportpackageV15_check_perform_pathauto(&$node) {
+  if (!isset($node->pathauto_perform_alias)) {
+    if (!empty($node->nid)) {
+      // If this is not a new node, compare it's current alias to the
+      // alias that would be genereted by pathauto. If they are the same,
+      // then keep the automatic alias enabled.
+      _pathauto_include();
+      $placeholders = pathauto_get_placeholders('node', $node);
+      $pathauto_alias = pathauto_create_alias('node', 'return', $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
+      $node->pathauto_perform_alias = isset($node->path) && $node->path == $pathauto_alias;
+    }
+    else {
+      // If this is a new node, enable the automatic alias.
+      $node->pathauto_perform_alias = TRUE;
+    }
+  }
 }
