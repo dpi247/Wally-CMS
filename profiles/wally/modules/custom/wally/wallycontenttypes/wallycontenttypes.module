@@ -162,6 +162,42 @@ function wallycontenttypes_wallydashboard_shortcut(){
   );
   return $shortcut;
 }
+/**
+*
+* Implementation of hook_wallydashboard_shortcut
+*/
+function wallycontenttypes_wallydashboard_statpackage(){
+  $stat_package = array();
+  $stat_package['wallycontenttypes']['time_spend_since_last_publication'] = array(
+    'title' => t('Time spend since last package publication'),
+    'function'  => 'wallycontenttypes_gettimespendsincelastpublishedpackage',
+    'default_operator' => '>',
+    'default_value' => '3600',
+    'units' => 'seconde',
+  );
+  $stat_package['wallycontenttypes']['number_of_package_publish_today'] = array(
+    'title' => t('Number of package published from midnight to now'),
+    'function'  => 'wallycontenttypes_gettodaypublishedpackagenumber',
+    'default_operator' => '<',
+    'default_value' => '10',
+    'units' => '',
+  );
+  $stat_package['wallycontenttypes']['time_spend_since_last_extern_created_package'] = array(
+    'title' => t('Time spend since an extern package has been created'),
+    'function'  => 'wallycontenttypes_gettimespendsincelastexternpublishedpackage',
+    'default_operator' => '>',
+    'default_value' => '3600',
+    'units' => 'seconde',
+  );
+  $stat_package['wallycontenttypes']['number_of_extern_package_created_today'] = array(
+    'title' => t('Number of extern package created today'),
+    'function'  => 'wallycontenttypes_getexterntodaycreatedpackagenumber',
+    'default_operator' => '<',
+    'default_value' => '10',
+    'units' => '',
+  );
+  return $stat_package;
+}
 function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools' && $plugin == 'content_types') {
     return "plugins/$plugin";
@@ -1552,7 +1588,101 @@ function wallycontenttypes_delete_orphans_at_update($node) {
     }
   }
 }
+/**
+ * Return the date of the last publishedpackage
+ */
+function wallycontenttypes_getlastpublishedpackagedate(){
+  $result = db_query("SELECT MAX(field_publicationdate_value) as max 
+  					  FROM {content_field_publicationdate}
+  					  WHERE field_publicationdate_value < '%s'", date('Y-m-d\TH:i:s'));
+  $obj = db_fetch_object($result);
+  return $obj->max;
+}
+/**
+ * Return the time spend since the last published package
+ * @return string
+ */
+function wallycontenttypes_gettimespendsincelastpublishedpackage(){
+  date_default_timezone_set("UTC");
+  
+  $last_published_date = wallycontenttypes_getlastpublishedpackagedate();
+  $last_published_timestamp = strtotime($last_published_date);
+  
+  $diff = time() - $last_published_timestamp;
+  if (date('G', $diff) != 0){
+    $time_spent .= date('G', $diff).' '.t('hours').' ';
+  }
+  if (date('i', $diff) != 00){
+    $time_spent .= date('i', $diff).' '.t('minutes').' ';
+  }
+  $time_spent .= date('s', $diff).' '.t('secondes');
+  $res['display'] = $time_spent;
+  $res['value'] = $diff;
+  return $res;
+}
+/**
+ * Return the number of publishedpackage today
+ */
+function wallycontenttypes_gettodaypublishedpackagenumber(){
+  $result = db_query("SELECT count(field_publicationdate_value) as count 
+  					  FROM {content_field_publicationdate}
+  					  WHERE field_publicationdate_value > '%s'
+  					  AND field_publicationdate_value < '%s'", date('Y-m-d').'T00:00:00', date('Y-m-d\TH:i:s'));
+  $obj = db_fetch_object($result);
+  $res['display'] = $obj->count;
+  $res['value'] = $obj->count;
+  return $res;
+}
+/**
+ * 
+ * Return the date of the last imported package
+ */
+function wallycontenttypes_getexternlastcreatedpackagedate(){
+  $result = db_query("SELECT MAX(n.created) as max
+  					  FROM {node} n
+  					  LEFT JOIN {content_field_externalreference} ext ON ext.nid = n.nid
+  					  WHERE ext.field_externalreference_value IS NOT NULL");
+  $obj = db_fetch_object($result);
+  return $obj->max;
+}
+/**
+ * 
+ * Return the time spend since the last created external package
+ * @return string
+ */
+function wallycontenttypes_gettimespendsincelastexternpublishedpackage(){
+  date_default_timezone_set("UTC");
 
+  $last_published_timestamp = wallycontenttypes_getexternlastcreatedpackagedate();
+
+  $diff = time() - $last_published_timestamp;
+  $time_spent = '';
+  if (date('G', $diff) != 0){
+    $time_spent .= date('G', $diff).' '.t('hours').' ';
+  }
+  if (date('i', $diff) != 00){
+    $time_spent .= date('i', $diff).' '.t('minutes').' ';
+  }
+  $time_spent .= date('s', $diff).' '.t('secondes');
+  $res['display'] = $time_spent;
+  $res['value'] = $diff;
+  return $res;
+}
+/**
+ * 
+ * Return the number of imported package today
+ */
+function wallycontenttypes_getexterntodaycreatedpackagenumber(){
+  $result = db_query("SELECT count(n.created) as count
+  					  FROM {node} n
+  					  LEFT JOIN {content_field_externalreference} ext ON ext.nid = n.nid
+  					  WHERE n.created > %d
+  					  AND ext.field_externalreference_value IS NOT NULL", mktime(0, 0, 0));
+  $obj = db_fetch_object($result);
+  $res['display'] = $obj->count;
+  $res['value'] = $obj->count;
+  return $res;
+}
 /**
  * @} End of "defgroup wallycontenttypes".
  */
