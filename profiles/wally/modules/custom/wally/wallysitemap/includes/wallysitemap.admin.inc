@@ -13,6 +13,14 @@ function wallysitemap_admin_settings_page_form($form_state) {
     '#default_value' => $default_settings['wallysitemap_path'],
     '#required' => TRUE,
   );
+  
+  $form['wallysitemap_base_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Base URL'),
+    '#description' => t('URL used as base to build the URLs listed in sitemaps'),
+    '#default_value' => $default_settings['wallysitemap_base_url'],
+    '#required' => TRUE,
+  );
 
   $blacklist_defaults = implode(PHP_EOL, $default_settings['wallysitemap_blacklist']);
   $form['wallysitemap_blacklist'] = array(
@@ -105,6 +113,7 @@ function wallysitemap_admin_settings_page_form_submit($form, $form_state) {
   $values = $form_state['values'];
   $settings = array();
   $settings['wallysitemap_path'] = $values['wallysitemap_path'];
+  $settings['wallysitemap_base_url'] = $values['wallysitemap_base_url'];
   $tmp_blacklist = explode(PHP_EOL, $values['wallysitemap_blacklist']);
   $settings['wallysitemap_blacklist'] = array();
   foreach ($tmp_blacklist as $tmp_blackelem) {

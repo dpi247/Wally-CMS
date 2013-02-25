@@ -130,14 +130,16 @@ function wallysitemap_elements() {
 function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
   // @todo : gérer la compression gzip des xmls
   
-  $site_infos = wallysitemap_get_site_infos();
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
 
   $sitemaps_full_path = array();
   foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {
     drupal_alter('wallysitemap_dom', $dom);
     
     $sitemap_local_path = $folder_path.'/'.$xmlfile_to_generate['filename'];
-    $sitemaps_full_path[] = $site_infos['base_url'].'/'.$sitemap_local_path;
+    $sitemaps_full_path[] = $ref_base_url.'/'.$sitemap_local_path;
     $xmlfile_to_generate['dom']->save($sitemap_local_path);
   }
 
@@ -194,12 +196,14 @@ function wallysitemap_get_site_infos() {
  * Build default settings.
  */
 function wallysitemap_default_settings() {
+  global $base_url;
   $settings = array(
     'wallysitemap_handled_menus' => array(
       'primary-links',
       'secondary-links',
     ),
     'wallysitemap_path' => 'sites/default/files/sitemaps',
+    'wallysitemap_base_url' => $base_url,
     'wallysitemap_blacklist' => array(),
     'wallysitemap_default_freq' => 'daily',
   );
@@ -388,14 +392,16 @@ function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $p
 }
 
 function _wallysitemap_check_index(&$dom_index) {
-  $site_infos = wallysitemap_get_site_infos();
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
   
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
   $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
   if ($dom_sitemaps->item(0)) {
     foreach ($dom_sitemaps as $dom_sitemap) {
       $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
-      $local_path = str_replace($site_infos['base_url'].'/', '', $sitemap_loc);
+      $local_path = str_replace($ref_base_url.'/', '', $sitemap_loc);
       if (!file_exists($local_path)) {
         $dom_sitemapindex->removeChild($dom_sitemap);
       }
@@ -404,14 +410,16 @@ function _wallysitemap_check_index(&$dom_index) {
 }
 
 function _wallysitemap_delete_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
-  $site_infos = wallysitemap_get_site_infos();
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
   
   $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
   $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
   if ($dom_sitemaps->item(0)) {
     foreach ($dom_sitemaps as $dom_sitemap) {
       $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
-      if ($sitemap_loc == $path || $sitemap_loc == $site_infos['base_url'].'/'.$path) {
+      if ($sitemap_loc == $path || $sitemap_loc == $ref_base_url.'/'.$path) {
         $dom_sitemapindex->removeChild($dom_sitemap);
         break;
       }
