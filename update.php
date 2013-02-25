@@ -183,6 +183,9 @@ function update_do_one($module, $number, &$context) {
   $context['message'] = 'Updating '. check_plain($module) .' module';
 }
 
+/**
+ * Renders a form with a list of available database updates.
+ */
 function update_selection_page() {
   $output = '<p>The version of Drupal you are updating from has been automatically detected. You can select a different version, but you should not need to.</p>';
   $output .= '<p>Click Update to start the update process.</p>';
@@ -641,7 +644,6 @@ ini_set('display_errors', TRUE);
 
 // Access check:
 if (!empty($update_free_access) || $user->uid == 1) {
-  drupal_session_start();
 
   include_once './includes/install.inc';
   include_once './includes/batch.inc';
