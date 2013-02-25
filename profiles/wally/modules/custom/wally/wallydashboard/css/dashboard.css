@@ -34,3 +34,10 @@ table.sticky-header{
 	display:none;
 	
 }
+div.statpackage li{
+	float:left;
+}
+div.statpackage div.form-item{
+	position:static;
+	border : none;
+}

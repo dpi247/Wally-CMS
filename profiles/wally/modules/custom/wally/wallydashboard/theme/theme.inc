@@ -32,3 +32,25 @@ function theme_wallydashboard_status($requirements){
   $content = theme('table', $header, $rows);
   return $content;
 }
+function theme_wallydashboard_statpackage_content_type_edit_form($form, $form_state) {
+  $content = '';
+  drupal_add_css(drupal_get_path('module', 'wallydashboard').'/css/dashboard.css');
+  foreach ($form['statpackage'] as $key => $value){
+    
+    if (strpos($key, '#') === FALSE){
+      $content .= '<div class="statpackage">';
+      $content .= '<ul>';
+      $content .= '<li>'.drupal_render($form['statpackage'][$key]['status']).'</li>';
+      $content .= '<li><div class="form-item">'.t('Value must be').'</div></li>';
+      
+      $content .= '<li>'.drupal_render($form['statpackage'][$key]['operator']).'</li>';
+      $content .= '<li>'.drupal_render($form['statpackage'][$key]['value']).'</li>';
+      $content .= '<li><div class="form-item">'.t('to trigger alert').'</div></li>';
+      $content .= '</ul>';
+      $content .= '<div class="clear"></div>';
+      $content .= '</div>';
+    }
+  }
+  $content .= drupal_render($form);
+  return $content;
+}
