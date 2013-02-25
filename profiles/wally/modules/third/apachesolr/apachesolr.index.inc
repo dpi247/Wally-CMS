@@ -359,6 +359,7 @@ function apachesolr_nodeapi_mass_delete($nodes) {
     $ids[] = apachesolr_document_id($node->nid);
     $nids[] = $node->nid;
   }
+  $time = time();
   try {
     $solr = apachesolr_get_solr();
     $solr->deleteByMultipleIds($ids);

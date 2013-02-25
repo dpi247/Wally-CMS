@@ -43,7 +43,7 @@ function eminline_filter_tips($delta, $format, $long = FALSE) {
   switch ($delta) {
     case '0':
       $providers = variable_get('eminline_providers_' . $format, array_keys(emfield_system_list('emvideo', NULL, FALSE)));
-      $output .= t('You may embed videos from the following providers %providers. Just add the video URL to your textarea in the place where you would like the video to appear, i.e. http://www.youtube.com/watch?v=pw0jmvdh.', array('%providers' => implode(', ', array_filter($providers))));
+      $output .= t('You may embed media from the following providers %providers. Just add the URL of the media to your textarea in the place where you would like the media to appear, i.e. http://www.youtube.com/watch?v=pw0jmvdh. You can optionally modify the display of the media by adding comma-separated attributes in brackets with no space following the URL, such as http://www.youtube.com/watch?v=pw0jmvdh[width=640,height=320].', array('%providers' => implode(', ', array_filter($providers))));
   }
   return $output;
 }
@@ -65,7 +65,7 @@ function _eminline_url($text, $format) {
   $callback = _eminline_curry('_eminline_url_parse_full_links', 2);
 
   // Match absolute URLs.
-  $text = preg_replace_callback("`(?<=[\s(>])((http://|https://)([a-zA-Z0-9@:%_+*~#?&=.,/;-]*[a-zA-Z0-9@:%_+*~#&=/;-]))(?=[.,?!\s)<])`i", $callback($format), $text);
+  $text = preg_replace_callback("`(?<=[\s(>])((http://|https://)([a-zA-Z0-9@:%_+*~#?&=.,/;-\[\]]*[a-zA-Z0-9@:%_+*~#&=/;-\[\]]))(?=[.,?!\s)<])`i", $callback($format), $text);
 
   return $text;
 }
@@ -108,10 +108,26 @@ function _eminline_url_parse_full_links($format, $match) {
   );
 
   // Build our embed item.
-  $item = emfield_parse_embed($field, $match[1], 'emvideo');
-
+  if (preg_match('@(.+?)\[(.+?)\]@i', $match[1], $alt_matches)) {
+    $item = emfield_parse_embed($field, $alt_matches[1], 'emvideo');
+    foreach (explode(',', $alt_matches[2]) as $option) {
+      list($key, $value) = explode('=', $option);
+      $key = strtolower(trim($key));
+      if ($key == 'w') {
+          $key = 'width';
+      }
+      else if ($key == 'h') {
+          $key = 'height';
+      }
+      $options[$key] = trim($value);
+    }
+  }
+  else {
+    $item = emfield_parse_embed($field, $match[1], 'emvideo');
+    $options = array();
+  }
   // Check to make sure the provider that was found is an allowed provider.
-  if ($field['providers'][$item['provider']]) {
+  if (isset($item['provider']) && $field['providers'][$item['provider']]) {
     $item['data'] = (array)emfield_include_invoke('emvideo', $item['provider'], 'data', $field, $item);
   }
   else {
@@ -123,26 +139,27 @@ function _eminline_url_parse_full_links($format, $match) {
 
   // Change the options based on how the video should be displayed.
   if ($display_format == 'video_thumbnail') {
-    $options = array(
+    $default_options = array(
       'width' => $field['thumbnail_width'],
       'height' => $field['thumbnail_height'],
       'default_path' => $field['thumbnail_default_path'],
     );
   }
   else if ($display_format == 'video_preview') {
-    $options = array(
+    $default_options = array(
       'width' => $field['preview_width'],
       'height' => $field['preview_height'],
       'autoplay' => $field['preview_autoplay'],
     );
   }
   else {
-    $options = array(
+    $default_options = array(
       'width' => $field['video_width'],
       'height' => $field['video_height'],
       'autoplay' => $field['video_autoplay'],
     );
   }
+  $options = array_merge($default_options, $options);
 
   // Theme the video w00t!
   return theme('eminline_url_wrapper', emfield_emfield_field_formatter($field, $item, $display_format, NULL, 'emvideo', $options));
@@ -284,7 +301,7 @@ function _eminline_default_filter_settings($type = 'video') {
   $widget = emvideo_widget_settings('form', array('type' => 'emvideo_textfields'));
   if (is_array($widget[$type])) {
     foreach(element_children($widget[$type]) as $key) {
-      $return[$key] = $widget[$type][$key][$default_value];
+      $return[$key] = $widget[$type][$key]['#default_value'];
     }
   }
   return $return;

@@ -205,6 +205,12 @@ function emvideo_theme() {
     'emvideo_handler_field_duration' => array(
       'arguments' => array('item' => NULL, 'field' => NULL, 'node' => NULL, 'values' => NULL, 'format' => NULL),
     ),
+    'emvideo_handler_field_description' => array(
+      'arguments' => array('item' => NULL, 'field' => NULL, 'node' => NULL, 'values' => NULL, 'format' => NULL),
+    ),
+    'emvideo_handler_field_title' => array(
+      'arguments' => array('item' => NULL, 'field' => NULL, 'node' => NULL, 'values' => NULL, 'format' => NULL),
+    ),
   );
 
   $themes += emfield_provider_themes('emvideo');
@@ -264,6 +270,25 @@ function emvideo_field_settings($op, $field) {
       $data[$table_alias][$field_duration]['filter']['field'] = $field_duration;
       $data[$table_alias][$field_duration]['filter']['handler'] = 'content_handler_filter_numeric';
       $data[$table_alias][$field_duration]['sort']['field'] = $field_duration;
+      
+      $field_description = $field['field_name'] .'_description';
+      $data[$table_alias][$field_description] = $data[$table_alias][$field['field_name'] .'_embed'];
+      $data[$table_alias][$field_description]['title'] .= t(' - Description');
+      $data[$table_alias][$field_description]['field']['title'] = $data[$table_alias][$field_description]['title'];
+      $data[$table_alias][$field_description]['title short'] = t('Description');
+      $data[$table_alias][$field_description]['field']['title short'] = $data[$table_alias][$field_description]['title short'];
+      $data[$table_alias][$field_description]['field']['field'] = $field_description;
+      $data[$table_alias][$field_description]['field']['handler'] = 'emvideo_handler_field_description';
+      
+      $field_title= $field['field_name'] .'_title';
+      $data[$table_alias][$field_title] = $data[$table_alias][$field['field_name'] .'_embed'];
+      $data[$table_alias][$field_title]['title'] .= t(' - Title');
+      $data[$table_alias][$field_title]['field']['title'] = $data[$table_alias][$field_title]['title'];
+      $data[$table_alias][$field_title]['title short'] = t('Title');
+      $data[$table_alias][$field_title]['field']['title short'] = $data[$table_alias][$field_title]['title short'];
+      $data[$table_alias][$field_title]['field']['field'] = $field_title;
+      $data[$table_alias][$field_title]['field']['handler'] = 'emvideo_handler_field_title';
+      
       return $data;
     case 'database columns':
       $columns = emfield_emfield_field_settings($op, $field);
@@ -548,7 +573,7 @@ function emvideo_widget_settings($op, $widget) {
           '#type' => 'checkboxes',
           '#title' => t('Additional fields'),
           '#multiple' => TRUE,
-          '#default_value' => is_array($widget['meta_fields']) ? $widget['meta_fields'] : array(),
+          '#default_value' => isset($widget['meta_fields']) ? $widget['meta_fields'] : array(),
           '#options' => array('title' => t('Title'), 'description' => t('Description')),
         );
 

@@ -39,6 +39,12 @@ function emvideo_views_handlers() {
       'emvideo_handler_field_duration' => array(
         'parent' => 'content_handler_field_multiple',
       ),
+      'emvideo_handler_field_description' => array(
+        'parent' => 'content_handler_field_multiple',
+      ),      
+      'emvideo_handler_field_title' => array(
+        'parent' => 'content_handler_field_multiple',
+      ),
 //       'emfield_handler_field_multiple' => array(
 //         'parent' => 'emfield_handler_field',
 //       ),
@@ -84,4 +90,12 @@ function theme_emvideo_handler_field_duration($item, $field, $node, $values, $fo
     }
   }
   return $output;
+}
+
+function theme_emvideo_handler_field_description($item, $field, $node, $values, $format) {
+  return $item['description'];
+}
+
+function theme_emvideo_handler_field_title($item, $field, $node, $values, $format) {
+  return $item['title'];
 }

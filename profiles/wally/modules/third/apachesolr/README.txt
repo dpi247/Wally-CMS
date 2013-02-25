@@ -32,7 +32,7 @@ found at:  http://code.google.com/p/solr-php-client/
 
 If you use drush make, run this command from the apachesolr module directory:
 
-drush make --no-core -y  --contrib-destination=. apachesolr.make
+drush make --no-core -y  --contrib-destination=. apachesolr.make.example
 
 Otherwise, from the apachesolr module directory, run this command:
 
@@ -269,7 +269,7 @@ hook_apachesolr_node_exclude($node, $namespace)
   This is invoked by apachesolr.module for each node to be added to the index - if any module
   returns TRUE, the node is skipped for indexing. 
 
-hook_apachesolr_update_index(&$document, $node)
+hook_apachesolr_update_index(&$document, $node, $namespace)
 
   Allows a module to change the contents of the $document object before it is sent to the Solr Server.
   To add a new field to the document, you should generally use one of the pre-defined dynamic fields. 
