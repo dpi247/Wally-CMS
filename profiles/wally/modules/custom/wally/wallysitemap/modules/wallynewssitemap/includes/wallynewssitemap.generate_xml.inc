@@ -222,10 +222,12 @@ function _wallynewssitemap_generate_newsurl_xml($dom, &$url, $namespaces, $node,
 }
 
 function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, $site_infos, $settings) {
-  $url->appendChild($dom->createElement('loc', $site_infos['base_url'].'/'.$node->path));
+  $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($global_sitemap_settings['wallysitemap_base_url']) ? $global_sitemap_settings['wallysitemap_base_url'] : $site_infos['base_url'];
+  
+  $url->appendChild($dom->createElement('loc', $ref_base_url.'/'.$node->path));
   if (isset($node->field_destinations) && !empty($node->field_destinations)) {
     $tid = $node->field_destinations[0]['tid'];
-    $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
     $dest_settings = $global_sitemap_settings['wallysitemap_dests_params'] ? $global_sitemap_settings['wallysitemap_dests_params'] : array();
     $term_settings = $dest_settings[$tid] ? $dest_settings[$tid] :
       array(
@@ -353,7 +355,10 @@ function _wallynewssitemap_generate_newsurl_xml_set_images($dom, &$url, $imageNS
  * </image:image>
  */
 function _wallynewssitemap_generate_newsurl_xml_set_image($dom, &$image, $imageNS, $embed, $site_infos, $settings) {
-  $image->appendChild($dom->createElementNS($imageNS, 'image:loc', imagecache_create_url($settings['wallynewssitemap_image_preset'], $embed->field_photofile[0]['filepath'])));
+  $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($global_sitemap_settings['wallysitemap_base_url']) ? $global_sitemap_settings['wallysitemap_base_url'] : $site_infos['base_url'];
+  
+  $image->appendChild($dom->createElementNS($imageNS, 'image:loc', $ref_base_url.imagecache_create_url($settings['wallynewssitemap_image_preset'], $embed->field_photofile[0]['filepath'], FALSE, FALSE)));
   if (isset($embed->field_summary[0]['value']) && !empty($embed->field_summary[0]['value'])) {
     $image_caption = $embed->field_summary[0]['value'];
   } elseif (isset($embed->field_photofile[0]['data']['description']) && !empty($embed->field_photofile[0]['data']['description'])) {
@@ -459,11 +464,15 @@ function _wallynewssitemap_generate_newsurl_xml_set_videos($dom, &$url, $videoNS
  * </video:video>
  */
 function _wallynewssitemap_generate_newsurl_xml_set_video($dom, &$video, $videoNS, $embed, $site_infos, $settings) {
+  $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($global_sitemap_settings['wallysitemap_base_url']) ? $global_sitemap_settings['wallysitemap_base_url'] : $site_infos['base_url'];
+  
   if (isset($embed->field_thumbnail[0]['fid']) && is_numeric($embed->field_thumbnail[0]['fid']) && $embed->field_thumbnail[0]['fid'] > 0) {
-    $video_thumb = imagecache_create_url($settings['wallynewssitemap_video_preset'], $embed->field_thumbnail[0]['filepath']);
+    $video_thumb = imagecache_create_url($settings['wallynewssitemap_video_preset'], $embed->field_thumbnail[0]['filepath'], FALSE, FALSE);
   } else {
-    $video_thumb = imagecache_create_url($settings['wallynewssitemap_video_preset'], $settings['wallynewssitemap_default_img']);
+    $video_thumb = imagecache_create_url($settings['wallynewssitemap_video_preset'], $settings['wallynewssitemap_default_img'], FALSE, FALSE);
   }
+  $video_thumb = $ref_base_url.$video_thumb;
   $video->appendChild($dom->createElementNS($videoNS, 'video:thumbnail_loc', $video_thumb));
   $video->appendChild($dom->createElementNS($videoNS, 'video:title', $embed->title));
   if (isset($embed->field_summary[0]['value']) && !empty($embed->field_summary[0]['value'])) {
@@ -484,7 +493,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_video($dom, &$video, $videoN
     // @todo : gérer l'autoplay
     $video->appendChild($dom->createElementNS($videoNS, 'video:duration', $embed->field_video3rdparty[0]['duration']));
   } else {
-    $video->appendChild($dom->createElementNS($videoNS, 'video:content_loc', $site_infos['base_url'].'/'.$embed->field_videofile[0]['filepath']));
+    $video->appendChild($dom->createElementNS($videoNS, 'video:content_loc', $ref_base_url.'/'.$embed->field_videofile[0]['filepath']));
     // video:duration not handled yet
   }
   // video:expiration_date not handled yet
@@ -549,11 +558,14 @@ function _wallynewssitemap_generate_newsurl_xml_set_video($dom, &$video, $videoN
  * </video:video>
  */
 function _wallynewssitemap_generate_newsurl_xml_set_linked_video($dom, &$video, $videoNS, $embed, $site_infos, $settings) {
+  $global_sitemap_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($global_sitemap_settings['wallysitemap_base_url']) ? $global_sitemap_settings['wallysitemap_base_url'] : $site_infos['base_url'];
+  
   $embed_data = $embed->embed_data;
   if (isset($embed_data['data']['thumbnail']['url']) && !empty($embed_data['data']['thumbnail']['url'])) {
     $video_thumb = $embed_data['data']['thumbnail']['url'];
   } else {
-    $video_thumb = imagecache_create_url($settings['wallynewssitemap_video_preset'], $settings['wallynewssitemap_default_img']);
+    $video_thumb = $ref_base_url.imagecache_create_url($settings['wallynewssitemap_video_preset'], $settings['wallynewssitemap_default_img'], FALSE, FALSE);
   }
   $video->appendChild($dom->createElementNS($videoNS, 'video:thumbnail_loc', $video_thumb));
   dsm($embed->title);
