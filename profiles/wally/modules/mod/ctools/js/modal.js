@@ -369,7 +369,7 @@
           return true;
         }
       }
-      if( $(target).filter('*:visible').parents('#modalContent,.cke_dialog').size()) {
+      if( $(target).filter('*:visible').parents('#modalContent').size()) {
         // allow the event only if target is a visible child node of #modalContent
         return true;
       }
