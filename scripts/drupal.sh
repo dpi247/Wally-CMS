@@ -61,7 +61,7 @@ $cmd = 'index.php';
 $_SERVER['HTTP_HOST']       = 'default';
 $_SERVER['PHP_SELF']        = '/index.php';
 $_SERVER['REMOTE_ADDR']     = '127.0.0.1';
-$_SERVER['SERVER_SOFTWARE'] = NULL;
+$_SERVER['SERVER_SOFTWARE'] = 'PHP CLI';
 $_SERVER['REQUEST_METHOD']  = 'GET';
 $_SERVER['QUERY_STRING']    = '';
 $_SERVER['PHP_SELF']        = $_SERVER['REQUEST_URI'] = '/';
@@ -112,7 +112,7 @@ while ($param = array_shift($_SERVER['argv'])) {
           $_REQUEST = $_GET;
         }
 
-        // set file to execute or Drupal path (clean urls enabled)
+        // set file to execute or Drupal path (clean URLs enabled)
         if (isset($path['path']) && file_exists(substr($path['path'], 1))) {
           $_SERVER['PHP_SELF'] = $_SERVER['REQUEST_URI'] = $path['path'];
           $cmd = substr($path['path'], 1);

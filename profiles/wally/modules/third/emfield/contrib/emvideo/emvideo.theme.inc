@@ -135,7 +135,7 @@ function theme_emvideo_video_thumbnail($field, $item, $formatter, $node, $no_lin
       $thumbnail_url = url($thumbnail_url, array('absolute' => $options['absolute']));
     }
     if (isset($options['return_url'])) {
-      return $options['raw'] ? $thumbnail_url : url($thumbnail_url);
+      return (isset($options['raw']) && $options['raw']) ? $thumbnail_url : url($thumbnail_url);
     }
     $width = isset($options['width']) ? $options['width'] : NULL;
     $width = isset($width) ? $width : ($field['widget']['thumbnail_width'] ? $field['widget']['thumbnail_width'] : variable_get('emvideo_default_thumbnail_width', EMVIDEO_DEFAULT_THUMBNAIL_WIDTH));
@@ -242,7 +242,11 @@ function theme_emvideo_modal_generic($field, $item, $formatter, $node, $options 
   }
   else if ($options['modal'] == 'colorbox-load') {
     $attributes['query'] = 'width='. ($width + 4) .'&height='. ($height + 7) .'&iframe=true';
-  }
+      if ($field['widget']['video_autoplay']) {
+      $attributes['query'] .= "&autoplay=1";
+    }
+    $destination = $item['data']['embedded_url'];
+}
 
   if (($options['modal'] == 'lightbox2') && function_exists('lightbox2_add_files')) {
     lightbox2_add_files();

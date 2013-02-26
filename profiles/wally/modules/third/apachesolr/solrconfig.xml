@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<config name="drupal-1.4">
+<config name="drupal-1.7">
 
   <!-- Set this to 'false' if you want solr to continue working after it has 
        encountered an severe configuration error.  In a production environment, 
@@ -455,7 +455,7 @@
   <!-- Note how you can register the same handler multiple times with
        different names (and different init parameters)
     -->
-  <requestHandler name="partitioned" class="solr.SearchHandler" default="true">
+  <requestHandler name="drupal" class="solr.SearchHandler" default="true">
     <lst name="defaults">
      <str name="defType">dismax</str>
      <str name="echoParams">explicit</str>

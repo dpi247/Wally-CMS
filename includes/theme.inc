@@ -1033,24 +1033,24 @@ function theme_get_setting($setting_name, $refresh = FALSE) {
 
     if ($settings['toggle_logo']) {
       if ($settings['default_logo']) {
-        $settings['logo'] = file_create_url(dirname($theme_object->filename) .'/logo.png');
+        $settings['logo'] = base_path() . dirname($theme_object->filename) .'/logo.png';
       }
       elseif ($settings['logo_path']) {
-        $settings['logo'] = file_create_url($settings['logo_path']);
+        $settings['logo'] = base_path() . $settings['logo_path'];
       }
     }
 
     if ($settings['toggle_favicon']) {
       if ($settings['default_favicon']) {
         if (file_exists($favicon = dirname($theme_object->filename) .'/favicon.ico')) {
-          $settings['favicon'] = file_create_url($favicon);
+          $settings['favicon'] = base_path() . $favicon;
         }
         else {
-          $settings['favicon'] = file_create_url('misc/favicon.ico');
+          $settings['favicon'] = base_path() .'misc/favicon.ico';
         }
       }
       elseif ($settings['favicon_path']) {
-        $settings['favicon'] = file_create_url($settings['favicon_path']);
+        $settings['favicon'] = base_path() . $settings['favicon_path'];
       }
       else {
         $settings['toggle_favicon'] = FALSE;
@@ -1286,7 +1286,7 @@ function theme_links($links, $attributes = array('class' => 'links')) {
 function theme_image($path, $alt = '', $title = '', $attributes = NULL, $getsize = TRUE) {
   if (!$getsize || (is_file($path) && (list($width, $height, $type, $image_attributes) = @getimagesize($path)))) {
     $attributes = drupal_attributes($attributes);
-    $url = (url($path) == $path) ? $path : file_create_url($path);
+    $url = (url($path) == $path) ? $path : (base_path() . $path);
     return '<img src="'. check_url($url) .'" alt="'. check_plain($alt) .'" title="'. check_plain($title) .'" '. (isset($image_attributes) ? $image_attributes : '') . $attributes .' />';
   }
 }
@@ -1592,7 +1592,7 @@ function theme_more_help_link($url) {
  *
  * @see theme_feed_icon()
  * @param $url
- *   The url of the feed.
+ *   The URL of the feed.
  */
 function theme_xml_icon($url) {
   if ($image = theme('image', 'misc/xml.png', t('XML feed'), t('XML feed'))) {
@@ -1604,7 +1604,7 @@ function theme_xml_icon($url) {
  * Return code that emits an feed icon.
  *
  * @param $url
- *   The url of the feed.
+ *   The URL of the feed.
  * @param $title
  *   A descriptive title of the feed.
   */
@@ -1618,7 +1618,7 @@ function theme_feed_icon($url, $title) {
  * Returns code that emits the 'more' link used on blocks.
  *
  * @param $url
- *   The url of the main page
+ *   The URL of the main page
  * @param $title
  *   A descriptive verb for the link, like 'Read more'
  */
@@ -1870,10 +1870,10 @@ function template_preprocess_page(&$variables) {
 
   // Construct page title
   if (drupal_get_title()) {
-    $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Pressflow'));
+    $head_title = array(strip_tags(drupal_get_title()), variable_get('site_name', 'Drupal'));
   }
   else {
-    $head_title = array(variable_get('site_name', 'Pressflow'));
+    $head_title = array(variable_get('site_name', 'Drupal'));
     if (variable_get('site_slogan', '')) {
       $head_title[] = variable_get('site_slogan', '');
     }
@@ -1894,7 +1894,7 @@ function template_preprocess_page(&$variables) {
   $variables['primary_links']     = theme_get_setting('toggle_primary_links') ? menu_primary_links() : array();
   $variables['secondary_links']   = theme_get_setting('toggle_secondary_links') ? menu_secondary_links() : array();
   $variables['search_box']        = (theme_get_setting('toggle_search') ? drupal_get_form('search_theme_form') : '');
-  $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Pressflow')) : '');
+  $variables['site_name']         = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');
   $variables['site_slogan']       = (theme_get_setting('toggle_slogan') ? filter_xss_admin(variable_get('site_slogan', '')) : '');
   $variables['css']               = drupal_add_css();
   $variables['styles']            = drupal_get_css();

@@ -1,0 +1,13 @@
+diff --git a/profiles/wally/modules/mod/ctools/js/modal.js b/profiles/wally/modules/mod/ctools/js/modal.js
+index b35c067..614d244 100644
+--- a/profiles/wally/modules/mod/ctools/js/modal.js
++++ b/profiles/wally/modules/mod/ctools/js/modal.js
+@@ -369,7 +369,7 @@
+           return true;
+         }
+       }
+-      if( $(target).filter('*:visible').parents('#modalContent').size()) {
++      if( $(target).filter('*:visible').parents('#modalContent,.cke_dialog').size()) {
+         // allow the event only if target is a visible child node of #modalContent
+         return true;
+       }
