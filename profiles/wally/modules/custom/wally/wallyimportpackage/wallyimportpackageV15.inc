@@ -110,6 +110,8 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
  *   Nothing
  */
 function wallyimportpackageV15_process_package_articlepackagetype(&$node, $dom_element, &$log, $importer){
+  _wallyimportpackageV18_check_perform_pathauto($node);
+  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -191,6 +193,8 @@ function wallyimportpackageV15_process_package_articlepackagetype(&$node, $dom_e
  *   Nothing
  */
 function wallyimportpackageV15_process_package_galleryPackageType(&$node, $dom_element, &$log, $importer){
+  _wallyimportpackageV18_check_perform_pathauto($node);
+  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -274,6 +278,8 @@ function wallyimportpackageV15_process_package_galleryPackageType(&$node, $dom_e
  *   Nothing
  */
 function wallyimportpackageV15_process_package_pollpackagetype(&$node, $dom_element, &$log, $importer){
+  _wallyimportpackageV18_check_perform_pathauto($node);
+  
   //Map XML Attributes 
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -407,6 +413,27 @@ function wallyimportpackageV15_set_field_polltitle(&$node, $dom, &$log, $importe
 
 function _wallyimportpackageV15_check_perform_pathauto(&$node) {
   if (!isset($node->pathauto_perform_alias)) {
+    if (!empty($node->nid)) {
+      // If this is not a new node, compare it's current alias to the
+      // alias that would be genereted by pathauto. If they are the same,
+      // then keep the automatic alias enabled.
+      _pathauto_include();
+      $placeholders = pathauto_get_placeholders('node', $node);
+      $pathauto_alias = pathauto_create_alias('node', 'return', $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
+      $node->pathauto_perform_alias = isset($node->path) && $node->path == $pathauto_alias;
+    }
+    else {
+      // If this is a new node, enable the automatic alias.
+      $node->pathauto_perform_alias = TRUE;
+    }
+  }
+}
+
+/**
+ * Check whether an alias as to be recalculated or not
+ */
+function _wallyimportpackageV18_check_perform_pathauto(&$node) {
+  if (module_exists('pathauto') && !isset($node->pathauto_perform_alias)) {
     if (!empty($node->nid)) {
       // If this is not a new node, compare it's current alias to the
       // alias that would be genereted by pathauto. If they are the same,
