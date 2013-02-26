@@ -282,6 +282,8 @@ function wallyimportpackageV18_node_create_or_load_pollpackagetype($dom, &$log, 
  *   Nothing
  */
 function wallyimportpackageV18_node_process_articlepackagetype(&$node, $dom_element, &$log, $importer){
+  _wallyimportpackageV18_check_perform_pathauto($node);
+  
   //Map XML Attributes
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {
@@ -415,6 +417,8 @@ function wallyimportpackageV18_node_process_galleryPackageType(&$node, $dom_elem
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
+      
+      _wallyimportpackageV15_check_perform_pathauto($node);
       break;
   }
   //Map XML element
@@ -496,12 +500,14 @@ function wallyimportpackageV18_node_process_pollpackagetype(&$node, $dom_element
       if ($node->nid == NULL || $force_edit_update) {
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
+      
+      _wallyimportpackageV15_check_perform_pathauto($node);
       break;
   }
 
   //Map XML element
   wimprt_node_process_fields($node, $dom_element, $log, $importer);
-dsm($node);
+
   if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')) {
     $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
   }
@@ -1157,7 +1163,7 @@ function wallyimportpackageV18_node_set_field_mainobject(&$node, $dom, &$log, $i
 function wallyimportpackageV18_node_set_field_poll(&$node, $dom, &$log, $importer){
   // Process the object & getting NID
   $object = wimprt_node_process($dom, $log, $importer, 'pollobjecttype');
-dsm($object);
+
   if (!$object->rejected && _wimprthelp_check_is_node($object)) {
     if ($importer->wallymport_preview) {
       $node->field_mainpoll_nodes[0] = $object;
@@ -3235,6 +3241,27 @@ function _wallymportpackage_manage_file_from_uri(&$node, $importer, $dom, $token
     $node->{$field_name}[0] = _wimprthelp_create_file_from_uri($file_uri, $new_path, $importer);
   } else {//Is a 3rd party
     $node->{$rdfile_name}[0]['embed'] = $file_uri;
+  }
+}
+
+/**
+ * Check whether an alias as to be recalculated or not
+ */
+function _wallyimportpackageV18_check_perform_pathauto(&$node) {
+  if (module_exists('pathauto') && !isset($node->pathauto_perform_alias)) {
+    if (!empty($node->nid)) {
+      // If this is not a new node, compare it's current alias to the
+      // alias that would be genereted by pathauto. If they are the same,
+      // then keep the automatic alias enabled.
+      _pathauto_include();
+      $placeholders = pathauto_get_placeholders('node', $node);
+      $pathauto_alias = pathauto_create_alias('node', 'return', $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
+      $node->pathauto_perform_alias = isset($node->path) && $node->path == $pathauto_alias;
+    }
+    else {
+      // If this is a new node, enable the automatic alias.
+      $node->pathauto_perform_alias = TRUE;
+    }
   }
 }
 
