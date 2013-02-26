@@ -62,7 +62,7 @@ function _rosseltoolbox_get_or_load_object($node, $name, $delta = 0) {
     $object = $node->{$name.'_nodes'}[$delta];
   } else {
     if (isset($node->{$name}[$delta])) {
-      $object = node_load($node->{$name}[$delta]['nid']);
+      $object = node_load($node->{$name}[$delta]['nid'], NULL, TRUE);
     } else {
       $object = FALSE;
     }
