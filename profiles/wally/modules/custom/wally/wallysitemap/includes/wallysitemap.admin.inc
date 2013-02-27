@@ -5,6 +5,40 @@ function wallysitemap_admin_settings_page_form($form_state) {
   
   $default_settings = array_merge(wallysitemap_default_settings(), wally_variable_get('wallysitemap_sitemaps_settings', array()));
   
+  if (isset($default_settings['wallysitemap_path']) && !empty($default_settings['wallysitemap_path'])) {
+    $form['wallysitemap_xml_links'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Links to XML files'),
+    );
+    
+    $folder_path = $default_settings['wallysitemap_path'];
+    if (file_exists($folder_path.'/sitemapindex.xml')) {
+      $index_link_form = array(
+        '#type' => 'markup',
+        '#value' => l(t('Sitemaps index XML'), $folder_path.'/sitemapindex.xml').'<br>',
+      );
+    }
+    if (file_exists($folder_path.'/sitemapmain.xml')) {
+      $main_link_form = array(
+        '#type' => 'markup',
+        '#value' => l(t('Main sitemap XML'), $folder_path.'/sitemapmain.xml').'<br>',
+      );
+    }
+    if ($index_link_form || $main_link_form) {
+      if ($index_link_form) {
+        $form['wallysitemap_xml_links']['index_xml'] = $index_link_form;
+      }
+      if ($main_link_form) {
+        $form['wallysitemap_xml_links']['main_xml'] = $main_link_form;
+      }
+    } else {
+      $form['wallysitemap_xml_links']['not_found'] = array(
+        '#type' => 'markup',
+        '#value' => t('No XMLs found'),
+      );
+    }
+  }
+  
   $form['wallysitemap_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Sitemap\'s XMLs folder path'),
