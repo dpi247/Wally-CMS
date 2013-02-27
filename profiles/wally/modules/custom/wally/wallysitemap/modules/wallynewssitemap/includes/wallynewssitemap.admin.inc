@@ -78,12 +78,12 @@ function wallynewssitemap_admin_settings_page_form($form_state) {
     'yearly' => t('Yearly'),
     'never' => t('Never'),
   );
-  $form['wallysitemap_dests_params'] = array(
+  $form['wallynewssitemap_nodes_freqs'] = array(
     '#type' => 'wallysitemap_taxonomy_tree',
-    '#title' => t('Destinations parameters (active, weight and refresh frequency)'),
+    '#title' => t('Nodes refresh frequency per destination'),
     '#description' => t('Set refresh frequency parameter for nodes per destination'),
     '#freq_options' => $freq_options,
-    '#default_value' => $default_settings['wallynewssitemap_dests_freqs'],
+    '#default_value' => $default_settings['wallynewssitemap_nodes_freqs'],
     '#vid' => variable_get('wallymport_destinationpath', 2),
     '#parent' => 0,
     '#expand_all' => TRUE,
@@ -128,7 +128,7 @@ function wallynewssitemap_admin_settings_page_form($form_state) {
   $form['wallynewssitemap_allow_embed'] = array(
     '#type' => 'checkbox',
     '#title' => t('Allow embeds'),
-    '#description' => t('This will be used for the "allow embed" element of the sitemap'),
+    '#description' => t('Is Google allowed to embed videos or not'),
     '#default_value' => $default_settings['wallynewssitemap_allow_embed'] == 'yes' ? 1 : 0,
   );
   
@@ -165,7 +165,7 @@ function wallynewssitemap_admin_settings_page_form_validate($form, &$form_state)
 
 function wallynewssitemap_admin_settings_page_form_submit($form, $form_state) {
   $values = $form_state['values'];
-  
+
   $orig_settings = array_merge(wallynewssitemap_default_settings(), wally_variable_get('wallynewssitemap_sitemaps_settings', array()));
 
   $settings = $orig_settings;
@@ -192,6 +192,7 @@ function wallynewssitemap_admin_settings_page_form_submit($form, $form_state) {
       $settings['wallynewssitemap_tags_fields'][] = $tag_field;
     }
   }
+  $settings['wallynewssitemap_nodes_freqs'] = $values['wallynewssitemap_nodes_freqs'];
   $settings['wallynewssitemap_image_preset'] = $values['wallynewssitemap_image_preset'];
   $settings['wallynewssitemap_image_license'] = $values['wallynewssitemap_image_license'];
   $settings['wallynewssitemap_video_preset'] = $values['wallynewssitemap_video_preset'];

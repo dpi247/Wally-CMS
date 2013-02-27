@@ -235,6 +235,9 @@ function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, 
         'weight' => 0,
         'freq' => 'daily',
       );
+    if (isset($settings['wallynewssitemap_nodes_freqs']) && isset($settings['wallynewssitemap_nodes_freqs'][$tid]) && isset($settings['wallynewssitemap_nodes_freqs'][$tid]['freq']) && !empty($settings['wallynewssitemap_nodes_freqs'][$tid]['freq'])) {
+      $term_settings['freq'] = $settings['wallynewssitemap_nodes_freqs'][$tid]['freq'];
+    }
     if ($term_settings['check']) {
       if (isset($node->field_editorialupdatedate[0]) && !empty($node->field_editorialupdatedate[0]['value'])) {
         $form_date = date_make_date($node->field_editorialupdatedate[0]['value'], 'UTC');
