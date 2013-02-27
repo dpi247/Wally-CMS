@@ -571,7 +571,6 @@ function _wallynewssitemap_generate_newsurl_xml_set_linked_video($dom, &$video, 
     $video_thumb = $ref_base_url.imagecache_create_url($settings['wallynewssitemap_video_preset'], $settings['wallynewssitemap_default_img'], FALSE, FALSE);
   }
   $video->appendChild($dom->createElementNS($videoNS, 'video:thumbnail_loc', $video_thumb));
-  dsm($embed->title);
   $video->appendChild($dom->createElementNS($videoNS, 'video:title', $embed->title));
   if (isset($embed->field_summary[0]['value']) && !empty($embed->field_summary[0]['value'])) {
     $video_desc = $embed->field_summary[0]['value'];
