@@ -1,7 +1,41 @@
 <?php
 
+/**
+ * theme function for root element
+ *
+ * @param $element
+ * @return html output
+ */
 function theme_wallysitemap_checkboxes($element) {
-  return theme('checkboxes', $element);
+  $tree = theme('wallysitemap_checkboxes_elements', $element['#elements']);
+  if ((!$element['#parent'] && !$element['#siblings_page']) || $element['#render_whole_tree']) {
+    $output = '<div id="'. $element['#id'] .'">';
+    $output .= $tree;
+    $output .= '</div>';
+    return theme('form_element', $element, $output);
+  }
+
+  return $tree;
+}
+
+function theme_wallysitemap_checkboxes_elements($element) {
+  $output = '<ul class="treeview">';
+
+  if (is_array($element)) {
+    foreach (element_children($element) as $menu_name) {
+      $output .= '<li'. drupal_attributes($element[$menu_name]['#attributes']) .'>';
+      $output .= '<div class="term-line">';
+      $output .= drupal_render($element[$menu_name]['check']);
+      $output .= drupal_render($element[$menu_name]['weight_select']);
+      $output .= drupal_render($element[$menu_name]['freq']);
+      $output .= '</div>';
+      $output .= '</li>';
+    }
+  }
+
+  $output .= "</ul>";
+
+  return $output;
 }
 
 /**
@@ -29,7 +63,7 @@ function theme_wallysitemap_taxonomy_tree($element) {
  * @return html lists
  */
 function theme_wallysitemap_taxonomy_tree_elements($element) {
-  $output .= '<ul class="treeview">';
+  $output = '<ul class="treeview">';
 
   if (is_array($element)) {
     foreach (element_children($element) as $tid) {
@@ -38,7 +72,7 @@ function theme_wallysitemap_taxonomy_tree_elements($element) {
         if (strpos($element[$tid]['#attributes']['class'], 'has-children') !== FALSE || is_array($element[$tid]['children'])) {
           $output .= '<div class="hitArea"></div>';
         }
-        $output .='<div class="term-line">';
+        $output .= '<div class="term-line">';
         $output .= drupal_render($element[$tid]['check']);
         $output .= drupal_render($element[$tid]['weight_select']);
         $output .= drupal_render($element[$tid]['freq']);
@@ -54,7 +88,7 @@ function theme_wallysitemap_taxonomy_tree_elements($element) {
           $output .= theme('wallysitemap_taxonomy_tree_elements', $element[$tid]['children']);
         }
 
-        $output .='</li>';
+        $output .= '</li>';
       }
     }
   }
@@ -69,7 +103,7 @@ function theme_wallysitemap_taxonomy_tree_elements($element) {
 /**
  * Themes a select list
  */
-function theme_wallysitemap_taxonomy_tree_select($element) {
+function theme_wallysitemap_elements_select($element) {
   _form_set_class($element, array('form-select'));
   $select = '<select ';
   $select .= 'name="'. $element['#name'] .'" ';
