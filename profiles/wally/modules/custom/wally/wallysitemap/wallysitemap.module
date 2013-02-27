@@ -391,6 +391,7 @@ function wallysitemap_taxonomy_tree_build_form(&$index, $tree, &$form, $root_for
     if ($freq_options) {
       $form[$term->tid]['freq'] = array(
         '#type' => 'select',
+        '#title' => $term->name,
         '#options' => $freq_options,
         '#value' => $values['freq'],
         '#theme' => 'wallysitemap_elements_select',
@@ -407,7 +408,7 @@ function wallysitemap_taxonomy_tree_build_form(&$index, $tree, &$form, $root_for
     $index++;
 
     if ($tree[$index]->depth > $current_depth) {
-      wallysitemap_taxonomy_tree_build_form($index, $tree, $form[$term->tid]['children'], $root_form, array_merge($this_parents, array('children')), $default_values, $select_options, $freq_options);
+      wallysitemap_taxonomy_tree_build_form($index, $tree, $form[$term->tid]['children'], $root_form, array_merge($this_parents, array('children')), $default_values, $select_options, $freq_options, $add_checkbox);
     }
   }
 }
@@ -435,9 +436,15 @@ function _wallysitemap_taxonomy_tree_process_values($form_values) {
   if (is_array($form_values)) {
     foreach ($form_values as $tid => $form_value) {
       $tmp_values = array();
-      $tmp_values['check'] = $form_value['check'];
-      $tmp_values['weight'] = $form_value['weight_select'];
-      $tmp_values['freq'] = $form_value['freq'];
+      if (isset($form_value['check'])) {
+        $tmp_values['check'] = $form_value['check'];
+      }
+      if (isset($form_value['weight_select'])) {
+        $tmp_values['weight'] = $form_value['weight_select'];
+      }
+      if (isset($form_value['freq'])) {
+        $tmp_values['freq'] = $form_value['freq'];
+      }
       $values[$tid] = $tmp_values;
       if (is_array($form_value['children'])) {
         $values += _wallysitemap_taxonomy_tree_process_values($form_value['children']);
