@@ -450,6 +450,7 @@ function wallycontenttypes_update_6106() {
     'wally_videoobject',
     'wally_audioobject',
     'wally_digitalobject',
+    'wally_pollobject',
   );
   foreach ($types as $type) {
     $content_displayed_title_field_instance['type_name'] = $type;
