@@ -6,7 +6,7 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     drupal_goto('node/'.$prenode->cache_name.'/edit');
   }
 
-  if ($_POST['form_id'] == 'views_bulk_operations_form__1') {
+  if ($_POST['form_id'] == 'views_bulk_operations_form_prenode_selectbox_vbo_default') {
     $view = views_get_view('prenode_selectbox_vbo');
     $view->execute_display('default');
   }
