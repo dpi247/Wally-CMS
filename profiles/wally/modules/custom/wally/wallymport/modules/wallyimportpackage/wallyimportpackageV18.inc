@@ -555,6 +555,7 @@ function wallyimportpackageV18_node_set_field_sourcexml(&$node, $dom, &$log, $im
 function wallyimportpackageV18_node_set_field_packagetitle(&$node, $dom, &$log, $importer){
   $text = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($text);
+  $node->field_displayed_title = array(array('value' => $text));
 }
 
 /**
@@ -574,7 +575,7 @@ function wallyimportpackageV18_node_set_field_packagetitle(&$node, $dom, &$log, 
  */
 function wallyimportpackageV18_node_set_field_packagedescription(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_objectdescription[0]['value'] = _wimprthelp_plain_text($value);
+  $node->field_objectdescription[0]['value'] = $value;
 }
 
 /**
@@ -1000,7 +1001,7 @@ function wallyimportpackageV18_node_set_field_packagelayout(&$node, $dom, &$log,
  */
 function wallyimportpackageV18_node_set_field_summary(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
+  $node->field_summary[0]['value'] = $value;
 }
 
 /**
@@ -1377,7 +1378,9 @@ function wallyimportpackageV18_node_process_textobjecttype(&$node, $dom_element,
 
   //Exception for TextObject
   if (strlen($dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue)>>0) {
-    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+    $text_title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+    $node->title = _wimprthelp_plain_text($text_title);
+    $node->field_displayed_title = array(array('value' => $text_title));
   }
 
   if (strlen($dom_element->getElementsByTagName("Title")->nodeValue)>>0) {
@@ -1553,7 +1556,9 @@ function wallyimportpackageV18_node_process_pollobjecttype(&$node, $dom, &$log, 
 
   //Exception for PollObject
   if ($dom->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
-    $node->title = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+    $polltitle = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
+    $node->title = _wimprthelp_plain_text($polltitle);
+    $node->field_displayed_title = array(array('value' => $polltitle));
   }
 
   if ($dom->getElementsByTagName("Title")->length) {
@@ -2039,6 +2044,7 @@ function wallyimportpackageV18_node_process_linkslist(&$node, $dom, &$log, $impo
 function wallyimportpackageV18_node_set_field_title(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($value);
+  $node->field_displayed_title = array(array('value' => $value));
 }
 
 /**
