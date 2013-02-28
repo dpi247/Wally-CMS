@@ -21,6 +21,8 @@ function _wallysitemap_generate_sitemap_xml($site_infos, $settings) {
     }
   }
   
+  drupal_alter('wallysitemap_dom', $dom, 'main');
+  
   $xmlfiles_to_generate = array(array(
     'dom' => $dom,
     'filename' => 'sitemapmain.xml',
@@ -56,15 +58,23 @@ function _wallysitemap_generate_sitemap_xml_for_menu($dom, &$urlset, $site_infos
       }
       
       if ($menu_item['link']['link_path'] == '<front>') {
-        $menu_item['link']['link_path'] = '';
+        $link_path = '';
+      } else {
+        $link_path = $menu_item['link']['link_path'];
       }
 
       $url = $urlset->appendChild($dom->createElement('url'));
-      $nice_path = wallytoolbox_get_main_alias($menu_item['link']['link_path']);
+      $nice_path = wallytoolbox_get_main_alias($link_path);
       $url->appendChild($dom->createElement('loc', $ref_base_url.'/'.$nice_path));
       // lastmod not handled yet
       $url->appendChild($dom->createElement('changefreq', $menu_settings['freq']));
       $url->appendChild($dom->createElement('priority', $menu_settings['weight']));
+      
+      $alter_args = array(
+        'menu_item' => $menu_item,
+        'settings' => $settings,
+      );
+      wallysitemap_call_url_alter($dom, $url, 'menu', $alter_args);
     }
   }
 }
@@ -97,6 +107,12 @@ function _wallysitemap_generate_sitemap_xml_for_taxonomy($dom, &$urlset, $site_i
     // lastmod not handled yet
     $url->appendChild($dom->createElement('changefreq', $term_settings['freq']));
     $url->appendChild($dom->createElement('priority', $term_settings['weight']));
+    
+    $alter_args = array(
+      'term' => $term,
+      'settings' => $settings,
+    );
+    wallysitemap_call_url_alter($dom, $url, 'destination', $alter_args);
   }
 }
 

@@ -115,6 +115,8 @@ function _wallynewssitemap_generate_consolidate_xml($settings) {
     _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $site_infos, $settings);
   }
   
+  drupal_alter('wallysitemap_dom', $dom, 'consolidate');
+  
   $xmlfiles_to_generate = array(array(
     'dom' => $dom,
     'filename' => 'sitemapmain.xml',
@@ -158,6 +160,9 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
 
     if ($i == 999) {
       $i = 0;
+      
+      drupal_alter('wallysitemap_dom', $dom, 'news');
+      
       $xmlfiles_to_generate[] = array(
         'dom' => $dom,
         'filename' => 'sitemapnews_'.$timestamp.'-'.$n++.'.xml',
@@ -170,6 +175,8 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
     $url = $urlset->appendChild($dom->createElement('url'));
     _wallynewssitemap_generate_newsurl_xml($dom, $url, $namespaces, $node, $site_infos, $settings);
   }
+  
+  drupal_alter('wallysitemap_dom', $dom, 'news');
 
   $xmlfiles_to_generate[] = array(
     'dom' => $dom,
@@ -256,6 +263,13 @@ function _wallynewssitemap_generate_newsurl_xml_set_commons($dom, &$url, $node, 
     $url->appendChild($dom->createElement('changefreq', $settings['wallynewssitemap_default_freq']));
     // priority not handled yet
   }
+  
+  $alter_args = array(
+    'node' => $node,
+    'main_settings' => $global_sitemap_settings,
+    'news_settings' => $settings,
+  );
+  wallysitemap_call_url_alter($dom, $url, 'news', $alter_args);
 }
 
 /**

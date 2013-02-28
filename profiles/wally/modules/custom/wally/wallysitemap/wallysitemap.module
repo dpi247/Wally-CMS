@@ -141,6 +141,25 @@ function wallysitemap_elements() {
   return $type;
 }
 
+/**
+ * This function is like a simplified hook, we allow one other module to alter a DOM url through a unique function.
+ * The alteration can thus only be called only once.
+ * 
+ * @param object $dom
+ *   The complete DOM document
+ * @param object $url
+ *   The DOM url element
+ * @param string $type
+ *   The URL type, 'node', 'menu' or 'destination'
+ * @param array $args
+ *   Additionnal parameters, such a the node or the menu element. Depends on the URL type.
+ */
+function wallysitemap_call_url_alter($dom, &$url, $type, $args = array()) {
+  if (function_exists('wallysitemap_url_alter')) {
+    wallysitemap_url_alter($dom, $url, $type, $args);
+  }
+}
+
 function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
   // @todo : gérer la compression gzip des xmls
   
@@ -149,9 +168,7 @@ function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
   $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
 
   $sitemaps_full_path = array();
-  foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {
-    drupal_alter('wallysitemap_dom', $dom);
-    
+  foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {    
     $sitemap_local_path = $folder_path.'/'.$xmlfile_to_generate['filename'];
     $sitemaps_full_path[] = $ref_base_url.'/'.$sitemap_local_path;
     $xmlfile_to_generate['dom']->save($sitemap_local_path);
