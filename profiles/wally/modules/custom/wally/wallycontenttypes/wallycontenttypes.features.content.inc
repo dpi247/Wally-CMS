@@ -11772,6 +11772,70 @@ character',
     ),
   );
 
+  // Exported field: field_displayed_title
+  $fields['wally_pollobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_pollobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_entities
   $fields['wally_pollobject-field_entities'] = array(
     'field_name' => 'field_entities',
