@@ -18,7 +18,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '0',
+        'weight' => '2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -43,7 +43,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '0',
+    'weight' => '2',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
@@ -66,6 +66,144 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'settings' => array(
       'form' => array(
         'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
+        'weight' => '3',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => '',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '3',
+    'fields' => array(
+      '0' => 'field_mainstory',
+      '1' => 'field_externaluri',
+      '2' => 'field_embededobjects',
+      '3' => 'field_linkedobjects',
+      '4' => 'field_packagelayout',
+    ),
+  );
+
+  // Exported group: group_destinations
+  $groups['wally_articlepackage-group_destinations'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_articlepackage',
+    'group_name' => 'group_destinations',
+    'label' => 'Destinations',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset_collapsed',
+        'description' => 'Tells where the package will be published. ',
+      ),
+      'display' => array(
+        'weight' => '0',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => 'Tells where the package will be published. ',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '0',
+    'fields' => array(
+      '0' => 'field_destinations',
+      '1' => 'field_editions',
+      '2' => 'field_channels',
+    ),
+  );
+
+  // Exported group: group_identification
+  $groups['wally_articlepackage-group_identification'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_articlepackage',
+    'group_name' => 'group_identification',
+    'label' => 'Package Identification',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset_collapsed',
+        'description' => 'IDs; Internal, external, product, etc.',
+      ),
+      'display' => array(
+        'weight' => '-2',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => 'IDs; Internal, external, product, etc.',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '-2',
+    'fields' => array(
+      '0' => 'field_packageid',
+      '1' => 'field_externalreference',
+      '2' => 'field_objectdescription',
+      '3' => 'field_productid',
+    ),
+  );
+
+  // Exported group: group_taxonomy
+  $groups['wally_articlepackage-group_taxonomy'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_articlepackage',
+    'group_name' => 'group_taxonomy',
+    'label' => 'Taxonomy & Geolocalisation',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset_collapsible',
         'description' => '',
       ),
       'display' => array(
@@ -95,144 +233,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
       ),
     ),
     'weight' => '1',
-    'fields' => array(
-      '0' => 'field_mainstory',
-      '1' => 'field_externaluri',
-      '2' => 'field_embededobjects',
-      '3' => 'field_linkedobjects',
-      '4' => 'field_packagelayout',
-    ),
-  );
-
-  // Exported group: group_destinations
-  $groups['wally_articlepackage-group_destinations'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_articlepackage',
-    'group_name' => 'group_destinations',
-    'label' => 'Destinations',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset_collapsed',
-        'description' => 'Tells where the package will be published. ',
-      ),
-      'display' => array(
-        'weight' => '-2',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => 'Tells where the package will be published. ',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '-2',
-    'fields' => array(
-      '0' => 'field_destinations',
-      '1' => 'field_editions',
-      '2' => 'field_channels',
-    ),
-  );
-
-  // Exported group: group_identification
-  $groups['wally_articlepackage-group_identification'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_articlepackage',
-    'group_name' => 'group_identification',
-    'label' => 'Package Identification',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset_collapsed',
-        'description' => 'IDs; Internal, external, product, etc.',
-      ),
-      'display' => array(
-        'weight' => '-3',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => 'IDs; Internal, external, product, etc.',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '-3',
-    'fields' => array(
-      '0' => 'field_packageid',
-      '1' => 'field_externalreference',
-      '2' => 'field_objectdescription',
-      '3' => 'field_productid',
-    ),
-  );
-
-  // Exported group: group_taxonomy
-  $groups['wally_articlepackage-group_taxonomy'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_articlepackage',
-    'group_name' => 'group_taxonomy',
-    'label' => 'Taxonomy & Geolocalisation',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset_collapsible',
-        'description' => '',
-      ),
-      'display' => array(
-        'weight' => '-1',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => '',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '-1',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
@@ -586,7 +586,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '0',
+        'weight' => '2',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -611,7 +611,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '0',
+    'weight' => '2',
     'fields' => array(
       '0' => 'field_authors',
       '1' => 'field_packageauthors',
@@ -637,7 +637,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '1',
+        'weight' => '3',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -662,7 +662,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '1',
+    'weight' => '3',
     'fields' => array(
       '0' => 'field_mainobject',
       '1' => 'field_embededobjects',
@@ -677,6 +677,51 @@ function wallycontenttypes_fieldgroup_default_groups() {
     'type_name' => 'wally_gallerypackage',
     'group_name' => 'group_destinations',
     'label' => 'Destinations',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
+        'weight' => '-1',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => '',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '-1',
+    'fields' => array(
+      '0' => 'field_destinations',
+      '1' => 'field_editions',
+      '2' => 'field_channels',
+    ),
+  );
+
+  // Exported group: group_packageidentification
+  $groups['wally_gallerypackage-group_packageidentification'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_gallerypackage',
+    'group_name' => 'group_packageidentification',
+    'label' => 'Package Identification',
     'settings' => array(
       'form' => array(
         'style' => 'fieldset',
@@ -710,51 +755,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
     'weight' => '-2',
     'fields' => array(
-      '0' => 'field_destinations',
-      '1' => 'field_editions',
-      '2' => 'field_channels',
-    ),
-  );
-
-  // Exported group: group_packageidentification
-  $groups['wally_gallerypackage-group_packageidentification'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_gallerypackage',
-    'group_name' => 'group_packageidentification',
-    'label' => 'Package Identification',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset',
-        'description' => '',
-      ),
-      'display' => array(
-        'weight' => '-3',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => '',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '-3',
-    'fields' => array(
       '0' => 'field_packageid',
       '1' => 'field_externalreference',
       '2' => 'field_objectdescription',
@@ -774,7 +774,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '-1',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -799,7 +799,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',
@@ -1510,6 +1510,103 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
+        'weight' => '2',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => '',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '2',
+    'fields' => array(
+      '0' => 'field_authors',
+      '1' => 'field_packageauthors',
+      '2' => 'field_creationdate',
+      '3' => 'field_publicationdate',
+      '4' => 'field_autopublish',
+      '5' => 'field_embargodatetime',
+      '6' => 'field_unpublishdate',
+      '7' => 'field_editorialupdatedate',
+      '8' => 'field_freeaccess',
+    ),
+  );
+
+  // Exported group: group_content
+  $groups['wally_pollpackage-group_content'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_pollpackage',
+    'group_name' => 'group_content',
+    'label' => 'Content',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
+        'weight' => '3',
+        'label' => 'above',
+        'teaser' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'full' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        'description' => '',
+        '4' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '2' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+        '3' => array(
+          'format' => 'fieldset',
+          'exclude' => 0,
+        ),
+      ),
+    ),
+    'weight' => '3',
+    'fields' => array(
+      '0' => 'field_mainpoll',
+      '1' => 'field_embededobjects',
+      '2' => 'field_linkedobjects',
+      '3' => 'field_packagelayout',
+    ),
+  );
+
+  // Exported group: group_destinations
+  $groups['wally_pollpackage-group_destinations'] = array(
+    'group_type' => 'standard',
+    'type_name' => 'wally_pollpackage',
+    'group_name' => 'group_destinations',
+    'label' => 'Destinations',
+    'settings' => array(
+      'form' => array(
+        'style' => 'fieldset',
+        'description' => '',
+      ),
+      'display' => array(
         'weight' => '0',
         'label' => 'above',
         'teaser' => array(
@@ -1537,70 +1634,18 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
     'weight' => '0',
     'fields' => array(
-      '0' => 'field_authors',
-      '1' => 'field_packageauthors',
-      '2' => 'field_creationdate',
-      '3' => 'field_publicationdate',
-      '4' => 'field_autopublish',
-      '5' => 'field_embargodatetime',
-      '6' => 'field_unpublishdate',
-      '7' => 'field_editorialupdatedate',
-      '8' => 'field_freeaccess',
+      '0' => 'field_destinations',
+      '1' => 'field_editions',
+      '2' => 'field_channels',
     ),
   );
 
-  // Exported group: group_content
-  $groups['wally_pollpackage-group_content'] = array(
+  // Exported group: group_packageidentification
+  $groups['wally_pollpackage-group_packageidentification'] = array(
     'group_type' => 'standard',
     'type_name' => 'wally_pollpackage',
-    'group_name' => 'group_content',
-    'label' => 'Content',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset',
-        'description' => '',
-      ),
-      'display' => array(
-        'weight' => '1',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => '',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '1',
-    'fields' => array(
-      '0' => 'field_mainpoll',
-      '1' => 'field_embededobjects',
-      '2' => 'field_linkedobjects',
-      '3' => 'field_packagelayout',
-    ),
-  );
-
-  // Exported group: group_destinations
-  $groups['wally_pollpackage-group_destinations'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_pollpackage',
-    'group_name' => 'group_destinations',
-    'label' => 'Destinations',
+    'group_name' => 'group_packageidentification',
+    'label' => 'Package Identification',
     'settings' => array(
       'form' => array(
         'style' => 'fieldset',
@@ -1634,51 +1679,6 @@ function wallycontenttypes_fieldgroup_default_groups() {
     ),
     'weight' => '-2',
     'fields' => array(
-      '0' => 'field_destinations',
-      '1' => 'field_editions',
-      '2' => 'field_channels',
-    ),
-  );
-
-  // Exported group: group_packageidentification
-  $groups['wally_pollpackage-group_packageidentification'] = array(
-    'group_type' => 'standard',
-    'type_name' => 'wally_pollpackage',
-    'group_name' => 'group_packageidentification',
-    'label' => 'Package Identification',
-    'settings' => array(
-      'form' => array(
-        'style' => 'fieldset',
-        'description' => '',
-      ),
-      'display' => array(
-        'weight' => '-3',
-        'label' => 'above',
-        'teaser' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'full' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        'description' => '',
-        '4' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '2' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-        '3' => array(
-          'format' => 'fieldset',
-          'exclude' => 0,
-        ),
-      ),
-    ),
-    'weight' => '-3',
-    'fields' => array(
       '0' => 'field_packageid',
       '1' => 'field_externalreference',
       '2' => 'field_objectdescription',
@@ -1698,7 +1698,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         'description' => '',
       ),
       'display' => array(
-        'weight' => '-1',
+        'weight' => '1',
         'label' => 'above',
         'teaser' => array(
           'format' => 'fieldset',
@@ -1723,7 +1723,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
         ),
       ),
     ),
-    'weight' => '-1',
+    'weight' => '1',
     'fields' => array(
       '0' => 'field_markers',
       '1' => 'field_locations',

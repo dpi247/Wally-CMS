@@ -363,6 +363,70 @@ Autopublish',
     ),
   );
 
+  // Exported field: field_displayed_title
+  $fields['wally_articlepackage-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_articlepackage',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_editions
   $fields['wally_articlepackage-field_editions'] = array(
     'field_name' => 'field_editions',
@@ -1941,7 +2005,7 @@ Free',
     'field_name' => 'field_summary',
     'type_name' => 'wally_articlepackage',
     'display_settings' => array(
-      'weight' => '-4',
+      'weight' => '-3',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -1991,7 +2055,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Summary',
-      'weight' => '-4',
+      'weight' => '-3',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -2430,6 +2494,70 @@ Free',
       'weight' => '25',
       'description' => '',
       'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_displayed_title
+  $fields['wally_audioobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_audioobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
       'module' => 'text',
     ),
   );
@@ -3781,6 +3909,70 @@ Free',
       'weight' => '12',
       'description' => '',
       'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_displayed_title
+  $fields['wally_digitalobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_digitalobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
       'module' => 'text',
     ),
   );
@@ -5711,6 +5903,70 @@ Autopublish',
     ),
   );
 
+  // Exported field: field_displayed_title
+  $fields['wally_gallerypackage-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_gallerypackage',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_editions
   $fields['wally_gallerypackage-field_editions'] = array(
     'field_name' => 'field_editions',
@@ -7413,7 +7669,7 @@ Free',
     'field_name' => 'field_summary',
     'type_name' => 'wally_gallerypackage',
     'display_settings' => array(
-      'weight' => '-4',
+      'weight' => '-3',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -7460,7 +7716,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Summary',
-      'weight' => '-4',
+      'weight' => '-3',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -9719,6 +9975,70 @@ character',
       'weight' => '33',
       'description' => '',
       'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_displayed_title
+  $fields['wally_photoobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_photoobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
       'module' => 'text',
     ),
   );
@@ -12918,6 +13238,70 @@ Autopublish',
     ),
   );
 
+  // Exported field: field_displayed_title
+  $fields['wally_pollpackage-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_pollpackage',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_editions
   $fields['wally_pollpackage-field_editions'] = array(
     'field_name' => 'field_editions',
@@ -14568,7 +14952,7 @@ Free',
     'field_name' => 'field_summary',
     'type_name' => 'wally_pollpackage',
     'display_settings' => array(
-      'weight' => '-4',
+      'weight' => '-3',
       'parent' => '',
       'label' => array(
         'format' => 'above',
@@ -14615,7 +14999,7 @@ Free',
       ),
       'default_value_php' => NULL,
       'label' => 'Summary',
-      'weight' => '-4',
+      'weight' => '-3',
       'description' => '',
       'type' => 'text_textarea',
       'module' => 'text',
@@ -14928,6 +15312,70 @@ Free',
       'weight' => '67',
       'description' => '',
       'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_displayed_title
+  $fields['wally_textobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_textobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
       'module' => 'text',
     ),
   );
@@ -16604,6 +17052,70 @@ Free',
     ),
   );
 
+  // Exported field: field_displayed_title
+  $fields['wally_videoobject-field_displayed_title'] = array(
+    'field_name' => 'field_displayed_title',
+    'type_name' => 'wally_videoobject',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'above',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '2' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '3' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Displayed title',
+      'weight' => '-4',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_entities
   $fields['wally_videoobject-field_entities'] = array(
     'field_name' => 'field_entities',
@@ -17918,6 +18430,7 @@ Free',
   t('Creation Date');
   t('Croping');
   t('Destinations');
+  t('Displayed title');
   t('Editions');
   t('Editorial Update Date');
   t('EmbargoDateTime');
