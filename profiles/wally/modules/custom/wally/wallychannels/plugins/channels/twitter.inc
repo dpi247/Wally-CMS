@@ -36,7 +36,7 @@ function wallychannels_twitter_channels_process($settings, $node) {
       $data = drupal_to_js(array('longUrl' => $path));
       $google_api_url = 'https://www.googleapis.com/urlshortener/v1/url';
       $google_api_url .= (isset($settings['api_key']) && !empty($settings['api_key'])) ? '?key='.$settings['api_key'] : '';
-      $short_url_req = drupal_http_request($google_api_url, $headers, 'POST', $data);
+      $short_url_req = drupal_http_request($google_api_url, $headers, 'POST', $data, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
       
       if ($short_url_req->code == 200) {
         $req_datas = json_decode($short_url_req->data);

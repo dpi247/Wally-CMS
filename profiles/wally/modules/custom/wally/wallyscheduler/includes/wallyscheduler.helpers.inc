@@ -168,7 +168,7 @@ function wallyscheduler_remote_cache_clear(){
 	$production_site_url = wally_variable_get('wallyscheduler_production_site_url','');
 	
 	$url = 'http://'.$production_site_url.'/wallytoolbox/remote_cacheclear/'.$challenge."/".md5($challenge.$secret);
-	$call = drupal_http_request($url);
+	$call = drupal_http_request($url, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
 	if ($call->code == '200'){
 	  watchdog('wallyscheduler','Remotly cache clear of production site' );
 	  $return = TRUE;

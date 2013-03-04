@@ -114,7 +114,7 @@ function wallyextra_remotehtml_content_type_edit_form(&$form, &$form_state) {
 
 function wallyextra_remotehtml_content_type_edit_form_validate(&$form, &$form_state) {
   if (isset($form['uri']['#value'])) {
-    $uri_response = drupal_http_request($form['uri']['#value'],array(), 'GET', NULL, 1, 3);
+    $uri_response = drupal_http_request($form['uri']['#value'], array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
     if ($uri_response->status_message != 'OK') {
       form_set_error('uri', t('The URI '.check_plain($uri_string).' doesn\'t respond.'));
     }

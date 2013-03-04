@@ -647,7 +647,7 @@ function _pub_get_content_from_webservice($url, $params) {
     $params[$key] = $key.'='.rawurlencode($value);
   }
   $req_params = '?'.implode('&', $params);
-  $content = drupal_http_request($url.$req_params);
+  $content = drupal_http_request($url.$req_params, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
   return ($content->code == '200') ? $content->data : FALSE;
 }
 

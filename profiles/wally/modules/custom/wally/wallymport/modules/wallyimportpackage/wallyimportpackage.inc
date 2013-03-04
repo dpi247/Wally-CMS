@@ -955,7 +955,7 @@ function wallyimportpackage_node_set_field_externaluri(&$node, $dom, &$log, $imp
     $log['log'][] = 'process ExternalURI: '.$dom->nodeName;
   }
 
-  $uri_response = drupal_http_request($value);
+  $uri_response = drupal_http_request($value, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
   if ($uri_response->status_message == 'OK') {
     $node->field_externaluri[0]['value'] = $value;
   }
