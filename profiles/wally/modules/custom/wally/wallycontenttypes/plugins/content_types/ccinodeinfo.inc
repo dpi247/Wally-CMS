@@ -1,9 +1,10 @@
 <?php
-/**
-* Callback function to supply a list of content types.
-*/
-function wallycontenttypes_ccinodeinfo_ctools_content_types() {
 
+/**
+ * Callback function to supply a list of content types.
+ */
+function wallycontenttypes_ccinodeinfo_ctools_content_types() {
+  ctools_include('context');
   return array(
     'single' => TRUE,
     'title' => t('[node] CCI Info'),
