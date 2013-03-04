@@ -26,6 +26,13 @@ function wallytoolbox_rss_flow_settings_form(&$form, &$form_state) {
     '#required' => TRUE,
   );
   
+  $form['request_timeout'] = array(
+    '#type'             => 'textfield',
+    '#title'            => t('HTTP requests timeout (in seconds)'),
+    '#description'      => t('Specifies the timeout limit (in seconds) for every HTTP request made for this URL'),
+    '#default_value'    => $conf['request_timeout'],
+  );
+  
   $form['maxitem'] = array (
     '#type'             => 'textfield',
     '#title'            => t('Max item to fetch for this feed'),
@@ -59,6 +66,7 @@ function wallytoolbox_rss_flow_settings_default($form_state = array()) {
   
   $defaults = array(
     'uri' => '',
+    'request_timeout' => wally_variable_get('wallytoolbox_http_request_timeout', 3),
     'maxitem' => '',
     'embed_img' => 0,
     'channel_img' => 0,
@@ -70,9 +78,14 @@ function wallytoolbox_rss_flow_settings_default($form_state = array()) {
 
 function wallytoolbox_rss_flow_settings_form_validate(&$form, &$form_state) {
   $values = $form_state['values'];
-  $uri_response = drupal_http_request($values['uri']);
-  if ($uri_response->status_message != 'OK') {
-    form_set_error('uri', t('The URI doesn\'t respond.'));
+  
+  if (!is_numeric($values['request_timeout']) || $values['request_timeout'] < 0) {
+    form_set_error('request_timeout', t('The timeout value has to be a numerical value greater than 0'));
+  } else {
+    $uri_response = drupal_http_request($values['uri'], array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), $values['request_timeout']);
+    if ($uri_response->status_message != 'OK') {
+      form_set_error('uri', t('The URI doesn\'t respond.'));
+    }
   }
 }
 
@@ -82,7 +95,10 @@ function wallytoolbox_rss_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
 
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, 1, 3);
+  $retries_count = wally_variable_get('wallytoolbox_http_request_retry', 1);
+  $request_timeout = (isset($feed_infos['conf']['request_timeout']) && !empty($feed_infos['conf']['request_timeout'])) ? $feed_infos['conf']['request_timeout'] : wally_variable_get('wallytoolbox_http_request_timeout', 3);
+
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, $retries_count, $request_timeout);
   if ($feed_xml && ($feed_xml->code == '200' || $feed_xml->redirect_code=='200')) {
     set_error_handler('_wallytoolbox_rss_flow_handle_errors');
 

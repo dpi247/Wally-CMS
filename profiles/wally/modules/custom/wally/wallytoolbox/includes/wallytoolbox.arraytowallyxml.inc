@@ -397,7 +397,7 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
     $recognized = FALSE;
     $expl_path = explode('/', $uri['path']);
     $file_name = $expl_path[count($expl_path)-1];
-    $http_req = drupal_http_request($file_uri);
+    $http_req = drupal_http_request($file_uri, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
     if (stristr($http_req->headers['Content-Type'], 'image') || stristr($http_req->headers['Content-type'], 'image')) {
       if (stristr($file_name,'.jpg') || stristr($file_name,'.jpeg') || stristr($file_name,'.gif') || stristr($file_name,'.png')) {
         $good_file_name = md5($file_uri).'_'.str_replace($badcar, '_', $file_name);
