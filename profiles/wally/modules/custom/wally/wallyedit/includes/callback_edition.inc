@@ -7,8 +7,7 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
   }
   if ($_POST['form_id'] == 'views_bulk_operations_form_prenode_selectbox_vbo_default') {
     module_load_include('inc', 'wallyedit', 'wallyedit.forms');
-    $view = views_get_view('prenode_selectbox_vbo', TRUE);
-    
+    $view = views_get_view('prenode_selectbox_vbo');
     //Construct ref parents
     if (sizeof($prenode->form_state['parents']) > 3) {
       $tmp_parents = array_slice($prenode->form_state['parents'], 0, -1);
@@ -20,7 +19,13 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     }
     //Add a filter and args to the view
     wydit_process_node_selector_view($view, $prenode->form_state['ref_parents'], $prenode->cache_name, $prenode->form_state['parents']);
-    
+    if ($_GET['filter_select'] != NULL){
+      $filter_value = explode('--',$_GET['filter_select']);
+      foreach ($filter_value as $value){
+        $f_value[$value] = $value;
+      }
+      $view->display_handler->options['filters']['type']['value'] = $f_value;
+    }
     $view->execute_display('default');
   }
 

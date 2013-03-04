@@ -604,11 +604,11 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
 }
 
 function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_alter(&$form, &$form_state) {
-
   //In case of ajax, edit action to wallyedit callback and not ajax callback
   if (isset($form['#plugin']->view->ajax_path)) {
     $view_info = end($form['#plugin']->view->ajax_path);
-    $form['#action'] = $view_info['view_path'];
+    $filter = '?filter_select='.implode('--',$_GET['type']);
+    $form['#action'] = $view_info['view_path'].$filter;
   }
   array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_validate');
   $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit';
@@ -639,7 +639,8 @@ function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default
 }
 
 function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit($form, &$form_state) {
-  $form_state['redirect'] = str_replace('/ajax/', '/0/', $form['#action']);
+  $parse_url = parse_url($form['#action']);
+  $form_state['redirect'] = str_replace('/ajax/', '/0/', $parse_url['path']);
 }
 
 /**
