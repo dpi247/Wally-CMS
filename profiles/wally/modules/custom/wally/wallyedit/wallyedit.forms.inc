@@ -361,7 +361,6 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
     '#theme' => 'wydit_selector_theme',
     '#title' => $form_element['#title'],
   );
-
   foreach($form_state as $key => $embed) {
     if(is_array($embed) && isset($embed['#node'])) {
       $embed_node = $embed['#node'];

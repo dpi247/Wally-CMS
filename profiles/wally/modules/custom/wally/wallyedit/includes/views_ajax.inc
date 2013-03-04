@@ -20,7 +20,7 @@ function wallyedit_views_ajax() {
     $path = isset($_REQUEST['view_path']) ? $_REQUEST['view_path'] : NULL;
     $dom_id = isset($_REQUEST['view_dom_id']) ? preg_replace('/[^a-zA-Z0-9_-]+/', '-', $_REQUEST['view_dom_id']) : NULL;
     $pager_element = isset($_REQUEST['pager_element']) ? intval($_REQUEST['pager_element']) : NULL;
-dsm($args);
+
     $ajax_arguments = array(
       'view_name' => $name,
       'view_display_id' => $display_id,
