@@ -69,7 +69,7 @@ function wallytoolbox_opml_blogspirit_flow_build(&$feed_infos) {
   $struct_array = wallytoolbox_flow_to_array_init_array($feed_infos);
   
   $maxitem = (isset($feed_infos['conf']['maxitem']) && $feed_infos['conf']['maxitem'] > 0) ? $feed_infos['conf']['maxitem'] : 1000;
-  $feed_xml = drupal_http_request($feed_infos['conf']['uri'],array(), 'GET', NULL, 1, 3);
+  $feed_xml = drupal_http_request($feed_infos['conf']['uri'], array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
   if ($feed_xml && ($feed_xml->code == '200' OR $feed_xml->redirect_code=='200')) {
     $dom = new DomDocument();
     $dom->LoadXML($feed_xml->data);

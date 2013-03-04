@@ -171,7 +171,7 @@ function wallyextra_rssmixread_content_type_edit_form_validate(&$form, &$form_st
   if (isset($form_state['values']['uris'])) {
     $uri_strings = explode("\n", str_replace(array(PHP_EOL, "\n", "\r\n"), "\n", trim($form_state['values']['uris'])));
     foreach ($uri_strings as $uri_string) {
-      $uri_response = drupal_http_request($uri_string,array(), 'GET', NULL, 1, 3);
+      $uri_response = drupal_http_request($uri_string, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
       if ($uri_response->status_message != 'OK') {
         form_set_error('uris', t('The URI '.check_plain($uri_string).' doesn\'t respond.'));
       }
@@ -526,7 +526,7 @@ function _wallyextra_rssmixread_defaultformvalues() {
  */
 function _wallyextra_rssmixread_createarrayfromuri($rss_uri, $maxitem, $settings) {
   $feed_array = array();
-  $feed_xml = drupal_http_request($rss_uri,array(), 'GET', NULL, 1, 3);
+  $feed_xml = drupal_http_request($rss_uri, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
   $settings['conf']['embed_img'] = $settings['embed_img'];
   $settings['conf']['channel_img'] = $settings['channel_img'];
   $settings['conf']['get_distant_img'] = $settings['get_distant_img'];
