@@ -14,11 +14,11 @@ switch ($embed_object->type) {
     break;
 
   case 'wally_videoobject':
-    $rendered_object = _cciinlineobjects_preprocess_filter_render_video($embed_object, $attributes);
+    $rendered_object = _cciinlineobjects_preprocess_filter_render_preview($embed_object, $attributes);
     break;
 
   case 'wally_linktype':
-    $rendered_object = _cciinlineobjects_preprocess_filter_render_link($embed_object, $attributes);
+    $rendered_object = _cciinlineobjects_preprocess_filter_render_preview($embed_object, $attributes);
     break;
 
   default :

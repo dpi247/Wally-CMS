@@ -56,7 +56,7 @@ function cciinlineobjects_inline_objects_tags($text, $prenode_cache_name = FALSE
             }
 
             if ($found_embed) {
-              $processed_embed = theme('filter_inline_objects', $found_embed, $tag_values);
+              $processed_embed = theme('filter_inline_objects_preview', $found_embed, $tag_values);
               $processed_embed = $match_val.'<processedinline>'.$processed_embed.'</processedinline>';
               $text = is_string($processed_embed) ? str_replace($match_val, $processed_embed, $text) : $text;
               break;

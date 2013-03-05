@@ -31,6 +31,10 @@ function cciinlineobjects_theme(&$var) {
       'arguments' => array('embed_object' => NULL, 'attributes' => array()),
       'template' => 'filter-inline-objects',
     ),
+    'filter_inline_objects_preview' => $base + array(
+      'arguments' => array('embed_object' => NULL, 'attributes' => array()),
+      'template' => 'filter-inline-objects-preview',
+    ),
   );
 }
 

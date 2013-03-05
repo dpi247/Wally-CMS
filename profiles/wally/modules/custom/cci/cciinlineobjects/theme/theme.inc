@@ -1,37 +1,15 @@
 <?php
 
-function cciinlineobjects_preprocess_filter_inline_objects(&$vars) {
-  $embed_object = $vars['embed_object'];
-  $attributes = $vars['attributes'];
-  $vars['rendered_object'] = '';
-
-  switch ($embed_object->type) {
-    case 'wally_photoobject' :
-      $vars['rendered_object'] = _cciinlineobjects_preprocess_filter_render_photo($embed_object, $attributes);
-      break;
-
-    case 'wally_videoobject':
-      $vars['rendered_object'] = _cciinlineobjects_preprocess_filter_render_video($embed_object, $attributes);
-      break;
-
-    case 'wally_linktype':
-      $vars['rendered_object'] = _cciinlineobjects_preprocess_filter_render_link($embed_object, $attributes);
-      break;
-
-    default :
-      break;
-  }
-}
-
 function _cciinlineobjects_preprocess_filter_render_photo($embed_object, $attributes) {
   $rendered_object = '';
 
   $dimensions = '';
+  $photo_path = $embed_object->field_photofile[0]['filepath'];
   if (isset($attributes['preset']) && !empty($attributes['preset'])) {
-    $src = imagecache_create_url($attributes['preset'], $embed_object->field_photofile[0]['filepath']);
+    $src = imagecache_create_url($attributes['preset'], $photo_path);
   } elseif ((isset($attributes['width']) && !empty($attributes['width'])) ||
       (isset($attributes['height']) && !empty($attributes['height']))) {
-    $src = $embed_object->field_photofile[0]['filepath'];
+    $src = $photo_path;
     $dimensions .= $attributes['width'] ? 'width="'.$attributes['width'].'"' : '';
     $dimensions .= $attributes['height'] ? 'height="'.$attributes['height'].'"' : '';
   }
@@ -39,9 +17,7 @@ function _cciinlineobjects_preprocess_filter_render_photo($embed_object, $attrib
     $src = "src=\"$src\"";
     $align = $attributes['align'] ? 'align="'.$attributes['align'].'"' : '';
     $runaround = $attributes['runaround'] ? 'style="margin:'.$attributes['runaround'].'px;"' : '';
-    $alt = (isset($embed_object->field_summary[0]['value']) && !empty($embed_object->field_summary[0]['value'])) ?
-    ' alt="'.$embed_object->field_summary[0]['value'].'"' :
-    '';
+    $alt = (isset($embed_object->field_summary[0]['value']) && !empty($embed_object->field_summary[0]['value'])) ? ' alt="'.$embed_object->field_summary[0]['value'].'"' : '';
     $attributes = $dimensions.$align.$runaround.$alt;
     $rendered_object = "<img $src$attributes />";
   }
@@ -136,5 +112,30 @@ function _cciinlineobjects_preprocess_filter_render_link($embed_object, $attribu
     }
   }
 
+  return $rendered_object;
+}
+
+function _cciinlineobjects_preprocess_filter_render_preview($embed_object, $attributes) {
+  $rendered_object = '';
+  
+  $dimensions = '';
+  $photo_path = drupal_get_path('module', 'cciinlineobjects').'/images/preview_img.png';
+  if (isset($attributes['preset']) && !empty($attributes['preset'])) {
+    $src = imagecache_create_url($attributes['preset'], $photo_path);
+  } elseif ((isset($attributes['width']) && !empty($attributes['width'])) ||
+      (isset($attributes['height']) && !empty($attributes['height']))) {
+    $src = $photo_path;
+    $dimensions .= $attributes['width'] ? 'width="'.$attributes['width'].'"' : '';
+    $dimensions .= $attributes['height'] ? 'height="'.$attributes['height'].'"' : '';
+  }
+  if (!empty($src)) {
+    $src = "src=\"$src\"";
+    $align = $attributes['align'] ? 'align="'.$attributes['align'].'"' : '';
+    $runaround = $attributes['runaround'] ? 'style="margin:'.$attributes['runaround'].'px;"' : '';
+    $alt = (isset($embed_object->field_summary[0]['value']) && !empty($embed_object->field_summary[0]['value'])) ? ' alt="'.$embed_object->field_summary[0]['value'].'"' : '';
+    $attributes = $dimensions.$align.$runaround.$alt;
+    $rendered_object = "<img $src$attributes />";
+  }
+  
   return $rendered_object;
 }
