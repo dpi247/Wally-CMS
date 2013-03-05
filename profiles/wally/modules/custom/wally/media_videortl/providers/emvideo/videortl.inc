@@ -80,7 +80,6 @@ function emvideo_videortl_data($field, $item) {
  *   otherwise, the calling function will handle testing the embed code against each regex string in the returned array.
  */
 function emvideo_videortl_extract($video_id = '') {
-
   $return = array();
   $allowed_urls = media_videortl_variable_get('allowed_url');
   $allowed_urls = explode("\n", str_replace(array("\n", "\r\n"), "\n", trim($allowed_urls)));
@@ -141,14 +140,14 @@ function emvideo_videortl_video($video_id, $width, $height, $field, $item, $node
   $options['language'] = media_videortl_variable_get('language') ? media_videortl_variable_get('language') : 'en';
   $output = theme('media_videortl_default', $options);*/
   
+ 
   $item_url = $item['embed'];
   $videortl_result = _emvideo_videortl_request($item_url);
-
-  IF ($videortl_result["html"] == ""){
-    $output = emvideo_videortl_error_check($item_url);
-  } else {
+  //~ IF ($videortl_result["html"] == ""){
+    //~ $output = emvideo_videortl_error_check($item_url);
+  //~ } else {
     $output = theme('media_videortl_default', $videortl_result);
-  }
+  //~ }
 
   return $output;
 }
@@ -164,32 +163,35 @@ function emvideo_videortl_video($video_id, $width, $height, $field, $item, $node
  *  
  */
 function _emvideo_videortl_request($src_url) {
-  preg_match('/rtl\.be\/videos\/video\/([0-9]*)\.aspx/', $src_url,$urlT);
+  preg_match('/videoid=([0-9]*)/', $src_url,$urlT);
   $id = $urlT[1];
+  preg_match('/key=([0-9a-z-]*)/', $src_url,$urlT);
+  $key = $urlT[1];
   
-  $embedly_result = array();
-  $url = "http://videos.rtl.be/oembed";
-  $data = "?url=".$src_url."&maxwidth=600&format=xml";
-  $data = str_replace(":","%3A",$data);
-  $data = str_replace("/","%2F",$data);
-
-  $xml = simplexml_load_file($url.$data);
+  //~ $embedly_result = array();
+  //~ $url = "http://videos.rtl.be/oembed";
+  //~ $data = "?url=".$src_url."&maxwidth=600&format=xml";
+  //~ $data = str_replace(":","%3A",$data);
+  //~ $data = str_replace("/","%2F",$data);
+  //~ dsm($url.$data);
+  //~ $xml = simplexml_load_file($url.$data);
   $embedly_result = array(
    'video_id' =>$id,
-   'version' => (string)$xml->version,
-   'type' => (string)$xml->type, 
-   'provider_url' => (string)$xml->provider_url,
-   'provider_name' => (string)$xml->provider_name,
-   'description' => (string)$xml->description,
-   'title' => (string)$xml->title,
-   'author' => (string)$xml->author_name,
-   'author_url' => (string)$xml->author_url,
-   'height' => (string)$xml->height,
-   'width' => (string)$xml->width,
-   'html' => (string)$xml->html,
-   'thumbnail_url' => (string)$xml->thumbnail_url,
-   'thumbnail_width' => (string)$xml->thumbnail_width,   
-   'thumbnail_height' => (string)$xml->thumbnail_height
+   'key'=>$key,
+   //~ 'version' => (string)$xml->version,
+   //~ 'type' => (string)$xml->type, 
+   //~ 'provider_url' => (string)$xml->provider_url,
+   //~ 'provider_name' => (string)$xml->provider_name,
+   //~ 'description' => (string)$xml->description,
+   //~ 'title' => (string)$xml->title,
+   //~ 'author' => (string)$xml->author_name,
+   //~ 'author_url' => (string)$xml->author_url,
+   //~ 'height' => (string)$xml->height,
+   //~ 'width' => (string)$xml->width,
+   //~ 'html' => (string)$xml->html,
+   //~ 'thumbnail_url' => (string)$xml->thumbnail_url,
+   //~ 'thumbnail_width' => (string)$xml->thumbnail_width,   
+   //~ 'thumbnail_height' => (string)$xml->thumbnail_height
   );
   return $embedly_result;
 }
