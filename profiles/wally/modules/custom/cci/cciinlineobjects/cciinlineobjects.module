@@ -1,0 +1,365 @@
+<?php
+
+/**
+ * Implementation of hook_menu
+ */
+function cciinlineobjects_menu() {
+  $items = array();
+
+  $items['ckeditor/processinlineobjects'] = array(
+    'title' => 'Process a text to insert inline objects',
+    'page callback' => 'cciinlineobjects_ckeditor_process_inline_objects',
+    'access arguments' => array('administer nodes'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ *  Implementation of hook_theme()
+ */
+function cciinlineobjects_theme(&$var) {
+  $path = drupal_get_path('module', 'cciinlineobjects');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path.'/theme',
+  );
+
+  return array(
+    'filter_inline_objects' => $base + array(
+      'arguments' => array('embed_object' => NULL, 'attributes' => array()),
+      'template' => 'filter-inline-objects',
+    ),
+    'filter_inline_objects_preview' => $base + array(
+      'arguments' => array('embed_object' => NULL, 'attributes' => array()),
+      'template' => 'filter-inline-objects-preview',
+    ),
+  );
+}
+
+/**
+ * Implemenation of hook_nodeapi
+ * Transform references to prenode ID to node ID or external reference
+ */
+function cciinlineobjects_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  $packages_types = array(
+    'wally_articlepackage',
+    'wally_gallerypackage',
+    'wally_pollpackage',
+  );
+
+  switch ($op) {
+    case 'presave':
+      if (in_array($node->type, $packages_types)) {
+        if (module_exists('wysiwyg') && module_exists('wallyedit')) {
+          _cciinlineobjects_convert_prenids_process_node($node);
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter
+ * Alter the WallyEdit main form to add JS settings to be used for inline objects handling
+ */
+function cciinlineobjects_form_wallyedit_form_node_edition_form_alter(&$form, $form_state) {
+  if (module_exists('wysiwyg')) {
+    _cciinlineobjects_add_wysiwyg_inline_objects_infos($form_state);
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter
+ * Alter the CKEditor settings form to add our button
+ */
+function cciinlineobjects_form_wysiwyg_profile_form_alter(&$form, $form_state) {
+  if ($form['#parameters'][2]->editor == 'ckeditor') {
+    $default_settings = $form['#parameters'][2]->settings['buttons'];
+    $form['buttons']['default']['InlineObjects'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('CCI Inline Objects'),
+      '#default_value' => isset($default_settings['default']['InlineObjects']) ? $default_settings['default']['InlineObjects'] : 0,
+    );
+  }
+}
+
+/**
+ * Implementation of hook_wysiwyg_editor_settings_alter
+ * Alter the CKEditor plugin to handle inline objects
+ */
+function cciinlineobjects_wysiwyg_editor_settings_alter(&$settings, $context) {
+  if ($context['editor']['name'] == 'ckeditor') {
+    $buttons_settings = $context['profile']->settings['buttons']['default'];
+    if (isset($buttons_settings['InlineObjects']) && $buttons_settings['InlineObjects']) {
+      $settings['toolbar'][] = array(t('cciinlineobjects'));
+      $settings['extraPlugins'] .= ',cciinlineobjects';
+    }
+  }
+}
+
+/**
+ * Implementation of hook_filter
+ */
+function cciinlineobjects_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      $list = array();
+      $list[] = t('Inline objects');
+      return $list;
+
+    case 'description':
+      $description = t('Process inline objects tags and replace them with actual object.');
+      return $description;
+
+    case 'process':
+      $processed_text = cciinlineobjects_filter_inline_objects_process($text);
+      return $processed_text;
+
+    case 'no cache':
+      return FALSE; //doit etre à FALSE en production
+
+    case 'settings':
+      $form = FALSE;
+      return $form;
+
+    default:
+      return $text;
+  }
+}
+
+/**
+ * Run through all text fields of a package and flag embed objects as inline objects
+ * The package as to be populated
+ */
+function cciinlineobjects_flag_inline_embed_objects(&$node) {
+  $obj_ids = _cciinlineobjects_get_embed_objects_ids($node);
+  if (!empty($obj_ids)) {
+    $embeds = &$node->field_embededobjects_nodes;
+    _cciinlineobjects_flag_inline_embed_objects_run_through($node, $embeds, $obj_ids);
+  }
+}
+
+/**
+ * Get a text from the inline objects plugin from CKEditor and return the processed text
+ */
+function cciinlineobjects_ckeditor_process_inline_objects() {
+  $processed_text = '';
+
+  if (isset($_POST['inline_objects_text']) && !empty($_POST['inline_objects_text']) &&
+      isset($_POST['prenode_cache_name']) && !empty($_POST['prenode_cache_name'])) {
+    $current_text = $_POST['inline_objects_text'];
+    $prenode_cache_name = $_POST['prenode_cache_name'];
+
+    // Convert all Windows and Mac newlines to a single newline,
+    // so filters only need to deal with one possibility.
+    $current_text = str_replace(array("\r\n", "\r"), "\n", $current_text);
+
+    $processed_text = cciinlineobjects_filter_inline_objects_process($current_text, $prenode_cache_name);
+  }
+  print $processed_text;
+}
+
+/**
+ * Process a text and replace inline objects tag by actual objects
+ *
+ * @param string $text text to process
+ */
+function cciinlineobjects_filter_inline_objects_process($text, $prenode_cache_name = FALSE) {
+  module_load_include('inc', 'cciinlineobjects', 'includes/cciinlineobjects.filters');
+  return cciinlineobjects_inline_objects_tags($text, $prenode_cache_name);
+}
+
+/**
+ * When inserting a temporary object in a textarea we use its prenode ID,
+ * we have to convert it to the real node ID when the node is saved.
+ *
+ * @param object $node
+ *   The node to be processed
+ */
+function _cciinlineobjects_convert_prenids_process_node(&$node) {
+  $cache_name = $node->cache_name;
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
+  if ($prenode = prenode_load($cache_name, $args)) {
+    if (isset($prenode->form_state[$node->type])) {
+      $matching_ids = array();
+
+      if (isset($prenode->form_state[$node->type]['field_embededobjects']) && !empty($prenode->form_state[$node->type]['field_embededobjects'])) {
+        foreach ($prenode->form_state[$node->type]['field_embededobjects'] as $delta => $presave_embed) {
+          if (isset($presave_embed['#node']->prenid) && !empty($presave_embed['#node']->prenid)) {
+            $matching_ids[$presave_embed['#node']->prenid] = 'nid:'.$node->field_embededobjects[$delta]['nid'];
+          }
+        }
+
+        if (!empty($matching_ids)) {
+          wallycontenttypes_packagepopulate($node);
+          _cciinlineobjects_convert_prenids_run_through($node, $matching_ids);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Run through the node fields and process text areas
+ */
+function _cciinlineobjects_convert_prenids_run_through(&$node, $matching_ids) {
+  static $processed_nodes = array();
+  if (!in_array($node->nid, $processed_nodes)) {
+    $processed_nodes[] = $node->nid;
+
+    foreach ($node as $field_name => $field) {
+      if (is_array($field)) {
+        if (strstr($field_name, '_nodes')) {
+          foreach ($field as $delta => $sub_node) {
+            _cciinlineobjects_convert_prenids_run_through($sub_node, $matching_ids);
+          }
+        } elseif (is_array($field[0]) && isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
+          // Only process text fields
+          _cciinlineobjects_convert_prenids_process_text($node, $field_name, $field[0]['value'], $matching_ids);
+        }
+      }
+    }
+  } else {
+    watchdog('CCI Inline Objects', t('Loop detected in the prenode ID to node ID replacement. Nodes involved : @nodes_ids.'), array('@nodes_ids' => implode(', ', $processed_nodes)), WATCHDOG_WARNING);
+  }
+}
+
+/**
+ * Search prenode ID references and replace them with matching node ID
+ */
+function _cciinlineobjects_convert_prenids_process_text(&$node, $field_name, $text, $matching_ids) {
+  $regex = '@extref\s?=\s?[\'"]prenid:(.*)[\'"]@U';
+  $regex_matches = array();
+  preg_match_all($regex, $text, $regex_matches);
+  if (isset($regex_matches[0]) && !empty($regex_matches[0])) {
+    $found = FALSE;
+    foreach ($regex_matches[0] as $id => $val) {
+      if (isset($matching_ids[$regex_matches[1][$id]])) {
+        $new_extref = 'extref="'.$matching_ids[$regex_matches[1][$id]].'"';
+        $node->{$field_name}[0]['value'] = str_replace($val, $new_extref, $text);
+        $found = TRUE;
+      }
+    }
+    if ($found) {
+      node_save($node);
+    }
+  }
+}
+
+/**
+ * Get the IDs (node IDs and external references) of all embed objects
+ *
+ * @param object $node
+ *   The package containing the embed objects
+ *
+ * @return array
+ *   Node IDs and external references of embed objects
+ */
+function _cciinlineobjects_get_embed_objects_ids($node) {
+  $obj_ids = array();
+
+  if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+    foreach ($node->field_embededobjects_nodes as $delta => $embed_node) {
+      $tmp_ids = array();
+      if (isset($embed_node->nid) && !empty($embed_node->nid)) {
+        $tmp_ids[] = 'nid:'.$embed_node->nid;
+      }
+      if (isset($embed_node->field_externalreference[0]['value']) && !empty($embed_node->field_externalreference[0]['value'])) {
+        $tmp_ids[] = $embed_node->field_externalreference[0]['value'];
+      }
+      if (!empty($tmp_ids)) {
+        $obj_ids[$delta] = $tmp_ids;
+      }
+    }
+  }
+
+  return $obj_ids;
+}
+
+/**
+ * Recursively run through all text fields of a node to flag inline embed objects
+ */
+function _cciinlineobjects_flag_inline_embed_objects_run_through($node, &$embeds, $obj_ids) {
+  static $processed_nodes = array();
+  if (!in_array($node->nid, $processed_nodes)) {
+    $processed_nodes[] = $node->nid;
+
+    foreach ($node as $field_name => $field) {
+      if (is_array($field)) {
+        if (strstr($field_name, '_nodes')) {
+          foreach ($field as $delta => $sub_node) {
+            _cciinlineobjects_flag_inline_embed_objects_run_through($sub_node, $embeds, $obj_ids);
+          }
+        } elseif (isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
+          // Only process text fields
+          _cciinlineobjects_flag_inline_embed_objects_process_text($embeds, $field[0]['value'], $obj_ids);
+        }
+      }
+    }
+  } else {
+    watchdog('CCI Inline Objects', t('Loop detected in the inline embed objects flagging process. Nodes involved : @nodes_ids.'), array('@nodes_ids' => implode(', ', $processed_nodes)), WATCHDOG_WARNING);
+  }
+}
+
+/**
+ * Search inline embed objects references and flag the matching embed as inline object
+ */
+function _cciinlineobjects_flag_inline_embed_objects_process_text(&$embeds, $text, $obj_ids) {
+  $regex = '@extref\s?=\s?[\'"](.*)[\'"]@U';
+  $regex_matches = array();
+  preg_match_all($regex, $text, $regex_matches);
+  if (isset($regex_matches[0]) && !empty($regex_matches[0])) {
+    $found = FALSE;
+    foreach ($regex_matches[1] as $id => $val) {
+      foreach ($obj_ids as $delta => $ids) {
+        if (in_array($val, $ids)) {
+          $embeds[$delta]->inline_object = TRUE;
+          break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Add JS settings to be used for inline objects handling
+ */
+function _cciinlineobjects_add_wysiwyg_inline_objects_infos($form_state) {
+  if (isset($form_state[$form_state['type']]['field_embededobjects']) && !empty($form_state[$form_state['type']]['field_embededobjects'])) {
+    $types_names = node_get_types('names');
+
+    $embed_objects_options = array();
+    foreach ($form_state[$form_state['type']]['field_embededobjects'] as $embed_object) {
+      $embed_node = $embed_object['#node'];
+      $embed_extref = FALSE;
+      if (isset($embed_node->field_externalreference[0]['value']) && !empty($embed_node->field_externalreference[0]['value'])) {
+        $embed_extref = $embed_node->field_externalreference[0]['value'];
+      } elseif (isset($embed_node->nid) && !empty($embed_node->nid)) {
+        $embed_extref = 'nid:'.$embed_node->nid;
+      } elseif (isset($embed_node->prenid) && !empty($embed_node->prenid)) {
+        $embed_extref = 'prenid:'.$embed_node->prenid;
+      }
+      if ($embed_extref) {
+        $embed_label = $types_names[$embed_node->type].' - '.$embed_node->title;
+        $embed_objects_options[$embed_label] = $embed_extref;
+      }
+    }
+
+    $wallycrop_options = array();
+    foreach (wallycontenttypes_get_wallycrop_presets() as $wallycrop) {
+      $wallycrop_options[$wallycrop['label']] = $wallycrop['id'];
+    }
+
+    $js_settings = array(
+      'embed_objects_options' => $embed_objects_options,
+      'wallycrops' => $wallycrop_options,
+    );
+
+    drupal_add_js($js_settings, 'setting');
+  }
+}
