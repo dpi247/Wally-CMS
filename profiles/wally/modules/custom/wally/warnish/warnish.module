@@ -206,7 +206,7 @@ function warnish_expire_cache($paths) {
   $host = _warnish_get_host();
   $base = base_path();
   $purge = implode('$|^'. $base, $paths);
-   _warnish_terminal_run('purge req.http.host ~ '. $host .' && req.url ~ "^'. $base . $purge .'$"');
+   _warnish_terminal_run('ban req.http.host ~ '. $host .' && req.url ~ "^'. $base . $purge .'$"');
 }
 
 /**
@@ -241,7 +241,7 @@ function warnish_purge_page($paths) {
 function warnish_purge_all_pages($path = '*') {
   $path = ($path == '*') ? base_path() : $path;
   $host = _warnish_get_host();
-  _warnish_terminal_run("purge req.http.host ~ $host && req.url ~ ^$path");
+  _warnish_terminal_run("ban req.http.host ~ $host && req.url ~ ^$path");
 }
 
 /**
