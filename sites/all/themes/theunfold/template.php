@@ -225,74 +225,77 @@ function theunfold_theme_redacblock_node_figure($item) {
 	return ($content); 
 }
 
-/*
+/**
  * Hook preprocess node
  */
 function theunfold_preprocess_node(&$vars){
-
   $type = $vars["type"];
   $node = &$vars['node'];
-  
-  if (isset($vars['view'])) { $view = &$vars['view']; }
-  
+
+  if (isset($vars['view'])) {
+    $view = &$vars['view'];
+  }
+
   switch ($node->type){
     case 'wally_articlepackage':
-    // We build data for node template teaser mode
-    if ($node->teaser) {
-        $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
-    } 
-    // We build data for redacblock views
-    if (isset($view)) {
-      $current_display = &$view->display[$view->current_display];
-      if ($current_display->display_options['row_plugin'] == 'redacblock_row') {
+      // We build data for node template teaser mode
+      if ($node->teaser) {
         $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
       }
-    }
-
-    
-    // build data for node page   
-    if ($node->nid == arg(1) || $node->preview || true ) {
-
-     // We unset the body, theunfold_preprocess_node_build will create a new one. 
-     unset($vars["body"]);
-     $vars += theunfold_preprocess_node_build($node);
-     
-      if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-        foreach ($node->field_embededobjects_nodes as $delta => $embed) {
-          // Fake nid in case of preview
-          $node->field_embededobjects_nodes[$delta]->nid = $delta;
+      // We build data for redacblock views
+      if (isset($view)) {
+        $current_display = &$view->display[$view->current_display];
+        if ($current_display->display_options['row_plugin'] == 'redacblock_row') {
+          $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
         }
       }
-      $merged_medias = array();
-      if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-        foreach ($node->field_embededobjects_nodes as $embed){
+
+      // build data for node page
+      if ($node->nid == arg(1) || $node->preview || true ) {
+
+        // We unset the body, theunfold_preprocess_node_build will create a new one.
+        unset($vars["body"]);
+        $vars += theunfold_preprocess_node_build($node);
+         
+        if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+          foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+            // Fake nid in case of preview
+            $node->field_embededobjects_nodes[$delta]->nid = $delta;
+          }
+        }
+        $merged_medias = array();
+        if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
+          if (module_exists('cciinlineobjects')) {
+            cciinlineobjects_flag_inline_embed_objects($node);
+          }
+          foreach ($node->field_embededobjects_nodes as $embed) {
+            $merged_medias += theunfold_preprocess_node_build_embedded_photos($embed);
+            $merged_medias += theunfold_preprocess_node_build_embedded_videos($embed);
+            $merged_medias += theunfold_preprocess_node_build_embedded_audios($embed);
+            $merged_medias += theunfold_preprocess_node_build_embedded_links($embed);
+            $merged_medias += theunfold_preprocess_node_build_embedded_documents($embed);
+            $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
+          }
           
-          $merged_medias += theunfold_preprocess_node_build_embedded_photos($embed);
-          $merged_medias += theunfold_preprocess_node_build_embedded_videos($embed);
-          $merged_medias += theunfold_preprocess_node_build_embedded_audios($embed);
-          $merged_medias += theunfold_preprocess_node_build_embedded_links($embed);
-          $merged_medias += theunfold_preprocess_node_build_embedded_documents($embed);
-          $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
+          $topItems = array();
+          $bottomItems = array();
+          $bearItems = array();
+          theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
+          $linkslist = theunfold_get_sorted_links($node);
+
+          $vars['top_html'] = theme('theme_package_top_items', array('topItems' => $topItems));
+          $vars['bottom_html'] = theme('theme_package_bottom_items', array('bottomItems' => $bottomItems));
+          $vars['related_html'] = theme('theme_package_related_items',
+            array('linkslist' => $linkslist,
+              'earItems' => $bearItems,
+              'freeTags'  => $vars['field_free_tags'],
+              'persons'  => $vars['field_persons'],
+            )
+          );
         }
       }
-      
-      $topItems = array();
-      $bottomItems = array();
-      theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
-      $linkslist = theunfold_get_sorted_links($node);
+      break;
 
-      $vars['top_html'] = theme('theme_package_top_items', array('topItems' => $topItems));
-      $vars['bottom_html'] = theme('theme_package_bottom_items', array('bottomItems' => $bottomItems));
-      $vars['related_html'] = theme('theme_package_related_items', 
-        array('linkslist' => $linkslist, 
-        	  'bearItems' => $bearItems, 
-        	  'freeTags'  => $vars['field_free_tags'],
-        	  'persons'  => $vars['field_persons'],
-        )
-      );
-    }
-    break;
-    
     case 'wally_photoobject':
     case 'wally_videoobject':
     case 'wally_audioobject':
@@ -507,31 +510,31 @@ function theunfold_theme_package_by($vars){
 }
 /**
  * Dispatch media in two part, top and bottom
- * */
+ */
 function theunfold_preprocess_node_article_dispatch_top_bottom($node, $allItems, &$top, &$bottom, &$bear){
-  
-  if ($node->field_embededobjects_nodes != NULL){
-    foreach ($node->field_embededobjects_nodes as $nid => $embed){
-      if ($item = $allItems[$embed->nid]){
-        switch ($item['group_type']){
-          case 'photo':
-            $top[$embed->nid] = $item;
-            break;
-          case 'video':
-            $top[$embed->nid] = $item;
-            break;
-          case 'package':
-            $bear[$embed->nid] = $item;
-            break;
-          default:
-            $bottom[$embed->nid] = $item;
-            break;
+  if ($node->field_embededobjects_nodes != NULL) {
+    foreach ($node->field_embededobjects_nodes as $nid => $embed) {
+      if (!isset($embed->inline_object) || !$embed->inline_object) {
+        if ($item = $allItems[$embed->nid]) {
+          switch ($item['group_type']){
+            case 'photo':
+              $top[$embed->nid] = $item;
+              break;
+            case 'video':
+              $top[$embed->nid] = $item;
+              break;
+            case 'package':
+              $bear[$embed->nid] = $item;
+              break;
+            default:
+              $bottom[$embed->nid] = $item;
+              break;
+          }
         }
       }
     }
   }
 }
-
 
 function theunfold_theme_package_linkslists($vars){
   $content = '';
