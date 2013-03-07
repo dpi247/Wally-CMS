@@ -608,7 +608,7 @@ function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default
   if (isset($form['#plugin']->view->ajax_path)) {
     $view_info = end($form['#plugin']->view->ajax_path);
     $filter = '?filter_select='.implode('--',$_GET['type']);
-    $form['#action'] = $view_info['view_path'].$filter;
+    $form['#action'] = '/'.$view_info['view_path'].$filter;
   }
   array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_validate');
   $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit';
