@@ -310,9 +310,7 @@ function wallyimportpackageV16_process_object_pollobjecttype(&$node, $dom, &$log
 
   //Exception for PollObject
   if ($dom->getElementsByTagName("PollTitle")->item(0)->nodeValue) {
-    $polltitle = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
-    $node->title = _wimprthelp_plain_text($polltitle);
-    $node->field_displayed_title = array(array('value' => $polltitle));
+    $node->title = $dom->getElementsByTagName("PollTitle")->item(0)->nodeValue;
   }
 
   if ($dom->getElementsByTagName("Title")->length) {
@@ -397,9 +395,7 @@ function wallyimportpackageV16_process_object_textobjecttype (&$node, $dom_eleme
   
   //Exception for TextObject
   if ($dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue) {
-    $text_title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
-    $node->title = _wimprthelp_plain_text($text_title);
-    $node->field_displayed_title = array(array('value' => $text_title));
+    $node->title = $dom_element->getElementsByTagName("TextTitle")->item(0)->nodeValue;
   }
   
   if ($dom_element->getElementsByTagName("Title")->length) {

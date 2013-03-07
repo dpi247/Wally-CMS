@@ -198,12 +198,8 @@ function _wimprthelp_html_text($text){
  * @return
  *   An plain text
  */
-function _wimprthelp_plain_text($text) {
-  if (module_exists('filter')) {
-    return filter_xss($text, array());
-  } else {
-    return $text;
-  }
+function _wimprthelp_plain_text($text){
+  return $text;
 }
 
 /**
