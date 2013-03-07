@@ -157,7 +157,7 @@ function wallyctools_update_6002() {
 function wallyctools_update_6003() { 
   $ret = array();
   //Set view calc on redacbloc views
-/*
+
   $result = db_query("SELECT vid, id, display_options  FROM {views_display} WHERE display_plugin = 'redacblock'");
   while ($obj = db_fetch_object($result)){ 
     $display_options = unserialize($obj->display_options);
@@ -169,7 +169,7 @@ function wallyctools_update_6003() {
       db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
     }
   }
-  */
+  
   //Update redacbloc
   $result = db_query("SELECT pid, configuration FROM {panels_pane} WHERE type = 'redacblock'");
   while ($obj = db_fetch_object($result)){
