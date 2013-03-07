@@ -483,7 +483,6 @@ function wallyimportpackage_node_set_field_sourcexml(&$node, $dom, &$log, $impor
 function wallyimportpackage_node_set_field_packagetitle(&$node, $dom, &$log, $importer){
   $text = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($text);
-  $node->field_displayed_title = array(array('value' => $text));
 }
 
 /**
@@ -503,7 +502,7 @@ function wallyimportpackage_node_set_field_packagetitle(&$node, $dom, &$log, $im
  */
 function wallyimportpackage_node_set_field_packagedescription(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_objectdescription[0]['value'] = $value;
+  $node->field_objectdescription[0]['value'] = _wimprthelp_plain_text($value);
 }
 
 /**
@@ -929,7 +928,7 @@ function wallyimportpackage_node_set_field_packagelayout(&$node, $dom, &$log, $i
  */
 function wallyimportpackage_node_set_field_summary(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
-  $node->field_summary[0]['value'] = $value;
+  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
 }
 
 /**
@@ -1508,9 +1507,14 @@ function wallyimportpackage_node_process_photoobjecttype(&$node, $dom, &$log, $i
 
   $presets = (json_encode($c));
   $node->field_croping[0]['value'] = $presets; 
-    
+  
+  $value = $dom->nodeValue;
+  
   //put common attributes
   wallyimportpackage_objecttype_preprocess($node, $dom, $importer);
+
+  //if (!isset($node->field_summary[0]['value']) || empty($node->field_thumbnail[0]))
+  $node->field_summary[0]['value'] = _wimprthelp_plain_text($value);
   
   $dom_thumbnails = $dom->getElementsByTagName('Thumbnail');
   $thumb_uri = $dom->getElementsByTagName('Thumbnail')->item(0) ? $dom->getElementsByTagName('Thumbnail')->item(0)->getAttribute('URI') : '';
@@ -1904,7 +1908,6 @@ function wallyimportpackage_node_process_linkslist(&$node, $dom, &$log, $importe
 function wallyimportpackage_node_set_field_title(&$node, $dom, &$log, $importer){
   $value = $dom->nodeValue;
   $node->title = _wimprthelp_plain_text($value);
-  $node->field_displayed_title = array(array('value' => $value));
 }
 
 /**
