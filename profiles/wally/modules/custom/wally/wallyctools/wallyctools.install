@@ -154,3 +154,33 @@ function wallyctools_update_6002() {
   wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
   return $ret;
 }
+function wallyctools_update_6003() { 
+  $ret = array();
+  //Set view calc on redacbloc views
+/*
+  $result = db_query("SELECT vid, id, display_options  FROM {views_display} WHERE display_plugin = 'redacblock'");
+  while ($obj = db_fetch_object($result)){ 
+    $display_options = unserialize($obj->display_options);
+     if ($display_options['pager']['type'] == 'full' || $display_options['pager']['type'] == 'mini') {
+      $display_options['pager']['type'] = 'wallyctools_calc';
+      $display_options['pager']['options']['id'] = '0';
+      $display_options['pager']['options']['expose']['items_per_page_options_all'] = 0;
+      $obj->display_options = serialize($display_options);
+      db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+    }
+  }
+  */
+  //Update redacbloc
+  $result = db_query("SELECT pid, configuration FROM {panels_pane} WHERE type = 'redacblock'");
+  while ($obj = db_fetch_object($result)){
+    $conf = unserialize($obj->configuration);
+    if ($conf['split_index_count'] == ''){
+      $conf['use_splitted'] = 0;
+    } else {
+      $conf['use_splitted'] = 1;
+    }
+    $obj->configuration = $conf;
+    drupal_write_record('panels_pane', $obj, array('pid'));
+  }
+  return $ret;  
+}
