@@ -271,7 +271,6 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   // Package Elements
   $transformed_node['SourceXML']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_sourcexml', '');
   $transformed_node['PackageTitle']['value'] = $node->title;
-  $transformed_node['DisplayedTitle']['value'] = $node->field_displayed_title[0]['value'];
   $transformed_node['PackageDescription']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_objectdescription', '');
   $transformed_node['InternalReference']['value'] = 'Drupal_NID:'.$node->nid;
   $transformed_node['ExternalReference']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externalreference', 'wally_'.$node->nid);
