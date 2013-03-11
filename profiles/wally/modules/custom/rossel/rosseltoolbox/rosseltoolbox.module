@@ -41,6 +41,7 @@ function _rosseltoolbox_set_package_title(&$node) {
   if ($main_object_type == 'field_mainstory') {
     if ($main_object = _rosseltoolbox_get_or_load_object($node, $main_object_type)) {
       $node->title = $main_object->title;
+      $node->field_displayed_title = $main_object->field_displayed_title;
     }
   } elseif ($main_object_type) {
     $i = 0;
@@ -48,11 +49,13 @@ function _rosseltoolbox_set_package_title(&$node) {
       $i++;
       if ($embed_object->type == 'wally_textobject') {
         $node->title = $embed_object->title;
+        $node->field_displayed_title = $main_object->field_displayed_title;
         return;
       }
     }
     if ($main_object = _rosseltoolbox_get_or_load_object($node, $main_object_type)) {
       $node->title = $main_object->title;
+      $node->field_displayed_title = $main_object->field_displayed_title;
     }
   }
 }
@@ -62,7 +65,7 @@ function _rosseltoolbox_get_or_load_object($node, $name, $delta = 0) {
     $object = $node->{$name.'_nodes'}[$delta];
   } else {
     if (isset($node->{$name}[$delta])) {
-      $object = node_load($node->{$name}[$delta]['nid']);
+      $object = node_load($node->{$name}[$delta]['nid'], NULL, TRUE);
     } else {
       $object = FALSE;
     }

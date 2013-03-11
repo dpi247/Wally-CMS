@@ -404,23 +404,59 @@ function _wallytoolbox_process_block_refresh(&$block) {
   return $output;
 }
 
-function wallytoolbox_page_settings_form ($form_state) {
+function wallytoolbox_page_settings_form($form_state) {
   $form = array();
-  
+
   $form['images_flush'] = array(
     '#type' => 'fieldset',
     '#title' => t('Files flush settings'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  
+
   $form['images_flush']['wallytoolbox_files_days_limit'] = array(
     '#type' => 'textfield',
     '#title' => t('Remove files older than (in days)'),
     '#description' => t('The cron will remove files older than this amount of days'),
     '#default_value' => wally_variable_get('wallytoolbox_files_days_limit', 7),
   );
+
+  $form['http_requests'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('HTTP requests settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
   
+  $form['http_requests']['wallytoolbox_http_request_retry'] = array(
+    '#type' => 'textfield',
+    '#title' => t('HTTP requests default retries count'),
+    '#description' => t('Specifies the default retries count for every HTTP request made from this site'),
+    '#default_value' => wally_variable_get('wallytoolbox_http_request_retry', 1),
+  );
+
+  $form['http_requests']['wallytoolbox_http_request_timeout'] = array(
+    '#type' => 'textfield',
+    '#title' => t('HTTP requests default timeout (in seconds)'),
+    '#description' => t('Specifies the default timeout limit (in seconds) for every HTTP request made from this site'),
+    '#default_value' => wally_variable_get('wallytoolbox_http_request_timeout', 3),
+  );
+
   return wally_system_settings_form($form, TRUE);
 }
 
+function wallytoolbox_page_settings_form_validate($form, $form_state) {
+  $values = $form_state['values'];
+
+  if (!is_numeric($values['wallytoolbox_files_days_limit']) || $values['wallytoolbox_files_days_limit'] < 0) {
+    form_set_error('wallytoolbox_files_days_limit', t('The days amount has to be a numerical value greater than 0'));
+  }
+  
+  if (!is_numeric($values['wallytoolbox_http_request_timeout']) || $values['wallytoolbox_http_request_timeout'] <= 0) {
+    form_set_error('wallytoolbox_http_request_timeout', t('The retries value has to be a numerical value greater or equal than 0'));
+  }
+
+  if (!is_numeric($values['wallytoolbox_http_request_timeout']) || $values['wallytoolbox_http_request_timeout'] < 0) {
+    form_set_error('wallytoolbox_http_request_timeout', t('The timeout value has to be a numerical value greater than 0'));
+  }
+}

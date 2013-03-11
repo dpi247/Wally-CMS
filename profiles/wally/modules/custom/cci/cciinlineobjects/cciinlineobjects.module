@@ -31,6 +31,10 @@ function cciinlineobjects_theme(&$var) {
       'arguments' => array('embed_object' => NULL, 'attributes' => array()),
       'template' => 'filter-inline-objects',
     ),
+    'filter_inline_objects_preview' => $base + array(
+      'arguments' => array('embed_object' => NULL, 'attributes' => array()),
+      'template' => 'filter-inline-objects-preview',
+    ),
   );
 }
 
@@ -214,10 +218,10 @@ function _cciinlineobjects_convert_prenids_run_through(&$node, $matching_ids) {
           foreach ($field as $delta => $sub_node) {
             _cciinlineobjects_convert_prenids_run_through($sub_node, $matching_ids);
           }
+        } elseif (is_array($field[0]) && isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
+          // Only process text fields
+          _cciinlineobjects_convert_prenids_process_text($node, $field_name, $field[0]['value'], $matching_ids);
         }
-      } elseif (isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
-        // Only process text fields
-        _cciinlineobjects_convert_prenids_process_text($node, $field_name, $field[0]['value'], $matching_ids);
       }
     }
   } else {

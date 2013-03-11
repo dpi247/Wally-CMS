@@ -2292,6 +2292,9 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
   unset($new_term['tid']);
   $cur_dests = taxonomy_get_tree($dest_vid);
   foreach ($cur_dests as $dest) {
+    if (!isset($dest->featid)) {
+      $dest->featid = $dest->vid .'_'. str_replace($bad_car, '-', strtolower($dest->name));
+    }
     if ($dest->featid == $new_term['featid']) {
       $new_term['tid'] = $dest->tid;
       break;
@@ -2299,12 +2302,15 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
   }
   $new_term['tid'] = isset($new_term['tid']) ? $new_term['tid'] : null;
 
+  $hook_op = FALSE;
   switch (taxonomy_save_term($new_term)) {
     case SAVED_NEW:
+      $hook_op = 'create';
       drupal_set_message(t('Created new term %term.', array('%term' => $values['name'])));
       watchdog('taxonomy', 'Created new term %term.', array('%term' => $values['name']), WATCHDOG_NOTICE, l(t('edit'), 'admin/content/taxonomy/edit/term/'. $values['tid']));
       break;
     case SAVED_UPDATED:
+      $hook_op = 'update';
       drupal_set_message(t('Updated term %term.', array('%term' => $values['name'])));
       watchdog('taxonomy', 'Updated term %term.', array('%term' => $values['name']), WATCHDOG_NOTICE, l(t('edit'), 'admin/content/taxonomy/edit/term/'. $values['tid']));
       break;
@@ -2312,6 +2318,10 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
 
   if ($new_term['tid']) {
     $values['topic_destination'] = $new_term['tid'];
+    if ($hook_op) {
+      $term['topic_destination'] = $new_term['tid'];
+      module_invoke_all('topic_destination', $hook_op, $new_term, $term);
+    }
     return $new_term;
   } else {
     return FALSE;
@@ -2328,12 +2338,14 @@ function _cckdestinations_create_or_update_topic_destination(&$values, $term) {
  */
 function _cckdestinations_remove_topic_destination(&$values, $vocabulary, $term) {
   if ($term['topic_destination']) {
+    $term_to_be_removed = taxonomy_get_term($term['topic_destination']);
     if (taxonomy_del_term($term['topic_destination'])) {
       path_set_alias('taxonomy/term/'.$term['tid'], 'taxonomy/term/'.$term['topic_destination'], 0, '');
       _cckdestinations_remove_destination_from_nodes($term['topic_destination']);
       taxonomy_check_vocabulary_hierarchy((array)$vocabulary, (array)$term);
       drupal_set_message(t('Deleted term %name.', array('%name' => $term['name'])));
       watchdog('taxonomy', 'Deleted term %name.', array('%name' => $term['name']), WATCHDOG_NOTICE);
+      module_invoke_all('topic_destination', 'delete', $term_to_be_removed, $term);
       return TRUE;
     } else {
       return FALSE;
