@@ -1,0 +1,5 @@
+core = "6.x"
+name = "Wally Synch"
+package = "Wally"
+project = "Wally"
+description = "Synchronize a production environement with a stage environement"
