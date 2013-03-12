@@ -5,7 +5,7 @@
  */
 function wallyflowpublish_views_default_views() {
   $views = array();
-
+/* Before Views 3
   // Exported view: default_destination_view_feed
   $view = new view;
   $view->name = 'default_destination_view_feed';
@@ -14,7 +14,7 @@ function wallyflowpublish_views_default_views() {
   $view->base_table = 'node';
   $view->core = 0;
   $view->api_version = '2';
-  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially 
   $handler = $view->new_display('default', 'Defaults', 'default');
   $handler->override_option('sorts', array(
     'field_destinations_time_rank' => array(
@@ -171,7 +171,103 @@ function wallyflowpublish_views_default_views() {
   ));
   $handler->override_option('displays', array());
   $handler->override_option('sitename_title', FALSE);
-
+*/
+  
+  $view = new view;
+  $view->name = 'default_destination_view_feed';
+  $view->description = 'Wally default flow destination view.';
+  $view->tag = 'wally default';
+  $view->base_table = 'node';
+  $view->human_name = '';
+  $view->core = 0;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  
+  /* Display: Defaults */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '10';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
+  $handler->display->display_options['style_plugin'] = 'default';
+  $handler->display->display_options['row_plugin'] = 'node';
+  /* Sort criterion: Destinations: Destinations time_rank: Destinations (field_destinations) */
+  $handler->display->display_options['sorts']['field_destinations_time_rank']['id'] = 'field_destinations_time_rank';
+  $handler->display->display_options['sorts']['field_destinations_time_rank']['table'] = 'node_data_field_destinations';
+  $handler->display->display_options['sorts']['field_destinations_time_rank']['field'] = 'field_destinations_time_rank';
+  $handler->display->display_options['sorts']['field_destinations_time_rank']['order'] = 'DESC';
+  $handler->display->display_options['sorts']['field_destinations_time_rank']['delta'] = '-1';
+  /* Argument: Destinations: Destinations tid: Destinations (field_destinations) */
+  $handler->display->display_options['arguments']['field_destinations_tid']['id'] = 'field_destinations_tid';
+  $handler->display->display_options['arguments']['field_destinations_tid']['table'] = 'node_data_field_destinations';
+  $handler->display->display_options['arguments']['field_destinations_tid']['field'] = 'field_destinations_tid';
+  $handler->display->display_options['arguments']['field_destinations_tid']['default_action'] = 'not found';
+  $handler->display->display_options['arguments']['field_destinations_tid']['style_plugin'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_destinations_tid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['field_destinations_tid']['validate_type'] = 'taxonomy_term';
+  $handler->display->display_options['arguments']['field_destinations_tid']['validate_options']['vids'] = array(
+  2 => 2,
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  10 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  );
+  $handler->display->display_options['arguments']['field_destinations_tid']['validate_options']['transform'] = 0;
+  $handler->display->display_options['arguments']['field_destinations_tid']['add_table'] = 0;
+  $handler->display->display_options['arguments']['field_destinations_tid']['require_value'] = 0;
+  $handler->display->display_options['arguments']['field_destinations_tid']['reduce_duplicates'] = 1;
+  $handler->display->display_options['arguments']['field_destinations_tid']['set_breadcrumb'] = 1;
+  /* Argument: Destinations: Destinations target: Destinations (field_destinations) */
+  $handler->display->display_options['arguments']['field_destinations_target']['id'] = 'field_destinations_target';
+  $handler->display->display_options['arguments']['field_destinations_target']['table'] = 'node_data_field_destinations';
+  $handler->display->display_options['arguments']['field_destinations_target']['field'] = 'field_destinations_target';
+  $handler->display->display_options['arguments']['field_destinations_target']['style_plugin'] = 'default_summary';
+  $handler->display->display_options['arguments']['field_destinations_target']['default_argument_type'] = 'fixed';
+  /* Filter: Node: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = '1';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter: Node: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'wally_articlepackage' => 'wally_articlepackage',
+    'wally_gallerypackage' => 'wally_gallerypackage',
+    'wally_pollpackage' => 'wally_pollpackage',
+  );
+  $handler->display->display_options['filters']['type']['expose']['operator'] = FALSE;
+  
+  /* Display: Feed */
+  $handler = $view->new_display('feed', 'Feed', 'feed_1');
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['style_plugin'] = 'rss';
+  $handler->display->display_options['style_options']['mission_description'] = FALSE;
+  $handler->display->display_options['row_plugin'] = 'node_rss';
+  $handler->display->display_options['path'] = 'feed';
+  $translatables['default_destination_view_feed'] = array(
+  t('Defaults'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('All'),
+  t('Feed'),
+  );
+  
   $views[$view->name] = $view;
 
   return $views;
