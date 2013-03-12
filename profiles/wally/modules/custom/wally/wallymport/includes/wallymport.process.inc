@@ -468,7 +468,7 @@ function wallymport_preprocess_zip($file, &$importer, &$returns){
 
   $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.fieldshelpers');
     $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
     $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
     file_check_directory_recursive($temp_subdir, 1);
