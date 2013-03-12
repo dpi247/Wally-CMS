@@ -493,7 +493,7 @@ function wallymport_preprocess_zip($file, &$importer, &$return){
 
   $res = $zip->open($file->filename);
   if ($res === TRUE) {
-    module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+    module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
     $file_name = strstr($file->name, '.zip') ? str_replace('.zip', '', $file->name) : $file->name;
     $temp_subdir = $importer->temp_directory_path.'/'.$file_name;
     _wimprthelp_file_check_directory_recursive($temp_subdir, 1);
