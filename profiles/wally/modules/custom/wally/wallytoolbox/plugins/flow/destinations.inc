@@ -189,7 +189,6 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
     $view->set_items_per_page($feed_infos['conf']['maxitem']);
   
   $view->execute();
-  dsm($view);
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
     return array();
   }
