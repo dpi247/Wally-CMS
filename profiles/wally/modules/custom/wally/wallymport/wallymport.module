@@ -303,7 +303,7 @@ function wallymport_panels_pane_content_alter(&$content, $pane, $panel_args, $co
  */
 function wallymport_views_api() {
   return array(
-    'api'  => 2.0,
+    'api'  => 3,
 	'path' => drupal_get_path('module', 'wallymport') . '/plugins/views',
   );
 }

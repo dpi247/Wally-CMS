@@ -189,13 +189,15 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
     $view->set_items_per_page($feed_infos['conf']['maxitem']);
   
   $view->execute();
+  dsm($view);
   if (empty($view->result) && !$view->display_handler->get_option('empty') && empty($view->style_plugin->definition['even empty'])) {
     return array();
   }
-  $ret_view = $view;
-  $view->destroy();
   
-  return $ret_view;
+  //DEmander à Olivier pourquoi view destroy
+  //$view->destroy();
+  
+  return $view;
 }
 
 function wallytoolbox_destinations_flow_transform_node($node, $feed_infos = array()) {

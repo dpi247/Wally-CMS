@@ -136,7 +136,7 @@ function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $expo
  */
 function wally_content_taxonomy_views_api() {
   return array(
-    'api'  => 2.0,
+    'api'  => 3,
 	  'path' => drupal_get_path('module', 'wally_content_taxonomy') . '/plugins/views',
   );
 }

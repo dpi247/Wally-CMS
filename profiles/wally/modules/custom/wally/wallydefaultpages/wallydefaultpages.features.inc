@@ -15,6 +15,6 @@ function wallydefaultpages_ctools_plugin_api() {
  */
 function wallydefaultpages_views_api() {
   return array(
-    'api' => '2',
+    'api' => '3',
   );
 }
