@@ -147,8 +147,14 @@ function _wallyflowtonode_build_feed_queue($flow_key) {
   
   $view = views_get_view('flow_to_node_queue');
   $view->set_display('default');
-  $view->pager['use_pager'] = TRUE;
-  $view->pager['items_per_page'] = 20;
+ 
+  //Set the pager
+  $pager = $view->display_handler->get_option('pager');
+  $pager['type'] = 'wallyctools_calc';
+  $pager['options']['items_per_page'] = 20;
+  $view->display_handler->set_option('pager', $pager);
+  
+  
   $arg = (strlen($feeds_infos['prefix']) > 5) ? substr($feeds_infos['prefix'], 0, 5) : $feeds_infos['prefix'];
   while(strlen($arg) < 5)
     $arg .= ':';
