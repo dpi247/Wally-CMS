@@ -151,6 +151,7 @@ function wallyedit_form_node_form_submit(&$form, &$form_state) {
     wydit_form_node_main_treatment_forced_validate($form, $form_state);
     // We only want the process part, not the true validation, so we skip the messages
     drupal_get_messages();
+    form_set_error(NULL, '', TRUE);
   }
 
   if ($form_state['clicked_button']['#wydit_op_type'] == 'pre_treat') {
@@ -363,7 +364,6 @@ function wydit_prepare_selectbox_form_element(&$form_element, &$form_state, $ele
     '#theme' => 'wydit_selector_theme',
     '#title' => $form_element['#title'],
   );
-
   foreach($form_state as $key => $embed) {
     if(is_array($embed) && isset($embed['#node'])) {
       $embed_node = $embed['#node'];
@@ -1152,7 +1152,7 @@ function wydit_form_submit_action_add_existing($form_state) {
       $ref_parents = $parents;
     }
   
-    $view = views_get_view('prenode_selectbox_vbo');
+    $view = views_get_view('prenode_selectbox_vbo', TRUE);
     $view->set_display('default');
     wydit_process_node_selector_view($view, $ref_parents, $cache_name, $parents);
   

@@ -47,7 +47,7 @@ function wallyctools_views_plugins() {
       ),
     ),
     
-  'row' => array( //declare the unformatted row plugin
+    'row' => array( //declare the unformatted row plugin
       'redacblock_row' => array(
         'title' => t('Destination block Row'),
         'help' => t('(Displays the node according to the layout of his destination.'),
@@ -60,6 +60,17 @@ function wallyctools_views_plugins() {
         'uses options' => TRUE,
         'type' => 'normal',
       )
-     )  
+    ),
+    'pager' => array(
+      'wallyctools_calc' => array(
+        'title' => t('Wallyctools paged output, calc pager'),
+        'help' => t('Use the calc pager output.'),
+  		'path' =>  drupal_get_path('module', 'wallyctools') . '/plugins/views',
+        'handler' => 'wallyctools_views_plugin_pager_calc',
+        'help topic' => 'pager-calc',
+        'uses options' => TRUE,
+        'parent' => 'full',
+      ),
+    ),
   );
 }

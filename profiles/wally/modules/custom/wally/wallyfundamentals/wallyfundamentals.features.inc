@@ -15,6 +15,6 @@ function wallyfundamentals_ctools_plugin_api() {
  */
 function wallyfundamentals_views_api() {
   return array(
-    'api' => '2',
+    'api' => '3',
   );
 }

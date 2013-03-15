@@ -21,6 +21,7 @@ $plugin = array(
     'title' => '',
     'override_pager_settings' => FALSE,
     'use_pager' => FALSE,
+    'use_splitted' => FALSE,
     'nodes_per_page' => 10,
     'total_nodes_per_page' => NULL,
     'split_index_count' => NULL,
@@ -246,7 +247,6 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if (!is_array($contexts)) {
     $contexts = array($contexts);
   }
-
   $view_name = $conf['content']->view_name;
   $view_id = $conf['content']->view_id;
 
@@ -277,11 +277,10 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
   if (isset($conf['context']) && is_array($conf['context'])) {
     foreach ($conf['context'] as $count => $context_info) {
       if (!strpos($context_info, '.')) {
-        // old skool: support pre-converter contexts as well.
+        // old school: support pre-converter contexts as well.
         $cid = $context_info;
         $converter = '';
-      }
-      else {
+      } else {
         list($cid, $converter) = explode('.', $context_info, 2);
       }
       if (!empty($contexts[$cid])) {
@@ -290,12 +289,13 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
       }
     }
   }
-
-  if($conf['hide_pager']) {
-    $view->hide_pager=TRUE;
+  
+  if ($conf['hide_pager']) {
+    $view->hide_pager = TRUE;
   }
-  $view->split_index_count=$conf['split_index_count'];
-  $view->split_total_count=$conf['split_total_count'];
+  $view->split_index_count = $conf['split_index_count'];
+  $view->split_total_count = $conf['split_total_count'];
+  $view->split_page_count = $conf['total_nodes_per_page'];
 
   if (wallyctools_prepare_view_for_redacblock($view, $view_id, $redacblock_name, $args, $conf)) {
     $block = new stdClass();
@@ -314,10 +314,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
     if (array_key_exists('wallyedit_preview', $contexts)) {
       $view->wallyedit_preview = $contexts['wallyedit_preview']->wallyedit_preview;
-      $view->display_handler->set_option('items_per_page', $view->pager['items_per_page'] + 1);
-      $view->set_items_per_page($view->pager['items_per_page'] + 1);
+      $view->display_handler->set_option('items_per_page', $view->pager['options']['items_per_page'] + 1);
+      $view->set_items_per_page($view->pager['options']['items_per_page'] + 1);
     }
-
     $block->content = $view->preview();
     $block->title = $view->get_title();
 
@@ -345,6 +344,7 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
  * Returns an edit form for the redacblock type.
  */
 function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
+  drupal_add_css(drupal_get_path('module', 'wallyctools').'/css/wallyctools.css');
   $conf = wallyctools_redacblock_content_type_get_conf($form_state['subtype'], $form_state['conf']);
   $view_name = $conf['content']->view_name;
   $view_id = $conf['content']->view_id;
@@ -360,7 +360,6 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     $form['markup'] = array('#value' => t('Broken/missing/deleted view.'));
     return;
   }
-
   $form['contexts'] = array(
     '#title' => t('Substitutions'),
     '#type' => 'fieldset',
@@ -405,8 +404,9 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
   );
 
   $form['pager_settings']['override_pager_settings'] = array(
+  '#prefix' => '<div class="main-container">',
     '#type' => 'checkbox',
-    '#title' => t('Use different pager settings from view settings'),
+    '#title' => t('Overriding view settings'),
     '#default_value' => $conf['override_pager_settings'],
     '#id' => 'override-pager-checkbox',
   );
@@ -416,36 +416,43 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
       '#value' => '<div>' . t('<strong>Warning: </strong> This view has AJAX enabled. Overriding the pager settings will work initially, but when the view is updated via AJAX, the original settings will be used. You should not override pager settings on Views with the AJAX setting enabled.') . '</div>',
     );
   }
-
+  $form['pager_settings']['total_nodes_per_page'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['total_nodes_per_page'],
+    '#title' => t('Total nodes per pages'),
+    '#size' => 4,
+    '#description' => t('The total number of nodes on the page.'),
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
   $form['pager_settings']['use_pager'] = array(
-    '#prefix' => '<div class="container-inline">',
+    '#prefix' => '<div class="container">',
     '#type' => 'checkbox',
     '#title' => t('Use pager'),
     '#default_value' => $conf['use_pager'],
     '#id' => 'use-pager-checkbox',
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
-  );
-
-  $form['pager_settings']['pager_id'] = array(
-    '#type' => 'textfield',
-    '#default_value' => $conf['pager_id'],
-    '#title' => t('Pager ID'),
-    '#size' => 4,
-    '#id' => 'use-pager-textfield',
-    '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1), 'use-pager-checkbox' => array(1)),
-    '#dependency_count' => 2,
     '#suffix' => '</div>',
   );
 
+  $form['pager_settings']['use_splitted'] = array(
+    '#prefix' => '<div class="container">',
+    '#type' => 'checkbox',
+    '#title' => t('Use splited blocks'),
+    '#default_value' => $conf['use_splitted'],
+    '#id' => 'use-splitted-checkbox',
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1)),
+  );
   $form['pager_settings']['nodes_per_page'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['nodes_per_page'],
     '#size' => 4,
     '#title' => t('Number of posts displayed on this block'),
     '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1)),
+    '#dependency' => array('override-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+    '#dependency_count' => 2,
   );
 
   $form['pager_settings']['offset'] = array(
@@ -455,29 +462,11 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#size' => 4,
     '#description' => t('The number of items to skip and not display.'),
     '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1)),
+    '#dependency' => array('override-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+    '#dependency_count' => 2,
   );
 
-
-  $form['pager_settings']['hide_pager'] = array(
-    '#type' => 'checkbox',
-    '#default_value' => $conf['hide_pager'],
-    '#title' => t('Hide pager'),
-    '#size' => 4,
-    '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1)),
-  );
-
-  $form['pager_settings']['total_nodes_per_page'] = array(
-    '#type' => 'textfield',
-    '#default_value' => $conf['total_nodes_per_page'],
-    '#title' => t('Total nodes per pages'),
-    '#size' => 4,
-    '#description' => t('The total number of nodes on the page (Only if the redac block is splitted across the page).'),
-    '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1)),
-  );
-
+  
   $form['pager_settings']['split_index_count'] = array(
     '#type' => 'textfield',
     '#default_value' => $conf['split_index_count'],
@@ -485,7 +474,8 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#size' => 4,
     '#description' => t('The index of this redacblock -if this is the third splitted redabclokc it will be 3- (Only if the redac block is splitted across the page).'),
     '#process' => array('ctools_dependent_process'),
-    '#dependency' => array('override-pager-checkbox' => array(1)),
+    '#dependency' => array('override-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+    '#dependency_count' => 2,
   );
 
   $form['pager_settings']['split_total_count'] = array(
@@ -493,11 +483,38 @@ function wallyctools_redacblock_content_type_edit_form(&$form, &$form_state) {
     '#default_value' => $conf['split_total_count'],
     '#title' => t('# of splited blocks'),
     '#size' => 4,
+    '#description' => t('The total number of splitted block. I there is three redacblock it will be 3'),
     '#process' => array('ctools_dependent_process'),
     '#dependency' => array('override-pager-checkbox' => array(1)),
-    '#description' => t('The total count of this kind of splitted redacblocks in the page.'),
+    '#dependency' => array('override-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+    '#dependency_count' => 2,
+    
   );
 
+  $form['pager_settings']['hide_pager'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => $conf['hide_pager'],
+    '#title' => t('Hide pager'),
+    '#size' => 4,
+    '#description' => t('Check this if you don\'t want the pager to display above this redacblock'),
+  	'#process' => array('ctools_dependent_process'),
+  	'#dependency' => array('override-pager-checkbox' => array(1), 'use-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+  	'#dependency_count' => 3,
+  );
+
+  $form['pager_settings']['pager_id'] = array(
+    '#type' => 'textfield',
+    '#default_value' => $conf['pager_id'],
+    '#title' => t('Pager ID'),
+    '#size' => 4,
+    '#description' => t('This ID is use to synchronize the splitted blocks with the pager. You need to set the same one on each splitted block.'),
+    '#id' => 'use-pager-textfield',
+    '#process' => array('ctools_dependent_process'),
+    '#dependency' => array('override-pager-checkbox' => array(1), 'use-pager-checkbox' => array(1), 'use-splitted-checkbox' => array(1)),
+    '#dependency_count' => 3,
+    '#suffix' => '</div></div>',
+  );
+  
   $form['link_to_view'] = array(
     '#type' => 'checkbox',
     '#default_value' => $conf['link_to_view'],

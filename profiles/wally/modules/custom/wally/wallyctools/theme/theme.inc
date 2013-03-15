@@ -44,7 +44,6 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   $vars['comments'] = '';
   $vars['prefix'] = '';
   $vars['suffix'] = '';
-
   $nid = $vars['row']->{$vars['field_alias']};
 
   if($view->wallyedit_preview) {

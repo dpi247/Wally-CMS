@@ -154,3 +154,153 @@ function wallyctools_update_6002() {
   wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
   return $ret;
 }
+function wallyctools_update_6003() { 
+  $ret = array();
+  //Set view calc on redacbloc views
+
+  $result = db_query("SELECT vid, id, display_options  FROM {views_display} WHERE display_plugin = 'redacblock'");
+  while ($obj = db_fetch_object($result)){ 
+    $display_options = unserialize($obj->display_options);
+     if ($display_options['pager']['type'] == 'full' || $display_options['pager']['type'] == 'mini') {
+      $display_options['pager']['type'] = 'wallyctools_calc';
+      $display_options['pager']['options']['id'] = '0';
+      $display_options['pager']['options']['expose']['items_per_page_options_all'] = 0;
+      $obj->display_options = serialize($display_options);
+      db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+    } elseif ($display_options['use_pager'] == 'full' || $display_options['use_pager'] == 'mini'){
+      $display_options['use_pager'] = NULL;
+      $display_options['pager_options'] = NULL;
+      $display_options['defaults']['pager'] = FALSE;
+      $display_options['defaults']['pager_options'] = FALSE;
+      $display_options['pager']['type'] = 'wallyctools_calc';
+      $display_options['pager']['options']['items_per_page'] = $display_options['items_per_page'];
+      $display_options['pager']['options']['offset'] = $display_options['offset'];
+      $display_options['pager']['options']['id'] = $display_options['pager_element'];
+      $display_options['pager']['options']['total_pages'] = '';
+      $display_options['pager']['options']['expose'] = array(
+        'contains' => array(
+          'items_per_page' => array('default' => FALSE, 'bool' => TRUE),
+          'items_per_page_label' => array('default' => 'Items per page', 'translatable' => TRUE),
+          'items_per_page_options' => array('default' => '5, 10, 20, 40, 60'),
+          'items_per_page_options_all' => array('default' => FALSE),
+          'items_per_page_options_all_label' => array('default' => '- All -', 'translatable' => TRUE),
+          'offset' => array('default' => FALSE, 'bool' => TRUE),
+          'offset_label' => array('default' => 'Offset', 'translatable' => TRUE),
+        ),
+      );
+      $obj->display_options = serialize($display_options);
+      db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+    }
+  }
+  
+  //Update redacbloc
+  $result = db_query("SELECT pid, configuration FROM {panels_pane} WHERE type = 'redacblock'");
+  while ($obj = db_fetch_object($result)){
+    $conf = unserialize($obj->configuration);
+    if ($conf['split_index_count'] == ''){
+      $conf['use_splitted'] = 0;
+    } else {
+      $conf['use_splitted'] = 1;
+    }
+    $obj->configuration = $conf;
+    drupal_write_record('panels_pane', $obj, array('pid'));
+  }
+  return $ret;  
+}
+function wallyctools_views3_updatepager(){
+  $result = db_query("SELECT vid, id, display_options  FROM {views_display} WHERE display_plugin <> 'redacblock' AND display_plugin <>'default'");
+  while ($obj = db_fetch_object($result)){
+    $display_options = unserialize($obj->display_options);
+    if ($display_options['items_per_page'] != NULL){
+      if ($display_options['use_pager'] === FALSE || $display_options['use_pager'] == 0){
+        //No pager
+        $display_options['pager'] = array();
+        $display_options['pager']['options'] = array(
+          'offset' => $display_options['offset'],
+        );
+        
+        if ($display_options['items_per_page'] == 0){
+          $display_options['pager']['type'] = 'none';
+        } else {
+          $display_options['pager']['type'] = 'some';
+          $display_options['pager']['options']['items_per_page'] = $display_options['items_per_page'];
+          
+        }
+        
+        
+        $display_options['items_per_page'] = NULL;
+        $display_options['offset'] = NULL;
+        $display_options['use_pager'] = NULL;
+        $display_options['defaults']['pager'] = FALSE;
+        $display_options['defaults']['pager_options'] = FALSE;
+        
+        $obj->display_options = serialize($display_options);
+        
+        db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+      } elseif ($display_options['use_pager'] == 1){
+        //Full pager
+        $display_options['pager'] = array();
+        $display_options['pager']['type'] = 'full';
+        $display_options['pager']['options'] = array(
+          'items_per_page' => $display_options['items_per_page'],
+          'offset' => $display_options['offset'],
+          'id' => $display_options['pager_element'],
+          'total_pages' => '',
+          'expose' => array(
+            'contains' => array(
+              'items_per_page' => array('default' => FALSE, 'bool' => TRUE),
+              'items_per_page_label' => array('default' => 'Items per page', 'translatable' => TRUE),
+              'items_per_page_options' => array('default' => '5, 10, 20, 40, 60'),
+              'items_per_page_options_all' => array('default' => FALSE),
+              'items_per_page_options_all_label' => array('default' => '- All -', 'translatable' => TRUE),
+              'offset' => array('default' => FALSE, 'bool' => TRUE),
+              'offset_label' => array('default' => 'Offset', 'translatable' => TRUE),
+            ),
+          ),
+        );
+        $display_options['items_per_page'] = NULL;
+        $display_options['offset'] = NULL;
+        $display_options['use_pager'] = NULL;
+        $display_options['defaults']['pager'] = FALSE;
+        $display_options['defaults']['pager_options'] = FALSE;
+        
+        $obj->display_options = serialize($display_options);
+        
+        db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+      } elseif ($display_options['use_pager'] == 'mini'){
+        //mini pager
+        $display_options['pager'] = array();
+        $display_options['pager']['type'] = 'mini';
+        $display_options['pager']['options'] = array(
+          'items_per_page' => $display_options['items_per_page'],
+          'offset' => $display_options['offset'],
+          'id' => $display_options['pager_element'],
+          'total_pages' => '',
+          'expose' => array(
+            'contains' => array(
+              'items_per_page' => array('default' => FALSE, 'bool' => TRUE),
+              'items_per_page_label' => array('default' => 'Items per page', 'translatable' => TRUE),
+              'items_per_page_options' => array('default' => '5, 10, 20, 40, 60'),
+              'items_per_page_options_all' => array('default' => FALSE),
+              'items_per_page_options_all_label' => array('default' => '- All -', 'translatable' => TRUE),
+              'offset' => array('default' => FALSE, 'bool' => TRUE),
+              'offset_label' => array('default' => 'Offset', 'translatable' => TRUE),
+            ),
+          ),
+        );
+        $display_options['items_per_page'] = NULL;
+        $display_options['offset'] = NULL;
+        $display_options['use_pager'] = NULL;
+        $display_options['defaults']['pager'] = FALSE;
+        $display_options['defaults']['pager_options'] = FALSE;
+        
+        $obj->display_options = serialize($display_options);
+        
+        db_query("UPDATE {views_display} SET display_options = '%s' WHERE vid = %d AND id = '%s'", $obj->display_options, $obj->vid, $obj->id);
+        
+      }
+    }
+  }
+  
+  
+}

@@ -18,7 +18,7 @@ function wallyedit_init(){
  */
 function wallyedit_views_api() {
   return array(
-    'api' => '2',
+    'api' => '3',
   );
 }
 
@@ -306,15 +306,6 @@ function wallyedit_menu(){
     'type' => MENU_CALLBACK,
   );
   
-  $items['wallyedit/views/ajax'] = array(
-    'title' => 'WallyEdit Views AJAX',
-    'page callback' => 'wallyedit_views_ajax',
-    'access arguments' => array('administer nodes'),
-    'description' => 'Ajax callback for view loading.',
-    'file' => 'includes/views_ajax.inc',
-    'type' => MENU_CALLBACK,
-  );
-  
   $items['wallyedit/change_current_tab/%/%'] = array(
     'title' => 'WallyEdit Change current tab',
     'page callback' => 'wallyedit_change_current_tab',
@@ -322,7 +313,15 @@ function wallyedit_menu(){
     'access arguments' => array('administer nodes'),
     'type' => MENU_CALLBACK,
   );
-
+  
+  $items['wallyedit/views/ajax'] = array(
+      'title' => 'WallyEdit Views AJAX',
+      'page callback' => 'wallyedit_views_ajax',
+      'access arguments' => array('administer nodes'),
+      'description' => 'Ajax callback for view loading.',
+      'file' => 'includes/views_ajax.inc',
+      'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -549,6 +548,7 @@ function wallyedit_node_type($op, $info) {
  * Implementation of hook_form_alter()
  */
 function wallyedit_form_alter(&$form, &$form_state, $form_id) {
+  
   if (($form_id == 'wallyedit_form_node_edition_form' && (sizeof($form_state['parents']) == 1)) || (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id)) {
     module_load_include('inc', 'wallyedit', 'includes/config_api');
     $type = $form['type']['#value'];
@@ -603,29 +603,30 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-function wallyedit_form_views_bulk_operations_form__1_alter(&$form, &$form_state) {
-  if($form['#plugin']->view->name == 'prenode_selectbox_vbo') {
-    if (!array_key_exists('type', $form['#plugin']->view->filter)) {
-      unset($form['select']);
-      unset($form['objects']);
-    }
-    
-    array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form__1_validate');
-    $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form__1_submit';
+function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_alter(&$form, &$form_state) {
+  //In case of ajax, edit action to wallyedit callback and not ajax callback
+  if (isset($form['#plugin']->view->ajax_path)) {
+    $view_info = end($form['#plugin']->view->ajax_path);
+    $filter = '?filter_select='.implode('--',$_GET['type']);
+    $form['#action'] = '/'.$view_info['view_path'].$filter;
+  }
+  array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_validate');
+  $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit';
 
-    $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[2]));
-    $form['cancel_global'] = array(
+  $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[2]));
+  $form['cancel_global'] = array(
       '#type' => 'submit',
       '#wydit_op_type' => 'pre_treat',
       '#name' => 'cancel_global',
       '#value' => t('Back to edition'),
     	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
       '#next_parents' => array_slice($parents, 0, -1),
-    );
-  }
+  );
+  
 }
 
-function wallyedit_form_views_bulk_operations_form__1_validate(&$form, &$form_state) {
+function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_validate(&$form, &$form_state) {
+  
   if ($form_state['clicked_button']['#name'] == 'cancel_global') {
     module_load_include('inc', 'wallyedit', 'includes/Prenode');
     $prenode = new Prenode($form['#plugin']->view->args[0]);
@@ -637,10 +638,9 @@ function wallyedit_form_views_bulk_operations_form__1_validate(&$form, &$form_st
   }
 }
 
-function wallyedit_form_views_bulk_operations_form__1_submit($form, &$form_state) {
-  if (strstr($form_state['redirect'], '/ajax/')) {
-    $form_state['redirect'] = str_replace('/ajax/', '/0/', $form_state['redirect']);
-  }
+function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit($form, &$form_state) {
+  $parse_url = parse_url($form['#action']);
+  $form_state['redirect'] = str_replace('/ajax/', '/0/', $parse_url['path']);
 }
 
 /**
@@ -753,7 +753,6 @@ function wallyedit_wallycrop_cropings($image, $fid, $data) {
     foreach ($embed_nodes as $embed_node) {
       if ($embed_node->type == 'wally_photoobject') {
         if (isset($embed_node->field_photofile[0]['fid']) && $embed_node->field_photofile[0]['fid'] == $fid) {
-          variable_set('debug', $embed_node);
           return json_decode($embed_node->field_croping[0]['value'], TRUE);
         }
       }
@@ -889,7 +888,7 @@ function wallyedit_node_operations_selector_action($nodes, $context, $b, $c) {
   $next_parents = explode('__', str_replace('-', '_', $context['arguments'][2]));
 
   module_load_include('inc', 'wallyedit', 'includes/Prenode');
-  $prenode = new Prenode($cache_name);
+  $prenode = new Prenode($cache_name, TRUE);
   $form_state = $prenode->getFormState();
   foreach($nodes as $nid) {
     $node = node_load($nid);
@@ -1381,10 +1380,13 @@ function wydit_process_node_selector_view(&$view, $ref_parents, $cache_name, $pa
   );
   $view->set_arguments($arguments);
 
-  $callback_url = 'wallyedit/views/ajax';
+  
+  
+  //This is add for the filter, since the filter is in ajax, when it's trigger, the filter is deleted so we need to read it to the view
+   $callback_url = 'wallyedit/views/ajax';
   // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
-  $view->override_path = $callback_url;
-
+   $view->override_path = $callback_url;
+  
   $settings = array(
     'views' => array(
       'ajax_path' => url($callback_url),
