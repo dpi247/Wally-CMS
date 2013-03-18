@@ -1,1 +1,0 @@
-<?php print theme('spcarburant_header'); ?>
