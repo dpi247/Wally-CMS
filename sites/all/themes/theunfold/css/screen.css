@@ -3211,6 +3211,7 @@ aside .article-group.first {
   }
   header #toolbar nav ul li {
     padding: 0;
+    margin-right:5px;
     border-right: 0 none !important;
   }
   header #toolbar nav ul li a.abo {

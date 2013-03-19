@@ -12,8 +12,7 @@
 		<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 		<?php print $scripts ?>
 	</head>
-	
-	<body class="<?php print $classes?> <?php print $body_class;?>">
+	<body class="<?php print $classes?> <?php print $body_classes;?>">
 		<div class="page">	
 		<header id="masthead" role="banner">
       
@@ -21,8 +20,10 @@
       
 		  <div id="toolbar" role="toolbar">
 				<!-- Set tolls & utils menu here -->
-
-				<?php if ($search_box): ?><div id="search-form" class="hidden-phone"><?php print $search_box ?></div><?php endif; ?>
+                <?php if ($search_box): ?><div id="search-form" class="hidden-phone"><?php print $search_box ?></div><?php endif; ?>
+                <nav class="utils"><?php print $TUToolbarRight?></nav>
+                <nav><?php print $TUToolbarLeft?></nav>
+				
 
 			</div> <!-- /toolbar -->
 			<div id="logo">
@@ -65,39 +66,15 @@
       <?php endif; ?>
 
 		</div> <!-- /main -->
-		
-		<?php  if ($mission || $footer_message ) {
-		?>
+		<div id="tubottom"><?php print $TUbottom;?></div>
+		<?php  if ($mission || $footer_message ) {?>
 		<footer>
 			<?php if ($mission): print "<p class=\"mission\">".$mission."</p>"; endif; ?>
 			<?php if ($footer_message): print "<p class=\"footer-message\">".$footer_message."</p>"; endif; ?>
 		</footer>	
 		<?php } ?>
 		</div> <!-- /page -->
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+			
 		
 		<!-- Put Scripts at the Bottom  -->
 		<?php print $closure; ?>
