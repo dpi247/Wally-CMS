@@ -195,12 +195,6 @@ function wallysynch_decryption($data,$key,$td,$iv){
  * the xml.
  */
 function wallysynch_read_file($file,$key,$isEncrypted){
-	
-	//choose the decryption algo
-	$td = mcrypt_module_open('tripledes', '', 'ecb', '');
-	
-	$iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-	
 	if(file_exists($file->filepath))
 	{
 		//read the config.xml file
@@ -213,6 +207,11 @@ function wallysynch_read_file($file,$key,$isEncrypted){
 		//if is encrypted decrypt data from the file
 		if($isEncrypted)
 		{
+		  //choose the decryption algo
+		  $td = mcrypt_module_open('tripledes', '', 'ecb', '');
+		  
+		  $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+		  
 			$data = wallysynch_decryption($data,$key,$td,$iv);
 		}
 		//create xml from string
