@@ -135,20 +135,17 @@ function wallysynch_admin_save_form_submit($form,$form_state) {
  *	the encryption key.
  */
 function wallysynch_save_config($key,$isEncrypted,$confType,$externTab){
-	
-	$server_name = $_SERVER[SERVER_NAME];
-	
-	//choose the encryption algo
-	$td = mcrypt_module_open('tripledes', '', 'ecb', '');
-	
-	$iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-	
 	$path = wally_variable_get('wallysynch_settings', '');
 
 	$data = wallysynch_create_xml($confType,$externTab);
 	
 	if($isEncrypted)
 	{
+	  //choose the encryption algo
+	  $td = mcrypt_module_open('tripledes', '', 'ecb', '');
+	  
+	  $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+	  
 		$data = wallysynch_encryption($data, $key, $td, $iv);
 	}
 	
