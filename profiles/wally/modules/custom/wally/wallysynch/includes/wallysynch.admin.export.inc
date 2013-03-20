@@ -115,12 +115,12 @@ function wallysynch_admin_save_form_submit($form,$form_state) {
 
   if($addVar == '' && $addWallyVar == '')
   {
-    wallysynch_save_config($valueKey,$isEncrypted,$confType);
+    wallysynch_save_config($valueKey, $isEncrypted, $confType);
   }
   else
   {
-    $externeTab = wallysynch_cut_variables($addVar,$addWallyVar);
-    wallysynch_save_config($valueKey,$isEncrypted,$confType,$externeTab);
+    $externeTab = wallysynch_cut_variables($addVar, $addWallyVar);
+    wallysynch_save_config($valueKey, $isEncrypted, $confType, $externeTab);
   }
 }
 
@@ -131,10 +131,10 @@ function wallysynch_admin_save_form_submit($form,$form_state) {
  *	@param $key
  *	the encryption key.
  */
-function wallysynch_save_config($key,$isEncrypted,$confType,$externTab){
+function wallysynch_save_config($key, $isEncrypted, $confType, $externTab = NULL){
   $path = wally_variable_get('wallysynch_settings', '');
 
-  $data = wallysynch_create_xml($confType,$externTab);
+  $data = wallysynch_create_xml($confType, $externTab);
 
   if($isEncrypted)
   {
@@ -183,7 +183,7 @@ function wallysynch_encryption($data,$key,$td,$iv){
  * @return $tab
  * the array with for each module the variables and the query
  */
-function wallysynch_create_export_tab($ExternTab){
+function wallysynch_create_export_tab($ExternTab = NULL){
 
   //apachesolr module
   $tabXml [] = array(
@@ -256,7 +256,7 @@ function wallysynch_create_export_tab($ExternTab){
  * @return $data
  * return xml data
  */
-function wallysynch_create_xml($confType,$externTab){
+function wallysynch_create_xml($confType, $externTab = NULL){
 
   $tab = wallysynch_create_export_tab($externTab);
 
