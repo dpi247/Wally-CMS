@@ -574,7 +574,9 @@ function wallyextra_update_6006() {
  */
 function wallyextra_update_6007() {
   $ret = array();
-  $schemas = wallyextra_schema();
-  db_create_table($ret, 'cache_wally_blocks', $schemas['cache_wally_blocks']);
+  if (!db_table_exists('cache_wally_blocks')) {
+    $schemas = wallyextra_schema();
+    db_create_table($ret, 'cache_wally_blocks', $schemas['cache_wally_blocks']);
+  }
   return $ret;
 }
