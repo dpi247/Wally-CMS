@@ -251,7 +251,7 @@ function theunfold_preprocess_node(&$vars){
       }
 
       // build data for node page
-      if ($node->nid == arg(1) || $node->preview || true ) {
+      if ($node->nid == arg(1) || $node->preview ) {
 
         // We unset the body, theunfold_preprocess_node_build will create a new one.
         unset($vars["body"]);
