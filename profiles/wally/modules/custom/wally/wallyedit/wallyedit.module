@@ -313,7 +313,15 @@ function wallyedit_menu(){
     'access arguments' => array('administer nodes'),
     'type' => MENU_CALLBACK,
   );
-
+  
+  $items['wallyedit/views/ajax'] = array(
+      'title' => 'WallyEdit Views AJAX',
+      'page callback' => 'wallyedit_views_ajax',
+      'access arguments' => array('administer nodes'),
+      'description' => 'Ajax callback for view loading.',
+      'file' => 'includes/views_ajax.inc',
+      'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -597,14 +605,15 @@ function wallyedit_form_alter(&$form, &$form_state, $form_id) {
 
 function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_alter(&$form, &$form_state) {
 
-  if (!array_key_exists('type', $form['#plugin']->view->filter)) {
-  //  unset($form['select']);
-  //  unset($form['objects']);
+  //In case of ajax, edit action to wallyedit callback and not ajax callback
+  if (isset($form['#plugin']->view->ajax_path)) {
+    $view_info = end($form['#plugin']->view->ajax_path);
+    $form['#action'] = $view_info['view_path'];
   }
   array_unshift($form['#validate'], 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_validate');
   $form['#submit'][] = 'wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit';
 
- /* $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[2]));
+  $parents = explode('__', str_replace('-', '_', $form['#plugin']->view->args[2]));
   $form['cancel_global'] = array(
       '#type' => 'submit',
       '#wydit_op_type' => 'pre_treat',
@@ -612,7 +621,7 @@ function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default
       '#value' => t('Back to edition'),
     	'#attributes' => array('class' => 'form-submit ctools-use-ajax'),
       '#next_parents' => array_slice($parents, 0, -1),
-  );*/
+  );
   
 }
 
@@ -1370,6 +1379,19 @@ function wydit_process_node_selector_view(&$view, $ref_parents, $cache_name, $pa
   );
   $view->set_arguments($arguments);
 
+  
+  
+  //This is add for the filter, since the filter is in ajax, when it's trigger, the filter is deleted so we need to read it to the view
+   $callback_url = 'wallyedit/views/ajax';
+  // Override the view path, otherwise the path will be 'ACTION_URL' and AJAX will not be take into account
+   $view->override_path = $callback_url;
+  
+  $settings = array(
+    'views' => array(
+      'ajax_path' => url($callback_url),
+    ),
+  );
+  drupal_add_js($settings, 'setting');
 }
 
 /**
