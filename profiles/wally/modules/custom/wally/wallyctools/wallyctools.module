@@ -157,33 +157,36 @@ function wallyctools_preprocess_views_view(&$vars) {
     $view = $vars['view'];
  
     //if redacblock is splitted we need to tweak the pager
-    if(isset($view->split_index_count) && !empty($view->split_index_count) && is_numeric($view->split_index_count) && ($view->split_index_count > 0)) {
+    if (isset($view->split_index_count) && !empty($view->split_index_count) && is_numeric($view->split_index_count) && ($view->split_index_count > 0)) {
       global $pager_total;
-      $pager_total[$view->pager['element']] = (int)($view->total_rows / $view->pager['total_items_per_page']) + 1;
+      $pager_total[$view->pager['options']['id']] =  ceil(($view->total_rows / $view->pager['options']['items_per_page']));
+      
       $pager_type = ($view->pager['use_pager'] === 'mini' ? 'views_mini_pager' : 'pager');
       $pager_theme = views_theme_functions($pager_type, $view, $view->display_handler->display);
-      $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_total_count, $view->pager['element']);
-  
+      $vars['pager'] = '';
+      if ($vars['view']->hide_pager !== TRUE){
+        $vars['pager'] = theme($pager_theme, $exposed_input, $vars['view']->split_page_count, $view->pager['options']['id']);
+      }
       $funcs = views_theme_functions('views_view', $view, $view->display[$view->current_display]);
   
       $new_funcs = array();
-      foreach($funcs as $func) {
-        if($func != 'views_view__' && isset($view->split_index_count) && $view->split_index_count != '' && $view->split_index_count != NULL) {
+      foreach ($funcs as $func) {
+        if ($func != 'views_view__' && isset($view->split_index_count) && $view->split_index_count != '' && $view->split_index_count != NULL) {
           $needle=str_replace('views_view','',$func);
-          if($needle=='') {
+          if ($needle=='') {
             $new_funcs[]='views_view__splitted_redacblock';
-            if($vars['view']->split_index_count==1) {
+            if ($vars['view']->split_index_count==1) {
               $new_funcs[]='views_view__splitted_redacblock__first';
             }
-            if($vars['view']->split_index_count==$vars['view']->split_total_count) {
+            if ($vars['view']->split_index_count==$vars['view']->split_total_count) {
               $new_funcs[]='views_view__splitted_redacblock__last';
             }
           } else {
             $new_funcs[]='views_view__splitted_redacblock'.$needle;
-            if($vars['view']->split_index_count==1) {
+            if ($vars['view']->split_index_count==1) {
               $new_funcs[]='views_view__splitted_redacblock__first'.$needle;
             }
-            if($vars['view']->split_index_count==$vars['view']->split_total_count) {
+            if ($vars['view']->split_index_count==$vars['view']->split_total_count) {
               $new_funcs[]='views_view__splitted_redacblock__last'.$needle;
             }
           }
@@ -356,7 +359,7 @@ function wallyctools_panels_dashboard_blocks(&$vars) {
  */
 function wallyctools_views_api() {
   return array(
-    'api' => 2,
+    'api' => 3,
     'path' => drupal_get_path('module', 'wallyctools') . '/plugins/views',
   );
 }
@@ -802,22 +805,27 @@ function wallyctools_prepare_view_for_redacblock(&$view, $view_id, $redacblock_n
     if ($conf['override_pager_settings']) {
       if (method_exists($view, 'init_pager')) {
         // Views 3 version
-        $view->set_items_per_page($conf['nodes_per_page']);
-        $view->set_offset($conf['offset']);
-  
+        if ($conf['use_splitted']){
+          $view->set_items_per_page($conf['nodes_per_page']);
+          $view->set_offset($conf['offset']);
+        } else {
+          $view->set_items_per_page($conf['total_nodes_per_page']);
+        }
+        
+        
         $pager = $view->display_handler->get_option('pager');
         if ($conf['use_pager'] && ($pager['type'] == 'none' || $pager['type'] == 'some')) {
           $pager['type'] = 'full';
         }
         elseif (!$conf['use_pager'] && $pager['type'] != 'none' && $pager['type'] != 'some') {
-          $pager['type'] = $view->get_items_per_page() ? 'some' : 'none';
+          $pager['type'] = $conf['total_nodes_per_page'] ? 'some' : 'none';
         }
   
         if ($conf['use_pager']) {
           if (!isset($pager['options']['id']) || $pager['options']['id'] != $conf['pager_id']) {
             $pager['options']['id'] = $conf['pager_id'];
           }
-        }
+        } 
         $view->display_handler->set_option('pager', $pager);
         $view->pager = $pager;
       }
@@ -870,18 +878,26 @@ function wallyctools_get_redac_view($name, $reset = FALSE) {
 
   if (empty($view) && empty($default_view)) {
     return;
-  }
-  elseif (empty($view) && !empty($default_view)) {
+  } elseif (empty($view) && !empty($default_view)) {
     $status = variable_get('views_defaults', array());
     if (isset($status[$default_view->name])) {
       $default_view->disabled = $status[$default_view->name];
     }
     $default_view->type = t('Default');
     return $default_view->clone_view();
-  }
-  elseif (!empty($view) && !empty($default_view)) {
+  } elseif (!empty($view) && !empty($default_view)) {
     $view->type = t('Overridden');
   }
 
   return $view->clone_view();
+}
+/***
+ * Implementation of hook_views_pre_execute
+ */
+function wallyctools_views_pre_execute(&$view){
+  //If splitted redacblock, we need to correct the pager offset
+  if (isset($view->split_index_count) && !empty($view->split_index_count) && is_numeric($view->split_index_count) && ($view->split_index_count > 0)) {
+    $offset = ($view->query->pager->current_page * $view->split_page_count ) + $view->offset;
+    $view->query->offset = $offset;
+  }
 }

@@ -15,6 +15,6 @@ function wallynewshomepage_ctools_plugin_api() {
  */
 function wallynewshomepage_views_api() {
   return array(
-    'api' => '2',
+    'api' => '3',
   );
 }

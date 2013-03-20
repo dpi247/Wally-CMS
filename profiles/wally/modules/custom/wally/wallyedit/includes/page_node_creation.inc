@@ -1,11 +1,17 @@
 <?php
 
 function wallyedit_page_node_creation($type, $js = FALSE, $current_profile = 0){
+  global $custom_theme;
+  $custom_theme = variable_get('admin_theme', 'rubik');
+  if (!variable_get('site_offline', 0)) {
+    init_theme();
+  }
+  
   if ($current_profile == 0) {
     drupal_set_message(t('Profile not set.'), 'error');
     drupal_goto('node/add/'.$type);
   }
-
+  
   module_load_include('inc', 'wallyedit', 'includes/Prenode');
   $node->type = str_replace('-', '_', $type);
   $prenode = new Prenode(arg(5), FALSE, $current_profile);

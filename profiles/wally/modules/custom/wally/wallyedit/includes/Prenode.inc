@@ -32,11 +32,11 @@ class Prenode{
     $this->cache_name = $cache_name;
 
     if($cache_name && !empty($cache_name)) {
-      $node = node_load($cache_name);
+      $node = node_load($cache_name, NULL, $reload);
       if(!$node) {
         //this not a node, maybe a prenode ?
         
-        if($cache = prenode_get($cache_name)) {
+        if($cache = prenode_get($cache_name, $reload)) {
           //Case of a prenode in edition mode
           $this->form_state = $cache;
           $this->form_state['cache name'] = $cache_name;
@@ -48,7 +48,7 @@ class Prenode{
         }
       } else {
         //Case of a prenode in edition mode
-        if(!$break && $cache = prenode_get($cache_name)) {
+        if(!$break && $cache = prenode_get($cache_name, $reload)) {
           $this->form_state = $cache;
           $this->setNode($node);
           $this->form_state['cache name'] = $cache_name;

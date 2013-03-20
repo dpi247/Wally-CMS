@@ -1,0 +1,16 @@
+div.main-container{
+	margin: 10px;
+	border:1px solid #DDDDDD;
+}
+div.container{
+	margin:10px;
+	background-color: #DDDDDD;
+}
+div.main-container div.form-item{
+	margin: 10px;
+}
+div.container div.form-item{
+	background-color:#F7F7F7;
+	border : none;
+	margin: 0px;
+}

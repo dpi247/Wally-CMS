@@ -92,14 +92,19 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
       'more_link' => FALSE,
       'url' => FALSE,
     );
+    $view->set_display($view_infos['view_id']);
+    
     wallyctools_prepare_view_for_redacblock($view, $view_infos['view_id'], $target, array($destination_tid), $conf);
-    $view->pager['total_items_per_page'] = $conf['nodes_per_page'];
-    $view->pager['items_per_page'] = $conf['nodes_per_page'];
-
+    
+    //Set the pager to $limit
+    $pager = $view->display_handler->get_option('pager');
+    $pager['type'] = 'wallyctools_calc';
+    $pager['options']['items_per_page'] = $conf['nodes_per_page'];
+    $view->display_handler->set_option('pager', $pager);
+  
     $view->execute();
     $results = $view->result;
     $view->destroy();
-
     $form['destination_tid'] = array(
       '#type' => 'value',
       '#value' => $destination_tid,
@@ -231,7 +236,6 @@ function wallyctools_form_reorder_destination_form($form_state, $limit = 25, $de
   } else {
     drupal_set_message(t('Please choose a destination path and a target.'));
   }
-
   return $form;
 }
 
@@ -383,15 +387,18 @@ function wallyctools_page_destination_batch_operations($limit = 25, $destination
 
 function wallyctools_view_batch_operations($limit = 25, $destination_tid = NULL, $target = NULL) {
   $return = '';
-  
   if ($target && $destination_tid) {
     $view = views_get_view('batch_destinations');
     $view->set_display('page_1');
     $view->override_path = $_GET['q'];
     $view->set_arguments(array($destination_tid, $target));
-    $view->pager['use_pager'] = TRUE;
-    $view->pager['items_per_page'] = $limit;
-  
+    
+    //Set the pager to $limit
+    $pager = $view->display_handler->get_option('pager');
+    $pager['type'] = 'wallyctools_calc';
+    $pager['options']['items_per_page'] = $limit;
+    $view->display_handler->set_option('pager', $pager);
+    
     $return = $view->render();
     $view->destroy();
     if ($view->pager['use_pager']) {
