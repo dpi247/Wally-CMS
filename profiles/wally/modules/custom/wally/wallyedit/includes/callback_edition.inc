@@ -5,9 +5,22 @@ function wallyedit_callback_node_edition($prenode, $js = FALSE, $current_profile
     drupal_set_message(t('Profile not set.'), 'error');
     drupal_goto('node/'.$prenode->cache_name.'/edit');
   }
-
-  if ($_POST['form_id'] == 'views_bulk_operations_form__1') {
-    $view = views_get_view('prenode_selectbox_vbo');
+  if ($_POST['form_id'] == 'views_bulk_operations_form_prenode_selectbox_vbo_default') {
+    module_load_include('inc', 'wallyedit', 'wallyedit.forms');
+    $view = views_get_view('prenode_selectbox_vbo', TRUE);
+    
+    //Construct ref parents
+    if (sizeof($prenode->form_state['parents']) > 3) {
+      $tmp_parents = array_slice($prenode->form_state['parents'], 0, -1);
+      $tmp_parents[sizeof($tmp_parents)] = 'type';
+      $field_type = wydit_get_target_from_parents($prenode->form_state, $tmp_parents);
+      $prenode->form_state['ref_parents'] = array_merge(array($field_type), array_slice($prenode->form_state['parents'], sizeof($prenode->form_state['parents']) - 1));
+    } else {
+      $prenode->form_state['ref_parents'] = $prenode->form_state['parents'];
+    }
+    //Add a filter and args to the view
+    wydit_process_node_selector_view($view, $prenode->form_state['ref_parents'], $prenode->cache_name, $prenode->form_state['parents']);
+    
     $view->execute_display('default');
   }
 

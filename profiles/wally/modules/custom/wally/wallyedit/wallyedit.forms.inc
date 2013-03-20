@@ -1149,7 +1149,7 @@ function wydit_form_submit_action_add_existing($form_state) {
       $ref_parents = $parents;
     }
   
-    $view = views_get_view('prenode_selectbox_vbo');
+    $view = views_get_view('prenode_selectbox_vbo', TRUE);
     $view->set_display('default');
     wydit_process_node_selector_view($view, $ref_parents, $cache_name, $parents);
   
