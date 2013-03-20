@@ -225,33 +225,33 @@ function theunfold_theme_redacblock_node_figure($item) {
 	return ($content); 
 }
 
-/**
+/*
  * Hook preprocess node
  */
 function theunfold_preprocess_node(&$vars){
+
   $type = $vars["type"];
   $node = &$vars['node'];
-
-  if (isset($vars['view'])) {
-    $view = &$vars['view'];
-  }
-
+  
+  if (isset($vars['view'])) { $view = &$vars['view']; }
+  
   switch ($node->type){
     case 'wally_articlepackage':
-      // We build data for node template teaser mode
-      if ($node->teaser) {
+    // We build data for node template teaser mode
+    if ($node->teaser) {
+        $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
+    } 
+    // We build data for redacblock views
+    if (isset($view)) {
+      $current_display = &$view->display[$view->current_display];
+      if ($current_display->display_options['row_plugin'] == 'redacblock_row') {
         $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
       }
-      // We build data for redacblock views
-      if (isset($view)) {
-        $current_display = &$view->display[$view->current_display];
-        if ($current_display->display_options['row_plugin'] == 'redacblock_row') {
-          $vars["widget"] = theunfold_widget_prepare_article_summary_node($node);
-        }
-      }
+    }
 
+    
       // build data for node page
-      if ($node->nid == arg(1) || $node->preview ) {
+    if ($node->nid == arg(1) || $node->preview ) {
 
         // We unset the body, theunfold_preprocess_node_build will create a new one.
         unset($vars["body"]);
@@ -276,26 +276,26 @@ function theunfold_preprocess_node(&$vars){
             $merged_medias += theunfold_preprocess_node_build_embedded_documents($embed);
             $merged_medias += theunfold_preprocess_node_build_embedded_text($embed);
           }
-          
-          $topItems = array();
-          $bottomItems = array();
-          $bearItems = array();
-          theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
-          $linkslist = theunfold_get_sorted_links($node);
-
-          $vars['top_html'] = theme('theme_package_top_items', array('topItems' => $topItems));
-          $vars['bottom_html'] = theme('theme_package_bottom_items', array('bottomItems' => $bottomItems));
-          $vars['related_html'] = theme('theme_package_related_items',
-            array('linkslist' => $linkslist,
-              'earItems' => $bearItems,
-              'freeTags'  => $vars['field_free_tags'],
-              'persons'  => $vars['field_persons'],
-            )
-          );
         }
-      }
-      break;
+      
+      
+      $topItems = array();
+      $bottomItems = array();
+      theunfold_preprocess_node_article_dispatch_top_bottom($node, $merged_medias, $topItems, $bottomItems, $bearItems);
+      $linkslist = theunfold_get_sorted_links($node);
 
+      $vars['top_html'] = theme('theme_package_top_items', array('topItems' => $topItems));
+      $vars['bottom_html'] = theme('theme_package_bottom_items', array('bottomItems' => $bottomItems));
+      $vars['related_html'] = theme('theme_package_related_items', 
+        array('linkslist' => $linkslist, 
+        	  'bearItems' => $bearItems, 
+        	  'freeTags'  => $vars['field_free_tags'],
+        	  'persons'  => $vars['field_persons'],
+        )
+      );
+    }
+    break;
+    
     case 'wally_photoobject':
     case 'wally_videoobject':
     case 'wally_audioobject':
@@ -510,31 +510,31 @@ function theunfold_theme_package_by($vars){
 }
 /**
  * Dispatch media in two part, top and bottom
- */
+ * */
 function theunfold_preprocess_node_article_dispatch_top_bottom($node, $allItems, &$top, &$bottom, &$bear){
-  if ($node->field_embededobjects_nodes != NULL) {
-    foreach ($node->field_embededobjects_nodes as $nid => $embed) {
-      if (!isset($embed->inline_object) || !$embed->inline_object) {
-        if ($item = $allItems[$embed->nid]) {
-          switch ($item['group_type']){
-            case 'photo':
-              $top[$embed->nid] = $item;
-              break;
-            case 'video':
-              $top[$embed->nid] = $item;
-              break;
-            case 'package':
-              $bear[$embed->nid] = $item;
-              break;
-            default:
-              $bottom[$embed->nid] = $item;
-              break;
-          }
+  
+  if ($node->field_embededobjects_nodes != NULL){
+    foreach ($node->field_embededobjects_nodes as $nid => $embed){
+      if ($item = $allItems[$embed->nid]){
+        switch ($item['group_type']){
+          case 'photo':
+            $top[$embed->nid] = $item;
+            break;
+          case 'video':
+            $top[$embed->nid] = $item;
+            break;
+          case 'package':
+            $bear[$embed->nid] = $item;
+            break;
+          default:
+            $bottom[$embed->nid] = $item;
+            break;
         }
       }
     }
   }
 }
+
 
 function theunfold_theme_package_linkslists($vars){
   $content = '';
@@ -672,9 +672,9 @@ function _theunfold_set_js(&$vars) {
  **/
 function _theunfold_general_theme_settings(&$vars) {
 
-	$vars['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'TheUnfold')) : '');
+  $vars['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'TheUnfold')) : '');
   $vars['mission'] = (theme_get_setting('toggle_mission') ? filter_xss_admin(variable_get('site_mission', 'TheUnfold : Happily published by <a href="http://www.dpi247.com">DPI247</a>, a <a href="http://">Drupal</a> media dedicated distribution.')) : ''); 
-
+  $vars['tabs'] = theme('menu_local_tasks');
   $vars['body_class'] = isset($vars['node']) ? $vars['node']->type.' ' : '';
 
 	//Allows specific theming for taxonomy listings
@@ -724,7 +724,7 @@ function _theunfold_general_theme_settings(&$vars) {
  * theunfold_preprocess_page : Hook_Preprocess_Page
  */
 function theunfold_preprocess_page(&$vars){
-
+	
   $vars["theme_path"] = drupal_get_path('theme', 'theunfold');
  
   _theunfold_set_js($vars);
@@ -735,7 +735,6 @@ function theunfold_preprocess_page(&$vars){
  * hook_preprocess_search_result
  * */
 function theunfold_preprocess_search_result(&$vars){
-
   if ($vars['type'] == 'node'){
     //In node case, add a type name
     switch ($vars['result']['node']->type){
