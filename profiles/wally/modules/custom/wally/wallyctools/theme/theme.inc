@@ -42,7 +42,8 @@ function template_preprocess_wallyctools_row_redacblock(&$vars) {
   // Make sure the variables are defined.
   $vars['node'] = '';
   $vars['comments'] = '';
-
+  $vars['prefix'] = '';
+  $vars['suffix'] = '';
   $nid = $vars['row']->{$vars['field_alias']};
 
   if($view->wallyedit_preview) {
