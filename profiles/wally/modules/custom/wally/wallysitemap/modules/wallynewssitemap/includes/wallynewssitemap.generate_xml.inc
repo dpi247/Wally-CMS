@@ -313,7 +313,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_main_news($dom, &$main_news,
   } else {
     $publication_date = $node->created;
   }
-  $main_news->appendChild($dom->createElementNS($newsNS, 'news:publication', date('Y-m-d\TH:i:sP', $publication_date)));
+  $main_news->appendChild($dom->createElementNS($newsNS, 'news:publication_date', date('Y-m-d\TH:i:sP', $publication_date)));
   $main_news->appendChild($dom->createElementNS($newsNS, 'news:title', $node->title));
   $sitemap_geoloc = array();
   if (isset($node->field_markers[0]['city']) && !empty($node->field_markers[0]['city'])) {
@@ -516,7 +516,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_video($dom, &$video, $videoN
   // video:expiration_date not handled yet
   // video:rating not handled yet
   // video:view_count not handled yet
-  $video->appendChild($dom->createElementNS($videoNS, 'video:publication', date('Y-m-d\TH:i:sP', $embed->created)));
+  $video->appendChild($dom->createElementNS($videoNS, 'video:publication_date', date('Y-m-d\TH:i:sP', $embed->created)));
   if (isset($embed->field_rating[0]['value']) && is_numeric($embed->field_rating[0]['value']) && $embed->field_rating[0]['value'] > 0) {
     $rating_term = taxonomy_get_term($embed->field_rating[0]['value']);
     if ($rating_term->name == 'G') {
@@ -605,7 +605,7 @@ function _wallynewssitemap_generate_newsurl_xml_set_linked_video($dom, &$video, 
   // video:expiration_date not handled yet
   // video:rating not handled yet
   // video:view_count not handled yet
-  $video->appendChild($dom->createElementNS($videoNS, 'video:publication', date('Y-m-d\TH:i:sP', $embed->created)));
+  $video->appendChild($dom->createElementNS($videoNS, 'video:publication_date', date('Y-m-d\TH:i:sP', $embed->created)));
   // video:rating not handled yet
   // video:tag not handled yet
   // video:category not handled yet
