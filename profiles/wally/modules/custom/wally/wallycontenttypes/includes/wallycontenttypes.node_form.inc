@@ -486,7 +486,7 @@ function _wallycontenttypes_deletefromtempautopublish($node) {
 function _wallycontenttypes_addtaxonomywhenupdated($node){
   $rows =_wallycontenttypes_getpackagesid($node);
   foreach($rows as $row){
-    $packagenode=node_load($row['nid']);
+    $packagenode = node_load($row['nid']);
     // Because we dont want node-save api to update
     // taxonomies from main object. We set this
     // field to true. 
@@ -500,7 +500,7 @@ function _wallycontenttypes_addtaxonomywhenupdated($node){
     $packagenode->field_free_tags = $node->field_free_tags;
     $packagenode->field_concepts = $node->field_concepts;
     $packagenode->field_iptc = $node->field_iptc;
-    cckdestinations_force_dnc($node);
+    cckdestinations_force_dnc($packagenode);
     $r = node_save($packagenode);
   }
 }

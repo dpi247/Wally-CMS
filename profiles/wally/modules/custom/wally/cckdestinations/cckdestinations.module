@@ -2038,7 +2038,9 @@ function cckdestinations_is_virtual($dest_name) {
 function cckdestinations_force_dnc(&$node) {
   if (isset($node->field_destinations) && !empty($node->field_destinations)) {
     foreach ($node->field_destinations as $delta => $dest) {
-      $node->field_destinations[$delta]['rank'] = 'DNC'.$dest['rank'];
+      if (!strspn($dest['rank'], 'DNC')) {
+        $node->field_destinations[$delta]['rank'] = 'DNC'.$dest['rank'];
+      }
     }
   }
 }
