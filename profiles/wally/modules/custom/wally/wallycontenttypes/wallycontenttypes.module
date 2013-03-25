@@ -1170,8 +1170,13 @@ function wallycontenttypes_cron() {
             $type = wydit_get_infos_type($node->type);
             $cck_fields = $type['fields'];
             $format = $cck_fields['field_publicationdate']['widget']['input_format'];
-            $node->field_publicationdate[0]['value'] = gmdate($format,strtotime($node->field_embargodatetime[0]['value']));
-
+            
+			$UTC = new DateTimeZone('UTC');
+			$newTZ = new DateTimeZone('UTC');
+			$date = new DateTime($node->field_embargodatetime[0]['value'] , $UTC );
+			$date->setTimezone($newTZ );
+			$node->field_publicationdate[0]['value'] = $date->format($format);
+			
             node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
             
