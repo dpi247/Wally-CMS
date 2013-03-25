@@ -29,8 +29,8 @@ function wallyimportpackageV18_process_packages($dom, &$log, $importer){
 /**
  * hook_wallymport_process
  */
-function wallyimportpackageV18_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
-  if ($location == 'process_package' & $type == 'before_process'){
+function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+  if ($location == 'process_package' && $type == 'before_process') {
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
