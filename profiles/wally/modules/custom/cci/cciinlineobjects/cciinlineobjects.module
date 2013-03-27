@@ -58,6 +58,12 @@ function cciinlineobjects_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       }
       break;
 
+    case 'view':
+      if (isset($node->preview) && $node->preview && isset($node->cache_name) && !empty($node->cache_name)) {
+        _cciinlineobjects_prepare_text_for_preview($node, $node->cache_name);
+      }
+      break;
+
     default:
       break;
   }
@@ -252,6 +258,47 @@ function _cciinlineobjects_convert_prenids_process_text(&$node, $field_name, $te
 }
 
 /**
+ * Run through the node fields and prepare text areas for preview,
+ * add the prenode cache name to the inline tags' attributes
+ */
+function _cciinlineobjects_prepare_text_for_preview(&$node, $cache_name) {
+  static $processed_nodes = array();
+  if (!_cciinlineobjects_check_is_processed_node($node, $processed_nodes)) {
+    foreach ($node as $field_name => $field) {
+      if (is_array($field)) {
+        if (strstr($field_name, '_nodes')) {
+          foreach ($field as $delta => &$sub_node) {
+            _cciinlineobjects_prepare_text_for_preview($sub_node, $cache_name);
+          }
+        } elseif (is_array($field[0]) && isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
+          // Only process text fields
+          _cciinlineobjects_prepare_text_for_preview_process_text($node, $field_name, $field[0]['value'], $cache_name);
+        }
+      }
+    }
+  } else {
+    watchdog('CCI Inline Objects', t('Loop detected in the text preparation for preview. Nodes involved : @nodes_ids.'), array('@nodes_ids' => implode(', ', $processed_nodes)), WATCHDOG_WARNING);
+  }
+}
+
+/**
+ * Add the prenode cache name to the inline tags' attributes
+ */
+function _cciinlineobjects_prepare_text_for_preview_process_text(&$node, $field_name, $text, $cache_name) {
+  $regex = "@<ccix:inline(\s.*)?>.*<\/ccix:inline(\s.*)?>@sU";
+  $regex_matches = array();
+  preg_match_all($regex, $text, $regex_matches);
+
+  if (isset($regex_matches[0]) && !empty($regex_matches[0])) {
+    foreach ($regex_matches[0] as $id => $val) {
+      $old_attr = $regex_matches[1][$id];
+      $new_attr = ' prenid="'.$cache_name.'"'.$old_attr;
+      $node->{$field_name}[0]['value'] = str_replace($old_attr, $new_attr, $text);
+    }
+  }
+}
+
+/**
  * Get the IDs (node IDs and external references) of all embed objects
  *
  * @param object $node
@@ -268,6 +315,9 @@ function _cciinlineobjects_get_embed_objects_ids($node) {
       $tmp_ids = array();
       if (isset($embed_node->nid) && !empty($embed_node->nid)) {
         $tmp_ids[] = 'nid:'.$embed_node->nid;
+      }
+      if (isset($embed_node->prenid) && !empty($embed_node->prenid)) {
+        $tmp_ids[] = 'prenid:'.$embed_node->prenid;
       }
       if (isset($embed_node->field_externalreference[0]['value']) && !empty($embed_node->field_externalreference[0]['value'])) {
         $tmp_ids[] = $embed_node->field_externalreference[0]['value'];
@@ -286,9 +336,7 @@ function _cciinlineobjects_get_embed_objects_ids($node) {
  */
 function _cciinlineobjects_flag_inline_embed_objects_run_through($node, &$embeds, $obj_ids) {
   static $processed_nodes = array();
-  if (!in_array($node->nid, $processed_nodes)) {
-    $processed_nodes[] = $node->nid;
-
+  if (!_cciinlineobjects_check_is_processed_node($node, $processed_nodes)) {
     foreach ($node as $field_name => $field) {
       if (is_array($field)) {
         if (strstr($field_name, '_nodes')) {
@@ -313,6 +361,7 @@ function _cciinlineobjects_flag_inline_embed_objects_process_text(&$embeds, $tex
   $regex = '@extref\s?=\s?[\'"](.*)[\'"]@U';
   $regex_matches = array();
   preg_match_all($regex, $text, $regex_matches);
+
   if (isset($regex_matches[0]) && !empty($regex_matches[0])) {
     $found = FALSE;
     foreach ($regex_matches[1] as $id => $val) {
@@ -324,6 +373,18 @@ function _cciinlineobjects_flag_inline_embed_objects_process_text(&$embeds, $tex
       }
     }
   }
+}
+
+function _cciinlineobjects_check_is_processed_node($node, &$processed_nodes) {
+  $return = TRUE;
+  if (isset($node->nid) && !empty($node->nid) && !in_array($node->nid, $processed_nodes)) {
+    $processed_nodes[] = $node->nid;
+    $return = FALSE;
+  }  elseif (isset($node->field_externalreference[0]['value']) && !empty($node->field_externalreference[0]['value']) && !in_array($node->field_externalreference[0]['value'], $processed_nodes)) {
+    $processed_nodes[] = $node->field_externalreference[0]['value'];
+    $return = FALSE;
+  }
+  return $return;
 }
 
 /**

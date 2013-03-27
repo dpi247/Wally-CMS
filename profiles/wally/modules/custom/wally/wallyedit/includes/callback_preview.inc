@@ -12,6 +12,7 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled') {
   }
   
   $node->preview = TRUE;
+  $node->cache_name = $prenode->cache_name;
 
   if ($dest == 'disabled') {
     return NULL;
@@ -38,11 +39,12 @@ function wallyedit_callback_preview($prenode, $dest = 'disabled') {
     if (empty($contexts)) {
       return drupal_not_found();
     }
+
     $output = ctools_context_handler_render($task, '', $contexts, array(array($node->field_destinations[$dest]['tid']), 0, 'page'));
-    
+
     // Hide messages before return
     //drupal_get_messages();
-    
+
     if ($output !== FALSE) {
       return $output;
     }

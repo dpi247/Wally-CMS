@@ -1632,6 +1632,7 @@ function wydit_get_canonical_form_state($form_state, $reset_input = FALSE) {
   $new_form_state['parents'] = wydit_get_parents_from_form_state($form_state);
   $new_form_state['locked'] = $form_state['locked'];
   $new_form_state['current_tab'] = $form_state['current_tab'];
+  $new_form_state['DoNotPopulate'] = isset($form_state['DoNotPopulate']) ? $form_state['DoNotPopulate'] : FALSE;
   $new_form_state[$type_name] = $form_state[$type_name];
   if ($reset_input) {
     //Need that to avoid re-processing of the form (infinite loop)
@@ -1782,6 +1783,12 @@ function wydit_populate_form_state(&$form_state, $node, $current_profile) {
         if ($node->{$field_name}) {
           foreach($node->{$field_name} as $key => $value){
             if ($temp_node = node_load($value['nid'])) {
+              wydit_populate_form_state($form_state[$field_name][$key], $temp_node, $current_profile);
+            }
+          }
+        } elseif ($node->{$field_name.'_nodes'}) {
+          foreach($node->{$field_name.'_nodes'} as $key => $value){
+            if ($temp_node = $value) {
               wydit_populate_form_state($form_state[$field_name][$key], $temp_node, $current_profile);
             }
           }
