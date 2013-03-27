@@ -6,3 +6,4 @@ project = "ccibidirectional"
 version = "6.x-1.0-rc1"
 
 dependencies[] = "wallyedit"
+dependencies[] = "cciadmin"

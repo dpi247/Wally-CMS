@@ -44,7 +44,7 @@ function ccimapping_cropsync_form_cropings_editor_form_submit($form, $form_state
     'xml' => $form_state['values']['xml'],
   );
 
-  if ($client = ccimapping_load_soapclient($wsdl_uri)) {
+  if ($client = cciadmin_load_soapclient($wsdl_uri)) {
     try {
       $result = $client->setImageSettings($parameters_array);
       drupal_set_message(t('The cropings have been sent to CCI'));

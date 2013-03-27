@@ -8,12 +8,18 @@ function ccibidirectional_menu(){
   $items = array();
   
   $items['ccibidirectional/lockinginformations'] = array(
-      'title' => t('Return locking information about a package'),
-      'page callback' => 'ccibidirectional_page_lockinginformations',
-      'access callback' => TRUE,
-      'type' => MENU_CALLBACK,
+    'title' => t('Return locking information about a package'),
+    'page callback' => 'ccibidirectional_page_lockinginformations',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
   );
-  
+  $items['admin/cci/ccibidirectional/configuration'] = array(
+    'title' => t('CCI Newsgate - Bidirectional configuration & settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccibidirectional_form_configuration_form'),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/ccibidirectional.admin.inc',
+  );
   return $items;
 }
 /**
@@ -43,4 +49,53 @@ function ccibidirectional_page_lockinginformations(){
     }
   }
   print $content;
+}
+/**
+ * 
+ * Implementation of hook_prenodeapi
+ * @param array $form_state
+ * @param string $op
+ */
+function ccibidirectional_prenodeapi(&$form_state, $op){
+  
+  
+  if ($op == 'load'){
+    //Call the cci api to check if the package is locked in the cci system
+    //Only if the break has not been cald by the user
+    if ($_GET['break'] != TRUE){
+      $wsdl_uri = wally_variable_get('ccibidirectional_ws_wsdluri', '');
+      if ($wsdl_uri != '' && $form_state[$form_state['type']]['#node']->field_externalreference[0]['value'] != NULL ){
+        $parameters = array(
+          'id' => $form_state[$form_state['type']]['#node']->field_externalreference[0]['value'],
+          'extid' => $form_state[$form_state['type']]['#node']->nid,
+        );
+        //Soap request to Newsgate
+        if ($client = cciadmin_load_soapclient($wsdl_uri)) {
+          try {
+            $result = $client->checkpackage($parameters);
+            list($status, $message) = explode(' ', $result->return);
+            switch ($status){
+              //Package locked in newsgate
+              case '1':
+                $form_state['locked']['name'] = $message.' (From Newsgate)';
+                $form_state['locked']['updated'] = time();
+                break;
+              //Pagckage reserved in Newsgate
+              case '2':
+                break;
+              //Error
+              case '-1':
+                drupal_set_message(t('The call to the Newsgate webservice for locking information failed, please ask an administrator'), 'error');
+                break;
+            }
+          } catch (SoapFault $exception) {
+            drupal_set_message(t('WebService error while sending the XML: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)),'error');
+            dsm($exception);
+          }
+        }
+      } else {
+        drupal_set_message(t('You must configure the ccibidirectional module'), 'warning');
+      }
+    }
+  }
 }
