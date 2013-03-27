@@ -99,7 +99,7 @@ class Prenode{
     return $this->cache_name;
   }
   
-  function setFormState($reset = FALSE) {
+  function setFormState($reset = FALSE, $doNotPopulate = FALSE) {
     if (!isset($this->node) && isset($this->form_state)) {
       $this->setNode($this->form_state[$this->form_state['type']]['#node']);
     }
@@ -120,6 +120,7 @@ class Prenode{
         'profile_id' => $this->profile_id,
         'parents' => array($type_name),
         'current_tab' => NULL,
+        'DoNotPopulate' => $doNotPopulate,
         'type' => $type_name,
         'locked' => FALSE,
       );
