@@ -907,10 +907,10 @@ function wallycontenttypes_cron() {
             $cck_fields = $type['fields'];
             $format = $cck_fields['field_publicationdate']['widget']['input_format'];
 
-			$UTC = new DateTimeZone('UTC');
-			$newTZ = new DateTimeZone('UTC');
-			$date = new DateTime($node->field_embargodatetime[0]['value'] , $UTC );
-			$date->setTimezone($newTZ );
+			$embargoTZ = new DateTimeZone($node->field_embargodatetime[0]['timezone_db']);
+			$publicationTZ = new DateTimeZone($node->field_publicationdate[0]['timezone_db']);
+			$date = new DateTime($node->field_embargodatetime[0]['value'] , $embargoTZ );
+			$date->setTimezone($publicationTZ );
 			$node->field_publicationdate[0]['value'] = $date->format($format);
             
 
