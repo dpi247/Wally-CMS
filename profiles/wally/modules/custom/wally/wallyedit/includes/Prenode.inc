@@ -249,7 +249,20 @@ function prenode_get($cache_name, $skip_cache = FALSE) {
   
   return $prenode;
 }
-
+/**
+ * 
+ * Return true if a prenode exists for the nid given
+ * @param int $nid
+ * @return boolean
+ */
+function prenode_exists($nid){ 
+  $exists = FALSE;
+  $result = db_query("SELECT pid FROM {wallyedit_prenodes} WHERE pid = %d", $nid);
+  if (db_result($result)){
+    $exists = TRUE;
+  }
+  return $exists;
+}
 /**
  * @}
  */

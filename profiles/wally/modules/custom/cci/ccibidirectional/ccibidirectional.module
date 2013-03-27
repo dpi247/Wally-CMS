@@ -1,0 +1,46 @@
+<?php 
+
+/**
+ * Implementation of hook_menu
+ */
+
+function ccibidirectional_menu(){
+  $items = array();
+  
+  $items['ccibidirectional/lockinginformations'] = array(
+      'title' => t('Return locking information about a package'),
+      'page callback' => 'ccibidirectional_page_lockinginformations',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+/**
+ * 
+ * Print the string 0 if the package is not locked. 
+ * Print the string 1 follow by The package is locked by username if the package is locked
+ * 
+ * If a prenode exists for the node, the package is locked and 1 is returned. In any other case, 0 is returned.
+ */
+function ccibidirectional_page_lockinginformations(){
+  
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
+  $content = '0';
+  if ($_GET['id'] != NULL){
+    //Get the node with the external reference equal to the id
+    $nodes = wallytoolbox_get_node_by_cckfield(array('field_externalreference' => $_GET['id']));
+    if ($nodes != NULL){
+      $nid = $nodes[0]->nid;
+      //Check if a prenode exists for this node
+      if (prenode_exists($nid)){
+        $content = '1';
+        $prenode = prenode_get($nid);
+        //Get the editing user of this prenode
+        $editing_user = user_load(array('uid' => $prenode['locked']['uid']));
+        $content .= ' The package is locked by: '.$editing_user->name;
+      }
+    }
+  }
+  print $content;
+}
