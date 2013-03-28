@@ -1,0 +1,20 @@
+<?php 
+
+/**
+ * 
+ * Implementation of hook_menu()
+ */
+function wallymltermimport_menu(){
+	
+	$items = array();
+	$items['admin/build/import/term'] = array(
+			'title' => t('Wally import taxonomy term'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallymltermimport_form'),
+			'access arguments' => array('administer wally import taxonomy term'),
+			'description'      => t('Import your taxonomy term with yaml file'),
+			'file'             => 'includes/wallymltermimport.admin.generate_tree.inc',
+	);
+	
+	return $items;
+}
