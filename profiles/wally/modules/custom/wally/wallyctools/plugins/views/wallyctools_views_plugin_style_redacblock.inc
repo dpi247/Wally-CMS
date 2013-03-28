@@ -143,7 +143,7 @@ class wallyctools_views_plugin_style_redacblock extends views_plugin_style {
       }
     }
     // Remove and save additionnal results
-    while (sizeof($this->view->result) >= $this->view->pager['items_per_page']) {
+    while (sizeof($this->view->result) >= $this->view->get_items_per_page()) {
       array_push($saved_results, array_pop($this->view->result));
     }
   }
