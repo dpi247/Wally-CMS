@@ -29,8 +29,8 @@ function wallyimportpackageV18_process_packages($dom, &$log, $importer){
 /**
  * hook_wallymport_process
  */
-function wallyimportpackageV18_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
-  if ($location == 'process_package' & $type == 'before_process'){
+function wallyimportpackage_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+  if ($location == 'process_package' && $type == 'before_process') {
     $uri = explode('/', $_SERVER['REQUEST_URI']);
     if (array_pop($uri) == 'preview'){
       $importer->wallymport_preview = TRUE;
@@ -77,14 +77,16 @@ function wallyimportpackageV18_process_package($dom, &$log, $importer, $callback
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       module_load_include('inc', 'wallyedit', 'includes/Prenode');
+      module_load_include('inc', 'wallyedit', 'includes/config_api');
 
       $prenode = new Prenode();
+      $prenode->setCurrentProfile(wallyedit_get_default_profile());
       $prenode->ConvertNodeToPrenode($node);
       $old_cache_name = $prenode->form_state['cache name'];
       $fake_fs = array('cache name' => $old_cache_name);
       prenode_delete($fake_fs);
       $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
-      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode = $prenode->setFormState(FALSE, TRUE);
       $form_state_prenode['DoNotPopulate'] = TRUE;
 
       $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');

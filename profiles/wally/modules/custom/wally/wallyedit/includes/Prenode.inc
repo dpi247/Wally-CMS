@@ -99,7 +99,7 @@ class Prenode{
     return $this->cache_name;
   }
   
-  function setFormState($reset = FALSE) {
+  function setFormState($reset = FALSE, $doNotPopulate = FALSE) {
     if (!isset($this->node) && isset($this->form_state)) {
       $this->setNode($this->form_state[$this->form_state['type']]['#node']);
     }
@@ -120,6 +120,7 @@ class Prenode{
         'profile_id' => $this->profile_id,
         'parents' => array($type_name),
         'current_tab' => NULL,
+        'DoNotPopulate' => $doNotPopulate,
         'type' => $type_name,
         'locked' => FALSE,
       );
@@ -249,7 +250,20 @@ function prenode_get($cache_name, $skip_cache = FALSE) {
   
   return $prenode;
 }
-
+/**
+ * 
+ * Return true if a prenode exists for the nid given
+ * @param int $nid
+ * @return boolean
+ */
+function prenode_exists($nid){ 
+  $exists = FALSE;
+  $result = db_query("SELECT pid FROM {wallyedit_prenodes} WHERE pid = %d", $nid);
+  if (db_result($result)){
+    $exists = TRUE;
+  }
+  return $exists;
+}
 /**
  * @}
  */

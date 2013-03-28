@@ -380,22 +380,38 @@ function wallymport_post($importer_name, $preview = FALSE) {
     $object_file = new stdClass();
     
     //Get the file
-    foreach ($_FILES as $key => $input){
+    foreach ($_FILES as $key => $input) {
+      $zip_types = array(
+        'application/zip',
+        'application/x-zip-compressed',
+        'multipart/x-zip',
+        'application/x-compressed',
+      );
+      if (in_array($input['type'], $zip_types) && !pathinfo($input['name'], PATHINFO_EXTENSION) != 'zip') {
+        @copy($input['tmp_name'], $input['tmp_name'].'.zip');
+        unlink($input['tmp_name']);
+        $input['tmp_name'] .= '.zip';
+      } elseif (!pathinfo($input['name'], PATHINFO_EXTENSION) != 'xml') {
+        @copy($input['tmp_name'], $input['tmp_name'].'.xml');
+        unlink($input['tmp_name']);
+        $input['tmp_name'] .= '.xml';
+      }
+
       $object_file->name = $input['name'];
       $object_file->filename = $input['tmp_name'];
       $object_file->basename = $input['tmp_name'];
       $nb_file ++;
     }
-    
+
     if ($nb_file == 0) {
       $format = 'xml';
       if ($importer->zip == 1){
         $format = 'zip';
-      }      
+      }
 
       //For compatibility reason .. need to fix this see wallymport_preprocess_file
       //$temp = variable_get('wallymport_preview_temp', file_directory_temp());
-      $temp =$importer->temp_directory_path;
+      $temp = $importer->temp_directory_path;
       
       $file_name = 'wally_curl_input_'.rand();
       $file_path = $temp.'/'.$file_name.'.'.$format;

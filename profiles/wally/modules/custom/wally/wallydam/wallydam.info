@@ -6,3 +6,4 @@ project = "Wally"
 version = "6.x-1.0-rc1"
 
 dependencies[] = "wallytoolbox"
+dependencies[] = "wallyexport"

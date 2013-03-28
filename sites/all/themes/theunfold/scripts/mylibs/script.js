@@ -78,3 +78,12 @@ var triggers = $("#a-login").overlay({
   },
 	closeOnClick: false
 });
+var triggersb = $("#b-login").overlay({
+	  // some mask tweaks suitable for modal dialogs
+	  mask: {
+	    color: '#000',
+	    loadSpeed: 200,
+	    opacity: 0.50
+	  },
+		closeOnClick: false
+	});

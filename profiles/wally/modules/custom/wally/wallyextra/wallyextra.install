@@ -580,3 +580,88 @@ function wallyextra_update_6007() {
   }
   return $ret;
 }
+/**
+ * 
+ * Implementation of hook_update_N
+ * Install custom content versionnable if not set
+ */
+function wallyextra_update_6008(){
+  
+  $schema = array();
+  
+  $ret = array();
+  
+  if (!db_table_exists('wallyextra_custom_content_version')){
+    $schema = drupal_get_schema('wallyextra_custom_content_version', TRUE);
+    db_create_table($ret, 'wallyextra_custom_content_version', $schema);
+    $schema = drupal_get_schema('wallyextra_custom_content', TRUE);
+    db_create_table($ret, 'wallyextra_custom_content', $schema);
+    db_query("UPDATE {system} SET weight = 1 WHERE name = 'wallyextra'");
+    db_query("UPDATE {panels_pane} SET type = 'custom_version' WHERE type = 'custom'");
+    db_query("UPDATE {panels_pane} SET subtype = 'custom_version' WHERE subtype = 'custom'");
+    
+    //copy all the ctools custom content in wallyextra_custom_content
+    $result = db_query("SELECT * FROM {ctools_custom_content}");
+    while ($ctools_custom_content = db_fetch_object($result)){
+      $cid = $ctools_custom_content->cid;
+      $wallyextra_custom_content = $ctools_custom_content;
+      $wallyextra_custom_content->settings = unserialize($wallyextra_custom_content->settings);
+      drupal_write_record('wallyextra_custom_content', $wallyextra_custom_content);
+      db_query("DELETE FROM {ctools_custom_content} WHERE cid = %d", $cid);
+    }
+    
+    //Create version for all the custom_content
+    
+    //Get all custom_content
+    $panels = db_query("SELECT *
+      					  FROM {panels_pane} 
+      					  WHERE type = 'custom_version' ORDER BY pid ASC");
+    
+    //Initialize cid
+    $cid_increment = 0;
+    $corresp = array();
+    while ($panel = db_fetch_object($panels)){
+      $conf = unserialize($panel->configuration);
+    
+      //If subtype is not a reused custom content, a version is whriten in the database
+      if ($panel->subtype == 'custom_version'){
+        $cid = $cid_increment;
+        $version->cid = $cid;
+        $version->version = 1;
+        $version->date = time();
+        $version->settings = unserialize($panel->configuration);
+    
+        //In case of a reusable custom content, the reusable custom content is modified to add the id and version informations
+        if (isset($conf['name'])){
+          //The cid of the reusable custom content is store in an array to be get back by the reused custom content
+          $corresp[$conf['name']] = $cid;
+          $reusable = db_query("SELECT * FROM {wallyextra_custom_content} WHERE name = '%s'", $conf['name']);
+          while ($reus = db_fetch_object($reusable)){
+            $reus_conf = unserialize($reus->settings);
+            $reus_conf['id'] = $cid;
+            $reus->settings = $reus_conf;
+            $version->settings = $reus->settings;
+            drupal_write_record('wallyextra_custom_content', $reus, array('cid'));
+          }
+        }
+        drupal_write_record('wallyextra_custom_content_version', $version);
+        $cid_increment++;
+      } else {
+        //In case of a reused custom content the cid of the reusable custom content is get back
+        $cid = $corresp[$panel->subtype];
+      }
+    
+      $conf['id'] = $cid;
+      $conf['version'] = 1;
+      $panel->configuration = $conf;
+      $panel->access = unserialize($panel->access);
+      $panel->cache = unserialize($panel->cache);
+      $panel->style = unserialize($panel->style);
+      $panel->css = unserialize($panel->css);
+      $panel->extras = unserialize($panel->extras);
+      //The panel pane is modified to add the id and version informations
+      drupal_write_record('panels_pane', $panel, array('pid'));
+    }
+  }
+  return $ret;
+}

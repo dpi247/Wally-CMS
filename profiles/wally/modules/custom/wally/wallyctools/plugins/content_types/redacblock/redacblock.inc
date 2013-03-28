@@ -314,8 +314,9 @@ function wallyctools_redacblock_content_type_render($subtype, $conf, $panel_args
 
     if (array_key_exists('wallyedit_preview', $contexts)) {
       $view->wallyedit_preview = $contexts['wallyedit_preview']->wallyedit_preview;
-      $view->display_handler->set_option('items_per_page', $view->pager['options']['items_per_page'] + 1);
-      $view->set_items_per_page($view->pager['options']['items_per_page'] + 1);
+      $current_item_per_page = $view->display_handler->options['pager']['options']['items_per_page'];
+      $view->display_handler->set_option('items_per_page', $current_item_per_page + 1);
+      $view->set_items_per_page($current_item_per_page + 1);
     }
     $block->content = $view->preview();
     $block->title = $view->get_title();

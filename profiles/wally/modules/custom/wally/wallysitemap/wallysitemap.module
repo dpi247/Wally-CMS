@@ -243,10 +243,10 @@ function wallysitemap_default_settings() {
 function wallysitemap_get_namespaces() {
   return array(
     'w3' => 'http://www.w3.org/2000/xmlns/',
-    'sitemap' => 'http://www.sitemaps.org/schemas/sitemap/0.9/',
-    'news' => 'http://www.google.com/schemas/sitemap-news/0.9/',
-    'image' => 'http://www.google.com/schemas/sitemap-image/1.1/',
-    'video' => 'http://www.google.com/schemas/sitemap-video/1.1/',
+    'sitemap' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
+    'news' => 'http://www.google.com/schemas/sitemap-news/0.9',
+    'image' => 'http://www.google.com/schemas/sitemap-image/1.1',
+    'video' => 'http://www.google.com/schemas/sitemap-video/1.1',
   );
 }
 

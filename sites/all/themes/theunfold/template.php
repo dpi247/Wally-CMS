@@ -251,23 +251,25 @@ function theunfold_preprocess_node(&$vars){
       }
 
       // build data for node page
-      if ($node->nid == arg(1) || $node->preview || true ) {
+      if ($node->nid == arg(1) || $node->preview ) {
 
         // We unset the body, theunfold_preprocess_node_build will create a new one.
         unset($vars["body"]);
         $vars += theunfold_preprocess_node_build($node);
-         
-        if ($node->preview && isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
-          foreach ($node->field_embededobjects_nodes as $delta => $embed) {
-            // Fake nid in case of preview
-            $node->field_embededobjects_nodes[$delta]->nid = $delta;
-          }
-        }
+
         $merged_medias = array();
         if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
           if (module_exists('cciinlineobjects')) {
             cciinlineobjects_flag_inline_embed_objects($node);
           }
+          
+          if ($node->preview) {
+            foreach ($node->field_embededobjects_nodes as $delta => $embed) {
+              // Fake nid in case of preview
+              $node->field_embededobjects_nodes[$delta]->nid = $delta;
+            }
+          }
+          
           foreach ($node->field_embededobjects_nodes as $embed) {
             $merged_medias += theunfold_preprocess_node_build_embedded_photos($embed);
             $merged_medias += theunfold_preprocess_node_build_embedded_videos($embed);

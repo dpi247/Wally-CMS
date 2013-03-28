@@ -229,9 +229,15 @@ function warnish_purge_page($paths) {
     $paths = array($paths);
 
   $command = array();
-  foreach ($paths as $path)
-    $command[] = "ban req.http.host ~ $host && req.url == $path";
-  
+  $varnish_version = variable_get('varnish_version', 3);
+  if ($varnish_version < 3) {
+    foreach ($paths as $path)
+      $command[] = "purge req.http.host ~ $host && req.url == $path";
+  } else {
+    foreach ($paths as $path)
+      $command[] = "ban req.http.host ~ $host && req.url == $path";
+  }
+
   _warnish_terminal_run($command);
 }
 
@@ -241,7 +247,16 @@ function warnish_purge_page($paths) {
 function warnish_purge_all_pages($path = '*') {
   $path = ($path == '*') ? base_path() : $path;
   $host = _warnish_get_host();
-  _warnish_terminal_run("ban req.http.host ~ $host && req.url ~ ^$path");
+
+  $command = array();
+  $varnish_version = variable_get('varnish_version', 3);
+  if ($varnish_version < 3) {
+    $command[] = "purge req.http.host ~ $host && req.url ~ ^$path";
+  } else {
+    $command[] = "ban req.http.host ~ $host && req.url ~ ^$path";
+  }
+
+  _warnish_terminal_run($command);
 }
 
 /**
