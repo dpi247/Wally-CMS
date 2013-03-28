@@ -1760,12 +1760,12 @@ function cckdestinations_autocomplete_load($vid, $multiple, $string = '') {
         
         $n = $tag->name;
         $n .= ($multiple == 'unique') ? ' ('.$tag_hierarchy.')' : '';
-        $n .= ' ['.$tag->tid.']';
+        
         // Commas and quotes in terms are special cases, so encode 'em.
         if (strpos($tag->name, ',') !== FALSE || strpos($tag->name, '"') !== FALSE) {
           $n = '"'. str_replace('"', '""', $tag->name) .'"';
         }
-        
+        $n .= ' ['.$tag->tid.']';
         // In the matches array, the key will be displayed after clicking
         // and the value will be displayed is the select list
         $matches[$prefix . $n] = check_plain($tag_help);
