@@ -1,5 +1,0 @@
-name = "wally import destination"
-description = "Import a destination tree with an Yaml file"
-package = "Development"
-dependencies[] = "taxonomy"
-core = "6.x"

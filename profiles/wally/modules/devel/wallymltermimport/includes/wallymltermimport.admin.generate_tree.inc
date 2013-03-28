@@ -9,27 +9,27 @@ use Symfony\Component\Yaml\Yaml;
  * @param $form_state
  * @return $form
  */
-function wallyimport_destination_form($form_state){
+function wallymltermimport_form($form_state){
 	
 	//get taxonomy vocabulary
-	$options = wallyimport_destination_get_vocabulary();
+	$options = wallymltermimport_get_vocabulary();
 	
 	$form['#attributes'] = array('enctype' => "multipart/form-data");
 	
-	$form['wallyimport_destination_yaml_file'] = array(
+	$form['wallymltermimport_yaml_file'] = array(
 			'#type' => 'file',
 			'#title' => t('your yaml file destination'),
 			'#size' => 40,
 			);
 
-	$form['wallyimport_destination_vid'] = array(
+	$form['wallymltermimport_vid'] = array(
 			'#type' => 'select',
 			'#title' => t('choose the vocabulary destination'),
 			'#options' => $options, 
 			'#default_value' => 2,	
 			);
 	
-	$form['wallyimport_destination_submit'] = array(
+	$form['wallymltermimport_submit'] = array(
 			'#type' => 'submit',
 			'#value' => 'upload',
 			);
@@ -44,7 +44,7 @@ function wallyimport_destination_form($form_state){
  * @return array
  * return vocabulary
  */
-function wallyimport_destination_get_vocabulary(){
+function wallymltermimport_get_vocabulary(){
 	
 	//select just vid and name
 	$results = db_query(db_rewrite_sql("SELECT vid, name FROM {vocabulary}"));
@@ -63,7 +63,7 @@ function wallyimport_destination_get_vocabulary(){
  * @param $form
  * @param $form_state
  */
-function wallyimport_destination_form_submit($form,$form_state){
+function wallymltermimport_form_submit($form,$form_state){
 	
 	//destination by default : /tmp/
 	$dest = '';
@@ -71,16 +71,16 @@ function wallyimport_destination_form_submit($form,$form_state){
 			'file_validate_extensions' => array("yaml txt"),
 	);
 	
-	$file = file_save_upload('wallyimport_destination_yaml_file',$validators,$dest,FILE_EXISTS_REPLACE);
+	$file = file_save_upload('wallymltermimport_yaml_file',$validators,$dest,FILE_EXISTS_REPLACE);
 	
-	$vid = $form_state['values']['wallyimport_destination_vid'];
+	$vid = $form_state['values']['wallymltermimport_vid'];
 	
 	if(file_exists($file->filepath))
 	{
 		//read the yaml file
-		$data = wallyimport_destination_read_yaml_file($file);
+		$data = wallymltermimport_read_yaml_file($file);
 		//parse the txt file from the txt file
-		$data = wallyimport_destination_parse_txtToYaml($data,$vid);
+		$data = wallymltermimport_parse_txtToYaml($data,$vid);
 		if(empty($data))
 		{
 			drupal_set_message(t("you have specified a hierarchy for the authors vocabulary!
@@ -89,9 +89,9 @@ function wallyimport_destination_form_submit($form,$form_state){
 		else
 		{
 			//parse the yaml data from the file with the symfony/yaml library
-			$data = wallyimport_destination_parse_yaml($data);
+			$data = wallymltermimport_parse_yaml($data);
 			
-			wallyimport_destination($data,$vid);
+			wallymltermimport($data,$vid);
 		}
 		
 	}
@@ -111,7 +111,7 @@ function wallyimport_destination_form_submit($form,$form_state){
  * @return string
  * return the content of the file
  */
-function wallyimport_destination_read_yaml_file($file){
+function wallymltermimport_read_yaml_file($file){
 	
 	$FileName = $file->filepath;
 	$FileHandle = fopen($FileName, 'r');
@@ -134,18 +134,18 @@ function wallyimport_destination_read_yaml_file($file){
  * @return string
  * return the yaml
  */
-function wallyimport_destination_parse_txtToYaml($txt,$vid){
+function wallymltermimport_parse_txtToYaml($txt,$vid){
 	
 	//cut the txt in array for each line
 	$txt = explode("\n", $txt);
 	
 	$is_hierarchique = false;
 	//delete empty index
-	$txt = wallyimport_destination_del_empty_index($txt);
+	$txt = wallymltermimport_del_empty_index($txt);
 	
 	$txt[0] = str_replace("\t", " ", $txt[0]);
 	//max number of space
-	$tempMax = wallyimport_destination_position_firstLetter($txt[0]);
+	$tempMax = wallymltermimport_position_firstLetter($txt[0]);
 	
 	if(!empty($txt[0]))
 	{
@@ -163,7 +163,7 @@ function wallyimport_destination_parse_txtToYaml($txt,$vid){
 			$txt[$i] = $txt[$i].':';
 		}
 		
-		$tempMaxCurrent = wallyimport_destination_position_firstLetter($txt[$i]);
+		$tempMaxCurrent = wallymltermimport_position_firstLetter($txt[$i]);
 		
 		if($tempMax >= $tempMaxCurrent)
 		{
@@ -202,7 +202,7 @@ function wallyimport_destination_parse_txtToYaml($txt,$vid){
  * the array
  * @return array
  */
-function wallyimport_destination_del_empty_index($txt){
+function wallymltermimport_del_empty_index($txt){
 
 	for($i=1;$i<count($txt)-1;$i++)
 	{
@@ -230,7 +230,7 @@ function wallyimport_destination_del_empty_index($txt){
  * @return number
  * return the numbers of spaces before the first letter
  */
-function wallyimport_destination_position_firstLetter($str){
+function wallymltermimport_position_firstLetter($str){
 	$long = strlen($str);
 	//browse the string character by character
 	for($i=0;$i<$long;$i++)
@@ -253,10 +253,10 @@ function wallyimport_destination_position_firstLetter($str){
  * @return $data
  * return an array
  */
-function wallyimport_destination_parse_yaml($yaml){
+function wallymltermimport_parse_yaml($yaml){
 	
 	//autoload.php load all yaml library file
-	require_once ($_SERVER['DOCUMENT_ROOT'].'/profiles/wally/modules/devel/wallyimport_destination/wallyimport_destination.autoload.php');
+	require_once ($_SERVER['DOCUMENT_ROOT'].'/profiles/wally/modules/devel/wallymltermimport/wallymltermimport.autoload.php');
 	
 	try 
 	{
@@ -282,7 +282,7 @@ function wallyimport_destination_parse_yaml($yaml){
  * @param $vid
  * id of vocabulary
  */
-function wallyimport_destination($tabs,$vid){
+function wallymltermimport($tabs,$vid){
 	
 	//load taxonomy module core to insert destination in database
 	module_load_include('module', 'taxonomy','taxonomy');
@@ -295,13 +295,13 @@ function wallyimport_destination($tabs,$vid){
 			//test si vid = 0 et si name est vide
 			$tree = taxonomy_get_tree($vid);
 			
-			wallyimport_destination_save_root_term($key,$tree,$vid);
+			wallymltermimport_save_root_term($key,$tree,$vid);
 		}
 		else
 		{
 			//add child term to his parents
 			$tabParents[0]='root';
-			wallyimport_destination_add_term($value,$key,'root',$vid,$tabParents);
+			wallymltermimport_add_term($value,$key,'root',$vid,$tabParents);
 		}
 		
 	}
@@ -319,9 +319,9 @@ function wallyimport_destination($tabs,$vid){
  * @param $vid
  * id of vocabulary 
  */
-function wallyimport_destination_save_root_term($Nameterm,$tree,$vid){
+function wallymltermimport_save_root_term($Nameterm,$tree,$vid){
 	
-	$term  = wallyimport_destination_create_termArray($Nameterm, $vid,array());
+	$term  = wallymltermimport_create_termArray($Nameterm, $vid,array());
 
 	$isPresent = false;
 	foreach($tree as $branch)
@@ -368,12 +368,12 @@ function wallyimport_destination_save_root_term($Nameterm,$tree,$vid){
  * @param $tabParents
  * all ancestors name of the term
  */
-function wallyimport_destination_add_term($child,$parent,$parentOfParent,$vid,$tabParents){
+function wallymltermimport_add_term($child,$parent,$parentOfParent,$vid,$tabParents){
 	
 	if($parentOfParent == 'root')
 	{
 		$tree = taxonomy_get_tree($vid);
-		wallyimport_destination_save_root_term($parent,$tree,$vid);
+		wallymltermimport_save_root_term($parent,$tree,$vid);
 	}
 	//if $child is an array
 	if(is_array($child))
@@ -391,13 +391,13 @@ function wallyimport_destination_add_term($child,$parent,$parentOfParent,$vid,$t
 				}
 				
 				//retrieve the good parent id
-				$parentTid = wallyimport_destination_find_tid_parent($parentOfParent,$vid,$tabParents);
+				$parentTid = wallymltermimport_find_tid_parent($parentOfParent,$vid,$tabParents);
 				//create the term array format
-				$term = wallyimport_destination_create_termArray($key,$vid,$parentTid);
+				$term = wallymltermimport_create_termArray($key,$vid,$parentTid);
 				//save the child term
-				wallyimport_destination_save_child_term($term,$vid);
+				wallymltermimport_save_child_term($term,$vid);
 				//recursive function call itself
-				wallyimport_destination_add_term($value,$key,$parent,$vid,$tabParents);
+				wallymltermimport_add_term($value,$key,$parent,$vid,$tabParents);
 			}
 			else
 			{
@@ -408,11 +408,11 @@ function wallyimport_destination_add_term($child,$parent,$parentOfParent,$vid,$t
 					$tabParents[$i++] = $parent;
 				}
 				//retrieve the good parent id
-				$parentTid = wallyimport_destination_find_tid_parent($parentOfParent,$vid,$tabParents);
+				$parentTid = wallymltermimport_find_tid_parent($parentOfParent,$vid,$tabParents);
 				//create the term array format
-				$term = wallyimport_destination_create_termArray($key,$vid,$parentTid);
+				$term = wallymltermimport_create_termArray($key,$vid,$parentTid);
 				//save the last child term in the tree
-				wallyimport_destination_save_child_term($term,$vid);
+				wallymltermimport_save_child_term($term,$vid);
 			}
 		}
 	}
@@ -426,7 +426,7 @@ function wallyimport_destination_add_term($child,$parent,$parentOfParent,$vid,$t
  * @param $term
  * the child term to save in database
  */
-function wallyimport_destination_save_child_term($term,$vid){
+function wallymltermimport_save_child_term($term,$vid){
 	
 	$isPresent = false;
 	
@@ -480,7 +480,7 @@ function wallyimport_destination_save_child_term($term,$vid){
  * @param $tabParents
  * all ancestors name of the term
  */
-function wallyimport_destination_find_tid_parent($parentOfParent,$vid,$tabParents){
+function wallymltermimport_find_tid_parent($parentOfParent,$vid,$tabParents){
 	
 	$countParent = count($tabParents)-1;
 
@@ -506,7 +506,7 @@ function wallyimport_destination_find_tid_parent($parentOfParent,$vid,$tabParent
 			//if it is the same vid vocabulary
 			if($tabTerm[$i]->vid == $vid)
 			{
-				$isParent = wallyimport_destination_is_parent($tabTerm[$i]->tid,$tabParents);
+				$isParent = wallymltermimport_is_parent($tabTerm[$i]->tid,$tabParents);
 
 				if($isParent)
 				{
@@ -528,7 +528,7 @@ function wallyimport_destination_find_tid_parent($parentOfParent,$vid,$tabParent
  * all ancestor of the term
  * @return boolean
  */
-function wallyimport_destination_is_parent($tabTermTid,$tabParents){
+function wallymltermimport_is_parent($tabTermTid,$tabParents){
 	
 	//get all parents of term parent
 	$AllParent = taxonomy_get_parents_all($tabTermTid);
@@ -563,7 +563,7 @@ function wallyimport_destination_is_parent($tabTermTid,$tabParents){
  * @return $term
  * return the term array
  */
-function wallyimport_destination_create_termArray($termName,$vid,$parentTid){
+function wallymltermimport_create_termArray($termName,$vid,$parentTid){
 	
 	//if it is a root term
 	if(empty($parentTid))
