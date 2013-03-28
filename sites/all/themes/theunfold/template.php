@@ -255,7 +255,7 @@ function theunfold_preprocess_node(&$vars){
 
         // We unset the body, theunfold_preprocess_node_build will create a new one.
         unset($vars["body"]);
-        $vars += theunfold_preprocess_node_build($node);
+        $vars = array_merge($vars, theunfold_preprocess_node_build($node));
 
         $merged_medias = array();
         if (isset($node->field_embededobjects_nodes) && !empty($node->field_embededobjects_nodes)) {
@@ -324,7 +324,7 @@ function theunfold_preprocess_node_build(&$node){
   
   $mainstory = node_build_content($node->field_mainstory_nodes[0]);
   
-  $vars['title'] = $mainstory->title;
+  $vars['title'] = (isset($mainstory->field_displayed_title[0]['safe']) && !empty($mainstory->field_displayed_title[0]['safe'])) ? $mainstory->field_displayed_title[0]['safe'] : $mainstory->title;
   $vars['barette'] = $mainstory->field_textbarette[0]['safe'];
   
   //by
