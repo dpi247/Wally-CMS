@@ -1,0 +1,9 @@
+core = "6.x"
+name = "CCI Bidirectional"
+description = "Handle update/lock between wally and cci"
+package = "CCI"
+project = "ccibidirectional"
+version = "6.x-1.0-rc1"
+
+dependencies[] = "wallyedit"
+dependencies[] = "cciadmin"
