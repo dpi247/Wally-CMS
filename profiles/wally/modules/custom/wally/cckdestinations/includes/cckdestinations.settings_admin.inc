@@ -160,7 +160,7 @@ function cckdestinations_page_multiple_destinations_delete_form_submit(&$form, &
 /**
  * Ranks, behaviors and layouts
  */
-function cckdestinations_page_ranks_layouts_form($form_state) {
+function cckdestinations_page_ranks_form($form_state) {
   $form = array();
   $form['#tree'] = TRUE;
   
@@ -168,29 +168,53 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
     '#type' => 'fieldset',
     '#title' => t('Rank and behavior settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
   );
   
   // Make the other form items dependent upon it.
   ctools_include('dependent');
   ctools_add_js('dependent');
   
-  $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Global rank\'s range'),
-    '#default_value' => wally_variable_get('cckdestinations_rank_limit', 10),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
   
+
   $hierarchies = wallyctools_get_hierarchies();
+  $keys_hierarchies = array_keys($hierarchies);
+
   $behavior_options = array(
     'bottom' => t('Bottom'),
     'top' => t('Top'),
   );
+  
+  if (arg(5) != NULL && is_numeric(arg(5)) && array_key_exists(arg(5), $hierarchies)){
+    $arg_key = array_keys($keys_hierarchies, arg(5));
+    $offset = $arg_key[0];
+    $item_per_page = 1; 
+  } else {
+    $form['cckdestinations_rank']['cckdestinations_rank_limit'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Global rank\'s range'),
+      '#default_value' => wally_variable_get('cckdestinations_rank_limit', 10),
+      '#size' => 80,
+      '#maxlength' => 512,
+      '#required' => TRUE,
+    );
+    $item_per_page = 20;
+    
+    $offset = 0;
+    $page = 0;
+    if ($_GET['page'] != NULL){
+      $page = $_GET['page'];
+      $offset = $_GET['page'] * $item_per_page;
+    }
+    
+    global $pager_page_array, $pager_total;
+    $pager_page_array = array($page);
+    $pager_total = array(ceil(count($hierarchies)/$item_per_page));
+  }
+  for ($i = $offset; ($i < ($offset + $item_per_page)) && $i < count($hierarchies); $i++) {
+    $hierarchy = $hierarchies[$keys_hierarchies[$i]];
+    $tid = $keys_hierarchies[$i];
 
-  foreach ($hierarchies as $tid => $hierarchy) {
     $form['cckdestinations_rank']['cckdestinations_destination_'.$tid] = array(
       '#type' => 'fieldset',
       '#title' => $hierarchy['term_name'].' ('.wallytoolbox_taxonomy_get_path_by_tid_or_term($tid).')',
@@ -253,43 +277,43 @@ function cckdestinations_page_ranks_layouts_form($form_state) {
       );
     }
   }
-  
-  $form['cckdestinations_layout'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Layout settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  
-  $form['cckdestinations_layout']['cckdestinations_layouts'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Available layouts'),
-    '#default_value' => wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
-    '#required' => TRUE,
-  );
+  $pager = theme('pager');
+  if ($pager != NULL){
+    $form['cckdestinations_rank']['pageralert'] = array(
+      '#type' => 'markup',
+      '#value' => t('You must save configuration before using pager or your configuration will be lost'),
+    );
+    $form['cckdestinations_rank']['pager'] = array(
+      '#type' => 'markup',
+      '#value' => $pager,
+    );
+  }
   
   $form['buttons']['submit'] = array(
   	'#type' => 'submit',
   	'#value' => t('Save configuration')
   );
-  
-  $form['buttons']['reset'] = array(
-  	'#type' => 'submit',
-  	'#value' => t('Reset to defaults')
-  );
-  
+  if (arg(5) == NULL){
+    $form['buttons']['reset'] = array(
+    	'#type' => 'submit',
+    	'#value' => t('Reset to defaults')
+    );
+  }
   return $form;
 }
 
-function cckdestinations_page_ranks_layouts_form_validate($form, &$form_state) {
+function cckdestinations_page_ranks_form_validate($form, &$form_state) {
   $values = $form_state['values'];
   
   if ($values['op'] == $values['buttons']['submit']) {
-    $rank_limit = $values['cckdestinations_rank']['cckdestinations_rank_limit'];
-    if (!is_numeric($rank_limit) || $rank_limit < 0) {
-      form_set_error('cckdestinations_rank][cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 0.'));
+    if ($values['cckdestinations_rank']['cckdestinations_rank_limit'] != NULL){
+      $rank_limit = $values['cckdestinations_rank']['cckdestinations_rank_limit'];
+      if (!is_numeric($rank_limit) || $rank_limit < 0) {
+        form_set_error('cckdestinations_rank][cckdestinations_rank_limit', t('The given maximum rank value must be a numeric value greater or equal than 0.'));
+      }
+    } else {
+      $rank_limit = wally_variable_get('cckdestinations_rank_limit', 10);
     }
-    
     foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
       if (is_array($dest)) {
         foreach ($dest as $block_name => $block) {
@@ -307,13 +331,13 @@ function cckdestinations_page_ranks_layouts_form_validate($form, &$form_state) {
   }
 }
 
-function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
+function cckdestinations_page_ranks_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
   if ($values['op'] == $values['buttons']['submit']) {
-    wally_variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
-    wally_variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
-    
+    if ($values['cckdestinations_rank']['cckdestinations_rank_limit'] != NULL){
+      wally_variable_set('cckdestinations_rank_limit', $values['cckdestinations_rank']['cckdestinations_rank_limit']);
+    }
     foreach ($values['cckdestinations_rank'] as $dest_name => $dest) {
       if (is_array($dest)) {
         foreach ($dest as $block_name => $block) {
@@ -331,11 +355,81 @@ function cckdestinations_page_ranks_layouts_form_submit($form, &$form_state) {
     drupal_set_message(t('The configuration options have been saved.'));
   } elseif ($values['op'] == $values['buttons']['reset']) {
     module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-    wallytoolbox_variable_del_like('cckdestinations_');
+    wallytoolbox_variable_del_like('cckdestinations_destination_');
+    wallytoolbox_variable_del_like('cckdestinations_rank_limit');
     drupal_set_message(t('The configuration options have been reset to their default values.'));
   }
 }
 
+function cckdestinations_page_searchranks_form($form_state) {
+  $form = array();
+  $form['destinations'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Choose a destination'),
+    '#autocomplete_path' => 'cckdestinations/autocomplete/2/unique',
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Search'),
+  );
+  return $form;
+}
+
+function cckdestinations_page_searchranks_form_validate($form, &$form_state) {
+
+  $existing_tid = cckdestinations_autocomplete_tags_get_tids($form_state['values']['destinations'], 2);
+  if (empty($existing_tid)){
+    form_set_error('destinations', t('No match was found'));
+  } else {
+    $form_state['values']['tid'] = key($existing_tid['existing_tids']);
+  }
+}
+
+function cckdestinations_page_searchranks_form_submit($form, &$form_state) {
+
+  drupal_goto('/admin/wally/cckdestinations/settings/ranks/'.$form_state['values']['tid']);
+  
+}
+
+function cckdestinations_page_layouts_form($form_state) {
+  $form = array();
+  $form['#tree'] = TRUE;
+  $form['cckdestinations_layout'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Layout settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  
+  $form['cckdestinations_layout']['cckdestinations_layouts'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Available layouts'),
+    '#default_value' => wally_variable_get('cckdestinations_layouts', 'small'.PHP_EOL.'medium'.PHP_EOL.'large'),
+    '#required' => TRUE,
+  );
+  
+  $form['buttons']['submit'] = array(
+   	'#type' => 'submit',
+   	'#value' => t('Save configuration')
+  );
+  
+  $form['buttons']['reset'] = array(
+   	'#type' => 'submit',
+   	'#value' => t('Reset to defaults')
+  );
+  return $form;
+}
+function cckdestinations_page_layouts_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['op'] == $values['buttons']['submit']) {
+    wally_variable_set('cckdestinations_layouts', $values['cckdestinations_layout']['cckdestinations_layouts']);
+    drupal_set_message(t('The configuration options have been saved.'));
+  } elseif ($values['op'] == $values['buttons']['reset']) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    wallytoolbox_variable_del_like('cckdestinations_layouts');
+    drupal_set_message(t('The configuration options have been reset to their default values.'));
+  }
+}
 function cckdestinations_page_other_settings_form($form_state) {
   $form = array();
   
