@@ -545,6 +545,18 @@ function wallyedit_node_type($op, $info) {
 }
 
 /**
+ * Implementation of hook_wysiwyg_editor_settings_alter
+ * Add a customConfig file
+ */
+function wallyedit_wysiwyg_editor_settings_alter(&$settings, $context) {
+  if ($context['editor']['name'] == 'ckeditor') {
+    $autoparagraph = wally_variable_get('wysiwyg_ckeditor_autoparagraph', 0) ? TRUE : FALSE;
+    drupal_add_js(array('wysiwyg' => array('ckeditor_autoparagraph' => $autoparagraph)), 'setting');
+    $settings['customConfig'] = '/'.drupal_get_path('module', 'wallyedit').'/js/ckeditor/config.js';
+  }
+}
+
+/**
  * Implementation of hook_form_alter()
  */
 function wallyedit_form_alter(&$form, &$form_state, $form_id) {
@@ -641,6 +653,29 @@ function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default
 function wallyedit_form_views_bulk_operations_form_prenode_selectbox_vbo_default_submit($form, &$form_state) {
   $parse_url = parse_url($form['#action']);
   $form_state['redirect'] = str_replace('/ajax/', '/0/', $parse_url['path']);
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter
+ * Add a configuration field to set the autoParagraph value
+ */
+function wallyedit_form_wysiwyg_profile_overview_alter(&$form, $form_state) {
+  $form['submit']['#weight'] = 2;
+  
+  $form['use_autoparagraph'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use AutoParagraph in CKEditor'),
+    '#description' => t('If checked, <code>p</code> tags will automatically be added around any text of one line'),
+    '#default_value' => wally_variable_get('wysiwyg_ckeditor_autoparagraph', 0),
+    '#weight' => 1,
+  );
+  
+  $form['#submit'][] = 'wallyedit_form_wysiwyg_profile_overview_alter_submit';
+}
+
+function wallyedit_form_wysiwyg_profile_overview_alter_submit($form, $form_state) {
+  $values = $form_state['values'];
+  wally_variable_set('wysiwyg_ckeditor_autoparagraph', $values['use_autoparagraph']);
 }
 
 /**
