@@ -10,15 +10,24 @@ function _cciinlineobjects_preprocess_filter_render_photo($embed_object, $attrib
   } elseif ((isset($attributes['width']) && !empty($attributes['width'])) ||
       (isset($attributes['height']) && !empty($attributes['height']))) {
     $src = $photo_path;
-    $dimensions .= $attributes['width'] ? 'width="'.$attributes['width'].'"' : '';
-    $dimensions .= $attributes['height'] ? 'height="'.$attributes['height'].'"' : '';
+    $dimensions .= $attributes['width'] ? ' width="'.$attributes['width'].'"' : '';
+    $dimensions .= $attributes['height'] ? ' height="'.$attributes['height'].'"' : '';
   }
   if (!empty($src)) {
+    $styles = '';
     $src = "src=\"$src\"";
     $align = $attributes['align'] ? 'align="'.$attributes['align'].'"' : '';
-    $runaround = $attributes['runaround'] ? 'style="margin:'.$attributes['runaround'].'px;"' : '';
+    if ($attributes['align'] && $attributes['align'] == 'center') {
+      $tmp_style = 'display:block;margin:';
+      $tmp_style .= $attributes['runaround'] ? $attributes['runaround'].'px' : '0';
+      $tmp_style .= ' auto;';
+      $styles = $tmp_style;
+    } elseif ($attributes['runaround']) {
+      $styles = 'margin:'.$attributes['runaround'].'px;';
+    }
+    $style = empty($styles) ? '' : " style=\"$styles\"";
     $alt = (isset($embed_object->field_summary[0]['value']) && !empty($embed_object->field_summary[0]['value'])) ? ' alt="'.$embed_object->field_summary[0]['value'].'"' : '';
-    $attributes = $dimensions.$align.$runaround.$alt;
+    $attributes = $dimensions.$align.$alt.$style;
     $rendered_object = "<img $src$attributes />";
   }
 
