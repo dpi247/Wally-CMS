@@ -68,16 +68,22 @@ function wallysynch_admin_import_form_submit($form,$form_state) {
   $validators = array(
     'file_validate_extensions' => array("xml"),
   );
-
-  $file = file_save_upload('config',$validators,$dest,FILE_EXISTS_REPLACE);
-  $valueKey = $form_state['values']['wallysynch_decryption_key'];
-  $isEncrypted = isset($form_state['values']['crypted']) ? $form_state['values']['crypted'] : FALSE;
-
-  //if no file has been uploaded
-  if($file != NULL) {
-    wallysynch_import_config($file,$valueKey,$isEncrypted);
-  } else {
-    drupal_set_message('WARNING	: you must uploaded an xml file','warning');
+  if(is_writable('/tmp'))
+  {
+	  $file = file_save_upload('config',$validators,$dest,FILE_EXISTS_REPLACE);
+	  $valueKey = $form_state['values']['wallysynch_decryption_key'];
+	  $isEncrypted = isset($form_state['values']['crypted']) ? $form_state['values']['crypted'] : FALSE;
+		
+	  //if no file has been uploaded
+	  if($file != NULL) {
+	    wallysynch_import_config($file,$valueKey,$isEncrypted);
+	  } else {
+	    drupal_set_message(t('WARNING	: you must uploaded an xml file'),'warning');
+	  }
+  }
+  else
+  {
+  		drupal_set_message(t('The directory path is not writable !'),'error');
   }
 }
 

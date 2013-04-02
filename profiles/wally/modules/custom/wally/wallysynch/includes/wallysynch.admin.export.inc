@@ -19,8 +19,8 @@ function wallysynch_admin_save_form($form_state) {
     '#type'          => 'textfield',
     '#title'         => t('Export file config directory path'),
     '#description'   => t('the directory path for the xml config file.'),
-    '#size'          => 30,
-    '#maxlength'     => 30,
+    '#size'          => 150,
+    '#maxlength'     => 150,
     '#required'      => TRUE,
     '#default_value' => $path,
   );
@@ -82,15 +82,28 @@ function wallysynch_admin_save_form($form_state) {
  * Save form validate
  */
 function wallysynch_admin_save_form_validate($form,$form_state){
-  if (isset($form_state['values']['crypted'])) {
-    $crypted = $form_state['values']['crypted'];
-    $valueKey = $form_state['values']['wallysynch_encryption_key'];
+  
+	$path = $form_state['values']['wallysynch_admin'];
+	//if the path is good
+	if(!file_exists($path))
+	{
+		form_set_error('wallysynch_file_exists', t('Configuration has not saved the path is not good: %s',array('%s'=>$path)));
+	}
+	//else if the path is writable
+	else if(!is_writable($path))
+	{
+		form_set_error('wallysynch_is_writable', t('The directory path is not writable !'));
+	}
+	
+	if (isset($form_state['values']['crypted'])) {
+    	$crypted = $form_state['values']['crypted'];
+    	$valueKey = $form_state['values']['wallysynch_encryption_key'];
 
-    //if the data are crypted and the encryption key is empty
-    if ($crypted && empty($valueKey)) {
-      form_set_error('wallysynch_content_refresh_time', t('The key for encryption is required.'));
-    }
-  }
+    	//if the data are crypted and the encryption key is empty
+    	if ($crypted && empty($valueKey)) {
+      		form_set_error('wallysynch_content_refresh_time', t('The key for encryption is required.'));
+    	}
+  	}
 }
 
 /**
@@ -321,13 +334,16 @@ function wallysynch_save_file($data,$path){
   if(file_exists($path))
   {
     //write the config.xml file
-    $FileName = $path.'/config.xml';
+    $file = 'config.xml';
+    $FileName = $path.'/'.$file;
     $FileHandle = fopen($FileName, 'w');
 
     fwrite($FileHandle, $data);
     fclose($FileHandle);
-
+	//dsm(file_create_filename($file, $path));
     drupal_set_message(t('Configuration has been saved in %s',array('%s'=>$path)));
+    drupal_set_message(t('Your configuration file is accessible with ftp in %s',array('%s'=>$path)));
+    
   }
   else
   {
