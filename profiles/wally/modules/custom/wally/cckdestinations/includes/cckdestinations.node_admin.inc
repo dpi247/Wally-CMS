@@ -6,7 +6,9 @@
 function cckdestinations_node_admin_content($form_state) {
   module_load_include('inc', 'node', 'node.admin');
   if (isset($form_state['values']['operation']) && $form_state['values']['operation'] == 'delete') {
-    return node_multiple_delete_confirm($form_state, array_filter($form_state['values']['nodes']));
+    $form = node_multiple_delete_confirm($form_state, array_filter($form_state['values']['nodes']));
+    $form['#submit'][] = 'cckdestination_node_multiple_delete_confirm_submit';
+    return $form;
   }
   $form = cckdestinations_node_filter_form();
 
@@ -226,6 +228,18 @@ function cckdestinations_node_filter_form_submit($form, &$form_state) {
 }
 
 /**
+ * 
+ * Form submit in case of delete action
+ * @param array $form
+ * @param array $form_state
+ */
+function cckdestination_node_multiple_delete_confirm_submit($form, &$form_state) {
+  module_load_include('inc', 'node', 'node.admin');
+  node_multiple_delete_confirm_submit($form, $form_state);
+  $form_state['redirect'] = 'admin/wally/cckdestinations/node';
+}
+
+/**
  * Theme node administration filter selector.
  *
  * @ingroup themeable
@@ -257,3 +271,5 @@ function theme_cckdestinations_node_filters($form) {
 
   return $output;
 }
+
+
