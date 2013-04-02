@@ -1908,9 +1908,8 @@ function wallyimportpackageV18_node_set_field_thumbnail(&$node, $dom, &$log, $im
  *   Nothing
  */
 function wallyimportpackageV18_node_process_link(&$node, $dom, &$log, $importer){
-  wallyimportpackageV18_typetype_preprocess($node, $dom, $importer);
+ wallyimportpackageV18_typetype_preprocess($node, $dom, $importer);
 
-  //$node->type='wally_linktype';
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
   if ($dom->hasAttribute('EmbeddedObjectsOrder')){
@@ -1923,16 +1922,23 @@ function wallyimportpackageV18_node_process_link(&$node, $dom, &$log, $importer)
 
   if (strtolower($uri['scheme']) == 'extref'){
     $ext_ref = $uri['host'];
-
     if ($link = wallytoolbox_get_node_by_cckfield(array('field_externalreference' => $ext_ref))) {
       if (count($link) == 1) {
         $node->field_internal_link[0]['nid'] = $link[0]->nid;
       }
+    } else {
+      //if the external does not exist, the node is rejected
+      $node->rejected = TRUE;
     }
   } else{
-    $node->field_link_item[0]['title'] = $node->title;
-    $node->field_link_item[0]['url'] = $uri_value;
-    $node->field_link_item[0]['attributes'] = array('target'=>'_blank');
+    if (valid_url($uri_value, TRUE)){
+      $node->field_link_item[0]['title'] = $node->title;
+      $node->field_link_item[0]['url'] = $uri_value;
+      $node->field_link_item[0]['attributes'] = array('target'=>'_blank');
+    } else {
+      //If it's not a valid url, the node is rejected
+      $node->rejected = TRUE;
+    }
   }
 }
 
