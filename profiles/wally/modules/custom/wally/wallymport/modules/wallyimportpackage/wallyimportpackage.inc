@@ -657,7 +657,7 @@ function wallyimportpackage_node_set_field_destinations(&$node, $dom, $log, $imp
         $check_double[] = $temp_result['tid'].':'.$temp_result['target'];
 
         if ($actual_dest = _wallyimportpackage_find_destination($node->field_destinations, $temp_result)) {
-          $temp_result['rank'] = (($actual_dest['rank'] == $temp_result['rank']) || ($temp_result['rank'] == 'DNC')) ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
+          $temp_result['rank'] = ($temp_result['rank'] == 'DNC') ? 'DNC'.$actual_dest['rank'] : $temp_result['rank'];
           $temp_result['time_rank'] = $actual_dest['time_rank'];
         }
 
