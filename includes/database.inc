@@ -122,9 +122,9 @@ function db_prefix_tables($sql) {
  *   The name of the previously active database, or FALSE if none was found.
  */
 function db_set_active($name = 'default') {
-  global $db_url, $db_type, $active_db;
-  static $db_conns, $active_name = FALSE;
-
+  global $db_url, $db_slave_url, $db_type, $active_db, $active_slave_db;
+  static $db_conns, $db_slave_conns, $active_name = FALSE;
+	
   if (empty($db_url)) {
     include_once 'includes/install.inc';
     install_goto('install.php');
@@ -134,9 +134,23 @@ function db_set_active($name = 'default') {
     // Initiate a new connection, using the named DB URL specified.
     if (is_array($db_url)) {
       $connect_url = array_key_exists($name, $db_url) ? $db_url[$name] : $db_url['default'];
+      if (is_array($db_slave_url[$name])) {
+      	$slave_index = mt_rand(0, count($db_slave_url[$name]) - 1);
+      	$slave_connect_url = $db_slave_url[$name][$slave_index];
+      }
+      else {
+      	$slave_connect_url = $db_slave_url[$name];
+      }
     }
     else {
       $connect_url = $db_url;
+      if (is_array($db_slave_url)) {
+      	$slave_index = mt_rand(0, count($db_slave_url) - 1);
+      	$slave_connect_url = $db_slave_url[$slave_index];
+      }
+      else {
+      	$slave_connect_url = $db_slave_url;
+      }
     }
 
     $db_type = substr($connect_url, 0, strpos($connect_url, '://'));
@@ -150,12 +164,21 @@ function db_set_active($name = 'default') {
     }
 
     $db_conns[$name] = db_connect($connect_url);
+    if (!empty($slave_connect_url)) {
+    	$db_slave_conns[$name] = db_connect($slave_connect_url);
+    }
   }
 
   $previous_name = $active_name;
   // Set the active connection.
   $active_name = $name;
   $active_db = $db_conns[$name];
+  if (isset($db_slave_conns[$name])) {
+  	$active_slave_db = $db_slave_conns[$name];
+  }
+  else {
+  	unset($active_slave_db);
+  }
 
   return $previous_name;
 }
