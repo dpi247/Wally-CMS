@@ -12,8 +12,6 @@ include_once('wallycontenttypes.features.inc');
  */
  
 
-
-
 /**
  * Implementation of hook_perm().
  */
@@ -767,8 +765,8 @@ function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
 function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
   $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
 }
+
 /**
- * 
  * Add validation to the node form to prevent tlink to be the package itself
  * 
  * @param &$form
@@ -783,13 +781,11 @@ function _wallycontenttypes_preventpackageselftlink(&$form, $form_state, $form_i
 }
 
 /**
- * 
  * Check if a tlink is embed and if its the package itself
  * @param $form
  * @param $form_state
  */
 function wallycontenttypes_form_node_package_form_validate(&$form, &$form_state){
-  
   foreach ($form_state['values']['field_embededobjects'] as $key => $embed){
     $node_embed = node_load(array('nid' => $embed['nid']));
     //Check if the internal link of an embed of type tlink is the package itself
@@ -800,6 +796,7 @@ function wallycontenttypes_form_node_package_form_validate(&$form, &$form_state)
     }
   }
 }
+
 /**
  * call back to disable all taxonomy fields on package editing
  * 
@@ -1026,7 +1023,6 @@ function wally_get_tpl_suggestions(&$variables, $hook) {
  * 
  * @return Nothing but modify the $node
  */
-
 function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALSE) {
   // Avoid infinite loop
   if ((isset($node->parents) && !in_array($node->nid, $node->parents)) || !isset($node->parents)) {
@@ -1068,8 +1064,7 @@ function wallycontenttypes_cron() {
   $today = strtotime(date('Y-m-d'));
   $last_run_timestamp = wally_variable_get('wallycontenttypes_embargo_last_run', time() - 86400);
 
-  if ($last_run_timestamp < $today ) {
-    
+  if ($last_run_timestamp < $today) {
     wally_variable_set('wallycontenttypes_embargo_last_run', $today);
 
     // If Memcached is used we don't try to flush old packages, Memcached do it itself.
@@ -1164,24 +1159,13 @@ function wallycontenttypes_cron() {
           if (strtotime($safe_embargo_date) < time()) {
             $node = node_load(array('nid' => $obj->nid));
             node_publish_action($node);
-            
-            //We need to set the publication date related to the embargo
-    
-            $type = wydit_get_infos_type($node->type);
-            $cck_fields = $type['fields'];
-            $format = $cck_fields['field_publicationdate']['widget']['input_format'];
-            
-			
-			$embargoTZ = new DateTimeZone($node->field_embargodatetime[0]['timezone_db']);
-			$publicationTZ = new DateTimeZone($node->field_publicationdate[0]['timezone_db']);
-			$date = new DateTime($node->field_embargodatetime[0]['value'] , $embargoTZ );
-			$date->setTimezone($publicationTZ );
-			$node->field_publicationdate[0]['value'] = $date->format($format);
-           
-			
+
+            // Allow other modules to alter the node, to update dates for example
+            drupal_alter('wally_node_embargo_released', $node);
+
             node_save($node);
             $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
-            
+
           }
         }
       }
@@ -1195,12 +1179,17 @@ function wallycontenttypes_cron() {
           if (strtotime($safe_unpublish_date) < time()) {
             $node = node_load(array('nid' => $obj->nid));
             node_unpublish_action($node);
+
+            // Allow other modules to alter the node, to update dates for example
+            drupal_alter('wally_node_programmed_unpublish', $node);
+
             cckdestinations_force_dnc($node);
             node_save($node);
             $return .= t('Node !nid unpublished', array('!nid' => $node->nid)).'</br>';
           }
         }
       }
+
       //delete node from the temp table
       db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d AND action = %d AND date = '%s'", $obj->nid, $obj->action, $obj->date);
     }
