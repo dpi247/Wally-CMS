@@ -376,6 +376,7 @@ function wallycontenttypes_preprocess_node(&$variables) {
  *  Implémentation du hook_form_alter(); 
  */
 function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
+  
   if (isset($form['type']) && isset($form['#node'])) {
     switch ($form_id) {
       case 'wally_photoobject_node_form':
@@ -388,6 +389,10 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
         _wallycontenttypes_preventpackageselftlink($form, $form_state, $form_id);
         break;
     }
+  }
+  if ($form_id == 'content_field_edit_form'){
+    //Delete the form information about the vocabulary
+    unset($form['field']['hierarchical_vocabulary']);
   }
 }
 
