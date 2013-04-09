@@ -405,6 +405,10 @@ function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
   if ($form_id == 'content_field_edit_form'){
     //Delete the form information about the vocabulary
     unset($form['field']['hierarchical_vocabulary']);
+    
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_concepts']);
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_entities']);
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_iptc']);
   }
 }
 
