@@ -1717,6 +1717,34 @@ function wallycontenttypes_getexterntodaycreatedpackagenumber(){
   $res['value'] = $obj->count;
   return $res;
 }
+
+function wallycontenttypes_get_wallycrop_presets() {
+  $crops = array();
+  $presets = imagecache_presets();
+  foreach ($presets as $preset) {
+    if ($preset['actions']) {
+      $found_wallycrop = FALSE;
+      $datas = array();
+      foreach ($preset['actions'] as $action) {
+        if ($action['action'] == 'wallycontenttypes_wallycrop') {
+          $found_wallycrop = TRUE;
+        } elseif (($action['action'] == 'imagecache_scale' || $action['action'] == 'imagecache_scale_and_crop') && $found_wallycrop) {
+          $crops[$preset['presetid']] = array(
+            'id' => $preset['presetname'],
+            'validate' => 'none',
+            'label' => $preset['presetname'],
+            'width' => $action['data']['width'],
+            'height' => $action['data']['height'],
+            'type' => 'pixel',
+          );
+        }
+      }
+    }
+  }
+
+  return $crops;
+}
+
 /**
  * @} End of "defgroup wallycontenttypes".
  */
