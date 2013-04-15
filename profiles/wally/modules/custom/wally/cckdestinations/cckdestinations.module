@@ -598,7 +598,7 @@ function cckdestinations_cckdestinations_widget_process($element, $edit, &$form_
   $defaults = $element['#value'];
   $field = content_fields($element['#field_name'], $element['#type_name']);
   $vocabulary_id = variable_get('wallymport_destinationpath', 0);
-  $hierarchies = wallyctools_get_hierarchies();
+  $hierarchies = wallyctools_get_hierarchies(TRUE);
   
   static $first_dest = TRUE;
   if ($first_dest) {
@@ -951,7 +951,7 @@ function cckdestinations_get_classes_and_options() {
   $result['layout']['#options'] = array();
   $result['layout']['#classes'] = array();
 
-  $hierarchies = wallyctools_get_hierarchies();
+  $hierarchies = wallyctools_get_hierarchies(TRUE);
   foreach($hierarchies as $tid => $hierarchie) {
     $result['tid']['#options'][$tid] = array($tid => $hierarchie['hierarchic_name']);
     

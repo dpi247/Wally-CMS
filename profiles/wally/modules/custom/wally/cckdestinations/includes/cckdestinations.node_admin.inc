@@ -186,8 +186,8 @@ function cckdestinations_node_filter_form() {
  */
 function cckdestinations_node_filters() {
   // The taxonomy filter
-  if ($taxonomy = module_invoke('taxonomy', 'form_all', 1)) {
-    $filters['category'] = array('title' => t('destination'), 'options' => array('Destination Path' => $taxonomy['Destination Path']));
+  if ($taxonomy = module_invoke('taxonomy', 'form', variable_get('wallymport_destinationpath', 2))) {
+    $filters['category'] = array('title' => t('destination'), 'options' => array('Destination Path' => $taxonomy['#options']));
   }
 
   return $filters;
