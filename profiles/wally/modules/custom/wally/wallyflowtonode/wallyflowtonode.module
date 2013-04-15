@@ -284,12 +284,12 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
           $zip = new ZipArchive;
           $zip->open($zip_file, ZipArchive::CREATE);
           foreach ($files_to_zip as $file_to_zip) {
-            $localname = str_replace('/tmp/', '', $file_to_zip);
+            $localname = end(explode('/', $file_to_zip));
             $zip->addFile($file_to_zip, $localname);
           }
           $zip->close();
 
-          $temp_return = wallymport_process_file($importer, $zip_file_name);
+          $temp_return = reset(wallymport_process_file($importer, $zip_file_name));
           
           foreach ($files_to_zip as $file_to_zip) {
             unlink($file_to_zip);
@@ -304,7 +304,7 @@ function _wallyflowtonode_callonefeed(&$feed_infos, $force = FALSE) {
           }
         }
 
-        if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return[0]['error']) {
+        if (isset($feed_infos['flow_key']) && $temp_return && !$temp_return['error']) {
           $object = $feed_infos;
           drupal_write_record('wallyflowtonode_flows', $object, array('flow_key'));
         }
