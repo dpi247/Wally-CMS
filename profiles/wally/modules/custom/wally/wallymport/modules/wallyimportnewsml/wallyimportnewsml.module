@@ -144,6 +144,8 @@ function wallyimportnewsml_node_process_package(&$node, $dom, &$log, $importer){
   
   $node->status = 1;
   
+  _wallyimportnewsml_check_perform_pathauto($node);
+  
   $node->language = $dom->getAttributeNode("xml:lang")->value;
   
   $channel = array('newsml');
@@ -524,4 +526,25 @@ function _wallyimportnewsml_datenewsml_to_string($date){
   $date = $year.'-'.$month;
   $time = wordwrap($time, 2, ':',1);
   return $date.'T'.$time;
+}
+
+/**
+ * Check whether an alias as to be recalculated or not
+ */
+function _wallyimportnewsml_check_perform_pathauto(&$node) {
+  if (module_exists('pathauto') && !isset($node->pathauto_perform_alias)) {
+    if (!empty($node->nid)) {
+      // If this is not a new node, compare it's current alias to the
+      // alias that would be genereted by pathauto. If they are the same,
+      // then keep the automatic alias enabled.
+      _pathauto_include();
+      $placeholders = pathauto_get_placeholders('node', $node);
+      $pathauto_alias = pathauto_create_alias('node', 'return', $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
+      $node->pathauto_perform_alias = isset($node->path) && $node->path == $pathauto_alias;
+    }
+    else {
+      // If this is a new node, enable the automatic alias.
+      $node->pathauto_perform_alias = TRUE;
+    }
+  }
 }
