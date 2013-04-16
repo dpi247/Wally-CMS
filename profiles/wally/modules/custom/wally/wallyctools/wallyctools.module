@@ -132,6 +132,7 @@ function wallyctools_taxonomy($op, $type, $array = NULL) {
  */
 function wallyctools_panels_display_save($display) {
   wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
+  wallytoolbox_get_handlers(TRUE, $page, NULL, 'redacblock');
 }
 
 /**
