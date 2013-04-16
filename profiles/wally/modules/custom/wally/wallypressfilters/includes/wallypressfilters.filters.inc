@@ -20,7 +20,7 @@ function wallypressfilters_replace_tags($tag, $settings, $text) {
       $raw_attributes = trim($tag_matches[1][$match_id]);
       $expl_attributes = explode(' ', $raw_attributes);
       foreach ($expl_attributes as $raw_attr) {
-        $expl_attr = explode('=', $raw_attr);
+        $expl_attr = explode('=', $raw_attr, 2);
         $tag_values['attributes'][$expl_attr[0]] = trim($expl_attr[1], '"');
       }
 
