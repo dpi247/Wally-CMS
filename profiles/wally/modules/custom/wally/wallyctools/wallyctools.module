@@ -584,12 +584,12 @@ function wallyctools_get_term_handler_mapping($vid, $depth, $reset = FALSE) {
 function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
   $tid_did_mapping = array();
   
-  $current_count = db_fetch_array(db_query("SELECT COUNT(tid) FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth));
+  //$current_count = db_fetch_array(db_query("SELECT COUNT(tid) FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth));
 
-  if ($reset || ($current_count['COUNT(tid)'] == 0)) {
+  //if ($reset || ($current_count['COUNT(tid)'] == 0)) {
     // Completely rebuild the datas, also in DB
 
-    db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
+    //db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     
     $temp_terms = taxonomy_get_tree($vid);
     $terms = array();
@@ -610,22 +610,22 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
         'hierarchic_name' => str_repeat('-', $count_parents).$term->name,
       );
 
-      $datas = array(
+      /*$datas = array(
         'tid' => $term->tid,
         'vid' => $vid,
         'depth' => $depth,
         'mapping' => $tid_did_mapping[$term->tid],
       );
-      drupal_write_record('wallyctools_term_handler_mapping', $datas);
+      drupal_write_record('wallyctools_term_handler_mapping', $datas);*/
     }
-  } else {
+  /*} else {
     // Rebuild the datas from the DB
 
     $db_datas = db_query("SELECT * FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     while ($obj = db_fetch_object($db_datas)) {
       $tid_did_mapping[$obj->tid] = unserialize($obj->mapping);
     }
-  }
+  }*/
   
   cache_set('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, $tid_did_mapping, 'cache');
   
@@ -641,12 +641,19 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
  * @return the active handler
  */
 function wallyctools_get_active_handler($term_tid, $depth) {
-  $task = page_manager_get_task('term_view');
-  ctools_include('context');
-  ctools_include('context-task-handler');
+  static $task = array();
+  if (empty($task)) {
+    $task = page_manager_get_task('term_view');
+    ctools_include('context');
+    ctools_include('context-task-handler');
+  }
+
+  static $handlers = array();
+  if (empty($handlers)) {
+    $handlers = page_manager_load_sorted_handlers($task, NULL, TRUE);
+  }
 
   $contexts = ctools_context_handler_get_task_contexts($task, '', array($term_tid, $depth));
-  $handlers = page_manager_load_sorted_handlers($task, NULL, TRUE);
   foreach ($handlers as $handler) {
     //add my contexts
     $contexts = ctools_context_handler_get_handler_contexts($contexts, $handler);
