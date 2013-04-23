@@ -132,7 +132,6 @@ function wallyctools_taxonomy($op, $type, $array = NULL) {
  */
 function wallyctools_panels_display_save($display) {
   wallyctools_build_term_handler_mapping(variable_get('wallymport_destinationpath', 0), 0, TRUE);
-  wallytoolbox_get_handlers(TRUE, $page, NULL, 'redacblock');
 }
 
 /**
@@ -507,14 +506,14 @@ function wallyctools_get_default_target($tid) {
  *
  * @return an array where term are key and the hierarchical structure of the redactional content.
  */
-function wallyctools_get_hierarchies($get_layouts = FALSE) {
+function wallyctools_get_hierarchies() {
   static $tid_did_mapping = array();
   if (empty($tid_did_mapping)) {
     $dest_vid = variable_get('wallymport_destinationpath', 0);
     $depth = 0;
 
     $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
-    $array_of_redacblock_panes = wallyctools_get_redacblock_panes($get_layouts);
+    $array_of_redacblock_panes = wallyctools_get_redacblock_panes();
     $default_redacblocks = wally_variable_get('wallyctools_default_redacblocks', array());
 
     foreach($tid_did_mapping as $tid => $did_infos) {
@@ -525,15 +524,11 @@ function wallyctools_get_hierarchies($get_layouts = FALSE) {
           if (isset($default_redacblocks[$pane->did]) && ($pane->subtype == $default_redacblocks[$pane->did]['default_redacblock'])) {
             $tid_did_mapping[$tid]['redacblocks'][$pane->name]['title'] = $pane->admin_title;
             $tid_did_mapping[$tid]['redacblocks'][$pane->name]['name'] = $pane->name;
-            if ($get_layouts) {
-              $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
-            }
+            $tid_did_mapping[$tid]['redacblocks'][$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
           } else {
             $temp_mapping[$pane->name]['title'] = $pane->admin_title;
             $temp_mapping[$pane->name]['name'] = $pane->name;
-            if ($get_layouts) {
-              $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
-            }
+            $temp_mapping[$pane->name]['layouts'][$pane->layout_id] = array('name' => $pane->layout_id, 'title' => $pane->layout_id);
           }
         }
       }
@@ -543,10 +538,8 @@ function wallyctools_get_hierarchies($get_layouts = FALSE) {
       $tid_did_mapping[$tid]['redacblocks']['none'] = array(
         'title' => t('none'),
         'name' => 'none',
+        'layouts' => array('none' => array('name' => 'none', 'title' => t('none'))),
       );
-      if ($get_layouts) {
-        $tid_did_mapping[$tid]['redacblocks']['none']['layouts'] = array('none' => array('name' => 'none', 'title' => t('none')));
-      }
     }
   }
 
@@ -584,12 +577,12 @@ function wallyctools_get_term_handler_mapping($vid, $depth, $reset = FALSE) {
 function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
   $tid_did_mapping = array();
   
-  //$current_count = db_fetch_array(db_query("SELECT COUNT(tid) FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth));
+  $current_count = db_fetch_array(db_query("SELECT COUNT(tid) FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth));
 
-  //if ($reset || ($current_count['COUNT(tid)'] == 0)) {
+  if ($reset || ($current_count['COUNT(tid)'] == 0)) {
     // Completely rebuild the datas, also in DB
 
-    //db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
+    db_query("DELETE FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     
     $temp_terms = taxonomy_get_tree($vid);
     $terms = array();
@@ -610,22 +603,22 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
         'hierarchic_name' => str_repeat('-', $count_parents).$term->name,
       );
 
-      /*$datas = array(
+      $datas = array(
         'tid' => $term->tid,
         'vid' => $vid,
         'depth' => $depth,
         'mapping' => $tid_did_mapping[$term->tid],
       );
-      drupal_write_record('wallyctools_term_handler_mapping', $datas);*/
+      drupal_write_record('wallyctools_term_handler_mapping', $datas);
     }
-  /*} else {
+  } else {
     // Rebuild the datas from the DB
 
     $db_datas = db_query("SELECT * FROM {wallyctools_term_handler_mapping} WHERE vid = %d AND depth = %d", $vid, $depth);
     while ($obj = db_fetch_object($db_datas)) {
       $tid_did_mapping[$obj->tid] = unserialize($obj->mapping);
     }
-  }*/
+  }
   
   cache_set('wallyctools_term_handler_mapping_'.$vid.'_'.$depth, $tid_did_mapping, 'cache');
   
@@ -641,19 +634,12 @@ function wallyctools_build_term_handler_mapping($vid, $depth, $reset = FALSE) {
  * @return the active handler
  */
 function wallyctools_get_active_handler($term_tid, $depth) {
-  static $task = array();
-  if (empty($task)) {
-    $task = page_manager_get_task('term_view');
-    ctools_include('context');
-    ctools_include('context-task-handler');
-  }
-
-  static $handlers = array();
-  if (empty($handlers)) {
-    $handlers = page_manager_load_sorted_handlers($task, NULL, TRUE);
-  }
+  $task = page_manager_get_task('term_view');
+  ctools_include('context');
+  ctools_include('context-task-handler');
 
   $contexts = ctools_context_handler_get_task_contexts($task, '', array($term_tid, $depth));
+  $handlers = page_manager_load_sorted_handlers($task, NULL, TRUE);
   foreach ($handlers as $handler) {
     //add my contexts
     $contexts = ctools_context_handler_get_handler_contexts($contexts, $handler);
@@ -673,45 +659,39 @@ function wallyctools_get_active_handler($term_tid, $depth) {
  *
  * @return an array of all redacblocks
  */
-function wallyctools_get_redacblock_panes($get_layouts = FALSE) {
-  $array_of_panes = array();
+function wallyctools_get_redacblock_panes(){
+  $array_of_panes=array();
 
-  $sql = "SELECT name, view_name, view_id, admin_title FROM {wallyctools}";
+  $sql = "Select name, view_name, view_id, admin_title FROM {wallyctools}";
   $results = db_query($sql);
 
   while ($result = db_fetch_object($results)) {
     $redacblocks[$result->name] = $result;
   }
 
-  $handlers = wallytoolbox_get_handlers(FALSE, 'term_view', NULL, 'redacblock');
+  $handlers = wallytoolbox_get_handlers(FALSE, 'term_view');
+
   $term_view_handlers = $handlers['term_view'];
-
   foreach ($term_view_handlers as $term_view_handler) {
-    $handler_subtype = $term_view_handler->subtype;
-    if (in_array($handler_subtype, array_keys($redacblocks))) {
-      $temp_result = $redacblocks[$handler_subtype];
-      $temp_result->did = $term_view_handler->did;
-      $temp_result->subtype = $term_view_handler->subtype;
-      $temp_result = (array)$temp_result;
+    if ($term_view_handler->type=='redacblock') {
+      if (in_array($term_view_handler->subtype, array_keys($redacblocks))) {
+        $temp_result = $redacblocks[$term_view_handler->subtype];
+        $temp_result->did=$term_view_handler->did;
+        $temp_result->subtype=$term_view_handler->subtype;
+        $temp_result=(array) $temp_result;
 
-      if ($get_layouts) {
-        $display_options_query = "SELECT vd.display_options FROM {views_display} vd
-            LEFT JOIN {views_view} vv ON vv.vid = vd.vid
-            WHERE vv.name = '%s' AND vd.id = '%s'";
-        $display_options_db = db_query($display_options_query, $temp_result['view_name'], $temp_result['view_id']);
-        $display_options = unserialize(db_result($display_options_db));
-        $layouts = $display_options['redacblock_layout'];
+        $view = views_get_view($redacblocks[$term_view_handler->subtype]->view_name);
+        $view->set_display($redacblocks[$term_view_handler->subtype]->view_id);
+        $layouts=$view->display[$redacblocks[$term_view_handler->subtype]->view_id]->display_options['redacblock_layout'];
 
         if (is_array($layouts)) {
           foreach ($layouts as $layout) {
             if ($layout) {
               $temp_result['layout_id'] = $layout;
-              $array_of_panes[] = (object)$temp_result;
+              $array_of_panes[]=(object)$temp_result;
             }
           }
         }
-      } else {
-        $array_of_panes[] = (object)$temp_result;
       }
     }
   }

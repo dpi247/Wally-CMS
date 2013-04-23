@@ -985,22 +985,18 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
 /**
  * Get a list of all blocks set in all pages
  */
-function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = NULL, $display_type = NULL) {
+function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = NULL) {
   if ($reset) {
     // Rebuild the entire arrays
-    $handlers = wallytoolbox_refresh_handlers($page, $req_handler, $display_type);
+    $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
   } else {
     // Only want one page ?
     if ($page) {
       // Want one page
-      $cid = 'wallytoolbox_panels_handlers_'.$page;
-      if ($display_type) {
-        $cid .= '_'.$display_type;
-      }
-      $cached_datas = cache_get($cid, 'cache');
+      $cached_datas = cache_get('wallytoolbox_panels_handlers_'.$page, 'cache');
       if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
         // There is no cache for this page, rebuild it
-        $handlers = wallytoolbox_refresh_handlers($page, $req_handler, $display_type);
+        $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
       } else {
         $tmp_handlers = $cached_datas->data;
         if ($req_handler) {
@@ -1019,7 +1015,7 @@ function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = 
         }
       }
     } else {
-      // Want all the pages
+      // Want all the tables
       // @todo : handle cache in this case
       $handlers = wallytoolbox_refresh_handlers();
     }
@@ -1028,38 +1024,38 @@ function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = 
   return $handlers;
 }
 
-function wallytoolbox_refresh_handlers($page = NULL, $req_handler = NULL, $display_type = NULL) {
+function wallytoolbox_refresh_handlers($page = NULL, $req_handler = NULL) {
   $pages = page_manager_get_tasks_by_type('page');
   if ($page && isset($pages[$page])) {
     $pages = array($page => $pages[$page]);
   }
 
   $handlers = array();
+  //$panels = array();
   foreach ($pages as $page_name => $page) {
-    $db_handlers = db_query("SELECT conf, name FROM {page_manager_handlers} WHERE task = '%s'", $page_name);
-    $handlers[$page_name] = array();
-    while($db_handler = db_fetch_array($db_handlers)) {
-      $handler_name = $db_handler['name'];
-      $handler_conf = unserialize($db_handler['conf']);
-      $handler_did = $handler_conf['did'];
-
-      $display = panels_load_display($handler_did);
-      if (isset($display->content) && is_array($display->content)) {
-        foreach ($display->content as $display_content) {
-          if (!$display_type || $display_content->type == $display_type) {
-            $handlers[$page_name][$handler_name.':'.$display_content->pid] = $display_content;
-          }
+    $cached_page = page_manager_get_page_cache($page_name);
+    $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
+    if ($req_handler && isset($cached_page->handlers[$req_handler])) {
+      $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $req_handler);
+      //$panels[$req_handler][] = $cached_panels;
+      foreach ($cached_panels->display->content as $display_content) {
+        $handlers[$page_name][$req_handler.':'.$display_content->pid] = $display_content;
+      }
+    } else {
+      foreach ($cached_page->handlers as $handler_name => $handler) {
+        $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
+        //$panels[$handler_name][$handler->name] = $cached_panels;
+        foreach ($cached_panels->display->content as $display_content) {
+          $handlers[$page_name][$handler->name.':'.$display_content->pid] = $display_content;
         }
       }
     }
 
-    $cid = 'wallytoolbox_panels_handlers_'.$page_name;
-    if ($display_type) {
-      $cid .= '_'.$display_type;
-    }
-    cache_set($cid, array($page_name => $handlers[$page_name]), 'cache');
+    //cache_set('wallytoolbox_panels_handlers_'.$page_name, array($panels, $handlers), 'cache');
+    cache_set('wallytoolbox_panels_handlers_'.$page_name, array($page_name => $handlers[$page_name]), 'cache');
   }
 
+  //return array($panels, $handlers);
   return $handlers;
 }
 
