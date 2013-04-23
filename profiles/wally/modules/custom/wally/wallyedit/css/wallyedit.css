@@ -124,8 +124,7 @@ a.selected {
 }
 
 #scroller-header .selected {
-	background: -moz-linear-gradient(center top, #FFC039, #FF920D) repeat
-		scroll 0 0 transparent;
+	background: orange;
 	border: 1px solid #FF920D;
 	color: white !important;
 	text-shadow: 0 -1px 0 #DE6E00;
