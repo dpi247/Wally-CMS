@@ -346,6 +346,22 @@ function wallymport_post($importer_name, $preview = FALSE) {
     
     //Get the file
     foreach ($_FILES as $key => $input) {
+      $zip_types = array(
+        'application/zip',
+        'application/x-zip-compressed',
+        'multipart/x-zip',
+        'application/x-compressed',
+      );
+      if (in_array($input['type'], $zip_types) && !pathinfo($input['name'], PATHINFO_EXTENSION) != 'zip') {
+        @copy($input['tmp_name'], $input['tmp_name'].'.zip');
+        unlink($input['tmp_name']);
+        $input['tmp_name'] .= '.zip';
+      } elseif (!pathinfo($input['name'], PATHINFO_EXTENSION) != 'xml') {
+        @copy($input['tmp_name'], $input['tmp_name'].'.xml');
+        unlink($input['tmp_name']);
+        $input['tmp_name'] .= '.xml';
+      }
+
       $object_file->name = $input['name'];
       $object_file->filename = $input['tmp_name'];
       $object_file->basename = $input['tmp_name'];
