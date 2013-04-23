@@ -1,0 +1,1781 @@
+<?php
+
+include_once('wallycontenttypes.features.inc');
+
+/**
+ * @defgroup wallycontenttypes Wally main module.
+ * @{
+   * 
+ * In this module we define all wally specific content types & taxonomies
+ * Also include all invocation for specific theme hook & theming preprocess
+ * functions. 
+ */
+ 
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallycontenttypes_perm() {
+  return array(
+    'administer wallycontenttypes',
+  );
+}
+
+/**
+ *  Implémentation du hook_menu(); 
+ */
+function wallycontenttypes_menu() {
+  $items = array();
+  
+  $items['admin/content/editcrop'] = array(
+    'title' => t('Edit croping'), 
+    'description' => t('Edit croping'), 
+    'page callback' => 'wallycontenttypes_ajax_editcrop',
+    'access arguments' => array('administer nodes'), 
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallycontenttypes.node_form.inc',
+  );
+  
+  $items['admin/wally/wallycontenttypes/settings'] = array(
+    'title' => t('Wally Content Types Settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallycontenttypes_page_admin_form'),
+    'access arguments' => array('administer wallycontenttypes'),
+    'description' => t('Allows administrators to set paramaters for this module to function properly.'),
+    'file' => 'includes/wallycontenttypes.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ *  Implémentation du hook_theme(); 
+ */
+function wallycontenttypes_theme(&$var) {
+
+  $path = drupal_get_path('module', 'wallycontenttypes');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
+  return array(
+    'wallyct_photoobject_slider' => $base + array(
+      'arguments' => array("nodes" => NULL, "node" => NULL),
+      'template' => 'wallyct_photoobject_slider',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_mainstory' => $base + array(
+      'arguments' => array("mainstory" => NULL, "node" => NULL),
+      'template' => 'wallyct_mainstory',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_embededobjects' => $base + array(
+      'arguments' => array("embededobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_embededobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_photoobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_photoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_videoobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_videoobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_digitalobject' => $base + array(
+      'arguments' => array("embededobject" => NULL),
+      'template' => 'wallyct_digitalobject',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_linkedobjects' => $base + array(
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_teaser' => $base + array(
+      'arguments' => array("text" => NULL, "length" => 200, "node" => NULL),
+      'template' => 'wallyct_teaser',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_destinationlist' => $base + array(
+      'arguments' => array("destinations" => NULL, "separator" => NULL, "prefix" => NULL, "suffix" => NULL),
+      'template' => 'wallyct_destinationlist',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_linkedobjects' => $base + array(
+      'arguments' => array("linkedobjects" => NULL, "node" => NULL),
+      'template' => 'wallyct_linkedobjects',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_galleryphoto' => $base + array(
+      'arguments' => array("node" => NULL),
+      'template' => 'wallyct_galleryphoto',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_editcrop' => $base + array(
+      'arguments' => array("filepath" => NULL, "defaultvalues" => NULL),
+      'template' => 'wallyct_editcrop',
+      'preprocess functions' => array('wally_get_tpl_suggestions')
+    ),
+  );
+}
+
+function wallycontenttypes_theme_registry_alter(&$theme_registry) {
+  $theme_registry['textfield']['function'] = 'wallycontenttypes_rubik_textfield';
+  $theme_registry['textfield']['file'] = 'theme.inc';
+  $theme_registry['textfield']['path'] = drupal_get_path('module', 'wallycontenttypes').'/theme';
+}
+/**
+ * 
+ * Implementation of hook_wallydashboard_shortcut
+ */
+function wallycontenttypes_wallydashboard_shortcut(){
+  $shortcut = array();
+  $shortcut['wallycontenttypes']['create_article'] = array(
+    'title' => t('Create Article Package'),
+    'link'  => 'node/add/wally-articlepackage',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/article.png',
+  );
+  $shortcut['wallycontenttypes']['create_gallery'] = array(
+    'title' => t('Create Gallery Package'),
+    'link'  => 'node/add/wally-gallerypackage',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/gallery.png',
+  );
+  $shortcut['wallycontenttypes']['create_poll'] = array(
+    'title' => t('Create Poll Package'),
+    'link'  => 'node/add/wally-pollpackage',
+    'img'   => drupal_get_path('module', 'wallycontenttypes').'/images/shortcut/poll.png',
+  );
+  return $shortcut;
+}
+/**
+*
+* Implementation of hook_wallydashboard_shortcut
+*/
+function wallycontenttypes_wallydashboard_statpackage(){
+  $stat_package = array();
+  $stat_package['wallycontenttypes']['time_spend_since_last_publication'] = array(
+    'title' => t('Time spend since last package publication'),
+    'function'  => 'wallycontenttypes_gettimespendsincelastpublishedpackage',
+    'default_operator' => '>',
+    'default_value' => '3600',
+    'units' => 'seconde',
+  );
+  $stat_package['wallycontenttypes']['number_of_package_publish_today'] = array(
+    'title' => t('Number of package published from midnight to now'),
+    'function'  => 'wallycontenttypes_gettodaypublishedpackagenumber',
+    'default_operator' => '<',
+    'default_value' => '10',
+    'units' => '',
+  );
+  $stat_package['wallycontenttypes']['time_spend_since_last_extern_created_package'] = array(
+    'title' => t('Time spend since an extern package has been created'),
+    'function'  => 'wallycontenttypes_gettimespendsincelastexternpublishedpackage',
+    'default_operator' => '>',
+    'default_value' => '3600',
+    'units' => 'seconde',
+  );
+  $stat_package['wallycontenttypes']['number_of_extern_package_created_today'] = array(
+    'title' => t('Number of extern package created today'),
+    'function'  => 'wallycontenttypes_getexterntodaycreatedpackagenumber',
+    'default_operator' => '<',
+    'default_value' => '10',
+    'units' => '',
+  );
+  return $stat_package;
+}
+function wallycontenttypes_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallycontenttypes_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+/**
+ * Implementation of hook_action_info().
+ */
+function wallycontenttypes_action_info() {
+  $actions = array(
+    'wallycontenttypes_publish_nodes' => array(
+      'type' => 'node',
+      'description' => t('Publish package'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks' => array(
+        'nodeapi' => array('presave'),
+        'comment' => array('insert', 'update'),
+      ),
+    ),
+    'wallycontenttypes_unpublish_nodes' => array(
+      'type' => 'node',
+      'description' => t('Unpublish package'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks' => array(
+        'nodeapi' => array('presave'),
+        'comment' => array('insert', 'update'),
+      ),
+    ),
+    'wallycontenttypes_batch_set_freeaccess_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set free access'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_unset_freeaccess_nodes' => array(
+      'type' => 'node',
+      'description' => t('Unset free access'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_clear_packagepopulate_cache' => array(
+      'type' => 'node',
+      'description' => t('Clear package populate cache'),
+      'configurable' => FALSE,
+      'hooks' => array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_disable_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Disable comments'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_readonly_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set comments to read only'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_readwrite_comments_nodes' => array(
+      'type' => 'node',
+      'description' => t('Set comments to read/write'),
+      'configurable' => FALSE,
+      'behavior' => array('changes_node_property'),
+      'hooks'=> array('any' => TRUE),
+    ),
+    'wallycontenttypes_batch_varnish_flush_cache_nodes' => array(
+      'type' => 'node',
+      'description' => t('Flush varnish cache'),
+      'configurable' => FALSE,
+    ),
+    'wallycontenttypes_batch_addfreetags_nodes' => array(
+      'type' => 'node',
+      'description' => t('Add Free tags'),
+      'configurable' => TRUE,
+      'hooks' => array('any' => TRUE),
+    ),
+  );
+  return $actions;
+}
+
+/**
+ * 
+ * Add free tags to a node
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_addfreetags_nodes(&$node, $context = array()){
+
+  if (is_array($context['freetags'])){
+    switch ($node->type){
+      case 'wally_articlepackage':$mainobject_nid = $node->field_mainstory[0]['nid'];break;
+      case 'wally_gallerypackage':$mainobject_nid = $node->field_mainobject[0]['nid'];break;
+      case 'wally_pollpackage':$mainobject_nid = $node->field_mainpoll[0]['nid'];break;
+    }
+    
+    $mainobject = node_load(array('nid' => $mainobject_nid));
+    
+    foreach ($mainobject->field_free_tags as $free_tag){
+      if (in_array($free_tag['value'], $context['freetags'])){
+        unset($context['freetags'][$free_tag['value']]);
+      }
+    }
+    foreach ($context['freetags'] as $tid){
+      $mainobject->field_free_tags[]['value'] = $tid;
+    }
+    node_save($mainobject);
+  }
+  
+}
+function wallycontenttypes_batch_addfreetags_nodes_form($context){
+  $form = array();
+  $form['freetags'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Free Tags',
+    '#autocomplete_path' => 'content_taxonomy/autocomplete/field_free_tags',
+  );
+  return $form; 
+}
+function wallycontenttypes_batch_addfreetags_nodes_submit($form, &$form_state){
+  $terms = content_taxonomy_autocomplete_tags_get_tids($form_state['values']['freetags'], 7);
+  $free_tags['freetags'] = array();
+  if ($terms['existing_tids'] != NULL){
+    $free_tags['freetags'] = $terms['existing_tids'];
+  }
+  if ($terms['non_existing_terms'] != NULL){ 
+    $new_terms = content_taxonomy_autocomplete_insert_tags($terms['non_existing_terms']);
+    if (is_array($new_terms)){
+      $free_tags['freetags'] += $new_terms;
+    }
+  }
+  return $free_tags;
+}
+/**
+ * 
+ * Flush the varnish cache of the node
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_varnish_flush_cache_nodes($node, $context = array()){
+  wallytoolbox_flush_all_pages('node/'.$node->nid, TRUE, 'varnish');
+}
+/**
+ * 
+ * Disable comments
+ * @param object $node
+ * @param array $context
+ */
+function wallycontenttypes_batch_disable_comments_nodes(&$node, $context = array()){
+  $node->comment = 0;
+}
+
+/**
+*
+* Set comments to read only
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_readonly_comments_nodes(&$node, $context = array()){
+  $node->comment = 1;
+}
+/**
+*
+* Set comments to read/write
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_readwrite_comments_nodes(&$node, $context = array()){
+  $node->comment = 2;
+}
+
+
+
+function wallycontenttypes_publish_nodes(&$node, $context = array()) {
+  $node->status = 1;
+  if ($node->field_autopublish && $node->field_autopublish[0]['value'] == 'No') {
+    $node->field_autopublish[0]['value'] = 'Autopublish';
+  }
+}
+
+function wallycontenttypes_unpublish_nodes(&$node, $context = array()) {
+  $node->status = 0;
+  if ($node->field_autopublish && $node->field_autopublish[0]['value'] == 'Autopublish') {
+    $node->field_autopublish[0]['value'] = 'No';
+  }
+}
+/**
+ * 
+ * Set free access to "Free"
+ * @param unknown_type $node
+ * @param unknown_type $context
+ */
+function wallycontenttypes_batch_set_freeaccess_nodes(&$node, $context = array()){
+  $node->field_freeaccess[0]['value'] = 'Free';
+}
+/**
+*
+* Set free access to "No"
+* @param unknown_type $node
+* @param unknown_type $context
+*/
+function wallycontenttypes_batch_unset_freeaccess_nodes(&$node, $context = array()){
+  $node->field_freeaccess[0]['value'] = 'No';
+}
+
+
+/**
+ * 
+ * Enter description here ...
+ * @param unknown_type $node
+ * @param unknown_type $context
+ */
+function wallycontenttypes_batch_clear_packagepopulate_cache($node, $context){
+  module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+  wallytoolbox_object_cache_clear($node->nid);
+}
+
+
+/**
+ * Implementation of hook_node_operations().
+ */
+function wallycontenttypes_node_operations() {
+  $operations = array(
+    'wallycontenttypes_publish_nodes' => array(
+      'label' => t('Publish package'),
+      'callback' => 'node_mass_update',
+      'callback arguments' => array('updates' => array('status' => 1, 'field_autopublish' => array(0 => array('value' => 'Autopublish')))),
+    ),
+    'wallycontenttypes_unpublish_nodes' => array(
+      'label' => t('Unpublish package'),
+      'callback' => 'node_mass_update',
+      'callback arguments' => array('updates' => array('status' => 0, 'field_autopublish' => array(0 => array('value' => 'No')))),
+    ),
+  );
+  return $operations;
+}
+
+/**
+ * Implementation of hook_imagecache_actions().
+ */
+function wallycontenttypes_imagecache_actions() {
+  $actions = array(
+    'wallycontenttypes_wallycrop' => array(
+      'name' => 'Wally crop',
+      'description' => t('Perform a wallycrop action.'),
+      'file' => 'includes/wallycontenttypes_actions.inc',
+    ),
+    'wallycontenttypes_cropcopy' => array(
+      'name' => 'Copy of a Wally crop',
+      'description' => t('Reuse the settings of a Wally crop and adapt them to another scale.'),
+      'file' => 'includes/wallycontenttypes_actions.inc',
+    ),
+  );
+
+  return $actions;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  $packages_types = array(
+    'wally_articlepackage',
+    'wally_gallerypackage',
+    'wally_pollpackage',
+  );
+  $objects_types = array(
+    'wally_textobject',
+    'wally_audioobject',
+    'wally_digitalobject',
+    'wally_photoobject',
+    'wally_videoobject',
+    'wally_linkslistobject',
+    'wally_pollobject',
+    'poll',
+  );
+  $parents_types = array_merge($packages_types, array('wally_linkslistobject'));
+
+  switch ($op) {
+
+    case 'view':
+      if (in_array($node->type, $packages_types) && !$node->DoNotPopulate) {
+        //DoNotPopulate is for wallyedit preview, since we give it a node already populated
+        wallycontenttypes_packagepopulate($node);
+      }
+      break;
+
+    case 'insert':
+      if (in_array($node->type, $packages_types)) {
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_insertautopublish($node);
+      }
+      break;
+
+    case 'presave' :
+      // The default behavior of the pathauto module is "if pathauto_perform_alias is not set consider it as true",
+      // we want the default behavior to be "if pathauto_perform_alias is not set don't do anything".
+      if (!isset($node->pathauto_perform_alias)) {
+        $node->pathauto_perform_alias = 0;
+      }
+
+      if (in_array($node->type, $packages_types)) {
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_addtaxonomywheninserted($node);
+        _wallycontenttypes_checkautopublish($node);
+      }
+      break;
+
+    case 'update' :
+      module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+      if (in_array($node->type, $packages_types)) {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_insertautopublish($node);
+      } elseif(in_array($node->type, $objects_types)) {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        if (!$node->doNotPullUp) {
+          module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+          _wallycontenttypes_addtaxonomywhenupdated($node);
+        }
+      }
+      if (in_array($node->type, $parents_types)) {
+        wallycontenttypes_delete_orphans_at_update($node);
+      }
+      wallytoolbox_object_referencer_cache_clear($node);
+      break;
+
+    case 'delete' :
+      module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+      if (in_array($node->type, $packages_types)) {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_deletefromtempautopublish($node);
+        _wallycontenttypes_remove_reference_from_internal_link($node->nid, $node->field_externalreference[0]['value']);
+      } elseif(in_array($node->type, $objects_types)) {
+        wallytoolbox_object_cache_clear($node->nid, $node->revision_uid);
+      }
+      if (in_array($node->type, $parents_types)) {
+        wallycontenttypes_delete_orphans_objects($node);
+      }
+      wallytoolbox_object_referencer_cache_clear($node);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_prenodeapi().
+ */
+function wallycontenttypes_prenodeapi(&$form_state, $op){
+  switch ($op) {
+    case 'presave' :
+      if($form_state['type'] == 'wally_articlepackage' ||
+        $form_state['type'] == 'wally_gallerypackage' ||
+        $form_state['type'] == 'wally_pollpackage') {
+        module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+        _wallycontenttypes_update_package_prenode_taxonomy_recursive($form_state[$form_state['type']], $form_state['profile_id']);
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_wimprt_process_package().
+ * Put the main object's taxonomy terms in the package
+ */
+function wallycontenttypes_wimprt_process_package($node, $dom, $log, $op, $importer) {
+  if ($op == 'after_process') {
+    if ($node->type == 'wally_articlepackage' ||
+        $node->type == 'wally_gallerypackage' ||
+        $node->type == 'wally_pollpackage') {
+      module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+      _wallycontenttypes_addtaxonomywheninserted($node);
+    }
+  }
+}
+
+/**
+ *  Implémentation du hook_preprocess_page(); 
+ */
+function wallycontenttypes_preprocess_page(&$variables) {
+  $suggestion = array();
+
+  // For all Nodes types with a destination field.
+  if (isset($variables['node']->field_destinations) && false) {
+    $suggestion = wallycontenttypes_getpackagesuggestions($variables, 'page'); 
+  }
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+  
+  $menu_item = menu_get_item();
+  if ($menu_item['page_callback'] == 'page_manager_page_execute') {
+    array_unshift($variables['template_files'], 'page-'.$menu_item['page_arguments'][0]);
+  }
+}
+
+/**
+ *  Implémentation du hook_preprocess_node(); 
+ */
+function wallycontenttypes_preprocess_node(&$variables) {
+  $suggestion = array(); 
+
+  // For all Nodes types with a destination field.
+  if (isset($variables['node']->field_destinations[0])) {
+    $suggestion = wallycontenttypes_getpackagesuggestions($variables, 'node'); 
+  }
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/**
+ *  Implémentation du hook_form_alter(); 
+ */
+function wallycontenttypes_form_alter(&$form, $form_state, $form_id){
+  
+  if (isset($form['type']) && isset($form['#node'])) {
+    switch ($form_id) {
+      case 'wally_photoobject_node_form':
+        _wallycontenttypes_addcroppinglink($form, $form_state, $form_id);
+        break;
+      case 'wally_articlepackage_node_form':
+      case 'wally_gallerypackage_node_form' :
+      case 'wally_pollpackage_node_form':
+        _wallycontenttypes_disabletaxonomy($form, $form_state, $form_id);
+        _wallycontenttypes_preventpackageselftlink($form, $form_state, $form_id);
+        break;
+    }
+  }
+  if ($form_id == 'content_field_edit_form'){
+    //Delete the form information about the vocabulary
+    unset($form['field']['hierarchical_vocabulary']);
+    
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_concepts']);
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_entities']);
+    unset($form['widget']['default_value_fieldset']['default_value_widget']['field_iptc']);
+  }
+}
+
+/**
+ * Add a Edit Crop link to form.
+ * 
+ * In case of Photo Object editing, we need to show a "edit crop"
+ * link. 
+ * 
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_addcroppinglink(&$form, $form_state, $form_id) {
+  $form['#after_build'][] = 'wallycontenttypes_addeditcroplink_after_build';
+}
+
+/**
+ * call back to add edit crop link on Photo Object editing
+ * 
+ * Call back function used by after_build attribute to 
+ * add an edit crop link into form.
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ *   
+ * @TODO: Need more intelligence, should be enabled when
+ *   a file is uploaded.
+ */
+function wallycontenttypes_addeditcroplink_after_build(&$form, &$form_state) {
+  module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+
+  // Include the CTools tools that we need.
+  ctools_include('ajax');
+  ctools_include('modal');
+
+  // Add CTools' javascript to the page.
+  ctools_modal_add_js();
+
+  // Create our own javascript that will be used to theme a modal.
+  $edit_crop_style = array(
+    'edit-crop-style' => array(
+      'modalSize' => array(
+        'type' => 'fixed',
+        'width' => 500,
+        'height' => 300,
+        'addWidth' => 20,
+        'addHeight' => 15,
+      ),
+      'modalOptions' => array(
+        'opacity' => .5,
+        'background-color' => '#000',
+      ),
+      'animation' => 'fadeIn',
+      'modalTheme' => 'CToolsSampleModal',
+      'throbber' => theme('image', ctools_image_path('ajax-loader.gif', 'ctools_ajax_sample'), t('Loading...'), t('Loading')),
+    ),
+  );
+
+  drupal_add_js($edit_crop_style, 'setting');
+
+  // Since we have our js, css and images in well-known named directories,
+  // CTools makes it easy for us to just use them without worrying about
+  // using drupal_get_path() and all that ugliness.
+  ctools_add_js('ctools-ajax-sample', 'ctools_ajax_sample');
+  ctools_add_css('ctools-ajax-sample', 'ctools_ajax_sample');
+
+  $pseudo_nid = isset($form_state['cache name']) ? $form_state['cache name'] : $form['nid']['#value'];
+  $nid_type = isset($form_state['cache name']) ? 'prenode' : 'node';
+
+  $callback = 'admin/content/editcrop/'.$nid_type.'/'.$pseudo_nid.'/1';
+  $callback .= isset($form_state['parents']) ? '/'.implode('/', $form_state['parents']) : '';
+
+  $edit_crop_link = ctools_modal_text_button(t('Click here to edit croping informations'), $callback, '');
+  
+  $form['group_photo']['field_croping'][0]['#type'] = 'value';
+  $form['group_photo']['field_croping'][0]['value']['#type'] = 'value';
+
+  _wallycontenttypes_update_crop_state_value($form, $form_state);
+
+  if (isset($form['#node']->field_photofile) && $form['group_photo']['field_photofile'][0]['fid']['#value'] == $form['#node']->field_photofile[0]['fid']) {
+    $form['group_photo']['field_photofile'][0]['edit_croping']=array(
+      '#weight' => $form['group_photo']['field_photofile'][0]['preview']['#weight']*1.1,
+    	'#type' => 'markup',
+  		'#value' => $edit_crop_link,
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Disable all taxonomy fields on package editing.
+ * 
+ * In case of package editing, all taxonomy/entities/persons/locations/...
+ * are taken from the main object. So we disabled the edition for these
+ * fields.
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we add
+ * an after_build callback function to the form. So all cck fields are
+ * completly build.    
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ * @param $form_id 
+ *   String representing the name of the form itself. Typically this is the name of the function that generated the form.
+ *
+ * @return
+ *   Nothing
+ */
+function _wallycontenttypes_disabletaxonomy(&$form, $form_state, $form_id){
+  $form['#after_build'][] = 'wallycontenttypes_disabletaxonomy_after_build';
+}
+
+/**
+ * Add validation to the node form to prevent tlink to be the package itself
+ * 
+ * @param &$form
+ *   The form currently build
+ * @param $form_state
+ *   A keyed array containing the current state of the form
+ * @param unknown_type $form_id
+ *   String representing the name of the form istself.
+ */
+function _wallycontenttypes_preventpackageselftlink(&$form, $form_state, $form_id){
+  $form['#validate'][] = 'wallycontenttypes_form_node_package_form_validate';
+}
+
+/**
+ * Check if a tlink is embed and if its the package itself
+ * @param $form
+ * @param $form_state
+ */
+function wallycontenttypes_form_node_package_form_validate(&$form, &$form_state){
+  foreach ($form_state['values']['field_embededobjects'] as $key => $embed){
+    $node_embed = node_load(array('nid' => $embed['nid']));
+    //Check if the internal link of an embed of type tlink is the package itself
+    if ($node_embed->type == 'wally_linktype' 
+     && $node_embed->field_internal_link[0]['nid'] != NULL 
+     && $node_embed->field_internal_link[0]['nid'] == $form_state['values']['nid']){
+      form_set_error('field_embededobjects]['.$key.'][nid][nid',t('You can\'t embed a package in itself. Please choose another one.'));
+    }
+  }
+}
+
+/**
+ * call back to disable all taxonomy fields on package editing
+ * 
+ * Call back function used by after_build attribute to 
+ * disabled all "taxonomy" from a package content types. 
+ * 
+ * Because CCK fields didn't suppor the "disabled = true" attribute, and
+ * because we must set all sub-element from a cck_field we had to put 
+ * a disabled attribute to all sub-element of the cck field. 
+ * 
+ * Because, we're in an after-build process, cck_field could
+ * be already relocated to a cck_fieldset. So we have to 
+ * seach recursivly for fields.
+ *
+ * @param &$form
+ *   The form currently build
+ * @param $form_state 
+ *   A keyed array containing the current state of the form.
+ *
+ * @return
+ *   Nothing
+ */
+function wallycontenttypes_disabletaxonomy_after_build(&$form, &$form_state) {
+  module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
+  $fields = array(
+    "field_locations",
+    "field_markers",
+    "field_entities",
+    "field_persons",
+    "field_tags",
+    "field_free_tags",
+    "field_authors",
+  );
+
+  foreach ($fields as $field) {
+    // CCK field on the 1st level of $form
+    if (isset($form[$field])) {
+      _wallycontenttypes_mysnippetfixdisabled($form[$field]);
+    } else {
+      // Because we're in afterbuild function, fields could be already
+      // relocated into cck fieldsets > $form['fiedset']['cckfield'] 
+      foreach (element_children($form) as $k) {
+        if (isset($form[$k][$field])) {
+          _wallycontenttypes_mysnippetfixdisabled($form[$k][$field]);
+        }
+      }
+    } 
+  }
+  return($form);
+}
+
+function wallycontenttypes_form_poll_view_voting_alter (&$form, &$form_state) {
+  $form['choice']['#title'] = $form['#node']->title;
+  $form['vote']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontenttypes_form_poll_cancel_form_alter (&$form, &$form_state) {
+  $form['submit']['#submit'][] = 'wallycontentypes_update_poll_cache';
+}
+
+function wallycontentypes_update_poll_cache (&$form, &$form_state) {
+  module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+  $node = $form['#node'];
+  $nid = $node->nid;
+  wallytoolbox_object_cache_clear($nid, $node->revision_uid);
+  wallytoolbox_object_referencer_cache_clear($node);
+}
+
+function wallycontenttypes_form_wallyedit_form_fields_overview_form_alter(&$form, $form_state) {
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
+  $flat_fields = wyditadmin_get_fields_flat($form['profile_id']['#value'], $form['type']['#value']);
+  if (isset($flat_fields['field_editorialupdatedate'])) {
+    $default_field = $flat_fields['field_editorialupdatedate'];
+    $form['fields']['field_editorialupdatedate']['wallyedit'] = array(
+      '#type' => 'select',
+      '#options' => array(0 => t('Exclude'), 1 => t('Normal'), 4 => t('Checkbox')),
+      '#default_value' => $default_field['display'] ? $default_field['display'] : 0,
+    );
+  }
+}
+
+function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
+  array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
+  
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  if (sizeof($form_state['parents']) == 1 && in_array($form_state['type'], $pack_types)) {
+    // Editorial Update Date gestion
+    // Replace the DateTime field with a checkbox
+    $type_name = $form_state['type'];
+    module_load_include('inc', 'wallyedit', 'includes/config_api');
+    $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+    if (is_array($flat_fields) && isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4)) {
+      $type = wydit_get_infos_type($type_name);
+      $cck_fields = $type['fields'];
+      if (isset($cck_fields['field_editorialupdatedate'])) {
+        if (isset($cck_fields['field_editorialupdatedate']['display_settings']['parent']) && !empty($cck_fields['field_editorialupdatedate']['display_settings']['parent'])) {
+          $edit_update_elem = &$form[$type_name][$cck_fields['field_editorialupdatedate']['display_settings']['parent']]['field_editorialupdatedate'];
+        } else {
+          $edit_update_elem = &$form[$type_name]['field_editorialupdatedate'];
+        }
+
+        $edit_update_elem[0]['#prefix'] = '<div style="display:none;">';
+        $edit_update_elem[0]['#suffix'] = '</div>';
+        $edit_update_elem[] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Update Editorial Update Date'),
+        );
+      }
+    }
+  }
+  
+  // Add a form validation in case of tlink to check if the embed package is not the package itself
+  if (sizeof($form_state['parents']) == 3 && array_key_exists('wally_linktype', $form)){    
+    $form['#validate'][] = 'wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate';
+  }
+}
+
+/**
+ * Add validation to the package type, check if tlink is not the package itself
+ * @param  $form
+ * @param  $form_state
+ */
+function wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate(&$form, &$form_state){
+  $tlink = array_pop($form_state['values']['wally_articlepackage']['field_embededobjects']);
+  // Check if the tlink is the package itself
+  if ($tlink['field_internal_link'][0]['nid'] != NULL && $tlink['field_internal_link'][0]['nid'] == $form_state[$form_state['type']]['#node']->nid){
+    form_set_error($form_state['parents'][0].']['.$form_state['parents'][1].']['.$form_state['parents'][2].'][field_internal_link][0][nid][nid', t('You can\'t embed a package in itself. Please choose another one.'));
+  }
+  array_push($form_state['values']['wally_articlepackage']['field_embededobjects'], $tlink);
+}
+
+function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, &$form_state) {
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  $type_name = $form_state['type'];
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
+  $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+
+  if (is_array($flat_fields)) {
+    if (in_array($type_name, $pack_types) && sizeof($form_state['parents']) == 1 && $form_state['clicked_button']['#name'] == 'publish_global') {
+      // Force update of the editorial update date
+      if (isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4) && $form_state['values'][$type_name]['field_editorialupdatedate'][1]) {
+        $type = wydit_get_infos_type($type_name);
+        $cck_fields = $type['fields'];
+        $format = $cck_fields['field_editorialupdatedate']['widget']['input_format'];
+        $form_state[$type_name]['#node']->field_editorialupdatedate[0]['value'] = gmdate($format);
+        unset($form_state['values'][$type_name]['field_editorialupdatedate']);
+      }
+    }
+
+    // Update title value with displayed title
+    $sub_form_state = &$form_state['values'];
+    foreach($flat_fields as $field) {
+      if($field['display'] == 2 || $field['display'] == 3) {
+        $field_name = $field['name'];
+        if(isset($sub_form_state[$type_name][$field_name])) {
+          foreach($sub_form_state[$type_name][$field_name] as $key => &$value) {
+            // Avoid the weight_.$key element
+            if(is_numeric($key) && isset($value['field_displayed_title'][0]['value'])) {
+              $value['title'] = $value['field_displayed_title'][0]['value'];
+            }
+          }
+        }
+      }
+    }
+    if (isset($sub_form_state[$type_name]['field_displayed_title'][0]['value'])) {
+      $sub_form_state[$type_name]['title'] = $sub_form_state[$type_name]['field_displayed_title'][0]['value'];
+    }
+  }
+}
+
+/**
+ * Alter delete form of a preset, do not allow to delete if another as a copy crop action based on this preset
+ */
+function wallycontenttypes_form_imagecache_ui_preset_delete_form_alter(&$form, $form_state) {
+  $db_copy_crops = db_query("SELECT * FROM {imagecache_action} WHERE action = 'wallycontenttypes_cropcopy'");
+  while ($res_copy_crop = db_fetch_array($db_copy_crops)) {
+    $dependent_presetnames = '';
+    $settings = unserialize($res_copy_crop['data']);
+    if ($settings['copied_preset'] == $form['presetid']['#value']) {
+      $dependent_preset = imagecache_preset($res_copy_crop['presetid']);
+      $dependent_presetnames[] = $dependent_preset['presetname'];
+    }
+  }
+
+  if (!empty($dependent_presetnames)) {
+    drupal_set_message(t('Some presets have copy crop actions defined following this preset (concerned preset(s) : !preset_list)', array('!preset_list' => implode(', ', $dependent_presetnames))), 'error');
+    drupal_goto('admin/build/imagecache');
+  }
+}
+
+/**
+ * Implementation of hook_schema_alter()
+ * Add some indexes in tables
+ */
+function wallycontenttypes_schema_alter(&$schema) {
+  if (isset($schema['content_field_externalreference'])) {
+    $schema['content_field_externalreference']['indexes']['field_externalreference_value'] = array('field_externalreference_value');
+  }
+  if (isset($schema['files'])) {
+    $schema['files']['indexes']['Idx_filepath'] = array('filepath');
+  }
+}
+
+function wallycontenttypes_add_indexes(&$ret = array()) {
+  db_add_index($ret, 'content_field_externalreference', 'field_externalreference_value', array('field_externalreference_value'));
+  db_add_index($ret, 'files', 'Idx_filepath', array('filepath'));
+}
+
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * This preprocess function could be set by any hook_theme.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions(&$variables, $hook) {
+  $suggestion = wallycontenttypes_getpackagesuggestions($variables, $hook);
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/** 
+ * Load related nodes into package object via nodepi - "op view". 
+ * 
+ * When a Wally specific node is loaded, this hook will load all the extra 
+ * nodes from all the node reference fields.
+ * 
+ * Specific wally fields supported:
+ *  
+ * - NID (node reference) specific link ( NODE -> NODE ).
+ *   - field_mainstory: Load the Mainstory text node. Load extra "types" into mainstory node.
+ *   - field_linkedobjects: Load all the linked objects (any type).
+ *   - field_embededobjects: Load all the embeded objects (any type).
+ * 
+ * - TID (Taxonomy field) specific link ( NODE -> TAXONOMY -> NODE ). 
+ *   - field_authors: Load the Persons content type for authors.
+ *   - field_locations: Load the Location content type for locations.
+ *   - field_entities: Load the entity content type for entities.
+ *   - field_persons: Load the Persons content type for persons.
+ *
+ * @param: &$node
+ *   The node that will be inspected for node/taxonomy reference
+ * @param: $op
+ *   Nodeapi operation
+ * 
+ * @return Nothing but modify the $node
+ */
+function wallycontenttypes_packagepopulate(&$node, $op = '', $reset_cache = FALSE) {
+  // Avoid infinite loop
+  if ((isset($node->parents) && !in_array($node->nid, $node->parents)) || !isset($node->parents)) {
+    if (variable_get('wallycontenttypes_packagepopulate_cache', 1) == 1) {
+      module_load_include('inc', 'wallytoolbox', 'includes/wally.object-cache');
+      if (!isset($node->view)) {
+        $node->view->name = '';
+        $node->view->current_display = '';
+      }
+      $cached_node = wallytoolbox_object_cache_get($node->nid, $node->revision_uid, $node->view->name, $node->view->current_display);
+      if (!$cached_node || $reset_cache) {
+        $cleaned_node = wallycontenttypes_clean_node($node);
+        wallycontenttypes_fieldNID($cleaned_node);
+        wallycontenttypes_fieldTID($cleaned_node);
+        wallytoolbox_object_cache_set($cleaned_node);
+      } else {
+        $cleaned_node = $cached_node;
+      }
+      wallycontenttypes_restore_node($node, $cleaned_node);
+    } else {
+      $cleaned_node = wallycontenttypes_clean_node($node);
+      wallycontenttypes_fieldNID($cleaned_node);
+      wallycontenttypes_fieldTID($cleaned_node);
+      wallycontenttypes_restore_node($node, $cleaned_node);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_cron
+ * Check once a day(at midnight) if the temporary table is build
+ * if not build it
+ * Publish or Unpublish node based on information in temporary table.
+ */
+function wallycontenttypes_cron() {
+  $return = '<b>'.t('Run on !date :', array('!date' => date('Y-m-d H:i:s'))).'</b></br>';
+
+  //Reset the temp table once a day
+  $today = strtotime(date('Y-m-d'));
+  $last_run_timestamp = wally_variable_get('wallycontenttypes_embargo_last_run', time() - 86400);
+
+  if ($last_run_timestamp < $today) {
+    wally_variable_set('wallycontenttypes_embargo_last_run', $today);
+
+    // If Memcached is used we don't try to flush old packages, Memcached do it itself.
+    if (!function_exists('memcache_variable_set') && variable_get('wallycontenttypes_packagepopulate_cache', 1)) {
+      $flush_time_days = variable_get('wallycontenttypes_packagepopulate_flush_frequency', 7);
+      if ($flush_time_days && !empty($flush_time_days)) {
+        $return .= '<b>'.t('Cached contents flush :').'</b></br>';
+
+        if ($removed_contents = db_fetch_array(db_query("SELECT COUNT(*) FROM {cache_wally_object} WHERE created < NOW() - INTERVAL %d DAY", $flush_time_days))) {
+          if ($removed_contents['COUNT(*)'] > 0) {
+            if (db_query("DELETE FROM {cache_wally_object} WHERE created < NOW() - INTERVAL %d DAY", $flush_time_days)) {
+              $return .= t('!num_files cached contents removed.', array('!num_files' => $removed_contents['COUNT(*)']));
+            } else {
+              $return .= t('SQL error during cached contents removal.');
+            }
+          } else {
+            $return .= t('No cached contents to remove.');
+          }
+        } else {
+          $return .= t('SQL error during cached contents count.');
+        }
+        $return .= '</br>';
+      }
+    }
+
+    //Build the wallycontenttypes_temp_nodetopublish table once a day
+    if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
+      //Get the timezone of the field_embargodatetime
+      $embargo_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_embargodatetime'");
+      $embargo_global_settings = db_fetch_array($embargo_result);
+      $embargo_global_settings = unserialize($embargo_global_settings['global_settings']);
+      $embargo_timezone = date_get_timezone($embargo_global_settings['tz_handling']);
+      //Get the node where their embargo date is today
+      $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value as date
+              			   FROM {node} n 
+              			   LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid
+              			   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+              			   WHERE (
+              			   DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE() 
+              			   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage' OR n.type = 'wally_pollpackage')
+              			   AND auto.field_autopublish_value = 'Autopublish' 
+              			   ");
+
+      while ($obj = db_fetch_object($results)){
+        $obj->action = 1;
+        $obj->date_timezone = $embargo_timezone;
+        drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+      }
+      
+      //Get the timezone of the field_unpublishdate
+      $unpublish_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_unpublishdate'");
+      $unpublish_global_settings = db_fetch_array($unpublish_result);
+      $unpublish_global_settings = unserialize($unpublish_global_settings['global_settings']);
+      $unpublish_timezone = date_get_timezone($unpublish_global_settings['tz_handling']);
+      //Get the node where their unpublish date is today
+      $results = db_query("SELECT DISTINCT n.nid, n.status, cfu.field_unpublishdate_value as date
+                    	   FROM {node} n 	   
+                    	   LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
+                    	   LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+                    	   WHERE DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE()
+                    	   AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
+                    	   AND auto.field_autopublish_value = 'Autopublish' 
+                    	   ");
+      
+      while ($obj = db_fetch_object($results)){
+        $obj->action = 0;
+        $obj->date_timezone = $unpublish_timezone;
+        drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+      }
+    }
+  }
+
+  if (db_table_exists('wallycontenttypes_temp_nodetopublish')) {
+    $return .= '<b>'.t('Autopublish :').'</b></br>';
+
+    //look at the node who their embargo date or unpublish date are lower than current time
+    $result = db_query("SELECT *
+                  		FROM {wallycontenttypes_temp_nodetopublish}
+                  		WHERE date < UTC_TIMESTAMP() 
+    					AND date IS NOT NULL
+    					ORDER BY date ASC");
+    while ($obj = db_fetch_object($result)) {
+      $timezone = $obj->date_timezone;
+
+      //node to publish
+      if ($obj->action == 1) {
+        if ($form_date = date_make_date($obj->date, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_embargo_date = $form_date->date;
+          if (strtotime($safe_embargo_date) < time()) {
+            $node = node_load(array('nid' => $obj->nid));
+            node_publish_action($node);
+
+            // Allow other modules to alter the node, to update dates for example
+            drupal_alter('wally_node_embargo_released', $node);
+
+            node_save($node);
+            $return .= t('Node !nid published', array('!nid' => $node->nid)).'</br>';
+
+          }
+        }
+      }
+      
+      //node to unpublish
+      if ($obj->action == 0) {
+        if ($form_date = date_make_date($obj->date, 'UTC')) {
+          $form_date = (object)date_timezone_set($form_date, timezone_open($timezone));
+          $form_date = unserialize(serialize($form_date));
+          $safe_unpublish_date = $form_date->date;
+          if (strtotime($safe_unpublish_date) < time()) {
+            $node = node_load(array('nid' => $obj->nid));
+            node_unpublish_action($node);
+
+            // Allow other modules to alter the node, to update dates for example
+            drupal_alter('wally_node_programmed_unpublish', $node);
+
+            cckdestinations_force_dnc($node);
+            node_save($node);
+            $return .= t('Node !nid unpublished', array('!nid' => $node->nid)).'</br>';
+          }
+        }
+      }
+
+      //delete node from the temp table
+      db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish} WHERE nid = %d AND action = %d AND date = '%s'", $obj->nid, $obj->action, $obj->date);
+    }
+    $return .= '</br>';
+  }
+
+  print $return;
+}
+
+/**
+ * Remove all unnecessery fields from the node before it is
+ * populated.
+ * 
+ * @param $node
+ *   The node that will be populated.
+ * 
+ * @return
+ *   The cleaned node.
+ */
+function wallycontenttypes_clean_node($node) {
+  $cleaned_node = new Stdclass;
+  $cleaned_node->nid = $node->nid;
+  $cleaned_node->revision_uid = $node->revision_uid;
+  $cleaned_node->view = isset($node->view) ? $node->view : NULL;
+  $cleaned_node->type = isset($node->type) ? $node->type : NULL;
+  $cleaned_node->parents = isset($node->parents) ? $node->parents : NULL;
+  
+  $node_content_types = content_types($node->type);
+  
+  foreach ($node_content_types['fields'] as $field_name => $field) {
+    if ($field['type'] == 'content_taxonomy' || $field['type'] == 'nodereference') {
+      $clean_field = array();
+      $clean_field = $node->$field_name;
+      $clean_field['type'] = $field['type'];
+      $clean_field['name'] = $field_name;
+      $cleaned_node->$field_name = $clean_field;
+    }
+  }
+
+  return $cleaned_node;
+}
+
+/**
+ * Restore the node after it has been populated so that the result
+ * can be returned as a clean node.
+ * 
+ * @param &$node
+ *   The node to be restored.
+ * @param $cleaned_node
+ *   The populated node.
+ */
+function wallycontenttypes_restore_node(&$node, $cleaned_node) {
+  $cleaned_node = (array)$cleaned_node;
+  unset($cleaned_node['nid']);
+  unset($cleaned_node['revision_uid']);
+  unset($cleaned_node['view']);
+  unset($cleaned_node['type']);
+  
+  foreach ($cleaned_node as $field_name => $field) {
+    if (isset($field['type']))
+      unset($cleaned_node[$field_name]);
+  }
+  
+  $node = (array)$node;
+  $node = array_merge_recursive($node, $cleaned_node);
+  $node = (object)$node;
+}
+
+/**
+ * Process Node Reference fields in for populate node.
+ */
+function wallycontenttypes_fieldNID(&$node) {
+	foreach ($node as $field_name => $field) {
+    if (is_array($field) && $field['type'] == 'nodereference' && $field['name'] != 'field_internal_link') {
+      $new_field_name = $field_name.'_nodes';
+      $parents_nids = isset($node->parents) ? $node->parents : array();
+      $parents_nids[] = $node->nid;
+      $node->$new_field_name = wallycontenttypes_fieldnodeload($field_name, $parents_nids, $field);
+    }
+	}
+	return $node;
+}
+
+/**
+ * Process Content Taxonomy fields for populate node.
+ */
+function wallycontenttypes_fieldTID(&$node) {
+  $convert_types = array(
+    'field_authors' => 'wally_persontype',
+    'field_locations' => 'wally_locationtype',
+    'field_entities' => 'wally_entitytype',
+    'field_persons' => 'wally_persontype',
+  );
+
+  if(isset($node)) {
+    foreach ($node as $field_name => $field) {
+      if (is_array($field) && isset($field['type']) && $field['type'] == 'content_taxonomy' && array_key_exists($field['name'], $convert_types)) {
+        $type = $convert_types[$field['name']];
+        $new_field_name = $field_name.'_nodes';
+        $node->$new_field_name = wallycontenttypes_fieldTIDload($field_name, $field, $type);
+      }
+    }
+  }
+  return $node;
+}
+
+/**
+ * Process all taxonomy reference and return an array of node
+ */
+function wallycontenttypes_fieldTIDload($field, $values, $type = NULL) {
+  $r = array();
+  $tids = array();  
+
+  foreach ($values as $value => $tid2load) {
+    if (is_array($tid2load) && isset($tid2load['value']) && $tid2load['value']) {
+      $tids[] = $tid2load['value']; 
+    }
+  }
+  $results = (count($tids)) ? wallytoolbox_taxonomy_get_nodes($tids, 'or', 0, false, $type) : array(); 
+  foreach ($results as $value => $node2load) {
+    $r[$value] = node_load($node2load);
+    if (empty($r[$value])) {
+      unset($r[$value]); 
+    }
+  }
+  return $r; 
+}
+
+/**
+ * Process all node reference fields and return array of node
+ */
+function wallycontenttypes_fieldnodeload($field, $parent_nids, $values = NULL) {
+  $r = array();
+  foreach ($values as $value => $node2load) {
+    if (is_numeric($value)) {
+      $tmp_node = node_load($node2load['nid']);
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      if (wallytoolbox_check_is_node($tmp_node)) {
+        $r[$value] = $tmp_node;
+        $r[$value]->parents = $parent_nids;
+
+        // Render the node.
+        if (!empty($r[$value])) {
+          // $r[$value] = node_build_content($r[$value]);
+          // drupal_render($r[$value]->content);
+          if (variable_get('wallycontenttypes_packagepopulate_recursive', 1)) {
+            wallycontenttypes_packagepopulate($r[$value]);
+          }
+        } else {
+          unset($r[$value]); 
+        }
+      }
+    }
+  } 
+  return $r; 
+}
+   
+/**
+ * Get nid from packages who reference the current node
+ * 
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
+function _wallycontenttypes_getpackagesid($node){
+  $rows = array(); 
+  
+  if($node->type=='wally_textobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_audioobject' || $node->type=='wally_digitalobject' || $node->type=='wally_photoobject' || $node->type=='wally_videoobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  elseif($node->type=='wally_pollobject'){
+    $res=db_query("SELECT nid FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+    while ($row = db_fetch_array($res)) {
+      if (!in_array($row, $rows)) $rows[] = $row;
+    }
+  }
+  return $rows;
+}
+
+/**
+ * Get packages IDs which references another package trough an internal link and remove these references
+ *
+ * @param int $internal_link
+ *   Node ID of the referenced package
+ */
+function _wallycontenttypes_remove_reference_from_internal_link($internal_link, $linked_ext_ref) {
+  if (is_numeric($internal_link)) {
+    $embeds_sql = "SELECT ctwl.nid FROM {content_type_wally_linktype} ctwl 
+        WHERE ctwl.field_internal_link_nid = %d";
+    $db_results_embeds = db_query($embeds_sql, $internal_link);
+    while($db_result_embeds = db_fetch_array($db_results_embeds)) {
+      $embed_nid = $db_result_embeds['nid'];
+      $remove_ref_sql = "UPDATE {content_type_wally_linktype} ctwl
+          SET ctwl.field_internal_link_nid = NULL
+          WHERE ctwl.nid = %d";
+      db_query($remove_ref_sql, $embed_nid);
+      wallytoolbox_object_cache_clear($embed_nid);
+      cache_clear_all('content:'.$embed_nid, 'cache_content', TRUE);
+      
+      $packages_sql = "SELECT cfe.nid FROM {content_field_embededobjects} cfe
+          WHERE cfe.field_embededobjects_nid = %d";
+      $db_results_packages = db_query($packages_sql, $embed_nid);
+      while ($db_result_packages = db_fetch_array($db_results_packages)) {
+        $referencer_nid = $db_result_packages['nid'];
+        watchdog('Cross References', "Referenced package deleted. Referenced external reference : $linked_ext_ref. Referencer nid : $referencer_nid", array(), WATCHDOG_WARNING);
+        wallytoolbox_object_cache_clear($referencer_nid);
+        cache_clear_all('content:'.$referencer_nid, 'cache_content', TRUE);
+      }
+    }
+  }
+}
+
+/**
+ * Sort an array of Wally objects in the various objects types.
+ */
+function wallycontenttypes_sort_embededobjects($embededobjects, $sort_order = array()) {
+  if (empty($sort_order)) {
+    $sort_order = array(
+      'wally_photoobject',
+      'wally_videoobject',
+      'wally_audioobject',
+      'wally_digitalobject',
+    );
+  }
+  
+  $return = array();
+  
+  foreach ($sort_order as $key_elem)
+    $return[$key_elem] = array();
+  
+  foreach ($embededobjects as $embededobject)
+    $return[$embededobject->type][] = $embededobject;
+  
+  return $return;
+}
+
+/**
+ * Build all the page/node suggestions template for a node of type "package"
+ * of any content type with Destinations information.   
+ *
+ *  Wally specific suggestions are (for pages):  
+ * 
+ *  - page_{destinations_terms_underscore_separated}.tpl.php
+ *  - page_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - page_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - page_{node_type}_{package_layout}.tpl.php
+ *  - page_{node_type}.tpl.php
+ *  - page.tpl.php
+ * 
+ *  Wally specific suggestions are (for nodes):  
+ * 
+ *  - node-{node_type}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - node_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - node_{node_type}_{package_layout}.tpl.php
+ *  - node_{node_type}.tpl.php < node.tpl.php
+ *
+ *  Wally specific suggestions are (other - types):  
+ * 
+ *  - {type}-{node_type}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}_{node_type}.tpl.php
+ *  - {type}_{destinations_terms_underscore_separated}_{node_type}_{package_layout}.tpl.php
+ *  - {type}_{node_type}_{package_layout}.tpl.php
+ *  - {type}_{node_type}.tpl.php < node.tpl.php
+ * 
+ * @param $variables
+ *   Templating variables
+ * @param $type
+ *   Prefix added to suggestions (default = page). Could be "page" or "node".
+ * 
+ * @return 
+ *   Array of suggestion pages templates.
+ */
+function wallycontenttypes_getpackagesuggestions(&$variables, $type="page") {
+  $destinations = array();
+  $suggestion = array(); 
+  $tax_children = array(); 
+  $vid=variable_get('wallymport_destinationpath',null);
+  $path = ""; 
+  $package_layout = (isset($variables['node'])) ? wallycontenttypes_getpackagelayout($variables['node']) : NULL ; 
+
+  // For a node, destination is taken on the 1st destination. 
+  if (isset($variables['node']->field_destinations[0]['tid'])) {
+    $destinations = array($variables['node']->field_destinations[0]['tid']);
+  }
+
+  (isset($variables['node']->type)) ? $suggestion[] = $type . '_' . strtolower($variables['node']->type) : NULL ;
+  
+  if ($variables['teaser'] && $variables['node']->teaser) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_teaser';
+ 
+  if ($package_layout) $suggestion[] = $type . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
+
+  if (count($destinations)) {
+    $destination = $destinations[0];
+    $tax_children = taxonomy_get_parents_all($destination, $vid);
+    $count = count($tax_children);
+    for ($i = $count-1; $i >= 0; $i--) {
+      ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
+      if ($type) $suggestion[] = $type . '_' . $path;
+      if (isset($variables['node']->type)) $suggestion[] = $type . '_' . $path . '_' . strtolower($variables['node']->type);
+      if ($package_layout) $suggestion[] = $type . '_' .$path . '_' . strtolower($variables['node']->type) . '_' . $package_layout;
+    }
+  }
+
+  if ($type == 'panels_pane') {
+    $suggestion = isset($variables['classes']) ? explode(' ',$variables['classes']) : array();
+    array_unshift($suggestion, 'panels-page');
+  }
+
+  return $suggestion;  
+}
+
+/**
+ * Extract page layout information from the node. 
+ *
+ * @param $node
+ *   The node currently processed
+ *
+ * @return 
+ *   The Package layout as a string or NULL.
+ */
+function wallycontenttypes_getpackagelayout($node) {
+  if (isset($node->field_packagelayout)) {
+    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
+    $package_layout = strtolower(str_replace(' ', '_', trim($package_layout->name)));
+  } else {
+    $package_layout = NULL;
+  }
+  return $package_layout; 
+}
+
+/**
+* This function is called in the nodeapi hook, op 'delete if the node is a package.
+* Its purpose is to delete the orphan objects that would be left behind when the parent is deleted.
+* @param: $node
+* The parent being deleted.
+* @return Nothing but delete the orphans.
+*/
+function wallycontenttypes_delete_orphans_objects($node){
+  $nids = array();
+  switch ($node->type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+    default:
+      $main_object_type = FALSE;
+  }
+  if ($main_object_type) {
+    $main_object = $node->$main_object_type;
+    $nids[] = $main_object[0]['nid'];
+  }
+  
+  $fields_to_check = array(
+    'field_embededobjects',
+    'field_linkedobjects',
+    'field_links_list',
+  );
+  foreach ($fields_to_check as $field_to_check) {
+    if (isset($node->$field_to_check) && is_array($node->$field_to_check)) {
+      foreach ($node->$field_to_check as $ref) {
+        if ($ref['nid'] != NULL && !in_array($ref['nid'], $nids)) {
+          $nids[] = $ref['nid'];
+        }
+      }
+    }
+  }
+
+  foreach ($nids as $nid) {
+    $child = node_load($nid);
+    $parents = wallytoolbox_get_node_by_reference($child, FALSE);
+    if (sizeof($parents) == 1 && $parents[0]['nid'] == $node->nid) {
+      node_delete($nid);
+    }
+  }
+}
+
+function wallycontenttypes_delete_orphans_at_update($node) {
+  $old_node = node_load($node->nid);
+  $nids_to_check = array();
+
+  $fields_to_check = array(
+    'field_embededobjects',
+    'field_linkedobjects',
+    'field_links_list',
+  );
+
+  $all_new_refs = array();
+  foreach ($fields_to_check as $field_to_check) {
+    $old_refs = $new_refs = array();
+    if (isset($old_node->$field_to_check) && is_array($old_node->$field_to_check)) {
+      foreach ($old_node->$field_to_check as $old_ref) {
+        $old_refs[] = $old_ref['nid'];
+      }
+    }
+    if (isset($node->$field_to_check) && is_array($node->$field_to_check)) {
+      foreach ($node->$field_to_check as $new_ref) {
+        $new_refs[] = $new_ref['nid'];
+        $all_new_refs[] = $new_ref['nid'];
+      }
+    }
+    $nids_to_check = array_merge($nids_to_check, array_diff($old_refs, $new_refs));
+  }
+
+  foreach ($nids_to_check as $nid) {
+    if (!in_array($nid, $all_new_refs)) {
+      $child = node_load($nid);
+      $parents = wallytoolbox_get_node_by_reference($child, FALSE);
+      if (sizeof($parents) == 1 && $parents[0]['nid'] == $node->nid) {
+        node_delete($nid);
+      }
+    }
+  }
+}
+/**
+ * Return the date of the last publishedpackage
+ */
+function wallycontenttypes_getlastpublishedpackagedate(){
+  $result = db_query("SELECT MAX(field_publicationdate_value) as max 
+  					  FROM {content_field_publicationdate}
+  					  WHERE field_publicationdate_value < '%s'", date('Y-m-d\TH:i:s'));
+  $obj = db_fetch_object($result);
+  return $obj->max;
+}
+/**
+ * Return the time spend since the last published package
+ * @return string
+ */
+function wallycontenttypes_gettimespendsincelastpublishedpackage(){
+  date_default_timezone_set("UTC");
+  
+  $last_published_date = wallycontenttypes_getlastpublishedpackagedate();
+  $last_published_timestamp = strtotime($last_published_date);
+  
+  $diff = time() - $last_published_timestamp;
+  if (date('G', $diff) != 0){
+    $time_spent .= date('G', $diff).' '.t('hours').' ';
+  }
+  if (date('i', $diff) != 00){
+    $time_spent .= date('i', $diff).' '.t('minutes').' ';
+  }
+  $time_spent .= date('s', $diff).' '.t('secondes');
+  $res['display'] = $time_spent;
+  $res['value'] = $diff;
+  return $res;
+}
+/**
+ * Return the number of publishedpackage today
+ */
+function wallycontenttypes_gettodaypublishedpackagenumber(){
+  $result = db_query("SELECT count(field_publicationdate_value) as count 
+  					  FROM {content_field_publicationdate}
+  					  WHERE field_publicationdate_value > '%s'
+  					  AND field_publicationdate_value < '%s'", date('Y-m-d').'T00:00:00', date('Y-m-d\TH:i:s'));
+  $obj = db_fetch_object($result);
+  $res['display'] = $obj->count;
+  $res['value'] = $obj->count;
+  return $res;
+}
+/**
+ * 
+ * Return the date of the last imported package
+ */
+function wallycontenttypes_getexternlastcreatedpackagedate(){
+  $result = db_query("SELECT MAX(n.created) as max
+  					  FROM {node} n
+  					  LEFT JOIN {content_field_externalreference} ext ON ext.nid = n.nid
+  					  WHERE ext.field_externalreference_value IS NOT NULL");
+  $obj = db_fetch_object($result);
+  return $obj->max;
+}
+/**
+ * 
+ * Return the time spend since the last created external package
+ * @return string
+ */
+function wallycontenttypes_gettimespendsincelastexternpublishedpackage(){
+  date_default_timezone_set("UTC");
+
+  $last_published_timestamp = wallycontenttypes_getexternlastcreatedpackagedate();
+
+  $diff = time() - $last_published_timestamp;
+  $time_spent = '';
+  if (date('G', $diff) != 0){
+    $time_spent .= date('G', $diff).' '.t('hours').' ';
+  }
+  if (date('i', $diff) != 00){
+    $time_spent .= date('i', $diff).' '.t('minutes').' ';
+  }
+  $time_spent .= date('s', $diff).' '.t('secondes');
+  $res['display'] = $time_spent;
+  $res['value'] = $diff;
+  return $res;
+}
+/**
+ * 
+ * Return the number of imported package today
+ */
+function wallycontenttypes_getexterntodaycreatedpackagenumber(){
+  $result = db_query("SELECT count(n.created) as count
+  					  FROM {node} n
+  					  LEFT JOIN {content_field_externalreference} ext ON ext.nid = n.nid
+  					  WHERE n.created > %d
+  					  AND ext.field_externalreference_value IS NOT NULL", mktime(0, 0, 0));
+  $obj = db_fetch_object($result);
+  $res['display'] = $obj->count;
+  $res['value'] = $obj->count;
+  return $res;
+}
+
+function wallycontenttypes_get_wallycrop_presets() {
+  $crops = array();
+  $presets = imagecache_presets();
+  foreach ($presets as $preset) {
+    if ($preset['actions']) {
+      $found_wallycrop = FALSE;
+      $datas = array();
+      foreach ($preset['actions'] as $action) {
+        if ($action['action'] == 'wallycontenttypes_wallycrop') {
+          $found_wallycrop = TRUE;
+        } elseif (($action['action'] == 'imagecache_scale' || $action['action'] == 'imagecache_scale_and_crop') && $found_wallycrop) {
+          $crops[$preset['presetid']] = array(
+            'id' => $preset['presetname'],
+            'validate' => 'none',
+            'label' => $preset['presetname'],
+            'width' => $action['data']['width'],
+            'height' => $action['data']['height'],
+            'type' => 'pixel',
+          );
+        }
+      }
+    }
+  }
+
+  return $crops;
+}
+
+/**
+ * @} End of "defgroup wallycontenttypes".
+ */

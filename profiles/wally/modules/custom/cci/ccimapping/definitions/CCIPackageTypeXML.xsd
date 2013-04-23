@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!--#######  Xml Schema Definition  #####################################################      @(#)12/01/18 13:53:57, 7.620.1.3 /SccsBase/REL7/base/util/XMLSchema/s.CCIPackageTypeXML.xsd###      (C) Copyright 2008 CCI-Europe. Author : Carsten Bundgaard (CB) ##########  Revision History  #######################################################      7.91.1.1 cb 2008/06/18 15:48:42                                    ######      130347 PackageType XML schema added                                ######      7.91.1.1 7.91.1.2 jri 2009/04/20 10:41:23                          ######      137042 XML Schema  for PackageTypeXML updated after delta 137024   ######      7.91.1.2 7.91.1.3 mhaa 2009/06/17 09:01:35                         ######      138531 ImageRelation support in PackageType configuration          ######      7.91.1.3 7.91.1.4 mhaa 2011/12/08 10:30:01                         ######      173399 PackageType xml schema update                               ######      7.91.1.4 7.91.1.5 mhaa 2012/01/17 15:04:35                         ######      175327 ImageSetting and PackageType xsd update with new gallery cr ##########  End of Revisions  ######################################################=####  Xml Schema Definition  #####################################################      NAME           : CCIPackageTypeXML.xsd######      DESCRIPTION    : #####=############################################################################-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="packagedefs">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="defaultdateformat" type="xs:string"/>
+                <xs:element name="defaultdateonlyformat" type="xs:string"/>
+                <xs:element ref="flags" maxOccurs="unbounded"/>
+                <xs:element ref="packagetype" maxOccurs="unbounded"/>
+                <xs:element ref="fieldgroup" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="packagetype">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="label"/>
+                <xs:element ref="description"/>
+                <xs:element ref="imageconfiguration" minOccurs="0"/>
+                <xs:element ref="objects" minOccurs="0"/>
+                <xs:element ref="displaygroup" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="fieldgroup">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="name" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="field">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="label"/>
+                <xs:element ref="description"/>
+                <xs:element ref="inherits"  minOccurs="0"/>
+                <xs:element ref="default"  minOccurs="0"/>
+                <xs:element ref="texttag"  minOccurs="0"/>
+                <xs:element ref="datatype"/>
+                <xs:element ref="format"  minOccurs="0"/>
+                <xs:element ref="constraint" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="imageconfiguration">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="imagerelation" minOccurs="0"/>
+                <xs:element ref="imagesettings" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="imagerelation">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="datatype"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="imagesettings">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="cropsetting" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="gallerysetting" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="cropsetting">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:string"/>
+            <xs:attribute name="validate" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="gallerysetting">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:string"/>
+            <xs:attribute name="validate" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="objects">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="object" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="object">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="contextual-use"  minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string"/>
+            <xs:attribute name="validate" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="displaygroup">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+                <xs:element ref="label"/>
+                <xs:element ref="description"/>
+                <xs:element ref="fieldgroup" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="datatype">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="option" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="type" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="option">
+        <xs:complexType>
+            <xs:attribute name="value" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="constraint">
+        <xs:complexType>
+            <xs:attribute name="type" type="xs:string"/>
+            <xs:attribute name="value" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="inherits" type="xs:string"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="label" type="xs:string"/>
+    <xs:element name="default" type="xs:string"/>
+    <xs:element name="texttag" type="xs:string"/>
+    <xs:element name="contextual-use" type="xs:string"/>
+    <xs:element name="format" type="xs:string"/>
+    <xs:element name="flags" type="xs:string"/>
+</xs:schema>

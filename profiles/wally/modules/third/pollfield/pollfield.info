@@ -1,0 +1,14 @@
+; $Id: pollfield.info,v 1.2.4.1.2.4 2010/02/09 17:59:03 marioprkos Exp $
+name = Pollfield
+description = Allows your site to capture votes on different topics in the form of multiple choice questions.
+dependencies[] = content
+dependencies[] = views
+package = CCK
+core = 6.x
+
+; Information added by drupal.org packaging script on January 1, 1970 - 00:00
+version = "6.x-1.13-beta1"
+core = "6.x"
+project = "pollfield"
+datestamp = "1296068213"
+

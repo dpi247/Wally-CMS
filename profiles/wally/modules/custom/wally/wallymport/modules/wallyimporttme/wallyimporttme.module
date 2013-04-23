@@ -1,0 +1,140 @@
+<?php 
+
+/**
+ * Implementation of hook_wallymport_importer 
+ */
+function wallyimporttme_wallymport_importer(){
+  return 
+    array('wallyimporttme' => array( 
+      array(
+  	    'importer_type' => 'tme',
+  	    'importer_functions' => array(
+  		  'wallyimporttme',
+          'wallyimportpackage',
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * Create or load a object depending of external reference.
+ * 
+ * If no node match the external reference, a new node is created.
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   A node object
+ */
+function wallyimporttme_create_or_load_message_tme($dom, &$log, $importer, $callback){
+
+  $node = NULL;
+  $type = 'wally_'.$callback;
+  $ext_ref = _wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
+  
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref), $type)){
+    $node = $node_temp[0];
+    cckdestinations_force_dnc($node);
+  }
+  
+  return $node;
+}
+
+/**
+ * Process the messages element of a wally DomDocument object.
+ * Initiate the node object Call an apropriate function to process the childs of the packages element (package)
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the log object
+ */
+function wallyimporttme_process_messages($dom, &$log, $importer){
+  $return = array();
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_messages', 'before_process');
+  foreach ($dom->getElementsByTagName('Message') as $message_element){
+    $return['messages'] = wallyimporttme_process_message($message_element, $log, $importer);
+  }
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_messages', 'after_process');
+
+  //To not browse the DOM
+  return FALSE;
+}
+
+/**
+ * Call an apropriate function to process the childs of the message element depending the attribute callback of the child element.
+ * 
+ * The naming convention to build a node from a specific package callback is: wimprt_process_package_CALLCACK
+ * if no specific function found nothing is done.
+ *
+ * @param $node
+ *   The Node that's being build
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ *
+ * @return
+ *   the node object that has been build
+ */
+function wallyimporttme_process_message($dom, &$log, $importer, $callback = NULL) {
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+  $object = $dom->getElementsByTagName('Object')->item(0);
+  $callback = wimprt_set_callback($object);
+  list($callback,$rest) = explode('type', $callback);
+  
+  $node = wallyimporttme_create_or_load_message_tme($object, $log, $importer, $callback);
+
+  $callback .= 'type';
+  
+  //@todo: place in walymportlog module
+  if(variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process message: '.$dom->nodeName;
+  }
+  if ($node != NULL){
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_message', 'before_process');
+    // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
+   
+    $function_exist = FALSE;
+    foreach ($importer->importer_functions as $importer_function){
+      if (function_exists($importer_function.'_node_process_'.$callback)){
+        call_user_func($importer_function."_node_process_".$callback, &$node, $object, &$log, $importer);
+        $function_exist = TRUE;
+        break;
+      } 
+    }
+    module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_message', 'after_process');
+  }
+  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
+    if ($preview) {
+      module_load_include('inc', 'wallyedit', 'includes/Prenode');
+      $prenode = new Prenode();
+      $prenode->ConvertNodeToPrenode($node);
+      
+      //require_once './'.drupal_get_path('module', 'wallyedit').'/includes/callback_preview.inc';
+      $prenode->cache_name = 'wallymport_preview_'.$prenode->form_state['cache name'];
+      $form_state_prenode = $prenode->setFormState();
+      $form_state_prenode['DoNotPopulate'] = TRUE;
+      prenode_save($form_state_prenode);
+      return $prenode->cache_name;
+    } else {
+      //watchdog('Wallymport end creation', time().' '.print_r($node, TRUE), array(), WATCHDOG_NOTICE);
+      node_save($node);
+    }
+  } else {
+    wallycontenttypes_delete_orphans_objects($node);
+  }
+
+  $log['node'] = array('current' => $node, 'next' => $log['node']);
+  
+  return;
+}

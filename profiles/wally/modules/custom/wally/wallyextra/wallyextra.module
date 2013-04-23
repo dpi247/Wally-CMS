@@ -1,0 +1,906 @@
+<?php 
+
+include_once('wallyextra.features.inc');
+
+/**
+ * Implementation of hook_menu()
+ */
+function wallyextra_menu() {
+  $items = array();
+
+  $items['wallyextra/contenttypesajax'] = array(
+    'page callback'    => '_wallyextra_content_types_ajax_callback',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+  );
+
+  $items['wallyextra/customcontent/form/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentform',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+
+  $items['wallyextra/customcontent/getversion/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentgetversion',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+
+  $items['wallyextra/customcontent/formreplace/%/ajax'] = array(
+    'page callback'    => 'wallyextra_ajax_customcontentformreplace',
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+  
+  $items['wallyextra/customcontent/versionpicker/%'] = array(
+    'page callback'    => 'wallyextra_custom_content_version_picker',
+    'access arguments' => array('administer custom content'),
+    'type'             => MENU_CALLBACK,
+    'page arguments'   => array(3),
+  );
+
+  $items['admin/build/ctools-content/list/%ctools_export_ui/hide'] = array(
+    'title' => t('Hide in all pages'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyextra_custom_content_confirm_hide_form', 4),
+    'load arguments' => array('ctools_custom_content'),
+    'access arguments' => array('administer custom content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['admin/build/ctools-content/list/%ctools_export_ui/show'] = array(
+    'title' => t('Show in all pages'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyextra_custom_content_confirm_show_form', 4),
+    'load arguments' => array('ctools_custom_content'),
+    'access arguments' => array('administer custom content'),
+    'type' => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+/**
+ *  Implémentation du hook_theme(); 
+ */
+function wallyextra_theme(&$var) {
+
+  $path = drupal_get_path('module', 'wallyextra');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => "$path/theme",
+  );
+  
+  return array(
+ 
+    'wallyct_mainmenu' => $base + array(
+      'arguments' => array("menu" => 'primary-links', "menuid" =>'menu-primary-links' ),
+      'template' => 'wallyct_mainmenu',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_rss' => $base + array(
+      'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_rss',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_flowmix' => $base + array(
+      'arguments' => array("subtype" => NULL, "context" => NULL, "feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_flowmix',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyextra_flowmix_content_type_form_summary_form' => array(
+      'arguments' => array('form' => array()),
+    ),
+    
+    'wallyct_remotehtml' => $base + array(
+      'arguments' => array("subtype" => NULL, "context" => NULL, "htmlblock" => NULL, "settings" => NULL),
+      'template' => 'wallyct_remotehtml',
+      'preprocess functions' => array('wally_get_tpl_suggestions_from_plugins'),
+    ),
+    
+    'wallyct_twit' => $base + array(
+      'arguments' => array("feed" => NULL, "options" => NULL),
+      'template' => 'wallyct_twit',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_tofacebook' => $base + array(
+      'arguments' => array("node" => NULL, "options" => NULL),
+      'template' => 'wallyct_tofacebook',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_taxotermlist' => $base + array(
+      'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+      'template' => 'wallyct_taxotermlist',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+
+    'wallyct_taxotermlist_tree' => $base + array(
+      'arguments' => array("tids" => NULL, "node" => NULL, "options" => NULL),
+      'template' => 'wallyct_taxotermlist_tree',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyct_personslist_detail' => $base + array(
+      'arguments' => array("persons" => NULL, "node" => NULL),
+      'template' => 'wallyct_personslist_detail',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+     'wallyct_entitylist_detail' => $base + array(
+      'arguments' => array("entities" => NULL, "node" => NULL),
+      'template' => 'wallyct_entitylist_detail',
+      'preprocess functions' => array('wally_get_tpl_suggestions'),
+    ),
+    
+    'wallyextra_template_points_up_down' => $base + array(
+      'arguments' => array('links' => NULL, 'results' => NULL, 'mode' => NULL),
+      'template' => 'wallyextra_points-up-down',
+    ),
+    
+    'wallyextra_loading_content_type' => $base + array(
+      'arguments' => array(),
+      'template' => 'wallyextra-loading-content-type',
+    ),
+
+    'wallyextra_custom_version_content_type_edit_form' => $base + array(
+      'arguments' => array('form' => NULL),
+    ),
+
+    'wallyextra_custom_content_type_listversion' => $base + array(
+      'arguments' => array('versions' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallyextra_perm() {
+  return array(
+    'make a widget reusable',
+  );
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Css to add so space between operations in export admin and add "Hide" and "Show" links
+ * 
+ * @todo : documenter sur palurd
+ */
+function wallyextra_form_ctools_export_ui_list_form_alter(&$form, &$form_state) {
+  drupal_add_css(drupal_get_path('module', 'wallyextra').'/css/export-admin.css');
+
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content') {
+    $form_state['object']->plugin['allowed operations']['hide'] = array('title' => t('Hide in all pages'));
+    $form_state['object']->plugin['menu']['items']['hide'] = array(
+      'path' => 'list/%ctools_export_ui/hide',
+      'title' => t('Hide in all pages'),
+      'page callback' => 'wallyextra_custom_content_hide',
+      'page arguments' => array(4),
+      'load arguments' => array($form_state['object']->plugin['name']),
+      'access arguments' => array('administer custom content'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $form_state['object']->plugin['allowed operations']['show'] = array('title' => t('Show in all pages'));
+    $form_state['object']->plugin['menu']['items']['show'] = array(
+      'path' => 'list/%ctools_export_ui/show',
+      'title' => t('Show in all pages'),
+      'page callback' => 'wallyextra_custom_content_show',
+      'page arguments' => array(4),
+      'load arguments' => array($form_state['object']->plugin['name']),
+      'access arguments' => array('administer custom content'),
+      'type' => MENU_CALLBACK,
+    );
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Delete all instances of a custom content when it is deleted
+ */
+function wallyextra_form_ctools_export_ui_delete_confirm_form_alter(&$form, $form_state) {
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content' && isset($form_state['post']['confirm']) && $form_state['post']['confirm']) {
+    db_query('DELETE FROM {panels_pane} WHERE subtype = "%s"', $form_state['item']->name);
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter().
+ * Add submit function to save admin_title field
+ */
+function wallyextra_form_ctools_export_ui_edit_item_form_alter(&$form, $form_state) {
+  if ($form_state['object']->plugin['name'] == 'ctools_custom_content') {
+    array_unshift($form['#submit'], 'wallyextra_form_ctools_export_ui_edit_item_form_alter_submit');
+  }
+}
+
+/**
+ * Save admin_title field
+ */
+function wallyextra_form_ctools_export_ui_edit_item_form_alter_submit($form, &$form_state) {
+  $form_state['item']->settings['admin_title'] = $form_state['values']['admin_title'];
+}
+
+function wallyextra_wallytoolbox_blocks_alter(&$blocks, $build_type = 'full') {
+  $handled_plugins = array('flowmix', 'remotehtml', 'rssmixread');
+  foreach ($blocks as $cid => $block) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
+    if ($type != $subtype) {
+      if (in_array($type, $handled_plugins)) {
+        ctools_include('export');
+        if ($reus_settings = ctools_export_crud_load('wallyextra_'.$type.'_content', $subtype)) {
+          if (is_array($reus_settings->settings)) {
+            $blocks[$cid]['settings'] = $reus_settings->settings;
+          } else {
+            $blocks[$cid]['settings'] = array('flow_obj' => $reus_settings->settings);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ * 
+ * It simply tells panels where to find the .inc files that define various
+ * args, contexts, content_types.
+ */
+function wallyextra_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implement hook_ctools_plugin_api().
+ * 
+ * If you do this, CTools will pick up default panels pages in
+ * <modulename>.pages_default.inc
+ */
+function wallyextra_ctools_plugin_api($module, $api) {
+  // @todo this example should explain how to put it in a different file.
+  if ($module == 'panels_mini' && $api == 'panels_default') {
+    return array('version' => 1);
+  }
+  
+  if ($module == 'page_manager' && $api == 'pages_default') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_form_alter
+ */
+function wallyextra_form_alter(&$form, $form_state, $form_id) {
+  $access_forms = array('panels_edit_configure_access_test_form', 'ctools_access_ajax_edit_item');
+  if (in_array($form_id, $access_forms)) {
+    if ($form['#parameters'][1]['plugin']['name'] == 'planification') {
+      unset($form['not']);
+      $form['#after_build'][] = 'wallyextra_planification_ctools_access_settings_after_build';
+    }
+  }
+  
+  if ($form_id == 'ctools_custom_content_type_edit_form' && db_table_exists('wallyextra_custom_content_version')) {
+    unset($form['buttons']['return']);
+    unset($form['admin_title']);
+    unset($form['title']);
+    unset($form['body_field']);
+    unset($form['reusable']);
+    unset($form['name']);
+    unset($form['category']);
+    unset($form['admin_description']);
+    unset($form['wally_rule']);
+    drupal_set_message(t('Please use the "New custom content Versionable" content type instead of this one'), 'warning');
+  }
+}
+
+function wallyextra_custom_content_confirm_hide_form($form_state, $plugin) {
+  $question = t('Are you sure you want to hide this content?');
+  
+  $add_form = array();
+  $add_form['plugin_name'] = array(
+    '#type' => 'value',
+    '#value' => $plugin->name,
+  );
+  
+  $form = confirm_form($add_form, $question, 'admin/build/ctools-content', '');
+  $form['#redirect'] = 'admin/build/ctools-content';
+  
+  return $form;
+}
+
+function wallyextra_custom_content_confirm_hide_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+  $plugin_name = $values['plugin_name'];
+
+  if (db_query('UPDATE {panels_pane} SET shown = 0 WHERE subtype = "%s"', $plugin_name)) {
+    drupal_set_message(t('Content hidden.'));
+  } else {
+    drupal_set_message(t('No content to hide or unable to hide.'), 'warning');
+  }
+}
+
+function wallyextra_custom_content_confirm_show_form($form_state, $plugin) {
+  $question = t('Are you sure you want to show this content?');
+
+  $add_form = array();
+  $add_form['plugin_name'] = array(
+    '#type' => 'value',
+    '#value' => $plugin->name,
+  );
+
+  $form = confirm_form($add_form, $question, 'admin/build/ctools-content', '');
+  $form['#redirect'] = 'admin/build/ctools-content';
+
+  return $form;
+}
+
+function wallyextra_custom_content_confirm_show_form_submit($form, $form_state) {
+  $values = $form_state['values'];
+  $plugin_name = $values['plugin_name'];
+
+  if (db_query('UPDATE {panels_pane} SET shown = 1 WHERE subtype = "%s"', $plugin_name)) {
+    drupal_set_message(t('Content hidden.'));
+  } else {
+    drupal_set_message(t('No content to show or unable to show.'), 'warning');
+  }
+}
+
+function wallyextra_custom_content_version_select_version_form($form_state, $plugin) {
+  $form = array();
+  
+  ctools_include('ajax');
+  drupal_add_js(drupal_get_path('module', 'wallyextra').'/scripts/version_picker.js');
+
+  $versions = wallyextra_custom_content_type_getversions($plugin->settings['id']);
+  $options = array();
+  foreach ($versions as $version) {
+    $options[$version->vid] = t('Version').' '.$version->version.' : '.format_date($version->date);
+    if ($version->version == sizeof($versions)) {
+      $options[$version->vid] .= ' <b>('.t('current version').')</b>';
+    }
+  }
+  $form['version'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose a version'),
+    '#options' => $options,
+    '#attributes' => array('class' => 'version-picker'),
+    '#suffix' => '<div id="wallyextra_version"></div>'
+  );
+  
+  $form['plugin_name'] = array(
+    '#type' => 'hidden',
+    '#value' => $plugin->name,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  
+  $form['cancel'] = array(
+    '#value' => l(t('Cancel'), 'admin/build/wallyextra/custom-content/list'),
+  );
+  
+  return $form;
+}
+
+function wallyextra_custom_content_version_select_version_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  
+  $plugin = ctools_export_crud_load('wallyextra_custom_content', $values['plugin_name']);
+  $version = wallyextra_custom_content_type_getversion($values['version']);
+  $version->settings = unserialize($version->settings);
+  $plugin->settings = $version->settings;
+  ctools_export_crud_save('wallyextra_custom_content', $plugin);
+  
+  $new_version_id = db_result(db_query("SELECT MAX(version) FROM {wallyextra_custom_content_version} WHERE cid = %d", $plugin->settings['id'])) + 1;
+  $version->version = $new_version_id;
+  $version->date = time();
+  drupal_write_record('wallyextra_custom_content_version', $version);
+  
+  drupal_set_message(t('Version changed.'));
+  
+  $form_state['redirect'] = 'admin/build/wallyextra/custom-content/list';
+}
+
+function wallyextra_custom_content_version_picker($version) {
+  $version = wallyextra_custom_content_type_getversion($version);
+  $settings = unserialize($version->settings);
+  $content  = '<textarea class = "form-textarea resizable textarea-processed" rows="5" cols = "60">'.$settings['body'].'</textarea>';
+  print $content;
+}
+
+function wallyextra_form_wallytoolbox_supercron_settings_form_alter(&$form, $form_state) {
+  array_unshift($form['#submit'], 'wallyextra_form_wallytoolbox_supercron_settings_form_alter_submit');
+}
+
+function wallyextra_form_wallytoolbox_supercron_settings_form_alter_submit($form, $form_state) {
+  foreach ($form_state['values']['rows'] as $row) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $row['cid']);
+    if ($type != $subtype && $row['rule'] != _wallytoolbox_get_setting($row['settings'], 'wally_rule')) {
+      _wallytoolbox_set_setting($row['settings'], 'wally_rule', $row['rule']);
+      db_query("UPDATE {panels_pane} SET configuration = '%s' WHERE type = '%s' AND subtype = '%s'", serialize($row['settings']), $type, $subtype);
+    }
+  }
+}
+
+/**
+ * Insert additional template suggestions to wally specific theme functions.
+ * This preprocess function could be set by any hook_theme but for content type CTolls only.
+ *
+ * @param $vars
+ *   An array of variables to pass to the theme template.
+ * @param $hook
+ *   The name of the template being rendered.
+ */
+function wally_get_tpl_suggestions_from_plugins(&$variables) {
+  $suggestion = wallyextra_getsuggestions_from_plugins($variables); 
+  if(count($suggestion)) $variables['template_files'] = array_merge($suggestion, $variables['template_files']);
+}
+
+/**
+ * Build all the suggestions template for a content type CTools
+ * of any content type with Destinations information.   
+ *
+ *  Wally specific suggestions are:  
+ * 
+ *  - {plugin_type}_{destinations_terms_underscore_separated}.tpl.php
+ *  - {plugin_type}.tpl.php
+ * 
+ * @param $variables
+ *   Templating variables
+ * @param $type
+ *   Prefix added to suggestions (default = page). Could be "page" or "node".
+ * 
+ * @return 
+ *   Array of suggestion pages templates.
+ */
+function wallyextra_getsuggestions_from_plugins(&$variables) {
+  $context = isset($variables['context']) ? $variables['context'] : array();
+  $context_keys = @array_keys($context);
+  $context = isset($context_keys[0]) ? $context[$context_keys[0]] : array();
+  $subtype = isset($variables['subtype']) ? $variables['subtype'] : '';
+  $destinations = array();
+  $suggestion = array();
+  $tax_children = array();
+  $vid=variable_get('wallymport_destinationpath',null);
+  $path = "";
+  $package_layout = (isset($variables['node'])) ? wallyextra_getpackagelayout($variables['node']) : NULL ; 
+
+  if(isset($context->tids)){
+	  foreach ($context->tids as $tid) {
+	    $destinations[] = taxonomy_get_term($tid);
+	  }
+  }
+  $suggestion[] = 'plugins';
+  $suggestion[] = 'plugins_'.$subtype;
+
+  if (count($destinations)) {
+    foreach ($destinations as $destination) {
+      $tax_children = taxonomy_get_parents_all($destination->tid, $vid);
+      $count = count($tax_children);
+      for ($i = $count-1; $i >= 0; $i--) {
+        ($i == $count-1) ? $path .= strtolower($tax_children[$i]->name) : $path .= "_".strtolower($tax_children[$i]->name);
+        if ($subtype) $suggestion[] = 'plugins_'.$subtype . '_' . $path;
+      }
+    }
+  }
+
+  return $suggestion;  
+}
+
+/**
+ * Extract page layout information from the node. 
+ *
+ * @param $node
+ *   The node currently processed
+ *
+ * @return 
+ *   The Package layout as a string or NULL.
+ */
+function wallyextra_getpackagelayout($node) {
+  if (isset($node->field_packagelayout)) {
+    $package_layout = taxonomy_get_term($node->field_packagelayout[0]["value"]);
+    $package_layout = strtolower(trim($package_layout->name));
+  } else {
+    $package_layout = NULL;
+  }
+  return $package_layout; 
+}
+
+/**
+ * Create a new object for the given $table.
+ *
+ * @param $table
+ *   The name of the table to use to retrieve $schema values. This table
+ *   must have an 'export' section containing data or this function
+ *   will fail.
+ * @param $plugin_name
+ *   The name of the concerned plugin.
+ * @param $set_defaults
+ *   If TRUE, which is the default, then default values will be retrieved
+ *   from schema fields and set on the object.
+ *
+ * @return
+ *   The loaded object.
+ */
+function wallyextra_newctoolsexport($table, $plugin_name, $set_defaults = TRUE) {
+  $schema = ctools_export_get_schema($table);
+  $export = $schema['export'];
+
+  if (!empty($export['create callback']) && function_exists($export['create callback'])) {
+    return $export['create callback']($plugin_name, $set_defaults);
+  }
+  else {
+    return ctools_export_new_object($table, $set_defaults);
+  }
+}
+
+/**
+ * Create callback for creating a new Wallyextra content type.
+ *
+ * This ensures we get proper defaults from the plugin for its settings.
+ * 
+ * @param $plugin_name
+ *   The name of the concerned plugin.
+ * @param $set_defaults
+ *   If TRUE, which is the default, then default values will be retrieved
+ *   from schema fields and set on the object.
+ * 
+ * @return
+ *   The default values for this plugin.
+ */
+function wallyextra_content_type_new($plugin_name, $set_defaults) {
+  $item = ctools_export_new_object('wallyextra_'.$plugin_name.'_content', $set_defaults);
+  ctools_include('content');
+  ctools_include('context');
+  ctools_include('plugins');
+  $plugin = ctools_get_plugins('wallyextra', 'content_types', $plugin_name);
+  $item->settings = ctools_content_get_defaults($plugin, array());
+  return $item;
+}
+
+/**
+ * Implementation of hook_rate_templates().
+ */ 
+function wallyextra_rate_templates() {
+  $templates = array();
+  $templates['points_up_down'] = new stdClass();
+  $templates['points_up_down']->value_type = 'points';
+  $templates['points_up_down']->options = array(
+    array(1, 'up'),
+    array(-1, 'down'),
+  );
+  $templates['points_up_down']->theme = 'wallyextra_template_points_up_down';
+  $templates['points_up_down']->css = drupal_get_path('module', 'wallyextra') . '/theme/wallyextra_points-up-down.css';
+  $templates['points_up_down']->customizable = FALSE;
+  $templates['points_up_down']->translate = TRUE;
+  $templates['points_up_down']->template_title = t('Points up / down');
+  return $templates;
+}
+
+/**
+ * Implementation of hook_refresh_block()
+ */
+function wallyextra_refresh_block($infos, $settings) {
+  $plugin = $infos['type'];
+  $handled_plugins = array('rssmixread', 'flowmix', 'remotehtml');
+
+  // Check if we can handle refreshing of the treated plugin's cache
+  if (in_array($plugin, $handled_plugins)) {
+    module_load_include('inc', 'wallyextra', 'plugins/content_types/'.$plugin);
+    $refresh_function = 'wallyextra_'.$plugin.'_refresh_block';
+    $plugin_return = $refresh_function($settings);
+    $output = t('Cache updated for !plugin : !caid on !date.', array('!plugin' => $plugin, '!caid' => _wallytoolbox_get_setting($settings, 'caid', 'unknown'), '!date' => date('Y-m-d H:i:s')));
+    $output .= !empty($plugin_return) ? $plugin_return : '';
+    return $output;
+  }
+
+  return;
+}
+
+/**
+ * Get an object from cache or create it if it doesn't exists
+ *  
+ * @param $cid {integer} your contents' cache ID. It is also used to identify your block in a unique way, so, even if you don't use the cache system, find a way to give your block a unique ID.
+ * @param $callback {String} the name of the function defined in the first step (here : "wallyextra_MYPLUGIN_building_my_contents").
+ * @param $settings {Array} settings that will be passed to your callback.
+ * @param $subtype {String} given in the render function.
+ * @param $context {StdObject} given in the render function.
+ * @param $default_theme {String} the default theming function, if no override is set (or possible).
+ * @param $plugin {String} the name of the plugin, used to include the plugin's ".inc" file to be able to call the callback.
+ * @param $ajax {Boolean} telling whether or not to use AJAX load (default to FALSE, so you have to explicitely choose it).
+ * @return Datas
+ */
+function wallyextra_get_cache_or_create($cid, $callback, $settings, $subtype, $context, $default_theme, $plugin_name = '', $ajax = FALSE, $bypass_cache = FALSE) {
+  // Fetching datas from cache
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
+  
+  if (empty($subtype)) {
+    $subtype = $cid;
+  }
+  if (db_result(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND (callback = "b:0;" OR callback = "s:0:\"\";" OR callback = "") AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype)) > 0) {
+    // We update the wallytoolbox_content_types_cache table to add the callback informations to the right block
+    $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND (callback = "b:0;" OR callback = "s:0:\"\";" OR callback = "") AND cid LIKE "%%:%%:%%:%s:%%:%%"', $subtype);
+    while ($block = db_fetch_array($blocks_list)) {
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      $caid = _wallytoolbox_get_setting($block['settings'], 'caid');
+      if (($subtype == $cid) || $caid == $cid) {
+        // We need to store these informations to be able to use the callback
+        $callback_array = array(
+          'callback' => $callback,
+          'plugin' => $plugin_name,
+          'cid' => $cid,
+          'table' => 'cache_wally_blocks',
+        );
+        
+        list($a, $b, $type, $subtype, $c, $d) = explode(':', $block['cid']);
+        if ($type == $subtype) {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid = "%s"', serialize($callback_array), $block['cid']);
+        } else {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET callback = "%s" WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', serialize($callback_array), $type, $subtype);
+        }
+      }
+    }
+  }
+
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
+    // This cache doesn't exists, create it
+
+    if ($ajax) {
+      // Adding the AJAX call
+      drupal_add_js(drupal_get_path('module', 'wallyextra').'/scripts/get_cache_or_create.js');
+      $js_settings = array(
+        'wallyextra' => array(
+          $cid.'_'.$default_theme => array(
+            'data' => array(
+              'callback' => $callback,
+              'settings' => addslashes(serialize(str_replace(array('\n', '\r\n'), '|@@@|', $settings))),
+              'subtype' => $subtype,
+              'context' => addslashes(serialize($context)),
+              'default_theme' => $default_theme,
+              'plugin_name' => $plugin_name,
+              'cid' => $cid,
+              'bypass_cache' => $bypass_cache,
+            ),
+          ),
+        ),
+      );
+      drupal_add_js($js_settings, 'setting');
+
+      // Temporary HTML content
+      // The div has a specific id to be able to fill it with the right contents
+      $datas = '<div class="loading_'.$cid.'_'.$default_theme.'">'.theme('wallyextra_loading_content_type').'</div>';
+      
+      // Prevent from caching in Varnish
+      drupal_set_header('X-Content-Types-Cache', 'no-cache');
+    } else {
+      // Here we directly call the content building callback
+
+      // Load plugin if necessary
+      if ($plugin_name != '') {
+        ctools_include('plugins');
+        if ($plugin = ctools_get_plugins('ctools', 'content_types', $plugin_name)) {
+          require_once './'.$plugin['path'].'/'.$plugin['file'];
+        }
+      }
+
+      // Call the given callback to get datas
+      $datas = call_user_func_array($callback, array($settings));
+      cache_set($cid, $datas, 'cache_wally_blocks');
+      if (is_string($datas)) {
+        $datas = array('content' => $datas);
+      }
+    }
+  } else {
+    // The object exists in cache
+    $datas = $cached_datas->data;
+    if (is_string($datas)) {
+      $datas = array('content' => $datas);
+    }
+  }
+
+  return $datas;
+}
+
+/**
+ * Callback to dynamically refresh a block contents.
+ */
+function _wallyextra_content_types_ajax_callback() {
+  $content = '';
+  
+  ctools_include('context');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  
+  // Get POSTed values
+  $cid = $_POST['cid'];
+  $callback = $_POST['callback'];
+  $settings = str_replace('|@@@|', '\n', unserialize(stripslashes($_POST['settings'])));
+  $subtype = $_POST['subtype'];
+  $context = unserialize(stripslashes($_POST['context']));
+  $default_theme = $_POST['default_theme'];
+  $plugin_name = $_POST['plugin_name'];
+  $bypass_cache = wallytoolbox_toboolean($_POST['bypass_cache']);
+
+  // Add a cache check to avoid the reconstruction of the datas if the ajax call was cached by Varnish.
+  $cached_datas = $bypass_cache ? FALSE : cache_get($cid, 'cache_wally_blocks');
+
+  if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !isset($cached_datas->data)) {
+    // Avoid multiple runs caused by Varnish
+    cache_set($cid, array(), 'cache_wally_blocks');
+
+    // Load plugin if necessary
+    if ($plugin_name != '') {
+      ctools_include('plugins');
+      if ($plugin = ctools_get_plugins('ctools', 'content_types', $plugin_name)) {
+        require_once './'.$plugin['path'].'/'.$plugin['file'];
+      }
+    }
+
+    // Get contents to be passed to theming function
+    $datas = call_user_func_array($callback, array($settings));
+    cache_set($cid, $datas, 'cache_wally_blocks');
+  } else {
+    // The object exists in cache
+    $datas = $cached_datas->data;
+  }
+
+  // We have to add the specific js/css that could be added for this block
+  // To avoid double inclusions we make a diff to treat only specifically added js/css
+  $js_before = drupal_add_js();
+  $css_before = drupal_add_css();
+  drupal_add_js('Drupal.attachBehaviors();', 'inline');
+
+  // Usual theming
+  if ($settings['override_theme'] && $settings['override_theme_text'] != '') {
+    $content = theme($settings['override_theme_text'], $subtype, $context, $datas, $settings) ;
+  } else {
+    $content = theme($default_theme, $subtype, $context, $datas, $settings);
+  }
+
+  $js_after = drupal_add_js();
+  $css_after = drupal_add_css();
+  // Here is the diff
+  $scripts = drupal_get_js('header', arrayRecursiveDiff($js_after, $js_before));
+  $styles = drupal_get_css(arrayRecursiveDiff($css_after, $css_before));
+  
+  print $styles.$scripts.$content;
+}
+
+/**
+ * Callback en ajax, renvoyant le formulaire voulu pour le custom content
+ *  @param $type_form
+ *  Le type de formulaire à renvoyer
+ */
+function wallyextra_ajax_customcontentform($type_form){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  if ($type_form == 'custom'){
+    $untype = 'version';
+  } elseif ($type_form == 'version'){
+    $untype = 'custom';
+  }
+
+  $commands[] = ctools_ajax_command_attr('#'.$untype.'_form', 'style', 'display:none;');
+  $commands[] = ctools_ajax_command_attr('#'.$type_form.'_form', 'style', 'display:block;');
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_attr('#'.$type_form, 'class', 'active');
+  $commands[] = ctools_ajax_command_attr('#'.$untype, 'class', '');
+  ctools_ajax_render($commands);
+}
+
+/**
+ * Callback en ajax, affichant le contenu d'une version
+ *  @param $version_id
+ *  Version à afficher
+ */
+function wallyextra_ajax_customcontentgetversion($version_id){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  $version = wallyextra_custom_content_type_getversion($version_id);
+  $settings = unserialize($version->settings);
+  $content  = '<textarea class = "form-textarea resizable textarea-processed" rows="5" cols = "60">'.$settings['body'].'</textarea>';
+  $content .= '<div>'.ctools_ajax_text_button(t('Switch back to this version'), 'wallyextra/customcontent/formreplace/'.$version_id.'/ajax', t('Switch')).'</div>'; 
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_html('#wallyextra_version', $content);
+  $commands[] = ctools_ajax_command_attr('.wallyextra_version_list', 'style', 'font-weight:none');
+  $commands[] = ctools_ajax_command_attr('#wallyextra_version_'.$version_id, 'style', 'font-weight:bold');
+  
+  ctools_ajax_render($commands);
+}
+
+/**
+*  Met le contenu de la version dans le formulaire
+*  @param $version_id
+*  Version remplacer
+*/
+function wallyextra_ajax_customcontentformreplace($version_id){
+  module_load_include('inc', 'ctools','plugins/content_types/custom/custom');
+  ctools_include('ajax');
+  ctools_include('modal');
+  ctools_modal_add_js();
+  ctools_add_js('ajax-responder');
+  
+  $commands = array();
+  $version = wallyextra_custom_content_type_getversion($version_id);
+  $settings = unserialize($version->settings);
+  $body = $settings['body'];
+  $body = str_replace('<','&lt', $body);
+  $body = str_replace('>','&gt', $body);
+  $commands[] = ctools_ajax_command_html('.messages', theme('status_messages'));
+  $commands[] = ctools_ajax_command_html('textarea#edit-body', $body);
+  
+  //Change tab
+  $commands[] = ctools_ajax_command_attr('#version_form', 'style', 'display:none;');
+  $commands[] = ctools_ajax_command_attr('#custom_form', 'style', 'display:block;');
+  $commands[] = ctools_ajax_command_attr('#custom', 'class', 'active');
+  $commands[] = ctools_ajax_command_attr('#version', 'class', '');
+  
+  ctools_ajax_render($commands);
+}
+
+/**
+ * Get all the versions of a custom content type
+ * 
+ * @param $id
+ * the id of the custom content type
+ * 
+ * @return
+ * an array whith all the versions of the custom content type
+ */
+function wallyextra_custom_content_type_getversions($id){
+  $items = array();
+  if ($id !== NULL) {
+    $result = db_query("SELECT v.vid, v.date, v.version
+    					          FROM {wallyextra_custom_content_version} v
+    				            WHERE v.cid = %d", $id);
+    while ($version = db_fetch_object($result)){
+      $items[] = $version;
+    }
+  }
+  return $items;
+}
+
+/**
+ * Load a version of a custom content type from a vid
+ *
+ * @param $vid
+ * the vid of the version to load
+ *
+ * @return
+ * a version object
+ */
+function wallyextra_custom_content_type_getversion($vid){
+  $result = db_query("SELECT v.*
+  					  FROM {wallyextra_custom_content_version} v
+  				      WHERE v.vid = %d", $vid);
+  $version = db_fetch_object($result);
+  return $version;
+}
+
+/**
+ * @} End of "defgroup wallyextra".
+ */

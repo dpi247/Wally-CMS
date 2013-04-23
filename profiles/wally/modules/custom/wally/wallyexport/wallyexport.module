@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallyexport_perm() {
+  return array(
+    'administer wally export',
+    'export content',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallyexport_menu() {
+  $items = array();
+  
+  $items['admin/wally/wallyexport/settings'] = array(
+    'title'            => t('Wally Export Settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallyexport_page_admin_form'),
+    'access arguments' => array('administer wally export'),
+    'description'      => t('Allows administrators to set paramaters for this module to function properly.'),
+    'file'             => 'includes/wallyexport.admin.inc',
+  );
+  
+  $items['admin/wally/wallyexport/export'] = array(
+    'title'            => t('Export packages'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallyexport_page_export_form'),
+    'access arguments' => array('export content'),
+    'description'      => t('Export packages to zipped xml files.'),
+    'file'             => 'includes/wallyexport.admin.inc',
+  );
+  
+  return $items;
+}
+
+function wallyexport_export_packages($nids) {
+  $return = array();
+  foreach ($nids as $nid) {
+    $package_object = node_load($nid);
+    wallycontenttypes_packagepopulate($package_object, '',TRUE);
+    
+    $zip_name = 'Wally_'.$package_object->nid;
+    $package_dom_and_images = _wallyexport_createvaliddomfrompackage($package_object, $zip_name);
+    
+    if ($package_dom_and_images) {
+      $package_dom = $package_dom_and_images[0];
+      $files_to_zip = $package_dom_and_images[1];
+      $return[] = _wallyexport_createzipfromdom($package_dom, $package_object->nid, $zip_name, $files_to_zip);
+    }
+  }
+  return $return;
+}
+
+/**
+ * Build a dom document based on an array. The array is given by the
+ * package_populate function.
+ * 
+ * @param $package_array
+ *   The package given by package_populate.
+ * 
+ * @return
+ *   The dom document and a list of images to add to the zip file.
+ * 
+ * @see package_populate function
+ */
+function _wallyexport_createvaliddomfrompackage($package_object, $zip_name) {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.flowtoarray');
+  module_load_include('inc','wallytoolbox','includes/wallytoolbox.arraytowallyxml');
+  $valid_dom = new DomDocument('1.0', 'UTF-8');
+  $package_array = wallytoolbox_node_to_array($package_object);
+  $files_to_zip = array();
+  wallytoolbox_arraytowallyxml($package_array, $valid_dom, $files_to_zip);    
+  
+  $return = array();
+  $return[] = $valid_dom;
+  $return[] = $files_to_zip;
+  return $return;
+}
+
+function _wallyexport_createzipfromdom($package_dom, $nid, $file_name, $files_to_zip = array()) {
+  
+  $zip = new ZipArchive;
+  $res = $zip->open(variable_get('wallyexport_admin_source', 'sites/default/files/export').'/'.$file_name.'.zip', ZipArchive::CREATE);
+  if ($res === TRUE) {
+    $zip->addFromString($file_name.'.xml', $package_dom->saveXML());
+    foreach ($files_to_zip as $file_to_zip) {
+      $zip->addFile($file_to_zip['filepath'], $file_to_zip['filename']);  
+    }
+    $zip->close();
+    $return = 'Zip success : '.$nid;
+  } else {
+    $return = 'Zip failure : '.$nid;
+  }
+
+  return $return;
+}

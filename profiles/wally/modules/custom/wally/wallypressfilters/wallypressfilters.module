@@ -1,0 +1,666 @@
+<?php 
+/**
+ * @author JDE
+ * Ajoute des filtres permettant le remplacement des balises de logiciels de presse [Hermès][CCI]
+ * * Hermès est implémenté pour le démarrage
+ * * CCI suivra lors du déploiement du logiciel
+ * 
+ * Des balises propres aux logiciels de presse sont envoyé en input, celles ci doivent etre remplacées afin de formater correctement le texte en HTML
+ * Exemple simple : "<GRAS>texte en gras</GRAS>" en input, l'output doit etre "<b>texte en gras</b>" dans la source HTML du site
+ * */
+
+/**
+ * Implementation of hook_menu().
+ *
+ * Création des pages d'admin permettant de définir
+ */
+function wallypressfilters_menu() {
+  $items = array();
+  
+  $items['admin/wally/wallypressfilters/settings'] = array(
+    'title' => 'Wally Filter Settings',
+    'page callback'    => 'wallypressfilters_page_admin',
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Allows administrators to create custom press filter.'),
+    'file'             => 'includes/wallypressfilters.admin.inc',
+  );
+  
+  $items['admin/wally/wallypressfilters/settings/general'] = array(
+    'title'            => t('General'),
+    'page callback'    => 'wallypressfilters_page_admin',
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Allows administrators to create custom press filter.'),
+    'file'             => 'includes/wallypressfilters.admin.inc',
+    'weight'           => 0,
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+  );
+  
+  $items['admin/wally/wallypressfilters/settings/add'] = array(
+    'title'            => t('Create filter'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallypressfilters_form_addfilter_form'),
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Allows administrators to create custom press filter.'),
+    'file'             => 'includes/wallypressfilters.admin.inc',
+    'weight'           => 1,
+    'type'             => MENU_LOCAL_TASK,
+  );
+  
+  $items['admin/wally/wallypressfilters/settings/import-export'] = array(
+    'title'            => t('Import/Export'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallypressfilters_form_config_import_export_form'),
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Import and export filters settings.'),
+    'file'             => 'includes/wallypressfilters.import_export.inc',
+    'weight'           => 2,
+    'type'             => MENU_LOCAL_TASK,
+  );
+  
+  $items['admin/wally/wallypressfilters/settings/edit/%'] = array(
+    'title'            => t('Edit filter'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallypressfilters_form_addfilter_form', 5),
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Allows administrators to create custom press filter.'),
+    'file'             => 'includes/wallypressfilters.admin.inc',
+  );
+
+  $items['admin/wally/wallypressfilters/settings/delete/%'] = array(
+    'title'            => t('Delete filter'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallypressfilters_form_deletefilter_form', 5),
+    'access arguments' => array('administer custom press filter'),
+    'description'      => t('Allows administrators to create custom press filter.'),
+    'file'             => 'includes/wallypressfilters.admin.inc',
+  );
+
+  $items['wallypressfilters/mapping/%/%'] = array(
+    'title'            => t('Filters mapping'),
+    'page callback'    => 'wallypressfilters_mapping_export',
+    'page arguments'   => array(2, 3),
+    'access callback'  => 1,
+    'file'             => 'includes/wallypressfilters.mapping.inc',
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['wallypressfilters/config/export/%'] = array(
+      'title'            => t('Filters export'),
+      'page callback'    => 'wallypressfilters_config_export',
+      'page arguments'   => array(3),
+      'access callback'  => 1,
+      'file'             => 'includes/wallypressfilters.import_export.inc',
+      'type'             => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm
+ */
+function wallypressfilters_perm() {
+  return array('administer custom press filter');
+}
+
+/**
+ * Implémentation du hook filter 
+ * On déclare les filtres Hermès et CCI. 
+ */
+function wallypressfilters_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      $list = array();
+  	  $filters = wallypressfilters_getfilters();
+  	  if ($filters != NULL){
+  	    foreach ($filters as $filter){
+  	      $list[$filter->fid] = $filter->name;
+  	    }
+  	  }
+      return $list;
+
+    case 'description':
+      $filter = wallypressfilters_getfilterbyid($delta);
+      $description = '';
+      if ($filter != NULL){
+        $description = $filter->description;
+      }
+      return $description;
+
+    case 'process':
+      return wallypressfilters_filter_process($delta, $text, $format);
+
+    case 'no cache':  
+	    return FALSE; //doit etre à FALSE en production
+
+    case 'settings':
+      return wallypressfilters_form_filter_settings_form($delta, $format);
+      
+    default:
+      return $text;
+  }
+}
+
+/**
+ * Return all the filter object in an array
+ *
+ * @return
+ *   an array containing all the filter objects
+ */
+function wallypressfilters_getfilters(){
+  $filters = NULL;
+  $result = db_query("SELECT * FROM {wallypressfilters}");
+  while ($obj = db_fetch_object($result)){
+    $filters[] = $obj;
+  }
+  return $filters;
+}
+
+/**
+ * Return a filter object from its name
+ * 
+ * @param $name
+ *   The name of the filter
+ * @return
+ *   The filter object
+ */
+function wallypressfilters_getfilterbyname($name){
+  static $cache;
+  
+  if(isset($cache[$name])){
+	return $cache[$name];
+  }
+  $result = db_query("SELECT * FROM {wallypressfilters} WHERE name = '%s'", $name);
+  $filter = NULL;
+  while ($obj = db_fetch_object($result)){
+    $filter = $obj;
+  }
+  $cache[$name]=$filter;
+  return $filter;
+}
+
+/**
+ * Return a filter object from its id
+ *
+ * @param $fid
+ *   The id of the filter
+ * @return
+ *   The filter object
+ */
+function wallypressfilters_getfilterbyid($fid){
+  static $cache;
+  if(isset($cache[$fid])) {
+  	return $cache[$fid];
+  }
+  $result = db_query("SELECT * FROM {wallypressfilters} WHERE fid = '%s'", $fid);
+  $filter = NULL;
+  while ($obj = db_fetch_object($result)) {
+    $filter = $obj;
+  }
+  $cache[$fid] = $filter;
+  
+  return $filter;
+}
+
+/**
+ * Return all tags of a filter
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_getalltagsfromfilter($filter_name){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s' ORDER BY weight ASC", $filter_name);
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Return default tags of a filter
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_gettagsfromfilter($filter_name){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE filter = '%s' AND format IS NULL ORDER BY weight ASC", $filter_name);
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Return all tags of a filter and a format
+ *
+ * If the tag does not exist for a format, it return the default tag
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @param $format
+ * 	The format
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_gettagsfromfilterandformat_admin($filter_name, $format){
+    $result = db_query("SELECT t.*
+                        FROM {wallypressfilters_tags} t
+                        WHERE t.filter = '%s'
+                        AND (t.format = %d OR t.format IS NULL)
+                        AND t.tid IN (
+                        SELECT MAX(tid) FROM {wallypressfilters_tags}
+                          WHERE filter = '%s'
+                          AND (format = %d OR format IS NULL)
+                          GROUP BY tag
+                        )
+                        ORDER BY weight ASC
+                        ", $filter_name, $format, $filter_name, $format);
+
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Return all tags of a filter and a format
+ * 
+ * If the tag does not exist for a format, it return the default tag
+ *
+ * @param $filter_name
+ *   The name of the filter
+ * @param $format
+ * 	The format
+ * @return
+ *   an array containing all the tag of the filter
+ */
+function wallypressfilters_gettagsfromfilterandformat($filter_name, $format){
+  static $tags;
+  if(isset($tags[$filter_name][$format])){
+	return $tags[$filter_name][$format];
+  }
+  else{
+  	$result = db_query("SELECT MAX( t.tid ) , t.filter, t.format, t.type, t.tag, t.description, t.settings
+                      FROM {wallypressfilters_tags} t
+                      WHERE t.filter = '%s'
+                      AND (t.format = %d)
+                      GROUP BY tag
+                      ORDER BY weight ASC
+                      ", $filter_name, $format);
+
+	$tags[$filter_name][$format] = array();
+	while ($obj = db_fetch_object($result)){
+	  $obj->settings = unserialize($obj->settings);
+	  $tags[$filter_name][$format][] = $obj;
+	}
+  }
+  return $tags[$filter_name][$format];
+}
+
+/**
+ * Return a tag object from its name and its filter
+ *
+ * @param $name
+ *   The name of the tag
+ * @param $filter
+ * 	The filter of the tag
+ * @return
+ *   The tag object
+ */
+function wallypressfilters_gettagbynameandfilter($tag, $filter){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s' ORDER BY weight ASC", $tag, $filter);
+  $tag = NULL;
+  while ($obj = db_fetch_object($result)){
+    $tag = $obj;
+    $tag->settings = unserialize($tag->settings);
+  }
+  return $tag;
+}
+
+/**
+ * Return tags objects from its name and its filter
+ *
+ * @param $name
+ *   The name of the tag
+ * @param $filter
+ * 	The filter of the tag
+ * @return
+ *   The tag object
+ */
+function wallypressfilters_gettagsbynameandfilter($tag, $filter){
+  $result = db_query("SELECT * FROM {wallypressfilters_tags} WHERE tag = '%s' AND filter = '%s' ORDER BY weight ASC", $tag, $filter);
+  $tags = array();
+  while ($obj = db_fetch_object($result)){
+    $obj->settings = unserialize($obj->settings);
+    $tags[] = $obj;
+  }
+  return $tags;
+}
+
+/**
+ * Fonction de déclation du formulaire de préférences pour le remplacement des balises HErmes
+ * On déclare quelles balises doivent etre remplacées par quelles balises html
+ */
+function wallypressfilters_form_filter_settings_form($fid, $format){
+  $filter = wallypressfilters_getfilterbyid($fid);
+  $tags = wallypressfilters_gettagsfromfilterandformat_admin($filter->name, $format);
+
+  $form['filter_'.$fid]['#tree'] = TRUE;
+
+  $form['filter_'.$fid][$filter->name] = array(
+    '#type' => 'fieldset',
+    '#title' => t($filter->name.' filter'),
+    '#collapsible' => TRUE,
+  );
+
+  $form['filter_'.$fid][$filter->name]['format'] = array(
+    '#type' => 'value',
+    '#value' => $format,
+  );
+  
+  /*$form['filter'][$filter->name]['tag'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Tags'),
+    '#collapsible' => TRUE,
+  );*/
+  
+  /*$form['filter'][$filter->name]['marker'] = array(
+    '#type'        => 'fieldset',
+    '#title'       => t('Markers'),
+    '#collapsible' => TRUE,
+  );*/
+
+  if (!empty($tags)) {
+    ctools_include('dependent');
+    ctools_add_js('dependent');
+
+    $operations = array(
+      //'tag' => array(
+        'replace' => t('Replace'),
+        'strip' => t('Strip'),
+        'skip' => t('Skip'),
+      //),
+      /*'marker' => array(
+        'ignore' => t('Ignore'),
+        'replace' => t('Replace'),
+        'attr_replace' => t('Replace following attributes'),
+        'strip' => t('Strip'),
+        'convert' => t('Convert to text'),
+      ),*/
+    );
+    
+    $sub_operations = array(
+      //'tag' => array(
+        'replace' => array(
+          'basic' => t('Basic'),
+          'advanced' => t('Advanced'),
+        ),
+      //),
+      /*'marker' => array(
+        'attr_replace' => array(
+          'to_marker' => t('Convert to another marker'),
+          'convert' => t('Convert to string'),
+        ),
+      ),*/
+    );
+
+    foreach ($tags as $tag) {
+      $tag_form = array(
+    		'#type'        => 'fieldset',
+    		'#title'       => $tag->description.' ('.$tag->tag.')',
+    		'#collapsible' => TRUE,
+    		'#collapsed'   => TRUE,
+      );
+
+      $settings = $tag->settings ? $tag->settings : array();
+      $defaults = array_merge(_wallypressfilters_settings_defaults(), $settings);
+
+      $tag_form['operation'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Operation'),
+        '#options'       => $operations ? $operations : array(),
+        '#default_value' => $defaults['operation'],
+      );
+      
+      $dependency_filter_name = str_replace('_', '-', $filter->name);
+      
+      $tag_form['replace-method'] = array(
+        '#type'          => 'select',
+        '#title'         => t('Replacement method'),
+        '#options'       => $sub_operations['replace'] ? $sub_operations['replace'] : array(),
+        '#default_value' => $defaults['replace-method'],
+        '#dependency'    => array('edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace')),
+        '#process'       => array('ctools_dependent_process'),
+      );
+      
+      $tag_form['basic-pattern'] = array(
+        '#type'          => 'textfield',
+        '#title'         => t('Pattern used to replace the !tag_type "@tag"', array('!tag_type' => $tag->type, '@tag' => $tag->tag)),
+        '#default_value' => $defaults['basic-pattern'],
+        '#description'   => t('Recognized patterns are $tag.body and $tag.attr-name<br>
+            Where $tag.body is the content of the tag and $tag.attr-name is the value of the attribute named "attr-name".<br>
+            Any non-pattern string is also accepted and will be added without modifications.<br>
+            Example : <i><code>!ex_code</code></i>', array('!ex_code' => htmlentities('<x class="$tag.myclass new-class">$tag.body</x>'))),
+        '#dependency'    => array(
+            'edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace'),
+            'edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-replace-method' => array('basic')),
+        '#dependency_count' => 2,
+        '#process'       => array('ctools_dependent_process'),
+      );
+      
+      $tag_form['advanced-php'] = array(
+        '#type'          => 'textarea',
+        '#title'         => t('PHP code'),
+        '#default_value' => $defaults['advanced-php'],
+        '#description'   => t('Use <i>return $string;</i> at the end of your code,
+            the matching tag (and its content) will be replaced by this string.<br>
+            <b style="color:red;">Use this with caution! This code will be executed every time the filter is applied.</b><br>
+            An associative array is given, this array contains the tag name, body and attributes, for example :<br>
+            $tag = array(<br>
+            &nbsp&nbsp"tag_name" => "name-of-the-tag",<br>
+            &nbsp&nbsp"body" => "body-of-the-tag",<br>
+            &nbsp&nbsp"attributes" => array(<br>
+            &nbsp&nbsp&nbsp&nbsp"a1" => "v1",<br>
+            &nbsp&nbsp&nbsp&nbsp"a2" => "v2",<br>
+            &nbsp&nbsp&nbsp&nbsp...<br>
+            &nbsp&nbsp),<br>
+            );'),
+        '#rows'          => 15,
+        '#dependency'    => array(
+            'edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-operation' => array('replace'),
+            'edit-filter-'.$fid.'-'.$dependency_filter_name.'-'.$tag->type.'-'.$tag->tid.'-replace-method' => array('advanced')),
+        '#dependency_count' => 2,
+        '#process'       => array('ctools_dependent_process'),
+      );
+
+      $tag_form['format'] = array(
+        '#type'  => 'value',
+        '#value' => $tag->format, 
+      );
+
+      $tag_form['tag'] = array(
+        '#type'  => 'value',
+        '#value' => $tag->tag,
+      );
+      
+      $tag_form['description'] = array(
+        '#type'  => 'value',
+        '#value' => $tag->description,
+      );
+
+      $form['filter_'.$fid][$filter->name][$tag->type][$tag->tid] = $tag_form;
+    }
+  }
+
+  $form['#validate'] = array('wallypressfilters_form_filter_settings_form_validate');
+  $form['#submit'] = array('wallypressfilters_form_filter_settings_form_submit');
+
+  return $form;
+}
+
+/**
+ * Validation of the form wallypressfilters_form_filter_settings_form
+ */
+function wallypressfilters_form_filter_settings_form_validate($form, &$form_state) {
+  $values = $form_state['values'];
+  $format_id = $values['format'];
+
+  // Get allowed tags list
+  $allowed_tags = array();
+  if (isset($values['filter_html_'.$format_id]) && $values['filter_html_'.$format_id] == 1 && isset($values['allowed_html_'.$format_id])) {
+    $allowed_tags = explode(' ', $values['allowed_html_'.$format_id]);
+  }
+
+  foreach ($values as $key => $value) {
+    if (substr($key, 0, 7) === 'filter_') {
+      foreach ($value as $filter_name => $filter) {
+        foreach ($filter as $type => $tags) {
+          if ($type != 'format') {
+            foreach ($tags as $tag_id => $tag_infos){
+              // Following chosen operation the validation may differ
+              switch ($tag_infos['operation']) {
+                case 'replace':
+                  if ($tag_infos['replace-method'] == 'basic') {
+                    // Check if replacement tags are not empty
+                    if (empty($tag_infos['basic-pattern'])) {
+                      form_set_error($key.']['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The replacement pattern set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                    } else {
+                      // Check if replacement tags are allowed
+                      $new_tags_match_regex = '@<([^\/]*)[\s>]@U';
+                      $new_tags_match = array();
+                      preg_match_all($new_tags_match_regex, $tag_infos['basic-pattern'], $new_tags_match);
+                      foreach ($new_tags_match[1] as $new_tag) {
+                        if (!empty($allowed_tags) && !in_array('<'.$new_tag.'>', $allowed_tags)){
+                          form_set_error($key.']['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The !tag_type "@tag" is not allowed', array('!tag_type' => $type, '@tag' => $new_tag)));
+                        }
+                      }
+                    }
+                  } elseif ($tag_infos['replace-method'] == 'advanced') {
+                    // Check if replacement tags are not empty
+                    if (empty($tag_infos['advanced-php'])) {
+                      form_set_error($key.']['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The PHP code set for !tag_type "@tag_to_replace" is empty', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                    } else {
+                      // Check if PHP code is correct
+                      $exception = eval($tag_infos['advanced-php']);
+                      if ($exception === FALSE) {
+                        form_set_error($key.']['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('The PHP code set for !tag_type "@tag_to_replace" is not valid', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                      }
+
+                      // Check if there's a return
+                      $return_match_regex = '@return\s+[\$\'\"]@U';
+                      $return_match = array();
+                      preg_match_all($return_match_regex, $tag_infos['advanced-php'], $return_match);
+                      if (empty($return_match[0])){
+                        form_set_error($key.']['.$filter_name.']['.$type.']['.$tag_id.'][tag', t('No return found in the PHP code set for !tag_type "@tag_to_replace"', array('!tag_type' => $type, '@tag_to_replace' => $tag_infos['tag'])));
+                      }
+                    }
+                  }
+
+                  break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Submit of the form wallypressfilters_form_filter_settings_form
+ */
+function wallypressfilters_form_filter_settings_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  foreach ($values as $key => $value) {
+    if (substr($key, 0, 7) === 'filter_') {
+      foreach ($value as $filter_name => $filter){
+        $filter_infos = wallypressfilters_getfilterbyname($filter_name);
+        $format = $filter['format'];
+
+        foreach ($filter as $type => $tags) {
+          if ($type != 'format'){
+            foreach ($tags as $tag_id => $tag_infos){
+              $obj = new stdClass();
+              $obj->tag = $tag_infos['tag'];
+              $obj->description = $tag_infos['description'];
+              $obj->filter = $filter_name;
+              $obj->type = $type;
+              $settings = array(
+                'operation' => $tag_infos['operation'],
+                'replace-method' => $tag_infos['replace-method'],
+                'basic-pattern' => $tag_infos['basic-pattern'],
+                'advanced-php' => $tag_infos['advanced-php'],
+              );
+              $obj->settings = $settings;
+              if ($tag_infos['format'] == NULL){
+                $obj->format = $format;
+                drupal_write_record('wallypressfilters_tags', $obj);
+              } else {
+                $obj->tid = $tag_id;
+                drupal_write_record('wallypressfilters_tags', $obj, array('tid'));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/** 
+ * This function replace tags with the tags of the filter 
+ * 
+ * @param $fid
+ *   filter id
+ * @param $text
+ *   the text to replace
+ * @param $format
+ *   the format
+ * 
+ * @return
+ * The text replaced with the tags
+ */
+function wallypressfilters_filter_process($fid, $text, $format) {
+  module_load_include('inc', 'wallypressfilters', 'includes/wallypressfilters.filters');
+  
+  $filter = wallypressfilters_getfilterbyid($fid);
+  $tags = wallypressfilters_gettagsfromfilterandformat($filter->name, $format);
+
+  foreach ($tags as $tag) {
+    $settings = $tag->settings;
+    switch ($settings['operation']) {
+      case 'replace':
+        $text = wallypressfilters_replace_tags($tag->tag, $settings, $text);
+        break;
+
+      case 'strip':
+        $text = wallypressfilters_strip_tags($tag->tag, $settings, $text);
+        break;
+
+      case 'skip':
+        $text = wallypressfilters_skip_tags($tag->tag, $settings, $text);
+        break;
+    }
+  }
+
+  return $text;
+}
+
+function _wallypressfilters_settings_defaults () {
+  return array(
+    'operation' => 'strip',
+    'replace-method' => 'basic',
+    'basic-pattern' => '',
+    'advanced-php' => '',
+  );
+}

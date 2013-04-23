@@ -1,0 +1,565 @@
+<?php
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallychannels_perm() {
+  return array(
+    'view channels plugins',
+    'manage channels',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallychannels_menu() {
+  $items = array();
+  
+  $items['admin/wally/wallychannels/plugins'] = array(
+    'title'            => t('Channels plugins'),
+    'page callback'    => 'wallychannels_plugins_overview',
+    'access arguments' => array('view channels plugins'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['wallychannels/get-settings/%/%'] = array(
+    'page callback'    => '_wallychannels_get_instance_settings',
+    'page arguments'   => array(2, 3),
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function wallychannels_form_alter(&$form, &$form_state, $form_id) {
+  if (($form_id == 'wallyedit_form_node_edition_form' && (sizeof($form_state['parents']) == 1)) || (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id)) {
+    if (module_exists('wallyedit')) {
+      module_load_include('inc', 'wallyedit', 'includes/config_api');
+      $type = $form['type']['#value'];
+      $profile_id = isset($form_state['profile_id']) ? $form_state['profile_id'] : wallyedit_get_default_profile();
+      $interface_types = wally_variable_get('wallyedit_content_types_interface_type_'.$profile_id, array());
+      if (($form_id == 'wallyedit_form_node_edition_form' && $interface_types[$type] == 'wally') || (strstr($form_id, '_node_form') && $interface_types[$type] == 'drupal')) {
+        $channels_form = wallychannels_build_channels_form($form['type']['#value']);
+        if (sizeof(element_children($channels_form)) > 0) {
+          $form['channels'] = $channels_form;
+        }
+      }
+    } else {
+      $channels_form = wallychannels_build_channels_form($form['type']['#value']);
+      if (sizeof(element_children($channels_form)) > 0) {
+        $form['channels'] = $channels_form;
+      }
+    }
+  }
+}
+
+function wallychannels_build_channels_form($type) {
+  $channels_form = array(
+    '#type' => 'fieldset',
+    '#title' => t('Publication channels'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#weight' => 31,
+    '#tree' => TRUE,
+  );
+
+  $avail_channels = wallychannels_get_plugins_that_handle_type($type);
+  $defined_instances = wallychannels_get_instances_of_channel();
+  foreach ($avail_channels as $avail_channel) {
+    $channel_form = array(
+      '#type' => 'fieldset',
+      '#title' => $avail_channel['title'],
+      '#description' => $avail_channel['description'],
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#attributes' => array('class' => 'channel-'.$avail_channel['name']),
+    );
+    
+    $channel_form['instances'] = array();
+    $channel_instances = isset($defined_instances[$avail_channel['name']]) ? $defined_instances[$avail_channel['name']] : array();
+    foreach ($channel_instances as $channel_instance) {
+      $channel_form['instances'][$channel_instance->cid] = array(
+        '#type' => 'checkbox',
+        '#title' => $channel_instance->title,
+        '#attributes' => array('class' => 'channel-instance'),
+      );
+    }
+    //drupal_add_js(drupal_get_path('module', 'wallychannels').'/plugins/channels/twitter.js');
+    if (!empty($channel_form['instances'])) {
+      //drupal_add_js(drupal_get_path('module', 'wallychannels').'/scripts/channel_preview.js');
+      $channels_form[$avail_channel['name']] = $channel_form;
+    }
+  }
+
+  return $channels_form;
+}
+
+function wallychannels_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  switch ($op) {
+    case 'presave':
+      if (isset($node->channels) && !empty($node->channels) && isset($node->field_channels)) {
+        $current_values = array();
+        foreach ($node->field_channels as $field_channel) {
+          $current_values[] = $field_channel['value'];
+        }
+
+        $type = $node->type;
+        $channels_values = $node->channels;
+        $avail_channels = wallychannels_get_plugins_that_handle_type($type);
+        $defined_instances = wallychannels_get_instances_of_channel();
+        
+        foreach ($avail_channels as $avail_channel) {
+          if (isset($channels_values[$avail_channel['name']]['instances'])) {
+            $channel_values = $channels_values[$avail_channel['name']]['instances'];
+            foreach ($channel_values as $inst_key => $inst_val) {
+              if ($inst_val && !in_array($defined_instances[$avail_channel['name']][$inst_key]->name, $current_values)) {
+                $node->field_channels[]['value'] = $defined_instances[$avail_channel['name']][$inst_key]->name;
+              }
+            }
+          }
+        }
+      }
+      break;
+    
+    case 'insert':
+    case 'update':
+      if (isset($node->channels) && !empty($node->channels)) {
+        $type = $node->type;
+        $channels_values = $node->channels;
+        $avail_channels = wallychannels_get_plugins_that_handle_type($type);
+        $defined_instances = wallychannels_get_instances_of_channel();
+  
+        foreach ($avail_channels as $avail_channel) {
+          $process_function = ctools_plugin_get_function(wallychannels_get_plugin_by_name($avail_channel['name']), 'process');
+          if (isset($channels_values[$avail_channel['name']]['instances']) && $process_function) {
+            $channel_values = $channels_values[$avail_channel['name']]['instances'];
+            foreach ($channel_values as $inst_key => $inst_val) {
+              if ($inst_val) {
+                $instance = $defined_instances[$avail_channel['name']][$inst_key];
+                $process_function($instance->settings, $node);
+              }
+            }
+          }
+        }
+      }
+      break;
+  }
+}
+
+function wallychannels_wallymport_nodeprocess($node, $dom, $log, $importer, $type, $op) {
+  switch ($type) {
+    case 'process_package':
+      switch ($op) {
+        case 'after_process':
+          if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node) && !$importer->wallymport_preview) {
+            $avail_channels = wallychannels_get_plugins_that_handle_type($node->type);
+            $defined_instances = wallychannels_get_instances_of_channel(TRUE);
+
+            foreach ($node->field_channels as $node_channel) {
+              list($channel_name, $plugin_name) = explode('_', $node_channel['value'], 2);
+              if (array_key_exists($channel_name, $avail_channels) && array_key_exists($plugin_name, $defined_instances)) {
+                $instance = $defined_instances[$plugin_name];
+                if ($process_function = ctools_plugin_get_function(wallychannels_get_plugin_by_name($avail_channels[$instance->channel]['name']), 'process')) {
+                  $process_function($instance->settings, $node);
+                }
+              }
+            }
+          }
+          break;
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_ccimapping_productinfo_alter
+ * Add the channels informations to product info
+ */
+function wallychannels_ccimapping_productinfo_alter(&$dom, $op) {
+  if ($op == 'before_send') {
+    $budgettemplate = $dom->getElementsByTagName('budgettemplate')->item(0);
+    $dom_channels = $budgettemplate->appendChild($dom->createElement('level1'));
+    $dom_channels->setAttribute('name', 'Channels');
+
+    $avail_channels = wallychannels_get_plugins();
+    $defined_instances = wallychannels_get_instances_of_channel();
+    foreach ($avail_channels as $avail_channel) {
+      $dom_channel = $dom_channels->appendChild($dom->createElement('level2'));
+      $dom_channel->setAttribute('name', $avail_channel['name']);
+      
+      foreach ($defined_instances[$avail_channel['name']] as $def_inst) {
+        $dom_instance = $dom_channel->appendChild($dom->createElement('level3'));
+        $dom_instance->setAttribute('name', $avail_channel['name'].'_'.$def_inst->name);
+      }
+    }
+  }
+}
+
+/**
+ * Display informations about existing channels plugins
+ */
+function wallychannels_plugins_overview(){
+  ctools_include('plugins');
+  
+  $module = 'wallychannels';
+  $type = 'channels';
+  
+  $owner = $module;
+  $api = $type;
+
+  //DONNE LES INFOS DES PLUGINS FOURNIS PAR LES MODULES
+  dsm(ctools_get_plugins($module, $type));
+  dsm(ctools_get_plugins($module, $type, 'json'), 'specific_plugin_info');
+  
+  //DONNE LES INFO SUR LA DEFINITION DU TYPE DU PLUGIN -INFOS SUR FLOW ...-
+  dsm(ctools_plugin_get_info($module, $type));
+  
+  //QUELS MODULES IMPLEMENTE CE PLUGIN AVEC QUELLE VERSION ?
+  dsm(ctools_plugin_api_info($owner, $api, 0, 99), API_INFO);
+  
+  return '';
+}
+
+/**
+ * NOT REQUIRED BUT USED TO SET THE DEFAULT VALUE FOR EACH PLUGIN
+ * Set default value for the information about each plugin of the channels type
+ * $owner_ctools_plugin_$type()
+ */
+function wallychannels_ctools_plugin_channels(){
+  return array(
+    'cache' => FALSE,
+    'process' => 'wallychannels_channels_process',
+  );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallychannels_ctools_plugin_directory($module, $plugin) {
+  if (($module == 'wallychannels' || $module == 'ctools') && !empty($plugin))
+    return 'plugins/'.$plugin;
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallychannels_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+
+/**
+ * APPELLEE LORS DE ctools_plugin_load_includes()
+ * pcq renseignée en tant que process dans wallytoolbox_ctools_plugin_flow()
+ * qui elle même pour tous les plugins appelle ctools_plugin_process()
+ */
+function wallychannels_channels_process(&$plugin, $info){
+  $function_base = $plugin['module'] . '_' . $plugin['name'] . '_channels_';
+
+  if (!isset($plugin['settings form']) && function_exists($function_base . 'settings_form'))
+    $plugin['settings form'] = $function_base . 'settings_form';
+
+  if (!isset($plugin['settings form submit']) && function_exists($function_base . 'settings_form_submit'))
+    $plugin['settings form submit'] = $function_base . 'settings_form_submit';
+
+  if (!isset($plugin['settings form validate']) && function_exists($function_base . 'settings_form_validate'))
+    $plugin['settings form validate'] = $function_base . 'settings_form_validate';
+    
+  if (!isset($plugin['access']) && function_exists($function_base . 'access'))
+    $plugin['access'] = $function_base . 'access';
+
+  if (!isset($plugin['process']) && function_exists($function_base . 'process'))
+    $plugin['process'] = $function_base . 'process';
+
+  if (!isset($plugin['preview']) && function_exists($function_base . 'preview'))
+    $plugin['preview'] = $function_base . 'preview';
+
+  if (!isset($plugin['admin preview']) && function_exists($function_base . 'admin_preview'))
+    $plugin['admin preview'] = $function_base . 'admin_preview';
+  
+  if (!isset($plugin['reset authentication']) && function_exists($function_base . 'reset_authentication'))
+    $plugin['reset authentication'] = $function_base . 'reset_authentication';
+}
+
+/**
+ * Return all the types that can be handeld by one or more channels plugins
+ * 
+ * @return
+ *   An array of types 
+ */
+function wallychannels_get_available_channels_type() {
+  ctools_include('plugins');
+  
+  $available_types = array();
+  $plugins = ctools_get_plugins('wallychannels', 'channels');
+
+  foreach($plugins as $plugin) {
+    foreach($plugin['types'] as $type) {
+      $available_types[$type] = $type;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallychannels_get_plugins() {
+  ctools_include('plugins');
+  
+  $plugins = ctools_get_plugins('wallychannels', 'channels');
+  $available_types = array();
+  foreach($plugins as $plugin_name => $plugin) {
+    $available_types[$plugin_name] = $plugin;
+  }
+  
+  return $available_types;
+}
+
+function wallychannels_get_plugin_by_name($plugin_name) {
+  ctools_include('plugins');
+  $module = 'wallychannels';
+  $type = 'channels';
+
+  $plugin = ctools_get_plugins($module, $type, $plugin_name);
+  return $plugin;
+}
+
+function wallychannels_get_plugins_that_handle_type($type) {
+  ctools_include('plugins');
+  
+  $plugins = ctools_get_plugins('wallychannels', 'channels');
+  $available_types = array();
+  foreach($plugins as $plugin_name => $plugin) {
+    if (isset($plugin['types']) && is_array($plugin['types']) && in_array($type, $plugin['types'])) {
+      $available_types[$plugin_name] = $plugin;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallychannels_get_instances_of_channel($by_name = FALSE, $display_msg = TRUE, $channel = '') {
+  $instances = array();
+
+  ctools_include('export');
+
+  $plugins = wallychannels_get_plugins();
+  $all_instances = ctools_export_crud_load_all('wallychannels_channels');
+  foreach ($all_instances as $instance) {
+    if (wallychannels_get_access_of_plugin($plugins[$instance->channel], $instance->settings)) {
+      if ($by_name) {
+        if (!$channel || ($channel && $instance->channel == $channel)) {
+          $instances[$instance->name] = $instance;
+        }
+      } else {
+        $instances[$instance->channel][$instance->cid] = $instance;
+      }
+    } elseif ($display_msg) {
+      drupal_set_message(t('The instance "@instance" of channel "@channel" has not been authenticated.', array('@instance' => $instance->title, '@channel' => $plugins[$instance->channel]['title'])), 'warning');
+    }
+  }
+
+  $ret_instances = array();
+  if (!$by_name && !empty($channel) && isset($instances[$channel])) {
+    $ret_instances = $instances[$channel];
+  } elseif (empty($channel)) {
+    $ret_instances = $instances;
+  }
+
+  return $ret_instances;
+}
+
+/**
+ * Determine if a channel has a setting form.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallychannels_has_settings_form_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a channel has a setting form and if true, return the $form object.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallychannels_get_settings_form_of_plugin($plugin, &$form, &$form_state) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+  
+  if (!empty($plugin['settings form validate'])) {
+    $form['#validate'][] = $plugin['settings form validate'];
+  }
+  
+  if (!empty($plugin['settings form submit'])) {
+    $form['#submit'][] = $plugin['settings form submit'];
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'settings form')) {
+     return $function($form, $form_state);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Determine if a channel has an access function and return its result.
+ */
+function wallychannels_get_access_of_plugin($plugin, $settings) {
+  ctools_include('plugins');
+  if (empty($plugin['access']) ) {
+    return TRUE;
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'access')) {
+     return $function($settings);
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a channel has a preview and if true, return the contents.
+ */
+function wallychannels_get_preview_of_plugin($plugin, $settings, $values) {
+  ctools_include('plugins');
+  if (empty($plugin['preview']) ) {
+    return FALSE;
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'preview')) {
+     return $function($settings, $values);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Determine if a channel has a admin preview and if true, return the contents.
+ */
+function wallychannels_get_admin_preview_of_plugin($plugin, $settings) {
+  ctools_include('plugins');
+  if (empty($plugin['admin preview']) ) {
+    return FALSE;
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'admin preview')) {
+     return $function($settings);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Determine if a channel has a reset authentication function.
+ */
+function wallychannels_has_reset_function_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['reset authentication']) ) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a channel has a reset authentication function and if true, return the function.
+ */
+function wallychannels_get_reset_function_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['reset authentication']) ) {
+    return FALSE;
+  }
+
+  return $plugin['reset authentication'];
+}
+
+function _wallychannels_get_instance_settings($channel_type, $div_id) {
+  $match = array();
+  preg_match('@\d@', $div_id, $match);
+  if (isset($match[0])) {
+    $instance_id = $match[0];
+    $defined_instances = wallychannels_get_instances_of_channel();
+    if (isset($defined_instances[$channel_type][$instance_id])) {
+      $instance = $defined_instances[$channel_type][$instance_id];
+      drupal_json($instance->settings);
+    }
+  }
+}
+
+function _wallychannels_get_text_fields($type, $subtype = FALSE) {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $content_fields = content_field_instance_read(array('type_name' => $type));
+
+  switch ($type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+    default:
+      $main_object_type = 'none';
+      break;
+  }
+
+  $text_fields = array();
+  foreach ($content_fields as $content_field) {
+    if ($content_field['module'] == 'text') {
+      $text_fields[($subtype ? $subtype['key'].'/' : '').$content_field['field_name']] = $subtype ? $subtype['label'].' : ' : '';
+      $text_fields[($subtype ? $subtype['key'].'/' : '').$content_field['field_name']] .= $content_field['widget']['label'].' ('.$content_field['field_name'].')';
+    }
+    if ($content_field['field_name'] == $main_object_type) {
+      foreach ($content_field['referenceable_types'] as $ref_key => $ref_type) {
+        if ($ref_key = $ref_type) {
+          $subtype = array(
+            'key' => $content_field['field_name'],
+            'label' => $content_field['widget']['label'],
+          );
+          $text_fields = array_merge($text_fields, _wallychannels_get_text_fields($ref_type, $subtype));
+        }
+      }
+    }
+  }
+
+  return $text_fields;
+}
+
+function _wallychannels_get_value_from_text_target($node, $target) {
+  $text_field = '';
+  if (sizeof($target) > 1) {
+    $main_field = $target[0];
+    if (isset($node->{$main_field}[0]['nid']) && is_numeric($node->{$main_field}[0]['nid'])) {
+      if ($sub_node = node_load($node->{$main_field}[0]['nid'])) {
+        $sub_field = $target[1];
+        if (isset($sub_node->{$sub_field}[0]['value']) && !empty($sub_node->{$sub_field}[0]['value'])) {
+          $text_field = $sub_node->{$sub_field}[0]['value'];
+        }
+      }
+    }
+  } else {
+    $sub_field = $target[0];
+    if (isset($node->{$sub_field}[0]['value']) && !empty($node->{$sub_field}[0]['value'])) {
+      $text_field = $node->{$sub_field}[0]['value'];
+    }
+  }
+  return $text_field;
+}

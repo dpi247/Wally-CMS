@@ -1,0 +1,97 @@
+<?php
+
+/**
+ * @file
+ * Tests for the queue functionality of the API module.
+ */
+
+include_once './'. drupal_get_path('module', 'api') .'/tests/api_test_case.php';
+
+/**
+ * Tests the queue functionality of the API module.
+ */
+class ApiQueuesTestCase extends ApiTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Parsing queue',
+      'description' => 'Tests that the API parsing queue is functioning properly',
+      'group' => 'API Module',
+    );
+  }
+
+  function setUp() {
+    // This test takes longer than most to run, and times out on some machines.
+    $this->timeLimit *= 2;
+
+    $this->baseSetUp();
+    $this->setUpBranchAPICall();
+    $this->resetBranchesAndCache();
+  }
+
+  /**
+   * Tests queue functionality.
+   */
+  function testQueues() {
+    // Verify there is nothing in the queue to start with.
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue is empty');
+
+    // Update the branches and verify the queue has 10 items (one per file).
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 10, 'Parse queue has 10 files in it');
+
+    // Update them again and verify there are still 10 items.
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 10, 'Parse queue still has 10 files in it after second update');
+
+    // Parse all the files and verify the queue is empty.
+    $count = $this->processApiParseQueue(TRUE);
+    $this->assertEqual($count, 10, '10 items were processed in the queue');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue has been emptied');
+
+    // Update branches again and verify nothing is added to the queue.
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue is still empty after branch update');
+
+    // Mark this branch for reparsing, update, and verify the queue is full.
+    $branch = $this->getBranch();
+    $this->verbose(print_r($branch, TRUE));
+    api_mark_for_reparse($branch->branch_id);
+    $this->assertEqual($this->howManyToParse(), 10, '10 files marked for reparsing with branch ID');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue is still empty after marking for parsing');
+
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 10, 'Parse queue is full again (' . $this->countParseQueue() . ') after marking for reparse.');
+
+    // Parse and verify empty again.
+    $count = $this->processApiParseQueue(TRUE);
+    $this->assertEqual($count, 10, '10 items were processed in the queue');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue has been emptied');
+
+    // Now try marking to reparse with the branch name.
+    api_mark_for_reparse($branch->branch_name, TRUE);
+    $this->assertEqual($this->howManyToParse(), 10, '10 files marked for reparsing with branch name');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue is still empty after marking for parsing');
+
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 10, 'Parse queue is full again (' . $this->countParseQueue() . ') after marking for reparse.');
+
+    // Parse and verify empty again.
+    $count = $this->processApiParseQueue(TRUE);
+    $this->assertEqual($count, 10, '10 items were processed in the queue');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue has been emptied');
+
+    // Now try marking just one file to reparse.
+    api_mark_for_reparse('sample.php');
+    $this->assertEqual($this->howManyToParse(), 1, '1 file marked for reparsing with file name');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue is still empty after marking for parsing');
+
+    api_update_all_branches();
+    $this->assertEqual($this->countParseQueue(), 1, 'Parse queue is full again (' . $this->countParseQueue() . ') after marking for reparse.');
+
+    // Parse and verify empty again.
+    $count = $this->processApiParseQueue(TRUE);
+    $this->assertEqual($count, 1, '1 item was processed in the queue');
+    $this->assertEqual($this->countParseQueue(), 0, 'Parse queue has been emptied');
+  }
+}

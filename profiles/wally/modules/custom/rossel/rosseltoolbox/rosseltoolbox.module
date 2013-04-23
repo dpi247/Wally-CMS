@@ -1,0 +1,74 @@
+<?php
+
+/**
+ * Implementation of hook_wimprt_package_after_process_alter
+ * Overwrite a package title with one of his object's title
+ * The various cases are handled as so :
+ * - Article package : the title of the package is overwritten with the title of the main story
+ * - Any other package : we search through the embeded objects, if a text object is found
+ * 		his title is taken to overwrite the package title, otherwise the main object is chosen
+ */
+function rosseltoolbox_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'presave':
+      _rosseltoolbox_set_package_title($node);
+      break;
+  }
+  return;
+}
+
+function rosseltoolbox_wimprt_package_after_process_alter(&$node) {
+  _rosseltoolbox_set_package_title($node);
+  return;
+}
+
+function _rosseltoolbox_set_package_title(&$node) {
+  switch ($node->type){
+    case 'wally_articlepackage':
+      $main_object_type = 'field_mainstory';
+      break;
+    case 'wally_gallerypackage':
+      $main_object_type = 'field_mainobject';
+      break;
+    case 'wally_pollpackage':
+      $main_object_type = 'field_mainpoll';
+      break;
+    default:
+      $main_object_type = FALSE;
+      break;
+  }
+
+  if ($main_object_type == 'field_mainstory') {
+    if ($main_object = _rosseltoolbox_get_or_load_object($node, $main_object_type)) {
+      $node->title = $main_object->title;
+      $node->field_displayed_title = $main_object->field_displayed_title;
+    }
+  } elseif ($main_object_type) {
+    $i = 0;
+    while ($embed_object = _rosseltoolbox_get_or_load_object($node, 'field_embededobjects', $i)) {
+      $i++;
+      if ($embed_object->type == 'wally_textobject') {
+        $node->title = $embed_object->title;
+        $node->field_displayed_title = $main_object->field_displayed_title;
+        return;
+      }
+    }
+    if ($main_object = _rosseltoolbox_get_or_load_object($node, $main_object_type)) {
+      $node->title = $main_object->title;
+      $node->field_displayed_title = $main_object->field_displayed_title;
+    }
+  }
+}
+
+function _rosseltoolbox_get_or_load_object($node, $name, $delta = 0) {
+  if (isset($node->{$name.'_nodes'}[$delta])) {
+    $object = $node->{$name.'_nodes'}[$delta];
+  } else {
+    if (isset($node->{$name}[$delta])) {
+      $object = node_load($node->{$name}[$delta]['nid'], NULL, TRUE);
+    } else {
+      $object = FALSE;
+    }
+  }
+  return $object;
+}

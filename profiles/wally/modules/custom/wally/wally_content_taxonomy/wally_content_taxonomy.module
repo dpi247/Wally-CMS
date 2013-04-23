@@ -1,0 +1,214 @@
+<?php 
+
+/**
+ * @file
+ * wally_content_taxonomy module
+ *
+ * This module completes the features module to support correctly CCK
+ * content taxonomy fields.
+ */
+
+/**
+ * Implementation of hook_menu
+ */
+function wally_content_taxonomy_menu(){
+  $items = array();
+  /*autocomplete avec la liste des clubs*/
+  $items['wally_content_taxonomy/term_list/autocomplete'] = array(
+    'page callback'     => 'wally_content_taxonomy_autocomplete_terms',
+    'type'              => MENU_CALLBACK,
+    'access arguments'  => array('administer views'),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_features_api().
+ */
+function wally_content_taxonomy_features_api() {
+  return array(
+    'content_taxonomy_mapping' => array(
+      'name' => t('Content Taxonomy Mapping'),
+      'feature_source' => FALSE,
+      'default_hook' => 'content_taxonomy_mapping',
+    )
+  );
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function wally_content_taxonomy_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op){
+    case "update" :
+      if ($node->wallymport_node == TRUE & isset($node->node_term_to_save)){
+        foreach ($node->node_term_to_save as $term){
+          wally_content_taxonomy_updateterm($node, $term);
+        }
+      }
+      break;
+    case "create" :
+      if ($node->wallymport_node == TRUE & isset($node->node_term_to_save)){
+        foreach ($node->node_term_to_save as $term){
+          wally_content_taxonomy_updateterm($node, $term);
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Set the wally_confidence_score and the wally_relevancy_score to a node
+ * 
+ * @param $term
+ * the term
+ */
+function wally_content_taxonomy_updateterm($node, $term){
+  db_query("UPDATE {term_node} SET wally_confidence_score = %d, wally_relevancy_score = %d WHERE nid = %d AND tid = %d"
+  ,$term->wally_confidence_score, $term->wally_relevancy_score, $node->nid, $term->tid );
+}
+
+/**
+ * Implementation of hook_features_export_render().
+ */
+function content_taxonomy_mapping_features_export_render($module, $data) {
+  $mappings = array();
+  foreach ($data as $key) {
+    $instance = explode('-', $key);
+    $field_name = $instance[0];
+    $vocabulary_name = $instance[1];
+    $mappings[$key] = array(
+      'field_name' => $field_name,
+      'vocabulary' => $vocabulary_name,
+    );
+  }
+  return array('content_taxonomy_mapping' => '  return ' .features_var_export($mappings, '  ') . ';');
+}
+
+/**
+ * Implementation of hook_features_export().
+ */
+function content_taxonomy_mapping_features_export($data, &$export, $module_name) {
+  // correct content taxonomy handling is provided by wall_content_taxonomy
+  $export['dependencies']['wally_content_taxnomy'] = 'wally_content_taxonomy';
+  
+  $map = features_get_default_map('content_taxonomy_mapping', NULL);
+  foreach ($data as $instance) {
+    // If this field is already provided by another module remove the field.
+    if (isset($map[$instance]) && $map[$instance] != $module_name) {
+      if (isset($export['features']['content_taxonomy_mapping'][$instance])) {
+        unset($export['features']['content_taxonomy_mapping'][$instance]);
+      }
+    }
+    else {
+      $export['features']['content_taxonomy_mapping'][$instance] = $instance;
+    }
+  }
+}
+
+/**
+ * Implementation of hookt_features_pipe_content_alter().
+ */
+function wally_content_taxonomy_features_pipe_content_alter(&$more, $data, $export) {
+  $content_taxonomy_mapping = array();
+  module_load_include('inc', 'features', 'includes/features.taxonomy');
+  $vocabs = _taxonomy_features_get_vocabularies();
+  $map = array();
+  foreach($vocabs as $machine => $vocab) {
+    $map[$vocab->vid] = $machine;
+  }
+
+  foreach($data as $identifier) {
+    $split = explode('-', $identifier);
+    $type_name = $split[0];
+    $field_name = $split[1];
+    $field = content_fields($field_name, $type_name);
+    if ($field && strpos($field['module'], 'content_taxonomy') === 0 && $field['vid'] && $map[$field['vid']]) {
+      $id = $field_name . '-' . $map[$field['vid']];
+      $more['content_taxonomy_mapping'][$id] = $id;
+      $more['taxonomy'][$map[$field['vid']]] = $map[$field['vid']];
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function wally_content_taxonomy_views_api() {
+  return array(
+    'api'  => 3,
+	  'path' => drupal_get_path('module', 'wally_content_taxonomy') . '/plugins/views',
+  );
+}
+
+/**
+ * Generates a map linking the name of a content taxonomy field with
+ * the linked vocabulary machine name
+ * 
+ * @return array
+ *   The array with the field-name being the key and the value being the
+ *   machine vocabulary name.
+ */
+function wally_content_taxonomy_get_fields_to_vid() {
+  $field_to_vid = array();
+  foreach(features_get_default('content_taxonomy_mapping') as $map) {
+    $field_to_vid[$map['field_name']] = db_result(db_query("SELECT vid from {vocabulary} where module like 'features_%s'", $map['vocabulary']));
+    if (empty($field_to_vid[$map['field_name']])) {
+      // If component is rebuildable, rebuild it.
+      $taxonomy_maps = features_get_component_map('taxonomy');
+      if ($taxonomy_maps[$map['vocabulary']]) {
+        $tax_map = $taxonomy_maps[$map['vocabulary']];
+        $states = features_get_component_states(array($tax_map[0]));
+        if ($states[$tax_map[0]]['taxonomy'] == FEATURES_REBUILDABLE) {
+          features_rebuild(array($tax_map[0] => array('taxonomy')));
+        }
+      }
+      $field_to_vid[$map['field_name']] = db_result(db_query("SELECT vid from {vocabulary} where module like 'features_%s'", $map['vocabulary']));
+    }
+  }
+  return $field_to_vid;
+}
+
+/**
+ * Implementation of hookt_features_pipe_content_alter().
+ */
+function wally_content_taxonomy_content_default_fields_alter(&$fields) {
+  $mapping = NULL;
+  foreach($fields as $key => $field) {
+    if (strpos($field['module'], 'content_taxonomy') === 0) {
+      // we essiently only want this logic static for this each alter call
+      // to avoid any caching issues?
+      if (!isset($mapping)) {
+        $mapping = wally_content_taxonomy_get_fields_to_vid();
+      }
+      if ($mapping[$field['field_name']]) {
+        $fields[$key]['vid'] = $mapping[$field['field_name']];
+      }
+    }
+  }
+}
+
+/**
+ * Get all facture containing a string 
+ * to display them in a form element
+ *
+ * @param $string
+ *  The string element given by the user
+ *
+ * @return
+ *   "@return" a list of facture containing the $string
+ */
+function wally_content_taxonomy_autocomplete_terms($string){
+  $items = array();  
+  $result = db_query("SELECT td.name AS term_name, td.tid, v.name AS vocabulary_name
+          					  FROM {term_data} td
+          					  LEFT JOIN {vocabulary} v ON v.vid = td.vid
+          					  WHERE LOWER(td.name) LIKE LOWER('%%%s%%') 
+          					  ORDER BY td.name ASC", $string);
+  while ($obj = db_fetch_object($result)) {
+    $items[$obj->term_name.' ('.$obj->vocabulary_name.') [tid]' . $obj->tid . '[tid]']
+     = $obj->term_name.' ('.$obj->vocabulary_name.')';
+  }
+  print drupal_json($items); 
+  exit();
+}

@@ -1,0 +1,662 @@
+<?php
+/**
+ * @defgroup wallymport Wally Import Core Functions
+ * @{
+ * In this module we define core functions of wally xml import module.  
+ * Do not put field specific functions or generic helpers functions here. 
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallymport_perm() {
+  return array(
+    'administer wallymport',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallymport_menu() {
+  $items = array();
+  
+  //Admin settings Page
+  $items['admin/wally/wallymport/settings'] = array(
+    'title'            => t('Wally Import Settings'),
+    'page callback'    => 'wallymport_page_list_importers',
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Manage importers and general settings'),
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  $items['admin/wally/wallymport/settings/list'] = array(
+    'title'            => t('Importers list'),
+    'page callback'    => 'wallymport_page_list_importers',
+    'access arguments' => array('administer wallymport'),
+    'file'             => 'includes/wallymport.admin.inc',
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 0,
+  );
+  
+  //Page to create an importer
+  $items['admin/wally/wallymport/settings/add'] = array(
+    'title'            => t('Create importer'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_importer_form'),
+    'access arguments' => array('administer wallymport'),
+    'file'             => 'includes/wallymport.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 1,
+  );
+  
+  //Page to create an importer
+  $items['admin/wally/wallymport/settings/general'] = array(
+    'title'            => t('General settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_general_settings_form'),
+    'access arguments' => array('administer wallymport'),
+    'file'             => 'includes/wallymport.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
+  );
+  
+  //Page to edit an importer
+  $items['admin/wally/wallymport/settings/edit/%'] = array(
+    'title'            => t('Edit importer'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_importer_form', 5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to edit an importer.'),
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  //Page to look at the logs of an importer
+  $items['admin/wally/wallymport/settings/cronlog/%'] = array(
+    'title'            => t('Importer CRON logs'),
+    'page callback'    => 'wallymport_page_importer_cron_logs',
+    'page arguments'   => array(5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to see importer CRON logs.'),
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  //Page to look at the logs of an importer
+  $items['admin/wally/wallymport/settings/log/%'] = array(
+      'title'            => t('Importer logs'),
+      'page callback'    => 'wallymport_page_importer_logs',
+      'page arguments'   => array(5),
+      'access arguments' => array('administer wallymport'),
+      'description'      => t('Allows administrators to see importer logs.'),
+      'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  //Page to delete an importer
+  $items['admin/wally/wallymport/settings/delete/%'] = array(
+    'title'            => t('Delete importer'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_importerdelete_form', 5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to delete an importer.'),
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  //Page with the links to the folders of the importer 
+  $items['admin/wally/wallymport/settings/links/%'] = array(
+    'title'            => t('Packages links'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallymport_page_links_form', 5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Display download links for imported packages.'),
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  $items['wallymport/process_folder/%'] = array(
+    'title'            => t('Run XML Import'),
+    'description'      => t('Run data import'),
+    'page callback'    => 'wallymport_check_process_folder',
+    'page arguments'   => array(2),
+    'access callback'  => TRUE,
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallymport.process.inc',
+  );
+  
+  $items['wallymport/process_file/%/%/run'] = array(
+    'title'            => t('Run one XML Import'),
+    'description'      => t('Run one import'),
+    'page callback'    => 'wallymport_check_process_file',
+    'page arguments'   => array(2,3),
+    'access callback'  => TRUE,
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallymport.process.inc',
+  );
+
+  $items['wallymport/post/%'] = array(
+    'page callback'    => 'wallymport_post',
+    'access callback'  => TRUE,
+    'page arguments'   => array(2),
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallymport.process.inc',
+  );
+
+  $items['wallymport/destinations_items'] = array(
+    'title'            => t('Return a XML list of all available destinations'),
+    'description'      => t('Return a XML list of all available destinations'),
+    'page callback'    => 'wallymport_page_destinations_items',
+    'access callback'  => TRUE,
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallymport.admin.inc',
+  );
+  
+  $items['wallymport/test/%'] = array(
+  	'title'           => 'test',
+    'page callback'   => 'wallymport_page_test',
+    'page arguments'  => array(2),
+    'access arguments' => array('administer wallymport'),
+    'type'            => MENU_NORMAL_ITEM,
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_cron().
+ * 
+ * Remove old preview files.
+ * Remove old logs.
+ * Run folder process.
+ * Remove old temporary files.
+ */ 
+function wallymport_cron() {
+  $prev_cleanup_ret = wimprt_cron_previews_cleanup();
+  if (empty($prev_cleanup_ret)){
+    $prev_cleanup_ret[] = t('No preview prenodes deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
+  }
+  print_r($prev_cleanup_ret);
+  
+  $logs_cleanup_ret = wimprt_cron_logs_cleanup();
+  if (empty($logs_cleanup_ret)){
+    $logs_cleanup_ret[] = t('No logs deleted done on !date', array('!date' => date('Y-m-d H:i:s', time())));
+  }
+  print_r($logs_cleanup_ret);
+
+  //Run wallymport cron.
+  if (db_table_exists('wallymport_importer')){
+    //Sélectionne les importeurs dont leur exécutions remonte à plus longtemps par rapport à leur cron_frequency.
+    $importer_to_process = db_query("SELECT wi.*
+                                    FROM {wallymport_importer} wi
+                                    WHERE wi.processed_by_cron = 1 
+                                    AND (SELECT ((wi2.cron_timestamp + wi2.cron_frequency))
+                                    FROM {wallymport_importer} wi2
+                                    WHERE wi.iid = wi2.iid) < %d", time());
+    while ($importer = db_fetch_object($importer_to_process)){
+      module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+      $return = wallymport_check_process_folder($importer->name);
+      if (!$return['error']){
+        $importer->cron_timestamp = time();
+      }
+      drupal_write_record('wallymport_importer', $importer, array('iid'));
+    }
+  }
+  
+  // Remove temporary files that are older than DRUPAL_MAXIMUM_TEMP_FILE_AGE.
+  $result = db_query('SELECT * FROM {files} WHERE status = %d and timestamp < %d', FILE_STATUS_TEMPORARY, time() - 3600);
+  while ($file = db_fetch_object($result)) {
+    if (file_exists($file->filepath)) {
+      // If files that exist cannot be deleted, continue so the database remains
+      // consistent.
+      if (!file_delete($file->filepath)) {
+        watchdog('file system', 'Could not delete temporary file "%path" during garbage collection', array('%path' => $file->filepath), 'error');
+        continue;
+      }
+    }
+    db_query('DELETE FROM {files} WHERE fid = %d', $file->fid);
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function wallymport_theme(){
+  $path = drupal_get_path('module', 'wallymport');
+
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path."/theme",
+  );
+  $theme_functions = array(
+    'wallymport_logs' => $base + array(
+      'arguments' => array('log' => array()),
+    ),
+    'wallymport_post' => $base + array(
+      'arguments' => array('return' => array()),
+      'template' => 'wallymport-post'
+    ),
+  );
+  return $theme_functions;
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter
+ * Add a "block import" checkbox in the maintenance form
+ */
+function wallymport_form_system_site_maintenance_settings_alter(&$form, $form_state) {
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+
+  $form['wallymport_process_is_blocked'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Block all import processes'),
+    '#description' => t('This will block all import processes, untill unchecked no packages will be imported!'),
+    '#default_value' => wally_variable_get('wallymport_process_is_blocked', 0),
+    '#dependency' => array('radio:site_offline' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+    '#weight' => 1,
+    '#id' => 'wallymport-process-is-blocked-checkbox',
+  );
+  
+  $form['wallymport_process_blocked_delay'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Duration of the block'),
+    '#description' => t('Period during which the import process with be blocked (minutes)'),
+    '#default_value' => wally_variable_get('wallymport_process_blocked_delay', 60),
+    '#dependency' => array('wallymport-process-is-blocked-checkbox' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+    '#weight' => 2,
+  );
+  
+  $form['site_offline']['#weight'] = 0;
+  $form['site_offline_message']['#weight'] = 3;
+  
+  array_unshift($form['#submit'], 'wallymport_form_system_site_maintenance_settings_alter_submit');
+}
+
+/**
+ * Save the "block import" variable
+ */
+function wallymport_form_system_site_maintenance_settings_alter_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  if ($values['wallymport_process_is_blocked'] && $values['site_offline']) {
+    wally_variable_set('wallymport_process_is_blocked', 1);
+    wally_variable_set('wallymport_process_blocked_delay', $values['wallymport_process_blocked_delay']);
+  } else {
+    wally_variable_set('wallymport_process_is_blocked', 0);
+  }
+  unset($form_state['values']['wallymport_process_is_blocked']);
+  unset($form_state['values']['wallymport_process_blocked_delay']);
+}
+
+/**
+ * Implementation of hook_panels_pane_content_alter
+ * Remove admin links in case of preview
+ */
+function wallymport_panels_pane_content_alter(&$content, $pane, $panel_args, $context) {
+  if ($pane->type == 'node_content') {
+    if (array_key_exists('argument_nid_1', $context) && isset($context['argument_nid_1']->data->preview) && $context['argument_nid_1']->data->preview && isset($content->admin_links)) {
+      $content->admin_links = array();
+    }
+  }
+}
+
+/**
+ * Implementation of hook_views_api().
+ */
+function wallymport_views_api() {
+  return array(
+    'api'  => 3,
+	'path' => drupal_get_path('module', 'wallymport') . '/plugins/views',
+  );
+}
+
+/**
+ * Implementation of hook_wallymport_process_blocked()
+ * By default import must process.
+ */
+function wallymport_wallymport_process_blocked() {
+  return wally_variable_get('wallymport_process_is_blocked', 0);
+}
+
+/**
+ * Process the Dom Object
+ * 
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ * @param $importer
+ *   The importer object used to import
+ * @return
+ *   the log object
+ */
+function wimprt_process_entrypoint_generic($dom, &$log, $importer){
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+  $return = array();
+  
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_entrypoint', 'before_process');
+  
+  wimprt_exploredom($dom, $log, $importer);
+  
+  module_invoke_all('wallymport_process', $dom, $log, $importer, 'process_entrypoint', 'after_process');
+  
+  $return['log'] = $log;
+  return $return;
+}
+
+/**
+ * Process the Dom Object
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ * @param $importer
+ *   The importer object used to import
+ * @return
+ *   the log object
+ */
+function wimprt_exploredom($dom, &$log, $importer){
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+  if ($dom->hasChildNodes()){
+    //For each child of the dom
+    foreach ($dom->childNodes as $child){
+      $name = $child->nodeName;
+      if ($name != '#text'){
+        $explore_child = TRUE;
+        //Search for a function named with node name, if the function return FALSE, it does not explode the children of the node.
+        foreach ($importer->importer_functions as $importer_function){
+          if (function_exists($importer_function.'_process_'.$name)){
+            $explore_child = call_user_func($importer_function.'_process_'.$name, $child, &$log, $importer);
+            break;
+          }
+        }
+        if ($explore_child){
+          wimprt_exploredom($child, $log, $importer);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Call an apropriate function to process an type element depending the attribute type of the child element.
+ *
+ * The naming convention to load or create the node before his build is: wimprt_create_or_load_type_CALLCACK
+ * The naming convention to build a node from a specific callback is: wimprt_process_type_CALLCACK
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes
+ * @param importer
+ *   The importer object used for the import
+ * @param $callback
+ * @return
+ *   The node object that has been build
+ */
+function wimprt_node_process($dom, &$log, $importer, $callback = NULL){
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+
+  //get function name
+  $callback = wimprt_set_callback($dom, $importer, $callback);
+
+  //Create or load the node
+  $node = wimprt_node_create_or_load($dom, $importer, $callback, $log);
+
+  //@todo: place in wallymportlog module
+  if (variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process type: '.$dom->nodeName;
+  }
+
+  module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'before_process');
+  $callback = strtolower($callback);
+  $function_exist = FALSE;
+  foreach ($importer->importer_functions as $importer_function){
+    if (function_exists($importer_function.'_node_process_'.$callback)){
+      call_user_func($importer_function.'_node_process_'.$callback, &$node, $dom, &$log, $importer);
+      break;
+    }
+  }
+
+  module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'after_process');
+  drupal_alter('wimprt_object_after_process', $node);
+  module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+  if (!empty($node) && !$node->rejected && _wimprthelp_check_is_node($node)){
+    $node->doNotPullUp = TRUE;
+    if (!$importer->wallymport_preview) {
+      node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'node_process', 'postsave');
+    }
+  }
+
+  $log['node'] = array('current' => $node, 'next' => $log['node']);
+
+  return $node;
+}
+
+/**
+ * Call an apropriate function to process an list of elements depending the attribute type of the child element.
+ *
+ * The naming convention to build a node from a specific package type is: wimprt_process_type_CALLCACK
+ *
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ * @param importer
+ *   The importer object used for the import
+ * @param $callback
+ * @return
+ *   the array of nodes objects that has been build
+ */
+function wimprt_node_process_list($dom_element, &$log, $importer){
+  module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+
+  $array_of_nodes = array();
+  
+  if ($dom_element != NULL){
+    //@todo: place in walymportlog module  
+    if (variable_get('wallymport_debug',0) or TRUE){
+      $log['log'][] = 'process list: '.$dom_element->nodeName;
+    }
+
+    module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'before_process');
+  
+    if ($dom_element->hasChildNodes()) {
+      foreach ($dom_element->childNodes as $dom_child){
+        $element_name = $dom_child->nodeName;
+        if ($element_name != '#text'){
+          $array_of_nodes[] = call_user_func('wimprt_node_process', $dom_child, &$log, $importer, NULL);
+        }
+      }
+      module_invoke_all('wallymport_nodeprocess', $array_of_nodes, $dom_element, $log, $importer, 'node_process_list', 'after_process');
+
+      $log['node'] = array('current' => $array_of_nodes);
+    }
+  }
+  return $array_of_nodes;
+}
+
+/**
+ * The default Callback function for processing a node
+ *
+ * @param $node
+ *   The current node te be edited
+ * @param $dom
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ * @param $importer
+ *  The importer used to import
+ * @return
+ *   The modified package node
+ */
+function wimprt_node_process_fields(&$node, $dom, &$log, $importer){
+  //Beware of namespace colision
+  foreach($dom->childNodes as $element){
+    $name = strtolower($element->nodeName);
+
+    if ($name != '#text'){
+      foreach ($importer->importer_functions as $importer_function){
+        if (function_exists($importer_function.'_node_set_field_'.$name)){
+          call_user_func($importer_function."_node_set_field_".$name, &$node, $element, &$log, $importer);        
+          break;
+        }
+      }
+    }
+  }
+  
+  return $node;
+}
+
+/**
+ * Get importers info
+ *
+ * @return
+ *   an array of importers
+ */
+function wallymport_getimporters(){
+  $result = db_query("SELECT * FROM {wallymport_importer}");
+  $importers = NULL;
+  while ($importer = db_fetch_object($result)){
+    $importers[] = $importer;
+  }
+  return $importers;
+}
+
+/**
+ * Get importer info
+ *
+ * @param iid
+ * id of the importer
+ * @return
+ *   an array of importers
+ */
+function wallymport_getimporter($iid){
+  $result = db_query("SELECT * FROM {wallymport_importer} WHERE iid = %d", $iid);
+  $importer = NULL;
+  while ($obj = db_fetch_object($result)){
+    $importer = $obj;
+  }
+  return $importer;
+}
+
+/**
+ * Get importer info
+ *
+ * @param iid
+ * id of the importer
+ * @return
+ *   an array of importers
+ */
+function wallymport_getimporterbyname($name) {
+  $result = db_query("SELECT * FROM {wallymport_importer} WHERE name = '%s'", $name);
+  $importer = NULL;
+  while ($obj = db_fetch_object($result)) {
+    $importer = $obj;
+    $modules = module_invoke_all('wallymport_importer');
+    foreach ($modules as $module_importers) {
+      if (is_array($module_importers)) {
+        foreach ($module_importers as $module_importer) {
+          if ($module_importer['importer_type'] == $importer->importer_type && isset($module_importer['importer_functions'])) {
+            $importer->importer_functions = $module_importer['importer_functions'];
+            if (isset($module_importer['includes']) && is_array($module_importer['includes'])) {
+              foreach ($module_importer['includes'] as $include) {
+                require_once $include;
+              }
+            }
+            break 2;
+          }
+        }
+      }
+    }
+  }
+  return $importer;
+}
+
+/**
+ * Previews cleanup at cron
+ */
+function wimprt_cron_previews_cleanup() {
+  $list = db_query('SELECT * FROM {wallyedit_prenodes} WHERE pid LIKE "wallymport_preview_%" AND FROM_UNIXTIME(updated) < NOW( ) - INTERVAL 3 HOUR', time() - 3600);
+  $return = array();
+  module_load_include('inc', 'wallyedit', 'includes/Prenode');
+  while ($elem = db_fetch_array($list)) {
+    $data = prenode_get($elem['pid']);
+    prenode_delete($data);
+
+    if (count($data[$data['type']]['#node']->field_embededobjects_nodes)) {
+      foreach ($data[$data['type']]['#node']->field_embededobjects_nodes as $embed) {
+        if ($embed->type == 'wally_photoobject' && isset($embed->field_photofile[0])) {
+          module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+          wallytoolbox_delete_photofile($embed->field_photofile[0]);
+        }
+      }
+    }
+
+    //$return[] = t('Preview cache deleted for : "@elem_name" on !date', array('@elem_name' => $data[$data['type']]['#node']->title, '!date' => date('Y-m-d H:i:s', time())));
+  }
+  return $return;
+}
+
+/**
+ * Logs cleanup at cron
+ */
+function wimprt_cron_logs_cleanup() {
+  $return = array();
+  $removed_logs = db_fetch_array(db_query("SELECT COUNT(*) FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY"));
+  if (db_query("DELETE FROM {wallymport_logs} WHERE FROM_UNIXTIME(date) < NOW() - INTERVAL 3 DAY") && $removed_logs['COUNT(*)'] > 0) {
+    $return[] = t('!num_logs logs removed.', array('!num_logs' => $removed_logs['COUNT(*)']));
+  }
+  return $return;
+}
+
+/**
+ * Check a semaphore value and period
+ */
+function wimprt_check_semaphore($semaphore_name, $semaphore_period, $type) {
+  $semaphore = variable_get($semaphore_name, FALSE);
+
+  if ($semaphore) {
+    if ((time() - $semaphore) > (60 * $semaphore_period)) {
+      $msg = t('Process @type task has been running for more than @period minutes and is most likely stuck.', array('@type' => $type, '@period' => $semaphore_period));
+
+      // Either cron has been running for more than an hour or the semaphore
+      // was not reset due to a database error.
+      watchdog('Wallymport', $msg, array(), WATCHDOG_ERROR);
+
+      // Release cron semaphore
+      variable_del($semaphore_name);
+    } else {
+      $msg = t('Attempting to re-run process @type task while it is already running.', array('@type' => $type));
+
+      // Cron is still running normally.
+      watchdog('Wallymport', $msg, array(), WATCHDOG_WARNING);
+    }
+
+    return array('error' => TRUE, 'error_msg' => $msg);
+  } else {
+    return FALSE;
+  }
+}
+
+function wallymport_page_test($importer_name) {
+  $content = '';
+
+  $importer = wallymport_getimporterbyname($importer_name);
+  if ($importer == NULL) {
+    drupal_set_message(t('This importer does not exist'), 'error');
+  } elseif ($importer->processed_by_post != 1) {
+    drupal_set_message(t('This importer does not accept POST'), 'error');
+  } else {
+    $content .= '<form enctype="multipart/form-data" action="/wallymport/post/'.$importer_name.'/preview" method="POST">
+        Choose a file to upload: <input name="uploadedfile" type="file" /><br />
+        <input type="submit" value="Upload File" />
+      </form>';
+  }
+
+  return $content;
+}
+
+/**
+ * @} End of "defgroup wallymport_process_default".
+ */

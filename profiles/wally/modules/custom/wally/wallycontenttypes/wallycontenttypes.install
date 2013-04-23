@@ -1,0 +1,550 @@
+<?php
+
+/**
+ * Implementation of hook_install();
+ */
+function wallycontenttypes_install() {
+  drupal_install_schema('wallycontenttypes');
+  if (module_exists('webform')) {
+    variable_set('webform_node_types', array('wally_pollobject'));
+  }
+}
+
+/**
+ * Implementation of hook_uninstall();
+ */
+function wallycontenttypes_uninstall() {
+  drupal_uninstall_schema('wallycontenttypes');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallycontenttypes_');
+}
+/**
+ * Implementation of hook_schema();
+ */
+function wallycontenttypes_schema() {
+  $schema = array();
+
+  $schema['wallycontenttypes_temp_nodetopublish'] = array(
+    'description' => 'Contains all the node where embargo date or unpublish date are the current date',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Nid',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'node status',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'field_embargodatetime_value' => array(
+        'description' => 'Embargo date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+      'field_unpublishdate_value' => array(
+        'description' => 'Unpublish date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+      'date' => array(
+        'description' => 'Date.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+      //0 : unpublish, 1 publish
+      'action' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date_timezone' => array(
+        'description' => 'The timezone of the field date',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => FALSE,
+      ),
+    ),
+  );
+
+  $schema['content_field_autopublish'] = array(
+    'description' => 'Field autopublish',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_autopublish_value' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+
+  $schema['content_field_editorialupdatedate'] = array(
+    'description' => 'Field Editorial Update Date',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_editorialupdatedate_value' => array(
+        'type' => 'datetime',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_timezone' => array(
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_editorialupdatedate_offset' => array(
+        'type' => 'int',
+        'size' => 'big',
+        'unsigned' => FALSE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+
+  return $schema;
+}
+
+function wallycontenttypes_update_6100(&$sandbox) {
+  $imagecachepreset = imagecache_preset_save(array('presetname' => 'gallery_preset'));
+  $imagecacheaction = new stdClass ();
+  $imagecacheaction->presetid = $imagecachepreset['presetid'];
+  $imagecacheaction->module = 'wallycontenttypes';
+  $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+  $imagecacheaction->data = array('width' => 270, 'height' => 200, 'xoffset' => 0, 'yoffset' => 0, 'presetid' => $imagecachepreset['presetid']);
+  $imagecacheaction->weight = 0;
+  drupal_write_record('imagecache_action', $imagecacheaction);
+  $imagecacheaction->module = 'imagecache';
+  $imagecacheaction->action = 'imagecache_scale';
+  $imagecacheaction->data = array('width' => 75, 'height' => 75, 'upscale' => true);
+  $imagecacheaction->weight = 1;
+  drupal_write_record('imagecache_action', $imagecacheaction);
+}
+
+function wallycontenttypes_update_6101(&$sandbox) {
+  $ret = array();
+
+  $tables = array(
+    'wallycontenttypes_rssmixread_content',
+    'wallycontenttypes_rssread_content',
+    'wallycontenttypes_taxonomylist_content',
+    'wallycontenttypes_twitread_content',
+    'wallycontenttypes_remotehtml_content',
+  );
+
+  foreach ($tables as $table) {
+    db_drop_table($ret, $table);
+  }
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ */
+function wallycontenttypes_update_6102(){
+  $schema = drupal_get_schema('wallycontenttypes_temp_nodetopublish', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('wallycontenttypes_temp_nodetopublish')) {
+    db_create_table($ret, 'wallycontenttypes_temp_nodetopublish', $schema);
+  }
+
+  //Ajout du content field autopublish
+  $schema = drupal_get_schema('content_field_autopublish', TRUE);
+
+  if (!db_table_exists('content_field_autopublish')){
+    db_create_table($ret, 'content_field_autopublish', $schema);
+    $content = new stdClass();
+    $content->field_name = 'field_autopublish';
+    $content->type = 'text';
+    $content->global_settings = array('text_processing' => '0', 'max_length' => '255', 'allowed_values' => 'No
+      Autopublish', 'allowed_values_php' => '');
+    $content->required = 1;
+    $content->multiple = 0;
+    $content->db_storage = 0;
+    $content->module = 'text';
+    $content->db_columns = array('value' => array('type' => 'varchar', 'length' => '255', 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE));
+    $content->active = 1;
+    $content->locked = 0;
+    drupal_write_record('content_node_field', $content);
+
+    $content = new stdClass();
+    $content->field_name = 'field_autopublish';
+    $content->weight = 20;
+    $content->label = 'Autopublish';
+    $content->widget_type = 'optionwidgets_onoff';
+    $content->widget_settings = array('default_value' => array(0 => array('value' => 'No')), 'default_value_php' => NULL);
+    $content->display_settings = array(
+      'label' => array('format' => 'above', 'exclude' => 0),
+      'teaser' => array('format' => 'default', 'exclude' => 0),
+      'full' => array('format' => 'default', 'exclude' => 0),
+      4 => array('format' => 'default', 'exclude' => 0),
+      2 => array('format' => 'default', 'exclude' => 0),
+      3 => array('format' => 'default', 'exclude' => 0),
+    );
+    $content->widget_module = 'optionwidgets';
+    $content->widget_active = 1;
+
+    $content->type_name = 'wally_articlepackage';
+    drupal_write_record('content_node_field_instance', $content);
+    $content->type_name = 'wally_gallerypackage';
+    drupal_write_record('content_node_field_instance', $content);
+
+    $result = db_query("SELECT n.nid, n.vid FROM {node} n WHERE (n.type = 'wally_articlepackage' OR n.type = 'wally_gallerypackage')");
+    while ($obj = db_fetch_object($result)){
+      $obj->field_autopublish_value = 'Autopublish';
+      drupal_write_record('content_field_autopublish', $obj);
+    }
+  }
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Set "Autopublish" as default value for field_autopublish
+ */
+function wallycontenttypes_update_6103() {
+  $ret = array();
+
+  $widget_settings = array('default_value' => array(0 => array('value' => 'Autopublish')), 'default_value_php' => NULL);
+
+  $ret[0]['query'] = 'UPDATE {content_node_field_instance} SET widget_settings = "%s" WHERE field_name = "field_autopublish"';
+  $ret[0]['success'] = db_query($ret[0]['query'], serialize($widget_settings)) ? TRUE : FALSE;
+
+  return $ret;
+}
+
+function wallycontenttypes_update_6104(){
+  module_load_include('inc', 'content', 'includes/content.crud');
+  $field = content_fields('field_copyright', 'wally_textobject');
+  $field['field_name'] = 'field_byline';
+  $field['widget']['label'] = 'Byline';
+
+  content_field_instance_create($field);
+}
+
+/**
+ * Implementation of hook_update_N
+ * Creation of the "Editorial Update Date" field
+ */
+function wallycontenttypes_update_6105() {
+  $ret = array();
+
+  if (!db_table_exists('content_field_editorialupdatedate')) {
+    $schema = drupal_get_schema('content_field_editorialupdatedate', TRUE);
+    db_create_table($ret, 'content_field_editorialupdatedate', $schema);
+
+    $content_node_field = array(
+      'field_name' => 'field_editorialupdatedate',
+      'type' => 'datetime',
+      'global_settings' => array(
+        'granularity' => array('year' => 'year', 'month' => 'month', 'day' => 'day', 'hour' => 'hour', 'minute' => 'minute', 'second' => 'second'),
+        'timezone_db' => 'UTC',
+        'tz_handling' => 'date',
+        'todate' => '',
+        'repeat' => 0,
+        'repeat_collapsed' => '',
+        'default_format' => 'medium',
+      ),
+      'required' => 0,
+      'multiple' => 0,
+      'db_storage' => 0,
+      'module' => 'date',
+      'db_columns' => array(
+        'value' => array('type' => 'datetime', 'not null' => FALSE, 'sortable' => TRUE, 'views' => TRUE),
+        'timezone' => array('type' => 'varchar', 'length' => 50, 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+        'offset' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE, 'views' => FALSE),
+      ),
+      'active' => 1,
+      'locked' => 0
+    );
+    drupal_write_record('content_node_field', $content_node_field);
+
+    $content_node_field_instance = array(
+      'field_name' => 'field_editorialupdatedate',
+      'weight' => 22,
+      'label' => 'Editorial Update Date',
+      'widget_type' => 'date_text',
+      'widget_settings' => array(
+        'default_value' => 'now',
+        'default_value_code' => '',
+        'default_value2' => 'blank',
+        'default_value_code2' => '',
+        'input_format' => 'Y-m-d H:i:s',
+        'input_format_custom' => '',
+        'increment' => 1,
+        'text_parts' => array(),
+        'year_range' => '-3:+3',
+        'label_position' => 'above',
+      ),
+      'display_settings' => array(
+        'weight' => '22',
+        'parent' => 'group_authoring',
+        'label' => array('format' => 'above'),
+        'teaser' => array('format' => 'default', 'exclude' => 0),
+        'full' => array('format' => 'default', 'exclude' => 0),
+        4 => array('format' => 'default', 'exclude' => 0),
+        2 => array('format' => 'default', 'exclude' => 0),
+        3 => array('format' => 'default', 'exclude' => 0),
+        'token' => array('format' => 'default', 'exclude' => 0),
+      ),
+      'description' => '',
+      'widget_module' => 'date',
+      'widget_active' => 1,
+    );
+    $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+    foreach ($pack_types as $pack_type) {
+      $content_node_field_instance['type_name'] = $pack_type;
+      drupal_write_record('content_node_field_instance', $content_node_field_instance);
+    }
+
+    $content_group_fields = array(
+      'group_name' => 'group_authoring',
+      'field_name' => 'field_editorialupdatedate',
+    );
+    foreach ($pack_types as $pack_type) {
+      $content_group_fields['type_name'] = $pack_type;
+      drupal_write_record('content_group_fields', $content_group_fields);
+    }
+
+    global $language;
+    cache_clear_all('content_type_info:'. $language->language, content_cache_tablename());
+  }
+
+  return $ret;
+}
+/**
+ * Add two field to the wallycontenttypes_temp_nodetopublish
+ * */
+function wallycontenttypes_update_6106(){
+  $schema = drupal_get_schema('wallycontenttypes_temp_nodetopublish', TRUE);
+  $ret = array();
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'action')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'action', $schema['fields']['action']);
+  }
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'date')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'date', $schema['fields']['date']);
+  }
+  if (!db_column_exists('wallycontenttypes_temp_nodetopublish', 'date_timezone')) {
+    db_add_field($ret, 'wallycontenttypes_temp_nodetopublish', 'date_timezone', $schema['fields']['date_timezone']);
+  }
+  //db_drop_primary_key($ret, 'wallycontenttypes_temp_nodetopublish');
+  if (db_column_exists('wallycontenttypes_temp_nodetopublish', 'field_embargodatetime_value')){
+    db_drop_field($ret, 'wallycontenttypes_temp_nodetopublish', 'field_embargodatetime_value');
+  }
+  if (db_column_exists('wallycontenttypes_temp_nodetopublish', 'field_unpublishdate_value')){
+    db_drop_field($ret, 'wallycontenttypes_temp_nodetopublish', 'field_unpublishdate_value');
+  }
+  //Rebuild the table
+  db_query("DELETE FROM {wallycontenttypes_temp_nodetopublish}");
+  //Get the timezone of the field_embargodatetime
+  $embargo_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_embargodatetime'");
+  $embargo_global_settings = db_fetch_array($embargo_result);
+  $embargo_global_settings = unserialize($embargo_global_settings['global_settings']);
+  $embargo_timezone = date_get_timezone($embargo_global_settings['tz_handling']);
+  //Get the node where their embargo date is today
+  $results = db_query("SELECT DISTINCT n.nid, n.status, cfe.field_embargodatetime_value as date
+      FROM {node} n
+      LEFT JOIN {content_field_embargodatetime} cfe ON cfe.nid = n.nid
+      LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+      WHERE (
+      DATE_FORMAT(cfe.field_embargodatetime_value,'%Y-%m-%%d')) = CURDATE()
+      AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage' OR n.type = 'wally_pollpackage')
+      AND auto.field_autopublish_value = 'Autopublish'
+      ");
+
+  while ($obj = db_fetch_object($results)){
+    $obj->action = 1;
+    $obj->date_timezone = $embargo_timezone;
+    drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+  }
+
+  //Get the timezone of the field_unpublishdate
+  $unpublish_result = db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = 'field_unpublishdate'");
+  $unpublish_global_settings = db_fetch_array($unpublish_result);
+  $unpublish_global_settings = unserialize($unpublish_global_settings['global_settings']);
+  $unpublish_timezone = date_get_timezone($unpublish_global_settings['tz_handling']);
+  //Get the node where their unpublish date is today
+  $results = db_query("SELECT DISTINCT n.nid, n.status, cfu.field_unpublishdate_value as date
+      FROM {node} n
+      LEFT JOIN {content_field_unpublishdate} cfu ON cfu.nid = n.nid
+      LEFT JOIN {content_field_autopublish} auto ON auto.nid = n.nid
+      WHERE DATE_FORMAT(cfu.field_unpublishdate_value,'%Y-%m-%%d') = CURDATE()
+      AND (n.type = 'wally_gallerypackage' OR n.type = 'wally_articlepackage')
+      AND auto.field_autopublish_value = 'Autopublish'
+      ");
+
+  while ($obj = db_fetch_object($results)){
+    $obj->action = 0;
+    $obj->date_timezone = $unpublish_timezone;
+    drupal_write_record('wallycontenttypes_temp_nodetopublish', $obj);
+  }
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add the displayed_title CCK field
+ */
+function wallycontenttypes_update_6107() {
+  $ret = array();
+  
+  $content_displayed_title_table = array(
+    'description' => 'Field Displayed Title',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_displayed_title_value' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'field_displayed_title_format' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+  db_create_table($ret, 'content_field_displayed_title', $content_displayed_title_table);
+  
+  $content_displayed_title_field = array(
+    'field_name' => 'field_displayed_title',
+    'type' => 'text',
+    'global_settings' => array(
+      'text_processing' => '1',
+      'max_length' => '',
+      'allowed_values' => '',
+      'allowed_values_php' => '',
+    ),
+    'required' => 0,
+    'multiple' => 0,
+    'db_storage' => 0,
+    'module' => 'text',
+    'db_columns' => array(
+      'value' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'sortable' => TRUE,
+        'views' => TRUE,
+      ),
+      'format' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+        'views' => FALSE,
+      ),
+    ),
+    'active' => 1,
+    'locked' => 0,
+  );
+  drupal_write_record('content_node_field', $content_displayed_title_field);
+  
+  $content_displayed_title_field_instance = array(
+    'field_name' => 'field_displayed_title',
+    'weight' => -4,
+    'label' => 'Displayed title',
+    'widget_type' => 'text_textarea',
+    'widget_settings' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        array(
+          'value' => '',
+          'format' => '2',
+          '_error_element' => 'default_value_widget][field_displayed_title][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+    ),
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array('format' => 'above'),
+      'teaser' => array('format' => 'default', 'exclude' => 0),
+      'full' => array('format' => 'default', 'exclude' => 0),
+      4 => array('format' => 'default', 'exclude' => 0),
+      2 => array('format' => 'default', 'exclude' => 0),
+      3 => array('format' => 'default', 'exclude' => 0),
+      'token' => array('format' => 'default', 'exclude' => 0),
+    ),
+    'description' => '',
+    'widget_module' => 'text',
+    'widget_active' => 1,
+  );
+  $types = array(
+    'wally_articlepackage',
+    'wally_gallerypackage',
+    'wally_pollpackage',
+    'wally_textobject',
+    'wally_photoobject',
+    'wally_videoobject',
+    'wally_audioobject',
+    'wally_digitalobject',
+    'wally_pollobject',
+  );
+  foreach ($types as $type) {
+    $content_displayed_title_field_instance['type_name'] = $type;
+    drupal_write_record('content_node_field_instance', $content_displayed_title_field_instance);
+  }
+  
+  return $ret;
+}

@@ -1,0 +1,145 @@
+<?php 
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallyscheduler_menu(){
+	
+	$items = array();
+	
+	$items['admin/wally/wallyscheduler'] = array(
+			'title' => t('WallyScheduler'),
+			'page callback' => 'wallyscheduler_page_dashboard',
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.pages.inc',
+			'access arguments' => array('administer wallyscheduler'),
+	
+	);
+	$items['admin/wally/wallyscheduler/dashboard'] = array(
+			'title' => t('WallyScheduler Dashboard'),
+			'page callback' => 'wallyscheduler_page_dashboard',
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.pages.inc',
+			'type' => MENU_DEFAULT_LOCAL_TASK,
+			'weight'=>7
+				
+	);
+	$items['admin/wally/wallyscheduler/config'] = array(
+			'title' => t('Config'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_config_form'),
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+			'type' => MENU_LOCAL_TASK,
+			'weight'=>8
+				
+	);
+	
+	//@todo: Check with access callback if a rollback is possible (beware of rollback on rollback),  
+	$items['admin/wally/wallyscheduler/create_snapshot'] = array(
+			'title' => t('WallyScheduler Create a snapshot from Working copy'),
+			'description' => t('Manage settings related to destinations snapshots'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_createsnapshot_form'),
+			'access arguments' => array('wallyscheduler create snapshot'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
+	);
+	
+	//@todo: Check with access callback if a rollback is possible (beware of rollback on rollback),
+	$items['admin/wally/wallyscheduler/overwrite_with_working_copy/%'] = array(
+			'title' => t('WallyScheduler Overwrite this snapshot with working copy'),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_overwritesnapshot_form'),
+			'access arguments' => array('wallyscheduler overwrite snapshot'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
+				
+	);
+	$items['admin/wally/wallyscheduler/delete_snapshot/%'] = array(
+			'title' => t('WallyScheduler Delete the snapshot '),
+			'page callback' => 'drupal_get_form',
+			'page arguments' => array('wallyscheduler_form_deletesnapshot_form'),
+			'access arguments' => array('wallyscheduler delete snapshot'),
+			'file' => 'includes/wallyscheduler.forms.inc',
+			'type'=>MENU_CALLBACK
+				
+	);
+	$items['admin/wally/wallyscheduler/rollback'] = array(
+			'title' => t('WallyScheduler Dashboard'),
+			'description' => t('Manage settings related to destinations snapshots'),
+			'page callback' => 'wally_scheduler_page_dashboard',
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.pages.inc',
+			'type'=>MENU_CALLBACK
+				
+	);
+		$items['admin/wally/wallyscheduler/rollbackrevert'] = array(
+			'title' => t('WallyScheduler Dashboard'),
+			'description' => t('Manage settings related to destinations snapshots'),
+			'page callback' => 'wally_scheduler_page_dashboard',
+			'access arguments' => array('administer wallyscheduler'),
+			'file' => 'includes/wallyscheduler.pages.inc',
+			'type'=>MENU_CALLBACK
+				
+	);
+	return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallyscheduler_perm(){
+
+	return array(
+	  'administer wallyscheduler',
+	  'make rollback',
+	  'wallyscheduler create snapshot',
+	  'wallyscheduler delete snapshot',
+	);
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function wallyscheduler_init(){
+	
+	if(wally_variable_get('wallyscheduler_workingcopy',NULL)!=NULL){
+		drupal_set_message(t("BEWARE ! you are on rollback mode (!rollback_machine_name)",array('!rollback_name'=>wally_variable_get('wallyscheduler_workingcopy',NULL))));
+	}
+}
+
+/**
+ * Implementation of hook_cron().
+ */
+function wallyscheduler_cron(){
+	module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
+	
+	//check if it is time tom make a switch
+	_wallyscheduler_process_switchcheck();
+	
+	_wallyscheduler_clean_old_snapshot();
+	}
+
+
+/**
+ * Implementation of hook_theme().
+ */
+function wallyscheduler_theme(){
+
+
+		
+	$path = drupal_get_path('module', 'wallyscheduler');
+	$base = array(
+			'file' => 'theme.inc',
+			'path' => $path.'/theme',
+	);
+		
+	return array(
+			'wallyscheduler_dashboard' => $base + array(
+					'arguments' => array('variables' => array()),
+					'template' => 'wallyscheduler-dashboard',
+			),
+	);
+}

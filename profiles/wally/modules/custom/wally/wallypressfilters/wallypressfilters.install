@@ -1,0 +1,210 @@
+<?php
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallypressfilters_uninstall(){
+  drupal_uninstall_schema('wallypressfilters');
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function wallypressfilters_install() {
+  drupal_install_schema('wallypressfilters');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallypressfilters_schema() {
+  $schema = array();
+
+  $schema['wallypressfilters'] = array(
+    'description' => 'Contains all the custom filters and their informations',
+    'fields' => array(
+      'fid' => array(
+        'type' => 'serial',
+        'description' => 'Filter Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the filter.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of the filter.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('fid'),//primary key
+  		'indexes' => array(
+  		  'name' => array('name'),
+  		),
+  );
+
+  $schema['wallypressfilters_tags'] = array(
+    'description' => 'Contains all the tags',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'serial',
+        'description' => 'Tag Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'filter' => array(
+        'description' => 'The filter',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+  	  'format' => array(
+        'description' => 'The format',
+        'type' => 'int', 
+      	'unsigned' => TRUE,
+      	'not null' => FALSE,
+      ),
+      'type' => array(
+        'description' => 'Type of the tag',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'tag' => array(
+        'description' => 'The tag',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Description',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'description' => 'Serialized settings',
+        'serialize' => TRUE,
+      ),
+      'weight' => array(
+        'description' => 'Weight of the tag',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('tid'),//primary key
+  	'indexes' => array(
+  	  'filter' => array('filter'),
+  	  'format' => array('format'),
+  	  'tag' => array('tag'),
+  	),
+  );
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Remove columns "html_tag" and "classes" and add column "settings"
+ */
+function wallypressfilters_update_6001() {
+  $ret = array();
+  
+  $db_filters = db_query('SELECT * FROM {wallypressfilters_tags}');
+  
+  db_drop_field($ret, 'wallypressfilters_tags', 'html_tag');
+  db_drop_field($ret, 'wallypressfilters_tags', 'classes');
+  $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
+  db_add_field($ret, 'wallypressfilters_tags', 'settings', $schema['fields']['settings']);
+  db_add_field($ret, 'wallypressfilters_tags', 'type', $schema['fields']['type']);
+  
+  while($filter = db_fetch_array($db_filters)) {
+    $new_filter = $filter;
+    unset(
+      $new_filter['html_tag'],
+      $new_filter['classes']
+    );
+    $new_filter['type'] = 'tag';
+    $new_filter['settings'] = array(
+      'operation' => 'replace',
+      'html_tag' => $filter['html_tag'],
+      'classes' => $filter['classes'],
+    );
+    drupal_write_record('wallypressfilters_tags', $new_filter, array('tid'));
+  }
+  
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Reinstall tables with new text settings and add column "description"
+ */
+function wallypressfilters_update_6002() {
+  $ret = array();
+
+  $db_filters = db_query('SELECT * FROM {wallypressfilters}');
+  $db_tags = db_query('SELECT * FROM {wallypressfilters_tags}');
+  
+  db_drop_table($ret, 'wallypressfilters');
+  db_drop_table($ret, 'wallypressfilters_tags');
+
+  $schema_filters = drupal_get_schema('wallypressfilters', TRUE);
+  $schema_tags = drupal_get_schema('wallypressfilters_tags', TRUE);
+
+  db_create_table($ret, 'wallypressfilters', $schema_filters);
+  db_create_table($ret, 'wallypressfilters_tags', $schema_tags);
+  
+  while($filter = db_fetch_array($db_filters)) {
+    drupal_write_record('wallypressfilters', $filter);
+  }
+  while($tag = db_fetch_array($db_tags)) {
+    $tag['settings'] = unserialize($tag['settings']);
+    drupal_write_record('wallypressfilters_tags', $tag);
+  }
+
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add a 'weight' column to wallypressfilters_tags
+ */
+function wallypressfilters_update_6003() {
+  $ret = array();
+  if (!db_column_exists('wallypressfilters_tags', 'weight')) {
+    $schema = drupal_get_schema('wallypressfilters_tags', TRUE);
+    db_add_field($ret, 'wallypressfilters_tags', 'weight', $schema['fields']['weight']);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add several indexes to wallypressfilters_tags
+ */
+function wallypressfilters_update_6004(){
+	$ret = array();
+	$existing_indexes = array();
+	$db_indexes = db_query("SHOW INDEX FROM {wallypressfilters_tags}");
+	while($db_index = db_fetch_array($db_indexes)) {
+	  $existing_indexes[] = $db_index['Column_name'];
+	}
+	if (!in_array('tag', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'tag', array('tag'));
+	}
+	if (!in_array('format', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'format', array('format'));
+	}
+	if (!in_array('filter', $existing_indexes)) {
+	  db_add_index($ret, 'wallypressfilters_tags', 'filter', array('filter'));
+	}
+	return $ret;
+}

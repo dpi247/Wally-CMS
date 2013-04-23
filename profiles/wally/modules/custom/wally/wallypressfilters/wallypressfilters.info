@@ -1,0 +1,7 @@
+core = "6.x"
+dependencies[] = "filter"
+description = "Ajoute des filtres permettant le remplacement des balises de logiciels de presse [Hermès][CCI]. Aperçu visuel des balises dans TinyMCE"
+name = "Wally Press Filters"
+package = "Wally"
+project = "wally"
+version = "6.x-1.0"

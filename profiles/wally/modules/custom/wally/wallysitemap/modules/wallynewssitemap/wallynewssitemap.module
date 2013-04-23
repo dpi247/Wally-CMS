@@ -1,0 +1,205 @@
+<?php
+
+function wallynewssitemap_menu() {
+  $items = array();
+
+  $items['admin/wally/wallysitemap/newssitemap'] = array(
+    'title'            => t('News Sitemap'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallynewssitemap_admin_settings_page_form'),
+    'access arguments' => array('administer sitemaps'),
+    'file'             => 'includes/wallynewssitemap.admin.inc',
+    'weight'           => 1,
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+function wallynewssitemap_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('wallynewssitemap_cron_semaphore', FALSE);
+  
+  if ($semaphore) {
+    if (time() - $semaphore > 4 * 60) {
+      // Either cron has been running for more 5 minutes or the semaphore
+      // was not reset due to a database error.
+      wally_variable_del('wallynewssitemap_cron_semaphore');
+    }
+
+    $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallynewssitemap_cron_cleanup');
+
+    // Lock cron semaphore
+    wally_variable_set('wallynewssitemap_cron_semaphore', time());
+  
+    // Main process
+    if ($settings = wally_variable_get('wallynewssitemap_sitemaps_settings', FALSE)) {
+      if ($main_settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
+        $settings['wallynewssitemap_blacklist'] = array_merge($settings['wallynewssitemap_blacklist'], $main_settings['wallysitemap_blacklist']);
+        $settings['wallynewssitemap_default_freq'] = $settings['wallysitemap_default_freq'];
+      }
+
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
+
+      module_load_include('inc', 'wallynewssitemap', 'includes/wallynewssitemap.generate_xml');
+      _wallynewssitemap_generate_sitemap_xml($settings);
+
+      $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallynewssitemap_cron');
+      $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+      $formatted = $d->format('i:s.u');
+      $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+    } else {
+      $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.').'<br>';
+    }
+  
+    // Release cron semaphore
+    wally_variable_del('wallynewssitemap_cron_semaphore');
+  }
+  
+  print $return;
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter
+ * Add the consolidation settings to the main sitemap settings form
+ */
+function wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter(&$form, $form_state) {
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  
+  $default_settings = array_merge(wallynewssitemap_default_settings(), wally_variable_get('wallynewssitemap_sitemaps_settings', array()));
+
+  $form['consolidate'] = array(
+    '#type' => 'fieldset',
+  );
+  
+  $form['consolidate']['wallynewssitemap_consolidate_sitemap'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Consolidate main sitemap with nodes URLs'),
+    '#description' => t('If checked some nodes URLs will be added to the main sitemap.'),
+    '#default_value' => $default_settings['wallynewssitemap_consolidate_sitemap'],
+  );
+  
+  $consolidate_type_options = array(
+    'global' => t('Lastest nodes (any destination)'),
+    'destination' => t('Latest nodes in every destinations'),
+  );
+  $form['consolidate']['wallynewssitemap_consolidate_sitemap_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Consolidate main sitemap with nodes URLs'),
+    '#description' => t('If checked some nodes URLs will be added to the main sitemap.'),
+    '#options' => $consolidate_type_options,
+    '#default_value' => $default_settings['wallynewssitemap_consolidate_sitemap_type'],
+    '#dependency' => array('edit-wallynewssitemap-consolidate-sitemap' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+  );
+  
+  $form['consolidate']['wallynewssitemap_consolidate_sitemap_amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of nodes to add to main sitemap (globaly or by destination)'),
+    '#description' => t('If the previous select list is set to "Lastest nodes",
+        this number specifies the total amount of nodes to be added to the main sitemap,
+        if the previous select list is set to "Lastest nodes in every destinations",
+        this number specifies the amount of nodes to be added to the main sitemap by destination.'),
+    '#default_value' => $default_settings['wallynewssitemap_consolidate_sitemap_amount'],
+    '#dependency' => array('edit-wallynewssitemap-consolidate-sitemap' => array(1)),
+    '#process' => array('ctools_dependent_process'),
+  );
+  
+  $form['#validate'][] = 'wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_validate';
+  $form['#submit'][] = 'wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_submit';
+  $form['reset']['#submit'][] = 'wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_submit_reset';
+}
+
+/**
+ * Validate the altered settings form
+ */
+function wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_validate($form, $form_state) {
+  $values = $form_state['values'];
+  if ($values['wallynewssitemap_consolidate_sitemap']) {
+    switch ($values['wallynewssitemap_consolidate_sitemap_type']) {
+      case 'global':
+        if ($values['wallynewssitemap_consolidate_sitemap_amount'] > 1000) {
+          form_set_error('wallynewssitemap_consolidate_sitemap_amount', t('The maximum node amount to be generated in the global type consolidation is 1000.'));
+        }
+        break;
+      case 'destination':
+        if ($values['wallynewssitemap_consolidate_sitemap_amount'] > 10) {
+          form_set_error('wallynewssitemap_consolidate_sitemap_amount', t('The maximum node amount to be generated in the destination type consolidation is 10 per destination.'));
+        }
+        break;
+    }
+  }
+}
+
+/**
+ * Submit the altered settings form
+ */
+function wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_submit($form, &$form_state) {
+  $values = $form_state['values'];
+  
+  $orig_settings = array_merge(wallynewssitemap_default_settings(), wally_variable_get('wallynewssitemap_sitemaps_settings', array()));
+  
+  $settings = $orig_settings;
+  $settings['wallynewssitemap_consolidate_sitemap'] = $values['wallynewssitemap_consolidate_sitemap'];
+  $settings['wallynewssitemap_consolidate_sitemap_type'] = $values['wallynewssitemap_consolidate_sitemap_type'];
+  $settings['wallynewssitemap_consolidate_sitemap_amount'] = $values['wallynewssitemap_consolidate_sitemap_amount'];
+
+  wally_variable_set('wallynewssitemap_sitemaps_settings', $settings);
+}
+
+/**
+ * Reset submit for the altered submit form
+ */
+function wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_submit_reset($form, $form_state) {
+  $orig_settings = array_merge(wallynewssitemap_default_settings(), wally_variable_get('wallynewssitemap_sitemaps_settings', array()));
+  
+  $settings = $orig_settings;
+  unset($settings['wallynewssitemap_consolidate_sitemap'],
+      $settings['wallynewssitemap_consolidate_sitemap_type'],
+      $settings['wallynewssitemap_consolidate_sitemap_amount']);
+  
+  wally_variable_set('wallynewssitemap_sitemaps_settings', $settings);
+}
+
+/**
+ * Shutdown function for sitemap cron cleanup.
+ */
+function wallynewssitemap_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (wally_variable_get('wallynewssitemap_cron_semaphore', FALSE)) {
+    // Release cron semaphore
+    wally_variable_del('wallynewssitemap_cron_semaphore');
+  }
+}
+
+/**
+ * Will be called by wallynewssitemap to build default settings.
+ */
+function wallynewssitemap_default_settings() {
+  return array(
+    'wallynewssitemap_path' => 'sites/default/files/sitemaps',
+    'wallynewssitemap_delta_hours' => 48,
+    'wallynewssitemap_consolidate_sitemap' => 0,
+    'wallynewssitemap_consolidate_sitemap_type' => 'global',
+    'wallynewssitemap_consolidate_sitemap_amount' => 100,
+    'wallynewssitemap_add_images' => 0,
+    'wallynewssitemap_add_videos' => 0,
+    'wallynewssitemap_blacklist' => array(),
+    'wallynewssitemap_publication_name' => variable_get('site_name', ''),
+    'wallynewssitemap_content_types' => array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage', 'page'),
+    'wallynewssitemap_tags_fields' => array(),
+    'wallynewssitemap_image_preset' => '',
+    'wallynewssitemap_image_license' => '',
+    'wallynewssitemap_video_preset' => '',
+    'wallynewssitemap_default_img' => drupal_get_path('module', 'wallynewssitemap').'/images/default_pic.jpg',
+    'wallynewssitemap_allow_embed' => 'no',
+  );
+}

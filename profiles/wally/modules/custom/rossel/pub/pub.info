@@ -1,0 +1,6 @@
+core = "6.x"
+description = "Pub blocks gestion."
+name = "Pub"
+package = "Rossel"
+project = "pub"
+version = "6.x-1.0"

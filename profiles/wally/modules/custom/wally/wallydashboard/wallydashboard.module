@@ -1,0 +1,92 @@
+<?php
+/**
+ * Implementation of hook_perm
+ */
+function wallydashboard_perm(){ 
+  return array('administer dashboard');
+}
+/** 
+ * Implementation of hook_views_api
+ */
+function wallydashboard_views_api() {
+  return array('api' => 3);
+}
+/**
+* Implementation of hook_ctools_plugin_directory() to let the system know
+* we implement task and task_handler plugins.
+*/
+function wallydashboard_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'content_types') {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallydashboard_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "page_manager" && $api == "pages_default") {
+    return array("version" => 1);
+  }
+  return array(
+    'version' => 2,
+  );
+}
+
+/**
+ * 
+ * Implementation of hook_theme
+ */
+function wallydashboard_theme(){
+  $path = drupal_get_path('module', 'wallydashboard');
+  $base = array(
+      'file' => 'theme.inc',
+      'path' => "$path/theme",
+  );
+  
+  return array(
+    'wallydashboard_shortcut' => $base + array(
+      'arguments' => array("shortcuts_list" => NULL),
+    ),
+    'wallydashboard_status' => $base + array(
+      'arguments' => array("requirements" => NULL),
+    ),
+    'wallydashboard_statpackage_content_type_edit_form' => $base + array(
+      'arguments' => array("form" => NULL, 'form_state' => NULL),
+    ),
+  );
+}
+
+
+/**
+ * Implementation of hook_init
+ */
+function wallydashboard_init(){
+  
+  global $custom_theme;
+  //Adding admin theme on wallydasboard
+  if (arg(3) == 'wallydashboard' || arg(2) == 'wallydashboard') {
+    drupal_add_css(drupal_get_path('module', 'wallydashboard').'/css/dashboard.css');
+    $custom_theme = 'rubik';
+  }
+}
+/**
+* Implementation of hook_wallydashboard_shortcut
+*/
+function wallydashboard_wallydashboard_shortcut(){
+  $shortcut = array();
+  $shortcut['wallydashboard']['manage_package'] = array(
+    'title' => t('Manage Packages'),
+    'link'  => 'admin/content/packages',
+    'img'   => drupal_get_path('module', 'wallydashboard').'/images/shortcut/manage_package.png',
+  );
+
+  $shortcut['wallydashboard']['manage_pages'] = array(
+    'title' => t('Manage Pages'),
+    'link'  => 'admin/build/pages',
+    'img'   => drupal_get_path('module', 'wallydashboard').'/images/shortcut/manage_pages.png',
+  );
+
+  return $shortcut;
+}

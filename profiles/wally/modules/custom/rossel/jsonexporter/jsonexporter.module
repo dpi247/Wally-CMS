@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function jsonexporter_menu(){
+  $items = array();
+
+  $items['jsonexporter/sections'] = array(
+    'title' => t('JSON exporter sections'),
+    'page callback'    => 'jsonexporter_sections_page_render',
+    'page arguments'   => array(),
+    'access callback'  => 1,
+  );
+
+  //Page to JSON list of destinations
+  $items['jsonexporter/product/%'] = array(
+    'title'            => t('List all destination for a product'),
+    'page callback'    => 'jsonexporter_sections_list_page_render',
+    'page arguments'   => array(2),
+    'access callback'  => 1,
+  );
+
+  //------------------------------------------------------------------------
+
+  //Admin settings Page
+  $items['admin/rossel/jsonexporter/settings'] = array(
+    'title'            => t('JSON Exporter Settings'),
+    'page callback'    => 'jsonexporter_page_list_product',
+    'access arguments' => array('administer jsonexporter'),
+    'description'      => t('Manage JSON exporter product and general settings'),
+    'file'             => 'includes/jsonexporter.admin.inc',
+  );
+
+  //Page to list products
+  $items['admin/rossel/jsonexporter/settings/list'] = array(
+    'title'            => t('Products List'),
+    'page callback'    => 'jsonexporter_page_list_product',
+    'access arguments' => array('administer jsonexporter'),
+    'file'             => 'includes/jsonexporter.admin.inc',
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+    'weight'           => 0,
+  );
+
+  //Page to add a product
+  $items['admin/rossel/jsonexporter/settings/add'] = array(
+    'title'            => t('Create product'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('jsonexporter_page_product_form'),
+    'access arguments' => array('administer jsonexporter'),
+    'file'             => 'includes/jsonexporter.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 1,
+  );
+
+  //Page to delete a product
+  $items['admin/rossel/jsonexporter/settings/delete/%'] = array(
+    'title'            => t('Delete product'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('jsonexporter_page_productdelete_form', 5),
+    'access arguments' => array('administer jsonexporter'),
+    'description'      => t('Allows administrators to delete a product.'),
+    'file'             => 'includes/jsonexporter.admin.inc',
+  );
+  
+  //General settings
+  $items['admin/rossel/jsonexporter/settings/settings'] = array(
+    'title'            => t('General settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('jsonexporter_page_general_settings_form'),
+    'access arguments' => array('administer jsonexporter'),
+    'file'             => 'includes/jsonexporter.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function jsonexporter_perm() {
+  return array(
+    'administer jsonexporter',
+  );
+}
+
+/**
+ * Implementation of hooktheme().
+ */
+function jsonexporter_theme(){
+  $path = drupal_get_path('module', 'jsonexporter');
+  $base = array(
+    'path' => $path.'/templates',
+    'file' => 'theme.inc',
+  );
+
+  return array(
+    'jsonexporter_sections' => $base + array(
+      'arguments' => array('sections' => array()),
+      'template' => 'jsonexporter_sections',
+    ),
+  );
+}
+
+function jsonexporter_theme_registry_alter(&$theme_registry) {
+  array_unshift($theme_registry['views_view_rss']['theme paths'], drupal_get_path('module', 'jsonexporter').'/templates');
+  array_unshift($theme_registry['views_view_row_rss']['theme paths'], drupal_get_path('module', 'jsonexporter').'/templates');
+}
+
+/**
+ * Get products info
+ *
+ * @return
+ *   an array of products
+ */
+function jsonexporter_getproducts(){
+  $result = db_query("SELECT * FROM {jsonexporter_product}");
+  $products = NULL;
+  while ($product = db_fetch_object($result)){
+    $product->settings= unserialize($product->settings);
+    $product->presets= unserialize($product->presets);
+    $products[] = $product;
+  }
+  return $products;
+}
+
+/**
+ * Get one products info
+ *
+ * @return
+ *   a product
+ */
+function jsonexporter_getproduct($pid){
+  $result = db_query("SELECT * FROM {jsonexporter_product} WHERE pid = %d", $pid);
+  $product = NULL;
+  while ($obj = db_fetch_object($result)){
+    $product = $obj;
+    $product->settings= unserialize($product->settings);
+    $product->presets= unserialize($product->presets);
+  }
+  return $product;
+}
+
+/**
+ * Render function for sections page.
+ */
+function jsonexporter_sections_page_render() {
+  $sections = array();
+  if ($main_menu = variable_get('jsonexporter_product_main_menu', 0)) {
+    $sections = menu_tree_all_data($main_menu);
+    $sections = _jsonexporter_sections_menu_data($sections);
+  }
+  print theme('jsonexporter_sections', $sections);
+}
+
+/**
+ * Render function for a product sections page
+ */
+function jsonexporter_sections_list_page_render($pid = FALSE) {
+  $sections = array();
+
+  if (!$pid) {
+    print theme('jsonexporter_sections', $sections);
+  } else {
+    $sections = _jsonexporter_sections_product_data(jsonexporter_getproduct($pid));
+    print theme('jsonexporter_sections', $sections);
+  }
+}
+
+function jsonexporter_preprocess_views_view_rss(&$vars) {
+  if($_GET['format']== 'ereaderjson') {
+    $view = $vars['view'];
+    $vars['section_id'] = $view->args[0].'_'.$view->args[1];
+  }
+}
+
+function jsonexporter_preprocess_views_view_row_rss(&$vars) {
+  if($_GET['format']== 'ereaderjson'){
+    if(isset($vars['view']->args[2])){
+      if($product=jsonexporter_getproduct($vars['view']->args[2])){
+        $vars['view']->jsonexporter_product=$product;
+      }
+    }
+  }
+}
+
+/**
+ * Generate an array, this array is compatible with waited JSON format
+ */
+function _jsonexporter_sections_product_data($product) {
+  $json = array();
+  $destinations = $product->settings;
+
+  foreach ($destinations as $destination ) {
+    if (is_array($destination)) {
+      $term  = taxonomy_get_term($destination["tid"]);
+      $json_item["id"] = $destination["tid"].$destination["target"];
+      $json_item["label"] = $term->name;
+      $json_item["feed"] = "/feed/".$destination["tid"]."/".$destination["target"]."/".$product->pid."?format=ereaderjson";
+      $json["sections"][] = $json_item;
+    }
+  }
+  return $json;
+}
+
+/**
+ * Generate an array, this array is compatible with waited JSON format
+ */
+function _jsonexporter_sections_menu_data($json_product_id, $sections = array()) {
+  $json = array();
+
+  foreach($sections as $section) {
+    $json_item = array();
+
+    if($section["link"]["hidden"] != TRUE) {
+      if (strstr(drupal_get_normal_path($section["link"]["href"]), "taxonomy/term")) {
+        $path = explode("/", drupal_get_normal_path($section["link"]["href"]));
+        $term  = taxonomy_get_term(end($path));
+        if ($term->vid == "2") {
+          $json_item["id"]  = $term->tid;
+          $json_item["label"]  = $section["link"]["title"];
+          $json_item["feed"]  =  "/feed/".$term->tid."/".wallyctools_get_default_target($term->tid)."?format=ereaderjson";
+
+          if ($section["below"]) {
+            $sub_json = _jsonexporter_sections_menu_data($json_product_id, $section["below"]);
+            $json_item["sections"] = $sub_json["sections"];
+          }
+          $json["sections"][] = $json_item;
+        }
+      }
+    }
+  }
+
+  return $json;
+}

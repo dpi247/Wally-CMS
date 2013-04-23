@@ -1,0 +1,28 @@
+div a.rate-button{
+  text-decoration:none;
+  float: left;
+  padding-right: 0;
+  display: block;
+  color: #000000;
+  border: 1px solid #ccc;
+  width: 24px;
+  font-size: 21px;
+  height: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-right: 1px;
+}
+div.rate-points-up-down {
+  float: left;
+  text-align: right;
+  font-size: 21px;
+  padding-top: 3px;
+  margin-right: 3px;
+}
+div.rate-points-up-down-rating-down {
+  color:red;
+}
+div.rate-points-up-down-rating-up {
+  color: green;
+}
+

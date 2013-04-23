@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * Implementation of the hook_module
+ */
+function ccimapping_menu(){
+  $items = array();
+
+  $items['admin/cci/ccimapping/configuration'] = array(
+    'title' => t('CCI Newsgate - Mapping configuration & settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_configuration_form'),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/ccimapping.admin.inc',
+  );
+
+  $items['admin/cci/ccimapping/packagetype/editor'] = array(
+    'title' => t('Packagetype Editor'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_packagetype_editor_form', 5),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/packagetype.editor.inc',
+  );
+
+  $items['admin/cci/ccimapping/productinfo/editor'] = array(
+    'title' => t('Product Info editor'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_form_productinfo_editor_form', 5),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/productinfo.editor.inc',
+  );
+  
+  $items['admin/cci/ccimapping/cropsync'] = array(
+    'title' => t('Cropings Synchronisation'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ccimapping_cropsync_form_cropings_editor_form'),
+    'access arguments' => array('administer cci'),
+    'file' => 'includes/ccimapping.cropsync.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of the hook_theme
+ */
+function ccimapping_theme(){
+  $path = drupal_get_path('module', 'ccimapping');
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path.'/theme',
+  );
+  return array(
+    'ccimapping_typeselector'=>$base + array(
+      'arguments'=>array('type'),
+    ),
+  );
+}
+
+function ccimapping_wimprt_object_after_process_alter(&$node) {
+  if ($node->type == 'wally_textobject') {
+    $array_node = (array)$node;
+    foreach ($array_node as $field_name => $field) {
+      if (is_array($field) && is_array($field[0]) && isset($field[0]['format'])) {
+        $node->{$field_name}[0]['value'] = _ccimapping_convert_marker_to_tags($field[0]['value']);
+      }
+    }
+  }
+  
+  return;
+}
+
+function ccimapping_load_soapclient($wsdl_uri) {
+  try {
+    $client = new SoapClient($wsdl_uri, array('features' => SOAP_SINGLE_ELEMENT_ARRAYS, 'trace' => TRUE));
+    return $client;
+  } catch (SoapFault $exception) {
+    drupal_set_message(t('WebService error while creating SOAP client: \n FAULTSTRING: @faultstring\n FAULTCODE: @faultcode', array('@faultstring' => $exception->faultstring, '@faultcode' => $exception->faultcode)), 'error');
+  }
+  return FALSE;
+}
+
+function ccimap_type_converter($type){
+  $mappings=wally_variable_get('ccimapping_type','');
+  $mappings=explode("\n", $mappings);
+  foreach ($mappings as $mapping){
+    $temp=explode("|", $mapping);
+    $correct_mapping[$temp[0]]=$temp[1];
+  }
+  if(array_key_exists($type, $correct_mapping)){
+    return $correct_mapping[$type];
+  } else {
+    return $type;
+  }
+}
+
+function _ccimapping_convert_marker_to_tags($text) {
+  $regex = "@<(cci.*)/?>@U";
+  $matches = array();
+  preg_match_all($regex, $text, $matches);
+  foreach ($matches[0] as $key => $match) {
+    if (substr($match, -2, 1) == '/') {
+      $tag_content = $matches[1][$key];
+      $text = str_replace($match, '<'.$tag_content.'></'.$tag_content.'>', $text);
+    }
+  }
+  return $text;
+}

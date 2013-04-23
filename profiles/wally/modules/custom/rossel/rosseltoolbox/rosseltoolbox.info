@@ -1,0 +1,4 @@
+name = Rossel ToolBox
+description = "Various functionnalities specific to Rossel group"
+package = Rossel
+core = 6.x

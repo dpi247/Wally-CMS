@@ -1,0 +1,45 @@
+*** includes/database.mysql-common.inc	2011-08-24 08:39:24.000000000 +0200
+--- includes/database.mysql-common.inc	2012-01-09 15:12:31.479010604 +0100
+***************
+*** 29,34 ****
+--- 29,59 ----
+   *   A database query result resource, or FALSE if the query was not
+   *   executed correctly.
+   */
++ 
++ // Include functions for automatic master/slave replication
++ require_once './includes/database.mysql-replication.inc';
++ 
++ function db_query($query) {
++   $args = func_get_args();
++   array_shift($args);
++   $unprefixed_query = $query;
++ 
++   $query = db_prefix_tables($query);
++   if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
++     $args = $args[0];
++   }
++   _db_query_callback($args, TRUE);
++ 
++   $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
++   // return _db_query($query);
++ 
++   $run_on_slave = _db_is_slave_query($unprefixed_query, $query, $args);
++ 
++   return _db_query($query, FALSE, $run_on_slave);
++ }
++ 
++ /*
+  function db_query($query) {
+    $args = func_get_args();
+    array_shift($args);
+***************
+*** 40,45 ****
+--- 65,71 ----
+    $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
+    return _db_query($query);
+  }
++ */
+  
+  /**
+   * @ingroup schemaapi

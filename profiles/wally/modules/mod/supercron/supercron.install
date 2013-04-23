@@ -1,0 +1,142 @@
+<?php
+// $Id: supercron.install,v 1.2 2010/03/18 22:57:45 63reasons Exp $
+/**
+ * @file
+ * User supercron installation
+ */
+
+include_once('supercron.inc');
+
+/**
+ * Implement hook_schema().
+ */
+function supercron_schema() {
+  $schema['supercron_enabled_mods'] = array(
+    'fields' => array(
+      'id'                  => array('type' => 'serial', 'not null' => TRUE),
+      'module_name'         => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'weight'              => array('type' => 'int', 'not null' => TRUE),
+      'rule'                => array('type' => 'varchar', 'length' => '256', 'not null' => TRUE),
+      'output'              => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+      'enabled'             => array('type' => 'int', 'not null' => TRUE, 'default' => 1),
+      'timestamp'           => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'last_exec_interval'  => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'total_exec_interval' => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+      'times_count'         => array('type' => 'int', 'size' => 'big', 'not null' => TRUE, 'default' => 0),
+      'detached'            => array('type' => 'int', 'not null' => TRUE, 'default' => 0),
+    ),
+    'primary key' => array('id'),
+  );
+
+  $schema['supercron_ips'] = array(
+    'fields' => array(
+      'iid' => array('type' => 'serial', 'not null' => TRUE),
+      'ip'  => array('type' => 'text', 'size' => 'big', 'not null' => TRUE),
+    ),
+    'primary key' => array('iid'),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Necessary to avoid some attack scenarios where a safe URL or safety token is pre-planted in the variables table
+ */
+function supercron_delete_all_variables() {
+  variable_del(SUPERCRON_FIREWALL_ENABLED_VARIABLE);
+  variable_del(SUPERCRON_SAFETY_VARIABLE);
+  variable_del(SUPERCRON_FIREWALL_MODE_VARIABLE);
+  variable_del(SUPERCRON_THROTTLE_SUPPORT_VARIABLE);
+  variable_del(SUPERCRON_CLEAR_LOGS);
+  variable_del(SUPERCRON_SCRIPT_PATH);
+  variable_del(SUPERCRON_PHP_BINARY_PATH);
+  variable_del(SUPERCRON_AUTOCRON_TRESHOLD);
+  variable_del(SUPERCRON_AUTOCRON_ENABLED);
+  variable_del(SUPERCRON_AUTOCRON_AUTOENABLED);
+  variable_del(SUPERCRON_AUTOCRON_AUTOENABLED_TRESHOLD);
+  variable_del(SUPERCRON_AUTOCRON_URL);
+  variable_del(SUPERCRON_EXCEPTIONS_RSS_URL);
+}
+
+/**
+ * Implement hook_install().
+ */
+function supercron_install() {
+
+  // Better be safe
+  supercron_delete_all_variables();
+
+  // Install supercron schema.
+  drupal_install_schema('supercron');
+
+  // Create a random safety token.
+  $ignore = _supercron_get_safety_variable();
+  
+  // Insert host IP address to supercon_ips table -- Allow cron run requests from these IPs
+  $inserted_ips = array();
+  $host_ips = gethostbynamel($_SERVER['HTTP_HOST']);
+  if (!empty($host_ips)) {
+    foreach (gethostbynamel($_SERVER['HTTP_HOST']) as $ip) {
+      db_query("INSERT INTO {supercron_ips} (ip) VALUES ('%s')", $ip);
+      $inserted_ips[] = $ip;
+    }
+  }
+
+  if (!in_array('127.0.0.1', $inserted_ips)) {
+    db_query("INSERT INTO {supercron_ips} (ip) VALUES ('%s')", '127.0.0.1');
+  }
+
+  // First module settings
+  supercron_update_module_list();
+
+  // Import Elysia Cron schedule settings if they exist
+  $modules = supercron_list_of_cron_modules();
+  foreach ($modules as $module)
+  {
+      $schedule = variable_get('ec_' . $module . '_cron_rul', '');
+      $disabled = variable_get('ec_' . $module . '_cron_d', 0) == '1';
+      if (!empty($schedule))
+      {
+        db_query('UPDATE {supercron_enabled_mods} SET rule=\'%s\', enabled=%d WHERE module_name = \'%s\' LIMIT 1', array($schedule, !$disabled, $module));
+      }
+
+  }
+
+  // Keep Poormanscron settings is they exist
+  variable_set(SUPERCRON_AUTOCRON_TRESHOLD, variable_get('cron_safe_threshold', 180));
+  if (module_exists('poormanscron'))
+    variable_set(SUPERCRON_AUTOCRON_ENABLED,(variable_get('cron_safe_threshold', 0) != 0));
+  else
+    variable_set(SUPERCRON_AUTOCRON_ENABLED, FALSE);
+
+  // Set some defaults
+  variable_set(SUPERCRON_AUTOCRON_AUTOENABLED, TRUE);
+  variable_set(SUPERCRON_AUTOCRON_AUTOENABLED_TRESHOLD, SUPERCRON_AUTOCRON_AUTOENABLED_TRESHOLD_DEFAULT); // 12 hours in seconds
+
+}
+
+/**
+ * Implement hook_uninstall().
+ */
+function supercron_uninstall() {
+  // Uninstall supercron schema.
+  drupal_uninstall_schema('supercron');
+
+  // Remove no longer needed variables.
+  supercron_delete_all_variables();
+}
+
+/**
+ * Update script to add 'rule' column to supercron_enabled_mods table.
+ */
+function supercron_update_1() {
+  $rets = array();
+  $field = array(
+    'type'     => 'varchar',
+    'length'   => '256',
+    'not null' => TRUE,
+  );
+  db_add_field($rets, 'supercron_enabled_mods', 'rule', $field);
+
+  return $rets;
+}

@@ -1,0 +1,667 @@
+<?php
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallymport_uninstall(){
+  drupal_uninstall_schema('wallymport');
+  module_load_include('inc', 'wallymport', 'includes/wallymport.helpers');
+  _wimprthelp_variable_del_like('wallymport_');
+}
+
+/**
+ * Implementation of hook_enable()
+ */
+function wallymport_enable() {
+	cache_clear_all('imagecache_actions', 'cache');
+}
+
+/**
+ * Implementation of hook_disable()
+ */
+function wallymport_disable() {
+	cache_clear_all('imagecache_actions', 'cache');
+}
+/**
+ * Implementation of hook_install().
+ */
+function wallymport_install() {
+  drupal_install_schema('wallymport');
+}
+/**
+ * Implementation of hook_schema().
+ */
+function wallymport_schema() {
+  $schema = array();
+
+  $schema['wallymport_importer'] = array(
+    'description' => 'Contains de informations of the importers',
+    'fields' => array(
+      'iid' => array(
+        'type' => 'serial',
+        'description' => 'Importer Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'importer_type' => array(
+        'description' => 'The type of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The name of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'source_directory_path' => array(
+        'description' => 'The path of the directory where are the data to be imported',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'done_directory_path' => array(
+        'description' => 'The path of the directory where are the successfully imported data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'error_directory_path' => array(
+        'description' => 'The path of the directory where are the not imported data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'temp_directory_path' => array(
+        'description' => 'The path of the directory where temporary data',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'xsd_path' => array(
+        'description' => 'The path of the xsd file who validate the data to be imported',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'zip' => array(
+        'description' => '1 if the date to be imported are zipped',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'processed_by_post' => array(
+        'description' => '1 if the process is done during the POST',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'processed_by_cron' => array(
+        'description' => '1 if the process is done during a CRON job',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_frequency' => array(
+        'description' => 'Frequency of the cron (in minutes)',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_timestamp' => array(
+        'description' => 'Last CRON',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_keep_log' => array(
+        'description' => 'Keep CRON log',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'cron_log' => array(
+        'description' => 'Logs of the CRON',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+      'default_user' => array(
+        'description' => 'Default user',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'keep_log' => array(
+        'description' => 'Keep log',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('iid'),//primary key
+  );
+  $schema['wallymport_logs'] = array(
+    'description' => 'Contains the logs',
+    'fields' => array(
+      'lid' => array(
+        'type' => 'serial',
+        'description' => 'log Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'importer_name' => array(
+        'description' => 'The name of the importer.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+   	  'date' => array(
+        'description' => 'Date',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location' => array(
+        'description' => 'File location.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'log' => array(
+        'description' => 'Logs of the CRON',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('lid'),//primary key
+  );
+  return $schema;
+}
+/**
+ * Implementation of hook_update_N().
+ */
+function wallymport_update_6001(){
+
+  $schema = drupal_get_schema('wallymport_importer', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('wallymport_importer')) {
+    db_create_table($ret, 'wallymport_importer', $schema);
+  }
+  return $ret;
+}
+/**
+* Implementation of hook_update_N().
+*/
+function wallymport_update_6002(){
+
+  $schema = drupal_get_schema('wallymport_logs', TRUE);
+  $ret = array();
+
+  if (!db_table_exists('wallymport_logs')) {
+    db_create_table($ret, 'wallymport_logs', $schema);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function wallymport_update_6003(){
+  $schema = drupal_get_schema('wallymport_importer', TRUE);
+  $ret = array();
+  if (!db_column_exists('wallymport_importer', 'keep_log')){
+    db_add_field($ret, 'wallymport_importer', 'keep_log', $schema['fields']['keep_log']);
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N().
+ */
+function wallymport_update_6004(){
+  if (module_exists('views')){
+    if (views_get_view('wallymport_logs') == NULL){
+      wallymport_createlogcreateview();
+      $ret[0]['success'] = TRUE;
+      $ret[0]['query'] = t('The view as been created');
+    } else {
+      $ret[0]['success'] = TRUE;
+      $ret[0]['query'] = t('The view already exists');
+    }
+  } else {
+    $ret[0]['success'] = FALSE;
+    $ret[0]['query'] = t('You need to install the views module');
+  }
+  return $ret;
+}
+
+/**
+ * Create the wallymport log view 
+ */
+function wallymport_createlogcreateview(){
+  $view = views_new_view();
+  $view->name = 'wallymport_logs';
+  $view->description = '';
+  $view->tag = '';
+  $view->base_table = 'wallymport_logs';
+  $view->core = 6;
+  $view->api_version = '2';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->override_option('fields', array(
+      'date' => array(
+        'label' => 'Date',
+        'alter' => array(
+          'alter_text' => 0,
+          'text' => '',
+          'make_link' => 0,
+          'path' => '',
+          'absolute' => 0,
+          'link_class' => '',
+          'alt' => '',
+          'rel' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'help' => '',
+          'trim' => 0,
+          'max_length' => '',
+          'word_boundary' => 1,
+          'ellipsis' => 1,
+          'html' => 0,
+          'strip_tags' => 0,
+  ),
+        'empty' => '',
+        'hide_empty' => 0,
+        'empty_zero' => 0,
+        'date_format' => 'custom',
+        'custom_date_format' => 'Y-m-d H:i:s',
+        'exclude' => 0,
+        'id' => 'date',
+        'table' => 'wallymport_logs',
+        'field' => 'date',
+        'relationship' => 'none',
+  ),
+      'filename' => array(
+        'label' => 'File Name',
+        'alter' => array(
+          'alter_text' => 0,
+          'text' => '',
+          'make_link' => 0,
+          'path' => '',
+          'absolute' => 0,
+          'link_class' => '',
+          'alt' => '',
+          'rel' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'help' => '',
+          'trim' => 0,
+          'max_length' => '',
+          'word_boundary' => 1,
+          'ellipsis' => 1,
+          'html' => 0,
+          'strip_tags' => 0,
+  ),
+        'empty' => '',
+        'hide_empty' => 0,
+        'empty_zero' => 0,
+        'set_precision' => FALSE,
+        'precision' => 0,
+        'decimal' => '.',
+        'separator' => ',',
+        'format_plural' => 0,
+        'format_plural_singular' => '1',
+        'format_plural_plural' => '@count',
+        'prefix' => '',
+        'suffix' => '',
+        'exclude' => 0,
+        'id' => 'filename',
+        'table' => 'wallymport_logs',
+        'field' => 'filename',
+        'relationship' => 'none',
+  ),
+      'location' => array(
+        'label' => 'File location',
+        'alter' => array(
+          'alter_text' => 0,
+          'text' => '',
+          'make_link' => 0,
+          'path' => '',
+          'absolute' => 0,
+          'link_class' => '',
+          'alt' => '',
+          'rel' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'help' => '',
+          'trim' => 0,
+          'max_length' => '',
+          'word_boundary' => 1,
+          'ellipsis' => 1,
+          'html' => 0,
+          'strip_tags' => 0,
+  ),
+        'empty' => '',
+        'hide_empty' => 0,
+        'empty_zero' => 0,
+        'exclude' => 0,
+        'id' => 'location',
+        'table' => 'wallymport_logs',
+        'field' => 'location',
+        'relationship' => 'none',
+  ),
+      'success' => array(
+        'label' => 'Success',
+        'alter' => array(
+          'alter_text' => 0,
+          'text' => '',
+          'make_link' => 0,
+          'path' => '',
+          'absolute' => 0,
+          'link_class' => '',
+          'alt' => '',
+          'rel' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'help' => '',
+          'trim' => 0,
+          'max_length' => '',
+          'word_boundary' => 1,
+          'ellipsis' => 1,
+          'html' => 0,
+          'strip_tags' => 0,
+  ),
+        'empty' => '',
+        'hide_empty' => 0,
+        'empty_zero' => 0,
+        'set_precision' => FALSE,
+        'precision' => 0,
+        'decimal' => '.',
+        'separator' => ',',
+        'format_plural' => 0,
+        'format_plural_singular' => '1',
+        'format_plural_plural' => '@count',
+        'prefix' => '',
+        'suffix' => '',
+        'exclude' => 0,
+        'id' => 'success',
+        'table' => 'wallymport_logs',
+        'field' => 'success',
+        'relationship' => 'none',
+  ),
+      'message' => array(
+        'label' => 'Message',
+        'alter' => array(
+          'alter_text' => 0,
+          'text' => '',
+          'make_link' => 0,
+          'path' => '',
+          'absolute' => 0,
+          'link_class' => '',
+          'alt' => '',
+          'rel' => '',
+          'prefix' => '',
+          'suffix' => '',
+          'target' => '',
+          'help' => '',
+          'trim' => 0,
+          'max_length' => '',
+          'word_boundary' => 1,
+          'ellipsis' => 1,
+          'html' => 0,
+          'strip_tags' => 0,
+  ),
+        'empty' => '',
+        'hide_empty' => 0,
+        'empty_zero' => 0,
+        'exclude' => 0,
+        'id' => 'message',
+        'table' => 'wallymport_logs',
+        'field' => 'message',
+        'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('arguments', array(
+      'importer_name' => array(
+        'default_action' => 'empty',
+        'style_plugin' => 'default_summary',
+        'style_options' => array(),
+        'wildcard' => 'all',
+        'wildcard_substitution' => 'All',
+        'title' => '',
+        'breadcrumb' => '',
+        'default_argument_type' => 'fixed',
+        'default_argument' => '',
+        'validate_type' => 'none',
+        'validate_fail' => 'not found',
+        'glossary' => 0,
+        'ignorecase' => 0,
+        'limit' => '0',
+        'case' => 'none',
+        'path_case' => 'none',
+        'transform_dash' => 0,
+        'id' => 'importer_name',
+        'table' => 'wallymport_logs',
+        'field' => 'importer_name',
+        'validate_user_argument_type' => 'uid',
+        'validate_user_roles' => array(
+  2 => 0,
+  ),
+        'relationship' => 'none',
+        'default_options_div_prefix' => '',
+        'default_argument_user' => 0,
+        'default_argument_fixed' => '',
+        'default_argument_php' => '',
+        'validate_argument_node_type' => array(
+          'wally_articlepackage' => 0,
+          'wally_audioobject' => 0,
+          'wally_digitalobject' => 0,
+          'wally_entitytype' => 0,
+          'wally_gallerypackage' => 0,
+          'wally_linkslistobject' => 0,
+          'wally_linktype' => 0,
+          'wally_locationtype' => 0,
+          'wally_persontype' => 0,
+          'wally_photoobject' => 0,
+          'wally_pollobject' => 0,
+          'wally_pollpackage' => 0,
+          'wally_textobject' => 0,
+          'wally_videoobject' => 0,
+          'page' => 0,
+  ),
+        'validate_argument_node_access' => 0,
+        'validate_argument_nid_type' => 'nid',
+        'validate_argument_vocabulary' => array(
+  1 => 0,
+  20 => 0,
+  13 => 0,
+  2 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  23 => 0,
+  14 => 0,
+  10 => 0,
+  7 => 0,
+  21 => 0,
+  8 => 0,
+  24 => 0,
+  22 => 0,
+  9 => 0,
+  15 => 0,
+  16 => 0,
+  ),
+        'validate_argument_type' => 'tid',
+        'validate_argument_transform' => 0,
+        'validate_user_restrict_roles' => 0,
+        'validate_argument_php' => '',
+  ),
+  ));
+  $handler->override_option('filters', array(
+      'filename' => array(
+        'operator' => 'word',
+        'value' => '',
+        'group' => '0',
+        'exposed' => TRUE,
+        'expose' => array(
+          'use_operator' => 0,
+          'operator' => 'filename_op',
+          'identifier' => 'Filename',
+          'label' => 'Wallymport: File Name',
+          'remember' => 0,
+  ),
+        'case' => 1,
+        'id' => 'filename',
+        'table' => 'wallymport_logs',
+        'field' => 'filename',
+        'relationship' => 'none',
+  ),
+      'date' => array(
+        'operator' => 'between',
+        'value' => array(
+          'type' => 'date',
+          'value' => '',
+          'min' => '',
+          'max' => '',
+  ),
+        'group' => '0',
+        'exposed' => TRUE,
+        'expose' => array(
+          'use_operator' => 0,
+          'operator' => 'date_op',
+          'identifier' => 'date',
+          'label' => 'Date',
+          'optional' => 1,
+          'remember' => 0,
+  ),
+        'id' => 'date',
+        'table' => 'wallymport_logs',
+        'field' => 'date',
+        'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('access', array(
+      'type' => 'none',
+  ));
+  $handler->override_option('cache', array(
+      'type' => 'none',
+  ));
+  $handler->override_option('items_per_page', 30);
+  $handler->override_option('use_pager', '1');
+  $handler->override_option('style_plugin', 'table');
+  $handler->override_option('style_options', array(
+      'grouping' => '',
+      'override' => 1,
+      'sticky' => 0,
+      'order' => 'desc',
+      'summary' => '',
+      'columns' => array(
+        'date' => 'date',
+        'filename' => 'filename',
+        'location' => 'location',
+        'success' => 'success',
+        'message' => 'message',
+  ),
+      'info' => array(
+        'date' => array(
+          'sortable' => 1,
+          'separator' => '',
+  ),
+        'filename' => array(
+          'sortable' => 0,
+          'separator' => '',
+  ),
+        'location' => array(
+          'sortable' => 0,
+          'separator' => '',
+  ),
+        'success' => array(
+          'sortable' => 1,
+          'separator' => '',
+  ),
+        'message' => array(
+          'sortable' => 1,
+          'separator' => '',
+  ),
+  ),
+      'default' => 'date',
+  ));
+  $handler = $view->new_display('page', 'Page', 'page_1');
+  $handler->override_option('filters', array(
+      'filename' => array(
+        'operator' => 'word',
+        'value' => '',
+        'group' => '0',
+        'exposed' => TRUE,
+        'expose' => array(
+          'use_operator' => 0,
+          'operator' => 'filename_op',
+          'identifier' => 'Filename',
+          'label' => 'File Name',
+          'remember' => 0,
+  ),
+        'case' => 1,
+        'id' => 'filename',
+        'table' => 'wallymport_logs',
+        'field' => 'filename',
+        'relationship' => 'none',
+        'override' => array(
+          'button' => 'Use default',
+  ),
+  ),
+      'date' => array(
+        'operator' => 'between',
+        'value' => array(
+          'type' => 'date',
+          'value' => '',
+          'min' => '',
+          'max' => '',
+  ),
+        'group' => '0',
+        'exposed' => TRUE,
+        'expose' => array(
+          'use_operator' => 0,
+          'operator' => 'date_op',
+          'identifier' => 'date',
+          'label' => 'Wallymport: Date',
+          'optional' => 1,
+          'remember' => 0,
+  ),
+        'id' => 'date',
+        'table' => 'wallymport_logs',
+        'field' => 'date',
+        'relationship' => 'none',
+  ),
+  ));
+  $handler->override_option('path', 'admin/wally/wallymport/settings/logs/%');
+  $handler->override_option('menu', array(
+      'type' => 'none',
+      'title' => '',
+      'description' => '',
+      'weight' => 0,
+      'name' => 'navigation',
+  ));
+  $handler->override_option('tab_options', array(
+      'type' => 'none',
+      'title' => '',
+      'description' => '',
+      'weight' => 0,
+      'name' => 'navigation',
+  ));
+  $view->save();
+}

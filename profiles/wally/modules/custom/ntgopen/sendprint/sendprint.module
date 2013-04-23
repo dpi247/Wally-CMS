@@ -1,0 +1,348 @@
+<?php 
+/**
+ * Implementation of hook_menu 
+ */
+function sendprint_menu(){
+  $items['admin/sendprint'] = array(
+    'title'                         => t('Send to print'),
+    'page callback'                 => 'drupal_get_form',
+    'page arguments'                => array('sendprint_page_sendtoprint_form'),
+    'access arguments'              => array('send to print'),
+    'file'                          => 'includes/sendprint.admin.inc',
+  );
+  $items['admin/sendprint/send'] = array(
+    'title'                         => t('Send to print'),
+    'page callback'                 => 'drupal_get_form',
+    'page arguments'                => array('sendprint_page_sendtoprint_form'),
+    'access arguments'              => array('send to print'),
+    'type'                          => MENU_LOCAL_TASK,
+    'file'                          => 'includes/sendprint.admin.inc',
+    'type'                          => MENU_DEFAULT_LOCAL_TASK,
+    'weight'                        => 0,
+  );
+  //Page to set settings for the send
+  $items['admin/sendprint/settings'] = array(
+    'title'            => t('Settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('sendprint_page_settings_form'),
+    'access arguments' => array('administer sendprint'),
+    'file'             => 'includes/sendprint.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 1,
+  );
+  $items['admin/sendprint/log'] = array(
+    'title'            => t('Logs'),
+    'page callback'    => 'sendprint_page_log',
+    'access arguments' => array('administer sendprint'),
+    'file'             => 'includes/sendprint.admin.inc',
+    'type'             => MENU_LOCAL_TASK,
+    'weight'           => 2,
+  );
+  return $items;
+}
+/**
+ * Implementation of hook_perm 
+ */
+function sendprint_perm(){
+  return array(
+    'send to print',
+  );
+}
+/**
+ * Implementation of hook_theme
+ */
+function sendprint_theme(){
+  $path = drupal_get_path('module', 'sendprint');
+  
+  $base = array(
+      'file' => 'theme.inc',
+      'path' => $path."/theme",
+  );
+  $theme_functions = array(
+    'sendprint_logs' => $base + array(
+      'arguments' => array('logs_array' => array()),
+    ),
+  );
+  return $theme_functions;
+}
+/**
+ * Send pages to print
+ */
+function sendprint_send(){
+  
+  //Get the variant used for each taxonomy term
+  $dest_vid = variable_get('wallymport_destinationpath', 0);
+  $depth = 0;
+  $tid_did_mapping = wallyctools_get_term_handler_mapping($dest_vid, $depth);
+  
+  
+  //Get the variant with print pipeline
+  $handlers = sendprint_get_printhandler();
+
+  //Get the destination who need the ranklayout to be switch
+  $destinations_terms = sendprint_get_destinationinprint($tid_did_mapping, $handlers);
+
+  //modified the reservation sytem for the destinations before print.
+  sendprint_change_destination_rankslayout($destinations_terms, 'before_print');
+  //Create zip
+  if (sendprint_create_zip($destinations_terms) && wally_variable_get('sendprint_ssh_server', '') != ''){
+    //send zip
+    $result = sendprint_ssh_send_zip();
+    //Save articles in db
+    if ($result){
+      sendprint_save_log($destinations_terms);
+    }
+  } elseif (wally_variable_get('sendprint_ssh_server', '') == '') {
+    drupal_set_message(t('You must configure the ssh server. See <a href="/admin/sendprint/settings">the configuration page</a>'), 'error');
+  } else {
+    drupal_set_message(t('The zip files could not be created, see an administrator'), 'error');
+  }
+  
+  //modified the reservation sytem for the destinations after print.
+  sendprint_change_destination_rankslayout($destinations_terms, 'after_print');
+  
+}
+/**
+ * 
+ * Get all the variant with a print pipeline
+ * @return array of variant
+ */
+function sendprint_get_printhandler(){
+  $handlers = array();
+  module_load_include('inc', 'ctools', 'includes/export');
+  //Look for the variant with the attribute display_type to print in the pipeline
+  $pages = page_manager_get_tasks_by_type('page');
+  foreach ($pages as $page_name => $page) {
+    $cached_page = page_manager_get_page_cache($page_name);
+    foreach ($cached_page->handlers as $handler_name => $handler_value){
+      if ($handler_value->conf['pipeline'] != NULL ){
+        $pipeline = ctools_export_crud_load('panels_renderer_pipeline', $handler_value->conf['pipeline']);
+        if (isset($pipeline->display_type) && $pipeline->display_type == 'print'){
+          $handlers[] = $handler_value;
+        }
+      }
+    }
+  }
+  return $handlers;
+}
+/**
+ * 
+ * Get All the destinations in the print case adding redacblock information and weight informations
+ * @param array $tid_did_mapping
+ * @param array $handlers
+ */
+function sendprint_get_destinationinprint($tid_did_mapping, $handlers){
+  $redacblock_panes = wallyctools_get_redacblock_panes();
+  $destinations_terms = array();
+  $panel_id = array();
+  $page_number = 1;
+
+  foreach ($handlers as $handler){
+    $redacblocks = array();
+    foreach ($redacblock_panes as $redac){
+      if ($redac->did == $handler->conf['did']){
+        $redacblocks[$redac->name] = $redac;
+      }
+    }
+    $panel_id[$handler->name] = array(
+      'name' => $handler->name,
+      'redacblock_panes' => $redacblocks,
+      'page_number' => $page_number,
+    );
+    $page_number++;
+  }
+  foreach ($tid_did_mapping as $tid => $mapping){
+    if (array_key_exists($mapping['name'], $panel_id)){
+      
+      $term = taxonomy_get_term($tid);
+      $term->redacblocks = $panel_id[$mapping['name']]['redacblock_panes'];
+      $term->page_number = $panel_id[$mapping['name']]['page_number'];
+      $destinations_terms[] = $term;
+      $panel_id[$mapping['name']]['page_number']++;
+    }
+  }
+  return $destinations_terms;
+}
+/**
+ * 
+ * Edit the destination rankslayout for the destination in print
+ * @param array $destinations_terms
+ * @param string $type
+ * Type : before_print or after_print
+ */
+function sendprint_change_destination_rankslayout($destinations_terms, $type){
+  if ($type == 'before_print'){
+    $settings = array(
+      'sort_method' => 'absolute',
+      'behavior' => 'bottom',
+      'reserved' => 1,
+      'delta_t' => 1,
+    );
+  } elseif ($type == 'after_print'){
+    $settings = array(
+      'sort_method' => 'absolute',
+      'behavior' => 'top',
+      'reserved' => 0,
+      'delta_t' => 1,
+    );
+  } else {
+    $settings = array(
+      'sort_method' => 'absolute',
+      'behavior' => 'top',
+      'reserved' => 5,
+      'delta_t' => 1,
+    );
+  }
+  foreach ($destinations_terms as $term){
+    foreach ($term->redacblocks as $redacblock_name => $redacblock){  
+      wally_variable_set('cckdestinations_destination_'.$term->tid.'_'.$redacblock_name, $settings);
+    }
+  }
+  
+}
+/**
+ * 
+ * Create the zip and place it in a file to be send
+ * @param unknown_type $destinations_terms
+ */
+function sendprint_create_zip($destinations_terms){
+
+  foreach ($destinations_terms as $term){
+    //Get the destination page
+    $http_request = drupal_http_request('http://'.$_SERVER['HTTP_HOST'].'/taxonomy/term/'.$term->tid.'/sendprint');
+    $doc = new DOMDocument('1.0', 'UTF-8');
+    $doc->loadXML($http_request->data);
+    //Add attribute informations about the page.
+    if ($term->page_number == 1){
+      foreach ($doc->getElementsByTagName('template') as $key => $value){
+        $doc->getElementsByTagName('template')->item($key)->setAttribute('pagetype', 'UNE');
+      }
+    } else {
+      foreach ($doc->getElementsByTagName('template') as $key => $value){
+        $doc->getElementsByTagName('template')->item($key)->setAttribute('pagetype', 'INT');  
+      }
+    }
+    $doc->getElementsByTagName('templates')->item(0)->setAttribute('section', $term->name);
+    $doc->getElementsByTagName('templates')->item(0)->setAttribute('logicalpagenr', $term->page_number);
+    $doc->getElementsByTagName('templates')->item(0)->setAttribute('physicalnr', $term->page_number);
+    
+    $zip = new ZipArchive;
+    $file_name = 'taxonomy_term_'.$term->tid;
+    $res = $zip->open(wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file_name.'.zip', ZipArchive::CREATE);
+    if ($res === TRUE) {
+      
+      //Save the destination page in xml and put it in the zip
+      $zip->addFromString($file_name.'.xml', $doc->saveXML());
+      
+      //Add the images
+      $frames = $doc->getElementsByTagName('frame');
+      foreach ($frames as $frame){
+        if ($frame->getAttribute('type') == 2){
+          $dom_photo = new DOMDocument();
+          $dom_photo->loadXML($frame->nodeValue);
+          $file_path = $dom_photo->getElementsByTagName('internal_filepath');
+          $file_name = $dom_photo->getElementsByTagName('filepath');
+          $zip->addFile($file_path->item(0)->nodeValue, $file_name->item(0)->nodeValue);
+        }
+      }
+      $zip->close();
+      $return = TRUE;
+    } else {
+      $return = FALSE;
+    }
+    $page_number++;
+  }
+  return $return;
+}
+function sendprint_ssh_send_zip(){
+  $ok = TRUE;
+  //include('sites/all/libraries/phpseclib0.3.1/Net/SFTP.php');
+  $server = wally_variable_get('sendprint_ssh_server', '');
+  if ($server == ''){
+    drupal_set_message(t('You must fill the FTP information on admin/sendprint/settings'), 'error');
+    $ok = FALSE;
+  } else {
+    $user_name = wally_variable_get('sendprint_ssh_name', '');
+    $user_pass = wally_variable_get('sendprint_ssh_password','');
+    
+    //connection verification
+    //sending files
+    foreach (scandir(wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export')) as $file){
+      if (strpos($file, '.zip')){
+        $destination_file = '/upload/'.$file;
+        $source_file = wally_variable_get('sendprint_export_filepath', 'sites/default/files/sendprint/export').'/'.$file;
+        
+        //send file        
+        $streamFile = 'ssh2.sftp://'.$user_name.':'.$user_pass.'@'.$server.':22'.$destination_file;
+        $contents = file_get_contents($source_file);
+        if ($contents === FALSE) {
+          drupal_set_message(t('The zip file can\'t be read'));
+        }
+        //Sending contents
+        $return = file_put_contents($streamFile, $contents);
+        if ($return === FALSE) {
+          drupal_set_message(t('The zip file could not be send'));
+        }
+        unlink($source_file);
+      }
+    }
+  }
+  return $ok;
+}
+/**
+ * 
+ * Get the nid in each target and record it in db
+ * @param array $destinations_terms
+ */
+function sendprint_save_log($destinations_terms){
+  
+  $log_article = array();
+  foreach ($destinations_terms as $dest){
+    $tid = $dest->tid;
+    $log_article[$dest->tid] = array();
+    foreach ($dest->redacblocks as $redacblock){
+      $view_name = $redacblock->view_name;
+      $view_id = $redacblock->view_id;
+      $redacblock_name = $redacblock->name;
+      $view = views_get_view($view_name);
+      $view->set_display($view_id);
+            
+      $options = array(
+        'operator' => 'in',
+        'value' => array($redacblock_name => $redacblock_name),
+        'group' => '0',
+        'exposed' => FALSE,
+        'expose' => array(
+          'operator' => FALSE,
+          'label' => '',
+        ),
+        'relationship' => 'none',
+      );
+      
+      $view->add_item($view_id, 'filter', 'node_data_field_destinations', 'field_destinations_target', $options);
+      $view->is_cacheable = FALSE;
+      
+      //init handler should be placed after add_item !!!
+      $view->init_handlers();
+      
+      if (empty($view) || !is_object($view) || empty($view->display_handler)) {
+        return array();
+      }
+      if (!$view->display_handler->access($GLOBALS['user'])) {
+        return array();
+      }
+      
+      $view->set_arguments(array($tid));
+      
+      $view->set_items_per_page(1);
+      
+      $view->execute();
+      $log_article[$dest->tid][$redacblock_name] = $view->result[0]->nid;
+    }
+  }
+  $log = new stdClass();
+  $log->date = time();
+  $log->log = serialize($log_article);
+  drupal_write_record('sendprint_logs', $log);
+  
+}

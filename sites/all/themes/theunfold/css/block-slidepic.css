@@ -1,0 +1,126 @@
+/*
+ * Slide-pic.less
+ * Basic and global styles
+ * ----------------------- */
+/*
+ * Package.less
+ * Date: Dec. 2011
+ * Version 1.0.1
+ */
+/* 
+ * Mixins.less
+ * Snippets of reusable CSS to develop faster and keep code readable
+ * Credits:
+ *  Preboot.less http://markdotto.com/bootstrap/ 
+ *  LESS Elements http://lesselements.com/
+ *  CSS Tricks: http://css-tricks.com/snippets/css/useful-css3-less-mixins/ 
+ * ------------------------------------------------------------------------ */
+/* For image replacement */
+/* Hide for both screenreaders and browsers: h5bp.com/m */
+/*  Hide only visually, but have it available for screenreaders: h5bp.com/v */
+/* Hide visually and from screenreaders, but maintain layout */
+/* Guideline.less
+ * Variables to customize the look and feel
+ * ---------------------------------------- */
+/*
+ * Grid.less
+ * Basic and global styles for generating a grid system
+ * Credits:
+ *  http://twitter.github.com/bootstrap/
+ *  http://semantic.gs/
+ * ---------------------------------------------------- */
+.block-slidepic {
+  margin-bottom:19px;
+  padding: 0;
+}
+.block-slidepic ul {
+  margin: 0;
+  list-style: none;
+}
+.block-slidepic ul li {
+  display: none;
+  list-style: none;
+  margin:0px;
+}
+.block-slidepic ul li:first-child {
+  display: list-item;
+}
+.block-slidepic ul li figure a {
+  display: block;
+  margin: 0;
+}
+.block-slidepic .pagination {
+  border-bottom: 1px solid #4a4a4a;
+  margin-bottom: 0;
+  text-align: center;
+}
+.block-slidepic .pagination a {
+  display: inline-block;
+  border-right: 1px solid #4a4a4a;
+  padding: 6px 8px 4px;
+  line-height: 1;
+  color: #717171;
+}
+.block-slidepic .pagination a:hover,
+.block-slidepic .pagination a.active {
+  background: #7d7d7d;
+  color: #ffffff;
+  text-decoration: none;
+}
+.block-slidepic .pagination a:first-child {
+  border-left: 1px solid #4a4a4a;
+}
+.block-slidepic .pagination a.prev,
+.block-slidepic .pagination a.next {
+  display: inline;
+  padding: 5px 6px 3px;
+  color: #ffffff;
+  text-decoration: none;
+}
+.block-slidepic .pagination a.prev:hover,
+.block-slidepic .pagination a.next:hover {
+  color: #ffffff;
+}
+.block-slidepic .pagination a.prev:before {
+  font-size: 20px;
+  font-family: 'ModernPictogramsNormal';
+}
+.block-slidepic .pagination a.next:before {
+  font-size: 20px;
+  font-family: 'FontAwesome';
+}
+.block-slidepic .pagination a span {
+  display: none;
+}
+.media {
+  background: #242424;
+}
+.media figure {
+  position: relative;
+  margin: 0;
+}
+.media figure a:hover {
+  text-decoration: none;
+}
+.media figure img {
+  float: none;
+  display: block;
+  margin: 0;
+}
+.media figure figcaption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  text-align: left;
+  z-index:1;
+}
+.media figure:hover figcaption{
+	display:none;
+}
+div.emvideo{
+	line-height: 0px;
+}

@@ -1,0 +1,59 @@
+@charset "utf-8";
+#divthicker {
+	width: 100%;
+}
+#divthicker a {
+	font-weight: bold;
+	color: #666666;
+	display: inline-block;
+	text-transform: uppercase;
+	
+}
+#divthicker #today{
+	vertical-align:top;
+	padding-top:28px;
+	padding-right:5px;
+}
+#divthicker #thicker {
+	width:90%;
+	position:absolue;
+	display: inline-block;
+	padding-left: 10px;	
+}
+#divthicker #thicker ul {
+	width: 100%;
+	margin-top:0;
+	padding-top:0;
+}
+#divthicker  #thicker  ul li {
+	width: 100%;
+}
+#divthicker  #thicker  ul li small {
+	display: inline-block;
+	margin-right: 15px;
+	color: #999999;
+
+}
+#divthicker  #thicker  ul li h2 {
+	display: inline-block;
+	font-size: medium;
+	font-weight: bold;
+	color: #000000;
+	text-transform: none;
+	margin-top:0;
+	padding-top:0;
+}
+#divthicker #thicker ul li a{
+text-decoration: none;
+}nline-block;
+	padding-left: 10px;	
+}
+#divthicker #thicker ul {
+	width: 100%;
+	margin-top:0;
+	padding-top:0;
+}
+#divthicker  #thicker  ul li {
+	width: 100%;
+}
+#divthicker  #thicker

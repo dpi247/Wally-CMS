@@ -1,0 +1,536 @@
+<?php
+
+/**
+ * Implementation of hook_menu()
+ */
+function wallysitemap_menu() {
+  $items = array();
+  
+  $items['admin/wally/wallysitemap'] = array(
+    'title'            => t('Wally Sitemap'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallysitemap_admin_settings_page_form'),
+    'access arguments' => array('administer sitemaps'),
+    'description'      => t('Manage Sitemaps settings'),
+    'file'             => 'includes/wallysitemap.admin.inc',
+  );
+  
+  $items['admin/wally/wallysitemap/mainsitemap'] = array(
+    'title'            => t('Main Sitemap'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallysitemap_admin_settings_page_form'),
+    'access arguments' => array('administer sitemaps'),
+    'file'             => 'includes/wallysitemap.admin.inc',
+    'weight'           => 0,
+    'type'             => MENU_DEFAULT_LOCAL_TASK,
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function wallysitemap_theme() {
+  $theme_path = drupal_get_path('module', 'wallysitemap').'/theme/theme.inc';
+  return array(
+    'wallysitemap_checkboxes' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
+    'wallysitemap_checkboxes_elements' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
+    'wallysitemap_taxonomy_tree' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
+    'wallysitemap_taxonomy_tree_elements' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
+    'wallysitemap_elements_select' => array( 
+      'arguments' => array('element'), 
+      'file' => $theme_path,
+    ),
+    'wallysitemap_taxonomy_tree_checkbox' => array(
+      'arguments' => array('element'),
+      'file' => $theme_path,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_cron()
+ * Call the sitemap generation.
+ */
+function wallysitemap_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+  
+  // Fetch the cron semaphore
+  $semaphore = wally_variable_get('wallysitemap_cron_semaphore', FALSE);
+  
+  if ($semaphore) {
+    if (time() - $semaphore > 4 * 60) {
+      // Either cron has been running for more 5 minutes or the semaphore
+      // was not reset due to a database error.
+      wally_variable_del('wallysitemap_cron_semaphore');
+    }
+  
+    $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
+  } else {
+    // Register shutdown callback
+    register_shutdown_function('wallysitemap_cron_cleanup');
+    
+    // Lock cron semaphore
+    wally_variable_set('wallysitemap_cron_semaphore', time());
+    
+    // Main process
+    if ($settings = wally_variable_get('wallysitemap_sitemaps_settings', FALSE)) {
+      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+      wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+      
+      $site_infos = wallysitemap_get_site_infos();
+      module_load_include('inc', 'wallysitemap', 'includes/wallysitemap.generate_xml');
+      _wallysitemap_generate_sitemap_xml($site_infos, $settings);
+      
+      $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wallysitemap_cron');
+      $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+      $formatted = $d->format('i:s.u');
+      $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+    } else {
+      $return .= t('The module has not been configured yet, the sitemap will not be generated untill the configuration is set.').'<br>';
+    }
+    
+    // Release cron semaphore
+    wally_variable_del('wallysitemap_cron_semaphore');
+  }
+  
+  print $return;
+}
+
+/**
+ * Shutdown function for sitemap cron cleanup.
+ */
+function wallysitemap_cron_cleanup() {
+  // See if the semaphore is still locked.
+  if (wally_variable_get('wallysitemap_cron_semaphore', FALSE)) {
+    // Release cron semaphore
+    wally_variable_del('wallysitemap_cron_semaphore');
+  }
+}
+
+/**
+ * Implementation of hook_elements()
+ */
+function wallysitemap_elements() {
+  $type['wallysitemap_checkboxes'] = array(
+    '#input' => TRUE,
+    '#process' => array('wallysitemap_checkboxes_process_elements'),
+    '#tree' => TRUE,
+  );
+  
+  $type['wallysitemap_taxonomy_tree'] = array(
+    '#input' => TRUE,
+    '#process' => array('wallysitemap_taxonomy_tree_process_elements'),
+    '#tree' => TRUE,
+  );
+
+  return $type;
+}
+
+/**
+ * This function is like a simplified hook, we allow one other module to alter a DOM url through a unique function.
+ * The alteration can thus only be called only once.
+ * 
+ * @param object $dom
+ *   The complete DOM document
+ * @param object $url
+ *   The DOM url element
+ * @param string $type
+ *   The URL type, 'node', 'menu' or 'destination'
+ * @param array $args
+ *   Additionnal parameters, such a the node or the menu element. Depends on the URL type.
+ */
+function wallysitemap_call_url_alter($dom, &$url, $type, $args = array()) {
+  if (function_exists('wallysitemap_url_alter')) {
+    wallysitemap_url_alter($dom, $url, $type, $args);
+  }
+}
+
+function wallysitemap_generate_xmlfile($xmlfiles_to_generate, $folder_path) {
+  // @todo : gérer la compression gzip des xmls
+  
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
+
+  $sitemaps_full_path = array();
+  foreach ($xmlfiles_to_generate as $xmlfile_to_generate) {    
+    $sitemap_local_path = $folder_path.'/'.$xmlfile_to_generate['filename'];
+    $sitemaps_full_path[] = $ref_base_url.'/'.$sitemap_local_path;
+    $xmlfile_to_generate['dom']->save($sitemap_local_path);
+  }
+
+  wallysitemap_update_index($sitemaps_full_path, $folder_path);
+}
+
+function wallysitemap_update_index($paths, $folder_path) {
+  $namespaces = wallysitemap_get_namespaces();
+  
+  $index_local_path = $folder_path.'/sitemapindex.xml';
+
+  $dom_index = new DOMDocument('1.0', 'UTF-8');
+  _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+
+  foreach ($paths as $path) {
+    _wallysitemap_update_entry_in_index($dom_index, $dom_sitemapindex, $path);
+  }
+  
+  _wallysitemap_check_index($dom_index);
+
+  $dom_index->save($index_local_path);
+}
+
+function wallysitemap_remove_files($paths_to_delete, $folder_path) {
+  $namespaces = wallysitemap_get_namespaces();
+  
+  $index_local_path = $folder_path.'/sitemapindex.xml';
+  $dom_index = new DOMDocument('1.0', 'UTF-8');
+  
+  _wallysitemap_get_or_create_index($dom_index, $namespaces['sitemap'], $index_local_path);
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+  
+  foreach ($paths_to_delete as $path) {
+    _wallysitemap_delete_entry_in_index($dom_index, $dom_sitemapindex, $path);
+    unlink($path);
+  }
+  
+  $dom_index->save($index_local_path);
+}
+
+/**
+ * Get informations about the site which are necessary to build the sitemap.
+ */
+function wallysitemap_get_site_infos() {
+  global $language, $base_url;
+  return array(
+    'language' => $language->language,
+    'base_url' => $base_url,
+  );
+}
+
+/**
+ * Build default settings.
+ */
+function wallysitemap_default_settings() {
+  global $base_url;
+  $settings = array(
+    'wallysitemap_handled_menus' => array(
+      'primary-links' => array('check' => 1, 'weight_select' => 0, 'freq' => 'daily'),
+      'secondary-links' => array('check' => 1, 'weight_select' => 0, 'freq' => 'daily'),
+    ),
+    'wallysitemap_path' => 'sites/default/files/sitemaps',
+    'wallysitemap_base_url' => $base_url,
+    'wallysitemap_blacklist' => array(),
+  );
+  return $settings;
+}
+
+function wallysitemap_get_namespaces() {
+  return array(
+    'w3' => 'http://www.w3.org/2000/xmlns/',
+    'sitemap' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
+    'news' => 'http://www.google.com/schemas/sitemap-news/0.9',
+    'image' => 'http://www.google.com/schemas/sitemap-image/1.1',
+    'video' => 'http://www.google.com/schemas/sitemap-video/1.1',
+  );
+}
+
+function wallysitemap_checkboxes_process_elements($element) {
+  if (count($element['#check_options']) > 0) {
+    $element['#tree'] = TRUE;
+    $element['#element_validate'] = array('wallysitemap_checkboxes_validate');
+    
+    $element['#elements'] = array();
+    if (!isset($element['#default_value']) || $element['#default_value'] == 0) {
+      $element['#default_value'] = array();
+    }
+    $default_values = $element['#default_value'];
+    foreach ($element['#check_options'] as $key => $choice) {
+      $elem_def_values = isset($default_values[$key]) ? $default_values[$key] : array();
+      if (!isset($element[$key])) {
+        $element['#elements'][$key] = array();
+        $element['#elements'][$key]['check'] = array(
+          '#type' => 'checkbox',
+          '#title' => $choice,
+          '#return_value' => $key,
+          '#value' => $elem_def_values['check'],
+          '#attributes' => $element['#attributes'],
+        );
+        $element['#elements'][$key]['weight_select'] = array(
+          '#type' => 'select',
+          '#options' => $element['#select_options'],
+          '#value' => $elem_def_values['weight'],
+          '#theme' => 'wallysitemap_elements_select',
+        );
+        $element['#elements'][$key]['freq'] = array(
+          '#type' => 'select',
+          '#options' => $element['#freq_options'],
+          '#value' => $elem_def_values['freq'],
+          '#theme' => 'wallysitemap_elements_select',
+        );
+        $parents = $element['#parents'];
+        $parents[] = $key;
+        _taxonomy_manager_tree_element_set_params($parents, $element['#elements'][$key]);
+      }
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Selected values get added to associative array term IDs - weights for easy use in submit
+ *
+ * @param $form
+ */
+function wallysitemap_checkboxes_validate($form, &$form_state) {
+  $values = array();
+  if (is_array($form['#value'])) {
+    foreach ($form['#value'] as $menu_name => $form_value) {
+      $tmp_values = array();
+      $tmp_values['check'] = $form_value['check'];
+      $tmp_values['weight'] = $form_value['weight_select'];
+      $tmp_values['freq'] = $form_value['freq'];
+      $values[$menu_name] = $tmp_values;
+    }
+  }
+  form_set_value($form, $values, $form_state);
+}
+
+/**
+ * Processes the tree form element
+ *
+ * @param $element
+ * @return the tree element
+ */
+function wallysitemap_taxonomy_tree_process_elements($element) {
+  global $_taxonomy_manager_existing_ids; //TEMP: seems like this functions gets called twice in preview and cause problem because of adding the settings to js twice
+  $_taxonomy_manager_existing_ids = is_array($_taxonomy_manager_existing_ids) ? $_taxonomy_manager_existing_ids : array();
+  
+  $module_path = drupal_get_path('module', 'taxonomy_manager') .'/';
+  $id = form_clean_id(implode('-', $element['#parents']));
+  $vid = $element['#vid'];
+
+  if (!$element['#siblings_page'] && !in_array($id, $_taxonomy_manager_existing_ids)) {
+    $_taxonomy_manager_existing_ids[$id] = $id;
+    drupal_add_css($module_path .'css/taxonomy_manager.css');
+    drupal_add_js($module_path .'js/tree.js');
+    
+    drupal_add_js(array('siblingsForm' => array('url' => url('admin/content/taxonomy_manager/siblingsform'), 'modulePath' => $module_path)), 'setting');
+    drupal_add_js(array('childForm' => array('url' => url('admin/content/taxonomy_manager/childform'), 'modulePath' => $module_path)), 'setting');
+    drupal_add_js(array('taxonomytree' => array('id' => $id, 'vid' => $vid)), 'setting');
+  }
+
+  $tree = _taxonomy_manager_tree_get_item($element['#vid'], $element['#parent'], $element['#pager'], $element['#siblings_page'], $element['#search_string'], $element['#language']);
+  
+  $element['#default_value'] = is_array($element['#default_value']) ? $element['#default_value'] : array();
+  $element['#multiple'] = isset($element['#multiple']) ? $element['#multiple'] : TRUE;
+  $element['#tree'] = TRUE;
+  $element['#id'] = $id;
+  $element['#element_validate'] = array('wallysitemap_taxonomy_tree_validate');
+  $element['#required'] = isset($element['#tree_is_required']) ? $element['#tree_is_required'] : FALSE;
+  
+  if (count($element['#default_value']) && !$element['#expand_all']) {
+    $terms_to_expand = taxonomy_manager_tree_get_terms_to_expand($tree, $element['#default_value'], $element['#multiple']);
+  }
+
+  if (!empty($element['#language'])) {
+    $element['#elements']['language'] = array('#type' => 'hidden', '#value' => $element['#language'], '#attributes' => array('class' => 'tree-lang'));
+    _taxonomy_manager_tree_element_set_params($element['#parents'], $element['#elements']);
+  }
+
+  $select_options = $element['#select_options'] ? $element['#select_options'] : array();
+  $freq_options = $element['#freq_options'] ? $element['#freq_options'] : array();
+  $addcheckbox = isset($element['#add_checkbox']) ? $element['#add_checkbox'] : TRUE;
+  wallysitemap_taxonomy_tree_build_form($index = 0, $tree, $element['#elements'], $element, $element['#parents'], $element['#default_value'], $select_options, $freq_options, $addcheckbox);
+
+  return $element;
+}
+
+/**
+ * recursive function for building nested form array
+ * with checkboxes and weight forms for each term
+ *
+ * nested form array are allways appended to parent-form['children']
+ *
+ * @param $index current index in tree, start with 0
+ * @param $tree of terms (generated by taxonomy_get_tree)
+ * @return a form array
+ */
+function wallysitemap_taxonomy_tree_build_form(&$index, $tree, &$form, $root_form, $parents = array(), $default_values = array(), $select_options = array(), $freq_options = array(), $add_checkbox = TRUE) {
+  $current_depth = $tree[$index]->depth;
+  while ($index < count($tree) && $tree[$index]->depth >= $current_depth) {
+    $term = $tree[$index];
+
+    $attributes = array();
+
+    $this_parents = $parents;
+    $this_parents[] = $term->tid;
+
+    $values = array_key_exists($term->tid, $default_values) ?
+      $default_values[$term->tid] :
+      array(
+        'check' => 1,
+        'weight' => 0,
+        'freq' => 'daily',
+      );
+    if ($add_checkbox) {
+      $form[$term->tid]['check'] = array(
+        '#type' => 'checkbox',
+        '#value' => $values['check'],
+        '#theme' => 'wallysitemap_taxonomy_tree_checkbox',
+      );
+    }
+    if (!empty($select_options)) {
+      $form[$term->tid]['weight_select'] = array(
+        '#type' => 'select',
+        '#title' => $term->name,
+        '#options' => $select_options,
+        '#value' => $values['weight'],
+        '#theme' => 'wallysitemap_elements_select',
+      );
+    }
+    if ($freq_options) {
+      $form[$term->tid]['freq'] = array(
+        '#type' => 'select',
+        '#title' => $term->name,
+        '#options' => $freq_options,
+        '#value' => $values['freq'],
+        '#theme' => 'wallysitemap_elements_select',
+      );
+    }
+
+    _taxonomy_manager_tree_element_set_params($this_parents, $form[$term->tid]);
+    
+    $class = _taxonomy_manager_tree_term_get_class($index, $tree, ($root_form['#expand_all'] || in_array($term->tid, $terms_to_expand)));
+    if (!empty($class)) {
+      $form[$term->tid]['#attributes']['class'] .= $class;
+    }
+
+    $index++;
+
+    if ($tree[$index]->depth > $current_depth) {
+      wallysitemap_taxonomy_tree_build_form($index, $tree, $form[$term->tid]['children'], $root_form, array_merge($this_parents, array('children')), $default_values, $select_options, $freq_options, $add_checkbox);
+    }
+  }
+}
+
+/**
+ * Selected values get added to associative array term IDs - weights for easy use in submit
+ *
+ * @param $form
+ */
+function wallysitemap_taxonomy_tree_validate($form, &$form_state) {
+  $values = _wallysitemap_taxonomy_tree_process_values($form['#value']);
+  form_set_value($form, $values, $form_state);
+}
+
+/**
+ * Returns mapping term IDs - selected weights
+ *
+ * Goes through nested form array recursivly
+ *
+ * @param $form_values
+ * @return an array with selected weights
+ */
+function _wallysitemap_taxonomy_tree_process_values($form_values) {
+  $values = array();
+  if (is_array($form_values)) {
+    foreach ($form_values as $tid => $form_value) {
+      $tmp_values = array();
+      if (isset($form_value['check'])) {
+        $tmp_values['check'] = $form_value['check'];
+      }
+      if (isset($form_value['weight_select'])) {
+        $tmp_values['weight'] = $form_value['weight_select'];
+      }
+      if (isset($form_value['freq'])) {
+        $tmp_values['freq'] = $form_value['freq'];
+      }
+      $values[$tid] = $tmp_values;
+      if (is_array($form_value['children'])) {
+        $values += _wallysitemap_taxonomy_tree_process_values($form_value['children']);
+      }
+    }
+  }
+  return $values;
+}
+
+function _wallysitemap_get_or_create_index(&$dom, $sitemapNS, $index_path) {
+  if (file_exists($index_path)) {
+    $dom->load($index_path);
+  } else {
+    $dom->appendChild($dom->createElementNS($sitemapNS, 'sitemapindex'));
+  }
+}
+
+function _wallysitemap_update_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+  $found = FALSE;
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      if ($sitemap_loc == $path) {
+        $found = TRUE;
+        $dom_old_lastmod = $dom_sitemap->getElementsByTagName('lastmod')->item(0);
+        $dom_old_lastmod->nodeValue = date('Y-m-d\TH:i:sP');
+      }
+    }
+  }
+  if (!$found) {
+    $dom_new_sitemap = $dom_sitemapindex->appendChild($dom_index->createElement('sitemap'));
+    $dom_new_sitemap->appendChild($dom_index->createElement('loc', $path));
+    $dom_new_sitemap->appendChild($dom_index->createElement('lastmod', date('Y-m-d\TH:i:sP')));
+  }
+}
+
+function _wallysitemap_check_index(&$dom_index) {
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
+  
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      $local_path = str_replace($ref_base_url.'/', '', $sitemap_loc);
+      if (!file_exists($local_path)) {
+        $dom_sitemapindex->removeChild($dom_sitemap);
+      }
+    }
+  }
+}
+
+function _wallysitemap_delete_entry_in_index(&$dom_index, &$dom_sitemapindex, $path) {
+  global $base_url;
+  $settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+  $ref_base_url = isset($settings['wallysitemap_base_url']) ? $settings['wallysitemap_base_url'] : $base_url;
+  
+  $dom_sitemapindex = $dom_index->getElementsByTagName('sitemapindex')->item(0);
+  $dom_sitemaps = $dom_index->getElementsByTagName('sitemap');
+  if ($dom_sitemaps->item(0)) {
+    foreach ($dom_sitemaps as $dom_sitemap) {
+      $sitemap_loc = $dom_sitemap->getElementsByTagName('loc')->item(0)->nodeValue;
+      if ($sitemap_loc == $path || $sitemap_loc == $ref_base_url.'/'.$path) {
+        $dom_sitemapindex->removeChild($dom_sitemap);
+        break;
+      }
+    }
+  }
+}

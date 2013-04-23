@@ -1,0 +1,43 @@
+ul.dashboard_shortcut li{
+	float:left;
+	margin:5px;
+	border:3px solid #2E2E2E;
+	border-radius:5px;
+	background-color: white;
+	padding:15px;
+}
+ul.dashboard_shortcut li:hover{
+	background-color: #F2F2F2;
+}
+div.clear{
+	clear:both;
+}
+
+div.panel-pane{
+	border:1px solid #DDDDDD;
+	padding:5px;
+	background-color:#FAFAFA;
+	margin-bottom:10px;
+}
+div.panel-pane h2{
+	background-color:white;
+	text-align:center;
+	border:1px solid #DDDDDD;
+	margin-bottom:5px;
+	font-size:15px;
+	padding:5px; 
+}
+div.panel-pane table{
+	margin-bottom:0px;
+}
+table.sticky-header{
+	display:none;
+	
+}
+div.statpackage li{
+	float:left;
+}
+div.statpackage div.form-item{
+	position:static;
+	border : none;
+}

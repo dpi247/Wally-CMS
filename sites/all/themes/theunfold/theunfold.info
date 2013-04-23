@@ -1,0 +1,20 @@
+name = theunfold
+description = The Unfold theme
+version = 1
+core = 6.x
+engine = phptemplate
+
+
+
+stylesheets[screen][] = css/screen.css
+stylesheets[screen][] = css/block-slidepic.css
+
+regions[TUToolbarRight] = TUToolbarRight
+regions[TUToolbarLeft] = TUToolbarLeft
+regions[TUmain] = TUMain
+regions[TUbottom] = TUBottom
+regions[TUtop] = TUTop
+
+ 
+api[panels][styles][version] = 2
+plugins[panels][layouts] = plugins/layouts

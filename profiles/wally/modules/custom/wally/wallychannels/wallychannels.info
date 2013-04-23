@@ -1,0 +1,6 @@
+name = "Wally Channels"
+description = "Plugin architecture used to plush contents to various channels (like Twitter or Facebook)"
+package = "Wally"
+core = "6.x"
+version = "6.x-1.0-rc1"
+project = "Wally"

@@ -1,0 +1,156 @@
+<?php
+
+function wallynewssitemap_schema() {
+  $schema = array();
+  
+  $schema['content_field_sitemap_genre'] = array(
+    'description' => 'Field Sitemap Genre',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'delta' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'field_sitemap_genre_value' => array(
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'nid' => array('nid'),
+    ),
+  );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install()
+ * Add the "Sitemap genre" field to packages
+ */
+function wallynewssitemap_install() {
+  drupal_install_schema('wallynewssitemap');
+  
+  $voc_genre = array(
+    'name' => t('Sitemap Genre'),
+    'description' => t('Genres defined by Google to be used in news sitemaps.'),
+    'help' => '',
+    'relations' => 1,
+    'hierarchy' => 0,
+    'multiple' => 0,
+    'required' => 0,
+    'tags' => 0,
+    'module' => 'wallynewssitemap',
+    'weight' => 0,
+    'nodes' => array(),
+  );
+  taxonomy_save_vocabulary($voc_genre);
+
+  $term_pressrelease = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('PressRelease'),
+    'description' => t('An official press release'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_pressrelease);
+  $term_genre = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('Satire'),
+    'description' => t('An article which ridicules its subject for didactic purposes'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_genre);
+  $term_genre = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('Blog'),
+    'description' => t('Any article published on a blog, or in a blog format'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_genre);
+  $term_genre = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('OpEd'),
+    'description' => t('An opinion-based article which comes specifically from the Op-Ed section of your site'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_genre);
+  $term_genre = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('Opinion'),
+    'description' => t('Any other opinion-based article not appearing on an Op-Ed page, i.e., reviews, interviews, etc.'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_genre);
+  $term_genre = array(
+    'vid' => $voc_genre['vid'],
+    'name' => t('UserGenerated'),
+    'description' => t('Newsworthy user-generated content which has already gone through a formal editorial review process on your site'),
+    'weight' => 0,
+  );
+  taxonomy_save_term($term_genre);
+  
+  if (module_exists('content_taxonomy')) {
+    $content = new stdClass();
+    $content->field_name = 'field_sitemap_genre';
+    $content->type = 'content_taxonomy';
+    $content->global_settings = array(
+      'save_term_node' => '0',
+      'vid' => $voc_genre['vid'],
+      'parent' => '0',
+      'parent_php_code' => '',
+      'depth' => '',
+    );
+    $content->required = 0;
+    $content->multiple = 1;
+    $content->db_storage = 0;
+    $content->module = 'content_taxonomy';
+    $content->db_columns = array('value' => array('type' => 'int', 'not null' => FALSE, 'sortable' => FALSE));
+    $content->active = 1;
+    $content->locked = 0;
+    drupal_write_record('content_node_field', $content);
+    
+    $content = new stdClass();
+    $content->field_name = 'field_sitemap_genre';
+    $content->weight = 49;
+    $content->label = 'Sitemap genre';
+    $content->widget_type = 'content_taxonomy_options';
+    $content->widget_settings = array('default_value' => array(array('value' => $term_pressrelease['tid'])), 'default_value_php' => NULL);
+    $content->display_settings = array(
+      'label' => array('format' => 'above', 'exclude' => 0),
+      'teaser' => array('format' => 'default', 'exclude' => 0),
+      'full' => array('format' => 'default', 'exclude' => 0),
+      4 => array('format' => 'default', 'exclude' => 0),
+      2 => array('format' => 'default', 'exclude' => 0),
+      3 => array('format' => 'default', 'exclude' => 0),
+      'token' => array('format' => 'default', 'exclude' => 0),
+    );
+    $content->widget_module = 'content_taxonomy_options';
+    $content->widget_active = 1;
+    $group = new stdClass();
+    $group->group_name = 'group_taxonomy';
+    $group->field_name = 'field_sitemap_genre';
+    $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+    foreach ($pack_types as $pack_type) {
+      $content->type_name = $pack_type;
+      drupal_write_record('content_node_field_instance', $content);
+      $group->type_name = $pack_type;
+      drupal_write_record('content_group_fields', $group);
+    }
+  }
+}

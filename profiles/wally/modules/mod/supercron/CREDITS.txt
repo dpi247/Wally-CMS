@@ -1,0 +1,33 @@
+$Id
+
+This module is sponsored by the 63reasons team at 63reasons.com
+
+Architecture:
+Louis-Eric Simard
+
+First Implementation:
+Yuriy Pobezhimov
+Louis-Eric Simard
+
+Multithreading Code:
+Rene-Marc Simard
+
+Throttle Support, Firewall, Code Readiness:
+Mustafah El Banna
+
+Selective Call and Per-Task Scheduling:
+Andy Truong
+
+AutoCron & Crash Safety:
+Louis-Eric Simard (based on David Reid's Poormanscron)
+
+Thanks to (in alphabetical order, and I am certain that we inadvertently forgot a lot of good people so our apologies):
+agharbeia, arhak, cpliakas, NikLP, geerlingguy, giorgio79, piloro, shunting, tseven, vacilando, whatdoesitwant
+for patches, ideas, translations, and good words.
+
+(In chronological order of contribution)
+Icons Courtesy Of:
+http://www.famfamfam.com/lab/icons/silk/
+Used under the Creative Commons Attribution 2.5 License
+
+cron syntax help file courtesy of Wikipedia

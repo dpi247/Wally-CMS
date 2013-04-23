@@ -1,0 +1,335 @@
+<?php
+define('WALLY_ADMIN_PATH', 'admin/wally');
+
+/**
+ * @file wallyadmin.module
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallyadmin_menu() {
+  $items = array();
+  
+  $items[WALLY_ADMIN_PATH] = array(
+    'title' => 'Wally',
+    'description' => t('Wally administration links'),
+    'position' => 'right',
+    'weight' => 5,
+    'page callback' => 'system_admin_menu_block_page',
+    'access callback' => TRUE,
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  
+  $items['admin/content/clearcache'] = array(
+    'title' => t('Clear cache'),
+    'description' => t('Clear the CSS cache and all database cache tables which store page, node, theme and variable caches.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_clear_cache_form'),
+    'access arguments' => array('manage cache'),
+    'file' => 'includes/wallyadmin.clear_cache.inc',
+  );
+  
+  $items['admin/wally/searchcache'] = array(
+    'title' => t('Search and manage cache'),
+    'page callback' => 'search_cache_admin',
+    'page arguments' => array('search_cache_admin'),
+    'access arguments' => array('manage cache'),
+    'description' => t('Allows administrators to search and manage cache.'),
+    'file' => 'includes/searchcache.admin.inc',
+  );
+  
+  $items['admin/wally/searchcache/key/%'] = array(
+    'page callback' => 'del_cache_admin',
+    'page arguments' => array('del_cache_admin'),
+    'access arguments' => array('manage cache'),
+    'page arguments' => array(4),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/searchcache.admin.inc',
+  );
+  
+  $items['admin/wally/searchcache/viewkey/%'] = array(
+    'page callback' => 'view_cache_admin',
+    'page arguments' => array('view_cache_admin'),
+    'access arguments' => array('manage cache'),
+    'page arguments' => array(4),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/searchcache.admin.inc',
+  );
+  
+  $items['admin/wally/searchvars'] = array(
+    'title' => t('Export and import variables'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_admin_form'),
+    'access arguments' => array('manage variables'),
+    'description' => t('Export and import variables.'),
+    'file' => 'includes/searchvars.admin.inc',
+  );
+  
+  $items['admin/wally/searchvars/export'] = array(
+    'title' => t('Export'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_admin_form'),
+    'access arguments' => array('manage variables'),
+    'file' => 'includes/searchvars.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/wally/searchvars/export/confirm'] = array(
+    'title' => t('Choose variables to export'), 
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('export_vars_confirm_form'),
+    'access arguments' => array('manage variables'),
+    'file' => 'includes/searchvars.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['admin/wally/searchvars/import'] = array(
+    'title' => t('Import'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('import_vars_admin_form'),
+    'access arguments' => array('manage variables'),
+    'file' => 'includes/searchvars.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/wally/loginredirect'] = array(
+    'title' => t('Redirection at login'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_login_redirection_form'),
+    'access arguments' => array('administer users'),
+    'description' => t('Configure redirection paths after login for existing roles.'),
+    'file' => 'includes/wallyadmin.login_redirection.inc',
+  );
+  
+  $items['admin/wally/menurestore'] = array(
+    'title' => t('Backup/Restore menus'),
+    'description' => t('Backup the menus tables or restore them.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_menu_restore_form'),
+    'access arguments' => array('administer menu'),
+    'file' => 'includes/wallyadmin.menu_restore.inc',
+  );
+  
+  $items['admin/wally/menurebuild'] = array(
+    'title' => t('Rebuild menus'),
+    'description' => t('Rebuild menu based on hook_menu() and revert any custom changes. All menu items return to their default settings.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_page_form_menu_rebuild_form'),
+    'access arguments' => array('administer menu'),
+    'file' => 'includes/wallyadmin.menu_restore.inc',
+  );
+  
+  $items['admin/wally/rebuildtheme'] = array(
+    'title' => t('Rebuild Theme Registry'),
+    'description' => t('Force the rebuild of the theme registry.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_theme_registry_form'),
+    'access arguments' => array('manage cache'),
+    'file' => 'includes/wallyadmin.theme_registry.inc',
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ *
+ * Expose a few more items to the Admin Toolbar
+ */
+function wallyadmin_menu_alter(&$items) {
+  // Hide the default node edit
+  $items['admin/content/node']['options']['admin'] = FALSE;
+  
+  // Enable the Content Management Filter
+  $items['admin/content/filter']['title'] = 'Find Content';
+  $items['admin/content/filter']['options']['admin'] = TRUE;
+  
+  // Enable Reports
+  $items['admin/reports']['options']['admin'] = TRUE;
+  $items['admin/reports/updates']['options']['admin'] = TRUE;
+  $items['admin/reports/status']['options']['admin'] = TRUE;
+  
+  
+  //Enable some often-used pathes, on the quick bar, for convenience:
+  $items['admin/content/taxonomy']['options']['admin'] = TRUE;
+  $items['admin/content/clearcache']['options']['admin'] = TRUE;
+   
+  $items['admin/build/context']['options']['admin'] = TRUE;
+  $items['admin/build/modules']['options']['admin'] = TRUE;
+  $items['admin/build/features']['options']['admin'] = TRUE;
+  $items['admin/build/panels']['options']['admin'] = TRUE;
+    
+    //-- And if we have context, I guess we don't need blocks UI :)
+  $items['admin/user/roles']['options']['admin'] = TRUE;
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function wallyadmin_perm() {
+  return array(
+    'manage cache',
+    'manage variables',
+  );
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function wallyadmin_form_alter(&$form, $form_state, $form_id) {
+  // Make mods to every node form
+  if ($form['#id'] == 'node-form') {
+        
+    $form['menu']['#collapsed'] = TRUE;
+    $form['path']['#collapsed'] = TRUE;
+    
+    if (isset($form['flag'])) {
+      $form['flag']['#collapsed'] = TRUE;
+    }
+    
+    // Hide the split summary button
+    if (!empty($form['body_field'])) {
+      $form['body_field']['teaser_js']['#type'] = 'hidden';
+      $form['body_field']['teaser_include']['#type'] = 'hidden';
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter()
+ * Add custom submit to user login form
+ */
+function wallyadmin_form_user_login_alter(&$form, $form_state) {
+  $form['#submit'][] = 'wallyadmin_form_user_login_alter_submit';
+}
+
+/**
+ * User login form custom submit
+ * - Implements redirection by role after login
+ * - Allows to use the "destination" param
+ */
+function wallyadmin_form_user_login_alter_submit($form, &$form_state) {
+  global $user;
+  
+  $roles = user_roles();
+  $user_roles = array_keys($user->roles);
+  $rid = array_shift($user_roles);
+  while (count($user_roles) && (!array_key_exists($rid, $roles) || $user->roles[$rid] == 'anonymous user' || $user->roles[$rid] == 'authenticated user')) {
+    $rid = array_shift($user_roles);
+  }
+  $redirect_path = wally_variable_get('wallyadmin_redirection_'.$rid, FALSE);
+  if ($redirect_path) {
+    $form_state['redirect'] = $redirect_path;
+  }
+
+  if ($user->uid && $_GET['destination']) {
+    $form_state['redirect'] = $_GET['destination'];
+  }
+}
+
+/**
+ * Implementation of hook_node_form_sidebar().
+ *
+ * This is an integration with the Slate theme of the Admin module.
+ */
+function wallyadmin_node_form_sidebar($form, $node) {
+  return array(
+    'group_identification',
+    'path', 
+    'options', 
+    'menu', 
+    'author', 
+    'revision_information', 
+    'comment_settings', 
+    'flag',
+    'scheduler_settings',
+  );
+}
+
+/**
+ * Alias to _wally_variable_get
+ *
+ * @param $name
+ *   The name of the variable to return.
+ * @param $default
+ *   The default value to use if this variable has never been set.
+ * @return
+ *   The value of the variable.
+ *
+ * @see _wally_variable_get(), wally_variable_del(), wally_variable_set(), wally_variable_get_all()
+ */
+function wally_variable_get($name, $default, $regenerate = FALSE) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_variable_get($name, $default, $regenerate);
+}
+
+/**
+ * Alias to _wally_variable_get_all
+ *
+ * @return
+ *   The value of the variables.
+ *
+ * @see wally_variable_get_all(), wally_variable_get(), wally_variable_del(), wally_variable_set()
+ */
+function wally_variable_get_all() {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_variable_get_all();
+}
+
+/**
+ * Alias to _wally_variable_set
+ *
+ * @param $name
+ *   The name of the variable to set.
+ * @param $value
+ *   The value to set. This can be any PHP data type; these functions take care
+ *   of serialization as necessary.
+ *
+ * @see _wally_variable_set(), wally_variable_del(), wally_variable_get(), wally_variable_get_all()
+ */
+function wally_variable_set($name, $value) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_variable_set($name, $value);
+}
+
+/**
+ * Alias to _wally_variable_del
+ *
+ * @param $name
+ *   The name of the variable to undefine.
+ *
+ * @see _wally_variable_del(), wally_variable_get(), wally_variable_set(), wally_variable_get_all()
+ */
+function wally_variable_del($name) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_variable_del($name);
+}
+
+/**
+ * Alias to _wally_system_settings_form
+ *
+ * @param $form
+ *   An associative array containing the structure of the form.
+ * @return
+ *   The form structure.
+ *
+ * @see _wally_system_settings_form()
+ */
+function wally_system_settings_form($form, $fast = FALSE) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  return _wally_system_settings_form($form, $fast);
+}
+
+/**
+ * Alias to _wally_system_settings_form_submit
+ *
+ * @see _wally_system_settings_form_submit()
+ */
+function wally_system_settings_form_submit($form, &$form_state) {
+  module_load_include('inc', 'wallyadmin', 'includes/wallyadmin.variables');
+  _wally_system_settings_form_submit($form, $form_state);
+}

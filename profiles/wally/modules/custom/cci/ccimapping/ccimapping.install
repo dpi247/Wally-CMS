@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * Implementation of hook_requirements().
+ * Checks PHP SOAP library existence
+ */
+function ccimapping_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'runtime') {
+    // Check cURL library.
+    if (class_exists('SoapClient')) {
+      $requirements['soap']['severity'] = REQUIREMENT_OK;
+      $requirements['soap']['value'] = t('Enabled');
+    }
+    else {
+      $requirements['soap'] = array(
+        'value' => t('Disabled'),
+        'severity' => REQUIREMENT_ERROR,
+        'description' => t('The SOAP extension for PHP is disabled. Please check the <a href="@url">PHP SOAP documentation</a> for information on how to correct this.', array('@url' => 'http://www.php.net/manual/en/soap.setup.php')),
+      );
+    }
+    $requirements['soap']['title'] = t('SOAP extension');
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ccimapping_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('ccimapping_');
+}

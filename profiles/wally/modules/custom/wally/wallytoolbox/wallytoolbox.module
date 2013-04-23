@@ -1,0 +1,1281 @@
+<?php
+/**
+ * @defgroup wallytoolbox Wally ToolBox functions
+ * @{
+ * In this module we define functions that could be used in any of 
+ * the wally modules. These function aren't linked to a specific context
+ * and could be use anywhere. 
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function wallytoolbox_perm() {
+  return array(
+    'view flow plugins',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function wallytoolbox_menu() {
+  $items = array();
+  
+  $items['admin/wally/wallytoolbox'] = array(
+    'title'             => t('Wally Toolbox "Supercon" Settings'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'	  => array('wallytoolbox_supercron_settings_form'),
+    'access arguments'  => array('manage cache'),
+    'description'       => t('Manage blocks refresh system.'),
+    'file'              => 'includes/wallytoolbox.admin.inc',
+  );
+  
+  $items['admin/wally/wallytoolbox/supercron'] = array(
+    'title'             => t('Blocks list'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'	  => array('wallytoolbox_supercron_settings_form'),
+    'access arguments'  => array('manage cache'),
+    'description'       => t('Manage blocks refresh system.'),
+    'file'              => 'includes/wallytoolbox.admin.inc',
+    'type'              => MENU_DEFAULT_LOCAL_TASK,
+    'weight'            => 0,
+  );
+  
+  $items['admin/wally/wallytoolbox/supercron/output/%'] = array(
+    'page callback'    => 'wallytoolbox_supercron_output',
+    'page arguments'   => array(5),
+    'access arguments' => array('manage cache'),
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallytoolbox.admin.inc',
+  );
+  
+  $items['admin/wally/wallytoolbox/supercron/call/%'] = array(
+    'page callback'    => 'wallytoolbox_supercron_call',
+    'page arguments'   => array(5),
+    'access arguments' => array('manage cache'),
+    'type'             => MENU_CALLBACK,
+    'file'             => 'includes/wallytoolbox.admin.inc',
+  );
+  
+  $items['admin/wally/wallytoolbox/settings'] = array(
+    'title'            => t('Other Settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('wallytoolbox_page_settings_form',),
+    'access arguments' => array('manage cache'),
+    'file'             => 'includes/wallytoolbox.admin.inc',
+    'type'              => MENU_LOCAL_TASK,
+    'weight'            => 1,
+  );
+  
+  $items['admin/wally/wallytoolbox/plugins'] = array(
+    'title'            => t('Flow plugins'),
+    'page callback'    => 'wallytoolbox_page_callback',
+    'access arguments' => array('view flow plugins'),
+    'type'             => MENU_CALLBACK,
+  );
+  
+  $items['devel/flush/memcached'] = array(
+    'title'            => t('Flush Memcached bins'),
+    'page callback'    => 'wallytoolbox_flush_memcached',
+    'description'      => t('Clear one of all Memcached bin(s) according to parameter, default to "cache" bin.'),
+    'access arguments' => array('access devel information'),
+    'menu_name'        => 'devel',
+    'file'             => 'includes/wallytoolbox.helpers.inc',
+  );
+  $items['wallytoolbox/remote_cacheclear/%/%'] = array(
+  		'title'             => t('Blocks list'),
+  		'page callback'     => 'wallytoolbox_page_remote_cache_clear',
+  		'page arguments'	  => array(2,3),
+  		'access callback'     => 'wallytoolbox_page_remote_cache_clear_access',
+  		'access arguments'  => array(2,3),
+  		'description'       => t('Remote Clear Cache.'),
+  		'file'              => 'includes/wallytoolbox.pages.inc',
+  		'type'              => MENU_DEFAULT_LOCAL_TASK,
+  		'weight'            => 0,
+  );
+  return $items;
+}
+
+function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
+	if($challenge-time()>120){
+		watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+
+	if($secret==NULL){
+		watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	if(md5($challenge.$secret)!=$answer){
+		watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
+		return FALSE;
+	}
+	else{
+		return TRUE;
+	}
+	return FALSE;
+
+}
+
+/**
+ * Implementation of hook_menu_link_alter()
+ */
+function wallytoolbox_menu_link_alter(&$item, $menu){
+  if($item['module']=='taxonomy_menu' && !isset($item['updated'])) {
+    $item['hidden'] = 1;
+  }
+}
+
+/**
+ *  Implémentation du hook_theme(); 
+ */
+function wallytoolbox_theme(&$var) {
+ return array(
+    'wallytoolbox_supercron_settings_form' => array(
+      'arguments' => array('form' => NULL),
+    ),
+ 	'wallytoolbox_line_chart'	=> array(
+ 			'file' => 'theme.charts.inc',
+ 			'arguments' => array(
+ 					'data'=>NULL,
+ 					'title'=>NULL,
+ 					'width'=>NULL,
+ 					'height'=>NULL,
+ 					'pointSize'=>NULL,
+ 					'AxeXTitle'=>NULL
+ 					),
+ 			'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
+ 	),
+  );
+}
+
+/**
+ * Implementation of hook_cron().
+ */ 
+function wallytoolbox_cron() {
+  $return = '<b>'.t('Run').' '.date('Y-m-d H:i:s').' :</b></br>';
+
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.admin');
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+
+  // Flush old files from table wallytoolbox_external_files and table files
+  _wallytoolbox_cron_flush_files($return);
+
+  // Refresh process for all blocks using get_cache_or_create
+  _wallytoolbox_cron_blocks_refresh($return);
+
+  print $return;
+}
+
+/**
+ * Implementation of hood_panels_display_save()
+ * Refresh the contents list cache
+ */
+function wallytoolbox_panels_display_save($display) {
+  list($a, $display_name) = explode(':', $display->cache_key, 2);
+  wallytoolbox_refresh_cache_list($display_name, $display);
+  list($page, $handler_name) = explode(':', $display_name);
+  wallytoolbox_get_handlers(TRUE, $page);
+}
+
+/**
+ * Implementation of hook_flush_caches
+ */
+function wallytoolbox_flush_caches() {
+  return array('cache_wally_object');
+}
+
+function wallytoolbox_page_callback(){
+  ctools_include('plugins');
+  
+  $module = 'wallytoolbox';
+  $type = 'flow';
+  
+  $owner = $module;
+  $api = $type;
+  
+  //DONNE LES INFOS DES PLUGINS FOURNIS PAR LES MODULES
+  dsm(ctools_get_plugins($module, $type));
+  dsm(ctools_get_plugins($module, $type, 'json'), 'specific_plugin_info');
+  
+  //DONNE LES INFO SUR LA DEFINITION DU TYPE DU PLUGIN -INFOS SUR FLOW ...-
+  dsm(ctools_plugin_get_info($module, $type));
+  
+  //QUELS MODULES IMPLEMENTE CE PLUGIN AVEC QUELLE VERSION ?
+  dsm(ctools_plugin_api_info($owner, $api, 0, 99), API_INFO);
+
+  return ctools_plugin_get_function();
+}
+
+/**
+ * NOT REQUIRED BUT USED TO SER THE DEFAULT VALUE FOR EACH PLUGIN
+ * Set default value for the information about each plugin of  the flow type
+ * $owner_ctools_plugin_$type()
+ */
+function wallytoolbox_ctools_plugin_flow(){
+  return array(
+    'cache' => FALSE,
+    'process' => 'wallytoolbox_flow_process',
+  );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_directory() to let the system know
+ * we implement task and task_handler plugins.
+ */
+function wallytoolbox_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'wallytoolbox' && !empty($plugin))
+    return "plugins/".$plugin;
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallytoolbox_ctools_plugin_api() {
+  return array(
+    'version' => 2,
+  );
+}
+
+/**
+ * Implementation of hook_emfield_providers().
+ */
+function wallytoolbox_emfield_providers($module, $provider = NULL) {
+  // We know this module only includes the main provider file, avoid needless
+  // PHP warnings.
+  if ($module == 'emimage' && (!isset($provider) || ($provider == 'custom_url'))) {
+    static $path;
+    // Cache the result for later.
+    if (!isset($path)) {
+      $found = drupal_system_listing("$provider\.inc$", drupal_get_path('module', 'emimage') ."/providers", 'name', 0);
+      if (is_array($found) && !empty($found)) {
+        $path = $found;
+      }
+    }
+    return $path;
+  }
+}
+
+/**
+ * APPELLEE LORS DE ctools_plugin_load_includes()
+ * pcq renseignée en tant que process dans wallytoolbox_ctools_plugin_flow()
+ * qui elle même pour tous les plugins appelle ctools_plugin_process()
+ */
+function wallytoolbox_flow_process(&$plugin, $info){
+  $function_base = $plugin['module'] . '_' . $plugin['name'] . '_flow_';
+  
+  if (!isset($plugin['settings form']) && function_exists($function_base . 'settings_form'))
+    $plugin['settings form'] = $function_base . 'settings_form';
+  
+  if (!isset($plugin['settings form submit']) && function_exists($function_base . 'settings_form_submit'))
+    $plugin['settings form submit'] = $function_base . 'settings_form_submit';
+
+  if (!isset($plugin['settings form validate']) && function_exists($function_base . 'settings_form_validate'))
+    $plugin['settings form validate'] = $function_base . 'settings_form_validate';
+
+  if (!isset($plugin['build']) && function_exists($function_base . 'build'))
+    $plugin['build'] = $function_base . 'build';
+}
+
+/**
+ * Return all the types that can be handeld by one or more flow plugins
+ * 
+ * @return
+ *   An array of types 
+ */
+function wallytoolbox_get_available_flow_type() {
+  ctools_include('plugins');
+  
+  $available_types = array();
+  $plugins = ctools_get_plugins('wallytoolbox', 'flow');
+
+  foreach($plugins as $plugin){
+    foreach($plugin['types'] as $type){
+      $available_types[$type] = $type;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallytoolbox_get_plugins_that_handle_type($type) {
+  ctools_include('plugins');
+  
+  $plugins=ctools_get_plugins('wallytoolbox', 'flow');
+  foreach($plugins as $plugin_name=>$plugin){
+    if (in_array($type,$plugin['types'])) {
+      $available_types[$plugin_name] = $plugin;
+    }
+  }
+  
+  return $available_types;
+}
+
+function wallytoolbox_get_plugin_by_name($plugin_name) {
+  ctools_include('plugins');
+  $module = 'wallytoolbox';
+  $type = 'flow';
+  
+  $plugin = ctools_get_plugins($module, $type, $plugin_name);
+  return $plugin;
+}
+
+/**
+ * Determine if a flow has a setting form.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallytoolbox_has_settings_form_of_plugin($plugin) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Determine if a flow has a setting form and if true, return the $form object.
+ *
+ * Some content types simply have their content and no options. This function
+ * lets a UI determine if it should display an edit link or not.
+ */
+function wallytoolbox_get_settings_form_of_plugin($plugin, &$form, &$form_state) {
+  ctools_include('plugins');
+  if (empty($plugin['settings form']) ) {
+    return FALSE;
+  }
+  
+  if (!empty($plugin['settings form validate'])) {
+    $form['#validate'][] = $plugin['settings form validate'];
+  }
+
+  if ($function = ctools_plugin_get_function($plugin, 'settings form')) {
+     return $function($form, $form_state);
+  }
+
+  return FALSE;
+}
+
+/**
+ * Search for taxonomy terms for a specific "path". 
+ *
+ * @param $path
+ *   The taxonomy term path to match ( /term1/term2/term3 ). 
+ * @param $voc
+ *   The taxonomy vocabulary used for filtering on a single vocabulary.
+ *   If not set, will seach into all vocabularies.
+ *
+ * @return
+ *   an array of taxonomy term object
+ */
+function wallytoolbox_taxonomy_get_term_by_path($path, $voc=null) {
+	$t = explode("/", trim($path,"/"));
+	$t = $t[count($t)-1];
+
+	if ($voc) {
+		$db_result = db_query("SELECT t.tid, t.* FROM {term_data} t WHERE LOWER(t.name) = LOWER('%s') AND t.vid = %s", trim($t), $voc);
+	} else {
+		$db_result = db_query("SELECT t.tid, t.* FROM {term_data} t WHERE LOWER(t.name) = LOWER('%s')", trim($t));
+	}
+
+	$result = array();
+
+	// Reverse building of path for founded terms.
+	while ($term = db_fetch_object($db_result)) {
+		$ppath = "";
+		$parents = taxonomy_get_parents_all($term->tid);
+		foreach ($parents as $parent){ 
+		  $ppath = strtolower($parent->name)."/".$ppath;
+		}
+		if (trim($ppath,"/") == strtolower(trim($path,"/"))){ 
+		  $result[] = $term;
+		}
+	}
+	return ($result ? $result : null);
+}
+
+/**
+ * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
+ * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
+ * 
+ * @param string $term
+ *   A taxonomy term ID or name. If it is a name, the chosen term will
+ * be the one matching the $vid, if given, or the first in the results
+ * list.
+ * @param string $vid
+ *   The vocabulary ID.
+ * 
+ * @return
+ *   A string containing the parents hierarchy, separated by "/".
+ */
+function wallytoolbox_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_voc = FALSE) {
+  $return = '';
+  
+  if (!is_numeric($term)) {
+    $terms_list = taxonomy_get_term_by_name($term);
+    if ($vid != '') {
+      foreach ($terms_list as $term_elem) {
+        if ($term_elem->vid == $vid) {
+          $tid = $term_elem->tid;
+          break;
+        }
+      }
+    } else {
+      $tid = $terms_list[0]->tid;
+    }
+  } else {
+    $tid = $term;
+  }
+  
+  $tax_list = taxonomy_get_parents_all($tid);
+  foreach (array_reverse($tax_list) as $tax_elem) {
+    $return .= $tax_elem->name.'/';
+  }
+  if ($add_voc) {
+    $voc = taxonomy_vocabulary_load($tax_list[0]->vid);
+    $return = $voc->name.'/'.$return;
+  }
+  
+  return substr($return, 0, strlen($return)-1);
+}
+
+/**
+ * Get vocabulary vid from vocabulary name 
+ *
+ * @param $name
+ *   That's the taxonomy vocabulary name.
+ *   
+ * @return
+ *   Taxonomy VID 
+ */
+function wallytoolbox_taxonomy_getvocabularyvidbyname($name){
+  $result = db_query("SELECT v.vid 
+  					  FROM {vocabulary} v 
+  					  WHERE v.name = '%s'",$name);
+  $vid = NULL;
+  while ($vocabulary = db_fetch_object($result)){
+    $vid = $vocabulary->vid;
+  }
+  return $vid;
+}
+
+/**
+ * Flush the page cache for the given internal url.
+ */
+function wallytoolbox_flush_all_pages($internal_urls = '*', $flush_aliases = FALSE, $flush_type = 'drupal') {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  return _wallytoolbox_flush_all_pages($internal_urls, $flush_aliases , $flush_type);
+}
+
+/**
+ * Create vocabulary from vocabulary name 
+ *
+ * @param $name
+ *   That's the taxonomy vocabulary name.
+ *   
+ * @return
+ *   Taxonomy VID of the created vocabulary. 
+ */
+
+function wallytoolbox_taxonomy_createvocabularybyname($name){
+  $edit = array();
+  $vid = NULL;
+  if(wallytoolbox_taxonomy_getvocabularyvidbyname($name) == NULL){
+    $edit['name'] = $name;
+    $edit['description'] = '';
+    $edit['help'] = '';
+    $edit['relations'] = 1;
+    $edit['hierarchy'] = 0;
+    $edit['multiple'] = 0;
+    $edit['required'] = 0;
+    $edit['tags'] = 0;
+    $edit['module'] = 'taxonomy';
+    $edit['weight'] = 0; 
+    $status = taxonomy_save_vocabulary($edit);
+    $vid = $edit['vid'];
+  }
+  return $vid;
+}
+
+/**
+ * Unbind all terms of a vocabulary to the node 
+ *
+ * @param $name
+ *   That's the taxonomy vocabulary name.
+ * @param $nid
+ *   nid of the node
+ */
+function wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($name,&$node,$vid = NULL){
+   
+  $terms_of_voc = taxonomy_node_get_terms_by_vocabulary($node, $vid);
+  foreach($terms_of_voc as $term_key => $term_value){
+    db_query("DELETE FROM {term_node} WHERE nid = %d AND tid = %d", $node->nid,$term_key);
+    unset($node->taxonomy[$term_key]);
+  }
+   
+  if ($vid == variable_get('wallymport_freetagtaxonomy', NULL)){
+    $node->field_free_tags = array();
+  } elseif ($vid == variable_get('wallymport_concept', NULL)){
+    $node->field_concepts = array();
+  } elseif ($vid == variable_get('wallymport_iptc', NULL)){
+    $node->field_iptc = array();
+  }
+}
+
+/**
+ * Add a taxonomy term into a vocabulary without 
+ * need to store a node.
+ *
+ * @param $name
+ *   That's the taxonomy term name. 
+ * @param $vid
+ *   The Taxonomy Vocabulary to store the term. 
+ * @param $description
+ *   Description of the term to be stored.
+ * @param $weight
+ *   Weight of the term into vocabulary (default 0).
+ * @param $parent
+ *   Parent term if needed (default null).
+ * 
+ * @return
+ *   Taxonomy TID of the created term. 
+ */
+function wallytoolbox_add_taxonomy_term($name, $vid, $description = '', $weight = 0, $parent = null){
+  $form_values = array();
+  $form_values['name'] = $name;
+  $form_values['description'] = $description;
+  $form_values['vid'] = $vid;
+  $form_values['weight'] = $weight;
+  if ($parent){ 
+    $form_values['parent'] = $parent;
+  }
+  @taxonomy_save_term($form_values);
+  return $form_values['tid'];
+}
+
+
+/**
+ * Get all nodes associated with a array of taxonomy term.  
+ *  
+ * @param $tid
+ *   An array of term IDs to match. 
+ * @param $operator
+ *   Could be 'or' or 'and' (default 'or') 
+ * @param $depth
+ *   How many levels deep to traverse the taxonomy tree. Can be a nonnegative integer or "all". 
+ * @param $pager 
+ *   Whether the nodes are to be used with a pager (the case on most Drupal pages) or not (in an XML feed, for example).
+ * @param $type
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
+ * @param $order
+ *   Order close for TID (SSL format). See @link http://api.drupal.org/api/drupal/includes--database.inc/group/database/6 Data Base abstraction layer @endlink for table aliases.
+ * 
+ * @return
+ *   Array of Node ID. 
+ */
+function wallytoolbox_taxonomy_get_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $type = null, $order = 'n.sticky DESC, n.created DESC') {
+  $r = array();
+
+  if (count($tids) > 0) {
+
+    // For each term ID, generate an array of descendant term IDs to the right depth.
+    $descendant_tids = array();
+    if ($depth === 'all') {
+      $depth = NULL;
+    }
+
+    foreach ($tids as $index => $tid) {
+      $term = taxonomy_get_term($tid);
+      if (isset($term->vid)) {
+        $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+        $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
+      }
+    }
+
+    if (count($descendant_tids) > 0) {
+      if ($operator == 'or') {
+        $args = call_user_func_array('array_merge', $descendant_tids);
+        $placeholders = db_placeholders($args, 'int');
+        $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+        $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN (' . $placeholders . ') AND n.status = 1';
+      } else {
+        $joins = '';
+        $wheres = '';
+        $args = array();
+        foreach ($descendant_tids as $index => $tids) {
+          $joins .= ' INNER JOIN {term_node} tn' . $index . ' ON n.vid = tn' . $index . '.vid';
+          $wheres .= ' AND tn' . $index . '.tid IN (' . db_placeholders($tids, 'int') . ')';
+          $args = array_merge($args, $tids);
+        }
+        $sql = 'SELECT DISTINCT(n.nid), n.title, n.type, n.created  FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+        $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n ' . $joins . ' WHERE n.status = 1 ' . $wheres;
+      }
+
+      if ($type) {
+        $sql = $sql . ' AND n.type = "'.$type.'"';
+        $sql_count = $sql_count . ' AND n.type = "'.$type.'"';
+      }
+
+      // add Order Clause
+      $sql = $sql . ' ORDER BY ' . $order; 
+
+      $sql = db_rewrite_sql($sql);
+      $sql_count = db_rewrite_sql($sql_count);
+
+      if ($pager) {
+        $results = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
+      } else {
+        $results = db_query($sql, $args);
+      }
+
+      while ($result = db_fetch_object($results)) {
+        $r[] = $result->nid;
+      }
+    }
+  }
+
+  return $r;
+}
+
+/**
+ * Find all term objects related to a given term ID.
+ */
+function wallytoolbox_taxonomy_get_related($tid, $key = 'tid', $bidirect = FALSE) {
+  if ($bidirect) {
+    return taxonomy_get_related($tid, $key);
+  } else {
+    if ($tid) {
+      $result = db_query('SELECT t.*, tid1, tid2 FROM {term_relation}, {term_data} t WHERE t.tid = tid2 AND tid1 = %d AND t.tid != %d ORDER BY weight, name', $tid, $tid);
+      $related = array();
+      while ($term = db_fetch_object($result)) {
+        $related[$term->$key] = $term;
+      }
+      return $related;
+    }
+    else {
+      return array();
+    }
+  }
+}
+
+/**
+ * Count the amount of parents for a term
+ */
+function wallytoolbox_taxonomy_count_parents(&$count_parents, $terms, $term) {
+  if (isset($term->parents[0]) && array_key_exists($term->parents[0], $terms)) {
+    ++$count_parents;
+    wallytoolbox_taxonomy_count_parents($count_parents, $terms, $terms[$term->parents[0]]);
+  }
+}
+
+/**
+ * Get all nodes where cckfield match a value. 
+ *
+ * @param $param
+ *   An associative array containing:
+ *   - key: An existing cck_field name with the prfix "field_" 
+ *   - value: The value to match specified cck_field
+ * @param $node_type
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
+ * 
+ * @return
+ *   An array of nodes
+ */
+function wallytoolbox_get_node_by_cckfield($param,$node_type=null){
+
+	$nodes = array();
+	foreach ($param as $key => $value) {
+		$sql="
+			SELECT node.nid AS nid
+			 FROM {node} node 
+			 LEFT JOIN {content_".$key."} node_data_".$key." ON node.vid = node_data_".$key.".vid
+			 WHERE (node_data_".$key.".".$key."_value = '%s')
+			";
+
+		// Fetch all node from CCK field table.
+		if ($result = db_query($sql, $value)) {
+			while ($item = db_fetch_object($result)) {
+				if ($node = node_load($item->nid)) {
+					if ($node_type) {
+						if ($node->type == $node_type) {
+							$nodes[$node->nid] = $node;
+						}
+					} else {
+						$nodes[$node->nid] = $node;
+					}
+				} 
+			}
+		}
+	}
+	
+	$result = array(); 
+	foreach($nodes as $node) $result[]=$node;
+
+	if (count($result)) { 
+		return $result;
+	} else {
+		return null;
+	}
+}
+
+/**
+ * Get all nodes where taxonomy tid and node type match value. 
+ *
+ * @param $tid
+ *   tid of the taxonomy term
+ * @param $node_type
+ *   Node Type Filter. Could be use to return only a certain type of nodes. 
+ * 
+ * @return
+ *   An array of nodes
+ */
+function wallytoolbox_get_node_by_tid($tid,$type){
+   $result = db_query("SELECT n.nid
+  					  FROM {node} n
+  					  LEFT OUTER JOIN {term_node} t ON t.nid = n.nid
+  					  WHERE n.type = '%s'
+  					  AND t.tid = %d",$type,$tid);
+  $nodes = NULL;
+  while ($obj = db_fetch_object($result)){
+    $nodes[] = node_load(array('nid' => $obj->nid));
+  }
+  return $nodes;
+}
+
+/**
+ * Get nid from packages who reference the current node.
+ *
+ * @param $node
+ *   Node currently processed(TextObject, AudioObject, DigitalObject,PhotoObject, Videoobject, PollObject)
+ *
+ * @return
+ *   Array() of array() of nid
+ */
+function wallytoolbox_get_node_by_reference($node, $extended = TRUE) {
+  $rows = array();
+  if ($node->type == 'wally_linktype') {
+    // Links in links lists
+    $query = "SELECT DISTINCT (tr.nid)
+  		FROM {content_field_links_list} tr
+  		WHERE {tr.field_links_list_nid} = %d";
+    $query_args = array($node->nid);
+
+    // Related packages
+    if ($extended) {
+      $query .= " UNION SELECT DISTINCT (tok.nid) AS temp_nid
+        FROM {content_type_wally_articlepackage} tok
+        LEFT JOIN {content_field_linkedobjects} tup ON tok.nid = tup.nid
+        LEFT JOIN {content_field_links_list} tik ON tik.nid = tup.field_linkedobjects_nid
+        WHERE tik.field_links_list_nid = %d";
+      $query_args[] = $node->nid;
+    }
+
+    if ($res = db_query($query, $query_args)) {
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    }
+    
+    // Links embeds
+    if ($res = db_query("SELECT DISTINCT(nid) FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    }
+  } else {
+    if ($node->type == 'wally_textobject' || $node->type == 'wally_audioobject' || $node->type == 'wally_digitalobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_videoobject'){
+      if ($res = db_query("SELECT DISTINCT(nid) FROM {content_field_embededobjects} WHERE field_embededobjects_nid = %d", $node->nid)){
+        while ($row = db_fetch_array($res)) {
+          if (!in_array($row, $rows)) $rows[] = $row;
+        }
+      }
+      if ($node->type == 'wally_textobject'){
+        $res = db_query("SELECT DISTINCT(nid) FROM {content_type_wally_articlepackage} WHERE field_mainstory_nid = %d", $node->nid);
+        while ($row = db_fetch_array($res)) {
+          if (!in_array($row, $rows)) $rows[] = $row;
+        }
+      } else {
+        if ($res2 = db_query("SELECT DISTINCT(nid) FROM {content_type_wally_gallerypackage} WHERE field_mainobject_nid = %d", $node->nid)) {
+          while ($row = db_fetch_array($res2)) {
+            if (!in_array($row, $rows)) $rows[] = $row;
+          }
+        }
+      }
+    } elseif ($node->type == 'wally_pollobject' || $node->type == 'poll'){
+      $res = db_query("SELECT DISTINCT(nid) FROM {content_type_wally_pollpackage} WHERE field_mainpoll_nid = %d", $node->nid);
+      while ($row = db_fetch_array($res)) {
+        if (!in_array($row, $rows)) $rows[] = $row;
+      }
+    } elseif ($node->type == 'wally_linkslistobject') {
+      if ($res = db_query("SELECT DISTINCT(nid) FROM {content_field_linkedobjects} WHERE field_linkedobjects_nid = %d", $node->nid)){
+        while ($row = db_fetch_array($res)) {
+          if (!in_array($row, $rows)) $rows[] = $row;
+        }
+      }
+    }
+  }
+
+  return $rows;
+}
+
+/**
+ * Adds a META TAG to the process template queue.
+ * 
+ * @param $attributes
+ *   Array of meta key keyword & key value. 
+ *   If key keyword is one of "http-equiv, name, property"
+ *   the Meta is updated in case of 2 calls.
+ * @param $content
+ *   Content of the meta tag.
+ *   
+ * @return
+ * 	Return an array of meta.
+ */
+function wallytoolbox_add_meta($attributes = array(), $content = NULL) {
+	static $wally_meta = array();
+	$meta_key = NULL; 
+
+	// Supported "Meta Keys" are : http-equiv, name, property.
+	if (is_array($attributes)) {
+	  $content = strip_tags($content);
+
+	  foreach ($attributes as $attribute_name => $attribute_value) {
+	    switch (strtolower($attribute_name)) {
+	      case 'name':
+	      case 'http-equiv':
+	      case 'property':
+	        $meta_key = strtolower($attribute_name).'_'.$attribute_value;
+	        $wally_meta[$meta_key] = array( $attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	      default:
+	        $wally_meta[] = array( $attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	    }
+	  }
+	}
+	return $wally_meta;
+}
+
+/**
+ * Generate HTML tag for meta tags.
+ */
+function wallytoolbox_get_meta() {
+
+  if (!isset($wally_meta)) {
+    $wally_meta = wallytoolbox_add_meta(array(), NULL);
+  }
+
+  if (empty($wally_meta)) {
+    return '';
+  }
+
+  $output = '';
+  
+  foreach ($wally_meta as $meta_k => $meta) {
+    if (!$meta) {
+      continue;
+    }
+    $output .= "<meta ";
+		foreach($meta as $data_k => $data_v) {
+			$output .= " ".$data_k."=\"".$data_v."\"";
+		}
+    $output .= " />\n";
+  }
+  
+  return $output;
+}
+
+/**
+ * Hook preprocess for meta tags.
+ */
+function wallytoolbox_preprocess_page(&$variables) {
+  if($variables['meta']){
+    $variables['meta'] .= wallytoolbox_get_meta();	
+  }
+  else{
+  	$variables['meta'] = wallytoolbox_get_meta();
+  }
+}
+
+/**
+ * Get all blocks and put them in the wallytoolbox_content_types_cache table.
+ */
+function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) {
+  if ($display_name) {
+    list($page, $handler_name) = explode(':', $display_name);
+    if ($display) {
+      $tmp_handlers = $display->content;
+      $handlers = array($page => array());
+      foreach ($tmp_handlers as $tmp_pid => $tmp_content) {
+        $handlers[$page][$handler_name.':'.$tmp_pid] = $tmp_content;
+      }
+    } else {
+      // Get all blocks for this page/handler, from DB or features
+      $handlers = wallytoolbox_get_handlers(TRUE, $page, $handler_name);
+    }
+
+    // Get previous settings from DB to save the cron config
+    $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%%"', $display_name);
+
+    // Restart from an empty table
+    db_query('DELETE FROM {wallytoolbox_content_types_cache} WHERE cid LIKE "%s:%%"', $display_name);
+  } else {
+    // Get all blocks, from DB or features
+    $handlers = wallytoolbox_get_handlers(TRUE);
+
+    // Get previous settings from DB to save the cron config
+    $blocks_list_db = db_query('SELECT * FROM {wallytoolbox_content_types_cache}');
+
+    // Restart from an empty table
+    db_query('TRUNCATE TABLE {wallytoolbox_content_types_cache}');
+  }
+
+  $blocks_list = array();
+  $reus_blocks_list = array();
+  while ($temp_block = db_fetch_array($blocks_list_db)) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $temp_block['cid']);
+    if ($type != $subtype) {
+      $reus_blocks_list[$type.':'.$subtype] = $temp_block;
+    }
+    $blocks_list[$temp_block['cid']] = $temp_block;
+  }
+
+  $blocks = array();
+  // Transform the list to get the same structure as the table and add an entry to the table
+  foreach ($handlers as $page_name => $page_handlers) {
+    if (is_array($page_handlers) && !empty($page_handlers)) {
+      foreach ($page_handlers as $handler_id => $handler) {
+        $block = array();
+        $config = $handler->configuration;
+        list($handler_name, $pid) = explode(':', $handler_id);
+        $block['cid'] = $page_name.':'.$handler_name.':'.$handler->type.':'.$handler->subtype.':'.$handler->panel.':'.$handler->pid;
+
+        $check_existing = db_result(db_query('SELECT cid FROM {wallytoolbox_content_types_cache} WHERE cid = "%s"', $block['cid']));
+        if (!$check_existing) {
+          if (isset($blocks_list[$block['cid']])) {
+            $block['output'] = unserialize($blocks_list[$block['cid']]['output']);
+            $block['last_run'] = $blocks_list[$block['cid']]['last_run'];
+            $block['enabled'] = $blocks_list[$block['cid']]['enabled'];
+            $block['weight'] = $blocks_list[$block['cid']]['weight'];
+            $block['callback'] = unserialize($blocks_list[$block['cid']]['callback']);
+            $block['rule'] = $blocks_list[$block['cid']]['rule'];
+          } elseif ($handler->type != $handler->subtype && isset($reus_blocks_list[$handler->type.':'.$handler->subtype])) {
+            $reus_block = $reus_blocks_list[$handler->type.':'.$handler->subtype];
+            $block['output'] = unserialize($reus_block['output']);
+            $block['last_run'] = $reus_block['last_run'];
+            $block['enabled'] = $reus_block['enabled'];
+            $block['weight'] = $reus_block['weight'];
+            $block['callback'] = unserialize($reus_block['callback']);
+            $block['rule'] = $reus_block['rule'];
+          }
+
+          if (!isset($block['rule']) || empty($block['rule'])) {
+            $block['rule'] = 15*60;
+          }
+          $block['settings'] = $config;
+          $blocks[$block['cid']] = $block;
+        }
+      }
+    }
+  }
+
+  drupal_alter('wallytoolbox_blocks', $blocks, ($display_name || $display) ? 'partial' : 'full');
+
+  foreach ($blocks as $block) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $block['cid']);
+    drupal_write_record('wallytoolbox_content_types_cache', $block);
+    if ($type != $subtype) {
+      db_query("UPDATE {wallytoolbox_content_types_cache} SET settings = '%s' WHERE cid LIKE '%%:%%:%s:%s:%%:%%'", serialize($block['settings']), $type, $subtype);
+    }
+  }
+}
+
+/**
+ * Get a list of all blocks set in all pages
+ */
+function wallytoolbox_get_handlers($reset = FALSE, $page = NULL, $req_handler = NULL) {
+  if ($reset) {
+    // Rebuild the entire arrays
+    $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
+  } else {
+    // Only want one page ?
+    if ($page) {
+      // Want one page
+      $cached_datas = cache_get('wallytoolbox_panels_handlers_'.$page, 'cache');
+      if (!is_object($cached_datas) || !isset($cached_datas) || empty($cached_datas) || !$cached_datas->data) {
+        // There is no cache for this page, rebuild it
+        $handlers = wallytoolbox_refresh_handlers($page, $req_handler);
+      } else {
+        $tmp_handlers = $cached_datas->data;
+        if ($req_handler) {
+          // A specific handler is requested
+          //$panels = array($req_handler => $tmp_panels[$req_handlers]);
+          $handlers = array($page => array());
+          foreach ($tmp_handlers[$page] as $handler_id => $handler) {
+            list($handler_name, $pid) = explode(':', $handler_id);
+            if ($handler_name == $req_handler) {
+              $handlers[$page][$handler_id] = $handler;
+            }
+          }
+        } else {
+          // Return all handlers
+          $handlers = $tmp_handlers;
+        }
+      }
+    } else {
+      // Want all the tables
+      // @todo : handle cache in this case
+      $handlers = wallytoolbox_refresh_handlers();
+    }
+  }
+
+  return $handlers;
+}
+
+function wallytoolbox_refresh_handlers($page = NULL, $req_handler = NULL) {
+  $pages = page_manager_get_tasks_by_type('page');
+  if ($page && isset($pages[$page])) {
+    $pages = array($page => $pages[$page]);
+  }
+
+  $handlers = array();
+  //$panels = array();
+  foreach ($pages as $page_name => $page) {
+    $cached_page = page_manager_get_page_cache($page_name);
+    $handlers[$page_name] = isset($cached_page->handlers->conf['display']) ? $cached_page->handlers->conf['display'] : array();
+    if ($req_handler && isset($cached_page->handlers[$req_handler])) {
+      $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $req_handler);
+      //$panels[$req_handler][] = $cached_panels;
+      foreach ($cached_panels->display->content as $display_content) {
+        $handlers[$page_name][$req_handler.':'.$display_content->pid] = $display_content;
+      }
+    } else {
+      foreach ($cached_page->handlers as $handler_name => $handler) {
+        $cached_panels = panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name);
+        //$panels[$handler_name][$handler->name] = $cached_panels;
+        foreach ($cached_panels->display->content as $display_content) {
+          $handlers[$page_name][$handler->name.':'.$display_content->pid] = $display_content;
+        }
+      }
+    }
+
+    //cache_set('wallytoolbox_panels_handlers_'.$page_name, array($panels, $handlers), 'cache');
+    cache_set('wallytoolbox_panels_handlers_'.$page_name, array($page_name => $handlers[$page_name]), 'cache');
+  }
+
+  //return array($panels, $handlers);
+  return $handlers;
+}
+
+/**
+ * Get a list of all panels
+ */
+function wallytoolbox_get_panels($page = NULL) {
+  $pages = page_manager_get_tasks_by_type('page');
+  if ($page && isset($pages[$page])) {
+    $pages = array($page => $pages[$page]);
+  }
+
+  $panels = array();
+  foreach ($pages as $page_name => $page) {
+    $cached_page = page_manager_get_page_cache($page_name);
+    foreach ($cached_page->handlers as $handler_name => $handler) {
+      $panels[$handler->name] = (object)array_merge((array)$handler, (array)panels_edit_cache_get('panel_context:' . $page_name . ':' . $handler->name));
+    }
+  }
+
+  return $panels;
+}
+
+/**
+ * this function will take a flat vocabulary tree and turn it into a multi-tiered array
+ * 
+ * @see taxonomy_tree()
+ * 
+ * @param $array_of_terms_flat
+ *   A flat array of taxonomy_term -tipicaly the return of taxonomy_tree() -
+ * 
+ * @return
+ *   the return array will simply contain an array of pointers rather then physical objects
+ */
+function wallytoolbox_convert_taxonomy_flat_to_tree(& $array_of_terms_flat) {
+ 
+  $map = array();
+
+  //go through the tree and find the lowest depth aswell as all available depth levels to scan
+  $startdepth = false;
+  $depthlist = array();
+  foreach($array_of_terms_flat as $vocindex => &$vocitem) {
+    if ($startdepth === false || $startdepth > $vocitem->depth) {
+      //new start depth found
+      $startdepth = $vocitem->depth;
+    }
+
+    //add this item to the speciffic depth level
+    $depthlist[$vocitem->depth][$vocitem->tid] = &$vocitem;
+  }
+
+  //sort the depthlist so lowest is first
+  ksort($depthlist);
+
+  //scan all depth levels found
+  $lastdepth = null;
+  foreach($depthlist as $depthlevel => &$depths) {
+    //check for first depth (root) level
+    $currentdepthdata = array();
+
+    if ($depthlevel == $startdepth) {
+      //add root items to the map
+      foreach($depths as $itemindex => &$item) {
+        $mapindex = count($map);
+        $map[$mapindex] = array("term" => &$item,"childrens" => array());
+        $currentdepthdata[$itemindex] = &$map[$mapindex];
+      }
+    } else {
+      //scan through all items within this depth
+      foreach($depths as $itemindex => &$item) {
+        //find a matching "map" in teh last depth to assign the item too
+        foreach($item->parents as $parentindex) {
+          $mapindex = count($lastdepthdata[$parentindex]["childrens"]);
+          $lastdepthdata[$parentindex]["childrens"][$mapindex] = array("term" => &$item,"childrens" => array());
+          $currentdepthdata[$itemindex] = &$lastdepthdata[$parentindex]["childrens"][$mapindex];
+        }
+      }
+    }
+
+    $lastdepthdata = $currentdepthdata;
+  }
+
+  return $map;
+}
+
+function wallytoolbox_get_all_aliases($internal_url) {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  return _wallytoolbox_get_all_aliases($internal_url);
+}
+
+function _wallytoolbox_cron_flush_files(&$return) {
+  // Flush old files once a day
+  $today = strtotime(date('Y-m-d'));
+  $last_run_timestamp = wally_variable_get('wallytoolbox_embargo_last_run', time() - 86400);
+  if ($last_run_timestamp < $today) {
+    wally_variable_set('wallytoolbox_embargo_last_run', $today);
+
+    $days_limit = wally_variable_get('wallytoolbox_files_days_limit', 7);
+    $old_timestamp = time() - $days_limit*86400;
+
+    $count_query = 'SELECT COUNT(*) FROM {wallytoolbox_external_files} wef
+                    LEFT JOIN {files} f ON wef.fid = f.fid
+                    WHERE f.timestamp < %d';
+    if ($removed_files = db_fetch_array(db_query($count_query, $old_timestamp))) {
+      if ($removed_files['COUNT(*)'] > 0) {
+        $to_delete_query = 'SELECT * FROM {wallytoolbox_external_files} wef
+                            LEFT JOIN {files} f ON wef.fid = f.fid
+                            WHERE f.timestamp < %d';
+        $files_to_remove = db_query($to_delete_query, $old_timestamp);
+        // Now remove files on disk
+        while($file_to_remove = db_fetch_array($files_to_remove)) file_delete($file_to_remove['filepath']);
+
+        $delete_query = 'DELETE wef, f FROM {wallytoolbox_external_files} wef
+                         LEFT JOIN {files} f ON wef.fid = f.fid
+                         WHERE f.timestamp < %d';
+        db_query($delete_query, $old_timestamp);
+
+        $return .= t('!num_files old files removed.', array('!num_files' => $removed_files['COUNT(*)'])).'</br>';
+      }
+    } else {
+      $return .= t('SQL error during old files count.').'</br>';
+    }
+  }
+}
+
+function _wallytoolbox_cron_blocks_refresh(&$return) {
+  wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_global');
+
+  // Check if the table is not empty, and build it if necessary
+  $count = db_fetch_array(db_query('SELECT COUNT(*) FROM {wallytoolbox_content_types_cache}'));
+  if ($count['COUNT(*)'] == '0') {
+    wallytoolbox_refresh_cache_list();
+  }
+  
+  $processed = array();
+
+  // Select blocks where last run is too old according to their refresh time
+  $blocks_list = db_query('SELECT * FROM {wallytoolbox_content_types_cache} WHERE enabled = 1 AND rule <> 0 AND last_run <= %d - rule ORDER BY weight ASC, cid ASC', time());
+  while ($block = db_fetch_array($blocks_list)) {
+    $cid = $block['cid'];
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $cid);
+    $multiple_id = ($type == $subtype) ? $cid : $type.'::'.$subtype;
+
+    if (!in_array($multiple_id, $processed)) {
+      $processed[] = $multiple_id;
+
+      if (isset($block['settings']) && is_string($block['settings']) && !empty($block['settings'])) {
+        $block['settings'] = unserialize($block['settings']);
+      }
+      if (isset($block['callback']) && is_string($block['callback']) && !empty($block['callback'])) {
+        $block['callback'] = unserialize($block['callback']);
+      }
+  
+      wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block', TRUE);
+      $output = _wallytoolbox_process_block_refresh($block);
+      $delta_t = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_block');
+      $micro = sprintf('%06d', ($delta_t - floor($delta_t)) * 1000000);
+      $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t));
+      $formatted = $d->format('i:s.u');
+  
+      if (!empty($output)) {
+        $output[] = 'Runtime : '.$formatted;
+        $block['output'] = unserialize($block['output']);
+        $block['output'][time()] = $output;
+        $block['output'] = array_slice($block['output'], -50, 50, TRUE);
+        if ($type == $subtype) {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid = "%s"', serialize($block['output']), $block['cid']);
+        } else {
+          db_query('UPDATE {wallytoolbox_content_types_cache} SET output = "%s" WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', serialize($block['output']), $type, $subtype);
+        }
+      }
+      $block['last_run'] = time();
+      if ($type == $subtype) {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid = "%s"', $block['last_run'], $block['cid']);
+      } else {
+        db_query('UPDATE {wallytoolbox_content_types_cache} SET last_run = %d WHERE cid LIKE "%%:%%:%s:%s:%%:%%"', $block['last_run'], $type, $subtype);
+      }
+      $return .= t('Block "!cid". Runtime : !delta_t', array('!cid' => $block['cid'], '!delta_t' => $formatted)).'</br>';
+    }
+  }
+
+  $delta_t_global = wallytoolbox_set_microtime_step('', FALSE, 'wtb_cron_global');
+  $micro = sprintf('%06d', ($delta_t_global - floor($delta_t_global)) * 1000000);
+  $d = new DateTime(date('Y-m-d H:i:s.'.$micro, $delta_t_global));
+  $formatted = $d->format('i:s.u');
+  $return .= '<b>'.t('Total Runtime : !delta_t', array('!delta_t' => $formatted)).'</b></br>';
+}
+
+function _wallytoolbox_get_setting($settings, $name, $default = NULL) {
+  $conf_keys = array_keys($settings);
+  if (is_object($settings[$conf_keys[0]])) {
+    $setting = isset($settings[$conf_keys[0]]->$name) ? $settings[$conf_keys[0]]->$name : $default;
+  } else {
+    $setting = isset($settings[$name]) ? $settings[$name] : $default;
+  }
+  return $setting;
+}
+
+function _wallytoolbox_set_setting(&$settings, $name, $value) {
+  $conf_keys = array_keys($settings);
+  if (is_object($settings[$conf_keys[0]])) {
+    $settings[$conf_keys[0]]->$name = $value;
+  } else {
+    $settings[$name] = $value;
+  }
+  return;
+}
+
+/**
+ * @} End of "defgroup wallytoolbox".
+ */

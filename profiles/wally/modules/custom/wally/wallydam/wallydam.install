@@ -1,0 +1,64 @@
+<?php 
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallydam_uninstall(){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  drupal_uninstall_schema('wallydam');
+  wallytoolbox_variable_del_like('wallydam_');
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function wallydam_install() {
+  drupal_install_schema('wallydam');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function wallydam_schema() {
+  $schema = array();
+
+  $schema['wallydam_packagestosend'] = array(
+    'description' => 'Contains ids of the packages to send',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the node was put in the table.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('nid'),//primary key
+  );
+  
+  $schema['wallydam_urltosend'] = array(
+    'description' => 'Contains ids of the url to send',
+    'fields' => array(
+      'nid' => array(
+        'type' => 'int',
+        'description' => 'Node Id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the node was put in the table.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    
+    'primary key' => array('nid'),//primary key
+  );
+  return $schema;
+}

@@ -1,0 +1,753 @@
+<?php
+
+/**
+ * Implementation of hook_perm()
+ */
+function pub_perm() {
+  return array(
+    'manage pub',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function pub_menu() {
+  $items = array();
+  $items['admin/rossel/pub'] = array(
+    'title' => t('Pub configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_form'),
+    'access arguments' => array('manage pub'),
+    'description' => t('Configure availables ads providers.'),
+    'file' => 'includes/pub.admin.inc',
+  );
+
+  $items['admin/rossel/pub/adtech'] = array(
+    'title' => t('Pub adTech configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_form'),
+    'access arguments' => array('manage pub'),
+    'file' => 'includes/pub.admin.inc',
+  	'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 1,
+  );
+  
+  $items['admin/rossel/pub/purl'] = array(
+    'title' => t('Pub Purl configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_purl_form'),
+    'access arguments' => array('manage pub'),
+    'file' => 'includes/pub.admin_purl.inc',
+  	'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+
+  $items['admin/rossel/pub/openx'] = array(
+    'title' => t('Pub OpenX configuration'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_page_admin_openx_form'),
+    'access arguments' => array('manage pub'),
+    'file' => 'includes/pub.admin_openx.inc',
+	  'type' => MENU_LOCAL_TASK,
+    'weight' => 3,
+  );
+  
+  $items['admin/rossel/pubcron'] = array(
+    'title' => t('Run pub "cron"'),
+    'page callback' => 'pub_cron_run',
+    'access arguments' => array('manage pub'),
+    'description' => t('Run ads cron.'),
+  	'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubblocks'] = array(
+    'title' => t('Manage blocks'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_blocks_admin_form'),
+    'access arguments' => array('manage pub'),
+    'description' => t('Manage existing ads blocks and create new ones.'),
+    'file' => 'includes/pub.admin.inc',
+  );
+  
+  $items['admin/rossel/pubcache'] = array(
+    'title' => t('Manage cache'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pub_cache_admin_form'),
+    'access arguments' => array('manage pub'),
+    'description' => t('View and delete existing cached ads.'),
+    'file' => 'includes/pub.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implémentation du hook_theme
+ */
+function pub_theme() {
+  return array(
+    'pub_content' => array(
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pub_openx_content' => array(
+      'arguments' => array('html_code' => NULL, 'delta' => NULL),
+      'template' => 'pub-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pub_purl_content' => array(
+      'arguments' => array('content' => NULL, 'delta' => NULL),
+      'template' => 'pub-purl-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'pub_header' => array(
+      'arguments' => array('header_code' => NULL),
+      'template' => 'pub-header',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'analytic_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'analytic-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'xiti_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'xiti-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'metriweb_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriweb-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+    'metriwebspring_content' => array(
+      'arguments' => array('html_code' => NULL),
+      'template' => 'metriwebspring-content',
+      'path' => drupal_get_path('module', 'pub') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implémentation du hook_block
+ */
+function pub_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      //DLA
+      static $blocks;
+      if (isset($blocks)) {
+        return $blocks;
+      }
+      $pub_list = db_query('SELECT position FROM {zz_pub_UMI}');
+      while ($pub_elem = db_fetch_array($pub_list)) {
+        $blocks[$pub_elem['position']] = array(
+          'info' => t('Pub '.$pub_elem['position']),
+          'cache' => BLOCK_CACHE_PER_PAGE,
+        );
+      }
+      
+      $blocks['pub_header'] = array(
+        'info' => t('Pub Header'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['analytic_block'] = array(
+        'info' => t('Analytic'),
+        'cache' => BLOCK_NO_CACHE,
+      );
+      
+      $blocks['xiti_block'] = array(
+        'info' => t('Xiti'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['metriweb_block'] = array(
+        'info' => t('MetriWeb'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      $blocks['metriwebspring_block'] = array(
+        'info' => t('MetriWebSpring'),
+        'cache' => BLOCK_CACHE_PER_PAGE,
+      );
+      
+      return $blocks;
+    case 'configure':
+      $form = array();
+      $hour_list = array();
+      for ($i=0; $i<=24; $i++) $hour_list[$i] = ($i==1 || $i==0) ? $i.' hour' : $i.' hours';
+      $day_list = array();
+      for ($i=0; $i<=30; $i++) $day_list[$i] = ($i==1 || $i==0) ? $i.' day' : $i.' days';
+      $default_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
+      $default_hour = $default_time%24;
+      $default_day = ($default_time - $default_time%24)/24;
+      $form['refresh_time_day'] = array(
+        '#title' => t('Time between updates'),
+        '#type' => 'select',
+        '#description' => t('Time, in days, between updates for this block.'),
+        '#options' => $day_list,
+        '#default_value' => $default_day,
+        '#required' => TRUE,
+      );
+      $form['refresh_time_hour'] = array(
+        '#type' => 'select',
+        '#description' => t('Time, in hours, between updates for this block.'),
+        '#options' => $hour_list,
+        '#default_value' => $default_hour,
+        '#required' => TRUE,
+      );
+      return $form;
+    case 'save':
+      switch ($delta) {
+        case 'pub_header':
+          variable_set('header_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'analytic_block':
+          variable_set('analytic_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'xiti_block':
+          variable_set('xiti_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'metriweb_block':
+          variable_set('metriweb_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        case 'metriwebspring_block':
+          variable_set('metriwebspring_block_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+          break;
+        default:
+          variable_set('pub_block_'.$delta.'_refresh_time', 24*$edit['refresh_time_day'] + $edit['refresh_time_hour']);
+      }
+      break;
+    case 'view':
+      $cache_url = $_SERVER['HTTP_HOST'].'/'.$_GET['q'];
+      
+      switch ($delta) {
+        case 'pub_header':
+          $block = array(
+            'subject' => t('Pub Header.'), 
+            'content' => _pub_getheadercontent($cache_url),
+          );
+          break;
+        case 'analytic_block':
+          $block = array(
+            'subject' => t('Analytic block.'), 
+            'content' => _pub_get_block_content($cache_url, 'analytic', 'GA-Async'),
+          );
+          break;
+        case 'xiti_block':
+          $block = array(
+            'subject' => t('Xiti block.'), 
+            'content' => _pub_get_block_content($cache_url, 'xiti', 'Xiti'),
+          );
+          break;
+        case 'metriweb_block':
+          $block = array(
+            'subject' => t('MetriWeb block.'), 
+            'content' => _pub_get_block_content($cache_url, 'metriweb', 'Metriweb'),
+          );
+          break;
+        case 'metriwebspring_block':
+          $block = array(
+            'subject' => t('MetriWebSpring block.'),
+            'content' => _pub_get_block_content($cache_url, 'metriwebspring', 'MetriwebSpring'),
+          );
+          break;
+        default:
+          $block = array(
+            'subject' => t('Pub block.'), 
+            'content' => _pub_getpubcontent($delta, $cache_url),
+          );
+      }
+      return $block;
+  }
+}
+
+/**
+ * Hook preprocess for meta tags.
+ */
+function pub_preprocess_page(&$variables) {
+  $variables['meta'] .= pub_get_meta();
+}
+
+/**
+ * Return an entry from the zz_pub_UMI
+ * @param string $delta
+ *   The block delta croorepsponding to the position column
+ *  
+ * @return
+ *   Return the database entry as an array or FALSE
+ * 
+ */
+function pub_load_block($delta){
+  $query='SELECT * FROM {zz_pub_UMI} where position = "%s"';
+  $result = db_fetch_array(db_query($query, $delta));
+  return $result;
+}
+
+/**
+ * Adds a META TAG to the process template queue.
+ * 
+ * @param $attributes
+ *   Array of meta key keyword & key value. 
+ *   If key keyword is one of "http-equiv, name, property"
+ *   the Meta is updated in case of 2 calls.
+ * @param $content
+ *   Content of the meta tag.
+ *   
+ * @return
+ * 	Return an array of meta.
+ */
+function pub_add_meta($attributes = array(), $content = NULL) {
+	static $metas = array();
+	$meta_key = NULL; 
+
+	// Supported "Meta Keys" are : http-equiv, name, property.
+	if (is_array($attributes)) {
+	  $content = strip_tags($content);
+
+	  foreach ($attributes as $attribute_name => $attribute_value) {
+	    switch (strtolower($attribute_name)) {
+	      case 'name':
+	      case 'http-equiv':
+	      case 'property':
+	        $meta_key = strtolower($attribute_name).'_'.$attribute_value;
+	        $metas[$meta_key] = array($attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	      default:
+	        $metas[] = array($attribute_name => $attribute_value, 'content' => $content);
+	        break;
+	    }
+	  }
+	}
+	return $metas;
+}
+
+/**
+ * Generate HTML tag for meta tags.
+ */
+function pub_get_meta() {
+  if (!isset($metas)) {
+    $metas = pub_add_meta();
+  }
+
+  if (empty($metas)) {
+    return '';
+  }
+
+  $output = '';
+  
+  foreach ($metas as $meta_k => $meta) {
+    if (!$meta) {
+      continue;
+    }
+    $output .= "<meta ";
+		foreach($meta as $data_k => $data_v) {
+			$output .= " ".$data_k."=\"".$data_v."\"";
+		}
+    $output .= " />\n";
+  }
+  
+  return $output;
+}
+
+/**
+ * Return the parents hierarchy of a taxonomic term according to the vocabulary structure.
+ * Example: if given the tid of the term "Belgium", returns "News/World/Belgium".
+ * 
+ * @param string $term
+ *   A taxonomy term ID or name. If it is a name, the chosen term will
+ * be the one matching the $vid, if given, or the first in the results
+ * list.
+ * @param string $vid
+ *   The vocabulary ID.
+ * 
+ * @return
+ *   A string containing the parents hierarchy, separated by "/".
+ */
+function pub_taxonomy_get_path_by_tid_or_term($term, $vid = '', $add_voc = FALSE) {
+  $return = '';
+  
+  if (!is_numeric($term)) {
+    $terms_list = taxonomy_get_term_by_name($term);
+    if ($vid != '') {
+      foreach ($terms_list as $term_elem) {
+        if ($term_elem->vid == $vid) {
+          $tid = $term_elem->tid;
+          break;
+        }
+      }
+    } else {
+      $tid = $terms_list[0]->tid;
+    }
+  } else {
+    $tid = $term;
+  }
+  
+  $tax_list = taxonomy_get_parents_all($tid);
+  foreach (array_reverse($tax_list) as $tax_elem) {
+    $return .= $tax_elem->name.'/';
+  }
+  if ($add_voc) {
+    $voc = taxonomy_vocabulary_load($tax_list[0]->vid);
+    $return = $voc->name.'/'.$return;
+  }
+  
+  return substr($return, 0, strlen($return)-1);
+}
+
+/**
+ * Get content for the pub block.
+ * 
+ * @param string $delta
+ *   The delta of the concerned block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getpubcontent($delta, $cache_url) {
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
+  $cached_pub = cache_get('pub_'.$delta.'_temp-'.$cache_url);
+  $cache_time = variable_get('pub_block_'.$delta.'_refresh_time', 24);
+
+  $block_settings = pub_load_block($delta);
+  switch ($block_settings['builder']) {
+    case 'purl':
+      $builder = '_purl';
+      break;
+    case 'openx':
+      $builder = '_openx';
+      break;
+    case 'adtech':
+      $builder = '';
+      drupal_add_js(drupal_get_path('module', 'pub').'/scripts/ad_tech.js');
+      break;
+    default:
+      $builder = '';
+  }
+
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $webserv_req = _pub_getwebservreq($orig_url);
+    
+    //@TODO: DDU : clean code
+    
+    switch ($block_settings['builder']) {
+      case 'purl':
+        $pub_content = _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, '_purl', $cache_url);
+        if ($pub_content['meta'] && !empty($pub_content['meta']['content'])) {
+          pub_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+        }
+        break;
+      case 'openx':
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '_openx', $cache_url);
+        break;
+      default:
+        $pub_content = _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, '', $cache_url);
+    }
+    
+    cache_set('pub_'.$delta.'_temp-'.$cache_url, $pub_content, 'cache', time() + 3600*$cache_time);
+    cache_set('pub_'.$delta.'_perm-'.$cache_url, $pub_content);
+  } else {
+    $pub_content = $cached_pub->data;
+    if ($pub_content['meta'] && !empty($pub_content['meta']['content'])) {
+      pub_add_meta($pub_content['meta']['attributes'], $pub_content['meta']['content']);
+    }
+  }
+
+  return theme('pub'.$builder.'_content', $pub_content, $delta);
+}
+
+function _pub_generate_default_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
+  $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
+  $website = variable_get('pub'.$builder.'_website', '');
+  $expl_website = explode('_', $website);
+  $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
+  $domain = $_SERVER['HTTP_HOST'];
+  $params = array(
+    'scriptType' => $script_type,
+    'site' => $expl_website[0],
+    'pageType' => $webserv_req[1],
+    'context' => '/'.$webserv_req[0],
+    'position' => $delta,
+    'domain' => $domain,
+  );
+  if ($edition) {
+    $params['edition'] = $edition;
+  }
+  $webserv_adress = variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  
+  if ($content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params)) {
+    $pub_content = $content_from_webservice;
+  } else {
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
+    $pub_content = $cached_pub->data ? $cached_pub->data : '';
+  }
+  
+  return $pub_content;
+}
+
+function _pub_generate_purl_pub_content($block_settings, $delta, $webserv_req, $builder, $cache_url) {
+  $script_type = variable_get('pub'.$builder.'_provider', 'AdTech');
+  $website = variable_get('pub'.$builder.'_website', '');
+  $expl_website = explode('_', $website);
+  $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
+  $domain = $_SERVER['HTTP_HOST'];
+  $params = array(
+    'scriptType' => $script_type,
+    'site' => $expl_website[0],
+    'pageType' => $webserv_req[1],
+    'context' => '/'.$webserv_req[0],
+    'position' => $delta,
+    'domain' => $domain,
+  );
+  if ($edition) {
+    $params['edition'] = $edition;
+  }
+  $webserv_adress = variable_get('pub'.$builder.'_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+  $header_adress = variable_get('pub'.$builder.'_header', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/header');
+  
+  $content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params);
+  $header_from_webservice = _pub_get_content_from_webservice($header_adress, $params);
+
+  if ($content_from_webservice && !empty($content_from_webservice) && $header_from_webservice && !empty($header_from_webservice)) {
+    $pub_content['content'] = $content_from_webservice;
+    $pub_content['meta']['content'] = $header_from_webservice;
+    $pub_content['meta']['attributes'] = array(
+      'name' => variable_get('pub'.$builder.'_meta_name', 'adpurl-keywords'),
+    );
+  } else {
+    $cached_pub = cache_get('pub_'.$delta.'_perm-'.$cache_url);
+    $pub_content = $cached_pub->data ? $cached_pub->data : '';
+  }
+  
+  return $pub_content;
+}
+
+/**
+ * Get content for the pub header block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_getheadercontent($cache_url) {
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
+  $cached_pub = cache_get('header_temp-'.$cache_url);
+  $cache_time = variable_get('header_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $script_type = variable_get('pub_provider', 'AdTech');
+    $website = variable_get('pub_website', '');
+    $expl_website = explode('_', $website);
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $edition = isset($webserv_req[2]) ? $webserv_req[2] : NULL;
+    $domain = $_SERVER['HTTP_HOST'];
+    $params = array(
+      'scriptType' => $script_type,
+      'site' => $expl_website[0],
+      'pageType' => $webserv_req[1],
+      'context' => '/'.$webserv_req[0],
+      'position' => $delta,
+      'domain' => $domain,
+    );
+    if ($edition) {
+      $params['edition'] = $edition;
+    }
+    $header_adress = variable_get('pub_header', '');
+
+    if ($content_from_webservice = _pub_get_content_from_webservice($header_adress, $params)) {
+      $header_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get('header_perm-'.$cache_url);
+      $header_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set('header_temp-'.$cache_url, $header_content, 'cache', time() + 3600*$cache_time);
+    cache_set('header_perm-'.$cache_url, $header_content);
+  } else {
+    $header_content = $cached_pub->data;
+  }
+  
+  return theme('pub_header', $header_content);
+}
+
+/**
+ * Get content a generic block.
+ * 
+ * @return
+ *   HTML content.
+ * 
+ * @see http://api.drupal.org/api/drupal/developer--hooks--core.php/function/hook_block/6
+ *   Hook_block
+ */
+function _pub_get_block_content($cache_url, $type, $script_type, $delta = '') {
+  $current_page = menu_get_item($_GET['q']);
+  if (!$current_page) {
+    return '';
+  }
+  $orig_url = $current_page['href'];
+  $cached_pub = cache_get($type.'_block_temp-'.$cache_url, 'cache');
+  $cache_time = variable_get($type.'_block_refresh_time', 24);
+  
+  if (!is_object($cached_pub) || !isset($cached_pub) || empty($cached_pub) || $cached_pub->expire < time()) {
+    $website = variable_get('pub_website', '');
+    $expl_website = explode('_', $website);
+    $webserv_req = _pub_getwebservreq($orig_url);
+    $domain = $_SERVER['HTTP_HOST'];
+    $params = array(
+      'scriptType' => $script_type,
+      'site' => $expl_website[0],
+      'pageType' => $webserv_req[1],
+      'context' => '/'.$webserv_req[0],
+      'position' => $delta,
+      'domain' => $domain,
+    );
+    $webserv_adress = variable_get('pub_webserv', 'http://172.21.132.180:8080/Wally-Tags/rest/wally/script/detail');
+    
+    if ($content_from_webservice = _pub_get_content_from_webservice($webserv_adress, $params)) {
+      $metriweb_content = $content_from_webservice;
+    } else {
+      $cached_pub = cache_get($type.'_block_perm-'.$cache_url, 'cache');
+      $metriweb_content = $cached_pub->data ? $cached_pub->data : '';
+    }
+    
+    cache_set($type.'_block_temp-'.$cache_url, $metriweb_content, 'cache', time() + 3600*$cache_time);
+    cache_set($type.'_block_perm-'.$cache_url, $metriweb_content, 'cache');
+  } else {
+    $metriweb_content = $cached_pub->data;
+  }
+  
+  return theme($type.'_content', $metriweb_content);
+}
+
+/**
+ * Get content from a webservice.
+ * 
+ * @return
+ *   HTML content.
+ */
+function _pub_get_content_from_webservice($url, $params) {
+  drupal_alter('pub_params', $params);
+  foreach ($params as $key => $value) {
+    $params[$key] = $key.'='.rawurlencode($value);
+  }
+  $req_params = '?'.implode('&', $params);
+  $content = drupal_http_request($url.$req_params, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
+  return ($content->code == '200') ? $content->data : FALSE;
+}
+
+/**
+ * Return the request sent to the webservice. The request is based on the URL.
+ * 
+ * @param string $orig_url
+ *   The page URL, given by $_GET['q'].
+ * 
+ * @return
+ *   The request as a string.
+ */
+function _pub_getwebservreq($orig_url) {
+  $expl_url = explode('/', $orig_url);
+  $webserv_req = array();
+  $home_page = variable_get('site_frontpage', '');
+  if ($home_page == $orig_url) {
+    $webserv_req[] = 'home';
+    $webserv_req[] = 'home';
+  } else {
+    switch ($expl_url[0]) {
+      case 'node':
+        if ($expl_url[1]) {
+          $node = node_load($expl_url[1]);
+          if (module_exists('cckdestinations') && isset($node->field_destinations) && !empty($node->field_destinations)) {
+            $node_dest = $node->field_destinations;
+            $tax_hierar = pub_taxonomy_get_path_by_tid_or_term($node_dest[0]['tid'], '', TRUE);
+            if ($tax_hierar == '' || empty($tax_hierar)) {
+              $webserv_req[] = $orig_url;
+            } else {
+              $webserv_req[] = $tax_hierar.'/'.$node->nid;
+            }
+          } else {
+            $webserv_req[] = $orig_url;
+          }
+        } else {
+          $webserv_req[] = $orig_url;
+        }
+        $webserv_req[] = 'node';
+        if (isset($node->field_editions) && isset($node->field_editions[0]) && is_numeric($node->field_editions[0]['value'])) {
+          $edition_term = taxonomy_get_term($node->field_editions[0]['value']);
+          $webserv_req[] = $edition_term->name;
+        }
+        break;
+      case 'taxonomy':
+        if ($expl_url[2]) {
+          $tids = $expl_url[2];
+          $expl_tids = preg_split('(\+|\,|\ )', $tids);
+          $tax_hierar = pub_taxonomy_get_path_by_tid_or_term($expl_tids[0], '', TRUE);
+          $webserv_req[] = $tax_hierar;
+        } else {
+          $webserv_req[] = $orig_url;
+        }
+        $webserv_req[] = 'page';
+        break;
+      default:
+        $primary_links_tree = menu_tree_page_data('primary-links');
+        $webserv_req = _pub_get_path_to_item($primary_links_tree, $orig_url, TRUE);
+        if (!is_array($webserv_req)) {
+          $webserv_req = array();
+          $webserv_req[] = $orig_url;
+          $webserv_req[] = 'page';
+        }
+    }
+  }
+  
+  return $webserv_req;
+}
+
+/**
+ * Recursively search the menu tree for an URL. When found return the
+ * taxonomy tree related to his direct parent plus himself.
+ * 
+ * @param $menu_step
+ *   The menu level (with all the menu elements of this level)
+ *   where the search curently is.
+ * @param $link_path
+ *   The searched URL.
+ */
+function _pub_get_path_to_item($menu_step, $link_path, $first_level = FALSE) {
+  $temp_name = FALSE;
+  foreach ($menu_step as $elem_name => $menu_elem) {
+    if ($menu_elem['link']['link_path'] == $link_path) {
+      if ($first_level) {
+        $result = _pub_getwebservreq($menu_elem['link']['link_path']);
+        $result[0] = ($result[0] == '') ? $link_path : $result[0].'/'.$link_path;
+        return $result;
+      } else {
+        return 'found';
+      }
+    } elseif ($menu_elem['below']) {
+      $next_lev = _pub_get_path_to_item($menu_elem['below'], $link_path);
+      if ($next_lev == 'found' && $menu_elem['link']['module'] == 'taxonomy_menu') {
+        $result = _pub_getwebservreq($menu_elem['link']['link_path']);
+        $result[0] = ($result[0] == '') ? $link_path : $result[0].'/'.$link_path;
+        return $result;
+      } elseif (is_array($next_lev)) {
+        return $next_lev;
+      }
+    }
+  }
+  return 'not found';
+}

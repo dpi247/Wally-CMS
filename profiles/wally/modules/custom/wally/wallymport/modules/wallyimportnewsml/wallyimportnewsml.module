@@ -1,0 +1,527 @@
+<?php 
+
+/**
+ * Implementation of hook_wallymport_importer 
+ */
+function wallyimportnewsml_wallymport_importer(){
+  $importers = array();
+  $importers['wallyimportnewsml'][] = array(
+    'importer_type'      => 'newsml',
+    'importer_functions' => array(
+      'wallyimportnewsml',
+    ),
+  );
+  return $importers; 
+    
+}
+/**
+* Entry point
+*
+* The node is created/deleted/updated/replaced depending on the action
+*
+* @param $dom
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*
+* The node
+* @return
+*   A node object
+*/
+function wallyimportnewsml_process_newscomponent($dom, &$log, $importer){
+  if (variable_get('wallymport_debug',0) or TRUE){
+    $log['log'][] = 'process package: '.$dom->nodeName;
+  }
+  
+  $node = wallyimportnewsml_node_create_or_load_package($dom, $log, $importer);
+
+  module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'newsml_process_package', 'before_process');
+  
+  wallyimportnewsml_node_process_package($node, $dom, $log, $importer);
+  
+  module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'newsml_process_package', 'after_process');
+
+  if (!empty($node) && !isset($node->rejected)) {
+    if (isset($node->wallymport_delete)){
+      drupal_set_message('The package '.$node->ext_ref.' has been deleted');
+    } else {
+      $node->wallymport_node = TRUE;
+      node_save($node);
+      module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'postsave');
+    }
+  } elseif (!isset($node->wallymport_delete) & !isset($node->wallymport_update)) {
+    wallycontenttypes_delete_orphans_objects($node);
+  }
+
+  $log['node'] = array('current' => $node,'next' => $log['node']);
+  return FALSE;
+}
+
+/**
+* Preprocess Create or load package
+*
+* The node is created/deleted/updated/replaced depending on the action
+*
+* @param $dom
+*   The DomDocument who is being proceed (A DomElement)
+* @param $node
+*   The node
+* @return
+*   A node object
+*/
+function wallyimportnewsml_node_create_or_load_package($dom, &$log, $importer) {
+  $node = new stdClass;
+  $node->type = 'wally_articlepackage';
+  $node->wallymport_node = TRUE;
+  wallyimportnewsml_create_or_load_preprocesspackage($dom, $node, $log, $importer);
+  return $node;
+}
+/**
+* Create or load a article package depending of external reference.
+*
+* If no node match the external reference, a new node is created.
+*
+* @param $dom
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   A node object
+*/
+function wallyimportnewsml_create_or_load_preprocesspackage($dom, &$node, &$log, $importer){
+
+  $node_temporary = NULL;
+  $ext_ref = _wimprthelp_plain_text($dom->getAttributeNode("Duid")->value);
+
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref), $node->type)){
+    $node_temporary = $node_temp[0];
+  }
+
+  if ($node_temporary != NULL){
+    $node->nid = $node_temporary->nid;
+  }
+  
+  $uid = $importer->default_user;
+  $node->uid = $uid;
+}
+
+/**
+* Process article package from DOM.
+*
+* MAP fields of the article package content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_process_package(&$node, $dom, &$log, $importer){
+
+  //Map XML Attributes
+  $node->field_externalreference[0]['value'] = _wimprthelp_plain_text($dom->getAttributeNode("Duid")->value);
+  
+  /* @todo trouver quel est la date de publication
+  if ($dom_element->hasAttribute("PublicationDate")) {
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime($dom_element->getAttributeNode("PublicationDate")->value);
+  } else {
+    $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  }
+  */
+  $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  
+  $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  
+  $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  $node->field_unpublishdate[0]['value'] = NULL;
+  $node->field_autopublish[0]['value'] = 'Autopublish';
+  
+  $node->status = 1;
+  
+  $node->language = $dom->getAttributeNode("xml:lang")->value;
+  
+  $channel = array('newsml');
+  $node->field_channels = array(array("value" => serialize($channel)));
+
+  //Map XML element
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+  if (!isset($node->field_packagelayout[0]) && $tax_term = taxonomy_get_term_by_name('Article')){
+    $node->field_packagelayout[]['value'] = $tax_term[0]->tid;
+  }
+}
+/**
+* Process field news component from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_newscomponent(&$node, $dom, &$log, $importer){
+
+  $role = strtolower($dom->getElementsByTagName('Role')->item(0)->getAttribute('FormalName'));
+
+  if (function_exists("wallyimportnewsml_node_set_field_".$role)){
+    call_user_func("wallyimportnewsml_node_set_field_".$role, &$node, $dom, &$log, $importer);
+  }
+  
+}
+/**
+* Process field Brief
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_brief(&$node, $dom, &$log, $importer){
+  //set fields 
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+   
+  //set mainstory
+  $object = wimprt_node_process($dom, $log, $importer, 'textobjecttype');
+
+  $node->field_mainstory[0]['nid'] = $object->nid;
+  
+}
+/**
+* Process field Brief
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_picture(&$node, $dom, &$log, $importer){
+   
+  //set picture
+  $object = wimprt_node_process($dom, $log, $importer, 'photoobjecttype');
+  
+  $exist = FALSE;
+  if (isset($node->field_embededobjects)){
+    foreach ($node->field_embededobjects as $value){
+      if ($value['nid'] == $object->nid){
+        $exsit = TRUE;
+      }
+    }
+  }
+  if (!$exist){
+    $node->field_embededobjects[]['nid'] = $object->nid;
+  }
+}
+/**
+* Process field Title from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_title(&$node, $dom, &$log, $importer){
+  $value = $dom->getElementsByTagName('DataContent')->item(0)->nodeValue;
+  $node->title = _wimprthelp_plain_text($value);
+  if ($node->type == 'wally_textobject'){
+    $node->field_objecttitle = array(array("value" => $node->title));
+  }
+}
+/**
+* Process field TextChapo from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_lead(&$node, $dom, &$log, $importer){
+  module_load_include('inc', 'wallyimportpackage', 'wallyimportpackage');
+  if ($node->type != 'wally_articlepackage'){
+    $value = $dom->getElementsByTagName('DataContent')->item(0)->nodeValue;
+    $node->field_textchapo[0]['value'] = $value;
+    $node->field_textchapo[0]['format'] = wallyimportpackage_get_default_format();
+  }
+}
+/**
+* Process field Body from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_body(&$node, $dom, &$log, $importer){
+  if ($node->type != 'wally_articlepackage'){
+    $value = $dom->getElementsByTagName('DataContent')->item(0)->nodeValue;
+    $node->field_textbody[0]['value'] = $value;
+    $node->field_textbody[0]['format'] = wallyimportpackage_get_default_format();
+  }
+}
+/**
+* Process field Caption from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_caption(&$node, $dom, &$log, $importer){
+  $value = $dom->getElementsByTagName('DataContent')->item(0)->nodeValue;
+  $node->field_objectdescription[0]['value'] = $value;
+}
+/** Process field Preview from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_set_field_preview(&$node, $dom, &$log, $importer){
+  $file_uri = 'embed://'.$dom->getElementsByTagName('ContentItem')->item(0)->getAttribute('Href');
+  $node->field_photofile[0] = _wimprthelp_create_file_from_uri($file_uri, '',$importer);
+  $file_name = explode('_', $node->field_photofile[0]['filename'], 2);
+  $file_path = $importer->source_directory_path.'/'.$file_name[1];
+  $log['filetomove'][] = $file_path;
+}
+/**
+* Create or load a text object depending of external reference.
+*
+* If no node match the external reference, a new node is created.
+*
+* @param $dom
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   A node object
+*/
+function wallyimportnewsml_node_create_or_load_textobjecttype($dom, &$log, $importer){
+  $node = new stdClass;
+  $node->type = 'wally_textobject';
+  $node->wallymport_node = TRUE;
+  $ext_ref = $dom->getAttributeNode('Duid')->value;
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),'wally_textobject')){
+    $node = $node_temp[0];
+  }
+
+  $uid = $importer->default_user;
+  $node->uid = $uid;
+  
+  return $node;
+}
+/**
+* Create or load a photo object depending of external reference.
+*
+* If no node match the external reference, a new node is created.
+*
+* @param $dom
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   A node object
+*/
+function wallyimportnewsml_node_create_or_load_photoobjecttype($dom, &$log, $importer){
+  
+  $node = new stdClass;
+  $node->type = 'wally_photoobject';
+  $node->wallymport_node = TRUE;
+  $ext_ref = $dom->getAttributeNode('Duid')->value;
+  if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref),'wally_photoobject')){
+    $node = $node_temp[0];
+  }
+
+  $uid = $importer->default_user;
+  $node->uid = $uid;
+
+  return $node;
+}
+/**
+* Process Text object from DOM.
+*
+* MAP fields of the text object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_process_textobjecttype(&$node, $dom, &$log, $importer){
+  //Map XML Attributes
+  //put common attributes
+
+  wallyimportnewsml_objecttype_preprocess($node, $dom, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+  
+  $node->field_copyright[0]['value'] = $dom->getElementsByTagName('CopyrightLine')->item(0)->nodeValue;
+  
+  //Exception for TextObject
+  if ($dom->getElementsByTagName("TextTitle")->item(0)->length) {
+    $node->title = $dom->getElementsByTagName("TextTitle")->item(0)->nodeValue;
+  }
+  if ($dom->getElementsByTagName("Title")->length) {
+    $node->field_objecttitle = array(array("value" => $dom->getElementsByTagName("Title")->item(0)->nodeValue));
+  }
+}
+/**
+* Process Text object from DOM.
+*
+* MAP fields of the photo object content type
+* from the DOM (XML) element & attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+* @param $log
+*   The log object build recursively in different operation. this could track error in the process and build nodes.
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_node_process_photoobjecttype(&$node, $dom, &$log, $importer){
+  //Map XML Attributes
+  //put common attributes
+
+  wallyimportnewsml_objecttype_preprocess($node, $dom, $importer);
+  wimprt_node_process_fields($node, $dom, $log, $importer);
+
+  $node->field_copyright[0]['value'] = $dom->getElementsByTagName('CopyrightLine')->item(0)->nodeValue;
+
+  
+}
+/**
+* Process common attributes of objects from DOM element.
+*
+* MAP field from the a DOM (XML) element or attributes.
+*
+* @param $node
+*   Node currently processed.
+* @param $dom_element
+*   The DomDocument who is being proceed (A DomElement)
+*
+* @return
+*   Nothing
+*/
+function wallyimportnewsml_objecttype_preprocess(&$node, $dom, $importer){
+  $node->wallymport_node = TRUE;
+  $node->field_externalreference[0]['value'] = $dom->getAttributeNode('Duid')->value;
+  $node->field_publicationdate[0] = _wallyimportnewsml_date_to_ccktime($dom->getElementsByTagName('DescriptiveMetadata')->item(0)->getAttributeNode("DateAndTime")->value);
+  
+}
+
+/**
+* Translates datetime into CCK datetime field
+*
+* @param $date
+*   - ISO Datetime (e.g. '2010-10-26T21:32:52')
+*
+* @return
+*   CCK datetime field (array)
+*/
+function _wallyimportnewsml_date_to_ccktime($date) {
+  $date = _wallyimportnewsml_datenewsml_to_string($date);
+  list($thedate, $thetime) = explode('T', $date);
+  if (count(explode('+',$thetime)) == 2){
+    list($datetime, $offset) = explode('+', $date);
+    list ($offsethour, $offsetmin) = explode(':', $offset);
+    $time_offset = $offsethour*3600 + $offsetmin * 60;
+    $time = strtotime($datetime) - $time_offset;
+  } elseif (count(explode('-',$thetime)) == 2){
+    list($thetime, $offset) = explode('-', $thetime);
+    $date = $thedate.'T'.$thetime;
+    list ($offsethour, $offsetmin) = explode(':', $offset);
+    $time_offset = $offsethour*3600 + $offsetmin * 60;
+    $time = strtotime($date) + $time_offset;
+  } else {
+    //We suppose the xml date is at the same offset than the site
+    $timezone = new DateTimeZone(variable_get('date_default_timezone_name', 'UTC'));
+    $time_offset = $timezone->getOffset(new DateTime("now")); // Offset in seconds
+    $time = strtotime($date) - $time_offset;
+  }
+
+  $result['value'] = date('Y-m-d H:i:s', $time);
+  $result['timezone'] = variable_get('date_default_timezone_name', 'UTC');
+  $result['timezone_db'] = 'UTC';
+  $result['date_type'] = 'datetime';
+  return $result;
+}
+/**
+* Translates newsml date in datesring
+*
+* @param $date
+*   - ISO Datetime (e.g. '20101026T213252' =>'2010-10-26T21:32:52')
+*
+* @return
+*   CCK datetime field (array)
+*/
+function _wallyimportnewsml_datenewsml_to_string($date){
+  list($date, $time) = explode('T', $date);
+  
+  $date = wordwrap($date, 4, '-', 1);
+  list($year, $month) = explode('-', $date);
+  $month = wordwrap($month, 2,'-',1);
+  $date = $year.'-'.$month;
+  $time = wordwrap($time, 2, ':',1);
+  return $date.'T'.$time;
+}

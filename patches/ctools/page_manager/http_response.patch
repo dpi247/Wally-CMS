@@ -1,0 +1,23 @@
+diff --git a/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc b/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
+index 3a40b17..e3010bf 100644
+--- a/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
++++ b/profiles/wally/modules/mod/ctools/page_manager/plugins/task_handlers/http_response.inc
+@@ -107,7 +107,8 @@
+   return array(
+     404 => t('404 Page not found'),
+     403 => t('403 Access denied'),
+-    301 => t('301 Redirect'),
++    301 => t('301 Permanent Redirect'),
++    302 => t('302 Temporary Redirect'),
+   );
+ }
+ 
+@@ -265,7 +266,7 @@
+   }
+ 
+   $info['response code'] = $handler->conf['code'];
+-  if ($info['response code'] == 301) {
++  if ($info['response code'] == 301 || $info['response code'] == 302) {
+     $path = ctools_context_keyword_substitute($handler->conf['destination'], array(), $contexts);
+     $url = parse_url($path);
+     if (isset($url['query'])) {

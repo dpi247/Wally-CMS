@@ -1,0 +1,11 @@
+name = "wallyadmin"
+description = "Wally admin theme (Parent : Rubik)"
+version = 1
+core = 6.x
+engine = phptemplate
+base theme = rubik
+
+
+stylesheets[all][] = css/wallyadmin.css
+
+regions[content] = "Content"

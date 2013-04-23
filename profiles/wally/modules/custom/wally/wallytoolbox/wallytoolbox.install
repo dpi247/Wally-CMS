@@ -1,0 +1,197 @@
+<?php
+// $Id: wallytoolbox.install,v 1.0 2011/03/02 ODM $
+
+/**
+ * @file
+ * Contains install and update functions for WallyToolbox.
+ */
+
+/**
+ * Implementation of hook_install()
+ */
+function wallytoolbox_install() {
+  drupal_install_schema('wallytoolbox');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function wallytoolbox_uninstall() {
+  drupal_uninstall_schema('wallytoolbox');
+}
+
+/**
+ * Implementation of hook_schema
+ */
+function wallytoolbox_schema() {
+  $schema['cache_wally_object'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_wally_object']['description'] = 'Cache table for caching populated nodes.';
+  
+  $schema['wallytoolbox_content_types_cache'] = array(
+  	'description' => 'Contains a list of cached elements to refresh and their settings.',
+    'fields' => array(
+      'cid' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'enabled' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 1
+      ),
+      'weight' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
+      'rule' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+        'default' => 0,
+      ),
+      'callback' => array(
+      	'type' => 'text',
+      	'size' => 'big',
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the cached content rendered',
+        'serialize' => TRUE,
+       // 'object default' => array(),
+      ),
+      'output' => array(
+      	'type' => 'text',
+      	'size' => 'big',
+      	'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+      ),
+      'last_run' => array(
+      	'type' => 'int',
+      	'not null' => TRUE,
+      	'default' => 0,
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+
+  $schema['wallytoolbox_external_files'] = array(
+    'description' => 'Stores informations for files fetched from outside',
+    'fields' => array(
+      'eid' => array(
+        'description' => 'Primary Key: Unique external files ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+     ),
+      'fid' => array(
+        'description' => 'Unique files ID, link to files table.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'uri' => array(
+        'description' => 'URI of the original file',
+        'type' => 'varchar',
+        'length' => 510,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+      'requestor' => array(
+        'description' => 'Requestor of this file',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL
+      ),
+    ),
+    'indexes' => array(
+      'uri' => array('uri'),
+    ),
+    'primary key' => array('eid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Adding schema used for the nodes non-volatile cache system.
+ */
+function wallytoolbox_update_6001() {
+  $ret = drupal_install_schema('wallytoolbox');
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add 'nid' index to object_cache table
+ */
+function wallytoolbox_update_6002() {
+  $ret = array();
+  db_add_index($ret, 'wallytoolbox_object', 'nid', array('nid'));
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table wallytoolbox_content_types_cache (to content types CTools caching system)
+ */
+function wallytoolbox_update_6003() {
+  $ret = array();
+  $schemas = wallytoolbox_schema();
+  db_create_table($ret, 'wallytoolbox_content_types_cache', $schemas['wallytoolbox_content_types_cache']);
+  wallytoolbox_refresh_cache_list();
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Replace wallytoolbox_object_cache with a standard Drupal cache table
+ */
+function wallytoolbox_update_6004() {
+  $ret = array();
+  $schema = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['description'] = 'Cache table for caching populated nodes.';
+  db_create_table($ret, 'cache_wally_object', $schema);
+  db_drop_table($ret, 'wallytoolbox_object_cache');
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add callback column to wallytoolbox_content_types_cache table
+ */
+function wallytoolbox_update_6005() {
+  $ret = array();
+  $schemas = wallytoolbox_schema();
+  $spec = $schemas['wallytoolbox_content_types_cache']['fields']['callback'];
+  db_add_field($ret, 'wallytoolbox_content_types_cache', 'callback', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table wallytoolbox_external_files (to content types informations about files fetched from outside)
+ */
+function wallytoolbox_update_6006() {
+	$ret = array();
+	$schemas = wallytoolbox_schema();
+	db_create_table($ret, 'wallytoolbox_external_files', $schemas['wallytoolbox_external_files']);
+	return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ */
+function wallytoolbox_update_6007() {
+	$ret = array();
+	wally_variable_set('wallytoolbox_remotecache_secret', rand());
+	return $ret;
+}

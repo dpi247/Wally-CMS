@@ -1,0 +1,8 @@
+core = "6.x"
+name = "Wally Import NewsML"
+description = "Importation of NewsML XML"
+package = "Wally"
+project = "Wally"
+version = "6.x-1.0-rc1"
+
+dependencies[] = "wallymport"

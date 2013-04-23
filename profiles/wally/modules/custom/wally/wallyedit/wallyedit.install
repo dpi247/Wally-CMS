@@ -1,0 +1,322 @@
+<?php
+
+/**
+ * Implementation of hook_install()
+ */
+function wallyedit_install() {
+  // New module weights in core: put devel as the very last in the chain.
+  db_query("UPDATE {system} SET weight = 100 WHERE name = 'wallyedit'");
+  db_query("UPDATE {system} SET weight = 31 WHERE name = 'filefield'");
+  db_query("UPDATE {system} SET weight = 32 WHERE name = 'imagefield'");
+  drupal_install_schema('wallyedit');
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function wallyedit_uninstall() {
+  drupal_uninstall_schema('wallyedit');
+
+  // Delete all variables beginning with "wallyedit_"
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallyedit_');
+  
+  $ret = array();
+  db_drop_field($ret, 'users', 'wydit_default_profile');
+}
+
+/**
+ * Implementation of hook_schema()
+ */
+function wallyedit_schema(){
+  $schema['wallyedit_profiles'] = array(
+    'description' => 'Contains profiles informations for the edition interface.',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'Profile ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Human readable name.',
+      ),
+      'default_profile' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Boolean, default profile.',
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  $schema['wallyedit_tabs'] = array(
+    'description' => 'Contains existing tabs settings for the edition interface.',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'serial',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Profile ID.',
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+      'erasable' => array(
+        'description' => 'This tab can be deleted or not.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('tid'),
+  );
+  
+  $schema['wallyedit_groups'] = array(
+    'description' => 'Contains existing groups settings for the edition interface.',
+    'fields' => array(
+      'gid' => array(
+        'type' => 'serial',
+        'description' => 'Group settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+    ),
+    'primary key' => array('gid'),
+  );
+  
+  $schema['wallyedit_fields'] = array(
+    'description' => 'Contains fields organisation settings for the edition interface.',
+    'fields' => array(
+      'fid' => array(
+        'type' => 'serial',
+        'description' => 'Tabs settings ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Profile ID.',
+      ),
+      'content_type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Content type.',
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Tab ID.',
+      ),
+      'gid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Group ID.',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Type name.',
+      ),
+      'widget' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Widget.',
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Machine name.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Label.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Weight.',
+      ),
+      'display' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'description' => 'Display this field or not.',
+      ),
+    ),
+    'primary key' => array('fid'),
+  );
+  
+  $schema['wallyedit_object_cache'] = array(
+    'description' => t('A special cache used to store prenodes that are being edited; it serves to save state in an ordinarily stateless environment.'),
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'description' => 'The name of the object this cache is attached to.',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created or updated.',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+  
+  $schema['wallyedit_prenodes'] = array(
+    'description' => t('Keep trace of existing prenodes with some informations'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'description' => 'The ID of the prenode',
+      ),
+      'updated' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this prenode was created or updated',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title',
+      ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '32',
+        'description' => 'Node type',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
+  $schema['wallyedit_stored_prenodes'] = array(
+    'description' => t('Store prenodes after reset'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'description' => 'The ID of the prenode',
+      ),
+      'created' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The time this cache was created',
+      ),
+      'data' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized data being stored',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the tab organisation tables.
+ */
+function wallyedit_update_6001() {
+  $schemas = wallyedit_schema();
+  $ret = array();
+  foreach ($schemas as $schema_name => $schema) {
+    db_create_table($ret, $schema_name, $schema);
+  }
+  $spec = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'description' => 'Profile ID used as default in the Wally edition interface.',
+  );
+  db_add_field($ret, 'users', 'wydit_default_profile', $spec);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the prenodes cache table.
+ */
+function wallyedit_update_6002() {
+  $schemas = wallyedit_schema();
+  $ret = array();
+  db_create_table($ret, 'wallyedit_object_cache', $schemas['wallyedit_object_cache']);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the storing and prenodes table.
+ */
+function wallyedit_update_6003() {
+  $schemas = wallyedit_schema();
+  $ret = array();
+  db_create_table($ret, 'wallyedit_prenodes', $schemas['wallyedit_prenodes']);
+  db_create_table($ret, 'wallyedit_stored_prenodes', $schemas['wallyedit_stored_prenodes']);
+  return $ret;
+}

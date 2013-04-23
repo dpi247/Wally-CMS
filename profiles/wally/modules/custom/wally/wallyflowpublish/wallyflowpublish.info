@@ -1,0 +1,9 @@
+name = "Wally Flow Publish"
+description = "Creation of feeds by destination".
+core = "6.x"
+package = "Wally"
+project = "Wally"
+
+dependencies[] = "wallytoolbox"
+features[views][] = "default_destination_view_feed"
+features[views_api][] = "api:2"

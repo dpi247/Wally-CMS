@@ -1,0 +1,536 @@
+<?php
+
+/**
+ * Current ESI element should never be cached. Avoid using this when you can.
+ * This can be used if the module being wishes to compute itself its own cache
+ * identifier, or wishes to provide its own full cache handling.
+ */
+define('WALLYESI_API_CACHE_NONE', 0);
+
+// Default ESI setting for blocks: enabled
+define('ESI__BLOCK_CONFIG_DEFAULT__IS_ENABLED', FALSE);
+
+// Default TTL for blocks: 5 minutes
+define('ESI__BLOCK_CONFIG_DEFAULT__TTL', 300);
+
+/**
+ * Implements hook_menu().
+ */
+function wallyesi_menu() {
+  $items = array();
+  $base = array(
+    'page callback' => 'wallyesi_content_callback',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+    //'delivery callback' => 'esi_api_delivery_callback',
+    //'theme callback' => 'esi_api_theme_from_variables',
+  );
+
+  // No variable item.
+  $items['esi/%'] = array('page arguments' => array(1)) + $base;
+
+  $items['esi/%/%'] = array('page arguments' => array(1, 2)) + $base;
+
+  // Variable item. Using variable hash inside the URL may help reverse proxy
+  // cache to bypass the Drupal bootstrap and element rendering.
+  $items['esi/%/%/%'] = array('page arguments' => array(1, 2, 3)) + $base;
+
+  // Administration section.
+  /*
+  $items['admin/config/development/esi'] = array(
+    'title' => "ESI",
+    'description' => "ESI and AJAX downgrade fine tuning.",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('esi_api_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'esi_api.admin.inc',
+  );
+
+  // Let other modules add their own tab from here.
+  $items['admin/config/development/esi/settings'] = array(
+    'title' => "Settings",
+    'weight' => -666,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  */
+
+  return $items;
+}
+
+/**
+ * Implements hook_boot().
+ *
+ * Fetch ESI given variables, and set them for later esi_api_variables() usage.
+ *
+ * @see esi_api_variables().
+ */
+function wallyesi_boot() {
+  global $esi_api_variables;
+  // First step for variable handling, sorry I couldn't figure out something
+  // better first.
+
+  if (isset($_POST['drupal_path'])) {
+    $esi_api_variables = $_POST + wallyesi_api_variables_default();
+  }
+  else if (isset($_GET['drupal_path'])) {
+    $esi_api_variables = $_GET + wallyesi_api_variables_default();
+    $esi_api_variables['esi_context']=TRUE;
+    unset($esi_api_variables['q']);
+    //print_r($esi_api_variables);
+  }
+}
+
+function wallyesi_theme_registry_alter(&$theme_registry) {
+  array_unshift($theme_registry['block']['theme paths'],  drupal_get_path('module', 'wallyesi').'/theme');
+  array_unshift($theme_registry['panels_pane']['theme paths'],  drupal_get_path('module', 'wallyesi').'/theme');
+}
+
+function wallyesi_form_alter($form,$form_state,$form_id){
+  if (strstr($form_id, '_content_type_')) {
+    $form_to_alter = FALSE;
+    if (strstr($form_id, '_content_type_edit_form')) {
+      // The form id respects the standard structure, easy to recognize
+      $form_to_alter = TRUE;
+    } else {
+      // The form id has another structure, we have to search through all available plugins
+      $plugins = panels_common_get_allowed_types('panels_page');
+      $edit_forms = array();
+      foreach ($plugins as $plugin) {
+        foreach ($plugin as $subtype) {
+          if (isset($subtype['edit form'])) {
+            if (is_array($subtype['edit form'])) {
+              // This is in case of multistep forms
+              $keys = array_keys($subtype['edit form']);
+              $edit_forms[] = $keys[0];
+            } else {
+              $edit_forms[] = $subtype['edit form'];
+            }
+          }
+        }
+      }
+
+      if (in_array($form_id, $edit_forms)) {
+        $form_to_alter = TRUE;
+      }
+    }
+
+    if ($form_to_alter) {
+      ctools_include('dependent');
+      ctools_add_js('dependent');
+
+      // TODO: describe how the cache configs can be configured as defaults in code.
+
+      // load our helper functions
+      module_load_include('inc', 'wallyesi', 'includes/wallyesi_ctoolscontenttype');
+
+      $type = $form_state['pane']->type;
+      if($type!=""){
+        $subtype  = $form_state['pane']->subtype;
+
+        $config = _wallyesi__ctoolscontenttype_settings($type, $subtype, $form_state['pane']->pid);
+
+        $form['esi_config']['#tree']=TRUE;
+
+        $form['esi_config']['enabled'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Enable ESI for this pane'),
+          '#default_value' => $config->enabled,
+          '#id' => 'esi-config-enabled-checkbox',
+        );
+
+        $options = _wallyesi__ttl_options($config->ttl);
+        $form['esi_config']['ttl'] = array(
+          '#type' => 'select',
+          '#title' => t('TTL'),
+          '#description' => t('Time-to-live on the proxy-cache.'),
+          '#options' => $options,
+          '#default_value' => $config->ttl,
+          '#dependency' => array('esi-config-enabled-checkbox' => array('1')),
+      		'#process' => array('ctools_dependent_process'),
+        );
+
+        // add a submit-handler to save our config.
+        $form['#submit'][] = 'wallyesi__ctoolscontenttype_config_save';
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_ID_alter
+ * for block_admin_configure
+ *   Add ESI-configuration options to the block-config pages.
+ */
+function wallyesi_form_block_admin_configure_alter(&$form, $form_state) {
+  // TODO: describe how the cache configs can be configured as defaults in code.
+
+  // load our helper functions
+  module_load_include('inc', 'wallyesi', 'includes/wallyesi_block');
+
+  $module = $form['module']['#value'];
+  $delta  = $form['delta']['#value'];
+  $config = _wallyesi__block_settings($module, $delta);
+
+  $element['esi_config'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('ESI settings'),
+    '#description' => t('Control how this block is cached on an ESI-enabled reverse proxy.'),
+    '#tree' => TRUE,
+  );
+
+  $element['esi_config']['enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable ESI'),
+    '#default_value' => $config->enabled,
+  );
+
+  $options = _wallyesi__ttl_options($config->ttl);
+  $element['esi_config']['ttl'] = array(
+    '#type' => 'select',
+    '#title' => t('TTL'),
+    '#description' => t('Time-to-live on the proxy-cache.'),
+    '#options' => $options,
+    '#default_value' => $config->ttl,
+  );
+
+  // inject our ESI config-fieldset onto the form,
+  // just after the 'block_settings' fieldset.
+  $i = 1;
+  foreach($form as $key => $value) {
+    if($key == 'block_settings') {
+      break;
+    }
+    $i++;
+  }
+  $f = array_slice($form, 0, $i);
+  $f += $element;
+  $f += array_slice($form, $i);
+  $form = $f;
+
+  // add a submit-handler to save our config.
+  $form['#submit'][] = 'wallyesi__block_config_save';
+}
+
+/**
+ * Fetch or set ESI global variables, that will be merged into each custom
+ * element variables.
+ *
+ * When used in normal page build context, this function will populate most
+ * variables by itself. When called in a ESI callback context, it will have
+ * been set at bootstrap time by fetching the given one.
+ *
+ * @see esi_api_boot()
+ *
+ * @param array $additional = NULL
+ *   (optional) If set, merge this array with already set variables.
+ *
+ * @return array
+ *   Current variables.
+ */
+function wallyesi_api_variables($additional = NULL) {
+  global $esi_api_variables;
+  global $theme_key;
+
+  // Variable won't be set when called at normal page build time. If we are
+  // in ESI callback context, this variables already have been set.
+  if (!isset($esi_api_variables)) {
+    // Build defaults.
+    $esi_api_variables = wallyesi_api_variables_default();
+  }
+
+  if ($additional) {
+    $esi_api_variables += $additional;
+  }
+
+  return $esi_api_variables;
+}
+
+/**
+ * Get default variables.
+ *
+ * @return array.
+ */
+function wallyesi_api_variables_default() {
+  global $theme_key;
+  return array(
+    'drupal_theme' => $theme_key,
+    //'drupal_path' => $_GET['q'],
+    'http_content_type' => wallyesi_api_discover_http_content_type(),
+  );
+}
+
+/**
+ * Get the current HTTP Content-Type header.
+ *
+ * Used at normal page build time, this will return the one set by the menu
+ * router or delivery callback itself.
+ */
+function wallyesi_api_discover_http_content_type() {
+  // If this function has not been called by the custom element, attempt
+  // to find one using given variables.
+  if (FALSE and $content_type = drupal_get_http_header('Content-Type')) {
+    return $content_type;
+  }
+  // If not found, return Drupal default.
+  return 'text/html; charset=utf-8';
+}
+
+
+/**
+ * Process variables for block.tpl.php
+ *
+ * Prepare the values passed to the theme_block function to be passed
+ * into a pluggable template engine. Uses block properties to generate a
+ * series of template file suggestions. If none are found, the default
+ * block.tpl.php is used.
+ *
+ * Most themes utilize their own copy of block.tpl.php. The default is located
+ * inside "modules/system/block.tpl.php". Look in there for the full list of
+ * variables.
+ *
+ * The $variables array contains the following arguments:
+ * - $block
+ *
+ * @see block.tpl.php
+ */
+function wallyesi_preprocess_block(&$variables) {
+  global $esi_api_variables;
+
+  module_load_include('inc', 'wallyesi', 'includes/wallyesi_block');
+
+  $esi_config=_wallyesi__block_settings($variables['block']->module, $variables['block']->delta);
+  $esi_enabled=variable_get('local_esi_enabled',true);
+  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE  and $esi_api_variables['esi_context']!=TRUE and $esi_enabled){
+    $variables['template_file']='wallyesi_esitag_block';
+    $esi=array(
+      'action'=>'include',
+      'attributes'=> array(
+        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/blockcore/".$variables['block']->module."/".$variables['block']->delta.'?drupal_path='.filter_xss($_GET['q'],array()),
+        'onerror'=>'continue',
+        'alt'=>NULL,
+        'timeout'=>20,
+      ),
+    );
+    $variables['esi']=$esi;
+  }
+}
+
+function wallyesi_preprocess_panels_pane(&$variables) {
+  global $base_url;
+  global $esi_api_variables;
+  module_load_include('inc', 'wallyesi', 'includes/wallyesi_ctoolscontenttype');
+  $esi_config=_wallyesi__ctoolscontenttype_settings($variables['pane']->type, $variables['pane']->subtype,$variables['pane']->pid);
+  $esi_enabled=variable_get('local_esi_enabled',true);
+  if(isset($esi_config->enabled) and $esi_config->enabled==TRUE and $esi_api_variables['esi_context']!=TRUE  and $esi_enabled){
+    $variables['template_file']='wallyesi_esitag_ctoolscontenttype';
+    $esi=array(
+      'action'=>'include',
+      'attributes'=> array(
+        'src'=>variable_get('wallyesi_serverurl',$base_url)."/esi/ctoolscontenttype/".$variables['pane']->type."/".$variables['pane']->subtype.'?drupal_path='.filter_xss($_GET['q'],array()),
+        'onerror'=>'continue',
+        'alt'=>NULL,
+        'timeout'=>20,
+      ),
+    );
+    $variables['esi']=$esi;
+  }
+}
+
+/**
+ * Fetch the asked content.
+ */
+function wallyesi_content_callback($type, $identifier,$delta, $variables_hash = NULL) {
+  $module = NULL;
+  $cid = isset($variables_hash) ? ($identifier . ':' . $variables_hash) : $identifier;
+
+  // Initialize the environment if needed.
+  // FIXME: This should go to another lighter function for code readability.
+  $esi_api_variables = wallyesi_api_variables();
+
+  //use Plugin instead
+  $func='wesi_render_'.$type;
+  if(function_exists($func)){
+    $result = $func($identifier, $delta);
+    // cache_set($cid, $result, 'cache_esi');
+  }
+  // prevent use of page.tpl.php
+  return NULL;
+}
+
+function wesi_render_page($identifier){
+  return 'toto';
+
+  if ($router_item = menu_get_item($path)) {
+    if ($router_item['access']) {
+      if ($router_item['file']) {
+        require_once($router_item['file']);
+      }
+      return call_user_func_array($router_item['page_callback'], $router_item['page_arguments']);
+    }
+    else {
+      return MENU_ACCESS_DENIED;
+    }
+  }
+  return MENU_NOT_FOUND;
+}
+
+function wesi_render_blockcore($module,$delta){
+  $block_content=(object) module_invoke($module, 'block', 'view', $delta);
+  $block_content->enabled = TRUE;
+  print theme('block', $block_content);
+}
+
+function wesi_render_ctoolscontenttype($module,$identifier,$subtype=""){
+  $esi_api_variables = wallyesi_api_variables();
+  $menu_item=menu_get_item($esi_api_variables['drupal_path']);
+
+  switch($menu_item['page_callback']){
+    case 'page_manager_term_view':
+      ctools_include('context');
+      ctools_include('context-task-handler');
+      ctools_include('display-render', 'panels');
+      ctools_include('plugins', 'panels');
+
+      $task = page_manager_get_task('term_view');
+      $contexts = ctools_context_handler_get_task_contexts($task, '', array(current($menu_item['page_arguments'])));
+
+      $pane_type=$module;
+      $pane_subtype=$identifier;
+      print esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype);
+      break;
+      
+    case 'page_manager_node_view':
+      ctools_include('context');
+      ctools_include('context-task-handler');
+      ctools_include('display-render', 'panels');
+      ctools_include('plugins', 'panels');
+
+      $task = page_manager_get_task('node_view');
+
+      // Load the node into a context.
+      $contexts = ctools_context_handler_get_task_contexts($task, '', array(current($menu_item['page_arguments'])));
+
+      $pane_type=$module;
+      $pane_subtype=$identifier;
+      print esi_content_node_view($task,$contexts,$pane_type,$pane_subtype);
+      break;
+
+    case "page_manager_page_execute":
+      ctools_include('page', 'page_manager', 'plugins/tasks');
+      ctools_include('context');
+      ctools_include('context-task-handler');
+      ctools_include('display-render', 'panels');
+      ctools_include('plugins', 'panels');
+
+      ctools_get_plugins('page_manager','task_handlers', 'panel_context');
+
+      $subtask_id=$menu_item['page_arguments'][0];
+      if ($subtask_id && !empty($subtask_id)) {
+        $page = page_manager_page_load($subtask_id);
+        $task = page_manager_get_task($page->task);
+        $subtask = page_manager_get_task_subtask($task, $subtask_id);
+  
+        // Turn the contexts into a properly keyed array.
+        $contexts = array();
+        $args = array();
+  
+        foreach ($menu_item['page_arguments'] as $count => $arg) {
+          if (is_object($arg) && get_class($arg) == 'ctools_context') {
+            $contexts[$arg->id] = $arg;
+            $args[] = $arg->original_argument;
+          }
+          else if ($count) {
+            $args[] = $arg;
+          }
+        }
+  
+        $count = 0;
+        $names = page_manager_page_get_named_arguments($page->path);
+        $bits = explode('/', $page->path);
+  
+        $pane_type=$module;
+        $pane_subtype=$identifier;
+        //$output = ctools_context_handler_render($task, $subtask, $contexts, $args);
+
+        esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype);
+      } else {
+        print '';
+      }
+      break;
+  }
+}
+
+function esi_content_node_view($task,$contexts,$pane_type,$pane_subtype){
+  esi_content_page_manager_render($task,'',$contexts,$pane_type,$pane_subtype);
+}
+
+function esi_content_taxonomy_term($task,$contexts,$pane_type,$pane_subtype){
+  esi_content_page_manager_render($task,'',$contexts,$pane_type,$pane_subtype);
+}
+
+function esi_content_page_manager_render($task,$subtask,$contexts,$pane_type,$pane_subtype){
+  $handlers = page_manager_load_sorted_handlers($task, $subtask ? $subtask['name'] : '', TRUE);
+  foreach ($handlers as $handler_suggestion) {
+    if(ctools_context_handler_select($handler_suggestion, $contexts)){
+      $handler=$handler_suggestion;
+      break;
+    }
+  }
+
+  if (isset($handler->handler)) {
+    ctools_context_handler_pre_render($handler, $contexts, $args);
+  }
+
+  $display = panels_panel_context_get_display($handler);
+  $display->context = $contexts;
+  $display->args = $args;
+  $display->css_id = $handler->conf['css_id'];
+
+  panels_get_current_page_display($display);
+
+  //small hard code value to bypass logic (there is only one standard rendering in panels implemented see Drupal 8 for more rendrer solutions)
+  $candidate['renderer']='standard';
+
+  $renderer = panels_get_renderer_handler($candidate['renderer'], $display);
+  
+  //$renderer->prepare();
+  $renderer->prepare_panes( $renderer->display->content);
+   
+  $renderer->render_panes();
+   
+  foreach($renderer->prepared['panes'] as $pane_suggestion){
+    if($pane_suggestion->type==$pane_type && $pane_suggestion->subtype==$pane_subtype){
+      $pane=$pane_suggestion;
+      break;
+    }
+  }
+
+  //FOUND THE CORRECT PANE AND THE FOR THIS PANE
+  $content = $renderer->render_pane($pane);
+
+  print $content;
+  //return $content;
+}
+
+/**
+ * Get a list of possible ttl choices.
+ */
+function _wallyesi__ttl_options($current_ttl) {
+  $options = array(
+    '5'     => t('@count seconds', array('@count' => 5)),
+    '30'    => t('@count seconds', array('@count' => 30)),
+    '60'    => t('1 minute'),
+    '300'   => t('@count minutes', array('@count' => 5)),
+    '1800'  => t('@count minutes', array('@count' => 30)),
+    '3600'  => t('1 hour'),
+    '10800' => t('@count hours', array('@count' => 3)),
+    '21600' => t('@count hours', array('@count' => 6)),
+    '43200' => t('@count hours', array('@count' => 12)),
+    '86400' => t('1 day'),
+  );
+  // if the given ttl isn't one of our options, add the current ttl as a custom option.
+  if(!array_key_exists($current_ttl, $options)) {
+    $options[$current_ttl] = format_plural($current_ttl, 'Custom: @count second', 'Custom: @count seconds');
+  }
+  return $options;
+}

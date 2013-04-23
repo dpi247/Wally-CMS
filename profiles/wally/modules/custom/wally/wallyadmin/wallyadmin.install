@@ -1,0 +1,57 @@
+<?php
+
+function wallyadmin_install() {
+  drupal_install_schema('wallyadmin');
+}
+
+function wallyadmin_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallyadmin_');
+  drupal_uninstall_schema('wallyadmin');
+}
+
+function wallyadmin_schema() {
+  $schemas = array();
+
+  $schemas['wally_variable_fast'] = drupal_get_schema_unprocessed('system', 'variable');
+  $schemas['wally_variable_fast']['description'] = t('Named variable/value pairs created by any other module or theme. These variables are cached but not systematically processed.');
+
+  return $schemas;
+}
+
+function wallyadmin_update_6001() {
+  $ret = array();
+  $table = drupal_get_schema_unprocessed('wallyadmin', 'wally_variable_fast');
+  db_create_table($ret, 'wally_variable_fast', $table);
+
+  $vars_name = array(
+    'ccimapping_',
+    'cckdestinations_',
+    'wallyadmin_',
+    'wallycontenttypes_embargo_',
+    'wallyctools_',
+    'wallydam_',
+    'wallyedit_',
+    'wallyexport_',
+    'wallyextra_',
+    'wallyflowtonode_',
+    'wallymport_process_',
+    'wallystat_stats_',
+    'warnish_',
+  );
+
+  foreach ($vars_name as $var_name) {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    if($vars = wallytoolbox_variable_get_like($var_name, FALSE, 'system')) {
+      foreach ($vars as $name => $value) {
+        wally_variable_set($name, $value);
+      }
+      wallytoolbox_variable_del_like($var_name, 'system');
+  
+      list($module_name, $a) = explode('_', $var_name, 2);
+      $ret[] = array('success' => TRUE, 'query' => t('Variables from "@module" module moved from variable table to wally_variable_fast table', array('@module' => $module_name)));
+    }
+  }
+
+  return $ret;
+}

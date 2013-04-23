@@ -1,0 +1,167 @@
+<?php 
+/**
+ * 
+ * Implementation of hook_install
+ */
+function cpsprint_install() {
+  _cpsprint_install_imagecache_preset();
+}
+/**
+ * 
+ * Implementation of hook_uninstall
+ */
+function cpsprint_uninstall(){
+  _cpsprint_uninstall_imagecache_preset();
+}
+/**
+ * 
+ * Install preset for cpsprint
+ */
+function _cpsprint_install_imagecache_preset(){
+  
+  //print_182x110
+  $width = 182;$height = 110;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_182x176
+  $width = 182;$height = 176;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_182x192
+  $width = 182;$height = 192;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_376x208
+  $width = 376;$height = 208;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_376x215
+  $width = 376;$height = 215;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  //print_376x220
+  $width = 376;$height = 220;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_376x240
+  $width = 376;$height = 240;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+  
+  //print_764x463
+  $width = 764;$height = 463;
+  if (!imagecache_preset_by_name('print_'.$width.'x'.$height)) {
+    $imagecachepreset = imagecache_preset_save(array('presetname' => 'print_'.$width.'x'.$height));
+    _cpsprint_imagecache_create_action_wallycrop($imagecachepreset['presetid'], $width, $height);
+    _cpsprint_imagecache_create_action_preview($imagecachepreset['presetid'], $width, $height);
+  }
+}
+/**
+ * 
+ * Create an action of type wallycrop for an imagecache preset id
+ * @param int $presetid
+ * @param int $width
+ * @param int $height
+ * @param string $xoffset
+ * @param string $yoffset
+ * @param int $weight
+ */
+function _cpsprint_imagecache_create_action_wallycrop($presetid, $width, $height, $xoffset = 'center_max', $yoffset = 'center_max', $weight = O){
+  $imagecacheaction = new stdClass();
+  $imagecacheaction->presetid = $presetid;
+  $imagecacheaction->module = 'wallycontenttypes';
+  $imagecacheaction->action = 'wallycontenttypes_wallycrop';
+  $imagecacheaction->data = array('width' => $width, 'height' => $height, 'xoffset' => $xoffset, 'yoffset' => $yoffset, 'presetid' => $presetid);
+  $imagecacheaction->weight = $weight;
+  drupal_write_record('imagecache_action', $imagecacheaction);
+}
+/**
+ * 
+ * Create an action of type preview for an imagecache preset id
+ * @param int $presetid
+ * @param int $width
+ * @param int $height
+ * @param int $weight
+ */
+function _cpsprint_imagecache_create_action_preview($presetid, $width, $height, $weight = O){
+  $imagecacheaction = new stdClass();
+  $imagecacheaction->presetid = $presetid;
+  $imagecacheaction->module = 'imagecache';
+  $imagecacheaction->action = 'imagecache_resize';
+  $imagecacheaction->data = array('width' => $width, 'height' => $height);
+  $imagecacheaction->weight = $weight;
+  drupal_write_record('imagecache_action', $imagecacheaction);
+}
+/**
+ * 
+ * Delete the imagecache preset for cpsprint
+ */
+function _cpsprint_uninstall_imagecache_preset(){
+  if (imagecache_preset_by_name('print_182x110')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_182x110'));
+  }
+  if (imagecache_preset_by_name('print_182x176')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_182x176'));
+  }
+  if (imagecache_preset_by_name('print_182x192')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_182x192'));
+  }
+  if (imagecache_preset_by_name('print_376x208')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_376x208'));
+  }
+  if (imagecache_preset_by_name('print_376x215')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_376x215'));
+  }
+  if (imagecache_preset_by_name('print_376x220')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_376x220'));
+  }
+  if (imagecache_preset_by_name('print_376x240')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_376x240'));
+  }
+  if (imagecache_preset_by_name('print_764x463')) {
+    imagecache_preset_delete(imagecache_preset_by_name('print_764x463'));
+  }
+}
+/**
+ * Implementation of hook_update_N
+ */
+function cpsprint_update_6001(){
+  $ret = array();
+  _cpsprint_install_imagecache_preset();
+  return $ret;
+}
+/**
+ * Implementation of hook_update_N
+ */
+function cpsprint_update_6002(){
+  $ret = array();
+  wally_variable_set('cpsprint_customer', variable_get('cpsprint_customer', ''));
+  wally_variable_set('cpsprint_pub', variable_get('cpsprint_pub', ''));
+  return $ret;
+}

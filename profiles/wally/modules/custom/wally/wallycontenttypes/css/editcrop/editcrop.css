@@ -1,0 +1,32 @@
+@CHARSET "UTF-8";
+
+#cropimage {
+	float:left;
+	width: 810px;
+	margin-right: 10px;
+}
+
+.crops {
+	float: right;
+	}
+	
+.crop_submit  {
+	clear: both;
+	padding-top: 20px;
+}
+
+div.crops input.form-submit {
+	display: block;
+	background: none repeat scroll 0 0 #DDDDD;
+	border: none;
+	margin-top: 10px;
+}
+
+div.crops  input.crop_selected {
+	background-color: #FFFFFF;
+	border: 2px solid #888888;
+}
+
+.crop_wrap {
+	width: 1030px;
+}

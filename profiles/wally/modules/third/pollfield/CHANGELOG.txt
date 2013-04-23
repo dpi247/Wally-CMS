@@ -1,0 +1,5 @@
+
+
+- #134084 force multiple values field to be filled out and disable it
+- #130041 make sure pollfield does not require questions when field is not required
+- #first build of cvs for drupal 6

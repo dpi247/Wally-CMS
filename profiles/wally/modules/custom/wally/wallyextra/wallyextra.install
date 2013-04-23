@@ -1,0 +1,667 @@
+<?php
+
+/**
+ * Implementation of the hook module _install();
+ */
+function wallyextra_install() {
+  drupal_install_schema('wallyextra');
+}
+
+/**
+ * Implementation of the hook module _uninstall();
+ */
+function wallyextra_uninstall() {
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallyextra_');
+  drupal_uninstall_schema('wallyextra');
+}
+
+function wallyextra_schema() {
+  $schema = array();
+  
+  $schema['cache_wally_blocks'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_wally_blocks']['description'] = 'Cache table for blocks datas.';
+
+  $schema['wallyextra_rssmixread_content'] = array(
+    'description' => 'Contains exportable RSS mix reader content for this site.',
+    'export' => array(
+      'identifier' => 'wallyextra_rssmixread',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'key'=>'name',
+      'default hook' => 'wallyextra_rssmix_content_obj',
+      'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_rssmix_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+//      'create callback' => 'wallyextra_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  $schema['wallyextra_flowmix_content'] = array(
+    'description' => 'Contains exportable flow mix content for this site.',
+    'export' => array(
+      'identifier' => 'wallyextra_flowmix',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'key'=>'name',
+      'default hook' => 'wallyextra_flowmix_content_obj',
+      'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_flowmix_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+//      'create callback' => 'wallyextra_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Title of the block',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  $schema['wallyextra_taxonomylist_content'] = array(
+    'description' => 'Contains exportable taxonomy list content for this site.',
+    'export' => array(
+      'identifier' => 'wallyextra_taxonomylist',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'key' => 'name',
+  		'key' => 'cid',
+  	  'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_taxonomylist_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+   //   'create callback' => 'wallyextra_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  $schema['wallyextra_twitread_content'] = array(
+    'description' => 'Contains exportable Twitter reader content for this site.',
+    'export' => array(
+      'identifier' => 'wallyextra_twitreadt',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'key' => 'name',
+  		'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_twitread_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+//      'create callback' => 'wallyextra_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,  
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  
+  $schema['wallyextra_remotehtml_content'] = array(
+    'description' => 'Contains Remote HTML content for this site.',
+    'export' => array(
+      'identifier' => 'wallyextra_remotehtml',
+      'bulk export' => TRUE,
+      'primary key' => 'cid',
+      'api' => array(
+        'owner' => 'wallyextra',
+        'api' => 'wallyextra_remotehtml_content',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+//      'create callback' => 'wallyextra_content_type_new',
+    ),
+    'fields' => array(
+      'cid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for this content. Used to identify it programmatically.',
+      ),
+      'admin_title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative title for this content.',
+      ),
+      'admin_description' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Administrative description for this content.',
+        'object default' => '',
+      ),
+      'category' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Administrative category for this content.',
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+
+  $schema['wallyextra_custom_content_version'] = array(
+    'description' => 'Contains versions of ctools custom content.',
+    'fields' => array(
+      'vid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'cid' => array(
+        'type' => 'int',
+        'description' => 'The cid of the ctools custom content',
+        'not null' => TRUE,
+      ),
+   	  'version' => array(
+        'type' => 'int',
+        'description' => 'The version of the ctools custom content',
+        'not null' => TRUE,
+      ),
+      'date' => array(
+    	'type' => 'int',
+        'description' => 'The creation date of the version of the ctools custom content',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the actual content to be used',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('vid'),
+  );
+
+  $schema['wallyextra_custom_content'] = array(
+      'description' => 'Contains exportable customized content for this site.',
+      'export' => array(
+        'identifier' => 'content',
+        'bulk export' => TRUE,
+        'primary key' => 'cid',
+        'api' => array(
+          'owner' => 'ctools',
+          'api' => 'ctools_content',
+          'minimum_version' => 1,
+          'current_version' => 1,
+        ),
+        'create callback' => 'ctools_content_type_new',
+      ),
+      'fields' => array(
+        'cid' => array(
+          'type' => 'serial',
+          'description' => 'A database primary key to ensure uniqueness',
+          'not null' => TRUE,
+          'no export' => TRUE,
+        ),
+        'name' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'description' => 'Unique ID for this content. Used to identify it programmatically.',
+        ),
+        'admin_title' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'description' => 'Administrative title for this content.',
+        ),
+        'admin_description' => array(
+          'type' => 'text',
+          'size' => 'big',
+          'description' => 'Administrative description for this content.',
+          'object default' => '',
+        ),
+        'category' => array(
+          'type' => 'varchar',
+          'length' => '255',
+          'description' => 'Administrative category for this content.',
+        ),
+        'settings' => array(
+          'type' => 'text',
+          'size' => 'big',
+          'description' => 'Serialized settings for the actual content to be used',
+          'serialize' => TRUE,
+          'object default' => array(),
+        ),
+      ),
+      'primary key' => array('cid'),
+    );
+  
+  return $schema;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table wallyextra_cache_torefresh
+ */
+function wallyextra_update_6001() {
+  $schema['wallyextra_cache_torefresh'] = array(
+    'description' => 'Contains a list of cached elements to refresh and their settings.',
+    'fields' => array(
+      'cid' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Serialized settings for the cached content rendered',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+    ),
+    'primary key' => array('cid'),
+  );
+  $ret = array();
+  db_create_table($ret, 'wallyextra_cache_torefresh', $schema['wallyextra_cache_torefresh']);
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add fields to wallyextra_cache_torefresh
+ */
+function wallyextra_update_6002() {
+  $ret = array();
+  
+  $fields = array(
+    'enabled' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+    	'default' => 1
+    ),
+    'weight' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+      'default' => 0,
+    ),
+    'rule' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+      'default' => 0,
+    ),
+    'output' => array(
+    	'type' => 'text',
+    	'size' => 'big',
+    	'not null' => TRUE,
+      'default' => '',
+    ),
+    'last_run' => array(
+    	'type' => 'int',
+    	'not null' => TRUE,
+    	'default' => 0,
+    ),
+  );
+  
+  foreach ($fields as $field => $spec)
+    db_add_field($ret, 'wallyextra_cache_torefresh', $field, $spec);
+  
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Remove table wallyextra_cache_torefresh
+ */
+function wallyextra_update_6003() {
+  $ret = array();
+  db_drop_table($ret, 'wallyextra_cache_torefresh');
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Remove the RSS read plugin.
+ */
+function wallyextra_update_6004() {
+  $ret = array();
+  db_drop_table($ret, 'wallyextra_rssread_content');
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table wallyextra_flowmix_content
+ */
+function wallyextra_update_6005() {
+  $ret = array();
+  $schemas = wallyextra_schema();
+  db_create_table($ret, 'wallyextra_flowmix_content', $schemas['wallyextra_flowmix_content']);
+  return $ret;
+}
+
+function wallyextra_update_6006() {
+  $schema = array();
+  
+  $ret = array();
+  $schema = drupal_get_schema('wallyextra_custom_content_version', TRUE);
+  db_create_table($ret, 'wallyextra_custom_content_version', $schema);
+  $schema = drupal_get_schema('wallyextra_custom_content', TRUE);
+  db_create_table($ret, 'wallyextra_custom_content', $schema);
+  db_query("UPDATE {system} SET weight = 1 WHERE name = 'wallyextra'");
+  db_query("UPDATE {panels_pane} SET type = 'custom_version' WHERE type = 'custom'");
+  db_query("UPDATE {panels_pane} SET subtype = 'custom_version' WHERE subtype = 'custom'");
+  
+  //copy all the ctools custom content in wallyextra_custom_content
+  $result = db_query("SELECT * FROM {ctools_custom_content}");
+  while ($ctools_custom_content = db_fetch_object($result)){
+    $cid = $ctools_custom_content->cid;
+    $wallyextra_custom_content = $ctools_custom_content;
+    $wallyextra_custom_content->settings = unserialize($wallyextra_custom_content->settings);
+    drupal_write_record('wallyextra_custom_content', $wallyextra_custom_content);
+    db_query("DELETE FROM {ctools_custom_content} WHERE cid = %d", $cid);
+  }
+  
+  //Create version for all the custom_content
+  
+  //Get all custom_content
+  $panels = db_query("SELECT * 
+  					  FROM {panels_pane} 
+  					  WHERE type = 'custom_version' ORDER BY pid ASC");
+  
+  //Initialize cid
+  $cid_increment = 0;
+  $corresp = array();
+  while ($panel = db_fetch_object($panels)){
+    $conf = unserialize($panel->configuration);
+    
+    //If subtype is not a reused custom content, a version is whriten in the database
+    if ($panel->subtype == 'custom_version'){
+      $cid = $cid_increment;
+      $version->cid = $cid;
+      $version->version = 1;
+      $version->date = time();
+      $version->settings = unserialize($panel->configuration);
+      
+      //In case of a reusable custom content, the reusable custom content is modified to add the id and version informations
+      if (isset($conf['name'])){
+        //The cid of the reusable custom content is store in an array to be get back by the reused custom content
+        $corresp[$conf['name']] = $cid;
+        $reusable = db_query("SELECT * FROM {wallyextra_custom_content} WHERE name = '%s'", $conf['name']);
+        while ($reus = db_fetch_object($reusable)){
+          $reus_conf = unserialize($reus->settings);
+          $reus_conf['id'] = $cid;
+          $reus->settings = $reus_conf;
+          $version->settings = $reus->settings;
+          drupal_write_record('wallyextra_custom_content', $reus, array('cid'));
+        }
+      }
+      drupal_write_record('wallyextra_custom_content_version', $version);
+      $cid_increment++;
+    } else {
+      //In case of a reused custom content the cid of the reusable custom content is get back
+      $cid = $corresp[$panel->subtype];
+    }
+    
+    $conf['id'] = $cid;
+    $conf['version'] = 1;
+    $panel->configuration = $conf;
+    $panel->access = unserialize($panel->access);
+    $panel->cache = unserialize($panel->cache);
+    $panel->style = unserialize($panel->style);
+    $panel->css = unserialize($panel->css);
+    $panel->extras = unserialize($panel->extras);
+    //The panel pane is modified to add the id and version informations
+    drupal_write_record('panels_pane', $panel, array('pid'));
+  }
+  return $ret;
+}
+
+/**
+ * Implementation of hook_update_N
+ * Add table cache_wally_blocks
+ */
+function wallyextra_update_6007() {
+  $ret = array();
+  if (!db_table_exists('cache_wally_blocks')) {
+    $schemas = wallyextra_schema();
+    db_create_table($ret, 'cache_wally_blocks', $schemas['cache_wally_blocks']);
+  }
+  return $ret;
+}
+/**
+ * 
+ * Implementation of hook_update_N
+ * Install custom content versionnable if not set
+ */
+function wallyextra_update_6008(){
+  
+  $schema = array();
+  
+  $ret = array();
+  
+  if (!db_table_exists('wallyextra_custom_content_version')){
+    $schema = drupal_get_schema('wallyextra_custom_content_version', TRUE);
+    db_create_table($ret, 'wallyextra_custom_content_version', $schema);
+    $schema = drupal_get_schema('wallyextra_custom_content', TRUE);
+    db_create_table($ret, 'wallyextra_custom_content', $schema);
+    db_query("UPDATE {system} SET weight = 1 WHERE name = 'wallyextra'");
+    db_query("UPDATE {panels_pane} SET type = 'custom_version' WHERE type = 'custom'");
+    db_query("UPDATE {panels_pane} SET subtype = 'custom_version' WHERE subtype = 'custom'");
+    
+    //copy all the ctools custom content in wallyextra_custom_content
+    $result = db_query("SELECT * FROM {ctools_custom_content}");
+    while ($ctools_custom_content = db_fetch_object($result)){
+      $cid = $ctools_custom_content->cid;
+      $wallyextra_custom_content = $ctools_custom_content;
+      $wallyextra_custom_content->settings = unserialize($wallyextra_custom_content->settings);
+      drupal_write_record('wallyextra_custom_content', $wallyextra_custom_content);
+      db_query("DELETE FROM {ctools_custom_content} WHERE cid = %d", $cid);
+    }
+    
+    //Create version for all the custom_content
+    
+    //Get all custom_content
+    $panels = db_query("SELECT *
+      					  FROM {panels_pane} 
+      					  WHERE type = 'custom_version' ORDER BY pid ASC");
+    
+    //Initialize cid
+    $cid_increment = 0;
+    $corresp = array();
+    while ($panel = db_fetch_object($panels)){
+      $conf = unserialize($panel->configuration);
+    
+      //If subtype is not a reused custom content, a version is whriten in the database
+      if ($panel->subtype == 'custom_version'){
+        $cid = $cid_increment;
+        $version->cid = $cid;
+        $version->version = 1;
+        $version->date = time();
+        $version->settings = unserialize($panel->configuration);
+    
+        //In case of a reusable custom content, the reusable custom content is modified to add the id and version informations
+        if (isset($conf['name'])){
+          //The cid of the reusable custom content is store in an array to be get back by the reused custom content
+          $corresp[$conf['name']] = $cid;
+          $reusable = db_query("SELECT * FROM {wallyextra_custom_content} WHERE name = '%s'", $conf['name']);
+          while ($reus = db_fetch_object($reusable)){
+            $reus_conf = unserialize($reus->settings);
+            $reus_conf['id'] = $cid;
+            $reus->settings = $reus_conf;
+            $version->settings = $reus->settings;
+            drupal_write_record('wallyextra_custom_content', $reus, array('cid'));
+          }
+        }
+        drupal_write_record('wallyextra_custom_content_version', $version);
+        $cid_increment++;
+      } else {
+        //In case of a reused custom content the cid of the reusable custom content is get back
+        $cid = $corresp[$panel->subtype];
+      }
+    
+      $conf['id'] = $cid;
+      $conf['version'] = 1;
+      $panel->configuration = $conf;
+      $panel->access = unserialize($panel->access);
+      $panel->cache = unserialize($panel->cache);
+      $panel->style = unserialize($panel->style);
+      $panel->css = unserialize($panel->css);
+      $panel->extras = unserialize($panel->extras);
+      //The panel pane is modified to add the id and version informations
+      drupal_write_record('panels_pane', $panel, array('pid'));
+    }
+  }
+  return $ret;
+}

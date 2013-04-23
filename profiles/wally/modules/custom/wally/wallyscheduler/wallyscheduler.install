@@ -1,0 +1,113 @@
+<?php 
+/**
+ * Implementation of hook_install().
+ */
+function wallyscheduler_install(){
+  
+  
+  drupal_install_schema('wallyscheduler');
+  //copy content_field_destination in wallyscheduler_content_field_destinations
+  db_query("INSERT wallyscheduler_content_field_destinations SELECT * FROM content_field_destinations ;");
+  
+  
+  foreach(wallyscheduler_caching_table_to_duplicate() as $table){
+    $duplicate_table= 'wallyscheduler_'.$table;
+  	db_query("CREATE TABLE $duplicate_table LIKE $table");
+  }
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function wallyscheduler_uninstall(){
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+  wallytoolbox_variable_del_like('wallyscheduler_');
+  drupal_uninstall_schema('wallyscheduler');
+  
+  
+  foreach(wallyscheduler_caching_table_to_duplicate() as $table){
+  	$duplicate_table=  'wallyscheduler_'.$table;
+  	db_query("DROP TABLE $duplicate_table");
+  }
+  
+}
+function wallyscheduler_caching_table_to_duplicate(){
+	
+	$caching_table=array('cache','cache_filter',"cache_content",'cache_page','cache_views',"wallyedit_object_cache");
+	return   $caching_table;
+
+}
+
+/**
+ * Implementation of hook_schema
+ */
+function wallyscheduler_schema() {
+  $schema = array();
+
+  $schema['wallyscheduler_snapshot_list'] = array(
+    'description' => 'Contains a list of all snaphots of destinations',
+    'fields' => array(
+      'sid' => array(
+        'type' => 'serial',
+        'description' => 'A database primary key to ensure uniqueness',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'machine_name' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The machine of the snapshot',
+      ),
+      'destination_table' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The table that contain the snapshot',
+      ),
+      'timestamp_of_execution' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Timestamp when the snapshot should be active',
+      ),
+      'uid' => array(
+    	'type' => 'int',
+    	'unsigned' => TRUE,
+    	'not null' => TRUE,
+    	'default' => 0,
+    	'description' => 'Uid of the last update',
+      ),
+      'created' => array(
+    	'type' => 'int',
+    	'unsigned' => TRUE,
+    	'not null' => TRUE,
+    	'default' => 0,
+    	'description' => 'creation timestamp of snapshot',
+      ),
+      'updated' => array(
+    	'type' => 'int',
+    	'unsigned' => TRUE,
+    	'not null' => FALSE,
+    	'default' => 0,
+    	'description' => 'update timestamp',
+      ),
+    ),
+    'primary key' => array('sid'),
+  );
+
+
+  module_load_include('inc', 'wallyscheduler', 'includes/wallyscheduler.helpers');
+  
+  $schema['wallyscheduler_rollback']=wallyscheduler_get_destinations_original_schema();
+  $schema['wallyscheduler_rollback']['table']='wallyscheduler_rollback';
+  
+  $schema['wallyscheduler_content_field_destinations']= $schema['wallyscheduler_rollback'];
+  $schema['wallyscheduler_content_field_destinations']['table']='wallyscheduler_content_field_destinations';
+  
+  
+  
+  
+  return $schema;
+}
