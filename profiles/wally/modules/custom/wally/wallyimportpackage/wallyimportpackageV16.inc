@@ -451,7 +451,7 @@ function wallyimportpackageV16_objecttype_preprocess(&$node, $dom, $importer){
 function wallyimportpackageV16_process_type_link(&$node, $dom, &$log, $importer){
   wallyimportpackage_typetype_preprocess($node, $dom, $importer);
 
-  wimprt_node_process_fields($node, $dom, $log, $importer);
+  wimprt_process_type_default($node, $dom, $log, $importer);
 
   if ($dom->hasAttribute('EmbeddedObjectsOrder')){
     $node->embeddedobjectsorder = $dom->getAttributeNode('EmbeddedObjectsOrder')->value;
