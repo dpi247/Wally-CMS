@@ -1283,5 +1283,25 @@ function _wallytoolbox_set_setting(&$settings, $name, $value) {
 }
 
 /**
+ * Copy file, using the Drupal way
+ * if source file is a remote file.
+ * @param  {String} $source  Path to the source file.
+ * @param  {String} $destination The destination path.
+ * @return {Boolean} Returns TRUE on success or FALSE on failure.
+ */
+function _copy_file($source, $destination){
+  if(preg_match('/^https?:/', $source)){
+    $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
+    $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
+    $request = drupal_http_request($source, array(), 'GET', NULL, $retry, $timeout);
+    if ($request && $objdata = $request->data) {
+      return !!file_save_data($objdata, $destination, FILE_EXISTS_REPLACE);
+    }
+    return FALSE;
+  }
+  return copy($source, $destination);
+}
+
+/**
  * @} End of "defgroup wallytoolbox".
  */
