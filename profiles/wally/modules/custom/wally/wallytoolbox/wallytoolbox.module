@@ -97,28 +97,6 @@ function wallytoolbox_menu() {
   return $items;
 }
 
-function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
-	if($challenge-time()>120){
-		watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
-
-	if($secret==NULL){
-		watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	if(md5($challenge.$secret)!=$answer){
-		watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	else{
-		return TRUE;
-	}
-	return FALSE;
-
-}
-
 /**
  * Implementation of hook_menu_link_alter()
  */
@@ -155,6 +133,24 @@ function wallytoolbox_cron() {
   _wallytoolbox_cron_blocks_refresh($return);
 
   print $return;
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter()
+ * 
+ * Alter the "Taxonomy: term" access rule settings form.
+ * Replace select box with autocomplete fields for all vocabularies.
+ */
+function wallytoolbox_form_panels_edit_configure_access_test_form_alter(&$form, $form_state) {
+  $plugin = isset($form_state['plugin']) ? $form_state['plugin'] : FALSE;
+  if ($plugin && $plugin['plugin type'] == 'access' && $plugin['name'] == 'term') {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    foreach (wallytoolbox_element_children_numeric($form['settings']) as $vid) {
+      $form['settings'][$vid]['#type'] = 'textfield';
+      $form['settings'][$vid]['#autocomplete_path'] = 'taxonomy/autocomplete/' . $vid;
+      unset($form['settings'][$vid]['#options']);
+    }
+  }
 }
 
 /**
@@ -244,6 +240,28 @@ function wallytoolbox_emfield_providers($module, $provider = NULL) {
     }
     return $path;
   }
+}
+
+function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
+  if($challenge-time()>120){
+    watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  $secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+
+  if($secret==NULL){
+    watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  if(md5($challenge.$secret)!=$answer){
+    watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  else{
+    return TRUE;
+  }
+  return FALSE;
+
 }
 
 /**
