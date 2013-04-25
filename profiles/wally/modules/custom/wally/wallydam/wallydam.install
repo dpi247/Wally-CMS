@@ -4,9 +4,7 @@
  * Implementation of hook_uninstall().
  */
 function wallydam_uninstall(){
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   drupal_uninstall_schema('wallydam');
-  wallytoolbox_variable_del_like('wallydam_');
 }
 
 /**
@@ -14,6 +12,11 @@ function wallydam_uninstall(){
  */
 function wallydam_install() {
   drupal_install_schema('wallydam');
+  //Set the  weight to one
+  db_add_field($ret, 'term_data', 'topic_destination', $spec);
+
+  db_query("UPDATE {system} SET weight = 5 WHERE name = 'wallydam'");
+  
 }
 
 /**
@@ -50,6 +53,11 @@ function wallydam_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
+      'url' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ), 
       'timestamp' => array(
         'description' => 'The Unix timestamp when the node was put in the table.',
         'type' => 'int',
@@ -58,7 +66,6 @@ function wallydam_schema() {
       ),
     ),
     
-    'primary key' => array('nid'),//primary key
   );
   return $schema;
 }

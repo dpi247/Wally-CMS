@@ -20,29 +20,44 @@ function wallydam_menu() {
  * Implementation of hook_nodeapi().
  */
 function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
-  switch ($op){
+  switch ($op){    
     case 'insert':
       //Publish : node save
-      if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
-        wallydam_addurltobuffer($node->nid);
-        if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
+      if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
+        //URL Alias Update
+        $url = $node->path;
+        if (!isset($node->path)){
+          $url = 'node/'.$node->nid;
+        }
+        wallydam_addurltobuffer($node->nid, $url);
+        
+        //Package Update
+        if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
         }
       } 
       break;
     case 'update':
-      if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
-        if ($node->field_externaluri[0]['value'] == NULL & !isset($node->wallymport_node)){
+      if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
+        //Package update
+        if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
         } 
-        if ($node->field_externaluri[0]['value'] == NULL){
-          wallydam_addurltobuffer($node->nid);
+        
+        //URL Alias Update (update only if the Alias is modified)
+        if ($node->path != $node->old_alias && $node->field_externaluri[0]['value'] == NULL){
+          $url = $node->path;
+          if (!isset($node->path)){
+            $url = 'node/'.$node->nid;
+          }
+          wallydam_addurltobuffer($node->nid, $url);
         }
       }
-      elseif(($node->type == 'wally_audioobject' | $node->type == 'wally_photoobject' | $node->type == 'wally_pollobject' 
-             | $node->type == 'wally_textobject'  | $node->type == 'wally_videoobject') & !isset($node->wallymport_node)){
+      elseif(($node->type == 'wally_audioobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_pollobject' 
+           || $node->type == 'wally_textobject' || $node->type == 'wally_videoobject') && !isset($node->wallymport_node)){
         if (!isset($node->wallymport_node)){
           foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
+            //Package update
             $node_package = node_load($array_nid['nid']);
             if ($node_package->field_externaluri[0]['value'] == NULL){
               wallydam_addpackagetobuffer($array_nid['nid']);
@@ -51,15 +66,58 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         }
       }
       break;
-    case 'delete':
-      if ($node->type == 'wally_articlepackage' | $node->type == 'wally_gallerypackage' | $node->type == 'wally_pollpackage'){
-        wallydam_removepackagefrombuffer($node->nid);
-        wallydam_removeurlfrombuffer($node->nid);
-      }
-      break;
   }
 }
 
+/**
+ * Implementation of hook_form_alter
+ */
+function wallydam_form_alter(&$form, &$form_state, $form_id){
+  
+  //Add a submit when an alias is edited in admin/build/path/list
+  if ($form_id == 'path_admin_form'){
+    $form['#submit'][] = 'wallydam_form_path_admin_form_submit';
+  }
+  
+  //Add a submit when the action pathauto_update_alias is choose in bulk operation
+  if (preg_match('/^views_bulk_operations_form/', $form_id) 
+  && isset($form_state['values']['operation']) 
+  && preg_match('/^pathauto_node_update_alias_multiple/', $form_state['values']['operation'])){
+    //Store the nodes choosed by the user to know in the submit wich node as been updated
+    $storage = array();
+    foreach ($form_state['storage']['selection'] as $key => $value){
+      $node = node_load(array('nid' => $key));
+      $storage[$key] = array('old_alias' => $node->path);
+    }
+    $form['wallydam'] = array(
+      '#type' => 'value',
+      '#value' => $storage,
+    );
+    $form['#submit'][] = 'wallydam_pathauto_node_update_alias_multiple_submit';
+  }
+}
+/**
+ * Submit for the form path_admin_form
+ */
+function wallydam_form_path_admin_form_submit($form, &$form_state){
+  //If src is like node/nid we need to add the new alias to the buffer
+  if (preg_match('/^node\/(?P<nid>\d+)$/', $form_state['values']['src'], $matches)) {
+    wallydam_addurltobuffer($matches['nid'], $form_state['values']['dst']);
+  }
+}
+/**
+ * 
+ * submit for the bulk operation with action pathauto_node_update_alias_multiple
+ */
+function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state){
+  //If the old alias is different from the new one, the new alias is add to the buffer
+  foreach ($form_state['values']['wallydam'] as $key => $value){
+    $node = node_load(array('nid' => $key));
+    if ($value['old_alias'] != $node->path){
+      wallydam_addurltobuffer($node->nid, $node->path);
+    }
+  }
+}
 /**
  * Implementation of hook_cron 
  */
@@ -76,12 +134,12 @@ function wallydam_cron(){
   }
   
   //URL
-  $result = db_query("SELECT nid
+  $result = db_query("SELECT nid, url
   					  FROM {wallydam_urltosend} 
   					  ORDER BY timestamp ASC LIMIT %d", $max_number);
   while ($obj = db_fetch_object($result)){
     $node = node_load($obj->nid);
-    if ( wallydam_posturl($node)){
+    if (wallydam_posturl($node, $obj->url)){
       wallydam_removeurlfrombuffer($obj->nid);
     }
   }
@@ -95,13 +153,9 @@ function wallydam_cron(){
  * @param $node
  *   Node 
  */
-function wallydam_posturl($node){
+function wallydam_posturl($node, $node_url){
   $sent = FALSE;
   
-  if (!isset($node->path)){
-    $node->path = 'node/'.$node->nid;
-  }
-  $node_url = url($node->path, array('absolute' => TRUE));
   $node_id = wally_variable_get('wallydam_wallyprefix', NULL).$node->nid;
   $package_id = $node->field_externalreference[0]['value'];
   $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
@@ -144,15 +198,14 @@ function wallydam_addpackagetobuffer($nid){
  * 
  * nid of the node
  */
-function wallydam_addurltobuffer($nid){
+function wallydam_addurltobuffer($nid, $path){
 
-  $result = db_query("SELECT nid FROM {wallydam_urltosend} WHERE nid = %d", $nid);
-  if (!db_result($result)){
-    $row = new stdClass();
-    $row->nid = $nid;
-    $row->timestamp = time();
-    drupal_write_record('wallydam_urltosend', $row);
-  }
+  $row = new stdClass();
+  $row->nid = $nid;
+  $row->url = url($path, array('alias' => TRUE, 'absolute' => TRUE));
+  $row->timestamp = time();
+  drupal_write_record('wallydam_urltosend', $row);
+  
 }
 
 /**

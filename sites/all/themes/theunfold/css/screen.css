@@ -959,19 +959,19 @@ div#comments-container {
   margin-bottom: 19px;
   padding-top: 9.5px;
 }
-div#comments-container .comments-header {
+.comments-header {
   border-bottom: 1px solid #d4d7cb;
   border-top: 2px solid #d4d7cb;
   padding: 6.33333px 0;
   position: relative;
 }
-div#comments-container .comments-header h3 {
+.comments-header h3 {
   margin-bottom: 0;
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 700;
 }
-div#comments-container .comments-header #add-comment {
+.comments-header #add-comment {
   position: absolute;
   top: 0;
   right: 0;
@@ -983,14 +983,17 @@ div#comments-container .comments-header #add-comment {
   font-weight: 700;
   font-size: 11px;
 }
-div#comments-container .comments-form {
+.comments-form {
   border-bottom: 1px solid #d4d7cb;
   overflow: hidden;
   display: none;
   background: #f9f9f9;
   padding: 9.5px;
 }
-div#comments-container .comments-form h4 {
+.comments-form.extend{
+	display:block;
+}
+.comments-form h4 {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 700;
@@ -998,29 +1001,29 @@ div#comments-container .comments-form h4 {
   margin-bottom: 0;
   padding-bottom: 9.5px;
 }
-div#comments-container .comments-form .meta {
+.comments-form .meta {
   float: left;
 }
-div#comments-container .comments-form .author {
+.comments-form .author {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 700;
 }
-div#comments-container .comments-form .author:after {
+.comments-form .author:after {
   content: "";
 }
-div#comments-container .comments-form time {
+.comments-form time {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 11px;
 }
-div#comments-container .comments-form img {
+.comments-form img {
   float: left;
   width: 9%;
   margin-right: 9.5px;
 }
-div#comments-container .comments-form .comments-field {
+.comments-form .comments-field {
   display: -moz-inline-stack;
   display: inline-block;
   vertical-align: middle;
@@ -1031,30 +1034,43 @@ div#comments-container .comments-form .comments-field {
   margin-left: 12.66667px;
   width: 70%;
 }
-div#comments-container ol {
+.comments-form .comments-field label{
+	float : none;
+}
+.comments-form .comments-field div.resizable-textarea{
+	float:none;
+	width:100%;
+}
+.comments-form .comments-field div.resizable-textarea textarea{
+	width:100% !important;
+}
+div#comments {
   padding-top: 19px !important;
   margin: 0;
   padding: 0;
   border: 0;
   clear: both;
 }
-div#comments-container ol > li {
+div#comments div.comments-body {
   border-bottom: 1px solid #d4d7cb;
   margin-bottom: 19px;
   overflow: hidden;
 }
-div#comments-container ol > li:last-child {
+div#comments div.comments-body:last-child {
   border-bottom: 0 none;
   margin-bottom: 0;
 }
-div#comments-container ol > li:last-child .comments-body .actions {
+div#comments div.comments-body .actions {
   margin-bottom: 0;
 }
-div#comments-container ol > li img {
+div#comments img {
   float: left;
   width: 9%;
 }
-div#comments-container ol > li .comments-body {
+div.comments-field div.preview .comments-body .meta{
+	float:none;
+}
+div#comments div.comments-body {
   display: -moz-inline-stack;
   display: inline-block;
   vertical-align: middle;
@@ -1065,48 +1081,48 @@ div#comments-container ol > li .comments-body {
   margin-left: 12.66667px;
   width: 89%;
 }
-div#comments-container ol > li .comments-body .meta {
+div#comments div.comments-body .meta {
   color: #444444;
   font-size: 11px;
   margin-bottom: 9.5px;
 }
-div#comments-container ol > li .comments-body .meta .author-name {
+div#comments div.comments-body .meta .author-name {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 400;
 }
-div#comments-container ol > li .comments-body .meta time {
+div#comments div.comments-body .meta time {
   font-weight: 400;
 }
-div#comments-container ol > li .comments-body p {
+div#comments div.comments-body p {
   color: #444444;
   font-weight: 400;
   font-family: Georgia, "Times New Roman", "DejaVu Serif", serif;
   font-style: normal;
   font-weight: normal;
 }
-div#comments-container ol > li .comments-body .actions {
+div#comments div.comments-body .actions {
   overflow: hidden;
   margin-bottom: 9.5px;
 }
-div#comments-container ol > li .comments-body .actions ul li {
+div#comments div.comments-body .actions ul li {
   margin: 0;
   padding: 0;
   border: 0;
   float: left;
   margin-right: 3px;
 }
-div#comments-container ol > li .comments-body .actions ul li:after {
+div#comments div.comments-body .actions ul li:after {
   position: relative;
   top: 1px;
   content: "·";
   color: #666666;
   margin: 0 3px;
 }
-div#comments-container ol > li .comments-body .actions ul li:last-child:after {
+div#comments div.comments-body .actions ul li:last-child:after {
   content: "";
 }
-div#comments-container ol > li .comments-body .actions ul li a {
+div#comments div.comments-body .actions ul li a {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 400;
@@ -1118,7 +1134,7 @@ div#comments-container ol > li .comments-body .actions ul li a {
   -o-transition: ease 0.1s;
   transition: ease 0.1s;
 }
-div#comments-container ol > li .comments-body .actions ul li a:hover {
+div#comments div.comments-body .actions ul li a:hover {
   color: #004276;
 }
 
@@ -1420,7 +1436,8 @@ span.meta {
 
 span.author,
 span#comment-count,
-span.date {
+span.date,
+time {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
   font-weight: 400;
@@ -1435,7 +1452,8 @@ span.author:after {
   margin-left: 2px;
   content: "|";
 }
-span.author .author-name {
+span.author .author-name,
+span.author a {
   text-transform: uppercase;
 }
 
@@ -2490,13 +2508,17 @@ ul.icons li .icon-large:before {
   -ms-font-feature-settings: "liga" 1, "dlig" 1;
   -o-font-feature-settings: "liga" 1, "dlig" 1;
   font-feature-settings: "liga" 1, "dlig" 1;
+  text-transform: lowercase;
 }
 
 .lsf {
   font-size: 18px;
   font-style: normal;
 }
-
+.actions .lsf{
+	font-size : 13px;
+	padding-right:2px;
+}
 body {
   background: #fff;
 }

@@ -96,6 +96,11 @@ function theunfold_theme(&$var) {
       'template' => 'theunfold_flowmix_image',
       'path' => $path.'/templates/flowmix',
     ),
+    'comment_form' => array(
+  	  'arguments' => array('form' => NULL),
+      'template' => 'comment_form',
+      'path' => $path.'/templates/comment',
+    ),
   );
 }
 
