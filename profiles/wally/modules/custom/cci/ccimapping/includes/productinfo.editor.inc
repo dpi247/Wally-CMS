@@ -130,7 +130,7 @@ function ccimap_build_productinfo_xml(&$dom, $hierarchies_array, $nested_taxonom
   $dom->standalone = FALSE;
   $exportproductinformation = $dom->appendChild($dom->createElement('exportproductinformation'));
   $exportproductinformation->setAttribute('newsroom', wally_variable_get('ccimapping_newsroom', ''));
-  $exportproductinformation->setAttribute('publicationchannel', 'sudpresse.be');
+  $exportproductinformation->setAttribute('publicationchannel', wally_variable_get('ccimapping_product_name', ''));
   $exportproductinformation->setAttribute('subtype', 'Online');
   $pubdatestring = $exportproductinformation->appendChild($dom->createElement('pubdatestring'));
   $pubdatestring->setAttribute('name', '%d-%m-%Y');
