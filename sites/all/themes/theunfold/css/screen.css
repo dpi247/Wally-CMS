@@ -1067,6 +1067,9 @@ div#comments img {
   float: left;
   width: 9%;
 }
+div.comments-field div.preview .comments-body .meta{
+	float:none;
+}
 div#comments div.comments-body {
   display: -moz-inline-stack;
   display: inline-block;

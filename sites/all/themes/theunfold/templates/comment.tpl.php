@@ -1,4 +1,3 @@
-<?php dsm($comment);?>
 <?php print theme('imagecache', '70x70', $comment->picture,'', '');?>
 <div class="comments-body">	
 	<div class="meta">
