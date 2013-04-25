@@ -412,7 +412,7 @@ function _wallytoolbox_arraytowallyxml_fillPhotoObjectType(&$valid_dom, &$object
       }
       if ($recognized) {
         $file_temp_path = '/tmp/'.$good_file_name;
-        if(!@copy($file_uri, $file_temp_path)) {
+        if(!@_copy_file($file_uri, $file_temp_path)) {
           chmod($file_temp_path, octdec('0777'));
           drupal_set_message(t('Cant copy image file : @file', array('@file' => $file_temp_path)), 'error');
           $processed_uri = $file_uri;
