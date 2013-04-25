@@ -888,10 +888,10 @@ function wallycontenttypes_form_wallyedit_form_fields_overview_form_alter(&$form
 }
 
 function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &$form_state) {
-  array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
-  
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (sizeof($form_state['parents']) == 1 && in_array($form_state['type'], $pack_types)) {
+    array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
+
     // Editorial Update Date gestion
     // Replace the DateTime field with a checkbox
     $type_name = $form_state['type'];
@@ -953,25 +953,6 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, 
         $form_state[$type_name]['#node']->field_editorialupdatedate[0]['value'] = gmdate($format);
         unset($form_state['values'][$type_name]['field_editorialupdatedate']);
       }
-    }
-
-    // Update title value with displayed title
-    $sub_form_state = &$form_state['values'];
-    foreach($flat_fields as $field) {
-      if($field['display'] == 2 || $field['display'] == 3) {
-        $field_name = $field['name'];
-        if(isset($sub_form_state[$type_name][$field_name])) {
-          foreach($sub_form_state[$type_name][$field_name] as $key => &$value) {
-            // Avoid the weight_.$key element
-            if(is_numeric($key) && isset($value['field_displayed_title'][0]['value'])) {
-              $value['title'] = $value['field_displayed_title'][0]['value'];
-            }
-          }
-        }
-      }
-    }
-    if (isset($sub_form_state[$type_name]['field_displayed_title'][0]['value'])) {
-      $sub_form_state[$type_name]['title'] = $sub_form_state[$type_name]['field_displayed_title'][0]['value'];
     }
   }
 }
