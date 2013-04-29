@@ -12,7 +12,7 @@
 function wallyctools_default_page_manager_handlers() {
   $handlers = array();
   //default node view
-  $handler = new stdClass;
+$handler = new stdClass;
 $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
 $handler->api_version = 1;
 $handler->name = 'node_view_panel_context';
@@ -48,6 +48,12 @@ $display->panel_settings = array(
     'middle' => NULL,
     'right' => NULL,
     'bottom' => NULL,
+    'contenttop' => NULL,
+    'mainContent' => NULL,
+    'complementary' => NULL,
+    'subcontentleft' => NULL,
+    'subcontentright' => NULL,
+    'contentbottom' => NULL,
   ),
 );
 $display->cache = array();
@@ -69,7 +75,7 @@ $display->panels = array();
     'override_title_text' => '',
     'identifier' => '',
     'link' => 0,
-    'leave_node_title' => 0,
+    'leave_node_title' => 1,
     'build_mode' => 'full',
     'context' => 'argument_nid_1',
   );
@@ -84,7 +90,7 @@ $display->panels = array();
   $display->panels['mainContent'][0] = 'new-1';
   $pane = new stdClass;
   $pane->pid = 'new-2';
-  $pane->panel = 'mainContent';
+  $pane->panel = 'subcontentleft';
   $pane->type = 'node_comment_form';
   $pane->subtype = 'node_comment_form';
   $pane->shown = TRUE;
@@ -92,7 +98,7 @@ $display->panels = array();
   $pane->configuration = array(
     'anon_links' => 1,
     'context' => 'argument_nid_1',
-    'override_title' => 0,
+    'override_title' => 1,
     'override_title_text' => '',
   );
   $pane->cache = array();
@@ -101,12 +107,12 @@ $display->panels = array();
   );
   $pane->css = array();
   $pane->extras = array();
-  $pane->position = 1;
+  $pane->position = 0;
   $display->content['new-2'] = $pane;
-  $display->panels['mainContent'][1] = 'new-2';
+  $display->panels['subcontentleft'][0] = 'new-2';
   $pane = new stdClass;
   $pane->pid = 'new-3';
-  $pane->panel = 'mainContent';
+  $pane->panel = 'subcontentleft';
   $pane->type = 'node_comments';
   $pane->subtype = 'node_comments';
   $pane->shown = TRUE;
@@ -117,7 +123,7 @@ $display->panels = array();
     'comments_per_page' => '30',
     'anchor' => 1,
     'context' => 'argument_nid_1',
-    'override_title' => 0,
+    'override_title' => 1,
     'override_title_text' => '',
   );
   $pane->cache = array();
@@ -126,12 +132,14 @@ $display->panels = array();
   );
   $pane->css = array();
   $pane->extras = array();
-  $pane->position = 2;
+  $pane->position = 1;
   $display->content['new-3'] = $pane;
-  $display->panels['mainContent'][2] = 'new-3';
+  $display->panels['subcontentleft'][1] = 'new-3';
 $display->hide_title = PANELS_TITLE_FIXED;
 $display->title_pane = 'new-1';
 $handler->conf['display'] = $display;
+  
+  
 $handlers['node_view_panel_context'] = $handler;
   
   //destination term view
