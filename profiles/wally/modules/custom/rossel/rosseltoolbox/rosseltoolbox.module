@@ -41,8 +41,13 @@ function rosseltoolbox_form_wallyedit_form_node_edition_form_submit($form, &$for
         if(isset($sub_form_state[$type_name][$field_name])) {
           foreach($sub_form_state[$type_name][$field_name] as $key => &$value) {
             // Avoid the weight_.$key element
-            if(is_numeric($key) && isset($value['field_displayed_title'][0]['value']) && !empty($value['field_displayed_title'][0]['value'])) {
-              $value['title'] = filter_xss($value['field_displayed_title'][0]['value'], array());
+            if(is_numeric($key)) {
+              if(isset($value['field_displayed_title'][0]['value']) && !empty($value['field_displayed_title'][0]['value'])) {
+                $value['title'] = filter_xss($value['field_displayed_title'][0]['value'], array());
+              }
+              if (empty($value['title'])) {
+                $value['title'] = $form_state[$type_name][$field_name][$key]['#node']->title;
+              }
             }
           }
         }
@@ -50,6 +55,9 @@ function rosseltoolbox_form_wallyedit_form_node_edition_form_submit($form, &$for
     }
     if (isset($sub_form_state[$type_name]['field_displayed_title'][0]['value']) && !empty($sub_form_state[$type_name]['field_displayed_title'][0]['value'])) {
       $sub_form_state[$type_name]['title'] = filter_xss($sub_form_state[$type_name]['field_displayed_title'][0]['value'], array());
+    }
+    if (empty($sub_form_state[$type_name]['title'])) {
+      $sub_form_state[$type_name]['title'] = $form_state[$type_name]['#node']->title;
     }
   }
 }

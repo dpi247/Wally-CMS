@@ -1653,7 +1653,10 @@ function wydit_publish_prenode(&$form_state, $current_profile, $values = array()
           if ($nid = wydit_publish_prenode($form_state[$field_name][$key], $current_profile)) {
             unset($form_state[$field_name][$key]);
             $form_state[$field_name][$key]['nid'] = $nid;
-          }
+          } else {
+	        drupal_set_message(t('An object has not been saved. Object : @ref.', array('@ref' => $field_name.' - '.$key)), 'error');
+	        return FALSE;
+		  }
         }
       }
       $form_state['#node']->$field_name = $form_state[$field_name] ? $form_state[$field_name] : array();
