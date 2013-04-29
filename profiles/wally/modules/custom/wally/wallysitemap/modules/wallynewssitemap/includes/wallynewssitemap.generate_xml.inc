@@ -8,9 +8,10 @@ function _wallynewssitemap_generate_sitemap_xml($settings) {
 
   $nids = _wallynewssitemap_get_nids_to_generate($settings, $timestamp);
 
-  $xmlfiles_to_generate = _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp);
-
-  wallysitemap_generate_xmlfile($xmlfiles_to_generate, $settings['wallynewssitemap_path']);
+  if (!empty($nids)) {
+    $xmlfiles_to_generate = _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp);
+    wallysitemap_generate_xmlfile($xmlfiles_to_generate, $settings['wallynewssitemap_path']);
+  }
 
   _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp - 3600);
 
@@ -84,6 +85,7 @@ function _wallynewssitemap_cleanup_old_xmlfiles($settings, $timestamp) {
 }
 
 function _wallynewssitemap_generate_consolidate_xml($settings) {
+  $nids = array();
   switch ($settings['wallynewssitemap_consolidate_sitemap_type']) {
     case 'global':
       $nids = _wallynewssitemap_get_nids_to_generate($settings, time() - $settings['wallynewssitemap_delta_hours'] * 3600, $settings['wallynewssitemap_consolidate_sitemap_amount']);
@@ -93,36 +95,42 @@ function _wallynewssitemap_generate_consolidate_xml($settings) {
       break;
   }
 
-  $main_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
-  $dom = new DOMDocument('1.0', 'UTF-8');
-  $dom->load($main_settings['wallysitemap_path'].'/sitemapmain.xml');
-  $dom_urlset = $dom->getElementsByTagName('urlset')->item(0);
-  $dom_urls = $dom->getElementsByTagName('url');
-  foreach ($dom_urls as $dom_url) {
-    $dom_lastmod = $dom_url->getElementsByTagName('lastmod');
-    if ($dom_lastmod->item(0)) {
-      $dom_urlset->removeChild($dom_url);
+  if (!empty($nids)) {
+    $main_settings = wally_variable_get('wallysitemap_sitemaps_settings', array());
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $dom->load($main_settings['wallysitemap_path'].'/sitemapmain.xml');
+    $dom_urlset = $dom->getElementsByTagName('urlset')->item(0);
+    $dom_urls = $dom->getElementsByTagName('url');
+    foreach ($dom_urls as $dom_url) {
+      $dom_lastmod = $dom_url->getElementsByTagName('lastmod');
+      if ($dom_lastmod->item(0)) {
+        $dom_urlset->removeChild($dom_url);
+      }
     }
-  }
-  
-  $site_infos = wallysitemap_get_site_infos();
-  foreach ($nids as $nid) {
-    $node = node_load($nid);
-    if (in_array($node->path, $settings['wallynewssitemap_blacklist'])) {
-      continue;
+
+    $not_empty = FALSE;
+    $site_infos = wallysitemap_get_site_infos();
+    foreach ($nids as $nid) {
+      $node = node_load($nid);
+      if (in_array($node->path, $settings['wallynewssitemap_blacklist'])) {
+        continue;
+      }
+      $url = $dom_urlset->appendChild($dom->createElement('url'));
+      _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $site_infos, $settings);
+      $not_empty = TRUE;
     }
-    $url = $dom_urlset->appendChild($dom->createElement('url'));
-    _wallynewssitemap_generate_newsurl_xml_set_commons($dom, $url, $node, $site_infos, $settings);
+
+    if ($not_empty) {
+      drupal_alter('wallysitemap_dom', $dom, 'consolidate');
+
+      $xmlfiles_to_generate = array(array(
+        'dom' => $dom,
+        'filename' => 'sitemapmain.xml',
+      ));
+    }
+
+    wallysitemap_generate_xmlfile($xmlfiles_to_generate, $main_settings['wallysitemap_path']);
   }
-  
-  drupal_alter('wallysitemap_dom', $dom, 'consolidate');
-  
-  $xmlfiles_to_generate = array(array(
-    'dom' => $dom,
-    'filename' => 'sitemapmain.xml',
-  ));
-  
-  wallysitemap_generate_xmlfile($xmlfiles_to_generate, $main_settings['wallysitemap_path']);
 }
 
 /**
@@ -150,6 +158,7 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
   $site_infos = wallysitemap_get_site_infos();
   $dom = _wallynewssitemap_new_dom($settings);
   $urlset = $dom->getElementsByTagName('urlset')->item(0);
+  $not_empty = FALSE;
 
   $i = $n = 0;
   foreach ($nids as $nid) {
@@ -174,14 +183,18 @@ function _wallynewssitemap_generate_urlset_xml($nids, $settings, $timestamp) {
 
     $url = $urlset->appendChild($dom->createElement('url'));
     _wallynewssitemap_generate_newsurl_xml($dom, $url, $namespaces, $node, $site_infos, $settings);
+    
+    $not_empty = TRUE;
   }
   
-  drupal_alter('wallysitemap_dom', $dom, 'news');
+  if ($not_empty) {
+    drupal_alter('wallysitemap_dom', $dom, 'news');
 
-  $xmlfiles_to_generate[] = array(
-    'dom' => $dom,
-    'filename' => 'sitemapnews_'.$timestamp.'-'.$n++.'.xml',
-  );
+    $xmlfiles_to_generate[] = array(
+      'dom' => $dom,
+      'filename' => 'sitemapnews_'.$timestamp.'-'.$n++.'.xml',
+    );
+  }
 
   return $xmlfiles_to_generate;
 }

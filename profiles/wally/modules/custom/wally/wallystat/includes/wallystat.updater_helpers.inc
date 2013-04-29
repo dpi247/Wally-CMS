@@ -85,7 +85,8 @@ function wallystat_get_eval_form() {
  */
 function _wallystat_add_updater_callback(&$vars) {
   $current_id = $vars['node']->nid;
-  $title = $vars['node']->title;
+  $title = addslashes(htmlspecialchars_decode($vars['node']->title));
+
   $current_terms = '';
   if (isset($vars['node']->field_destinations) && is_array($vars['node']->field_destinations)){
     foreach ($vars['node']->field_destinations as $dest)

@@ -163,35 +163,18 @@ function emvideo_videortl_video($video_id, $width, $height, $field, $item, $node
  *  
  */
 function _emvideo_videortl_request($src_url) {
+  
   preg_match('/videoid=([0-9]*)/', $src_url,$urlT);
   $id = $urlT[1];
   preg_match('/key=([0-9a-z-]*)/', $src_url,$urlT);
   $key = $urlT[1];
+  preg_match('/http\:\/\/www\.rtl\.be\/([0-9a-z-]*)\//', $src_url,$urlT);
+  $domain = $urlT[1];
   
-  //~ $embedly_result = array();
-  //~ $url = "http://videos.rtl.be/oembed";
-  //~ $data = "?url=".$src_url."&maxwidth=600&format=xml";
-  //~ $data = str_replace(":","%3A",$data);
-  //~ $data = str_replace("/","%2F",$data);
-  //~ dsm($url.$data);
-  //~ $xml = simplexml_load_file($url.$data);
   $embedly_result = array(
    'video_id' =>$id,
    'key'=>$key,
-   //~ 'version' => (string)$xml->version,
-   //~ 'type' => (string)$xml->type, 
-   //~ 'provider_url' => (string)$xml->provider_url,
-   //~ 'provider_name' => (string)$xml->provider_name,
-   //~ 'description' => (string)$xml->description,
-   //~ 'title' => (string)$xml->title,
-   //~ 'author' => (string)$xml->author_name,
-   //~ 'author_url' => (string)$xml->author_url,
-   //~ 'height' => (string)$xml->height,
-   //~ 'width' => (string)$xml->width,
-   //~ 'html' => (string)$xml->html,
-   //~ 'thumbnail_url' => (string)$xml->thumbnail_url,
-   //~ 'thumbnail_width' => (string)$xml->thumbnail_width,   
-   //~ 'thumbnail_height' => (string)$xml->thumbnail_height
+   'domain'=>$domain
   );
   return $embedly_result;
 }
