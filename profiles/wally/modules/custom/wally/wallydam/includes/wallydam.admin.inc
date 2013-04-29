@@ -7,9 +7,9 @@
  */
 
 /**
- * Settings form.
+ * Packages synchronization settings form.
  */
-function wallydam_page_admin_form($form_state) {
+function wallydam_page_admin_packages_sync_form($form_state) {
   $form = array();
 
   $form['wallydam_updateurl'] = array(
@@ -58,8 +58,27 @@ function wallydam_page_admin_form($form_state) {
 /**
  * Validate function for the settings form.
  */
-function wallydam_page_admin_form_validate($form, &$form_state) {
+function wallydam_page_admin_packages_sync_form_validate($form, &$form_state) {
   if (!is_numeric($form_state['values']['wallydam_cronmaxnumber'])){
     form_set_error('wallydam_cronmaxnumber', t('The maximum number of packages must be a numeric value'));
   }
+}
+
+/**
+ * DAM Search settings form
+ */
+function wallydam_page_admin_search_form($form_state) {
+  $form = array();
+  print '<pre>';
+  module_load_include('inc', 'wallydam', 'includes/DAMSearch');
+  $search = new DAMSearch();
+  print_r($search);
+  $search_query = $search->getSearchQuery();
+  $search_query->addReqWord('di rupo');
+  $search_query->setOption('Newsroom', array('Sudpresse'));
+  $search->executeQuery();
+  print_r($search);
+  print '</pre>';
+  
+  return $form;
 }

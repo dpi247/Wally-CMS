@@ -5,14 +5,38 @@
  */
 function wallydam_menu() {
   $items = array();
-  $items['admin/wally/wallydam/settings'] = array(
-    'title' => 'Wally DAM Settings',
+  
+  $items['admin/wally/wallydam'] = array(
+    'title' => t('Wally DAM Settings'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallydam_page_admin_form'),
+    'page arguments' => array('wallydam_page_admin_packages_sync_form'),
     'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'description' => t('Manage DAM communications settings.'),
     'file' => 'includes/wallydam.admin.inc',
   );
+  
+  $items['admin/wally/wallydam/packagessync'] = array(
+    'title' => t('Packages synchronization'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_packages_sync_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Packages synchronization settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+  
+  $items['admin/wally/wallydam/search'] = array(
+    'title' => t('DAM Search'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_search_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('DAM Search settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
   return $items;
 }
 

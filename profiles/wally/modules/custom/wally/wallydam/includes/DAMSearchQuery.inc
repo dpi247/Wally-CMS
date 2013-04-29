@@ -2,7 +2,7 @@
 
 /**
  * @file DAMSearchQuery.inc
- * 
+ *
  * Provide the DAMSearchQuery class declaration.
  * The DAMSearchQuery object is used to build a research query for the DAM.
  */
@@ -12,15 +12,15 @@ class DAMSearchQuery {
   private $JSONQuery;
   private $isAdvanced;
   private $isBuilt;
-  
+
   /**
    * Constructor.
    */
   function DAMSearchQuery() {
     $this->query = array(
       'map' => array(
-        'q' => '',
-        'FileType' => '_Text',
+        'q' => array(),
+        'FileType' => array('_Text'),
       ),
     );
     $this->options = array();
@@ -28,10 +28,10 @@ class DAMSearchQuery {
     $this->isAdvanced = FALSE;
     $this->isBuilt = FALSE;
   }
-  
+
   /**
    * Convert the query array to JSON
-   * 
+   *
    * @return boolean|NULL
    *   TRUE in case of success, NULL otherwise
    */
@@ -40,23 +40,27 @@ class DAMSearchQuery {
       $tmp_query = $this->query;
       if ($this->isAdvanced) {
         // Convert searched words array to a string
-        $tmp_query['map']['allOf'] = implode(',', $tmp_query['map']['allOf']);
-        $tmp_query['map']['noneOf'] = implode(',', $tmp_query['map']['noneOf']);
+        $tmp_query['map']['allOf'] = array(implode(',', $tmp_query['map']['allOf']));
+        $tmp_query['map']['noneOf'] = array(implode(',', $tmp_query['map']['noneOf']));
       }
-      $this->JSONQuery = json_encode($tmp_query);
+      $full_query = array(
+        'query' => $tmp_query,
+        'options' => $this->options,
+      );
+      $this->JSONQuery = json_encode($full_query);
       $this->isBuilt = TRUE;
       return TRUE;
     } else {
       return NULL;
     }
   }
-  
+
   /**
    * Add a word to the query
-   * 
+   *
    * @param string $word
    *   The word to add
-   * 
+   *
    * @return boolean|NULL
    *   TRUE in case of success, NULL otherwise
    */
@@ -68,19 +72,19 @@ class DAMSearchQuery {
           return TRUE;
         }
       } else {
-        $this->query['map']['q'] = $word;
+        $this->query['map']['q'] = array($word);
         return TRUE;
       }
     }
     return NULL;
   }
-  
+
   /**
    * Exclude a word from the query
-   * 
+   *
    * @param string $word
    *   The word to exclude
-   * 
+   *
    * @return boolean|NULL
    *   TRUE in case of success, NULL otherwise
    */
@@ -95,13 +99,13 @@ class DAMSearchQuery {
     }
     return NULL;
   }
-  
+
   /**
    * Switch between simple and avanced modes
-   * 
+   *
    * @param boolean $val
    *   TRUE to switch to advanced, FALSE to switch to simple
-   * 
+   *
    * @return boolean|NULL
    *   TRUE in case of success, NULL otherwise
    */
@@ -126,7 +130,7 @@ class DAMSearchQuery {
         if (isset($this->query['map']['allOf'])) {
           if (!empty($this->query['map']['allOf'])) {
             // Convert searched words to simple query
-            $this->query['map']['q'] = array_shift($this->query['map']['allOf']);
+            $this->query['map']['q'] = array(array_shift($this->query['map']['allOf']));
           }
           unset($this->query['map']['allOf']);
         }
@@ -138,15 +142,15 @@ class DAMSearchQuery {
     }
     return NULL;
   }
-  
+
   /**
    * Set an option for this query
-   * 
+   *
    * @param string $key
    *   The option key
    * @param mixed $value
    *   The value to set
-   * 
+   *
    * @return boolean
    *   TRUE
    */
@@ -154,26 +158,26 @@ class DAMSearchQuery {
     $this->options[$key] = $value;
     return TRUE;
   }
-  
+
   /**
    * Get an option for this query
-   * 
+   *
    * @param string $key
    *   The requested option's key
-   * 
+   *
    * @return mixed
    *   The value if found, NULL otherwise
    */
   public function getOption($key) {
     return isset($this->options[$key]) ? $this->options[$key] : NULL;
   }
-  
+
   /**
    * Unset an option for this query
-   * 
+   *
    * @param string $key
    *   The option to unset
-   * 
+   *
    * @return boolean|NULL
    *   TRUE in case of success, NULL otherwise
    */
@@ -184,10 +188,10 @@ class DAMSearchQuery {
     }
     return NULL;
   }
-  
+
   /**
    * Check the validity of a query before building it
-   * 
+   *
    * @return boolean
    *   TRUE if the query is valid, FALSE otherwise
    */
