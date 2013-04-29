@@ -1041,7 +1041,8 @@ div#comments-container {
 	float:none;
 	width:100%;
 }
-.comments-form .comments-field div.resizable-textarea textarea{
+.comments-form .comments-field div.resizable-textarea textarea,
+.comments-form .comments-field textarea{
 	width:100% !important;
 }
 div#comments {
