@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * Implementation of hook_install()
+ * Install specific variables and tables
+ */
+function responsesimulator_install() {
+  drupal_install_schema('responsesimulator');
+  _responsesimulator_install_default_responses();
+}
+
+/**
+ * Implementation of hook_uninstall()
+ * Remove specific variables and tables
+ */
+function responsesimulator_uninstall() {
+  drupal_uninstall_schema('responsesimulator');
+}
+
+/**
+ * Implementation of hook_schema()
+ * Add table "responsesimulator_responses" to save defined responses
+ */
+function responsesimulator_schema() {
+  $schema = array();
+
+  $schema['responsesimulator_responses'] = array(
+    'description' => 'Save defined HTTP responses.',
+    'fields' => array(
+      'rid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+      ),
+      'httpcode' => array(
+        'type' => 'int',
+        'size' => 'small',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'settings' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+      ),
+      'erasable' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('rid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Install some default HTTP responses
+ */
+function _responsesimulator_install_default_responses() {
+  $responses = array(
+    'empty200' => array(
+      'name' => 'empty200',
+      'httpcode' => 200,
+      'settings' => array(),
+      'erasable' => 0,
+    ),
+    '301' => array(
+      'name' => '301',
+      'httpcode' => 301,
+      'settings' => array(),
+      'erasable' => 0,
+    ),
+    '302' => array(
+      'name' => '302',
+      'httpcode' => 302,
+      'settings' => array(),
+      'erasable' => 0,
+    ),
+    '404' => array(
+      'name' => '404',
+      'httpcode' => 404,
+      'settings' => array(),
+      'erasable' => 0,
+    ),
+    '503' => array(
+      'name' => '503',
+      'httpcode' => 503,
+      'settings' => array(),
+      'erasable' => 0,
+    ),
+  );
+
+  foreach ($responses as $response) {
+    $response['settings'] = serialize($response['settings']);
+    db_query("INSERT INTO {responsesimulator_responses} (name, httpcode, settings, erasable) VALUES ('%s', %d, '%s', %d)", $response);
+  }
+}
