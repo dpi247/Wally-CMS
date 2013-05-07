@@ -64,6 +64,44 @@ function wallydam_page_admin_packages_sync_form_validate($form, &$form_state) {
   }
 }
 
+function wallydam_page_admin_archive_form(){
+  $form = array();
+  $options = array(FALSE => 'OFF', TRUE => 'ON');
+  $form['wallydam_archive_on'] = array(
+    '#type' => 'select',
+    '#title' => t('Active archive retrieving'),
+    '#default_value' => wally_variable_get('wallydam_archive_on', FALSE),
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+
+  $importer = wallymport_getimporters();
+  $options = array('' => '');
+  foreach ($importer as $imp){
+    if (preg_match('/^packages/', $imp->importer_type)){
+      $options[$imp->name] = $imp->name;
+    }
+  }
+
+  $form['wallydam_archive_importer'] = array(
+    '#type' => 'select',
+    '#title' => t('Importer to use to extract package'),
+    '#description' => t('You must have an importer of type packages to use the archive (V16,V18,...)'),
+    '#default_value' => wally_variable_get('wallydam_archive_importer', ''),
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+
+  $form['wallydam_archive_geturl'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL of the DAM to retrieve archive'),
+    '#default_value' => wally_variable_get('wallydam_archive_geturl', ''),
+    '#require' => TRUE,
+  );
+
+  return wally_system_settings_form($form, TRUE);
+}
+
 /**
  * DAM Search settings page, manage search profiles
  */
@@ -340,7 +378,7 @@ function wallydam_page_admin_search_edit_profile_form($form_state, $pid) {
       '#process' => array('ctools_dependent_process'),
     );
   }
-  
+
   $form['cn'] = array(
     '#type' => 'select',
     '#title' => t('Connection NewsRoom'),
@@ -578,41 +616,4 @@ function _wallydam_page_admin_search_populate_thesaurus_options($thesaurus) {
   }
 
   return $options;
-}
-
-function wallydam_page_admin_archive_form(){
-  $form = array();
-  $options = array(FALSE => 'OFF', TRUE => 'ON');
-  $form['wallydam_archive_on'] = array(
-    '#type' => 'select',
-    '#title' => t('Active archive retrieving'),
-    '#default_value' => wally_variable_get('wallydam_archive_on', FALSE),
-    '#options' => $options,
-    '#required' => TRUE,
-  );
-  
-  $importer = wallymport_getimporters();
-  $options = array('' => '');
-  foreach ($importer as $imp){
-    if (preg_match('/^packages/', $imp->importer_type)){
-      $options[$imp->name] = $imp->name;
-    }
-  }
-  
-  $form['wallydam_archive_importer'] = array(
-    '#type' => 'select',
-    '#title' => t('Importer to use to extract package'),
-    '#description' => t('You must have an importer of type packages to use the archive (V16,V18,...)'),
-    '#default_value' => wally_variable_get('wallydam_archive_importer', ''),
-    '#options' => $options,
-    '#required' => TRUE,
-  );
-  
-  $form['wallydam_archive_geturl'] = array(
-    '#type' => 'textfield',
-    '#title' => t('URL of the DAM to retrieve archive'),
-    '#default_value' => wally_variable_get('wallydam_archive_geturl', ''),
-    '#require' => TRUE,
-  );
-  return wally_system_settings_form($form, TRUE);
 }
