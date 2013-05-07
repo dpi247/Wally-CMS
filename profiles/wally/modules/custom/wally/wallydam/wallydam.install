@@ -16,7 +16,6 @@ function wallydam_install() {
   db_add_field($ret, 'term_data', 'topic_destination', $spec);
 
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'wallydam'");
-  
 }
 
 /**
@@ -65,7 +64,55 @@ function wallydam_schema() {
         'default' => 0,
       ),
     ),
-    
   );
+  
+  $schema['wallydam_search_profiles'] = array(
+    'description' => 'Contains profiles informations for the DAM search interface.',
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'description' => 'Profile ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Machine readable name.',
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'label' => array(
+        'description' => 'Human readable name.',
+        'type' => 'varchar',
+        'length' => '255',
+      ),
+      'default_profile' => array(
+        'description' => 'Boolean, default profile.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'settings' => array(
+        'description' => 'Serialized settings.',
+        'type' => 'text',
+        'not null' => TRUE,
+        'default' => '',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  
   return $schema;
+}
+
+/**
+ * Implementation of hook_update_N.
+ * Install the DAM search profiles cache table.
+ */
+function wallydam_update_6001() {
+  $schemas = wallydam_schema();
+  $ret = array();
+  db_create_table($ret, 'wallydam_search_profiles', $schemas['wallydam_search_profiles']);
+  return $ret;
 }

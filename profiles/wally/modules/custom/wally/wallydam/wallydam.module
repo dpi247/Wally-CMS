@@ -28,13 +28,42 @@ function wallydam_menu() {
   
   $items['admin/wally/wallydam/search'] = array(
     'title' => t('DAM Search'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallydam_page_admin_search_form'),
+    'page callback' => 'wallydam_page_admin_search',
     'access arguments' => array('access administration pages'),
     'description' => t('DAM Search settings'),
     'file' => 'includes/wallydam.admin.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 1,
+  );
+
+  $items['admin/wally/wallydam/search/edit/%'] = array(
+    'title' => t('Edit'),
+    'description' => t('Edit an existing DAM search profile.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_search_edit_profile_form', 5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
+  );
+
+  $items['admin/wally/wallydam/search/delete/%'] = array(
+    'title' => t('Delete'),
+    'description' => t('Delete a DAM search profile.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_search_delete_profile_form', 5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
+  );
+
+  $items['admin/wally/wallydam/search/setdefault/%'] = array(
+    'title' => t('Set as default'),
+    'description' => t('Set a DAM search profile as default profile.'),
+    'page callback' => 'wallydam_page_admin_search_set_default_profile',
+    'page arguments' => array(5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
   );
 
   return $items;
@@ -313,4 +342,69 @@ function wallydam_post($postfields,$target_url, $file_length){
   }
   curl_close($ch);
   return $return;
+}
+
+/**
+ * Return list of DAM search profiles
+ */
+function wallydam_get_search_profiles() {
+  static $profiles = array();
+  if (empty($profiles)) {
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles}');
+    while ($profile = db_fetch_array($db_profiles)) {
+      $profile['settings'] = unserialize($profile['settings']);
+      $profiles[$profile['pid']] = $profile;
+    }
+  }
+  return $profiles;
+}
+
+/**
+ * Return a DAM search profile
+ */
+function wallydam_get_search_profile($pid) {
+  if (is_numeric($pid)) {
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+    if ($profile = db_fetch_array($db_profiles)) {
+      $profile['settings'] = unserialize($profile['settings']);
+      return $profile;
+    }
+  }
+
+  $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE name = "%s"', $pid);
+  if ($profile = db_fetch_array($db_profiles)) {
+    $profile['settings'] = unserialize($profile['settings']);
+    return $profile;
+  }
+
+  return NULL;
+}
+
+/**
+ * Get the default DAM search profile
+ */
+function wallydam_get_default_search_profile() {
+  static $default_profile = NULL;
+
+  if (!$default_profile) {
+    $db_profiles = db_query('SELECT pid FROM {wallydam_search_profiles} WHERE default_profile = 1');
+    if ($profile = db_result($db_profiles)) {
+      $default_profile = $profile;
+    } else {
+      $db_profiles = db_query('SELECT MIN(pid) FROM {wallydam_search_profiles}');
+      if ($profile = db_result($db_profiles)) {
+        $default_profile = $profile;
+      }
+    }
+  }
+
+  return $default_profile;
+}
+
+/**
+ * Check wheter a given DAM search profile exists or not
+ */
+function wallydam_check_profile_exists($pid) {
+  $db_profiles = db_query('SELECT pid FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+  return db_result($db_profiles);
 }

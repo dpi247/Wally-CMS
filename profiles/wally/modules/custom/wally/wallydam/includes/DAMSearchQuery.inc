@@ -3,30 +3,134 @@
 /**
  * @file DAMSearchQuery.inc
  *
- * Provide the DAMSearchQuery class declaration.
- * The DAMSearchQuery object is used to build a research query for the DAM.
+ * Provide the DAMSearchQuery class declaration
+ * The DAMSearchQuery object is used to build a research query for the DAM
  */
 class DAMSearchQuery {
   private $query;
   private $options;
+  private $t;
   private $JSONQuery;
   private $isAdvanced;
   private $isBuilt;
+  private $errorLogs;
 
   /**
-   * Constructor.
+   * Constructor
    */
   function DAMSearchQuery() {
     $this->query = array(
       'map' => array(
         'q' => array(),
-        'FileType' => array('_Text'),
       ),
     );
     $this->options = array();
+    $this->t = array();
     $this->JSONQuery = '';
     $this->isAdvanced = FALSE;
     $this->isBuilt = FALSE;
+    $this->errorLogs = array();
+  }
+
+  /**
+   * Get the error logs
+   *
+   * @return array|NULL
+   *   The error log if not empty, NULL otherwise
+   */
+  public function getErrorLogs() {
+    if (!empty($this->errorLogs)) {
+      return $this->errorLogs;
+    }
+    return NULL;
+  }
+
+  /**
+   * Is the query built or not?
+   *
+   * @return boolean
+   *   Is the query built or not
+   */
+  public function isBuilt() {
+    return $this->isBuilt;
+  }
+
+  /**
+   * Is this an advanced query or not?
+   *
+   * @return boolean
+   *   Is the query advanced or not
+   */
+  public function isAdvanced() {
+    return $this->isAdvanced;
+  }
+
+  /**
+   * Get the JSON encoded query
+   *
+   * @return string
+   *   The JSON encoded query
+   */
+  public function getJSONQuery() {
+    return $this->JSONQuery;
+  }
+
+  /**
+   * Set a query parameter
+   *
+   * @param string $key
+   *   The parameter key
+   * @param mixed $value
+   *   The value to set
+   *
+   * @return boolean
+   *   TRUE
+   */
+  public function setQueryParameter($key, $value) {
+    $this->query['map'][$key] = $value;
+    return TRUE;
+  }
+
+  /**
+   * Get a query parameter
+   *
+   * @param string $key
+   *   The requested parameter's key
+   *
+   * @return mixed|NULL
+   *   The value if found, NULL otherwise
+   */
+  public function getQueryParamter($key) {
+    return isset($this->query['map'][$key]) ? $this->query['map'][$key] : NULL;
+  }
+
+  /**
+   * Set an option for this query
+   *
+   * @param string $key
+   *   The option key
+   * @param mixed $value
+   *   The value to set
+   *
+   * @return boolean
+   *   TRUE
+   */
+  public function setOption($key, $value) {
+    $this->options[$key] = $value;
+    return TRUE;
+  }
+
+  /**
+   * Get an option for this query
+   *
+   * @param string $key
+   *   The requested option's key
+   *
+   * @return mixed|NULL
+   *   The value if found, NULL otherwise
+   */
+  public function getOption($key) {
+    return isset($this->options[$key]) ? $this->options[$key] : NULL;
   }
 
   /**
@@ -46,13 +150,15 @@ class DAMSearchQuery {
       $full_query = array(
         'query' => $tmp_query,
         'options' => $this->options,
+        't' => $this->t,
       );
       $this->JSONQuery = json_encode($full_query);
       $this->isBuilt = TRUE;
       return TRUE;
     } else {
-      return NULL;
+      $this->setErrorLog('building', t('Invalid query'));
     }
+    return NULL;
   }
 
   /**
@@ -75,6 +181,8 @@ class DAMSearchQuery {
         $this->query['map']['q'] = array($word);
         return TRUE;
       }
+    } else {
+      $this->setErrorLog('add request word', t('Given word is not a string'));
     }
     return NULL;
   }
@@ -95,7 +203,11 @@ class DAMSearchQuery {
           $this->query['map']['noneOf'][] = $word;
           return TRUE;
         }
+      } else {
+        $this->setErrorLog('exclude request word', t('Unable to exclude word for a simple query'));
       }
+    } else {
+      $this->setErrorLog('exclude request word', t('Given word is not a string'));
     }
     return NULL;
   }
@@ -110,7 +222,7 @@ class DAMSearchQuery {
    *   TRUE in case of success, NULL otherwise
    */
   public function setIsAdvanced($val) {
-    if (is_bool($val) && $val !== $this->isAdvanced) {
+    if (is_bool($val) && ($val !== $this->isAdvanced) || is_null($this->getOption('advanced'))) {
       if ($val) {
         $this->setOption('advanced', '1');
         $this->isAdvanced = TRUE;
@@ -139,37 +251,10 @@ class DAMSearchQuery {
         }
       }
       return TRUE;
+    } else {
+      $this->setErrorLog('set advanced', t('Unable to set advanced, not a boolean or nothing to do'));
     }
     return NULL;
-  }
-
-  /**
-   * Set an option for this query
-   *
-   * @param string $key
-   *   The option key
-   * @param mixed $value
-   *   The value to set
-   *
-   * @return boolean
-   *   TRUE
-   */
-  public function setOption($key, $value) {
-    $this->options[$key] = $value;
-    return TRUE;
-  }
-
-  /**
-   * Get an option for this query
-   *
-   * @param string $key
-   *   The requested option's key
-   *
-   * @return mixed
-   *   The value if found, NULL otherwise
-   */
-  public function getOption($key) {
-    return isset($this->options[$key]) ? $this->options[$key] : NULL;
   }
 
   /**
@@ -202,12 +287,33 @@ class DAMSearchQuery {
           $this->query['map']['noneOf'] = array();
         }
         return TRUE;
+      } else {
+        $this->setErrorLog('validating query', t('No words given for an advanced query'));
       }
     } else {
       if (!empty($this->query['map']['q'])) {
         return TRUE;
+      } else {
+        $this->setErrorLog('validating query', t('No words given for a simple query'));
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Error logger
+   *
+   * @param string $location
+   *   Process step in which the error occured
+   * @param string $message
+   *   Error message
+   */
+  private function setErrorLog($location, $message) {
+    $newError = array(
+      'location' => $location,
+      'message' => $message,
+    );
+    $this->errorLogs[] = $newError;
+    watchdog('DAM Search Query', t('An error occured during : @location. Error message : @message'), array('@location' => $location, '@message' => $message), WATCHDOG_ERROR);
   }
 }
