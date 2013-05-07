@@ -20,7 +20,11 @@ $return = menu_execute_active_handler();
 if (is_int($return)) {
   switch ($return) {
     case MENU_NOT_FOUND:
-      drupal_not_found();
+      if (module_exists('wallydam') && wally_variable_get('wallydam_archive_on', FALSE)){
+        wallydam_archive_searchurl();
+      } else {
+        drupal_not_found();
+      }
       break;
     case MENU_ACCESS_DENIED:
       drupal_access_denied();

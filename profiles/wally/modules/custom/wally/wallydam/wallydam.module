@@ -66,6 +66,17 @@ function wallydam_menu() {
     'file' => 'includes/wallydam.admin.inc',
   );
 
+  $items['admin/wally/wallydam/archive'] = array(
+    'title' => t('Archive recovery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_archive_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Packages recovery settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+
   return $items;
 }
 
@@ -90,6 +101,7 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         }
       } 
       break;
+
     case 'update':
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
         //Package update
@@ -149,6 +161,20 @@ function wallydam_form_alter(&$form, &$form_state, $form_id){
     $form['#submit'][] = 'wallydam_pathauto_node_update_alias_multiple_submit';
   }
 }
+
+/**
+* Implementation of hook_ctools_plugin_api().
+*/
+function wallydam_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "page_manager" && $api == "pages_default") {
+    return array("version" => 1);
+  }
+  return array(
+    'version' => 2,
+  );
+}
+
 /**
  * Submit for the form path_admin_form
  */
@@ -158,8 +184,8 @@ function wallydam_form_path_admin_form_submit($form, &$form_state){
     wallydam_addurltobuffer($matches['nid'], $form_state['values']['dst']);
   }
 }
+
 /**
- * 
  * submit for the bulk operation with action pathauto_node_update_alias_multiple
  */
 function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state){
@@ -171,6 +197,7 @@ function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state
     }
   }
 }
+
 /**
  * Implementation of hook_cron 
  */
@@ -232,7 +259,6 @@ function wallydam_posturl($node, $node_url){
  * nid of the node
  */
 function wallydam_addpackagetobuffer($nid){
-
   $result = db_query("SELECT nid FROM {wallydam_packagestosend} WHERE nid = %d", $nid);
   if (!db_result($result)){
     $row = new stdClass();
@@ -252,7 +278,6 @@ function wallydam_addpackagetobuffer($nid){
  * nid of the node
  */
 function wallydam_addurltobuffer($nid, $path){
-
   $row = new stdClass();
   $row->nid = $nid;
   $row->url = url($path, array('alias' => TRUE, 'absolute' => TRUE));
@@ -407,4 +432,39 @@ function wallydam_get_default_search_profile() {
 function wallydam_check_profile_exists($pid) {
   $db_profiles = db_query('SELECT pid FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
   return db_result($db_profiles);
+}
+
+/**
+ * This function is called when 404 
+ * it call the DAM with the url
+ * if the DAM return a node, the node is display.
+ * if the DAM return a 404, a 404 is display
+ */
+function wallydam_archive_searchurl(){
+  module_load_include('inc', 'wallydam', 'includes/wallydam.archive');
+  $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$_GET['q'];
+
+  //Look for the URL in the cache
+  $return = wallydam_archive_cacheget($url);
+  if ($return === FALSE){
+    //If the url is not in the cache, call the DAM
+    $last_alias = NULL;
+    $return = wallydam_archive_getpackagefromurl($url, $last_alias);
+    if ($return){
+      //Set the content in the cache
+      wallydam_archive_cacheset($url, $return);
+      //If the last alias is different to the url, the last alias is set in cache
+      // and we redirect to the las alias
+      if ($last_alias != $url){
+        wallydam_archive_cacheset($last_alias, $return);
+        drupal_goto($last_alias);
+      }
+    }
+  }
+
+  if ($return !== FALSE){
+    print theme('page', $return);
+  } else {
+    drupal_not_found();
+  }
 }
