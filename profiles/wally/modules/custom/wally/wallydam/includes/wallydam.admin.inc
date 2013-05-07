@@ -97,11 +97,15 @@ function wallydam_page_admin_archive_form(){
   $importer = wallymport_getimporters();
   $options = array('' => '');
   foreach ($importer as $imp){
-    $options[$imp->name] = $imp->name;
+    if (preg_match('/^packages/', $imp->importer_type)){
+      $options[$imp->name] = $imp->name;
+    }
   }
+  
   $form['wallydam_archive_importer'] = array(
     '#type' => 'select',
     '#title' => t('Importer to use to extract package'),
+    '#description' => t('You must have an importer of type packages to use the archive (V16,V18,...)'),
     '#default_value' => wally_variable_get('wallydam_archive_importer', ''),
     '#options' => $options,
     '#required' => TRUE,
