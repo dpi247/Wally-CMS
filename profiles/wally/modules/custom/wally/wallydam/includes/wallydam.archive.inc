@@ -60,9 +60,9 @@ function wallydam_archive_geturl($url){
   $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
   $request = wally_variable_get('wallydam_archive_geturl', '');
   $args = '?url='.$url;
-  $header = array();
+  $headers = array();
   $data = NULL;
-  
+ 
   //GET
   $result = drupal_http_request($request.$args, $headers, 'GET', $data, $retry, $timeout);
 
@@ -76,7 +76,7 @@ function wallydam_archive_geturl($url){
     //Save the file in the importer folder
     file_put_contents($importer->source_directory_path.'/'.$file_name, $result->data);
   }
-  
+
   return $file_name;
 }
 /**
