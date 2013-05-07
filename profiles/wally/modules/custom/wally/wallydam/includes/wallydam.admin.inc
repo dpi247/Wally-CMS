@@ -82,3 +82,36 @@ function wallydam_page_admin_search_form($form_state) {
   
   return $form;
 }
+
+function wallydam_page_admin_archive_form(){
+  $form = array();
+  $options = array(FALSE => 'OFF', TRUE => 'ON');
+  $form['wallydam_archive_on'] = array(
+    '#type' => 'select',
+    '#title' => t('Active archive retrieving'),
+    '#default_value' => wally_variable_get('wallydam_archive_on', FALSE),
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+  
+  $importer = wallymport_getimporters();
+  $options = array('' => '');
+  foreach ($importer as $imp){
+    $options[$imp->name] = $imp->name;
+  }
+  $form['wallydam_archive_importer'] = array(
+    '#type' => 'select',
+    '#title' => t('Importer to use to extract package'),
+    '#default_value' => wally_variable_get('wallydam_archive_importer', ''),
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+  
+  $form['wallydam_archive_geturl'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL of the DAM to retrieve archive'),
+    '#default_value' => wally_variable_get('wallydam_archive_geturl', ''),
+    '#require' => TRUE,
+  );
+  return wally_system_settings_form($form, TRUE);
+}
