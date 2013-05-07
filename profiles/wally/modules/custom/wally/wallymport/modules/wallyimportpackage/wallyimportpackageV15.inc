@@ -62,19 +62,22 @@ function wallyimportpackageV15_process_package($dom, &$log, $importer, $callback
 
   if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node)) {
     if ($importer->wallymport_preview) {
-      module_load_include('inc', 'wallyedit', 'includes/Prenode');
-
-      $prenode = new Prenode();
-      $prenode->ConvertNodeToPrenode($node);
-      $old_cache_name = $prenode->form_state['cache name'];
-      $fake_fs = array('cache name' => $old_cache_name);
-      prenode_delete($fake_fs);
-      $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
-      $form_state_prenode = $prenode->setFormState();
-      $form_state_prenode['DoNotPopulate'] = TRUE;
-
-      $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
-      $log['content'] =  $content;
+      if ($importer->wallymport_preview_norender){
+        $log['tempnode'] = $node;
+      } else {
+        module_load_include('inc', 'wallyedit', 'includes/Prenode');
+        $prenode = new Prenode();
+        $prenode->ConvertNodeToPrenode($node);
+        $old_cache_name = $prenode->form_state['cache name'];
+        $fake_fs = array('cache name' => $old_cache_name);
+        prenode_delete($fake_fs);
+        $prenode->cache_name = 'wallymport_preview_'.$old_cache_name;
+        $form_state_prenode = $prenode->setFormState();
+        $form_state_prenode['DoNotPopulate'] = TRUE;
+  
+        $content = drupal_get_form('wallymport_preview_form', $prenode->cache_name, 'disabled');
+        $log['content'] =  $content;
+      }
     } elseif (isset($node->wallymport_delete)){
       drupal_set_message(t('The package @ext_ref has been deleted', array('@ext_ref' => $node->ext_ref)));
     } else {

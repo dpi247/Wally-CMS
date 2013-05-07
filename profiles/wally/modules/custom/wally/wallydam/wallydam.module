@@ -5,14 +5,78 @@
  */
 function wallydam_menu() {
   $items = array();
-  $items['admin/wally/wallydam/settings'] = array(
-    'title' => 'Wally DAM Settings',
+
+  $items['admin/wally/wallydam'] = array(
+    'title' => t('Wally DAM Settings'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallydam_page_admin_form'),
+    'page arguments' => array('wallydam_page_admin_packages_sync_form'),
     'access arguments' => array('access administration pages'),
-    'description' => 'Allows administrators to set paramaters for this module to function properly.',
+    'description' => t('Manage DAM communications settings.'),
     'file' => 'includes/wallydam.admin.inc',
   );
+
+  $items['admin/wally/wallydam/packagessync'] = array(
+    'title' => t('Packages synchronization'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_packages_sync_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Packages synchronization settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => 0,
+  );
+
+  $items['admin/wally/wallydam/search'] = array(
+    'title' => t('DAM Search'),
+    'page callback' => 'wallydam_page_admin_search',
+    'access arguments' => array('access administration pages'),
+    'description' => t('DAM Search settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+
+  $items['admin/wally/wallydam/search/edit/%'] = array(
+    'title' => t('Edit'),
+    'description' => t('Edit an existing DAM search profile.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_search_edit_profile_form', 5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
+  );
+
+  $items['admin/wally/wallydam/search/delete/%'] = array(
+    'title' => t('Delete'),
+    'description' => t('Delete a DAM search profile.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_search_delete_profile_form', 5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
+  );
+
+  $items['admin/wally/wallydam/search/setdefault/%'] = array(
+    'title' => t('Set as default'),
+    'description' => t('Set a DAM search profile as default profile.'),
+    'page callback' => 'wallydam_page_admin_search_set_default_profile',
+    'page arguments' => array(5),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_CALLBACK,
+    'file' => 'includes/wallydam.admin.inc',
+  );
+
+  $items['admin/wally/wallydam/archive'] = array(
+    'title' => t('Archive recovery'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_archive_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Packages recovery settings'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+  );
+
   return $items;
 }
 
@@ -20,7 +84,7 @@ function wallydam_menu() {
  * Implementation of hook_nodeapi().
  */
 function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
-  switch ($op){    
+  switch ($op){
     case 'insert':
       //Publish : node save
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
@@ -30,20 +94,21 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
           $url = 'node/'.$node->nid;
         }
         wallydam_addurltobuffer($node->nid, $url);
-        
+
         //Package Update
         if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
         }
-      } 
+      }
       break;
+
     case 'update':
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
         //Package update
         if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
-        } 
-        
+        }
+
         //URL Alias Update (update only if the Alias is modified)
         if ($node->path != $node->old_alias && $node->field_externaluri[0]['value'] == NULL){
           $url = $node->path;
@@ -53,8 +118,8 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
           wallydam_addurltobuffer($node->nid, $url);
         }
       }
-      elseif(($node->type == 'wally_audioobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_pollobject' 
-           || $node->type == 'wally_textobject' || $node->type == 'wally_videoobject') && !isset($node->wallymport_node)){
+      elseif(($node->type == 'wally_audioobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_pollobject'
+          || $node->type == 'wally_textobject' || $node->type == 'wally_videoobject') && !isset($node->wallymport_node)){
         if (!isset($node->wallymport_node)){
           foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
             //Package update
@@ -73,16 +138,16 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
  * Implementation of hook_form_alter
  */
 function wallydam_form_alter(&$form, &$form_state, $form_id){
-  
+
   //Add a submit when an alias is edited in admin/build/path/list
   if ($form_id == 'path_admin_form'){
     $form['#submit'][] = 'wallydam_form_path_admin_form_submit';
   }
-  
+
   //Add a submit when the action pathauto_update_alias is choose in bulk operation
-  if (preg_match('/^views_bulk_operations_form/', $form_id) 
-  && isset($form_state['values']['operation']) 
-  && preg_match('/^pathauto_node_update_alias_multiple/', $form_state['values']['operation'])){
+  if (preg_match('/^views_bulk_operations_form/', $form_id)
+      && isset($form_state['values']['operation'])
+      && preg_match('/^pathauto_node_update_alias_multiple/', $form_state['values']['operation'])){
     //Store the nodes choosed by the user to know in the submit wich node as been updated
     $storage = array();
     foreach ($form_state['storage']['selection'] as $key => $value){
@@ -96,6 +161,20 @@ function wallydam_form_alter(&$form, &$form_state, $form_id){
     $form['#submit'][] = 'wallydam_pathauto_node_update_alias_multiple_submit';
   }
 }
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ */
+function wallydam_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "page_manager" && $api == "pages_default") {
+    return array("version" => 1);
+  }
+  return array(
+    'version' => 2,
+  );
+}
+
 /**
  * Submit for the form path_admin_form
  */
@@ -105,8 +184,8 @@ function wallydam_form_path_admin_form_submit($form, &$form_state){
     wallydam_addurltobuffer($matches['nid'], $form_state['values']['dst']);
   }
 }
+
 /**
- * 
  * submit for the bulk operation with action pathauto_node_update_alias_multiple
  */
 function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state){
@@ -118,25 +197,26 @@ function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state
     }
   }
 }
+
 /**
- * Implementation of hook_cron 
+ * Implementation of hook_cron
  */
 function wallydam_cron(){
   //Packages
   $max_number = wally_variable_get('wallydam_cronmaxnumber', 50);
   $result = db_query("SELECT nid
-  					  FROM {wallydam_packagestosend} 
-  					  ORDER BY timestamp ASC LIMIT %d", $max_number);
+      FROM {wallydam_packagestosend}
+      ORDER BY timestamp ASC LIMIT %d", $max_number);
   while ($obj = db_fetch_object($result)){
     if ( wallydam_postpackage($obj->nid)){
       wallydam_removepackagefrombuffer($obj->nid);
     }
   }
-  
+
   //URL
   $result = db_query("SELECT nid, url
-  					  FROM {wallydam_urltosend} 
-  					  ORDER BY timestamp ASC LIMIT %d", $max_number);
+      FROM {wallydam_urltosend}
+      ORDER BY timestamp ASC LIMIT %d", $max_number);
   while ($obj = db_fetch_object($result)){
     $node = node_load($obj->nid);
     if (wallydam_posturl($node, $obj->url)){
@@ -147,15 +227,15 @@ function wallydam_cron(){
 
 /**
  * GET of informations of the node.
- * 
- * Send the informations of the node (nodeid, packageid and url) to pandam 
- * 
+ *
+ * Send the informations of the node (nodeid, packageid and url) to pandam
+ *
  * @param $node
- *   Node 
+ *   Node
  */
 function wallydam_posturl($node, $node_url){
   $sent = FALSE;
-  
+
   $node_id = wally_variable_get('wallydam_wallyprefix', NULL).$node->nid;
   $package_id = $node->field_externalreference[0]['value'];
   $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
@@ -171,15 +251,14 @@ function wallydam_posturl($node, $node_url){
 
 /**
  * Add the package to the buffer
- * 
+ *
  * Add the package to the buffer, each time the cron is running, the packages who are in the buffer will be sent to the DAM
- * 
+ *
  * @param nid
- * 
+ *
  * nid of the node
  */
 function wallydam_addpackagetobuffer($nid){
-
   $result = db_query("SELECT nid FROM {wallydam_packagestosend} WHERE nid = %d", $nid);
   if (!db_result($result)){
     $row = new stdClass();
@@ -191,28 +270,27 @@ function wallydam_addpackagetobuffer($nid){
 
 /**
  * Add the url to the buffer
- * 
+ *
  * Add the url to the buffer, each time the cron is running, the url of the nid who are in the buffer will be sent to the DAM
- * 
+ *
  * @param nid
- * 
+ *
  * nid of the node
  */
 function wallydam_addurltobuffer($nid, $path){
-
   $row = new stdClass();
   $row->nid = $nid;
   $row->url = url($path, array('alias' => TRUE, 'absolute' => TRUE));
   $row->timestamp = time();
   drupal_write_record('wallydam_urltosend', $row);
-  
+
 }
 
 /**
  * Remove the package from the buffer
- *  
+ *
  * @param nid
- * 
+ *
  * nid of the node
  */
 function wallydam_removepackagefrombuffer($nid){
@@ -221,9 +299,9 @@ function wallydam_removepackagefrombuffer($nid){
 
 /**
  * Remove the the from the buffer
- *  
+ *
  * @param nid
- * 
+ *
  * nid of the node
  */
 function wallydam_removeurlfrombuffer($nid){
@@ -232,11 +310,11 @@ function wallydam_removeurlfrombuffer($nid){
 
 /**
  * POST the node Package.
- * 
- * POST the package of the node to pandam 
- * 
+ *
+ * POST the package of the node to pandam
+ *
  * @param $node
- *   Node 
+ *   Node
  */
 function wallydam_postpackage($nid){
   //Export package
@@ -253,7 +331,7 @@ function wallydam_postpackage($nid){
     } else {
       drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
     }
-    
+
   }
   else {
     drupal_set_message(t('The Export of the package (NID : '.$nid.') failed. The package has not be sent to the DAM') );
@@ -263,18 +341,18 @@ function wallydam_postpackage($nid){
 
 /**
  * POST
- * 
+ *
  * @param $postfields
  *   fields to post (in array)
  * @param $target_url
  *   url
  * @param  $result
- *   Le résultat du post. 
+ *   Le résultat du post.
  */
 function wallydam_post($postfields,$target_url, $file_length){
   //Envoi un fichier en post.
 
-  $ch = curl_init($target_url);  
+  $ch = curl_init($target_url);
   $content_type = 'application/zip';
   curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type, "Content-Length: ".$file_length));
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
@@ -282,11 +360,111 @@ function wallydam_post($postfields,$target_url, $file_length){
   $result = curl_exec($ch);
   if ($result == FALSE){
     $return = FALSE;
-    drupal_set_message(curl_error($ch),'error'); 
+    drupal_set_message(curl_error($ch),'error');
   } else {
     drupal_set_message($result);
     $return = TRUE;
   }
   curl_close($ch);
   return $return;
+}
+
+/**
+ * Return list of DAM search profiles
+ */
+function wallydam_get_search_profiles() {
+  static $profiles = array();
+  if (empty($profiles)) {
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles}');
+    while ($profile = db_fetch_array($db_profiles)) {
+      $profile['settings'] = unserialize($profile['settings']);
+      $profiles[$profile['pid']] = $profile;
+    }
+  }
+  return $profiles;
+}
+
+/**
+ * Return a DAM search profile
+ */
+function wallydam_get_search_profile($pid) {
+  if (is_numeric($pid)) {
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+    if ($profile = db_fetch_array($db_profiles)) {
+      $profile['settings'] = unserialize($profile['settings']);
+      return $profile;
+    }
+  }
+
+  $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE name = "%s"', $pid);
+  if ($profile = db_fetch_array($db_profiles)) {
+    $profile['settings'] = unserialize($profile['settings']);
+    return $profile;
+  }
+
+  return NULL;
+}
+
+/**
+ * Get the default DAM search profile
+ */
+function wallydam_get_default_search_profile() {
+  static $default_profile = NULL;
+
+  if (!$default_profile) {
+    $db_profiles = db_query('SELECT pid FROM {wallydam_search_profiles} WHERE default_profile = 1');
+    if ($profile = db_result($db_profiles)) {
+      $default_profile = $profile;
+    } else {
+      $db_profiles = db_query('SELECT MIN(pid) FROM {wallydam_search_profiles}');
+      if ($profile = db_result($db_profiles)) {
+        $default_profile = $profile;
+      }
+    }
+  }
+
+  return $default_profile;
+}
+
+/**
+ * Check wheter a given DAM search profile exists or not
+ */
+function wallydam_check_profile_exists($pid) {
+  $db_profiles = db_query('SELECT pid FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+  return db_result($db_profiles);
+}
+
+/**
+ * This function is called when 404
+ * it call the DAM with the url
+ * if the DAM return a node, the node is display.
+ * if the DAM return a 404, a 404 is display
+ */
+function wallydam_archive_searchurl(){
+  module_load_include('inc', 'wallydam', 'includes/wallydam.archive');
+  $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$_GET['q'];
+
+  //Look for the URL in the cache
+  $return = wallydam_archive_cacheget($url);
+  if ($return === FALSE){
+    //If the url is not in the cache, call the DAM
+    $last_alias = NULL;
+    $return = wallydam_archive_getpackagefromurl($url, $last_alias);
+    if ($return){
+      //Set the content in the cache
+      wallydam_archive_cacheset($url, $return);
+      //If the last alias is different to the url, the last alias is set in cache
+      // and we redirect to the las alias
+      if ($last_alias != $url){
+        wallydam_archive_cacheset($last_alias, $return);
+        drupal_goto($last_alias);
+      }
+    }
+  }
+
+  if ($return !== FALSE){
+    print theme('page', $return);
+  } else {
+    drupal_not_found();
+  }
 }

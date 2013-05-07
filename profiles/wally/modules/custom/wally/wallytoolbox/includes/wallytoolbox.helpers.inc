@@ -344,6 +344,27 @@ function wallytoolbox_remove_element($array, $path, $level = 0) {
   return $array;
 }
 
+/**
+ * Check wheter or not an HTTP request is successfull :
+ *   - Code 200
+ *   - Not empty
+ * 
+ * @param object $request
+ *   The result of the HTTP request
+ * 
+ * @return bool
+ *   TRUE or FALSE
+ */
+function wallytoolbox_is_http_request_successfull($request) {
+  if (is_object($request) &&
+      ((isset($request->code) && $request->code == 200) || (isset($request->redirect_code) && $request->redirect_code == 200)) &&
+      isset($request->data) && !empty($request->data)) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 function wallytoolbox_merge_arrays() {
   if (func_num_args() < 2) {
     trigger_error(__FUNCTION__ .' needs two or more array arguments', E_USER_WARNING);
