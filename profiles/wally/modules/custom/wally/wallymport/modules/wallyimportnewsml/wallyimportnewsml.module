@@ -136,7 +136,7 @@ function wallyimportnewsml_node_process_package(&$node, $dom, &$log, $importer){
   $node->field_publicationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   $node->field_creationdate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   
-  $node->changed = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
+  $node->changed = time();
   
   $node->field_embargodatetime[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
   $node->field_unpublishdate[0]['value'] = NULL;
