@@ -32,7 +32,7 @@ class DAMSearch {
    */
   function DAMSearch($init_profile = 'default') {
     $this->loadedProfile = FALSE;
-    $this->rawResults = '';
+    $this->rawResults = array();
     $this->results = array();
     $this->successfullQuery = FALSE;
     $this->query = new DAMSearchQuery();
@@ -96,6 +96,16 @@ class DAMSearch {
    */
   public function getProfile() {
     return $this->profile;
+  }
+
+  /**
+   * Get results from search
+   *
+   * @return array
+   *   The results
+   */
+  public function getRawResults() {
+    return $this->rawResults;
   }
 
   /**

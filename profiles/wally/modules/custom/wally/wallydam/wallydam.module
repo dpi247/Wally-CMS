@@ -427,6 +427,29 @@ function wallydam_get_default_search_profile() {
 }
 
 /**
+ * Get the default DAM search profile
+ */
+function wallydam_get_loaded_default_search_profile() {
+  static $default_profile = NULL;
+
+  if (!$default_profile) {
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE default_profile = 1');
+    if ($profile = db_fetch_array($db_profiles)) {
+      $profile['settings'] = unserialize($profile['settings']);
+      $default_profile = $profile;
+    } else {
+      $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE pid = (SELECT MIN(pid) FROM {wallydam_search_profiles})');
+      if ($profile = db_fetch_array($db_profiles)) {
+        $profile['settings'] = unserialize($profile['settings']);
+        $default_profile = $profile;
+      }
+    }
+  }
+
+  return $default_profile;
+}
+
+/**
  * Check wheter a given DAM search profile exists or not
  */
 function wallydam_check_profile_exists($pid) {
