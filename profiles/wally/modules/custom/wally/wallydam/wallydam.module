@@ -388,21 +388,25 @@ function wallydam_get_search_profiles() {
  * Return a DAM search profile
  */
 function wallydam_get_search_profile($pid) {
-  if (is_numeric($pid)) {
-    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+  static $profiles = array();
+
+  if (!isset($profiles[$pid])) {
+    if (is_numeric($pid)) {
+      $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE pid = %d', $pid);
+      if ($profile = db_fetch_array($db_profiles)) {
+        $profile['settings'] = unserialize($profile['settings']);
+        $profiles[$pid] = $profile;
+      }
+    }
+
+    $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE name = "%s"', $pid);
     if ($profile = db_fetch_array($db_profiles)) {
       $profile['settings'] = unserialize($profile['settings']);
-      return $profile;
+      $profiles[$pid] = $profile;
     }
   }
 
-  $db_profiles = db_query('SELECT * FROM {wallydam_search_profiles} WHERE name = "%s"', $pid);
-  if ($profile = db_fetch_array($db_profiles)) {
-    $profile['settings'] = unserialize($profile['settings']);
-    return $profile;
-  }
-
-  return NULL;
+  return isset($profiles[$pid]) ? $profiles[$pid] : NULL;
 }
 
 /**
