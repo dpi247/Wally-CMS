@@ -7,8 +7,6 @@ function wallysynch_admin_save_form($form_state) {
 
   ctools_include('dependent');
 
-  $options = unserialize(wally_variable_get('wally_synch_environment', ''));
-
   if(wally_variable_get('wallysynch_settings', '')!='') {
   		$path = wally_variable_get('wallysynch_settings', '');
   } else {
@@ -46,11 +44,6 @@ function wallysynch_admin_save_form($form_state) {
     '#dependency' => array('edit-var' => array(1)),
   );
 
-  $form['conf_type'] = array(
-    '#type' 	=> 'select',
-    '#title'	=> t('the type of configuration'),
-    '#options'	=> $options,
-  );
 
   if (function_exists('mcrypt_module_open')) {
     $form['crypted'] = array(
@@ -117,7 +110,7 @@ function wallysynch_admin_save_form_submit($form,$form_state) {
 
   $isEncrypted = isset($form_state['values']['crypted']) ? $form_state['values']['crypted'] : FALSE;
 
-  $confType = $form_state['values']['conf_type'];
+  $confType = wally_variable_get('wallyadmin_environment', '');
   //additional variables
   $addVar = $form_state['values']['additional_var'];
   $addWallyVar = $form_state['values']['additional_var_wally'];
@@ -198,6 +191,18 @@ function wallysynch_encryption($data,$key,$td,$iv){
  */
 function wallysynch_create_export_tab($ExternTab = NULL){
 
+  //Admin module
+  $tabXml [] = array(
+    'wallyadmin' => array(
+      'variables' => array(
+        'wallyadmin_product' => wally_variable_get('wallyadmin_product', ''),
+        'wallyadmin_environment' => wally_variable_get('wallyadmin_environment', ''),
+      ),
+      'type'=> 'wally',
+    ),
+  );
+  
+  
   //apachesolr module
   $tabXml [] = array(
     'apachesolr' => array(
@@ -226,15 +231,7 @@ function wallysynch_create_export_tab($ExternTab = NULL){
       'type'=> 'wally',
     ),
   );
-  //wallymport module
-  $tabXml [] = array(
-    'wallymport' => array(
-      'variables' => array(
-        'wallymport_productID' => variable_get('wallymport_productID',$server_name)
-      ),
-      'type'=> '',
-    ),
-  );
+ 
   //pub module
   $tabXml [] = array(
     'pub' => array(
@@ -334,7 +331,7 @@ function wallysynch_save_file($data,$path){
   if(file_exists($path))
   {
     //write the config.xml file
-    $file = 'config.xml';
+    $file = wally_variable_get('wallyadmin_product', '').'_'.date('Y-m-d').'_config.xml';
     $FileName = $path.'/'.$file;
     $FileHandle = fopen($FileName, 'w');
 
@@ -342,7 +339,7 @@ function wallysynch_save_file($data,$path){
     fclose($FileHandle);
 	//dsm(file_create_filename($file, $path));
     drupal_set_message(t('Configuration has been saved in %s',array('%s'=>$path)));
-    drupal_set_message(t('Your configuration file is accessible with ftp in %s',array('%s'=>$path)));
+    drupal_set_message(t('Your configuration file is accessible with ftp in %s', array('%s' => $path)).'/'.$file);
     
   }
   else

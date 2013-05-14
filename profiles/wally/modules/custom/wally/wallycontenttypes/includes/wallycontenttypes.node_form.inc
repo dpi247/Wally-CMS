@@ -631,3 +631,11 @@ function _wallycontenttypes_set_taxonomies_from_object_to_prenode(&$prenode_node
   $prenode_node->field_concepts = isset($object->field_concepts) ? $object->field_concepts : $prenode_node->field_concepts;
   $prenode_node->field_iptc = isset($object->field_iptc) ? $object->field_iptc : $prenode_node->field_iptc;
 }
+/*
+ * Add an external reference to the node if it is missing
+ * */
+function _wallycontenttypes_externalreference(&$node){
+  if ($node->field_externalreference[0]['value'] == '' || $node->field_externalreference[0]['value'] == NULL){
+    $node->field_externalreference[0]['value'] = wally_variable_get('wallyadmin_product', '').'-'.wally_variable_get('wallyadmin_environment', '').'-'.time().'-'.rand();
+  }
+}

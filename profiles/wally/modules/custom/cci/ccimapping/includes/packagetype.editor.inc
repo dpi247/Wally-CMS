@@ -37,7 +37,7 @@ function ccimapping_form_packagetype_editor_form_submit($form,$form_state){
   if($form_state['clicked_button']['#name'] == 'send') {
     $wsdl_uri=wally_variable_get('ccimapping_ws_wsdluri', '');
     $newsroom=wally_variable_get('ccimapping_newsroom', '');
-    $product_name=wally_variable_get('ccimapping_product_name', '');
+    $product_name = wally_variable_get('wallyadmin_product', wally_variable_get('ccimapping_product_name',''));
 
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
@@ -75,7 +75,7 @@ function ccimap_get_packagetype_fromWS($wally_type){
   $cci_type = ccimap_type_converter($type);
   $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
   $newsroom = wally_variable_get('ccimapping_newsroom', '');
-  $product_name = wally_variable_get('ccimapping_product_name', '');
+  $product_name = wally_variable_get('wallyadmin_product', wally_variable_get('ccimapping_product_name',''));
 
   if ($client = ccimapping_load_soapclient($wsdl_uri)) {
     try {

@@ -14,13 +14,13 @@ function ccimapping_form_configuration_form($form_state){
   	'#title'=>t("Newsroom"),
     '#default_value' => wally_variable_get('ccimapping_newsroom',''), 
   );
-
+/*
   $form['ccimapping_product_name']=array(
     '#type'=>'textfield',
   	'#title'=>t("Product name"),
-    '#default_value' => wally_variable_get('ccimapping_product_name',''), 
+    '#default_value' =>  wally_variable_get('wallyadmin_product', wally_variable_get('ccimapping_product_name','')), 
   );
-
+*/
   $form['ccimapping_type']=array(
     '#type'=>'textarea',
   	'#title'=>t("type mapping between CCI and Wally"),

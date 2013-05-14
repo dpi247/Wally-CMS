@@ -279,7 +279,7 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
   if (isset($node->field_productid) & $node->field_productid[0]['value'] != NULL & $node->field_productid[0]['value'] != '' ){
     $transformed_node['ProductID']['value'] = $node->field_productid[0]['value'];
   } else{
-    $transformed_node['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+    $transformed_node['ProductID']['value'] = variable_get('wallyadmin_product', $_SERVER['HTTP_HOST']);
   }
   if (!$meta_pack) {
     $transformed_node['Destinations']['Destination'] = array();
