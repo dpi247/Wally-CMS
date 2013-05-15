@@ -64,15 +64,21 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
  *    array("ODM", 22000),
  *    array("ASL", 18000),
  *    array("JPL", 8000),
- * 
+ *
  *  );
  *  $vars['pie']=theme("wallytoolbox_pie_chart",$data,"Number of commit","Dev name","commits","400","400");
  *
  * @param $data
- *   An array each element is a  2d array . First element is the header (value description ,  value unit)
+ *   An array each element is a  2d (string, integer) array.
  *
  * @param $title
  * 	 The title of graph.
+ *
+ * @param $header_name
+ * 	 The name of the value.
+ *
+ * @param $header_unit
+ * 	 The unit of the value
  *
  * @param $width
  *   The width of graph.
@@ -87,16 +93,16 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
 
 
 function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$width,$height){
-  
-  
+
+
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
   drupal_add_js($google_api_js);
-  
+
   $data = json_encode($data);
   $jsCode = '
     // Load the Visualization API and the piechart package.
       google.load("visualization", "1.0", {"packages":["corechart"]});
-      
+
       // Set a callback to run when the Google Visualization API is loaded.
       google.setOnLoadCallback(drawChart);
       // Callback that creates and populates a data table,
@@ -116,13 +122,100 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$wi
         var chart = new google.visualization.PieChart(document.getElementById("piechart_div"));
         chart.draw(data, options);
       }
-                           
+              
 ';
-  
+
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
   $output = '<div id="piechart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
   return $output;
-  
-  
+
+
+}
+
+
+
+
+
+
+
+/**
+ * Returns a google bar chart.
+ * see https://google-developers.appspot.com/chart/interactive/docs/gallery/barchart#Example
+ *
+ *Example:
+ *  $data=array(
+ *    array("Month", "DDU","ODM","ASL","JPL"),
+ *    array("Sept", 4786, 4356, 2345, 000),
+ *    array("Oct", 3456, 4321, 3456, 000),
+ *    array("Nov", 2134, 6543, 4563, 2000),
+ *
+ *  );
+ *  $vars['bar']=theme("wallytoolbox_bar_chart",$data,"Number of commit","commits","Dev name","400","400");
+ *
+ * @param $data
+ *   An matrix.
+ *   The first line are the labels
+ *   The first row represent how data are group together.
+ *   Each other row represent a category of data
+ *
+ * @param $title
+ * 	 The title of graph.
+ *
+ * @param $vAxis
+ * 	 Vertical Axis Label
+ *
+ * @param $hAxis
+ * 	 Horizontal Axis Label
+ *
+ * @param $width
+ *   The width of graph.
+ *
+ * @param $height
+ *   The height of graph.
+ *
+ *
+ * @return $output
+ * 	 A div where the graph was displayed.
+ */
+
+
+function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height){
+
+
+  $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
+  drupal_add_js($google_api_js);
+
+  $data = json_encode($data);
+  $jsCode = '
+    // Load the Visualization API and the piechart package.
+      google.load("visualization", "1.0", {"packages":["corechart"]});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+        // var data = google.visualization.arrayToDataTable('.$data.');
+        // Set chart options
+        var data = google.visualization.arrayToDataTable('.$data.');
+        var options = {"title":"'.$title.'",
+                        width:'.$width.',
+                        height:'.$height.',
+                        vAxis: {title: "'.$vAxis.'"},
+                        hAxis: {title: "'.$hAxis.'"},
+        };
+        var chart = new google.visualization.BarChart(document.getElementById("barchart_div"));
+        chart.draw(data, options);
+      }
+              
+';
+
+  //include the js code in the page
+  drupal_add_js($jsCode, 'inline');
+  $output = '<div id="barchart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  return $output;
+
+
 }
