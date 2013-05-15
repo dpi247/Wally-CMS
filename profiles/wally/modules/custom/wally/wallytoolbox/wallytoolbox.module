@@ -137,7 +137,19 @@ function wallytoolbox_theme(&$var) {
               'height'=>NULL,
           ),
           'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
-      ),      
+      ),
+      'wallytoolbox_gauge_chart' 	=> array(
+          'file' => 'theme.charts.inc',
+          'arguments' => array(
+              'data'=>NULL,
+              'title'=>NULL,
+              'hAxis'=>NULL,
+              'vAxis'=>NULL,
+              'width'=>NULL,
+              'height'=>NULL,
+          ),
+          'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
+      ),     
       'wallytoolbox_bar_chart'	=> array(
           'file' => 'theme.charts.inc',
           'arguments' => array(
