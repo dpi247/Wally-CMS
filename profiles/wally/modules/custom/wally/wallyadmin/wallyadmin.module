@@ -131,6 +131,14 @@ function wallyadmin_menu() {
     'access arguments' => array('manage cache'),
     'file' => 'includes/wallyadmin.theme_registry.inc',
   );
+  $items['admin/wally/admin/settings'] = array(
+    'title' => t('General settings'),
+    'description' => t('General instance settings.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallyadmin_general_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/wallyadmin.admin.inc',
+  );
   
   return $items;
 }

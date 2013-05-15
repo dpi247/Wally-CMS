@@ -55,3 +55,14 @@ function wallyadmin_update_6001() {
 
   return $ret;
 }
+/**
+ * 
+ * Hook_update_N
+ */
+function wallyadmin_update_6002(){
+  $ret = array();
+  if (module_exists('ccimapping')){
+    wally_variable_set('wallyadmin_product', wally_variable_get('ccimapping_product_name',''));
+  }
+  return $ret;
+}

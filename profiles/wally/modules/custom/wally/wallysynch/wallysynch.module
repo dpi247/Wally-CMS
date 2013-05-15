@@ -24,14 +24,5 @@ function wallysynch_menu(){
 	
 	);
 	
-	$items['admin/wally/wallysynch/settings'] = array(
-			'title'            => t('Wally Synch settings'),
-			'page callback'    => 'drupal_get_form',
-			'page arguments'   => array('wallysynch_admin_settings_form'),
-			'access arguments' => array('administer wally synch'),
-			'description'      => t('Manage environement name.'),
-			'file'             => 'includes/wallysynch.admin.inc',
-	
-	);
 	return $items;
 }

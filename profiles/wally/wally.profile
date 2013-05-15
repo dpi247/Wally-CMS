@@ -986,6 +986,24 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   ctools_include('dependent');
   ctools_add_js('dependent');
   
+  
+  $form['wally']['wallyadmin_product'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Product'),
+    '#description' => t('The product of the website, it must be unique.'),
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['wally']['wallyadmin_environment'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Environment'),
+    '#description' => t('Stage, Prod, Dev, etc.'),
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  
   $form['wally']['demo_content'] = array(
     '#type' => 'checkbox',
     '#title' => t('Install demo content?'),
@@ -1010,6 +1028,8 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
 }
 
 function _wally_install_form_submit(&$form, $form_state) {
+  wally_variable_set('wallyadmin_product', $form_state['values']['wallyadmin_product']);
+  wally_variable_set('wallyadmin_environment', $form_state['values']['wallyadmin_environment']);
   $wally_install_config = array();
   foreach ($form['wally'] as $name => $value) {
     $wally_install_config[$name] = $value['#value'];

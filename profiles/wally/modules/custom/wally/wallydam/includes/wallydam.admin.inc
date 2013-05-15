@@ -42,16 +42,6 @@ function wallydam_page_admin_packages_sync_form($form_state) {
     '#required' => TRUE,
   );
 
-  $form['wallydam_wallyprefix'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Wally Prefix'),
-    '#description' => t('Used in Pandam to identified de source web site'),
-    '#default_value' => wally_variable_get('wallydam_wallyprefix', ''),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
-
   return wally_system_settings_form($form, TRUE);
 }
 

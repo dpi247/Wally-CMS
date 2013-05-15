@@ -206,7 +206,7 @@ function wallytoolbox_opml_blogspirit_item_to_array_set_package(&$array_item, $i
   $array_item['CreationDate'] = date('Y-m-d').'T'.date('H:i:sP');
   $array_item['PackageTitle']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_title');
   $array_item['ExternalReference']['value'] = $item_id;
-  $array_item['ProductID']['value'] = variable_get('wallymport_productID', $_SERVER['HTTP_HOST']);
+  $array_item['ProductID']['value'] = variable_get('wallyadmin_product', $_SERVER['HTTP_HOST']);
   $term = taxonomy_get_term($feed_destination[0]);
   $array_item['Destinations']['Destination']['DestinationRank'] = $feed_destination[3];
   $array_item['Destinations']['Destination']['Position'] = $feed_destination[1];

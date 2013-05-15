@@ -96,7 +96,7 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
         wallydam_addurltobuffer($node->nid, $url);
 
         //Package Update
-        if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
+        if (!isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
         }
       }
@@ -105,7 +105,7 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'update':
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
         //Package update
-        if ($node->field_externaluri[0]['value'] == NULL && !isset($node->wallymport_node)){
+        if (!isset($node->wallymport_node)){
           wallydam_addpackagetobuffer($node->nid);
         }
 
@@ -203,6 +203,7 @@ function wallydam_pathauto_node_update_alias_multiple_submit($form, &$form_state
  */
 function wallydam_cron(){
   //Packages
+  
   $max_number = wally_variable_get('wallydam_cronmaxnumber', 50);
   $result = db_query("SELECT nid
       FROM {wallydam_packagestosend}
@@ -236,10 +237,9 @@ function wallydam_cron(){
 function wallydam_posturl($node, $node_url){
   $sent = FALSE;
 
-  $node_id = wally_variable_get('wallydam_wallyprefix', NULL).$node->nid;
   $package_id = $node->field_externalreference[0]['value'];
   $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
-  $postargs = 'nodeId='.$node_id.'&packageId='.$package_id.'&url='.$node_url;
+  $postargs = 'packageId='.$package_id.'&url='.$node_url;
 
   //GET
   $result = drupal_http_request($request.'?'.$postargs, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
@@ -327,6 +327,7 @@ function wallydam_postpackage($nid){
       $path_to_file = wally_variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
       $file_length = filesize($path_to_file);
+      
       $sent = wallydam_post($postfields, $target_url, $file_length);
     } else {
       drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
@@ -354,9 +355,9 @@ function wallydam_post($postfields,$target_url, $file_length){
 
   $ch = curl_init($target_url);
   $content_type = 'application/zip';
-  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type, "Content-Length: ".$file_length));
+  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type));//, "Content-Length: ".$file_length));
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
   $result = curl_exec($ch);
   if ($result == FALSE){
     $return = FALSE;
@@ -466,5 +467,14 @@ function wallydam_archive_searchurl(){
     print theme('page', $return);
   } else {
     drupal_not_found();
+  }
+}
+/**
+ * Implementation of hook_wallymport_nodeprocess
+ * If a package is imported, we destroy its entry in the wallydam_packagestosend table.
+ * */
+function wallydam_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+  if ($location == 'process_package' && $type == 'postsave'){
+    wallydam_removepackagefrombuffer($node->nid);
   }
 }

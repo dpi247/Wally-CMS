@@ -12,15 +12,6 @@
 function wallyimportpackage_page_admin_form($form_state) {
   $path = drupal_get_path('module', 'wallymport');
   
-  $form['wallymport_productID'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Product ID'),
-    '#description' => t('Product ID.'),
-    '#default_value' => variable_get('wallymport_productID', $_SERVER['HTTP_HOST']),
-    '#size' => 80,
-    '#maxlength' => 512,
-    '#required' => TRUE,
-  );
 
   $vocab_list = array();
   $vocabularies = taxonomy_get_vocabularies();

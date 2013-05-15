@@ -517,6 +517,7 @@ function wallycontenttypes_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         module_load_include('inc', 'wallycontenttypes', 'includes/wallycontenttypes.node_form');
         _wallycontenttypes_addtaxonomywheninserted($node);
         _wallycontenttypes_checkautopublish($node);
+        _wallycontenttypes_externalreference($node);
       }
       break;
 
