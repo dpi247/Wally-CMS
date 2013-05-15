@@ -212,8 +212,12 @@ function wallydam_page_admin_search_general_settings_form($form_state) {
 
   $form['gen']['gen-submit'] = array(
     '#type' => 'submit',
-    '#title' => t('Save'),
     '#value' => t('Save'),
+  );
+
+  $form['gen']['clear-thesaurus'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear parameters\' thesaurus cache')
   );
 
   return $form;
@@ -221,23 +225,43 @@ function wallydam_page_admin_search_general_settings_form($form_state) {
 
 function wallydam_page_admin_search_general_settings_form_validate($form, $form_state) {
   $values = $form_state['values'];
+  $clicked_button = $form_state['clicked_button'];
 
-  if (!valid_url($values['query'], TRUE)) {
-    form_set_error('query', t('The given query URL is not a valid URL'));
-  }
+  switch ($clicked_button['#value']) {
+    case $form['gen']['gen-submit']['#value']:
+      if (!valid_url($values['query'], TRUE)) {
+        form_set_error('query', t('The given query URL is not a valid URL'));
+      }
 
-  if (!valid_url($values['thesaurus'], TRUE)) {
-    form_set_error('thesaurus', t('The given search parameters\' thesaurus URL is not a valid URL'));
+      if (!valid_url($values['thesaurus'], TRUE)) {
+        form_set_error('thesaurus', t('The given search parameters\' thesaurus URL is not a valid URL'));
+      }
+      break;
+
+    case $form['gen']['clear-thesaurus']['#value']:
+
+      break;
   }
 }
 
 function wallydam_page_admin_search_general_settings_form_submit($form, $form_state) {
   $values = $form_state['values'];
+  $clicked_button = $form_state['clicked_button'];
 
-  wally_variable_set('wallydam_search_query_URL', $values['query']);
-  wally_variable_set('wallydam_search_thesaurus_URL', $values['thesaurus']);
+  switch ($clicked_button['#value']) {
+    case $form['gen']['gen-submit']['#value']:
+      wally_variable_set('wallydam_search_query_URL', $values['query']);
+      wally_variable_set('wallydam_search_thesaurus_URL', $values['thesaurus']);
 
-  drupal_set_message(t('Configuration saved'));
+      drupal_set_message(t('Configuration saved'));
+      break;
+
+    case $form['gen']['clear-thesaurus']['#value']:
+      cache_clear_all('wallydam_thesaurus', 'cache');
+
+      drupal_set_message(t('Cache cleared'));
+      break;
+  }
 }
 
 /**
@@ -518,16 +542,22 @@ function _wallydam_page_admin_search_get_thesaurus(&$error) {
     $error = t('The thesaurus URL has not been set or is invalid');
   }
 
-  // @todo Mettre en cache le résultat
-  $http_thesaurus = drupal_http_request($thesaurus_URL);
-  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-  if (wallytoolbox_is_http_request_successfull($http_thesaurus)) {
-    $thesaurus = json_decode($http_thesaurus->data);
-    if (!$thesaurus) {
-      $error = t('Unable to read search parameters\' thesaurus datas');
+  $cached_thesaurus = cache_get('wallydam_thesaurus', 'cache');
+  if (!is_object($cached_thesaurus) || empty($cached_thesaurus) || !isset($cached_thesaurus->data) || empty($cached_thesaurus->data)) {
+    $http_thesaurus = drupal_http_request($thesaurus_URL);
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    if (wallytoolbox_is_http_request_successfull($http_thesaurus)) {
+      $thesaurus = json_decode($http_thesaurus->data);
+      if (!$thesaurus) {
+        $error = t('Unable to read search parameters\' thesaurus datas');
+      } else {
+        cache_set('wallydam_thesaurus', $thesaurus);
+      }
+    } else {
+      $error = t('Couldn\'t reach search parameters\' thesaurus URL');
     }
   } else {
-    $error = t('Couldn\'t reach search parameters\' thesaurus URL');
+    $thesaurus = $cached_thesaurus->data;
   }
 
   return $thesaurus;
