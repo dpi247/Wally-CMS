@@ -469,3 +469,12 @@ function wallydam_archive_searchurl(){
     drupal_not_found();
   }
 }
+/**
+ * Implementation of hook_wallymport_nodeprocess
+ * If a package is imported, we destroy its entry in the wallydam_packagestosend table.
+ * */
+function wallydam_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+  if ($location == 'process_package' && $type == 'postsave'){
+    wallydam_removepackagefrombuffer($node->nid);
+  }
+}
