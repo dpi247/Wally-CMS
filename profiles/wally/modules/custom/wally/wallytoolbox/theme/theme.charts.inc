@@ -219,3 +219,40 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
 
 
 }
+
+
+
+function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$height){
+  
+  $jsCode = '
+    // Load the Visualization API and the piechart package.
+      google.load("visualization", "1.0", {"packages":["corechart"]});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+    
+    var data = google.visualization.arrayToDataTable('.$data.');
+    var options = {
+        title:"Yearly Coffee Consumption by Country",
+        width:'.$width.', 
+        height:'.$height.',
+        vAxis: {title: "Year"},
+        hAxis: {title: "Cups",maxValue:"100"},
+        isStacked: "True"
+  
+    }
+     var chart = new google.visualization.BarChart(document.getElementById("barchart_div"));
+        chart.draw(data, options);
+      }
+              
+';
+
+  //include the js code in the page
+  drupal_add_js($jsCode, 'inline');
+  $output = '<div id="barchart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  return $output;
+}
