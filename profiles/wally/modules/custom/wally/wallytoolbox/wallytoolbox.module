@@ -110,22 +110,34 @@ function wallytoolbox_menu_link_alter(&$item, $menu){
  *  Implémentation du hook_theme(); 
  */
 function wallytoolbox_theme(&$var) {
- return array(
-    'wallytoolbox_supercron_settings_form' => array(
-      'arguments' => array('form' => NULL),
-    ),
- 	'wallytoolbox_line_chart'	=> array(
- 			'file' => 'theme.charts.inc',
- 			'arguments' => array(
- 					'data'=>NULL,
- 					'title'=>NULL,
- 					'width'=>NULL,
- 					'height'=>NULL,
- 					'pointSize'=>NULL,
- 					'AxeXTitle'=>NULL
- 					),
- 			'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
- 	),
+  return array(
+      'wallytoolbox_supercron_settings_form' => array(
+          'arguments' => array('form' => NULL),
+      ),
+      'wallytoolbox_line_chart'	=> array(
+          'file' => 'theme.charts.inc',
+          'arguments' => array(
+              'data'=>NULL,
+              'title'=>NULL,
+              'width'=>NULL,
+              'height'=>NULL,
+              'pointSize'=>NULL,
+              'AxeXTitle'=>NULL
+          ),
+          'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
+      ),
+      'wallytoolbox_pie_chart'	=> array(
+          'file' => 'theme.charts.inc',
+          'arguments' => array(
+              'data'=>NULL,
+              'title'=>NULL,
+              'header_name'=>NULL,
+              'header_unit'=>NULL,
+              'width'=>NULL,
+              'height'=>NULL,
+          ),
+          'path' => drupal_get_path('module', 'wallytoolbox')."/theme",
+      ),
   );
 }
 

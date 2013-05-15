@@ -1,6 +1,7 @@
 <?php
 /**
  * Returns a google line chart.
+ * see https://google-developers.appspot.com/chart/interactive/docs/gallery/linechart
  *
  * @param $data
  *   A 2d table of data.
@@ -49,4 +50,79 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
 	drupal_add_js($jsCode, 'inline');
 	$output = '<div id="chart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
 	return $output;
+}
+
+
+
+/**
+ * Returns a google pie chart.
+ * see https://google-developers.appspot.com/chart/interactive/docs/gallery/piechart
+ *
+ *Example:
+ * $data=array(
+ *    array("DDU", 20000),
+ *    array("ODM", 22000),
+ *    array("ASL", 18000),
+ *    array("JPL", 8000),
+ * 
+ *  );
+ *  $vars['pie']=theme("wallytoolbox_pie_chart",$data,"Number of commit","Dev name","commits","400","400");
+ *
+ * @param $data
+ *   An array each element is a  2d array . First element is the header (value description ,  value unit)
+ *
+ * @param $title
+ * 	 The title of graph.
+ *
+ * @param $width
+ *   The width of graph.
+ *
+ * @param $height
+ *   The height of graph.
+ *
+ *
+ * @return $output
+ * 	 A div where the graph was displayed.
+ */
+
+
+function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$width,$height){
+  
+  
+  $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
+  drupal_add_js($google_api_js);
+  
+  $data = json_encode($data);
+  $jsCode = '
+    // Load the Visualization API and the piechart package.
+      google.load("visualization", "1.0", {"packages":["corechart"]});
+      
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+        // var data = google.visualization.arrayToDataTable('.$data.');
+        // Set chart options
+        var data = new google.visualization.DataTable();
+        data.addColumn("string", "'.$header_name.'");
+        data.addColumn("number", "'.$header_unit.'");
+        data.addRows('.$data.');
+        var options = {"title":"'.$title.'",
+                       "width":'.$width.',
+                       "height":'.$height.'
+        };
+        var chart = new google.visualization.PieChart(document.getElementById("piechart_div"));
+        chart.draw(data, options);
+      }
+                           
+';
+  
+  //include the js code in the page
+  drupal_add_js($jsCode, 'inline');
+  $output = '<div id="piechart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  return $output;
+  
+  
 }
