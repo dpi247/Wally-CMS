@@ -641,7 +641,6 @@ function _theunfold_set_js(&$vars) {
   // Add js to the header
  drupal_add_js($vars["theme_path"].'/scripts/vendor/modernizr-2.6.1.min.js');
  drupal_add_js("
-<script type=\"text/javascript\">
     (function(doc) {
     var addEvent = 'addEventListener',
         type = 'gesturestart',
@@ -661,7 +660,6 @@ function _theunfold_set_js(&$vars) {
       }
 
     }(document));
-  </script>
 ", 'inline'); 
 	
   $vars['scripts'] = drupal_get_js(); // necessary in D7?
@@ -731,7 +729,7 @@ function _theunfold_general_theme_settings(&$vars) {
  * theunfold_preprocess_page : Hook_Preprocess_Page
  */
 function theunfold_preprocess_page(&$vars){
-	
+  
   $vars["theme_path"] = drupal_get_path('theme', 'theunfold');
  
   _theunfold_set_js($vars);
