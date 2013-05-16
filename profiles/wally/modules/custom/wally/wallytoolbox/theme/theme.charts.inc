@@ -123,7 +123,7 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$wi
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="piechart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  $output = '<div id="piechart_div" style="width: 100%;"></div>';
   return $output;
 }
 
@@ -198,7 +198,7 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="barchart_div_'.$i.'" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  $output = '<div id="barchart_div_'.$i.'" style="width: 100%;"></div>';
 
   $i++;
 
@@ -284,7 +284,7 @@ function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$heigh
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="gaugechart_div_'.$i.'" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+  $output = '<div id="gaugechart_div_'.$i.'" style="width: 100%; "></div>';
   $i++;
   return $output;
 }
