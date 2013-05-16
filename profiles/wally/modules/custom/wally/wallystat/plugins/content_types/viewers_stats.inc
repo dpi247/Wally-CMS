@@ -51,7 +51,7 @@ function wallystat_viewers_stats_content_type_render($subtype, $conf, $panel_arg
 
   if ($conf['display_authenticated']) {
     $data = array();
-    if ($conf['context'] == 'argument_nid_1') {
+    if (arg(0) == 'node') {
       $data = array(
         array(t('Authenticated'), (int)wallystat_node_get_count_by_params('weekcount', array('nid = '.$panel_args[0], 'param02 = 1'))),
         array(t('Anonymous'), (int)wallystat_node_get_count_by_params('weekcount', array('nid = '.$panel_args[0], 'param02 = 0'))),
@@ -69,17 +69,17 @@ function wallystat_viewers_stats_content_type_render($subtype, $conf, $panel_arg
 
   if ($conf['display_roles']) {
     $data = array();
-    if ($conf['context'] == 'argument_nid_1') {
+    if (arg(0) == 'node') {
       $data = array(
-        array(coco, t('Users count')),
-        array(t('Users with special(s) role(s)'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 > 1'))),
-        array(t('Users without any special role'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 = 1'))),
+        array(t('User type'), t('Users count')),
+        array(t('Subscribed user'), (int)wallystat_node_get_count_by_params('weekcount', array('nid = '.$panel_args[0], 'param02 = 1', 'param03 > 1'))),
+        array(t('Not subscribed user'), (int)wallystat_node_get_count_by_params('weekcount', array('nid = '.$panel_args[0], 'param02 = 1', 'param03 = 1'))),
       );
     } else {
       $data = array(
-        array(coco, t('Users count')),
-        array(t('Users with special(s) role(s)'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 > 1'))),
-        array(t('Users without any special role'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 = 1'))),
+        array(t('User type'), t('Users count')),
+        array(t('Subscribed user'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 > 1'))),
+        array(t('Not subscribed user'), (int)wallystat_node_get_count_by_params('weekcount', array('param01 = '.$panel_args[0], 'param02 = 1', 'param03 = 1'))),
       );
     }
     if (!empty($data)) {
