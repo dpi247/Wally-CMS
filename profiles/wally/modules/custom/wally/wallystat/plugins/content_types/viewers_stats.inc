@@ -63,7 +63,7 @@ function wallystat_viewers_stats_content_type_render($subtype, $conf, $panel_arg
       );
     }
     if (!empty($data)) {
-      $block->content .= theme('wallytoolbox_pie_chart', $data, t('Authenticated vs Anonymous'), 'authenticated vs anonymous', 'views count', 700, 400);
+      $block->content .= theme('wallytoolbox_pie_chart', $data, t('Authenticated vs Anonymous'), 'authenticated vs anonymous', 'views count');
     }
   }
 
@@ -83,7 +83,7 @@ function wallystat_viewers_stats_content_type_render($subtype, $conf, $panel_arg
       );
     }
     if (!empty($data)) {
-      $block->content .= theme('wallytoolbox_bar_chart', $data, t('Users with special(s) role(s) vs Users without any special role'), '', '', 700, 400);
+      $block->content .= theme('wallytoolbox_bar_chart', $data, t('Users with special(s) role(s) vs Users without any special role'), '', '');
     }
   }
 

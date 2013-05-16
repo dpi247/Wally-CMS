@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Returns a google line chart.
  * see https://google-developers.appspot.com/chart/interactive/docs/gallery/linechart
@@ -8,27 +9,28 @@
  *
  * @param $title
  * 	 The title of graph.
- * 
+ *
  * @param $width
  *   The width of graph.
- *   
+ *
  * @param $height
  *   The height of graph.
- *   
+ *
  * @param $pointSize
  *   The size of the point in the graph.
- *   
+ *
  * @return $output
  * 	 A div where the graph was displayed.
  */
-function theme_wallytoolbox_line_chart($data,$title,$pointSize,$AxeXTitle)
-{
-	$google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
-	//include google api js
-	drupal_add_js($google_api_js);
-	//google api takes datas in json table
-	$data = json_encode($data);
-	
+function theme_wallytoolbox_line_chart($data,$title,$pointSize,$AxeXTitle) {
+  static $i = 0;
+
+  $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
+  //include google api js
+  drupal_add_js($google_api_js);
+  //google api takes datas in json table
+  $data = json_encode($data);
+
 	$jsCode = ' 
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
@@ -41,24 +43,25 @@ function theme_wallytoolbox_line_chart($data,$title,$pointSize,$AxeXTitle)
           hAxis: {title: "'.$AxeXTitle.'"}
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById("chart_div"));
+        var chart = new google.visualization.LineChart(document.getElementById("chart_div_'.$i.'"));
         chart.draw(data, options);
       }';
-	
+
 	//include the js code in the page
 	drupal_add_js($jsCode, 'inline');
-	$output = '<div id="chart_div" style="width: 100%;"></div>';
+	$output = '<div id="chart_div_'.$i.'" style="width: 100%;"></div>';
+
+	$i++;
+
 	return $output;
 }
-
-
 
 /**
  * Returns a google pie chart.
  * see https://google-developers.appspot.com/chart/interactive/docs/gallery/piechart
  *
- *Example:
- * $data=array(
+ * Example:
+ *  $data=array(
  *    array("DDU", 20000),
  *    array("ODM", 22000),
  *    array("ASL", 18000),
@@ -88,9 +91,9 @@ function theme_wallytoolbox_line_chart($data,$title,$pointSize,$AxeXTitle)
  * @return $output
  * 	 A div where the graph was displayed.
  */
+function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit) {
+  static $i = 0;
 
-
-function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit){
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
   drupal_add_js($google_api_js);
 
@@ -113,14 +116,16 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit){
         data.addRows('.$data.');
         var options = {"title":"'.$title.'",
         };
-        var chart = new google.visualization.PieChart(document.getElementById("piechart_div"));
+        var chart = new google.visualization.PieChart(document.getElementById("piechart_div_'.$i.'"));
         chart.draw(data, options);
-      }
-';
+      }';
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="piechart_div" ></div>';
+  $output = '<div id="piechart_div_'.$i.'" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+
+  $i++;
+
   return $output;
 }
 
@@ -128,7 +133,7 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit){
  * Returns a google bar chart.
  * see https://google-developers.appspot.com/chart/interactive/docs/gallery/barchart#Example
  *
- *Example:
+ * Example:
  *  $data=array(
  *    array("Month", "DDU","ODM","ASL","JPL"),
  *    array("Sept", 4786, 4356, 2345, 000),
@@ -188,8 +193,7 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis){
         };
         var chart = new google.visualization.BarChart(document.getElementById("barchart_div_'.$i.'"));
         chart.draw(data, options);
-      }
-';
+      }';
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
@@ -197,23 +201,17 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis){
 
   $i++;
 
-
-
   return $output;
 }
-
-
 
 /**
  * Returns a gauge bar chart.
  * see https://google-developers.appspot.com/chart/interactive/docs/gallery/barchart#Example
  *
- *
- *Example:
+ * Example:
  *  $data=array(
  *    array("ammount of commit", "DDU","ODM","ASL","JPL"),
  *    array("In percent", 30, 30, 30, 10),
- *    
  *  );
  *  $vars['bar']=theme("wallytoolbox_bar_chart",$data,"Number of commit","commits","Dev name","400","400");
  *
@@ -244,12 +242,12 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis){
  */
 function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis){
   static $i = 0;
-  
+
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
   drupal_add_js($google_api_js);
-  
+
   $data = json_encode($data);
-  
+
   $jsCode = '
     // Load the Visualization API and the piechart package.
       google.load("visualization", "1.0", {"packages":["corechart"]});
@@ -271,13 +269,13 @@ function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis){
     }
      var chart = new google.visualization.BarChart(document.getElementById("gaugechart_div_'.$i.'"));
         chart.draw(data, options);
-      }
-              
-';
+      }';
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
   $output = '<div id="gaugechart_div_'.$i.'" ></div>';
+
   $i++;
+
   return $output;
 }

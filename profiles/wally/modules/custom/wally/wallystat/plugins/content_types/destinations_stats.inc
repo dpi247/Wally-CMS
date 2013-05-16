@@ -57,7 +57,7 @@ function wallystat_destinations_stats_content_type_render($subtype, $conf, $pane
       array(t('Views'), t('This destination'), t('All other destinations')),
       array(t('Percentage'), $dest_ratio, 100 - $dest_ratio),
     );
-    $block->content .= theme('wallytoolbox_gauge_chart', $data, t('Views in this destination vs all other destinations'), '', '', 700, 400);
+    $block->content .= theme('wallytoolbox_gauge_chart', $data, t('Views in this destination vs all other destinations'), '', '');
   }
 
   if ($conf['display_views']) {
@@ -91,7 +91,7 @@ function wallystat_destinations_stats_content_type_render($subtype, $conf, $pane
       $data[48 - $hour][2] = (int)$count;
     }
 
-    $block->content .= theme('wallytoolbox_line_chart', $data, t('This destination\'s views vs all destinations\' views'), 700, 400, 3, $axeXTitle);
+    $block->content .= theme('wallytoolbox_line_chart', $data, t('This destination\'s views vs all destinations\' views'), 3, $axeXTitle);
   }
 
   return $block;
