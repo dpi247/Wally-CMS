@@ -250,6 +250,11 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
 function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$height){
   static $i = 0;
   
+  $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
+  drupal_add_js($google_api_js);
+  
+  $data = json_encode($data);
+  
   $jsCode = '
     // Load the Visualization API and the piechart package.
       google.load("visualization", "1.0", {"packages":["corechart"]});
