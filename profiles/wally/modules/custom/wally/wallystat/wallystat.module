@@ -257,12 +257,39 @@ function wallystat_node_get_counts($nid) {
 
 function wallystat_node_get_hourly_counts($nid) {
   $return_counts = array();
-  if ($node_hours_stats_db = db_query('SELECT timestamp, SUM(count) FROM {wallystat_node_hourly_counter} WHERE nid = "%s" GROUP BY timestamp ORDER BY timestamp ASC', $nid)) {
+  if ($node_hours_stats_db = db_query('SELECT timestamp, SUM(count) FROM {wallystat_node_hourly_counter} WHERE nid = %d GROUP BY timestamp ORDER BY timestamp ASC', $nid)) {
     while ($stat = db_fetch_array($node_hours_stats_db)) {
       $return_counts[$stat['timestamp']] = $stat['SUM(count)'];
     }
   }
   return $return_counts;
+}
+
+function wallystat_destination_get_hourly_counts($params) {
+  $return_counts = array();
+
+  $filters = array();
+  foreach ($params as $param) {
+    $filters[] = $param;
+  }
+
+  if ($node_hours_stats_db = db_query('SELECT timestamp, SUM(count) FROM {wallystat_node_hourly_counter} WHERE %s GROUP BY timestamp ORDER BY timestamp ASC', implode(' AND ', $filters))) {
+    while ($stat = db_fetch_array($node_hours_stats_db)) {
+      $return_counts[$stat['timestamp']] = $stat['SUM(count)'];
+    }
+  }
+
+  return $return_counts;
+}
+
+function wallystat_node_get_count_by_params($column, $params) {
+  $filters = array();
+  foreach ($params as $param) {
+    $filters[] = $param;
+  }
+
+  $db_result = db_query("SELECT SUM(%s) FROM wallystat_node_counter WHERE %s", $column, implode(' AND ', $filters));
+  return db_result($db_result);
 }
 
 function wallystat_generate_stats($tids, $targets, $node_amout = 10, $options = array()) {
