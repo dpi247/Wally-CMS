@@ -97,28 +97,6 @@ function wallytoolbox_menu() {
   return $items;
 }
 
-function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
-	if($challenge-time()>120){
-		watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	$secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
-
-	if($secret==NULL){
-		watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	if(md5($challenge.$secret)!=$answer){
-		watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
-		return FALSE;
-	}
-	else{
-		return TRUE;
-	}
-	return FALSE;
-
-}
-
 /**
  * Implementation of hook_menu_link_alter()
  */
@@ -167,6 +145,24 @@ function wallytoolbox_cron() {
   _wallytoolbox_cron_blocks_refresh($return);
 
   print $return;
+}
+
+/**
+ * Implementation of hook_form_FORM-ID_alter()
+ * 
+ * Alter the "Taxonomy: term" access rule settings form.
+ * Replace select box with autocomplete fields for all vocabularies.
+ */
+function wallytoolbox_form_panels_edit_configure_access_test_form_alter(&$form, $form_state) {
+  $plugin = isset($form_state['plugin']) ? $form_state['plugin'] : FALSE;
+  if ($plugin && $plugin['plugin type'] == 'access' && $plugin['name'] == 'term') {
+    module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
+    foreach (wallytoolbox_element_children_numeric($form['settings']) as $vid) {
+      $form['settings'][$vid]['#type'] = 'textfield';
+      $form['settings'][$vid]['#autocomplete_path'] = 'taxonomy/autocomplete/' . $vid;
+      unset($form['settings'][$vid]['#options']);
+    }
+  }
 }
 
 /**
@@ -256,6 +252,28 @@ function wallytoolbox_emfield_providers($module, $provider = NULL) {
     }
     return $path;
   }
+}
+
+function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
+  if($challenge-time()>120){
+    watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  $secret=wally_variable_get('wallytoolbox_remotecache_secret',NULL);
+
+  if($secret==NULL){
+    watchdog('Wallytoolbox','No secret defined for remote cache clearing',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  if(md5($challenge.$secret)!=$answer){
+    watchdog('Wallytoolbox','Challenge not passed in remote cacheclear',array(),WATCHDOG_WARNING);
+    return FALSE;
+  }
+  else{
+    return TRUE;
+  }
+  return FALSE;
+
 }
 
 /**
@@ -935,7 +953,12 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
   }
 
   $blocks_list = array();
+  $reus_blocks_list = array();
   while ($temp_block = db_fetch_array($blocks_list_db)) {
+    list($a, $b, $type, $subtype, $c, $d) = explode(':', $temp_block['cid']);
+    if ($type != $subtype) {
+      $reus_blocks_list[$type.':'.$subtype] = $temp_block;
+    }
     $blocks_list[$temp_block['cid']] = $temp_block;
   }
 
@@ -958,18 +981,19 @@ function wallytoolbox_refresh_cache_list($display_name = NULL, $display = NULL) 
             $block['weight'] = $blocks_list[$block['cid']]['weight'];
             $block['callback'] = unserialize($blocks_list[$block['cid']]['callback']);
             $block['rule'] = $blocks_list[$block['cid']]['rule'];
-          } elseif ($handler->type != $handler->subtype) {
-            $db_vers_block = db_fetch_array(db_query("SELECT * FROM {wallytoolbox_content_types_cache} WHERE cid LIKE '%%:%%:%s:%s:%%:%%' LIMIT 0,1", $handler->type, $handler->subtype));
-            if ($db_vers_block) {
-              $block['output'] = unserialize($db_vers_block['output']);
-              $block['last_run'] = $db_vers_block['last_run'];
-              $block['enabled'] = $db_vers_block['enabled'];
-              $block['weight'] = $db_vers_block['weight'];
-              $block['callback'] = unserialize($db_vers_block['callback']);
-              $block['rule'] = $db_vers_block['rule'];
-            }
+          } elseif ($handler->type != $handler->subtype && isset($reus_blocks_list[$handler->type.':'.$handler->subtype])) {
+            $reus_block = $reus_blocks_list[$handler->type.':'.$handler->subtype];
+            $block['output'] = unserialize($reus_block['output']);
+            $block['last_run'] = $reus_block['last_run'];
+            $block['enabled'] = $reus_block['enabled'];
+            $block['weight'] = $reus_block['weight'];
+            $block['callback'] = unserialize($reus_block['callback']);
+            $block['rule'] = $reus_block['rule'];
           }
 
+          if (!isset($block['rule']) || empty($block['rule'])) {
+            $block['rule'] = 15*60;
+          }
           $block['settings'] = $config;
           $blocks[$block['cid']] = $block;
         }
@@ -1268,6 +1292,26 @@ function _wallytoolbox_set_setting(&$settings, $name, $value) {
     $settings[$name] = $value;
   }
   return;
+}
+
+/**
+ * Copy file, using the Drupal way
+ * if source file is a remote file.
+ * @param  {String} $source  Path to the source file.
+ * @param  {String} $destination The destination path.
+ * @return {Boolean} Returns TRUE on success or FALSE on failure.
+ */
+function _copy_file($source, $destination){
+  if(preg_match('/^https?:/', $source)){
+    $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
+    $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
+    $request = drupal_http_request($source, array(), 'GET', NULL, $retry, $timeout);
+    if ($request && $objdata = $request->data) {
+      return !!file_save_data($objdata, $destination, FILE_EXISTS_REPLACE);
+    }
+    return FALSE;
+  }
+  return copy($source, $destination);
 }
 
 /**

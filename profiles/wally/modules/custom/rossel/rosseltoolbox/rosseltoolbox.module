@@ -22,6 +22,46 @@ function rosseltoolbox_wimprt_package_after_process_alter(&$node) {
   return;
 }
 
+function rosseltoolbox_form_wallyedit_form_node_edition_form_alter(&$form, $form_state) {
+  array_unshift($form['#submit'], 'rosseltoolbox_form_wallyedit_form_node_edition_form_submit');
+}
+
+function rosseltoolbox_form_wallyedit_form_node_edition_form_submit($form, &$form_state) {
+  $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
+  $type_name = $form_state['type'];
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
+  $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+
+  if (is_array($flat_fields)) {
+    // Update title value with displayed title
+    $sub_form_state = &$form_state['values'];
+    foreach($flat_fields as $field) {
+      if($field['display'] == 2 || $field['display'] == 3) {
+        $field_name = $field['name'];
+        if(isset($sub_form_state[$type_name][$field_name])) {
+          foreach($sub_form_state[$type_name][$field_name] as $key => &$value) {
+            // Avoid the weight_.$key element
+            if(is_numeric($key)) {
+              if(isset($value['field_displayed_title'][0]['value']) && !empty($value['field_displayed_title'][0]['value'])) {
+                $value['title'] = filter_xss($value['field_displayed_title'][0]['value'], array());
+              }
+              if (empty($value['title'])) {
+                $value['title'] = $form_state[$type_name][$field_name][$key]['#node']->title;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (isset($sub_form_state[$type_name]['field_displayed_title'][0]['value']) && !empty($sub_form_state[$type_name]['field_displayed_title'][0]['value'])) {
+      $sub_form_state[$type_name]['title'] = filter_xss($sub_form_state[$type_name]['field_displayed_title'][0]['value'], array());
+    }
+    if (empty($sub_form_state[$type_name]['title'])) {
+      $sub_form_state[$type_name]['title'] = $form_state[$type_name]['#node']->title;
+    }
+  }
+}
+
 function _rosseltoolbox_set_package_title(&$node) {
   switch ($node->type){
     case 'wally_articlepackage':

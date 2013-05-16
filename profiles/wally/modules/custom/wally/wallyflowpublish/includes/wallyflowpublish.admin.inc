@@ -123,6 +123,7 @@ function wallyflowpublish_settings_form(){
       '#title' => t('Redirection URL'),
       '#description' => t('The MediaFed URL where the users will be redirected.'),
       '#default_value' => $mediafed_defaults['redirect_url'],
+      '#maxlength' => 512,
       '#process' => array('ctools_dependent_process'),
       '#dependency' => array('edit-'.$tid.'-mediafed-activate' => array(1)),
     );

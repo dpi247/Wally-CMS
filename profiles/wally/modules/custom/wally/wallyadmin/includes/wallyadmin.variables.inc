@@ -23,10 +23,12 @@ function _wally_variable_get($name, $default, $regenerate = FALSE) {
     $result = db_query('SELECT value FROM {wally_variable_fast} WHERE name = "%s"', $name);
     if($variable = db_fetch_array($result)) {
       $wally_vars[$name] = unserialize($variable['value']);
+    } else {
+      $wally_vars[$name] = $default;
     }
   }
 
-  return isset($wally_vars[$name]) ? $wally_vars[$name] : $default;
+  return $wally_vars[$name];
 }
 
 /**
@@ -37,17 +39,17 @@ function _wally_variable_get($name, $default, $regenerate = FALSE) {
  *
  * @see _wally_variable_get(), _wally_variable_del(), _wally_variable_set()
  */
-function _wally_variable_get_all() {
+function _wally_variable_get_all($regenerate = FALSE) {
   global $wally_vars;
 
-  if (!isset($wally_vars[$name]) || $regenerate) {
+  if (empty($wally_vars) || $regenerate) {
     $result = db_query('SELECT * FROM {wally_variable_fast}');
     while($variable = db_fetch_array($result)) {
       $wally_vars[$name] = unserialize($variable['value']);
     }
   }
 
-  return isset($wally_vars[$name]) ? $wally_vars[$name] : $default;
+  return $wally_vars;
 }
 
 /**

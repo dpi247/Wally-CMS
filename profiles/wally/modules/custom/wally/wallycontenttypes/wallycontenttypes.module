@@ -891,6 +891,7 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_alter(&$form, &
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
   if (sizeof($form_state['parents']) == 1 && in_array($form_state['type'], $pack_types)) {
     array_unshift($form['#submit'], 'wallycontenttypes_form_wallyedit_form_node_edition_form_submit');
+
     // Editorial Update Date gestion
     // Replace the DateTime field with a checkbox
     $type_name = $form_state['type'];
@@ -938,18 +939,20 @@ function wallycontenttypes_form_wallyedit_form_node_edition_form_tlink_validate(
 
 function wallycontenttypes_form_wallyedit_form_node_edition_form_submit(&$form, &$form_state) {
   $pack_types = array('wally_articlepackage', 'wally_gallerypackage', 'wally_pollpackage');
-  if (in_array($form_state['type'], $pack_types)) {
-    $type_name = $form_state['type'];
-    module_load_include('inc', 'wallyedit', 'includes/config_api');
-    $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
+  $type_name = $form_state['type'];
+  module_load_include('inc', 'wallyedit', 'includes/config_api');
+  $flat_fields = wyditadmin_get_fields_flat($form_state['profile_id'], $type_name);
 
-    // Force update of the editorial update date
-    if (($form_state['clicked_button']['#name'] == 'publish_global') && is_array($flat_fields) && isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4) && $form_state['values'][$type_name]['field_editorialupdatedate'][1]) {
-      $type = wydit_get_infos_type($type_name);
-      $cck_fields = $type['fields'];
-      $format = $cck_fields['field_editorialupdatedate']['widget']['input_format'];
-      $form_state[$type_name]['#node']->field_editorialupdatedate[0]['value'] = gmdate($format);
-      unset($form_state['values'][$type_name]['field_editorialupdatedate']);
+  if (is_array($flat_fields)) {
+    if (in_array($type_name, $pack_types) && sizeof($form_state['parents']) == 1 && $form_state['clicked_button']['#name'] == 'publish_global') {
+      // Force update of the editorial update date
+      if (isset($flat_fields['field_editorialupdatedate']) && ($flat_fields['field_editorialupdatedate']['display'] == 4) && $form_state['values'][$type_name]['field_editorialupdatedate'][1]) {
+        $type = wydit_get_infos_type($type_name);
+        $cck_fields = $type['fields'];
+        $format = $cck_fields['field_editorialupdatedate']['widget']['input_format'];
+        $form_state[$type_name]['#node']->field_editorialupdatedate[0]['value'] = gmdate($format);
+        unset($form_state['values'][$type_name]['field_editorialupdatedate']);
+      }
     }
   }
 }
@@ -1726,6 +1729,34 @@ function wallycontenttypes_getexterntodaycreatedpackagenumber(){
   $res['value'] = $obj->count;
   return $res;
 }
+
+function wallycontenttypes_get_wallycrop_presets() {
+  $crops = array();
+  $presets = imagecache_presets();
+  foreach ($presets as $preset) {
+    if ($preset['actions']) {
+      $found_wallycrop = FALSE;
+      $datas = array();
+      foreach ($preset['actions'] as $action) {
+        if ($action['action'] == 'wallycontenttypes_wallycrop') {
+          $found_wallycrop = TRUE;
+        } elseif (($action['action'] == 'imagecache_scale' || $action['action'] == 'imagecache_scale_and_crop') && $found_wallycrop) {
+          $crops[$preset['presetid']] = array(
+            'id' => $preset['presetname'],
+            'validate' => 'none',
+            'label' => $preset['presetname'],
+            'width' => $action['data']['width'],
+            'height' => $action['data']['height'],
+            'type' => 'pixel',
+          );
+        }
+      }
+    }
+  }
+
+  return $crops;
+}
+
 /**
  * @} End of "defgroup wallycontenttypes".
  */

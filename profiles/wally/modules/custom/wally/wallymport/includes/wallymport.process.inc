@@ -388,11 +388,11 @@ function wallymport_post($importer_name, $preview = FALSE) {
         'application/x-compressed',
       );
       if (in_array($input['type'], $zip_types) && !pathinfo($input['name'], PATHINFO_EXTENSION) != 'zip') {
-        @copy($input['tmp_name'], $input['tmp_name'].'.zip');
+        @_copy_file($input['tmp_name'], $input['tmp_name'].'.zip');
         unlink($input['tmp_name']);
         $input['tmp_name'] .= '.zip';
       } elseif (!pathinfo($input['name'], PATHINFO_EXTENSION) != 'xml') {
-        @copy($input['tmp_name'], $input['tmp_name'].'.xml');
+        @_copy_file($input['tmp_name'], $input['tmp_name'].'.xml');
         unlink($input['tmp_name']);
         $input['tmp_name'] .= '.xml';
       }
