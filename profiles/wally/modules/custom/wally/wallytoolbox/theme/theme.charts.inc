@@ -21,7 +21,7 @@
  * @return $output
  * 	 A div where the graph was displayed.
  */
-function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$AxeXTitle)
+function theme_wallytoolbox_line_chart($data,$title,$pointSize,$AxeXTitle)
 {
 	$google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
 	//include google api js
@@ -38,7 +38,6 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
         var options = {
           title: "'.$title.'",
           pointSize: '.$pointSize.',
-          width: '.$width.', height: '.$height.',
           hAxis: {title: "'.$AxeXTitle.'"}
         };
 
@@ -48,7 +47,7 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
 	
 	//include the js code in the page
 	drupal_add_js($jsCode, 'inline');
-	$output = '<div id="chart_div" style="width: '.$width.'px; height: '.$height.'px;"></div>';
+	$output = '<div id="chart_div" style="width: 100%;"></div>';
 	return $output;
 }
 
@@ -91,7 +90,7 @@ function theme_wallytoolbox_line_chart($data,$title,$width,$height,$pointSize,$A
  */
 
 
-function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$width,$height){
+function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit){
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
   drupal_add_js($google_api_js);
 
@@ -113,8 +112,6 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$wi
         data.addColumn("number", "'.$header_unit.'");
         data.addRows('.$data.');
         var options = {"title":"'.$title.'",
-                       "width":'.$width.',
-                       "height":'.$height.'
         };
         var chart = new google.visualization.PieChart(document.getElementById("piechart_div"));
         chart.draw(data, options);
@@ -123,7 +120,7 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$wi
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="piechart_div" style="width: 100%;"></div>';
+  $output = '<div id="piechart_div" ></div>';
   return $output;
 }
 
@@ -165,7 +162,7 @@ function theme_wallytoolbox_pie_chart($data,$title,$header_name,$header_unit,$wi
  * @return $output
  * 	 A div where the graph was displayed.
  */
-function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height){
+function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis){
   static $i = 0;
 
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
@@ -186,8 +183,6 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
         // Set chart options
         var data = google.visualization.arrayToDataTable('.$data.');
         var options = {"title":"'.$title.'",
-                        width:'.$width.',
-                        height:'.$height.',
                         vAxis: {title: "'.$vAxis.'"},
                         hAxis: {title: "'.$hAxis.'"},
         };
@@ -198,7 +193,7 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="barchart_div_'.$i.'" style="width: 100%;"></div>';
+  $output = '<div id="barchart_div_'.$i.'" ></div>';
 
   $i++;
 
@@ -247,7 +242,7 @@ function theme_wallytoolbox_bar_chart($data,$title,$hAxis,$vAxis,$width,$height)
  * @return $output
  * 	 A div where the graph was displayed.
  */
-function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$height){
+function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis){
   static $i = 0;
   
   $google_api_js = drupal_get_path('module', 'wallytoolbox').'/scripts/googleChartApi.js';
@@ -269,8 +264,6 @@ function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$heigh
     var data = google.visualization.arrayToDataTable('.$data.');
     var options = {
         title:"'.$title.'",
-        width:'.$width.', 
-        height:'.$height.',
         vAxis: {title: "'.$vAxis.'"},
         hAxis: {title: "'.$hAxis.'",maxValue:"100"},
         isStacked: "True"
@@ -284,7 +277,7 @@ function theme_wallytoolbox_gauge_chart($data,$title,$hAxis,$vAxis,$width,$heigh
 
   //include the js code in the page
   drupal_add_js($jsCode, 'inline');
-  $output = '<div id="gaugechart_div_'.$i.'" style="width: 100%; "></div>';
+  $output = '<div id="gaugechart_div_'.$i.'" ></div>';
   $i++;
   return $output;
 }
