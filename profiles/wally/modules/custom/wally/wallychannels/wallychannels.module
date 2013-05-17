@@ -156,6 +156,7 @@ function wallychannels_wallymport_nodeprocess($node, $dom, $log, $importer, $typ
     case 'process_package':
       switch ($op) {
         case 'after_process':
+          module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
           if (!empty($node) && !isset($node->rejected) && wallytoolbox_check_is_node($node) && !$importer->wallymport_preview) {
             $avail_channels = wallychannels_get_plugins_that_handle_type($node->type);
             $defined_instances = wallychannels_get_instances_of_channel(TRUE);
