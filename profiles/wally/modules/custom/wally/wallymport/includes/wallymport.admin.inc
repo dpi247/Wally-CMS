@@ -132,7 +132,7 @@ function wallymport_page_importer_form($form_state, $edit_id = NULL){
     '#description' => t('XSD (schema) file name, with the path.'),
     '#size' => 80,
     '#maxlength' => 512,
-    '#required' => TRUE,
+    //'#required' => TRUE,
   );
   
   $form['wallymport']['zip'] = array(
@@ -231,9 +231,11 @@ function wallymport_page_importer_form_validate($form, &$form_state){
     form_set_error('wallymport][temp_directory_path', t('Tempory directory path : The path provided is not an existing writable directory.'));
   }
   $file = $form_state['values']['wallymport']['xsd_path'];
-  $is_readable = is_readable($file);
-  if (!$is_readable) {
-    form_set_error('wallymport][xsd_path', t('XSD path : The path provided is not an existing writable directory.'));
+  if (!empty($file)) {
+    $is_readable = is_readable($file);
+    if (!$is_readable) {
+      form_set_error('wallymport][xsd_path', t('XSD path : The path provided is not a readable file.'));
+    }
   }
   if (!is_numeric($form_state['values']['wallymport']['cron_frequency']) & $form_state['values']['wallymport']['cron_frequency'] != ''){
     form_set_error('wallymport][cron_frequency',t('The CRON frequency must be an integer'));

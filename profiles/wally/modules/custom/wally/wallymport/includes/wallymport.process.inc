@@ -585,7 +585,7 @@ function wallymport_process_xmlfile($xml_file, $importer){
     module_invoke_all('wallymport_process', $dom, $log, $importer, 'before_xsd_validation', '');
     
     module_load_include('inc', 'wallymport', 'includes/wallymport.fieldshelpers');
-    if (!_wimprthelp_validate_xml($dom, $importer->xsd_path)) {
+    if (!empty($importer->xsd_path) && !_wimprthelp_validate_xml($dom, $importer->xsd_path)) {
       dsm('XML not VALIDATED');
       $error_msg = t('The XML file (!xml_file) isn\'t validate by the XSD file', array('!xml_file' => $xml_file));
       $return = array('error' => TRUE, 'error_msg' => $error_msg);
