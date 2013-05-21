@@ -503,7 +503,10 @@ function wallydam_archive_searchurl(){
  * If a package is imported, we destroy its entry in the wallydam_packagestosend table.
  * */
 function wallydam_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type){
+ 
   if ($location == 'process_package' && $type == 'postsave'){
     wallydam_removepackagefrombuffer($node->nid);
+    watchdog('wallydam', t('The update of the node (nid : %nid) has not been sent to the external sources (DAM, CCI) 
+    because a more recent version has been receive. Some date may have been lost.', array('%nid' => $node->nid)));
   }
 }

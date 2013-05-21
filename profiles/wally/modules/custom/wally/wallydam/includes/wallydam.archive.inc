@@ -135,6 +135,7 @@ function wallydam_archive_importnode($importer_name, $file_name) {
   //Keep the node even if it has no destination
   if (isset($returns[0]) && !$returns[0]['error'] || $returns[0]['error_msg'] == 'No destination AT ALL for current package. Package rejected.'){
     $node = $returns[0]['log']['tempnode'];
+    $node->damarchive = TRUE;
   }
 
   return $node;

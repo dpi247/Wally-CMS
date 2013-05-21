@@ -555,7 +555,7 @@ function wallytoolbox_tar_extract_dom($filename, $tmp_path) {
 
   if (class_exists('Archive_Tar')) {
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $dir = '/tmp/';
+    $dir = file_directory_temp().'/';
 
     //Check file extension
     if($ext == 'tar') {

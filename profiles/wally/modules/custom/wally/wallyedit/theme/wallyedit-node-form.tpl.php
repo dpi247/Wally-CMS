@@ -85,6 +85,7 @@
 </div>
 
 <?php
+  unset($form['current_tab']);
   unset($form[$node_type]);
   print drupal_render($form);
 ?>

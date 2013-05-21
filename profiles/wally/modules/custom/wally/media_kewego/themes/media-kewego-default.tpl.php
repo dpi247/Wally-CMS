@@ -22,29 +22,22 @@ foreach ($expl_vid_id as $id_part) {
   }
   $video_id = $id_part;
 }
-?>
-<?php
-// Old skool
-/*
-<div id="media-kewego-default-external-<?php print $video_id; ?>">
-  <object id="<?php print $video_id; ?>" type="application/x-shockwave-flash" data="http://www.kewego.com/swf/p3/epix.swf" width="<?php print $options['width']; ?>" height="<?php print $options['height']; ?>">
-    <param name="flashVars" value="language_code=<?php print $language; ?>&playerKey=037fg546ekd7&skinKey=&sig=<?php print $video_id; ?>&autostart=<?php print $options['autoplay']; ?>&videoformat=<?php print $options['videoformat']; ?>" />
-    <param name="movie" value="http://www.kewego.com/swf/p3/epix.swf" />
-    <param name="allowFullScreen" value="<?php print $options['fullscreen']; ?>" />
-    <param name="allowscriptaccess" value="always" />
-  </object>
-</div>
-*/
+
 ?>
 
-<object width="<?php print $options['width'];?>" height="<?php print $options['height'];?>" type="application/x-shockwave-flash" id="<?php print $video_id;?>" data="http://sll.kewego.com/swf/p3/epix.swf">
+<object  width="<?php print $options['width'];?>" height="<?php print $options['height'];?>" type="application/x-shockwave-flash" data="http://s.kewego.com/swf/kp.swf" id="kplayer_<?php print $video_id;?>">
   <param name="flashVars" value="language_code=<?php print $options['language'];?>&amp;playerKey=<?php print $options['player_key'];?>&amp;skinKey=<?php print $options['skin_key'];?>&amp;sig=<?php print $video_id;?>&amp;autostart=<?php print $options['autostart'];?>&amp;advertise=<?php print $options['advertise'];?>">
-  <param name="movie" value="http://sll.kewego.com/swf/p3/epix.swf">
-  <param name="allowFullScreen" value="<?php print $options['fullscreen'];?>">
-  <param name="allowscriptaccess" value="<?php print $options['allow_script_access'];?>">
-  <param name="wmode" value="<?php print $options['wmode'];?>">
-  
+  <param name="movie" value="http://s.kewego.com/swf/kp.swf" />
+  <param name="bgcolor" value="0x000000" /> 
+  <param name="allowfullscreen" value="<?php print $options['fullscreen'];?>" />
+  <param name="allowscriptaccess" value="<?php print $options['allow_script_access'];?>" />
+  <param name="wmode" value="<?php print $options['wmode'];?>" />
   <video width="<?php print $options['width'];?>" height="<?php print $options['height'];?>" preload="<?php print $options['preload'];?>" poster="http://api.kewego.com/video/getHTML5Thumbnail/?playerKey=<?php print $options['player_key'];?>&amp;sig=<?php print $video_id;?>" controls="controls">&nbsp;</video>
   <script src="//sll.kewego.com/embed/assets/kplayer-standalone.js"></script>
   <script defer="defer">kitd.html5loader("flash_epix_<?php print $video_id;?>");</script>
 </object>
+
+
+
+
+

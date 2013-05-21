@@ -355,8 +355,13 @@ function theunfold_preprocess_node_build(&$node){
 
   $vars['textchapo'] = $mainstory->field_textchapo[0]['safe'];
   $vars['body'] = $mainstory->field_textbody[0]['safe'];
-  $vars['url'] = drupal_get_path_alias("node/".$node->nid); 
   $vars['comment_count'] = $node->comment_count; 
+  
+  if ($node->field_externaluri[0]['value'] !== NULL){
+    $vars['url'] = $node->field_externaluri[0]['value'];
+  } else {
+    $vars['url'] = '/'.drupal_get_path_alias("node/".$node->nid);
+  }
   
   return $vars; 
 }
