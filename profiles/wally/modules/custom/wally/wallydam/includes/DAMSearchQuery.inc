@@ -18,7 +18,7 @@ class DAMSearchQuery {
   /**
    * Constructor
    */
-  function DAMSearchQuery() {
+  function DAMSearchQuery($profile) {
     $this->query = array(
       'map' => array(
         'q' => array(),
@@ -30,6 +30,8 @@ class DAMSearchQuery {
     $this->isAdvanced = FALSE;
     $this->isBuilt = FALSE;
     $this->errorLogs = array();
+
+    $this->initQuery($profile);
   }
 
   /**
@@ -272,6 +274,40 @@ class DAMSearchQuery {
       return TRUE;
     }
     return NULL;
+  }
+
+  /**
+   * Initiate settings for the search query
+   *
+   * @param array $profile
+   *   The search to initiate the search query
+   */
+  private function initQuery($profile) {
+    $settings = $profile['settings'];
+
+    $this->setIsAdvanced($settings['advanced'] ? TRUE : FALSE);
+    if (isset($settings['filetype']) && !isset($settings['filetype']['all'])) {
+      $this->setQueryParameter('FileType', array_keys($settings['filetype']));
+    }
+    if (isset($settings['product']) && $settings['product'] !== 'all') {
+      $this->setQueryParameter('Product', array($settings['product']));
+    }
+    if (isset($settings['edition']) && $settings['edition'] !== 'all') {
+      $this->setQueryParameter('Edition', array($settings['edition']));
+    }
+    if (isset($settings['zone']) && $settings['zone'] !== 'all') {
+      $this->setQueryParameter('Zone', array($settings['zone']));
+    }
+    if (isset($settings['newsroom']) && $settings['newsroom'] !== 'all') {
+      $this->setOption('Newsroom', array($settings['newsroom']));
+    }
+    if (isset($settings['withthumbs'])) {
+      $this->setOption('withThumbs', array($settings['withthumbs']));
+    }
+    $this->setOption('facet', array('list' => array('iptc', 'gl', 'pn', 'on')));
+    if (isset($settings['cn']) && $settings['cn'] !== 'none') {
+      $this->setOption('cn', array($settings['cn']));
+    }
   }
 
   /**

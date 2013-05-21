@@ -32,13 +32,14 @@ class DAMSearch {
    */
   function DAMSearch($init_profile = 'default') {
     $this->loadedProfile = FALSE;
-    $this->rawResults = array();
-    $this->results = array();
-    $this->successfullQuery = FALSE;
-    $this->query = new DAMSearchQuery();
-    $this->errorLogs = array();
-
-    $this->initProfile($init_profile);
+    if ($profile = $this->initProfile($init_profile)) {
+      $this->rawResults = array();
+      $this->results = array();
+      $this->successfullQuery = FALSE;
+      $this->query = new DAMSearchQuery($profile);
+      $this->queryURL = wally_variable_get('wallydam_search_query_URL', '');
+      $this->errorLogs = array();
+    }
   }
 
   /**
@@ -123,36 +124,8 @@ class DAMSearch {
     if ($this->loadedProfile) {
       $profile = $this->profile;
       if (isset($profile['settings']) && !empty($profile['settings'])) {
-        $settings = $profile['settings'];
-
-        $searchQuery = $this->query;
-        $this->queryURL = wally_variable_get('wallydam_search_query_URL', '');
-        $searchQuery->setIsAdvanced($settings['advanced'] ? TRUE : FALSE);
-        if (isset($settings['filetype']) && !isset($settings['filetype']['all'])) {
-          $searchQuery->setQueryParameter('FileType', array_keys($settings['filetype']));
-        }
-        if (isset($settings['product']) && $settings['product'] !== 'all') {
-          $searchQuery->setQueryParameter('Product', array($settings['product']));
-        }
-        if (isset($settings['edition']) && $settings['edition'] !== 'all') {
-          $searchQuery->setQueryParameter('Edition', array($settings['edition']));
-        }
-        if (isset($settings['zone']) && $settings['zone'] !== 'all') {
-          $searchQuery->setQueryParameter('Zone', array($settings['zone']));
-        }
-        if (isset($settings['newsroom']) && $settings['newsroom'] !== 'all') {
-          $searchQuery->setOption('Newsroom', array($settings['newsroom']));
-        }
-        if (isset($settings['withthumbs'])) {
-          $searchQuery->setOption('withThumbs', array($settings['withthumbs']));
-        }
-        $searchQuery->setOption('facet', array('list' => array('iptc', 'gl', 'pn', 'on')));
-        if (isset($settings['cn']) && $settings['cn'] !== 'none') {
-          $searchQuery->setOption('cn', array($settings['cn']));
-        }
-
-        if (empty($this->errorLogs) && !$searchQuery->getErrorLogs()) {
-          return $this->profile['pid'];
+        if (empty($this->errorLogs)) {
+          return $this->profile;
         }
       } else {
         $this->setErrorLog('init profile', t('Profile "@pid" not configured yet', array('@pid' => $profile_id)));
@@ -235,8 +208,8 @@ class DAMSearch {
         $rawDatas = $HTTPRequestResults->data;
 
         if ($decoded_datas = json_decode($rawDatas)) {
-          if (isset($decoded_datas->result) && !empty($decoded_datas->result)) {
-            $this->rawResults = $decoded_datas->result;
+          if (isset($decoded_datas->results) && !empty($decoded_datas->results)) {
+            $this->rawResults = $decoded_datas;
             $this->successfullQuery = TRUE;
           } else {
             $this->setErrorLog('query', t('The decoded JSON contains no results'));
