@@ -490,12 +490,14 @@ function wallydam_archive_searchurl(){
     }
   }
 
-  if ($return !== FALSE){
+  if ($return !== FALSE) {
+    $_GET['q'] = 'user';
     print theme('page', $return);
   } else {
     drupal_not_found();
   }
 }
+
 /**
  * Implementation of hook_wallymport_nodeprocess
  * If a package is imported, we destroy its entry in the wallydam_packagestosend table.
