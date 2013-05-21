@@ -1,0 +1,9 @@
+core = "6.x"
+name = "Wally Import DAM"
+description = "Importation of Package"
+package = "Wally"
+project = "Wally"
+version = "6.x-1.0-rc1"
+
+dependencies[] = "wallymport"
+dependencies[] = "wallyimportpackage"

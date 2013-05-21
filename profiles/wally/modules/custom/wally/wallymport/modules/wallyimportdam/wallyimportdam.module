@@ -1,0 +1,19 @@
+<?php 
+
+/**
+ * Implementation of hook_wallymport_importer
+ */
+function wallyimportdam_wallymport_importer() {
+  $module_path = './'.drupal_get_path('module', wallyimportdam);
+  $importers = array();
+  $importers['wallyimportdam'][] = array(
+    'importer_type' => 'dampackages',
+    'importer_functions' => array(
+      'wallyimportdam',
+    ),
+    'includes' => array(
+      $module_path.'/wallyimportdam.inc',
+    ),
+  );
+  return $importers;
+}
