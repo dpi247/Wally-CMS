@@ -68,7 +68,7 @@ function wallydam_page_admin_archive_form(){
   $importer = wallymport_getimporters();
   $options = array('' => '');
   foreach ($importer as $imp){
-    if (preg_match('/^packages/', $imp->importer_type)){
+    if (preg_match('/^packages/', $imp->importer_type) || preg_match('/^dampackages/', $imp->importer_type)){
       $options[$imp->name] = $imp->name;
     }
   }
@@ -202,6 +202,14 @@ function wallydam_page_admin_search_general_settings_form($form_state) {
     '#required' => TRUE,
   );
 
+  $form['gen']['thumbnails'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Thumbnails URL'),
+    '#description' => t('URL to get thumbnails from packages'),
+    '#default_value' => wally_variable_get('wallydam_search_thumbnails_URL', ''),
+    '#required' => TRUE,
+  );
+
   $form['gen']['thesaurus'] = array(
     '#type' => 'textfield',
     '#title' => t('URL of the search parameters\' thesaurus'),
@@ -233,6 +241,10 @@ function wallydam_page_admin_search_general_settings_form_validate($form, $form_
         form_set_error('query', t('The given query URL is not a valid URL'));
       }
 
+      if (!valid_url($values['thumbnails'], TRUE)) {
+        form_set_error('thumbnails', t('The given thumbnails URL is not a valid URL'));
+      }
+
       if (!valid_url($values['thesaurus'], TRUE)) {
         form_set_error('thesaurus', t('The given search parameters\' thesaurus URL is not a valid URL'));
       }
@@ -251,6 +263,7 @@ function wallydam_page_admin_search_general_settings_form_submit($form, $form_st
   switch ($clicked_button['#value']) {
     case $form['gen']['gen-submit']['#value']:
       wally_variable_set('wallydam_search_query_URL', $values['query']);
+      wally_variable_set('wallydam_search_thumbnails_URL', $values['thumbnails']);
       wally_variable_set('wallydam_search_thesaurus_URL', $values['thesaurus']);
 
       drupal_set_message(t('Configuration saved'));
