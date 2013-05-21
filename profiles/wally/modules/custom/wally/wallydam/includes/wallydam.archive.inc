@@ -20,7 +20,6 @@ function wallydam_archive_cacheget($url){
  * @return String or FALSE if the import fails
  */
 function wallydam_archive_getpackagefromurl($url, &$last_alias){
-
   //Call to the DAM
   $file_name = wallydam_archive_geturl($url);
   
@@ -28,6 +27,7 @@ function wallydam_archive_getpackagefromurl($url, &$last_alias){
   if ($file_name){
     $importer_name = wally_variable_get('wallydam_archive_importer', '');
     //Import the zip
+    
     $node = wallydam_archive_importnode($importer_name, $file_name);
     if ($node){
       //Render node
@@ -59,7 +59,11 @@ function wallydam_archive_geturl($url){
   $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
   $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
   $request = wally_variable_get('wallydam_archive_geturl', '');
-  $args = '?url='.$url;
+  if (FALSE) {
+    $args = '?url='.$url;
+  } else {
+    $args = '/'.array_pop(explode('/', $url));
+  }
   $headers = array();
   $data = NULL;
  
@@ -126,12 +130,13 @@ function wallydam_archive_importnode($importer_name, $file_name) {
     // Release cron semaphore
     wally_variable_del('wallymport_process_file_semaphore_'.$file_name);
   }
-  
+
   $node = FALSE;
   //Keep the node even if it has no destination
   if (isset($returns[0]) && !$returns[0]['error'] || $returns[0]['error_msg'] == 'No destination AT ALL for current package. Package rejected.'){
     $node = $returns[0]['log']['tempnode'];
   }
+
   return $node;
 
 }
@@ -142,7 +147,6 @@ function wallydam_archive_importnode($importer_name, $file_name) {
  * @return string $content
  */
 function wallydam_archive_rendernode($node){
-
   $node->preview = TRUE;
 
   module_load_include('inc', 'page_manager', 'plugins/tasks/page');
@@ -168,6 +172,7 @@ function wallydam_archive_rendernode($node){
   $display->context['context_node_1']->empty = FALSE;
   $display->context['context_node_1']->plugin = 'node';
   $content = panels_render_display($display);
+
   return $content;
 }
 
