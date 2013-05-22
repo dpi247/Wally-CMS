@@ -282,6 +282,17 @@ function wallytoolbox_emfield_providers($module, $provider = NULL) {
   }
 }
 
+function wallytoolbox_cron_cleanup($var_name, $watchdog_name, $watchdog_message, $watchdog_parameters, $fast) {
+  $table = $fast ? 'wally_variable_fast' : 'variable';
+
+  // See if the semaphore is still locked.
+  if (db_result(db_query('SELECT name FROM {%s} WHERE name = "%s"', $table, $var_name))) {
+    watchdog($watchdog_name, $watchdog_message, $watchdog_parameters, WATCHDOG_WARNING);
+    // Release semaphore
+    db_query('DELETE FROM {$s} WHERE name = "%s"', $table, $var_name);
+  }
+}
+
 function wallytoolbox_page_remote_cache_clear_access($challenge,$answer){
   if($challenge-time()>120){
     watchdog('Wallytoolbox','CHALENGE expired for remote cache clearing',array(),WATCHDOG_WARNING);

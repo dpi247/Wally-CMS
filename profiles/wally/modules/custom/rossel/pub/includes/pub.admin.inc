@@ -89,7 +89,7 @@ function pub_cron_run() {
     return FALSE;
   } else {
     // Register shutdown callback
-    register_shutdown_function('pub_cron_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'cronpub_semaphore', 'Pub', t('Pub cron run exceeded the time limit and was aborted'), array(), FALSE);
 
     // Lock cron semaphore
     variable_set('cronpub_semaphore', time());
@@ -106,19 +106,6 @@ function pub_cron_run() {
 
     // Redirect to admin page if success
     drupal_goto('admin/rossel');
-  }
-}
-
-/**
- * Shutdown function for pub cron cleanup.
- */
-function pub_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (variable_get('cronpub_semaphore', FALSE)) {
-    watchdog('Cron pub', 'Cron run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
-
-    // Release cron semaphore
-    variable_del('cronpub_semaphore');
   }
 }
 
