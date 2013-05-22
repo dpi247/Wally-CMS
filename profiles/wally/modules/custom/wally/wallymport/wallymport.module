@@ -83,12 +83,12 @@ function wallymport_menu() {
   
   //Page to look at the logs of an importer
   $items['admin/wally/wallymport/settings/log/%'] = array(
-      'title'            => t('Importer logs'),
-      'page callback'    => 'wallymport_page_importer_logs',
-      'page arguments'   => array(5),
-      'access arguments' => array('administer wallymport'),
-      'description'      => t('Allows administrators to see importer logs.'),
-      'file'             => 'includes/wallymport.admin.inc',
+    'title'            => t('Importer logs'),
+    'page callback'    => 'wallymport_page_importer_logs',
+    'page arguments'   => array(5),
+    'access arguments' => array('administer wallymport'),
+    'description'      => t('Allows administrators to see importer logs.'),
+    'file'             => 'includes/wallymport.admin.inc',
   );
   
   //Page to delete an importer
@@ -306,6 +306,55 @@ function wallymport_views_api() {
     'api'  => 3,
 	'path' => drupal_get_path('module', 'wallymport') . '/plugins/views',
   );
+}
+
+/**
+ * Implementation of CCK's hook_field().
+ */
+function wallymport_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  switch ($op) {
+    case 'update':
+      // If this is a new node there are no old items to worry about.
+      // On new revisions, old files are always maintained in the previous revision.
+      if ($node->is_new || !empty($node->revision)) {
+        return;
+      }
+
+      $type_name = $node->type;
+      $type = content_types($type_name);
+
+      foreach ($type['fields'] as $field) {
+        if ($field['module'] == 'filefield') {
+          $items = isset($node->$field['field_name']) ? $node->$field['field_name'] : array();
+          unset($items[$field['field_name'] .'_add_more']);
+
+          // Accumulator to gather current fid to compare with the original node
+          // for settings replaced files as temporary.
+          $curfids = array();
+          foreach ($items as $delta => $item) {
+            if (!empty($items[$delta]) && !empty($items[$delta]['fid'])) {
+              $curfids[] = $items[$delta]['fid'];
+            }
+          }
+
+          // Set items as temporary from original node.
+          $orig = node_load($node->nid);
+
+          if (!empty($orig->$field['field_name'])) {
+            foreach ($orig->$field['field_name'] as $oitem) {
+              if (isset($oitem['fid']) && !in_array($oitem['fid'], $curfids)) {
+                db_query("UPDATE {files} SET status = %d WHERE fid = %d", FILE_STATUS_TEMPORARY, $oitem['fid']);
+              }
+            }
+          }
+        }
+      }
+
+      break;
+
+    default:
+      break;
+  }
 }
 
 /**
