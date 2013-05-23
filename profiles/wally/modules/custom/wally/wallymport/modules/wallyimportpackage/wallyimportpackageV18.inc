@@ -1599,6 +1599,7 @@ function wallyimportpackageV18_node_create_or_load_photoobjecttype($dom, &$log, 
   $ext_ref =_wimprthelp_plain_text($dom->getElementsByTagName('ExternalReference')->item(0)->nodeValue);
   if ($node_temp = wallytoolbox_get_node_by_cckfield(array("field_externalreference" => $ext_ref), "wally_photoobject")){
     $node = $node_temp[0];
+    $node->skip_filefield_delete = TRUE;
   }
 
   $uid = $importer->default_user;
