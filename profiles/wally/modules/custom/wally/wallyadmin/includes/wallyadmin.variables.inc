@@ -21,7 +21,7 @@ function _wally_variable_get($name, $default, $regenerate = FALSE) {
 
   if (trim($name) == "") {
     // Add stack trace in watchdog ?
-    watchdog('Wally Variable', t('Requested variable with blank name'));
+    watchdog('Wally Variable', t('wally_variable_get() called with empty name'), array(), WATCHDOG_DEBUG);
     return $default;
   }
 
