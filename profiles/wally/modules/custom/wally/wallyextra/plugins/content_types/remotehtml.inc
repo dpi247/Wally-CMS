@@ -415,8 +415,12 @@ function _wallyextra_remotehtml_setcache($settings) {
   module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   wallytoolbox_flush_all_pages($internal_url, TRUE);
 
-  $block_uri = $settings['uri'];
-  $htmlblock = file_get_contents($block_uri);
-  
+  if (isset($settings['uri']) && !empty($settings['uri']) && valid_url($settings['uri'])) {
+    $block_uri = $settings['uri'];
+    $htmlblock = file_get_contents($block_uri);
+  } else {
+    $htmlblock = '';
+  }
+
   return $htmlblock;
 }
