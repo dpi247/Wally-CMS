@@ -172,6 +172,17 @@ function wallyflowtonode_basicsettings_form(&$form, &$form_state) {
     '#weight' => 0,
   );
   
+  $form['source'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Flow source'),
+    '#description' => t('The source you want to give to this feed. (Used to detect the source of a package)'),
+    '#default_value' => $flow_item->source,
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+    '#weight' => 0.01,
+  );
+  
   $form['prefix'] = array(
     '#type' => 'textfield',
     '#title' => t('External reference prefix'),
@@ -285,7 +296,7 @@ function wallyflowtonode_basicsettings_form_validate(&$form, &$form_state) {
 
 function wallyflowtonode_basicsettings_form_submit(&$form, &$form_state) {
   $submitted = $form_state['values'];
-  $save_values = array('name', 'prefix', 'publish', 'type', 'body_html', 'delta_t', 'package_layout', 'importer'); 
+  $save_values = array('name', 'source', 'prefix', 'publish', 'type', 'body_html', 'delta_t', 'package_layout', 'importer'); 
   // maybe don't imitate this foreach
   foreach ($save_values as $value) {
     // set the values in the cache object -- it gets passed back to the next step

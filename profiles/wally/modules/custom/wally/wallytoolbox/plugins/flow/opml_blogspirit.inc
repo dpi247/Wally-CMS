@@ -213,7 +213,9 @@ function wallytoolbox_opml_blogspirit_item_to_array_set_package(&$array_item, $i
   $array_item['Destinations']['Destination']['DocumentLayout'] = $feed_destination[2];
   $array_item['Destinations']['Destination']['DestinationPath']['value'] = is_object($term) ? wallytoolbox_taxonomy_get_path_by_tid_or_term($term->tid) : '';
   $array_item['ExternalURI']['value'] = _wallytoolbox_get_dom_element_attribute_opml($item, 'post_permalink');
-
+  if ($feed_infos['source'] != NULL){
+    $array_item['Source']['value'] = $feed_infos['source'];
+  }
   return array($feed_name, $prefix);
 }
 

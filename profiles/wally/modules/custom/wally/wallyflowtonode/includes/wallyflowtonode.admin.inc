@@ -72,6 +72,7 @@ function _wallyflowtonode_build_feeds_list() {
     array('data' => t('Package layout')),
     array('data' => t('Body filter')),
     array('data' => t('Importer')),
+    array('data' => t('Source')), 
     array('data' => t('Queue')),
     array('data' => t('Actions')),
   );
@@ -93,6 +94,7 @@ function _wallyflowtonode_build_feeds_list() {
     $temp_row['package_layout'] = $pack_layout->name;
     $temp_row['body_html'] = db_result(db_query("SELECT name FROM {filter_formats} WHERE format = %d" ,$db_result['body_html']));
     $temp_row['importer'] = $db_result['importer'];
+    $temp_row['source'] = $db_result['source'];
     $temp_row['publish'] = _wallyflowtonode_html_table_queue($db_result);
     $temp_row['actions'] = _wallyflowtonode_html_table_actions($db_result);
     $rows[] = $temp_row;

@@ -109,6 +109,12 @@ function wallyflowtonode_schema() {
         'description' => 'The name of the importer used for Wallymport',
         'not null' => TRUE,
       ),
+      'source' => array(
+        'type' => 'text',
+        'size' => 'medium',
+        'description' => 'The name of the source',
+        'not null' => FALSE,
+      ),
     ), 
     'primary key' => array('flow_key'),
   );
@@ -187,5 +193,20 @@ function wallyflowtonode_update_6003() {
     'default' => 0,
   );
   db_add_field($ret, 'wallyflowtonode_flows', 'last_run', $spec);
+  return $ret;
+}
+/**
+ * 
+ * Implementation of hook_update_N
+ * Add field source
+ */
+function wallyflowtonode_update_6004(){
+
+  $ret = array();
+  $schema = array();
+  $schema = wallyflowtonode_schema();
+
+  db_add_field($ret, 'wallyflowtonode_flows', 'source', $schema['wallyflowtonode_flows']['fields']['source']);
+ 
   return $ret;
 }

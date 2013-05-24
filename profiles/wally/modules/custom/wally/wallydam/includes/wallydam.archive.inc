@@ -30,12 +30,14 @@ function wallydam_archive_getpackagefromurl($url, &$last_alias){
     //Import the zip
     $node = wallydam_archive_importnode($importer_name, $file_name);
     if ($node){
+      
       //Render node
       $content = wallydam_archive_rendernode($node);
       //a modifier, récupérer le last alias du noeud
-      $last_alias = $url;
-    }
-    
+      if ($node->field_lasturlalias[0]['value'] != NULL){
+        $last_alias = $node->field_lasturlalias[0]['value'];
+      }
+    } 
   }
   
   return $content;

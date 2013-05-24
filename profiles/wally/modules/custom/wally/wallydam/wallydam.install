@@ -12,10 +12,15 @@ function wallydam_uninstall(){
  */
 function wallydam_install() {
   drupal_install_schema('wallydam');
-  //Set the  weight to one
-  db_add_field($ret, 'term_data', 'topic_destination', $spec);
-
+  //Set the  weight to 5
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'wallydam'");
+  
+  //Add de source dpi247
+  $row = new stdClass;
+  $row->name = 'dpi247';
+  $row->archive = 1;
+  $row->archive_from_wallymport = 0;
+  drupal_write_record('wallydam_source', $row);
 }
 
 /**
@@ -103,6 +108,35 @@ function wallydam_schema() {
     'primary key' => array('pid'),
   );
   
+  $schema['wallydam_source'] = array(
+    'description' => 'Contains the list of sources of content',
+    'fields' => array(
+  	  'sid' => array(
+        'type' => 'serial',
+        'description' => 'Source ID, a database primary key to ensure uniqueness.',
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'text',
+        'description' => 'The name of the source',
+        'not null' => TRUE,
+      ),
+      'archive' => array(
+        'type' => 'int',
+        'description' => 'Whether the content form the source must be archived or not',
+        'not null' => TRUE,
+  		'unsigned' => TRUE,
+      ),
+  	  'archive_from_wallymport' => array(
+        'type' => 'int',
+        'description' => 'Whether the content form the source must be archived where comming from wallymport',
+        'not null' => TRUE,
+    	'unsigned' => TRUE,
+      ),
+    ),
+    'primary key' => array('sid'),
+  );
   return $schema;
 }
 
@@ -114,5 +148,24 @@ function wallydam_update_6001() {
   $schemas = wallydam_schema();
   $ret = array();
   db_create_table($ret, 'wallydam_search_profiles', $schemas['wallydam_search_profiles']);
+  return $ret;
+}
+/**
+* Implementation of hook_update_N.
+* Install the DAM search profiles cache table.
+*/
+function wallydam_update_6002() {
+  $schemas = wallydam_schema();
+  $ret = array();
+  if (!db_table_exists('wallydam_source')){
+    db_create_table($ret, 'wallydam_source', $schemas['wallydam_source']);
+  }
+  
+  //Add de source dpi247
+  $row = new stdClass;
+  $row->name = 'dpi247';
+  $row->archive = 1;
+  $row->archive_from_wallymport = 0;
+  drupal_write_record('wallydam_source', $row);
   return $ret;
 }
