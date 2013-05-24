@@ -289,16 +289,16 @@ class DAMSearchQuery {
     if (isset($settings['filetype']) && !isset($settings['filetype']['all'])) {
       $this->setQueryParameter('FileType', array_keys($settings['filetype']));
     }
-    if (isset($settings['product']) && $settings['product'] !== 'all') {
+    if (isset($settings['product']) && is_array($settings['product']) && !in_array('all', $settings['product'])) {
       $this->setQueryParameter('Product', array($settings['product']));
     }
-    if (isset($settings['edition']) && $settings['edition'] !== 'all') {
+    if (isset($settings['edition']) && is_array($settings['edition']) && !in_array('all', $settings['edition'])) {
       $this->setQueryParameter('Edition', array($settings['edition']));
     }
-    if (isset($settings['zone']) && $settings['zone'] !== 'all') {
+    if (isset($settings['zone']) && is_array($settings['zone']) && !in_array('all', $settings['zone'])) {
       $this->setQueryParameter('Zone', array($settings['zone']));
     }
-    if (isset($settings['newsroom']) && $settings['newsroom'] !== 'all') {
+    if (isset($settings['newsroom']) && is_array($settings['newsroom']) && !in_array('all', $settings['newsroom'])) {
       $this->setOption('Newsroom', array($settings['newsroom']));
     }
     if (isset($settings['withthumbs'])) {

@@ -313,7 +313,7 @@ function wallydam_page_admin_search_edit_profile_form($form_state, $pid) {
     '#required' => TRUE,
   );
 
-  $options = _wallydam_page_admin_search_populate_thesaurus_options($thesaurus);
+  list($options, $js_options) = _wallydam_page_admin_search_populate_thesaurus_options($thesaurus);
 
   $filetype_options = (isset($options['filetype']) && is_array($options['filetype'])) ? $options['filetype'] : array();
 
@@ -352,59 +352,42 @@ function wallydam_page_admin_search_edit_profile_form($form_state, $pid) {
   $zone_options = (isset($options['zone']) && is_array($options['zone'])) ? $options['zone'] : array();
   $edition_options = (isset($options['edition']) && is_array($options['edition'])) ? $options['edition'] : array();
 
-  // @todo Handle multiple choice
+  $js_product_options = (isset($js_options['product']) && is_array($js_options['product'])) ? $js_options['product'] : array();
+  $js_zone_options = (isset($js_options['zone']) && is_array($js_options['zone'])) ? $js_options['zone'] : array();
+  drupal_add_js(array('damSearchSelectOptions' => array('products' => $js_product_options, 'zones' => $js_zone_options)), 'setting');
+  drupal_add_js(drupal_get_path('module', 'wallydam').'/scripts/dam_search_dependent.js');
 
   $form['thesaurus_options']['newsroom'] = array(
     '#type' => 'select',
     '#title' => t('NewsRoom'),
     '#options' => $newsroom_options,
     '#default_value' => $default_values['newsroom'],
+    '#multiple' => TRUE,
   );
 
-  foreach ($product_options as $prod_key => $prod_options) {
-    $form['thesaurus_options']['product'][$prod_key] = array(
-      '#type' => 'select',
-      '#title' => t('Product'),
-      '#options' => $prod_options,
-      '#default_value' => str_replace('.', '--', $default_values['product']),
-      '#dependency' => array('edit-thesaurus-options-newsroom' => array($prod_key)),
-      '#process' => array('ctools_dependent_process'),
-    );
-  }
+  $form['thesaurus_options']['product'] = array(
+    '#type' => 'select',
+    '#title' => t('Product'),
+    '#options' => $product_options,
+    '#default_value' => $default_values['product'],
+    '#multiple' => TRUE,
+  );
 
-  foreach ($zone_options as $zo_key => $zo_options) {
-    list($newsroom_key, $product_key) = explode('---', $zo_key, 2);
-    $name_newsroom_key = str_replace('_', '-', $newsroom_key);
+  $form['thesaurus_options']['zone'] = array(
+    '#type' => 'select',
+    '#title' => t('Zone'),
+    '#options' => $zone_options,
+    '#default_value' => $default_values['zone'],
+    '#multiple' => TRUE,
+  );
 
-    $form['thesaurus_options']['zone'][$zo_key] = array(
-      '#type' => 'select',
-      '#title' => t('Zone'),
-      '#options' => $zo_options,
-      '#default_value' => str_replace('.', '--', $default_values['zone']),
-      '#dependency' => array(
-        'edit-thesaurus-options-newsroom' => array($newsroom_key),
-        'edit-thesaurus-options-product-'.$name_newsroom_key => array($product_key)),
-      '#dependency_count' => 2,
-      '#process' => array('ctools_dependent_process'),
-    );
-  }
-
-  foreach ($edition_options as $edi_key => $edi_options) {
-    list($newsroom_key, $product_key) = explode('---', $edi_key, 2);
-    $name_newsroom_key = str_replace('_', '-', $newsroom_key);
-
-    $form['thesaurus_options']['edition'][$edi_key] = array(
-      '#type' => 'select',
-      '#title' => t('Edition'),
-      '#options' => $edi_options,
-      '#default_value' => str_replace('.', '--', $default_values['edition']),
-      '#dependency' => array(
-        'edit-thesaurus-options-newsroom' => array($newsroom_key),
-        'edit-thesaurus-options-product-'.$name_newsroom_key => array($product_key)),
-      '#dependency_count' => 2,
-      '#process' => array('ctools_dependent_process'),
-    );
-  }
+  $form['thesaurus_options']['edition'] = array(
+    '#type' => 'select',
+    '#title' => t('Edition'),
+    '#options' => $edition_options,
+    '#default_value' => $default_values['edition'],
+    '#multiple' => TRUE,
+  );
 
   $form['cn'] = array(
     '#type' => 'select',
@@ -456,14 +439,10 @@ function wallydam_page_admin_search_edit_profile_form_submit($form, $form_state)
   $settings['advanced'] = $values['advanced'];
   $settings['withthumbs'] = $values['withthumbs'];
   $thesaurus_options = $values['thesaurus_options'];
-  $settings['newsroom'] = $newsroom = isset($thesaurus_options['newsroom']) ? $thesaurus_options['newsroom'] : 'all';
-  $product = isset($thesaurus_options['product'][$newsroom]) ? $thesaurus_options['product'][$newsroom] : 'all';
-  $settings['product'] = str_replace('--', '.', $product);
-  $full_key = $newsroom.'---'.$product;
-  $zone = isset($thesaurus_options['zone'][$full_key]) ? $thesaurus_options['zone'][$full_key] : 'all';
-  $settings['zone'] = str_replace('--', '.', $zone);
-  $edition = isset($thesaurus_options['edition'][$full_key]) ? $thesaurus_options['edition'][$full_key] : 'all';
-  $settings['edition'] = str_replace('--', '.', $edition);
+  $settings['newsroom'] = isset($thesaurus_options['newsroom']) ? $thesaurus_options['newsroom'] : 'all';
+  $settings['product'] = isset($thesaurus_options['product']) ? $thesaurus_options['product'] : 'all';
+  $settings['zone'] = isset($thesaurus_options['zone']) ? $thesaurus_options['zone'] : 'all';
+  $settings['edition'] = isset($thesaurus_options['edition']) ? $thesaurus_options['edition'] : 'all';
   $settings['cn'] = $values['cn'];
 
   $profile = array(
@@ -540,7 +519,11 @@ function _wallydam_page_admin_search_get_default_values() {
     'label' => '',
     'filetype' => 'Text',
     'advanced' => 0,
-    'newsroom' => '',
+    'newsroom' => 'all',
+    'product' => 'all',
+    'zone' => 'all',
+    'edition' => 'all',
+    'cn' => ''
   );
 }
 
@@ -580,49 +563,29 @@ function _wallydam_page_admin_search_get_thesaurus(&$error) {
  * Populate selectboxes options according to the thesaurus
  */
 function _wallydam_page_admin_search_populate_thesaurus_options($thesaurus) {
-  $options = array(
+  $all_options = array(
     'filetype' => array(),
-    'newsroom' => array(),
+    'newsroom' => array('all' => t('All')),
     'product' => array(),
     'zone' => array(),
-    'edition' => array(),
+    'edition' => array('all' => t('All')),
+  );
+
+  $js_options = array(
+    'product' => array(),
+    'zone' => array(),
   );
 
   if (isset($thesaurus->thInfo->Type->values) && is_array($thesaurus->thInfo->Type->values)) {
     foreach ($thesaurus->thInfo->Type->values as $filetype_value) {
-      $options['filetype'][$filetype_value->code] = $filetype_value->displayName;
+      $all_options['filetype'][$filetype_value->code] = $filetype_value->displayName;
     }
   }
 
   if (isset($thesaurus->thInfo->Newsroom->values) && is_array($thesaurus->thInfo->Newsroom->values)) {
     foreach ($thesaurus->thInfo->Newsroom->values as $newsroom_value) {
-      $options['newsroom'][$newsroom_value->code] = $newsroom_value->displayName;
-    }
-  }
-
-  if (isset($thesaurus->thInfo->Zone->values) && is_array($thesaurus->thInfo->Zone->values)) {
-    foreach ($thesaurus->thInfo->Zone->values as $zone_value) {
-      if (isset($zone_value->links->Newsroom) && is_array($zone_value->links->Newsroom) && isset($zone_value->links->Product) && is_array($zone_value->links->Product)) {
-        foreach ($zone_value->links->Newsroom as $linked_newsroom) {
-          foreach ($zone_value->links->Product as $linked_product) {
-            $linked_product_code = str_replace('.', '--', $linked_product->code);
-            $options['zone'][$linked_newsroom->code.'---'.$linked_product_code][$zone_value->code] = $zone_value->displayName;
-          }
-        }
-      }
-    }
-  }
-
-  if (isset($thesaurus->thInfo->Edition->values) && is_array($thesaurus->thInfo->Edition->values)) {
-    foreach ($thesaurus->thInfo->Edition->values as $edition_value) {
-      if (isset($edition_value->links->Newsroom) && is_array($edition_value->links->Newsroom) && isset($edition_value->links->Product) && is_array($edition_value->links->Product)) {
-        foreach ($edition_value->links->Newsroom as $linked_newsroom) {
-          foreach ($edition_value->links->Product as $linked_product) {
-            $linked_product_code = str_replace('.', '--', $linked_product->code);
-            $options['edition'][$linked_newsroom->code.'---'.$linked_product_code][$edition_value->code] = $edition_value->displayName;
-          }
-        }
-      }
+      $all_options['newsroom'][$newsroom_value->code] = strtolower($newsroom_value->displayName);
+      $js_options['product'][$newsroom_value->code] = array();
     }
   }
 
@@ -630,23 +593,36 @@ function _wallydam_page_admin_search_populate_thesaurus_options($thesaurus) {
     foreach ($thesaurus->thInfo->Product->values as $product_value) {
       if (isset($product_value->links->Newsroom) && is_array($product_value->links->Newsroom)) {
         foreach ($product_value->links->Newsroom as $linked_newsroom) {
-          $product_code = str_replace('.', '--', $product_value->code);
-          $options['product'][$linked_newsroom->code][$product_code] = $product_value->displayName;
-
-          $full_key = $linked_newsroom->code.'---'.$product_code;
-          if (!isset($options['zone'][$full_key])) {
-            $options['zone'][$full_key] = array();
-          }
-          $insert_array = array('all' => t('All'));
-          $options['zone'][$full_key] = $insert_array + $options['zone'][$full_key];
-          if (!isset($options['edition'][$full_key])) {
-            $options['edition'][$full_key] = array();
-          }
-          $options['edition'][$full_key] = $insert_array + $options['edition'][$full_key];
+          $js_options['product'][$linked_newsroom->code][] = array(
+            'code' => $product_value->code,
+            'dname' => $product_value->displayName,
+          );
         }
       }
+      $all_options['product'][$product_value->code] = $product_value->displayName;
+      $js_options['zone'][$product_value->code] = array();
     }
   }
 
-  return $options;
+  if (isset($thesaurus->thInfo->Zone->values) && is_array($thesaurus->thInfo->Zone->values)) {
+    foreach ($thesaurus->thInfo->Zone->values as $zone_value) {
+      if (isset($zone_value->links->Product) && is_array($zone_value->links->Product)) {
+        foreach ($zone_value->links->Product as $linked_product) {
+          $js_options['zone'][$linked_product->code][] = array(
+            'code' => $zone_value->code,
+            'dname' => $zone_value->displayName,
+          );
+        }
+      }
+      $all_options['zone'][$zone_value->code] = $zone_value->displayName;
+    }
+  }
+
+  if (isset($thesaurus->thInfo->Edition->values) && is_array($thesaurus->thInfo->Edition->values)) {
+    foreach ($thesaurus->thInfo->Edition->values as $edition_value) {
+      $all_options['edition'][$edition_value->code] = $edition_value->displayName;
+    }
+  }
+
+  return array($all_options, $js_options);
 }
