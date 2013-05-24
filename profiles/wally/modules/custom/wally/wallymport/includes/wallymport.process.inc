@@ -24,7 +24,7 @@ function wallymport_check_process_folder($importer_name) {
     $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallymport_process_folder_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallymport_process_folder_semaphore', 'Wallymport', t('Wallymport cron run exceeded the time limit and was aborted'), array(), TRUE);
 
     // Lock cron semaphore
     wally_variable_set('wallymport_process_folder_semaphore', time());
@@ -80,7 +80,7 @@ function wallymport_check_process_file($importer_name, $file_name) {
     $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallymport_process_folder_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallymport_process_folder_semaphore', 'Wallymport', t('Wallymport cron run exceeded the time limit and was aborted'), array(), TRUE);
 
     // Lock cron semaphore
     wally_variable_set('wallymport_process_file_semaphore_'.$file_name, time());
@@ -103,19 +103,6 @@ function wallymport_check_process_file($importer_name, $file_name) {
     $content .= theme('wallymport_logs', $return);
   }
   return $content;
-}
-
-/**
- * Shutdown function for Wallymport process folder cleanup.
- */
-function wallymport_process_folder_cleanup() {
-  // See if the semaphore is still locked.
-  if (wally_variable_get('wallymport_process_folder_semaphore', FALSE)) {
-    watchdog('Wallymport', 'Process folder task run exceeded the time limit and was aborted.', array(), WATCHDOG_WARNING);
-
-    // Release semaphore
-    wally_variable_del('wallymport_process_folder_semaphore');
-  }
 }
 
 /**

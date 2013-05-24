@@ -113,7 +113,7 @@ function wallydam_archive_importnode($importer_name, $file_name) {
     $returns[] = $tmp_return;
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallymport_process_folder_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallymport_process_folder_semaphore', 'Wallymport', t('Import process run exceeded the time limit and was aborted for file "@file_name"'), array('@file_name' => $file_name), TRUE);
 
     // Lock cron semaphore
     wally_variable_set('wallymport_process_file_semaphore_'.$file_name, time());

@@ -136,7 +136,7 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
     }
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallyflowtonode_cron_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallyflowtonode_cron_semaphore', 'FlowToNode', t('FlowToNode cron run exceeded the time limit and was aborted'), array(), TRUE);    
 
     // Lock cron semaphore
     wally_variable_set('wallyflowtonode_cron_semaphore', time());
@@ -160,17 +160,6 @@ function wallyflowtonode_cron($flow_key = NULL, $force = FALSE) {
       }
       print $print_return;
     }
-  }
-}
-
-/**
- * Shutdown function for flow to node cron cleanup.
- */
-function wallyflowtonode_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (wally_variable_get('wallyflowtonode_cron_semaphore', FALSE)) {
-    // Release cron semaphore
-    wally_variable_del('wallyflowtonode_cron_semaphore');
   }
 }
 

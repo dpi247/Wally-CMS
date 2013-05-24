@@ -32,7 +32,7 @@ function wallynewssitemap_cron() {
     $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallynewssitemap_cron_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallynewssitemap_cron_semaphore', 'News Sitemap', t('News sitemap cron run exceeded the time limit and was aborted'), array(), TRUE);
 
     // Lock cron semaphore
     wally_variable_set('wallynewssitemap_cron_semaphore', time());
@@ -167,17 +167,6 @@ function wallynewssitemap_form_wallysitemap_admin_settings_page_form_alter_submi
       $settings['wallynewssitemap_consolidate_sitemap_amount']);
   
   wally_variable_set('wallynewssitemap_sitemaps_settings', $settings);
-}
-
-/**
- * Shutdown function for sitemap cron cleanup.
- */
-function wallynewssitemap_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (wally_variable_get('wallynewssitemap_cron_semaphore', FALSE)) {
-    // Release cron semaphore
-    wally_variable_del('wallynewssitemap_cron_semaphore');
-  }
 }
 
 /**

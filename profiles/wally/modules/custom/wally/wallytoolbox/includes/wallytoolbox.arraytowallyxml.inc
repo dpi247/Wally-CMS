@@ -118,9 +118,11 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $destination_node->setAttribute('DocumentLayout', $pack_dest['DocumentLayout']);
   }
   $channels_node = $package_node->appendChild($valid_dom->createElement('Channels'));
-  foreach ($package_array['Channels']['Channel'] as $channel_array){
-    $channel_node = $channels_node->appendChild($valid_dom->createElement('Channel'));
-    $channel_node->setAttribute('Name', $channel_array['Name']);
+  if (isset($package_array['Channels']['Channel'])) {
+    foreach ($package_array['Channels']['Channel'] as $channel_array){
+      $channel_node = $channels_node->appendChild($valid_dom->createElement('Channel'));
+      $channel_node->setAttribute('Name', $channel_array['Name']);
+    }
   }
   if (is_numeric($package_array['CommentsAllowed']['value'])) {
     $comments_translate = array(
@@ -132,7 +134,7 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
   } else {
     $package_node->appendChild($valid_dom->createElement('CommentsAllowed', $package_array['CommentsAllowed']['value']));
   }
-  if (isset($package_array['FreeAccess']) & $package_array['FreeAccess']['value'] != NULL & $package_array['FreeAccess']['value'] != ''){
+  if (isset($package_array['FreeAccess']) && $package_array['FreeAccess']['value'] != NULL && $package_array['FreeAccess']['value'] != ''){
     $package_node->appendChild($valid_dom->createElement('FreeAccess', $package_array['FreeAccess']['value']));
   } else {
     $freeaccess_node = $package_node->appendChild($valid_dom->createElement('FreeAccess'));
@@ -142,7 +144,7 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
   $package_node->appendChild($valid_dom->createElement('PackageLayout', $package_array['PackageLayout']['value']));
   
   $package_node->appendChild($valid_dom->createElement('Summary', $package_array['Summary']['value']));
-  if (isset($package_array['ExternalURI']) & $package_array['ExternalURI']['value'] != NULL & $package_array['ExternalURI']['value'] != ''){
+  if (isset($package_array['ExternalURI']) && $package_array['ExternalURI']['value'] != NULL && $package_array['ExternalURI']['value'] != ''){
     $package_node->appendChild($valid_dom->createElement('ExternalURI', $package_array['ExternalURI']['value']));
   } else {
     $externaluri_node = $package_node->appendChild($valid_dom->createElement('ExternalURI'));

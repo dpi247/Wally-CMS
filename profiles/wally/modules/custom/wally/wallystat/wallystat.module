@@ -85,7 +85,7 @@ function wallystat_cron(){
     module_load_include('inc', 'wallystat', 'includes/wallystat.process');
 
     // Register shutdown callback
-    register_shutdown_function('_wallystat_cron_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallystat_cron_semaphore', 'WallyStat', t('Stats cron task run exceeded the time limit and was aborted'), array(), TRUE);
 
     // Lock cron semaphore
     wally_variable_set('wallystat_cron_semaphore', time());

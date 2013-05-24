@@ -81,7 +81,7 @@ function wallysitemap_cron() {
     $return .= t('The cron didn\'t run successfully because the semaphore wasn\'t free.').'</br>';
   } else {
     // Register shutdown callback
-    register_shutdown_function('wallysitemap_cron_cleanup');
+    register_shutdown_function('wallytoolbox_cron_cleanup', 'wallysitemap_cron_semaphore', 'Sitemap', t('sitemap cron run exceeded the time limit and was aborted'), array(), TRUE);
     
     // Lock cron semaphore
     wally_variable_set('wallysitemap_cron_semaphore', time());
@@ -109,17 +109,6 @@ function wallysitemap_cron() {
   }
   
   print $return;
-}
-
-/**
- * Shutdown function for sitemap cron cleanup.
- */
-function wallysitemap_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (wally_variable_get('wallysitemap_cron_semaphore', FALSE)) {
-    // Release cron semaphore
-    wally_variable_del('wallysitemap_cron_semaphore');
-  }
 }
 
 /**

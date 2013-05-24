@@ -221,11 +221,3 @@ function _wallystat_get_placeholder($last_tstamp, $current_tstamp){
     return FALSE;
   }
 }
-
-function _wallystat_cron_cleanup() {
-  // See if the semaphore is still locked.
-  if (wally_variable_get('wallystat_cron_semaphore', FALSE)) {
-    // Release cron semaphore
-    wally_variable_del('wallystat_cron_semaphore');
-  }
-}

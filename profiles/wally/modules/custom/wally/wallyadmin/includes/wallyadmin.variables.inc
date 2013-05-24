@@ -19,16 +19,26 @@
 function _wally_variable_get($name, $default, $regenerate = FALSE) {
   global $wally_vars;
 
+  if (trim($name) == "") {
+    // Add stack trace in watchdog ?
+    watchdog('Wally Variable', t('wally_variable_get() called with empty name'), array(), WATCHDOG_DEBUG);
+    return $default;
+  }
+
   if (!isset($wally_vars[$name]) || $regenerate) {
     $result = db_query('SELECT value FROM {wally_variable_fast} WHERE name = "%s"', $name);
     if($variable = db_fetch_array($result)) {
       $wally_vars[$name] = unserialize($variable['value']);
     } else {
-      $wally_vars[$name] = $default;
+      $wally_vars[$name] = 'DPICACHE-NOCACHEDVALUE';
     }
   }
 
-  return $wally_vars[$name];
+  if ($wally_vars[$name] !== 'DPICACHE-NOCACHEDVALUE') {
+    return $wally_vars[$name];
+  } else {
+    return $default;
+  }
 }
 
 /**
