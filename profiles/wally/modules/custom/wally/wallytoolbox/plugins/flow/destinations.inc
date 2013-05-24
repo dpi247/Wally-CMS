@@ -322,7 +322,8 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
     $transformed_node['Summary']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_summary', '');
   }
   $transformed_node['ExternalURI']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_externaluri', '');
-
+  $transformed_node['Source']['value'] = wallytoolbox_destinations_flow_node_get_field($node, 'field_source', '');
+  
   return $transformed_node;
 }
 

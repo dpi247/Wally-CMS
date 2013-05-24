@@ -148,6 +148,9 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $externaluri_node = $package_node->appendChild($valid_dom->createElement('ExternalURI'));
     $externaluri_node->setAttribute('xsi:nil', 'true');
   }
+  if (isset($package_array['Source']['value'])) {
+    $package_node->appendChild($valid_dom->createElement('Source', $package_array['Source']['value']));
+  }
 }
 
 /**
