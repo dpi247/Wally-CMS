@@ -5,7 +5,12 @@
  * @file
  *   Import Press Content to Drupal structure Administration
  */
-
+function wallydam_page_admin_packages_sync(){
+  $content = '';
+  $content .= drupal_get_form('wallydam_page_admin_packages_sync_form');
+  $content .= wallydam_list_source();
+  return $content;
+}
 /**
  * Packages synchronization settings form.
  */
@@ -14,7 +19,7 @@ function wallydam_page_admin_packages_sync_form($form_state) {
 
   $form['wallydam_updateurl'] = array(
     '#type' => 'textfield',
-    '#title' => t('URL to send the informations of the node'),
+    '#title' => t('URL to send the updated alias'),
     '#description' => t('URL to send the information of the node.'),
     '#default_value' => wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl'),
     '#size' => 80,
@@ -625,4 +630,147 @@ function _wallydam_page_admin_search_populate_thesaurus_options($thesaurus) {
   }
 
   return array($all_options, $js_options);
+}
+/**
+ * Form to add a source on the package
+ * */
+function wallydam_page_admin_source_form($form_state, $edit_id = NULL){
+
+  ctools_include('dependent');
+  ctools_add_js('dependent');
+  
+  $form = array();
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('The identifier of the source (this name must be unique)'),
+    '#description' => t('The identifier of the source used in the import files.'),
+    '#size' => 80,
+    '#maxlength' => 512,
+    '#required' => TRUE,
+  );
+  
+  $form['archive'] = array(
+    '#type' => 'select',
+    '#title' => t('Archive'),
+    '#description' => t('Archive the content into the DAM'),
+    '#options' => array('' => '', 0 => t('No'), 1 => t('Yes')),
+    '#required' => TRUE,
+  );
+  
+  $form['archive_from_wallymport'] = array(
+    '#type' => 'select',
+    '#title' => t('Archive from wallymport'),
+    '#description' => t('Archive the content even when it\'s comming from wallymport. (Example : Packages from newsgate must not be archived when comming from wallymport to avoid loop. But package from flow to node must be arhcived from wallymport)'),
+  	'#options' => array(0 => t('No'), 1 => t('Yes')),
+    '#dependency'       => array('edit-archive' => array(1)),
+    '#process'          => array('ctools_dependent_process'),
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+  
+  //Edition
+  if ($edit_id != NULL){
+    $source = wallydam_getsourcebyid($edit_id);
+    if ($source){
+      $form['sid'] = array('#type' => 'value', '#value' => $edit_id);
+      $form['name']['#default_value'] = $source->name;
+      $form['archive']['#default_value'] = $source->archive;
+      $form['archive_from_wallymport']['#default_value'] = $source->archive_from_wallymport;
+    
+      $form['delete'] = array(
+        '#type' => 'markup',
+        '#value' => '<a href = "/admin/wally/wallydam/deletesource/'.$source->sid.'">'.t('Delete').'</a>',
+      );
+    }
+  }
+  
+  return $form;
+}
+/**
+ * Validation of the wallydam_page_admin_addsource_form
+ *  */
+function wallydam_page_admin_source_form_validate($form, $form_state){
+  if ($form_state['values']['sid'] === NULL && wallydam_getsourcebyname($form_state['values']['name']) !== NULL){
+    form_set_error('name', t('A source with the name %name already exists', array('%name' => $form_state['values']['name'])));
+  }
+}
+/**
+* Submit of the wallydam_page_admin_addsource_form
+*  */
+function wallydam_page_admin_source_form_submit($form, $form_state){
+  $source = new stdClass();
+  $source->name = $form_state['values']['name'];
+  $source->archive = $form_state['values']['archive'];
+  $source->archive_from_wallymport = $form_state['values']['archive_from_wallymport'];
+  $update = array();
+  
+  //Update
+  if ($form_state['values']['sid']){
+    $update = array('sid');
+    $source->sid = $form_state['values']['sid'];
+  }
+  
+  if (drupal_write_record('wallydam_source', $source, $update)){
+    drupal_set_message(t('The source "@name" has been saved.', array('@name' => $form_state['values']['name'])));
+  } else {
+    drupal_set_message(t('The source could not be saved.'));
+  }
+}
+/**
+ * 
+ * Form to delete a source
+ * @param array $form_state
+ * @param int $edit_id
+ */
+function wallydam_page_admin_source_delete_form($form_state, $delete_id = NULL){
+  
+  if ($delete_id != NULL){
+    $form['sid'] = array(
+      '#type' => 'value',
+      '#value' => $delete_id,
+    );
+    $form['text'] = array(
+      '#type' => 'markup',
+      '#value' => t('Are you sure you want to delete this source? '),
+    );
+    $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Delete') );
+  }
+  return $form;
+}
+  
+/**
+ * Submit of the source delete form
+ */
+function wallydam_page_admin_source_delete_form_submit($form, $form_state){
+  
+  $result = db_query("DELETE FROM {wallydam_source} WHERE sid = %d", $form_state['values']['sid']);
+  if ($result != FALSE){
+    $message = t('The source as been deleted');
+  } else {
+    $message = t('The importer as not been deleted');
+  }
+  drupal_set_message(t($message));
+  drupal_goto('admin/wally/wallydam');
+}
+/**
+ * Liste des sources
+ */
+function wallydam_list_source() {
+  $content = '';
+  $sources = wallydam_getsources();
+  $header = array(t('Source'), t('Archive'), t('Archive from wallymport'), t('Operations'));
+  $rows = array();
+  $noyes = array(0 => t('No'), 1 => t('Yes'));
+  foreach ($sources as $source){
+    $rows[] = array(
+      $source->name, 
+      $noyes[$source->archive], 
+      $noyes[$source->archive_from_wallymport], 
+      '<a href="/admin/wally/wallydam/editsource/'.$source->sid.'">'.t('Edit').'</a>, <a href="/admin/wally/wallydam/deletesource/'.$source->sid.'">'.t('Delete').'</a>');
+  }
+  $content .= theme('table', $header, $rows);
+  return $content;
 }

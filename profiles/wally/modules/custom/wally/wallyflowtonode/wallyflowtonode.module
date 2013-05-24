@@ -371,6 +371,10 @@ function _wallyflowtonode_create_valid_dom_from_array($struct_array, &$feed_info
     $package->appendChild($valid_dom->createElement('PackageLayout', $feed_infos['package_layout']));
     $package->appendChild($valid_dom->createElement('Summary', $array_valid_dom['Package']['Summary']['value']));
     $package->appendChild($valid_dom->createElement('ExternalURI', $array_valid_dom['Package']['ExternalURI']['value']));
+ 
+    if ($array_valid_dom['Package']['Source']['value'] != NULL){
+      $package->appendChild($valid_dom->createElement('Source'), $array_valid_dom['Package']['Source']['value']);
+    }
     $mainStory = $package->appendChild($valid_dom->createElement('MainStory'));
 
     $destination = $destinations->appendChild($valid_dom->createElement('Destination'));

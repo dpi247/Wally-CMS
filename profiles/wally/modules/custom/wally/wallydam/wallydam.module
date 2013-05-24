@@ -8,8 +8,7 @@ function wallydam_menu() {
 
   $items['admin/wally/wallydam'] = array(
     'title' => t('Wally DAM Settings'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('wallydam_page_admin_packages_sync_form'),
+    'page callback' => 'wallydam_page_admin_packages_sync',
     'access arguments' => array('access administration pages'),
     'description' => t('Manage DAM communications settings.'),
     'file' => 'includes/wallydam.admin.inc',
@@ -33,7 +32,7 @@ function wallydam_menu() {
     'description' => t('DAM Search settings'),
     'file' => 'includes/wallydam.admin.inc',
     'type' => MENU_LOCAL_TASK,
-    'weight' => 1,
+    'weight' => 2,
   );
 
   $items['admin/wally/wallydam/search/edit/%'] = array(
@@ -74,9 +73,35 @@ function wallydam_menu() {
     'description' => t('Packages recovery settings'),
     'file' => 'includes/wallydam.admin.inc',
     'type' => MENU_LOCAL_TASK,
-    'weight' => 2,
+    'weight' => 3,
   );
 
+  $items['admin/wally/wallydam/addsource'] = array(
+    'title' => t('Add Source'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_source_form'),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Add a new source'),
+    'file' => 'includes/wallydam.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 1,
+  );
+  $items['admin/wally/wallydam/editsource/%'] = array(
+    'title' => t('Edit Source'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_source_form', 4),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Add a new source'),
+    'file' => 'includes/wallydam.admin.inc',
+  );
+  $items['admin/wally/wallydam/deletesource/%'] = array(
+    'title' => t('Delete Source'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('wallydam_page_admin_source_delete_form', 4),
+    'access arguments' => array('access administration pages'),
+    'description' => t('Delte a source'),
+    'file' => 'includes/wallydam.admin.inc',
+  );
   return $items;
 }
 
@@ -85,19 +110,31 @@ function wallydam_menu() {
  */
 function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
   switch ($op){
+    case 'presave':
+      if ($node->nid === NULL && $node->field_source[0]['value'] == NULL){
+        //Set the source to dpi247 if a new node without source
+        $node->field_source[0]['value'] = 'dpi247';
+      }
+      break;
     case 'insert':
       //Publish : node save
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
+
         //URL Alias Update
         $url = $node->path;
         if (!isset($node->path)){
           $url = 'node/'.$node->nid;
         }
         wallydam_addurltobuffer($node->nid, $url);
-
+        
         //Package Update
-        if (!isset($node->wallymport_node)){
+        $source = wallydam_getsourcebyname($node->field_source[0]['value']);
+        if ($source->archive == 1 && ($source->archive_from_wallymport == 1 || !isset($node->wallymport_node))){
+          //If the package is to archived and it's not from wallymport or archive_from_wallymport is set to one, the package is saved
           wallydam_addpackagetobuffer($node->nid);
+        } elseif ($source->archive == 1 && $source->archive_from_wallymport == 0 && isset($node->wallymport_node)){
+          //If the package is from wallymport and archive from wallymport is set to 0, the package is deleted from the buffer.
+          wallydam_removepackagefrombuffer($node->nid);
         }
       }
       break;
@@ -105,8 +142,13 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
     case 'update':
       if ($node->type == 'wally_articlepackage' || $node->type == 'wally_gallerypackage' || $node->type == 'wally_pollpackage'){
         //Package update
-        if (!isset($node->wallymport_node)){
+        $source = wallydam_getsourcebyname($node->field_source[0]['value']);
+        if ($source->archive == 1 && ($source->archive_from_wallymport == 1 || !isset($node->wallymport_node))){
+          //If the package is to archived and it's not from wallymport or archive_from_wallymport is set to one, the package is saved
           wallydam_addpackagetobuffer($node->nid);
+        } elseif ($source->archive == 1 && $source->archive_from_wallymport == 0 && isset($node->wallymport_node)){
+          //If the package is from wallymport and archive from wallymport is set to 0, the package is deleted from the buffer.
+          wallydam_removepackagefrombuffer($node->nid);
         }
 
         //URL Alias Update (update only if the Alias is modified)
@@ -116,18 +158,6 @@ function wallydam_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
             $url = 'node/'.$node->nid;
           }
           wallydam_addurltobuffer($node->nid, $url);
-        }
-      }
-      elseif(($node->type == 'wally_audioobject' || $node->type == 'wally_photoobject' || $node->type == 'wally_pollobject'
-          || $node->type == 'wally_textobject' || $node->type == 'wally_videoobject') && !isset($node->wallymport_node)){
-        if (!isset($node->wallymport_node)){
-          foreach (wallytoolbox_get_node_by_reference($node) as $array_nid){
-            //Package update
-            $node_package = node_load($array_nid['nid']);
-            if ($node_package->field_externaluri[0]['value'] == NULL){
-              wallydam_addpackagetobuffer($array_nid['nid']);
-            }
-          }
         }
       }
       break;
@@ -259,10 +289,11 @@ function wallydam_posturl($node, $node_url){
  * nid of the node
  */
 function wallydam_addpackagetobuffer($nid){
+
   $result = db_query("SELECT nid FROM {wallydam_packagestosend} WHERE nid = %d", $nid);
   if (!db_result($result)){
     $row = new stdClass();
-    $row->nid = $nid;
+    $row->nid = (int)$nid;
     $row->timestamp = time();
     drupal_write_record('wallydam_packagestosend', $row);
   }
@@ -483,7 +514,7 @@ function wallydam_archive_searchurl(){
       wallydam_archive_cacheset($url, $return);
       //If the last alias is different to the url, the last alias is set in cache
       // and we redirect to the las alias
-      if ($last_alias != $url){
+      if ($last_alias != $url && $last_alias != NULL){
         wallydam_archive_cacheset($last_alias, $return);
         drupal_goto($last_alias);
       }
@@ -499,13 +530,48 @@ function wallydam_archive_searchurl(){
 }
 
 /**
- * Implementation of hook_wallymport_nodeprocess
- * If a package is imported, we destroy its entry in the wallydam_packagestosend table.
- */
-function wallydam_wallymport_nodeprocess($node, $dom, $log, $importer, $location, $type) {
-  if ($location == 'process_package' && $type == 'postsave'){
-    wallydam_removepackagefrombuffer($node->nid);
-    watchdog('wallydam', t('The update of the node (nid : %nid) has not been sent to the external sources (DAM, CCI) 
-    because a more recent version has been received. Some data may have been lost.', array('%nid' => $node->nid)));
+* Return the source configuration form source name
+* @param string $sourcename
+*/
+function wallydam_getsourcebyid($sid){
+  $return = NULL;
+  $result = db_query("SELECT * FROM {wallydam_source} WHERE sid = %d", $sid);
+  if ($obj = db_fetch_object($result)){
+    $return = new stdClass;
+    $return->sid = (int)$obj->sid;
+    $return->name = $obj->name;
+    $return->archive = (int)$obj->archive;
+    $return->archive_from_wallymport = (int)$obj->archive_from_wallymport;
   }
+  return $return;
+}
+/**
+ * Return the source configuration form source name
+ * @param string $sourcename
+ */
+function wallydam_getsourcebyname($sourcename){
+  $return = NULL;
+  $result = db_query("SELECT * FROM {wallydam_source} WHERE name = '%s'", $sourcename);
+  if ($obj = db_fetch_object($result)){
+    $return = new stdClass;
+    $return->sid = (int)$obj->sid;
+    $return->name = $obj->name;
+    $return->archive = (int)$obj->archive;
+    $return->archive_from_wallymport = (int)$obj->archive_from_wallymport;
+  }
+  return $return;
+}
+/**
+* Get importers info
+*
+* @return
+*   an array of importers
+*/
+function wallydam_getsources(){
+  $result = db_query("SELECT * FROM {wallydam_source}");
+  $sources = NULL;
+  while ($source = db_fetch_object($result)){
+    $sources[] = $source;
+  }
+  return $sources;
 }

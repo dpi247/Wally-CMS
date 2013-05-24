@@ -288,7 +288,9 @@ function wallytoolbox_rss_item_to_array_set_package(&$array_item, $item, $feed_i
   $array_item['Destinations']['Destination'][] = $temp_dest;
   $array_item['PackageLayout']['value'] = isset($feed_infos['package_layout']) ? $feed_infos['package_layout'] : '';
   $array_item['ExternalURI']['value'] = _wallytoolbox_checkifelementexists($item, 'link');
-
+  if ($feed_infos['source'] != NULL){
+    $array_item['Source']['value'] = $feed_infos['source'];
+  }
   return array($feed_name, $prefix);
 }
 

@@ -317,9 +317,9 @@ function wallymport_page_importerdelete_form_submit($form,$form_state){
 
   $result = db_query("DELETE FROM {wallymport_importer} WHERE iid = %d", $form_state['values']['wallymport']['iid']);
   if ($result != FALSE){
-    $message = 'The importer as been deleted';
+    $message = t('The importer as been deleted');
   } else {
-    $message = 'The importer as not been deleted';
+    $message = t('The importer as not been deleted');
   }
   drupal_set_message(t($message));
   drupal_goto('admin/wally/wallymport/settings/general');
