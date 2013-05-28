@@ -30,6 +30,8 @@
  *   set of results will return a database query result resource. Other
  *   successful queries will return TRUE and failing queries will return FALSE.
  */
+  
+ // Include functions for automatic master/slave replication
  require_once './includes/database.mysql-replication.inc';
  
  function db_query($query) {
@@ -50,7 +52,21 @@
  
    return _db_query($query, FALSE, $run_on_slave);
  }
+ 
+/*
 
+ function db_query($query) {
+  $args = func_get_args();
+  array_shift($args);
+  $query = db_prefix_tables($query);
+  if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
+    $args = $args[0];
+  }
+  _db_query_callback($args, TRUE);
+  $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
+  return _db_query($query);
+}
+*/
 
 /**
  * @ingroup schemaapi

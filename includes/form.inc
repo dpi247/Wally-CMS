@@ -41,8 +41,8 @@
  *
  * For information on the format of the structured arrays used to define forms,
  * and more detailed explanations of the Form API workflow, see the
- * @link forms_api_reference.html reference @endlink and the
- * @link http://drupal.org/node/204270 Form API guide. @endlink
+ * @link http://api.drupal.org/api/file/developer/topics/forms_api_reference.html/6 reference @endlink
+ * and the @link http://drupal.org/node/204270 Form API guide. @endlink
  */
 
 /**
@@ -1842,7 +1842,7 @@ function form_expand_ahah($element) {
     if (is_string($ahah_binding['progress'])) {
       $ahah_binding['progress'] = array('type' => $ahah_binding['progress']);
     }
-    // Change progress path to a full URL.
+    // Change progress path to a full url.
     if (isset($ahah_binding['progress']['path'])) {
       $ahah_binding['progress']['url'] = url($ahah_binding['progress']['path']);
     }
@@ -1997,7 +1997,7 @@ function theme_image_button($element) {
     (!empty($element['#value']) ? ('value="'. check_plain($element['#value']) .'" ') : '') .
     'id="'. $element['#id'] .'" '.
     drupal_attributes($element['#attributes']) .
-    ' src="'. base_path() . $element['#src'] .'" '.
+    ' src="'. file_create_url($element['#src']) .'" '.
     (!empty($element['#title']) ? 'alt="'. check_plain($element['#title']) .'" title="'. check_plain($element['#title']) .'" ' : '' ) .
     "/>\n";
 }

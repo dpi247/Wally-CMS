@@ -55,9 +55,9 @@ function db_connect($url) {
     _db_error_page('Unable to use the MySQL database because the MySQL extension for PHP is not installed. Check your <code>php.ini</code> to see how you can enable it.');
   }
 
-  // Decode urlencoded information in the db connection string
+  // Decode url-encoded information in the db connection string
   $url['user'] = urldecode($url['user']);
-  // Test if database URL has a password.
+  // Test if database url has a password.
   $url['pass'] = isset($url['pass']) ? urldecode($url['pass']) : '';
   $url['host'] = urldecode($url['host']);
   $url['path'] = urldecode($url['path']);
@@ -95,9 +95,31 @@ function db_connect($url) {
 /**
  * Helper function for db_query().
  */
-function _db_query($query, $debug = 0) {
+function _db_query($query, $debug = 0, $slave = FALSE) {
   global $active_db, $active_slave_db, $queries, $user;
-	
+
+  // Ignore slave database servers for this request.
+  //
+  // In Drupal's distributed database structure, new data is written to the master
+  // and then propagated to the slave servers.  This means there is a lag
+  // between when data is written to the master and when it is available on the slave.
+  // At these times, we will want to avoid using a slave server temporarily.
+  // For example, if a user posts a new node then we want to disable the slave
+  // server for that user temporarily to allow the slave server to catch up.
+  // That way, that user will see their changes immediately while for other
+  // users we still get the benefits of having a slave server, just with slightly
+  // stale data.  Code that wants to disable the slave server should use the
+  // db_set_ignore_slave() function to set $_SESSION['ignore_slave_server'] to
+  // the timestamp after which the slave can be re-enabled.
+  if (isset($_SESSION['ignore_slave_server'])) {
+    if ($_SESSION['ignore_slave_server'] >= $_SERVER['REQUEST_TIME']) {
+      $slave = FALSE;
+    }
+    else {
+      unset($_SESSION['ignore_slave_server']);
+    }
+  }
+
   if (variable_get('dev_query', 0)) {
     list($usec, $sec) = explode(' ', microtime());
     $timer = (float)$usec + (float)$sec;
@@ -120,20 +142,20 @@ function _db_query($query, $debug = 0) {
   else {
     $result = mysql_query($query, $active_db);
   }
-  
+
   if (variable_get('dev_query', 0)) {
     $query = $bt[2]['function'] ."\n". $query;
     list($usec, $sec) = explode(' ', microtime());
     $stop = (float)$usec + (float)$sec;
     $diff = $stop - $timer;
-    $queries[] = array($query, $diff);
+    $queries[] = array($query, $diff, $sent_to_slave);
   }
+
   if (!$sent_to_slave) {
-  	$active_last_db = $active_db;
+    $active_last_db = $active_db;
   } else {
-  	$active_last_db = $active_slave_db;
+    $active_last_db = $active_slave_db;
   }
-  
 
   if ($debug) {
     print '<p>query: '. $query .'<br />error:'. mysql_error($active_db) .'</p>';
@@ -253,7 +275,7 @@ function db_query_range($query) {
   $from = array_pop($args);
   array_shift($args);
 
-  $query_prefixed = db_prefix_tables($query);;
+  $query_prefixed = db_prefix_tables($query);
   if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
     $args = $args[0];
   }
@@ -296,20 +318,21 @@ function db_query_range($query) {
  *   correctly.
  */
 function db_query_range_slave($query) {
-	$args = func_get_args();
-	$count = array_pop($args);
-	$from = array_pop($args);
-	array_shift($args);
+  $args = func_get_args();
+  $count = array_pop($args);
+  $from = array_pop($args);
+  array_shift($args);
 
-	$query = db_prefix_tables($query);
-	if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
-		$args = $args[0];
-	}
-	_db_query_callback($args, TRUE);
-	$query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
-	$query .= ' LIMIT '. (int)$from .', '. (int)$count;
-	return _db_query($query, FALSE, TRUE);
+  $query = db_prefix_tables($query);
+  if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
+    $args = $args[0];
+  }
+  _db_query_callback($args, TRUE);
+  $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
+  $query .= ' LIMIT '. (int)$from .', '. (int)$count;
+  return _db_query($query, FALSE, TRUE);
 }
+
 
 /**
  * Runs a SELECT query and stores its results in a temporary table.
