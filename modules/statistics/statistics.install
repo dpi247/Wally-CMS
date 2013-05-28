@@ -118,7 +118,7 @@ function statistics_schema() {
 }
 
 /**
- * @addtogroup updates-6.x-extra
+ * @defgroup updates-6.x-extra Extra statistics updates for 6.x
  * @{
  */
 
@@ -132,6 +132,6 @@ function statistics_update_6000() {
 }
 
 /**
- * @} End of "addtogroup updates-6.x-extra".
+ * @} End of "defgroup updates-6.x-extra"
  * The next series of updates should start at 7000.
  */
