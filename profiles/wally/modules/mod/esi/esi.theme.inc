@@ -81,7 +81,7 @@ function theme_esi_tag($type, $data) {
     $src = "esi/panels_pane/{$theme_key}:{$data->did}:{$data->pid}";
     $css_id = "{$theme_key}-{$data->did}-{$data->pid}";
     $scope = isset($data->cache['settings']['scope']) ? $data->cache['settings']['scope'] : (int)variable_get('esi_panel_default_scope', ESI_PANEL_DEFAULT_SCOPE);
-    if (!empty($data->configuration['context'])) {// && is_string($data->configuration['context'])) {
+    if (!empty($data->configuration['context']) && is_string($data->configuration['context'])) {
       $display = panels_get_current_page_display();
       // The cache-key variable is set by the panel-context render function.
       list($context, $task_name, $handler_name) = explode(':', $display->cache_key);
@@ -116,6 +116,8 @@ function theme_esi_tag($type, $data) {
 
   $user_cache = '/CACHE=USER';
   $role_cache = '/CACHE=ROLE';
+  $no_cache = '/CACHE=NOCACHE';
+  
   if (variable_get('esi_role_user_direct_injection', ESI_ROLE_USER_DIRECT_INJECTION)) {
     $role_cache = '/CACHE=' . _esi__get_roles_hash();
     $user_cache = '/CACHE=' . esi_get_user_hash();
@@ -123,9 +125,14 @@ function theme_esi_tag($type, $data) {
 
   if (!empty($scope)) {
     switch ($scope) {
-      // Global Scope.
       case 0:
+      	break;
+     	// No Cache 	
       case 1:
+        $src .= $no_cache;
+        $added_to_url['cache'] = TRUE;
+        break;
+      // Global Scope.
       case 2:
         break;
 

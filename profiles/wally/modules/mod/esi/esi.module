@@ -435,15 +435,16 @@ function esi_add_cache_headers($scope, $max_age) {
     // Do no cache.
     case 1:
       drupal_set_header("Cache-Control: must-revalidate, max-age=0");
+      drupal_set_header("X-BLOCK-CACHE: " . BLOCK_NO_CACHE);
       break;
-
     // Global Scope.
-    case 2:
-    // Page Scope.
+		case 2:
+      drupal_set_header("X-BLOCK-CACHE: " . BLOCK_CACHE_GLOBAL);
+		// Page Scope.
     case 3:
-      drupal_set_header("Cache-Control: public, max-age=$max_age");
+    	drupal_set_header("Cache-Control: public, max-age=$max_age");
+    	drupal_set_header("X-BLOCK-CACHE: " . BLOCK_CACHE_PER_PAGE);
       break;
-
     // User Role.
     case 4:
     // User Role/Page.
@@ -586,8 +587,12 @@ function esi__panel_pane_handler($bid, $page = NULL, $task_name = NULL, $context
   }
   $renderer->prepare_panes($renderer->display->content);
   $output = '';
+    
   if (!empty($renderer->prepared['panes'][$pane_id])) {
     $output .= $renderer->render_pane($renderer->prepared['panes'][$pane_id]);
+
+   // watchdog("DLA", print_r($renderer->prepared['panes'][$pane_id])); 
+    
   }
   else {
     $output .= esi_fast404('panel');
@@ -598,7 +603,7 @@ function esi__panel_pane_handler($bid, $page = NULL, $task_name = NULL, $context
   $user = $current_user;
 
   // Cache the ESI output.
-  esi_set_page_cache($output, $config['settings']['scope'], $last_arg);
+//  esi_set_page_cache($output, $config['settings']['scope'], $last_arg);
   exit;
 }
 
@@ -665,9 +670,6 @@ function page_manager_esi_get_context_arguments($task_name) {
       // return array($keys);
 
     case 'term_view':
-      $tid = arg(2);
-      $depth = arg(3);
-      return array($tid, $depth);
       // @TODO.
       //  return array($terms, $depth);
   }
@@ -791,6 +793,8 @@ function esi_set_page_cache($data, $scope, $last_arg) {
 }
 
 function esi_get_page_cache() {
+	
+
   global $base_root;
   if (!variable_get('esi_page_cache', ESI_PAGE_CACHE)) {
     return NULL;
