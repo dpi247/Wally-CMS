@@ -1,5 +1,5 @@
 <?php
-// $Id: simpletest.install,v 1.4.2.3.2.23 2010/10/07 22:16:59 boombatower Exp $
+// $Id: simpletest.install,v 1.4.2.3.2.22 2009/12/14 23:36:34 boombatower Exp $
 // Core: Id: simpletest.install,v 1.26 2009/08/17 19:14:41 webchick Exp
 
 /**
@@ -141,7 +141,7 @@ function simpletest_requirements($phase) {
 
   $has_curl = function_exists('curl_init');
   $has_hash = function_exists('hash_hmac');
-  $has_domdocument = method_exists('DOMDocument', 'loadHTML');
+  $has_domdocument = class_exists('DOMDocument');
 
   $requirements['curl'] = array(
     'title' => $t('cURL'),
