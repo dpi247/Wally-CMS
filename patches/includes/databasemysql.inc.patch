@@ -1,8 +1,8 @@
-Index: includes/database.mysql.inc
-===================================================================
---- includes/database.mysql.inc	(revision 90758)
-+++ includes/database.mysql.inc	(working copy)
-@@ -253,14 +253,17 @@
+diff --git a/includes/database.mysql.inc b/includes/database.mysql.inc
+index 4ff53e1..5bbce71 100644
+--- a/includes/database.mysql.inc
++++ b/includes/database.mysql.inc
+@@ -275,14 +275,19 @@
    $from = array_pop($args);
    array_shift($args);
  
@@ -11,13 +11,16 @@ Index: includes/database.mysql.inc
    if (isset($args[0]) and is_array($args[0])) { // 'All arguments in one array' syntax
      $args = $args[0];
    }
-+  // Hack TAT - 20120511
++  
++  //Hack TAT - 20120511
 +  $run_on_slave = _db_is_slave_query($query, $query, $args);
 +  $query = $query_prefixed;
++  
    _db_query_callback($args, TRUE);
    $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
    $query .= ' LIMIT '. (int)$from .', '. (int)$count;
 -  return _db_query($query);
 +  return _db_query($query, FALSE, $run_on_slave);
  }
-
+ 
+ 
