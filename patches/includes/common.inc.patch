@@ -1,8 +1,8 @@
-Index: includes/common.inc
-===================================================================
---- includes/common.inc	(révision 78216)
-+++ includes/common.inc	(copie de travail)
-@@ -1469,7 +1469,7 @@
+diff --git a/includes/common.inc b/includes/common.inc
+index 7ef1e51..26547d8 100644
+--- a/includes/common.inc
++++ b/includes/common.inc
+@@ -1508,7 +1508,7 @@
      // On some web servers, such as IIS, we can't omit "index.php". So, we
      // generate "index.php?q=foo" instead of "?q=foo" on anything that is not
      // Apache.
