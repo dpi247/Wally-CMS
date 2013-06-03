@@ -1,4 +1,4 @@
-; $Id: simpletest.info,v 1.4.2.2.2.8 2010/01/04 22:38:18 boombatower Exp $
+; $Id: simpletest.info,v 1.4.2.2.2.7 2009/09/05 13:34:10 boombatower Exp $
 ; Core: Id: simpletest.info,v 1.10 2009/08/31 18:30:26 webchick Exp
 name = "SimpleTest"
 description = "Provides a framework for unit and functional testing."
@@ -7,7 +7,7 @@ package = Development
 ; version = VERSION
 ; core = 7.x
 core = 6.x
-php = 5.2 ; Drupal 6
+php = 5 ; Drupal 6
 files[] = simpletest.module
 files[] = simpletest.pages.inc
 files[] = simpletest.install
@@ -42,9 +42,9 @@ files[] = tests/block.test
 ; files[] = tests/unicode.test
 ; files[] = tests/xmlrpc.test
 
-; Information added by drupal.org packaging script on 2010-10-07
-version = "6.x-2.11"
+; Information added by drupal.org packaging script on 2009-12-30
+version = "6.x-2.10"
 core = "6.x"
 project = "simpletest"
-datestamp = "1286493665"
+datestamp = "1262212859"
 

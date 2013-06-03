@@ -1,5 +1,5 @@
 <?php
-// $Id: simpletest.module,v 1.33.2.4.2.23 2010/10/07 21:50:06 boombatower Exp $
+// $Id: simpletest.module,v 1.33.2.4.2.21 2009/12/14 23:27:11 boombatower Exp $
 // Core: Id: simpletest.module,v 1.71 2009/08/24 00:14:21 webchick Exp
 
 /**
@@ -208,12 +208,7 @@ function _simpletest_batch_operation($test_list_init, $test_id, &$context) {
   // Drupal 6.
   require_once drupal_get_path('module', 'simpletest') . '/drupal_web_test_case.php';
   $classes = simpletest_test_get_all_classes();
-
-//  require_once $classes[$test_class]['file'];
-  // Drupal 6.
-  if (!empty($classes[$test_class]['file'])) {
-    require_once $classes[$test_class]['file'];
-  }
+  require_once $classes[$test_class]['file'];
 
   $test = new $test_class($test_id);
   $test->run();
