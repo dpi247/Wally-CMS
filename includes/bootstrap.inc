@@ -733,6 +733,7 @@ function drupal_page_is_cacheable($force = NULL) {
 
   $result = $forced_cache
     && !drupal_session_started()
+    && isset($_SERVER['REQUEST_METHOD'])
     && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD')
     && !count(drupal_get_messages(NULL, FALSE))
     && !drupal_is_cli();
@@ -1153,7 +1154,7 @@ function check_plain($text) {
   // @todo remove this when support for either IE6 or PHP < 5.2.5 is dropped.
 
   if ($php525) {
-    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    return @htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
   }
   return (preg_match('/^./us', $text) == 1) ? htmlspecialchars($text, ENT_QUOTES, 'UTF-8') : '';
 }
@@ -1678,7 +1679,7 @@ function ip_address() {
   static $ip_address = NULL;
 
   if (!isset($ip_address)) {
-    $ip_address = $_SERVER['REMOTE_ADDR'];
+    $ip_address = isset($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:'0.0.0.0';
     
     // Only use parts of the X-Forwarded-For (XFF) header that have followed a trusted route.
     // Specifically, identify the leftmost IP address in the XFF header that is not one of ours.
