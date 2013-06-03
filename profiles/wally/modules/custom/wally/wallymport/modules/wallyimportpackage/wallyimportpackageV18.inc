@@ -424,7 +424,7 @@ function wallyimportpackageV18_node_process_galleryPackageType(&$node, $dom_elem
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
       
-      _wallyimportpackageV15_check_perform_pathauto($node);
+      _wallyimportpackageV18_check_perform_pathauto($node);
       break;
   }
   //Map XML element
@@ -507,7 +507,7 @@ function wallyimportpackageV18_node_process_pollpackagetype(&$node, $dom_element
         $node->field_editorialupdatedate[0] = _wimprthelp_date_to_ccktime(date("Y-m-d\TH:i:s"));
       }
       
-      _wallyimportpackageV15_check_perform_pathauto($node);
+      _wallyimportpackageV18_check_perform_pathauto($node);
       break;
   }
 
