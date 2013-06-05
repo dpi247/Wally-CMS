@@ -2507,24 +2507,19 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
       foreach($vocabularies as $vocabulary) {
         $function_exist = FALSE;
         foreach ($importer->importer_functions as $importer_function){
-          if (function_exists($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
+          if (function_exists($importer_function.'_node_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
             if (isset($node->nid)){
               $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
               wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
             }
-            call_user_func($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
+            call_user_func($importer_function.'_node_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
             $function_exist = TRUE;
             break;
           }
         }
-        if (!$function_exist & function_exists("wimprt_set_field_".$vocabulary->getAttributeNode("VocabularyName")->value)){
-          if (isset($node->nid)){
-            $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
-            wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
-          }
-          call_user_func('wimprt_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
-          $function_exist = TRUE;
-        }
+                
+        // If there is no special treatment (Person should creat a person object,etc..) 
+        // Than use default term assignation
         if (!$function_exist){
           $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
           if ($vid != NULL){
@@ -2533,6 +2528,7 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
             }
           }
           wallyimportpackageV18_node_set_field_taxonomy_vocabulary($vocabulary, $result, $vid);
+          
           if (!isset($node->nid)){
             $node->field_free_tags = array();
             $node->field_concepts = array();
