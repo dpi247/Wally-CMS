@@ -5,6 +5,13 @@
  */
 function wally_content_taxonomy_install() {
   drupal_install_schema('wally_content_taxonomy');
+  
+  //Add confidence and relevancy score
+  $ret = array();
+  if (db_table_exists('term_node')){
+    db_add_field($ret, 'term_node', 'wally_confidence_score', array('type' => 'int', 'not null' => FALSE));
+    db_add_field($ret, 'term_node', 'wally_relevancy_score', array('type' => 'int', 'not null' => FALSE));
+  }
 }
 
 /**
