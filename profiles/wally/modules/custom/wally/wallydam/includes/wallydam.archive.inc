@@ -61,11 +61,9 @@ function wallydam_archive_geturl($url){
   $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
   $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
   $request = wally_variable_get('wallydam_archive_geturl', '');
-  if (FALSE) {
-    $args = '?url='.$url;
-  } else {
-    $args = '/'.array_pop(explode('/', $url));
-  }
+  
+  $args = '?url='.$url;
+  
   $headers = array();
   $data = NULL;
  

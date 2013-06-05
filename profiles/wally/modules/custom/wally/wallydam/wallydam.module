@@ -269,7 +269,7 @@ function wallydam_posturl($node, $node_url){
 
   $package_id = $node->field_externalreference[0]['value'];
   $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
-  $postargs = 'packageId='.$package_id.'&url='.$node_url;
+  $postargs = 'commonId='.$package_id.'&url='.$node_url;
 
   //GET
   $result = drupal_http_request($request.'?'.$postargs, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
