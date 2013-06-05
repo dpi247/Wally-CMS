@@ -2549,16 +2549,16 @@ function wallyimportpackage_set_field_taxonomy_vocabulary($vocabulary, &$result,
         $tid = NULL;
         $recursive_path = "";
         foreach( explode("/",trim($path,"/")) as $t){
-
-          $recursive_path = $recursive_path."/".$t;
+          $term_name = trim($t);
+          $recursive_path = $recursive_path."/".$term_name;
           $t_parent = wallytoolbox_taxonomy_get_term_by_path($recursive_path, $vid);
           if ($t_parent) {
             $tid = $t_parent[0]->tid;
           } else {
             if ($tid) {
-              $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, $tid);
+              $tid = wallytoolbox_add_taxonomy_term($term_name, $vid, $term_name, 0, $tid);
             } else {
-              $tid = wallytoolbox_add_taxonomy_term($t, $vid, $t, 0, NULL);
+              $tid = wallytoolbox_add_taxonomy_term($term_name, $vid, $term_name, 0, NULL);
             }
           }
           // The node will be assigned to all the terms from PATH.
