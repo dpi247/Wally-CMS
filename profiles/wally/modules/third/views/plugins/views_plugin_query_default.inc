@@ -1030,6 +1030,9 @@ class views_plugin_query_default extends views_plugin_query{
         $having = $this->condition_sql('having');
       }
     }
+    elseif (!empty($distinct) && !empty($this->groupby)) {
+      $groupby = "GROUP BY " . implode(', ', array_unique(array_merge($this->groupby, $non_aggregates))) . "\n";
+    }
 
     if (!$get_count_optimized) {
       // We only add the orderby if we're not counting, because of performance reasons.
