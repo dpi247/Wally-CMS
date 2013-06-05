@@ -1,0 +1,14 @@
+diff --git a/profiles/wally/modules/third/views/plugins/views_plugin_query_default.inc b/profiles/wally/modules/third/views/plugins/views_plugin_query_default.inc
+index 1839419..5184f42 100644
+--- a/profiles/wally/modules/third/views/plugins/views_plugin_query_default.inc
++++ b/profiles/wally/modules/third/views/plugins/views_plugin_query_default.inc
+@@ -1030,6 +1030,9 @@
+         $having = $this->condition_sql('having');
+       }
+     }
++    elseif (!empty($distinct) && !empty($this->groupby)) {
++      $groupby = "GROUP BY " . implode(', ', array_unique(array_merge($this->groupby, $non_aggregates))) . "\n";
++    }
+ 
+     if (!$get_count_optimized) {
+       // We only add the orderby if we're not counting, because of performance reasons.
