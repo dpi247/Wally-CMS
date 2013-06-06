@@ -762,7 +762,7 @@ function wallytoolbox_get_node_by_reference($node, $extended = TRUE) {
 
     // Related packages
     if ($extended) {
-      $query .= "UNION SELECT DISTINCT (tok.nid) AS temp_nid
+      $query .= " UNION SELECT DISTINCT (tok.nid) AS temp_nid
         FROM {content_type_wally_articlepackage} tok
         LEFT JOIN {content_field_linkedobjects} tup ON tok.nid = tup.nid
         LEFT JOIN {content_field_links_list} tik ON tik.nid = tup.field_linkedobjects_nid
