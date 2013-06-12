@@ -65,7 +65,7 @@ function wallyimportdam_process_package($dom, &$log, $importer, $callback = NULL
   if (!isset($node->rejected) & !isset($node->wallymport_delete)){
     module_invoke_all('wallymport_nodeprocess', $node, $dom, $log, $importer, 'process_package', 'before_process');
     // ?Posibility of extension with 'hook_wallymport_info' / CTools Plugin?
-    
+
     if (function_exists("wallyimportdam_node_process_".$callback)){
       call_user_func("wallyimportdam_node_process_".$callback, &$node, $dom, &$log, $importer);
     }
@@ -74,7 +74,6 @@ function wallyimportdam_process_package($dom, &$log, $importer, $callback = NULL
 
     drupal_alter('wimprt_package_after_process', $node);
   }
-
   if (!empty($node) && !isset($node->rejected) && _wimprthelp_check_is_node($node)) {
     if ($importer->wallymport_preview) {
       if ($importer->wallymport_preview_norender){
@@ -289,7 +288,7 @@ function wallyimportdam_node_create_or_load_pollpackagetype($dom, &$log, $import
  *   Nothing
  */
 function wallyimportdam_node_process_articlepackagetype(&$node, $dom_element, &$log, $importer){
-  _wallyimportdam_check_perform_pathauto($node);
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
 
   //Map XML Attributes
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
@@ -3259,26 +3258,7 @@ function _wallymportdam_manage_file_from_uri(&$node, $importer, $dom, $token_use
   }
 }
 
-/**
- * Check whether an alias as to be recalculated or not
- */
-function _wallyimportdam_check_perform_pathauto(&$node) {
-  if (module_exists('pathauto') && !isset($node->pathauto_perform_alias)) {
-    if (!empty($node->nid)) {
-      // If this is not a new node, compare it's current alias to the
-      // alias that would be genereted by pathauto. If they are the same,
-      // then keep the automatic alias enabled.
-      _pathauto_include();
-      $placeholders = pathauto_get_placeholders('node', $node);
-      $pathauto_alias = pathauto_create_alias('node', 'return', $placeholders, "node/{$node->nid}", $node->nid, $node->type, $node->language);
-      $node->pathauto_perform_alias = isset($node->path) && $node->path == $pathauto_alias;
-    }
-    else {
-      // If this is a new node, enable the automatic alias.
-      $node->pathauto_perform_alias = TRUE;
-    }
-  }
-}
+
 
 /**
  * Determine the next callback function from the Dom element
@@ -3298,8 +3278,8 @@ function _wallyimportdam_check_perform_pathauto(&$node) {
 function wallyimportdam_set_callback($dom, $callback = NULL){
   if (get_class($dom) == 'DOMElement'){
     if ($callback == NULL){
-      if ($dom->hasAttribute('xsi:xsi')){
-        $callback = $dom->getAttributeNode('xsi:xsi')->value;
+      if ($dom->hasAttribute('xsi:type')){
+        $callback = $dom->getAttributeNode('xsi:type')->value;
       }
       else{
         $callback = $dom->nodeName;
@@ -3307,4 +3287,27 @@ function wallyimportdam_set_callback($dom, $callback = NULL){
     }
   }
   return strtolower($callback);
+}
+function wallyimportdam_node_set_field_source(&$node, $dom, &$log, $importer){
+  $value = $dom->nodeValue;
+  $node->field_source = array(array("value" => $value));
+}
+/**
+ * Process field lasturlalias from DOM element.
+ *
+ * MAP field from the a DOM (XML) element or attributes.
+ *
+ * @param $node
+ *   Node currently processed.
+ * @param $dom_element
+ *   The DomDocument who is being proceed (A DomElement)
+ * @param $log
+ *   The log object build recursively in different operation. this could track error in the process and build nodes.
+ *
+ * @return
+ *   Nothing
+ */
+function wallyimportdam_node_set_field_lasturlalias(&$node, $dom, &$log, $importer){
+  $value = $dom->nodeValue;
+  $node->field_lasturlalias = array(array("value" => $value));
 }

@@ -29,17 +29,17 @@ function wallydam_archive_getpackagefromurl($url, &$last_alias){
     //Import the zip
     
     $node = wallydam_archive_importnode($importer_name, $file_name);
+
     if ($node){
-      
       //Render node
       $content = wallydam_archive_rendernode($node);
       //a modifier, récupérer le last alias du noeud
+
       if ($node->field_lasturlalias[0]['value'] != NULL){
         $last_alias = $node->field_lasturlalias[0]['value'];
       }
     } 
   }
-  
   return $content;
 }
 /**
@@ -61,15 +61,15 @@ function wallydam_archive_geturl($url){
   $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
   $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
   $request = wally_variable_get('wallydam_archive_geturl', '');
+
+  $args = '?url='.urlencode($url);
   
-  $args = '?url='.$url;
-  
+ 
   $headers = array();
   $data = NULL;
- 
   //GET
-  $result = drupal_http_request($request.$args, $headers, 'GET', $data, $retry, $timeout);
 
+  $result = drupal_http_request($request.$args, $headers, 'GET', $data, $retry, $timeout);
   $file_name = FALSE;
   if ($result->code == 200){  
     $importer_name = wally_variable_get('wallydam_archive_importer', '');
@@ -133,11 +133,10 @@ function wallydam_archive_importnode($importer_name, $file_name) {
 
   $node = FALSE;
   //Keep the node even if it has no destination
-  if (isset($returns[0]) && !$returns[0]['error'] || $returns[0]['error_msg'] == 'No destination AT ALL for current package. Package rejected.'){
+  if (isset($returns[0]) && !$returns[0]['error']){
     $node = $returns[0]['log']['tempnode'];
     $node->damarchive = TRUE;
   }
-
   return $node;
 
 }
@@ -152,6 +151,8 @@ function wallydam_archive_rendernode($node){
 
   module_load_include('inc', 'page_manager', 'plugins/tasks/page');
   $page_archive = page_manager_page_load('archive');
+  
+  
   if ($page_archive->default_handlers['page_archive_panel_context']->conf['display'] != NULL){
     //If the page is in file
     $display = $page_archive->default_handlers['page_archive_panel_context']->conf['display'];

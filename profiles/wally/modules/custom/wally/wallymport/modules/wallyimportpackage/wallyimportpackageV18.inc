@@ -289,7 +289,7 @@ function wallyimportpackageV18_node_create_or_load_pollpackagetype($dom, &$log, 
  */
 function wallyimportpackageV18_node_process_articlepackagetype(&$node, $dom_element, &$log, $importer){
   _wallyimportpackageV18_check_perform_pathauto($node);
-  
+  module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
   //Map XML Attributes
   $node->field_packageid[0]['value'] = $dom_element->getAttributeNode("PackageID")->value;
   if ($dom_element->hasAttribute("PublicationDate")) {

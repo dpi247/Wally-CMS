@@ -266,17 +266,20 @@ function wallydam_cron(){
  */
 function wallydam_posturl($node, $node_url){
   $sent = FALSE;
-
-  $package_id = $node->field_externalreference[0]['value'];
-  $request = wally_variable_get('wallydam_updateurl', 'http://esb2.rossel.be:8081/rest/pandamServices/updateUrl');
-  $postargs = 'commonId='.$package_id.'&url='.$node_url;
-
-  //GET
-  $result = drupal_http_request($request.'?'.$postargs, array(), 'GET', NULL, wally_variable_get('wallytoolbox_http_request_retry', 1), wally_variable_get('wallytoolbox_http_request_timeout', 3));
-  if ($result->code == 200){
-    $sent = TRUE;
+  
+  //Send the URL in POST
+  $target_url = wally_variable_get('wallydam_updateurl', '');
+  if ($target_url != ''){
+    $package_id = $node->field_externalreference[0]['value'];
+    $postfields = array('commonId' => $package_id, 'url' => $node_url);
+    $sent = wallydam_post($postfields, $target_url);
+  } else {
+    drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
   }
+  
+ 
   return $sent;
+  
 }
 
 /**
@@ -357,9 +360,9 @@ function wallydam_postpackage($nid){
     if ($target_url != ''){
       $path_to_file = wally_variable_get('wallyexport_admin_source', 'sites/default/files/export').'/Wally_'.$nid.'.zip';
       $postfields = array('package'=>'@'.$path_to_file);
-      $file_length = filesize($path_to_file);
+      $content_type = 'application/zip';
       
-      $sent = wallydam_post($postfields, $target_url, $file_length);
+      $sent = wallydam_post($postfields, $target_url, $content_type);
     } else {
       drupal_set_message(t('The URL where the package is being posted is not specified'),'error');
     }
@@ -381,22 +384,28 @@ function wallydam_postpackage($nid){
  * @param  $result
  *   Le résultat du post.
  */
-function wallydam_post($postfields,$target_url, $file_length){
+function wallydam_post($postfields, $target_url, $content_type = NULL){
   //Envoi un fichier en post.
 
   $ch = curl_init($target_url);
-  $content_type = 'application/zip';
-  curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: ".$content_type));//, "Content-Length: ".$file_length));
+  
+  if ($content_type != NULL){
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: ".$content_type));
+  }
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-  //curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  
   $result = curl_exec($ch);
-  if ($result == FALSE){
+  
+  $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  
+  if ($http_status != 200){
     $return = FALSE;
     drupal_set_message(curl_error($ch),'error');
   } else {
     drupal_set_message($result);
     $return = TRUE;
   }
+  
   curl_close($ch);
   return $return;
 }
@@ -501,7 +510,7 @@ function wallydam_check_profile_exists($pid) {
  */
 function wallydam_archive_searchurl(){
   module_load_include('inc', 'wallydam', 'includes/wallydam.archive');
-  $url = 'http://'.$_SERVER['HTTP_HOST'].'/'.$_GET['q'];
+  $url = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
   //Look for the URL in the cache
   $return = wallydam_archive_cacheget($url);
