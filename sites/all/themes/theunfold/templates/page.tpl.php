@@ -11,6 +11,7 @@
 		<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Gentium+Book+Basic:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
 		<?php print $scripts ?>
+		<meta content="width=device-width, initial-scale=1.0" name="viewport">
 	</head>
 	<body class="<?php print $classes?> <?php print $body_classes;?>">
 		<div class="page">	
