@@ -2094,19 +2094,22 @@ function _cckdestinations_set_new_time_ranks(&$node, &$items) {
 	            for ($i = ($rank - 1); $i > 0; $i--) {
 	              if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
 	                $elem_nid = $current_results[$i - 1]->nid;
-	                $elem_node = node_load($elem_nid);
-	                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-	                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
-	  
-	                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
-	                  $dest['rank'] = 'DNC'.$dest['rank'];
-	                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
-	                    $dest['time_rank'] = $new_time_rank[$elem_nid];
-	                  }
-	                  $elem_node->field_destinations[$elem_delta] = $dest;
+	                if ($elem_nid != NULL){
+    	              $elem_node = node_load($elem_nid);
+    	              if ($elem_node !== NULL && $elem_node !== FALSE){
+    	                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
+    	                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
+    	  
+    	                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
+    	                  $dest['rank'] = 'DNC'.$dest['rank'];
+    	                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+    	                    $dest['time_rank'] = $new_time_rank[$elem_nid];
+    	                  }
+    	                  $elem_node->field_destinations[$elem_delta] = $dest;
+    	                }
+    	                node_save($elem_node);
+    	              }
 	                }
-	                
-	                node_save($elem_node);
 	              }
 	            }
 	          }
