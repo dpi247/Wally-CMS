@@ -1638,6 +1638,10 @@ function wydit_publish_prenode(&$form_state, $current_profile, $values = array()
     if($field['display'] == 2 || $field['display'] == 3) {
       $field_name = $field['name'];
       if(isset($form_state[$field_name])) {
+        $subnode = &$form_state[$field_name][$key]['#node'];
+        $content_type_default_settings = variable_get('node_options_'. $subnode->type, array('status', 'promote'));
+        $subnode->status = in_array('status', $content_type_default_settings) ? 1 : 0;
+
         foreach($form_state[$field_name] as $key => $value) {
           if ($nid = wydit_publish_prenode($form_state[$field_name][$key], $current_profile)) {
             unset($form_state[$field_name][$key]);
