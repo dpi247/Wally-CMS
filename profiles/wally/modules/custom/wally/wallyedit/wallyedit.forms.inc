@@ -1070,11 +1070,11 @@ function wydit_form_submit_action_publish_global($form_state) {
     drupal_set_message(t('Node has been published'));
     prenode_delete($form_state);
     drupal_set_message(t('PreNode has been cleared'));
- //   $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
+    $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid);
   } else {
     drupal_set_message(t('Node not published'), 'error');
     if ($form_state[$form_state['type']]['#node']->nid) {
-    //  $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
+      $commands[] = ctools_ajax_command_redirect('node/'.$form_state[$form_state['type']]['#node']->nid.'/edit');
     }
   }
 
