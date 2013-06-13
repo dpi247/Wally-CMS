@@ -2138,17 +2138,16 @@ function cckdestination_get_default_rank_settings(){
  *   The cckdestinations fields.
  */
 function _cckdestinations_set_new_time_ranks(&$node, &$items) {
-	
   $rank_limit = wally_variable_get('cckdestinations_rank_limit', 10);
 
   $pub_date = isset($node->field_publicationdate[0]['value']) ? strtotime($node->field_publicationdate[0]['value']) : time();
-  
+
   foreach ($items as $delta => $item) {
     if (!cckdestinations_content_is_empty($item, array()) && ($item['target'] != 'none')) {
       if (strstr($item['rank'], 'DNC') && isset($item['time_rank']) && !empty($item['time_rank'])) {
+        //If do not change, nothing is done
         $items[$delta]['rank'] = substr($item['rank'], 3);
-      } 
-      else {
+      } else {
         $defaults = array(
           'sort_method' => 'absolute',
           'behavior' => 'bottom',
@@ -2165,6 +2164,7 @@ function _cckdestinations_set_new_time_ranks(&$node, &$items) {
         if ($sort_method == 'interval') {
           $items[$delta]['time_rank'] = $pub_date + ($item['rank'] * 60 * 60 * $dest_settings['delta_t']);
         } else {
+          
           // Set params for this destination
           $behavior = $dest_settings['behavior'];
           $reserved = $dest_settings['reserved'];
@@ -2207,52 +2207,49 @@ function _cckdestinations_set_new_time_ranks(&$node, &$items) {
               $current_results[] = $result;
             }
           }
-          
-          if(wally_variable_get("reorder_local_behavior", FALSE)){
-           	if($rank>1){
-          	  $time_rank=(int)(($current_results[$rank - 2]->node_data_field_destinations_field_destinations_time_rank+$current_results[$rank- 1]->node_data_field_destinations_field_destinations_time_rank)/2);
-          	}
-          	if($rank==1){
-          		//@todo should be microtime(TRUE);
-          		$time_rank=time();
-          	}
-          	 
-          	foreach ($node->field_destinations as $elem_delta => $dest) {
-          		
-          		if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {	 
-          			$dest['time_rank'] = $time_rank;
-          			$items[$delta]=$dest;
-          			 
-          		}
-          	}
-          	 
-          }
-          else{
-	          
-	          $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
-	          //SEE: http://rossel.audaxis.com/jira/browse/WALLY-795
-	          if (TRUE OR sizeof($current_results) >= $reserved) {
-	            $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
-	  
-	            for ($i = ($rank - 1); $i > 0; $i--) {
-	              if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
-	                $elem_nid = $current_results[$i - 1]->nid;
-	                $elem_node = node_load($elem_nid);
-	                $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
-	                $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
-	  
-	                foreach ($elem_node->field_destinations as $elem_delta => $dest) {
-	                  $dest['rank'] = 'DNC'.$dest['rank'];
-	                  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
-	                    $dest['time_rank'] = $new_time_rank[$elem_nid];
-	                  }
-	                  $elem_node->field_destinations[$elem_delta] = $dest;
-	                }
-	                
-	                node_save($elem_node);
-	              }
-	            }
-	          }
+
+          if (wally_variable_get("reorder_local_behavior", FALSE)){
+           	if ($rank > 1){
+           	  $time_rank = (int)(($current_results[$rank - 2]->node_data_field_destinations_field_destinations_time_rank+$current_results[$rank- 1]->node_data_field_destinations_field_destinations_time_rank)/2);
+           	}
+           	if ($rank == 1){
+           	  //@todo should be microtime(TRUE);
+           	  $time_rank = time();
+           	}
+
+           	foreach ($node->field_destinations as $elem_delta => $dest) {
+           	  if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+           	    $dest['time_rank'] = $time_rank;
+           	    $items[$delta] = $dest;
+           	  }
+           	}
+          } else {
+            $items[$delta]['time_rank'] = $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank + 30;
+            //SEE: http://rossel.audaxis.com/jira/browse/WALLY-795
+            if (sizeof($current_results) >= $reserved) {
+              $current_results[$rank - 1]->node_data_field_destinations_field_destinations_time_rank = $items[$delta]['time_rank'];
+              for ($i = ($rank - 1); $i > 0; $i--) {
+                if ($current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank < ($current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 20)) {
+                  $elem_nid = $current_results[$i - 1]->nid;
+                  if ($elem_nid !== NULL){
+                    $elem_node = node_load($elem_nid);
+                    if ($elem_node !== NULL && $elem_node !== FALSE){
+                      $new_time_rank[$elem_nid] = $current_results[$i]->node_data_field_destinations_field_destinations_time_rank + 30;
+                      $current_results[$i - 1]->node_data_field_destinations_field_destinations_time_rank = $new_time_rank[$elem_nid];
+                      	
+                      foreach ($elem_node->field_destinations as $elem_delta => $dest) {
+                        $dest['rank'] = 'DNC'.$dest['rank'];
+                        if ($dest['tid'] == $item['tid'] && $dest['target'] == $item['target']) {
+                          $dest['time_rank'] = $new_time_rank[$elem_nid];
+                        }
+                        $elem_node->field_destinations[$elem_delta] = $dest;
+                      }
+                      node_save($elem_node);
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
