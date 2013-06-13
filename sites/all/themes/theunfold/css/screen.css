@@ -2998,14 +2998,16 @@ aside .article-group.first {
   border-bottom: 0 none;
 }
 
-@media screen and (min-width: 1120px) {
+@media screen and (min-width: 1120px),
+@media screen and (min-device-width: 1120px) {
   form > div.form-field > label,
   legend,
   form > div.form-item > label{
     text-align: right;
   }
 }
-@media screen and (min-width: 768px) and (max-width: 1119px) {
+@media screen and (min-width: 768px) and (max-width: 1119px),
+@media screen and (min-device-width: 768px) and (max-device-width: 1119px) {
   .page {
     margin: 0 19px;
   }
@@ -3113,7 +3115,8 @@ aside .article-group.first {
     text-align: center;
   }
 }
-@media screen and (min-width: 480px) and (max-width: 767px) {
+@media screen and (min-width: 480px) and (max-width: 767px),
+@media screen and (min-device-width: 480px) and (max-device-width: 767px) {
   header p.news-date {
     display: block !important;
     padding-top: 0 !important;
@@ -3154,7 +3157,8 @@ aside .article-group.first {
     line-height: 3.5;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   .row,
   header {
     margin: 0 9.5px;
@@ -3531,7 +3535,8 @@ aside .article-group.first {
     width: 40%;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 479px) {
+@media screen and (min-width: 320px) and (max-width: 479px),
+@media screen and (min-device-width: 320px) and (max-device-width: 479px) {
   .page {
     padding: 0 !important;
   }
@@ -3604,7 +3609,8 @@ aside .article-group.first {
   display: inherit !important;
 }
 
-@media screen and (min-width: 768px) and (max-width: 1119px) {
+@media screen and (min-width: 768px) and (max-width: 1119px),
+@media screen and (min-device-width: 768px) and (max-device-width: 1119px) {
   .hidden-desktop {
     display: inherit !important;
   }
@@ -3621,7 +3627,8 @@ aside .article-group.first {
     display: none !important;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   .hidden-desktop {
     display: inherit !important;
   }
@@ -3790,7 +3797,8 @@ aside .article-group.first {
   display: block !important;
 }
 
-@media screen and (min-width: 1120px) {
+@media screen and (min-width: 1120px),
+@media screen and (min-device-width: 1120px) {
   body.style-guide section.demo {
     display: block;
     float: left;
@@ -3814,7 +3822,8 @@ aside .article-group.first {
     padding-right: 0;
   }
 }
-@media screen and (min-width: 768px) and (max-width: 1119px) {
+@media screen and (min-width: 768px) and (max-width: 1119px),
+@media screen and (min-device-width: 768px) and (max-device-width: 1119px) {
   body.style-guide section.demo {
     display: block;
     float: left;
@@ -3838,7 +3847,8 @@ aside .article-group.first {
     padding-right: 0;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   body.style-guide section.demo {
     float: none;
     width: 100%;
@@ -3854,7 +3864,8 @@ aside .article-group.first {
     border: 0;
   }
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   body.style-guide #logo {
     display: block;
     float: left;
@@ -3895,7 +3906,8 @@ body.style-guide nav[role="navigation"] ul#nav > li > a.active {
   border: 0 none;
   top: 0;
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px)  {
   body.style-guide nav[role="navigation"] ul#nav > li > a.active {
     border-bottom: 1px solid #d4d7cb;
     top: 0;
@@ -3932,7 +3944,8 @@ body.style-guide .feature:last-child {
   margin-right: 0;
   padding-right: 0;
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   body.style-guide .feature {
     float: none;
     width: 100%;
@@ -3989,7 +4002,8 @@ body.style-guide section article.code:last-child {
   margin-right: 0;
   padding-right: 0;
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   body.style-guide section#grid article.code {
     float: none;
     width: 100%;
@@ -4052,7 +4066,8 @@ body.style-guide section#grid-demo .demo-aside:last-child {
   margin-right: 0;
   padding-right: 0;
 }
-@media screen and (min-width: 320px) and (max-width: 767px) {
+@media screen and (min-width: 320px) and (max-width: 767px),
+@media screen and (min-device-width: 320px) and (max-device-width: 767px) {
   body.style-guide section#grid-demo .demo-full {
     float: none;
     width: 100%;
