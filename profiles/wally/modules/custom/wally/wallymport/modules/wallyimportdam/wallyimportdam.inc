@@ -1663,7 +1663,7 @@ function wallyimportdam_node_process_photoobjecttype(&$node, $dom, &$log, $impor
   $new_thumb_path = module_exists('token') ? token_replace($thumb_field[0]['widget']['file_path'], 'user', $token_user) : $thumb_field[0]['widget']['file_path'];
   $node->field_thumbnail[0] = _wimprthelp_create_file_from_uri($thumb_uri, $new_thumb_path, $importer);
 
-  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emimage', 'wally_photoobject', 'field_photofile', 'field_photo3rdparty');
+  _wallymportdam_manage_file_from_uri($node, $importer, $dom, $token_user, 'emimage', 'wally_photoobject', 'field_photofile', 'field_photo3rdparty');
 
   wimprt_node_process_fields($node, $dom, $log, $importer);
 
@@ -1732,7 +1732,7 @@ function wallyimportdam_node_process_audioobjecttype(&$node, $dom, &$log, $impor
   wallyimportdam_objecttype_preprocess($node, $dom, $importer);
 
   $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
-  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emaudio', 'wally_audioobject', 'field_audiofile', 'field_audio3rdparty');
+  _wallymportdam_manage_file_from_uri($node, $importer, $dom, $token_user, 'emaudio', 'wally_audioobject', 'field_audiofile', 'field_audio3rdparty');
 
   //Link
   $link_title  = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
@@ -1798,7 +1798,7 @@ function wallyimportdam_node_process_videoobjecttype(&$node, $dom, &$log, $impor
   wallyimportdam_objecttype_preprocess($node, $dom, $importer);
 
   $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
-  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emvideo', 'wally_videoobject', 'field_videofile', 'field_video3rdparty');
+  _wallymportdam_manage_file_from_uri($node, $importer, $dom, $token_user, 'emvideo', 'wally_videoobject', 'field_videofile', 'field_video3rdparty');
 
   $node->field_link[0]['url'] = $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   $node->field_link[0]['title'] = $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
@@ -1867,7 +1867,7 @@ function wallyimportdam_node_process_multimediaobjecttype(&$node, $dom, &$log, $
   wallyimportdam_objecttype_preprocess($node, $dom, $importer);
 
   $token_user = $importer->default_user ? user_load($importer->default_user) : NULL;
-  _wallymportpackage_manage_file_from_uri($node, $importer, $dom, $token_user, 'emother', 'wally_multimediaobject', 'field_objectfile', 'field_object3rdparty');
+  _wallymportdam_manage_file_from_uri($node, $importer, $dom, $token_user, 'emother', 'wally_multimediaobject', 'field_objectfile', 'field_object3rdparty');
 
   //$node->field_link[0]['url']= $dom->getElementsByTagName('LinkURI')->item(0)->nodeValue;
   //$node->field_link[0]['title']= $dom->getElementsByTagName('LinkTitle')->item(0)->nodeValue;
