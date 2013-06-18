@@ -198,15 +198,16 @@ class DAMSearch {
   private function sendQuery() {
     $searchQuery = $this->query;
     if (!empty($this->queryURL)) {
-      $data = 'query='.$searchQuery->getJSONQuery();
-      $retry = wally_variable_get('wallytoolbox_http_request_retry', 1);
-      $timeout = wally_variable_get('wallytoolbox_http_request_timeout', 3);
-      $HTTPRequestResults = drupal_http_request($this->queryURL, array(), 'POST', $data, $retry, $timeout);
+      $myFile = "dam-post-query.json";
+      $fh = fopen($myFile, 'w');
+      fwrite($fh, $searchQuery->getJSONQuery());
+      fclose($fh);
 
-      module_load_include('inc', 'wallytoolbox', 'includes/wallytoolbox.helpers');
-      if (wallytoolbox_is_http_request_successfull($HTTPRequestResults)) {
-        $rawDatas = $HTTPRequestResults->data;
+      $postfields = array('query' => 'dam-post-query.json');
+      $target_url = $this->queryURL;
+      $content_type = 'application/json';
 
+      if ($rawDatas = wallydam_post($postfields, $target_url, $content_type, TRUE)) {
         if ($decoded_datas = json_decode($rawDatas)) {
           if (isset($decoded_datas->results) && !empty($decoded_datas->results)) {
             $this->rawResults = $decoded_datas;

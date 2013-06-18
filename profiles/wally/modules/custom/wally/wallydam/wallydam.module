@@ -384,29 +384,39 @@ function wallydam_postpackage($nid){
  * @param  $result
  *   Le résultat du post.
  */
-function wallydam_post($postfields, $target_url, $content_type = NULL){
+function wallydam_post($postfields, $target_url, $content_type = NULL, $return_result = FALSE) {
   //Envoi un fichier en post.
 
   $ch = curl_init($target_url);
-  
-  if ($content_type != NULL){
+
+  if ($content_type != NULL) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: ".$content_type));
   }
   curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
-  
+
+  if ($return_result) {
+    ob_start();
+  }
+
   $result = curl_exec($ch);
-  
+
   $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  
-  if ($http_status != 200){
+
+  if ($http_status != 200) {
     $return = FALSE;
-    drupal_set_message(curl_error($ch),'error');
+    drupal_set_message(curl_error($ch), 'error');
   } else {
     drupal_set_message($result);
     $return = TRUE;
   }
-  
+
   curl_close($ch);
+
+  if ($return && $return_result) {
+    $return = ob_get_contents();
+    ob_end_clean();
+  }
+
   return $return;
 }
 
