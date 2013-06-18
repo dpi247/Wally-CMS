@@ -81,6 +81,32 @@ function wallydam_archive_geturl($url){
     file_put_contents($importer->source_directory_path.'/'.$file_name, $result->data);
   }
 
+  
+  //Momentanné : si trouve pas l'url, on cherche avec iddam
+  if ($file_name == NULL && arg(0) == 'archived-node'){
+    $request = wally_variable_get('wallydam_archive_geturl', '');
+    
+    //Supprime le x à la fin de la requete et le remplace par le pid
+    $request = substr($request, 0, -1).arg(1);
+    
+    
+    $headers = array();
+    $data = NULL;
+    //GET
+    $result = drupal_http_request($request, $headers, 'GET', $data, $retry, $timeout);
+    $file_name = FALSE;
+    if ($result->code == 200){
+      $importer_name = wally_variable_get('wallydam_archive_importer', '');
+      $importer = wallymport_getimporterbyname($importer_name);
+    
+      $file_name = 'dam_archive_'.rand().'.zip';
+    
+      //Save the file in the importer folder
+      file_put_contents($importer->source_directory_path.'/'.$file_name, $result->data);
+    }
+  }
+  
+  
   return $file_name;
 }
 /**
