@@ -343,7 +343,7 @@ function _cciinlineobjects_flag_inline_embed_objects_run_through($node, &$embeds
           foreach ($field as $delta => $sub_node) {
             _cciinlineobjects_flag_inline_embed_objects_run_through($sub_node, $embeds, $obj_ids);
           }
-        } elseif (isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
+        } elseif (is_array($field[0]) && isset($field[0]['value']) && !empty($field[0]['value']) && is_string($field[0]['value'])) {
           // Only process text fields
           _cciinlineobjects_flag_inline_embed_objects_process_text($embeds, $field[0]['value'], $obj_ids);
         }
