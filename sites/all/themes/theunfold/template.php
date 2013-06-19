@@ -226,8 +226,11 @@ function theunfold_widget_prepare_linkslist_node(&$node){
  * theming function for figures
  */
 function theunfold_theme_redacblock_node_figure($item) {
+  $content = '';
+  if ($item != NULL){
 	$content = "<figure>".$item['content']."</figure>";
-	return ($content); 
+  }
+  return $content; 
 }
 
 /**
