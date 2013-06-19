@@ -216,8 +216,6 @@ class DAMSearch {
       } else {
         $this->setErrorLog('query', t('The HTTP request didn\'t succeed, response code : @respcode', array('@respcode' => $HTTPRequestResults->code)));
       }
-
-      unlink($query_tmp_file);
     } else {
       $this->setErrorLog('query', t('Request URL not set'));
     }
