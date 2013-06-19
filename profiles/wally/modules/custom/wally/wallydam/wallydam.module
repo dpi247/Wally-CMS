@@ -406,7 +406,9 @@ function wallydam_post($postfields, $target_url, $content_type = NULL, $return_r
     $return = FALSE;
     drupal_set_message(curl_error($ch), 'error');
   } else {
-    drupal_set_message($result);
+    if (!$return_result) {
+      drupal_set_message($result);
+    }
     $return = TRUE;
   }
 

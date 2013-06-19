@@ -198,12 +198,12 @@ class DAMSearch {
   private function sendQuery() {
     $searchQuery = $this->query;
     if (!empty($this->queryURL)) {
-      $myFile = "dam-post-query.json";
-      $fh = fopen($myFile, 'w');
+      $query_tmp_file = file_directory_temp().'/dam-post-query.json';
+      $fh = fopen($query_tmp_file, 'w');
       fwrite($fh, $searchQuery->getJSONQuery());
       fclose($fh);
 
-      $postfields = array('query' => 'dam-post-query.json');
+      $postfields = array('query' => '@'.$query_tmp_file);
       $target_url = $this->queryURL;
       $content_type = 'application/json';
 
@@ -221,6 +221,8 @@ class DAMSearch {
       } else {
         $this->setErrorLog('query', t('The HTTP request didn\'t succeed, response code : @respcode', array('@respcode' => $HTTPRequestResults->code)));
       }
+
+      unlink($query_tmp_file);
     } else {
       $this->setErrorLog('query', t('Request URL not set'));
     }

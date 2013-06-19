@@ -306,7 +306,7 @@ class DAMSearchQuery {
       $this->setOption('Newsroom', array_keys($settings['newsroom']));
     }
     if (isset($settings['withthumbs'])) {
-      $this->setOption('withThumbs', array($settings['withthumbs']));
+      $this->setOption('withThumbs', (string)$settings['withthumbs']);
     }
     $this->setOption('facet', array('list' => array('iptc', 'gl', 'pn', 'on')));
     if (isset($settings['cn']) && $settings['cn'] !== 'none') {
