@@ -1,7 +1,8 @@
 <a href="<?php print $widget['url']; ?>">
   <h2>
 	<?php print $widget['title'];?>
-	<span class="meta">
+  </h2>
+  <span class="meta">
 	  <?php if ($widget['by'] != NULL){?>
   	    <span class="author">
   	      <?php print t('Published') ?> <time datetime="<?php print $widget['publicationdate'] ?>">
@@ -13,5 +14,4 @@
   	    </span>
       <?php } ?>
     </span>
-  </h2>
 </a>  

@@ -4145,3 +4145,16 @@ div.bottom-items ul li {
 .wally_persontype .article-main ul.article-list li span.description{
 	color:black;
 }
+.article-group h2 {
+	margin-bottom:0px;
+}
+.article-group .meta {
+	margin-bottom:9.5px;
+}
+.article-group h2 p {
+	float:left;
+	margin-right:5px;
+}
+h1 p {
+	font-size:32px;
+}
