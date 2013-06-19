@@ -198,12 +198,7 @@ class DAMSearch {
   private function sendQuery() {
     $searchQuery = $this->query;
     if (!empty($this->queryURL)) {
-      $query_tmp_file = file_directory_temp().'/dam-post-query.json';
-      $fh = fopen($query_tmp_file, 'w');
-      fwrite($fh, $searchQuery->getJSONQuery());
-      fclose($fh);
-
-      $postfields = array('query' => '@'.$query_tmp_file);
+      $postfields = $searchQuery->getJSONQuery();
       $target_url = $this->queryURL;
       $content_type = 'application/json';
 
