@@ -57,7 +57,7 @@ function cciinlineobjects_inline_objects_tags($text, $prenode_cache_name = FALSE
               }
 
               if ($found_embed) {
-                $text = _cciinlineobjects_inline_objects_process_text($text, $match_val, $found_embed, $tag_values);
+                $text = _cciinlineobjects_inline_objects_process_text($text, $match_val, $found_embed, $tag_values, TRUE);
                 break;
               }
             }
@@ -113,8 +113,11 @@ function _cciinlineobjects_inline_objects_get_tag_values($raw_attributes) {
   return $tag_values;
 }
 
-function _cciinlineobjects_inline_objects_process_text($text, $match_val, $found_embed, $tag_values) {
-  $processed_embed = theme('filter_inline_objects_preview', $found_embed, $tag_values);
-  $processed_embed = $match_val.'<processedinline>'.$processed_embed.'</processedinline>';
+function _cciinlineobjects_inline_objects_process_text($text, $match_val, $found_embed, $tag_values, $preview = FALSE) {
+  $template = $preview ? 'filter_inline_objects_preview' : 'filter_inline_objects';
+  $processed_embed = theme($template, $found_embed, $tag_values);
+  if ($preview) {
+    $processed_embed = $match_val.'<processedinline>'.$processed_embed.'</processedinline>';
+  }
   return is_string($processed_embed) ? str_replace($match_val, $processed_embed, $text) : $text;
 }
