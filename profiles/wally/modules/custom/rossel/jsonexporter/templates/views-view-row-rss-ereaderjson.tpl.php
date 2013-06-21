@@ -10,11 +10,11 @@
 module_load_include('inc', 'jsonexporter', 'templates/theme');
 
 global $base_url;
-$json_product=$variables['view']->jsonexporter_product;
+$json_product = $variables['view']->jsonexporter_product;
 
-$row_view_index=$variables["view"]->row_index;
+$row_view_index = $variables["view"]->row_index;
 $view_offset = $variables["view"]->pager["offset"];
-$row_index=$row_view_index+$view_offset;
+$row_index = $row_view_index+$view_offset;
 
 $field_mainstory_nodes = $node->field_mainstory_nodes[0];
 
@@ -43,16 +43,16 @@ if ($editorial_update['value'] != NULL){
 }
 
 $json = array();
-$json['nid']=$node->nid;
-$json['comment']=$node->comment;
-$json['title']= $field_mainstory_nodes->title;
-$json['creationDate']=strtotime($formatted_creadate);
-$json['pubDate']=strtotime($formatted_pubdate);
-$json['editorialUpdate']=strtotime($formatted_editorialupdate);
-$json['updateDate']=intval($node->changed);
-$json['type']=$node->type;
-$json['chapo']=$field_mainstory_nodes->field_textchapo[0]['value'];
-$json['freeaccess']=$node->field_freeaccess[0]['value'];
+$json['nid'] = $node->nid;
+$json['comment'] = $node->comment;
+$json['title'] = $field_mainstory_nodes->title;
+$json['creationDate'] = strtotime($formatted_creadate);
+$json['pubDate'] = strtotime($formatted_pubdate);
+$json['editorialUpdate'] = strtotime($formatted_editorialupdate);
+$json['updateDate'] = intval($node->changed);
+$json['type'] = $node->type;
+$json['chapo'] = $field_mainstory_nodes->field_textchapo[0]['value'];
+$json['freeaccess'] = $node->field_freeaccess[0]['value'];
 
 jsonexporter_node_author($node);
 /**
@@ -80,18 +80,18 @@ if ($field_mainstory_nodes->field_textbody[0]['value'] != '' & $field_mainstory_
   $texte_article = check_markup($field_mainstory_nodes->field_textbody[0]['value'], $field_mainstory_nodes->field_textbody[0]['format'], FALSE);
   $texte_article = _jsonexporter_clear_paragraph($texte_article);
 }
-$json['body']=$texte_article;
+$json['body'] = $texte_article;
 
-$json['foretitle']=$field_mainstory_nodes->field_textforetitle[0]['value'];
-$json['subTitle']=$field_mainstory_nodes->field_textsubtitle[0]['value'];
-$json['barette']=$field_mainstory_nodes->field_textbarette[0]['value'];
-$json['byline']=$field_mainstory_nodes->field_byline[0]['value'];
-$json['copyright']=$field_mainstory_nodes->field_copyright[0]['value'];
-$json['authors']=$authors_list;
+$json['foretitle'] = $field_mainstory_nodes->field_textforetitle[0]['value'];
+$json['subTitle'] = $field_mainstory_nodes->field_textsubtitle[0]['value'];
+$json['barette'] = $field_mainstory_nodes->field_textbarette[0]['value'];
+$json['byline'] = $field_mainstory_nodes->field_byline[0]['value'];
+$json['copyright'] = $field_mainstory_nodes->field_copyright[0]['value'];
+$json['authors'] = $authors_list;
 $aliases = wallytoolbox_get_all_aliases('node/'.$node->nid);
-$json['url']= $aliases[0];
-$json['mainDestination']=$node->field_destinations[0]["tid"];
-$json['mainSection']=$node->field_destinations[0]["tid"].$node->field_destinations[0]["target"];
+$json['url'] = $aliases[0];
+$json['mainDestination'] = $node->field_destinations[0]["tid"];
+$json['mainSection'] = $node->field_destinations[0]["tid"].$node->field_destinations[0]["target"];
 $json['relatedObjects'] = array();
 
 foreach($node->field_embededobjects_nodes as $one){
@@ -100,8 +100,7 @@ foreach($node->field_embededobjects_nodes as $one){
     case "wally_photoobject":
       $embed_one = jsonexporter_get_photo_infos_and_display($one);
 
-      $photoobject= array(
-          //$json['relatedObjects'][] = array(
+      $photoobject = array(
           'nid'=> $embed_one["nid"],
           'type'=> 'wally_photoobject',
           'caption'=> !empty($embed_one["summary"]) ? $embed_one["summary"] : $embed_one['title'],
@@ -109,16 +108,16 @@ foreach($node->field_embededobjects_nodes as $one){
       );
 
       if (is_array($json_product->presets)) {
-        foreach($json_product->presets as $preset_id){
-          if($preset_id!=0){
-            $preset=imagecache_preset($preset_id);
-            $presetname=$preset["presetname"];
+        foreach ($json_product->presets as $preset_id){
+          if ($preset_id != 0){
+            $preset = imagecache_preset($preset_id);
+            $presetname = $preset["presetname"];
             $url = '';
             if ($embed_one["fullpath"] != ""){
-              $fullpath = str_replace('sites/default/files/', '',$embed_one["fullpath"]);
+              $fullpath = str_replace('sites/default/files/', '', $embed_one["fullpath"]);
               $url = $base_url.'/'.imagecache_create_path($presetname, $fullpath);
             }
-            $photoobject['crop'][$presetname]= array(
+            $photoobject['crop'][$presetname] = array(
               'url' => $url,
             );
           }
@@ -131,16 +130,15 @@ foreach($node->field_embededobjects_nodes as $one){
     case "wally_videoobject":
     		$embed_one = jsonexporter_get_video_infos_and_display($one);
 
-    		$videoobject= array(
-    		    //$json['relatedObjects'][] = array(
-    		    'nid'=> $embed_one["nid"],
-    		    'type'=> 'wally_videoobject',
-    		    'titre'=> $embed_one["title"],
-    		    'summary'=> $embed_one["summary"],
-    		    'url'=> $embed_one["link"],
-    		    'thumbnail'=> $embed_one["thumbnail"],
-    		    'emcode'=> $embed_one["emcode"],
-    		    'credit'=> $embed_one["credit"]
+    		$videoobject = array(
+    		    'nid' => $embed_one["nid"],
+    		    'type' => 'wally_videoobject',
+    		    'titre' => $embed_one["title"],
+    		    'summary' => $embed_one["summary"],
+    		    'url' => $embed_one["link"],
+    		    'thumbnail' => $embed_one["thumbnail"],
+    		    'emcode' => $embed_one["emcode"],
+    		    'credit' => $embed_one["credit"]
     		);
     		 
     		$json['relatedObjects'][] = $videoobject;
@@ -149,73 +147,67 @@ foreach($node->field_embededobjects_nodes as $one){
     
     case "wally_textobject":
       $embed_one = jsonexporter_get_text_infos_and_display($one);
-
-    		$textobject= array(
-    		    //$json['relatedObjects'][] = array(
-    		    'nid'=> $embed_one["nid"],
-    		    'type'=> 'wally_textobject',
-    		    'titre'=> $embed_one["title"],
-            'chapo' => $embed_one['chapo'],
-            'body' => $embed_one['body'],
-    		);
-
+    	$textobject = array(
+    	  'nid' => $embed_one["nid"],
+    	  'type' => 'wally_textobject',
+    	  'titre' => $embed_one["title"],
+          'chapo' => $embed_one['chapo'],
+          'body' => $embed_one['body'],
+    	);
       $json['relatedObjects'][] = $textobject;
       break;
 
     case "wally_audioobject":
       $embed_one = jsonexporter_get_audio_infos_and_display($one);
       $json['relatedObjects'][] = array(
-          'nid'=> $embed_one["nid"],
-          'type'=> 'wally_audioobject',
-          'filemime'=> $embed_one["filemime"],
-          'titre'=> $embed_one["title"],
-          'summary'=> $embed_one["summary"],
-          'url'=> $embed_one["link"],
-          'thumbnail'=> $embed_one["thumbnail"]
+        'nid' => $embed_one["nid"],
+        'type' => 'wally_audioobject',
+        'filemime' => $embed_one["filemime"],
+        'titre' => $embed_one["title"],
+        'summary' => $embed_one["summary"],
+        'url' => $embed_one["link"],
+        'thumbnail' => $embed_one["thumbnail"],
       );
-
-    		break;
+      break;
 
     case "wally_digitalobject":
       $embed_one = jsonexporter_get_digitalobject_infos_and_display($one);
       $dummy = array(
-          'nid'=> $embed_one["nid"],
-          'type'=> 'wally_digitalobject',
-          'linkType'=> $embed_one["linkType"],
-          'label'=> $embed_one["title"],
-          'url'=> $embed_one["url"]
+        'nid' => $embed_one["nid"],
+        'type' => 'wally_digitalobject',
+        'linkType' => $embed_one["linkType"],
+        'label' => $embed_one["title"],
+        'url' => $embed_one["url"]
       );
 
-      if($embed_one["thumbnail"]){
-        $dummy["thumnail"]["url"]= $embed_one["thumbnail"];
-        $dummy["thumnail"]["mime"]= $embed_one["mime"];
-        $dummy["thumnail"]["link"]= $embed_one["thumbnail_img"];
+      if ($embed_one["thumbnail"]){
+        $dummy["thumnail"]["url"] = $embed_one["thumbnail"];
+        $dummy["thumnail"]["mime"] = $embed_one["mime"];
+        $dummy["thumnail"]["link"] = $embed_one["thumbnail_img"];
       }
       $json['relatedObjects'][] = $dummy;
-
-    		break;
+      break;
   }
 }
 
-foreach($node->embed_links as $two){
-  switch($two["group_type"]){
+foreach ($node->embed_links as $two){
+  switch ($two["group_type"]){
 
     case "video":
-      //$json['embed_links'][] = array(
       $json['relatedObjects'][] = array(
-      'nid'=> $two["nid"],
-      'titre'=> $two["title"],
-      'type'=> 'wally_videoobject',
-      'thumbnail'=>$two["thumb"],
-      'content'=>$two["content"],
-      'module'=>$two["module"],
-      'provider'=>$two["provider"]
+      'nid' => $two["nid"],
+      'titre' => $two["title"],
+      'type' => 'wally_videoobject',
+      'thumbnail' => $two["thumb"],
+      'content' => $two["content"],
+      'module' => $two["module"],
+      'provider' => $two["provider"]
       );
       break;
 
     case "extref":
-      $embed_link= node_load(array('nid'=>$two["nid"]));
-      $embed_pack= node_load(array('nid'=>$embed_link->field_internal_link[0]["nid"]));
+      $embed_link = node_load(array('nid' => $two["nid"]));
+      $embed_pack = node_load(array('nid' => $embed_link->field_internal_link[0]["nid"]));
       wallycontenttypes_packagepopulate($embed_pack);
        
       //authors
@@ -233,39 +225,37 @@ foreach($node->embed_links as $two){
         }
       }
       
-      // $json['relatedObjects'][] = array(
-      $extref= array(
-      	'nid'=> $embed_pack->nid,
-      	'titre'=> $embed_pack->title,
-      	'type'=> $embed_pack->type,
-        'title'=> $embed_pack->field_mainstory_nodes[0]->title,
-        'chapo'=> $embed_pack->field_mainstory_nodes[0]->field_textchapo[0]['value'],
-        'body'=> $embed_pack->field_mainstory_nodes[0]->field_textbody[0]['value'],
+      $extref = array(
+      	'nid' => $embed_pack->nid,
+      	'titre' => $embed_pack->title,
+      	'type' => $embed_pack->type,
+        'title' => $embed_pack->field_mainstory_nodes[0]->title,
+        'chapo' => $embed_pack->field_mainstory_nodes[0]->field_textchapo[0]['value'],
+        'body' => $embed_pack->field_mainstory_nodes[0]->field_textbody[0]['value'],
         'authors' => $embed_pack_authors_list,
       );
 
-      foreach($embed_pack->field_embededobjects_nodes as $one){
-        switch($one->type){
+      foreach ($embed_pack->field_embededobjects_nodes as $one){
+        switch ($one->type){
           case "wally_photoobject":
             $embed_one = jsonexporter_get_photo_infos_and_display($one);
-            $photoobject= array(
-                //$json['relatedObjects'][] = array(
-                'nid'=> $embed_one["nid"],
-                'type'=> 'wally_photoobject',
-                'caption'=> $embed_one["summary"],
-                'credit'=> $embed_one["credit"]
+            $photoobject = array(
+              'nid'=> $embed_one["nid"],
+              'type'=> 'wally_photoobject',
+              'caption'=> $embed_one["summary"],
+              'credit'=> $embed_one["credit"]
             );
             if (is_array($json_product->presets)) {
-              foreach($json_product->presets as $preset_id){
-                if($preset_id!=0){
-                  $preset=imagecache_preset($preset_id);
-                  $presetname=$preset["presetname"];
+              foreach ($json_product->presets as $preset_id){
+                if ($preset_id != 0){
+                  $preset = imagecache_preset($preset_id);
+                  $presetname = $preset["presetname"];
                   $url = '';
                   if ($embed_one["fullpath"] != ""){
                     $fullpath = str_replace('sites/default/files/', '',$embed_one["fullpath"]);
                     $url = $base_url.'/'.imagecache_create_path($presetname, $fullpath);
                   }
-                  $photoobject['crop'][$presetname]= array(
+                  $photoobject['crop'][$presetname] = array(
                     'url' => $url,
                   );
                 }
@@ -276,82 +266,78 @@ foreach($node->embed_links as $two){
           case "wally_videoobject":
             $embed_one = jsonexporter_get_video_infos_and_display($one);
 
-            //$json['relatedObjects'][] = array(
-            $videoobject= array(
-                'nid'=> $embed_one["nid"],
-                'type'=> 'wally_videoobject',
-                'titre'=> $embed_one["title"],
-                'summary'=> $embed_one["summary"],
-                'url'=> $embed_one["link"],
-                'thumbnail'=> $embed_one["thumbnail"],
-                'emcode'=> $embed_one["emcode"]	,
-                'credit'=> $embed_one["credit"]
+            $videoobject = array(
+              'nid' => $embed_one["nid"],
+              'type' => 'wally_videoobject',
+              'titre' => $embed_one["title"],
+              'summary' => $embed_one["summary"],
+              'url' => $embed_one["link"],
+              'thumbnail' => $embed_one["thumbnail"],
+              'emcode' => $embed_one["emcode"],
+              'credit' => $embed_one["credit"],
             );
             $extref['relatedObjects'][] = $videoobject;
             break;
 
           case "wally_audioobject":
             $embed_one = jsonexporter_get_audio_infos_and_display($one);
-            $audioobject= array(
-                //$json['relatedObjects'][] = array(
-                'nid'=> $embed_one["nid"],
-                'type'=> 'wally_audioobject',
-                'filemime'=> $embed_one["filemime"],
-                'titre'=> $embed_one["title"],
-                'summary'=> $embed_one["summary"],
-                'url'=> $embed_one["link"],
-                'thumbnail'=> $embed_one["thumbnail"]
+            $audioobject = array(
+              'nid' => $embed_one["nid"],
+              'type' => 'wally_audioobject',
+              'filemime' => $embed_one["filemime"],
+              'titre' => $embed_one["title"],
+              'summary' => $embed_one["summary"],
+              'url' => $embed_one["link"],
+              'thumbnail' => $embed_one["thumbnail"]
             );
             $extref['relatedObjects'][] = $audioobject;
-
             break;
 
           case "wally_digitalobject":
             $embed_one = jsonexporter_get_digitalobject_infos_and_display($one);
             $dummy = array(
-                'nid'=> $embed_one["nid"],
-                'type'=> 'wally_digitalobject',
-                'linkType'=> $embed_one["linkType"],
-                'label'=> $embed_one["title"],
-                'url'=> $embed_one["url"]
+              'nid' => $embed_one["nid"],
+              'type' => 'wally_digitalobject',
+              'linkType' => $embed_one["linkType"],
+              'label' => $embed_one["title"],
+              'url' => $embed_one["url"]
             );
 
-            if($embed_one["thumbnail"]){
-              $dummy["thumnail"]["url"]= $embed_one["thumbnail"];
-              $dummy["thumnail"]["mime"]= $embed_one["mime"];
-              $dummy["thumnail"]["link"]= $embed_one["thumbnail_img"];
+            if ($embed_one["thumbnail"]){
+              $dummy["thumnail"]["url"] = $embed_one["thumbnail"];
+              $dummy["thumnail"]["mime"] = $embed_one["mime"];
+              $dummy["thumnail"]["link"] = $embed_one["thumbnail_img"];
             }
             $extref['relatedObjects'][] = $dummy;
             break;
         }
       }
 
-      $json['relatedObjects'][] =	$extref;
-       
+      $json['relatedObjects'][] = $extref;
       break;
   }
 }
 
 // field_linkedobjects
-foreach($node->field_linkedobjects_nodes as $liensObjects){
-  if($liensObjects->type=='wally_linkslistobject'){
+foreach ($node->field_linkedobjects_nodes as $liensObjects){
+  if ($liensObjects->type == 'wally_linkslistobject'){
     $ess =  array(
-        'nid'=> $liensObjects->nid,
-        'type'=> "wally_linkslistobject",
-        'titre'=> $liensObjects->title
+      'nid' => $liensObjects->nid,
+      'type' => "wally_linkslistobject",
+      'titre' => $liensObjects->title,
     );
     foreach ($liensObjects->field_links_list_nodes as $lienObj ){
       if ($lienObj->field_link_item['0']['url'] && !empty($lienObj->field_link_item['0']['url'])){
         $ess2 = $lienObj->field_link_item['0']['url'];
       } else {
-        $ess2= 'node/'.$lienObj->field_internal_link['0']['nid'];
+        $ess2 = 'node/'.$lienObj->field_internal_link['0']['nid'];
       }
       $ess["links"][] =  array(
-          'nid'=> $lienObj->nid,
-          'type'=> 'wally_linktype',
-          'path'=>$lienObj->path,
-          'title'=> !empty($lienObj->field_link_item['0']['title']) ? $lienObj->field_link_item['0']['title'] : $lienObj->title,
-          'url'=>$ess2
+        'nid' => $lienObj->nid,
+        'type' => 'wally_linktype',
+        'path' => $lienObj->path,
+        'title' => !empty($lienObj->field_link_item['0']['title']) ? $lienObj->field_link_item['0']['title'] : $lienObj->title,
+        'url' => $ess2,
       );
     }
     $json['relatedObjects'][] = $ess;
