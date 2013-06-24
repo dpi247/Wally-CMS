@@ -526,20 +526,31 @@ function wallydam_archive_searchurl(){
 
   //Look for the URL in the cache
   $return = wallydam_archive_cacheget($url);
+
   if ($return === FALSE){
     //If the url is not in the cache, call the DAM
     $last_alias = NULL;
     $return = wallydam_archive_getpackagefromurl($url, $last_alias);
     if ($return){
-      //Set the content in the cache
-      wallydam_archive_cacheset($url, $return);
+      
       //If the last alias is different to the url, the last alias is set in cache
       // and we redirect to the las alias
       if ($last_alias != $url && $last_alias != NULL){
         wallydam_archive_cacheset($last_alias, $return);
-        drupal_goto($last_alias);
+        
+        //Set the url with last alias in the cache
+        wallydam_archive_cacheset($url, $last_alias);
+        
+        //Redirect to last alias
+        drupal_goto($last_alias, array(), 301);
+      } else {
+        //If no last alias or url = last alias :Set the content in the cache
+        wallydam_archive_cacheset($url, $return);
       }
     }
+    //if the result in the cache was an url redirect to this url
+  } elseif (valid_url($return)){
+    drupal_goto($return, array(), 301);
   }
 
   if ($return !== FALSE) {
