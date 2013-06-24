@@ -2510,6 +2510,8 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
 
       foreach($vocabularies as $vocabulary) {
         $function_exist = FALSE;
+        
+        //Call a particular function for each vocabulary
         foreach ($importer->importer_functions as $importer_function){
           if (function_exists($importer_function.'_node_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
             if (isset($node->nid)){
@@ -2523,7 +2525,7 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
         }
                 
         // If there is no special treatment (Person should creat a person object,etc..) 
-        // Than use default term assignation
+        // Then use default term assignation
         if (!$function_exist){
           $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
           if ($vid != NULL){
@@ -2533,38 +2535,10 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
           }
           wallyimportpackageV18_node_set_field_taxonomy_vocabulary($vocabulary, $result, $vid);
           
-          if (!isset($node->nid)){
-            $node->field_free_tags = array();
-            $node->field_concepts = array();
-            $node->field_iptc = array();
-          }
-          if (isset($result['field_free_tags'])){
-            foreach($result['field_free_tags'] as $term) {
-              if (!in_array(array("value" => $term->tid), $node->field_free_tags)) {
-                $node->field_free_tags[] =  array("value" => $term->tid);
-                $node->taxonomy[] = $term;
-              }
-              $node->node_term_to_save[] = $term;
-            }
-          }
-          if (isset($result['field_concepts'])){
-            foreach($result['field_concepts'] as $term) {
-              if (!in_array(array("value" => $term->tid), $node->field_concepts)) {
-                $node->field_concepts[] =  array("value" => $term->tid);
-                $node->taxonomy[] = $term;
-              }
-              $node->node_term_to_save[] = $term;
-            }
-          }
-          if (isset($result['field_iptc'])){
-            foreach($result['field_iptc'] as $term) {
-              if (!in_array(array("value" => $term->tid), $node->field_iptc)) {
-                $node->field_iptc[] =  array("value" => $term->tid);
-                $node->taxonomy[$term->tid] = $term;
-              }
-              $node->node_term_to_save[] = $term;
-            }
-          }
+          //Add term to vocabulary free tags, concept and iptc
+          wallyimportpackageV18_taxonomy_add_term_to_node($node, $result, 'field_free_tags');
+          wallyimportpackageV18_taxonomy_add_term_to_node($node, $result, 'field_concepts');
+          wallyimportpackageV18_taxonomy_add_term_to_node($node, $result, 'field_iptc');
         }
       }
     } else {
@@ -2575,7 +2549,27 @@ function wallyimportpackageV18_node_set_field_taxonomy(&$node, $dom, $log, $impo
     return NULL;
   }
 }
-
+/**
+ * 
+ * Add the term of type field_name to the node
+ * @param object $node
+ * @param array $result
+ * @param string $field_name
+ */
+function wallyimportpackageV18_taxonomy_add_term_to_node(&$node, $result, $field_name){
+  if (!isset($node->nid)){
+    $node->$field_name = array();
+  }
+  if (isset($result[$field_name])){
+    foreach($result[$field_name] as $term) {
+      if (!in_array(array("value" => $term->tid), $node->$field_name)) {
+        $node->{$field_name}[] =  array("value" => $term->tid);
+        $node->taxonomy[$term->tid] = $term;
+      }
+      $node->node_term_to_save[] = $term;
+    }
+  }
+}
 /**
  * Search or Create Terms & Vocabularies
  *
