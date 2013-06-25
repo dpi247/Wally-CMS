@@ -554,7 +554,6 @@ function wallydam_archive_searchurl(){
   }
 
   if ($return !== FALSE) {
-    $_GET['q'] = 'user';
     print theme('page', $return);
   } else {
     drupal_not_found();

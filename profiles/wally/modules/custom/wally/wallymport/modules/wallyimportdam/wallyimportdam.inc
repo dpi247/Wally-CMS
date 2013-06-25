@@ -2511,12 +2511,12 @@ function wallyimportdam_node_set_field_taxonomy(&$node, $dom, $log, $importer) {
       foreach($vocabularies as $vocabulary) {
         $function_exist = FALSE;
         foreach ($importer->importer_functions as $importer_function){
-          if (function_exists($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
+          if (function_exists($importer_function.'_node_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value)){
             if (isset($node->nid)){
               $vid = _wimprthelp_getTaxonomyVidFromDamName($vocabulary->getAttributeNode("VocabularyName")->value);
               wallytoolbox_taxonomy_unbindalltermofnodefromavocabulary($vocabulary->getAttributeNode("VocabularyName")->value, $node, $vid);
             }
-            call_user_func($importer_function.'_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
+            call_user_func($importer_function.'_node_set_field_'.$vocabulary->getAttributeNode("VocabularyName")->value, $node, $vocabulary, $log, $importer);
             $function_exist = TRUE;
             break;
           }
