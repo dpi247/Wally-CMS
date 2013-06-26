@@ -344,7 +344,8 @@ function theunfold_preprocess_node_build(&$node){
     }
   }
   if ($mainstory->field_byline[0]['safe'] != NULL){
-    $by[] = $mainstory->field_byline[0]['safe'];
+    //Strip cci tags
+    $by[] = strip_tags($mainstory->field_byline[0]['value']);
   }
   if ($mainstory->field_copyright[0]['safe'] != NULL){
     $by[] = $mainstory->field_copyright[0]['safe'];
