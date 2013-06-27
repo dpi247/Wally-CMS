@@ -18,8 +18,10 @@ function wallypressfilters_replace_tags($tag, $settings, $text) {
       $tag_values['attributes'] = array();
 
       $raw_attributes = trim($tag_matches[1][$match_id]);
-      $expl_attributes = explode(' ', $raw_attributes);
-      foreach ($expl_attributes as $raw_attr) {
+      $attr_regex = '@\w.*\s?=\s?[\'"].*[\'"]@U';
+      $attr_matches = array();
+      preg_match_all($attr_regex, $raw_attributes, $attr_matches);
+      foreach ($attr_matches[0] as $raw_attr) {
         $expl_attr = explode('=', $raw_attr, 2);
         $tag_values['attributes'][$expl_attr[0]] = trim($expl_attr[1], '"');
       }
