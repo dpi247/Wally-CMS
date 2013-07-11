@@ -155,8 +155,10 @@ function user_logout() {
   drupal_session_destroy();
 
   // Load the anonymous user
+  
   $user = drupal_anonymous_user();
 
+  watchdog("ssu","logout");
   drupal_goto();
 }
 
