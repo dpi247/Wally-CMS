@@ -14,15 +14,28 @@ function wallydam_install() {
   drupal_install_schema('wallydam');
   //Set the  weight to 5
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'wallydam'");
-  
-  //Add de source dpi247
-  $row = new stdClass;
-  $row->name = 'dpi247';
-  $row->archive = 1;
-  $row->archive_from_wallymport = 0;
-  drupal_write_record('wallydam_source', $row);
+    
 }
+/**
+ * 
+ * Implementaiton of hook_enable
+ */
+function wallydam_enable(){
 
+
+  drupal_get_schema('wallydam_source', TRUE);
+  //Add de source dpi247 if does not exists
+  if (db_table_exists('wallydam_source')){
+    $result = db_query("SELECT name FROM {wallydam_source} WHERE name = 'dpi247'");
+    if (!db_result($result)){
+      $row = new stdClass;
+      $row->name = 'dpi247';
+      $row->archive = 1;
+      $row->archive_from_wallymport = 0;
+      drupal_write_record('wallydam_source', $row);
+    }
+  }
+}
 /**
  * Implementation of hook_schema().
  */

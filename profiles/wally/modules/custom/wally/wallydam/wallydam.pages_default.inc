@@ -48,17 +48,12 @@ function wallydam_default_page_manager_pages() {
     'relationships' => array(),
   );
   $display = new panels_display;
-  $display->layout = 'base-layout-article';
+  $display->layout = 'flexible';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
       'default' => NULL,
-      'contenttop' => NULL,
-      'mainContent' => NULL,
-      'complementary' => NULL,
-      'subcontentleft' => NULL,
-      'subcontentright' => NULL,
-      'contentbottom' => NULL,
+       'center' => NULL,
   ),
   );
   $display->cache = array();
@@ -73,30 +68,30 @@ function wallydam_default_page_manager_pages() {
   $pane->shown = TRUE;
   $pane->access = array();
   $pane->configuration = array(
-      'links' => 0,
-      'page' => 0,
-      'no_extras' => 0,
-      'override_title' => 0,
-      'override_title_text' => '',
-      'identifier' => '',
-      'link' => 0,
-      'leave_node_title' => 1,
-      'build_mode' => 'full',
-      'context' => 'context_node_1',
+    'links' => 0,
+    'page' => 0,
+    'no_extras' => 0,
+    'override_title' => 0,
+    'override_title_text' => '',
+    'identifier' => '',
+    'link' => 0,
+    'leave_node_title' => 1,
+    'build_mode' => 'full',
+    'context' => 'context_node_1',
   );
   $pane->cache = array();
   $pane->style = array(
-      'settings' => NULL,
+    'settings' => NULL,
   );
   $pane->css = array();
   $pane->extras = array();
   $pane->position = 0;
   $display->content['new-1'] = $pane;
-  $display->panels['mainContent'][0] = 'new-1';
-  $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = '0';
-  $handler->conf['display'] = $display;
-  $page->default_handlers[$handler->name] = $handler;
+  $display->panels['center'][0] = 'new-1';
+$display->hide_title = PANELS_TITLE_FIXED;
+$display->title_pane = '0';
+$handler->conf['display'] = $display;
+$page->default_handlers[$handler->name] = $handler;
   $pages[$page->name] = $page;
   return $pages;
 }
