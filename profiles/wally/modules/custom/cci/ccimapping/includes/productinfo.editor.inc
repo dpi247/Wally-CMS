@@ -60,7 +60,7 @@ function ccimapping_form_productinfo_editor_form_submit($form, $form_state) {
   if($form_state['clicked_button']['#name'] == 'send') {
     $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
     $newsroom = wally_variable_get('ccimapping_newsroom', '');
-    $product_name = wally_variable_get('wallyadmin_product', '');
+    $product_name = wally_variable_get('ccimapping_product_name', '');
 
     $dom = new DomDocument('1.0', 'UTF-8');
     $dom->loadXML($form_state['values']['xml']);
@@ -96,7 +96,7 @@ return;*/
 function ccimap_get_productinfo_fromWS() {
   $wsdl_uri = wally_variable_get('ccimapping_ws_wsdluri', '');
   $newsroom = wally_variable_get('ccimapping_newsroom', '');
-  $product_name = wally_variable_get('wallyadmin_product', '');
+  $product_name = wally_variable_get('ccimapping_product_name', '');
 //return '';
   if ($client = ccimapping_load_soapclient($wsdl_uri)) {
     try {
@@ -130,11 +130,11 @@ function ccimap_build_productinfo_xml(&$dom, $hierarchies_array, $nested_taxonom
   $dom->standalone = FALSE;
   $exportproductinformation = $dom->appendChild($dom->createElement('exportproductinformation'));
   $exportproductinformation->setAttribute('newsroom', wally_variable_get('ccimapping_newsroom', ''));
-  $exportproductinformation->setAttribute('publicationchannel', wally_variable_get('wallyadmin_product', ''));
+  $exportproductinformation->setAttribute('publicationchannel', wally_variable_get('ccimapping_product_name', ''));
   $exportproductinformation->setAttribute('subtype', 'Online');
   $pubdatestring = $exportproductinformation->appendChild($dom->createElement('pubdatestring'));
   $pubdatestring->setAttribute('name', '%d-%m-%Y');
-  $product = $exportproductinformation->appendChild($dom->createElement('product', wally_variable_get('wallyadmin_product', '')));
+  $product = $exportproductinformation->appendChild($dom->createElement('product', wally_variable_get('ccimapping_product_name', '')));
 
   $baseinfo = $exportproductinformation->appendChild($dom->createElement('baseinfo'));
   $leafname = $baseinfo->appendChild($dom->createElement('leafname'));
