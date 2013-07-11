@@ -328,6 +328,7 @@ function drupal_goto($path = '', $query = NULL, $fragment = NULL, $http_response
   }
 
   $url = url($path, array('query' => $query, 'fragment' => $fragment, 'absolute' => TRUE));
+  watchdog('ddu',$url);
   // Remove newlines from the URL to avoid header injection attacks.
   $url = str_replace(array("\n", "\r"), '', $url);
 
