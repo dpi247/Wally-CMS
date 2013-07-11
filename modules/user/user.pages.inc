@@ -152,6 +152,7 @@ function user_logout() {
   
   //drupal_session_destroy();
   session_destroy();
+  watchdog("old_style","JDE");
   user_module_invoke('logout', $null, $user);
 
   // Destroy the current session, and reset $user to the anonymous user.
