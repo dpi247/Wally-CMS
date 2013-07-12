@@ -303,7 +303,13 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
     }*/
     if (isset($node->field_channels[0]['value'])) {
       $transformed_node['Channels']['Channel'] = array();
-      $channels = unserialize($node->field_channels[0]['value']);
+      $unser_channels = unserialize($node->field_channels[0]['value']);
+      $channels = array();
+      if ($unser_channels) {
+        $channels = $unser_channels;
+      } elseif (is_string($node->field_channels[0]['value'])) {
+        $channels[] = $node->field_channels[0]['value'];
+      }
       foreach ($channels as $channel) {
         $transformed_node['Channels']['Channel'][]['Name'] = $channel;
       }
@@ -314,6 +320,11 @@ function wallytoolbox_destinations_flow_set_package($node, $feed_infos = array()
       $freeaccess = ($freeaccess == 'No') ? FALSE : TRUE;
     }
     $transformed_node['FreeAccess']['value'] = $freeaccess;
+    $autopublish = wallytoolbox_destinations_flow_node_get_field($node, 'field_autopublish', '');
+    if (!is_bool($autopublish)) {
+      $autopublish = ($autopublish == 'Autopublish') ? TRUE : FALSE;
+    }
+    $transformed_node['AutoPublish']['value'] = $autopublish;
     /*$transformed_node['Authors']['Person'] = array();
     foreach ($node->field_authors_nodes as $author) {
       $transformed_node['Authors']['Person'][] = wallytoolbox_destinations_flow_set_persontax($author);

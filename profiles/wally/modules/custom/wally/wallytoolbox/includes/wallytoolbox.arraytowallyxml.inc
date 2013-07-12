@@ -140,7 +140,9 @@ function _wallytoolbox_arraytowallyxml_fillPackageType(&$valid_dom, &$package_no
     $freeaccess_node = $package_node->appendChild($valid_dom->createElement('FreeAccess'));
     $freeaccess_node->setAttribute('xsi:nil', 'true');
   }
-  $package_node->appendChild($valid_dom->createElement('AutoPublish', $package_array['AutoPublish']['value']));
+  if (isset($package_array['AutoPublish']) && $package_array['AutoPublish']['value'] != NULL && $package_array['AutoPublish']['value'] != ''){
+    $package_node->appendChild($valid_dom->createElement('AutoPublish', $package_array['AutoPublish']['value']));
+  }
   $package_node->appendChild($valid_dom->createElement('PackageLayout', $package_array['PackageLayout']['value']));
   
   $package_node->appendChild($valid_dom->createElement('Summary', $package_array['Summary']['value']));
