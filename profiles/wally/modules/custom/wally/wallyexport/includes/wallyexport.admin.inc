@@ -10,16 +10,18 @@
  * Settings form.
  */
 function wallyexport_page_admin_form($form_state) {
+  $form = array();
+
   $form['wallyexport_admin_dest'] = array(
     '#type'          => 'textfield',
     '#title'         => t('Export destination directory path'),
     '#description'   => t('This must be an existing and writable path where zipped data is written.'),
-    '#default_value' => wally_variable_get('wallyexport_admin_source', 'sites/default/files/export'),
+    '#default_value' => wally_variable_get('wallyexport_admin_dest', 'sites/default/files/export'),
     '#size'          => 80,
     '#maxlength'     => 512,
     '#required'      => TRUE,
   );
-  
+
   return wally_system_settings_form($form, TRUE);
 }
 
@@ -38,27 +40,33 @@ function wallyexport_page_admin_form_validate($form, &$form_state) {
  * Export packages form.
  */
 function wallyexport_page_export_form($form_state) {
-  $form['wallyexport_export_nids'] = array(
-    '#type'        => 'textfield',
-    '#title'       => t('Packages\' nids to export'),
-    '#description' => t('Comma separated nids of the packages to be exported. The keyword "all" is accepted.'),
-    '#size'        => 80,
-    '#maxlength'   => 512,
-    '#required'    => TRUE,
-  );
-  
-  $form['wallyexport_export_submit'] = array(
-    '#type'  => 'submit',
-    '#title' => t('Export'),
-    '#value' => t('Export'),
-  );
-  
+  $form = array();
+
+  if (wally_variable_get('wallyexport_admin_dest', FALSE)) {
+    $form['wallyexport_export_nids'] = array(
+      '#type'        => 'textfield',
+      '#title'       => t('Packages\' nids to export'),
+      '#description' => t('Comma separated nids of the packages to be exported. The keyword "all" is accepted.'),
+      '#size'        => 80,
+      '#maxlength'   => 512,
+      '#required'    => TRUE,
+    );
+
+    $form['wallyexport_export_submit'] = array(
+      '#type'  => 'submit',
+      '#title' => t('Export'),
+      '#value' => t('Export'),
+    );
+  } else {
+    drupal_set_message(t('You have to <a href="/admin/wally/wallyexport/settings">configure this module</a> before using it!'), 'warning');
+  }
+
   return $form;
 }
 
 /**
  * Validate function for the export packages form.
- * 
+ *
  * @todo
  *   Check if the validation doesn't take to much time.
  */
@@ -91,5 +99,8 @@ function wallyexport_page_export_form_submit(&$form, &$form_state) {
     $nids = explode(',', $nids_list);
   }
 
-  wallyexport_export_packages($nids);
+  $returns = wallyexport_export_packages($nids);
+  foreach ($returns as $return) {
+    drupal_set_message($return);
+  }
 }
