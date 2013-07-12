@@ -244,6 +244,6 @@ function wallycontenttypes_node_info() {
  */
 function wallycontenttypes_views_api() {
   return array(
-    'api' => '3',
+    'api' => '3.0',
   );
 }

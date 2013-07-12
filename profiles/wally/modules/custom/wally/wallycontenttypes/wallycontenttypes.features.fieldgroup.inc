@@ -760,7 +760,7 @@ function wallycontenttypes_fieldgroup_default_groups() {
       '1' => 'field_externalreference',
       '2' => 'field_objectdescription',
       '3' => 'field_productid',
-  	  '4' => 'field_source',
+      '4' => 'field_source',
     ),
   );
 
