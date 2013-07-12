@@ -1,30 +1,30 @@
 <?php
 /**
  * @file wally.profile
- * 
+ *
  * Wally installation profile
  */
 
 /**
  * Implementation of hook_profile_details()
  */
-function wally_profile_details() {  
+function wally_profile_details() {
   return array(
     'name' => 'Wally',
     'description' => t('The ultimate power of Drupal for online publisher from Audaxis.'),
   );
-} 
+}
 
 /**
  * Return an array of developpement modules.
- * 
+ *
  * @TODO: doing something interesting with this
  */
 function wally_devel_modules() {
   $dev = array(
-    // Developpement & testing modules 
-    'api', 'devel', 'grammar_parser', 'devel_themer', 
-  ); 
+    // Developpement & testing modules
+    'api', 'devel', 'grammar_parser', 'devel_themer',
+  );
   return $dev;
 }
 
@@ -39,18 +39,18 @@ function wally_profile_modules() {
     'block', 'filter', 'node', 'system', 'user', 'profile',
 
     // Optional core modules.
-    'comment', 'help', 'locale', 'menu', 'statistics', 
+    'comment', 'help', 'locale', 'menu', 'statistics',
     'search', 'taxonomy', 'translation', 'upload',
     'update', 'dblog', 'path',
   );
-  
+
   // Modified modules
   $mod = array(
     // CCK (content)
     'content', 'fieldgroup', 'nodereference',
     'text', 'optionwidgets',
- 
-    // Location 
+
+    // Location
     'location', 'location_cck',
   );
 
@@ -63,20 +63,20 @@ function wally_profile_modules() {
     'content_taxonomy', 'content_taxonomy_autocomplete',
     'content_taxonomy_options', 'content_taxonomy_tree',
     'email', 'filefield', 'imagefield', 'link', 'webform',
-  
+
     // Chaos tool suite
     'ctools', 'page_manager', 'views_content', 'ctools_custom_content',
-  
+
     // Date/Time
     'date_api', 'date', 'date_timezone',
-  
+
     // Features
     'features',
-    
+
     // Image & ImageCache
-    'imageapi', 'imageapi_gd', 
-    'imagecache', 'imagecache_ui',  
-    
+    'imageapi', 'imageapi_gd',
+    'imagecache', 'imagecache_ui',
+
     // Media
     'emfield', 'emimage', 'emwave', 'emaudio', 'emvideo', 'emother',
     'media_vimeo', 'media_youtube', 'media_coveritlive', 'media_dailymotion',
@@ -84,31 +84,31 @@ function wally_profile_modules() {
     'media_ustream', 'media_videortl', 'media_flickr',
 
     // Others
-    'job_queue', 
-    
+    'job_queue',
+
     // Panels
-    'panels', 
-  
+    'panels',
+
     // Pathauto
     'pathauto',
-  
+
     // Token
     'token',
-    
+
     // Taxonomy related
-    'taxonomy_manager', 'taxonomy_menu', 
-    
+    'taxonomy_manager', 'taxonomy_menu',
+
     // User interface
     'jquery_ui',
-    
+
     // Views
     'views', 'views_ui', 'views_bulk_operations',
-  ); 
-  
+  );
+
   // Wally custom & specific modules
   $custom = array(
     'cckdestinations', 'wallyadmin', 'wally_content_taxonomy',
-    'wallyctools', 'wallytoolbox', 'wallymport', 'wallyflowtonode',
+    'wallyctools', 'wallytoolbox', 'wallymport',
   );
 
   return array_merge($core_modules, $mod, $third, $custom);
@@ -116,8 +116,8 @@ function wally_profile_modules() {
 
 /**
  * Features module and Wally specific features
- * 
- * Creating content types, taxonomies, 
+ *
+ * Creating content types, taxonomies,
  * default views, default pages, etc.
  */
 function wally_feature_modules() {
@@ -137,6 +137,17 @@ function wally_demo_feature_modules() {
   $features = array(
     'wallydefaultpages',
     'wallyfinfo',
+  );
+  return $features;
+}
+
+/**
+ * Demo module and Wally specific features
+ */
+function wally_demo_modules() {
+  $features = array(
+    'wallyimportpackage',
+    'wallyflowtonode',
   );
   return $features;
 }
@@ -162,8 +173,8 @@ function wally_profile_task_list() {
  * Implementation of hook_profile_tasks().
  */
 function wally_profile_tasks(&$task, $url) {
-// @TODO: Use "locale" for installation translation.
-// global $install_locale;
+  // @TODO: Use "locale" for installation translation.
+  // global $install_locale;
 
   $output = "";
 
@@ -177,7 +188,7 @@ function wally_profile_tasks(&$task, $url) {
     _wally_base_settings();
     $task = "wally-configure";
   }
-    
+
   if($task == 'wally-configure') {
     $wally_install_config = variable_get('wally_install_config', array());
 
@@ -186,16 +197,16 @@ function wally_profile_tasks(&$task, $url) {
     $files = module_rebuild_cache();
 
     // Building "Batch" operations list.
-  
+
     // We initialize each feature individually rather then all together
     // in the end, to avoid php execution timeout.
-    foreach ( wally_feature_modules() as $feature ) {   
-      $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));      
+    foreach ( wally_feature_modules() as $feature ) {
+      $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));
       $batch['operations'][] = array('features_flush_caches', array());
     }
-    
+
     $batch['operations'][] = array('wallycontenttypes_add_indexes', array());
-    
+
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
       foreach ( wally_demo_feature_modules() as $feature ) {
         $batch['operations'][] = array('_install_module_batch', array($feature, $files[$feature]->info['name']));
@@ -212,47 +223,53 @@ function wally_profile_tasks(&$task, $url) {
     }
 
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
-      $batch['operations'][] = array('_wally_install_menus', array());
+      foreach ( wally_demo_modules() as $module ) {
+        $batch['operations'][] = array('_install_module_batch', array($module, $files[$module]->info['name']));
+      }
+      //$batch['operations'][] = array('_wally_install_menus', array());
       $batch['operations'][] = array('_wally_initialize_taxonomy_terms', array());
       $batch['operations'][] = array('_wally_install_taxonomysettingsmenus', array());
-      $batch['operations'][] = array('_wally_install_presets', array());
-      $batch['operations'][] = array('_wally_placeholder_content', array());
+      //$batch['operations'][] = array('_wally_install_presets', array());
+      //$batch['operations'][] = array('_wally_placeholder_content', array());
     }
 
     $batch['operations'][] = array('_wally_set_permissions', array());
     $batch['operations'][] = array('_wally_initialize_settings', array());
     $batch['operations'][] = array('_wally_set_views', array());
-    
-    // Enable view popular after loading default views.
+
     if (isset($wally_install_config['demo_content']) && $wally_install_config['demo_content']) {
+      $batch['operations'][] = array('_wally_install_importer', array());
+      $batch['operations'][] = array('_wally_import_packages', array());
+      $batch['operations'][] = array('_wally_install_flowtonode', array());
+      // Enable view popular after loading default views.
       $batch['operations'][] = array('_wally_enable_view_popular', array());
       $batch['operations'][] = array('_wally_enable_page_system_node_view', array());
       $batch['operations'][] = array('_wally_enable_page_system_term_view', array());
       $batch['operations'][] = array('_wally_build_wallyctools_views_layout_entry', array());
     }
     $batch['operations'][] = array('_wally_wallyctools_initial_setup', array());
-    
-    
+
+
     $batch['operations'][] = array('_wally_cleanup', array());
 
     $batch['error_message'] = st('There was an error configuring @drupal.', array('@drupal' => drupal_install_profile_name()));
 
     // Callback function when finished
     $batch['finished'] = '_wally_configure_finished';
-    
+
     variable_set('install_task', 'wally-configure-batch');
     batch_set($batch);
     batch_process($url, $url);
   }
-  
+
   // Land here until the batches are done
   if (in_array($task, array('wally-configure-batch'))) {
     include_once 'includes/batch.inc';
     $output = _batch_page();
   }
-    
+
   return $output;
-} 
+}
 
 /**
  * Import process is finished, move on to the next step
@@ -265,14 +282,14 @@ function _wally_configure_finished($success, $results) {
 /**
  * Do some basic setup
  */
-function _wally_base_settings() {  
-  global $base_url;  
+function _wally_base_settings() {
+  global $base_url;
 
   // create pictures dir
   $pictures_path = file_create_path('pictures');
   file_check_directory($pictures_path,TRUE);
 
-  variable_set('wally_version', '1.0'); 
+  variable_set('wally_version', '1.0');
 
   // Creating core content types.
   $types = array(
@@ -286,7 +303,7 @@ function _wally_base_settings() {
       'locked' => FALSE,
       'help' => '',
       'min_word_count' => '',
-    ),   
+    ),
   );
 
   foreach ($types as $type) {
@@ -298,30 +315,30 @@ function _wally_base_settings() {
   variable_set('node_options_page', array('status'));
   variable_set('comment_page', COMMENT_NODE_DISABLED);
 
-  // Theme installation & settings.  
+  // Theme installation & settings.
   //_wally_system_theme_data(); // @TODO: move wallynews theme to profile folder
   install_default_theme('theunfold');
-  install_admin_theme('rubik');	
-  variable_set('node_admin_theme', TRUE);    
+  install_admin_theme('rubik');
+  variable_set('node_admin_theme', TRUE);
   $theme_settings = variable_get('theme_settings', array());
   $theme_settings['toggle_node_info_page'] = FALSE;
   $theme_settings['default_logo'] = FALSE;
-  variable_set('theme_settings', $theme_settings);    
-  
+  variable_set('theme_settings', $theme_settings);
+
   // Basic Drupal settings.
   variable_set('site_frontpage', 'node');
-  variable_set('user_register', FALSE); 
+  variable_set('user_register', FALSE);
   variable_set('user_pictures', '1');
   variable_set('filter_default_format', '1');
- 
+
   // Statistics settings
   variable_set('statistics_count_content_views', 1);
-  
+
   // Set the default timezone name from the offset
   $offset = variable_get('date_default_timezone', '');
   $tzname = timezone_name_from_abbr("", $offset, 0);
   variable_set('date_default_timezone_name', $tzname);
- 
+
   _wally_log(st('Configured basic settings'));
 }
 
@@ -329,27 +346,26 @@ function _wally_base_settings() {
  * Configure user/role/permission data
  */
 function _wally_set_permissions(&$context){
-  
   // Profile Fields
   $profile_full_name = array(
-    'title' => 'Full Name', 
-	  'name' => 'profile_full_name',
+    'title' => 'Full Name',
+    'name' => 'profile_full_name',
     'category' => 'Author Info',
     'type' => 'textfield',
-  	'required'=> 0,
-  	'register'=> 0,
-  	'visibility' => 2,		
-  	'weight' => -10,	
+    'required'=> 0,
+    'register'=> 0,
+    'visibility' => 2,
+    'weight' => -10,
   );
   $profile_job_title = array(
-    'title' => 'Job Title', 
-	  'name' => 'profile_job_title',
+    'title' => 'Job Title',
+    'name' => 'profile_job_title',
     'category' => 'Author Info',
     'type' => 'textfield',
-  	'required'=> 0,
-  	'register'=> 0,
-  	'visibility' => 2,		
-  	'weight' => -9,	
+    'required'=> 0,
+    'register'=> 0,
+    'visibility' => 2,
+    'weight' => -9,
   );
   install_profile_field_add($profile_full_name);
   install_profile_field_add($profile_job_title);
@@ -369,26 +385,37 @@ function _wally_initialize_taxonomy_terms(&$context){
     foreach (_wally_destinationtaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
-  }  
-  
+  }
+
   // Document Type taxonomy (vocabulary created by wallycontenttype feature).
-  $vid = install_taxonomy_get_vid("Document Type");     
+  $vid = install_taxonomy_get_vid("Document Type");
   if ($vid) {
     foreach (_wally_documenttypetaxonomy_terms($vid) as $term) {
-      install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
+      $created_term = install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
+      if ($created_term && $term['name'] == 'Article') {
+        $pack_types = array("'wally_articlepackage'", "'wally_gallerypackage'", "'wally_pollpackage'");
+        $field_name = 'field_packagelayout';
+        $db_values = db_query("SELECT type_name, widget_settings FROM {content_node_field_instance} WHERE field_name = '%s' AND type_name IN (".implode(',', $pack_types).")", $field_name);
+        while ($db_value = db_fetch_array($db_values)) {
+          $type_name = $db_value['type_name'];
+          $widget_settings = unserialize($db_value['widget_settings']);
+          $widget_settings['default_value'][0]['value'] = $created_term;
+          db_query("UPDATE {content_node_field_instance} SET widget_settings = '%s' WHERE field_name = '%s' AND type_name = '%s'", serialize($widget_settings), $field_name, $type_name);
+        }
+      }
     }
   }
 
   // Rating taxonomy (vocabulary created by wallycontenttype feature).
-  $vid = install_taxonomy_get_vid("Rating");     
+  $vid = install_taxonomy_get_vid("Rating");
   if ($vid) {
     foreach (_wally_ratingtaxonomy_terms($vid) as $term) {
       install_taxonomy_add_term($vid, $term['name'], $term['description'], $term);
     }
   }
-  
+
   menu_rebuild();
-  
+
   $msg = st('Setup default taxonomy terms');
   _wally_log($msg);
   $context['message'] = $msg;
@@ -398,9 +425,9 @@ function _wally_initialize_taxonomy_terms(&$context){
  * Set misc settings
  */
 function _wally_initialize_settings(&$context){
-   // Wally Import Settings
-   // Doing here because we need features to be
-   // activated before
+  // Wally Import Settings
+  // Doing here because we need features to be
+  // activated before
   $vid = install_taxonomy_get_vid("Destination Path");
   variable_set('wallymport_destinationpath',strval($vid));
   $vid = install_taxonomy_get_vid("Editions");
@@ -427,16 +454,16 @@ function _wally_initialize_settings(&$context){
   variable_set('wallymport_preview_error',"sites/default/files/preview/error");
   variable_set('wallymport_preview_temp',"/tmp");
   variable_set('wallymport_debug',"0");
-  
+
   // Embedly Module config settings
   variable_set('emfield_emvideo_allow_embedly',"i:1;");
   variable_set('media_embedly__video_width','s:0:"";');
   variable_set('emfield_emaudio_allow_embedly',"i:1;");
-  variable_set('media_embedly__audio_width','s:0:"";');  
-  
+  variable_set('media_embedly__audio_width','s:0:"";');
+
   // Flickr Module config settings
   variable_set('emfield_emimage_allow_flickr',"i:1;");
-  
+
   $msg = st('Setup general configuration');
   _wally_log($msg);
   $context['message'] = $msg;
@@ -488,11 +515,10 @@ function _wally_destinationtaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  return $terms; 
+  return $terms;
 }
 
 function _wally_documenttypetaxonomy_terms($vid) {
-
   $terms = array();
 
   //tid-5
@@ -515,11 +541,10 @@ function _wally_documenttypetaxonomy_terms($vid) {
     'vid' => $vid,
   );
 
-  return $terms; 
+  return $terms;
 }
 
 function _wally_ratingtaxonomy_terms($vid) {
-
   $terms = array();
 
   //tid-7
@@ -551,7 +576,7 @@ function _wally_ratingtaxonomy_terms($vid) {
     'weight' => 1,
     'vid' => $vid,
   );
-  
+
   //tid-10
   $terms[] = array(
     'name' => 'R',
@@ -571,8 +596,8 @@ function _wally_ratingtaxonomy_terms($vid) {
     'weight' => 1,
     'vid' => $vid,
   );
-  
-  return $terms; 
+
+  return $terms;
 }
 
 /**
@@ -594,7 +619,7 @@ function _wally_placeholder_content(&$context) {
     'moderate' => 0,
     'sticky' => 0,
     'tnid' => 0,
-    'translate' => 0,    
+    'translate' => 0,
     'revision_uid' => 1,
     'title' => st('Default'),
     'body' => 'place some text here....',
@@ -606,22 +631,22 @@ function _wally_placeholder_content(&$context) {
   $node = (object) $page;
   $node->title = st('About Us');
   $node->body = 'Tell something about you and this site ...';
-  node_save($node);	
+  node_save($node);
 
   // /node/2
   $node = (object) $page;
   $node->title = st('Terms of Use');
   $node->body = 'Write here all your terms of use.';
-  node_save($node);	
+  node_save($node);
 
   // /node/3
   $node = (object) $page;
   $node->title = st('Privacy Policy');
   $node->body = 'Tell herre everything about your privacy policies ...';
-  node_save($node);	
+  node_save($node);
 
   menu_rebuild();
-  
+
   $msg = st('Installed Content');
   _wally_log($msg);
   $context['message'] = $msg;
@@ -639,14 +664,14 @@ function _wally_enable_view_popular(&$context) {
   $msg = st('Enabled view popular');
   _wally_log($msg);
   $context['message'] = $msg;
-} 
+}
 
 /**
  * Enable page_system_node_view
  */
 function _wally_enable_page_system_node_view(&$context) {
   variable_set('page_manager_node_view_disabled', FALSE);
-} 
+}
 
 /**
  * Enable page_system_term_view
@@ -660,7 +685,7 @@ function _wally_enable_page_system_term_view(&$context) {
  */
 function _wally_build_wallyctools_views_layout_entry(&$context) {
   //wallyctools_build_all_wallyctools_views_layout_entry();
-} 
+}
 
 function _wally_wallyctools_initial_setup(&$context) {
   wallyctools_initial_setup();
@@ -675,13 +700,12 @@ function _wally_set_views(&$context) {
   $msg = st('Installed Views');
   _wally_log($msg);
   $context['message'] = $msg;
-} 
+}
 
 /**
  * Setup custom menus and primary links.
  */
 function _wally_install_menus(&$context) {
-
   $menu_name = "primary-links";
 
   cache_clear_all();
@@ -694,21 +718,21 @@ function _wally_install_menus(&$context) {
   install_menu_create_menu_item('node/1', 'About Us',  '', 'secondary-links', 0, 1);
   install_menu_create_menu_item('node/2', 'Terms of use', '', 'secondary-links', 0, 2);
   install_menu_create_menu_item('node/3', 'Privacy', '', 'secondary-links', 0, 3);
-  
+
   $msg = st('Installed Menus');
   _wally_log($msg);
   $context['message'] = $msg;
-} 
+}
 
 /**
  * Setup taxonomy settings for the menus and primary links.
  */
 function _wally_install_taxonomysettingsmenus(&$context) {
   $menu_name = 'primary-links';
-  
+
   // Settings about taxonomy menu
-  // Be aware that "Menu Setup" need called after 
-  // populate taxonomies ( @see: _wally_initialize_settings ); 
+  // Be aware that "Menu Setup" need called after
+  // populate taxonomies ( @see: _wally_initialize_settings );
   $vid = install_taxonomy_get_vid('Destination Path');
   variable_set('taxonomy_menu_expanded_'.$vid, 0);
   variable_set('taxonomy_menu_voc_name_'.$vid, "");
@@ -724,16 +748,18 @@ function _wally_install_taxonomysettingsmenus(&$context) {
   variable_set('taxonomy_menu_hide_empty_terms_'.$vid, 0);
   variable_set('taxonomy_menu_voc_item_'.$vid, 0);
   _wally_setup_taxonomymenu($vid, $menu_name);
-  
+
+  variable_set('site_frontpage', 'taxonomy/term/1');
+
   $msg = st('Installed Taxonomy Settings for the Menus');
   _wally_log($msg);
   $context['message'] = $msg;
-} 
+}
 
 /**
  * Reset "Taxonomy Menu" items (normaly empty)
  * and ADD terms from "Destination Path" (Voc 2) to it.
- */ 
+ */
 function _wally_setup_taxonomymenu($vid, $menu_name) {
   _taxonomy_menu_delete_all($vid);
 
@@ -821,6 +847,100 @@ function _wally_install_presets() {
 }
 
 /**
+ * Install an importer
+ */
+function _wally_install_importer() {
+  $folders = array(
+    'source' => 'sites/default/files/wallyXmlImport',
+    'done' => 'sites/default/files/wallyXmlImport/done',
+    'error' => 'sites/default/files/wallyXmlImport/error',
+  );
+  foreach ($folders as $folder) {
+    if (!file_check_directory($folder, 1)) {
+      return;
+    } else {
+      chmod($folder, 0777);
+    }
+  }
+  $importer = array(
+    'importer_type' => 'packagesV20',
+    'name' => 'packages',
+    'description' => '',
+    'source_directory_path' => $folders['source'],
+    'done_directory_path' => $folders['done'],
+    'error_directory_path' => $folders['error'],
+    'temp_directory_path' => '/tmp',
+    'xsd_path' => 'profiles/wally/modules/custom/wally/wallymport/definitions/packages.1.20.xsd',
+    'zip' => 1,
+    'processed_by_post' => 0,
+    'processed_by_cron' => 0,
+    'cron_frequency' => 0,
+    'cron_timestamp' => time(),
+    'cron_keep_log' => 0,
+    'cron_log' => '',
+    'default_user' => 1,
+    'keep_log' => 0
+  );
+  drupal_write_record('wallymport_importer', $importer);
+}
+
+/**
+ * Import demo packages and generate random statistics
+ */
+function _wally_import_packages() {
+  if ($importer = wallymport_getimporterbyname('packages')) {
+    $zip_folder = 'profiles/wally/demo-contents';
+    $zip_files = file_scan_directory($zip_folder, '.*\.zip');
+    foreach ($zip_files as $zip_file) {
+      copy($zip_file->filename, $importer->source_directory_path.'/'.$zip_file->basename);
+    }
+    module_load_include('inc', 'wallymport', 'includes/wallymport.process');
+    wallymport_process_folder($importer);
+
+    // Generate random statistics
+    $pack_types = array("'wally_articlepackage'", "'wally_gallerypackage'", "'wally_pollpackage'");
+    $db_nids = db_query("SELECT nid FROM {node} WHERE type IN(".implode(',', $pack_types).")");
+    $time = time();
+    while ($nid = db_fetch_array($db_nids)) {
+      $count = rand(3, 15);
+      db_query("INSERT INTO {node_counter} (nid, totalcount, daycount, timestamp) VALUES (%d, %d, %d, %d)", $nid['nid'], $count, $count, $time);
+    }
+  }
+}
+
+/**
+ * Install default importer
+ */
+function _wally_install_flowtonode() {
+  $conf = array(
+    'uri' => 'http://www.lesoir.be/feed/La%20Une/destination_une_block',
+    'request_timeout' => '3',
+    'maxitem' => '',
+    'embed_img' => 1,
+    'channel_img' => 0,
+    'get_distant_img' => 0,
+  );
+  $flowtonode = array(
+    'name' => 'Le Soir Actu',
+    'prefix' => 'Le Soir Actu',
+    'publish' => 1,
+    'type' => 'RSS Media',
+    'plugin_name' => 'rss',
+    'last_build' => 0,
+    'last_run' => time(),
+    'delta_t' => 5,
+    'destination' => '1/destination_redacblock_sidebar/small/0',
+    'package_layout' => 5,
+    'body_html' => '1',
+    'conf' => serialize($conf),
+    'feed_md5' => NULL,
+    'importer' => 'packages',
+    'source' => 'flowtonode',
+  );
+  drupal_write_record('wallyflowtonode_flows', $flowtonode);
+}
+
+/**
  * Cleanup after the install
  */
 function _wally_cleanup() {
@@ -829,17 +949,17 @@ function _wally_cleanup() {
     'drupal_rebuild_theme_registry',
     'menu_rebuild',
     'install_init_blocks',
-    'views_invalidate_cache',    
-    'node_types_rebuild',    
+    'views_invalidate_cache',
+    'node_types_rebuild',
   );
 
-  // Trash & Durty coding :-) 
+  // Trash & Durty coding :-)
   foreach ($functions as $func) {
     $func();
   }
-  
-  ctools_flush_caches(); 
-  cache_clear_all('*', 'cache', TRUE);  
+
+  ctools_flush_caches();
+  cache_clear_all('*', 'cache', TRUE);
   cache_clear_all('*', 'cache_content', TRUE);
 
   $msg = st('Cleanup');
@@ -849,7 +969,7 @@ function _wally_cleanup() {
 
 /**
  * Set Wally as the default install profile
- * 
+ *
  * @TODO: This might be impolite/too aggressive. We should at least check that
  * other install profiles are not present to ensure we don't collide with a
  * similar form alter in their profile.
@@ -882,9 +1002,9 @@ function _wally_language_selected() {
  * Reimplementation of system_theme_data(). The core function's static cache
  * is populated during install prior to active install profile awareness.
  * This workaround makes enabling themes in profiles/[profile]/themes possible.
- * 
+ *
  * Gently copy/pasted from OpenAtrium installation profile.
- * @see: http://openatrium.com/ 
+ * @see: http://openatrium.com/
  */
 function _wally_system_theme_data() {
   global $profile;
@@ -974,7 +1094,7 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
   $form['site_information']['site_mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
   $form['admin_account']['account']['name']['#default_value'] = 'admin';
   $form['admin_account']['account']['mail']['#default_value'] = 'admin@'. $_SERVER['HTTP_HOST'];
-  
+
   $form['wally'] = array(
     '#type' => 'fieldset',
     '#title' => t('Wally settings'),
@@ -982,11 +1102,11 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
   );
-  
+
   ctools_include('dependent');
   ctools_add_js('dependent');
-  
-  
+
+
   $form['wally']['wallyadmin_product'] = array(
     '#type' => 'textfield',
     '#title' => t('Product'),
@@ -994,7 +1114,7 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
-  
+
   $form['wally']['wallyadmin_environment'] = array(
     '#type' => 'textfield',
     '#title' => t('Environment'),
@@ -1002,28 +1122,27 @@ function system_form_install_configure_form_alter(&$form, $form_state) {
     '#maxlength' => 512,
     '#required' => TRUE,
   );
-  
-  
+
   $form['wally']['demo_content'] = array(
     '#type' => 'checkbox',
     '#title' => t('Install demo content?'),
     '#description' => t('Do you want some demo content items?'),
   );
-  
+
   $form['wally']['wallyedit'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Install WallyEdit?'),
-    '#description' => t('Do you want to use WallyEdit as default node edition interface?'),
+    '#title' => t('Install Wally Edition UI?'),
+    '#description' => t('Do you want to use the Wally Edition UI as default node edition interface?'),
   );
-  
+
   $form['wally']['wallyedit_config'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Install WallyEdit demo configuration?'),
+    '#title' => t('Install Wally Edition UI demo configuration?'),
     '#description' => t('This will create some edition profiles, organize your fields into tabs and groups, ...	'),
     '#dependency' => array('edit-wallyedit' => array(1)),
     '#process' => array('ctools_dependent_process'),
   );
-  
+
   $form['#submit'][] = '_wally_install_form_submit';
 }
 
@@ -1034,6 +1153,6 @@ function _wally_install_form_submit(&$form, $form_state) {
   foreach ($form['wally'] as $name => $value) {
     $wally_install_config[$name] = $value['#value'];
   }
-  
+
   variable_set('wally_install_config', $wally_install_config);
 }
