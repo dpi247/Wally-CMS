@@ -15,7 +15,7 @@ function _cciinlineobjects_preprocess_filter_render_photo($embed_object, $attrib
   }
   if (!empty($src)) {
     $styles = '';
-    $src = "src=\"/$src\"";
+    $src = "src=\"$src\"";
     $align = $attributes['align'] ? 'align="'.$attributes['align'].'"' : '';
     if ($attributes['align'] && $attributes['align'] == 'center') {
       $tmp_style = 'display:block;margin:';
