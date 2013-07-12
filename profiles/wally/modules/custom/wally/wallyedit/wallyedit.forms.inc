@@ -1650,16 +1650,18 @@ function wydit_publish_prenode(&$form_state, $current_profile, $values = array()
       $field_name = $field['name'];
       if(isset($form_state[$field_name])) {
         foreach($form_state[$field_name] as $key => $value) {
-          $subnode = &$form_state[$field_name][$key]['#node'];
-          $content_type_default_settings = variable_get('node_options_'. $subnode->type, array('status', 'promote'));
-          $subnode->status = in_array('status', $content_type_default_settings) ? 1 : 0;
-
-          if ($nid = wydit_publish_prenode($form_state[$field_name][$key], $current_profile)) {
-            unset($form_state[$field_name][$key]);
-            $form_state[$field_name][$key]['nid'] = $nid;
-          } else {
-            drupal_set_message(t('An object has not been saved. Object : @ref.', array('@ref' => $field_name.' - '.$key)), 'error');
-            return FALSE;
+          if (is_array($form_state[$field_name][$key])) {
+            $subnode = &$form_state[$field_name][$key]['#node'];
+            $content_type_default_settings = variable_get('node_options_'. $subnode->type, array('status', 'promote'));
+            $subnode->status = in_array('status', $content_type_default_settings) ? 1 : 0;
+  
+            if ($nid = wydit_publish_prenode($form_state[$field_name][$key], $current_profile)) {
+              unset($form_state[$field_name][$key]);
+              $form_state[$field_name][$key]['nid'] = $nid;
+            } else {
+              drupal_set_message(t('An object has not been saved. Object : @ref.', array('@ref' => $field_name.' - '.$key)), 'error');
+              return FALSE;
+            }
           }
         }
       }
